@@ -6,7 +6,6 @@ import { createClient } from '@/lib/supabase/client'
 import { Sparkles, ArrowLeft, Send } from 'lucide-react'
 
 export default function ForgotPasswordPage() {
-  const supabase = createClient()
   const [email, setEmail] = useState('')
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
@@ -14,6 +13,7 @@ export default function ForgotPasswordPage() {
 
   const handleReset = async (e: React.FormEvent) => {
     e.preventDefault()
+    const supabase = createClient()
     setLoading(true)
     setError(null)
     setMessage(null)

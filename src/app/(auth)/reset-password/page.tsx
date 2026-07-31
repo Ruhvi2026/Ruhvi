@@ -8,7 +8,6 @@ import { Sparkles, KeyRound } from 'lucide-react'
 
 export default function ResetPasswordPage() {
   const router = useRouter()
-  const supabase = createClient()
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [loading, setLoading] = useState(false)
@@ -22,6 +21,7 @@ export default function ResetPasswordPage() {
       return
     }
 
+    const supabase = createClient()
     setLoading(true)
     setError(null)
     setMessage(null)

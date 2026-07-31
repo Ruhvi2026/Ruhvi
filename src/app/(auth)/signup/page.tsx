@@ -8,7 +8,6 @@ import { Sparkles, ArrowRight } from 'lucide-react'
 
 export default function SignUpPage() {
   const router = useRouter()
-  const supabase = createClient()
 
   const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState('')
@@ -19,6 +18,7 @@ export default function SignUpPage() {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault()
+    const supabase = createClient()
     setLoading(true)
     setError(null)
     setMessage(null)
