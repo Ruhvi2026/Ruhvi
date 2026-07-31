@@ -2,6 +2,7 @@ import React from 'react';
 import { notFound } from 'next/navigation';
 import { DEMO_PRODUCTS } from '@/lib/products';
 import { ProductDetailPageClient } from './ProductDetailPageClient';
+import { createClient } from '@/lib/supabase/server';
 
 interface PageProps {
   params: Promise<{
@@ -11,7 +12,17 @@ interface PageProps {
 
 export default async function ProductDetailPage({ params }: PageProps) {
   const { slug } = await params;
-  const product = DEMO_PRODUCTS.find((p) => p.slug === slug);
+  const supabase = await createClient();
+
+  let { data: product } = await supabase
+    .from('products')
+    .select('*, images:product_images(*), category:categories(*)')
+    .eq('slug', slug)
+    .single();
+
+  if (!product) {
+    product = DEMO_PRODUCTS.find((p) => p.slug === slug) as any;
+  }
 
   if (!product) {
     notFound();
@@ -23,7 +34,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
     '@type': 'Product',
     name: product.name,
     sku: product.sku,
-    image: product.images?.map((i) => i.url) || [],
+    image: product.images?.map((i: any) => i.url) || [],
     description: product.description,
     brand: {
       '@type': 'Brand',
@@ -43,9 +54,19 @@ export default async function ProductDetailPage({ params }: PageProps) {
     },
   };
 
-  const relatedProducts = DEMO_PRODUCTS.filter(
-    (p) => p.category_id === product.category_id && p.id !== product.id && p.status !== 'hidden'
-  ).slice(0, 4);
+  let { data: relatedProducts } = await supabase
+    .from('products')
+    .select('*, images:product_images(*), category:categories(*)')
+    .eq('category_id', product.category_id || '')
+    .neq('id', product.id)
+    .neq('status', 'hidden')
+    .limit(4);
+
+  if (!relatedProducts || relatedProducts.length === 0) {
+    relatedProducts = DEMO_PRODUCTS.filter(
+      (p) => p.category_id === product.category_id && p.id !== product.id && p.status !== 'hidden'
+    ).slice(0, 4) as any[];
+  }
 
   return (
     <>

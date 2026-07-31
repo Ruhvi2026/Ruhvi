@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo, Suspense } from 'react';
+import React, { useState, useEffect, useMemo, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { Filter, SlidersHorizontal, ArrowUpDown, RefreshCw } from 'lucide-react';
@@ -12,14 +12,38 @@ function ProductsCatalogContent() {
   const initialSearch = searchParams.get('search') || '';
   const initialCategory = searchParams.get('category') || 'all';
 
+  const [dbProducts, setDbProducts] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  
   const [searchQuery, setSearchQuery] = useState(initialSearch);
   const [selectedCategory, setSelectedCategory] = useState(initialCategory);
   const [stockFilter, setStockFilter] = useState<'all' | 'in_stock' | 'out_of_stock'>('all');
   const [priceRange, setPriceRange] = useState<number>(200000);
   const [sortBy, setSortBy] = useState<'newest' | 'price-low' | 'price-high'>('newest');
 
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const { createClient } = await import('@/lib/supabase/client');
+        const supabase = createClient();
+        const { data } = await supabase
+          .from('products')
+          .select('*, images:product_images(*), category:categories(*)');
+        
+        if (data) setDbProducts(data);
+      } catch (err) {
+        console.error('Failed to fetch products', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchProducts();
+  }, []);
+
   const filteredProducts = useMemo(() => {
-    return DEMO_PRODUCTS.filter((product) => {
+    const sourceProducts = (dbProducts.length > 0 || !isLoading) ? (dbProducts.length > 0 ? dbProducts : DEMO_PRODUCTS) : [];
+    
+    return sourceProducts.filter((product) => {
       if (product.status === 'hidden') return false;
 
       // Category filter
@@ -39,7 +63,7 @@ function ProductsCatalogContent() {
         const q = searchQuery.toLowerCase().trim();
         const matchesName = product.name.toLowerCase().includes(q);
         const matchesSku = product.sku.toLowerCase().includes(q);
-        const matchesCat = product.category?.name.toLowerCase().includes(q);
+        const matchesCat = product.category?.name?.toLowerCase().includes(q) || false;
         if (!matchesName && !matchesSku && !matchesCat) return false;
       }
 
@@ -49,7 +73,7 @@ function ProductsCatalogContent() {
       if (sortBy === 'price-high') return b.price - a.price;
       return 0; // default newest
     });
-  }, [selectedCategory, stockFilter, priceRange, searchQuery, sortBy]);
+  }, [dbProducts, isLoading, selectedCategory, stockFilter, priceRange, searchQuery, sortBy]);
 
   const resetFilters = () => {
     setSearchQuery('');

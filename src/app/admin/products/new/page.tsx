@@ -84,10 +84,72 @@ export default function AddProductPage() {
     setImages((prev) => prev.filter((_, idx) => idx !== index));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    alert(`Product "${name}" (SKU: ${sku}, Tags: ${tags}) created successfully!`);
-    router.push('/admin/products');
+    try {
+      const supabase = createClient();
+      
+      // 1. Insert product
+      const { data: newProduct, error: productError } = await supabase
+        .from('products')
+        .insert([{
+          sku,
+          name,
+          slug,
+          description,
+          price: parseFloat(price),
+          mrp: parseFloat(mrp),
+          gst_rate: parseFloat(gstRate),
+          stock_quantity: parseInt(stockQuantity, 10),
+          low_stock_threshold: 5,
+          status: 'active',
+          is_new_arrival: isNewArrival,
+          is_best_seller: isBestSeller,
+        }])
+        .select()
+        .single();
+
+      if (productError) throw productError;
+
+      // 2. Insert images
+      if (images.length > 0) {
+        const imageInserts = images.filter(img => img.url.trim() !== '').map((img, index) => ({
+          product_id: newProduct.id,
+          url: img.url,
+          type: img.type,
+          sort_order: index,
+        }));
+        
+        if (imageInserts.length > 0) {
+          const { error: imageError } = await supabase
+            .from('product_images')
+            .insert(imageInserts);
+          if (imageError) throw imageError;
+        }
+      }
+
+      // 3. Insert collection mapping if applicable
+      if (collectionSlug) {
+        const { data: coll } = await supabase
+          .from('collections')
+          .select('id')
+          .eq('slug', collectionSlug)
+          .single();
+          
+        if (coll) {
+          await supabase.from('product_collections').insert([{
+            product_id: newProduct.id,
+            collection_id: coll.id
+          }]);
+        }
+      }
+
+      alert(`Product "${name}" created successfully!`);
+      router.push('/admin/products');
+    } catch (err: any) {
+      console.error(err);
+      alert('Failed to save product: ' + err.message);
+    }
   };
 
   return (
@@ -323,7 +385,7 @@ export default function AddProductPage() {
           </div>
 
           {images.map((img, idx) => (
-            <div key={idx} className="flex items-center space-x-3 bg-stone-50 p-3 rounded-lg border border-stone-200">
+            <div key={idx} className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-3 bg-stone-50 p-3 rounded-lg border border-stone-200">
               <input
                 type="url"
                 required
@@ -332,6 +394,36 @@ export default function AddProductPage() {
                 placeholder="https://images.unsplash.com/..."
                 className="flex-1 px-3 py-1.5 text-xs border border-stone-300 rounded bg-white"
               />
+              
+              <div className="relative">
+                <input
+                  type="file"
+                  accept="image/*"
+                  id={`file-upload-${idx}`}
+                  className="hidden"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    
+                    try {
+                      const { uploadProductImage } = await import('@/services/cloudinaryService');
+                      const uploadResult = await uploadProductImage(file);
+                      
+                      // Update the input with the secure Cloudinary URL
+                      updateImage(idx, 'url', uploadResult.secure_url);
+                    } catch (error: any) {
+                      alert('Cloudinary upload failed: ' + error.message);
+                    }
+                  }}
+                />
+                <label
+                  htmlFor={`file-upload-${idx}`}
+                  className="px-3 py-1.5 text-xs font-semibold bg-stone-200 text-stone-700 rounded cursor-pointer hover:bg-stone-300 transition-colors whitespace-nowrap block text-center"
+                >
+                  Upload File
+                </label>
+              </div>
+
               <select
                 value={img.type}
                 onChange={(e) => updateImage(idx, 'type', e.target.value as ImageType)}

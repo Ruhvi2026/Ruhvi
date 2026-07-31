@@ -19,10 +19,10 @@ export function Navbar() {
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-stone-200 shadow-sm transition-all">
       {/* Top Banner */}
-      <div className="bg-amber-950 text-amber-100 text-xs py-1.5 px-4 text-center tracking-wide font-medium flex items-center justify-center space-x-2">
-        <Sparkles className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
+      <div className="bg-gradient-to-r from-fuchsia-600 to-purple-600 text-white text-xs py-1.5 px-4 text-center tracking-wide font-medium flex items-center justify-center space-x-2">
+        <Sparkles className="w-3.5 h-3.5 text-pink-200 animate-pulse" />
         <span>Complimentary Insured Shipping Across India on Orders Above ₹500</span>
-        <Sparkles className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
+        <Sparkles className="w-3.5 h-3.5 text-pink-200 animate-pulse" />
       </div>
 
       {/* Main Navbar */}
@@ -32,15 +32,15 @@ export function Navbar() {
           <div className="flex items-center space-x-4">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden text-stone-600 hover:text-amber-700 focus:outline-none"
+              className="lg:hidden text-slate-600 hover:text-fuchsia-600 focus:outline-none"
             >
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
             <Link href="/" className="flex items-center space-x-2">
-              <span className="font-serif text-2xl sm:text-3xl font-bold tracking-widest text-amber-950 uppercase">
+              <span className="font-serif text-2xl sm:text-3xl font-bold tracking-widest text-purple-950 uppercase">
                 Ruhvi
               </span>
-              <span className="text-[10px] uppercase font-sans tracking-widest px-1.5 py-0.5 bg-amber-100 text-amber-900 rounded font-semibold">
+              <span className="text-[10px] uppercase font-sans tracking-widest px-1.5 py-0.5 bg-fuchsia-100 text-fuchsia-800 rounded font-semibold">
                 Jewellery
               </span>
             </Link>
@@ -55,26 +55,26 @@ export function Navbar() {
           <div className="flex items-center space-x-4 sm:space-x-6">
             <Link
               href="/orders"
-              className="hidden sm:inline-flex text-xs font-semibold uppercase tracking-wider text-amber-900 hover:text-amber-700 transition-colors"
+              className="hidden sm:inline-flex text-xs font-semibold uppercase tracking-wider text-slate-700 hover:text-fuchsia-600 transition-colors"
             >
               My Orders
             </Link>
 
             <Link
               href="/admin/dashboard"
-              className="hidden sm:inline-flex text-xs font-semibold uppercase tracking-wider text-amber-900 bg-amber-50 hover:bg-amber-100 border border-amber-200 px-3 py-1.5 rounded-md transition-colors"
+              className="hidden sm:inline-flex text-xs font-semibold uppercase tracking-wider text-fuchsia-800 bg-fuchsia-50 hover:bg-fuchsia-100 border border-fuchsia-200 px-3 py-1.5 rounded-md transition-colors"
             >
               Admin Portal
             </Link>
 
             <Link
               href="/account/notifications"
-              className="relative p-2 text-stone-700 hover:text-amber-800 transition-colors"
+              className="relative p-2 text-slate-700 hover:text-fuchsia-600 transition-colors"
               title="Notifications"
             >
               <Bell className="w-5 h-5" />
               {unreadCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-amber-600 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center animate-scale-in">
+                <span className="absolute -top-1 -right-1 bg-fuchsia-600 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center animate-scale-in">
                   {unreadCount}
                 </span>
               )}
@@ -82,12 +82,12 @@ export function Navbar() {
 
             <Link
               href="/wishlist"
-              className="relative p-2 text-stone-700 hover:text-amber-800 transition-colors"
+              className="relative p-2 text-slate-700 hover:text-fuchsia-600 transition-colors"
               title="Wishlist"
             >
               <Heart className="w-5 h-5" />
               {wishlistCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-rose-600 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center animate-scale-in">
+                <span className="absolute -top-1 -right-1 bg-rose-500 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center animate-scale-in">
                   {wishlistCount}
                 </span>
               )}
@@ -95,12 +95,12 @@ export function Navbar() {
 
             <Link
               href="/cart"
-              className="relative p-2 text-stone-700 hover:text-amber-800 transition-colors"
+              className="relative p-2 text-slate-700 hover:text-fuchsia-600 transition-colors"
               title="Cart"
             >
               <ShoppingBag className="w-5 h-5" />
               {cartCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-amber-800 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center animate-scale-in">
+                <span className="absolute -top-1 -right-1 bg-purple-700 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center animate-scale-in">
                   {cartCount}
                 </span>
               )}
@@ -108,7 +108,7 @@ export function Navbar() {
 
             <Link
               href="/account"
-              className="p-2 text-stone-700 hover:text-amber-800 transition-colors"
+              className="p-2 text-slate-700 hover:text-fuchsia-600 transition-colors"
               title="My Account"
             >
               <User className="w-5 h-5" />
@@ -122,33 +122,33 @@ export function Navbar() {
         </div>
 
         {/* Desktop Category & Collection Navigation */}
-        <nav className="hidden lg:flex items-center justify-center space-x-8 py-2.5 border-t border-stone-100 text-xs font-medium uppercase tracking-wider text-stone-700">
-          <Link href="/products" className="hover:text-amber-800 transition-colors font-semibold">
+        <nav className="hidden lg:flex items-center justify-center space-x-8 py-2.5 border-t border-slate-100 text-xs font-medium uppercase tracking-wider text-slate-700">
+          <Link href="/products" className="hover:text-fuchsia-600 transition-colors font-semibold">
             All Products
           </Link>
 
           {/* Collections Dropdown */}
           <div className="relative group">
-            <button className="flex items-center space-x-1 hover:text-amber-800 text-amber-900 font-bold transition-colors focus:outline-none py-2">
-              <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+            <button className="flex items-center space-x-1 hover:text-fuchsia-600 text-purple-900 font-bold transition-colors focus:outline-none py-2">
+              <Sparkles className="w-3.5 h-3.5 text-fuchsia-500" />
               <span>Collections</span>
-              <ChevronDown className="w-3.5 h-3.5 text-amber-600" />
+              <ChevronDown className="w-3.5 h-3.5 text-fuchsia-500" />
             </button>
             <div className="absolute left-0 top-full pt-1 w-56 opacity-0 group-hover:opacity-100 transition-opacity duration-150 pointer-events-none group-hover:pointer-events-auto z-50">
-              <div className="bg-white border border-stone-200 rounded-xl shadow-xl py-2">
-                <div className="px-4 py-1 text-[10px] font-bold text-amber-800 uppercase tracking-widest border-b border-stone-100 mb-1">
+              <div className="bg-white border border-slate-200 rounded-xl shadow-xl py-2">
+                <div className="px-4 py-1 text-[10px] font-bold text-purple-800 uppercase tracking-widest border-b border-slate-100 mb-1">
                   Curated Collections
                 </div>
-                <Link href="/collections/for-her" className="block px-4 py-2 text-xs text-stone-700 hover:bg-amber-50 hover:text-amber-900 font-medium">
+                <Link href="/collections/for-her" className="block px-4 py-2 text-xs text-slate-700 hover:bg-fuchsia-50 hover:text-fuchsia-900 font-medium">
                   Gifts For Her
                 </Link>
-                <Link href="/collections/under-15000" className="block px-4 py-2 text-xs text-stone-700 hover:bg-amber-50 hover:text-amber-900 font-medium">
+                <Link href="/collections/under-15000" className="block px-4 py-2 text-xs text-slate-700 hover:bg-fuchsia-50 hover:text-fuchsia-900 font-medium">
                   Gifts Under ₹15,000
                 </Link>
-                <Link href="/collections/anniversary" className="block px-4 py-2 text-xs text-stone-700 hover:bg-amber-50 hover:text-amber-900 font-medium">
+                <Link href="/collections/anniversary" className="block px-4 py-2 text-xs text-slate-700 hover:bg-fuchsia-50 hover:text-fuchsia-900 font-medium">
                   Anniversary Specials
                 </Link>
-                <Link href="/collections/bridal" className="block px-4 py-2 text-xs text-stone-700 hover:bg-amber-50 hover:text-amber-900 font-medium">
+                <Link href="/collections/bridal" className="block px-4 py-2 text-xs text-slate-700 hover:bg-fuchsia-50 hover:text-fuchsia-900 font-medium">
                   Royal Bridal Collection
                 </Link>
               </div>
@@ -159,24 +159,24 @@ export function Navbar() {
             <Link
               key={cat.id}
               href={`/category/${cat.slug}`}
-              className="hover:text-amber-800 transition-colors"
+              className="hover:text-fuchsia-600 transition-colors"
             >
               {cat.name}
             </Link>
           ))}
           {/* Dropdown for more */}
           <div className="relative group">
-            <button className="flex items-center space-x-1 hover:text-amber-800 transition-colors focus:outline-none py-2">
+            <button className="flex items-center space-x-1 hover:text-fuchsia-600 transition-colors focus:outline-none py-2">
               <span>More Categories</span>
               <ChevronDown className="w-3.5 h-3.5" />
             </button>
             <div className="absolute left-0 top-full pt-1 w-48 opacity-0 group-hover:opacity-100 transition-opacity duration-150 pointer-events-none group-hover:pointer-events-auto z-50">
-              <div className="bg-white border border-stone-200 rounded-lg shadow-lg py-2">
+              <div className="bg-white border border-slate-200 rounded-lg shadow-lg py-2">
                 {INITIAL_CATEGORIES.slice(6).map((cat) => (
                   <Link
                     key={cat.id}
                     href={`/category/${cat.slug}`}
-                    className="block px-4 py-2 text-xs text-stone-700 hover:bg-amber-50 hover:text-amber-900"
+                    className="block px-4 py-2 text-xs text-slate-700 hover:bg-fuchsia-50 hover:text-fuchsia-900"
                   >
                     {cat.name}
                   </Link>
@@ -189,15 +189,15 @@ export function Navbar() {
 
       {/* Mobile Drawer Menu */}
       {mobileMenuOpen && (
-        <div className="lg:hidden bg-white border-t border-stone-200 px-4 py-4 space-y-4">
-          <div className="font-semibold text-xs uppercase tracking-wider text-stone-400">
+        <div className="lg:hidden bg-white border-t border-slate-200 px-4 py-4 space-y-4">
+          <div className="font-semibold text-xs uppercase tracking-wider text-slate-400">
             Categories
           </div>
-          <div className="grid grid-cols-2 gap-2 text-sm text-stone-700">
+          <div className="grid grid-cols-2 gap-2 text-sm text-slate-700">
             <Link
               href="/products"
               onClick={() => setMobileMenuOpen(false)}
-              className="p-2 rounded bg-amber-50 text-amber-900 font-medium"
+              className="p-2 rounded bg-fuchsia-50 text-fuchsia-900 font-medium"
             >
               All Jewellery
             </Link>
@@ -206,18 +206,18 @@ export function Navbar() {
                 key={cat.id}
                 href={`/category/${cat.slug}`}
                 onClick={() => setMobileMenuOpen(false)}
-                className="p-2 rounded hover:bg-stone-50"
+                className="p-2 rounded hover:bg-slate-50"
               >
                 {cat.name}
               </Link>
             ))}
           </div>
 
-          <div className="border-t border-stone-100 pt-4 space-y-2">
+          <div className="border-t border-slate-100 pt-4 space-y-2">
             <Link
               href="/admin/dashboard"
               onClick={() => setMobileMenuOpen(false)}
-              className="block w-full text-center py-2 bg-amber-900 text-white rounded font-medium text-xs uppercase tracking-wider"
+              className="block w-full text-center py-2 bg-purple-900 text-white rounded font-medium text-xs uppercase tracking-wider"
             >
               Admin Dashboard
             </Link>

@@ -32,16 +32,11 @@ function LoginForm() {
       })
 
       if (authError) {
-        // Fallback for admin credentials during testing if user not seeded in Supabase auth yet
-        if (email.toLowerCase() === 'ruhvi.main@gmail.com' && password === 'S23081996s@') {
-          document.cookie = 'ruhvi_admin_session=true; path=/; max-age=86400; SameSite=Lax';
-          window.location.href = targetUrl
-          return
-        }
         throw authError
       }
 
-      document.cookie = 'ruhvi_admin_session=true; path=/; max-age=86400; SameSite=Lax';
+      // Supabase Auth (via @supabase/ssr createBrowserClient) automatically manages the session 
+      // in cookies/localStorage, so we don't need to manually set any cookies here.
       window.location.href = targetUrl
     } catch (err: any) {
       console.error('Login error:', err)

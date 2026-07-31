@@ -32,32 +32,75 @@ export function SearchBar() {
       return;
     }
 
-    const matches = DEMO_PRODUCTS.filter(
-      (p) =>
-        p.status === 'active' &&
-        (p.name.toLowerCase().includes(trimmed) ||
-          p.sku.toLowerCase().includes(trimmed) ||
-          p.category?.name.toLowerCase().includes(trimmed) ||
-          p.description?.toLowerCase().includes(trimmed))
-    ).slice(0, 5);
+    const fetchSuggestions = async () => {
+      try {
+        const { createClient } = await import('@/lib/supabase/client');
+        const supabase = createClient();
+        
+        const { data } = await supabase
+          .from('products')
+          .select('*, images:product_images(*), category:categories(*)')
+          .eq('status', 'active')
+          .or(`name.ilike.%${trimmed}%,sku.ilike.%${trimmed}%`)
+          .limit(5);
 
-    setSuggestions(matches);
-    setIsOpen(true);
+        if (data && data.length > 0) {
+          setSuggestions(data);
+        } else {
+          const matches = DEMO_PRODUCTS.filter(
+            (p) =>
+              p.status === 'active' &&
+              (p.name.toLowerCase().includes(trimmed) ||
+                p.sku.toLowerCase().includes(trimmed) ||
+                p.category?.name?.toLowerCase().includes(trimmed) ||
+                p.description?.toLowerCase().includes(trimmed))
+          ).slice(0, 5);
+          setSuggestions(matches as any);
+        }
+        setIsOpen(true);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    
+    // Add small debounce
+    const timeout = setTimeout(fetchSuggestions, 300);
+    return () => clearTimeout(timeout);
   }, [query]);
 
-  const handleSearchSubmit = (e: React.FormEvent) => {
+  const handleSearchSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!query.trim()) return;
+    const trimmed = query.trim();
+    if (!trimmed) return;
 
-    // Direct SKU match check
+    try {
+      const { createClient } = await import('@/lib/supabase/client');
+      const supabase = createClient();
+      
+      const { data: directMatch } = await supabase
+        .from('products')
+        .select('slug')
+        .ilike('sku', trimmed)
+        .single();
+
+      if (directMatch) {
+        router.push(`/products/${directMatch.slug}`);
+        setIsOpen(false);
+        return;
+      }
+    } catch (err) {
+      // Ignore and fallback
+    }
+
+    // Direct SKU match check fallback
     const directSkuMatch = DEMO_PRODUCTS.find(
-      (p) => p.sku.toLowerCase() === query.trim().toLowerCase()
+      (p) => p.sku.toLowerCase() === trimmed.toLowerCase()
     );
 
     if (directSkuMatch) {
       router.push(`/products/${directSkuMatch.slug}`);
     } else {
-      router.push(`/products?search=${encodeURIComponent(query.trim())}`);
+      router.push(`/products?search=${encodeURIComponent(trimmed)}`);
     }
     setIsOpen(false);
   };

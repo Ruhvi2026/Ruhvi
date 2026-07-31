@@ -2,6 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { INITIAL_CATEGORIES, DEMO_PRODUCTS } from '@/lib/products';
+import { createClient } from '@/lib/supabase/server';
 
 interface CategoryPageProps {
   params: Promise<{
@@ -11,15 +12,33 @@ interface CategoryPageProps {
 
 export default async function CategoryPage({ params }: CategoryPageProps) {
   const { slug } = await params;
-  const category = INITIAL_CATEGORIES.find((c) => c.slug === slug);
+  const supabase = await createClient();
+  
+  let { data: category } = await supabase
+    .from('categories')
+    .select('*')
+    .eq('slug', slug)
+    .single();
+
+  if (!category) {
+    category = INITIAL_CATEGORIES.find((c) => c.slug === slug) as any;
+  }
 
   if (!category) {
     notFound();
   }
 
-  const categoryProducts = DEMO_PRODUCTS.filter(
-    (p) => p.category?.slug === slug && p.status !== 'hidden'
-  );
+  let { data: categoryProducts } = await supabase
+    .from('products')
+    .select('*, images:product_images(*), category:categories(*)')
+    .eq('category_id', category.id)
+    .neq('status', 'hidden');
+
+  if (!categoryProducts || categoryProducts.length === 0) {
+    categoryProducts = DEMO_PRODUCTS.filter(
+      (p) => p.category?.slug === slug && p.status !== 'hidden'
+    ) as any[];
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">

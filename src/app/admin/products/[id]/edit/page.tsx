@@ -1,10 +1,12 @@
 'use client';
 
-import React, { useState, use } from 'react';
+import React, { useState, useEffect, use } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft } from 'lucide-react';
-import { DEMO_PRODUCTS, INITIAL_CATEGORIES } from '@/lib/products';
+import { ArrowLeft, Plus, Trash2, Loader2 } from 'lucide-react';
+import { DEMO_PRODUCTS } from '@/lib/products';
+import { ImageType, Product } from '@/types/database';
+import { createClient } from '@/lib/supabase/client';
 
 interface EditProductPageProps {
   params: Promise<{
@@ -16,16 +18,16 @@ export default function EditProductPage({ params }: EditProductPageProps) {
   const { id } = use(params);
   const router = useRouter();
 
-  const product = DEMO_PRODUCTS.find((p) => p.id === id) || DEMO_PRODUCTS[0];
-
-  const [sku, setSku] = useState(product.sku);
+  const [isLoading, setIsLoading] = useState(true);
+  const [sku, setSku] = useState('');
   const [tags, setTags] = useState('22K Gold, BIS Hallmarked, Best Seller');
-  const [name, setName] = useState(product.name);
-  const [price, setPrice] = useState(String(product.price));
-  const [mrp, setMrp] = useState(String(product.mrp));
-  const [stockQuantity, setStockQuantity] = useState(String(product.stock_quantity));
-  const [status, setStatus] = useState(product.status);
+  const [name, setName] = useState('');
+  const [price, setPrice] = useState('');
+  const [mrp, setMrp] = useState('');
+  const [stockQuantity, setStockQuantity] = useState('');
+  const [status, setStatus] = useState<any>('active');
   const [collectionSlug, setCollectionSlug] = useState('');
+  const [images, setImages] = useState<{ id?: string, url: string; type: ImageType }[]>([]);
 
   const availableCollections = [
     { slug: 'for-her', title: 'Gifts For Her' },
@@ -34,14 +36,114 @@ export default function EditProductPage({ params }: EditProductPageProps) {
     { slug: 'bridal', title: 'Bridal Collection' },
   ];
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    alert(`Product ${sku} (Tags: ${tags}) updated!`);
-    router.push('/admin/products');
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        const supabase = createClient();
+        const { data: product, error } = await supabase
+          .from('products')
+          .select('*, images:product_images(*)')
+          .eq('id', id)
+          .single();
+
+        if (error) throw error;
+        
+        if (product) {
+          setSku(product.sku);
+          setName(product.name);
+          setPrice(String(product.price));
+          setMrp(String(product.mrp));
+          setStockQuantity(String(product.stock_quantity));
+          setStatus(product.status);
+          
+          if (product.images && product.images.length > 0) {
+            setImages(product.images.map((img: any) => ({ ...img })));
+          } else {
+            setImages([{ url: '', type: 'still' }]);
+          }
+        }
+      } catch (err: any) {
+        console.error('Error fetching product:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchProduct();
+  }, [id]);
+
+  const addImageField = () => {
+    setImages((prev) => [...prev, { url: '', type: 'still' }]);
   };
 
+  const updateImage = (index: number, field: 'url' | 'type', value: string) => {
+    setImages((prev) =>
+      prev.map((img, idx) => (idx === index ? { ...img, [field]: value } : img))
+    );
+  };
+
+  const removeImage = (index: number) => {
+    setImages((prev) => prev.filter((_, idx) => idx !== index));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const supabase = createClient();
+      
+      const { error: productError } = await supabase
+        .from('products')
+        .update({
+          name,
+          sku,
+          price: parseFloat(price),
+          mrp: parseFloat(mrp),
+          stock_quantity: parseInt(stockQuantity, 10),
+          status,
+        })
+        .eq('id', id);
+
+      if (productError) throw productError;
+
+      // Handle images (simplistic: delete old, insert new)
+      if (images.length > 0) {
+        // Delete existing
+        await supabase.from('product_images').delete().eq('product_id', id);
+        
+        // Insert new ones
+        const imageInserts = images.filter(img => img.url.trim() !== '').map((img, index) => ({
+          product_id: id,
+          url: img.url,
+          type: img.type,
+          sort_order: index,
+        }));
+        
+        if (imageInserts.length > 0) {
+          const { error: imageError } = await supabase
+            .from('product_images')
+            .insert(imageInserts);
+          if (imageError) throw imageError;
+        }
+      }
+
+      alert(`Product "${name}" updated successfully!`);
+      router.push('/admin/products');
+    } catch (err: any) {
+      console.error(err);
+      alert('Failed to update product: ' + err.message);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="max-w-4xl mx-auto px-4 py-16 flex justify-center items-center">
+        <Loader2 className="w-8 h-8 animate-spin text-amber-900" />
+      </div>
+    );
+  }
+
   return (
-    <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
       <div className="flex items-center space-x-2 text-xs text-stone-500">
         <Link href="/admin/products" className="hover:text-amber-800 flex items-center space-x-1">
           <ArrowLeft className="w-3.5 h-3.5" />
@@ -51,7 +153,7 @@ export default function EditProductPage({ params }: EditProductPageProps) {
 
       <div>
         <h1 className="font-serif text-3xl font-bold text-stone-900">Edit Product ({sku})</h1>
-        <p className="text-xs text-stone-500 mt-1">Update pricing, stock availability, SKU, or tags.</p>
+        <p className="text-xs text-stone-500 mt-1">Update pricing, stock availability, SKU, images, or tags.</p>
       </div>
 
       <form onSubmit={handleSubmit} className="bg-white p-6 sm:p-8 rounded-2xl border border-stone-200 shadow-sm space-y-6">
@@ -170,6 +272,84 @@ export default function EditProductPage({ params }: EditProductPageProps) {
             placeholder="e.g. 22K Gold, Solitaire, Anniversary Gift, Wedding"
             className="w-full px-3 py-2 text-xs border border-stone-300 rounded-lg focus:ring-1 focus:ring-amber-500 bg-stone-50 font-mono"
           />
+        </div>
+
+        {/* Image Tagger */}
+        <div className="border-t border-stone-200 pt-4 space-y-4">
+          <div className="flex items-center justify-between">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-stone-900">
+              Product Images & Tags (Model / Still / Zoom / 360)
+            </label>
+            <button
+              type="button"
+              onClick={addImageField}
+              className="text-xs text-amber-800 font-semibold hover:underline flex items-center space-x-1"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>Add Image</span>
+            </button>
+          </div>
+
+          {images.map((img, idx) => (
+            <div key={idx} className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-3 bg-stone-50 p-3 rounded-lg border border-stone-200">
+              <input
+                type="url"
+                required
+                value={img.url}
+                onChange={(e) => updateImage(idx, 'url', e.target.value)}
+                placeholder="https://images.unsplash.com/..."
+                className="flex-1 px-3 py-1.5 text-xs border border-stone-300 rounded bg-white"
+              />
+              
+              <div className="relative">
+                <input
+                  type="file"
+                  accept="image/*"
+                  id={`file-upload-${idx}`}
+                  className="hidden"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    
+                    try {
+                      const { uploadProductImage } = await import('@/services/cloudinaryService');
+                      const uploadResult = await uploadProductImage(file);
+                      
+                      updateImage(idx, 'url', uploadResult.secure_url);
+                    } catch (error: any) {
+                      alert('Cloudinary upload failed: ' + error.message);
+                    }
+                  }}
+                />
+                <label
+                  htmlFor={`file-upload-${idx}`}
+                  className="px-3 py-1.5 text-xs font-semibold bg-stone-200 text-stone-700 rounded cursor-pointer hover:bg-stone-300 transition-colors whitespace-nowrap block text-center"
+                >
+                  Upload File
+                </label>
+              </div>
+
+              <select
+                value={img.type}
+                onChange={(e) => updateImage(idx, 'type', e.target.value as ImageType)}
+                className="px-3 py-1.5 text-xs border border-stone-300 rounded bg-white font-semibold text-stone-700"
+              >
+                <option value="still">Still Photo</option>
+                <option value="model">On-Model Shot</option>
+                <option value="zoom">High-Res Zoom</option>
+                <option value="360">360° Interactive</option>
+              </select>
+              {images.length > 1 && (
+                <button
+                  type="button"
+                  onClick={() => removeImage(idx)}
+                  className="p-1.5 text-stone-400 hover:text-rose-600"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+          ))}
         </div>
 
         <div className="border-t border-stone-200 pt-4 flex justify-end space-x-3">

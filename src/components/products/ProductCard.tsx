@@ -43,9 +43,9 @@ export function ProductCard({ product }: ProductCardProps) {
   };
 
   return (
-    <div className="group relative bg-white rounded-xl overflow-hidden border border-stone-200 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col">
+    <div className="group relative bg-white rounded-xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-lg hover:border-fuchsia-200 transition-all duration-300 flex flex-col">
       {/* Image container */}
-      <div className="relative aspect-square overflow-hidden bg-stone-100">
+      <div className="relative aspect-square overflow-hidden bg-slate-50">
         <Link href={`/products/${product.slug}`}>
           <img
             src={mainImage}
@@ -56,8 +56,8 @@ export function ProductCard({ product }: ProductCardProps) {
 
         {/* Out of Stock overlay */}
         {product.status === 'out_of_stock' && (
-          <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] flex items-center justify-center">
-            <span className="bg-stone-900 text-stone-100 text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded">
+          <div className="absolute inset-0 bg-white/60 backdrop-blur-[2px] flex items-center justify-center">
+            <span className="bg-slate-900 text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded">
               Out of Stock
             </span>
           </div>
@@ -66,12 +66,12 @@ export function ProductCard({ product }: ProductCardProps) {
         {/* Top Badges */}
         <div className="absolute top-2 left-2 flex flex-col gap-1 z-10">
           {product.is_new_arrival && (
-            <span className="bg-amber-900 text-amber-100 text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded shadow">
+            <span className="bg-fuchsia-600 text-white text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded shadow">
               New
             </span>
           )}
           {product.is_best_seller && (
-            <span className="bg-amber-600 text-white text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded shadow">
+            <span className="bg-purple-600 text-white text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded shadow">
               Best Seller
             </span>
           )}
@@ -80,22 +80,22 @@ export function ProductCard({ product }: ProductCardProps) {
         {/* Wishlist Heart Button */}
         <button
           onClick={handleToggleWishlist}
-          className="absolute top-2 right-2 p-2 bg-white/90 backdrop-blur-md rounded-full text-stone-700 hover:text-rose-600 shadow-md transition-all transform hover:scale-110 z-10"
+          className="absolute top-2 right-2 p-2 bg-white/90 backdrop-blur-md rounded-full text-slate-400 hover:text-fuchsia-500 shadow-sm transition-all transform hover:scale-110 z-10"
           title={isLiked ? 'Remove from Wishlist' : 'Add to Wishlist'}
         >
-          <Heart className={`w-4 h-4 ${isLiked ? 'fill-rose-500 text-rose-500' : ''}`} />
+          <Heart className={`w-4 h-4 ${isLiked ? 'fill-fuchsia-500 text-fuchsia-500' : ''}`} />
         </button>
 
         {/* Quick Add to Cart hover button */}
         {product.status !== 'out_of_stock' && (
           <button
             onClick={handleAddToCart}
-            className="absolute bottom-3 right-3 p-2.5 bg-amber-950 text-amber-100 hover:bg-amber-900 rounded-full shadow-lg transition-all duration-300 z-10 transform translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 flex items-center space-x-1.5 px-3"
+            className="absolute bottom-3 right-3 p-2.5 bg-fuchsia-600 text-white hover:bg-fuchsia-700 rounded-full shadow-lg transition-all duration-300 z-10 transform translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 flex items-center space-x-1.5 px-3"
             title="Add to Cart"
           >
             {isInCart ? (
               <>
-                <Check className="w-3.5 h-3.5 text-emerald-400" />
+                <Check className="w-3.5 h-3.5 text-emerald-300" />
                 <span className="text-[10px] font-semibold tracking-wider">Added</span>
               </>
             ) : (
@@ -111,14 +111,14 @@ export function ProductCard({ product }: ProductCardProps) {
       {/* Card Info */}
       <div className="p-4 flex-1 flex flex-col justify-between">
         <div>
-          <div className="flex justify-between items-center text-[10px] font-mono text-stone-400 mb-1">
+          <div className="flex justify-between items-center text-[10px] font-mono text-slate-400 mb-1">
             <span>{product.sku}</span>
-            <span className="uppercase text-amber-800 font-sans font-semibold">
+            <span className="uppercase text-purple-700 font-sans font-semibold">
               {product.category?.name}
             </span>
           </div>
           <Link href={`/products/${product.slug}`}>
-            <h3 className="text-sm font-semibold text-stone-900 group-hover:text-amber-800 transition-colors line-clamp-2">
+            <h3 className="text-sm font-semibold text-slate-800 group-hover:text-fuchsia-600 transition-colors line-clamp-2">
               {product.name}
             </h3>
           </Link>
@@ -126,17 +126,17 @@ export function ProductCard({ product }: ProductCardProps) {
 
         <div className="mt-4 flex flex-col gap-1">
           <div className="flex items-baseline space-x-2">
-            <span className="text-base font-bold text-amber-950">
+            <span className="text-base font-bold text-slate-900">
               ₹{product.price.toLocaleString('en-IN')}
             </span>
             {product.mrp > product.price && (
-              <span className="text-xs text-stone-400 line-through">
+              <span className="text-xs text-slate-400 line-through">
                 ₹{product.mrp.toLocaleString('en-IN')}
               </span>
             )}
           </div>
           {product.status !== 'out_of_stock' && product.stock_quantity !== undefined && product.stock_quantity > 0 && product.stock_quantity < 10 && (
-            <span className="text-[10px] font-bold text-rose-600">
+            <span className="text-[10px] font-bold text-fuchsia-600">
               Only {product.stock_quantity} left
             </span>
           )}
@@ -145,3 +145,4 @@ export function ProductCard({ product }: ProductCardProps) {
     </div>
   );
 }
+
