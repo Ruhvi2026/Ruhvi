@@ -3,6 +3,12 @@ import { Inter, Playfair_Display } from 'next/font/google';
 import './globals.css';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
+import { CartProvider } from '@/context/CartContext';
+import { WishlistProvider } from '@/context/WishlistContext';
+import { Suspense } from 'react';
+import { NotificationProvider } from '@/context/NotificationContext';
+import MetaPixel from '@/components/MetaPixel';
+import MicrosoftClarity from '@/components/MicrosoftClarity';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -27,10 +33,22 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
       <body className="min-h-screen flex flex-col bg-[#FAF6ED] text-[#121110] antialiased">
-        <Navbar />
-        <main className="flex-1">{children}</main>
-        <Footer />
+        <Suspense fallback={null}>
+          <MetaPixel />
+          <MicrosoftClarity />
+        </Suspense>
+        <CartProvider>
+          <WishlistProvider>
+            <NotificationProvider>
+              <Navbar />
+              <main className="flex-1">{children}</main>
+              <Footer />
+            </NotificationProvider>
+          </WishlistProvider>
+        </CartProvider>
       </body>
     </html>
   );
 }
+
+

@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { Filter, SlidersHorizontal, ArrowUpDown, RefreshCw } from 'lucide-react';
 import { DEMO_PRODUCTS, INITIAL_CATEGORIES } from '@/lib/products';
-import { Product } from '@/types/database';
+import { ProductCard } from '@/components/products/ProductCard';
 
 function ProductsCatalogContent() {
   const searchParams = useSearchParams();
@@ -204,51 +204,7 @@ function ProductsCatalogContent() {
           {filteredProducts.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredProducts.map((product) => (
-                <Link
-                  key={product.id}
-                  href={`/products/${product.slug}`}
-                  className="group bg-white rounded-xl overflow-hidden border border-stone-200 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col"
-                >
-                  <div className="relative aspect-square overflow-hidden bg-stone-100">
-                    {product.images && product.images[0] && (
-                      <img
-                        src={product.images[0].url}
-                        alt={product.name}
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                      />
-                    )}
-                    {product.status === 'out_of_stock' && (
-                      <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] flex items-center justify-center">
-                        <span className="bg-stone-900 text-stone-100 text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded">
-                          Out of Stock
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                  <div className="p-4 flex-1 flex flex-col justify-between">
-                    <div>
-                      <div className="flex justify-between items-center text-[10px] font-mono text-stone-400 mb-1">
-                        <span>{product.sku}</span>
-                        <span className="uppercase text-amber-800 font-sans font-semibold">
-                          {product.category?.name}
-                        </span>
-                      </div>
-                      <h3 className="text-sm font-semibold text-stone-900 group-hover:text-amber-800 transition-colors line-clamp-2">
-                        {product.name}
-                      </h3>
-                    </div>
-                    <div className="mt-4 flex items-baseline space-x-2">
-                      <span className="text-base font-bold text-amber-950">
-                        ₹{product.price.toLocaleString('en-IN')}
-                      </span>
-                      {product.mrp > product.price && (
-                        <span className="text-xs text-stone-400 line-through">
-                          ₹{product.mrp.toLocaleString('en-IN')}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </Link>
+                <ProductCard key={product.id} product={product} />
               ))}
             </div>
           ) : (

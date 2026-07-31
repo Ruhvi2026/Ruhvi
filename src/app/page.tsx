@@ -2,6 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import { ArrowRight, Sparkles, ShieldCheck, Star } from 'lucide-react';
 import { INITIAL_CATEGORIES, DEMO_PRODUCTS } from '@/lib/products';
+import { ProductCard } from '@/components/products/ProductCard';
 
 export default function HomePage() {
   const newArrivals = DEMO_PRODUCTS.filter((p) => p.is_new_arrival);
@@ -96,7 +97,7 @@ export default function HomePage() {
             <h2 className="font-serif text-3xl font-bold text-stone-900 mt-1">New Arrivals</h2>
           </div>
           <Link
-            href="/products?filter=new-arrivals"
+            href="/products"
             className="text-xs font-semibold uppercase tracking-wider text-amber-900 hover:text-amber-700 flex items-center space-x-1"
           >
             <span>View All</span>
@@ -106,40 +107,7 @@ export default function HomePage() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {newArrivals.map((product) => (
-            <Link
-              key={product.id}
-              href={`/products/${product.slug}`}
-              className="group bg-white rounded-xl overflow-hidden border border-stone-200 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col"
-            >
-              <div className="relative aspect-square overflow-hidden bg-stone-100">
-                {product.images && product.images[0] && (
-                  <img
-                    src={product.images[0].url}
-                    alt={product.name}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
-                )}
-                {product.is_new_arrival && (
-                  <span className="absolute top-3 left-3 bg-amber-950 text-amber-200 text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded">
-                    New
-                  </span>
-                )}
-              </div>
-              <div className="p-4 flex-1 flex flex-col justify-between">
-                <div>
-                  <div className="text-[10px] font-mono text-stone-400 uppercase mb-1">{product.sku}</div>
-                  <h3 className="text-sm font-semibold text-stone-900 group-hover:text-amber-800 transition-colors line-clamp-1">
-                    {product.name}
-                  </h3>
-                </div>
-                <div className="mt-3 flex items-baseline space-x-2">
-                  <span className="text-base font-bold text-amber-950">₹{product.price.toLocaleString('en-IN')}</span>
-                  {product.mrp > product.price && (
-                    <span className="text-xs text-stone-400 line-through">₹{product.mrp.toLocaleString('en-IN')}</span>
-                  )}
-                </div>
-              </div>
-            </Link>
+            <ProductCard key={product.id} product={product} />
           ))}
         </div>
       </section>
@@ -155,38 +123,7 @@ export default function HomePage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {bestSellers.map((product) => (
-              <Link
-                key={product.id}
-                href={`/products/${product.slug}`}
-                className="group bg-white rounded-xl overflow-hidden border border-stone-200 shadow-sm hover:shadow-xl transition-all duration-300 flex"
-              >
-                <div className="w-1/3 aspect-square overflow-hidden bg-stone-100 flex-shrink-0">
-                  {product.images && product.images[0] && (
-                    <img
-                      src={product.images[0].url}
-                      alt={product.name}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                  )}
-                </div>
-                <div className="p-4 flex-1 flex flex-col justify-between">
-                  <div>
-                    <div className="flex items-center space-x-1 text-amber-500 mb-1">
-                      <Star className="w-3.5 h-3.5 fill-current" />
-                      <span className="text-xs font-semibold text-stone-700">4.9 (High Demand)</span>
-                    </div>
-                    <h3 className="text-sm font-semibold text-stone-900 group-hover:text-amber-800 transition-colors line-clamp-2">
-                      {product.name}
-                    </h3>
-                  </div>
-                  <div className="mt-3 flex items-baseline space-x-2">
-                    <span className="text-base font-bold text-amber-950">₹{product.price.toLocaleString('en-IN')}</span>
-                    {product.mrp > product.price && (
-                      <span className="text-xs text-stone-400 line-through">₹{product.mrp.toLocaleString('en-IN')}</span>
-                    )}
-                  </div>
-                </div>
-              </Link>
+              <ProductCard key={product.id} product={product} />
             ))}
           </div>
         </div>
@@ -194,3 +131,4 @@ export default function HomePage() {
     </div>
   );
 }
+

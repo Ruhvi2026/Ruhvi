@@ -4,6 +4,23 @@ export type ImageType = 'model' | 'still' | 'zoom' | '360';
 export type OrderStatus = 'pending' | 'confirmed' | 'shipped' | 'delivered' | 'cancelled' | 'returned';
 export type PaymentMethod = 'razorpay' | 'cod';
 export type PaymentStatus = 'pending' | 'paid' | 'failed' | 'refunded';
+export type CoinLedgerType = 'earned' | 'redeemed' | 'expired' | 'cashback';
+export type WalletLedgerType = 'credit' | 'debit' | 'cashback';
+export type ReferralStatus = 'pending' | 'completed' | 'expired';
+export type ReturnStatus = 'requested' | 'approved' | 'rejected' | 'completed';
+
+export interface User {
+  id: string;
+  full_name?: string | null;
+  email?: string | null;
+  phone?: string | null;
+  role: UserRole;
+  wallet_balance: number;
+  reward_coins: number;
+  referral_code?: string | null;
+  created_at?: string;
+  updated_at?: string;
+}
 
 export interface Category {
   id: string;
@@ -39,7 +56,6 @@ export interface Product {
   is_best_seller: boolean;
   created_at?: string;
   updated_at?: string;
-  // Included relations
   category?: Category | null;
   images?: ProductImage[];
 }
@@ -48,5 +64,147 @@ export interface StockNotification {
   id: string;
   product_id: string;
   email: string;
+  created_at?: string;
+}
+
+export interface Address {
+  id: string;
+  user_id: string;
+  label?: string;
+  full_name: string;
+  phone: string;
+  line1: string;
+  line2?: string;
+  city: string;
+  state: string;
+  pincode: string;
+  is_default: boolean;
+  created_at?: string;
+}
+
+export interface Cart {
+  id: string;
+  user_id: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface CartItem {
+  id: string;
+  cart_id: string;
+  product_id: string;
+  quantity: number;
+  price_at_add: number;
+  created_at?: string;
+  product?: Product;
+}
+
+export interface Order {
+  id: string;
+  user_id: string;
+  order_number: string;
+  status: OrderStatus;
+  subtotal: number;
+  shipping_charge: number;
+  cod_charge: number;
+  coupon_discount: number;
+  wallet_used: number;
+  coins_redeemed: number;
+  gst_amount: number;
+  total: number;
+  payment_method: PaymentMethod;
+  payment_status: PaymentStatus;
+  gift_wrap: boolean;
+  gift_message?: string | null;
+  shipping_address_id?: string | null;
+  razorpay_order_id?: string | null;
+  razorpay_payment_id?: string | null;
+  razorpay_signature?: string | null;
+  created_at?: string;
+  updated_at?: string;
+  shipping_address?: Address | null;
+  order_items?: OrderItem[];
+  shiprocket_order_id?: string | null;
+  shiprocket_shipment_id?: string | null;
+  awb_code?: string | null;
+  courier_name?: string | null;
+}
+
+export interface OrderItem {
+  id: string;
+  order_id: string;
+  product_id?: string | null;
+  sku: string;
+  quantity: number;
+  price_at_purchase: number;
+  created_at?: string;
+  product?: Product;
+}
+
+export interface AppNotification {
+  id: string;
+  user_id: string;
+  title: string;
+  message: string;
+  read: boolean;
+  type?: string;
+  link?: string;
+  created_at: string;
+}
+
+export interface ReturnRequest {
+  id: string;
+  order_id: string;
+  order_number?: string;
+  reason: string;
+  item_condition?: string;
+  status: ReturnStatus;
+  refund_method: string;
+  comments?: string;
+  requested_at: string;
+  resolved_at?: string;
+  order?: Order | null;
+}
+
+export interface Coupon {
+  id: string;
+  code: string;
+  discount_type: 'flat' | 'percentage';
+  discount_value: number;
+  min_order_value: number;
+  usage_limit_total: number | null;
+  usage_limit_per_user: number | null;
+  applicable_to: string;
+  expiry_date: string | null;
+  cod_charge_waiver: boolean;
+  active: boolean;
+  created_at?: string;
+}
+
+export interface WalletLedger {
+  id: string;
+  user_id: string;
+  order_id: string | null;
+  amount: number;
+  type: WalletLedgerType;
+  created_at?: string;
+}
+
+export interface RewardCoinLedger {
+  id: string;
+  user_id: string;
+  order_id: string | null;
+  amount: number;
+  type: CoinLedgerType;
+  expiry_date: string | null;
+  created_at?: string;
+}
+
+export interface Referral {
+  id: string;
+  referrer_user_id: string;
+  referred_user_id: string;
+  status: ReferralStatus;
+  coins_awarded: number;
   created_at?: string;
 }

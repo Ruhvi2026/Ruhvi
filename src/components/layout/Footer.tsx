@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import Link from 'next/link';
 import { ShieldCheck, Truck, RotateCcw, Award } from 'lucide-react';
@@ -38,6 +40,44 @@ export function Footer() {
               <h4 className="text-xs font-bold text-white uppercase tracking-wider">Lifetime Exchange</h4>
               <p className="text-[11px] text-stone-400">Guaranteed buyback & upgrade</p>
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Newsletter / WhatsApp Capture */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-12">
+        <div className="bg-gradient-to-r from-amber-900 to-stone-800 rounded-3xl p-8 sm:p-12 flex flex-col md:flex-row items-center justify-between border border-amber-800/50 shadow-2xl relative overflow-hidden">
+          <div className="absolute right-0 top-0 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl"></div>
+          
+          <div className="md:w-1/2 mb-8 md:mb-0 relative z-10">
+            <h3 className="font-serif text-3xl font-bold text-amber-50 mb-3">
+              Join the Inner Circle
+            </h3>
+            <p className="text-amber-200/80 text-sm">
+              Subscribe to get 10% off your first purchase. Receive early access to new collections and exclusive VIP offers via Email or WhatsApp.
+            </p>
+          </div>
+          
+          <div className="md:w-1/2 w-full max-w-md relative z-10">
+            <form className="flex flex-col space-y-3" onSubmit={(e) => { e.preventDefault(); alert('Subscribed!'); }}>
+              <div className="flex bg-stone-900/50 rounded-xl border border-amber-800/50 overflow-hidden focus-within:border-amber-500 transition-colors">
+                <input 
+                  type="email" 
+                  placeholder="Enter your email address" 
+                  className="flex-1 bg-transparent px-4 py-3 text-sm text-white placeholder-stone-400 outline-none"
+                  required
+                />
+                <button type="submit" className="bg-amber-100 hover:bg-white text-amber-900 px-6 py-3 text-xs font-bold uppercase tracking-wider transition-colors">
+                  Subscribe
+                </button>
+              </div>
+              <div className="flex items-center space-x-2 pl-1">
+                <input type="checkbox" id="whatsapp-optin" className="w-3 h-3 rounded-sm text-amber-600 focus:ring-amber-500 bg-stone-900 border-stone-700" />
+                <label htmlFor="whatsapp-optin" className="text-[10px] text-amber-200/60 uppercase tracking-widest cursor-pointer">
+                  Also send me updates on WhatsApp
+                </label>
+              </div>
+            </form>
           </div>
         </div>
       </div>

@@ -2,13 +2,19 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { ShoppingBag, Heart, User, Menu, X, ChevronDown, Sparkles } from 'lucide-react';
+import { ShoppingBag, Heart, User, Menu, X, ChevronDown, Sparkles, Bell } from 'lucide-react';
 import { SearchBar } from '@/components/search/SearchBar';
 import { INITIAL_CATEGORIES } from '@/lib/products';
+import { useCart } from '@/context/CartContext';
+import { useWishlist } from '@/context/WishlistContext';
+import { useNotifications } from '@/context/NotificationContext';
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [categoriesOpen, setCategoriesOpen] = useState(false);
+
+  const { cartCount } = useCart();
+  const { wishlistCount } = useWishlist();
+  const { unreadCount } = useNotifications();
 
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-stone-200 shadow-sm transition-all">
@@ -48,10 +54,30 @@ export function Navbar() {
           {/* Navigation Actions */}
           <div className="flex items-center space-x-4 sm:space-x-6">
             <Link
+              href="/orders"
+              className="hidden sm:inline-flex text-xs font-semibold uppercase tracking-wider text-amber-900 hover:text-amber-700 transition-colors"
+            >
+              My Orders
+            </Link>
+
+            <Link
               href="/admin/dashboard"
               className="hidden sm:inline-flex text-xs font-semibold uppercase tracking-wider text-amber-900 bg-amber-50 hover:bg-amber-100 border border-amber-200 px-3 py-1.5 rounded-md transition-colors"
             >
               Admin Portal
+            </Link>
+
+            <Link
+              href="/account/notifications"
+              className="relative p-2 text-stone-700 hover:text-amber-800 transition-colors"
+              title="Notifications"
+            >
+              <Bell className="w-5 h-5" />
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-amber-600 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center animate-scale-in">
+                  {unreadCount}
+                </span>
+              )}
             </Link>
 
             <Link
@@ -60,6 +86,11 @@ export function Navbar() {
               title="Wishlist"
             >
               <Heart className="w-5 h-5" />
+              {wishlistCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-rose-600 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center animate-scale-in">
+                  {wishlistCount}
+                </span>
+              )}
             </Link>
 
             <Link
@@ -68,12 +99,17 @@ export function Navbar() {
               title="Cart"
             >
               <ShoppingBag className="w-5 h-5" />
+              {cartCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-amber-800 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center animate-scale-in">
+                  {cartCount}
+                </span>
+              )}
             </Link>
 
             <Link
-              href="/login"
+              href="/account"
               className="p-2 text-stone-700 hover:text-amber-800 transition-colors"
-              title="Account"
+              title="My Account"
             >
               <User className="w-5 h-5" />
             </Link>
