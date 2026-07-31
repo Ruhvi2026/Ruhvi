@@ -1,0 +1,16 @@
+{
+  "appId": "in.ruhvi.app",
+  "appName": "Ruhvi Jewellery",
+  "webDir": "out",
+  "bundledWebRuntime": false,
+  "server": {
+    "androidScheme": "https"
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 2000,
+      "backgroundColor": "#121110",
+      "showSpinner": false
+    }
+  }
+}

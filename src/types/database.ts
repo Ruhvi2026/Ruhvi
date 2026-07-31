@@ -208,3 +208,47 @@ export interface Referral {
   coins_awarded: number;
   created_at?: string;
 }
+
+export interface BlogPost {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt?: string | null;
+  content: string;
+  cover_image?: string | null;
+  is_published: boolean;
+  published_at?: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Testimonial {
+  id: string;
+  user_id?: string | null;
+  customer_name: string;
+  rating: number;
+  review_text: string;
+  video_url?: string | null;
+  is_verified_purchase: boolean;
+  status: 'pending' | 'approved' | 'rejected';
+  created_at: string;
+}
+
+export interface Subscriber {
+  id: string;
+  email?: string | null;
+  phone?: string | null;
+  opted_in_whatsapp: boolean;
+  created_at: string;
+}
+
+export interface AuditLog {
+  id: string;
+  user_id?: string | null;
+  action: string;
+  entity: string;
+  entity_id?: string | null;
+  ip_address?: string | null;
+  details?: Record<string, any> | null;
+  created_at: string;
+}

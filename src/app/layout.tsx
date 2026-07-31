@@ -9,6 +9,7 @@ import { Suspense } from 'react';
 import { NotificationProvider } from '@/context/NotificationContext';
 import MetaPixel from '@/components/MetaPixel';
 import MicrosoftClarity from '@/components/MicrosoftClarity';
+import CustomerSupportChat from '@/components/CustomerSupportChat';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -43,6 +44,7 @@ export default function RootLayout({
               <Navbar />
               <main className="flex-1">{children}</main>
               <Footer />
+              <CustomerSupportChat />
             </NotificationProvider>
           </WishlistProvider>
         </CartProvider>
