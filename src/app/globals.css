@@ -1,0 +1,30 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 40 33% 98%;
+    --foreground: 30 10% 10%;
+  }
+
+  body {
+    background-color: #FAF6ED;
+    color: #121110;
+    font-family: var(--font-inter), sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-playfair), Georgia, serif;
+  }
+}
+
+.gold-gradient-text {
+  background: linear-gradient(135deg, #C29831 0%, #E7D7A3 50%, #9E7924 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.gold-gradient-bg {
+  background: linear-gradient(135deg, #CFA74B 0%, #C29831 50%, #9E7924 100%);
+}
