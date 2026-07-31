@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { MessageCircle, X, Send, Sparkles, Phone, ShieldCheck } from 'lucide-react';
 
 const FAQ_PRESETS = [
-  { q: 'How do I verify BIS Hallmarking?', a: 'Every Ruhvi 18K gold piece carries the official 6-digit BIS HUID stamp certified by government hallmarking centers.' },
+  { q: 'How do I verify BIS Hallmarking?', a: 'Every Ruhvi 22K gold piece carries the official 6-digit BIS HUID stamp certified by government hallmarking centers.' },
   { q: 'What is your Return Policy?', a: 'We offer a 7-day hassle-free return window for unworn items in original tamper-evident packaging.' },
   { q: 'How long does shipping take?', a: 'Orders are dispatched via Blue Dart Insured Air Transit and typically arrive in 3-5 business days across India.' },
 ];
@@ -60,7 +60,7 @@ export default function CustomerSupportChat() {
               </div>
               <div>
                 <h3 className="font-serif font-bold text-sm">Ruhvi Support Assistant</h3>
-                <p className="text-[10px] text-stone-400">Online • 18K Certified Luxury</p>
+                <p className="text-[10px] text-stone-400">Online • 22K Certified Luxury</p>
               </div>
             </div>
             <button onClick={() => setIsOpen(false)} className="text-stone-400 hover:text-white p-1">

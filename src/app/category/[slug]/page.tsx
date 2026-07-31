@@ -33,7 +33,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
             {category.name}
           </h1>
           <p className="text-stone-300 text-xs sm:text-sm font-light">
-            Handcrafted with certified 18K & 22K Gold and ethically sourced gemstones.
+            Handcrafted with certified 22K & 22K Gold and ethically sourced gemstones.
           </p>
         </div>
       </div>

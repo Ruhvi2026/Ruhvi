@@ -13,8 +13,8 @@ export function Footer() {
           <div className="flex items-center space-x-3">
             <Award className="w-8 h-8 text-amber-400 flex-shrink-0" />
             <div>
-              <h4 className="text-xs font-bold text-white uppercase tracking-wider">100% Certified</h4>
-              <p className="text-[11px] text-stone-400">BIS Hallmarked & VVS Gold</p>
+              <h4 className="text-xs font-bold text-white uppercase tracking-wider">22K Gold Plated</h4>
+              <p className="text-[11px] text-stone-400">Anti-Tarnish & Water Resistant</p>
             </div>
           </div>
 
@@ -37,8 +37,8 @@ export function Footer() {
           <div className="flex items-center space-x-3">
             <ShieldCheck className="w-8 h-8 text-amber-400 flex-shrink-0" />
             <div>
-              <h4 className="text-xs font-bold text-white uppercase tracking-wider">Lifetime Exchange</h4>
-              <p className="text-[11px] text-stone-400">Guaranteed buyback & upgrade</p>
+              <h4 className="text-xs font-bold text-white uppercase tracking-wider">6-Month Color Guarantee</h4>
+              <p className="text-[11px] text-stone-400">On all gold plated pieces</p>
             </div>
           </div>
         </div>

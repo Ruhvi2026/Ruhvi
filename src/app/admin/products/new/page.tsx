@@ -7,13 +7,15 @@ import { ArrowLeft, Sparkles, Plus, Trash2 } from 'lucide-react';
 import { INITIAL_CATEGORIES } from '@/lib/products';
 import { generateSKU } from '@/lib/sku';
 import { ImageType } from '@/types/database';
+import { createClient } from '@/lib/supabase/client';
 
 export default function AddProductPage() {
   const router = useRouter();
 
   const [name, setName] = useState('');
   const [slug, setSlug] = useState('');
-  const [categorySlug, setCategorySlug] = useState('rings');
+  const [categorySlug, setCategorySlug] = useState(INITIAL_CATEGORIES[0].slug);
+  const [collectionSlug, setCollectionSlug] = useState('');
   const [sku, setSku] = useState('');
   const [price, setPrice] = useState('');
   const [mrp, setMrp] = useState('');
@@ -26,6 +28,29 @@ export default function AddProductPage() {
   const [images, setImages] = useState<{ url: string; type: ImageType }[]>([
     { url: 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=800&q=80', type: 'still' },
   ]);
+
+  const [tags, setTags] = useState('22K Gold, BIS Hallmarked, Diamond');
+  const [availableCollections, setAvailableCollections] = useState<{ slug: string; title: string }[]>([
+    { slug: 'for-her', title: 'Gifts For Her' },
+    { slug: 'under-15000', title: 'Gifts Under ₹15,000' },
+    { slug: 'anniversary', title: 'Anniversary Specials' },
+    { slug: 'bridal', title: 'Bridal Collection' },
+  ]);
+
+  useEffect(() => {
+    const fetchCols = async () => {
+      try {
+        const supabase = createClient();
+        const { data } = await supabase.from('collections').select('slug, title').order('title');
+        if (data && data.length > 0) {
+          setAvailableCollections(data);
+        }
+      } catch {
+        // ignore
+      }
+    };
+    fetchCols();
+  }, []);
 
   // Auto-generate slug and SKU when name or category changes
   useEffect(() => {
@@ -61,7 +86,7 @@ export default function AddProductPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    alert(`Product "${name}" (SKU: ${sku}) created successfully!`);
+    alert(`Product "${name}" (SKU: ${sku}, Tags: ${tags}) created successfully!`);
     router.push('/admin/products');
   };
 
@@ -76,12 +101,12 @@ export default function AddProductPage() {
 
       <div>
         <h1 className="font-serif text-3xl font-bold text-stone-900">Add New Jewellery Piece</h1>
-        <p className="text-xs text-stone-500 mt-1">Auto-generates SKU formatted by category prefix.</p>
+        <p className="text-xs text-stone-500 mt-1">Auto-generates SKU formatted by category prefix (editable anytime).</p>
       </div>
 
       <form onSubmit={handleSubmit} className="bg-white p-6 sm:p-8 rounded-2xl border border-stone-200 shadow-sm space-y-6">
-        {/* Title & Category */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        {/* Basic Info */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wider text-stone-700 mb-1">
               Product Title *
@@ -112,6 +137,24 @@ export default function AddProductPage() {
               ))}
             </select>
           </div>
+
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-amber-800 mb-1">
+              Collection (Optional)
+            </label>
+            <select
+              value={collectionSlug}
+              onChange={(e) => setCollectionSlug(e.target.value)}
+              className="w-full px-3 py-2 text-xs border border-amber-300 rounded-lg focus:ring-1 focus:ring-amber-500 focus:outline-none bg-amber-50/50 font-medium text-amber-900"
+            >
+              <option value="">-- None (Standard Catalog) --</option>
+              {availableCollections.map((col) => (
+                <option key={col.slug} value={col.slug}>
+                  {col.title}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
         {/* Slug & SKU */}
@@ -129,15 +172,20 @@ export default function AddProductPage() {
           </div>
 
           <div>
-            <label className="block text-[11px] font-semibold text-amber-800 uppercase tracking-wider mb-1 flex items-center space-x-1">
-              <Sparkles className="w-3 h-3 text-amber-600" />
-              <span>Auto-Generated SKU</span>
+            <label className="block text-[11px] font-semibold text-amber-800 uppercase tracking-wider mb-1 flex items-center justify-between">
+              <span className="flex items-center space-x-1">
+                <Sparkles className="w-3 h-3 text-amber-600" />
+                <span>SKU Code (Editable)</span>
+              </span>
+              <span className="text-[9px] text-stone-400 font-normal">Edit or customize</span>
             </label>
             <input
               type="text"
-              readOnly
+              required
               value={sku}
-              className="w-full px-3 py-1.5 text-xs bg-amber-50 border border-amber-200 rounded text-amber-950 font-mono font-bold"
+              onChange={(e) => setSku(e.target.value)}
+              placeholder="e.g. RNG-101"
+              className="w-full px-3 py-1.5 text-xs bg-amber-50 border border-amber-300 rounded text-amber-950 font-mono font-bold focus:ring-1 focus:ring-amber-500 focus:outline-none"
             />
           </div>
         </div>
@@ -228,18 +276,34 @@ export default function AddProductPage() {
           </div>
         </div>
 
-        {/* Description */}
-        <div>
-          <label className="block text-xs font-semibold uppercase tracking-wider text-stone-700 mb-1">
-            Description
-          </label>
-          <textarea
-            rows={3}
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder="Detailed craft description, metal purity, gemstone details..."
-            className="w-full px-3 py-2 text-xs border border-stone-300 rounded-lg focus:ring-1 focus:ring-amber-500 focus:outline-none"
-          />
+        {/* Description & Tags */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-stone-700 mb-1">
+              Description
+            </label>
+            <textarea
+              rows={3}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Detailed craft description, metal purity, gemstone details..."
+              className="w-full px-3 py-2 text-xs border border-stone-300 rounded-lg focus:ring-1 focus:ring-amber-500 focus:outline-none"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-stone-700 mb-1 flex items-center justify-between">
+              <span>Product Tags (Comma Separated)</span>
+              <span className="text-[10px] text-amber-800 font-normal">For search & filters</span>
+            </label>
+            <textarea
+              rows={3}
+              value={tags}
+              onChange={(e) => setTags(e.target.value)}
+              placeholder="e.g. 22K Gold, Solitaire, Anniversary Gift, Wedding, Under 15000"
+              className="w-full px-3 py-2 text-xs border border-stone-300 rounded-lg focus:ring-1 focus:ring-amber-500 focus:outline-none bg-stone-50/50 font-mono"
+            />
+          </div>
         </div>
 
         {/* Image Tagger */}

@@ -22,7 +22,7 @@ const GIFT_CATEGORIES = [
   },
   {
     title: 'Anniversary Specials',
-    description: 'Celebrate milestones with 18K Gold.',
+    description: 'Celebrate milestones with 22K Gold.',
     image: 'https://images.unsplash.com/photo-1605100804763-247f67b2548e?auto=format&fit=crop&q=80',
     link: '/collections/anniversary',
     icon: Gift,
@@ -52,7 +52,7 @@ export default function GiftGuidePage() {
             Give the Gift of Gold
           </h1>
           <p className="text-stone-100 text-lg sm:text-xl font-light drop-shadow-md">
-            Find the perfect expression of your love with our curated collections of BIS Hallmarked 18K Gold Jewellery.
+            Find the perfect expression of your love with our curated collections of BIS Hallmarked 22K Gold Jewellery.
           </p>
         </div>
       </div>

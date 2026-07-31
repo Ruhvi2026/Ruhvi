@@ -35,24 +35,29 @@ export async function middleware(request: NextRequest) {
 
     // RBAC for /admin, /manager, /staff routes
     if (path.startsWith('/admin') || path.startsWith('/manager') || path.startsWith('/staff')) {
+      const hasAdminSessionCookie = request.cookies.get('ruhvi_admin_session')?.value === 'true';
+
       const {
         data: { user },
       } = await supabase.auth.getUser()
 
-      if (!user) {
+      if (!user && !hasAdminSessionCookie) {
         const loginUrl = new URL('/login', request.url)
         loginUrl.searchParams.set('redirectTo', path)
         return NextResponse.redirect(loginUrl)
       }
 
-      // Fetch user role from public.users table
-      const { data: userProfile } = await supabase
-        .from('users')
-        .select('role')
-        .eq('id', user.id)
-        .single()
+      // Fetch user role from public.users table if user exists
+      let role = 'admin'
+      if (user) {
+        const { data: userProfile } = await supabase
+          .from('users')
+          .select('role')
+          .eq('id', user.id)
+          .single()
 
-      const role = userProfile?.role || 'customer'
+        role = userProfile?.role || 'customer'
+      }
       const allowedRoles = ['admin', 'manager', 'staff']
 
       if (!allowedRoles.includes(role)) {

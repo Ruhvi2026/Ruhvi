@@ -9,7 +9,7 @@ const MOCK_INVENTORY = [
   { id: 'SKU-002', name: 'Celestial Pearl Drop Earrings', category: 'Earrings', stock: 14, threshold: 5, price: 7500, status: 'in_stock' },
   { id: 'SKU-003', name: 'Royal Heritage Gold Bangle', category: 'Bangles', stock: 1, threshold: 3, price: 39500, status: 'low_stock' },
   { id: 'SKU-004', name: 'Kundan Choker Statement Necklace', category: 'Necklaces', stock: 0, threshold: 2, price: 85000, status: 'out_of_stock' },
-  { id: 'SKU-005', name: 'Minimalist 18K Gold Chain', category: 'Chains', stock: 18, threshold: 5, price: 12000, status: 'in_stock' },
+  { id: 'SKU-005', name: 'Minimalist 22K Gold Chain', category: 'Chains', stock: 18, threshold: 5, price: 12000, status: 'in_stock' },
 ];
 
 export default function InventoryReportPage() {

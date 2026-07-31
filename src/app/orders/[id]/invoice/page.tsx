@@ -166,7 +166,7 @@ export default function InvoicePage({ params }: { params: Promise<{ id: string }
             <p><span className="font-semibold text-stone-700">Payment Method:</span> {dummyOrder.payment_method.toUpperCase()}</p>
             <p><span className="font-semibold text-stone-700">Payment Status:</span> {dummyOrder.payment_status.toUpperCase()}</p>
             <p><span className="font-semibold text-stone-700">Insured Shipping:</span> Blue Dart Express</p>
-            <p><span className="font-semibold text-stone-700">BIS Hallmarked:</span> Certified 18K/22K Gold & VVS Diamond</p>
+            <p><span className="font-semibold text-stone-700">BIS Hallmarked:</span> Certified 22K/22K Gold & VVS Diamond</p>
           </div>
         </div>
 

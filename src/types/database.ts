@@ -27,6 +27,22 @@ export interface Category {
   name: string;
   slug: string;
   parent_id?: string | null;
+  image_url?: string | null;
+  created_at?: string;
+}
+
+export interface Collection {
+  id: string;
+  title: string;
+  slug: string;
+  subtitle?: string | null;
+  image_url?: string | null;
+  created_at?: string;
+}
+
+export interface ProductCollection {
+  product_id: string;
+  collection_id: string;
   created_at?: string;
 }
 

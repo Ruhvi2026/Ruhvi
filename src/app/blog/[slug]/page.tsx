@@ -12,10 +12,10 @@ export default function BlogPostPage({ params }: { params: Promise<{ slug: strin
 
   // Mock post content
   const post = {
-    title: 'How to Care for Your 18K Gold Jewellery at Home',
+    title: 'How to Care for Your 22K Gold Jewellery at Home',
     excerpt: 'Keep your Ruhvi pieces shining forever with these simple, expert-approved home cleaning techniques.',
     content: `
-      <p>Fine jewellery is an investment meant to last a lifetime, but even the highest quality 18K gold needs a little tender loving care to maintain its radiant shine. In this guide, we will walk you through the safest and most effective ways to clean your Ruhvi pieces at home.</p>
+      <p>Fine jewellery is an investment meant to last a lifetime, but even the highest quality 22K gold needs a little tender loving care to maintain its radiant shine. In this guide, we will walk you through the safest and most effective ways to clean your Ruhvi pieces at home.</p>
       
       <h2>1. The Gentle Soap Method</h2>
       <p>The best way to clean your gold jewellery is often the simplest. Mix a few drops of mild dish soap into a bowl of warm (not hot) water. Let your jewellery soak for about 15-20 minutes to loosen any accumulated oils or dirt.</p>

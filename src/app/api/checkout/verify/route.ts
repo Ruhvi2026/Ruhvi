@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { sendOrderConfirmation } from '@/lib/whatsapp';
 
 export async function POST(req: Request) {
   try {
@@ -65,6 +66,16 @@ export async function POST(req: Request) {
         product: item.product,
       })),
     };
+
+    // Send WhatsApp Order Confirmation asynchronously
+    if (address.phone) {
+      sendOrderConfirmation(
+        orderNumber, 
+        address.phone, 
+        `${address.firstName} ${address.lastName}`.trim(), 
+        total
+      ).catch(err => console.error('Failed to send WhatsApp confirmation:', err));
+    }
 
     return NextResponse.json({
       success: true,

@@ -16,6 +16,9 @@ import {
 } from 'lucide-react';
 import { Product } from '@/types/database';
 import { StockNotificationModal } from '@/components/products/StockNotificationModal';
+import { trackEvent } from '@/lib/analytics';
+import { useCart } from '@/context/CartContext';
+import { useWishlist } from '@/context/WishlistContext';
 
 interface ProductDetailPageClientProps {
   product: Product;
@@ -28,6 +31,12 @@ export function ProductDetailPageClient({ product, relatedProducts }: ProductDet
   const [stockModalOpen, setStockModalOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const [recentlyViewed, setRecentlyViewed] = useState<Product[]>([]);
+
+  const { addToCart, items: cartItems } = useCart();
+  const { toggleWishlist, isInWishlist } = useWishlist();
+
+  const isLiked = isInWishlist(product.id);
+  const isInCart = cartItems.some((item) => item.product_id === product.id);
 
   const images = product.images || [];
   const currentImage = images[activeImageIndex] || { url: '', type: 'still' };
@@ -45,6 +54,15 @@ export function ProductDetailPageClient({ product, relatedProducts }: ProductDet
     } catch {
       // LocalStorage unavailable
     }
+
+    // Track ViewContent event
+    trackEvent('ViewContent', {
+      content_name: product.name,
+      content_ids: [product.sku],
+      content_type: 'product',
+      value: product.price,
+      currency: 'INR',
+    });
   }, [product]);
 
   const handleShare = async () => {
@@ -63,6 +81,23 @@ export function ProductDetailPageClient({ product, relatedProducts }: ProductDet
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }
+  };
+
+  const handleAddToCart = () => {
+    if (!isOutOfStock) {
+      addToCart(product, 1);
+      trackEvent('AddToCart', {
+        content_name: product.name,
+        content_ids: [product.sku],
+        content_type: 'product',
+        value: product.price,
+        currency: 'INR',
+      });
+    }
+  };
+
+  const handleToggleWishlist = () => {
+    toggleWishlist(product);
   };
 
   const isOutOfStock = product.status === 'out_of_stock' || product.stock_quantity === 0;
@@ -147,13 +182,26 @@ export function ProductDetailPageClient({ product, relatedProducts }: ProductDet
                 <h1 className="font-serif text-2xl sm:text-4xl font-bold text-stone-900 mt-1">{product.name}</h1>
               </div>
 
-              <button
-                onClick={handleShare}
-                className="p-2.5 rounded-full border border-stone-200 hover:bg-stone-50 transition-colors text-stone-600 relative"
-                title="Share product"
-              >
-                {copied ? <Check className="w-5 h-5 text-emerald-600" /> : <Share2 className="w-5 h-5" />}
-              </button>
+              <div className="flex items-center space-x-2">
+                <a
+                  href={`https://api.whatsapp.com/send?text=${encodeURIComponent(`Check out ${product.name} on Ruhvi Fine Jewellery: ${typeof window !== 'undefined' ? window.location.href : ''}`)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full text-xs font-bold flex items-center space-x-1 transition-colors shadow-sm"
+                  title="Share on WhatsApp"
+                >
+                  <Share2 className="w-3.5 h-3.5" />
+                  <span>WhatsApp</span>
+                </a>
+
+                <button
+                  onClick={handleShare}
+                  className="p-2 rounded-full border border-stone-200 hover:bg-stone-50 transition-colors text-stone-600 relative"
+                  title="Copy product link"
+                >
+                  {copied ? <Check className="w-4 h-4 text-emerald-600" /> : <Share2 className="w-4 h-4" />}
+                </button>
+              </div>
             </div>
 
             {/* Price & Savings Breakdown */}
@@ -184,19 +232,32 @@ export function ProductDetailPageClient({ product, relatedProducts }: ProductDet
           <div className="space-y-4 pt-2">
             {!isOutOfStock ? (
               <div className="space-y-3">
-                <div className="text-xs text-emerald-700 font-semibold flex items-center space-x-1.5">
-                  <div className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
-                  <span>In Stock • Ready for dispatch in 24 hours</span>
-                </div>
+                {product.stock_quantity !== undefined && product.stock_quantity > 0 && product.stock_quantity < 10 ? (
+                  <div className="text-xs text-rose-600 font-bold flex items-center space-x-1.5">
+                    <div className="w-2 h-2 rounded-full bg-rose-500 animate-ping" />
+                    <span>Only {product.stock_quantity} left in stock - Order soon!</span>
+                  </div>
+                ) : (
+                  <div className="text-xs text-emerald-700 font-semibold flex items-center space-x-1.5">
+                    <div className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
+                    <span>In Stock • Ready for dispatch in 24 hours</span>
+                  </div>
+                )}
 
                 <div className="flex space-x-4">
-                  <button className="flex-1 py-3.5 bg-amber-950 hover:bg-amber-900 text-white font-bold text-xs uppercase tracking-widest rounded-xl transition-all shadow-md flex items-center justify-center space-x-2">
-                    <ShoppingBag className="w-4 h-4" />
-                    <span>Add to Cart</span>
+                  <button 
+                    onClick={handleAddToCart}
+                    className="flex-1 py-3.5 bg-amber-950 hover:bg-amber-900 text-white font-bold text-xs uppercase tracking-widest rounded-xl transition-all shadow-md flex items-center justify-center space-x-2"
+                  >
+                    {isInCart ? <Check className="w-4 h-4 text-emerald-400" /> : <ShoppingBag className="w-4 h-4" />}
+                    <span>{isInCart ? 'Added to Cart' : 'Add to Cart'}</span>
                   </button>
 
-                  <button className="p-3.5 border border-stone-300 hover:border-amber-700 rounded-xl transition-colors text-stone-700">
-                    <Heart className="w-5 h-5" />
+                  <button 
+                    onClick={handleToggleWishlist}
+                    className={`p-3.5 border rounded-xl transition-colors ${isLiked ? 'border-rose-500 bg-rose-50 text-rose-500' : 'border-stone-300 hover:border-amber-700 text-stone-700'}`}
+                  >
+                    <Heart className={`w-5 h-5 ${isLiked ? 'fill-current' : ''}`} />
                   </button>
                 </div>
               </div>
@@ -219,9 +280,9 @@ export function ProductDetailPageClient({ product, relatedProducts }: ProductDet
 
           {/* Reassurance Grid */}
           <div className="grid grid-cols-3 gap-3 border-t border-stone-200 pt-6 text-center text-[11px] text-stone-600">
-            <div className="p-3 rounded-lg bg-white border border-stone-100 shadow-sm">
+            <div className="p-3 rounded-lg bg-white border border-stone-100 shadow-sm flex flex-col items-center justify-center">
               <ShieldCheck className="w-5 h-5 text-amber-700 mx-auto mb-1" />
-              <span>BIS Hallmarked Gold</span>
+              <span>22K Gold Plated • 6-Month Color Guarantee</span>
             </div>
             <div className="p-3 rounded-lg bg-white border border-stone-100 shadow-sm">
               <Truck className="w-5 h-5 text-amber-700 mx-auto mb-1" />

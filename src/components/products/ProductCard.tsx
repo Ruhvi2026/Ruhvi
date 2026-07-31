@@ -6,6 +6,7 @@ import { Heart, ShoppingBag, Check } from 'lucide-react';
 import { Product } from '@/types/database';
 import { useCart } from '@/context/CartContext';
 import { useWishlist } from '@/context/WishlistContext';
+import { trackEvent } from '@/lib/analytics';
 
 interface ProductCardProps {
   product: Product;
@@ -25,6 +26,13 @@ export function ProductCard({ product }: ProductCardProps) {
     e.stopPropagation();
     if (product.status !== 'out_of_stock') {
       addToCart(product, 1);
+      trackEvent('AddToCart', {
+        content_name: product.name,
+        content_ids: [product.sku],
+        content_type: 'product',
+        value: product.price,
+        currency: 'INR',
+      });
     }
   };
 
@@ -116,13 +124,20 @@ export function ProductCard({ product }: ProductCardProps) {
           </Link>
         </div>
 
-        <div className="mt-4 flex items-baseline space-x-2">
-          <span className="text-base font-bold text-amber-950">
-            ₹{product.price.toLocaleString('en-IN')}
-          </span>
-          {product.mrp > product.price && (
-            <span className="text-xs text-stone-400 line-through">
-              ₹{product.mrp.toLocaleString('en-IN')}
+        <div className="mt-4 flex flex-col gap-1">
+          <div className="flex items-baseline space-x-2">
+            <span className="text-base font-bold text-amber-950">
+              ₹{product.price.toLocaleString('en-IN')}
+            </span>
+            {product.mrp > product.price && (
+              <span className="text-xs text-stone-400 line-through">
+                ₹{product.mrp.toLocaleString('en-IN')}
+              </span>
+            )}
+          </div>
+          {product.status !== 'out_of_stock' && product.stock_quantity !== undefined && product.stock_quantity > 0 && product.stock_quantity < 10 && (
+            <span className="text-[10px] font-bold text-rose-600">
+              Only {product.stock_quantity} left
             </span>
           )}
         </div>

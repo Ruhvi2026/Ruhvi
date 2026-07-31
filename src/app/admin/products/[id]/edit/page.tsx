@@ -18,15 +18,25 @@ export default function EditProductPage({ params }: EditProductPageProps) {
 
   const product = DEMO_PRODUCTS.find((p) => p.id === id) || DEMO_PRODUCTS[0];
 
+  const [sku, setSku] = useState(product.sku);
+  const [tags, setTags] = useState('22K Gold, BIS Hallmarked, Best Seller');
   const [name, setName] = useState(product.name);
   const [price, setPrice] = useState(String(product.price));
   const [mrp, setMrp] = useState(String(product.mrp));
   const [stockQuantity, setStockQuantity] = useState(String(product.stock_quantity));
   const [status, setStatus] = useState(product.status);
+  const [collectionSlug, setCollectionSlug] = useState('');
+
+  const availableCollections = [
+    { slug: 'for-her', title: 'Gifts For Her' },
+    { slug: 'under-15000', title: 'Gifts Under ₹15,000' },
+    { slug: 'anniversary', title: 'Anniversary Specials' },
+    { slug: 'bridal', title: 'Bridal Collection' },
+  ];
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    alert(`Product ${product.sku} updated!`);
+    alert(`Product ${sku} (Tags: ${tags}) updated!`);
     router.push('/admin/products');
   };
 
@@ -40,22 +50,55 @@ export default function EditProductPage({ params }: EditProductPageProps) {
       </div>
 
       <div>
-        <h1 className="font-serif text-3xl font-bold text-stone-900">Edit Product ({product.sku})</h1>
-        <p className="text-xs text-stone-500 mt-1">Update pricing, stock availability, or hide product.</p>
+        <h1 className="font-serif text-3xl font-bold text-stone-900">Edit Product ({sku})</h1>
+        <p className="text-xs text-stone-500 mt-1">Update pricing, stock availability, SKU, or tags.</p>
       </div>
 
       <form onSubmit={handleSubmit} className="bg-white p-6 sm:p-8 rounded-2xl border border-stone-200 shadow-sm space-y-6">
-        <div>
-          <label className="block text-xs font-semibold uppercase tracking-wider text-stone-700 mb-1">
-            Product Title
-          </label>
-          <input
-            type="text"
-            required
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="w-full px-3 py-2 text-xs border border-stone-300 rounded-lg focus:ring-1 focus:ring-amber-500"
-          />
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-stone-700 mb-1">
+              Product Title
+            </label>
+            <input
+              type="text"
+              required
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="w-full px-3 py-2 text-xs border border-stone-300 rounded-lg focus:ring-1 focus:ring-amber-500"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-amber-900 mb-1">
+              SKU Code (Editable)
+            </label>
+            <input
+              type="text"
+              required
+              value={sku}
+              onChange={(e) => setSku(e.target.value)}
+              className="w-full px-3 py-2 text-xs border border-amber-300 bg-amber-50 rounded-lg focus:ring-1 focus:ring-amber-500 font-mono font-bold text-amber-950"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-amber-800 mb-1">
+              Collection (Optional)
+            </label>
+            <select
+              value={collectionSlug}
+              onChange={(e) => setCollectionSlug(e.target.value)}
+              className="w-full px-3 py-2 text-xs border border-amber-300 rounded-lg focus:ring-1 focus:ring-amber-500 focus:outline-none bg-amber-50/50 font-medium text-amber-900"
+            >
+              <option value="">-- None (Standard Catalog) --</option>
+              {availableCollections.map((col) => (
+                <option key={col.slug} value={col.slug}>
+                  {col.title}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -114,6 +157,19 @@ export default function EditProductPage({ params }: EditProductPageProps) {
               <option value="hidden">Hidden from Customer Catalog</option>
             </select>
           </div>
+        </div>
+
+        <div>
+          <label className="block text-xs font-semibold uppercase tracking-wider text-stone-700 mb-1">
+            Product Tags (Comma Separated)
+          </label>
+          <input
+            type="text"
+            value={tags}
+            onChange={(e) => setTags(e.target.value)}
+            placeholder="e.g. 22K Gold, Solitaire, Anniversary Gift, Wedding"
+            className="w-full px-3 py-2 text-xs border border-stone-300 rounded-lg focus:ring-1 focus:ring-amber-500 bg-stone-50 font-mono"
+          />
         </div>
 
         <div className="border-t border-stone-200 pt-4 flex justify-end space-x-3">

@@ -121,12 +121,41 @@ export function Navbar() {
           <SearchBar />
         </div>
 
-        {/* Desktop Category Navigation */}
+        {/* Desktop Category & Collection Navigation */}
         <nav className="hidden lg:flex items-center justify-center space-x-8 py-2.5 border-t border-stone-100 text-xs font-medium uppercase tracking-wider text-stone-700">
           <Link href="/products" className="hover:text-amber-800 transition-colors font-semibold">
             All Products
           </Link>
-          {INITIAL_CATEGORIES.slice(0, 8).map((cat) => (
+
+          {/* Collections Dropdown */}
+          <div className="relative group">
+            <button className="flex items-center space-x-1 hover:text-amber-800 text-amber-900 font-bold transition-colors focus:outline-none py-2">
+              <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+              <span>Collections</span>
+              <ChevronDown className="w-3.5 h-3.5 text-amber-600" />
+            </button>
+            <div className="absolute left-0 top-full pt-1 w-56 opacity-0 group-hover:opacity-100 transition-opacity duration-150 pointer-events-none group-hover:pointer-events-auto z-50">
+              <div className="bg-white border border-stone-200 rounded-xl shadow-xl py-2">
+                <div className="px-4 py-1 text-[10px] font-bold text-amber-800 uppercase tracking-widest border-b border-stone-100 mb-1">
+                  Curated Collections
+                </div>
+                <Link href="/collections/for-her" className="block px-4 py-2 text-xs text-stone-700 hover:bg-amber-50 hover:text-amber-900 font-medium">
+                  Gifts For Her
+                </Link>
+                <Link href="/collections/under-15000" className="block px-4 py-2 text-xs text-stone-700 hover:bg-amber-50 hover:text-amber-900 font-medium">
+                  Gifts Under ₹15,000
+                </Link>
+                <Link href="/collections/anniversary" className="block px-4 py-2 text-xs text-stone-700 hover:bg-amber-50 hover:text-amber-900 font-medium">
+                  Anniversary Specials
+                </Link>
+                <Link href="/collections/bridal" className="block px-4 py-2 text-xs text-stone-700 hover:bg-amber-50 hover:text-amber-900 font-medium">
+                  Royal Bridal Collection
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          {INITIAL_CATEGORIES.slice(0, 6).map((cat) => (
             <Link
               key={cat.id}
               href={`/category/${cat.slug}`}
@@ -137,20 +166,22 @@ export function Navbar() {
           ))}
           {/* Dropdown for more */}
           <div className="relative group">
-            <button className="flex items-center space-x-1 hover:text-amber-800 transition-colors focus:outline-none">
+            <button className="flex items-center space-x-1 hover:text-amber-800 transition-colors focus:outline-none py-2">
               <span>More Categories</span>
               <ChevronDown className="w-3.5 h-3.5" />
             </button>
-            <div className="absolute left-0 mt-2 w-48 bg-white border border-stone-200 rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-150 pointer-events-none group-hover:pointer-events-auto z-50 py-2">
-              {INITIAL_CATEGORIES.slice(8).map((cat) => (
-                <Link
-                  key={cat.id}
-                  href={`/category/${cat.slug}`}
-                  className="block px-4 py-2 text-xs text-stone-700 hover:bg-amber-50 hover:text-amber-900"
-                >
-                  {cat.name}
-                </Link>
-              ))}
+            <div className="absolute left-0 top-full pt-1 w-48 opacity-0 group-hover:opacity-100 transition-opacity duration-150 pointer-events-none group-hover:pointer-events-auto z-50">
+              <div className="bg-white border border-stone-200 rounded-lg shadow-lg py-2">
+                {INITIAL_CATEGORIES.slice(6).map((cat) => (
+                  <Link
+                    key={cat.id}
+                    href={`/category/${cat.slug}`}
+                    className="block px-4 py-2 text-xs text-stone-700 hover:bg-amber-50 hover:text-amber-900"
+                  >
+                    {cat.name}
+                  </Link>
+                ))}
+              </div>
             </div>
           </div>
         </nav>

@@ -1,10 +1,9 @@
-'use client';
-
-import React, { use } from 'react';
+import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { ArrowLeft, Sparkles, Filter } from 'lucide-react';
+import { createClient } from '@/lib/supabase/server';
 
 const COLLECTIONS_DATA: Record<string, any> = {
   'for-her': {
@@ -18,7 +17,7 @@ const COLLECTIONS_DATA: Record<string, any> = {
   },
   'under-15000': {
     title: 'Gifts Under ₹15,000',
-    subtitle: 'Beautiful 18K Gold jewellery that fits perfectly within budget.',
+    subtitle: 'Beautiful 22K Gold jewellery that fits perfectly within budget.',
     cover: 'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&q=80',
     products: [
       { id: 'prod-3', name: 'Minimalist Gold Chain', price: 12000, image: 'https://images.unsplash.com/photo-1599643478524-fb66f70a0066?auto=format&fit=crop&q=80' },
@@ -36,11 +35,57 @@ const COLLECTIONS_DATA: Record<string, any> = {
   }
 };
 
-export default function CollectionPage({ params }: { params: Promise<{ type: string }> }) {
-  const resolvedParams = use(params);
+export default async function CollectionPage({ params }: { params: Promise<{ type: string }> }) {
+  const resolvedParams = await params;
   const type = resolvedParams.type;
 
-  const collection = COLLECTIONS_DATA[type];
+  const supabase = await createClient();
+  const { data: dbCollection } = await supabase
+    .from('collections')
+    .select('*')
+    .eq('slug', type)
+    .single();
+
+  let collection = null;
+
+  if (dbCollection) {
+    // Fetch products for this collection
+    const { data: pcData } = await supabase
+      .from('product_collections')
+      .select('product_id')
+      .eq('collection_id', dbCollection.id);
+      
+    let products = [];
+    if (pcData && pcData.length > 0) {
+      const productIds = pcData.map((pc: any) => pc.product_id);
+      const { data: prodData } = await supabase
+        .from('products')
+        .select(`
+          id, name, slug, description, base_price, is_new_arrival, is_best_seller, 
+          status, categories(name), product_images(url)
+        `)
+        .in('id', productIds)
+        .eq('status', 'active');
+        
+      if (prodData) {
+        products = prodData.map((p: any) => ({
+          ...p,
+          price: p.base_price,
+          image: p.product_images?.[0]?.url || 'https://images.unsplash.com/photo-1605100804763-247f67b4549e?auto=format&fit=crop&w=400&q=80',
+        }));
+      }
+    }
+
+    collection = {
+      title: dbCollection.title,
+      subtitle: dbCollection.subtitle,
+      cover: dbCollection.image_url || 'https://images.unsplash.com/photo-1599643478524-fb66f70a0066?auto=format&fit=crop&q=80',
+      products: products
+    };
+  } else {
+    // Fallback to static data if not in DB yet
+    collection = COLLECTIONS_DATA[type];
+  }
 
   if (!collection) {
     notFound();

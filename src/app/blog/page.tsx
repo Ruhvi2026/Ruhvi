@@ -8,7 +8,7 @@ import { BookOpen, ArrowRight, Calendar } from 'lucide-react';
 const MOCK_POSTS = [
   {
     slug: 'how-to-care-for-18k-gold-jewellery',
-    title: 'How to Care for Your 18K Gold Jewellery at Home',
+    title: 'How to Care for Your 22K Gold Jewellery at Home',
     excerpt: 'Keep your Ruhvi pieces shining forever with these simple, expert-approved home cleaning techniques.',
     cover_image: 'https://images.unsplash.com/photo-1599643478524-fb66f70a0066?auto=format&fit=crop&q=80',
     published_at: '2026-07-28T10:00:00Z',

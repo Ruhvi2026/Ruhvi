@@ -15,9 +15,9 @@ export default function AboutPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
         <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm space-y-3">
           <Award className="w-8 h-8 text-amber-700 mx-auto" />
-          <h3 className="font-serif font-bold text-stone-900 text-base">BIS Hallmarked Purity</h3>
+          <h3 className="font-serif font-bold text-stone-900 text-base">22K Premium Gold Plated</h3>
           <p className="text-xs text-stone-500">
-            Every gram of gold and diamond is strictly certified by government recognized labs.
+            Crafted with thick 22K gold layer plating, backed by a 6-month color guarantee, anti-tarnish protection, and hypoallergenic water resistance.
           </p>
         </div>
 
@@ -25,7 +25,7 @@ export default function AboutPage() {
           <Sparkles className="w-8 h-8 text-amber-700 mx-auto" />
           <h3 className="font-serif font-bold text-stone-900 text-base">Master Craftsmanship</h3>
           <p className="text-xs text-stone-500">
-            Handmade by hereditary artisans with decades of perfection in Kundan, Meenakari, and Solitaire setting.
+            Hand-finished by expert artisans with perfection in Kundan, CZ stones, and anti-tarnish polishing.
           </p>
         </div>
 
@@ -33,7 +33,7 @@ export default function AboutPage() {
           <HeartHandshake className="w-8 h-8 text-amber-700 mx-auto" />
           <h3 className="font-serif font-bold text-stone-900 text-base">Transparent Pricing</h3>
           <p className="text-xs text-stone-500">
-            Clear breakups of gold weight, gemstone cost, and making charges on every invoice.
+            Affordable everyday luxury with complete price transparency and instant GST invoices.
           </p>
         </div>
       </div>

@@ -1,34 +1,41 @@
-import Link from 'next/link'
-import { createClient } from '@/lib/supabase/server'
-import { generateSKU } from '@/lib/sku'
-import { ShieldCheck, Package, Users, ShoppingCart, Tag, LogOut } from 'lucide-react'
+'use client';
 
-export default async function AdminDashboardPage() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+import React from 'react';
+import Link from 'next/link';
+import { 
+  ShieldCheck, 
+  Package, 
+  Plus, 
+  TrendingUp, 
+  BarChart3, 
+  ShoppingCart, 
+  Tag, 
+  Megaphone,
+  Star,
+  FileText, 
+  Users, 
+  Database, 
+  AlertTriangle, 
+  Shield, 
+  LogOut,
+  ArrowRight,
+  RefreshCw,
+  Gift
+} from 'lucide-react';
 
-  const { data: profile } = await supabase
-    .from('users')
-    .select('full_name, role, email')
-    .eq('id', user?.id || '')
-    .single()
-
-  // Sample SKU format demo
-  const sampleRingSKU = generateSKU('rings', 1)
-  const sampleNecklaceSKU = generateSKU('necklaces', 42)
-
+export default function AdminDashboardPage() {
   return (
-    <div className="min-h-screen bg-[#FAF6ED] flex flex-col">
-      {/* Admin Top Navigation */}
-      <header className="bg-[#1C1B1A] text-[#FAF6ED] px-6 py-4 flex items-center justify-between border-b border-[#E7D7A3]/30">
+    <div className="min-h-screen bg-[#FAF6ED] flex flex-col pb-16">
+      {/* Header */}
+      <header className="bg-[#1C1B1A] text-[#FAF6ED] px-6 py-4 flex items-center justify-between border-b border-[#E7D7A3]/30 shadow-md">
         <div className="flex items-center gap-3">
           <ShieldCheck className="w-6 h-6 text-[#E7D7A3]" />
-          <span className="font-serif text-xl font-bold tracking-wider text-[#E7D7A3]">RUHVI ADMIN PANEL</span>
+          <span className="font-serif text-xl font-bold tracking-wider text-[#E7D7A3]">RUHVI ADMIN CONSOLE</span>
         </div>
 
         <div className="flex items-center gap-4 text-xs">
-          <span className="text-[#FAF6ED]/70">
-            Logged in as <strong className="text-[#E7D7A3]">{profile?.full_name || profile?.email}</strong> ({profile?.role?.toUpperCase()})
+          <span className="text-[#FAF6ED]/70 hidden sm:inline">
+            Logged in as <strong className="text-[#E7D7A3]">Admin</strong> (ADMINISTRATOR)
           </span>
           <Link
             href="/"
@@ -39,71 +46,250 @@ export default async function AdminDashboardPage() {
         </div>
       </header>
 
-      {/* Main Admin Area */}
-      <main className="flex-1 max-w-6xl mx-auto p-6 w-full">
-        <div className="mb-8">
-          <h1 className="font-serif text-3xl font-bold text-[#121110]">Management Console</h1>
-          <p className="text-xs text-[#121110]/60 mt-1">Role-Based Access Control Verified • Phase 0 Active</p>
-        </div>
-
-        {/* Quick Stats Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-          <div className="bg-white p-6 rounded-2xl border border-[#E7D7A3]/40 shadow-sm">
-            <div className="flex items-center justify-between text-[#C29831] mb-2">
-              <span className="text-xs font-semibold uppercase tracking-wider text-[#121110]/60">Products</span>
-              <Package className="w-5 h-5" />
+      {/* Main Container */}
+      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 space-y-10 w-full">
+        
+        {/* Banner */}
+        <div className="bg-gradient-to-r from-amber-950 via-stone-900 to-amber-900 text-amber-100 rounded-3xl p-8 shadow-xl flex flex-col md:flex-row items-center justify-between gap-6">
+          <div>
+            <div className="inline-flex items-center space-x-2 bg-amber-500/20 text-amber-300 text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full border border-amber-500/30 mb-3">
+              <ShieldCheck className="w-3.5 h-3.5" />
+              <span>Full Store Control Active</span>
             </div>
-            <p className="font-serif text-3xl font-bold text-[#121110]">0</p>
-            <p className="text-xs text-[#121110]/50 mt-1">Ready for Phase 1 catalog setup</p>
+            <h1 className="font-serif text-3xl sm:text-4xl font-bold">Ruhvi Management System</h1>
+            <p className="text-xs text-stone-300 mt-1 max-w-xl">
+              Access product management, marketing campaigns, revenue analytics, and inventory operations.
+            </p>
           </div>
 
-          <div className="bg-white p-6 rounded-2xl border border-[#E7D7A3]/40 shadow-sm">
-            <div className="flex items-center justify-between text-[#C29831] mb-2">
-              <span className="text-xs font-semibold uppercase tracking-wider text-[#121110]/60">Registered Users</span>
-              <Users className="w-5 h-5" />
-            </div>
-            <p className="font-serif text-3xl font-bold text-[#121110]">Active</p>
-            <p className="text-xs text-[#121110]/50 mt-1">Supabase Auth triggers enabled</p>
-          </div>
-
-          <div className="bg-white p-6 rounded-2xl border border-[#E7D7A3]/40 shadow-sm">
-            <div className="flex items-center justify-between text-[#C29831] mb-2">
-              <span className="text-xs font-semibold uppercase tracking-wider text-[#121110]/60">Orders</span>
-              <ShoppingCart className="w-5 h-5" />
-            </div>
-            <p className="font-serif text-3xl font-bold text-[#121110]">0</p>
-            <p className="text-xs text-[#121110]/50 mt-1">Phase 2 Purchase flow target</p>
-          </div>
-
-          <div className="bg-white p-6 rounded-2xl border border-[#E7D7A3]/40 shadow-sm">
-            <div className="flex items-center justify-between text-[#C29831] mb-2">
-              <span className="text-xs font-semibold uppercase tracking-wider text-[#121110]/60">SKU Engine</span>
-              <Tag className="w-5 h-5" />
-            </div>
-            <p className="font-serif text-sm font-bold text-[#121110]">{sampleRingSKU} / {sampleNecklaceSKU}</p>
-            <p className="text-xs text-[#121110]/50 mt-1">Auto-generator active</p>
+          <div className="flex space-x-3">
+            <Link 
+              href="/admin/products/new"
+              className="px-5 py-2.5 bg-amber-400 text-amber-950 font-bold text-xs uppercase tracking-wider rounded-xl shadow-lg hover:bg-amber-300 transition-all flex items-center space-x-2"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Add Product</span>
+            </Link>
           </div>
         </div>
 
-        {/* Verification Card */}
-        <div className="bg-white p-8 rounded-3xl border border-[#E7D7A3]/60 shadow-md">
-          <h2 className="font-serif text-xl font-bold text-[#121110] mb-4">Phase 0 System Verification</h2>
-          <div className="space-y-3 text-xs text-[#121110]/80">
-            <div className="flex items-center gap-2 p-3 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200">
-              <span className="font-bold">✓ Supabase Database:</span> All 15 PostgreSQL tables initialized with RLS policies.
-            </div>
-            <div className="flex items-center gap-2 p-3 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200">
-              <span className="font-bold">✓ Supabase Auth:</span> Sign Up, Sign In, Password Reset handlers & user sync trigger active.
-            </div>
-            <div className="flex items-center gap-2 p-3 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200">
-              <span className="font-bold">✓ RBAC Middleware:</span> Protected `/admin/*` routes restrict access to staff/manager/admin roles.
-            </div>
-            <div className="flex items-center gap-2 p-3 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200">
-              <span className="font-bold">✓ SKU Function:</span> Reusable server SKU generator ready for catalog initialization.
+        {/* 4 Main Categories Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          
+          {/* Category 1: Product Manager */}
+          <div className="bg-white rounded-3xl p-8 border border-stone-200 shadow-sm space-y-6 flex flex-col justify-between">
+            <div className="space-y-4">
+              <div className="flex items-center space-x-3 border-b border-stone-100 pb-4">
+                <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-900 flex items-center justify-center font-bold">
+                  <Package className="w-5 h-5" />
+                </div>
+                <div>
+                  <h2 className="font-serif text-xl font-bold text-stone-900">1. Product Manager</h2>
+                  <p className="text-xs text-stone-500">Catalog, pricing, visibility & SKU stock controls</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                <Link href="/admin/products/new" className="p-3 bg-stone-50 hover:bg-amber-50/50 rounded-xl border border-stone-200/60 font-semibold text-stone-800 flex items-center justify-between group transition-colors">
+                  <span className="flex items-center space-x-2">
+                    <Plus className="w-4 h-4 text-amber-900" />
+                    <span>Add New Product</span>
+                  </span>
+                  <ArrowRight className="w-3.5 h-3.5 text-stone-400 group-hover:translate-x-1 transition-transform" />
+                </Link>
+
+                <Link href="/admin/products" className="p-3 bg-stone-50 hover:bg-amber-50/50 rounded-xl border border-stone-200/60 font-semibold text-stone-800 flex items-center justify-between group transition-colors">
+                  <span className="flex items-center space-x-2">
+                    <Package className="w-4 h-4 text-amber-900" />
+                    <span>Edit / Delete Catalog</span>
+                  </span>
+                  <ArrowRight className="w-3.5 h-3.5 text-stone-400 group-hover:translate-x-1 transition-transform" />
+                </Link>
+
+                <Link href="/admin/categories" className="p-3 bg-stone-50 hover:bg-amber-50/50 rounded-xl border border-stone-200/60 font-semibold text-stone-800 flex items-center justify-between group transition-colors">
+                  <span className="flex items-center space-x-2">
+                    <Tag className="w-4 h-4 text-amber-900" />
+                    <span>Category Manager</span>
+                  </span>
+                  <ArrowRight className="w-3.5 h-3.5 text-stone-400 group-hover:translate-x-1 transition-transform" />
+                </Link>
+
+                <Link href="/admin/collections" className="p-3 bg-stone-50 hover:bg-amber-50/50 rounded-xl border border-stone-200/60 font-semibold text-stone-800 flex items-center justify-between group transition-colors">
+                  <span className="flex items-center space-x-2">
+                    <Star className="w-4 h-4 text-amber-900" />
+                    <span>Collection Manager</span>
+                  </span>
+                  <ArrowRight className="w-3.5 h-3.5 text-stone-400 group-hover:translate-x-1 transition-transform" />
+                </Link>
+
+                <Link href="/admin/reports/inventory" className="p-3 bg-stone-50 hover:bg-amber-50/50 rounded-xl border border-stone-200/60 font-semibold text-stone-800 flex items-center justify-between group transition-colors">
+                  <span className="flex items-center space-x-2">
+                    <AlertTriangle className="w-4 h-4 text-amber-600" />
+                    <span>Mark Out of Stock</span>
+                  </span>
+                  <ArrowRight className="w-3.5 h-3.5 text-stone-400 group-hover:translate-x-1 transition-transform" />
+                </Link>
+
+                <Link href="/admin/products" className="p-3 bg-stone-50 hover:bg-amber-50/50 rounded-xl border border-stone-200/60 font-semibold text-stone-800 flex items-center justify-between group transition-colors">
+                  <span className="flex items-center space-x-2">
+                    <Tag className="w-4 h-4 text-stone-600" />
+                    <span>Hide / Draft Toggle</span>
+                  </span>
+                  <ArrowRight className="w-3.5 h-3.5 text-stone-400 group-hover:translate-x-1 transition-transform" />
+                </Link>
+              </div>
             </div>
           </div>
+
+          {/* Category 2: Marketing */}
+          <div className="bg-white rounded-3xl p-8 border border-stone-200 shadow-sm space-y-6 flex flex-col justify-between">
+            <div className="space-y-4">
+              <div className="flex items-center space-x-3 border-b border-stone-100 pb-4">
+                <div className="w-10 h-10 rounded-xl bg-rose-50 text-rose-800 flex items-center justify-center font-bold">
+                  <Megaphone className="w-5 h-5" />
+                </div>
+                <div>
+                  <h2 className="font-serif text-xl font-bold text-stone-900">2. Marketing & Growth</h2>
+                  <p className="text-xs text-stone-500">Coupons, banners, blog, UGC & push channels</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                <Link href="/blog" className="p-3 bg-stone-50 hover:bg-rose-50/50 rounded-xl border border-stone-200/60 font-semibold text-stone-800 flex items-center justify-between group transition-colors">
+                  <span className="flex items-center space-x-2">
+                    <FileText className="w-4 h-4 text-rose-700" />
+                    <span>Blog & Editorial Journal</span>
+                  </span>
+                  <ArrowRight className="w-3.5 h-3.5 text-stone-400 group-hover:translate-x-1 transition-transform" />
+                </Link>
+
+                <Link href="/offers" className="p-3 bg-stone-50 hover:bg-rose-50/50 rounded-xl border border-stone-200/60 font-semibold text-stone-800 flex items-center justify-between group transition-colors">
+                  <span className="flex items-center space-x-2">
+                    <Tag className="w-4 h-4 text-rose-700" />
+                    <span>Coupon & Discount Rules</span>
+                  </span>
+                  <ArrowRight className="w-3.5 h-3.5 text-stone-400 group-hover:translate-x-1 transition-transform" />
+                </Link>
+
+                <Link href="/gift-guide" className="p-3 bg-stone-50 hover:bg-rose-50/50 rounded-xl border border-stone-200/60 font-semibold text-stone-800 flex items-center justify-between group transition-colors">
+                  <span className="flex items-center space-x-2">
+                    <Gift className="w-4 h-4 text-rose-700" />
+                    <span>Banners & Collections</span>
+                  </span>
+                  <ArrowRight className="w-3.5 h-3.5 text-stone-400 group-hover:translate-x-1 transition-transform" />
+                </Link>
+
+                <Link href="/admin/reports/coupons-referrals" className="p-3 bg-stone-50 hover:bg-rose-50/50 rounded-xl border border-stone-200/60 font-semibold text-stone-800 flex items-center justify-between group transition-colors">
+                  <span className="flex items-center space-x-2">
+                    <Users className="w-4 h-4 text-rose-700" />
+                    <span>WhatsApp / Email Opt-ins</span>
+                  </span>
+                  <ArrowRight className="w-3.5 h-3.5 text-stone-400 group-hover:translate-x-1 transition-transform" />
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          {/* Category 3: Analytics */}
+          <div className="bg-white rounded-3xl p-8 border border-stone-200 shadow-sm space-y-6 flex flex-col justify-between">
+            <div className="space-y-4">
+              <div className="flex items-center space-x-3 border-b border-stone-100 pb-4">
+                <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-800 flex items-center justify-center font-bold">
+                  <BarChart3 className="w-5 h-5" />
+                </div>
+                <div>
+                  <h2 className="font-serif text-xl font-bold text-stone-900">3. Analytics & Revenue</h2>
+                  <p className="text-xs text-stone-500">Sales reports, best-sellers & cart recovery</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                <Link href="/admin/reports/sales" className="p-3 bg-stone-50 hover:bg-indigo-50/50 rounded-xl border border-stone-200/60 font-semibold text-stone-800 flex items-center justify-between group transition-colors">
+                  <span className="flex items-center space-x-2">
+                    <TrendingUp className="w-4 h-4 text-indigo-700" />
+                    <span>Sales & Revenue Reports</span>
+                  </span>
+                  <ArrowRight className="w-3.5 h-3.5 text-stone-400 group-hover:translate-x-1 transition-transform" />
+                </Link>
+
+                <Link href="/admin/reports/sales" className="p-3 bg-stone-50 hover:bg-indigo-50/50 rounded-xl border border-stone-200/60 font-semibold text-stone-800 flex items-center justify-between group transition-colors">
+                  <span className="flex items-center space-x-2">
+                    <Package className="w-4 h-4 text-indigo-700" />
+                    <span>Best-Selling Products</span>
+                  </span>
+                  <ArrowRight className="w-3.5 h-3.5 text-stone-400 group-hover:translate-x-1 transition-transform" />
+                </Link>
+
+                <Link href="/admin/reports/abandoned-carts" className="p-3 bg-stone-50 hover:bg-indigo-50/50 rounded-xl border border-stone-200/60 font-semibold text-stone-800 flex items-center justify-between group transition-colors">
+                  <span className="flex items-center space-x-2">
+                    <ShoppingCart className="w-4 h-4 text-indigo-700" />
+                    <span>Abandoned Cart Recovery</span>
+                  </span>
+                  <ArrowRight className="w-3.5 h-3.5 text-stone-400 group-hover:translate-x-1 transition-transform" />
+                </Link>
+
+                <Link href="/admin/reports/sales" className="p-3 bg-stone-50 hover:bg-indigo-50/50 rounded-xl border border-stone-200/60 font-semibold text-stone-800 flex items-center justify-between group transition-colors">
+                  <span className="flex items-center space-x-2">
+                    <Users className="w-4 h-4 text-indigo-700" />
+                    <span>Customer Insights & AOV</span>
+                  </span>
+                  <ArrowRight className="w-3.5 h-3.5 text-stone-400 group-hover:translate-x-1 transition-transform" />
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          {/* Category 4: Inventory & Operations */}
+          <div className="bg-white rounded-3xl p-8 border border-stone-200 shadow-sm space-y-6 flex flex-col justify-between">
+            <div className="space-y-4">
+              <div className="flex items-center space-x-3 border-b border-stone-100 pb-4">
+                <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-800 flex items-center justify-center font-bold">
+                  <Database className="w-5 h-5" />
+                </div>
+                <div>
+                  <h2 className="font-serif text-xl font-bold text-stone-900">4. Inventory & Operations</h2>
+                  <p className="text-xs text-stone-500">Bulk CSV updates, order status & staff logs</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                <Link href="/admin/reports/inventory" className="p-3 bg-stone-50 hover:bg-emerald-50/50 rounded-xl border border-stone-200/60 font-semibold text-stone-800 flex items-center justify-between group transition-colors">
+                  <span className="flex items-center space-x-2">
+                    <Package className="w-4 h-4 text-emerald-800" />
+                    <span>Inventory & Low Stock</span>
+                  </span>
+                  <ArrowRight className="w-3.5 h-3.5 text-stone-400 group-hover:translate-x-1 transition-transform" />
+                </Link>
+
+                <Link href="/admin/tools/bulk-management" className="p-3 bg-stone-50 hover:bg-emerald-50/50 rounded-xl border border-stone-200/60 font-semibold text-stone-800 flex items-center justify-between group transition-colors">
+                  <span className="flex items-center space-x-2">
+                    <Database className="w-4 h-4 text-emerald-800" />
+                    <span>Bulk CSV Import / Export</span>
+                  </span>
+                  <ArrowRight className="w-3.5 h-3.5 text-stone-400 group-hover:translate-x-1 transition-transform" />
+                </Link>
+
+                <Link href="/admin/orders/RHV-2026-8942" className="p-3 bg-stone-50 hover:bg-emerald-50/50 rounded-xl border border-stone-200/60 font-semibold text-stone-800 flex items-center justify-between group transition-colors">
+                  <span className="flex items-center space-x-2">
+                    <RefreshCw className="w-4 h-4 text-emerald-800" />
+                    <span>Order Status & Fulfillment</span>
+                  </span>
+                  <ArrowRight className="w-3.5 h-3.5 text-stone-400 group-hover:translate-x-1 transition-transform" />
+                </Link>
+
+                <Link href="/admin/security/audit-logs" className="p-3 bg-stone-50 hover:bg-emerald-50/50 rounded-xl border border-stone-200/60 font-semibold text-stone-800 flex items-center justify-between group transition-colors">
+                  <span className="flex items-center space-x-2">
+                    <Shield className="w-4 h-4 text-emerald-800" />
+                    <span>Staff Activity & Audit Logs</span>
+                  </span>
+                  <ArrowRight className="w-3.5 h-3.5 text-stone-400 group-hover:translate-x-1 transition-transform" />
+                </Link>
+              </div>
+            </div>
+          </div>
+
         </div>
       </main>
     </div>
-  )
+  );
 }
