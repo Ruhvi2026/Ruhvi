@@ -33,20 +33,20 @@ interface WalletTxn {
 
 export default function WalletPage() {
   const { user, profile, loading: authLoading, refreshProfile } = useAuth();
-  const [balance, setBalance] = useState<number>(0);
+  const [balance, setBalance] = useState<number>(350);
   const [transactions, setTransactions] = useState<WalletTxn[]>([]);
   const [loadingTxns, setLoadingTxns] = useState(true);
 
   // Add Money Modal State
   const [showAddMoneyModal, setShowAddMoneyModal] = useState(false);
-  const [selectedAmount, setSelectedAmount] = useState<number>(1000);
+  const [selectedAmount, setSelectedAmount] = useState<number>(350);
   const [customAmount, setCustomAmount] = useState<string>('');
   const [paymentMethod, setPaymentMethod] = useState<'upi' | 'card' | 'netbanking'>('upi');
   const [isProcessing, setIsProcessing] = useState(false);
   const [topUpSuccess, setTopUpSuccess] = useState<string | null>(null);
   const [topUpError, setTopUpError] = useState<string | null>(null);
 
-  const presetAmounts = [500, 1000, 2500, 5000, 10000];
+  const presetAmounts = [350, 500, 1000, 2500, 5000, 10000];
 
   useEffect(() => {
     if (profile) {
@@ -60,8 +60,15 @@ export default function WalletPage() {
         // Fallback demo ledger for unauthenticated/guest preview
         setTransactions([
           {
-            id: 'txn-1',
+            id: 'txn-0',
             created_at: new Date().toISOString(),
+            type: 'credit',
+            amount: 350.0,
+            description: 'Added ₹350 to Ruhvi Wallet',
+          },
+          {
+            id: 'txn-1',
+            created_at: new Date(Date.now() - 3600000 * 4).toISOString(),
             type: 'cashback',
             amount: 150.0,
             description: '5% Cashback on Order #R-837492',
@@ -221,10 +228,6 @@ export default function WalletPage() {
           <ArrowLeft className="w-4 h-4 mr-1" />
           Back to Account
         </Link>
-        <span className="text-xs font-mono font-medium text-emerald-800 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200 flex items-center gap-1.5">
-          <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-          RBI-Compliant Store Wallet
-        </span>
       </div>
 
       {/* Wallet Balance Card */}
@@ -240,9 +243,14 @@ export default function WalletPage() {
             <h1 className="font-serif text-4xl sm:text-5xl font-bold mt-1 tracking-tight">
               ₹{balance.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </h1>
-            <p className="text-[11px] text-emerald-300/80 mt-1 flex items-center gap-1">
-              <Sparkles className="w-3 h-3 text-amber-300" /> 100% Usable on all Fine Jewellery & Gold Coins
-            </p>
+            <div className="mt-1.5 space-y-1">
+              <p className="text-[11px] text-emerald-300/90 flex items-center gap-1 font-medium">
+                <Sparkles className="w-3 h-3 text-amber-300 shrink-0" /> 100% Usable on all Fine Jewellery with Coins
+              </p>
+              <p className="text-[10px] text-emerald-200/60 font-mono">
+                * Wallet amount is non-withdrawable to bank accounts
+              </p>
+            </div>
           </div>
         </div>
 

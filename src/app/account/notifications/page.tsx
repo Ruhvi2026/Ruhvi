@@ -2,10 +2,12 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { Bell, Check, ArrowLeft, Package, Sparkles, ShieldCheck, Trash2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Bell, Check, ArrowLeft, Package, Sparkles } from 'lucide-react';
 import { useNotifications } from '@/context/NotificationContext';
 
 export default function NotificationsInboxPage() {
+  const router = useRouter();
   const { notifications, markAsRead, markAllAsRead, unreadCount } = useNotifications();
   const [filter, setFilter] = useState<'all' | 'unread'>('all');
 
@@ -124,12 +126,17 @@ export default function NotificationsInboxPage() {
               </div>
 
               {notif.link && (
-                <Link
-                  href={notif.link}
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    markAsRead(notif.id);
+                    router.push(notif.link!);
+                  }}
                   className="px-3 py-1.5 bg-white border border-stone-200 text-amber-900 hover:border-amber-400 text-xs font-semibold rounded-lg flex-shrink-0 hover:bg-amber-50 transition-colors"
                 >
                   View Details
-                </Link>
+                </button>
               )}
             </div>
           ))}
