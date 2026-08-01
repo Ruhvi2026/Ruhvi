@@ -2,19 +2,25 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { ShoppingBag, Heart, User, Menu, X, ChevronDown, Sparkles, Bell } from 'lucide-react';
+import { ShoppingBag, Heart, User, Menu, X, ChevronDown, Sparkles, Bell, LogOut, Package, ShieldCheck } from 'lucide-react';
 import { SearchBar } from '@/components/search/SearchBar';
 import { INITIAL_CATEGORIES } from '@/lib/products';
 import { useCart } from '@/context/CartContext';
 import { useWishlist } from '@/context/WishlistContext';
 import { useNotifications } from '@/context/NotificationContext';
+import { useAuth } from '@/context/AuthContext';
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [userDropdownOpen, setUserDropdownOpen] = useState(false);
 
   const { cartCount } = useCart();
   const { wishlistCount } = useWishlist();
   const { unreadCount } = useNotifications();
+  const { user, profile, signOut } = useAuth();
+
+  const userDisplayName = profile?.full_name || user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Account';
+  const userInitials = userDisplayName ? userDisplayName[0].toUpperCase() : 'U';
 
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-stone-200 shadow-sm transition-all">
@@ -106,13 +112,69 @@ export function Navbar() {
               )}
             </Link>
 
-            <Link
-              href="/account"
-              className="p-2 text-slate-700 hover:text-fuchsia-600 transition-colors"
-              title="My Account"
-            >
-              <User className="w-5 h-5" />
-            </Link>
+            {/* User Profile Navigation Icon / Dropdown */}
+            <div className="relative">
+              {user ? (
+                <div className="relative group">
+                  <button
+                    onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+                    className="flex items-center space-x-1.5 p-1 text-slate-700 hover:text-purple-900 focus:outline-none transition-colors"
+                    title="Account Menu"
+                  >
+                    <div className="w-8 h-8 rounded-full bg-purple-950 text-amber-300 font-serif font-bold text-xs flex items-center justify-center border border-amber-400/40 shadow-sm">
+                      {userInitials}
+                    </div>
+                  </button>
+
+                  <div className="absolute right-0 top-full pt-2 w-60 opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none group-hover:pointer-events-auto z-50">
+                    <div className="bg-white border border-stone-200 rounded-2xl shadow-xl p-3 space-y-2 text-xs">
+                      <div className="px-3 py-2 bg-stone-50 rounded-xl border border-stone-100 space-y-0.5">
+                        <p className="font-bold text-stone-900 truncate">{userDisplayName}</p>
+                        <p className="text-[10px] text-stone-500 truncate font-mono">{user.email}</p>
+                        <span className="inline-flex items-center gap-1 text-[9px] font-semibold text-emerald-700 pt-0.5">
+                          <ShieldCheck className="w-3 h-3 text-emerald-600" /> Email Authenticated
+                        </span>
+                      </div>
+
+                      <div className="space-y-1 pt-1">
+                        <Link
+                          href="/account"
+                          className="flex items-center space-x-2 px-3 py-2 rounded-xl text-stone-700 hover:bg-purple-50 hover:text-purple-950 font-medium"
+                        >
+                          <User className="w-4 h-4 text-purple-800" />
+                          <span>My Account Profile</span>
+                        </Link>
+                        <Link
+                          href="/orders"
+                          className="flex items-center space-x-2 px-3 py-2 rounded-xl text-stone-700 hover:bg-purple-50 hover:text-purple-950 font-medium"
+                        >
+                          <Package className="w-4 h-4 text-purple-800" />
+                          <span>My Purchases</span>
+                        </Link>
+                      </div>
+
+                      <div className="pt-2 border-t border-stone-100">
+                        <button
+                          onClick={signOut}
+                          className="w-full flex items-center space-x-2 px-3 py-2 rounded-xl text-rose-700 hover:bg-rose-50 font-semibold text-xs transition"
+                        >
+                          <LogOut className="w-4 h-4" />
+                          <span>Sign Out</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <Link
+                  href="/login"
+                  className="p-2 text-slate-700 hover:text-fuchsia-600 transition-colors flex items-center gap-1"
+                  title="Sign In"
+                >
+                  <User className="w-5 h-5" />
+                </Link>
+              )}
+            </div>
           </div>
         </div>
 

@@ -11,6 +11,8 @@ import MetaPixel from '@/components/MetaPixel';
 import MicrosoftClarity from '@/components/MicrosoftClarity';
 import CustomerSupportChat from '@/components/CustomerSupportChat';
 
+import { AuthProvider } from '@/context/AuthContext';
+
 const inter = Inter({
   subsets: ['latin'],
   variable: '--font-inter',
@@ -38,16 +40,18 @@ export default function RootLayout({
           <MetaPixel />
           <MicrosoftClarity />
         </Suspense>
-        <CartProvider>
-          <WishlistProvider>
-            <NotificationProvider>
-              <Navbar />
-              <main className="flex-1">{children}</main>
-              <Footer />
-              <CustomerSupportChat />
-            </NotificationProvider>
-          </WishlistProvider>
-        </CartProvider>
+        <AuthProvider>
+          <CartProvider>
+            <WishlistProvider>
+              <NotificationProvider>
+                <Navbar />
+                <main className="flex-1">{children}</main>
+                <Footer />
+                <CustomerSupportChat />
+              </NotificationProvider>
+            </WishlistProvider>
+          </CartProvider>
+        </AuthProvider>
       </body>
     </html>
   );

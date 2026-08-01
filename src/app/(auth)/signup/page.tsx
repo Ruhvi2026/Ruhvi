@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { getSiteUrl } from '@/lib/utils/url'
 import { Sparkles, ArrowRight } from 'lucide-react'
 
 export default function SignUpPage() {
@@ -24,7 +25,8 @@ export default function SignUpPage() {
     setMessage(null)
 
     try {
-      const redirectToUrl = `${window.location.origin}/auth/callback`
+      const siteUrl = getSiteUrl()
+      const redirectToUrl = `${siteUrl}/auth/callback`
 
       const { data, error } = await supabase.auth.signUp({
         email,
@@ -46,7 +48,24 @@ export default function SignUpPage() {
           router.refresh()
         }, 1000)
       } else {
-        setMessage('Check your email inbox for the confirmation link to activate your account.')
+        // Attempt instant automatic login right after sign up (for auto-confirmed setups or bypass)
+        const { data: signInData } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        })
+
+        if (signInData?.session) {
+          setMessage('Account created and activated successfully! Redirecting...')
+          setTimeout(() => {
+            router.push('/')
+            router.refresh()
+          }, 1000)
+        } else {
+          setMessage('Account created successfully! Redirecting to login...')
+          setTimeout(() => {
+            router.push('/login')
+          }, 1500)
+        }
       }
     } catch (err: any) {
       setError(err.message || 'An error occurred during sign up.')

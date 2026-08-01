@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
+import { getSiteUrl } from '@/lib/utils/url'
 import { Sparkles, ArrowLeft, Send } from 'lucide-react'
 
 export default function ForgotPasswordPage() {
@@ -19,8 +20,11 @@ export default function ForgotPasswordPage() {
     setMessage(null)
 
     try {
+      const siteUrl = getSiteUrl()
+      const redirectToUrl = `${siteUrl}/reset-password`
+
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`,
+        redirectTo: redirectToUrl,
       })
 
       if (error) throw error
