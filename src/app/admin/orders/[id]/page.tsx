@@ -21,7 +21,7 @@ export default function AdminOrderDetailsPage({ params }: { params: Promise<{ id
     coins_redeemed: 0,
     gst_amount: 0,
     total: 11250,
-    payment_method: 'razorpay',
+    payment_method: 'phonepe',
     payment_status: 'paid',
     gift_wrap: false,
     created_at: new Date().toISOString(),

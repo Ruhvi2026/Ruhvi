@@ -14,9 +14,9 @@ export async function POST(req: Request) {
       shippingCharge,
       codCharge,
       total,
-      razorpay_order_id,
-      razorpay_payment_id,
-      razorpay_signature,
+      phonepe_merchant_transaction_id,
+      phonepe_transaction_id,
+      phonepe_payment_state,
     } = body;
 
     if (!items || items.length === 0) {
@@ -47,14 +47,14 @@ export async function POST(req: Request) {
       coins_redeemed: 0,
       gst_amount: gstAmount,
       total,
-      payment_method: paymentMethod,
-      payment_status: paymentMethod === 'razorpay' ? 'paid' : 'pending',
+      payment_method: paymentMethod || 'phonepe',
+      payment_status: paymentMethod === 'phonepe' ? 'paid' : 'pending',
       gift_wrap: giftWrap,
       gift_message: giftMessage,
       shipping_address: address,
-      razorpay_order_id,
-      razorpay_payment_id,
-      razorpay_signature,
+      phonepe_merchant_transaction_id: phonepe_merchant_transaction_id || `MT_${Date.now()}`,
+      phonepe_transaction_id: phonepe_transaction_id || `T_${Date.now()}`,
+      phonepe_payment_state: phonepe_payment_state || 'COMPLETED',
       created_at: new Date().toISOString(),
       order_items: items.map((item: any) => ({
         id: `ord-item-${Math.random().toString(36).substr(2, 6)}`,
@@ -72,7 +72,7 @@ export async function POST(req: Request) {
       sendOrderConfirmation(
         orderNumber, 
         address.phone, 
-        `${address.firstName} ${address.lastName}`.trim(), 
+        `${address.firstName || ''} ${address.lastName || ''}`.trim() || 'Valued Customer', 
         total
       ).catch(err => console.error('Failed to send WhatsApp confirmation:', err));
     }

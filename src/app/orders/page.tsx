@@ -19,7 +19,7 @@ const SAMPLE_ORDERS: Order[] = [
     coins_redeemed: 0,
     gst_amount: 1456,
     total: 49999,
-    payment_method: 'razorpay',
+    payment_method: 'phonepe',
     payment_status: 'paid',
     gift_wrap: true,
     gift_message: 'Happy Anniversary my love!',

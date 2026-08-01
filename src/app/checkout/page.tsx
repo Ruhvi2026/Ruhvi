@@ -48,7 +48,7 @@ export default function CheckoutPage() {
   const [giftMessage, setGiftMessage] = useState('');
 
   // Payment Method State
-  const [paymentMethod, setPaymentMethod] = useState<'razorpay' | 'cod'>('razorpay');
+  const [paymentMethod, setPaymentMethod] = useState<'phonepe' | 'cod'>('phonepe');
   const [isProcessing, setIsProcessing] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -143,54 +143,34 @@ export default function CheckoutPage() {
     setErrorMessage('');
 
     try {
-      if (paymentMethod === 'razorpay') {
-        // 1. Create order on backend API
-        const res = await fetch('/api/checkout/razorpay', {
+      if (paymentMethod === 'phonepe') {
+        // 1. Initialize PhonePe payment on backend API
+        const res = await fetch('/api/checkout/phonepe', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ amount: totalPayable }),
+          body: JSON.stringify({
+            amount: totalPayable,
+            mobileNumber: selectedAddress.phone,
+          }),
         });
 
         const orderData = await res.json();
         if (!res.ok) {
-          throw new Error(orderData.error || 'Failed to initialize payment');
+          throw new Error(orderData.error || 'Failed to initialize PhonePe payment');
         }
 
-        // Check if Razorpay SDK is available on window
-        if (typeof window !== 'undefined' && (window as any).Razorpay && !orderData.isSimulated) {
-          const options = {
-            key: orderData.key,
-            amount: orderData.amount,
-            currency: orderData.currency,
-            name: 'Ruhvi Jewellery',
-            description: 'Fine Jewellery Purchase',
-            order_id: orderData.id,
-            handler: async function (response: any) {
-              await finalizeOrder({
-                razorpay_order_id: response.razorpay_order_id,
-                razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_signature: response.razorpay_signature,
-              });
-            },
-            prefill: {
-              name: selectedAddress.full_name,
-              contact: selectedAddress.phone,
-            },
-            theme: {
-              color: '#451a03',
-            },
-          };
-          const rzp = new (window as any).Razorpay(options);
-          rzp.open();
-          setIsProcessing(false);
-        } else {
-          // Simulation / Test mode fallback
-          await finalizeOrder({
-            razorpay_order_id: orderData.id,
-            razorpay_payment_id: `pay_sim_${Date.now()}`,
-            razorpay_signature: 'sig_simulated_test_mode',
-          });
+        if (orderData.redirectUrl && !orderData.isSimulated) {
+          // Redirect to PhonePe Secure Gateway URL
+          window.location.href = orderData.redirectUrl;
+          return;
         }
+
+        // Test / Simulated payment fallback
+        await finalizeOrder({
+          phonepe_merchant_transaction_id: orderData.merchantTransactionId || `MT_${Date.now()}`,
+          phonepe_transaction_id: `T_SIM_${Date.now()}`,
+          phonepe_payment_state: 'COMPLETED',
+        });
       } else {
         // COD order
         await finalizeOrder();
@@ -202,7 +182,7 @@ export default function CheckoutPage() {
     }
   };
 
-  const finalizeOrder = async (razorpayDetails?: any) => {
+  const finalizeOrder = async (phonepeDetails?: any) => {
     try {
       const response = await fetch('/api/checkout/verify', {
         method: 'POST',
@@ -217,7 +197,7 @@ export default function CheckoutPage() {
           shippingCharge,
           codCharge,
           total: totalPayable,
-          ...razorpayDetails,
+          ...phonepeDetails,
         }),
       });
 
@@ -255,8 +235,6 @@ export default function CheckoutPage() {
 
   return (
     <>
-      <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="lazyOnload" />
-
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div className="flex items-center space-x-3 border-b border-stone-200 pb-6 mb-8">
           <button
@@ -475,7 +453,7 @@ export default function CheckoutPage() {
                         setUseWallet(e.target.checked);
                         if (e.target.checked && walletBalance >= preWalletTotal) {
                           // If wallet covers the entire cost, COD cannot be selected (or is redundant)
-                          if (paymentMethod === 'cod') setPaymentMethod('razorpay');
+                          if (paymentMethod === 'cod') setPaymentMethod('phonepe');
                         }
                       }}
                       className="w-4 h-4 accent-emerald-700 rounded"
@@ -483,29 +461,30 @@ export default function CheckoutPage() {
                   </label>
                 )}
 
-                {/* Razorpay Option */}
+                {/* PhonePe Option */}
                 <div
-                  onClick={() => setPaymentMethod('razorpay')}
+                  onClick={() => setPaymentMethod('phonepe')}
                   className={`p-4 rounded-xl border cursor-pointer transition-all flex items-center justify-between ${
-                    paymentMethod === 'razorpay'
-                      ? 'border-amber-900 bg-amber-950/5 ring-1 ring-amber-900'
+                    paymentMethod === 'phonepe'
+                      ? 'border-purple-900 bg-purple-950/5 ring-1 ring-purple-900'
                       : 'border-stone-200 hover:border-stone-300'
                   } ${useWallet && walletBalance >= preWalletTotal ? 'opacity-50 pointer-events-none' : ''}`}
                 >
                   <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 rounded-full bg-amber-100 text-amber-900 flex items-center justify-center shrink-0">
-                      <CreditCard className="w-5 h-5" />
+                    <div className="w-10 h-10 rounded-full bg-purple-100 text-purple-900 flex items-center justify-center shrink-0 font-serif font-bold text-base">
+                      ₱
                     </div>
                     <div>
-                      <div className="font-semibold text-xs text-stone-900">
-                        Razorpay Secure (Cards, UPI, NetBanking, Wallets)
+                      <div className="font-semibold text-xs text-stone-900 flex items-center gap-1.5">
+                        <span>PhonePe Payment Gateway</span>
+                        <span className="bg-purple-100 text-purple-900 text-[9px] font-bold px-1.5 py-0.5 rounded">UPI / Cards / Wallet</span>
                       </div>
                       <div className="text-[10px] text-stone-500">
-                        Instant payment confirmation with 256-bit encryption
+                        Pay via PhonePe, GPay, Paytm, UPI Apps, Credit/Debit Cards & NetBanking
                       </div>
                     </div>
                   </div>
-                  {paymentMethod === 'razorpay' && <Check className="w-4 h-4 text-amber-900 font-bold" />}
+                  {paymentMethod === 'phonepe' && <Check className="w-4 h-4 text-purple-900 font-bold" />}
                 </div>
 
                 {/* COD Option */}
@@ -676,7 +655,7 @@ export default function CheckoutPage() {
                 disabled={isProcessing}
                 className="w-full py-4 bg-amber-950 hover:bg-amber-900 text-amber-100 font-bold text-xs uppercase tracking-widest rounded-xl shadow-lg transition-all hover:scale-[1.02] disabled:opacity-50"
               >
-                {isProcessing ? 'Processing Order...' : paymentMethod === 'razorpay' ? 'Pay & Confirm Order' : 'Place COD Order'}
+                {isProcessing ? 'Processing Order...' : paymentMethod === 'phonepe' ? 'Pay via PhonePe' : 'Place COD Order'}
               </button>
 
               <div className="text-center text-[10px] text-stone-400 space-y-1">
