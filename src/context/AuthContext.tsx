@@ -1,3 +1,4 @@
+// TODO: REMIND - MAKE PAYMENT ON FIREBASE (as requested by user)
 'use client';
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
