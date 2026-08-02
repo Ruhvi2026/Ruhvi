@@ -31,8 +31,6 @@ function LoginForm() {
     setLoading(true)
     setError(null)
 
-    const targetUrl = redirectTo !== '/' ? redirectTo : '/admin/dashboard'
-
     try {
       const supabase = createClient()
       const { data, error } = await supabase.auth.signInWithPassword({
@@ -42,7 +40,29 @@ function LoginForm() {
 
       if (error) throw error
 
-      window.location.href = targetUrl
+      let destination = redirectTo
+      if (destination === '/admin') {
+        destination = '/admin/dashboard'
+      }
+
+      if (destination === '/' && data?.user) {
+        const { data: profile } = await supabase
+          .from('users')
+          .select('role')
+          .eq('id', data.user.id)
+          .maybeSingle()
+
+        const isStaffOrAdmin =
+          ['admin', 'manager', 'staff'].includes(profile?.role || '') ||
+          data.user.email === 'ruhvi.main@gmail.com' ||
+          data.user.app_metadata?.role === 'admin'
+
+        if (isStaffOrAdmin) {
+          destination = '/admin/dashboard'
+        }
+      }
+
+      window.location.href = destination
     } catch (err: any) {
       console.error('Login error:', err)
       const msg = err?.message || (typeof err === 'string' ? err : null)
@@ -64,7 +84,7 @@ function LoginForm() {
   const handleGoogleSignIn = async () => {
     setLoading(true)
     setError(null)
-    const targetUrl = redirectTo !== '/' ? redirectTo : '/admin/dashboard'
+    const targetUrl = redirectTo === '/admin' ? '/admin/dashboard' : redirectTo
     try {
       const supabase = createClient()
       const { error } = await supabase.auth.signInWithOAuth({

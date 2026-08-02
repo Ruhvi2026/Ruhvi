@@ -50,9 +50,17 @@ export async function middleware(request: NextRequest) {
         .from('users')
         .select('role')
         .eq('id', user.id)
-        .single()
+        .maybeSingle()
 
-      const role = userProfile?.role || 'customer'
+      let role = userProfile?.role
+      if (!role) {
+        if (user.email === 'ruhvi.main@gmail.com' || user.app_metadata?.role === 'admin' || user.user_metadata?.role === 'admin') {
+          role = 'admin'
+        } else {
+          role = 'customer'
+        }
+      }
+
       const allowedRoles = ['admin', 'manager', 'staff']
 
       if (!allowedRoles.includes(role)) {

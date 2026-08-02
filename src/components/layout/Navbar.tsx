@@ -137,6 +137,15 @@ export function Navbar() {
                       </div>
 
                       <div className="space-y-1 pt-1">
+                        {(['admin', 'manager', 'staff'].includes(profile?.role || '') || user?.email === 'ruhvi.main@gmail.com') && (
+                          <Link
+                            href="/admin/dashboard"
+                            className="flex items-center space-x-2 px-3 py-2 rounded-xl bg-amber-50 text-amber-950 hover:bg-amber-100 font-bold border border-amber-200/60"
+                          >
+                            <ShieldCheck className="w-4 h-4 text-amber-800" />
+                            <span>Admin Console</span>
+                          </Link>
+                        )}
                         <Link
                           href="/account"
                           className="flex items-center space-x-2 px-3 py-2 rounded-xl text-stone-700 hover:bg-purple-50 hover:text-purple-950 font-medium"
