@@ -110,7 +110,7 @@ export default function AdminOrdersListPage() {
                       </Link>
                     </td>
                     <td className="p-4">
-                      {new Date(order.created_at).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' })}
+                      {order.created_at ? new Date(order.created_at).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A'}
                     </td>
                     <td className="p-4">
                       {order.shipping_address?.full_name || 'Unknown'}
