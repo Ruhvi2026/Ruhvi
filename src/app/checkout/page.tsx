@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Script from 'next/script';
+import { Turnstile, TurnstileInstance } from '@marsidev/react-turnstile';
 import { ShieldCheck, Truck, CreditCard, Banknote, Gift, MapPin, Check, Plus, AlertCircle, ArrowLeft } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { Address } from '@/types/database';
@@ -51,6 +52,10 @@ export default function CheckoutPage() {
   const [paymentMethod, setPaymentMethod] = useState<'phonepe' | 'cod'>('phonepe');
   const [isProcessing, setIsProcessing] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+
+  // Bot Protection State
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const turnstileRef = useRef<TurnstileInstance>(null);
 
   // Money Features State
   const [couponCode, setCouponCode] = useState('');
@@ -139,6 +144,11 @@ export default function CheckoutPage() {
       return;
     }
 
+    if (paymentMethod === 'cod' && !turnstileToken) {
+      setErrorMessage('Please complete the security check.');
+      return;
+    }
+
     setIsProcessing(true);
     setErrorMessage('');
 
@@ -173,12 +183,27 @@ export default function CheckoutPage() {
         });
       } else {
         // COD order
+        const verifyRes = await fetch('/api/checkout/verify-turnstile', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token: turnstileToken }),
+        });
+        
+        const verifyData = await verifyRes.json();
+        if (!verifyData.success) {
+          throw new Error('Security verification failed. Please try again.');
+        }
+
         await finalizeOrder();
       }
     } catch (err: any) {
       console.error(err);
       setErrorMessage(err.message || 'Payment processing failed. Please try again.');
       setIsProcessing(false);
+      if (paymentMethod === 'cod') {
+        turnstileRef.current?.reset();
+        setTurnstileToken(null);
+      }
     }
   };
 
@@ -649,6 +674,27 @@ export default function CheckoutPage() {
                   </span>
                 </div>
               </div>
+
+              {paymentMethod === 'cod' && (
+                <div className="flex justify-center mb-4 min-h-[65px]">
+                  <Turnstile
+                    ref={turnstileRef}
+                    siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ''}
+                    onSuccess={(token) => {
+                      setTurnstileToken(token);
+                      setErrorMessage('');
+                    }}
+                    onError={() => setErrorMessage('Security check failed. Please refresh.')}
+                    onExpire={() => {
+                      setTurnstileToken(null);
+                      turnstileRef.current?.reset();
+                    }}
+                    options={{
+                      theme: 'light',
+                    }}
+                  />
+                </div>
+              )}
 
               <button
                 onClick={handlePlaceOrder}
