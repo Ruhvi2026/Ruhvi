@@ -4,60 +4,45 @@ import React, { useState, use } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Package, Truck, FileText, CheckCircle, Clock } from 'lucide-react';
 import { Order } from '@/types/database';
+import { createClient } from '@/lib/supabase/client';
 
 export default function AdminOrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params);
-  // Mock Order Data (Phase 5)
-  const [order, setOrder] = useState<Order>({
-    id: resolvedParams.id,
-    user_id: 'user-123',
-    order_number: 'RHV-2026-8942',
-    status: 'confirmed',
-    subtotal: 12500,
-    shipping_charge: 0,
-    cod_charge: 0,
-    coupon_discount: 1250,
-    wallet_used: 0,
-    coins_redeemed: 0,
-    gst_amount: 0,
-    total: 11250,
-    payment_method: 'phonepe',
-    payment_status: 'paid',
-    gift_wrap: false,
-    created_at: new Date().toISOString(),
-    shipping_address_id: 'addr-1',
-    shipping_address: {
-      id: 'addr-1',
-      user_id: 'user-123',
-      label: 'Home',
-      full_name: 'Ananya Sharma',
-      phone: '+91 98765 43210',
-      line1: 'Flat 402, Royal Palms Apartments',
-      city: 'Hyderabad',
-      state: 'Telangana',
-      pincode: '500033',
-      is_default: true,
-    },
-    order_items: [
-      {
-        id: 'item-1',
-        order_id: resolvedParams.id,
-        product_id: 'prod-1',
-        sku: 'R-RING-01',
-        quantity: 1,
-        price_at_purchase: 12500,
-      }
-    ],
-    // Shiprocket Phase 5 Fields
-    shiprocket_order_id: null,
-    shiprocket_shipment_id: null,
-    awb_code: null,
-    courier_name: null,
-  });
-
+  const [order, setOrder] = useState<Order | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [isPushing, setIsPushing] = useState(false);
 
+  React.useEffect(() => {
+    fetchOrder();
+  }, [resolvedParams.id]);
+
+  const fetchOrder = async () => {
+    setLoading(true);
+    try {
+      const supabase = createClient();
+      const { data, error } = await supabase
+        .from('orders')
+        .select(`
+          *,
+          shipping_address:addresses(*),
+          order_items(*)
+        `)
+        .eq('id', resolvedParams.id)
+        .single();
+
+      if (error) throw error;
+      setOrder(data as Order);
+    } catch (err: any) {
+      console.error(err);
+      setError('Failed to fetch order details.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handlePushToShiprocket = async () => {
+    if (!order) return;
     setIsPushing(true);
     // In a real app, this calls POST /api/admin/shiprocket/create-order
     // For now, we mock the successful response delay
@@ -73,6 +58,9 @@ export default function AdminOrderDetailsPage({ params }: { params: Promise<{ id
       setIsPushing(false);
     }, 1500);
   };
+
+  if (loading) return <div className="p-10 text-center text-stone-500">Loading order...</div>;
+  if (error || !order) return <div className="p-10 text-center text-rose-600 font-bold">{error || 'Order not found.'}</div>;
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">

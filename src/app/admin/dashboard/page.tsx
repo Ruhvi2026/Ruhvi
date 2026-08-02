@@ -269,7 +269,7 @@ export default function AdminDashboardPage() {
                   <ArrowRight className="w-3.5 h-3.5 text-stone-400 group-hover:translate-x-1 transition-transform" />
                 </Link>
 
-                <Link href="/admin/orders/RHV-2026-8942" className="p-3 bg-stone-50 hover:bg-emerald-50/50 rounded-xl border border-stone-200/60 font-semibold text-stone-800 flex items-center justify-between group transition-colors">
+                <Link href="/admin/orders" className="p-3 bg-stone-50 hover:bg-emerald-50/50 rounded-xl border border-stone-200/60 font-semibold text-stone-800 flex items-center justify-between group transition-colors">
                   <span className="flex items-center space-x-2">
                     <RefreshCw className="w-4 h-4 text-emerald-800" />
                     <span>Order Status & Fulfillment</span>
