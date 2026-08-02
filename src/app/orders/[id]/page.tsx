@@ -227,13 +227,31 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
                   <span>₹{order.cod_charge}</span>
                 </div>
               )}
+              {order.coupon_discount > 0 && (
+                <div className="flex justify-between text-emerald-700">
+                  <span>Coupon</span>
+                  <span>-₹{order.coupon_discount.toLocaleString('en-IN')}</span>
+                </div>
+              )}
+              {order.coins_redeemed > 0 && (
+                <div className="flex justify-between text-yellow-600">
+                  <span>Coins Redeemed</span>
+                  <span>-₹{order.coins_redeemed.toLocaleString('en-IN')}</span>
+                </div>
+              )}
+              {order.wallet_used > 0 && (
+                <div className="flex justify-between text-emerald-700">
+                  <span>Paid from Wallet</span>
+                  <span>-₹{order.wallet_used.toLocaleString('en-IN')}</span>
+                </div>
+              )}
               <div className="flex justify-between text-[11px] text-stone-400">
                 <span>GST (3% Included)</span>
                 <span>₹{order.gst_amount.toLocaleString('en-IN')}</span>
               </div>
 
               <div className="border-t border-stone-200 pt-3 flex justify-between font-bold text-sm text-amber-950">
-                <span>Total Paid</span>
+                <span>{order.payment_status === 'paid' ? 'Total Paid' : 'Total Payable'}</span>
                 <span>₹{order.total.toLocaleString('en-IN')}</span>
               </div>
             </div>
@@ -245,6 +263,18 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
 
           {/* Actions */}
           <div className="space-y-3">
+            {order.payment_status === 'pending' && order.payment_method === 'cod' && (
+              <button
+                onClick={() => {
+                  alert('Redirecting to Payment Gateway...');
+                  // In a real app, this would initialize PhonePe and redirect
+                }}
+                className="w-full py-3 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs uppercase tracking-widest rounded-xl shadow transition-all flex items-center justify-center space-x-2"
+              >
+                <span>Pay Now Securely</span>
+              </button>
+            )}
+
             <button
               onClick={handleReorder}
               className="w-full py-3 bg-amber-950 hover:bg-amber-900 text-amber-100 font-bold text-xs uppercase tracking-widest rounded-xl shadow transition-all flex items-center justify-center space-x-2"

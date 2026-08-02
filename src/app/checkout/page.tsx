@@ -7,6 +7,8 @@ import { Turnstile, TurnstileInstance } from '@marsidev/react-turnstile';
 import { ShieldCheck, Truck, CreditCard, Banknote, Gift, MapPin, Check, Plus, AlertCircle, ArrowLeft } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { Address } from '@/types/database';
+import { auth } from '@/lib/firebase';
+import { RecaptchaVerifier, signInWithPhoneNumber, ConfirmationResult } from 'firebase/auth';
 
 const DEFAULT_ADDRESSES: Address[] = [
   {
@@ -56,6 +58,12 @@ export default function CheckoutPage() {
   // Bot Protection State
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const turnstileRef = useRef<TurnstileInstance>(null);
+
+  // OTP State
+  const [showOtpModal, setShowOtpModal] = useState(false);
+  const [otpCode, setOtpCode] = useState('');
+  const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
+  const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
 
   // Money Features State
   const [couponCode, setCouponCode] = useState('');
@@ -186,15 +194,32 @@ export default function CheckoutPage() {
         const verifyRes = await fetch('/api/checkout/verify-turnstile', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ token: turnstileToken }),
+          body: JSON.stringify({ 
+            token: turnstileToken,
+            phone: selectedAddress.phone 
+          }),
         });
         
         const verifyData = await verifyRes.json();
         if (!verifyData.success) {
-          throw new Error('Security verification failed. Please try again.');
+          throw new Error(verifyData.error || 'Security verification failed. Please try again.');
         }
 
-        await finalizeOrder();
+        // Initialize Firebase reCAPTCHA
+        if (!(window as any).recaptchaVerifier) {
+          (window as any).recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+            size: 'invisible',
+          });
+        }
+
+        // Send OTP
+        const formattedPhone = selectedAddress.phone.startsWith('+') ? selectedAddress.phone : `+91${selectedAddress.phone.replace(/\D/g, '').slice(-10)}`;
+        const confirmation = await signInWithPhoneNumber(auth, formattedPhone, (window as any).recaptchaVerifier);
+        
+        setConfirmationResult(confirmation);
+        setShowOtpModal(true);
+        setIsProcessing(false);
+        // Do NOT call finalizeOrder() yet!
       }
     } catch (err: any) {
       console.error(err);
@@ -204,6 +229,23 @@ export default function CheckoutPage() {
         turnstileRef.current?.reset();
         setTurnstileToken(null);
       }
+    }
+  };
+
+  const handleVerifyOtp = async () => {
+    if (!otpCode || otpCode.length < 6 || !confirmationResult) return;
+    setIsVerifyingOtp(true);
+    setErrorMessage('');
+
+    try {
+      await confirmationResult.confirm(otpCode);
+      setShowOtpModal(false);
+      // OTP verified, now create the order
+      await finalizeOrder();
+    } catch (err: any) {
+      console.error(err);
+      setErrorMessage('Invalid OTP. Please check the code and try again.');
+      setIsVerifyingOtp(false);
     }
   };
 
@@ -221,6 +263,9 @@ export default function CheckoutPage() {
           subtotal,
           shippingCharge,
           codCharge,
+          wallet_used: walletDiscount,
+          coins_redeemed: coinsDiscount,
+          coupon_discount: couponDiscount,
           total: totalPayable,
           ...phonepeDetails,
         }),
@@ -709,10 +754,59 @@ export default function CheckoutPage() {
                 <p>100% Safe & Secure Checkout</p>
                 <p>Insured Shipping across India</p>
               </div>
+
+              <div id="recaptcha-container"></div>
             </div>
           </div>
         </div>
       </div>
+
+      {/* OTP Modal */}
+      {showOtpModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
+          <div className="bg-white p-6 sm:p-8 rounded-2xl w-full max-w-md shadow-2xl">
+            <h3 className="font-serif text-xl font-bold text-stone-900 mb-2">Verify Your Phone Number</h3>
+            <p className="text-xs text-stone-600 mb-6">
+              We've sent a 6-digit verification code to <span className="font-bold">{selectedAddress?.phone}</span>. Please enter it below to confirm your Cash on Delivery order.
+            </p>
+
+            {errorMessage && (
+              <div className="mb-4 p-3 bg-rose-50 border border-rose-200 rounded-lg text-rose-800 text-xs flex items-center space-x-2">
+                <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                <span>{errorMessage}</span>
+              </div>
+            )}
+
+            <input
+              type="text"
+              placeholder="Enter 6-digit OTP"
+              value={otpCode}
+              onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+              className="w-full px-4 py-3 text-center tracking-[0.5em] font-mono font-bold text-lg border border-stone-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 mb-4"
+            />
+
+            <div className="flex space-x-3">
+              <button
+                onClick={() => {
+                  setShowOtpModal(false);
+                  setErrorMessage('');
+                }}
+                className="flex-1 py-3 text-stone-600 font-bold text-xs uppercase tracking-wider rounded-xl hover:bg-stone-100 transition-colors"
+                disabled={isVerifyingOtp}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleVerifyOtp}
+                disabled={isVerifyingOtp || otpCode.length < 6}
+                className="flex-1 py-3 bg-amber-950 text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow-lg hover:bg-amber-900 transition-colors disabled:opacity-50"
+              >
+                {isVerifyingOtp ? 'Verifying...' : 'Confirm Order'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
