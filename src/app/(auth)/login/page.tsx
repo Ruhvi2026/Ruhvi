@@ -62,6 +62,8 @@ function LoginForm() {
         }
       }
 
+      router.refresh()
+      await new Promise((resolve) => setTimeout(resolve, 50))
       window.location.href = destination
     } catch (err: any) {
       console.error('Login error:', err)

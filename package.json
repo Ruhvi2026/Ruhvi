@@ -12,6 +12,7 @@
     "@marsidev/react-turnstile": "^1.5.4",
     "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.49.1",
+    "@vercel/speed-insights": "^2.0.0",
     "clsx": "^2.1.1",
     "firebase": "^12.17.0",
     "lucide-react": "^0.475.0",

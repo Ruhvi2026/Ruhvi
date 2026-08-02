@@ -10,6 +10,7 @@ import { NotificationProvider } from '@/context/NotificationContext';
 import MetaPixel from '@/components/MetaPixel';
 import MicrosoftClarity from '@/components/MicrosoftClarity';
 import CustomerSupportChat from '@/components/CustomerSupportChat';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 
 import { AuthProvider } from '@/context/AuthContext';
 
@@ -48,6 +49,7 @@ export default function RootLayout({
                 <main className="flex-1">{children}</main>
                 <Footer />
                 <CustomerSupportChat />
+                <SpeedInsights />
               </NotificationProvider>
             </WishlistProvider>
           </CartProvider>

@@ -8,7 +8,7 @@ export default function ReferralsPage() {
   const [copied, setCopied] = useState(false);
   
   const referralCode = 'RHV-A1B2C3';
-  const referralLink = `https://ruhvi.in/?ref=${referralCode}`;
+  const referralLink = typeof window !== 'undefined' ? `${window.location.origin}/?ref=${referralCode}` : `https://ruhvi.vercel.app/?ref=${referralCode}`;
 
   // Mock referrals data
   const referrals = [

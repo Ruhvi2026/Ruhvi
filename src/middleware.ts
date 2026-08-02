@@ -42,7 +42,11 @@ export async function middleware(request: NextRequest) {
       if (!user) {
         const loginUrl = new URL('/login', request.url)
         loginUrl.searchParams.set('redirectTo', path)
-        return NextResponse.redirect(loginUrl)
+        const redirectResponse = NextResponse.redirect(loginUrl)
+        supabaseResponse.cookies.getAll().forEach((c) => {
+          redirectResponse.cookies.set(c.name, c.value, c)
+        })
+        return redirectResponse
       }
 
       // Fetch user role from public.users table
@@ -53,19 +57,29 @@ export async function middleware(request: NextRequest) {
         .maybeSingle()
 
       let role = userProfile?.role
+
+      // Always grant admin privileges to the primary admin email or metadata role
+      if (
+        user.email === 'ruhvi.main@gmail.com' ||
+        user.app_metadata?.role === 'admin' ||
+        user.user_metadata?.role === 'admin'
+      ) {
+        role = 'admin'
+      }
+
       if (!role) {
-        if (user.email === 'ruhvi.main@gmail.com' || user.app_metadata?.role === 'admin' || user.user_metadata?.role === 'admin') {
-          role = 'admin'
-        } else {
-          role = 'customer'
-        }
+        role = 'customer'
       }
 
       const allowedRoles = ['admin', 'manager', 'staff']
 
       if (!allowedRoles.includes(role)) {
         // Forbidden for regular customers
-        return NextResponse.redirect(new URL('/unauthorized', request.url))
+        const redirectResponse = NextResponse.redirect(new URL('/unauthorized', request.url))
+        supabaseResponse.cookies.getAll().forEach((c) => {
+          redirectResponse.cookies.set(c.name, c.value, c)
+        })
+        return redirectResponse
       }
     }
   } catch (error) {
