@@ -6,6 +6,7 @@ import Script from 'next/script';
 import { Turnstile, TurnstileInstance } from '@marsidev/react-turnstile';
 import { ShieldCheck, Truck, CreditCard, Banknote, Gift, MapPin, Check, Plus, AlertCircle, ArrowLeft } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
+import { useAuth } from '@/context/AuthContext';
 import { Address } from '@/types/database';
 import { auth } from '@/lib/firebase';
 import { RecaptchaVerifier, signInWithPhoneNumber, ConfirmationResult } from 'firebase/auth';
@@ -29,6 +30,7 @@ const DEFAULT_ADDRESSES: Address[] = [
 export default function CheckoutPage() {
   const router = useRouter();
   const { items, subtotal, clearCart } = useCart();
+  const { user } = useAuth();
 
   const [addresses, setAddresses] = useState<Address[]>(DEFAULT_ADDRESSES);
   const [selectedAddressId, setSelectedAddressId] = useState<string>(DEFAULT_ADDRESSES[0]?.id || '');
@@ -149,6 +151,11 @@ export default function CheckoutPage() {
   const handlePlaceOrder = async () => {
     if (!selectedAddress) {
       setErrorMessage('Please select or add a shipping address.');
+      return;
+    }
+
+    if (paymentMethod === 'cod' && !user) {
+      setErrorMessage('Cash on Delivery (COD) is available only for logged-in accounts. Please log in or select an online payment method.');
       return;
     }
 
@@ -561,27 +568,42 @@ export default function CheckoutPage() {
 
                 {/* COD Option */}
                 <div
-                  onClick={() => setPaymentMethod('cod')}
-                  className={`p-4 rounded-xl border cursor-pointer transition-all flex items-center justify-between ${
-                    paymentMethod === 'cod'
-                      ? 'border-amber-900 bg-amber-950/5 ring-1 ring-amber-900'
-                      : 'border-stone-200 hover:border-stone-300'
+                  onClick={() => {
+                    if (!user) {
+                      setErrorMessage('Cash on Delivery (COD) is available only for logged-in accounts. Please log in to your account or pay online.');
+                      return;
+                    }
+                    setPaymentMethod('cod');
+                  }}
+                  className={`p-4 rounded-xl border transition-all flex items-center justify-between ${
+                    !user
+                      ? 'border-stone-200 bg-stone-50/80 opacity-80'
+                      : paymentMethod === 'cod'
+                      ? 'border-amber-900 bg-amber-950/5 ring-1 ring-amber-900 cursor-pointer'
+                      : 'border-stone-200 hover:border-stone-300 cursor-pointer'
                   } ${useWallet && walletBalance >= preWalletTotal ? 'opacity-50 pointer-events-none' : ''}`}
                 >
                   <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 rounded-full bg-amber-100 text-amber-900 flex items-center justify-center shrink-0">
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${!user ? 'bg-stone-200 text-stone-500' : 'bg-amber-100 text-amber-900'}`}>
                       <Banknote className="w-5 h-5" />
                     </div>
                     <div>
-                      <div className="font-semibold text-xs text-stone-900">
-                        Cash on Delivery (COD)
+                      <div className="font-semibold text-xs text-stone-900 flex items-center gap-1.5">
+                        <span>Cash on Delivery (COD)</span>
+                        {!user && (
+                          <span className="bg-amber-100 text-amber-900 text-[9px] font-bold px-1.5 py-0.5 rounded">
+                            Log-in Required
+                          </span>
+                        )}
                       </div>
                       <div className="text-[10px] text-stone-500">
-                        Pay cash upon delivery (+ ₹49 COD processing charge)
+                        {!user
+                          ? 'Available for logged-in users only. Please log in or choose online payment.'
+                          : 'Pay cash upon delivery (+ ₹49 COD processing charge)'}
                       </div>
                     </div>
                   </div>
-                  {paymentMethod === 'cod' && <Check className="w-4 h-4 text-amber-900 font-bold" />}
+                  {paymentMethod === 'cod' && user && <Check className="w-4 h-4 text-amber-900 font-bold" />}
                 </div>
               </div>
             </div>

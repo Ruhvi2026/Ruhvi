@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { sendOrderConfirmation } from '@/lib/whatsapp';
-import { createClient } from '@/lib/supabase/server';
+import { createClient as createServerClient } from '@/lib/supabase/server';
+import { createClient as createJSClient } from '@supabase/supabase-js';
 
 export async function POST(req: Request) {
   try {
@@ -31,11 +32,45 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Shipping address is required' }, { status: 400 });
     }
 
-    const supabase = await createClient();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    let supabase = await createServerClient();
+    let { data: { user } } = await supabase.auth.getUser();
 
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Authentication required to place an order.' }, { status: 401 });
+    // Disable COD for guest accounts
+    if (paymentMethod === 'cod' && !user) {
+      return NextResponse.json(
+        { error: 'Cash on Delivery (COD) is available only for logged-in accounts. Please log in or select an online payment method.' },
+        { status: 403 }
+      );
+    }
+
+    // If no authenticated user (for online payment), create a temporary guest user so the order saves to Supabase
+    if (!user) {
+      console.log('No authenticated user found. Creating guest session for online order...');
+      const guestEmail = `guest_${Date.now()}_${Math.floor(Math.random() * 1000)}@ruhvi.com`;
+      const guestPassword = `Guest!${Date.now()}`;
+      
+      // We must use a separate JS client to establish the session in memory without touching cookies
+      supabase = createJSClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      );
+
+      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+        email: guestEmail,
+        password: guestPassword,
+        options: {
+          data: {
+            full_name: address.firstName ? `${address.firstName} ${address.lastName}` : 'Guest User'
+          }
+        }
+      });
+
+      if (signUpError || !signUpData.user) {
+        console.error('Failed to create guest user:', signUpError);
+        return NextResponse.json({ error: 'Failed to initiate guest checkout.' }, { status: 500 });
+      }
+      
+      user = signUpData.user;
     }
 
     // Generate unique order number (e.g. RHV-2026-XXXX)
