@@ -1,19 +1,9 @@
 'use client'
 
-import { useState, Suspense, useEffect } from 'react'
+import { useState, Suspense } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { auth } from '@/lib/firebase'
-import { 
-  signInWithEmailAndPassword, 
-  signInWithPhoneNumber, 
-  RecaptchaVerifier, 
-  signInWithPopup, 
-  GoogleAuthProvider,
-  ConfirmationResult,
-  User
-} from 'firebase/auth'
 import { Sparkles, ArrowRight, Eye, EyeOff, Mail, Phone } from 'lucide-react'
 
 function LoginForm() {
@@ -32,31 +22,9 @@ function LoginForm() {
   const [phone, setPhone] = useState('')
   const [otp, setOtp] = useState('')
   const [showOtpInput, setShowOtpInput] = useState(false)
-  const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null)
-
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [message, setMessage] = useState<string | null>(null)
-
-  // Initialize Recaptcha
-  useEffect(() => {
-    if (typeof window !== 'undefined' && !(window as any).recaptchaVerifier) {
-      (window as any).recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-        size: 'invisible',
-      })
-    }
-  }, [])
-
-  const syncUserToSupabase = async (user: User) => {
-    const supabase = createClient()
-    const { error } = await supabase.from('users').upsert({
-      firebase_uid: user.uid,
-      email: user.email || null,
-      full_name: user.displayName || null,
-      phone: user.phoneNumber || null,
-    }, { onConflict: 'firebase_uid' })
-    if (error) console.error("Failed to sync user to Supabase", error)
-  }
 
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -66,8 +34,14 @@ function LoginForm() {
     const targetUrl = redirectTo !== '/' ? redirectTo : '/admin/dashboard'
 
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password)
-      await syncUserToSupabase(userCredential.user)
+      const supabase = createClient()
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      })
+
+      if (error) throw error
+
       window.location.href = targetUrl
     } catch (err: any) {
       console.error('Login error:', err)
@@ -79,44 +53,12 @@ function LoginForm() {
 
   const handleSendOtp = async (e: React.FormEvent) => {
     e.preventDefault()
-    setLoading(true)
-    setError(null)
-    setMessage(null)
-
-    try {
-      const formattedPhone = phone.startsWith('+') ? phone : `+91${phone}`
-      const appVerifier = (window as any).recaptchaVerifier
-      
-      const confirmation = await signInWithPhoneNumber(auth, formattedPhone, appVerifier)
-      setConfirmationResult(confirmation)
-
-      setShowOtpInput(true)
-      setMessage('OTP sent to your phone number.')
-    } catch (err: any) {
-      console.error('OTP send error:', err)
-      setError(err?.message || 'Failed to send OTP. Please try again.')
-    } finally {
-      setLoading(false)
-    }
+    setError('Phone OTP authentication is temporarily paused. Please use Email login.')
   }
 
   const handleVerifyOtp = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!confirmationResult) return
-    setLoading(true)
-    setError(null)
-
-    const targetUrl = redirectTo !== '/' ? redirectTo : '/admin/dashboard'
-
-    try {
-      const userCredential = await confirmationResult.confirm(otp)
-      await syncUserToSupabase(userCredential.user)
-      window.location.href = targetUrl
-    } catch (err: any) {
-      console.error('OTP verify error:', err)
-      setError(err?.message || 'Invalid OTP. Please try again.')
-      setLoading(false)
-    }
+    setError('Phone OTP authentication is temporarily paused. Please use Email login.')
   }
 
   const handleGoogleSignIn = async () => {
@@ -124,10 +66,14 @@ function LoginForm() {
     setError(null)
     const targetUrl = redirectTo !== '/' ? redirectTo : '/admin/dashboard'
     try {
-      const provider = new GoogleAuthProvider()
-      const userCredential = await signInWithPopup(auth, provider)
-      await syncUserToSupabase(userCredential.user)
-      window.location.href = targetUrl
+      const supabase = createClient()
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(targetUrl)}`
+        }
+      })
+      if (error) throw error
     } catch (err: any) {
       console.error('Google sign in error:', err)
       setError(err?.message || 'Failed to sign in with Google.')

@@ -1,20 +1,9 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { auth } from '@/lib/firebase'
-import { 
-  createUserWithEmailAndPassword, 
-  signInWithPhoneNumber, 
-  RecaptchaVerifier, 
-  signInWithPopup, 
-  GoogleAuthProvider,
-  ConfirmationResult,
-  User,
-  updateProfile
-} from 'firebase/auth'
 import { Sparkles, ArrowRight, Mail, Phone } from 'lucide-react'
 
 export default function SignUpPage() {
@@ -32,31 +21,9 @@ export default function SignUpPage() {
   const [phone, setPhone] = useState('')
   const [otp, setOtp] = useState('')
   const [showOtpInput, setShowOtpInput] = useState(false)
-  const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null)
-
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [message, setMessage] = useState<string | null>(null)
-
-  // Initialize Recaptcha
-  useEffect(() => {
-    if (typeof window !== 'undefined' && !(window as any).recaptchaVerifier) {
-      (window as any).recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-        size: 'invisible',
-      })
-    }
-  }, [])
-
-  const syncUserToSupabase = async (user: User, nameOverride?: string) => {
-    const supabase = createClient()
-    const { error } = await supabase.from('users').upsert({
-      firebase_uid: user.uid,
-      email: user.email || null,
-      full_name: nameOverride || user.displayName || null,
-      phone: user.phoneNumber || null,
-    }, { onConflict: 'firebase_uid' })
-    if (error) console.error("Failed to sync user to Supabase", error)
-  }
 
   const handleEmailSignUp = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -65,11 +32,18 @@ export default function SignUpPage() {
     setMessage(null)
 
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password)
-      if (fullName) {
-        await updateProfile(userCredential.user, { displayName: fullName })
-      }
-      await syncUserToSupabase(userCredential.user, fullName)
+      const supabase = createClient()
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: fullName,
+          }
+        }
+      })
+
+      if (error) throw error
 
       setMessage('Account created successfully! Redirecting...')
       setTimeout(() => {
@@ -85,65 +59,26 @@ export default function SignUpPage() {
 
   const handleSendOtp = async (e: React.FormEvent) => {
     e.preventDefault()
-    setLoading(true)
-    setError(null)
-    setMessage(null)
-
-    try {
-      const formattedPhone = phone.startsWith('+') ? phone : `+91${phone}`
-      const appVerifier = (window as any).recaptchaVerifier
-      
-      const confirmation = await signInWithPhoneNumber(auth, formattedPhone, appVerifier)
-      setConfirmationResult(confirmation)
-
-      setShowOtpInput(true)
-      setMessage('OTP sent to your phone number.')
-    } catch (err: any) {
-      console.error('OTP send error:', err)
-      setError(err?.message || 'Failed to send OTP. Please try again.')
-    } finally {
-      setLoading(false)
-    }
+    setError('Phone OTP authentication is temporarily paused. Please use Email sign up.')
   }
 
   const handleVerifyOtp = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!confirmationResult) return
-    setLoading(true)
-    setError(null)
-
-    try {
-      const userCredential = await confirmationResult.confirm(otp)
-      if (fullName && !userCredential.user.displayName) {
-        await updateProfile(userCredential.user, { displayName: fullName })
-      }
-      await syncUserToSupabase(userCredential.user, fullName)
-
-      setMessage('Account verified successfully! Redirecting...')
-      setTimeout(() => {
-        router.push('/')
-        router.refresh()
-      }, 1000)
-    } catch (err: any) {
-      console.error('OTP verify error:', err)
-      setError(err?.message || 'Invalid OTP. Please try again.')
-      setLoading(false)
-    }
+    setError('Phone OTP authentication is temporarily paused. Please use Email sign up.')
   }
 
   const handleGoogleSignIn = async () => {
     setLoading(true)
     setError(null)
     try {
-      const provider = new GoogleAuthProvider()
-      const userCredential = await signInWithPopup(auth, provider)
-      await syncUserToSupabase(userCredential.user)
-      
-      setMessage('Account created successfully! Redirecting...')
-      setTimeout(() => {
-        router.push('/')
-        router.refresh()
-      }, 1000)
+      const supabase = createClient()
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`
+        }
+      })
+      if (error) throw error
     } catch (err: any) {
       console.error('Google sign in error:', err)
       setError(err?.message || 'Failed to sign in with Google.')

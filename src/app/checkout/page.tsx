@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import Script from 'next/script';
 import { Turnstile, TurnstileInstance } from '@marsidev/react-turnstile';
 import { ShieldCheck, Truck, CreditCard, Banknote, Gift, MapPin, Check, Plus, AlertCircle, ArrowLeft } from 'lucide-react';
@@ -15,7 +16,7 @@ import { RecaptchaVerifier, signInWithPhoneNumber, ConfirmationResult } from 'fi
 export default function CheckoutPage() {
   const router = useRouter();
   const { items, subtotal, clearCart } = useCart();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
 
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [selectedAddressId, setSelectedAddressId] = useState<string>('');
@@ -91,9 +92,8 @@ export default function CheckoutPage() {
   const [useCoins, setUseCoins] = useState(false);
   const [useWallet, setUseWallet] = useState(false);
 
-  // Mock Balances (in a real app, fetch from UserContext or API)
-  const walletBalance = 1250;
-  const coinsBalance = 3450; // 10 coins = ₹1, so max ₹345
+  const walletBalance = Number(profile?.wallet_balance) || 0;
+  const coinsBalance = Number(profile?.reward_coins) || 0; // 10 coins = ₹1
   const maxCoinsRedeemableValue = Math.floor(coinsBalance / 10);
 
   // Shipping & Cost calculations
@@ -344,9 +344,19 @@ export default function CheckoutPage() {
         </div>
 
         {errorMessage && (
-          <div className="mb-6 p-4 bg-rose-50 border border-rose-200 rounded-xl text-rose-800 text-xs flex items-center space-x-2">
-            <AlertCircle className="w-4 h-4 flex-shrink-0" />
-            <span>{errorMessage}</span>
+          <div className="mb-6 p-4 bg-rose-50 border border-rose-200 rounded-xl text-rose-800 text-xs flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <AlertCircle className="w-4 h-4 flex-shrink-0 text-rose-600" />
+              <span>{errorMessage}</span>
+            </div>
+            {!user && (errorMessage.includes('logged-in') || errorMessage.includes('Log-in')) && (
+              <Link
+                href="/login?redirectTo=/checkout"
+                className="px-3 py-1.5 bg-amber-950 hover:bg-amber-900 text-amber-50 text-xs font-bold rounded-lg transition-colors shrink-0 ml-3 shadow-sm"
+              >
+                Log In Now
+              </Link>
+            )}
           </div>
         )}
 
@@ -606,12 +616,21 @@ export default function CheckoutPage() {
                       <Banknote className="w-5 h-5" />
                     </div>
                     <div>
-                      <div className="font-semibold text-xs text-stone-900 flex items-center gap-1.5">
+                      <div className="font-semibold text-xs text-stone-900 flex items-center gap-1.5 flex-wrap">
                         <span>Cash on Delivery (COD)</span>
                         {!user && (
-                          <span className="bg-amber-100 text-amber-900 text-[9px] font-bold px-1.5 py-0.5 rounded">
-                            Log-in Required
-                          </span>
+                          <div className="flex items-center gap-1.5">
+                            <span className="bg-amber-100 text-amber-900 text-[9px] font-bold px-1.5 py-0.5 rounded">
+                              Log-in Required
+                            </span>
+                            <Link
+                              href="/login?redirectTo=/checkout"
+                              onClick={(e) => e.stopPropagation()}
+                              className="bg-amber-950 hover:bg-amber-900 text-white text-[10px] font-bold px-2.5 py-0.5 rounded transition-colors shadow-sm inline-flex items-center"
+                            >
+                              Log In
+                            </Link>
+                          </div>
                         )}
                       </div>
                       <div className="text-[10px] text-stone-500">

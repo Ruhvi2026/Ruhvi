@@ -33,7 +33,7 @@ interface WalletTxn {
 
 export default function WalletPage() {
   const { user, profile, loading: authLoading, refreshProfile } = useAuth();
-  const [balance, setBalance] = useState<number>(350);
+  const [balance, setBalance] = useState<number>(0);
   const [transactions, setTransactions] = useState<WalletTxn[]>([]);
   const [loadingTxns, setLoadingTxns] = useState(true);
 

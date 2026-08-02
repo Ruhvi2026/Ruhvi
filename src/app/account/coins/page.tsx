@@ -1,11 +1,13 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import Link from 'next/link';
 import { ArrowLeft, ArrowUpRight, ArrowDownLeft, ShieldCheck, HelpCircle } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
 
 export default function RewardCoinsPage() {
-  const [coins, setCoins] = useState(3450);
+  const { profile } = useAuth();
+  const coins = Number(profile?.reward_coins) || 0;
 
   // 10 coins = ₹1
   const rupeeValue = coins / 10;
