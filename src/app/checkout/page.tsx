@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Script from 'next/script';
 import { Turnstile, TurnstileInstance } from '@marsidev/react-turnstile';
@@ -8,33 +8,51 @@ import { ShieldCheck, Truck, CreditCard, Banknote, Gift, MapPin, Check, Plus, Al
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
 import { Address } from '@/types/database';
+import { createClient } from '@/lib/supabase/client';
 import { auth } from '@/lib/firebase';
 import { RecaptchaVerifier, signInWithPhoneNumber, ConfirmationResult } from 'firebase/auth';
-
-const DEFAULT_ADDRESSES: Address[] = [
-  {
-    id: 'addr-1',
-    user_id: 'user-1',
-    label: 'Home',
-    full_name: 'Ananya Sharma',
-    phone: '+91 98765 43210',
-    line1: 'Flat 402, Royal Palms Apartments',
-    line2: 'Jubilee Hills, Road No. 36',
-    city: 'Hyderabad',
-    state: 'Telangana',
-    pincode: '500033',
-    is_default: true,
-  },
-];
 
 export default function CheckoutPage() {
   const router = useRouter();
   const { items, subtotal, clearCart } = useCart();
   const { user } = useAuth();
 
-  const [addresses, setAddresses] = useState<Address[]>(DEFAULT_ADDRESSES);
-  const [selectedAddressId, setSelectedAddressId] = useState<string>(DEFAULT_ADDRESSES[0]?.id || '');
-  const [showNewAddressForm, setShowNewAddressForm] = useState(false);
+  const [addresses, setAddresses] = useState<Address[]>([]);
+  const [selectedAddressId, setSelectedAddressId] = useState<string>('');
+  const [showNewAddressForm, setShowNewAddressForm] = useState<boolean>(true);
+
+  // Fetch saved user addresses from Supabase when user is logged in
+  useEffect(() => {
+    if (user) {
+      const fetchAddresses = async () => {
+        try {
+          const supabase = createClient();
+          const { data, error } = await supabase
+            .from('addresses')
+            .select('*')
+            .eq('user_id', user.id)
+            .order('is_default', { ascending: false });
+
+          if (!error && data && data.length > 0) {
+            setAddresses(data as Address[]);
+            const defaultAddr = data.find((a: any) => a.is_default) || data[0];
+            setSelectedAddressId(defaultAddr.id);
+            setShowNewAddressForm(false);
+          } else {
+            setAddresses([]);
+            setShowNewAddressForm(true);
+          }
+        } catch (err) {
+          console.error('Error loading saved addresses:', err);
+          setShowNewAddressForm(true);
+        }
+      };
+      fetchAddresses();
+    } else {
+      setAddresses([]);
+      setShowNewAddressForm(true);
+    }
+  }, [user]);
 
   // New Address Form State
   const [newAddress, setNewAddress] = useState({
@@ -128,7 +146,7 @@ export default function CheckoutPage() {
 
     const created: Address = {
       id: `addr-${Date.now()}`,
-      user_id: 'user-1',
+      user_id: user?.id || 'guest',
       ...newAddress,
       is_default: addresses.length === 0,
     };

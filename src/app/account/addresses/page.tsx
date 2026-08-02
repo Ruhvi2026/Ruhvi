@@ -1,43 +1,46 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { MapPin, Plus, Trash2, Edit2, Check, ArrowLeft } from 'lucide-react';
 import { Address } from '@/types/database';
-
-const INITIAL_ADDRESSES: Address[] = [
-  {
-    id: 'addr-1',
-    user_id: 'demo-user',
-    label: 'Home',
-    full_name: 'Ananya Sharma',
-    phone: '+91 98765 43210',
-    line1: 'Flat 402, Royal Palms Apartments',
-    line2: 'Jubilee Hills, Road No. 36',
-    city: 'Hyderabad',
-    state: 'Telangana',
-    pincode: '500033',
-    is_default: true,
-  },
-  {
-    id: 'addr-2',
-    user_id: 'demo-user',
-    label: 'Office',
-    full_name: 'Ananya Sharma',
-    phone: '+91 98765 43210',
-    line1: 'Tech Park Towers, Block B, Floor 6',
-    line2: 'HITEC City',
-    city: 'Hyderabad',
-    state: 'Telangana',
-    pincode: '500081',
-    is_default: false,
-  },
-];
+import { useAuth } from '@/context/AuthContext';
+import { createClient } from '@/lib/supabase/client';
 
 export default function AddressBookPage() {
-  const [addresses, setAddresses] = useState<Address[]>(INITIAL_ADDRESSES);
+  const { user } = useAuth();
+  const [addresses, setAddresses] = useState<Address[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
   const [showForm, setShowForm] = useState(false);
   const [editingAddress, setEditingAddress] = useState<Address | null>(null);
+
+  useEffect(() => {
+    if (user) {
+      const fetchAddresses = async () => {
+        setLoading(true);
+        try {
+          const supabase = createClient();
+          const { data, error } = await supabase
+            .from('addresses')
+            .select('*')
+            .eq('user_id', user.id)
+            .order('is_default', { ascending: false });
+
+          if (!error && data) {
+            setAddresses(data as Address[]);
+          }
+        } catch (err) {
+          console.error('Error fetching addresses:', err);
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchAddresses();
+    } else {
+      setAddresses([]);
+      setLoading(false);
+    }
+  }, [user]);
 
   const [formData, setFormData] = useState({
     label: 'Home',
