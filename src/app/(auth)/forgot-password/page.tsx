@@ -2,8 +2,8 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { createClient } from '@/lib/supabase/client'
-import { getSiteUrl } from '@/lib/utils/url'
+import { sendPasswordResetEmail } from 'firebase/auth'
+import { auth } from '@/lib/firebase'
 import { Sparkles, ArrowLeft, Send } from 'lucide-react'
 
 export default function ForgotPasswordPage() {
@@ -14,24 +14,22 @@ export default function ForgotPasswordPage() {
 
   const handleReset = async (e: React.FormEvent) => {
     e.preventDefault()
-    const supabase = createClient()
     setLoading(true)
     setError(null)
     setMessage(null)
 
     try {
-      const siteUrl = getSiteUrl()
-      const redirectToUrl = `${siteUrl}/reset-password`
-
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: redirectToUrl,
-      })
-
-      if (error) throw error
-
-      setMessage('Password reset instructions have been sent to your email.')
+      await sendPasswordResetEmail(auth, email)
+      setMessage('Password reset link has been sent to your email. Please check your inbox.')
     } catch (err: any) {
-      setError(err.message || 'Failed to send password reset email.')
+      console.error('Password reset error:', err)
+      let msg = 'Failed to send password reset email.'
+      if (err?.code === 'auth/user-not-found') {
+        msg = 'No registered user found with this email address.'
+      } else if (err?.message) {
+        msg = err.message
+      }
+      setError(msg)
     } finally {
       setLoading(false)
     }

@@ -5,7 +5,12 @@ import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { auth } from '@/lib/firebase'
-import { RecaptchaVerifier, signInWithPhoneNumber, ConfirmationResult } from 'firebase/auth'
+import { 
+  RecaptchaVerifier, 
+  signInWithPhoneNumber, 
+  signInWithEmailAndPassword, 
+  ConfirmationResult 
+} from 'firebase/auth'
 import { Sparkles, ArrowRight, Eye, EyeOff, Mail, Phone } from 'lucide-react'
 
 function LoginForm() {
@@ -46,45 +51,39 @@ function LoginForm() {
     e.preventDefault()
     setLoading(true)
     setError(null)
+    setMessage(null)
 
     try {
+      // Handle Email/Password login strictly via Firebase Auth
+      const userCredential = await signInWithEmailAndPassword(auth, email, password)
+      const fbUser = userCredential.user
+
+      // Upsert user into Supabase database
       const supabase = createClient()
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      })
+      await supabase.from('users').upsert({
+        firebase_uid: fbUser.uid,
+        email: fbUser.email || null,
+        full_name: fbUser.displayName || null,
+        phone: fbUser.phoneNumber || null,
+      }, { onConflict: 'firebase_uid' })
 
-      if (error) throw error
+      let destination = redirectTo === '/admin' ? '/admin/dashboard' : redirectTo
 
-      let destination = redirectTo
-      if (destination === '/admin') {
-        destination = '/admin/dashboard'
-      }
-
-      if (destination === '/' && data?.user) {
-        const { data: profile } = await supabase
-          .from('users')
-          .select('role')
-          .eq('id', data.user.id)
-          .maybeSingle()
-
-        const isStaffOrAdmin =
-          ['admin', 'manager', 'staff'].includes(profile?.role || '') ||
-          data.user.email === 'ruhvi.main@gmail.com' ||
-          data.user.app_metadata?.role === 'admin'
-
-        if (isStaffOrAdmin) {
-          destination = '/admin/dashboard'
-        }
-      }
-
+      setMessage('Login successful! Redirecting...')
       router.refresh()
       await new Promise((resolve) => setTimeout(resolve, 50))
       window.location.href = destination
     } catch (err: any) {
-      console.error('Login error:', err)
-      const msg = err?.message || (typeof err === 'string' ? err : null)
-      setError(msg || 'Invalid email or password. Please check your credentials.')
+      console.error('Firebase Email login error:', err)
+      let msg = 'Invalid email or password. Please check your credentials.'
+      if (err?.code === 'auth/user-not-found' || err?.code === 'auth/invalid-credential') {
+        msg = 'No account found with this email or invalid password.'
+      } else if (err?.code === 'auth/wrong-password') {
+        msg = 'Incorrect password. Please try again.'
+      } else if (err?.message) {
+        msg = err.message
+      }
+      setError(msg)
       setLoading(false)
     }
   }
@@ -169,17 +168,51 @@ function LoginForm() {
     setError(null)
     const targetUrl = redirectTo === '/admin' ? '/admin/dashboard' : redirectTo
     try {
+      // Handle Google OAuth strictly via Supabase Auth
       const supabase = createClient()
-      const { error } = await supabase.auth.signInWithOAuth({
+      const { error: supabaseError } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(targetUrl)}`
         }
       })
-      if (error) throw error
+
+      if (supabaseError) throw supabaseError
     } catch (err: any) {
-      console.error('Google sign in error:', err)
-      setError(err?.message || 'Failed to sign in with Google.')
+      console.error('Supabase Google sign in error:', err)
+      const isProviderDisabled = err?.message?.includes('provider is not enabled') || err?.error_code === 'validation_failed'
+      setError(
+        isProviderDisabled
+          ? 'Google Sign-In is not enabled in Supabase Dashboard yet. Please enable Google under Supabase Dashboard -> Authentication -> Providers -> Google.'
+          : err?.message || 'Failed to sign in with Google via Supabase.'
+      )
+      setLoading(false)
+    }
+  }
+
+  const handleFacebookSignIn = async () => {
+    setLoading(true)
+    setError(null)
+    const targetUrl = redirectTo === '/admin' ? '/admin/dashboard' : redirectTo
+    try {
+      // Handle Facebook OAuth strictly via Supabase Auth
+      const supabase = createClient()
+      const { error: supabaseError } = await supabase.auth.signInWithOAuth({
+        provider: 'facebook',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(targetUrl)}`
+        }
+      })
+
+      if (supabaseError) throw supabaseError
+    } catch (err: any) {
+      console.error('Supabase Facebook sign in error:', err)
+      const isProviderDisabled = err?.message?.includes('provider is not enabled') || err?.error_code === 'validation_failed'
+      setError(
+        isProviderDisabled
+          ? 'Facebook Sign-In is not enabled in Supabase Dashboard yet. Please enable Facebook under Supabase Dashboard -> Authentication -> Providers -> Facebook.'
+          : err?.message || 'Failed to sign in with Facebook via Supabase.'
+      )
       setLoading(false)
     }
   }
@@ -347,20 +380,34 @@ function LoginForm() {
         <div className="flex-1 h-px bg-[#E7D7A3]/50"></div>
       </div>
 
-      <button
-        type="button"
-        onClick={handleGoogleSignIn}
-        disabled={loading}
-        className="w-full mt-6 py-3 px-4 bg-white border border-[#E7D7A3] text-[#121110] rounded-xl font-medium text-sm hover:bg-[#FAF7ED] transition flex items-center justify-center gap-2 shadow-sm disabled:opacity-50"
-      >
-        <svg viewBox="0 0 24 24" className="w-5 h-5">
-          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
-          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
-        </svg>
-        Sign in with Google
-      </button>
+      <div className="mt-6 space-y-3">
+        <button
+          type="button"
+          onClick={handleGoogleSignIn}
+          disabled={loading}
+          className="w-full py-3 px-4 bg-white border border-[#E7D7A3] text-[#121110] rounded-xl font-medium text-sm hover:bg-[#FAF7ED] transition flex items-center justify-center gap-2 shadow-sm disabled:opacity-50"
+        >
+          <svg viewBox="0 0 24 24" className="w-5 h-5">
+            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+          </svg>
+          Sign in with Google
+        </button>
+
+        <button
+          type="button"
+          onClick={handleFacebookSignIn}
+          disabled={loading}
+          className="w-full py-3 px-4 bg-[#1877F2] text-white rounded-xl font-medium text-sm hover:bg-[#166FE5] transition flex items-center justify-center gap-2 shadow-sm disabled:opacity-50"
+        >
+          <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current">
+            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+          </svg>
+          Sign in with Facebook
+        </button>
+      </div>
 
       <div className="mt-8 text-center text-xs text-[#121110]/60">
         Don’t have an account yet?{' '}
