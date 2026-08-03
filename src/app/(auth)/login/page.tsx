@@ -30,10 +30,15 @@ function LoginForm() {
   const [message, setMessage] = useState<string | null>(null)
 
   useEffect(() => {
-    if (typeof window !== 'undefined' && !(window as any).recaptchaVerifier) {
-      (window as any).recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-        size: 'invisible',
-      })
+    return () => {
+      if (typeof window !== 'undefined' && (window as any).recaptchaVerifier) {
+        try {
+          (window as any).recaptchaVerifier.clear()
+        } catch (e) {
+          // ignore cleanup error
+        }
+        ;(window as any).recaptchaVerifier = null
+      }
     }
   }, [])
 
@@ -92,7 +97,17 @@ function LoginForm() {
 
     try {
       const formattedPhone = phone.startsWith('+') ? phone : `+91${phone.replace(/\D/g, '').slice(-10)}`
-      if (!(window as any).recaptchaVerifier) {
+      if (typeof window !== 'undefined') {
+        if ((window as any).recaptchaVerifier) {
+          try {
+            (window as any).recaptchaVerifier.clear()
+          } catch (e) {}
+          ;(window as any).recaptchaVerifier = null
+        }
+        const containerNode = document.getElementById('recaptcha-container')
+        if (containerNode) {
+          containerNode.innerHTML = ''
+        }
         (window as any).recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
           size: 'invisible',
         })
@@ -106,6 +121,12 @@ function LoginForm() {
       setMessage('OTP sent to your phone number.')
     } catch (err: any) {
       console.error('OTP send error:', err)
+      if (typeof window !== 'undefined' && (window as any).recaptchaVerifier) {
+        try {
+          (window as any).recaptchaVerifier.clear()
+        } catch (e) {}
+        ;(window as any).recaptchaVerifier = null
+      }
       setError(err?.message || 'Failed to send OTP. Please try again.')
     } finally {
       setLoading(false)

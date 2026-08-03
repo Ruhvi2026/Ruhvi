@@ -245,23 +245,44 @@ export default function CheckoutPage() {
           throw new Error(verifyData.error || 'Security verification failed. Please try again.');
         }
 
-        // Initialize Firebase reCAPTCHA
-        if (!(window as any).recaptchaVerifier) {
-          (window as any).recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-            size: 'invisible',
-          });
+        // Initialize Firebase reCAPTCHA with fresh DOM container binding
+        if ((window as any).recaptchaVerifier) {
+          try {
+            (window as any).recaptchaVerifier.clear();
+          } catch (e) {
+            // ignore
+          }
+          (window as any).recaptchaVerifier = null;
         }
+
+        const recaptchaContainer = document.getElementById('recaptcha-container');
+        if (recaptchaContainer) {
+          recaptchaContainer.innerHTML = '';
+        }
+
+        const verifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+          size: 'invisible',
+        });
+        (window as any).recaptchaVerifier = verifier;
 
         // Send OTP
         const formattedPhone = selectedAddress.phone.startsWith('+') ? selectedAddress.phone : `+91${selectedAddress.phone.replace(/\D/g, '').slice(-10)}`;
-        const confirmation = await signInWithPhoneNumber(auth, formattedPhone, (window as any).recaptchaVerifier);
+        const confirmation = await signInWithPhoneNumber(auth, formattedPhone, verifier);
         
         setConfirmationResult(confirmation);
         setShowOtpModal(true);
         setIsProcessing(false);
       }
     } catch (err: any) {
-      console.error(err);
+      console.error('COD payment / OTP error:', err);
+      if ((window as any).recaptchaVerifier) {
+        try {
+          (window as any).recaptchaVerifier.clear();
+        } catch (e) {
+          // ignore
+        }
+        (window as any).recaptchaVerifier = null;
+      }
       setErrorMessage(err.message || 'Payment processing failed. Please try again.');
       setIsProcessing(false);
       if (paymentMethod === 'cod') {
