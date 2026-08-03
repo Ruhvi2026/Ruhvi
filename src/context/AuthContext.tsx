@@ -40,17 +40,53 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchProfile = async (authUser: User) => {
+  const fetchProfile = async (authUser: any) => {
     try {
       const supabase = createClient();
-      const { data, error } = await supabase
-        .from('users')
-        .select('*')
-        .eq('id', authUser.id)
-        .maybeSingle();
+      let data = null;
 
-      if (error && error.code !== 'PGRST116') {
-        console.error('Error fetching user profile:', error);
+      // 1. Try fetching by ID (Supabase Auth ID)
+      if (authUser.id) {
+        const { data: userById } = await supabase
+          .from('users')
+          .select('*')
+          .eq('id', authUser.id)
+          .maybeSingle();
+        data = userById;
+      }
+
+      // 2. Try fetching by firebase_uid
+      if (!data && authUser.id) {
+        const { data: userByFb } = await supabase
+          .from('users')
+          .select('*')
+          .eq('firebase_uid', authUser.id)
+          .maybeSingle();
+        data = userByFb;
+      }
+
+      // 3. Try fetching by phone
+      if (!data && (authUser.phone || authUser.user_metadata?.phone)) {
+        const rawPhone = authUser.phone || authUser.user_metadata?.phone || '';
+        const cleanedPhone = rawPhone.replace(/\D/g, '').slice(-10);
+        if (cleanedPhone) {
+          const { data: userByPhone } = await supabase
+            .from('users')
+            .select('*')
+            .ilike('phone', `%${cleanedPhone}%`)
+            .maybeSingle();
+          data = userByPhone;
+        }
+      }
+
+      // 4. Try fetching by email
+      if (!data && authUser.email) {
+        const { data: userByEmail } = await supabase
+          .from('users')
+          .select('*')
+          .eq('email', authUser.email)
+          .maybeSingle();
+        data = userByEmail;
       }
 
       if (data) {
@@ -60,8 +96,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setProfile({
           id: authUser.id,
           email: authUser.email || '',
-          full_name: authUser.user_metadata?.full_name || authUser.email?.split('@')[0] || 'User',
-          phone: authUser.user_metadata?.phone || authUser.phone || '',
+          full_name: authUser.user_metadata?.full_name || authUser.displayName || authUser.email?.split('@')[0] || 'User',
+          phone: authUser.user_metadata?.phone || authUser.phone || authUser.phoneNumber || '',
           role: 'customer',
           wallet_balance: 0,
           reward_coins: 0,
@@ -77,17 +113,47 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const supabase = createClient();
     const { data: { user: currentUser } } = await supabase.auth.getUser();
     if (currentUser) {
-      setUser(currentUser);
+      setUser(currentUser as any);
       await fetchProfile(currentUser);
-    } else {
-      setUser(null);
-      setProfile(null);
+      return;
     }
+
+    try {
+      const { auth } = await import('@/lib/firebase');
+      const fbUser = auth.currentUser;
+      if (fbUser) {
+        const formattedUser: any = {
+          id: fbUser.uid,
+          email: fbUser.email || null,
+          phone: fbUser.phoneNumber || null,
+          user_metadata: {
+            full_name: fbUser.displayName || null,
+            phone: fbUser.phoneNumber || null,
+          },
+          created_at: fbUser.metadata.creationTime || new Date().toISOString(),
+        };
+        setUser(formattedUser);
+        await fetchProfile(formattedUser);
+        return;
+      }
+    } catch (e) {
+      console.error('Firebase refresh error:', e);
+    }
+
+    setUser(null);
+    setProfile(null);
   };
 
   const signOut = async () => {
     const supabase = createClient();
     await supabase.auth.signOut();
+    try {
+      const { signOut: firebaseSignOut } = await import('firebase/auth');
+      const { auth } = await import('@/lib/firebase');
+      await firebaseSignOut(auth);
+    } catch (e) {
+      console.error('Firebase signout error:', e);
+    }
     setUser(null);
     setSession(null);
     setProfile(null);
@@ -96,33 +162,104 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const supabase = createClient();
+    let unsubFirebase: (() => void) | null = null;
 
-    // Fetch initial session
-    supabase.auth.getSession().then(({ data: { session: initialSession } }) => {
-      setSession(initialSession);
-      setUser(initialSession?.user ?? null);
+    const initAuth = async () => {
+      // 1. Check Supabase auth session
+      const { data: { session: initialSession } } = await supabase.auth.getSession();
       if (initialSession?.user) {
-        fetchProfile(initialSession.user);
+        setSession(initialSession);
+        setUser(initialSession.user as any);
+        await fetchProfile(initialSession.user);
+        setLoading(false);
+        return;
       }
-      setLoading(false);
-    });
 
-    // Listen to Auth State Changes
+      // 2. Listen to Firebase auth state if no active Supabase session
+      try {
+        const { onAuthStateChanged } = await import('firebase/auth');
+        const { auth } = await import('@/lib/firebase');
+
+        unsubFirebase = onAuthStateChanged(auth, async (fbUser) => {
+          const { data: { session: checkSession } } = await supabase.auth.getSession();
+          if (checkSession?.user) {
+            setSession(checkSession);
+            setUser(checkSession.user as any);
+            await fetchProfile(checkSession.user);
+            setLoading(false);
+            return;
+          }
+
+          if (fbUser) {
+            const formattedUser: any = {
+              id: fbUser.uid,
+              email: fbUser.email || null,
+              phone: fbUser.phoneNumber || null,
+              user_metadata: {
+                full_name: fbUser.displayName || null,
+                phone: fbUser.phoneNumber || null,
+              },
+              created_at: fbUser.metadata.creationTime || new Date().toISOString(),
+            };
+            setUser(formattedUser);
+            await fetchProfile(formattedUser);
+          } else {
+            setUser(null);
+            setProfile(null);
+          }
+          setLoading(false);
+        });
+      } catch (err) {
+        console.error('Firebase auth listener error:', err);
+        setLoading(false);
+      }
+    };
+
+    initAuth();
+
+    // 3. Listen to Supabase Auth State Changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (_event, currentSession) => {
-        setSession(currentSession);
-        setUser(currentSession?.user ?? null);
         if (currentSession?.user) {
+          setSession(currentSession);
+          setUser(currentSession.user as any);
           await fetchProfile(currentSession.user);
+          setLoading(false);
         } else {
-          setProfile(null);
+          try {
+            const { auth } = await import('@/lib/firebase');
+            const fbUser = auth.currentUser;
+            if (fbUser) {
+              const formattedUser: any = {
+                id: fbUser.uid,
+                email: fbUser.email || null,
+                phone: fbUser.phoneNumber || null,
+                user_metadata: {
+                  full_name: fbUser.displayName || null,
+                  phone: fbUser.phoneNumber || null,
+                },
+                created_at: fbUser.metadata.creationTime || new Date().toISOString(),
+              };
+              setUser(formattedUser);
+              await fetchProfile(formattedUser);
+            } else {
+              setUser(null);
+              setSession(null);
+              setProfile(null);
+            }
+          } catch {
+            setUser(null);
+            setSession(null);
+            setProfile(null);
+          }
+          setLoading(false);
         }
-        setLoading(false);
       }
     );
 
     return () => {
       subscription.unsubscribe();
+      if (unsubFirebase) unsubFirebase();
     };
   }, []);
 
