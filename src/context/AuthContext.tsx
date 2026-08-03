@@ -162,56 +162,74 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const supabase = createClient();
+    let isMounted = true;
     let unsubFirebase: (() => void) | null = null;
 
-    const initAuth = async () => {
-      // 1. Check Supabase auth session
-      const { data: { session: initialSession } } = await supabase.auth.getSession();
-      if (initialSession?.user) {
-        setSession(initialSession);
-        setUser(initialSession.user as any);
-        await fetchProfile(initialSession.user);
-        setLoading(false);
-        return;
+    const handleSupabaseSession = async (currentSession: Session | null) => {
+      if (!isMounted) return false;
+      if (currentSession?.user) {
+        setSession(currentSession);
+        setUser(currentSession.user as any);
+        await fetchProfile(currentSession.user);
+        if (isMounted) setLoading(false);
+        return true;
       }
+      return false;
+    };
 
-      // 2. Listen to Firebase auth state if no active Supabase session
+    const handleFirebaseUser = async (fbUser: any) => {
+      if (!isMounted) return false;
+      if (fbUser) {
+        const formattedUser: any = {
+          id: fbUser.uid,
+          email: fbUser.email || null,
+          phone: fbUser.phoneNumber || null,
+          user_metadata: {
+            full_name: fbUser.displayName || null,
+            phone: fbUser.phoneNumber || null,
+          },
+          created_at: fbUser.metadata?.creationTime || new Date().toISOString(),
+        };
+        setUser(formattedUser);
+        setSession(null);
+        await fetchProfile(formattedUser);
+        if (isMounted) setLoading(false);
+        return true;
+      }
+      return false;
+    };
+
+    const initAuth = async () => {
+      // 1. Check Supabase first
+      const { data: { session: initialSession } } = await supabase.auth.getSession();
+      const hasSupabase = await handleSupabaseSession(initialSession);
+
+      // 2. Setup Firebase listener
       try {
         const { onAuthStateChanged } = await import('firebase/auth');
         const { auth } = await import('@/lib/firebase');
 
         unsubFirebase = onAuthStateChanged(auth, async (fbUser) => {
+          // Double-check if Supabase is logged in first
           const { data: { session: checkSession } } = await supabase.auth.getSession();
           if (checkSession?.user) {
-            setSession(checkSession);
-            setUser(checkSession.user as any);
-            await fetchProfile(checkSession.user);
-            setLoading(false);
-            return;
-          }
-
-          if (fbUser) {
-            const formattedUser: any = {
-              id: fbUser.uid,
-              email: fbUser.email || null,
-              phone: fbUser.phoneNumber || null,
-              user_metadata: {
-                full_name: fbUser.displayName || null,
-                phone: fbUser.phoneNumber || null,
-              },
-              created_at: fbUser.metadata.creationTime || new Date().toISOString(),
-            };
-            setUser(formattedUser);
-            await fetchProfile(formattedUser);
+            await handleSupabaseSession(checkSession);
+          } else if (fbUser) {
+            await handleFirebaseUser(fbUser);
           } else {
-            setUser(null);
-            setProfile(null);
+            if (isMounted && !checkSession?.user) {
+              setUser(null);
+              setSession(null);
+              setProfile(null);
+              setLoading(false);
+            }
           }
-          setLoading(false);
         });
       } catch (err) {
         console.error('Firebase auth listener error:', err);
-        setLoading(false);
+        if (!hasSupabase && isMounted) {
+          setLoading(false);
+        }
       }
     };
 
@@ -219,45 +237,45 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     // 3. Listen to Supabase Auth State Changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, currentSession) => {
+      async (event, currentSession) => {
         if (currentSession?.user) {
-          setSession(currentSession);
-          setUser(currentSession.user as any);
-          await fetchProfile(currentSession.user);
-          setLoading(false);
+          await handleSupabaseSession(currentSession);
+        } else if (event === 'SIGNED_OUT') {
+          if (isMounted) {
+            setUser(null);
+            setSession(null);
+            setProfile(null);
+            setLoading(false);
+          }
         } else {
+          // If Supabase session is null (and not explicitly signed out event), check Firebase before clearing user
           try {
             const { auth } = await import('@/lib/firebase');
             const fbUser = auth.currentUser;
             if (fbUser) {
-              const formattedUser: any = {
-                id: fbUser.uid,
-                email: fbUser.email || null,
-                phone: fbUser.phoneNumber || null,
-                user_metadata: {
-                  full_name: fbUser.displayName || null,
-                  phone: fbUser.phoneNumber || null,
-                },
-                created_at: fbUser.metadata.creationTime || new Date().toISOString(),
-              };
-              setUser(formattedUser);
-              await fetchProfile(formattedUser);
+              await handleFirebaseUser(fbUser);
             } else {
+              if (isMounted) {
+                setUser(null);
+                setSession(null);
+                setProfile(null);
+                setLoading(false);
+              }
+            }
+          } catch {
+            if (isMounted) {
               setUser(null);
               setSession(null);
               setProfile(null);
+              setLoading(false);
             }
-          } catch {
-            setUser(null);
-            setSession(null);
-            setProfile(null);
           }
-          setLoading(false);
         }
       }
     );
 
     return () => {
+      isMounted = false;
       subscription.unsubscribe();
       if (unsubFirebase) unsubFirebase();
     };

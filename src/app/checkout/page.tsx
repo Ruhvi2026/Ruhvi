@@ -18,11 +18,23 @@ export default function CheckoutPage() {
   const { items, subtotal, clearCart } = useCart();
   const { user, profile, loading: authLoading } = useAuth();
 
-  const isLoggedIn = Boolean(user || profile || auth?.currentUser);
+  const isLoggedIn = Boolean(user || profile);
 
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [selectedAddressId, setSelectedAddressId] = useState<string>('');
   const [showNewAddressForm, setShowNewAddressForm] = useState<boolean>(true);
+
+  // Clear stale login error messages when user becomes authenticated
+  useEffect(() => {
+    if (isLoggedIn) {
+      setErrorMessage((prev) => {
+        if (prev.includes('logged-in') || prev.includes('Log-in') || prev.includes('Login')) {
+          return '';
+        }
+        return prev;
+      });
+    }
+  }, [isLoggedIn]);
 
   // Fetch saved user addresses from Supabase when user is logged in
   useEffect(() => {
@@ -176,7 +188,7 @@ export default function CheckoutPage() {
     }
 
     if (paymentMethod === 'cod' && !isLoggedIn) {
-      setErrorMessage('Cash on Delivery (COD) is available only for logged-in accounts. Please log in or select an online payment method.');
+      setErrorMessage('Login is required to place a Cash on Delivery order.');
       return;
     }
 
@@ -349,7 +361,7 @@ export default function CheckoutPage() {
               <AlertCircle className="w-4 h-4 flex-shrink-0 text-rose-600" />
               <span>{errorMessage}</span>
             </div>
-            {!user && (errorMessage.includes('logged-in') || errorMessage.includes('Log-in')) && (
+            {!isLoggedIn && (errorMessage.includes('logged-in') || errorMessage.includes('Log-in') || errorMessage.includes('Login')) && (
               <Link
                 href="/login?redirectTo=/checkout"
                 className="px-3 py-1.5 bg-amber-950 hover:bg-amber-900 text-amber-50 text-xs font-bold rounded-lg transition-colors shrink-0 ml-3 shadow-sm"
@@ -598,10 +610,11 @@ export default function CheckoutPage() {
                 <div
                   onClick={() => {
                     if (!isLoggedIn) {
-                      setErrorMessage('Cash on Delivery (COD) is available only for logged-in accounts. Please log in to your account or pay online.');
+                      setErrorMessage('Login is required to place a Cash on Delivery order.');
                       return;
                     }
                     setPaymentMethod('cod');
+                    setErrorMessage('');
                   }}
                   className={`p-4 rounded-xl border transition-all flex items-center justify-between ${
                     !isLoggedIn
