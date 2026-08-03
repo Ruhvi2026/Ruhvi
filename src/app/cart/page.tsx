@@ -2,8 +2,10 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { ShoppingBag, Trash2, Plus, Minus, ArrowRight, ShieldCheck, Truck, RefreshCw, Sparkles } from 'lucide-react';
+import { ShoppingBag, Trash2, Plus, Minus, ArrowRight, ShieldCheck, Truck, RefreshCw, Sparkles, ImageOff } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { ImageWithFallback } from '@/components/ui/ImageWithFallback';
 
 export default function CartPage() {
   const { items, updateQuantity, removeFromCart, subtotal, clearCart } = useCart();
@@ -80,12 +82,14 @@ export default function CartPage() {
                   >
                     <Link
                       href={`/products/${product.slug}`}
-                      className="w-24 h-24 sm:w-28 sm:h-28 rounded-xl overflow-hidden bg-stone-100 flex-shrink-0 border border-stone-100"
+                      className="w-24 h-24 sm:w-28 sm:h-28 rounded-xl overflow-hidden bg-stone-100 flex-shrink-0 border border-stone-100 relative"
                     >
-                      <img
+                      <ImageWithFallback
                         src={image}
                         alt={product.name}
-                        className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                        fill
+                        className="object-cover hover:scale-105 transition-transform duration-300"
+                        sizes="(max-width: 768px) 96px, 112px"
                       />
                     </Link>
 
@@ -222,26 +226,13 @@ export default function CartPage() {
         </div>
       ) : (
         /* Empty Cart State */
-        <div className="bg-white rounded-2xl p-16 text-center border border-stone-200 shadow-sm max-w-lg mx-auto space-y-6">
-          <div className="w-20 h-20 rounded-full bg-amber-50 text-amber-900 flex items-center justify-center mx-auto">
-            <ShoppingBag className="w-10 h-10" />
-          </div>
-          <div className="space-y-2">
-            <h2 className="font-serif text-2xl font-bold text-stone-900">
-              Your Bag is Empty
-            </h2>
-            <p className="text-xs text-stone-500 max-w-xs mx-auto">
-              Looks like you haven&apos;t added any fine jewellery pieces yet. Explore our handcrafted collection today.
-            </p>
-          </div>
-          <Link
-            href="/products"
-            className="inline-flex items-center space-x-2 px-8 py-3.5 bg-amber-950 hover:bg-amber-900 text-amber-100 font-bold text-xs uppercase tracking-widest rounded-full shadow-md transition-all hover:scale-105"
-          >
-            <span>Browse Collection</span>
-            <ArrowRight className="w-4 h-4" />
-          </Link>
-        </div>
+        <EmptyState
+          icon={<ShoppingBag className="w-8 h-8" />}
+          title="Your Bag is Empty"
+          description="Looks like you haven't added any fine jewellery pieces yet. Explore our handcrafted collection today."
+          actionLabel="Browse Collection"
+          actionHref="/products"
+        />
       )}
     </div>
   );

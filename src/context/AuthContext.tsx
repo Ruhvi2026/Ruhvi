@@ -3,6 +3,8 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { createClient } from '@/lib/supabase/client';
+import toast from 'react-hot-toast';
+import { parseApiError } from '@/lib/api-errors';
 
 export interface UserProfile {
   id: string;
@@ -105,7 +107,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         });
       }
     } catch (err) {
+      const apiError = parseApiError(err);
       console.error('Error fetching profile:', err);
+      // We don't want to show a toast every time the profile fails to load in background,
+      // but we do want to log it and potentially flag an error state if critical.
     }
   };
 
@@ -145,19 +150,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signOut = async () => {
-    const supabase = createClient();
-    await supabase.auth.signOut();
     try {
-      const { signOut: firebaseSignOut } = await import('firebase/auth');
-      const { auth } = await import('@/lib/firebase');
-      await firebaseSignOut(auth);
-    } catch (e) {
-      console.error('Firebase signout error:', e);
+      const supabase = createClient();
+      await supabase.auth.signOut();
+      try {
+        const { signOut: firebaseSignOut } = await import('firebase/auth');
+        const { auth } = await import('@/lib/firebase');
+        await firebaseSignOut(auth);
+      } catch (e) {
+        console.error('Firebase signout error:', e);
+      }
+      setUser(null);
+      setSession(null);
+      setProfile(null);
+      toast.success('Successfully logged out');
+      window.location.href = '/login';
+    } catch (err) {
+      const apiError = parseApiError(err);
+      toast.error(apiError.userMessage);
     }
-    setUser(null);
-    setSession(null);
-    setProfile(null);
-    window.location.href = '/login';
   };
 
   useEffect(() => {

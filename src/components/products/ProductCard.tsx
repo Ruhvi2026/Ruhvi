@@ -7,6 +7,7 @@ import { Product } from '@/types/database';
 import { useCart } from '@/context/CartContext';
 import { useWishlist } from '@/context/WishlistContext';
 import { trackEvent } from '@/lib/analytics';
+import { ImageWithFallback } from '@/components/ui/ImageWithFallback';
 
 interface ProductCardProps {
   product: Product;
@@ -47,10 +48,12 @@ export function ProductCard({ product }: ProductCardProps) {
       {/* Image container */}
       <div className="relative aspect-square overflow-hidden bg-slate-50">
         <Link href={`/products/${product.slug}`}>
-          <img
+          <ImageWithFallback
             src={mainImage}
             alt={product.name}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            className="object-cover transition-transform duration-500 group-hover:scale-105"
           />
         </Link>
 

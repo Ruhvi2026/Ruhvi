@@ -66,12 +66,7 @@ export function Navbar() {
               My Orders
             </Link>
 
-            <Link
-              href="/admin/dashboard"
-              className="hidden sm:inline-flex text-xs font-semibold uppercase tracking-wider text-fuchsia-800 bg-fuchsia-50 hover:bg-fuchsia-100 border border-fuchsia-200 px-3 py-1.5 rounded-md transition-colors"
-            >
-              Admin Portal
-            </Link>
+
 
             <Link
               href="/account/notifications"
@@ -137,15 +132,7 @@ export function Navbar() {
                       </div>
 
                       <div className="space-y-1 pt-1">
-                        {(['admin', 'manager', 'staff'].includes(profile?.role || '') || user?.email === 'ruhvi.main@gmail.com') && (
-                          <Link
-                            href="/admin/dashboard"
-                            className="flex items-center space-x-2 px-3 py-2 rounded-xl bg-amber-50 text-amber-950 hover:bg-amber-100 font-bold border border-amber-200/60"
-                          >
-                            <ShieldCheck className="w-4 h-4 text-amber-800" />
-                            <span>Admin Console</span>
-                          </Link>
-                        )}
+
                         <Link
                           href="/account"
                           className="flex items-center space-x-2 px-3 py-2 rounded-xl text-stone-700 hover:bg-purple-50 hover:text-purple-950 font-medium"
@@ -284,15 +271,7 @@ export function Navbar() {
             ))}
           </div>
 
-          <div className="border-t border-slate-100 pt-4 space-y-2">
-            <Link
-              href="/admin/dashboard"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block w-full text-center py-2 bg-purple-900 text-white rounded font-medium text-xs uppercase tracking-wider"
-            >
-              Admin Dashboard
-            </Link>
-          </div>
+
         </div>
       )}
     </header>

@@ -6,6 +6,7 @@ import { Heart, ShoppingBag, Trash2, Share2, Check, ArrowRight } from 'lucide-re
 import { useWishlist } from '@/context/WishlistContext';
 import { useCart } from '@/context/CartContext';
 import { ProductCard } from '@/components/products/ProductCard';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export default function WishlistPage() {
   const { items, removeFromWishlist } = useWishlist();
@@ -86,26 +87,13 @@ export default function WishlistPage() {
         </div>
       ) : (
         /* Empty Wishlist State */
-        <div className="bg-white rounded-2xl p-16 text-center border border-stone-200 shadow-sm max-w-lg mx-auto space-y-6">
-          <div className="w-20 h-20 rounded-full bg-rose-50 text-rose-500 flex items-center justify-center mx-auto">
-            <Heart className="w-10 h-10" />
-          </div>
-          <div className="space-y-2">
-            <h2 className="font-serif text-2xl font-bold text-stone-900">
-              Your Wishlist is Empty
-            </h2>
-            <p className="text-xs text-stone-500 max-w-xs mx-auto">
-              Save your favourite solitaire rings, emerald chokers, and pearl drops to curate your dream jewellery vault.
-            </p>
-          </div>
-          <Link
-            href="/products"
-            className="inline-flex items-center space-x-2 px-8 py-3.5 bg-amber-950 hover:bg-amber-900 text-amber-100 font-bold text-xs uppercase tracking-widest rounded-full shadow-md transition-all hover:scale-105"
-          >
-            <span>Explore Fine Jewellery</span>
-            <ArrowRight className="w-4 h-4" />
-          </Link>
-        </div>
+        <EmptyState
+          icon={<Heart className="w-8 h-8" />}
+          title="Your Wishlist is Empty"
+          description="Save your favourite solitaire rings, emerald chokers, and pearl drops to curate your dream jewellery vault."
+          actionLabel="Explore Fine Jewellery"
+          actionHref="/products"
+        />
       )}
     </div>
   );

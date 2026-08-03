@@ -13,6 +13,8 @@ import CustomerSupportChat from '@/components/CustomerSupportChat';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 
 import { AuthProvider } from '@/context/AuthContext';
+import { ToastProvider } from '@/components/layout/ToastProvider';
+import { OfflineDetector } from '@/components/layout/OfflineDetector';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -50,6 +52,8 @@ export default function RootLayout({
                 <Footer />
                 <CustomerSupportChat />
                 <SpeedInsights />
+                <ToastProvider />
+                <OfflineDetector />
               </NotificationProvider>
             </WishlistProvider>
           </CartProvider>

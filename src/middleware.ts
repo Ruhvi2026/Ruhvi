@@ -6,6 +6,33 @@ export async function middleware(request: NextRequest) {
     request,
   })
 
+  const hostname = request.headers.get('host') || '';
+  const isAdminHost = hostname === 'admin.ruhvi.in' || hostname.startsWith('admin.localhost');
+  const path = request.nextUrl.pathname;
+
+  // 1. Root redirect on admin host
+  if (isAdminHost && path === '/') {
+    return NextResponse.redirect(new URL('/admin/dashboard', request.url));
+  }
+
+  // Block signup on admin host
+  if (isAdminHost && path.startsWith('/signup')) {
+    return NextResponse.redirect(new URL('/login', request.url));
+  }
+
+  // 2. Subdomain Isolation: Block /admin/* on non-admin hosts
+  if (path.startsWith('/admin') || path.startsWith('/manager') || path.startsWith('/staff')) {
+    if (!isAdminHost) {
+      // Rewrite to a 404 to hide the existence of the admin routes on the main domain
+      return NextResponse.rewrite(new URL('/404', request.url));
+    }
+  }
+
+  // 3. Inject X-Robots-Tag for admin host to prevent indexing
+  if (isAdminHost) {
+    supabaseResponse.headers.set('X-Robots-Tag', 'noindex, nofollow');
+  }
+
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://igrkrkxdantrolbldapj.supabase.co';
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlncmtya3hkYW50rolbldapjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU0MzQ0NDIsImV4cCI6MjEwMTAxMDQ0Mn0.Ks0ZUolRtSKa57knTkV0GP5wDKS3kWKLcAzAKxSD2ko';
 
@@ -23,6 +50,9 @@ export async function middleware(request: NextRequest) {
             supabaseResponse = NextResponse.next({
               request,
             })
+            if (isAdminHost) {
+              supabaseResponse.headers.set('X-Robots-Tag', 'noindex, nofollow');
+            }
             cookiesToSet.forEach(({ name, value, options }) =>
               supabaseResponse.cookies.set(name, value, options)
             )
@@ -30,8 +60,6 @@ export async function middleware(request: NextRequest) {
         },
       }
     )
-
-    const path = request.nextUrl.pathname
 
     // RBAC for /admin, /manager, /staff routes
     if (path.startsWith('/admin') || path.startsWith('/manager') || path.startsWith('/staff')) {
@@ -43,6 +71,9 @@ export async function middleware(request: NextRequest) {
         const loginUrl = new URL('/login', request.url)
         loginUrl.searchParams.set('redirectTo', path)
         const redirectResponse = NextResponse.redirect(loginUrl)
+        if (isAdminHost) {
+          redirectResponse.headers.set('X-Robots-Tag', 'noindex, nofollow');
+        }
         supabaseResponse.cookies.getAll().forEach((c) => {
           redirectResponse.cookies.set(c.name, c.value, c)
         })
@@ -76,6 +107,9 @@ export async function middleware(request: NextRequest) {
       if (!allowedRoles.includes(role)) {
         // Forbidden for regular customers
         const redirectResponse = NextResponse.redirect(new URL('/unauthorized', request.url))
+        if (isAdminHost) {
+          redirectResponse.headers.set('X-Robots-Tag', 'noindex, nofollow');
+        }
         supabaseResponse.cookies.getAll().forEach((c) => {
           redirectResponse.cookies.set(c.name, c.value, c)
         })

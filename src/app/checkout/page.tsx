@@ -12,6 +12,7 @@ import { Address } from '@/types/database';
 import { createClient } from '@/lib/supabase/client';
 import { auth } from '@/lib/firebase';
 import { RecaptchaVerifier, signInWithPhoneNumber, ConfirmationResult } from 'firebase/auth';
+import toast from 'react-hot-toast';
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -24,17 +25,19 @@ export default function CheckoutPage() {
   const [selectedAddressId, setSelectedAddressId] = useState<string>('');
   const [showNewAddressForm, setShowNewAddressForm] = useState<boolean>(true);
 
-  // Clear stale login error messages when user becomes authenticated
+
+
+  // Cleanup reCAPTCHA on unmount
   useEffect(() => {
-    if (isLoggedIn) {
-      setErrorMessage((prev) => {
-        if (prev.includes('logged-in') || prev.includes('Log-in') || prev.includes('Login')) {
-          return '';
-        }
-        return prev;
-      });
-    }
-  }, [isLoggedIn]);
+    return () => {
+      if (typeof window !== 'undefined' && (window as any).recaptchaVerifier) {
+        try {
+          (window as any).recaptchaVerifier.clear();
+        } catch (e) {}
+        (window as any).recaptchaVerifier = null;
+      }
+    };
+  }, []);
 
   // Fetch saved user addresses from Supabase when user is logged in
   useEffect(() => {
@@ -89,7 +92,6 @@ export default function CheckoutPage() {
   // Payment Method State
   const [paymentMethod, setPaymentMethod] = useState<'phonepe' | 'cod'>('phonepe');
   const [isProcessing, setIsProcessing] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
 
   // Bot Protection State
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
@@ -145,9 +147,9 @@ export default function CheckoutPage() {
     if (couponCode.toUpperCase() === 'WELCOME10') {
       const discount = Math.min(subtotal * 0.1, 500); // 10% off up to ₹500
       setAppliedCoupon({ code: 'WELCOME10', discount });
-      setErrorMessage('');
+      ;
     } else {
-      setErrorMessage('Invalid or expired coupon code.');
+      toast.error('Invalid or expired coupon code.');
       setAppliedCoupon(null);
     }
   };
@@ -183,22 +185,22 @@ export default function CheckoutPage() {
 
   const handlePlaceOrder = async () => {
     if (!selectedAddress) {
-      setErrorMessage('Please select or add a shipping address.');
+      toast.error('Please select or add a shipping address.');
       return;
     }
 
     if (paymentMethod === 'cod' && !isLoggedIn) {
-      setErrorMessage('Login is required to place a Cash on Delivery order.');
+      toast.error('Login is required to place a Cash on Delivery order.');
       return;
     }
 
     if (paymentMethod === 'cod' && !turnstileToken) {
-      setErrorMessage('Please complete the security check.');
+      toast.error('Please complete the security check.');
       return;
     }
 
     setIsProcessing(true);
-    setErrorMessage('');
+    ;
 
     try {
       if (paymentMethod === 'phonepe') {
@@ -245,29 +247,20 @@ export default function CheckoutPage() {
           throw new Error(verifyData.error || 'Security verification failed. Please try again.');
         }
 
-        // Initialize Firebase reCAPTCHA with fresh DOM container binding
-        if ((window as any).recaptchaVerifier) {
-          try {
-            (window as any).recaptchaVerifier.clear();
-          } catch (e) {
-            // ignore
+        // Initialize Firebase reCAPTCHA
+        if (!(window as any).recaptchaVerifier) {
+          const recaptchaContainer = document.getElementById('recaptcha-container');
+          if (recaptchaContainer) {
+            recaptchaContainer.innerHTML = '<div id="recaptcha-anchor"></div>';
           }
-          (window as any).recaptchaVerifier = null;
+          (window as any).recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-anchor', {
+            size: 'invisible',
+          });
         }
-
-        const recaptchaContainer = document.getElementById('recaptcha-container');
-        if (recaptchaContainer) {
-          recaptchaContainer.innerHTML = '';
-        }
-
-        const verifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-          size: 'invisible',
-        });
-        (window as any).recaptchaVerifier = verifier;
 
         // Send OTP
         const formattedPhone = selectedAddress.phone.startsWith('+') ? selectedAddress.phone : `+91${selectedAddress.phone.replace(/\D/g, '').slice(-10)}`;
-        const confirmation = await signInWithPhoneNumber(auth, formattedPhone, verifier);
+        const confirmation = await signInWithPhoneNumber(auth, formattedPhone, (window as any).recaptchaVerifier);
         
         setConfirmationResult(confirmation);
         setShowOtpModal(true);
@@ -275,15 +268,7 @@ export default function CheckoutPage() {
       }
     } catch (err: any) {
       console.error('COD payment / OTP error:', err);
-      if ((window as any).recaptchaVerifier) {
-        try {
-          (window as any).recaptchaVerifier.clear();
-        } catch (e) {
-          // ignore
-        }
-        (window as any).recaptchaVerifier = null;
-      }
-      setErrorMessage(err.message || 'Payment processing failed. Please try again.');
+      toast.error(err.message || 'Payment processing failed. Please try again.');
       setIsProcessing(false);
       if (paymentMethod === 'cod') {
         turnstileRef.current?.reset();
@@ -295,7 +280,7 @@ export default function CheckoutPage() {
   const handleVerifyOtp = async () => {
     if (!otpCode || otpCode.length < 6 || !confirmationResult) return;
     setIsVerifyingOtp(true);
-    setErrorMessage('');
+    ;
 
     try {
       await confirmationResult.confirm(otpCode);
@@ -304,7 +289,7 @@ export default function CheckoutPage() {
       await finalizeOrder();
     } catch (err: any) {
       console.error(err);
-      setErrorMessage('Invalid OTP. Please check the code and try again.');
+      toast.error('Invalid OTP. Please check the code and try again.');
       setIsVerifyingOtp(false);
     }
   };
@@ -343,7 +328,7 @@ export default function CheckoutPage() {
       clearCart();
       router.push(`/order-success/${data.orderId}`);
     } catch (err: any) {
-      setErrorMessage(err.message || 'Failed to save order.');
+      toast.error(err.message || 'Failed to save order.');
       setIsProcessing(false);
     }
   };
@@ -376,22 +361,6 @@ export default function CheckoutPage() {
           <h1 className="font-serif text-3xl font-bold text-stone-900">Checkout</h1>
         </div>
 
-        {errorMessage && (
-          <div className="mb-6 p-4 bg-rose-50 border border-rose-200 rounded-xl text-rose-800 text-xs flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <AlertCircle className="w-4 h-4 flex-shrink-0 text-rose-600" />
-              <span>{errorMessage}</span>
-            </div>
-            {!isLoggedIn && (errorMessage.includes('logged-in') || errorMessage.includes('Log-in') || errorMessage.includes('Login')) && (
-              <Link
-                href="/login?redirectTo=/checkout"
-                className="px-3 py-1.5 bg-amber-950 hover:bg-amber-900 text-amber-50 text-xs font-bold rounded-lg transition-colors shrink-0 ml-3 shadow-sm"
-              >
-                Log In Now
-              </Link>
-            )}
-          </div>
-        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left Checkout Steps */}
@@ -631,11 +600,11 @@ export default function CheckoutPage() {
                 <div
                   onClick={() => {
                     if (!isLoggedIn) {
-                      setErrorMessage('Login is required to place a Cash on Delivery order.');
+                      toast.error('Login is required to place a Cash on Delivery order.');
                       return;
                     }
                     setPaymentMethod('cod');
-                    setErrorMessage('');
+                    ;
                   }}
                   className={`p-4 rounded-xl border transition-all flex items-center justify-between ${
                     !isLoggedIn
@@ -822,9 +791,9 @@ export default function CheckoutPage() {
                     siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ''}
                     onSuccess={(token) => {
                       setTurnstileToken(token);
-                      setErrorMessage('');
+                      ;
                     }}
-                    onError={() => setErrorMessage('Security check failed. Please refresh.')}
+                    onError={() => toast.error('Security check failed. Please refresh.')}
                     onExpire={() => {
                       setTurnstileToken(null);
                       turnstileRef.current?.reset();
@@ -865,12 +834,7 @@ export default function CheckoutPage() {
               We've sent a 6-digit verification code to <span className="font-bold">{selectedAddress?.phone}</span>. Please enter it below to confirm your Cash on Delivery order.
             </p>
 
-            {errorMessage && (
-              <div className="mb-4 p-3 bg-rose-50 border border-rose-200 rounded-lg text-rose-800 text-xs flex items-center space-x-2">
-                <AlertCircle className="w-4 h-4 flex-shrink-0" />
-                <span>{errorMessage}</span>
-              </div>
-            )}
+
 
             <input
               type="text"
@@ -884,7 +848,7 @@ export default function CheckoutPage() {
               <button
                 onClick={() => {
                   setShowOtpModal(false);
-                  setErrorMessage('');
+                  setOtpCode('');
                 }}
                 className="flex-1 py-3 text-stone-600 font-bold text-xs uppercase tracking-wider rounded-xl hover:bg-stone-100 transition-colors"
                 disabled={isVerifyingOtp}
@@ -905,3 +869,4 @@ export default function CheckoutPage() {
     </>
   );
 }
+

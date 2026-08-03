@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Product, CartItem } from '@/types/database';
+import toast from 'react-hot-toast';
 
 interface CartContextType {
   items: CartItem[];
@@ -46,33 +47,43 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, [items, isLoaded]);
 
   const addToCart = (product: Product, quantity = 1) => {
-    setItems((prev) => {
-      const existingIndex = prev.findIndex((item) => item.product_id === product.id);
-      if (existingIndex > -1) {
-        const updated = [...prev];
-        updated[existingIndex] = {
-          ...updated[existingIndex],
-          quantity: updated[existingIndex].quantity + quantity,
-          product: product, // keep fresh product data
-        };
-        return updated;
-      }
-      return [
-        ...prev,
-        {
-          id: `cart-item-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
-          cart_id: 'local_cart',
-          product_id: product.id,
-          quantity,
-          price_at_add: product.price,
-          product: product,
-        },
-      ];
-    });
+    try {
+      setItems((prev) => {
+        const existingIndex = prev.findIndex((item) => item.product_id === product.id);
+        if (existingIndex > -1) {
+          const updated = [...prev];
+          updated[existingIndex] = {
+            ...updated[existingIndex],
+            quantity: updated[existingIndex].quantity + quantity,
+            product: product, // keep fresh product data
+          };
+          return updated;
+        }
+        return [
+          ...prev,
+          {
+            id: `cart-item-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
+            cart_id: 'local_cart',
+            product_id: product.id,
+            quantity,
+            price_at_add: product.price,
+            product: product,
+          },
+        ];
+      });
+      toast.success(`${product.name} added to bag`);
+    } catch (error) {
+      toast.error('Failed to add item to bag');
+    }
   };
 
   const removeFromCart = (productId: string) => {
-    setItems((prev) => prev.filter((item) => item.product_id !== productId));
+    try {
+      setItems((prev) => prev.filter((item) => item.product_id !== productId));
+      toast.success('Item removed from bag');
+    } catch (error) {
+      toast.error('Failed to remove item');
+    }
   };
 
   const updateQuantity = (productId: string, quantity: number) => {
@@ -88,7 +99,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   };
 
   const clearCart = () => {
-    setItems([]);
+    try {
+      setItems([]);
+      toast.success('Bag cleared');
+    } catch (error) {
+      toast.error('Failed to clear bag');
+    }
   };
 
   const cartCount = items.reduce((sum, item) => sum + item.quantity, 0);

@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Product } from '@/types/database';
+import toast from 'react-hot-toast';
 
 interface WishlistContextType {
   items: Product[];
@@ -42,13 +43,19 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
   }, [items, isLoaded]);
 
   const toggleWishlist = (product: Product) => {
-    setItems((prev) => {
-      const exists = prev.some((item) => item.id === product.id);
-      if (exists) {
-        return prev.filter((item) => item.id !== product.id);
-      }
-      return [...prev, product];
-    });
+    try {
+      setItems((prev) => {
+        const exists = prev.some((item) => item.id === product.id);
+        if (exists) {
+          toast.success('Removed from wishlist');
+          return prev.filter((item) => item.id !== product.id);
+        }
+        toast.success('Added to wishlist');
+        return [...prev, product];
+      });
+    } catch (error) {
+      toast.error('Failed to update wishlist');
+    }
   };
 
   const isInWishlist = (productId: string) => {
@@ -56,7 +63,12 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
   };
 
   const removeFromWishlist = (productId: string) => {
-    setItems((prev) => prev.filter((item) => item.id !== productId));
+    try {
+      setItems((prev) => prev.filter((item) => item.id !== productId));
+      toast.success('Removed from wishlist');
+    } catch (error) {
+      toast.error('Failed to remove from wishlist');
+    }
   };
 
   return (

@@ -17,8 +17,8 @@ function LoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const redirectTo = searchParams.get('redirectTo') || '/'
-
   const [authMethod, setAuthMethod] = useState<'email' | 'phone'>('email')
+  const [isAdminHost, setIsAdminHost] = useState(false)
   
   // Email state
   const [email, setEmail] = useState('')
@@ -35,6 +35,10 @@ function LoginForm() {
   const [message, setMessage] = useState<string | null>(null)
 
   useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setIsAdminHost(window.location.hostname === 'admin.ruhvi.in' || window.location.hostname.startsWith('admin.localhost'))
+    }
+
     return () => {
       if (typeof window !== 'undefined' && (window as any).recaptchaVerifier) {
         try {
@@ -409,12 +413,14 @@ function LoginForm() {
         </button>
       </div>
 
-      <div className="mt-8 text-center text-xs text-[#121110]/60">
-        Don’t have an account yet?{' '}
-        <Link href="/signup" className="font-semibold text-[#C29831] hover:underline">
-          Sign Up
-        </Link>
-      </div>
+      {!isAdminHost && (
+        <div className="mt-8 text-center text-xs text-[#121110]/60">
+          Don’t have an account yet?{' '}
+          <Link href="/signup" className="font-semibold text-[#C29831] hover:underline">
+            Sign Up
+          </Link>
+        </div>
+      )}
     </div>
   )
 }
