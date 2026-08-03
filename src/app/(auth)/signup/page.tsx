@@ -1,9 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { auth } from '@/lib/firebase'
+import { RecaptchaVerifier, signInWithPhoneNumber, ConfirmationResult, updateProfile } from 'firebase/auth'
 import { Sparkles, ArrowRight, Mail, Phone } from 'lucide-react'
 
 export default function SignUpPage() {
@@ -21,9 +23,18 @@ export default function SignUpPage() {
   const [phone, setPhone] = useState('')
   const [otp, setOtp] = useState('')
   const [showOtpInput, setShowOtpInput] = useState(false)
+  const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [message, setMessage] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && !(window as any).recaptchaVerifier) {
+      (window as any).recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+        size: 'invisible',
+      })
+    }
+  }, [])
 
   const handleEmailSignUp = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -59,12 +70,63 @@ export default function SignUpPage() {
 
   const handleSendOtp = async (e: React.FormEvent) => {
     e.preventDefault()
-    setError('Phone OTP authentication is temporarily paused. Please use Email sign up.')
+    setLoading(true)
+    setError(null)
+    setMessage(null)
+
+    try {
+      const formattedPhone = phone.startsWith('+') ? phone : `+91${phone.replace(/\D/g, '').slice(-10)}`
+      if (!(window as any).recaptchaVerifier) {
+        (window as any).recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+          size: 'invisible',
+        })
+      }
+      const appVerifier = (window as any).recaptchaVerifier
+      
+      const confirmation = await signInWithPhoneNumber(auth, formattedPhone, appVerifier)
+      setConfirmationResult(confirmation)
+
+      setShowOtpInput(true)
+      setMessage('OTP sent to your phone number.')
+    } catch (err: any) {
+      console.error('OTP send error:', err)
+      setError(err?.message || 'Failed to send OTP. Please try again.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   const handleVerifyOtp = async (e: React.FormEvent) => {
     e.preventDefault()
-    setError('Phone OTP authentication is temporarily paused. Please use Email sign up.')
+    if (!confirmationResult) return
+    setLoading(true)
+    setError(null)
+
+    try {
+      const userCredential = await confirmationResult.confirm(otp)
+      if (fullName && !userCredential.user.displayName) {
+        await updateProfile(userCredential.user, { displayName: fullName })
+      }
+      const user = userCredential.user
+
+      const supabase = createClient()
+      await supabase.from('users').upsert({
+        firebase_uid: user.uid,
+        email: user.email || null,
+        full_name: fullName || user.displayName || null,
+        phone: user.phoneNumber || null,
+      }, { onConflict: 'firebase_uid' })
+
+      setMessage('Account verified successfully! Redirecting...')
+      setTimeout(() => {
+        router.push('/')
+        router.refresh()
+      }, 1000)
+    } catch (err: any) {
+      console.error('OTP verify error:', err)
+      setError(err?.message || 'Invalid OTP. Please try again.')
+      setLoading(false)
+    }
   }
 
   const handleGoogleSignIn = async () => {

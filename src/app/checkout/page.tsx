@@ -230,23 +230,20 @@ export default function CheckoutPage() {
           throw new Error(verifyData.error || 'Security verification failed. Please try again.');
         }
 
-        // --- TEMPORARILY DISABLED (Firebase Billing Issue) ---
-        // if (!(window as any).recaptchaVerifier) {
-        //   (window as any).recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-        //     size: 'invisible',
-        //   });
-        // }
-        //
-        // const formattedPhone = selectedAddress.phone.startsWith('+') ? selectedAddress.phone : `+91${selectedAddress.phone.replace(/\D/g, '').slice(-10)}`;
-        // const confirmation = await signInWithPhoneNumber(auth, formattedPhone, (window as any).recaptchaVerifier);
-        // 
-        // setConfirmationResult(confirmation);
-        // setShowOtpModal(true);
-        // setIsProcessing(false);
-        // ---------------------------------------------------
+        // Initialize Firebase reCAPTCHA
+        if (!(window as any).recaptchaVerifier) {
+          (window as any).recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+            size: 'invisible',
+          });
+        }
 
-        // Bypass OTP for now and place the order directly
-        await finalizeOrder();
+        // Send OTP
+        const formattedPhone = selectedAddress.phone.startsWith('+') ? selectedAddress.phone : `+91${selectedAddress.phone.replace(/\D/g, '').slice(-10)}`;
+        const confirmation = await signInWithPhoneNumber(auth, formattedPhone, (window as any).recaptchaVerifier);
+        
+        setConfirmationResult(confirmation);
+        setShowOtpModal(true);
+        setIsProcessing(false);
       }
     } catch (err: any) {
       console.error(err);
