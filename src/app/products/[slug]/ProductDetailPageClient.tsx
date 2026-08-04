@@ -16,6 +16,7 @@ import { Product } from '@/types/database';
 import { StockNotificationModal } from '@/components/products/StockNotificationModal';
 import { ProductImageGallery } from '@/components/products/ProductImageGallery';
 import { trackEvent } from '@/lib/analytics';
+import { ecommerceEvent } from '@/lib/gtag';
 import { useCart } from '@/context/CartContext';
 import { useWishlist } from '@/context/WishlistContext';
 
@@ -49,13 +50,27 @@ export function ProductDetailPageClient({ product, relatedProducts }: ProductDet
       // LocalStorage unavailable
     }
 
-    // Track ViewContent event
+    // Track ViewContent event for Meta
     trackEvent('ViewContent', {
       content_name: product.name,
       content_ids: [product.sku],
       content_type: 'product',
       value: product.price,
       currency: 'INR',
+    });
+
+    // Track view_item event for GA4
+    ecommerceEvent('view_item', {
+      currency: 'INR',
+      value: product.price,
+      items: [
+        {
+          item_id: product.id,
+          item_name: product.name,
+          price: product.price,
+          item_category: product.category?.name || undefined
+        }
+      ]
     });
   }, [product]);
 

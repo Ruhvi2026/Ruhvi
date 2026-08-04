@@ -20,10 +20,25 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
 
-  // 2. Subdomain Isolation: Block /admin/* on non-admin hosts
-  if (path.startsWith('/admin') || path.startsWith('/manager') || path.startsWith('/staff')) {
-    if (!isAdminHost) {
-      // Rewrite to a 404 to hide the existence of the admin routes on the main domain
+  // 2. Strict Subdomain Isolation
+  if (isAdminHost) {
+    // Only allow admin, auth, and API routes on the admin subdomain
+    const isAllowed = 
+      path.startsWith('/admin') ||
+      path.startsWith('/manager') ||
+      path.startsWith('/staff') ||
+      path.startsWith('/login') ||
+      path.startsWith('/api') ||
+      path.startsWith('/auth/callback') ||
+      path === '/404' ||
+      path.startsWith('/_not-found');
+
+    if (!isAllowed) {
+      return NextResponse.rewrite(new URL('/404', request.url));
+    }
+  } else {
+    // Block admin routes on the main customer-facing domain
+    if (path.startsWith('/admin') || path.startsWith('/manager') || path.startsWith('/staff')) {
       return NextResponse.rewrite(new URL('/404', request.url));
     }
   }

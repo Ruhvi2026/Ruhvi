@@ -11,6 +11,7 @@ import MetaPixel from '@/components/MetaPixel';
 import MicrosoftClarity from '@/components/MicrosoftClarity';
 import CustomerSupportChat from '@/components/CustomerSupportChat';
 import { SpeedInsights } from '@vercel/speed-insights/next';
+import GoogleAnalytics from '@/components/GoogleAnalytics';
 
 import { AuthProvider } from '@/context/AuthContext';
 import { ToastProvider } from '@/components/layout/ToastProvider';
@@ -31,6 +32,8 @@ export const metadata: Metadata = {
   description: 'Timeless luxury jewellery crafted for life’s precious moments.',
 };
 
+import Script from 'next/script';
+
 export default function RootLayout({
   children,
 }: {
@@ -40,6 +43,7 @@ export default function RootLayout({
     <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
       <body className="min-h-screen flex flex-col bg-slate-50 text-slate-900 antialiased">
         <Suspense fallback={null}>
+          <GoogleAnalytics />
           <MetaPixel />
           <MicrosoftClarity />
         </Suspense>

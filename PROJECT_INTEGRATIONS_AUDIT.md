@@ -33,6 +33,7 @@ The application is a modern, headless e-commerce storefront. It utilizes Next.js
 | **Vercel Speed Insights** | Performance | Web Vitals performance monitoring. | `src/app/layout.tsx` | None | Active |
 | **Cloudflare Turnstile** | Security | Bot protection during checkout. | `src/app/checkout/page.tsx` | `NEXT_PUBLIC_TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY` | Active |
 | **React Hook Form & Zod**| Forms/Validation| Validating complex forms (e.g., checkout, contact). | `src/app/checkout/page.tsx`, `src/app/contact/page.tsx` | None | Active |
+| **Google Analytics** | Analytics/SEO | General traffic and user behavior tracking. | `src/app/layout.tsx` | GA Tracking ID (`G-7LY7LND9S9`) | Active |
 | **React Hot Toast** | UI | Toast notifications across the app. | Multiple components | None | Active |
 | **Photoswipe** | UI | Image gallery for product detail pages. | `src/app/products/[slug]/ProductDetailPageClient.tsx` (assumed) | None | Active |
 
@@ -125,3 +126,4 @@ The application is a modern, headless e-commerce storefront. It utilizes Next.js
 | Meta CAPI | Server-side Ads Tracking | 2024 | Active | `api/capi/route.ts` | |
 | Turnstile | Bot Protection | 2024 | Active | `src/app/checkout/page.tsx` | |
 | Vercel Insights | Performance Analytics | 2024 | Active | `src/app/layout.tsx` | |
+| Google Analytics 4 | General Analytics/SEO | 2026 | Active | `src/app/layout.tsx`, `src/lib/gtag.ts` | E-commerce tracking fully instrumented |

@@ -7,6 +7,7 @@ import { Product } from '@/types/database';
 import { useCart } from '@/context/CartContext';
 import { useWishlist } from '@/context/WishlistContext';
 import { trackEvent } from '@/lib/analytics';
+import { ecommerceEvent } from '@/lib/gtag';
 import { ImageWithFallback } from '@/components/ui/ImageWithFallback';
 
 interface ProductCardProps {
@@ -47,7 +48,16 @@ export function ProductCard({ product }: ProductCardProps) {
     <div className="group relative bg-white rounded-xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-lg hover:border-fuchsia-200 transition-all duration-300 flex flex-col">
       {/* Image container */}
       <div className="relative aspect-square overflow-hidden bg-slate-50">
-        <Link href={`/products/${product.slug}`}>
+        <Link href={`/products/${product.slug}`} onClick={() => {
+          ecommerceEvent('select_item', {
+            items: [{
+              item_id: product.id,
+              item_name: product.name,
+              price: product.price,
+              item_category: product.category?.name || undefined
+            }]
+          });
+        }}>
           <ImageWithFallback
             src={mainImage}
             alt={product.name}
@@ -120,7 +130,16 @@ export function ProductCard({ product }: ProductCardProps) {
               {product.category?.name}
             </span>
           </div>
-          <Link href={`/products/${product.slug}`}>
+          <Link href={`/products/${product.slug}`} onClick={() => {
+            ecommerceEvent('select_item', {
+              items: [{
+                item_id: product.id,
+                item_name: product.name,
+                price: product.price,
+                item_category: product.category?.name || undefined
+              }]
+            });
+          }}>
             <h3 className="text-sm font-semibold text-slate-800 group-hover:text-fuchsia-600 transition-colors line-clamp-2">
               {product.name}
             </h3>

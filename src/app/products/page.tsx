@@ -6,6 +6,7 @@ import { useSearchParams } from 'next/navigation';
 import { Filter, SlidersHorizontal, ArrowUpDown, RefreshCw } from 'lucide-react';
 import { DEMO_PRODUCTS, INITIAL_CATEGORIES } from '@/lib/products';
 import { ProductCard } from '@/components/products/ProductCard';
+import { ecommerceEvent } from '@/lib/gtag';
 
 function ProductsCatalogContent() {
   const searchParams = useSearchParams();
@@ -74,6 +75,23 @@ function ProductsCatalogContent() {
       return 0; // default newest
     });
   }, [dbProducts, isLoading, selectedCategory, stockFilter, priceRange, searchQuery, sortBy]);
+
+  // Track view_item_list for GA4
+  useEffect(() => {
+    if (filteredProducts.length > 0) {
+      ecommerceEvent('view_item_list', {
+        item_list_id: 'catalog_products',
+        item_list_name: 'Catalog Products',
+        items: filteredProducts.slice(0, 10).map((p, index) => ({
+          item_id: p.id,
+          item_name: p.name,
+          price: p.price,
+          index: index,
+          item_category: p.category?.name || undefined
+        }))
+      });
+    }
+  }, [filteredProducts]);
 
   const resetFilters = () => {
     setSearchQuery('');

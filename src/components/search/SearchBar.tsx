@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { Search, Tag, ArrowRight, PackageCheck } from 'lucide-react';
 import { DEMO_PRODUCTS } from '@/lib/products';
 import { Product } from '@/types/database';
+import { ecommerceEvent } from '@/lib/gtag';
 
 export function SearchBar() {
   const [query, setQuery] = useState('');
@@ -72,6 +73,11 @@ export function SearchBar() {
     e.preventDefault();
     const trimmed = query.trim();
     if (!trimmed) return;
+
+    // GA4 Search tracking
+    ecommerceEvent('search', {
+      search_term: trimmed
+    });
 
     try {
       const { createClient } = await import('@/lib/supabase/client');

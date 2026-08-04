@@ -1,8 +1,9 @@
 'use client';
 
-import React, { use } from 'react';
+import React, { use, useEffect } from 'react';
 import Link from 'next/link';
 import { CheckCircle2, Package, FileText, ArrowRight, Sparkles, ShieldCheck } from 'lucide-react';
+import { ecommerceEvent } from '@/lib/gtag';
 
 export default function OrderSuccessPage({ params }: { params: Promise<{ orderId: string }> }) {
   const resolvedParams = use(params);
@@ -14,6 +15,35 @@ export default function OrderSuccessPage({ params }: { params: Promise<{ orderId
     day: 'numeric',
     year: 'numeric',
   });
+
+  // Track GA4 purchase event
+  useEffect(() => {
+    try {
+      const existingOrders = JSON.parse(localStorage.getItem('ruhvi_orders_v1') || '[]');
+      const currentOrder = existingOrders.find((o: any) => o.id === orderId);
+
+      if (currentOrder && !currentOrder.ga4_tracked) {
+        ecommerceEvent('purchase', {
+          transaction_id: currentOrder.id,
+          currency: 'INR',
+          value: currentOrder.total,
+          coupon: currentOrder.coupon_discount > 0 ? 'COUPON_APPLIED' : undefined,
+          items: currentOrder.items?.map((item: any) => ({
+            item_id: item.product_id,
+            item_name: item.product_name,
+            price: item.price,
+            quantity: item.quantity
+          })) || []
+        });
+        
+        // Mark as tracked to prevent duplicate events on refresh
+        currentOrder.ga4_tracked = true;
+        localStorage.setItem('ruhvi_orders_v1', JSON.stringify(existingOrders));
+      }
+    } catch (e) {
+      console.error('Failed to track purchase', e);
+    }
+  }, [orderId]);
 
 
   return (

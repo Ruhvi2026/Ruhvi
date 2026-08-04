@@ -1,11 +1,12 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import Link from 'next/link';
 import { ShoppingBag, Trash2, Plus, Minus, ArrowRight, ShieldCheck, Truck, RefreshCw, Sparkles, ImageOff } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ImageWithFallback } from '@/components/ui/ImageWithFallback';
+import { ecommerceEvent } from '@/lib/gtag';
 
 export default function CartPage() {
   const { items, updateQuantity, removeFromCart, subtotal, clearCart } = useCart();
@@ -17,6 +18,21 @@ export default function CartPage() {
 
   const estimatedShipping = isFreeShipping || items.length === 0 ? 0 : 49;
   const grandTotal = subtotal + estimatedShipping;
+
+  useEffect(() => {
+    if (items.length > 0) {
+      ecommerceEvent('view_cart', {
+        currency: 'INR',
+        value: subtotal,
+        items: items.map(item => ({
+          item_id: item.product_id,
+          item_name: item.product?.name,
+          price: item.product?.price || item.price_at_add,
+          quantity: item.quantity
+        }))
+      });
+    }
+  }, [items]);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">

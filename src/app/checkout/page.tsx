@@ -13,6 +13,7 @@ import { createClient } from '@/lib/supabase/client';
 import { auth } from '@/lib/firebase';
 import { RecaptchaVerifier, signInWithPhoneNumber, ConfirmationResult } from 'firebase/auth';
 import toast from 'react-hot-toast';
+import { ecommerceEvent } from '@/lib/gtag';
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -72,6 +73,22 @@ export default function CheckoutPage() {
       setShowNewAddressForm(true);
     }
   }, [isLoggedIn, user, profile]);
+
+  // GA4 begin_checkout event
+  useEffect(() => {
+    if (items.length > 0) {
+      ecommerceEvent('begin_checkout', {
+        currency: 'INR',
+        value: subtotal,
+        items: items.map(item => ({
+          item_id: item.product_id,
+          item_name: item.product?.name,
+          price: item.product?.price || item.price_at_add,
+          quantity: item.quantity
+        }))
+      });
+    }
+  }, [items, subtotal]);
 
   // New Address Form State
   const [newAddress, setNewAddress] = useState({
@@ -200,7 +217,28 @@ export default function CheckoutPage() {
     }
 
     setIsProcessing(true);
-    ;
+    
+    // GA4 add_shipping_info & add_payment_info events
+    const checkoutItems = items.map(item => ({
+      item_id: item.product_id,
+      item_name: item.product?.name,
+      price: item.product?.price || item.price_at_add,
+      quantity: item.quantity
+    }));
+
+    ecommerceEvent('add_shipping_info', {
+      currency: 'INR',
+      value: subtotal,
+      shipping_tier: shippingCharge === 0 ? 'Free' : 'Standard',
+      items: checkoutItems
+    });
+
+    ecommerceEvent('add_payment_info', {
+      currency: 'INR',
+      value: totalPayable,
+      payment_type: paymentMethod,
+      items: checkoutItems
+    });
 
     try {
       if (paymentMethod === 'phonepe') {

@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Product, CartItem } from '@/types/database';
 import toast from 'react-hot-toast';
+import { ecommerceEvent } from '@/lib/gtag';
 
 interface CartContextType {
   items: CartItem[];
@@ -71,6 +72,21 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           },
         ];
       });
+      
+      // GA4 add_to_cart event
+      ecommerceEvent('add_to_cart', {
+        currency: 'INR',
+        value: product.price * quantity,
+        items: [
+          {
+            item_id: product.id,
+            item_name: product.name,
+            price: product.price,
+            quantity: quantity
+          }
+        ]
+      });
+
       toast.success(`${product.name} added to bag`);
     } catch (error) {
       toast.error('Failed to add item to bag');
@@ -79,7 +95,27 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const removeFromCart = (productId: string) => {
     try {
+      // Find item first to send correct GA4 data
+      const itemToRemove = items.find(item => item.product_id === productId);
+      
       setItems((prev) => prev.filter((item) => item.product_id !== productId));
+      
+      if (itemToRemove && itemToRemove.product) {
+        // GA4 remove_from_cart event
+        ecommerceEvent('remove_from_cart', {
+          currency: 'INR',
+          value: itemToRemove.product.price * itemToRemove.quantity,
+          items: [
+            {
+              item_id: itemToRemove.product.id,
+              item_name: itemToRemove.product.name,
+              price: itemToRemove.product.price,
+              quantity: itemToRemove.quantity
+            }
+          ]
+        });
+      }
+
       toast.success('Item removed from bag');
     } catch (error) {
       toast.error('Failed to remove item');

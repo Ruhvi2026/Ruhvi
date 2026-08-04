@@ -1,9 +1,10 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import Link from 'next/link';
 import { Tag, Sparkles, Clock, ArrowRight, Percent } from 'lucide-react';
 import Image from 'next/image';
+import { ecommerceEvent } from '@/lib/gtag';
 
 const ACTIVE_COUPONS = [
   {
@@ -56,6 +57,16 @@ export default function OffersPage() {
     navigator.clipboard.writeText(code);
     alert(`Coupon code ${code} copied to clipboard!`);
   };
+
+  useEffect(() => {
+    ACTIVE_COUPONS.forEach((coupon) => {
+      ecommerceEvent('view_promotion', {
+        promotion_id: coupon.code,
+        promotion_name: coupon.title,
+        items: [] // Can be populated if specific items are tied to the promo
+      });
+    });
+  }, []);
 
   return (
     <div className="min-h-screen bg-[#FAF6ED]">
