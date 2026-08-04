@@ -18,6 +18,7 @@ const envSchema = z.object({
   
   // Push Notifications
   NEXT_PUBLIC_ONESIGNAL_APP_ID: z.string().optional(),
+  ONESIGNAL_REST_API_KEY: z.string().optional(),
   
   // Meta/Analytics
   NEXT_PUBLIC_META_PIXEL_ID: z.string().optional(),
@@ -39,6 +40,7 @@ const _env = envSchema.safeParse({
   NEXT_PUBLIC_FIREBASE_APP_ID: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
   NEXT_PUBLIC_FIREBASE_VAPID_KEY: process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY,
   NEXT_PUBLIC_ONESIGNAL_APP_ID: process.env.NEXT_PUBLIC_ONESIGNAL_APP_ID,
+  ONESIGNAL_REST_API_KEY: process.env.ONESIGNAL_REST_API_KEY,
   NEXT_PUBLIC_META_PIXEL_ID: process.env.NEXT_PUBLIC_META_PIXEL_ID,
   NEXT_PUBLIC_GA_MEASUREMENT_ID: process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID,
   NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
