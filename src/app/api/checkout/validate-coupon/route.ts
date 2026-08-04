@@ -19,7 +19,7 @@ export async function POST(request: Request) {
     if (!coupon) return NextResponse.json({ error: 'Invalid or inactive coupon.' }, { status: 404 });
     if (coupon.valid_until && new Date(coupon.valid_until) < new Date()) return NextResponse.json({ error: 'Coupon has expired.' }, { status: 400 });
     if (coupon.max_uses && coupon.uses_count >= coupon.max_uses) return NextResponse.json({ error: 'Coupon usage limit reached.' }, { status: 400 });
-    if (coupon.min_order_value && subtotal < coupon.min_order_value) return NextResponse.json({ error: ${'Minimum order value is ?'}' }, { status: 400 });
+    if (coupon.min_order_value && subtotal < coupon.min_order_value) return NextResponse.json({ error: `Minimum order value is ₹${coupon.min_order_value}` }, { status: 400 });
 
     // Target Users Validation
     if (coupon.target_users && coupon.target_users.length > 0) {
