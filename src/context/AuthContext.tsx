@@ -57,12 +57,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         data = userById;
       }
 
-      // 2. Try fetching by firebase_uid
+      // 2. Try fetching by firebase_uid using the secure RPC (bypasses RLS)
       if (!data && authUser.id) {
-        const { data: userByFb } = await supabase
-          .from('users')
-          .select('*')
-          .eq('firebase_uid', authUser.id)
+        const { data: userByFb, error } = await supabase
+          .rpc('get_user_profile', { p_user_id: authUser.id })
           .maybeSingle();
         data = userByFb;
       }

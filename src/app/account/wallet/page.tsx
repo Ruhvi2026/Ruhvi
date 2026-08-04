@@ -95,10 +95,7 @@ export default function WalletPage() {
       try {
         const supabase = createClient();
         const { data, error } = await supabase
-          .from('wallet_ledger')
-          .select('*')
-          .eq('user_id', user.id)
-          .order('created_at', { ascending: false });
+          .rpc('get_wallet_transactions', { p_user_id: user.id });
 
         if (error) throw error;
 
@@ -164,28 +161,23 @@ export default function WalletPage() {
         return;
       }
 
-      const supabase = createClient();
+      // 1. Call secure API route to process top-up
+      const response = await fetch('/api/wallet/topup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: user.id, amount: effectiveAmount }),
+      });
 
-      // 1. Insert main credit transaction to wallet_ledger (triggers user table balance update automatically)
-      const { error: ledgerError } = await supabase.from('wallet_ledger').insert([
-        {
-          user_id: user.id,
-          amount: totalCreditAmount,
-          type: bonusAmount > 0 ? 'cashback' : 'credit',
-        },
-      ]);
-
-      if (ledgerError) throw ledgerError;
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || 'Failed to top up wallet');
 
       // 2. Refresh Auth profile to get updated balance
       await refreshProfile();
 
       // 3. Re-fetch ledger
+      const supabase = createClient();
       const { data: updatedLedger } = await supabase
-        .from('wallet_ledger')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
+        .rpc('get_wallet_transactions', { p_user_id: user.id });
 
       if (updatedLedger) {
         setTransactions(updatedLedger as WalletTxn[]);
