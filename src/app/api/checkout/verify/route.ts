@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { sendOrderConfirmation } from '@/lib/whatsapp';
+import { sendOrderConfirmationEmail } from '@/lib/brevo';
 import { createClient as createServerClient } from '@/lib/supabase/server';
 import { createClient as createJSClient } from '@supabase/supabase-js';
 
@@ -182,6 +183,16 @@ export async function POST(req: Request) {
         `${address.firstName || ''} ${address.lastName || ''}`.trim() || 'Valued Customer', 
         total
       ).catch(err => console.error('Failed to send WhatsApp confirmation:', err));
+    }
+
+    // Send Brevo Email Order Confirmation asynchronously
+    if (user?.email) {
+      sendOrderConfirmationEmail(
+        user.email,
+        `${address.firstName || ''} ${address.lastName || ''}`.trim() || 'Valued Customer',
+        orderNumber,
+        total
+      ).catch(err => console.error('Failed to send Email confirmation:', err));
     }
 
     return NextResponse.json({

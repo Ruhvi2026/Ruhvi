@@ -38,6 +38,7 @@ The application is a modern, headless e-commerce storefront. It utilizes Next.js
 | **Photoswipe** | UI | Image gallery for product detail pages. | `src/app/products/[slug]/ProductDetailPageClient.tsx` (assumed) | None | Active |
 | **OneSignal Web Push** | Marketing/Push | Marketing and engagement push notifications (abandoned cart, flash sales). | `src/components/OneSignalInit.tsx`, `public/OneSignalSDKWorker.js` | `NEXT_PUBLIC_ONESIGNAL_APP_ID` | Active |
 | **Firebase Cloud Messaging (FCM)** | System/Push | Transactional and system notifications (orders, shipping, OTP). | `src/lib/fcm.ts`, `src/components/FcmInit.tsx`, `public/firebase-messaging-sw.js` | `NEXT_PUBLIC_FIREBASE_VAPID_KEY` | Active |
+| **Brevo** | Email | Transactional emails and automated cron email campaigns (Welcome, Abandoned Cart, Win-back, etc.). | `src/lib/brevo.ts`, `src/app/api/cron/automations/route.ts` | `BREVO_API_KEY`, `BREVO_SENDER_NAME`, `BREVO_SENDER_EMAIL` | Active |
 
 ---
 
@@ -89,6 +90,9 @@ The application is a modern, headless e-commerce storefront. It utilizes Next.js
 - `NEXT_PUBLIC_TURNSTILE_SITE_KEY`
 - `TURNSTILE_SECRET_KEY`
 - `NEXT_PUBLIC_META_PIXEL_ID`
+- `BREVO_API_KEY`
+- `BREVO_SENDER_NAME`
+- `BREVO_SENDER_EMAIL`
 
 ---
 
@@ -129,3 +133,4 @@ The application is a modern, headless e-commerce storefront. It utilizes Next.js
 | Turnstile | Bot Protection | 2024 | Active | `src/app/checkout/page.tsx` | |
 | Vercel Insights | Performance Analytics | 2024 | Active | `src/app/layout.tsx` | |
 | Google Analytics 4 | General Analytics/SEO | 2026 | Active | `src/app/layout.tsx`, `src/lib/gtag.ts` | E-commerce tracking fully instrumented |
+| Brevo | Transactional Emails | 2026 | Active | `src/lib/brevo.ts` | Welcome, Abandoned Cart, Shipping, etc. |

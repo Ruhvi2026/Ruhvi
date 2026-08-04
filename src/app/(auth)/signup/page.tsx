@@ -90,6 +90,13 @@ export default function SignUpPage() {
         } catch (err) {
           console.error("Referral tracking error:", err);
         }
+
+        // Trigger Welcome Email
+        fetch('/api/emails/welcome', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: fbUser.email, name: fullName || fbUser.displayName }),
+        }).catch(err => console.error('Failed to trigger welcome email:', err));
       }
 
       setMessage('Account created successfully! Redirecting...')

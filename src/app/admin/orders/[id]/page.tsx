@@ -46,16 +46,36 @@ export default function AdminOrderDetailsPage({ params }: { params: Promise<{ id
     setIsPushing(true);
     // In a real app, this calls POST /api/admin/shiprocket/create-order
     // For now, we mock the successful response delay
-    setTimeout(() => {
-      setOrder({
-        ...order,
-        shiprocket_order_id: `SR-${Date.now()}`,
-        shiprocket_shipment_id: `SHP-${Date.now()}`,
-        awb_code: `AWB${Date.now()}`,
-        courier_name: 'Blue Dart Express',
-        status: 'shipped',
-      });
-      setIsPushing(false);
+    setTimeout(async () => {
+      try {
+        const trackingLink = `https://track.ruhvi.in/AWB${Date.now()}`;
+        const res = await fetch('/api/admin/orders/status', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            orderId: order.id, 
+            newStatus: 'shipped',
+            trackingLink
+          }),
+        });
+        
+        if (res.ok) {
+          setOrder({
+            ...order,
+            shiprocket_order_id: `SR-${Date.now()}`,
+            shiprocket_shipment_id: `SHP-${Date.now()}`,
+            awb_code: `AWB${Date.now()}`,
+            courier_name: 'Blue Dart Express',
+            status: 'shipped',
+          });
+        } else {
+          alert('Failed to update status to shipped.');
+        }
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setIsPushing(false);
+      }
     }, 1500);
   };
 
