@@ -3,8 +3,9 @@
 import React, { useState } from 'react';
 import {
   Settings, Store, Truck, CreditCard, Bell, Gift, RotateCcw,
-  Search, Link as LinkIcon, Shield, Save, ChevronRight, Check
+  Search, Link as LinkIcon, Shield, Save, ChevronRight, Check, Flag
 } from 'lucide-react';
+import { getStoreSettings, updateStoreSettings } from '../actions/settings';
 
 const SECTIONS = [
   { id: 'store',         icon: Store,      label: 'Store Information' },
@@ -14,6 +15,7 @@ const SECTIONS = [
   { id: 'loyalty',       icon: Gift,       label: 'Loyalty & Rewards' },
   { id: 'returns',       icon: RotateCcw,  label: 'Return & Refund Policy' },
   { id: 'integrations',  icon: LinkIcon,   label: 'Integrations' },
+  { id: 'banner',        icon: Flag,       label: 'Banner & Design' },
   { id: 'security',      icon: Shield,     label: 'Security' },
 ];
 
@@ -84,6 +86,25 @@ export default function AdminSettingsPage() {
   const [gstNumber, setGstNumber] = useState('');
   const [storeAddress, setStoreAddress] = useState('');
 
+  // Banner Settings
+  const [bannerEnabled, setBannerEnabled] = useState(true);
+  const [bannerText, setBannerText] = useState('Complimentary Insured Shipping on all orders above ₹5000');
+  const [bannerColor, setBannerColor] = useState('bg-gradient-to-r from-fuchsia-600 to-purple-600');
+  const [bannerLink, setBannerLink] = useState('');
+
+  React.useEffect(() => {
+    async function loadSettings() {
+      const data = await getStoreSettings();
+      if (data) {
+        setBannerEnabled(data.banner_enabled);
+        setBannerText(data.banner_text || '');
+        setBannerColor(data.banner_color || 'bg-gradient-to-r from-fuchsia-600 to-purple-600');
+        setBannerLink(data.banner_link || '');
+      }
+    }
+    loadSettings();
+  }, []);
+
   // Shipping
   const [freeShippingThreshold, setFreeShippingThreshold] = useState('500');
   const [codCharge, setCodCharge] = useState('49');
@@ -105,10 +126,27 @@ export default function AdminSettingsPage() {
   const [metaPixelId, setMetaPixelId] = useState('');
   const [clarityId, setClarityId] = useState('');
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
+    if (activeSection === 'banner') {
+      try {
+        await updateStoreSettings({
+          banner_enabled: bannerEnabled,
+          banner_text: bannerText,
+          banner_color: bannerColor,
+          banner_link: bannerLink || null
+        });
+        setSaved(true);
+        setTimeout(() => setSaved(false), 3000);
+      } catch (err) {
+        console.error('Failed to save settings', err);
+        alert('Failed to save settings.');
+      }
+    } else {
+      // Mock save for other sections
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    }
   };
 
   return (
@@ -151,6 +189,49 @@ export default function AdminSettingsPage() {
 
         {/* Content */}
         <form onSubmit={handleSave} className="flex-1 space-y-5">
+
+          {activeSection === 'banner' && (
+            <Section title="Announcement Banner">
+              <div className="grid grid-cols-1 gap-5">
+                <Toggle
+                  label="Enable Top Banner"
+                  checked={bannerEnabled}
+                  onChange={setBannerEnabled}
+                  hint="Show an announcement bar at the top of the website."
+                />
+                
+                {bannerEnabled && (
+                  <>
+                    <Field label="Banner Text">
+                      <Input value={bannerText} onChange={(e) => setBannerText(e.target.value)} placeholder="e.g. Free shipping on orders over ₹5000" />
+                    </Field>
+                    <Field label="Banner Link (Optional)" hint="URL to redirect users when they click the banner. Leave empty for no link.">
+                      <Input value={bannerLink} onChange={(e) => setBannerLink(e.target.value)} placeholder="e.g. /collections/sale" />
+                    </Field>
+                    <Field label="Banner Color Scheme">
+                      <select 
+                        value={bannerColor} 
+                        onChange={(e) => setBannerColor(e.target.value)}
+                        className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-xs text-white focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                      >
+                        <option value="bg-gradient-to-r from-fuchsia-600 to-purple-600" className="bg-slate-900">Fuchsia/Purple (Default)</option>
+                        <option value="bg-gradient-to-r from-emerald-600 to-teal-600" className="bg-slate-900">Emerald/Teal</option>
+                        <option value="bg-gradient-to-r from-orange-500 to-rose-500" className="bg-slate-900">Orange/Rose (Sale)</option>
+                        <option value="bg-slate-900" className="bg-slate-900">Dark Solid</option>
+                      </select>
+                    </Field>
+
+                    <div className="pt-4 border-t border-white/10">
+                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-3">Live Preview</p>
+                      <div className={`w-full ${bannerColor} text-white text-xs py-2 px-4 text-center tracking-wide font-medium rounded-lg`}>
+                        {bannerText || 'Your banner text here'}
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+            </Section>
+          )}
 
           {activeSection === 'store' && (
             <Section title="Store Information">

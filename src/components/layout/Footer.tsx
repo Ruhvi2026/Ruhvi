@@ -110,6 +110,11 @@ export function Footer() {
               </Link>
             </li>
             <li>
+              <Link href="/blog" className="hover:text-fuchsia-300 transition-colors">
+                Read our Blog
+              </Link>
+            </li>
+            <li>
               <Link href="/faq" className="hover:text-fuchsia-300 transition-colors">
                 FAQ & Help Center
               </Link>

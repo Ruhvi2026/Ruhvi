@@ -9,6 +9,7 @@ import { useCart } from '@/context/CartContext';
 import { useWishlist } from '@/context/WishlistContext';
 import { useNotifications } from '@/context/NotificationContext';
 import { useAuth } from '@/context/AuthContext';
+import { getStoreSettings, StoreSettings } from '@/app/admin/actions/settings';
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -18,6 +19,16 @@ export function Navbar() {
   const { wishlistCount } = useWishlist();
   const { unreadCount } = useNotifications();
   const { user, profile, signOut } = useAuth();
+  
+  const [bannerSettings, setBannerSettings] = useState<StoreSettings | null>(null);
+
+  React.useEffect(() => {
+    async function fetchBanner() {
+      const data = await getStoreSettings();
+      if (data) setBannerSettings(data);
+    }
+    fetchBanner();
+  }, []);
 
   const userDisplayName = profile?.full_name || user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Account';
   const userInitials = userDisplayName ? userDisplayName[0].toUpperCase() : 'U';
@@ -25,11 +36,19 @@ export function Navbar() {
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-stone-200 shadow-sm transition-all">
       {/* Top Banner */}
-      <div className="bg-gradient-to-r from-fuchsia-600 to-purple-600 text-white text-xs py-1.5 px-4 text-center tracking-wide font-medium flex items-center justify-center space-x-2">
-        <Sparkles className="w-3.5 h-3.5 text-pink-200 animate-pulse" />
-        <span>Complimentary Insured Shipping Across India on Orders Above ₹500</span>
-        <Sparkles className="w-3.5 h-3.5 text-pink-200 animate-pulse" />
-      </div>
+      {(!bannerSettings || bannerSettings.banner_enabled) && (
+        <div className={`${bannerSettings?.banner_color || 'bg-gradient-to-r from-fuchsia-600 to-purple-600'} text-white text-xs py-1.5 px-4 text-center tracking-wide font-medium flex items-center justify-center space-x-2`}>
+          <Sparkles className="w-3.5 h-3.5 text-pink-200 animate-pulse" />
+          {bannerSettings?.banner_link ? (
+            <Link href={bannerSettings.banner_link} className="hover:underline">
+              <span>{bannerSettings?.banner_text || 'Complimentary Insured Shipping Across India on Orders Above ₹500'}</span>
+            </Link>
+          ) : (
+            <span>{bannerSettings?.banner_text || 'Complimentary Insured Shipping Across India on Orders Above ₹500'}</span>
+          )}
+          <Sparkles className="w-3.5 h-3.5 text-pink-200 animate-pulse" />
+        </div>
+      )}
 
       {/* Main Navbar */}
       <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
