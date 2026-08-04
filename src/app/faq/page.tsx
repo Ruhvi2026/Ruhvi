@@ -1,164 +1,64 @@
 import React from 'react';
-import type { Metadata } from 'next';
-import Link from 'next/link';
-import { HelpCircle, ChevronDown, ShieldCheck, Truck, RotateCcw, Award } from 'lucide-react';
-
-export const metadata: Metadata = {
-  title: 'Frequently Asked Questions (FAQ) — Orders, Shipping & Warranty',
-  description:
-    'Got questions about ordering, BIS hallmarking, free insured shipping, or returns at Ruhvi? Find instant answers to all common questions.',
-  openGraph: {
-    title: 'Ruhvi FAQ | Frequently Asked Questions',
-    description: 'Find answers regarding BIS certification, insured shipping, custom jewelry orders, and return policies.',
-    url: 'https://ruhvi.in/faq',
-  },
-};
 
 export default function FAQPage() {
-  const faqCategories = [
-    {
-      category: 'Purity & Certification',
-      icon: Award,
-      faqs: [
-        {
-          q: 'Are all Ruhvi gold jewellery pieces BIS Hallmarked?',
-          a: 'Yes, 100% of our gold jewellery carries official BIS Hallmarking displaying the gold purity (e.g., 22K 916 or 22K 750) alongside our registered logo.',
-        },
-        {
-          q: 'Do solitaire diamonds come with certificates?',
-          a: 'All solitaire diamonds above 0.30ct are certified by international grading laboratories such as IGI (International Gemological Institute) or GIA.',
-        },
-      ],
-    },
-    {
-      category: 'Shipping & Delivery',
-      icon: Truck,
-      faqs: [
-        {
-          q: 'Is shipping free and insured?',
-          a: 'Yes, we provide 100% free insured transit shipping across all serviceable pin codes in India. Your order is completely safe from dispatch to delivery.',
-        },
-        {
-          q: 'How long does delivery take?',
-          a: 'Standard orders ship within 2-4 business days and arrive in 3-5 business days. Custom or made-to-order pieces take 10-14 business days.',
-        },
-      ],
-    },
-    {
-      category: 'Returns & Exchange',
-      icon: RotateCcw,
-      faqs: [
-        {
-          q: 'What is your return policy?',
-          a: 'We offer a 15-day no-questions-asked return policy for all standard unworn jewellery items in original condition with intact certificates.',
-        },
-        {
-          q: 'Do you offer a Lifetime Exchange program?',
-          a: 'Yes, we provide a Lifetime Exchange policy for gold and diamond jewellery at current prevailing gold/diamond rates subject to standard processing fees.',
-        },
-      ],
-    },
-    {
-      category: 'Orders & Customization',
-      icon: ShieldCheck,
-      faqs: [
-        {
-          q: 'Can I request custom ring sizes or personalized engravings?',
-          a: 'Absolutely! Contact our jewelry concierge team via WhatsApp or Email after placing your order for free custom size adjustments and laser engraving.',
-        },
-        {
-          q: 'What payment methods do you accept?',
-          a: 'We accept Credit/Debit Cards, Net Banking, UPI (PhonePe, Google Pay, Paytm), Wallet balance, and EMI options.',
-        },
-      ],
-    },
-  ];
-
-  const faqSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'FAQPage',
-    mainEntity: faqCategories.flatMap(cat => 
-      cat.faqs.map(faq => ({
-        '@type': 'Question',
-        name: faq.q,
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: faq.a,
-        }
-      }))
-    )
-  };
-
   return (
-    <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
-      />
-      <div className="bg-stone-50 min-h-screen py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto space-y-10">
-        {/* Header */}
-        <div className="text-center space-y-3">
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-amber-100 text-amber-900 rounded-full text-xs font-semibold">
-            <HelpCircle className="w-4 h-4" />
-            <span>Help Center</span>
-          </div>
-          <h1 className="font-serif text-3xl sm:text-5xl font-bold text-stone-900 tracking-tight">
-            Frequently Asked Questions
-          </h1>
-          <p className="text-stone-500 text-sm max-w-md mx-auto font-light">
-            Everything you need to know about our craftsmanship, delivery, and guarantees.
-          </p>
-        </div>
-
-        {/* Categories */}
-        <div className="space-y-8">
-          {faqCategories.map((cat) => (
-            <div key={cat.category} className="bg-white rounded-2xl p-6 sm:p-8 border border-stone-200 shadow-sm space-y-6">
-              <div className="flex items-center gap-3 border-b border-stone-100 pb-4">
-                <div className="w-9 h-9 bg-amber-50 text-amber-950 rounded-xl flex items-center justify-center border border-amber-200">
-                  <cat.icon className="w-5 h-5" />
-                </div>
-                <h2 className="font-serif text-xl font-bold text-stone-900">{cat.category}</h2>
-              </div>
-
-              <div className="space-y-4">
-                {cat.faqs.map((faq, idx) => (
-                  <details
-                    key={idx}
-                    className="group border border-stone-100 rounded-xl p-4 transition-all [&[open]]:bg-amber-50/40"
-                  >
-                    <summary className="font-semibold text-stone-900 text-sm cursor-pointer list-none flex items-center justify-between">
-                      <span>{faq.q}</span>
-                      <ChevronDown className="w-4 h-4 text-stone-400 group-open:rotate-180 transition-transform flex-shrink-0 ml-2" />
-                    </summary>
-                    <p className="text-stone-600 text-xs mt-3 leading-relaxed font-light pl-1">
-                      {faq.a}
-                    </p>
-                  </details>
-                ))}
-              </div>
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-8">
+      <h1 className="font-serif text-3xl font-bold text-stone-900 text-center">Frequently Asked Questions</h1>
+      
+      <div className="bg-white p-6 sm:p-10 rounded-2xl border border-[#E7D7A3]/50 shadow-sm space-y-8 text-sm text-[#121110]/80 leading-relaxed">
+        
+        <section className="space-y-3">
+          <h2 className="text-xl font-serif font-bold text-[#121110]">Orders & Shipping</h2>
+          <div className="space-y-4">
+            <div>
+              <h3 className="font-semibold text-[#121110]">How much does shipping cost?</h3>
+              <p>We offer free standard shipping on all orders above ₹500. For orders below ₹500, a flat shipping fee of ₹49 is applied. If you choose Cash on Delivery (COD), an additional COD convenience charge of ₹49 will apply.</p>
             </div>
-          ))}
-        </div>
+            <div>
+              <h3 className="font-semibold text-[#121110]">How long does delivery take?</h3>
+              <p>Orders are dispatched within 1-2 business days. Standard delivery usually takes 3-7 business days depending on your location.</p>
+            </div>
+            <div>
+              <h3 className="font-semibold text-[#121110]">How can I track my order?</h3>
+              <p>Once dispatched, you will receive an AWB tracking number via email and WhatsApp. You can also track your order directly from the "My Orders" section of your account.</p>
+            </div>
+          </div>
+        </section>
 
-        {/* Still Need Help */}
-        <div className="bg-stone-900 text-white rounded-2xl p-8 text-center space-y-4 shadow-xl">
-          <h3 className="font-serif text-xl font-bold">Still have questions?</h3>
-          <p className="text-stone-300 text-xs max-w-sm mx-auto font-light">
-            Our jewelry concierges are available 7 days a week to guide you with your purchase.
-          </p>
-          <div className="flex justify-center gap-4 pt-2">
-            <Link
-              href="/contact"
-              className="px-6 py-2.5 bg-amber-500 hover:bg-amber-400 text-stone-950 text-xs font-bold rounded-xl transition-colors"
-            >
-              Contact Support
-            </Link>
+        <section className="space-y-3">
+          <h2 className="text-xl font-serif font-bold text-[#121110]">Returns & Cancellations</h2>
+          <div className="space-y-4">
+            <div>
+              <h3 className="font-semibold text-[#121110]">Can I return an item if I don't like it?</h3>
+              <p>Yes! We have a 7-day return policy. The jewelry must be completely unworn, unused, and have the original security tags intact and uncut.</p>
+            </div>
+            <div>
+              <h3 className="font-semibold text-[#121110]">Can I cancel my order?</h3>
+              <p>You can cancel your order at any time before it is shipped. Once the order status is "Shipped", it cannot be cancelled, but you can request a return after delivery.</p>
+            </div>
           </div>
+        </section>
+
+        <section className="space-y-3">
+          <h2 className="text-xl font-serif font-bold text-[#121110]">Rewards & Wallet</h2>
+          <div className="space-y-4">
+            <div>
+              <h3 className="font-semibold text-[#121110]">How do Reward Coins work?</h3>
+              <p>You earn Reward Coins on purchases (usually 10% of the item value). These coins are credited to your account 7 days after delivery (once the return window closes). 10 Coins = ₹1. You need a minimum order of ₹250 to redeem coins on future purchases.</p>
+            </div>
+            <div>
+              <h3 className="font-semibold text-[#121110]">Can I transfer my Wallet balance to my bank account?</h3>
+              <p>No, the Ruhvi Wallet is a closed-loop promotional wallet. Balances can only be used for purchases on Ruhvi.in and cannot be withdrawn to a bank account.</p>
+            </div>
           </div>
-        </div>
+        </section>
+
+        <section className="space-y-3 pt-4 border-t border-[#E7D7A3]/50">
+          <h2 className="text-xl font-serif font-bold text-[#121110]">Still have questions?</h2>
+          <p>We're here to help! Reach out to us at <strong>support@ruhvi.in</strong> or via our Contact Us page.</p>
+        </section>
+
       </div>
-    </>
+    </div>
   );
 }
