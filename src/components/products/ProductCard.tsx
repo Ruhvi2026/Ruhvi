@@ -60,7 +60,7 @@ export function ProductCard({ product }: ProductCardProps) {
         }}>
           <ImageWithFallback
             src={mainImage}
-            alt={product.name}
+            alt={`${product.name} - ${product.category?.name || 'Fine Jewellery'} | Ruhvi`}
             fill
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             className="object-cover transition-transform duration-500 group-hover:scale-105"
@@ -93,17 +93,17 @@ export function ProductCard({ product }: ProductCardProps) {
         {/* Wishlist Heart Button */}
         <button
           onClick={handleToggleWishlist}
-          className="absolute top-2 right-2 p-2 bg-white/90 backdrop-blur-md rounded-full text-slate-400 hover:text-fuchsia-500 shadow-sm transition-all transform hover:scale-110 z-10"
+          className="absolute top-2 right-2 p-3 sm:p-2 bg-white/90 backdrop-blur-md rounded-full text-slate-400 hover:text-fuchsia-500 shadow-sm transition-all transform hover:scale-110 z-10"
           title={isLiked ? 'Remove from Wishlist' : 'Add to Wishlist'}
         >
-          <Heart className={`w-4 h-4 ${isLiked ? 'fill-fuchsia-500 text-fuchsia-500' : ''}`} />
+          <Heart className={`w-4 h-4 sm:w-4 sm:h-4 ${isLiked ? 'fill-fuchsia-500 text-fuchsia-500' : ''}`} />
         </button>
 
         {/* Quick Add to Cart hover button */}
         {product.status !== 'out_of_stock' && (
           <button
             onClick={handleAddToCart}
-            className="absolute bottom-3 right-3 p-2.5 bg-fuchsia-600 text-white hover:bg-fuchsia-700 rounded-full shadow-lg transition-all duration-300 z-10 transform translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 flex items-center space-x-1.5 px-3"
+            className="absolute bottom-3 right-3 p-3 sm:p-2.5 bg-fuchsia-600 text-white hover:bg-fuchsia-700 rounded-full shadow-lg transition-all duration-300 z-10 transform translate-y-0 opacity-100 sm:translate-y-2 sm:opacity-0 sm:group-hover:translate-y-0 sm:group-hover:opacity-100 flex items-center space-x-1.5 px-4 sm:px-3"
             title="Add to Cart"
           >
             {isInCart ? (

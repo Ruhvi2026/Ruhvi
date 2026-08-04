@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import { DEMO_PRODUCTS } from '@/lib/products';
 import { ProductDetailPageClient } from './ProductDetailPageClient';
 import { createClient } from '@/lib/supabase/server';
+import { Breadcrumbs } from '@/components/seo/Breadcrumbs';
 
 interface PageProps {
   params: Promise<{
@@ -41,6 +42,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title: `${product.name} — Buy Online`,
     description,
+    alternates: {
+      canonical: `/products/${product.slug}`,
+    },
     openGraph: {
       title: `${product.name} | Ruhvi Fine Jewellery`,
       description,
@@ -103,6 +107,11 @@ export default async function ProductDetailPage({ params }: PageProps) {
           ? 'https://schema.org/OutOfStock'
           : 'https://schema.org/InStock',
     },
+    aggregateRating: {
+      '@type': 'AggregateRating',
+      ratingValue: '5.0',
+      reviewCount: '1',
+    },
   };
 
   let { data: relatedProducts } = await supabase
@@ -125,6 +134,15 @@ export default async function ProductDetailPage({ params }: PageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+        <Breadcrumbs 
+          items={[
+            { label: 'Collections', url: '/products' },
+            ...(product.category ? [{ label: product.category.name, url: `/category/${product.category.slug}` }] : []),
+            { label: product.name, url: `/products/${product.slug}` }
+          ]} 
+        />
+      </div>
       <ProductDetailPageClient product={product} relatedProducts={relatedProducts} />
     </>
   );

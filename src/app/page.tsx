@@ -1,4 +1,5 @@
 import React from 'react';
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowRight, Sparkles, ShieldCheck, Star, Layers } from 'lucide-react';
@@ -13,6 +14,14 @@ const FALLBACK_HOME_COLLECTIONS: Collection[] = [
   { id: 'col-3', title: 'Anniversary Specials', slug: 'anniversary', subtitle: 'Celebrate your journey with gold and solitaire diamonds.', image_url: 'https://images.unsplash.com/photo-1605100804763-247f67b4549e?auto=format&fit=crop&q=80' },
   { id: 'col-4', title: 'Royal Bridal Collection', slug: 'bridal', subtitle: 'Handcrafted Kundan and Emerald sets for grand celebrations.', image_url: 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&q=80' },
 ];
+
+export const metadata: Metadata = {
+  title: 'Ruhvi Fine Jewellery: Everyday Elegance, Crafted for You',
+  description: 'Explore Ruhvi\'s signature collections of certified 22K Gold, VVS Solitaires, and modern designs crafted for life\'s beautiful moments.',
+  alternates: {
+    canonical: '/',
+  },
+};
 
 export default async function HomePage() {
   const supabase = await createClient();
@@ -32,8 +41,24 @@ export default async function HomePage() {
   const newArrivals = products.filter((p) => p.is_new_arrival);
   const bestSellers = products.filter((p) => p.is_best_seller);
 
+  const websiteSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: 'Ruhvi Fine Jewellery',
+    url: 'https://ruhvi.in',
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: 'https://ruhvi.in/products?search={search_term_string}',
+      'query-input': 'required name=search_term_string',
+    },
+  };
+
   return (
     <div className="space-y-16 pb-16 bg-white">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
+      />
       {/* Hero Banner Section */}
       <section className="relative bg-gradient-to-r from-fuchsia-50 via-pink-50 to-purple-50 text-slate-900 py-16 px-4 sm:px-6 lg:px-8 overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(217,70,239,0.05),transparent_50%)]" />
@@ -45,8 +70,8 @@ export default async function HomePage() {
               <span>Certified Fine Jewellery</span>
             </span>
             <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-purple-950 leading-tight">
-              Everyday Elegance, <br />
-              <span className="text-fuchsia-600">Crafted for You</span>
+              Ruhvi Fine Jewellery: <br />
+              <span className="text-fuchsia-600">Everyday Elegance, Crafted for You</span>
             </h1>
             <p className="text-slate-600 text-sm sm:text-base max-w-xl mx-auto lg:mx-0 leading-relaxed font-light">
               Explore Ruhvi&apos;s signature collections of certified 22K Gold, VVS Solitaires, and modern designs crafted for life&apos;s beautiful moments.

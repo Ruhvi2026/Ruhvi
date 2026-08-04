@@ -255,7 +255,7 @@ export function Navbar() {
             <Link
               href="/products"
               onClick={() => setMobileMenuOpen(false)}
-              className="p-2 rounded bg-fuchsia-50 text-fuchsia-900 font-medium"
+              className="p-3 rounded bg-fuchsia-50 text-fuchsia-900 font-medium"
             >
               All Jewellery
             </Link>
@@ -264,11 +264,21 @@ export function Navbar() {
                 key={cat.id}
                 href={`/category/${cat.slug}`}
                 onClick={() => setMobileMenuOpen(false)}
-                className="p-2 rounded hover:bg-slate-50"
+                className="p-3 rounded hover:bg-slate-50"
               >
                 {cat.name}
               </Link>
             ))}
+          </div>
+
+          <div className="pt-4 border-t border-slate-100">
+            <Link
+              href="/faq"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block p-3 text-sm font-semibold text-purple-900 bg-purple-50 rounded text-center"
+            >
+              Help & Support
+            </Link>
           </div>
 
 

@@ -85,6 +85,9 @@ export const metadata: Metadata = {
       'max-snippet': -1,
     },
   },
+  verification: {
+    google: 'GSC_VERIFICATION_PLACEHOLDER',
+  },
 };
 
 import Script from 'next/script';
@@ -118,17 +121,6 @@ export default async function RootLayout({
     },
   };
 
-  const websiteSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'WebSite',
-    name: 'Ruhvi Fine Jewellery',
-    url: 'https://ruhvi.in',
-    potentialAction: {
-      '@type': 'SearchAction',
-      target: 'https://ruhvi.in/products?search={search_term_string}',
-      'query-input': 'required name=search_term_string',
-    },
-  };
 
   return (
     <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
@@ -136,10 +128,6 @@ export default async function RootLayout({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
-        />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
         />
         <Suspense fallback={null}>
           <GoogleAnalytics />

@@ -4,6 +4,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { INITIAL_CATEGORIES, DEMO_PRODUCTS } from '@/lib/products';
 import { createClient } from '@/lib/supabase/server';
+import { Breadcrumbs } from '@/components/seo/Breadcrumbs';
 
 interface CategoryPageProps {
   params: Promise<{
@@ -35,6 +36,9 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
   return {
     title,
     description,
+    alternates: {
+      canonical: `/category/${category.slug}`,
+    },
     openGraph: {
       title,
       description,
@@ -80,6 +84,12 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      <Breadcrumbs 
+        items={[
+          { label: 'Collections', url: '/products' },
+          { label: category.name, url: `/category/${category.slug}` }
+        ]} 
+      />
       {/* Category Header */}
       <div className="bg-gradient-to-r from-amber-950 to-stone-900 text-white rounded-2xl p-8 sm:p-12 mb-10 border border-amber-500/20 text-center relative overflow-hidden">
         <div className="relative z-10 max-w-xl mx-auto space-y-2">
@@ -142,6 +152,23 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
           </Link>
         </div>
       )}
+
+      {/* SEO Content Block */}
+      <div className="mt-16 pt-12 border-t border-stone-200">
+        <div className="max-w-3xl">
+          <h2 className="font-serif text-2xl font-bold text-stone-900 mb-4">
+            Buy Exquisite {category.name} Online
+          </h2>
+          <div className="text-sm text-stone-600 space-y-4 font-light leading-relaxed">
+            <p>
+              Discover our exclusive collection of {category.name.toLowerCase()}, meticulously handcrafted to blend traditional elegance with contemporary design. At Ruhvi Fine Jewellery, every piece is a testament to superior craftsmanship and timeless beauty.
+            </p>
+            <p>
+              Whether you are looking for an everyday staple or a statement piece for a grand celebration, our {category.name.toLowerCase()} are crafted using <strong>100% BIS Hallmarked 22K Gold</strong> and adorned with ethically sourced, VVS certified diamonds and gemstones. Enjoy the peace of mind that comes with our lifetime warranty, transparent pricing, and complimentary insured shipping across India.
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

@@ -52,13 +52,13 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
               thumbnail={getThumbnailImage(currentImage.url)}
               width="1600" // Estimated large size for PhotoSwipe layout calculation
               height="1600"
-              alt={productName}
+              alt={`${productName} | Ruhvi Fine Jewellery`}
             >
               {({ ref, open }) => (
                 <div className="w-full h-full cursor-zoom-in relative" ref={ref as React.RefCallback<HTMLDivElement>} onClick={open}>
                   <img
                     src={getProductImage(currentImage.url)}
-                    alt={productName}
+                    alt={`${productName} | Ruhvi Fine Jewellery`}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
                   <div className="absolute bottom-4 right-4 bg-white/90 hover:bg-white text-slate-800 p-2 rounded-full shadow-md text-xs flex items-center space-x-1 transition-colors">
