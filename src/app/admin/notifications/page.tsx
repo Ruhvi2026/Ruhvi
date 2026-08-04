@@ -19,6 +19,7 @@ export default function NotificationsAdminPage() {
   const [message, setMessage] = useState('');
   const [url, setUrl] = useState('');
   const [imageUrl, setImageUrl] = useState('');
+  const [audience, setAudience] = useState('Subscribed Users');
   const [isSending, setIsSending] = useState(false);
   const [history, setHistory] = useState<Campaign[]>([]);
   const supabase = createClient();
@@ -46,7 +47,7 @@ export default function NotificationsAdminPage() {
       return;
     }
 
-    const confirmSend = window.confirm('Are you sure you want to broadcast this message to ALL subscribers?');
+    const confirmSend = window.confirm(`Are you sure you want to broadcast this message to "${audience}"?`);
     if (!confirmSend) return;
 
     setIsSending(true);
@@ -56,7 +57,7 @@ export default function NotificationsAdminPage() {
       const res = await fetch('/api/admin/notifications', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, message, url, imageUrl }),
+        body: JSON.stringify({ title, message, url, imageUrl, audience }),
       });
 
       const data = await res.json();
@@ -99,20 +100,36 @@ export default function NotificationsAdminPage() {
             </div>
             
             <form onSubmit={handleSend} className="p-6 space-y-5">
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
-                  Notification Title *
-                </label>
-                <input
-                  type="text"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  placeholder="e.g. Flash Sale is LIVE! ⚡"
-                  className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors"
-                  maxLength={50}
-                  required
-                />
-                <p className="text-xs text-slate-400 mt-1 text-right">{title.length}/50</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    Notification Title *
+                  </label>
+                  <input
+                    type="text"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    placeholder="e.g. Flash Sale is LIVE! ⚡"
+                    className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors"
+                    maxLength={50}
+                    required
+                  />
+                  <p className="text-xs text-slate-400 mt-1 text-right">{title.length}/50</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    Target Audience *
+                  </label>
+                  <select
+                    value={audience}
+                    onChange={(e) => setAudience(e.target.value)}
+                    className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors"
+                  >
+                    <option value="Subscribed Users">All Active Subscribers</option>
+                    <option value="Active Users">Highly Active Users</option>
+                    <option value="Inactive Users">Inactive Users (Re-engagement)</option>
+                  </select>
+                </div>
               </div>
 
               <div>
@@ -162,7 +179,7 @@ export default function NotificationsAdminPage() {
               <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
                 <div className="flex items-center text-xs text-slate-500 bg-amber-50 text-amber-700 px-3 py-2 rounded-lg">
                   <AlertCircle className="w-4 h-4 mr-2 text-amber-500" />
-                  This will instantly reach all active subscribers.
+                  This will instantly reach the selected audience ({audience}).
                 </div>
                 <button
                   type="submit"

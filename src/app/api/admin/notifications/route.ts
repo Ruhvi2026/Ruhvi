@@ -23,7 +23,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { title, message, url, imageUrl } = body;
+    const { title, message, url, imageUrl, audience } = body;
 
     if (!title || !message) {
       return NextResponse.json({ error: 'Title and message are required' }, { status: 400 });
@@ -42,7 +42,7 @@ export async function POST(request: Request) {
     // Prepare OneSignal Payload
     const payload: any = {
       app_id: appId,
-      included_segments: ['Subscribed Users'],
+      included_segments: [audience || 'Subscribed Users'],
       headings: { en: title },
       contents: { en: message },
     };
@@ -78,6 +78,7 @@ export async function POST(request: Request) {
         message,
         target_url: url || null,
         image_url: imageUrl || null,
+        audience: audience || 'Subscribed Users',
         sent_by: user.id,
         onesignal_id: result.id,
       });
