@@ -69,7 +69,7 @@ export async function middleware(request: NextRequest) {
               supabaseResponse.headers.set('X-Robots-Tag', 'noindex, nofollow');
             }
             cookiesToSet.forEach(({ name, value, options }) =>
-              supabaseResponse.cookies.set(name, value, options)
+              supabaseResponse.cookies.set(name, value, { ...options, secure: false })
             )
           },
         },
