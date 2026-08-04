@@ -47,6 +47,7 @@ export default function AdminAuditLogsPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [entityFilter, setEntityFilter] = useState('all');
+  const [isTableCreated, setIsTableCreated] = useState(false);
 
   useEffect(() => { fetchLogs(); }, []);
 
@@ -62,9 +63,12 @@ export default function AdminAuditLogsPage() {
         .order('created_at', { ascending: false })
         .limit(200);
 
-      if (!auditError && auditData && auditData.length > 0) {
-        setLogs(auditData as AuditLog[]);
+      // If the error code is not '42P01' (undefined_table), it means the table exists
+      if (!auditError || auditError.code !== '42P01') {
+        setIsTableCreated(true);
+        setLogs((auditData as AuditLog[]) || []);
       } else {
+        setIsTableCreated(false);
         // Fallback: synthesize from orders table
         const { data: orders } = await supabase
           .from('orders')
@@ -119,12 +123,14 @@ export default function AdminAuditLogsPage() {
       </div>
 
       {/* Note */}
-      <div className="bg-blue-500/5 border border-blue-500/10 rounded-xl px-4 py-3">
-        <p className="text-xs text-blue-400 font-medium">
-          💡 For full audit logging, create an <code className="bg-blue-500/10 px-1 rounded">audit_logs</code> table in Supabase. 
-          Currently showing synthesized activity from order data.
-        </p>
-      </div>
+      {!isTableCreated && (
+        <div className="bg-blue-500/5 border border-blue-500/10 rounded-xl px-4 py-3">
+          <p className="text-xs text-blue-400 font-medium">
+            💡 For full audit logging, create an <code className="bg-blue-500/10 px-1 rounded">audit_logs</code> table in Supabase. 
+            Currently showing synthesized activity from order data.
+          </p>
+        </div>
+      )}
 
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-3">
