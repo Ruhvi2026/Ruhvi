@@ -17,7 +17,7 @@ export default function ReturnPolicyPage() {
           <p>To be eligible for a return, the item must meet the following strictly enforced criteria:</p>
           <ul className="list-disc pl-5 space-y-1">
             <li>The item must be <strong>unused, unworn, and in the exact same condition</strong> that you received it.</li>
-            <li>The <strong>original tags must remain intact and uncut</strong>. If the security/price tag is removed or tampered with, the return will be rejected.</li>
+            <li><strong>IMPORTANT: Our jewelry comes with a security tag. If this tag is broken, removed, or tampered with at any point within the 7 days, the product return is NOT applicable.</strong></li>
             <li>The item must be in its original packaging (including boxes, pouches, and certificates).</li>
           </ul>
         </section>

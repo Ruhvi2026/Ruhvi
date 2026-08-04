@@ -30,7 +30,12 @@ export default function TermsConditionsPage() {
         </section>
 
         <section className="space-y-3">
-          <h2 className="text-xl font-serif font-bold text-[#121110]">4. Coupons & Discounts</h2>
+          <h2 className="text-xl font-serif font-bold text-[#121110]">4. Product Materials & Hallmarking</h2>
+          <p>Our products are premium gold-plated jewelry designed for durability and elegance. Please note that government hallmarking standards apply exclusively to solid precious metals (like 14K/18K/22K solid gold). As our items are gold-plated, hallmark certification is not applicable.</p>
+        </section>
+
+        <section className="space-y-3">
+          <h2 className="text-xl font-serif font-bold text-[#121110]">5. Coupons & Discounts</h2>
           <p>Only one coupon code can be applied per order. However, coupons can be stacked with Wallet Balance and Reward Coins unless explicitly stated otherwise. Minimum order limits and usage limits apply to coupons.</p>
         </section>
 

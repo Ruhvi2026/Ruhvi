@@ -30,11 +30,21 @@ export default function FAQPage() {
           <div className="space-y-4">
             <div>
               <h3 className="font-semibold text-[#121110]">Can I return an item if I don't like it?</h3>
-              <p>Yes! We have a 7-day return policy. The jewelry must be completely unworn, unused, and have the original security tags intact and uncut.</p>
+              <p>Yes! We have a 7-day return policy. The jewelry must be completely unworn, unused, and in its original condition. <strong>IMPORTANT: Our jewelry comes with a security tag. If this tag is broken, removed, or tampered with at any point within the 7 days, the product return is NOT applicable.</strong></p>
             </div>
             <div>
               <h3 className="font-semibold text-[#121110]">Can I cancel my order?</h3>
               <p>You can cancel your order at any time before it is shipped. Once the order status is "Shipped", it cannot be cancelled, but you can request a return after delivery.</p>
+            </div>
+          </div>
+        </section>
+
+        <section className="space-y-3">
+          <h2 className="text-xl font-serif font-bold text-[#121110]">Product Information</h2>
+          <div className="space-y-4">
+            <div>
+              <h3 className="font-semibold text-[#121110]">Is the jewelry hallmarked?</h3>
+              <p>No. Government hallmarking applies only to solid gold jewelry (like 22K or 18K solid gold). Because our products are premium gold-plated jewelry, hallmarking is not applicable to them.</p>
             </div>
           </div>
         </section>
