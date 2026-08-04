@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import {
   LayoutDashboard, ShoppingBag, Package, Users, Tag, Wallet,
-  BarChart2, Settings, Bell, Search, Menu, X,
+  BarChart2, Settings, Bell, Search, Menu, X, Globe,
   ChevronDown, ChevronRight, CreditCard,
   Layers, FileText, LogOut, Home, Star, AlertCircle
 } from 'lucide-react';
@@ -76,9 +76,10 @@ const NAV_GROUPS: NavGroup[] = [
     ],
   },
   {
-    section: 'MARKETING',
+    section: 'MARKETING & SEO',
     items: [
       { label: 'Coupons & Offers', href: '/admin/coupons', icon: Tag },
+      { label: 'SEO Control Suite', href: '/admin/seo', icon: Globe },
       { label: 'Notifications', href: '/admin/notifications', icon: Bell },
     ],
   },

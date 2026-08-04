@@ -1,5 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { INITIAL_CATEGORIES, DEMO_PRODUCTS } from '@/lib/products';
 import { createClient } from '@/lib/supabase/server';
@@ -8,6 +9,43 @@ interface CategoryPageProps {
   params: Promise<{
     slug: string;
   }>;
+}
+
+export async function generateMetadata({ params }: CategoryPageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const supabase = await createClient();
+
+  let { data: category } = await supabase
+    .from('categories')
+    .select('*')
+    .eq('slug', slug)
+    .single();
+
+  if (!category) {
+    category = INITIAL_CATEGORIES.find((c) => c.slug === slug) as any;
+  }
+
+  if (!category) {
+    return { title: 'Category Not Found | Ruhvi' };
+  }
+
+  const title = `Buy Fine ${category.name} Online — Certified Gold & Diamonds`;
+  const description = `Explore handcrafted ${category.name.toLowerCase()} at Ruhvi. Certified 22K gold, ethically sourced diamonds, lifetime warranty, and free insured shipping in India.`;
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      url: `https://ruhvi.in/category/${category.slug}`,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+    },
+  };
 }
 
 export default async function CategoryPage({ params }: CategoryPageProps) {

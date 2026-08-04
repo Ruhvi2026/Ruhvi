@@ -28,8 +28,63 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: 'Ruhvi.in — Fine Jewellery',
-  description: 'Timeless luxury jewellery crafted for life’s precious moments.',
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://ruhvi.in'),
+  title: {
+    default: 'Ruhvi — Exquisite Fine Jewellery & Certified Gold',
+    template: '%s | Ruhvi Fine Jewellery',
+  },
+  description:
+    'Discover handcrafted gold, diamond, and gemstone jewellery at Ruhvi. BIS hallmarked purity, lifetime warranty, and free insured shipping across India.',
+  keywords: [
+    'Fine Jewellery',
+    'Gold Jewellery',
+    'Diamond Rings',
+    'Kundan Necklace',
+    'Solitaire Ring',
+    'BIS Hallmarked Gold',
+    'Luxury Jewellery India',
+    'Ruhvi Jewellery',
+  ],
+  authors: [{ name: 'Ruhvi Fine Jewellery' }],
+  creator: 'Ruhvi Fine Jewellery',
+  publisher: 'Ruhvi Fine Jewellery',
+  openGraph: {
+    title: 'Ruhvi — Exquisite Fine Jewellery & Certified Gold',
+    description:
+      'Discover handcrafted gold, diamond, and gemstone jewellery at Ruhvi. BIS hallmarked purity and free insured shipping across India.',
+    url: 'https://ruhvi.in',
+    siteName: 'Ruhvi Fine Jewellery',
+    images: [
+      {
+        url: 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?q=80&w=1200&auto=format&fit=crop',
+        width: 1200,
+        height: 630,
+        alt: 'Ruhvi Fine Jewellery Collection',
+      },
+    ],
+    locale: 'en_IN',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Ruhvi — Exquisite Fine Jewellery & Certified Gold',
+    description:
+      'Discover handcrafted gold, diamond, and gemstone jewellery at Ruhvi.',
+    images: [
+      'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?q=80&w=1200&auto=format&fit=crop',
+    ],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
 };
 
 import Script from 'next/script';
@@ -44,9 +99,48 @@ export default async function RootLayout({
   const host = headersList.get('host') || '';
   const isAdminHost = host === 'admin.ruhvi.in' || host.startsWith('admin.localhost');
 
+  const organizationSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: 'Ruhvi Fine Jewellery',
+    url: 'https://ruhvi.in',
+    logo: 'https://ruhvi.in/logo.png',
+    sameAs: [
+      'https://instagram.com/ruhvijewels',
+      'https://facebook.com/ruhvijewels',
+    ],
+    contactPoint: {
+      '@type': 'ContactPoint',
+      telephone: '+91-9876543210',
+      contactType: 'customer service',
+      areaServed: 'IN',
+      availableLanguage: ['en', 'hi'],
+    },
+  };
+
+  const websiteSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: 'Ruhvi Fine Jewellery',
+    url: 'https://ruhvi.in',
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: 'https://ruhvi.in/products?search={search_term_string}',
+      'query-input': 'required name=search_term_string',
+    },
+  };
+
   return (
     <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
       <body className="min-h-screen flex flex-col bg-slate-50 text-slate-900 antialiased">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
+        />
         <Suspense fallback={null}>
           <GoogleAnalytics />
           <MetaPixel />

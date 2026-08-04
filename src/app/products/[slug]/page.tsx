@@ -1,4 +1,5 @@
 import React from 'react';
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { DEMO_PRODUCTS } from '@/lib/products';
 import { ProductDetailPageClient } from './ProductDetailPageClient';
@@ -8,6 +9,56 @@ interface PageProps {
   params: Promise<{
     slug: string;
   }>;
+}
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const supabase = await createClient();
+
+  let { data: product } = await supabase
+    .from('products')
+    .select('*, images:product_images(*)')
+    .eq('slug', slug)
+    .single();
+
+  if (!product) {
+    product = DEMO_PRODUCTS.find((p) => p.slug === slug) as any;
+  }
+
+  if (!product) {
+    return {
+      title: 'Product Not Found | Ruhvi',
+    };
+  }
+
+  const mainImage =
+    product.images?.[0]?.url ||
+    'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?q=80&w=1200&auto=format&fit=crop';
+  const description =
+    product.description ||
+    `Buy ${product.name} at Ruhvi. BIS hallmarked gold & certified diamond fine jewellery with lifetime warranty and free insured shipping.`;
+
+  return {
+    title: `${product.name} — Buy Online`,
+    description,
+    openGraph: {
+      title: `${product.name} | Ruhvi Fine Jewellery`,
+      description,
+      url: `https://ruhvi.in/products/${product.slug}`,
+      images: [
+        {
+          url: mainImage,
+          alt: product.name,
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${product.name} | Ruhvi Fine Jewellery`,
+      description,
+      images: [mainImage],
+    },
+  };
 }
 
 export default async function ProductDetailPage({ params }: PageProps) {

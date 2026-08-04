@@ -105,6 +105,16 @@ export function Footer() {
               </Link>
             </li>
             <li>
+              <Link href="/jewelry-care" className="hover:text-fuchsia-300 transition-colors">
+                Jewelry Care & Cleaning Guide
+              </Link>
+            </li>
+            <li>
+              <Link href="/faq" className="hover:text-fuchsia-300 transition-colors">
+                FAQ & Help Center
+              </Link>
+            </li>
+            <li>
               <Link href="/about" className="hover:text-fuchsia-300 transition-colors">
                 About Ruhvi
               </Link>
