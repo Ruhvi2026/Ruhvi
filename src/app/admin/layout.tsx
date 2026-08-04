@@ -240,10 +240,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         ))}
       </nav>
 
-      {/* Footer */}
       <div className="border-t border-white/5 p-2 space-y-1 flex-shrink-0">
         <Link
-          href="/"
+          href="https://ruhvi.in"
           target="_blank"
           className="flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-white text-xs rounded-lg hover:bg-white/5 transition-colors"
           title="View storefront"

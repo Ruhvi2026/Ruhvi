@@ -62,14 +62,14 @@ function LoginForm() {
       const userCredential = await signInWithEmailAndPassword(auth, email, password)
       const fbUser = userCredential.user
 
-      // Upsert user into Supabase database
+      // Upsert user into Supabase database securely via RPC
       const supabase = createClient()
-      await supabase.from('users').upsert({
-        firebase_uid: fbUser.uid,
-        email: fbUser.email || null,
-        full_name: fbUser.displayName || null,
-        phone: fbUser.phoneNumber || null,
-      }, { onConflict: 'firebase_uid' })
+      await supabase.rpc('sync_firebase_user', {
+        p_uid: fbUser.uid,
+        p_email: fbUser.email || null,
+        p_name: fbUser.displayName || null,
+        p_phone: fbUser.phoneNumber || null,
+      });
 
       let destination = redirectTo === '/admin' ? '/admin/dashboard' : redirectTo
 
@@ -149,12 +149,12 @@ function LoginForm() {
       const user = userCredential.user
 
       const supabase = createClient()
-      await supabase.from('users').upsert({
-        firebase_uid: user.uid,
-        email: user.email || null,
-        full_name: user.displayName || null,
-        phone: user.phoneNumber || null,
-      }, { onConflict: 'firebase_uid' })
+      await supabase.rpc('sync_firebase_user', {
+        p_uid: user.uid,
+        p_email: user.email || null,
+        p_name: user.displayName || null,
+        p_phone: user.phoneNumber || null,
+      });
 
       setMessage('Login successful! Redirecting...')
       router.refresh()
