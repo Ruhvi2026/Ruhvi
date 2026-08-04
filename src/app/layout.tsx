@@ -13,6 +13,7 @@ import CustomerSupportChat from '@/components/CustomerSupportChat';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import GoogleAnalytics from '@/components/GoogleAnalytics';
 import { OneSignalInit } from '@/components/OneSignalInit';
+import { FcmInit } from '@/components/FcmInit';
 
 import { AuthProvider } from '@/context/AuthContext';
 import { ToastProvider } from '@/components/layout/ToastProvider';
@@ -140,6 +141,7 @@ export default async function RootLayout({
           <CartProvider>
             <WishlistProvider>
               <NotificationProvider>
+                <FcmInit />
                 {!isAdminHost && <Navbar />}
                 <main className="flex-1">{children}</main>
                 {!isAdminHost && <Footer />}

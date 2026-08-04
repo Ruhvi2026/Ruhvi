@@ -36,6 +36,8 @@ The application is a modern, headless e-commerce storefront. It utilizes Next.js
 | **Google Analytics** | Analytics/SEO | General traffic and user behavior tracking. | `src/app/layout.tsx` | GA Tracking ID (`G-7LY7LND9S9`) | Active |
 | **React Hot Toast** | UI | Toast notifications across the app. | Multiple components | None | Active |
 | **Photoswipe** | UI | Image gallery for product detail pages. | `src/app/products/[slug]/ProductDetailPageClient.tsx` (assumed) | None | Active |
+| **OneSignal Web Push** | Marketing/Push | Marketing and engagement push notifications (abandoned cart, flash sales). | `src/components/OneSignalInit.tsx`, `public/OneSignalSDKWorker.js` | `NEXT_PUBLIC_ONESIGNAL_APP_ID` | Active |
+| **Firebase Cloud Messaging (FCM)** | System/Push | Transactional and system notifications (orders, shipping, OTP). | `src/lib/fcm.ts`, `src/components/FcmInit.tsx`, `public/firebase-messaging-sw.js` | `NEXT_PUBLIC_FIREBASE_VAPID_KEY` | Active |
 
 ---
 
