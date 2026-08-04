@@ -18,7 +18,7 @@ export function OneSignalInit() {
           allowLocalhostAsSecureOrigin: true,
           notifyButton: {
             enable: true,
-          },
+          } as any,
         });
       } catch (error) {
         console.error('Error initializing OneSignal:', error);
