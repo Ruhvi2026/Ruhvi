@@ -32,21 +32,21 @@ export function Navbar() {
       </div>
 
       {/* Main Navbar */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 sm:h-20 gap-4">
+      <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16 sm:h-20 gap-1 sm:gap-4">
           {/* Brand Logo */}
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2 sm:space-x-4">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="lg:hidden text-slate-600 hover:text-fuchsia-600 focus:outline-none"
             >
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
-            <Link href="/" className="flex items-center space-x-2">
-              <span className="font-serif text-2xl sm:text-3xl font-bold tracking-widest text-purple-950 uppercase">
+            <Link href="/" className="flex items-center space-x-1 sm:space-x-2">
+              <span className="font-serif text-xl sm:text-3xl font-bold tracking-widest text-purple-950 uppercase">
                 Ruhvi
               </span>
-              <span className="text-[10px] uppercase font-sans tracking-widest px-1.5 py-0.5 bg-fuchsia-100 text-fuchsia-800 rounded font-semibold">
+              <span className="hidden sm:inline-block text-[10px] uppercase font-sans tracking-widest px-1.5 py-0.5 bg-fuchsia-100 text-fuchsia-800 rounded font-semibold">
                 Jewellery
               </span>
             </Link>
@@ -58,7 +58,7 @@ export function Navbar() {
           </div>
 
           {/* Navigation Actions */}
-          <div className="flex items-center space-x-4 sm:space-x-6">
+          <div className="flex items-center space-x-1 sm:space-x-6">
             <Link
               href="/orders"
               className="hidden sm:inline-flex text-xs font-semibold uppercase tracking-wider text-slate-700 hover:text-fuchsia-600 transition-colors"
@@ -70,7 +70,7 @@ export function Navbar() {
 
             <Link
               href="/account/notifications"
-              className="relative p-2 text-slate-700 hover:text-fuchsia-600 transition-colors"
+              className="relative p-1.5 sm:p-2 text-slate-700 hover:text-fuchsia-600 transition-colors"
               title="Notifications"
             >
               <Bell className="w-5 h-5" />
@@ -83,7 +83,7 @@ export function Navbar() {
 
             <Link
               href="/wishlist"
-              className="relative p-2 text-slate-700 hover:text-fuchsia-600 transition-colors"
+              className="relative p-1.5 sm:p-2 text-slate-700 hover:text-fuchsia-600 transition-colors"
               title="Wishlist"
             >
               <Heart className="w-5 h-5" />
@@ -96,7 +96,7 @@ export function Navbar() {
 
             <Link
               href="/cart"
-              className="relative p-2 text-slate-700 hover:text-fuchsia-600 transition-colors"
+              className="relative p-1.5 sm:p-2 text-slate-700 hover:text-fuchsia-600 transition-colors"
               title="Cart"
             >
               <ShoppingBag className="w-5 h-5" />
@@ -164,7 +164,7 @@ export function Navbar() {
               ) : (
                 <Link
                   href="/login"
-                  className="p-2 text-slate-700 hover:text-fuchsia-600 transition-colors flex items-center gap-1"
+                  className="p-1.5 sm:p-2 text-slate-700 hover:text-fuchsia-600 transition-colors flex items-center gap-1"
                   title="Sign In"
                 >
                   <User className="w-5 h-5" />

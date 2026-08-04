@@ -69,24 +69,24 @@ export default async function HomePage() {
               <Sparkles className="w-3.5 h-3.5" />
               <span>Certified Fine Jewellery</span>
             </span>
-            <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-purple-950 leading-tight">
+            <h1 className="font-serif text-3xl sm:text-4xl lg:text-6xl font-bold tracking-tight text-purple-950 leading-tight">
               Ruhvi Fine Jewellery: <br />
               <span className="text-fuchsia-600">Everyday Elegance, Crafted for You</span>
             </h1>
             <p className="text-slate-600 text-sm sm:text-base max-w-xl mx-auto lg:mx-0 leading-relaxed font-light">
               Explore Ruhvi&apos;s signature collections of certified 22K Gold, VVS Solitaires, and modern designs crafted for life&apos;s beautiful moments.
             </p>
-            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-2">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center lg:justify-start gap-3 sm:gap-4 pt-4 w-full sm:w-auto px-2 sm:px-0">
               <Link
                 href="/products"
-                className="px-6 py-3 bg-fuchsia-600 hover:bg-fuchsia-700 text-white font-bold rounded-xl text-xs uppercase tracking-wider transition-all flex items-center space-x-2 shadow-lg shadow-fuchsia-600/20"
+                className="w-full sm:w-auto justify-center px-6 py-3.5 sm:py-3 bg-fuchsia-600 hover:bg-fuchsia-700 text-white font-bold rounded-xl text-xs uppercase tracking-wider transition-all flex items-center space-x-2 shadow-lg shadow-fuchsia-600/20"
               >
                 <span>Shop Catalog</span>
                 <ArrowRight className="w-4 h-4" />
               </Link>
               <Link
                 href="/collections/for-her"
-                className="px-6 py-3 bg-white hover:bg-slate-50 text-purple-900 border border-purple-200 rounded-xl text-xs font-semibold uppercase tracking-wider transition-all shadow-sm"
+                className="w-full sm:w-auto text-center justify-center px-6 py-3.5 sm:py-3 bg-white hover:bg-slate-50 text-purple-900 border border-purple-200 rounded-xl text-xs font-semibold uppercase tracking-wider transition-all shadow-sm block"
               >
                 Gifts for Her
               </Link>
@@ -96,7 +96,7 @@ export default async function HomePage() {
           <div className="relative flex justify-center">
             <div className="w-full max-w-md h-[450px] relative rounded-3xl overflow-hidden shadow-2xl group border-[6px] border-white">
               <Image
-                src="https://images.unsplash.com/photo-1599643478524-fb66f70d00f0?auto=format&fit=crop&q=80"
+                src="https://images.unsplash.com/photo-1599643478524-fb66f70a0066?auto=format&fit=crop&q=80"
                 alt="Elegant Rose Gold Necklace"
                 fill
                 priority
