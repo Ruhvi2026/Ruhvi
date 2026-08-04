@@ -17,9 +17,12 @@ import {
   Check, 
   X,
   Plus,
-  Minus
+  Minus,
+  Key,
+  Mail
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
+import { sendPasswordResetLink, setAuthPassword } from '../actions/auth';
 
 export interface UserRecord {
   id: string;
@@ -49,6 +52,11 @@ export default function AdminUsersPage() {
   const [walletAmount, setWalletAmount] = useState<string>('');
   const [coinsAmount, setCoinsAmount] = useState<string>('');
   const [isUpdatingBalance, setIsUpdatingBalance] = useState(false);
+
+  // Set Password Modal
+  const [passwordUser, setPasswordUser] = useState<UserRecord | null>(null);
+  const [newPassword, setNewPassword] = useState<string>('');
+  const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
 
   useEffect(() => {
     fetchUsers();
@@ -120,8 +128,42 @@ export default function AdminUsersPage() {
     } catch (err: any) {
       console.error('Failed to adjust balances:', err);
       alert('Failed to update user balances.');
-    } finally {
       setIsUpdatingBalance(false);
+    }
+  };
+
+  const handleSendResetLink = async (email: string) => {
+    if (!confirm(`Are you sure you want to send a password reset link to ${email}?`)) return;
+    try {
+      const res = await sendPasswordResetLink(email);
+      if (res.error) throw new Error(res.error);
+      alert(`Password reset link sent to ${email} successfully!`);
+    } catch (err: any) {
+      console.error('Failed to send reset link:', err);
+      alert(`Error: ${err.message}`);
+    }
+  };
+
+  const handleSavePassword = async () => {
+    if (!passwordUser || !newPassword) return;
+    if (newPassword.length < 6) {
+      alert('Password must be at least 6 characters long.');
+      return;
+    }
+    
+    setIsUpdatingPassword(true);
+    try {
+      const res = await setAuthPassword(passwordUser.id, newPassword);
+      if (res.error) throw new Error(res.error);
+      
+      alert(`Password updated successfully for ${passwordUser.email}!`);
+      setPasswordUser(null);
+      setNewPassword('');
+    } catch (err: any) {
+      console.error('Failed to update password:', err);
+      alert(`Error: ${err.message}`);
+    } finally {
+      setIsUpdatingPassword(false);
     }
   };
 
@@ -293,7 +335,24 @@ export default function AdminUsersPage() {
                     <td className="p-4 text-right font-bold text-amber-900">
                       🪙 {Number(user.reward_coins || 0).toLocaleString('en-IN')}
                     </td>
-                    <td className="p-4 text-right pr-6 space-x-2">
+                    <td className="p-4 text-right pr-6 space-x-2 whitespace-nowrap">
+                      <button
+                        onClick={() => handleSendResetLink(user.email)}
+                        className="px-2.5 py-1 bg-sky-50 hover:bg-sky-100 text-sky-900 font-semibold rounded-lg transition-colors border border-sky-200 inline-flex items-center gap-1"
+                        title="Send Password Reset Link"
+                      >
+                        <Mail className="w-3 h-3 text-sky-700" /> Link
+                      </button>
+                      <button
+                        onClick={() => {
+                          setPasswordUser(user);
+                          setNewPassword('');
+                        }}
+                        className="px-2.5 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-900 font-semibold rounded-lg transition-colors border border-indigo-200 inline-flex items-center gap-1"
+                        title="Set Password Directly"
+                      >
+                        <Key className="w-3 h-3 text-indigo-700" /> Pass
+                      </button>
                       <button
                         onClick={() => {
                           setEditingUser(user);
@@ -423,6 +482,53 @@ export default function AdminUsersPage() {
                 className="px-4 py-2 bg-amber-950 text-white text-xs font-bold rounded-xl hover:bg-amber-900 disabled:opacity-50"
               >
                 {isUpdatingBalance ? 'Saving...' : 'Update Balances'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Set Password Modal */}
+      {passwordUser && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 space-y-6 shadow-2xl">
+            <div className="flex justify-between items-center border-b border-stone-100 pb-3">
+              <h3 className="font-serif font-bold text-lg text-stone-900">Set User Password</h3>
+              <button onClick={() => setPasswordUser(null)} className="text-stone-400 hover:text-stone-700">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="text-xs text-stone-600 space-y-1">
+              <p><strong className="text-stone-900">User:</strong> {passwordUser.full_name || 'Anonymous'}</p>
+              <p><strong className="text-stone-900">Email:</strong> {passwordUser.email}</p>
+              <p className="text-rose-600 italic mt-2">Warning: This will overwrite their existing password immediately without requiring current password confirmation.</p>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-stone-700 uppercase tracking-wider">New Password</label>
+              <input
+                type="text"
+                placeholder="Enter new password (min 6 chars)"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                className="w-full px-3 py-2 border border-stone-300 rounded-xl text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-indigo-800"
+              />
+            </div>
+
+            <div className="flex justify-end space-x-3 pt-2">
+              <button
+                onClick={() => setPasswordUser(null)}
+                className="px-4 py-2 border border-stone-300 text-stone-700 text-xs font-semibold rounded-xl hover:bg-stone-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSavePassword}
+                disabled={isUpdatingPassword || newPassword.length < 6}
+                className="px-4 py-2 bg-indigo-900 text-white text-xs font-bold rounded-xl hover:bg-indigo-800 disabled:opacity-50"
+              >
+                {isUpdatingPassword ? 'Saving...' : 'Set Password'}
               </button>
             </div>
           </div>
