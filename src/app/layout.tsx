@@ -33,12 +33,17 @@ export const metadata: Metadata = {
 };
 
 import Script from 'next/script';
+import { headers } from 'next/headers';
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const headersList = await headers();
+  const host = headersList.get('host') || '';
+  const isAdminHost = host === 'admin.ruhvi.in' || host.startsWith('admin.localhost');
+
   return (
     <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
       <body className="min-h-screen flex flex-col bg-slate-50 text-slate-900 antialiased">
@@ -51,10 +56,10 @@ export default function RootLayout({
           <CartProvider>
             <WishlistProvider>
               <NotificationProvider>
-                <Navbar />
+                {!isAdminHost && <Navbar />}
                 <main className="flex-1">{children}</main>
-                <Footer />
-                <CustomerSupportChat />
+                {!isAdminHost && <Footer />}
+                {!isAdminHost && <CustomerSupportChat />}
                 <SpeedInsights />
                 <ToastProvider />
                 <OfflineDetector />
