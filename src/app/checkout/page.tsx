@@ -123,6 +123,7 @@ export default function CheckoutPage() {
   // Money Features State
   const [couponCode, setCouponCode] = useState('');
   const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discount: number } | null>(null);
+  const [validatingCoupon, setValidatingCoupon] = useState(false);
   const [useCoins, setUseCoins] = useState(false);
   const [useWallet, setUseWallet] = useState(false);
 
@@ -159,15 +160,34 @@ export default function CheckoutPage() {
 
   const selectedAddress = addresses.find((a) => a.id === selectedAddressId) || addresses[0];
 
-  const handleApplyCoupon = (e: React.FormEvent) => {
+  const handleApplyCoupon = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (couponCode.toUpperCase() === 'WELCOME10') {
-      const discount = Math.min(subtotal * 0.1, 500); // 10% off up to ₹500
-      setAppliedCoupon({ code: 'WELCOME10', discount });
-      ;
-    } else {
-      toast.error('Invalid or expired coupon code.');
-      setAppliedCoupon(null);
+    if (!couponCode) return;
+    setValidatingCoupon(true);
+    try {
+      const res = await fetch('/api/checkout/validate-coupon', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          code: couponCode, 
+          subtotal, 
+          userEmail: user?.email || profile?.email, 
+          userPhone: (user as any)?.phoneNumber || profile?.phone 
+        })
+      });
+      const data = await res.json();
+      
+      if (data.success) {
+        setAppliedCoupon({ code: couponCode.toUpperCase(), discount: data.discount });
+        toast.success('Coupon applied successfully!');
+      } else {
+        toast.error(data.error || 'Invalid or expired coupon code.');
+        setAppliedCoupon(null);
+      }
+    } catch (err) {
+      toast.error('Failed to validate coupon.');
+    } finally {
+      setValidatingCoupon(false);
     }
   };
 
@@ -730,10 +750,10 @@ export default function CheckoutPage() {
                   ) : (
                     <button
                       type="submit"
-                      disabled={!couponCode}
+                      disabled={!couponCode || validatingCoupon}
                       className="px-3 py-2 bg-stone-900 text-white font-bold text-xs rounded-lg hover:bg-stone-800 disabled:opacity-50"
                     >
-                      Apply
+                      {validatingCoupon ? 'Wait' : 'Apply'}
                     </button>
                   )}
                 </form>

@@ -64,12 +64,33 @@ export default function SignUpPage() {
 
       // Upsert user into Supabase database
       const supabase = createClient()
-      await supabase.from('users').upsert({
+      const { data: newUser } = await supabase.from('users').upsert({
         firebase_uid: fbUser.uid,
         email: fbUser.email || null,
         full_name: fullName || fbUser.displayName || null,
         phone: phone || fbUser.phoneNumber || null,
-      }, { onConflict: 'firebase_uid' })
+      }, { onConflict: 'firebase_uid' }).select().single()
+
+      if (newUser) {
+        try {
+          const match = document.cookie.match(/(^| )ruhvi_referral_code=([^;]+)/);
+          if (match) {
+            const refCode = match[2];
+            const { data: referrer } = await supabase.from('users').select('id').eq('referral_code', refCode).single();
+            if (referrer && referrer.id !== newUser.id) {
+              await supabase.from('referrals').insert({
+                referrer_user_id: referrer.id,
+                referred_user_id: newUser.id,
+                status: 'pending',
+                coins_awarded: 0
+              });
+            }
+            document.cookie = "ruhvi_referral_code=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+          }
+        } catch (err) {
+          console.error("Referral tracking error:", err);
+        }
+      }
 
       setMessage('Account created successfully! Redirecting...')
       setTimeout(() => {
@@ -150,12 +171,33 @@ export default function SignUpPage() {
       const user = userCredential.user
 
       const supabase = createClient()
-      await supabase.from('users').upsert({
+      const { data: newUser } = await supabase.from('users').upsert({
         firebase_uid: user.uid,
         email: user.email || null,
         full_name: fullName || user.displayName || null,
         phone: user.phoneNumber || null,
-      }, { onConflict: 'firebase_uid' })
+      }, { onConflict: 'firebase_uid' }).select().single()
+
+      if (newUser) {
+        try {
+          const match = document.cookie.match(/(^| )ruhvi_referral_code=([^;]+)/);
+          if (match) {
+            const refCode = match[2];
+            const { data: referrer } = await supabase.from('users').select('id').eq('referral_code', refCode).single();
+            if (referrer && referrer.id !== newUser.id) {
+              await supabase.from('referrals').insert({
+                referrer_user_id: referrer.id,
+                referred_user_id: newUser.id,
+                status: 'pending',
+                coins_awarded: 0
+              });
+            }
+            document.cookie = "ruhvi_referral_code=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+          }
+        } catch (err) {
+          console.error("Referral tracking error:", err);
+        }
+      }
 
       setMessage('Account verified successfully! Redirecting...')
       setTimeout(() => {

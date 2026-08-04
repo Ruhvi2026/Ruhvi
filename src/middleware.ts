@@ -10,6 +10,12 @@ export async function middleware(request: NextRequest) {
   const isAdminHost = hostname === 'admin.ruhvi.in' || hostname.startsWith('admin.localhost');
   const path = request.nextUrl.pathname;
 
+  // Save referral code from URL to cookie
+  const refCode = request.nextUrl.searchParams.get('ref');
+  if (refCode) {
+    supabaseResponse.cookies.set('ruhvi_referral_code', refCode, { maxAge: 60 * 60 * 24 * 30, path: '/' });
+  }
+
   // 1. Root redirect on admin host
   if (isAdminHost && path === '/') {
     return NextResponse.redirect(new URL('/admin/dashboard', request.url));

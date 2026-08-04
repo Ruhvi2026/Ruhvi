@@ -28,6 +28,7 @@ const EMPTY_FORM = {
   max_uses: '',
   valid_until: '',
   is_active: true,
+  target_users_raw: '',
 };
 
 export default function AdminCouponsPage() {
@@ -71,6 +72,7 @@ export default function AdminCouponsPage() {
         valid_until: form.valid_until || null,
         is_active: form.is_active,
         uses_count: 0,
+        target_users: form.target_users_raw.trim() ? form.target_users_raw.split(',').map(s => s.trim().toLowerCase()).filter(Boolean) : null,
       };
       const { error } = await supabase.from('coupons').insert(payload);
       if (error) throw error;
@@ -336,6 +338,18 @@ export default function AdminCouponsPage() {
                     placeholder="Unlimited"
                     className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-xs text-white placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-emerald-500"
                   />
+                </div>
+                <div className="col-span-2">
+                  <label className="block text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
+                    Target Users (Optional)
+                  </label>
+                  <input
+                    value={form.target_users_raw}
+                    onChange={(e) => setForm({ ...form, target_users_raw: e.target.value })}
+                    placeholder="Enter emails or phones separated by commas (e.g. user@gmail.com, 9876543210)"
+                    className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-xs text-white placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                  />
+                  <p className="text-[9px] text-slate-500 mt-1">Leave blank to allow all users. If specified, only these users can apply the coupon.</p>
                 </div>
                 <div>
                   <label className="block text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
