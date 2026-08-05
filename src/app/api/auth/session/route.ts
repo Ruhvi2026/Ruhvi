@@ -3,7 +3,6 @@ import { createRemoteJWKSet, jwtVerify, SignJWT } from 'jose';
 import { createClient } from '@supabase/supabase-js';
 
 // Google's public JWK endpoint for Firebase ID tokens
-// This is what firebase-admin uses internally — we call it directly
 const FIREBASE_JWKS = createRemoteJWKSet(
   new URL(
     'https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com'
@@ -20,26 +19,27 @@ export async function POST(request: NextRequest) {
 
     const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
     const jwtSecret = process.env.SUPABASE_JWT_SECRET;
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-    if (!projectId || !jwtSecret) {
+    if (!projectId || !jwtSecret || !supabaseUrl || !supabaseServiceKey) {
+      console.error('[session] Missing required environment variables.');
       return NextResponse.json(
-        {
-          error: `Server misconfiguration: NEXT_PUBLIC_FIREBASE_PROJECT_ID is ${projectId ? 'SET' : 'MISSING'}, SUPABASE_JWT_SECRET is ${jwtSecret ? 'SET' : 'MISSING'}`,
-        },
+        { error: 'Server misconfiguration.' },
         { status: 500 }
       );
     }
 
-    // ✅ Verify Firebase ID token using Google's public JWKs via jose@4
-    // This does the exact same thing as firebase-admin.verifyIdToken() but
-    // uses only jose which supports CommonJS — no jwks-rsa required!
+    // Verify Firebase ID token using Google's public JWKs (no firebase-admin needed)
     const { payload } = await jwtVerify(idToken, FIREBASE_JWKS, {
       audience: projectId,
       issuer: `https://securetoken.google.com/${projectId}`,
     });
 
-    const uid = payload.sub;
-    const email = payload.email as string | undefined;
+    const uid = payload.sub!;
+    const email = (payload.email as string) || null;
+    const phone = (payload.phone_number as string) || null;
+    const name = (payload.name as string) || null;
 
     if (!uid) {
       return NextResponse.json(
@@ -48,50 +48,32 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-    if (!supabaseUrl || !supabaseServiceKey) {
-      return NextResponse.json(
-        { error: 'Missing Supabase credentials' },
-        { status: 500 }
-      );
-    }
-
-    // Lookup the real Supabase UUID for this user to avoid RLS casting errors
     const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
       auth: { autoRefreshToken: false, persistSession: false },
     });
 
-    const { data: userProfile, error: dbError } = await supabaseAdmin
-      .rpc('get_user_profile', { p_user_id: uid })
-      .maybeSingle();
+    // Upsert the user profile — creates it if it doesn't exist, updates it if it does.
+    // This is the permanent, self-healing fix: no more 404 for missing profiles.
+    const { data: supabaseUserId, error: upsertError } =
+      await supabaseAdmin.rpc('upsert_firebase_user', {
+        p_uid: uid,
+        p_email: email,
+        p_name: name,
+        p_phone: phone,
+      });
 
-    if (dbError) {
-      console.error('Supabase DB Error in session route:', dbError);
+    if (upsertError || !supabaseUserId) {
+      console.error('[session] Failed to upsert user profile:', upsertError);
       return NextResponse.json(
-        {
-          error: `Database error finding user profile: ${dbError.message || JSON.stringify(dbError)}`,
-        },
+        { error: 'Failed to sync user profile.' },
         { status: 500 }
       );
     }
 
-    const supabaseUserId = (userProfile as any)?.id;
-    if (!supabaseUserId) {
-      return NextResponse.json(
-        {
-          error: `User profile not found in database. UID: ${uid}. Data: ${JSON.stringify(userProfile)}. Err: ${JSON.stringify(dbError)}`,
-        },
-        { status: 404 }
-      );
-    }
-
-    // ✅ Create a signed session JWT using our own SUPABASE_JWT_SECRET
-    // (replaces firebase-admin.createSessionCookie())
     const expiresInSeconds = 60 * 60 * 24 * 5; // 5 days
     const secret = new TextEncoder().encode(jwtSecret);
 
+    // Mint a signed session JWT using SUPABASE_JWT_SECRET
     const sessionToken = await new SignJWT({
       sub: supabaseUserId,
       email,
@@ -115,7 +97,7 @@ export async function POST(request: NextRequest) {
 
     return response;
   } catch (error: any) {
-    console.error('Session creation error:', error?.message || error);
+    console.error('[session] Session creation error:', error?.message || error);
     return NextResponse.json(
       { error: error?.message || 'Internal Server Error' },
       { status: 500 }

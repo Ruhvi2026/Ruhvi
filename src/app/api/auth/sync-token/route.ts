@@ -18,80 +18,66 @@ export async function POST(request: NextRequest) {
     }
 
     const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
-
-    if (!projectId) {
-      return NextResponse.json(
-        {
-          error:
-            'Server misconfiguration: NEXT_PUBLIC_FIREBASE_PROJECT_ID is missing',
-        },
-        { status: 500 }
-      );
-    }
-
-    // Verify the Firebase ID token using Google's public JWKs via jose (no firebase-admin)
-    const { payload } = await jwtVerify(idToken, FIREBASE_JWKS, {
-      audience: projectId,
-      issuer: `https://securetoken.google.com/${projectId}`,
-    });
-
-    const firebaseUid = payload.sub!;
     const secret = process.env.SUPABASE_JWT_SECRET;
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-    if (!secret || !supabaseUrl || !supabaseServiceKey) {
-      console.error('Missing required environment variables for sync-token.');
+    if (!projectId || !secret || !supabaseUrl || !supabaseServiceKey) {
+      console.error('[sync-token] Missing required environment variables.');
       return NextResponse.json(
         { error: 'Server misconfiguration.' },
         { status: 500 }
       );
     }
 
-    // Lookup the real Supabase UUID for this user to avoid RLS casting errors
+    // Verify the Firebase ID token using Google's public JWKs (no firebase-admin needed)
+    const { payload } = await jwtVerify(idToken, FIREBASE_JWKS, {
+      audience: projectId,
+      issuer: `https://securetoken.google.com/${projectId}`,
+    });
+
+    const firebaseUid = payload.sub!;
+    const email = (payload.email as string) || null;
+    const phone = (payload.phone_number as string) || null;
+    const name = (payload.name as string) || null;
+
     const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
       auth: { autoRefreshToken: false, persistSession: false },
     });
 
-    const { data: userProfile, error: dbError } = await supabaseAdmin
-      .rpc('get_user_profile', { p_user_id: firebaseUid })
-      .maybeSingle();
+    // Upsert the user profile — creates it if it doesn't exist, updates it if it does.
+    // This is the permanent, self-healing fix: no more 404 for missing profiles.
+    const { data: supabaseUserId, error: upsertError } =
+      await supabaseAdmin.rpc('upsert_firebase_user', {
+        p_uid: firebaseUid,
+        p_email: email,
+        p_name: name,
+        p_phone: phone,
+      });
 
-    if (dbError) {
-      console.error('Supabase DB Error in sync-token route:', dbError);
+    if (upsertError || !supabaseUserId) {
+      console.error('[sync-token] Failed to upsert user profile:', upsertError);
       return NextResponse.json(
-        {
-          error: `Database error finding user profile: ${dbError.message || JSON.stringify(dbError)}`,
-        },
+        { error: 'Failed to sync user profile.' },
         { status: 500 }
-      );
-    }
-
-    const supabaseUserId = (userProfile as any)?.id;
-    if (!supabaseUserId) {
-      return NextResponse.json(
-        {
-          error: `User profile not found in database. UID: ${firebaseUid}. Data: ${JSON.stringify(userProfile)}. Err: ${JSON.stringify(dbError)}`,
-        },
-        { status: 404 }
       );
     }
 
     const encodedSecret = new TextEncoder().encode(secret);
 
-    // Create a Custom Supabase JWT that maps the Supabase UUID to the Supabase Subject
+    // Mint a custom Supabase JWT that maps the Firebase UID to the Supabase UUID
     const supabaseToken = await new SignJWT({
       iss: 'supabase',
       sub: supabaseUserId,
       firebase_uid: firebaseUid,
       aud: 'authenticated',
       role: 'authenticated',
-      email: (payload.email as string) || '',
-      phone: (payload.phone_number as string) || '',
+      email: email || '',
+      phone: phone || '',
       app_metadata: { provider: 'firebase' },
       user_metadata: {
-        email: (payload.email as string) || '',
-        phone: (payload.phone_number as string) || '',
+        email: email || '',
+        phone: phone || '',
       },
     })
       .setProtectedHeader({ alg: 'HS256', typ: 'JWT' })
@@ -100,7 +86,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ supabaseToken }, { status: 200 });
   } catch (error) {
-    console.error('Token sync error:', error);
+    console.error('[sync-token] Token sync error:', error);
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 }

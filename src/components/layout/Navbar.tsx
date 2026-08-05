@@ -2,7 +2,19 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { ShoppingBag, Heart, User, Menu, X, ChevronDown, Sparkles, Bell, LogOut, Package, ShieldCheck } from 'lucide-react';
+import {
+  ShoppingBag,
+  Heart,
+  User,
+  Menu,
+  X,
+  ChevronDown,
+  Sparkles,
+  Bell,
+  LogOut,
+  Package,
+  ShieldCheck,
+} from 'lucide-react';
 import { SearchBar } from '@/components/search/SearchBar';
 import { INITIAL_CATEGORIES } from '@/lib/products';
 import { useCart } from '@/context/CartContext';
@@ -19,8 +31,10 @@ export function Navbar() {
   const { wishlistCount } = useWishlist();
   const { unreadCount } = useNotifications();
   const { user, profile, signOut } = useAuth();
-  
-  const [bannerSettings, setBannerSettings] = useState<StoreSettings | null>(null);
+
+  const [bannerSettings, setBannerSettings] = useState<StoreSettings | null>(
+    null
+  );
 
   React.useEffect(() => {
     async function fetchBanner() {
@@ -30,49 +44,65 @@ export function Navbar() {
     fetchBanner();
   }, []);
 
-  const userDisplayName = profile?.full_name || user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Account';
+  const userDisplayName =
+    profile?.full_name ||
+    user?.user_metadata?.full_name ||
+    user?.email?.split('@')[0] ||
+    'Account';
   const userInitials = userDisplayName ? userDisplayName[0].toUpperCase() : 'U';
 
   return (
-    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-stone-200 shadow-sm transition-all">
+    <header className="sticky top-0 z-40 border-b border-gold-200/80 bg-cream-50/95 shadow-sm backdrop-blur-md transition-all">
       {/* Top Banner */}
       {(!bannerSettings || bannerSettings.banner_enabled) && (
-        <div className={`${bannerSettings?.banner_color || 'bg-gradient-to-r from-fuchsia-600 to-purple-600'} text-white text-xs py-1.5 px-4 text-center tracking-wide font-medium flex items-center justify-center space-x-2`}>
-          <Sparkles className="w-3.5 h-3.5 text-pink-200 animate-pulse" />
+        <div
+          className={`${bannerSettings?.banner_color || 'bg-gradient-to-r from-gold-500 via-gold-600 to-gold-700'} flex items-center justify-center space-x-2 px-4 py-1.5 text-center text-xs font-medium tracking-wide text-white`}
+        >
+          <Sparkles className="h-3.5 w-3.5 animate-pulse text-gold-100" />
           {bannerSettings?.banner_link ? (
             <Link href={bannerSettings.banner_link} className="hover:underline">
-              <span>{bannerSettings?.banner_text || 'Complimentary Insured Shipping Across India on Orders Above ₹500'}</span>
+              <span>
+                {bannerSettings?.banner_text ||
+                  'Complimentary Insured Shipping Across India on Orders Above ₹500'}
+              </span>
             </Link>
           ) : (
-            <span>{bannerSettings?.banner_text || 'Complimentary Insured Shipping Across India on Orders Above ₹500'}</span>
+            <span>
+              {bannerSettings?.banner_text ||
+                'Complimentary Insured Shipping Across India on Orders Above ₹500'}
+            </span>
           )}
-          <Sparkles className="w-3.5 h-3.5 text-pink-200 animate-pulse" />
+          <Sparkles className="h-3.5 w-3.5 animate-pulse text-gold-100" />
         </div>
       )}
 
       {/* Main Navbar */}
-      <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 sm:h-20 gap-1 sm:gap-4">
+      <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
+        <div className="flex h-16 items-center justify-between gap-1 sm:h-20 sm:gap-4">
           {/* Brand Logo */}
           <div className="flex items-center space-x-2 sm:space-x-4">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden text-slate-600 hover:text-fuchsia-600 focus:outline-none"
+              className="text-slate-600 hover:text-gold-600 focus:outline-none lg:hidden"
             >
-              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              {mobileMenuOpen ? (
+                <X className="h-6 w-6" />
+              ) : (
+                <Menu className="h-6 w-6" />
+              )}
             </button>
             <Link href="/" className="flex items-center space-x-1 sm:space-x-2">
-              <span className="font-serif text-xl sm:text-3xl font-bold tracking-widest text-purple-950 uppercase">
+              <span className="gold-shimmer font-serif text-xl font-bold uppercase tracking-widest sm:text-3xl">
                 Ruhvi
               </span>
-              <span className="hidden sm:inline-block text-[10px] uppercase font-sans tracking-widest px-1.5 py-0.5 bg-fuchsia-100 text-fuchsia-800 rounded font-semibold">
+              <span className="hidden rounded border border-gold-300/60 bg-gold-100 px-1.5 py-0.5 font-sans text-[10px] font-semibold uppercase tracking-widest text-gold-800 sm:inline-block">
                 Jewellery
               </span>
             </Link>
           </div>
 
           {/* Desktop Search Bar */}
-          <div className="hidden lg:flex flex-1 max-w-md mx-8">
+          <div className="mx-8 hidden max-w-md flex-1 lg:flex">
             <SearchBar />
           </div>
 
@@ -80,21 +110,19 @@ export function Navbar() {
           <div className="flex items-center space-x-1 sm:space-x-6">
             <Link
               href="/orders"
-              className="hidden sm:inline-flex text-xs font-semibold uppercase tracking-wider text-slate-700 hover:text-fuchsia-600 transition-colors"
+              className="hidden text-xs font-semibold uppercase tracking-wider text-slate-700 transition-colors hover:text-gold-600 sm:inline-flex"
             >
               My Orders
             </Link>
 
-
-
             <Link
               href="/account/notifications"
-              className="relative p-1.5 sm:p-2 text-slate-700 hover:text-fuchsia-600 transition-colors"
+              className="relative p-1.5 text-slate-700 transition-colors hover:text-gold-600 sm:p-2"
               title="Notifications"
             >
-              <Bell className="w-5 h-5" />
+              <Bell className="h-5 w-5" />
               {unreadCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-fuchsia-600 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center animate-scale-in">
+                <span className="animate-scale-in absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-gold-600 text-[10px] font-bold text-white">
                   {unreadCount}
                 </span>
               )}
@@ -102,12 +130,12 @@ export function Navbar() {
 
             <Link
               href="/wishlist"
-              className="relative p-1.5 sm:p-2 text-slate-700 hover:text-fuchsia-600 transition-colors"
+              className="relative p-1.5 text-slate-700 transition-colors hover:text-gold-600 sm:p-2"
               title="Wishlist"
             >
-              <Heart className="w-5 h-5" />
+              <Heart className="h-5 w-5" />
               {wishlistCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-rose-500 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center animate-scale-in">
+                <span className="animate-scale-in absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-rose-500 text-[10px] font-bold text-white">
                   {wishlistCount}
                 </span>
               )}
@@ -115,12 +143,12 @@ export function Navbar() {
 
             <Link
               href="/cart"
-              className="relative p-1.5 sm:p-2 text-slate-700 hover:text-fuchsia-600 transition-colors"
+              className="relative p-1.5 text-slate-700 transition-colors hover:text-gold-600 sm:p-2"
               title="Cart"
             >
-              <ShoppingBag className="w-5 h-5" />
+              <ShoppingBag className="h-5 w-5" />
               {cartCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-purple-700 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center animate-scale-in">
+                <span className="animate-scale-in absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-charcoal-900 text-[10px] font-bold text-gold-200">
                   {cartCount}
                 </span>
               )}
@@ -129,51 +157,55 @@ export function Navbar() {
             {/* User Profile Navigation Icon / Dropdown */}
             <div className="relative">
               {user ? (
-                <div className="relative group">
+                <div className="group relative">
                   <button
                     onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                    className="flex items-center space-x-1.5 p-1 text-slate-700 hover:text-purple-900 focus:outline-none transition-colors"
+                    className="flex items-center space-x-1.5 p-1 text-slate-700 transition-colors hover:text-charcoal-900 focus:outline-none"
                     title="Account Menu"
                   >
-                    <div className="w-8 h-8 rounded-full bg-purple-950 text-amber-300 font-serif font-bold text-xs flex items-center justify-center border border-amber-400/40 shadow-sm">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full border border-gold-400/50 bg-charcoal-900 font-serif text-xs font-bold text-gold-300 shadow-sm">
                       {userInitials}
                     </div>
                   </button>
 
-                  <div className="absolute right-0 top-full pt-2 w-60 opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none group-hover:pointer-events-auto z-50">
-                    <div className="bg-white border border-stone-200 rounded-2xl shadow-xl p-3 space-y-2 text-xs">
-                      <div className="px-3 py-2 bg-stone-50 rounded-xl border border-stone-100 space-y-0.5">
-                        <p className="font-bold text-stone-900 truncate">{userDisplayName}</p>
-                        <p className="text-[10px] text-stone-500 truncate font-mono">{user.email}</p>
-                        <span className="inline-flex items-center gap-1 text-[9px] font-semibold text-emerald-700 pt-0.5">
-                          <ShieldCheck className="w-3 h-3 text-emerald-600" /> Email Authenticated
+                  <div className="pointer-events-none absolute right-0 top-full z-50 w-60 pt-2 opacity-0 transition-all duration-200 group-hover:pointer-events-auto group-hover:opacity-100">
+                    <div className="space-y-2 rounded-2xl border border-gold-200 bg-white p-3 text-xs shadow-xl">
+                      <div className="space-y-0.5 rounded-xl border border-gold-200/70 bg-cream-50 px-3 py-2">
+                        <p className="truncate font-bold text-stone-900">
+                          {userDisplayName}
+                        </p>
+                        <p className="truncate font-mono text-[10px] text-stone-500">
+                          {user.email}
+                        </p>
+                        <span className="inline-flex items-center gap-1 pt-0.5 text-[9px] font-semibold text-emerald-700">
+                          <ShieldCheck className="h-3 w-3 text-emerald-600" />{' '}
+                          Email Authenticated
                         </span>
                       </div>
 
                       <div className="space-y-1 pt-1">
-
                         <Link
                           href="/account"
-                          className="flex items-center space-x-2 px-3 py-2 rounded-xl text-stone-700 hover:bg-purple-50 hover:text-purple-950 font-medium"
+                          className="flex items-center space-x-2 rounded-xl px-3 py-2 font-medium text-stone-700 hover:bg-gold-50 hover:text-charcoal-900"
                         >
-                          <User className="w-4 h-4 text-purple-800" />
+                          <User className="h-4 w-4 text-gold-700" />
                           <span>My Account Profile</span>
                         </Link>
                         <Link
                           href="/orders"
-                          className="flex items-center space-x-2 px-3 py-2 rounded-xl text-stone-700 hover:bg-purple-50 hover:text-purple-950 font-medium"
+                          className="flex items-center space-x-2 rounded-xl px-3 py-2 font-medium text-stone-700 hover:bg-gold-50 hover:text-charcoal-900"
                         >
-                          <Package className="w-4 h-4 text-purple-800" />
+                          <Package className="h-4 w-4 text-gold-700" />
                           <span>My Purchases</span>
                         </Link>
                       </div>
 
-                      <div className="pt-2 border-t border-stone-100">
+                      <div className="border-t border-stone-100 pt-2">
                         <button
                           onClick={signOut}
-                          className="w-full flex items-center space-x-2 px-3 py-2 rounded-xl text-rose-700 hover:bg-rose-50 font-semibold text-xs transition"
+                          className="flex w-full items-center space-x-2 rounded-xl px-3 py-2 text-xs font-semibold text-rose-700 transition hover:bg-rose-50"
                         >
-                          <LogOut className="w-4 h-4" />
+                          <LogOut className="h-4 w-4" />
                           <span>Sign Out</span>
                         </button>
                       </div>
@@ -183,10 +215,10 @@ export function Navbar() {
               ) : (
                 <Link
                   href="/login"
-                  className="p-1.5 sm:p-2 text-slate-700 hover:text-fuchsia-600 transition-colors flex items-center gap-1"
+                  className="flex items-center gap-1 p-1.5 text-slate-700 transition-colors hover:text-gold-600 sm:p-2"
                   title="Sign In"
                 >
-                  <User className="w-5 h-5" />
+                  <User className="h-5 w-5" />
                 </Link>
               )}
             </div>
@@ -194,38 +226,53 @@ export function Navbar() {
         </div>
 
         {/* Mobile Search Bar */}
-        <div className="lg:hidden pb-3">
+        <div className="pb-3 lg:hidden">
           <SearchBar />
         </div>
 
         {/* Desktop Category & Collection Navigation */}
-        <nav className="hidden lg:flex items-center justify-center space-x-8 py-2.5 border-t border-slate-100 text-xs font-medium uppercase tracking-wider text-slate-700">
-          <Link href="/products" className="hover:text-fuchsia-600 transition-colors font-semibold">
+        <nav className="hidden items-center justify-center space-x-8 border-t border-gold-200/70 py-2.5 text-xs font-medium uppercase tracking-wider text-slate-700 lg:flex">
+          <Link
+            href="/products"
+            className="font-semibold transition-colors hover:text-gold-600"
+          >
             All Products
           </Link>
 
           {/* Collections Dropdown */}
-          <div className="relative group">
-            <button className="flex items-center space-x-1 hover:text-fuchsia-600 text-purple-900 font-bold transition-colors focus:outline-none py-2">
-              <Sparkles className="w-3.5 h-3.5 text-fuchsia-500" />
+          <div className="group relative">
+            <button className="flex items-center space-x-1 py-2 font-bold text-charcoal-900 transition-colors hover:text-gold-600 focus:outline-none">
+              <Sparkles className="h-3.5 w-3.5 text-gold-500" />
               <span>Collections</span>
-              <ChevronDown className="w-3.5 h-3.5 text-fuchsia-500" />
+              <ChevronDown className="h-3.5 w-3.5 text-gold-500" />
             </button>
-            <div className="absolute left-0 top-full pt-1 w-56 opacity-0 group-hover:opacity-100 transition-opacity duration-150 pointer-events-none group-hover:pointer-events-auto z-50">
-              <div className="bg-white border border-slate-200 rounded-xl shadow-xl py-2">
-                <div className="px-4 py-1 text-[10px] font-bold text-purple-800 uppercase tracking-widest border-b border-slate-100 mb-1">
+            <div className="pointer-events-none absolute left-0 top-full z-50 w-56 pt-1 opacity-0 transition-opacity duration-150 group-hover:pointer-events-auto group-hover:opacity-100">
+              <div className="rounded-xl border border-gold-200 bg-white py-2 shadow-xl">
+                <div className="mb-1 border-b border-gold-200/70 px-4 py-1 text-[10px] font-bold uppercase tracking-widest text-gold-700">
                   Curated Collections
                 </div>
-                <Link href="/collections/for-her" className="block px-4 py-2 text-xs text-slate-700 hover:bg-fuchsia-50 hover:text-fuchsia-900 font-medium">
+                <Link
+                  href="/collections/for-her"
+                  className="block px-4 py-2 text-xs font-medium text-slate-700 hover:bg-gold-50 hover:text-gold-900"
+                >
                   Gifts For Her
                 </Link>
-                <Link href="/collections/under-15000" className="block px-4 py-2 text-xs text-slate-700 hover:bg-fuchsia-50 hover:text-fuchsia-900 font-medium">
+                <Link
+                  href="/collections/under-15000"
+                  className="block px-4 py-2 text-xs font-medium text-slate-700 hover:bg-gold-50 hover:text-gold-900"
+                >
                   Gifts Under ₹15,000
                 </Link>
-                <Link href="/collections/anniversary" className="block px-4 py-2 text-xs text-slate-700 hover:bg-fuchsia-50 hover:text-fuchsia-900 font-medium">
+                <Link
+                  href="/collections/anniversary"
+                  className="block px-4 py-2 text-xs font-medium text-slate-700 hover:bg-gold-50 hover:text-gold-900"
+                >
                   Anniversary Specials
                 </Link>
-                <Link href="/collections/bridal" className="block px-4 py-2 text-xs text-slate-700 hover:bg-fuchsia-50 hover:text-fuchsia-900 font-medium">
+                <Link
+                  href="/collections/bridal"
+                  className="block px-4 py-2 text-xs font-medium text-slate-700 hover:bg-gold-50 hover:text-gold-900"
+                >
                   Royal Bridal Collection
                 </Link>
               </div>
@@ -236,24 +283,24 @@ export function Navbar() {
             <Link
               key={cat.id}
               href={`/category/${cat.slug}`}
-              className="hover:text-fuchsia-600 transition-colors"
+              className="transition-colors hover:text-gold-600"
             >
               {cat.name}
             </Link>
           ))}
           {/* Dropdown for more */}
-          <div className="relative group">
-            <button className="flex items-center space-x-1 hover:text-fuchsia-600 transition-colors focus:outline-none py-2">
+          <div className="group relative">
+            <button className="flex items-center space-x-1 py-2 transition-colors hover:text-gold-600 focus:outline-none">
               <span>More Categories</span>
-              <ChevronDown className="w-3.5 h-3.5" />
+              <ChevronDown className="h-3.5 w-3.5" />
             </button>
-            <div className="absolute left-0 top-full pt-1 w-48 opacity-0 group-hover:opacity-100 transition-opacity duration-150 pointer-events-none group-hover:pointer-events-auto z-50">
-              <div className="bg-white border border-slate-200 rounded-lg shadow-lg py-2">
+            <div className="pointer-events-none absolute left-0 top-full z-50 w-48 pt-1 opacity-0 transition-opacity duration-150 group-hover:pointer-events-auto group-hover:opacity-100">
+              <div className="rounded-lg border border-gold-200 bg-white py-2 shadow-lg">
                 {INITIAL_CATEGORIES.slice(6).map((cat) => (
                   <Link
                     key={cat.id}
                     href={`/category/${cat.slug}`}
-                    className="block px-4 py-2 text-xs text-slate-700 hover:bg-fuchsia-50 hover:text-fuchsia-900"
+                    className="block px-4 py-2 text-xs text-slate-700 hover:bg-gold-50 hover:text-gold-900"
                   >
                     {cat.name}
                   </Link>
@@ -266,15 +313,15 @@ export function Navbar() {
 
       {/* Mobile Drawer Menu */}
       {mobileMenuOpen && (
-        <div className="lg:hidden bg-white border-t border-slate-200 px-4 py-4 space-y-4">
-          <div className="font-semibold text-xs uppercase tracking-wider text-slate-400">
+        <div className="space-y-4 border-t border-gold-200/70 bg-cream-50 px-4 py-4 lg:hidden">
+          <div className="text-xs font-semibold uppercase tracking-wider text-slate-400">
             Categories
           </div>
           <div className="grid grid-cols-2 gap-2 text-sm text-slate-700">
             <Link
               href="/products"
               onClick={() => setMobileMenuOpen(false)}
-              className="p-3 rounded bg-fuchsia-50 text-fuchsia-900 font-medium"
+              className="rounded border border-gold-300/60 bg-gold-100 p-3 font-medium text-gold-900"
             >
               All Jewellery
             </Link>
@@ -283,24 +330,22 @@ export function Navbar() {
                 key={cat.id}
                 href={`/category/${cat.slug}`}
                 onClick={() => setMobileMenuOpen(false)}
-                className="p-3 rounded hover:bg-slate-50"
+                className="rounded p-3 hover:bg-gold-50"
               >
                 {cat.name}
               </Link>
             ))}
           </div>
 
-          <div className="pt-4 border-t border-slate-100">
+          <div className="border-t border-gold-200/70 pt-4">
             <Link
               href="/faq"
               onClick={() => setMobileMenuOpen(false)}
-              className="block p-3 text-sm font-semibold text-purple-900 bg-purple-50 rounded text-center"
+              className="block rounded border border-gold-300/60 bg-gold-100 p-3 text-center text-sm font-semibold text-charcoal-900"
             >
               Help & Support
             </Link>
           </div>
-
-
         </div>
       )}
     </header>

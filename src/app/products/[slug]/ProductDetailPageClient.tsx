@@ -19,13 +19,20 @@ import { trackEvent } from '@/lib/analytics';
 import { ecommerceEvent } from '@/lib/gtag';
 import { useCart } from '@/context/CartContext';
 import { useWishlist } from '@/context/WishlistContext';
+import { SpatialPage } from '@/components/design-system/SpatialPage';
+import { GlassPanel } from '@/components/design-system/GlassPanel';
+import { GoldOrb } from '@/components/design-system/GoldOrb';
+import { Carousel3D } from '@/components/design-system/Carousel3D';
 
 interface ProductDetailPageClientProps {
   product: Product;
   relatedProducts: Product[];
 }
 
-export function ProductDetailPageClient({ product, relatedProducts }: ProductDetailPageClientProps) {
+export function ProductDetailPageClient({
+  product,
+  relatedProducts,
+}: ProductDetailPageClientProps) {
   const [stockModalOpen, setStockModalOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const [recentlyViewed, setRecentlyViewed] = useState<Product[]>([]);
@@ -68,9 +75,9 @@ export function ProductDetailPageClient({ product, relatedProducts }: ProductDet
           item_id: product.id,
           item_name: product.name,
           price: product.price,
-          item_category: product.category?.name || undefined
-        }
-      ]
+          item_category: product.category?.name || undefined,
+        },
+      ],
     });
   }, [product]);
 
@@ -109,214 +116,279 @@ export function ProductDetailPageClient({ product, relatedProducts }: ProductDet
     toggleWishlist(product);
   };
 
-  const isOutOfStock = product.status === 'out_of_stock' || product.stock_quantity === 0;
+  const isOutOfStock =
+    product.status === 'out_of_stock' || product.stock_quantity === 0;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12">
-      {/* Breadcrumb */}
-      <nav className="text-xs text-slate-500 flex items-center space-x-2">
-        <Link href="/" className="hover:text-purple-800">Home</Link>
-        <span>/</span>
-        <Link href="/products" className="hover:text-purple-800">Products</Link>
-        <span>/</span>
-        {product.category && (
-          <>
-            <Link href={`/category/${product.category.slug}`} className="hover:text-purple-800">
-              {product.category.name}
-            </Link>
-            <span>/</span>
-          </>
-        )}
-        <span className="text-slate-800 font-medium truncate">{product.name}</span>
-      </nav>
+    <SpatialPage showParticles showOrbs>
+      <div className="mx-auto max-w-7xl space-y-12 px-4 py-8 sm:px-6 lg:px-8">
+        {/* Breadcrumb */}
+        <nav className="flex items-center space-x-2 text-xs text-slate-500">
+          <Link href="/" className="hover:text-gold-700">
+            Home
+          </Link>
+          <span>/</span>
+          <Link href="/products" className="hover:text-gold-700">
+            Products
+          </Link>
+          <span>/</span>
+          {product.category && (
+            <>
+              <Link
+                href={`/category/${product.category.slug}`}
+                className="hover:text-gold-700"
+              >
+                {product.category.name}
+              </Link>
+              <span>/</span>
+            </>
+          )}
+          <span className="truncate font-medium text-slate-800">
+            {product.name}
+          </span>
+        </nav>
 
-      {/* Main Product Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-        {/* Left Column: Image Gallery */}
-        <ProductImageGallery images={product.images || []} productName={product.name} />
+        {/* Main Product Layout */}
+        <div className="grid grid-cols-1 gap-12 lg:grid-cols-2">
+          {/* Left Column: Image Gallery */}
+          <div className="perspective-1600">
+            <ProductImageGallery
+              images={product.images || []}
+              productName={product.name}
+            />
+          </div>
 
-        {/* Right Column: Product Details & Actions */}
-        <div className="space-y-6">
-          <div>
-            <div className="flex justify-between items-start">
-              <div>
-                <span className="font-mono text-xs text-slate-400 uppercase tracking-widest">{product.sku}</span>
-                <h1 className="font-serif text-2xl sm:text-4xl font-bold text-slate-900 mt-1">{product.name}</h1>
+          {/* Right Column: Product Details & Actions */}
+          <div className="space-y-6 rounded-2xl border border-gold-200/50 bg-white/70 p-6 shadow-sm backdrop-blur-md hover:shadow-lg hover:shadow-gold-500/10 sm:p-8">
+            <div>
+              <div className="flex items-start justify-between">
+                <div>
+                  <span className="font-mono text-xs uppercase tracking-widest text-slate-400">
+                    {product.sku}
+                  </span>
+                  <h1 className="mt-1 font-serif text-2xl font-bold text-charcoal-900 sm:text-4xl">
+                    {product.name}
+                  </h1>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <a
+                    href={`https://api.whatsapp.com/send?text=${encodeURIComponent(`Check out ${product.name} on Ruhvi Fine Jewellery: ${typeof window !== 'undefined' ? window.location.href : ''}`)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center space-x-1 rounded-full bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white shadow-sm transition-colors hover:bg-emerald-700"
+                    title="Share on WhatsApp"
+                  >
+                    <Share2 className="h-3.5 w-3.5" />
+                    <span>WhatsApp</span>
+                  </a>
+
+                  <button
+                    onClick={handleShare}
+                    className="relative rounded-full border border-gold-300/70 p-2 text-slate-600 transition-colors hover:bg-gold-50"
+                    title="Copy product link"
+                  >
+                    {copied ? (
+                      <Check className="h-4 w-4 text-emerald-600" />
+                    ) : (
+                      <Share2 className="h-4 w-4" />
+                    )}
+                  </button>
+                </div>
               </div>
 
-              <div className="flex items-center space-x-2">
-                <a
-                  href={`https://api.whatsapp.com/send?text=${encodeURIComponent(`Check out ${product.name} on Ruhvi Fine Jewellery: ${typeof window !== 'undefined' ? window.location.href : ''}`)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full text-xs font-bold flex items-center space-x-1 transition-colors shadow-sm"
-                  title="Share on WhatsApp"
-                >
-                  <Share2 className="w-3.5 h-3.5" />
-                  <span>WhatsApp</span>
-                </a>
-
-                <button
-                  onClick={handleShare}
-                  className="p-2 rounded-full border border-slate-200 hover:bg-slate-50 transition-colors text-slate-600 relative"
-                  title="Copy product link"
-                >
-                  {copied ? <Check className="w-4 h-4 text-emerald-600" /> : <Share2 className="w-4 h-4" />}
-                </button>
+              {/* Price & Savings Breakdown */}
+              <div className="mt-4 flex items-baseline space-x-3">
+                <span className="text-3xl font-bold text-charcoal-900">
+                  ₹{product.price.toLocaleString('en-IN')}
+                </span>
+                {product.mrp > product.price && (
+                  <>
+                    <span className="text-base text-slate-400 line-through">
+                      ₹{product.mrp.toLocaleString('en-IN')}
+                    </span>
+                    <span className="rounded bg-emerald-50 px-2 py-0.5 text-xs font-bold text-emerald-700">
+                      Save ₹
+                      {(product.mrp - product.price).toLocaleString('en-IN')} (
+                      {Math.round(
+                        ((product.mrp - product.price) / product.mrp) * 100
+                      )}
+                      % OFF)
+                    </span>
+                  </>
+                )}
               </div>
+
+              <p className="mt-1 text-xs text-slate-500">
+                Price inclusive of all taxes (GST {product.gst_rate}% included)
+                & complimentary insured delivery.
+              </p>
             </div>
 
-            {/* Price & Savings Breakdown */}
-            <div className="mt-4 flex items-baseline space-x-3">
-              <span className="text-3xl font-bold text-slate-900">₹{product.price.toLocaleString('en-IN')}</span>
-              {product.mrp > product.price && (
-                <>
-                  <span className="text-base text-slate-400 line-through">₹{product.mrp.toLocaleString('en-IN')}</span>
-                  <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">
-                    Save ₹{(product.mrp - product.price).toLocaleString('en-IN')} ({Math.round(((product.mrp - product.price) / product.mrp) * 100)}% OFF)
-                  </span>
-                </>
+            {/* Description */}
+            <div className="border-t border-gold-200/70 pt-4">
+              <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-charcoal-900">
+                Description
+              </h3>
+              <p className="text-sm font-light leading-relaxed text-slate-600">
+                {product.description}
+              </p>
+            </div>
+
+            {/* Stock & CTA Buttons */}
+            <div className="space-y-4 pt-2">
+              {!isOutOfStock ? (
+                <div className="space-y-3">
+                  {product.stock_quantity !== undefined &&
+                  product.stock_quantity > 0 &&
+                  product.stock_quantity < 10 ? (
+                    <div className="flex items-center space-x-1.5 text-xs font-bold text-gold-600">
+                      <div className="h-2 w-2 animate-ping rounded-full bg-gold-500" />
+                      <span>
+                        Only {product.stock_quantity} left in stock - Order
+                        soon!
+                      </span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center space-x-1.5 text-xs font-semibold text-emerald-700">
+                      <div className="h-2 w-2 animate-ping rounded-full bg-emerald-500" />
+                      <span>In Stock • Ready for dispatch in 24 hours</span>
+                    </div>
+                  )}
+
+                  <div className="flex space-x-4">
+                    <button
+                      onClick={handleAddToCart}
+                      className="flex flex-1 items-center justify-center space-x-2 rounded-xl bg-gradient-to-br from-gold-400 via-gold-500 to-gold-700 py-3.5 text-xs font-bold uppercase tracking-widest text-white shadow-md shadow-gold-500/30 transition-all hover:from-gold-500 hover:to-gold-800"
+                    >
+                      {isInCart ? (
+                        <Check className="h-4 w-4 text-emerald-300" />
+                      ) : (
+                        <ShoppingBag className="h-4 w-4" />
+                      )}
+                      <span>{isInCart ? 'Added to Cart' : 'Add to Cart'}</span>
+                    </button>
+
+                    <button
+                      onClick={handleToggleWishlist}
+                      className={`rounded-xl border p-3.5 transition-colors ${isLiked ? 'border-gold-500 bg-gold-50 text-gold-700' : 'border-gold-300/70 text-slate-700 hover:border-gold-700'}`}
+                    >
+                      <Heart
+                        className={`h-5 w-5 ${isLiked ? 'fill-current' : ''}`}
+                      />
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <div className="rounded-lg bg-slate-100 p-3 text-xs font-medium text-slate-700">
+                    Currently Out of Stock
+                  </div>
+
+                  <button
+                    onClick={() => setStockModalOpen(true)}
+                    className="flex w-full items-center justify-center space-x-2 rounded-xl bg-gradient-to-br from-gold-400 via-gold-500 to-gold-700 py-3.5 text-xs font-bold uppercase tracking-widest text-white shadow-md shadow-gold-500/30 transition-all hover:from-gold-500 hover:to-gold-800"
+                  >
+                    <Bell className="h-4 w-4" />
+                    <span>Notify Me When Back In Stock</span>
+                  </button>
+                </div>
               )}
             </div>
 
-            <p className="text-xs text-slate-500 mt-1">
-              Price inclusive of all taxes (GST {product.gst_rate}% included) & complimentary insured delivery.
-            </p>
-          </div>
-
-          {/* Description */}
-          <div className="border-t border-slate-200 pt-4">
-            <h3 className="text-xs font-semibold text-slate-900 uppercase tracking-wider mb-2">Description</h3>
-            <p className="text-sm text-slate-600 leading-relaxed font-light">{product.description}</p>
-          </div>
-
-          {/* Stock & CTA Buttons */}
-          <div className="space-y-4 pt-2">
-            {!isOutOfStock ? (
-              <div className="space-y-3">
-                {product.stock_quantity !== undefined && product.stock_quantity > 0 && product.stock_quantity < 10 ? (
-                  <div className="text-xs text-fuchsia-600 font-bold flex items-center space-x-1.5">
-                    <div className="w-2 h-2 rounded-full bg-fuchsia-500 animate-ping" />
-                    <span>Only {product.stock_quantity} left in stock - Order soon!</span>
-                  </div>
-                ) : (
-                  <div className="text-xs text-emerald-700 font-semibold flex items-center space-x-1.5">
-                    <div className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
-                    <span>In Stock • Ready for dispatch in 24 hours</span>
-                  </div>
-                )}
-
-                <div className="flex space-x-4">
-                  <button 
-                    onClick={handleAddToCart}
-                    className="flex-1 py-3.5 bg-fuchsia-600 hover:bg-fuchsia-700 text-white font-bold text-xs uppercase tracking-widest rounded-xl transition-all shadow-md flex items-center justify-center space-x-2"
-                  >
-                    {isInCart ? <Check className="w-4 h-4 text-emerald-300" /> : <ShoppingBag className="w-4 h-4" />}
-                    <span>{isInCart ? 'Added to Cart' : 'Add to Cart'}</span>
-                  </button>
-
-                  <button 
-                    onClick={handleToggleWishlist}
-                    className={`p-3.5 border rounded-xl transition-colors ${isLiked ? 'border-fuchsia-500 bg-fuchsia-50 text-fuchsia-500' : 'border-slate-300 hover:border-purple-700 text-slate-700'}`}
-                  >
-                    <Heart className={`w-5 h-5 ${isLiked ? 'fill-current' : ''}`} />
-                  </button>
-                </div>
+            {/* Reassurance Grid */}
+            <div className="grid grid-cols-3 gap-3 border-t border-gold-200/70 pt-6 text-center text-[11px] text-slate-600">
+              <div className="flex flex-col items-center justify-center rounded-lg border border-gold-200/70 bg-cream-50 p-3 shadow-sm">
+                <ShieldCheck className="mx-auto mb-1 h-5 w-5 text-gold-600" />
+                <span>22K Gold Plated • 6-Month Color Guarantee</span>
               </div>
-            ) : (
-              <div className="space-y-3">
-                <div className="p-3 rounded-lg bg-slate-100 text-slate-700 text-xs font-medium">
-                  Currently Out of Stock
-                </div>
-
-                <button
-                  onClick={() => setStockModalOpen(true)}
-                  className="w-full py-3.5 bg-purple-900 hover:bg-purple-800 text-white font-bold text-xs uppercase tracking-widest rounded-xl transition-all shadow-md flex items-center justify-center space-x-2"
-                >
-                  <Bell className="w-4 h-4" />
-                  <span>Notify Me When Back In Stock</span>
-                </button>
+              <div className="rounded-lg border border-gold-200/70 bg-cream-50 p-3 shadow-sm">
+                <Truck className="mx-auto mb-1 h-5 w-5 text-gold-600" />
+                <span>Insured Shipping</span>
               </div>
-            )}
-          </div>
-
-          {/* Reassurance Grid */}
-          <div className="grid grid-cols-3 gap-3 border-t border-slate-200 pt-6 text-center text-[11px] text-slate-600">
-            <div className="p-3 rounded-lg bg-white border border-slate-100 shadow-sm flex flex-col items-center justify-center">
-              <ShieldCheck className="w-5 h-5 text-fuchsia-600 mx-auto mb-1" />
-              <span>22K Gold Plated • 6-Month Color Guarantee</span>
-            </div>
-            <div className="p-3 rounded-lg bg-white border border-slate-100 shadow-sm">
-              <Truck className="w-5 h-5 text-fuchsia-600 mx-auto mb-1" />
-              <span>Insured Shipping</span>
-            </div>
-            <div className="p-3 rounded-lg bg-white border border-slate-100 shadow-sm">
-              <RotateCcw className="w-5 h-5 text-fuchsia-600 mx-auto mb-1" />
-              <span>7-Day Return Guarantee</span>
+              <div className="rounded-lg border border-gold-200/70 bg-cream-50 p-3 shadow-sm">
+                <RotateCcw className="mx-auto mb-1 h-5 w-5 text-gold-600" />
+                <span>7-Day Return Guarantee</span>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Related Products Section */}
-      {relatedProducts.length > 0 && (
-        <section className="border-t border-slate-200 pt-12">
-          <h2 className="font-serif text-2xl font-bold text-slate-900 mb-6">You May Also Like</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {relatedProducts.map((p) => (
-              <Link
-                key={p.id}
-                href={`/products/${p.slug}`}
-                className="group bg-white rounded-xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-lg transition-all"
-              >
-                <div className="aspect-square overflow-hidden bg-slate-100">
+        {/* Related Products Section - 3D Carousel */}
+        {relatedProducts.length > 0 && (
+          <section className="pt-12">
+            <Carousel3D title="You May Also Like" viewAllHref="/products">
+              {relatedProducts.map((p) => (
+                <Link
+                  key={p.id}
+                  href={`/products/${p.slug}`}
+                  className="group min-w-[200px] flex-shrink-0 overflow-hidden rounded-2xl border border-gold-200/60 bg-white/70 shadow-sm backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-gold-400 hover:shadow-xl hover:shadow-gold-500/15 sm:min-w-[240px]"
+                  style={{ scrollSnapAlign: 'start' }}
+                >
+                  <div className="aspect-square overflow-hidden bg-gold-50/60">
+                    {p.images && p.images[0] && (
+                      <img
+                        src={p.images[0].url}
+                        alt={p.name}
+                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                    )}
+                  </div>
+                  <div className="p-3">
+                    <h4 className="line-clamp-1 text-xs font-semibold text-slate-800 group-hover:text-gold-700">
+                      {p.name}
+                    </h4>
+                    <div className="mt-1 text-xs font-bold text-slate-900">
+                      ₹{p.price.toLocaleString('en-IN')}
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </Carousel3D>
+          </section>
+        )}
+
+        {/* Recently Viewed Section */}
+        {recentlyViewed.length > 0 && (
+          <section className="border-t border-gold-200/70 pt-12">
+            <h2 className="mb-6 font-serif text-2xl font-bold text-charcoal-900">
+              Recently Viewed
+            </h2>
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+              {recentlyViewed.map((p) => (
+                <Link
+                  key={p.id}
+                  href={`/products/${p.slug}`}
+                  className="flex items-center space-x-3 rounded-xl border border-gold-200/70 bg-cream-50 p-3 transition-colors hover:border-gold-400"
+                >
                   {p.images && p.images[0] && (
-                    <img src={p.images[0].url} alt={p.name} className="w-full h-full object-cover" />
+                    <img
+                      src={p.images[0].url}
+                      alt={p.name}
+                      className="h-12 w-12 rounded-md object-cover"
+                    />
                   )}
-                </div>
-                <div className="p-3">
-                  <h4 className="text-xs font-semibold text-slate-800 line-clamp-1 group-hover:text-fuchsia-600">
-                    {p.name}
-                  </h4>
-                  <div className="text-xs font-bold text-slate-900 mt-1">₹{p.price.toLocaleString('en-IN')}</div>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </section>
-      )}
+                  <div>
+                    <h4 className="line-clamp-1 text-xs font-semibold text-slate-800">
+                      {p.name}
+                    </h4>
+                    <div className="text-xs font-bold text-slate-900">
+                      ₹{p.price.toLocaleString('en-IN')}
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
 
-      {/* Recently Viewed Section */}
-      {recentlyViewed.length > 0 && (
-        <section className="border-t border-slate-200 pt-12">
-          <h2 className="font-serif text-2xl font-bold text-slate-900 mb-6">Recently Viewed</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            {recentlyViewed.map((p) => (
-              <Link
-                key={p.id}
-                href={`/products/${p.slug}`}
-                className="flex items-center space-x-3 bg-white p-3 rounded-xl border border-slate-200 hover:border-fuchsia-400 transition-colors"
-              >
-                {p.images && p.images[0] && (
-                  <img src={p.images[0].url} alt={p.name} className="w-12 h-12 object-cover rounded-md" />
-                )}
-                <div>
-                  <h4 className="text-xs font-semibold text-slate-800 line-clamp-1">{p.name}</h4>
-                  <div className="text-xs font-bold text-slate-900">₹{p.price.toLocaleString('en-IN')}</div>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* Stock Notification Modal */}
-      <StockNotificationModal
-        product={product}
-        isOpen={stockModalOpen}
-        onClose={() => setStockModalOpen(false)}
-      />
-    </div>
+        {/* Stock Notification Modal */}
+        <StockNotificationModal
+          product={product}
+          isOpen={stockModalOpen}
+          onClose={() => setStockModalOpen(false)}
+        />
+      </div>
+    </SpatialPage>
   );
 }
-

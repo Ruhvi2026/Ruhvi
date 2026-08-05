@@ -2,78 +2,112 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { ShieldCheck, Truck, RotateCcw, Award } from 'lucide-react';
+import { ShieldCheck, Truck, RotateCcw, Award, Gem } from 'lucide-react';
 
 export function Footer() {
   return (
-    <footer className="bg-purple-950 text-purple-200 pt-12 pb-8 border-t border-purple-900">
+    <footer className="border-t border-gold-800/60 bg-charcoal-900 pb-8 pt-12 text-cream-200">
       {/* Brand Reassurance Bar */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-12">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 p-6 rounded-2xl bg-purple-900/60 border border-purple-800/50">
+      <div className="mx-auto mb-12 max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-2 gap-6 rounded-2xl border border-gold-700/40 bg-charcoal-800/80 p-6 md:grid-cols-4">
           <div className="flex items-center space-x-3">
-            <Award className="w-8 h-8 text-fuchsia-400 flex-shrink-0" />
+            <Award className="h-8 w-8 flex-shrink-0 text-gold-400" />
             <div>
-              <h4 className="text-xs font-bold text-white uppercase tracking-wider">22K Gold Plated</h4>
-              <p className="text-[11px] text-purple-300">Anti-Tarnish & Water Resistant</p>
+              <h4 className="text-xs font-bold uppercase tracking-wider text-cream-50">
+                22K Gold Plated
+              </h4>
+              <p className="text-[11px] text-cream-200/60">
+                Anti-Tarnish & Water Resistant
+              </p>
             </div>
           </div>
 
           <div className="flex items-center space-x-3">
-            <Truck className="w-8 h-8 text-fuchsia-400 flex-shrink-0" />
+            <Truck className="h-8 w-8 flex-shrink-0 text-gold-400" />
             <div>
-              <h4 className="text-xs font-bold text-white uppercase tracking-wider">Insured Shipping</h4>
-              <p className="text-[11px] text-purple-300">Tamper-proof transit packaging</p>
+              <h4 className="text-xs font-bold uppercase tracking-wider text-cream-50">
+                Insured Shipping
+              </h4>
+              <p className="text-[11px] text-cream-200/60">
+                Tamper-proof transit packaging
+              </p>
             </div>
           </div>
 
           <div className="flex items-center space-x-3">
-            <RotateCcw className="w-8 h-8 text-fuchsia-400 flex-shrink-0" />
+            <RotateCcw className="h-8 w-8 flex-shrink-0 text-gold-400" />
             <div>
-              <h4 className="text-xs font-bold text-white uppercase tracking-wider">Easy Returns</h4>
-              <p className="text-[11px] text-purple-300">7-day hassle-free return policy</p>
+              <h4 className="text-xs font-bold uppercase tracking-wider text-cream-50">
+                Easy Returns
+              </h4>
+              <p className="text-[11px] text-cream-200/60">
+                7-day hassle-free return policy
+              </p>
             </div>
           </div>
 
           <div className="flex items-center space-x-3">
-            <ShieldCheck className="w-8 h-8 text-fuchsia-400 flex-shrink-0" />
+            <ShieldCheck className="h-8 w-8 flex-shrink-0 text-gold-400" />
             <div>
-              <h4 className="text-xs font-bold text-white uppercase tracking-wider">6-Month Color Guarantee</h4>
-              <p className="text-[11px] text-purple-300">On all gold plated pieces</p>
+              <h4 className="text-xs font-bold uppercase tracking-wider text-cream-50">
+                6-Month Color Guarantee
+              </h4>
+              <p className="text-[11px] text-cream-200/60">
+                On all gold plated pieces
+              </p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Newsletter / WhatsApp Capture */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-12">
-        <div className="bg-gradient-to-r from-fuchsia-900 to-purple-900 rounded-3xl p-8 sm:p-12 flex flex-col md:flex-row items-center justify-between border border-fuchsia-800/50 shadow-2xl relative overflow-hidden">
-          <div className="absolute right-0 top-0 w-64 h-64 bg-fuchsia-500/20 rounded-full blur-3xl"></div>
-          
-          <div className="md:w-1/2 mb-8 md:mb-0 relative z-10">
-            <h3 className="font-serif text-3xl font-bold text-fuchsia-50 mb-3">
+      <div className="mx-auto mb-12 max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="gold-gradient-bg relative flex flex-col items-center justify-between overflow-hidden rounded-3xl p-8 shadow-2xl sm:p-12 md:flex-row">
+          <div className="absolute right-0 top-0 h-64 w-64 rounded-full bg-gold-100/30 blur-3xl"></div>
+
+          <div className="relative z-10 mb-8 md:mb-0 md:w-1/2">
+            <h3 className="mb-3 font-serif text-3xl font-bold text-white">
               Join the Inner Circle
             </h3>
-            <p className="text-fuchsia-200/80 text-sm">
-              Subscribe to get 10% off your first purchase. Receive early access to new collections and exclusive VIP offers via Email or WhatsApp.
+            <p className="text-sm text-gold-100/90">
+              Subscribe to get 10% off your first purchase. Receive early access
+              to new collections and exclusive VIP offers via Email or WhatsApp.
             </p>
           </div>
-          
-          <div className="md:w-1/2 w-full max-w-md relative z-10">
-            <form className="flex flex-col space-y-3" onSubmit={(e) => { e.preventDefault(); alert('Subscribed!'); }}>
-              <div className="flex bg-purple-950/50 rounded-xl border border-fuchsia-800/50 overflow-hidden focus-within:border-fuchsia-500 transition-colors">
-                <input 
-                  type="email" 
-                  placeholder="Enter your email address" 
-                  className="flex-1 bg-transparent px-4 py-3 text-sm text-white placeholder-purple-400 outline-none"
+
+          <div className="relative z-10 w-full max-w-md md:w-1/2">
+            <form
+              className="flex flex-col space-y-3"
+              onSubmit={(e) => {
+                e.preventDefault();
+                alert('Subscribed!');
+              }}
+            >
+              <div className="flex overflow-hidden rounded-xl border border-gold-400/60 bg-charcoal-900/90 transition-colors focus-within:border-gold-300">
+                <input
+                  type="email"
+                  placeholder="Enter your email address"
+                  className="flex-1 bg-transparent px-4 py-3 text-sm text-cream-50 placeholder-cream-200/40 outline-none"
                   required
                 />
-                <button type="submit" className="bg-fuchsia-100 hover:bg-white text-fuchsia-900 px-6 py-3 text-xs font-bold uppercase tracking-wider transition-colors">
+                <button
+                  type="submit"
+                  className="bg-cream-50 px-6 py-3 text-xs font-bold uppercase tracking-wider text-gold-800 transition-colors hover:bg-white"
+                >
                   Subscribe
                 </button>
               </div>
               <div className="flex items-center space-x-2 pl-1">
-                <input type="checkbox" id="whatsapp-optin" defaultChecked className="w-3 h-3 rounded-sm text-fuchsia-600 focus:ring-fuchsia-500 bg-purple-900 border-purple-700" />
-                <label htmlFor="whatsapp-optin" className="text-[10px] text-fuchsia-200/60 uppercase tracking-widest cursor-pointer">
+                <input
+                  type="checkbox"
+                  id="whatsapp-optin"
+                  defaultChecked
+                  className="h-3 w-3 rounded-sm border-gold-700 bg-charcoal-900 text-gold-600 focus:ring-gold-500"
+                />
+                <label
+                  htmlFor="whatsapp-optin"
+                  className="cursor-pointer text-[10px] uppercase tracking-widest text-gold-100/80"
+                >
                   Also send me updates on WhatsApp
                 </label>
               </div>
@@ -83,49 +117,71 @@ export function Footer() {
       </div>
 
       {/* Main Footer Links */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-4 gap-8 pb-8 border-b border-purple-800">
+      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-8 border-b border-gold-800/50 px-4 pb-8 sm:px-6 md:grid-cols-4 lg:px-8">
         <div>
-          <h3 className="font-serif text-2xl font-bold tracking-widest text-fuchsia-400 uppercase mb-3">
+          <h3 className="gold-shimmer mb-3 font-serif text-2xl font-bold uppercase tracking-widest">
             Ruhvi
           </h3>
-          <p className="text-xs text-purple-300 leading-relaxed mb-4">
-            Curating timeless elegance with modern Indian heritage craftsmanship. Premium Gold, Diamond, and Kundan jewellery designed for life&apos;s special moments.
+          <p className="mb-4 text-xs leading-relaxed text-cream-200/60">
+            Curating timeless elegance with modern Indian heritage
+            craftsmanship. Premium Gold, Diamond, and Kundan jewellery designed
+            for life&apos;s special moments.
           </p>
-          <p className="text-xs text-fuchsia-200">Email: care@ruhvi.in</p>
+          <p className="flex items-center gap-1.5 text-xs text-gold-300">
+            <Gem className="h-3.5 w-3.5 text-gold-400" /> care@ruhvi.in
+          </p>
         </div>
 
         <div>
-          <h4 className="text-xs font-semibold uppercase tracking-wider text-white mb-4">
+          <h4 className="mb-4 text-xs font-semibold uppercase tracking-wider text-gold-400">
             Customer Care
           </h4>
           <ul className="space-y-2 text-xs">
             <li>
-              <Link href="/size-guide" className="hover:text-fuchsia-300 transition-colors">
+              <Link
+                href="/size-guide"
+                className="transition-colors hover:text-gold-400"
+              >
                 Ring & Bangle Size Guide
               </Link>
             </li>
             <li>
-              <Link href="/jewelry-care" className="hover:text-fuchsia-300 transition-colors">
+              <Link
+                href="/jewelry-care"
+                className="transition-colors hover:text-gold-400"
+              >
                 Jewelry Care & Cleaning Guide
               </Link>
             </li>
             <li>
-              <Link href="/blog" className="hover:text-fuchsia-300 transition-colors">
+              <Link
+                href="/blog"
+                className="transition-colors hover:text-gold-400"
+              >
                 Read our Blog
               </Link>
             </li>
             <li>
-              <Link href="/faq" className="hover:text-fuchsia-300 transition-colors">
+              <Link
+                href="/faq"
+                className="transition-colors hover:text-gold-400"
+              >
                 FAQ & Help Center
               </Link>
             </li>
             <li>
-              <Link href="/about" className="hover:text-fuchsia-300 transition-colors">
+              <Link
+                href="/about"
+                className="transition-colors hover:text-gold-400"
+              >
                 About Ruhvi
               </Link>
             </li>
             <li>
-              <Link href="/contact" className="hover:text-fuchsia-300 transition-colors">
+              <Link
+                href="/contact"
+                className="transition-colors hover:text-gold-400"
+              >
                 Contact Us
               </Link>
             </li>
@@ -133,27 +189,39 @@ export function Footer() {
         </div>
 
         <div>
-          <h4 className="text-xs font-semibold uppercase tracking-wider text-white mb-4">
+          <h4 className="mb-4 text-xs font-semibold uppercase tracking-wider text-gold-400">
             Store Policies
           </h4>
           <ul className="space-y-2 text-xs">
             <li>
-              <Link href="/shipping-policy" className="hover:text-fuchsia-300 transition-colors">
+              <Link
+                href="/shipping-policy"
+                className="transition-colors hover:text-gold-400"
+              >
                 Shipping & Delivery Policy
               </Link>
             </li>
             <li>
-              <Link href="/return-policy" className="hover:text-fuchsia-300 transition-colors">
+              <Link
+                href="/return-policy"
+                className="transition-colors hover:text-gold-400"
+              >
                 Return & Refund Policy
               </Link>
             </li>
             <li>
-              <Link href="/cancellation-policy" className="hover:text-fuchsia-300 transition-colors">
+              <Link
+                href="/cancellation-policy"
+                className="transition-colors hover:text-gold-400"
+              >
                 Cancellation Policy
               </Link>
             </li>
             <li>
-              <Link href="/warranty-policy" className="hover:text-fuchsia-300 transition-colors">
+              <Link
+                href="/warranty-policy"
+                className="transition-colors hover:text-gold-400"
+              >
                 Warranty & Repair Policy
               </Link>
             </li>
@@ -161,17 +229,23 @@ export function Footer() {
         </div>
 
         <div>
-          <h4 className="text-xs font-semibold uppercase tracking-wider text-white mb-4">
+          <h4 className="mb-4 text-xs font-semibold uppercase tracking-wider text-gold-400">
             Legal & Privacy
           </h4>
           <ul className="space-y-2 text-xs">
             <li>
-              <Link href="/privacy-policy" className="hover:text-fuchsia-300 transition-colors">
+              <Link
+                href="/privacy-policy"
+                className="transition-colors hover:text-gold-400"
+              >
                 Privacy Policy
               </Link>
             </li>
             <li>
-              <Link href="/terms-and-conditions" className="hover:text-fuchsia-300 transition-colors">
+              <Link
+                href="/terms-and-conditions"
+                className="transition-colors hover:text-gold-400"
+              >
                 Terms & Conditions
               </Link>
             </li>
@@ -179,10 +253,10 @@ export function Footer() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 text-center text-xs text-purple-400">
-        © {new Date().getFullYear()} Ruhvi Jewellery Pvt Ltd. All rights reserved.
+      <div className="mx-auto mt-6 max-w-7xl px-4 text-center text-xs text-cream-200/40 sm:px-6 lg:px-8">
+        © {new Date().getFullYear()} Ruhvi Jewellery Pvt Ltd. All rights
+        reserved.
       </div>
     </footer>
   );
 }
-

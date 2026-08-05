@@ -1,11 +1,21 @@
 'use client';
 
 import React, { useState, useEffect, useMemo, Suspense } from 'react';
-import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { Filter, SlidersHorizontal, ArrowUpDown, RefreshCw } from 'lucide-react';
+import {
+  Filter,
+  SlidersHorizontal,
+  ArrowUpDown,
+  RefreshCw,
+  Sparkles,
+} from 'lucide-react';
 import { DEMO_PRODUCTS, INITIAL_CATEGORIES } from '@/lib/products';
 import { ProductCard } from '@/components/products/ProductCard';
+import { SpatialPage } from '@/components/design-system/SpatialPage';
+import { GlassPanel } from '@/components/design-system/GlassPanel';
+import { DepthCard } from '@/components/design-system/DepthCard';
+import { DepthButton } from '@/components/design-system/DepthButton';
+import { GoldOrb } from '@/components/design-system/GoldOrb';
 import { ecommerceEvent } from '@/lib/gtag';
 
 function ProductsCatalogContent() {
@@ -15,12 +25,16 @@ function ProductsCatalogContent() {
 
   const [dbProducts, setDbProducts] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  
+
   const [searchQuery, setSearchQuery] = useState(initialSearch);
   const [selectedCategory, setSelectedCategory] = useState(initialCategory);
-  const [stockFilter, setStockFilter] = useState<'all' | 'in_stock' | 'out_of_stock'>('all');
+  const [stockFilter, setStockFilter] = useState<
+    'all' | 'in_stock' | 'out_of_stock'
+  >('all');
   const [priceRange, setPriceRange] = useState<number>(200000);
-  const [sortBy, setSortBy] = useState<'newest' | 'price-low' | 'price-high'>('newest');
+  const [sortBy, setSortBy] = useState<'newest' | 'price-low' | 'price-high'>(
+    'newest'
+  );
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -30,7 +44,7 @@ function ProductsCatalogContent() {
         const { data } = await supabase
           .from('products')
           .select('*, images:product_images(*), category:categories(*)');
-        
+
         if (data) setDbProducts(data);
       } catch (err) {
         console.error('Failed to fetch products', err);
@@ -42,41 +56,51 @@ function ProductsCatalogContent() {
   }, []);
 
   const filteredProducts = useMemo(() => {
-    const sourceProducts = (dbProducts.length > 0 || !isLoading) ? (dbProducts.length > 0 ? dbProducts : DEMO_PRODUCTS) : [];
-    
-    return sourceProducts.filter((product) => {
-      if (product.status === 'hidden') return false;
+    const sourceProducts =
+      dbProducts.length > 0 || !isLoading
+        ? dbProducts.length > 0
+          ? dbProducts
+          : DEMO_PRODUCTS
+        : [];
 
-      // Category filter
-      if (selectedCategory !== 'all' && product.category?.slug !== selectedCategory) {
-        return false;
-      }
+    return sourceProducts
+      .filter((product) => {
+        if (product.status === 'hidden') return false;
+        if (
+          selectedCategory !== 'all' &&
+          product.category?.slug !== selectedCategory
+        )
+          return false;
+        if (stockFilter === 'in_stock' && product.status === 'out_of_stock')
+          return false;
+        if (stockFilter === 'out_of_stock' && product.status !== 'out_of_stock')
+          return false;
+        if (product.price > priceRange) return false;
+        if (searchQuery.trim()) {
+          const q = searchQuery.toLowerCase().trim();
+          const matchesName = product.name.toLowerCase().includes(q);
+          const matchesSku = product.sku.toLowerCase().includes(q);
+          const matchesCat =
+            product.category?.name?.toLowerCase().includes(q) || false;
+          if (!matchesName && !matchesSku && !matchesCat) return false;
+        }
+        return true;
+      })
+      .sort((a, b) => {
+        if (sortBy === 'price-low') return a.price - b.price;
+        if (sortBy === 'price-high') return b.price - a.price;
+        return 0;
+      });
+  }, [
+    dbProducts,
+    isLoading,
+    selectedCategory,
+    stockFilter,
+    priceRange,
+    searchQuery,
+    sortBy,
+  ]);
 
-      // Stock filter
-      if (stockFilter === 'in_stock' && product.status === 'out_of_stock') return false;
-      if (stockFilter === 'out_of_stock' && product.status !== 'out_of_stock') return false;
-
-      // Price filter
-      if (product.price > priceRange) return false;
-
-      // Search query / SKU search
-      if (searchQuery.trim()) {
-        const q = searchQuery.toLowerCase().trim();
-        const matchesName = product.name.toLowerCase().includes(q);
-        const matchesSku = product.sku.toLowerCase().includes(q);
-        const matchesCat = product.category?.name?.toLowerCase().includes(q) || false;
-        if (!matchesName && !matchesSku && !matchesCat) return false;
-      }
-
-      return true;
-    }).sort((a, b) => {
-      if (sortBy === 'price-low') return a.price - b.price;
-      if (sortBy === 'price-high') return b.price - a.price;
-      return 0; // default newest
-    });
-  }, [dbProducts, isLoading, selectedCategory, stockFilter, priceRange, searchQuery, sortBy]);
-
-  // Track view_item_list for GA4
   useEffect(() => {
     if (filteredProducts.length > 0) {
       ecommerceEvent('view_item_list', {
@@ -87,8 +111,8 @@ function ProductsCatalogContent() {
           item_name: p.name,
           price: p.price,
           index: index,
-          item_category: p.category?.name || undefined
-        }))
+          item_category: p.category?.name || undefined,
+        })),
       });
     }
   }, [filteredProducts]);
@@ -102,177 +126,217 @@ function ProductsCatalogContent() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* Header */}
-      <div className="border-b border-stone-200 pb-6 mb-8">
-        <h1 className="font-serif text-3xl sm:text-4xl font-bold text-stone-900">
-          All Fine Jewellery
-        </h1>
-        <p className="text-stone-500 text-xs sm:text-sm mt-1">
-          Showing {filteredProducts.length} certified handcrafted pieces
-        </p>
-      </div>
+    <SpatialPage showParticles showOrbs>
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        {/* 3D Header */}
+        <div className="relative mb-8 pb-8">
+          <GoldOrb size={120} top="-20%" right="5%" opacity={0.2} blur="40px" />
+          <div className="relative z-10">
+            <span className="text-xs font-semibold uppercase tracking-widest text-gold-600">
+              Immersive Catalog
+            </span>
+            <h1 className="mt-1 font-serif text-3xl font-bold text-charcoal-900 sm:text-5xl">
+              All Fine <span className="gold-shimmer">Jewellery</span>
+            </h1>
+            <p className="mt-2 text-xs text-slate-500 sm:text-sm">
+              Showing{' '}
+              <span className="font-bold text-gold-700">
+                {filteredProducts.length}
+              </span>{' '}
+              certified handcrafted pieces
+            </p>
+          </div>
+          <div className="gold-divider absolute inset-x-0 bottom-0 h-px" />
+        </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-        {/* Sidebar Filters */}
-        <aside className="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm space-y-6 h-fit">
-          <div className="flex items-center justify-between border-b border-stone-100 pb-4">
-            <h3 className="font-semibold text-sm uppercase tracking-wider text-stone-900 flex items-center space-x-2">
-              <SlidersHorizontal className="w-4 h-4 text-amber-700" />
-              <span>Filters</span>
-            </h3>
-            <button
-              onClick={resetFilters}
-              className="text-xs text-amber-700 hover:underline flex items-center space-x-1"
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-4">
+          {/* Glass Filter Sidebar */}
+          <aside className="h-fit lg:sticky lg:top-32">
+            <GlassPanel
+              intensity="medium"
+              depth={1}
+              glow
+              className="space-y-6 p-6"
             >
-              <RefreshCw className="w-3 h-3" />
-              <span>Reset</span>
-            </button>
-          </div>
+              <div className="flex items-center justify-between border-b border-gold-200/50 pb-4">
+                <h3 className="flex items-center space-x-2 text-sm font-semibold uppercase tracking-wider text-charcoal-900">
+                  <SlidersHorizontal className="h-4 w-4 text-gold-600" />
+                  <span>Filters</span>
+                </h3>
+                <button
+                  onClick={resetFilters}
+                  className="flex items-center space-x-1 text-xs text-gold-700 transition-colors hover:text-gold-500"
+                >
+                  <RefreshCw className="h-3 w-3" />
+                  <span>Reset</span>
+                </button>
+              </div>
 
-          {/* Search within catalog */}
-          <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-stone-700 mb-2">
-              Keyword or SKU
-            </label>
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="e.g. Solitaire, RNG-000101"
-              className="w-full px-3 py-2 text-xs border border-stone-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-amber-500"
-            />
-          </div>
+              <div>
+                <label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-stone-700">
+                  Keyword or SKU
+                </label>
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="e.g. Solitaire, RNG-000101"
+                  className="w-full rounded-xl border border-gold-200/70 bg-white/80 px-3 py-2.5 text-xs backdrop-blur-sm transition-all focus:border-gold-400 focus:outline-none focus:ring-2 focus:ring-gold-400/40"
+                />
+              </div>
 
-          {/* Category Filter */}
-          <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-stone-700 mb-2">
-              Category
-            </label>
-            <select
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              className="w-full px-3 py-2 text-xs border border-stone-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-amber-500 bg-white"
+              <div>
+                <label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-stone-700">
+                  Category
+                </label>
+                <select
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                  className="w-full rounded-xl border border-gold-200/70 bg-white/80 px-3 py-2.5 text-xs backdrop-blur-sm transition-all focus:outline-none focus:ring-2 focus:ring-gold-400/40"
+                >
+                  <option value="all">All Categories</option>
+                  {INITIAL_CATEGORIES.map((cat) => (
+                    <option key={cat.id} value={cat.slug}>
+                      {cat.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <div className="mb-2 flex items-center justify-between text-xs font-semibold text-stone-700">
+                  <span className="uppercase tracking-wider">Max Price</span>
+                  <span className="font-bold text-gold-700">
+                    ₹{priceRange.toLocaleString('en-IN')}
+                  </span>
+                </div>
+                <input
+                  type="range"
+                  min={10000}
+                  max={250000}
+                  step={5000}
+                  value={priceRange}
+                  onChange={(e) => setPriceRange(Number(e.target.value))}
+                  className="w-full cursor-pointer accent-gold-600"
+                />
+              </div>
+
+              <div>
+                <label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-stone-700">
+                  Availability
+                </label>
+                <div className="space-y-2.5 text-xs text-stone-700">
+                  {[
+                    { value: 'all', label: 'All Items' },
+                    { value: 'in_stock', label: 'In Stock Only' },
+                    { value: 'out_of_stock', label: 'Out of Stock' },
+                  ].map((opt) => (
+                    <label
+                      key={opt.value}
+                      className="group flex cursor-pointer items-center space-x-2.5"
+                    >
+                      <input
+                        type="radio"
+                        name="stock"
+                        checked={stockFilter === opt.value}
+                        onChange={() => setStockFilter(opt.value as any)}
+                        className="accent-gold-600"
+                      />
+                      <span className="transition-colors group-hover:text-gold-700">
+                        {opt.label}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </GlassPanel>
+          </aside>
+
+          {/* Main Product Grid */}
+          <div className="space-y-6 lg:col-span-3">
+            {/* Sort Bar */}
+            <GlassPanel
+              intensity="light"
+              depth={0}
+              className="flex items-center justify-between p-4 text-xs"
             >
-              <option value="all">All Categories</option>
-              {INITIAL_CATEGORIES.map((cat) => (
-                <option key={cat.id} value={cat.slug}>
-                  {cat.name}
-                </option>
-              ))}
-            </select>
-          </div>
+              <div className="text-stone-600">
+                Showing{' '}
+                <span className="font-bold text-charcoal-900">
+                  {filteredProducts.length}
+                </span>{' '}
+                results
+              </div>
+              <div className="flex items-center space-x-2">
+                <ArrowUpDown className="h-3.5 w-3.5 text-gold-500" />
+                <span className="font-semibold text-stone-700">Sort by:</span>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value as any)}
+                  className="cursor-pointer border-0 bg-transparent font-medium text-gold-700 focus:outline-none"
+                >
+                  <option value="newest">Newest Arrivals</option>
+                  <option value="price-low">Price: Low to High</option>
+                  <option value="price-high">Price: High to Low</option>
+                </select>
+              </div>
+            </GlassPanel>
 
-          {/* Price Range Filter */}
-          <div>
-            <div className="flex justify-between items-center text-xs font-semibold text-stone-700 mb-2">
-              <span className="uppercase tracking-wider">Max Price</span>
-              <span className="text-amber-900">₹{priceRange.toLocaleString('en-IN')}</span>
-            </div>
-            <input
-              type="range"
-              min={10000}
-              max={250000}
-              step={5000}
-              value={priceRange}
-              onChange={(e) => setPriceRange(Number(e.target.value))}
-              className="w-full accent-amber-900 cursor-pointer"
-            />
-          </div>
-
-          {/* Availability Filter */}
-          <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-stone-700 mb-2">
-              Availability
-            </label>
-            <div className="space-y-2 text-xs text-stone-700">
-              <label className="flex items-center space-x-2 cursor-pointer">
-                <input
-                  type="radio"
-                  name="stock"
-                  checked={stockFilter === 'all'}
-                  onChange={() => setStockFilter('all')}
-                  className="accent-amber-900"
-                />
-                <span>All Items</span>
-              </label>
-              <label className="flex items-center space-x-2 cursor-pointer">
-                <input
-                  type="radio"
-                  name="stock"
-                  checked={stockFilter === 'in_stock'}
-                  onChange={() => setStockFilter('in_stock')}
-                  className="accent-amber-900"
-                />
-                <span>In Stock Only</span>
-              </label>
-              <label className="flex items-center space-x-2 cursor-pointer">
-                <input
-                  type="radio"
-                  name="stock"
-                  checked={stockFilter === 'out_of_stock'}
-                  onChange={() => setStockFilter('out_of_stock')}
-                  className="accent-amber-900"
-                />
-                <span>Out of Stock</span>
-              </label>
-            </div>
-          </div>
-        </aside>
-
-        {/* Main Product Grid */}
-        <div className="lg:col-span-3 space-y-6">
-          {/* Top Sort Bar */}
-          <div className="flex items-center justify-between bg-white p-4 rounded-xl border border-stone-200 shadow-sm text-xs">
-            <div className="text-stone-600">
-              Showing <span className="font-bold text-stone-900">{filteredProducts.length}</span> results
-            </div>
-            <div className="flex items-center space-x-2">
-              <ArrowUpDown className="w-3.5 h-3.5 text-stone-400" />
-              <span className="font-semibold text-stone-700">Sort by:</span>
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as any)}
-                className="bg-transparent border-0 font-medium text-amber-900 focus:outline-none cursor-pointer"
+            {/* Product Grid with staggered depth */}
+            {filteredProducts.length > 0 ? (
+              <div
+                className="perspective-1600 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3"
+                style={{ perspective: '1600px' }}
               >
-                <option value="newest">Newest Arrivals</option>
-                <option value="price-low">Price: Low to High</option>
-                <option value="price-high">Price: High to Low</option>
-              </select>
-            </div>
+                {filteredProducts.map((product, index) => (
+                  <div
+                    key={product.id}
+                    className="preserve-3d"
+                    style={{
+                      transform: `translateZ(${(index % 3) * 4}px)`,
+                      animation: `fade-up 0.6s ease-out ${Math.min(index * 0.06, 0.5)}s both`,
+                    }}
+                  >
+                    <ProductCard product={product} />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <DepthCard depth={1} glow className="p-12 text-center">
+                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gold-100">
+                  <Filter className="h-8 w-8 text-gold-400" />
+                </div>
+                <h3 className="mb-1 font-serif text-lg font-bold text-stone-800">
+                  No Products Match Your Criteria
+                </h3>
+                <p className="mx-auto mb-6 max-w-sm text-xs text-stone-500">
+                  Try widening your price range or clearing keyword search
+                  parameters.
+                </p>
+                <DepthButton variant="primary" onClick={resetFilters}>
+                  Reset Filters
+                </DepthButton>
+              </DepthCard>
+            )}
           </div>
-
-          {/* Grid */}
-          {filteredProducts.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
-          ) : (
-            <div className="bg-white rounded-2xl p-12 text-center border border-stone-200 shadow-sm">
-              <Filter className="w-12 h-12 text-stone-300 mx-auto mb-4" />
-              <h3 className="text-lg font-serif font-bold text-stone-800 mb-1">No Products Match Your Criteria</h3>
-              <p className="text-xs text-stone-500 max-w-sm mx-auto mb-6">
-                Try widening your price range or clearing keyword search parameters.
-              </p>
-              <button
-                onClick={resetFilters}
-                className="px-6 py-2.5 bg-amber-950 text-white text-xs font-semibold uppercase tracking-wider rounded-lg hover:bg-amber-900 transition-colors"
-              >
-                Reset Filters
-              </button>
-            </div>
-          )}
         </div>
       </div>
-    </div>
+    </SpatialPage>
   );
 }
 
 export default function ProductsCatalogPage() {
   return (
-    <Suspense fallback={<div className="p-12 text-center text-xs text-stone-500">Loading catalog...</div>}>
+    <Suspense
+      fallback={
+        <SpatialPage showParticles={false} showOrbs={false}>
+          <div className="flex items-center justify-center gap-2 p-12 text-center text-xs text-stone-500">
+            <Sparkles className="h-4 w-4 animate-spin text-gold-400" />
+            Loading catalog...
+          </div>
+        </SpatialPage>
+      }
+    >
       <ProductsCatalogContent />
     </Suspense>
   );

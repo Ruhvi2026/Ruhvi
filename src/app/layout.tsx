@@ -103,7 +103,8 @@ export default async function RootLayout({
 }) {
   const headersList = await headers();
   const host = headersList.get('host') || '';
-  const isAdminHost = host === 'admin.ruhvi.in' || host.startsWith('admin.localhost');
+  const isAdminHost =
+    host === 'admin.ruhvi.in' || host.startsWith('admin.localhost');
 
   const organizationSchema = {
     '@context': 'https://schema.org',
@@ -124,13 +125,14 @@ export default async function RootLayout({
     },
   };
 
-
   return (
     <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
-      <body className="min-h-screen flex flex-col bg-slate-50 text-slate-900 antialiased">
+      <body className="flex min-h-screen flex-col bg-cream-100 text-charcoal-900 antialiased">
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(organizationSchema),
+          }}
         />
         <Suspense fallback={null}>
           <GoogleAnalytics />
@@ -158,5 +160,3 @@ export default async function RootLayout({
     </html>
   );
 }
-
-

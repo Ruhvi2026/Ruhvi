@@ -5,13 +5,28 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Script from 'next/script';
 import { Turnstile, TurnstileInstance } from '@marsidev/react-turnstile';
-import { ShieldCheck, Truck, CreditCard, Banknote, Gift, MapPin, Check, Plus, AlertCircle, ArrowLeft } from 'lucide-react';
+import {
+  ShieldCheck,
+  Truck,
+  CreditCard,
+  Banknote,
+  Gift,
+  MapPin,
+  Check,
+  Plus,
+  AlertCircle,
+  ArrowLeft,
+} from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
 import { Address } from '@/types/database';
 import { createClient } from '@/lib/supabase/client';
 import { auth } from '@/lib/firebase';
-import { RecaptchaVerifier, signInWithPhoneNumber, ConfirmationResult } from 'firebase/auth';
+import {
+  RecaptchaVerifier,
+  signInWithPhoneNumber,
+  ConfirmationResult,
+} from 'firebase/auth';
 import toast from 'react-hot-toast';
 import { ecommerceEvent } from '@/lib/gtag';
 
@@ -25,8 +40,6 @@ export default function CheckoutPage() {
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [selectedAddressId, setSelectedAddressId] = useState<string>('');
   const [showNewAddressForm, setShowNewAddressForm] = useState<boolean>(true);
-
-
 
   // Cleanup reCAPTCHA on unmount
   useEffect(() => {
@@ -46,12 +59,18 @@ export default function CheckoutPage() {
       const fetchAddresses = async () => {
         try {
           const supabase = createClient();
-          const userIdFilter = [user?.id, profile?.id, auth?.currentUser?.uid].filter(Boolean);
+          const userIdFilter = [
+            user?.id,
+            profile?.id,
+            auth?.currentUser?.uid,
+          ].filter(Boolean);
           let query = supabase.from('addresses').select('*');
           if (userIdFilter.length > 0) {
             query = query.in('user_id', userIdFilter);
           }
-          const { data, error } = await query.order('is_default', { ascending: false });
+          const { data, error } = await query.order('is_default', {
+            ascending: false,
+          });
 
           if (!error && data && data.length > 0) {
             setAddresses(data as Address[]);
@@ -80,12 +99,12 @@ export default function CheckoutPage() {
       ecommerceEvent('begin_checkout', {
         currency: 'INR',
         value: subtotal,
-        items: items.map(item => ({
+        items: items.map((item) => ({
           item_id: item.product_id,
           item_name: item.product?.name,
           price: item.product?.price || item.price_at_add,
-          quantity: item.quantity
-        }))
+          quantity: item.quantity,
+        })),
       });
     }
   }, [items, subtotal]);
@@ -107,7 +126,9 @@ export default function CheckoutPage() {
   const [giftMessage, setGiftMessage] = useState('');
 
   // Payment Method State
-  const [paymentMethod, setPaymentMethod] = useState<'phonepe' | 'cod'>('phonepe');
+  const [paymentMethod, setPaymentMethod] = useState<'phonepe' | 'cod'>(
+    'phonepe'
+  );
   const [isProcessing, setIsProcessing] = useState(false);
 
   // Bot Protection State
@@ -117,12 +138,16 @@ export default function CheckoutPage() {
   // OTP State
   const [showOtpModal, setShowOtpModal] = useState(false);
   const [otpCode, setOtpCode] = useState('');
-  const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
+  const [confirmationResult, setConfirmationResult] =
+    useState<ConfirmationResult | null>(null);
   const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
 
   // Money Features State
   const [couponCode, setCouponCode] = useState('');
-  const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discount: number } | null>(null);
+  const [appliedCoupon, setAppliedCoupon] = useState<{
+    code: string;
+    discount: number;
+  } | null>(null);
   const [validatingCoupon, setValidatingCoupon] = useState(false);
   const [useCoins, setUseCoins] = useState(false);
   const [useWallet, setUseWallet] = useState(false);
@@ -133,11 +158,12 @@ export default function CheckoutPage() {
 
   // Shipping & Cost calculations
   const FREE_SHIPPING_THRESHOLD = 500;
-  const shippingCharge = subtotal >= FREE_SHIPPING_THRESHOLD || items.length === 0 ? 0 : 49;
-  
+  const shippingCharge =
+    subtotal >= FREE_SHIPPING_THRESHOLD || items.length === 0 ? 0 : 49;
+
   // Coupon Math
   const couponDiscount = appliedCoupon ? appliedCoupon.discount : 0;
-  
+
   // Coins Math (min order ₹250 after coupon to use coins)
   const subtotalAfterCoupon = Math.max(0, subtotal - couponDiscount);
   let coinsDiscount = 0;
@@ -148,7 +174,10 @@ export default function CheckoutPage() {
 
   // Pre-Wallet Total
   const codCharge = paymentMethod === 'cod' ? 49 : 0;
-  const preWalletTotal = Math.max(0, subtotalAfterCoupon - coinsDiscount) + shippingCharge + codCharge;
+  const preWalletTotal =
+    Math.max(0, subtotalAfterCoupon - coinsDiscount) +
+    shippingCharge +
+    codCharge;
 
   // Wallet Math
   let walletDiscount = 0;
@@ -158,7 +187,8 @@ export default function CheckoutPage() {
 
   const totalPayable = Math.max(0, preWalletTotal - walletDiscount);
 
-  const selectedAddress = addresses.find((a) => a.id === selectedAddressId) || addresses[0];
+  const selectedAddress =
+    addresses.find((a) => a.id === selectedAddressId) || addresses[0];
 
   const handleApplyCoupon = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -168,17 +198,20 @@ export default function CheckoutPage() {
       const res = await fetch('/api/checkout/validate-coupon', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          code: couponCode, 
-          subtotal, 
-          userEmail: user?.email || profile?.email, 
-          userPhone: (user as any)?.phoneNumber || profile?.phone 
-        })
+        body: JSON.stringify({
+          code: couponCode,
+          subtotal,
+          userEmail: user?.email || profile?.email,
+          userPhone: (user as any)?.phoneNumber || profile?.phone,
+        }),
       });
       const data = await res.json();
-      
+
       if (data.success) {
-        setAppliedCoupon({ code: couponCode.toUpperCase(), discount: data.discount });
+        setAppliedCoupon({
+          code: couponCode.toUpperCase(),
+          discount: data.discount,
+        });
         toast.success('Coupon applied successfully!');
       } else {
         toast.error(data.error || 'Invalid or expired coupon code.');
@@ -193,7 +226,13 @@ export default function CheckoutPage() {
 
   const handleAddAddress = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newAddress.full_name || !newAddress.phone || !newAddress.line1 || !newAddress.city || !newAddress.pincode) {
+    if (
+      !newAddress.full_name ||
+      !newAddress.phone ||
+      !newAddress.line1 ||
+      !newAddress.city ||
+      !newAddress.pincode
+    ) {
       alert('Please fill in all required address fields.');
       return;
     }
@@ -237,27 +276,27 @@ export default function CheckoutPage() {
     }
 
     setIsProcessing(true);
-    
+
     // GA4 add_shipping_info & add_payment_info events
-    const checkoutItems = items.map(item => ({
+    const checkoutItems = items.map((item) => ({
       item_id: item.product_id,
       item_name: item.product?.name,
       price: item.product?.price || item.price_at_add,
-      quantity: item.quantity
+      quantity: item.quantity,
     }));
 
     ecommerceEvent('add_shipping_info', {
       currency: 'INR',
       value: subtotal,
       shipping_tier: shippingCharge === 0 ? 'Free' : 'Standard',
-      items: checkoutItems
+      items: checkoutItems,
     });
 
     ecommerceEvent('add_payment_info', {
       currency: 'INR',
       value: totalPayable,
       payment_type: paymentMethod,
-      items: checkoutItems
+      items: checkoutItems,
     });
 
     try {
@@ -274,7 +313,9 @@ export default function CheckoutPage() {
 
         const orderData = await res.json();
         if (!res.ok) {
-          throw new Error(orderData.error || 'Failed to initialize PhonePe payment');
+          throw new Error(
+            orderData.error || 'Failed to initialize PhonePe payment'
+          );
         }
 
         if (orderData.redirectUrl && !orderData.isSimulated) {
@@ -285,7 +326,8 @@ export default function CheckoutPage() {
 
         // Test / Simulated payment fallback
         await finalizeOrder({
-          phonepe_merchant_transaction_id: orderData.merchantTransactionId || `MT_${Date.now()}`,
+          phonepe_merchant_transaction_id:
+            orderData.merchantTransactionId || `MT_${Date.now()}`,
           phonepe_transaction_id: `T_SIM_${Date.now()}`,
           phonepe_payment_state: 'COMPLETED',
         });
@@ -294,39 +336,56 @@ export default function CheckoutPage() {
         const verifyRes = await fetch('/api/checkout/verify-turnstile', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
+          body: JSON.stringify({
             token: turnstileToken,
-            phone: selectedAddress.phone 
+            phone: selectedAddress.phone,
           }),
         });
-        
+
         const verifyData = await verifyRes.json();
         if (!verifyData.success) {
-          throw new Error(verifyData.error || 'Security verification failed. Please try again.');
+          throw new Error(
+            verifyData.error ||
+              'Security verification failed. Please try again.'
+          );
         }
 
         // Initialize Firebase reCAPTCHA
         if (!(window as any).recaptchaVerifier) {
-          const recaptchaContainer = document.getElementById('recaptcha-container');
+          const recaptchaContainer = document.getElementById(
+            'recaptcha-container'
+          );
           if (recaptchaContainer) {
             recaptchaContainer.innerHTML = '<div id="recaptcha-anchor"></div>';
           }
-          (window as any).recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-anchor', {
-            size: 'invisible',
-          });
+          (window as any).recaptchaVerifier = new RecaptchaVerifier(
+            auth,
+            'recaptcha-anchor',
+            {
+              size: 'invisible',
+            }
+          );
         }
 
         // Send OTP
-        const formattedPhone = selectedAddress.phone.startsWith('+') ? selectedAddress.phone : `+91${selectedAddress.phone.replace(/\D/g, '').slice(-10)}`;
-        const confirmation = await signInWithPhoneNumber(auth, formattedPhone, (window as any).recaptchaVerifier);
-        
+        const formattedPhone = selectedAddress.phone.startsWith('+')
+          ? selectedAddress.phone
+          : `+91${selectedAddress.phone.replace(/\D/g, '').slice(-10)}`;
+        const confirmation = await signInWithPhoneNumber(
+          auth,
+          formattedPhone,
+          (window as any).recaptchaVerifier
+        );
+
         setConfirmationResult(confirmation);
         setShowOtpModal(true);
         setIsProcessing(false);
       }
     } catch (err: any) {
       console.error('COD payment / OTP error:', err);
-      toast.error(err.message || 'Payment processing failed. Please try again.');
+      toast.error(
+        err.message || 'Payment processing failed. Please try again.'
+      );
       setIsProcessing(false);
       if (paymentMethod === 'cod') {
         turnstileRef.current?.reset();
@@ -338,8 +397,6 @@ export default function CheckoutPage() {
   const handleVerifyOtp = async () => {
     if (!otpCode || otpCode.length < 6 || !confirmationResult) return;
     setIsVerifyingOtp(true);
-    ;
-
     try {
       await confirmationResult.confirm(otpCode);
       setShowOtpModal(false);
@@ -380,8 +437,13 @@ export default function CheckoutPage() {
       }
 
       // Store created order in localStorage for orders history demo view
-      const existingOrders = JSON.parse(localStorage.getItem('ruhvi_orders_v1') || '[]');
-      localStorage.setItem('ruhvi_orders_v1', JSON.stringify([data.order, ...existingOrders]));
+      const existingOrders = JSON.parse(
+        localStorage.getItem('ruhvi_orders_v1') || '[]'
+      );
+      localStorage.setItem(
+        'ruhvi_orders_v1',
+        JSON.stringify([data.order, ...existingOrders])
+      );
 
       clearCart();
       router.push(`/order-success/${data.orderId}`);
@@ -393,12 +455,16 @@ export default function CheckoutPage() {
 
   if (items.length === 0) {
     return (
-      <div className="max-w-xl mx-auto px-4 py-16 text-center space-y-4">
-        <h2 className="font-serif text-2xl font-bold text-stone-900">Your Cart is Empty</h2>
-        <p className="text-xs text-stone-500">Please add items to your cart before proceeding to checkout.</p>
+      <div className="mx-auto max-w-xl space-y-4 px-4 py-16 text-center">
+        <h2 className="font-serif text-2xl font-bold text-stone-900">
+          Your Cart is Empty
+        </h2>
+        <p className="text-xs text-stone-500">
+          Please add items to your cart before proceeding to checkout.
+        </p>
         <button
           onClick={() => router.push('/products')}
-          className="px-6 py-2.5 bg-amber-950 text-amber-100 text-xs font-bold uppercase tracking-wider rounded-lg"
+          className="rounded-lg bg-amber-950 px-6 py-2.5 text-xs font-bold uppercase tracking-wider text-amber-100"
         >
           Explore Catalog
         </button>
@@ -408,126 +474,156 @@ export default function CheckoutPage() {
 
   return (
     <>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        <div className="flex items-center space-x-3 border-b border-stone-200 pb-6 mb-8">
+      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+        <div className="mb-8 flex items-center space-x-3 border-b border-stone-200 pb-6">
           <button
             onClick={() => router.push('/cart')}
-            className="p-2 text-stone-500 hover:text-stone-900 rounded-lg hover:bg-stone-100 transition-colors"
+            className="rounded-lg p-2 text-stone-500 transition-colors hover:bg-stone-100 hover:text-stone-900"
           >
-            <ArrowLeft className="w-5 h-5" />
+            <ArrowLeft className="h-5 w-5" />
           </button>
-          <h1 className="font-serif text-3xl font-bold text-stone-900">Checkout</h1>
+          <h1 className="font-serif text-3xl font-bold text-stone-900">
+            Checkout
+          </h1>
         </div>
 
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
           {/* Left Checkout Steps */}
-          <div className="lg:col-span-2 space-y-8">
+          <div className="space-y-8 lg:col-span-2">
             {/* Step 1: Shipping Address */}
-            <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm space-y-4">
+            <div className="space-y-4 rounded-2xl border border-stone-200 bg-white p-6 shadow-sm">
               <div className="flex items-center justify-between border-b border-stone-100 pb-4">
-                <h3 className="font-semibold text-sm uppercase tracking-wider text-stone-900 flex items-center space-x-2">
-                  <MapPin className="w-4 h-4 text-amber-800" />
+                <h3 className="flex items-center space-x-2 text-sm font-semibold uppercase tracking-wider text-stone-900">
+                  <MapPin className="h-4 w-4 text-amber-800" />
                   <span>1. Delivery Address</span>
                 </h3>
                 <button
                   onClick={() => setShowNewAddressForm(!showNewAddressForm)}
-                  className="text-xs text-amber-800 hover:underline flex items-center space-x-1 font-semibold"
+                  className="flex items-center space-x-1 text-xs font-semibold text-amber-800 hover:underline"
                 >
-                  <Plus className="w-3.5 h-3.5" />
+                  <Plus className="h-3.5 w-3.5" />
                   <span>Add New Address</span>
                 </button>
               </div>
 
               {/* Saved Addresses List */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 {addresses.map((addr) => (
                   <div
                     key={addr.id}
                     onClick={() => setSelectedAddressId(addr.id)}
-                    className={`p-4 rounded-xl border cursor-pointer transition-all ${
+                    className={`cursor-pointer rounded-xl border p-4 transition-all ${
                       selectedAddressId === addr.id
                         ? 'border-amber-900 bg-amber-950/5 ring-1 ring-amber-900'
-                        : 'border-stone-200 hover:border-stone-300 bg-stone-50/50'
+                        : 'border-stone-200 bg-stone-50/50 hover:border-stone-300'
                     }`}
                   >
-                    <div className="flex justify-between items-start mb-2">
-                      <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 bg-stone-200 rounded text-stone-800">
+                    <div className="mb-2 flex items-start justify-between">
+                      <span className="rounded bg-stone-200 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-stone-800">
                         {addr.label}
                       </span>
                       {selectedAddressId === addr.id && (
-                        <Check className="w-4 h-4 text-amber-900 font-bold" />
+                        <Check className="h-4 w-4 font-bold text-amber-900" />
                       )}
                     </div>
-                    <div className="font-semibold text-xs text-stone-900">{addr.full_name}</div>
-                    <div className="text-[11px] text-stone-600 mt-1 leading-relaxed">
+                    <div className="text-xs font-semibold text-stone-900">
+                      {addr.full_name}
+                    </div>
+                    <div className="mt-1 text-[11px] leading-relaxed text-stone-600">
                       {addr.line1}, {addr.line2 ? `${addr.line2}, ` : ''}
                       {addr.city}, {addr.state} - {addr.pincode}
                     </div>
-                    <div className="text-[10px] text-stone-400 font-mono mt-2">{addr.phone}</div>
+                    <div className="mt-2 font-mono text-[10px] text-stone-400">
+                      {addr.phone}
+                    </div>
                   </div>
                 ))}
               </div>
 
               {/* Add New Address Form Modal/Dropdown */}
               {showNewAddressForm && (
-                <form onSubmit={handleAddAddress} className="mt-4 p-4 bg-stone-50 rounded-xl border border-stone-200 space-y-3">
-                  <h4 className="text-xs font-bold uppercase text-stone-800">Add Delivery Address</h4>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                <form
+                  onSubmit={handleAddAddress}
+                  className="mt-4 space-y-3 rounded-xl border border-stone-200 bg-stone-50 p-4"
+                >
+                  <h4 className="text-xs font-bold uppercase text-stone-800">
+                    Add Delivery Address
+                  </h4>
+                  <div className="grid grid-cols-1 gap-3 text-xs sm:grid-cols-2">
                     <input
                       type="text"
                       placeholder="Full Name *"
                       required
                       value={newAddress.full_name}
-                      onChange={(e) => setNewAddress({ ...newAddress, full_name: e.target.value })}
-                      className="px-3 py-2 border border-stone-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-amber-500"
+                      onChange={(e) =>
+                        setNewAddress({
+                          ...newAddress,
+                          full_name: e.target.value,
+                        })
+                      }
+                      className="rounded-lg border border-stone-300 px-3 py-2 focus:outline-none focus:ring-1 focus:ring-amber-500"
                     />
                     <input
                       type="tel"
                       placeholder="Phone Number *"
                       required
                       value={newAddress.phone}
-                      onChange={(e) => setNewAddress({ ...newAddress, phone: e.target.value })}
-                      className="px-3 py-2 border border-stone-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-amber-500"
+                      onChange={(e) =>
+                        setNewAddress({ ...newAddress, phone: e.target.value })
+                      }
+                      className="rounded-lg border border-stone-300 px-3 py-2 focus:outline-none focus:ring-1 focus:ring-amber-500"
                     />
                     <input
                       type="text"
                       placeholder="Address Line 1 *"
                       required
                       value={newAddress.line1}
-                      onChange={(e) => setNewAddress({ ...newAddress, line1: e.target.value })}
-                      className="px-3 py-2 border border-stone-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-amber-500 sm:col-span-2"
+                      onChange={(e) =>
+                        setNewAddress({ ...newAddress, line1: e.target.value })
+                      }
+                      className="rounded-lg border border-stone-300 px-3 py-2 focus:outline-none focus:ring-1 focus:ring-amber-500 sm:col-span-2"
                     />
                     <input
                       type="text"
                       placeholder="Address Line 2 (Optional)"
                       value={newAddress.line2}
-                      onChange={(e) => setNewAddress({ ...newAddress, line2: e.target.value })}
-                      className="px-3 py-2 border border-stone-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-amber-500 sm:col-span-2"
+                      onChange={(e) =>
+                        setNewAddress({ ...newAddress, line2: e.target.value })
+                      }
+                      className="rounded-lg border border-stone-300 px-3 py-2 focus:outline-none focus:ring-1 focus:ring-amber-500 sm:col-span-2"
                     />
                     <input
                       type="text"
                       placeholder="City *"
                       required
                       value={newAddress.city}
-                      onChange={(e) => setNewAddress({ ...newAddress, city: e.target.value })}
-                      className="px-3 py-2 border border-stone-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-amber-500"
+                      onChange={(e) =>
+                        setNewAddress({ ...newAddress, city: e.target.value })
+                      }
+                      className="rounded-lg border border-stone-300 px-3 py-2 focus:outline-none focus:ring-1 focus:ring-amber-500"
                     />
                     <input
                       type="text"
                       placeholder="State *"
                       required
                       value={newAddress.state}
-                      onChange={(e) => setNewAddress({ ...newAddress, state: e.target.value })}
-                      className="px-3 py-2 border border-stone-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-amber-500"
+                      onChange={(e) =>
+                        setNewAddress({ ...newAddress, state: e.target.value })
+                      }
+                      className="rounded-lg border border-stone-300 px-3 py-2 focus:outline-none focus:ring-1 focus:ring-amber-500"
                     />
                     <input
                       type="text"
                       placeholder="Pincode *"
                       required
                       value={newAddress.pincode}
-                      onChange={(e) => setNewAddress({ ...newAddress, pincode: e.target.value })}
-                      className="px-3 py-2 border border-stone-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-amber-500"
+                      onChange={(e) =>
+                        setNewAddress({
+                          ...newAddress,
+                          pincode: e.target.value,
+                        })
+                      }
+                      className="rounded-lg border border-stone-300 px-3 py-2 focus:outline-none focus:ring-1 focus:ring-amber-500"
                     />
                   </div>
                   <div className="flex justify-end space-x-2 pt-2">
@@ -540,7 +636,7 @@ export default function CheckoutPage() {
                     </button>
                     <button
                       type="submit"
-                      className="px-4 py-1.5 bg-amber-950 text-white text-xs font-semibold rounded-lg hover:bg-amber-900"
+                      className="rounded-lg bg-amber-950 px-4 py-1.5 text-xs font-semibold text-white hover:bg-amber-900"
                     >
                       Save Address
                     </button>
@@ -550,23 +646,24 @@ export default function CheckoutPage() {
             </div>
 
             {/* Step 2: Gift Wrap & Personalized Notes */}
-            <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm space-y-4">
+            <div className="space-y-4 rounded-2xl border border-stone-200 bg-white p-6 shadow-sm">
               <div className="flex items-center space-x-2 border-b border-stone-100 pb-4">
-                <Gift className="w-4 h-4 text-amber-800" />
-                <h3 className="font-semibold text-sm uppercase tracking-wider text-stone-900">
+                <Gift className="h-4 w-4 text-amber-800" />
+                <h3 className="text-sm font-semibold uppercase tracking-wider text-stone-900">
                   2. Gift Packaging & Message
                 </h3>
               </div>
 
-              <label className="flex items-center space-x-3 cursor-pointer">
+              <label className="flex cursor-pointer items-center space-x-3">
                 <input
                   type="checkbox"
                   checked={giftWrap}
                   onChange={(e) => setGiftWrap(e.target.checked)}
-                  className="w-4 h-4 accent-amber-900 rounded"
+                  className="h-4 w-4 rounded accent-amber-900"
                 />
                 <span className="text-xs font-semibold text-stone-800">
-                  Add Signature Ruhvi Velvet Box Gift Wrap & Personalized Greeting Card
+                  Add Signature Ruhvi Velvet Box Gift Wrap & Personalized
+                  Greeting Card
                 </span>
               </label>
 
@@ -577,17 +674,17 @@ export default function CheckoutPage() {
                     placeholder="Enter your personalized gift message for the recipient..."
                     value={giftMessage}
                     onChange={(e) => setGiftMessage(e.target.value)}
-                    className="w-full p-3 text-xs border border-stone-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-amber-500"
+                    className="w-full rounded-xl border border-stone-300 p-3 text-xs focus:outline-none focus:ring-1 focus:ring-amber-500"
                   />
                 </div>
               )}
             </div>
 
             {/* Step 3: Payment Method */}
-            <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm space-y-4">
+            <div className="space-y-4 rounded-2xl border border-stone-200 bg-white p-6 shadow-sm">
               <div className="flex items-center space-x-2 border-b border-stone-100 pb-4">
-                <CreditCard className="w-4 h-4 text-amber-800" />
-                <h3 className="font-semibold text-sm uppercase tracking-wider text-stone-900">
+                <CreditCard className="h-4 w-4 text-amber-800" />
+                <h3 className="text-sm font-semibold uppercase tracking-wider text-stone-900">
                   3. Select Payment Method
                 </h3>
               </div>
@@ -595,20 +692,36 @@ export default function CheckoutPage() {
               <div className="space-y-3">
                 {/* Wallet Option */}
                 {walletBalance > 0 && (
-                  <label className={`p-4 rounded-xl border cursor-pointer transition-all flex items-center justify-between ${
-                    useWallet
-                      ? 'border-emerald-700 bg-emerald-50 ring-1 ring-emerald-700'
-                      : 'border-stone-200 hover:border-stone-300'
-                  }`}>
+                  <label
+                    className={`flex cursor-pointer items-center justify-between rounded-xl border p-4 transition-all ${
+                      useWallet
+                        ? 'border-emerald-700 bg-emerald-50 ring-1 ring-emerald-700'
+                        : 'border-stone-200 hover:border-stone-300'
+                    }`}
+                  >
                     <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a8 8 0 0 1-5.3 7.7 2 2 0 0 1-2.7-2.7H5a2 2 0 0 1-2-2V9"/><path d="M22 12v3h-3a2 2 0 0 1 0-4h3z"/></svg>
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="20"
+                          height="20"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a8 8 0 0 1-5.3 7.7 2 2 0 0 1-2.7-2.7H5a2 2 0 0 1-2-2V9" />
+                          <path d="M22 12v3h-3a2 2 0 0 1 0-4h3z" />
+                        </svg>
                       </div>
                       <div>
-                        <div className="font-semibold text-xs text-stone-900">
-                          Pay with Ruhvi Wallet (Balance: ₹{walletBalance.toFixed(2)})
+                        <div className="text-xs font-semibold text-stone-900">
+                          Pay with Ruhvi Wallet (Balance: ₹
+                          {walletBalance.toFixed(2)})
                         </div>
-                        <div className="text-[10px] text-emerald-700 font-semibold mt-0.5">
+                        <div className="mt-0.5 text-[10px] font-semibold text-emerald-700">
                           Get 5% guaranteed cashback when you use your wallet!
                         </div>
                       </div>
@@ -618,12 +731,16 @@ export default function CheckoutPage() {
                       checked={useWallet}
                       onChange={(e) => {
                         setUseWallet(e.target.checked);
-                        if (e.target.checked && walletBalance >= preWalletTotal) {
+                        if (
+                          e.target.checked &&
+                          walletBalance >= preWalletTotal
+                        ) {
                           // If wallet covers the entire cost, COD cannot be selected (or is redundant)
-                          if (paymentMethod === 'cod') setPaymentMethod('phonepe');
+                          if (paymentMethod === 'cod')
+                            setPaymentMethod('phonepe');
                         }
                       }}
-                      className="w-4 h-4 accent-emerald-700 rounded"
+                      className="h-4 w-4 rounded accent-emerald-700"
                     />
                   </label>
                 )}
@@ -631,63 +748,71 @@ export default function CheckoutPage() {
                 {/* PhonePe Option */}
                 <div
                   onClick={() => setPaymentMethod('phonepe')}
-                  className={`p-4 rounded-xl border cursor-pointer transition-all flex items-center justify-between ${
+                  className={`flex cursor-pointer items-center justify-between rounded-xl border p-4 transition-all ${
                     paymentMethod === 'phonepe'
-                      ? 'border-purple-900 bg-purple-950/5 ring-1 ring-purple-900'
+                      ? 'border-gold-700 bg-gold-50 ring-1 ring-gold-700'
                       : 'border-stone-200 hover:border-stone-300'
-                  } ${useWallet && walletBalance >= preWalletTotal ? 'opacity-50 pointer-events-none' : ''}`}
+                  } ${useWallet && walletBalance >= preWalletTotal ? 'pointer-events-none opacity-50' : ''}`}
                 >
                   <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 rounded-full bg-purple-100 text-purple-900 flex items-center justify-center shrink-0 font-serif font-bold text-base">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gold-100 font-serif text-base font-bold text-gold-800">
                       ₱
                     </div>
                     <div>
-                      <div className="font-semibold text-xs text-stone-900 flex items-center gap-1.5">
+                      <div className="flex items-center gap-1.5 text-xs font-semibold text-stone-900">
                         <span>PhonePe Payment Gateway</span>
-                        <span className="bg-purple-100 text-purple-900 text-[9px] font-bold px-1.5 py-0.5 rounded">UPI / Cards / Wallet</span>
+                        <span className="rounded border border-gold-300/60 bg-gold-100 px-1.5 py-0.5 text-[9px] font-bold text-gold-800">
+                          UPI / Cards / Wallet
+                        </span>
                       </div>
                       <div className="text-[10px] text-stone-500">
-                        Pay via PhonePe, GPay, Paytm, UPI Apps, Credit/Debit Cards & NetBanking
+                        Pay via PhonePe, GPay, Paytm, UPI Apps, Credit/Debit
+                        Cards & NetBanking
                       </div>
                     </div>
                   </div>
-                  {paymentMethod === 'phonepe' && <Check className="w-4 h-4 text-purple-900 font-bold" />}
+                  {paymentMethod === 'phonepe' && (
+                    <Check className="h-4 w-4 font-bold text-gold-700" />
+                  )}
                 </div>
 
                 {/* COD Option */}
                 <div
                   onClick={() => {
                     if (!isLoggedIn) {
-                      toast.error('Login is required to place a Cash on Delivery order.');
+                      toast.error(
+                        'Login is required to place a Cash on Delivery order.'
+                      );
                       return;
                     }
                     setPaymentMethod('cod');
-                    ;
                   }}
-                  className={`p-4 rounded-xl border transition-all flex items-center justify-between ${
+                  className={`flex items-center justify-between rounded-xl border p-4 transition-all ${
                     !isLoggedIn
                       ? 'border-stone-200 bg-stone-50/80 opacity-80'
                       : paymentMethod === 'cod'
-                      ? 'border-amber-900 bg-amber-950/5 ring-1 ring-amber-900 cursor-pointer'
-                      : 'border-stone-200 hover:border-stone-300 cursor-pointer'
-                  } ${useWallet && walletBalance >= preWalletTotal ? 'opacity-50 pointer-events-none' : ''}`}
+                        ? 'cursor-pointer border-amber-900 bg-amber-950/5 ring-1 ring-amber-900'
+                        : 'cursor-pointer border-stone-200 hover:border-stone-300'
+                  } ${useWallet && walletBalance >= preWalletTotal ? 'pointer-events-none opacity-50' : ''}`}
                 >
                   <div className="flex items-center space-x-3">
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${!isLoggedIn ? 'bg-stone-200 text-stone-500' : 'bg-amber-100 text-amber-900'}`}>
-                      <Banknote className="w-5 h-5" />
+                    <div
+                      className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${!isLoggedIn ? 'bg-stone-200 text-stone-500' : 'bg-amber-100 text-amber-900'}`}
+                    >
+                      <Banknote className="h-5 w-5" />
                     </div>
                     <div>
-                      <div className="font-semibold text-xs text-stone-900 flex items-center gap-1.5 flex-wrap">
+                      <div className="flex flex-wrap items-center gap-1.5 text-xs font-semibold text-stone-900">
                         <span>Cash on Delivery (COD)</span>
                         {!isLoggedIn && (
                           <div className="flex items-center gap-1.5">
-                            <span className="bg-amber-100 text-amber-900 text-[9px] font-bold px-1.5 py-0.5 rounded">
+                            <span className="rounded bg-amber-100 px-1.5 py-0.5 text-[9px] font-bold text-amber-900">
                               Log-in Required
                             </span>
                             <Link
                               href="/login?redirectTo=/checkout"
                               onClick={(e) => e.stopPropagation()}
-                              className="bg-amber-950 hover:bg-amber-900 text-white text-[10px] font-bold px-2.5 py-0.5 rounded transition-colors shadow-sm inline-flex items-center"
+                              className="inline-flex items-center rounded bg-amber-950 px-2.5 py-0.5 text-[10px] font-bold text-white shadow-sm transition-colors hover:bg-amber-900"
                             >
                               Log In
                             </Link>
@@ -701,7 +826,9 @@ export default function CheckoutPage() {
                       </div>
                     </div>
                   </div>
-                  {paymentMethod === 'cod' && isLoggedIn && <Check className="w-4 h-4 text-amber-900 font-bold" />}
+                  {paymentMethod === 'cod' && isLoggedIn && (
+                    <Check className="h-4 w-4 font-bold text-amber-900" />
+                  )}
                 </div>
               </div>
             </div>
@@ -709,20 +836,28 @@ export default function CheckoutPage() {
 
           {/* Right Summary Sidebar */}
           <div className="space-y-6">
-            <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm space-y-6 sticky top-24">
-              <h3 className="font-serif text-lg font-bold text-stone-900 border-b border-stone-100 pb-4">
+            <div className="sticky top-24 space-y-6 rounded-2xl border border-stone-200 bg-white p-6 shadow-sm">
+              <h3 className="border-b border-stone-100 pb-4 font-serif text-lg font-bold text-stone-900">
                 Order Breakdown
               </h3>
 
               {/* Items list preview */}
-              <div className="space-y-3 max-h-48 overflow-y-auto pr-1 text-xs">
+              <div className="max-h-48 space-y-3 overflow-y-auto pr-1 text-xs">
                 {items.map((item) => (
-                  <div key={item.id} className="flex justify-between items-center text-stone-700">
+                  <div
+                    key={item.id}
+                    className="flex items-center justify-between text-stone-700"
+                  >
                     <div className="line-clamp-1 flex-1 pr-2">
-                      <span className="font-semibold">{item.quantity}x</span> {item.product?.name}
+                      <span className="font-semibold">{item.quantity}x</span>{' '}
+                      {item.product?.name}
                     </div>
-                    <div className="font-bold text-stone-900 flex-shrink-0">
-                      ₹{((item.product?.price || item.price_at_add) * item.quantity).toLocaleString('en-IN')}
+                    <div className="flex-shrink-0 font-bold text-stone-900">
+                      ₹
+                      {(
+                        (item.product?.price || item.price_at_add) *
+                        item.quantity
+                      ).toLocaleString('en-IN')}
                     </div>
                   </div>
                 ))}
@@ -730,20 +865,26 @@ export default function CheckoutPage() {
 
               <div className="space-y-3 border-t border-stone-100 pt-4 text-xs sm:text-sm">
                 {/* Coupon Input */}
-                <form onSubmit={handleApplyCoupon} className="flex items-center space-x-2 pb-2">
+                <form
+                  onSubmit={handleApplyCoupon}
+                  className="flex items-center space-x-2 pb-2"
+                >
                   <input
                     type="text"
                     placeholder="Got a Promo Code?"
                     value={couponCode}
                     onChange={(e) => setCouponCode(e.target.value)}
                     disabled={!!appliedCoupon}
-                    className="flex-1 px-3 py-2 border border-stone-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-amber-500 text-xs disabled:bg-stone-50"
+                    className="flex-1 rounded-lg border border-stone-300 px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-amber-500 disabled:bg-stone-50"
                   />
                   {appliedCoupon ? (
                     <button
                       type="button"
-                      onClick={() => { setAppliedCoupon(null); setCouponCode(''); }}
-                      className="px-3 py-2 bg-stone-100 text-stone-600 font-bold text-xs rounded-lg hover:bg-stone-200"
+                      onClick={() => {
+                        setAppliedCoupon(null);
+                        setCouponCode('');
+                      }}
+                      className="rounded-lg bg-stone-100 px-3 py-2 text-xs font-bold text-stone-600 hover:bg-stone-200"
                     >
                       Remove
                     </button>
@@ -751,7 +892,7 @@ export default function CheckoutPage() {
                     <button
                       type="submit"
                       disabled={!couponCode || validatingCoupon}
-                      className="px-3 py-2 bg-stone-900 text-white font-bold text-xs rounded-lg hover:bg-stone-800 disabled:opacity-50"
+                      className="rounded-lg bg-stone-900 px-3 py-2 text-xs font-bold text-white hover:bg-stone-800 disabled:opacity-50"
                     >
                       {validatingCoupon ? 'Wait' : 'Apply'}
                     </button>
@@ -760,31 +901,63 @@ export default function CheckoutPage() {
 
                 {/* Coins Toggle */}
                 {coinsBalance > 0 && subtotalAfterCoupon >= 250 && (
-                  <label className="flex items-center justify-between p-3 bg-yellow-50 rounded-xl border border-yellow-200 cursor-pointer mb-2">
+                  <label className="mb-2 flex cursor-pointer items-center justify-between rounded-xl border border-yellow-200 bg-yellow-50 p-3">
                     <div className="flex items-center space-x-2">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-yellow-600"><circle cx="12" cy="12" r="10"/><path d="M12 8v8"/><path d="M8 12h8"/></svg>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="text-yellow-600"
+                      >
+                        <circle cx="12" cy="12" r="10" />
+                        <path d="M12 8v8" />
+                        <path d="M8 12h8" />
+                      </svg>
                       <span className="text-xs font-semibold text-yellow-800">
-                        Use {coinsDiscount * 10} Reward Coins (-₹{coinsDiscount})
+                        Use {coinsDiscount * 10} Reward Coins (-₹{coinsDiscount}
+                        )
                       </span>
                     </div>
                     <input
                       type="checkbox"
                       checked={useCoins}
                       onChange={(e) => setUseCoins(e.target.checked)}
-                      className="w-4 h-4 accent-yellow-600 rounded"
+                      className="h-4 w-4 rounded accent-yellow-600"
                     />
                   </label>
                 )}
                 {coinsBalance > 0 && subtotalAfterCoupon < 250 && (
-                  <div className="p-3 bg-stone-50 rounded-xl border border-stone-100 mb-2">
-                    <p className="text-[10px] text-stone-500 flex items-center">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" className="mr-1 text-yellow-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v8"/><path d="M8 12h8"/></svg>
-                      Add ₹{(250 - subtotalAfterCoupon).toFixed(2)} more to use your {coinsBalance} reward coins.
+                  <div className="mb-2 rounded-xl border border-stone-100 bg-stone-50 p-3">
+                    <p className="flex items-center text-[10px] text-stone-500">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="12"
+                        height="12"
+                        className="mr-1 text-yellow-600"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <circle cx="12" cy="12" r="10" />
+                        <path d="M12 8v8" />
+                        <path d="M8 12h8" />
+                      </svg>
+                      Add ₹{(250 - subtotalAfterCoupon).toFixed(2)} more to use
+                      your {coinsBalance} reward coins.
                     </p>
                   </div>
                 )}
 
-                <div className="flex justify-between text-stone-600 border-t border-stone-100 pt-3">
+                <div className="flex justify-between border-t border-stone-100 pt-3 text-stone-600">
                   <span>Subtotal</span>
                   <span className="font-semibold text-stone-900">
                     ₹{subtotal.toLocaleString('en-IN')}
@@ -794,14 +967,18 @@ export default function CheckoutPage() {
                 {appliedCoupon && (
                   <div className="flex justify-between text-emerald-700">
                     <span>Coupon ({appliedCoupon.code})</span>
-                    <span className="font-semibold">-₹{couponDiscount.toLocaleString('en-IN')}</span>
+                    <span className="font-semibold">
+                      -₹{couponDiscount.toLocaleString('en-IN')}
+                    </span>
                   </div>
                 )}
 
                 {useCoins && coinsDiscount > 0 && (
                   <div className="flex justify-between text-yellow-600">
                     <span>Reward Coins Redeemed</span>
-                    <span className="font-semibold">-₹{coinsDiscount.toLocaleString('en-IN')}</span>
+                    <span className="font-semibold">
+                      -₹{coinsDiscount.toLocaleString('en-IN')}
+                    </span>
                   </div>
                 )}
 
@@ -809,7 +986,7 @@ export default function CheckoutPage() {
                   <span>Shipping Fee</span>
                   <span>
                     {shippingCharge === 0 ? (
-                      <span className="text-emerald-700 font-bold uppercase tracking-wider text-[11px]">
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-700">
                         FREE
                       </span>
                     ) : (
@@ -818,40 +995,44 @@ export default function CheckoutPage() {
                   </span>
                 </div>
 
-                {paymentMethod === 'cod' && (!useWallet || walletBalance < preWalletTotal) && (
-                  <div className="flex justify-between text-stone-600">
-                    <span>COD Processing Fee</span>
-                    <span className="font-semibold text-amber-900">₹49</span>
-                  </div>
-                )}
-                
+                {paymentMethod === 'cod' &&
+                  (!useWallet || walletBalance < preWalletTotal) && (
+                    <div className="flex justify-between text-stone-600">
+                      <span>COD Processing Fee</span>
+                      <span className="font-semibold text-amber-900">₹49</span>
+                    </div>
+                  )}
+
                 {useWallet && walletDiscount > 0 && (
                   <div className="flex justify-between text-emerald-700">
                     <span>Paid from Wallet</span>
-                    <span className="font-semibold">-₹{walletDiscount.toLocaleString('en-IN')}</span>
+                    <span className="font-semibold">
+                      -₹{walletDiscount.toLocaleString('en-IN')}
+                    </span>
                   </div>
                 )}
 
-                <div className="border-t border-stone-200 pt-4 flex justify-between items-baseline">
-                  <span className="font-serif font-bold text-base text-stone-900">
+                <div className="flex items-baseline justify-between border-t border-stone-200 pt-4">
+                  <span className="font-serif text-base font-bold text-stone-900">
                     Total Payable
                   </span>
-                  <span className="font-serif font-bold text-xl text-amber-950">
+                  <span className="font-serif text-xl font-bold text-amber-950">
                     ₹{totalPayable.toLocaleString('en-IN')}
                   </span>
                 </div>
               </div>
 
               {paymentMethod === 'cod' && (
-                <div className="flex justify-center mb-4 min-h-[65px]">
+                <div className="mb-4 flex min-h-[65px] justify-center">
                   <Turnstile
                     ref={turnstileRef}
                     siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ''}
                     onSuccess={(token) => {
                       setTurnstileToken(token);
-                      ;
                     }}
-                    onError={() => toast.error('Security check failed. Please refresh.')}
+                    onError={() =>
+                      toast.error('Security check failed. Please refresh.')
+                    }
                     onExpire={() => {
                       setTurnstileToken(null);
                       turnstileRef.current?.reset();
@@ -866,13 +1047,17 @@ export default function CheckoutPage() {
               <button
                 onClick={handlePlaceOrder}
                 disabled={isProcessing}
-                className="w-full py-4 bg-amber-950 hover:bg-amber-900 text-amber-100 font-bold text-xs uppercase tracking-widest rounded-xl shadow-lg transition-all hover:scale-[1.02] disabled:opacity-50"
+                className="w-full rounded-xl bg-amber-950 py-4 text-xs font-bold uppercase tracking-widest text-amber-100 shadow-lg transition-all hover:scale-[1.02] hover:bg-amber-900 disabled:opacity-50"
               >
-                {isProcessing ? 'Processing Order...' : paymentMethod === 'phonepe' ? 'Pay via PhonePe' : 'Place COD Order'}
+                {isProcessing
+                  ? 'Processing Order...'
+                  : paymentMethod === 'phonepe'
+                    ? 'Pay via PhonePe'
+                    : 'Place COD Order'}
               </button>
 
-              <div className="text-center text-[10px] text-stone-400 space-y-1">
-                <ShieldCheck className="w-4 h-4 mx-auto text-amber-800 mb-1" />
+              <div className="space-y-1 text-center text-[10px] text-stone-400">
+                <ShieldCheck className="mx-auto mb-1 h-4 w-4 text-amber-800" />
                 <p>100% Safe & Secure Checkout</p>
                 <p>Insured Shipping across India</p>
               </div>
@@ -885,21 +1070,25 @@ export default function CheckoutPage() {
 
       {/* OTP Modal */}
       {showOtpModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
-          <div className="bg-white p-6 sm:p-8 rounded-2xl w-full max-w-md shadow-2xl">
-            <h3 className="font-serif text-xl font-bold text-stone-900 mb-2">Verify Your Phone Number</h3>
-            <p className="text-xs text-stone-600 mb-6">
-              We've sent a 6-digit verification code to <span className="font-bold">{selectedAddress?.phone}</span>. Please enter it below to confirm your Cash on Delivery order.
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl sm:p-8">
+            <h3 className="mb-2 font-serif text-xl font-bold text-stone-900">
+              Verify Your Phone Number
+            </h3>
+            <p className="mb-6 text-xs text-stone-600">
+              We've sent a 6-digit verification code to{' '}
+              <span className="font-bold">{selectedAddress?.phone}</span>.
+              Please enter it below to confirm your Cash on Delivery order.
             </p>
-
-
 
             <input
               type="text"
               placeholder="Enter 6-digit OTP"
               value={otpCode}
-              onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-              className="w-full px-4 py-3 text-center tracking-[0.5em] font-mono font-bold text-lg border border-stone-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 mb-4"
+              onChange={(e) =>
+                setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))
+              }
+              className="mb-4 w-full rounded-xl border border-stone-300 px-4 py-3 text-center font-mono text-lg font-bold tracking-[0.5em] focus:outline-none focus:ring-2 focus:ring-amber-500"
             />
 
             <div className="flex space-x-3">
@@ -908,7 +1097,7 @@ export default function CheckoutPage() {
                   setShowOtpModal(false);
                   setOtpCode('');
                 }}
-                className="flex-1 py-3 text-stone-600 font-bold text-xs uppercase tracking-wider rounded-xl hover:bg-stone-100 transition-colors"
+                className="flex-1 rounded-xl py-3 text-xs font-bold uppercase tracking-wider text-stone-600 transition-colors hover:bg-stone-100"
                 disabled={isVerifyingOtp}
               >
                 Cancel
@@ -916,7 +1105,7 @@ export default function CheckoutPage() {
               <button
                 onClick={handleVerifyOtp}
                 disabled={isVerifyingOtp || otpCode.length < 6}
-                className="flex-1 py-3 bg-amber-950 text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow-lg hover:bg-amber-900 transition-colors disabled:opacity-50"
+                className="flex-1 rounded-xl bg-amber-950 py-3 text-xs font-bold uppercase tracking-wider text-white shadow-lg transition-colors hover:bg-amber-900 disabled:opacity-50"
               >
                 {isVerifyingOtp ? 'Verifying...' : 'Confirm Order'}
               </button>
@@ -927,4 +1116,3 @@ export default function CheckoutPage() {
     </>
   );
 }
-

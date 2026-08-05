@@ -5,21 +5,28 @@ import { Gallery, Item } from 'react-photoswipe-gallery';
 import { Sparkles, ZoomIn } from 'lucide-react';
 import 'photoswipe/dist/photoswipe.css';
 import { ProductImage } from '@/types/database';
-import { getProductImage, getZoomImage, getThumbnailImage } from '@/lib/imageService';
+import {
+  getProductImage,
+  getZoomImage,
+  getThumbnailImage,
+} from '@/lib/imageService';
 
 interface ProductImageGalleryProps {
   images: ProductImage[];
   productName: string;
 }
 
-export function ProductImageGallery({ images, productName }: ProductImageGalleryProps) {
+export function ProductImageGallery({
+  images,
+  productName,
+}: ProductImageGalleryProps) {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
 
   // If no images, provide a fallback
   if (!images || images.length === 0) {
     return (
-      <div className="relative aspect-square bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-sm flex items-center justify-center text-slate-400">
-        <Sparkles className="w-10 h-10" />
+      <div className="relative flex aspect-square items-center justify-center overflow-hidden rounded-2xl border border-gold-200/70 bg-cream-50 text-slate-400 shadow-sm">
+        <Sparkles className="h-10 w-10" />
       </div>
     );
   }
@@ -39,12 +46,16 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
           bgOpacity: 0.9,
         }}
       >
-        <div className="relative aspect-square bg-slate-50 rounded-2xl overflow-hidden border border-slate-200 shadow-sm group">
+        <div className="group relative aspect-square overflow-hidden rounded-2xl border border-gold-200/70 bg-gold-50/60 shadow-sm">
           {currentImage.type === '360' ? (
-            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex flex-col items-center justify-center text-white p-6 text-center z-10">
-              <Sparkles className="w-10 h-10 text-fuchsia-400 mb-2 animate-bounce" />
-              <h4 className="font-serif text-lg font-bold">Interactive 360° View Coming Soon</h4>
-              <p className="text-xs text-slate-300 mt-1">Our studio team is crafting the 3D model for this piece.</p>
+            <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-black/60 p-6 text-center text-white backdrop-blur-sm">
+              <Sparkles className="mb-2 h-10 w-10 animate-bounce text-gold-400" />
+              <h4 className="font-serif text-lg font-bold">
+                Interactive 360° View Coming Soon
+              </h4>
+              <p className="mt-1 text-xs text-slate-300">
+                Our studio team is crafting the 3D model for this piece.
+              </p>
             </div>
           ) : (
             <Item
@@ -55,14 +66,18 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
               alt={`${productName} | Ruhvi Fine Jewellery`}
             >
               {({ ref, open }) => (
-                <div className="w-full h-full cursor-zoom-in relative" ref={ref as React.RefCallback<HTMLDivElement>} onClick={open}>
+                <div
+                  className="relative h-full w-full cursor-zoom-in"
+                  ref={ref as React.RefCallback<HTMLDivElement>}
+                  onClick={open}
+                >
                   <img
                     src={getProductImage(currentImage.url)}
                     alt={`${productName} | Ruhvi Fine Jewellery`}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
-                  <div className="absolute bottom-4 right-4 bg-white/90 hover:bg-white text-slate-800 p-2 rounded-full shadow-md text-xs flex items-center space-x-1 transition-colors">
-                    <ZoomIn className="w-4 h-4" />
+                  <div className="absolute bottom-4 right-4 flex items-center space-x-1 rounded-full bg-white/90 p-2 text-xs text-slate-800 shadow-md transition-colors hover:bg-white">
+                    <ZoomIn className="h-4 w-4" />
                     <span>Zoom</span>
                   </div>
                 </div>
@@ -83,7 +98,13 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
                 alt={`${productName} - View ${idx + 1}`}
               >
                 {({ ref, open }) => (
-                  <img ref={ref as React.RefCallback<HTMLImageElement>} src={getProductImage(img.url)} style={{ display: 'none' }} onClick={open} alt="" />
+                  <img
+                    ref={ref as React.RefCallback<HTMLImageElement>}
+                    src={getProductImage(img.url)}
+                    style={{ display: 'none' }}
+                    onClick={open}
+                    alt=""
+                  />
                 )}
               </Item>
             );
@@ -93,19 +114,23 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
 
       {/* Thumbnails Navigation */}
       {images.length > 1 && (
-        <div className="flex items-center space-x-3 overflow-x-auto pb-2 scrollbar-hide">
+        <div className="scrollbar-hide flex items-center space-x-3 overflow-x-auto pb-2">
           {images.map((img, idx) => (
             <button
               key={img.id || idx}
               onClick={() => setActiveImageIndex(idx)}
-              className={`relative w-20 h-20 rounded-xl overflow-hidden border-2 flex-shrink-0 transition-all ${
-                activeImageIndex === idx 
-                  ? 'border-fuchsia-600 ring-2 ring-fuchsia-500/20 shadow-md' 
-                  : 'border-slate-200 hover:border-fuchsia-300'
+              className={`relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-xl border-2 transition-all ${
+                activeImageIndex === idx
+                  ? 'border-gold-500 shadow-md ring-2 ring-gold-500/20'
+                  : 'border-gold-200/70 hover:border-gold-400'
               }`}
             >
-              <img src={getThumbnailImage(img.url)} alt={`${productName} thumbnail ${idx + 1}`} className="w-full h-full object-cover" />
-              <span className="absolute bottom-0 inset-x-0 bg-slate-900/80 text-white text-[9px] uppercase tracking-wider text-center py-0.5 backdrop-blur-sm">
+              <img
+                src={getThumbnailImage(img.url)}
+                alt={`${productName} thumbnail ${idx + 1}`}
+                className="h-full w-full object-cover"
+              />
+              <span className="absolute inset-x-0 bottom-0 bg-slate-900/80 py-0.5 text-center text-[9px] uppercase tracking-wider text-white backdrop-blur-sm">
                 {img.type}
               </span>
             </button>

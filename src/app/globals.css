@@ -6,25 +6,195 @@
   :root {
     --background: 40 33% 98%;
     --foreground: 30 10% 10%;
+    --gold-500: #c29831;
+    --gold-400: #cfa74b;
+    --gold-600: #9e7924;
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #cfa74b transparent;
+  }
+
+  *::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #cfa74b, #9e7924);
+    border-radius: 9999px;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: transparent;
   }
 
   body {
-    background-color: #FAF6ED;
+    background-color: #faf6ed;
     color: #121110;
     font-family: var(--font-inter), sans-serif;
   }
 
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     font-family: var(--font-playfair), Georgia, serif;
+  }
+
+  ::selection {
+    background: #cfa74b;
+    color: #fffdf5;
   }
 }
 
-.gold-gradient-text {
-  background: linear-gradient(135deg, #C29831 0%, #E7D7A3 50%, #9E7924 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+@layer components {
+  .gold-gradient-text {
+    background: linear-gradient(
+      135deg,
+      #cfa74b 0%,
+      #e7d7a3 35%,
+      #c29831 60%,
+      #9e7924 100%
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .gold-gradient-bg {
+    background: linear-gradient(135deg, #cfa74b 0%, #c29831 50%, #9e7924 100%);
+  }
+
+  .gold-shimmer {
+    background: linear-gradient(
+      110deg,
+      #cfa74b 20%,
+      #f3e8c4 40%,
+      #fffbe8 50%,
+      #f3e8c4 60%,
+      #cfa74b 80%
+    );
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: gold-shimmer 6s linear infinite;
+  }
+
+  .gold-ring {
+    box-shadow:
+      0 0 0 1px rgba(194, 152, 49, 0.45),
+      0 0 24px rgba(194, 152, 49, 0.18),
+      0 18px 40px -18px rgba(121, 91, 25, 0.35);
+  }
+
+  .gold-card {
+    background: linear-gradient(160deg, #fdfbf7 0%, #faf6ed 55%, #f5ecda 100%);
+    border: 1px solid rgba(194, 152, 49, 0.28);
+  }
+
+  .gold-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #cfa74b, transparent);
+  }
+
+  .cream-radial {
+    background:
+      radial-gradient(
+        ellipse 60% 50% at 25% 20%,
+        rgba(207, 167, 75, 0.14),
+        transparent 60%
+      ),
+      radial-gradient(
+        ellipse 55% 45% at 80% 80%,
+        rgba(231, 215, 163, 0.22),
+        transparent 60%
+      );
+  }
 }
 
-.gold-gradient-bg {
-  background: linear-gradient(135deg, #CFA74B 0%, #C29831 50%, #9E7924 100%);
+@layer utilities {
+  .perspective-1000 {
+    perspective: 1000px;
+  }
+
+  .perspective-1600 {
+    perspective: 1600px;
+  }
+
+  .preserve-3d {
+    transform-style: preserve-3d;
+  }
+
+  .backface-hidden {
+    backface-visibility: hidden;
+  }
+
+  .will-change-transform {
+    will-change: transform;
+  }
+}
+
+@keyframes gold-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes float-soft {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-float-soft {
+  animation: float-soft 5s ease-in-out infinite;
+}
+
+.animate-fade-up {
+  animation: fade-up 0.8s ease-out both;
+}
+
+.animate-fade-up-delay-1 {
+  animation: fade-up 0.8s ease-out 0.15s both;
+}
+
+.animate-fade-up-delay-2 {
+  animation: fade-up 0.8s ease-out 0.3s both;
+}
+
+.animate-fade-up-delay-3 {
+  animation: fade-up 0.8s ease-out 0.45s both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-float-soft,
+  .animate-fade-up,
+  .animate-fade-up-delay-1,
+  .animate-fade-up-delay-2,
+  .animate-fade-up-delay-3 {
+    animation: none;
+  }
 }
