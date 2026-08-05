@@ -96,8 +96,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setProfile({
           id: authUser.id,
           email: authUser.email || '',
-          full_name: authUser.user_metadata?.full_name || authUser.displayName || authUser.email?.split('@')[0] || 'User',
-          phone: authUser.user_metadata?.phone || authUser.phone || authUser.phoneNumber || '',
+          full_name:
+            authUser.user_metadata?.full_name ||
+            authUser.displayName ||
+            authUser.email?.split('@')[0] ||
+            'User',
+          phone:
+            authUser.user_metadata?.phone ||
+            authUser.phone ||
+            authUser.phoneNumber ||
+            '',
           role: 'customer',
           wallet_balance: 0,
           reward_coins: 0,
@@ -114,7 +122,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const refreshProfile = async () => {
     const supabase = createClient();
-    const { data: { user: currentUser } } = await supabase.auth.getUser();
+    const {
+      data: { user: currentUser },
+    } = await supabase.auth.getUser();
     if (currentUser) {
       setUser(currentUser as any);
       await fetchProfile(currentUser);
@@ -149,6 +159,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signOut = async () => {
     try {
+      // 1. Sign out of Firebase (client-side)
       try {
         const { signOut: firebaseSignOut } = await import('firebase/auth');
         const { auth } = await import('@/lib/firebase');
@@ -156,10 +167,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } catch (e) {
         console.error('Firebase signout error:', e);
       }
-      // Also sign out of Supabase just in case there's a stale session
+
+      // 2. Clear the __session cookie on the server
+      await fetch('/api/auth/logout', { method: 'POST' }).catch(() => {});
+
+      // 3. Sign out of Supabase (in case of stale session)
       const supabase = createClient();
       await supabase.auth.signOut().catch(() => {});
-      
+
       setUser(null);
       setSession(null);
       setProfile(null);
@@ -212,7 +227,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const initAuth = async () => {
       // 1. Check Supabase first
-      const { data: { session: initialSession } } = await supabase.auth.getSession();
+      const {
+        data: { session: initialSession },
+      } = await supabase.auth.getSession();
       const hasSupabase = await handleSupabaseSession(initialSession);
 
       // 2. Setup Firebase listener
