@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  serverExternalPackages: ['firebase-admin', 'jwks-rsa'],
   images: {
     remotePatterns: [
       {
@@ -11,7 +12,7 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 'images.unsplash.com',
-      }
+      },
     ],
   },
 };
