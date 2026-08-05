@@ -70,7 +70,9 @@ export async function POST(request: NextRequest) {
     const supabaseUserId = (userProfile as any)?.id;
     if (!supabaseUserId) {
       return NextResponse.json(
-        { error: 'User profile not found in database. Please sign up again.' },
+        {
+          error: `User profile not found in database. UID: ${firebaseUid}. Data: ${JSON.stringify(userProfile)}. Err: ${JSON.stringify(dbError)}`,
+        },
         { status: 404 }
       );
     }
