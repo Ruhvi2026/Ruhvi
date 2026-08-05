@@ -52,7 +52,7 @@ export function Navbar() {
   const userInitials = userDisplayName ? userDisplayName[0].toUpperCase() : 'U';
 
   return (
-    <header className="sticky top-0 z-40 border-b border-gold-200/80 bg-cream-50/95 shadow-sm backdrop-blur-md transition-all">
+    <header className="sticky top-0 z-40 border-b border-gold-200/80 bg-cream-50 shadow-sm transition-all">
       {/* Top Banner */}
       {(!bannerSettings || bannerSettings.banner_enabled) && (
         <div

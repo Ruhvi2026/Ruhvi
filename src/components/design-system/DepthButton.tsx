@@ -25,7 +25,7 @@ export function DepthButton({
       'bg-cream-50 border border-gold-300/70 text-charcoal-900 shadow-sm hover:shadow-md hover:border-gold-400 hover:-translate-y-0.5',
     ghost: 'bg-transparent text-gold-700 hover:bg-gold-50',
     glass:
-      'bg-white/50 backdrop-blur-md border border-gold-200/50 text-charcoal-900 hover:bg-white/70 hover:shadow-md',
+      'bg-cream-50 border border-gold-200/50 text-charcoal-900 hover:bg-white hover:shadow-md',
   };
 
   const sizes = {

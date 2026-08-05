@@ -20,8 +20,6 @@ import { ecommerceEvent } from '@/lib/gtag';
 import { useCart } from '@/context/CartContext';
 import { useWishlist } from '@/context/WishlistContext';
 import { SpatialPage } from '@/components/design-system/SpatialPage';
-import { GlassPanel } from '@/components/design-system/GlassPanel';
-import { GoldOrb } from '@/components/design-system/GoldOrb';
 import { Carousel3D } from '@/components/design-system/Carousel3D';
 
 interface ProductDetailPageClientProps {
@@ -151,7 +149,7 @@ export function ProductDetailPageClient({
         {/* Main Product Layout */}
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-2">
           {/* Left Column: Image Gallery */}
-          <div className="perspective-1600">
+          <div>
             <ProductImageGallery
               images={product.images || []}
               productName={product.name}
@@ -159,7 +157,7 @@ export function ProductDetailPageClient({
           </div>
 
           {/* Right Column: Product Details & Actions */}
-          <div className="space-y-6 rounded-2xl border border-gold-200/50 bg-white/70 p-6 shadow-sm backdrop-blur-md hover:shadow-lg hover:shadow-gold-500/10 sm:p-8">
+          <div className="space-y-6 rounded-2xl border border-gold-200/50 bg-white p-6 shadow-sm hover:shadow-lg hover:shadow-gold-500/10 sm:p-8">
             <div>
               <div className="flex items-start justify-between">
                 <div>
@@ -322,7 +320,7 @@ export function ProductDetailPageClient({
                 <Link
                   key={p.id}
                   href={`/products/${p.slug}`}
-                  className="group min-w-[200px] flex-shrink-0 overflow-hidden rounded-2xl border border-gold-200/60 bg-white/70 shadow-sm backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-gold-400 hover:shadow-xl hover:shadow-gold-500/15 sm:min-w-[240px]"
+                  className="group min-w-[200px] flex-shrink-0 overflow-hidden rounded-2xl border border-gold-200/60 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-gold-400 hover:shadow-xl hover:shadow-gold-500/15 sm:min-w-[240px]"
                   style={{ scrollSnapAlign: 'start' }}
                 >
                   <div className="aspect-square overflow-hidden bg-gold-50/60">

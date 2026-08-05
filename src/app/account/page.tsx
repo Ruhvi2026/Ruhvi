@@ -6,9 +6,6 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { createClient } from '@/lib/supabase/client';
 import { SpatialPage } from '@/components/design-system/SpatialPage';
-import { GlassPanel } from '@/components/design-system/GlassPanel';
-import { DepthCard } from '@/components/design-system/DepthCard';
-import { GoldOrb } from '@/components/design-system/GoldOrb';
 import {
   User,
   MapPin,

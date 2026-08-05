@@ -15,7 +15,6 @@ import { SpatialPage } from '@/components/design-system/SpatialPage';
 import { GlassPanel } from '@/components/design-system/GlassPanel';
 import { DepthCard } from '@/components/design-system/DepthCard';
 import { DepthButton } from '@/components/design-system/DepthButton';
-import { GoldOrb } from '@/components/design-system/GoldOrb';
 import { ecommerceEvent } from '@/lib/gtag';
 
 function ProductsCatalogContent() {
@@ -128,9 +127,8 @@ function ProductsCatalogContent() {
   return (
     <SpatialPage showParticles showOrbs>
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        {/* 3D Header */}
+        {/* Header */}
         <div className="relative mb-8 pb-8">
-          <GoldOrb size={120} top="-20%" right="5%" opacity={0.2} blur="40px" />
           <div className="relative z-10">
             <span className="text-xs font-semibold uppercase tracking-widest text-gold-600">
               Immersive Catalog
@@ -181,7 +179,7 @@ function ProductsCatalogContent() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="e.g. Solitaire, RNG-000101"
-                  className="w-full rounded-xl border border-gold-200/70 bg-white/80 px-3 py-2.5 text-xs backdrop-blur-sm transition-all focus:border-gold-400 focus:outline-none focus:ring-2 focus:ring-gold-400/40"
+                  className="w-full rounded-xl border border-gold-200/70 bg-white px-3 py-2.5 text-xs transition-all focus:border-gold-400 focus:outline-none focus:ring-2 focus:ring-gold-400/40"
                 />
               </div>
 
@@ -192,7 +190,7 @@ function ProductsCatalogContent() {
                 <select
                   value={selectedCategory}
                   onChange={(e) => setSelectedCategory(e.target.value)}
-                  className="w-full rounded-xl border border-gold-200/70 bg-white/80 px-3 py-2.5 text-xs backdrop-blur-sm transition-all focus:outline-none focus:ring-2 focus:ring-gold-400/40"
+                  className="w-full rounded-xl border border-gold-200/70 bg-white px-3 py-2.5 text-xs transition-all focus:outline-none focus:ring-2 focus:ring-gold-400/40"
                 >
                   <option value="all">All Categories</option>
                   {INITIAL_CATEGORIES.map((cat) => (
@@ -284,17 +282,12 @@ function ProductsCatalogContent() {
 
             {/* Product Grid with staggered depth */}
             {filteredProducts.length > 0 ? (
-              <div
-                className="perspective-1600 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3"
-                style={{ perspective: '1600px' }}
-              >
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 {filteredProducts.map((product, index) => (
                   <div
                     key={product.id}
-                    className="preserve-3d"
                     style={{
-                      transform: `translateZ(${(index % 3) * 4}px)`,
-                      animation: `fade-up 0.6s ease-out ${Math.min(index * 0.06, 0.5)}s both`,
+                      animation: `fade-up 0.5s ease-out ${Math.min(index * 0.05, 0.4)}s both`,
                     }}
                   >
                     <ProductCard product={product} />

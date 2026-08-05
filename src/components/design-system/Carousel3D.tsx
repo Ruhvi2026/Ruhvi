@@ -61,7 +61,7 @@ export function Carousel3D({
       <div
         ref={scrollRef}
         className="scrollbar-hide flex gap-5 overflow-x-auto pb-4"
-        style={{ perspective: '1200px', scrollSnapType: 'x mandatory' }}
+        style={{ scrollSnapType: 'x mandatory' }}
       >
         {children}
       </div>
