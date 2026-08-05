@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createRemoteJWKSet, jwtVerify, SignJWT } from 'jose';
+import { createClient } from '@supabase/supabase-js';
 
 // Google's public JWK endpoint for Firebase ID tokens
 const FIREBASE_JWKS = createRemoteJWKSet(
@@ -36,23 +37,43 @@ export async function POST(request: NextRequest) {
 
     const firebaseUid = payload.sub!;
     const secret = process.env.SUPABASE_JWT_SECRET;
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-    if (!secret) {
-      console.error(
-        'SUPABASE_JWT_SECRET is missing from environment variables.'
-      );
+    if (!secret || !supabaseUrl || !supabaseServiceKey) {
+      console.error('Missing required environment variables for sync-token.');
       return NextResponse.json(
-        { error: 'Server misconfiguration: SUPABASE_JWT_SECRET is required.' },
+        { error: 'Server misconfiguration.' },
         { status: 500 }
+      );
+    }
+
+    // Lookup the real Supabase UUID for this user to avoid RLS casting errors
+    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: { autoRefreshToken: false, persistSession: false },
+    });
+
+    const { data: userProfile } = await supabaseAdmin
+      .from('users')
+      .select('id')
+      .eq('firebase_uid', firebaseUid)
+      .maybeSingle();
+
+    const supabaseUserId = userProfile?.id;
+    if (!supabaseUserId) {
+      return NextResponse.json(
+        { error: 'User profile not found in database. Please sign up again.' },
+        { status: 404 }
       );
     }
 
     const encodedSecret = new TextEncoder().encode(secret);
 
-    // Create a Custom Supabase JWT that maps the Firebase UID to the Supabase Subject
+    // Create a Custom Supabase JWT that maps the Supabase UUID to the Supabase Subject
     const supabaseToken = await new SignJWT({
       iss: 'supabase',
-      sub: firebaseUid,
+      sub: supabaseUserId,
+      firebase_uid: firebaseUid,
       aud: 'authenticated',
       role: 'authenticated',
       email: (payload.email as string) || '',

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createRemoteJWKSet, jwtVerify, SignJWT } from 'jose';
+import { createClient } from '@supabase/supabase-js';
 
 // Google's public JWK endpoint for Firebase ID tokens
 // This is what firebase-admin uses internally — we call it directly
@@ -47,12 +48,45 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+    if (!supabaseUrl || !supabaseServiceKey) {
+      return NextResponse.json(
+        { error: 'Missing Supabase credentials' },
+        { status: 500 }
+      );
+    }
+
+    // Lookup the real Supabase UUID for this user to avoid RLS casting errors
+    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: { autoRefreshToken: false, persistSession: false },
+    });
+
+    const { data: userProfile } = await supabaseAdmin
+      .from('users')
+      .select('id')
+      .eq('firebase_uid', uid)
+      .maybeSingle();
+
+    const supabaseUserId = userProfile?.id;
+    if (!supabaseUserId) {
+      return NextResponse.json(
+        { error: 'User profile not found in database. Please sign up again.' },
+        { status: 404 }
+      );
+    }
+
     // ✅ Create a signed session JWT using our own SUPABASE_JWT_SECRET
     // (replaces firebase-admin.createSessionCookie())
     const expiresInSeconds = 60 * 60 * 24 * 5; // 5 days
     const secret = new TextEncoder().encode(jwtSecret);
 
-    const sessionToken = await new SignJWT({ sub: uid, email })
+    const sessionToken = await new SignJWT({
+      sub: supabaseUserId,
+      email,
+      firebase_uid: uid,
+    })
       .setProtectedHeader({ alg: 'HS256' })
       .setIssuedAt()
       .setExpirationTime(Math.floor(Date.now() / 1000) + expiresInSeconds)
