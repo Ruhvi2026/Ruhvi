@@ -89,7 +89,7 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: 'Failed to initiate guest checkout.' }, { status: 500 });
       }
       
-      user = { id: newUser.id, email: newUser.email };
+      user = { id: newUser.id, email: newUser.email } as any;
     }
 
     // Generate unique order number (e.g. RHV-2026-XXXX)
