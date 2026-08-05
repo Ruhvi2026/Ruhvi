@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAdminAuth } from '@/lib/firebase-admin';
-import * as jose from 'jose';
+import { createRemoteJWKSet, jwtVerify, SignJWT } from 'jose';
+
+// Google's public JWK endpoint for Firebase ID tokens
+const FIREBASE_JWKS = createRemoteJWKSet(
+  new URL(
+    'https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com'
+  )
+);
 
 export async function POST(request: NextRequest) {
   try {
@@ -10,11 +16,25 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Missing ID token' }, { status: 401 });
     }
 
-    // Verify the Firebase ID token
-    const adminAuth = getAdminAuth();
-    const decodedIdToken = await adminAuth.verifyIdToken(idToken);
-    const firebaseUid = decodedIdToken.uid;
+    const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
 
+    if (!projectId) {
+      return NextResponse.json(
+        {
+          error:
+            'Server misconfiguration: NEXT_PUBLIC_FIREBASE_PROJECT_ID is missing',
+        },
+        { status: 500 }
+      );
+    }
+
+    // Verify the Firebase ID token using Google's public JWKs via jose (no firebase-admin)
+    const { payload } = await jwtVerify(idToken, FIREBASE_JWKS, {
+      audience: projectId,
+      issuer: `https://securetoken.google.com/${projectId}`,
+    });
+
+    const firebaseUid = payload.sub!;
     const secret = process.env.SUPABASE_JWT_SECRET;
 
     if (!secret) {
@@ -30,25 +50,21 @@ export async function POST(request: NextRequest) {
     const encodedSecret = new TextEncoder().encode(secret);
 
     // Create a Custom Supabase JWT that maps the Firebase UID to the Supabase Subject
-    const payload = {
+    const supabaseToken = await new SignJWT({
       iss: 'supabase',
       sub: firebaseUid,
       aud: 'authenticated',
       role: 'authenticated',
-      email: decodedIdToken.email || '',
-      phone: decodedIdToken.phone_number || '',
-      app_metadata: {
-        provider: 'firebase',
-      },
+      email: (payload.email as string) || '',
+      phone: (payload.phone_number as string) || '',
+      app_metadata: { provider: 'firebase' },
       user_metadata: {
-        email: decodedIdToken.email || '',
-        phone: decodedIdToken.phone_number || '',
+        email: (payload.email as string) || '',
+        phone: (payload.phone_number as string) || '',
       },
-      exp: Math.floor(Date.now() / 1000) + 60 * 60, // Expires in 1 hour
-    };
-
-    const supabaseToken = await new jose.SignJWT(payload)
+    })
       .setProtectedHeader({ alg: 'HS256', typ: 'JWT' })
+      .setExpirationTime('1h')
       .sign(encodedSecret);
 
     return NextResponse.json({ supabaseToken }, { status: 200 });

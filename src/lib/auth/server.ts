@@ -1,8 +1,9 @@
 import { cookies } from 'next/headers';
-import { getAdminAuth } from '@/lib/firebase-admin';
+import { jwtVerify } from 'jose';
 
 /**
- * Retrieves the current authenticated user on the server side using the Firebase session cookie.
+ * Retrieves the current authenticated user on the server side using the
+ * signed session cookie verified with SUPABASE_JWT_SECRET.
  */
 export async function getServerUser() {
   const cookieStore = await cookies();
@@ -13,26 +14,28 @@ export async function getServerUser() {
   }
 
   try {
-    const adminAuth = getAdminAuth();
-    const decodedClaims = await adminAuth.verifySessionCookie(
-      sessionCookie,
-      true
-    );
+    const jwtSecret = process.env.SUPABASE_JWT_SECRET;
+    if (!jwtSecret) {
+      console.error('SUPABASE_JWT_SECRET is missing');
+      return { user: null };
+    }
 
-    // Construct a user object that mimics the Supabase user structure where necessary
+    const secret = new TextEncoder().encode(jwtSecret);
+    const { payload } = await jwtVerify(sessionCookie, secret);
+
     const user = {
-      id: decodedClaims.uid,
-      email: decodedClaims.email,
-      phone: decodedClaims.phone_number,
+      id: payload.sub,
+      email: payload.email as string | undefined,
+      phone: undefined,
       app_metadata: { provider: 'firebase' },
       user_metadata: {
-        full_name: decodedClaims.name || decodedClaims.email?.split('@')[0],
+        full_name: (payload.email as string | undefined)?.split('@')[0],
       },
     };
 
     return { user };
   } catch (error) {
-    console.error('Error verifying Firebase session cookie:', error);
+    // Token expired or invalid — treat as unauthenticated
     return { user: null };
   }
 }
