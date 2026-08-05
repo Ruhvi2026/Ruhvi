@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const supabaseUserId = userProfile?.id;
+    const supabaseUserId = (userProfile as any)?.id;
     if (!supabaseUserId) {
       return NextResponse.json(
         { error: 'User profile not found in database. Please sign up again.' },
