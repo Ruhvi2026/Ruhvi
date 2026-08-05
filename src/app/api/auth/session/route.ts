@@ -63,11 +63,21 @@ export async function POST(request: NextRequest) {
       auth: { autoRefreshToken: false, persistSession: false },
     });
 
-    const { data: userProfile } = await supabaseAdmin
+    const { data: userProfile, error: dbError } = await supabaseAdmin
       .from('users')
       .select('id')
       .eq('firebase_uid', uid)
       .maybeSingle();
+
+    if (dbError) {
+      console.error('Supabase DB Error in session route:', dbError);
+      return NextResponse.json(
+        {
+          error: `Database error finding user profile: ${dbError.message || JSON.stringify(dbError)}`,
+        },
+        { status: 500 }
+      );
+    }
 
     const supabaseUserId = userProfile?.id;
     if (!supabaseUserId) {
