@@ -6,15 +6,28 @@ const initFirebaseAdmin = () => {
     return getApps()[0];
   }
 
-  // Handle newlines in the private key if provided as a single string
+  const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
   let privateKey = process.env.FIREBASE_PRIVATE_KEY;
-  if (privateKey) {
-    privateKey = privateKey.replace(/\\n/g, '\n');
+
+  if (!clientEmail || !privateKey) {
+    throw new Error(
+      `Firebase Admin missing credentials: FIREBASE_CLIENT_EMAIL is ${clientEmail ? 'SET' : 'MISSING'}, FIREBASE_PRIVATE_KEY is ${privateKey ? 'SET' : 'MISSING'}`
+    );
   }
+
+  // Handle newlines and surrounding quotes if provided as a string
+  privateKey = privateKey.trim();
+  if (
+    (privateKey.startsWith('"') && privateKey.endsWith('"')) ||
+    (privateKey.startsWith("'") && privateKey.endsWith("'"))
+  ) {
+    privateKey = privateKey.slice(1, -1);
+  }
+  privateKey = privateKey.replace(/\\n/g, '\n');
 
   const credential = cert({
     projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-    clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+    clientEmail: clientEmail,
     privateKey: privateKey,
   });
 
@@ -40,4 +53,3 @@ export const adminAuth = new Proxy({} as Auth, {
     return typeof value === 'function' ? value.bind(auth) : value;
   },
 });
-

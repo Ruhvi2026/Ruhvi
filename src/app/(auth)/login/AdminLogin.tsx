@@ -26,7 +26,11 @@ export default function AdminLogin() {
       // Authenticate via Firebase Auth
       const { signInWithEmailAndPassword } = await import('firebase/auth');
       const { auth } = await import('@/lib/firebase');
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
       const fbUser = userCredential.user;
 
       // Create session cookie
@@ -38,7 +42,8 @@ export default function AdminLogin() {
       });
 
       if (!sessionRes.ok) {
-        throw new Error('Failed to create secure session');
+        const sessionErr = await sessionRes.json().catch(() => ({}));
+        throw new Error(sessionErr?.error || 'Failed to create secure session');
       }
 
       // Check role using Supabase
@@ -50,7 +55,10 @@ export default function AdminLogin() {
         .single();
 
       const role = userProfile?.role;
-      const isAdmin = fbUser.email === 'ruhvi.main@gmail.com' || role === 'admin' || role === 'manager';
+      const isAdmin =
+        fbUser.email === 'ruhvi.main@gmail.com' ||
+        role === 'admin' ||
+        role === 'manager';
 
       if (!isAdmin) {
         await fetch('/api/auth/logout', { method: 'POST' });
@@ -60,13 +68,16 @@ export default function AdminLogin() {
       }
 
       router.refresh();
-      await new Promise(resolve => setTimeout(resolve, 50));
+      await new Promise((resolve) => setTimeout(resolve, 50));
       window.location.href = redirectTo;
-
     } catch (err: any) {
       console.error('Admin login error:', err);
       let msg = 'Invalid email or password.';
-      if (err?.code === 'auth/user-not-found' || err?.code === 'auth/invalid-credential' || err?.code === 'auth/invalid-login-credentials') {
+      if (
+        err?.code === 'auth/user-not-found' ||
+        err?.code === 'auth/invalid-credential' ||
+        err?.code === 'auth/invalid-login-credentials'
+      ) {
         msg = 'Invalid credentials.';
       } else if (err?.message) {
         msg = err.message;
@@ -77,14 +88,13 @@ export default function AdminLogin() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#F3F4F6] p-4 font-sans">
-      <div className="flex w-full max-w-[1000px] h-[600px] bg-white rounded-2xl shadow-xl overflow-hidden relative">
-        
+    <div className="flex min-h-screen items-center justify-center bg-[#F3F4F6] p-4 font-sans">
+      <div className="relative flex h-[600px] w-full max-w-[1000px] overflow-hidden rounded-2xl bg-white shadow-xl">
         {/* Left Side: Illustration */}
-        <div className="hidden md:flex flex-1 items-center justify-center bg-[#fcfdfd] relative border-r border-gray-100">
-          <div className="relative w-full h-full max-w-md max-h-md">
-            <Image 
-              src="/images/admin-login.png" 
+        <div className="relative hidden flex-1 items-center justify-center border-r border-gray-100 bg-[#fcfdfd] md:flex">
+          <div className="max-h-md relative h-full w-full max-w-md">
+            <Image
+              src="/images/admin-login.png"
               alt="Admin Dashboard Illustration"
               fill
               className="object-contain p-8"
@@ -94,52 +104,58 @@ export default function AdminLogin() {
         </div>
 
         {/* Right Side: Login Form */}
-        <div className="flex-1 flex flex-col justify-center px-8 md:px-16 lg:px-24">
-          <div className="w-full max-w-sm mx-auto space-y-8">
+        <div className="flex flex-1 flex-col justify-center px-8 md:px-16 lg:px-24">
+          <div className="mx-auto w-full max-w-sm space-y-8">
             <div className="text-center">
               <h2 className="text-3xl font-bold text-gray-900">Login</h2>
             </div>
 
             {error && (
-              <div className="p-3 text-sm text-red-600 bg-red-50 border border-red-100 rounded-lg text-center">
+              <div className="rounded-lg border border-red-100 bg-red-50 p-3 text-center text-sm text-red-600">
                 {error}
               </div>
             )}
 
             <form onSubmit={handleLogin} className="space-y-5">
-              
-              <div className="relative group">
+              <div className="group relative">
                 <input
                   type="email"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="admin@ruhvi.in"
-                  className="w-full px-5 py-3.5 bg-[#F3F4F6] text-gray-900 placeholder-gray-500 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
+                  className="w-full rounded-lg bg-[#F3F4F6] px-5 py-3.5 text-sm text-gray-900 placeholder-gray-500 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500/50"
                 />
-                <User className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-800" />
+                <User className="absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-800" />
               </div>
 
-              <div className="relative group">
+              <div className="group relative">
                 <input
                   type={showPassword ? 'text' : 'password'}
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full px-5 py-3.5 bg-[#F3F4F6] text-gray-900 placeholder-gray-500 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
+                  className="w-full rounded-lg bg-[#F3F4F6] px-5 py-3.5 text-sm text-gray-900 placeholder-gray-500 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500/50"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-800 hover:text-black transition-colors"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-800 transition-colors hover:text-black"
                 >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
                 </button>
               </div>
 
               <div className="flex justify-end pt-1">
-                <a href="#" className="text-xs text-blue-500 hover:text-blue-600 font-medium transition-colors">
+                <a
+                  href="#"
+                  className="text-xs font-medium text-blue-500 transition-colors hover:text-blue-600"
+                >
                   Forgot Password?
                 </a>
               </div>
@@ -147,20 +163,19 @@ export default function AdminLogin() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3.5 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-full font-medium shadow-md shadow-blue-500/30 transition-all active:scale-[0.98] disabled:opacity-70 disabled:pointer-events-none mt-2 text-sm"
+                className="mt-2 w-full rounded-full bg-gradient-to-r from-blue-500 to-blue-600 py-3.5 text-sm font-medium text-white shadow-md shadow-blue-500/30 transition-all hover:from-blue-600 hover:to-blue-700 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-70"
               >
                 {loading ? 'Authenticating...' : 'Login'}
               </button>
-
             </form>
 
-            <div className="text-center pt-2">
-              <span className="text-xs text-gray-500">Internal Access Only. </span>
+            <div className="pt-2 text-center">
+              <span className="text-xs text-gray-500">
+                Internal Access Only.{' '}
+              </span>
             </div>
-            
           </div>
         </div>
-
       </div>
     </div>
   );

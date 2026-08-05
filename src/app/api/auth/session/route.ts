@@ -11,12 +11,14 @@ export async function POST(request: NextRequest) {
 
     // Verify the ID token first to ensure it's valid
     const decodedIdToken = await adminAuth.verifyIdToken(idToken);
-    
+
     // Set session expiration to 5 days
     const expiresIn = 60 * 60 * 24 * 5 * 1000;
-    
+
     // Create the session cookie
-    const sessionCookie = await adminAuth.createSessionCookie(idToken, { expiresIn });
+    const sessionCookie = await adminAuth.createSessionCookie(idToken, {
+      expiresIn,
+    });
 
     // Set cookie policy
     const options = {
@@ -29,13 +31,16 @@ export async function POST(request: NextRequest) {
     };
 
     const response = NextResponse.json({ status: 'success' }, { status: 200 });
-    
+
     // Append the cookie to the response
     response.cookies.set(options);
-    
+
     return response;
-  } catch (error) {
+  } catch (error: any) {
     console.error('Session creation error:', error);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    return NextResponse.json(
+      { error: error?.message || 'Internal Server Error' },
+      { status: 500 }
+    );
   }
 }
