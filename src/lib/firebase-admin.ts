@@ -1,5 +1,5 @@
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
-import { getAuth } from 'firebase-admin/auth';
+import { getAuth, Auth } from 'firebase-admin/auth';
 
 const initFirebaseAdmin = () => {
   if (getApps().length > 0) {
@@ -23,5 +23,21 @@ const initFirebaseAdmin = () => {
   });
 };
 
-const app = initFirebaseAdmin();
-export const adminAuth = getAuth(app);
+let _adminAuth: Auth | null = null;
+
+export const getAdminAuth = (): Auth => {
+  if (!_adminAuth) {
+    const app = initFirebaseAdmin();
+    _adminAuth = getAuth(app);
+  }
+  return _adminAuth;
+};
+
+export const adminAuth = new Proxy({} as Auth, {
+  get(_target, prop) {
+    const auth = getAdminAuth();
+    const value = (auth as any)[prop];
+    return typeof value === 'function' ? value.bind(auth) : value;
+  },
+});
+
