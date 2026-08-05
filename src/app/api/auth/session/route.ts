@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { adminAuth } from '@/lib/firebase-admin';
 
 export async function POST(request: NextRequest) {
   try {
@@ -9,8 +8,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Missing ID token' }, { status: 401 });
     }
 
+    // Dynamically import so any init errors are caught by THIS try/catch
+    // (prevents Next.js from rendering an HTML 500 page)
+    const { getAdminAuth } = await import('@/lib/firebase-admin');
+    const adminAuth = getAdminAuth();
+
     // Verify the ID token first to ensure it's valid
-    const decodedIdToken = await adminAuth.verifyIdToken(idToken);
+    await adminAuth.verifyIdToken(idToken);
 
     // Set session expiration to 5 days
     const expiresIn = 60 * 60 * 24 * 5 * 1000;
@@ -31,13 +35,11 @@ export async function POST(request: NextRequest) {
     };
 
     const response = NextResponse.json({ status: 'success' }, { status: 200 });
-
-    // Append the cookie to the response
     response.cookies.set(options);
 
     return response;
   } catch (error: any) {
-    console.error('Session creation error:', error);
+    console.error('Session creation error:', error?.message || error);
     return NextResponse.json(
       { error: error?.message || 'Internal Server Error' },
       { status: 500 }

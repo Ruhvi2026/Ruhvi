@@ -1,5 +1,5 @@
 import { cookies } from 'next/headers';
-import { adminAuth } from '@/lib/firebase-admin';
+import { getAdminAuth } from '@/lib/firebase-admin';
 
 /**
  * Retrieves the current authenticated user on the server side using the Firebase session cookie.
@@ -13,8 +13,12 @@ export async function getServerUser() {
   }
 
   try {
-    const decodedClaims = await adminAuth.verifySessionCookie(sessionCookie, true);
-    
+    const adminAuth = getAdminAuth();
+    const decodedClaims = await adminAuth.verifySessionCookie(
+      sessionCookie,
+      true
+    );
+
     // Construct a user object that mimics the Supabase user structure where necessary
     const user = {
       id: decodedClaims.uid,

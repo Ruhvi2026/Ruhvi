@@ -1,74 +1,58 @@
-import { initializeApp, getApps, cert } from 'firebase-admin/app';
+import { initializeApp, getApps, cert, App } from 'firebase-admin/app';
 import { getAuth, Auth } from 'firebase-admin/auth';
-import { createPrivateKey } from 'crypto';
 
 function formatPrivateKey(key: string): string {
-  let cleaned = key.trim().replace(/\\n/g, '\n');
-  const beginMarker = '-----BEGIN PRIVATE KEY-----';
-  const endMarker = '-----END PRIVATE KEY-----';
-
-  const beginIndex = cleaned.indexOf(beginMarker);
-  const endIndex = cleaned.indexOf(endMarker);
-
-  if (beginIndex !== -1 && endIndex !== -1) {
-    const rawBody = cleaned
-      .substring(beginIndex + beginMarker.length, endIndex)
-      .replace(/\s+/g, '');
-    return `${beginMarker}\n${rawBody}\n${endMarker}\n`;
+  // Strip surrounding quotes if present
+  let cleaned = key.trim();
+  if (
+    (cleaned.startsWith('"') && cleaned.endsWith('"')) ||
+    (cleaned.startsWith("'") && cleaned.endsWith("'"))
+  ) {
+    cleaned = cleaned.slice(1, -1);
   }
+
+  // Replace literal \n with real newlines
+  cleaned = cleaned.replace(/\\n/g, '\n');
 
   return cleaned;
 }
 
-const initFirebaseAdmin = () => {
-  if (getApps().length > 0) {
-    return getApps()[0];
-  }
+let _app: App | null = null;
+
+export function getAdminApp(): App {
+  if (_app) return _app;
 
   const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
   const rawPrivateKey = process.env.FIREBASE_PRIVATE_KEY;
+  const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
 
-  if (!clientEmail || !rawPrivateKey) {
+  if (!clientEmail || !rawPrivateKey || !projectId) {
     throw new Error(
-      `Firebase Admin missing credentials: FIREBASE_CLIENT_EMAIL is ${clientEmail ? 'SET' : 'MISSING'}, FIREBASE_PRIVATE_KEY is ${rawPrivateKey ? 'SET' : 'MISSING'}`
+      `Firebase Admin SDK missing credentials. ` +
+        `FIREBASE_CLIENT_EMAIL: ${clientEmail ? 'SET' : 'MISSING'}, ` +
+        `FIREBASE_PRIVATE_KEY: ${rawPrivateKey ? 'SET' : 'MISSING'}, ` +
+        `NEXT_PUBLIC_FIREBASE_PROJECT_ID: ${projectId ? 'SET' : 'MISSING'}`
     );
   }
 
-  const formattedPrivateKey = formatPrivateKey(rawPrivateKey);
+  const privateKey = formatPrivateKey(rawPrivateKey);
 
-  try {
-    createPrivateKey(formattedPrivateKey);
-  } catch (err: any) {
-    throw new Error(
-      `Invalid FIREBASE_PRIVATE_KEY: The private key in environment variables is corrupted or malformed (${err?.message || 'OpenSSL DECODER error'}). Please generate a fresh Service Account key in Firebase Console.`
-    );
+  if (getApps().length > 0) {
+    _app = getApps()[0];
+    return _app;
   }
 
-  const credential = cert({
-    projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-    clientEmail: clientEmail,
-    privateKey: formattedPrivateKey,
+  _app = initializeApp({
+    credential: cert({
+      projectId,
+      clientEmail,
+      privateKey,
+    }),
   });
 
-  return initializeApp({
-    credential,
-  });
-};
+  return _app;
+}
 
-let _adminAuth: Auth | null = null;
-
-export const getAdminAuth = (): Auth => {
-  if (!_adminAuth) {
-    const app = initFirebaseAdmin();
-    _adminAuth = getAuth(app);
-  }
-  return _adminAuth;
-};
-
-export const adminAuth = new Proxy({} as Auth, {
-  get(_target, prop) {
-    const auth = getAdminAuth();
-    const value = (auth as any)[prop];
-    return typeof value === 'function' ? value.bind(auth) : value;
-  },
-});
+export function getAdminAuth(): Auth {
+  return getAuth(getAdminApp());
+}

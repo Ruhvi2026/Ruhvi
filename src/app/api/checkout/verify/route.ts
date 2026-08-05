@@ -65,10 +65,11 @@ export async function POST(req: Request) {
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
       );
 
-      const { adminAuth } = await import('@/lib/firebase-admin');
+      const { getAdminAuth } = await import('@/lib/firebase-admin');
 
       let fbUser;
       try {
+        const adminAuth = getAdminAuth();
         fbUser = await adminAuth.createUser({
           email: guestEmail,
           password: guestPassword,

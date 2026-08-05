@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { adminAuth } from '@/lib/firebase-admin';
+import { getAdminAuth } from '@/lib/firebase-admin';
 import * as jose from 'jose';
 
 export async function POST(request: NextRequest) {
@@ -11,13 +11,16 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify the Firebase ID token
+    const adminAuth = getAdminAuth();
     const decodedIdToken = await adminAuth.verifyIdToken(idToken);
     const firebaseUid = decodedIdToken.uid;
 
     const secret = process.env.SUPABASE_JWT_SECRET;
-    
+
     if (!secret) {
-      console.error('SUPABASE_JWT_SECRET is missing from environment variables.');
+      console.error(
+        'SUPABASE_JWT_SECRET is missing from environment variables.'
+      );
       return NextResponse.json(
         { error: 'Server misconfiguration: SUPABASE_JWT_SECRET is required.' },
         { status: 500 }
@@ -41,7 +44,7 @@ export async function POST(request: NextRequest) {
         email: decodedIdToken.email || '',
         phone: decodedIdToken.phone_number || '',
       },
-      exp: Math.floor(Date.now() / 1000) + (60 * 60), // Expires in 1 hour
+      exp: Math.floor(Date.now() / 1000) + 60 * 60, // Expires in 1 hour
     };
 
     const supabaseToken = await new jose.SignJWT(payload)
