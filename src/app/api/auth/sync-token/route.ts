@@ -54,9 +54,7 @@ export async function POST(request: NextRequest) {
     });
 
     const { data: userProfile, error: dbError } = await supabaseAdmin
-      .from('users')
-      .select('id')
-      .eq('firebase_uid', firebaseUid)
+      .rpc('get_user_profile', { p_user_id: firebaseUid })
       .maybeSingle();
 
     if (dbError) {
