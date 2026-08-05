@@ -31,7 +31,10 @@ export async function POST(req: Request) {
     }
 
     if (!address) {
-      return NextResponse.json({ error: 'Shipping address is required' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Shipping address is required' },
+        { status: 400 }
+      );
     }
 
     let supabase = await createServerClient();
@@ -40,17 +43,22 @@ export async function POST(req: Request) {
     // Disable COD for guest accounts
     if (paymentMethod === 'cod' && !user) {
       return NextResponse.json(
-        { error: 'Cash on Delivery (COD) is available only for logged-in accounts. Please log in or select an online payment method.' },
+        {
+          error:
+            'Cash on Delivery (COD) is available only for logged-in accounts. Please log in or select an online payment method.',
+        },
         { status: 403 }
       );
     }
 
     // If no authenticated user (for online payment), create a temporary guest user so the order saves to Supabase
     if (!user) {
-      console.log('No authenticated user found. Creating guest session for online order...');
+      console.log(
+        'No authenticated user found. Creating guest session for online order...'
+      );
       const guestEmail = `guest_${Date.now()}_${Math.floor(Math.random() * 1000)}@ruhvi.com`;
       const guestPassword = `Guest!${Date.now()}`;
-      
+
       // We must use a separate JS client to establish the session in memory without touching cookies
       supabase = createJSClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -58,17 +66,22 @@ export async function POST(req: Request) {
       );
 
       const { adminAuth } = await import('@/lib/firebase-admin');
-      
+
       let fbUser;
       try {
         fbUser = await adminAuth.createUser({
           email: guestEmail,
           password: guestPassword,
-          displayName: address.firstName ? `${address.firstName} ${address.lastName}` : 'Guest User'
+          displayName: address.firstName
+            ? `${address.firstName} ${address.lastName}`
+            : 'Guest User',
         });
       } catch (err: any) {
         console.error('Failed to create guest user in Firebase:', err);
-        return NextResponse.json({ error: 'Failed to initiate guest checkout.' }, { status: 500 });
+        return NextResponse.json(
+          { error: 'Failed to initiate guest checkout.' },
+          { status: 500 }
+        );
       }
 
       // We still need to sync this user to our public.users table in Supabase
@@ -78,17 +91,27 @@ export async function POST(req: Request) {
         process.env.SUPABASE_SERVICE_ROLE_KEY!
       );
 
-      const { data: newUser, error: dbError } = await adminSupabase.from('users').upsert({
-        firebase_uid: fbUser.uid,
-        email: fbUser.email,
-        full_name: fbUser.displayName,
-      }, { onConflict: 'firebase_uid' }).select().single();
+      const { data: newUser, error: dbError } = await adminSupabase
+        .from('users')
+        .upsert(
+          {
+            firebase_uid: fbUser.uid,
+            email: fbUser.email,
+            full_name: fbUser.displayName,
+          },
+          { onConflict: 'firebase_uid' }
+        )
+        .select()
+        .single();
 
       if (dbError || !newUser) {
         console.error('Failed to create guest user in DB:', dbError);
-        return NextResponse.json({ error: 'Failed to initiate guest checkout.' }, { status: 500 });
+        return NextResponse.json(
+          { error: 'Failed to initiate guest checkout.' },
+          { status: 500 }
+        );
       }
-      
+
       user = { id: newUser.id, email: newUser.email } as any;
     }
 
@@ -105,23 +128,27 @@ export async function POST(req: Request) {
       const { data: newAddressData, error: addressError } = await supabase
         .from('addresses')
         .insert({
-          user_id: user.id,
+          user_id: user!.id,
           label: address.label || 'Home',
-          full_name: address.full_name || address.firstName + ' ' + address.lastName,
+          full_name:
+            address.full_name || address.firstName + ' ' + address.lastName,
           phone: address.phone,
           line1: address.line1 || address.address,
           line2: address.line2 || '',
           city: address.city,
           state: address.state,
           pincode: address.pincode,
-          is_default: address.is_default || false
+          is_default: address.is_default || false,
         })
         .select('id')
         .single();
-      
+
       if (addressError) {
         console.error('Failed to save address:', addressError);
-        return NextResponse.json({ error: 'Failed to save shipping address' }, { status: 500 });
+        return NextResponse.json(
+          { error: 'Failed to save shipping address' },
+          { status: 500 }
+        );
       }
       shippingAddressId = newAddressData.id;
     }
@@ -129,7 +156,7 @@ export async function POST(req: Request) {
     const { data: insertedOrder, error: orderError } = await supabase
       .from('orders')
       .insert({
-        user_id: user.id,
+        user_id: user!.id,
         order_number: orderNumber,
         status: 'confirmed',
         subtotal,
@@ -144,14 +171,17 @@ export async function POST(req: Request) {
         payment_status: paymentMethod === 'phonepe' ? 'paid' : 'pending',
         gift_wrap: giftWrap,
         gift_message: giftMessage,
-        shipping_address_id: shippingAddressId
+        shipping_address_id: shippingAddressId,
       })
       .select('id')
       .single();
 
     if (orderError || !insertedOrder) {
       console.error('Failed to create order:', orderError);
-      return NextResponse.json({ error: 'Failed to create order in database' }, { status: 500 });
+      return NextResponse.json(
+        { error: 'Failed to create order in database' },
+        { status: 500 }
+      );
     }
 
     const orderItemsToInsert = items.map((item: any) => ({
@@ -174,7 +204,7 @@ export async function POST(req: Request) {
     const newOrder = {
       id: insertedOrder.id,
       order_number: orderNumber,
-      user_id: user.id,
+      user_id: user!.id,
       status: 'confirmed',
       subtotal,
       shipping_charge: shippingCharge,
@@ -196,21 +226,27 @@ export async function POST(req: Request) {
     // Send WhatsApp Order Confirmation asynchronously
     if (address.phone) {
       sendOrderConfirmation(
-        orderNumber, 
-        address.phone, 
-        `${address.firstName || ''} ${address.lastName || ''}`.trim() || 'Valued Customer', 
+        orderNumber,
+        address.phone,
+        `${address.firstName || ''} ${address.lastName || ''}`.trim() ||
+          'Valued Customer',
         total
-      ).catch(err => console.error('Failed to send WhatsApp confirmation:', err));
+      ).catch((err) =>
+        console.error('Failed to send WhatsApp confirmation:', err)
+      );
     }
 
     // Send Brevo Email Order Confirmation asynchronously
     if (user?.email) {
       sendOrderConfirmationEmail(
         user.email,
-        `${address.firstName || ''} ${address.lastName || ''}`.trim() || 'Valued Customer',
+        `${address.firstName || ''} ${address.lastName || ''}`.trim() ||
+          'Valued Customer',
         orderNumber,
         total
-      ).catch(err => console.error('Failed to send Email confirmation:', err));
+      ).catch((err) =>
+        console.error('Failed to send Email confirmation:', err)
+      );
     }
 
     return NextResponse.json({
@@ -221,6 +257,9 @@ export async function POST(req: Request) {
     });
   } catch (error: any) {
     console.error('Order verification error:', error);
-    return NextResponse.json({ error: 'Failed to complete order placement' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Failed to complete order placement' },
+      { status: 500 }
+    );
   }
 }
