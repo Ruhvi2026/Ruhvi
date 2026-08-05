@@ -1,5 +1,6 @@
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { getAuth, Auth } from 'firebase-admin/auth';
+import { createPrivateKey } from 'crypto';
 
 function formatPrivateKey(key: string): string {
   let cleaned = key.trim().replace(/\\n/g, '\n');
@@ -34,6 +35,14 @@ const initFirebaseAdmin = () => {
   }
 
   const formattedPrivateKey = formatPrivateKey(rawPrivateKey);
+
+  try {
+    createPrivateKey(formattedPrivateKey);
+  } catch (err: any) {
+    throw new Error(
+      `Invalid FIREBASE_PRIVATE_KEY: The private key in environment variables is corrupted or malformed (${err?.message || 'OpenSSL DECODER error'}). Please generate a fresh Service Account key in Firebase Console.`
+    );
+  }
 
   const credential = cert({
     projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
