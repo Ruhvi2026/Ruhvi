@@ -42,8 +42,16 @@ export default function AdminLogin() {
       });
 
       if (!sessionRes.ok) {
-        const sessionErr = await sessionRes.json().catch(() => ({}));
-        throw new Error(sessionErr?.error || 'Failed to create secure session');
+        const text = await sessionRes.text().catch(() => '');
+        let errMsg = 'Failed to create secure session';
+        try {
+          const parsed = JSON.parse(text);
+          if (parsed.error) errMsg = parsed.error;
+        } catch {
+          if (text)
+            errMsg = `Session Error (${sessionRes.status}): ${text.slice(0, 150)}`;
+        }
+        throw new Error(errMsg);
       }
 
       // Check role using Supabase
