@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
+import { getServerUser } from '@/lib/auth/server';
 
 export default async function TestPage() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://igrkrkxdantrolbldapj.supabase.co';
@@ -15,11 +16,11 @@ export default async function TestPage() {
     } 
   });
   
-  const { data: { user }, error } = await supabase.auth.getUser();
+  const { user } = await getServerUser();
   
   return (
     <pre>
-      {JSON.stringify({ user, error, cookies: allCookies }, null, 2)}
+      {JSON.stringify({ user, cookies: allCookies }, null, 2)}
     </pre>
   );
 }

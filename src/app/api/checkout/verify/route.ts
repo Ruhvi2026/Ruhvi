@@ -3,6 +3,7 @@ import { sendOrderConfirmation } from '@/lib/whatsapp';
 import { sendOrderConfirmationEmail } from '@/lib/brevo';
 import { createClient as createServerClient } from '@/lib/supabase/server';
 import { createClient as createJSClient } from '@supabase/supabase-js';
+import { getServerUser } from '@/lib/auth/server';
 
 export async function POST(req: Request) {
   try {
@@ -34,7 +35,7 @@ export async function POST(req: Request) {
     }
 
     let supabase = await createServerClient();
-    let { data: { user } } = await supabase.auth.getUser();
+    let { user } = await getServerUser();
 
     // Disable COD for guest accounts
     if (paymentMethod === 'cod' && !user) {
@@ -56,22 +57,39 @@ export async function POST(req: Request) {
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
       );
 
-      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-        email: guestEmail,
-        password: guestPassword,
-        options: {
-          data: {
-            full_name: address.firstName ? `${address.firstName} ${address.lastName}` : 'Guest User'
-          }
-        }
-      });
+      const { adminAuth } = await import('@/lib/firebase-admin');
+      
+      let fbUser;
+      try {
+        fbUser = await adminAuth.createUser({
+          email: guestEmail,
+          password: guestPassword,
+          displayName: address.firstName ? `${address.firstName} ${address.lastName}` : 'Guest User'
+        });
+      } catch (err: any) {
+        console.error('Failed to create guest user in Firebase:', err);
+        return NextResponse.json({ error: 'Failed to initiate guest checkout.' }, { status: 500 });
+      }
 
-      if (signUpError || !signUpData.user) {
-        console.error('Failed to create guest user:', signUpError);
+      // We still need to sync this user to our public.users table in Supabase
+      // Using Service Role to bypass RLS for user creation
+      const adminSupabase = createJSClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!
+      );
+
+      const { data: newUser, error: dbError } = await adminSupabase.from('users').upsert({
+        firebase_uid: fbUser.uid,
+        email: fbUser.email,
+        full_name: fbUser.displayName,
+      }, { onConflict: 'firebase_uid' }).select().single();
+
+      if (dbError || !newUser) {
+        console.error('Failed to create guest user in DB:', dbError);
         return NextResponse.json({ error: 'Failed to initiate guest checkout.' }, { status: 500 });
       }
       
-      user = signUpData.user;
+      user = { id: newUser.id, email: newUser.email };
     }
 
     // Generate unique order number (e.g. RHV-2026-XXXX)

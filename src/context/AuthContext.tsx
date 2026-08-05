@@ -149,8 +149,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signOut = async () => {
     try {
-      const supabase = createClient();
-      await supabase.auth.signOut();
       try {
         const { signOut: firebaseSignOut } = await import('firebase/auth');
         const { auth } = await import('@/lib/firebase');
@@ -158,6 +156,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } catch (e) {
         console.error('Firebase signout error:', e);
       }
+      // Also sign out of Supabase just in case there's a stale session
+      const supabase = createClient();
+      await supabase.auth.signOut().catch(() => {});
+      
       setUser(null);
       setSession(null);
       setProfile(null);
@@ -219,14 +221,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const { auth } = await import('@/lib/firebase');
 
         unsubFirebase = onAuthStateChanged(auth, async (fbUser) => {
-          // Double-check if Supabase is logged in first
-          const { data: { session: checkSession } } = await supabase.auth.getSession();
-          if (checkSession?.user) {
-            await handleSupabaseSession(checkSession);
-          } else if (fbUser) {
+          if (fbUser) {
             await handleFirebaseUser(fbUser);
           } else {
-            if (isMounted && !checkSession?.user) {
+            if (isMounted) {
               setUser(null);
               setSession(null);
               setProfile(null);
@@ -244,48 +242,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     initAuth();
 
-    // 3. Listen to Supabase Auth State Changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, currentSession) => {
-        if (currentSession?.user) {
-          await handleSupabaseSession(currentSession);
-        } else if (event === 'SIGNED_OUT') {
-          if (isMounted) {
-            setUser(null);
-            setSession(null);
-            setProfile(null);
-            setLoading(false);
-          }
-        } else {
-          // If Supabase session is null (and not explicitly signed out event), check Firebase before clearing user
-          try {
-            const { auth } = await import('@/lib/firebase');
-            const fbUser = auth.currentUser;
-            if (fbUser) {
-              await handleFirebaseUser(fbUser);
-            } else {
-              if (isMounted) {
-                setUser(null);
-                setSession(null);
-                setProfile(null);
-                setLoading(false);
-              }
-            }
-          } catch {
-            if (isMounted) {
-              setUser(null);
-              setSession(null);
-              setProfile(null);
-              setLoading(false);
-            }
-          }
-        }
-      }
-    );
+    // Supabase Auth listener removed, we only listen to Firebase now.
 
     return () => {
       isMounted = false;
-      subscription.unsubscribe();
       if (unsubFirebase) unsubFirebase();
     };
   }, []);

@@ -2,8 +2,6 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { sendPasswordResetEmail } from 'firebase/auth'
-import { auth } from '@/lib/firebase'
 import { Sparkles, ArrowLeft, Send } from 'lucide-react'
 
 export default function ForgotPasswordPage() {
@@ -19,7 +17,10 @@ export default function ForgotPasswordPage() {
     setMessage(null)
 
     try {
-      await sendPasswordResetEmail(auth, email)
+      const { sendPasswordResetEmail } = await import('firebase/auth');
+      const { auth } = await import('@/lib/firebase');
+      await sendPasswordResetEmail(auth, email);
+      
       setMessage('Password reset link has been sent to your email. Please check your inbox.')
     } catch (err: any) {
       console.error('Password reset error:', err)

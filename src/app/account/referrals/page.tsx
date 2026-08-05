@@ -5,6 +5,7 @@ import ReferralLink from './ReferralLink';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
+import { getServerUser } from '@/lib/auth/server';
 
 export default async function ReferralsPage() {
   const cookieStore = await cookies();
@@ -19,7 +20,7 @@ export default async function ReferralsPage() {
     }
   );
 
-  const { data: { user } } = await supabase.auth.getUser();
+  const { user } = await getServerUser();
   if (!user) {
     redirect('/login?redirectTo=/account/referrals');
   }

@@ -9,6 +9,9 @@ import {
   RecaptchaVerifier, 
   signInWithPhoneNumber, 
   signInWithEmailAndPassword, 
+  signInWithPopup,
+  GoogleAuthProvider,
+  FacebookAuthProvider,
   ConfirmationResult 
 } from 'firebase/auth'
 import { Sparkles, ArrowRight, Eye, EyeOff, Mail, Phone } from 'lucide-react'
@@ -69,6 +72,14 @@ function LoginForm() {
         p_email: fbUser.email || null,
         p_name: fbUser.displayName || null,
         p_phone: fbUser.phoneNumber || null,
+      });
+
+      // Create session cookie for SSR
+      const idToken = await fbUser.getIdToken();
+      await fetch('/api/auth/session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idToken }),
       });
 
       let destination = redirectTo === '/admin' ? '/admin/dashboard' : redirectTo
@@ -156,6 +167,14 @@ function LoginForm() {
         p_phone: user.phoneNumber || null,
       });
 
+      // Create session cookie for SSR
+      const idToken = await user.getIdToken();
+      await fetch('/api/auth/session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idToken }),
+      });
+
       setMessage('Login successful! Redirecting...')
       router.refresh()
       await new Promise((resolve) => setTimeout(resolve, 50))
@@ -172,24 +191,32 @@ function LoginForm() {
     setError(null)
     const targetUrl = redirectTo === '/admin' ? '/admin/dashboard' : redirectTo
     try {
-      // Handle Google OAuth strictly via Supabase Auth
-      const supabase = createClient()
-      const { error: supabaseError } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(targetUrl)}`
-        }
-      })
+      const provider = new GoogleAuthProvider()
+      const userCredential = await signInWithPopup(auth, provider)
+      const fbUser = userCredential.user
 
-      if (supabaseError) throw supabaseError
+      const supabase = createClient()
+      await supabase.rpc('sync_firebase_user', {
+        p_uid: fbUser.uid,
+        p_email: fbUser.email || null,
+        p_name: fbUser.displayName || null,
+        p_phone: fbUser.phoneNumber || null,
+      });
+
+      const idToken = await fbUser.getIdToken();
+      await fetch('/api/auth/session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idToken }),
+      });
+
+      setMessage('Login successful! Redirecting...')
+      router.refresh()
+      await new Promise((resolve) => setTimeout(resolve, 50))
+      window.location.href = targetUrl
     } catch (err: any) {
-      console.error('Supabase Google sign in error:', err)
-      const isProviderDisabled = err?.message?.includes('provider is not enabled') || err?.error_code === 'validation_failed'
-      setError(
-        isProviderDisabled
-          ? 'Google Sign-In is not enabled in Supabase Dashboard yet. Please enable Google under Supabase Dashboard -> Authentication -> Providers -> Google.'
-          : err?.message || 'Failed to sign in with Google via Supabase.'
-      )
+      console.error('Firebase Google sign in error:', err)
+      setError(err?.message || 'Failed to sign in with Google.')
       setLoading(false)
     }
   }
@@ -199,30 +226,48 @@ function LoginForm() {
     setError(null)
     const targetUrl = redirectTo === '/admin' ? '/admin/dashboard' : redirectTo
     try {
-      // Handle Facebook OAuth strictly via Supabase Auth
-      const supabase = createClient()
-      const { error: supabaseError } = await supabase.auth.signInWithOAuth({
-        provider: 'facebook',
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(targetUrl)}`
-        }
-      })
+      const provider = new FacebookAuthProvider()
+      const userCredential = await signInWithPopup(auth, provider)
+      const fbUser = userCredential.user
 
-      if (supabaseError) throw supabaseError
+      const supabase = createClient()
+      await supabase.rpc('sync_firebase_user', {
+        p_uid: fbUser.uid,
+        p_email: fbUser.email || null,
+        p_name: fbUser.displayName || null,
+        p_phone: fbUser.phoneNumber || null,
+      });
+
+      const idToken = await fbUser.getIdToken();
+      await fetch('/api/auth/session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idToken }),
+      });
+
+      setMessage('Login successful! Redirecting...')
+      router.refresh()
+      await new Promise((resolve) => setTimeout(resolve, 50))
+      window.location.href = targetUrl
     } catch (err: any) {
-      console.error('Supabase Facebook sign in error:', err)
-      const isProviderDisabled = err?.message?.includes('provider is not enabled') || err?.error_code === 'validation_failed'
-      setError(
-        isProviderDisabled
-          ? 'Facebook Sign-In is not enabled in Supabase Dashboard yet. Please enable Facebook under Supabase Dashboard -> Authentication -> Providers -> Facebook.'
-          : err?.message || 'Failed to sign in with Facebook via Supabase.'
-      )
+      console.error('Firebase Facebook sign in error:', err)
+      setError(err?.message || 'Failed to sign in with Facebook.')
       setLoading(false)
     }
   }
 
   return (
-    <div className="w-full max-w-md bg-white border border-[#E7D7A3]/50 rounded-3xl p-8 shadow-xl">
+    <div className="w-full max-w-md bg-white border border-[#E7D7A3]/50 rounded-3xl p-8 shadow-xl relative overflow-hidden">
+      {loading && (
+        <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-white/80 backdrop-blur-sm">
+          <div className="relative w-16 h-16 mb-4">
+            <div className="absolute inset-0 rounded-full border-4 border-[#E7D7A3]/30"></div>
+            <div className="absolute inset-0 rounded-full border-4 border-[#C29831] border-t-transparent animate-spin"></div>
+            <Sparkles className="absolute inset-0 m-auto w-6 h-6 text-[#C29831] animate-pulse" />
+          </div>
+          <p className="font-serif text-sm font-medium text-[#121110] animate-pulse">Authenticating...</p>
+        </div>
+      )}
       <div id="recaptcha-container"></div>
       <div className="text-center mb-8">
         <Link href="/" className="inline-flex items-center gap-2 mb-4">

@@ -14,7 +14,7 @@ The application is a modern, headless e-commerce storefront. It utilizes Next.js
 
 **Key Architecture Points:**
 - **Database:** Supabase (PostgreSQL) is the primary source of truth.
-- **Authentication:** Uses a hybrid approach involving both Supabase Auth and Firebase Auth (specifically for OTP).
+- **Authentication:** Uses Firebase Auth exclusively for all authentication (Email/Password, Phone OTP, Google, Facebook), paired with a custom JWT implementation for Supabase RLS.
 - **Payments:** PhonePe integration is planned for checkout but account setup is pending.
 - **Logistics:** Shiprocket is mocked/partially integrated.
 - **Images/Data:** Cloudinary is used for optimized product image delivery. Supabase Storage is intended for CX data and site data.
@@ -26,8 +26,8 @@ The application is a modern, headless e-commerce storefront. It utilizes Next.js
 | Tool / Service | Category | Purpose | Files Used | Env Variables | Status |
 |----------------|----------|---------|------------|---------------|--------|
 | **Next.js** | Framework | Core React framework. | `package.json`, `next.config.js` | None | Active |
-| **Supabase** | Database / Auth / Storage | Primary database, user sessions, data fetching. Storage for CX/site data. | `src/lib/supabase/*`, `src/types/database.ts`, `api` routes | `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Active |
-| **Firebase** | Authentication | Manages OTP (Phone) login. | `src/lib/firebase.ts`, `src/context/AuthContext.tsx`, auth pages | `NEXT_PUBLIC_FIREBASE_API_KEY`, `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN`, `NEXT_PUBLIC_FIREBASE_PROJECT_ID`, `NEXT_PUBLIC_FIREBASE_APP_ID`, `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID` | Active (OTP only) |
+| **Supabase** | Database / Storage | Primary database, data fetching. Storage for CX/site data. | `src/lib/supabase/*`, `src/types/database.ts`, `api` routes | `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_JWT_SECRET` | Active |
+| **Firebase** | Authentication | Manages all authentication (Email/Password, OTP, OAuth). | `src/lib/firebase.ts`, `src/context/AuthContext.tsx`, auth pages | `NEXT_PUBLIC_FIREBASE_API_KEY`, `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN`, `NEXT_PUBLIC_FIREBASE_PROJECT_ID`, `NEXT_PUBLIC_FIREBASE_APP_ID`, `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID` | Active |
 | **Cloudinary** | Images | Hosting and optimizing product images. | `src/services/cloudinaryService.ts`, `src/lib/imageService.ts` | `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME`, `NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET` | Active |
 | **Meta Pixel / CAPI** | Analytics/SEO | Conversion tracking for Meta ads. | `src/app/api/capi/route.ts` | `NEXT_PUBLIC_META_PIXEL_ID`, `META_CAPI_ACCESS_TOKEN` | Active |
 | **Vercel Speed Insights** | Performance | Web Vitals performance monitoring. | `src/app/layout.tsx` | None | Active |
@@ -93,6 +93,7 @@ The application is a modern, headless e-commerce storefront. It utilizes Next.js
 - `BREVO_API_KEY`
 - `BREVO_SENDER_NAME`
 - `BREVO_SENDER_EMAIL`
+- `SUPABASE_JWT_SECRET`
 
 ---
 
@@ -101,7 +102,7 @@ The application is a modern, headless e-commerce storefront. It utilizes Next.js
 1. **Dead Code (Razorpay):**
    The `/api/checkout/razorpay` route was a stub that redirected to PhonePe. **Recommendation:** This route was successfully deleted during this audit to avoid confusion.
 2. **Authentication Architecture:** 
-   The application uses both Supabase Auth and Firebase Auth. **Note:** Firebase is confirmed to be used solely for OTP functionality.
+   The application uses Firebase Auth for all user authentication methods (Email, Phone, Google, Facebook) to simplify user management and leverage free SMS OTPs. Supabase Auth is disabled, and a Custom JWT implementation is used for Supabase RLS compatibility.
 3. **Storage Strategy Clarified:**
    Cloudinary is actively used for hosting and serving optimized product images. Supabase Storage is intended exclusively for Customer Experience (CX) data, site data, tables, etc. Firebase Storage is not currently used.
 4. **Environment Variables:**
@@ -123,8 +124,8 @@ The application is a modern, headless e-commerce storefront. It utilizes Next.js
 
 | Service | Purpose | Added On | Status | Files | Notes |
 |---------|---------|----------|--------|-------|-------|
-| Supabase | Primary DB, Auth, CX/Site Storage | 2024 | Active | `src/lib/supabase/*` | |
-| Firebase | Auth (OTP only) | 2024 | Active | `src/lib/firebase.ts` | Overlaps with Supabase Auth |
+| Supabase | Primary DB, CX/Site Storage | 2024 | Active | `src/lib/supabase/*` | Custom JWTs used instead of Supabase Auth |
+| Firebase | Authentication | 2024 | Active | `src/lib/firebase.ts` | Sole auth provider |
 | Cloudinary | Image Optimization | 2024 | Active | `src/services/cloudinaryService.ts` | |
 | PhonePe | Payment Gateway | 2024 | Setup Pending | `api/checkout/phonepe` | Account setup pending documentation |
 | Shiprocket | Logistics / Shipping | 2024 | Partially Implemented | `src/lib/shiprocket.ts` | Mocked logic |

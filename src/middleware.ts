@@ -55,12 +55,12 @@ export async function middleware(request: NextRequest) {
   }
 
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://igrkrkxdantrolbldapj.supabase.co';
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlncmtya3hkYW50cm9sYmxkYXBqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU0MzQ0NDIsImV4cCI6MjEwMTAxMDQ0Mn0.Ks0ZUolRtSKa57knTkV0GP5wDKS3kWKLcAzAKxSD2ko';
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
   try {
     const supabase = createServerClient(
       url,
-      key,
+      serviceKey!, // Using Service Role Key to bypass RLS for role fetching since we don't have a Supabase session
       {
         cookies: {
           getAll() {
@@ -84,11 +84,9 @@ export async function middleware(request: NextRequest) {
 
     // RBAC for /admin, /manager, /staff routes
     if (path.startsWith('/admin') || path.startsWith('/manager') || path.startsWith('/staff')) {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
+      const sessionCookie = request.cookies.get('__session')?.value;
 
-      if (!user) {
+      if (!sessionCookie) {
         const loginUrl = new URL('/login', request.url)
         loginUrl.searchParams.set('redirectTo', path)
         const redirectResponse = NextResponse.redirect(loginUrl)
@@ -101,21 +99,23 @@ export async function middleware(request: NextRequest) {
         return redirectResponse
       }
 
-      // Fetch user role from public.users table
+      // Decode the Firebase session cookie to get the user's UID and Email
+      const { decodeJwt } = await import('jose');
+      const decodedToken = decodeJwt(sessionCookie);
+      const uid = decodedToken.sub;
+      const email = decodedToken.email as string | undefined;
+
+      // Fetch user role from public.users table using firebase_uid
       const { data: userProfile } = await supabase
         .from('users')
         .select('role')
-        .eq('id', user.id)
+        .eq('firebase_uid', uid)
         .maybeSingle()
 
       let role = userProfile?.role
 
-      // Always grant admin privileges to the primary admin email or metadata role
-      if (
-        user.email === 'ruhvi.main@gmail.com' ||
-        user.app_metadata?.role === 'admin' ||
-        user.user_metadata?.role === 'admin'
-      ) {
+      // Always grant admin privileges to the primary admin email
+      if (email === 'ruhvi.main@gmail.com') {
         role = 'admin'
       }
 

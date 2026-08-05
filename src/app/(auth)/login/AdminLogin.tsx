@@ -23,32 +23,39 @@ export default function AdminLogin() {
     setError(null);
 
     try {
-      const supabase = createClient();
-      
-      // Authenticate via Supabase Auth
-      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+      // Authenticate via Firebase Auth
+      const { signInWithEmailAndPassword } = await import('firebase/auth');
+      const { auth } = await import('@/lib/firebase');
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const fbUser = userCredential.user;
+
+      // Create session cookie
+      const idToken = await fbUser.getIdToken();
+      const sessionRes = await fetch('/api/auth/session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idToken }),
       });
 
-      if (authError || !authData.user) {
-        throw authError || new Error('Authentication failed');
+      if (!sessionRes.ok) {
+        throw new Error('Failed to create secure session');
       }
 
-      const fbUser = authData.user;
-
-      // Check role just to ensure they have admin privileges
+      // Check role using Supabase
+      const supabase = createClient();
       const { data: userProfile } = await supabase
         .from('users')
         .select('role')
-        .eq('email', fbUser.email)
+        .eq('firebase_uid', fbUser.uid)
         .single();
 
       const role = userProfile?.role;
       const isAdmin = fbUser.email === 'ruhvi.main@gmail.com' || role === 'admin' || role === 'manager';
 
       if (!isAdmin) {
-        await supabase.auth.signOut();
+        await fetch('/api/auth/logout', { method: 'POST' });
+        const { signOut } = await import('firebase/auth');
+        await signOut(auth);
         throw new Error('Access denied. You do not have admin privileges.');
       }
 
@@ -59,7 +66,7 @@ export default function AdminLogin() {
     } catch (err: any) {
       console.error('Admin login error:', err);
       let msg = 'Invalid email or password.';
-      if (err?.code === 'auth/user-not-found' || err?.code === 'auth/invalid-credential') {
+      if (err?.code === 'auth/user-not-found' || err?.code === 'auth/invalid-credential' || err?.code === 'auth/invalid-login-credentials') {
         msg = 'Invalid credentials.';
       } else if (err?.message) {
         msg = err.message;

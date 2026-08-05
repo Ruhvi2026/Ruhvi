@@ -2,6 +2,8 @@
 
 import { createClient } from '@supabase/supabase-js';
 
+import { getSiteUrl } from '@/lib/utils/url';
+
 function getAdminClient() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://igrkrkxdantrolbldapj.supabase.co';
   const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -24,7 +26,9 @@ function getAdminClient() {
 export async function sendPasswordResetLink(email: string) {
   try {
     const adminClient = getAdminClient();
-    const { error } = await adminClient.auth.resetPasswordForEmail(email);
+    const { error } = await adminClient.auth.resetPasswordForEmail(email, {
+      redirectTo: `${getSiteUrl()}/auth/callback?next=/reset-password`,
+    });
     
     if (error) throw error;
     
