@@ -29,7 +29,7 @@ function KpiCard({
   label: string;
   value: string;
   sub?: string;
-  icon: React.ElementType;
+  icon: React.ComponentType<any>;
   iconColor: string;
   iconBg: string;
   trend?: 'up' | 'down' | 'neutral';
