@@ -36,16 +36,27 @@ export async function getAIProvider(
   modelName: string,
   providerConfig?: any
 ): Promise<{ provider: AIProvider; model: string }> {
-  let apiKey = process.env.GEMINI_API_KEY || '';
   let type = 'gemini';
+  let apiKey = '';
 
   if (providerConfig) {
+    type = providerConfig.type || 'gemini';
     if (providerConfig.apiKey) {
       apiKey = providerConfig.apiKey;
+    } else {
+      if (type === 'gemini') apiKey = process.env.GEMINI_API_KEY || '';
+      else if (type === 'openai') apiKey = process.env.OPENAI_API_KEY || '';
+      else if (type === 'anthropic')
+        apiKey = process.env.ANTHROPIC_API_KEY || '';
+      else if (type === 'openrouter')
+        apiKey = process.env.OPENROUTER_API_KEY || '';
+      else if (type === 'deepseek') apiKey = process.env.DEEPSEEK_API_KEY || '';
+      else if (type === 'custom')
+        apiKey = process.env.CUSTOM_GATEWAY_API_KEY || '';
     }
-    type = providerConfig.type || 'gemini';
   } else if (providerId === 'gemini') {
     type = 'gemini';
+    apiKey = process.env.GEMINI_API_KEY || '';
   } else {
     throw new Error(`Provider configuration for ${providerId} not found.`);
   }
