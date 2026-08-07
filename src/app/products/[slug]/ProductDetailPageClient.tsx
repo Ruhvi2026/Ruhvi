@@ -21,6 +21,7 @@ import { useCart } from '@/context/CartContext';
 import { useWishlist } from '@/context/WishlistContext';
 import { SpatialPage } from '@/components/design-system/SpatialPage';
 import { Carousel3D } from '@/components/design-system/Carousel3D';
+import ProductAttributes from '@/components/ProductAttributes';
 
 interface ProductDetailPageClientProps {
   product: Product;
@@ -228,9 +229,11 @@ export function ProductDetailPageClient({
               <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-charcoal-900">
                 Description
               </h3>
-              <p className="text-sm font-light leading-relaxed text-slate-600">
+              <p className="mb-4 text-sm font-light leading-relaxed text-slate-600">
                 {product.description}
               </p>
+
+              <ProductAttributes />
             </div>
 
             {/* Stock & CTA Buttons */}

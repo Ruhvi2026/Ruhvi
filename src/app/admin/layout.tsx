@@ -27,6 +27,7 @@ import {
   Home,
   Star,
   AlertCircle,
+  Wand2,
 } from 'lucide-react';
 
 interface NavChild {
@@ -131,6 +132,7 @@ const NAV_GROUPS: NavGroup[] = [
         href: '/admin/security/audit-logs',
         icon: FileText,
       },
+      { label: 'AI Control Center', href: '/admin/ai-settings', icon: Wand2 },
       { label: 'Settings', href: '/admin/settings', icon: Settings },
     ],
   },

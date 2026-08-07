@@ -112,3 +112,43 @@ This document is the authoritative database reference for **Ruhvi.in — Fine Je
 | `entity` | `text` | Affected entity table |
 | `ip_address` | `text` | Client IP address |
 | `details` | `jsonb` | Metadata JSON |
+
+---
+
+## 5. AI Infrastructure & Temporary Diagnostics (`0011_phase11_ai_logs.sql`, `0026_failure_diagnostics_ttl.sql`)
+
+### `ai_logs`
+| Column | Type | Constraints | Description |
+|---|---|---|---|
+| `id` | `uuid` | Primary Key, DEFAULT `gen_random_uuid()` | Generation record ID |
+| `provider` | `text` | NOT NULL | Executing provider |
+| `model` | `text` | NOT NULL | Model identifier |
+| `feature` | `text` | NOT NULL | Target AI feature key |
+| `tokens_used` | `integer` | DEFAULT 0 | Tokens billed |
+| `estimated_cost` | `numeric(10,6)` | DEFAULT 0 | Cost in USD |
+| `status` | `text` | NOT NULL | `'success'` or `'failed'` |
+| `error_message` | `text` | | Error stack |
+| `user_identifier` | `text` | | User ID or Anonymous IP |
+| `created_at` | `timestamptz` | DEFAULT `now()` | Generation timestamp |
+
+### `ai_failure_diagnostics` (24-Hour TTL Auto-Purge)
+| Column | Type | Constraints | Description |
+|---|---|---|---|
+| `id` | `uuid` | Primary Key, DEFAULT `gen_random_uuid()` | Diagnostic trace UUID |
+| `feature` | `text` | NOT NULL | AI feature key |
+| `primary_provider` | `text` | NOT NULL | Initial configured provider |
+| `failed_provider` | `text` | NOT NULL | Provider where failure was caught |
+| `fallback_provider` | `text` | | Provider that recovered generation |
+| `model` | `text` | | Model identifier |
+| `error_message` | `text` | NOT NULL | Failure reason |
+| `error_type` | `text` | DEFAULT `'GENERAL_FAILURE'` | E.g. `RATE_LIMIT_EXCEEDED`, `TIMEOUT` |
+| `stack_trace` | `text` | | Technical stack trace |
+| `user_identifier` | `text` | | Client identifier |
+| `user_role` | `text` | DEFAULT `'guest'` | Role: `guest`, `user`, `staff`, `manager`, `admin` |
+| `latency_ms` | `integer` | DEFAULT 0 | Failover resolution time (ms) |
+| `attempt_number` | `integer` | DEFAULT 1 | Attempt hop in fallback chain |
+| `recovery_status` | `text` | NOT NULL | `'recovered'`, `'exhausted'`, `'retrying'` |
+| `metadata` | `jsonb` | DEFAULT `'{}'::jsonb` | Telemetry payload metadata |
+| `created_at` | `timestamptz` | DEFAULT `now()` | Generation timestamp |
+| `expires_at` | `timestamptz` | DEFAULT `now() + interval '24 hours'` | **Automatic 24h TTL expiration** |
+

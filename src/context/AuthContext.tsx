@@ -227,10 +227,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const initAuth = async () => {
       // 1. Check Supabase first
-      const {
-        data: { session: initialSession },
-      } = await supabase.auth.getSession();
-      const hasSupabase = await handleSupabaseSession(initialSession);
+      let hasSupabase = false;
+      try {
+        const {
+          data: { session: initialSession },
+        } = await supabase.auth.getSession();
+        hasSupabase = await handleSupabaseSession(initialSession);
+      } catch (e) {
+        // Ignored. If client uses custom accessToken, getSession will throw.
+        console.log(
+          'Supabase session fetch bypassed due to custom accessToken'
+        );
+      }
 
       // 2. Setup Firebase listener
       try {
@@ -242,6 +250,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             await handleFirebaseUser(fbUser);
           } else {
             if (isMounted) {
+              // Since Supabase uses the accessToken option, we don't manage its session directly.
+              // Firebase is the source of truth. If Firebase has no user, we clear the state.
               setUser(null);
               setSession(null);
               setProfile(null);

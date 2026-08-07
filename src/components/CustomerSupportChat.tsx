@@ -1,20 +1,114 @@
 'use client';
 
-import React, { useState } from 'react';
-import { MessageCircle, X, Send, Sparkles, Phone, ShieldCheck } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { X, Send } from 'lucide-react';
+import BotMascot from '@/components/design-system/BotMascot';
 
 const FAQ_PRESETS = [
-  { q: 'How do I verify BIS Hallmarking?', a: 'Every Ruhvi 22K gold piece carries the official 6-digit BIS HUID stamp certified by government hallmarking centers.' },
-  { q: 'What is your Return Policy?', a: 'We offer a 7-day hassle-free return window for unworn items in original tamper-evident packaging.' },
-  { q: 'How long does shipping take?', a: 'Orders are dispatched via Blue Dart Insured Air Transit and typically arrive in 3-5 business days across India.' },
+  {
+    q: 'How do I verify BIS Hallmarking?',
+    a: 'Bilkul — a wonderful thing to ask! Every Ruhvi piece in 22K gold carries the official 6-digit BIS HUID stamp, and you can verify it right on the government hallmarking portal. It is our family promise of authenticity, always.',
+  },
+  {
+    q: 'What is your Return Policy?',
+    a: 'We keep it as simple as a plain band: 7 days to decide, no questions asked. As long as the piece is unworn and still in its original tamper-evident packaging, we will gladly welcome it back.',
+  },
+  {
+    q: 'How long does shipping take?',
+    a: 'Your piece travels fully insured via Blue Dart Air Transit and usually reaches you within 3-5 business days, anywhere in India. We will share tracking the moment it leaves the atelier!',
+  },
 ];
+
+const THINKING_STEPS = [
+  'Reading your words…',
+  'Looking through the atelier…',
+  'Weighing the details…',
+  'Polishing your answer…',
+];
+
+const TYPE_SPEED_MS = 12;
+
+function BotMessage({
+  text,
+  feedRef,
+}: {
+  text: string;
+  feedRef: React.RefObject<HTMLDivElement | null>;
+}) {
+  const [displayed, setDisplayed] = useState('');
+
+  useEffect(() => {
+    let i = 0;
+    setDisplayed('');
+    const interval = setInterval(() => {
+      i += 1;
+      setDisplayed(text.slice(0, i));
+      if (feedRef.current) {
+        feedRef.current.scrollTop = feedRef.current.scrollHeight;
+      }
+      if (i >= text.length) {
+        clearInterval(interval);
+      }
+    }, TYPE_SPEED_MS);
+    return () => clearInterval(interval);
+  }, [text, feedRef]);
+
+  const isTypingOut = displayed.length < text.length;
+
+  return (
+    <div className="max-w-[80%] rounded-2xl rounded-bl-none border border-gold-200/70 bg-white p-3 text-xs leading-relaxed text-stone-800 shadow-sm">
+      {displayed}
+      {isTypingOut && <span className="typing-caret" aria-hidden />}
+    </div>
+  );
+}
 
 export default function CustomerSupportChat() {
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState<Array<{ sender: 'bot' | 'user'; text: string }>>([
-    { sender: 'bot', text: 'Namaste! Welcome to Ruhvi Jewellery Support. How can I assist you today?' }
+  const [messages, setMessages] = useState<
+    Array<{ sender: 'bot' | 'user'; text: string }>
+  >([
+    {
+      sender: 'bot',
+      text: 'Namaste! I am Noor, Ruhvi\u2019s Golden Concierge. I grew up among goldsmiths in Jaipur, so pieces, hallmarking, and orders are my world. How may I help you today?',
+    },
   ]);
   const [input, setInput] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
+  const [thinkingStep, setThinkingStep] = useState(0);
+  const [hasUnread, setHasUnread] = useState(false);
+  const feedRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (feedRef.current) {
+      feedRef.current.scrollTop = feedRef.current.scrollHeight;
+    }
+  }, [messages, isTyping, isOpen]);
+
+  useEffect(() => {
+    const last = messages[messages.length - 1];
+    if (!last) return;
+    if (!isOpen && last.sender === 'bot') {
+      setHasUnread(true);
+    }
+  }, [messages, isOpen]);
+
+  useEffect(() => {
+    if (isOpen) {
+      setHasUnread(false);
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!isTyping) {
+      setThinkingStep(0);
+      return;
+    }
+    const interval = setInterval(() => {
+      setThinkingStep((prev) => (prev + 1) % THINKING_STEPS.length);
+    }, 900);
+    return () => clearInterval(interval);
+  }, [isTyping]);
 
   const handleSend = (textToSend?: string) => {
     const text = textToSend || input;
@@ -25,17 +119,61 @@ export default function CustomerSupportChat() {
     setMessages(newMessages);
     if (!textToSend) setInput('');
 
-    // Simulate bot response
-    setTimeout(() => {
-      let botResponse = "Thank you for reaching out! For detailed queries or live custom orders, our jewellery consultants are available on WhatsApp.";
-      
-      const matchedFaq = FAQ_PRESETS.find(f => f.q.toLowerCase() === text.toLowerCase());
-      if (matchedFaq) {
-        botResponse = matchedFaq.a;
-      }
+    // Check for predefined FAQs first
+    const matchedFaq = FAQ_PRESETS.find(
+      (f) => f.q.toLowerCase() === text.toLowerCase()
+    );
 
-      setMessages(prev => [...prev, { sender: 'bot', text: botResponse }]);
-    }, 800);
+    if (matchedFaq) {
+      setTimeout(() => {
+        setMessages((prev) => [...prev, { sender: 'bot', text: matchedFaq.a }]);
+      }, 500);
+      return;
+    }
+
+    // Call the AI Backend
+    const fetchAIResponse = async () => {
+      setIsTyping(true);
+      try {
+        const res = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ messages: newMessages }),
+        });
+
+        const data = await res.json();
+
+        if (res.ok && data.response) {
+          setMessages((prev) => [
+            ...prev,
+            { sender: 'bot', text: data.response },
+          ]);
+        } else {
+          setMessages((prev) => [
+            ...prev,
+            {
+              sender: 'bot',
+              text:
+                data.error ||
+                data.response ||
+                'Ah, my hands slipped while polishing this one — I could not quite finish my reply. Do give me one more moment, or ask again?',
+            },
+          ]);
+        }
+      } catch (err) {
+        setMessages((prev) => [
+          ...prev,
+          {
+            sender: 'bot',
+            text: 'The atelier bell must be ringing — my connection dropped for a moment. Please try again in a few seconds; I will be right here.',
+          },
+        ]);
+      } finally {
+        setIsTyping(false);
+      }
+    };
+
+    fetchAIResponse();
   };
 
   return (
@@ -43,53 +181,103 @@ export default function CustomerSupportChat() {
       {!isOpen ? (
         <button
           onClick={() => setIsOpen(true)}
-          className="bg-stone-900 hover:bg-stone-800 text-amber-300 p-4 rounded-full shadow-2xl flex items-center justify-center space-x-2 group transition-transform hover:scale-105 border border-amber-500/30"
+          className="gold-gradient-bg gold-ring group relative flex items-center justify-center space-x-2 rounded-full border border-gold-300/60 p-2.5 pr-4 text-white shadow-2xl shadow-gold-500/30 transition-all duration-300 hover:scale-105 hover:from-gold-500 hover:to-gold-800"
         >
-          <MessageCircle className="w-6 h-6" />
-          <span className="text-xs font-bold uppercase tracking-wider text-white hidden sm:inline pr-2">
+          <BotMascot
+            size={38}
+            state="idle"
+            className="transition-transform duration-300 group-hover:scale-110"
+          />
+          <span className="hidden pr-1 text-xs font-bold uppercase tracking-wider text-gold-50 sm:inline">
             Ask Ruhvi Support
           </span>
+          {hasUnread && (
+            <span className="absolute -right-1 -top-1 flex h-4 w-4 animate-pulse items-center justify-center rounded-full border-2 border-white bg-amber-300">
+              <span className="h-1.5 w-1.5 rounded-full bg-gold-900" />
+            </span>
+          )}
         </button>
       ) : (
-        <div className="bg-white rounded-3xl shadow-2xl border border-stone-200 w-80 sm:w-96 overflow-hidden flex flex-col h-[500px]">
+        <div className="animate-fade-up flex h-[520px] w-80 flex-col overflow-hidden rounded-3xl border border-gold-200/60 bg-white shadow-2xl shadow-gold-500/15 sm:w-96">
           {/* Header */}
-          <div className="bg-stone-900 p-4 text-white flex items-center justify-between">
+          <div className="gold-gradient-bg flex items-center justify-between p-4 text-white">
             <div className="flex items-center space-x-3">
-              <div className="w-9 h-9 rounded-full bg-amber-900/60 border border-amber-400 flex items-center justify-center text-amber-300">
-                <Sparkles className="w-5 h-5" />
-              </div>
+              <BotMascot size={42} state="idle" />
               <div>
-                <h3 className="font-serif font-bold text-sm">Ruhvi Support Assistant</h3>
-                <p className="text-[10px] text-stone-400">Online • 22K Certified Luxury</p>
+                <h3 className="font-serif text-sm font-bold">
+                  Noor — Golden Concierge
+                </h3>
+                <p className="flex items-center gap-1 text-[10px] text-gold-50/90">
+                  <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />
+                  At your service • Ruhvi Atelier
+                </p>
               </div>
             </div>
-            <button onClick={() => setIsOpen(false)} className="text-stone-400 hover:text-white p-1">
-              <X className="w-5 h-5" />
+            <button
+              onClick={() => setIsOpen(false)}
+              className="rounded-full p-1 text-gold-50/80 transition-colors hover:bg-white/10 hover:text-white"
+            >
+              <X className="h-5 w-5" />
             </button>
           </div>
 
           {/* Messages Feed */}
-          <div className="flex-1 p-4 overflow-y-auto space-y-3 bg-[#FAF6ED]">
+          <div
+            ref={feedRef}
+            className="cream-radial flex-1 space-y-3 overflow-y-auto p-4"
+          >
             {messages.map((m, idx) => (
-              <div key={idx} className={`flex ${m.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
-                <div className={`max-w-[80%] rounded-2xl p-3 text-xs leading-relaxed ${
-                  m.sender === 'user' 
-                    ? 'bg-amber-900 text-white rounded-br-none' 
-                    : 'bg-white text-stone-800 border border-stone-200 shadow-sm rounded-bl-none'
-                }`}>
-                  {m.text}
-                </div>
+              <div
+                key={idx}
+                className={`flex ${m.sender === 'user' ? 'justify-end' : 'justify-start'} animate-fade-up`}
+              >
+                {m.sender === 'bot' ? (
+                  <BotMessage text={m.text} feedRef={feedRef} />
+                ) : (
+                  <div className="gold-gradient-bg max-w-[80%] rounded-2xl rounded-br-none p-3 text-xs leading-relaxed text-white shadow-md shadow-gold-500/25">
+                    {m.text}
+                  </div>
+                )}
               </div>
             ))}
+            {isTyping && (
+              <div className="animate-fade-up flex items-start justify-start space-x-2">
+                <BotMascot size={30} state="thinking" showGlow={false} />
+                <div className="min-w-[150px] rounded-2xl rounded-bl-none border border-gold-200/70 bg-white px-3 py-2.5 shadow-sm">
+                  <div className="mb-2 flex items-center space-x-1.5">
+                    <div
+                      className="h-1.5 w-1.5 animate-bounce rounded-full bg-gold-500"
+                      style={{ animationDelay: '0ms' }}
+                    ></div>
+                    <div
+                      className="h-1.5 w-1.5 animate-bounce rounded-full bg-gold-500"
+                      style={{ animationDelay: '150ms' }}
+                    ></div>
+                    <div
+                      className="h-1.5 w-1.5 animate-bounce rounded-full bg-gold-500"
+                      style={{ animationDelay: '300ms' }}
+                    ></div>
+                  </div>
+                  <div className="h-3.5 overflow-hidden text-[10px] font-semibold text-gold-800">
+                    <div key={thinkingStep} className="animate-fade-up">
+                      {THINKING_STEPS[thinkingStep]}
+                    </div>
+                  </div>
+                  <div className="mt-2 h-0.5 overflow-hidden rounded-full bg-gold-100">
+                    <div className="gold-gradient-bg thinking-progress h-full w-full rounded-full" />
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Quick FAQ Chips */}
-          <div className="p-2 bg-white border-t border-stone-100 flex space-x-2 overflow-x-auto text-[10px]">
+          <div className="scrollbar-hide flex space-x-2 overflow-x-auto border-t border-gold-200/50 bg-white p-2 text-[10px]">
             {FAQ_PRESETS.map((f, idx) => (
               <button
                 key={idx}
                 onClick={() => handleSend(f.q)}
-                className="whitespace-nowrap bg-stone-100 hover:bg-stone-200 text-stone-700 font-semibold px-2.5 py-1 rounded-full"
+                className="whitespace-nowrap rounded-full border border-gold-200/60 bg-cream-100 px-2.5 py-1 font-semibold text-gold-800 transition-colors hover:bg-gold-100 hover:text-gold-900"
               >
                 {f.q}
               </button>
@@ -97,20 +285,20 @@ export default function CustomerSupportChat() {
           </div>
 
           {/* Input Footer */}
-          <div className="p-3 bg-white border-t border-stone-200 flex items-center space-x-2">
+          <div className="flex items-center space-x-2 border-t border-gold-200/60 bg-white p-3">
             <input
               type="text"
               placeholder="Type your question..."
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-              className="flex-1 bg-stone-50 border border-stone-200 rounded-xl px-3 py-2 text-xs outline-none focus:border-amber-900"
+              className="flex-1 rounded-xl border border-gold-200/80 bg-cream-50 px-3 py-2 text-xs outline-none transition-all focus:border-gold-500 focus:ring-2 focus:ring-gold-400/30"
             />
             <button
               onClick={() => handleSend()}
-              className="bg-amber-900 hover:bg-amber-800 text-white p-2 rounded-xl transition-colors"
+              className="gold-gradient-bg rounded-xl p-2 text-white shadow-md shadow-gold-500/25 transition-all hover:scale-105 hover:from-gold-500 hover:to-gold-800"
             >
-              <Send className="w-4 h-4" />
+              <Send className="h-4 w-4" />
             </button>
           </div>
         </div>

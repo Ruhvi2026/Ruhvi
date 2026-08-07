@@ -137,6 +137,15 @@
   .will-change-transform {
     will-change: transform;
   }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 @keyframes gold-shimmer {
@@ -189,7 +198,206 @@
   animation: fade-up 0.8s ease-out 0.45s both;
 }
 
+/* ===== Bot Mascot animations ===== */
+.mascot-bob {
+  animation: mascot-bob 3.2s ease-in-out infinite;
+}
+
+.mascot-thinking {
+  animation: mascot-wiggle 1.4s ease-in-out infinite;
+}
+
+.mascot-happy {
+  animation: mascot-bounce 1s ease-in-out infinite;
+}
+
+.mascot-waving {
+  animation: mascot-bob 2.6s ease-in-out infinite;
+}
+
+.mascot-glow {
+  background: radial-gradient(
+    circle,
+    rgba(207, 167, 75, 0.35),
+    rgba(207, 167, 75, 0.12) 55%,
+    transparent 72%
+  );
+  animation: mascot-glow-pulse 3.2s ease-in-out infinite;
+}
+
+.mascot-glint {
+  animation: mascot-glint 4.5s ease-in-out infinite;
+  transform-origin: 28px 28px;
+}
+
+.mascot-eyes {
+  animation: mascot-blink 4s ease-in-out infinite;
+  transform-origin: 50px 58px;
+}
+
+.mascot-arm {
+  transform-origin: 82px 52px;
+}
+
+.mascot-waving .mascot-arm {
+  animation: mascot-wave 1.2s ease-in-out infinite;
+}
+
+.mascot-star {
+  transform-origin: 50px 38px;
+  animation: mascot-sparkle 2.6s ease-in-out infinite;
+}
+
+@keyframes mascot-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+@keyframes mascot-wiggle {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-5deg);
+  }
+  75% {
+    transform: rotate(5deg);
+  }
+}
+
+@keyframes mascot-bounce {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+  40% {
+    transform: translateY(-7px) scale(1.05, 0.96);
+  }
+  60% {
+    transform: translateY(-3px) scale(0.98, 1.02);
+  }
+}
+
+@keyframes mascot-glow-pulse {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(0.95);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+}
+
+@keyframes mascot-glint {
+  0%,
+  78%,
+  100% {
+    opacity: 0;
+    transform: translate(0, 0) rotate(0deg);
+  }
+  82% {
+    opacity: 0.85;
+    transform: translate(-2px, 2px) rotate(-4deg);
+  }
+  90% {
+    opacity: 0;
+    transform: translate(-6px, 6px) rotate(-10deg);
+  }
+}
+
+@keyframes mascot-blink {
+  0%,
+  44%,
+  48%,
+  100% {
+    transform: scaleY(1);
+  }
+  46% {
+    transform: scaleY(0.08);
+  }
+}
+
+@keyframes mascot-wave {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(-28deg);
+  }
+}
+
+@keyframes mascot-sparkle {
+  0%,
+  100% {
+    opacity: 0.5;
+    transform: scale(0.8) rotate(0deg);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.15) rotate(18deg);
+  }
+}
+
+/* Indeterminate processing bar — sweeps left to right like cognition in progress */
+.thinking-progress {
+  animation: thinking-sweep 1.2s ease-in-out infinite;
+}
+
+@keyframes thinking-sweep {
+  0% {
+    transform: translateX(-100%);
+  }
+  50% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Typewriter caret while bot message is being revealed */
+.typing-caret {
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  margin-left: 2px;
+  vertical-align: text-bottom;
+  border-radius: 1px;
+  background: #cfa74b;
+  animation: caret-blink 0.8s step-end infinite;
+}
+
+@keyframes caret-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .thinking-progress,
+  .typing-caret,
+  .mascot-bob,
+  .mascot-thinking,
+  .mascot-happy,
+  .mascot-waving,
+  .mascot-glow,
+  .mascot-glint,
+  .mascot-eyes,
+  .mascot-arm,
+  .mascot-star,
   .animate-float-soft,
   .animate-fade-up,
   .animate-fade-up-delay-1,

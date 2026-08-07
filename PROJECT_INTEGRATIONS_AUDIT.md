@@ -139,5 +139,8 @@ The application is a modern, headless e-commerce storefront. It utilizes Next.js
 | Brevo | Transactional Emails | 2026 | Active | `src/lib/brevo.ts` | Welcome, Abandoned Cart, Shipping, etc. |
 | UID Sync Migration | Data consistency | 2026-08-06 | Added | `supabase/migrations/0021_firebase_uid_sync.sql` | Bulk sync and trigger for firebase_uid |
 | Permanent UID Sync | Auth reliability  | 2026-08-06 | Active | `supabase/migrations/0024_permanent_uid_sync.sql`, `src/app/api/auth/sync-token/route.ts`, `src/app/api/auth/session/route.ts` | upsert_firebase_user() RPC auto-creates/repairs user profiles on login. Eliminates all 404 auth errors. |
+| Multi-Provider Auth & Linking | Authentication | 2026-08-07 | Active | `src/services/authService.ts`, `src/lib/supabase/client.ts` | Unified auth service with collision handler and direct Supabase JWT propagation via `getIdToken()`. |
+| DeepSeek AI | AI Provider | 2026-08-07 | Active | `src/lib/ai/providers/deepseek.ts`, `src/lib/ai/index.ts` | DeepSeek AI models (deepseek-chat, deepseek-reasoner) integration for chatbot and product SEO copy generation. |
+| AI Failure Diagnostics & Rate Limiting | AI Reliability & Abuse Protection | 2026-08-08 | Active | `src/lib/ai/diagnostics.ts`, `src/lib/ai/index.ts`, `src/app/api/admin/ai/diagnostics/route.ts`, `src/components/admin/ai/AiDiagnostics.tsx`, `src/components/admin/ai/AiSecurity.tsx`, `supabase/migrations/0026_failure_diagnostics_ttl.sql` | 24-hour TTL auto-expiring failure diagnostics, multi-provider failover recovery traces, and manual rate-limiting configuration matrix for Guest, Logged-in User, Staff, Manager, and Admin. |
 
 

@@ -8,6 +8,7 @@ import { INITIAL_CATEGORIES } from '@/lib/products';
 import { generateSKU } from '@/lib/sku';
 import { ImageType } from '@/types/database';
 import { createClient } from '@/lib/supabase/client';
+import { AIProductAssistant } from '@/components/admin/AIProductAssistant';
 
 export default function AddProductPage() {
   const router = useRouter();
@@ -24,13 +25,20 @@ export default function AddProductPage() {
   const [description, setDescription] = useState('');
   const [isNewArrival, setIsNewArrival] = useState(true);
   const [isBestSeller, setIsBestSeller] = useState(false);
+  const [seoMetadata, setSeoMetadata] = useState<any>(null);
+  const [aiContent, setAiContent] = useState<any>(null);
 
   const [images, setImages] = useState<{ url: string; type: ImageType }[]>([
-    { url: 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=800&q=80', type: 'still' },
+    {
+      url: 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=800&q=80',
+      type: 'still',
+    },
   ]);
 
   const [tags, setTags] = useState('22K Gold, BIS Hallmarked, Diamond');
-  const [availableCollections, setAvailableCollections] = useState<{ slug: string; title: string }[]>([
+  const [availableCollections, setAvailableCollections] = useState<
+    { slug: string; title: string }[]
+  >([
     { slug: 'for-her', title: 'Gifts For Her' },
     { slug: 'under-15000', title: 'Gifts Under ₹15,000' },
     { slug: 'anniversary', title: 'Anniversary Specials' },
@@ -41,7 +49,10 @@ export default function AddProductPage() {
     const fetchCols = async () => {
       try {
         const supabase = createClient();
-        const { data } = await supabase.from('collections').select('slug, title').order('title');
+        const { data } = await supabase
+          .from('collections')
+          .select('slug, title')
+          .order('title');
         if (data && data.length > 0) {
           setAvailableCollections(data);
         }
@@ -88,24 +99,28 @@ export default function AddProductPage() {
     e.preventDefault();
     try {
       const supabase = createClient();
-      
+
       // 1. Insert product
       const { data: newProduct, error: productError } = await supabase
         .from('products')
-        .insert([{
-          sku,
-          name,
-          slug,
-          description,
-          price: parseFloat(price),
-          mrp: parseFloat(mrp),
-          gst_rate: parseFloat(gstRate),
-          stock_quantity: parseInt(stockQuantity, 10),
-          low_stock_threshold: 5,
-          status: 'active',
-          is_new_arrival: isNewArrival,
-          is_best_seller: isBestSeller,
-        }])
+        .insert([
+          {
+            sku,
+            name,
+            slug,
+            description,
+            price: parseFloat(price),
+            mrp: parseFloat(mrp),
+            gst_rate: parseFloat(gstRate),
+            stock_quantity: parseInt(stockQuantity, 10),
+            low_stock_threshold: 5,
+            status: 'active',
+            is_new_arrival: isNewArrival,
+            is_best_seller: isBestSeller,
+            seo_metadata: seoMetadata,
+            ai_content: aiContent,
+          },
+        ])
         .select()
         .single();
 
@@ -113,13 +128,15 @@ export default function AddProductPage() {
 
       // 2. Insert images
       if (images.length > 0) {
-        const imageInserts = images.filter(img => img.url.trim() !== '').map((img, index) => ({
-          product_id: newProduct.id,
-          url: img.url,
-          type: img.type,
-          sort_order: index,
-        }));
-        
+        const imageInserts = images
+          .filter((img) => img.url.trim() !== '')
+          .map((img, index) => ({
+            product_id: newProduct.id,
+            url: img.url,
+            type: img.type,
+            sort_order: index,
+          }));
+
         if (imageInserts.length > 0) {
           const { error: imageError } = await supabase
             .from('product_images')
@@ -135,12 +152,14 @@ export default function AddProductPage() {
           .select('id')
           .eq('slug', collectionSlug)
           .single();
-          
+
         if (coll) {
-          await supabase.from('product_collections').insert([{
-            product_id: newProduct.id,
-            collection_id: coll.id
-          }]);
+          await supabase.from('product_collections').insert([
+            {
+              product_id: newProduct.id,
+              collection_id: coll.id,
+            },
+          ]);
         }
       }
 
@@ -153,24 +172,44 @@ export default function AddProductPage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+    <div className="mx-auto max-w-4xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
       <div className="flex items-center space-x-2 text-xs text-stone-500">
-        <Link href="/admin/products" className="hover:text-amber-800 flex items-center space-x-1">
-          <ArrowLeft className="w-3.5 h-3.5" />
+        <Link
+          href="/admin/products"
+          className="flex items-center space-x-1 hover:text-amber-800"
+        >
+          <ArrowLeft className="h-3.5 w-3.5" />
           <span>Back to Products</span>
         </Link>
       </div>
 
       <div>
-        <h1 className="font-serif text-3xl font-bold text-stone-900">Add New Jewellery Piece</h1>
-        <p className="text-xs text-stone-500 mt-1">Auto-generates SKU formatted by category prefix (editable anytime).</p>
+        <h1 className="font-serif text-3xl font-bold text-stone-900">
+          Add New Jewellery Piece
+        </h1>
+        <p className="mt-1 text-xs text-stone-500">
+          Auto-generates SKU formatted by category prefix (editable anytime).
+        </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="bg-white p-6 sm:p-8 rounded-2xl border border-stone-200 shadow-sm space-y-6">
+      <AIProductAssistant
+        productData={{ name, category: categorySlug, price, description, tags }}
+        onApply={(data) => {
+          if (data.description) setDescription(data.description);
+          if (data.tags) setTags(data.tags);
+          if (data.seo_metadata) setSeoMetadata(data.seo_metadata);
+          if (data.ai_content) setAiContent(data.ai_content);
+        }}
+      />
+
+      <form
+        onSubmit={handleSubmit}
+        className="space-y-6 rounded-2xl border border-stone-200 bg-white p-6 shadow-sm sm:p-8"
+      >
         {/* Basic Info */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-stone-700 mb-1">
+            <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-stone-700">
               Product Title *
             </label>
             <input
@@ -179,18 +218,18 @@ export default function AddProductPage() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g. Royal Sapphire Solitaire Ring"
-              className="w-full px-3 py-2 text-xs border border-stone-300 rounded-lg focus:ring-1 focus:ring-amber-500 focus:outline-none"
+              className="w-full rounded-lg border border-stone-300 px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-amber-500"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-stone-700 mb-1">
+            <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-stone-700">
               Category *
             </label>
             <select
               value={categorySlug}
               onChange={(e) => setCategorySlug(e.target.value)}
-              className="w-full px-3 py-2 text-xs border border-stone-300 rounded-lg focus:ring-1 focus:ring-amber-500 focus:outline-none bg-white"
+              className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-amber-500"
             >
               {INITIAL_CATEGORIES.map((cat) => (
                 <option key={cat.id} value={cat.slug}>
@@ -201,13 +240,13 @@ export default function AddProductPage() {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-amber-800 mb-1">
+            <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-amber-800">
               Collection (Optional)
             </label>
             <select
               value={collectionSlug}
               onChange={(e) => setCollectionSlug(e.target.value)}
-              className="w-full px-3 py-2 text-xs border border-amber-300 rounded-lg focus:ring-1 focus:ring-amber-500 focus:outline-none bg-amber-50/50 font-medium text-amber-900"
+              className="w-full rounded-lg border border-amber-300 bg-amber-50/50 px-3 py-2 text-xs font-medium text-amber-900 focus:outline-none focus:ring-1 focus:ring-amber-500"
             >
               <option value="">-- None (Standard Catalog) --</option>
               {availableCollections.map((col) => (
@@ -220,26 +259,28 @@ export default function AddProductPage() {
         </div>
 
         {/* Slug & SKU */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 bg-stone-50 p-4 rounded-xl border border-stone-200">
+        <div className="grid grid-cols-1 gap-6 rounded-xl border border-stone-200 bg-stone-50 p-4 sm:grid-cols-2">
           <div>
-            <label className="block text-[11px] font-semibold text-stone-500 uppercase tracking-wider mb-1">
+            <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wider text-stone-500">
               URL Slug (Auto-generated)
             </label>
             <input
               type="text"
               readOnly
               value={slug}
-              className="w-full px-3 py-1.5 text-xs bg-white border border-stone-200 rounded text-stone-600 font-mono"
+              className="w-full rounded border border-stone-200 bg-white px-3 py-1.5 font-mono text-xs text-stone-600"
             />
           </div>
 
           <div>
-            <label className="block text-[11px] font-semibold text-amber-800 uppercase tracking-wider mb-1 flex items-center justify-between">
+            <label className="mb-1 block flex items-center justify-between text-[11px] font-semibold uppercase tracking-wider text-amber-800">
               <span className="flex items-center space-x-1">
-                <Sparkles className="w-3 h-3 text-amber-600" />
+                <Sparkles className="h-3 w-3 text-amber-600" />
                 <span>SKU Code (Editable)</span>
               </span>
-              <span className="text-[9px] text-stone-400 font-normal">Edit or customize</span>
+              <span className="text-[9px] font-normal text-stone-400">
+                Edit or customize
+              </span>
             </label>
             <input
               type="text"
@@ -247,15 +288,15 @@ export default function AddProductPage() {
               value={sku}
               onChange={(e) => setSku(e.target.value)}
               placeholder="e.g. RNG-101"
-              className="w-full px-3 py-1.5 text-xs bg-amber-50 border border-amber-300 rounded text-amber-950 font-mono font-bold focus:ring-1 focus:ring-amber-500 focus:outline-none"
+              className="w-full rounded border border-amber-300 bg-amber-50 px-3 py-1.5 font-mono text-xs font-bold text-amber-950 focus:outline-none focus:ring-1 focus:ring-amber-500"
             />
           </div>
         </div>
 
         {/* Pricing & GST */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-stone-700 mb-1">
+            <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-stone-700">
               Selling Price (₹) *
             </label>
             <input
@@ -264,12 +305,12 @@ export default function AddProductPage() {
               value={price}
               onChange={(e) => setPrice(e.target.value)}
               placeholder="49999"
-              className="w-full px-3 py-2 text-xs border border-stone-300 rounded-lg focus:ring-1 focus:ring-amber-500 focus:outline-none"
+              className="w-full rounded-lg border border-stone-300 px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-amber-500"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-stone-700 mb-1">
+            <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-stone-700">
               MRP (₹) *
             </label>
             <input
@@ -278,12 +319,12 @@ export default function AddProductPage() {
               value={mrp}
               onChange={(e) => setMrp(e.target.value)}
               placeholder="59999"
-              className="w-full px-3 py-2 text-xs border border-stone-300 rounded-lg focus:ring-1 focus:ring-amber-500 focus:outline-none"
+              className="w-full rounded-lg border border-stone-300 px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-amber-500"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-stone-700 mb-1">
+            <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-stone-700">
               GST Rate (%)
             </label>
             <input
@@ -291,15 +332,15 @@ export default function AddProductPage() {
               step="0.5"
               value={gstRate}
               onChange={(e) => setGstRate(e.target.value)}
-              className="w-full px-3 py-2 text-xs border border-stone-300 rounded-lg focus:ring-1 focus:ring-amber-500 focus:outline-none"
+              className="w-full rounded-lg border border-stone-300 px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-amber-500"
             />
           </div>
         </div>
 
         {/* Stock & Badges */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 items-center">
+        <div className="grid grid-cols-1 items-center gap-6 sm:grid-cols-3">
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-stone-700 mb-1">
+            <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-stone-700">
               Stock Quantity *
             </label>
             <input
@@ -307,7 +348,7 @@ export default function AddProductPage() {
               required
               value={stockQuantity}
               onChange={(e) => setStockQuantity(e.target.value)}
-              className="w-full px-3 py-2 text-xs border border-stone-300 rounded-lg focus:ring-1 focus:ring-amber-500 focus:outline-none"
+              className="w-full rounded-lg border border-stone-300 px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-amber-500"
             />
           </div>
 
@@ -319,7 +360,10 @@ export default function AddProductPage() {
               onChange={(e) => setIsNewArrival(e.target.checked)}
               className="accent-amber-900"
             />
-            <label htmlFor="newArrival" className="text-xs font-semibold text-stone-700 cursor-pointer">
+            <label
+              htmlFor="newArrival"
+              className="cursor-pointer text-xs font-semibold text-stone-700"
+            >
               Mark as New Arrival
             </label>
           </div>
@@ -332,16 +376,19 @@ export default function AddProductPage() {
               onChange={(e) => setIsBestSeller(e.target.checked)}
               className="accent-amber-900"
             />
-            <label htmlFor="bestSeller" className="text-xs font-semibold text-stone-700 cursor-pointer">
+            <label
+              htmlFor="bestSeller"
+              className="cursor-pointer text-xs font-semibold text-stone-700"
+            >
               Mark as Best Seller
             </label>
           </div>
         </div>
 
         {/* Description & Tags */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-stone-700 mb-1">
+            <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-stone-700">
               Description
             </label>
             <textarea
@@ -349,27 +396,29 @@ export default function AddProductPage() {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Detailed craft description, metal purity, gemstone details..."
-              className="w-full px-3 py-2 text-xs border border-stone-300 rounded-lg focus:ring-1 focus:ring-amber-500 focus:outline-none"
+              className="w-full rounded-lg border border-stone-300 px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-amber-500"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-stone-700 mb-1 flex items-center justify-between">
+            <label className="mb-1 block flex items-center justify-between text-xs font-semibold uppercase tracking-wider text-stone-700">
               <span>Product Tags (Comma Separated)</span>
-              <span className="text-[10px] text-amber-800 font-normal">For search & filters</span>
+              <span className="text-[10px] font-normal text-amber-800">
+                For search & filters
+              </span>
             </label>
             <textarea
               rows={3}
               value={tags}
               onChange={(e) => setTags(e.target.value)}
               placeholder="e.g. 22K Gold, Solitaire, Anniversary Gift, Wedding, Under 15000"
-              className="w-full px-3 py-2 text-xs border border-stone-300 rounded-lg focus:ring-1 focus:ring-amber-500 focus:outline-none bg-stone-50/50 font-mono"
+              className="w-full rounded-lg border border-stone-300 bg-stone-50/50 px-3 py-2 font-mono text-xs focus:outline-none focus:ring-1 focus:ring-amber-500"
             />
           </div>
         </div>
 
         {/* Image Tagger */}
-        <div className="border-t border-stone-200 pt-4 space-y-4">
+        <div className="space-y-4 border-t border-stone-200 pt-4">
           <div className="flex items-center justify-between">
             <label className="block text-xs font-semibold uppercase tracking-wider text-stone-900">
               Product Images & Tags (Model / Still / Zoom / 360)
@@ -377,24 +426,27 @@ export default function AddProductPage() {
             <button
               type="button"
               onClick={addImageField}
-              className="text-xs text-amber-800 font-semibold hover:underline flex items-center space-x-1"
+              className="flex items-center space-x-1 text-xs font-semibold text-amber-800 hover:underline"
             >
-              <Plus className="w-3.5 h-3.5" />
+              <Plus className="h-3.5 w-3.5" />
               <span>Add Image</span>
             </button>
           </div>
 
           {images.map((img, idx) => (
-            <div key={idx} className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-3 bg-stone-50 p-3 rounded-lg border border-stone-200">
+            <div
+              key={idx}
+              className="flex flex-col space-y-2 rounded-lg border border-stone-200 bg-stone-50 p-3 sm:flex-row sm:items-center sm:space-x-3 sm:space-y-0"
+            >
               <input
                 type="url"
                 required
                 value={img.url}
                 onChange={(e) => updateImage(idx, 'url', e.target.value)}
                 placeholder="https://images.unsplash.com/..."
-                className="flex-1 px-3 py-1.5 text-xs border border-stone-300 rounded bg-white"
+                className="flex-1 rounded border border-stone-300 bg-white px-3 py-1.5 text-xs"
               />
-              
+
               <div className="relative">
                 <input
                   type="file"
@@ -404,11 +456,12 @@ export default function AddProductPage() {
                   onChange={async (e) => {
                     const file = e.target.files?.[0];
                     if (!file) return;
-                    
+
                     try {
-                      const { uploadProductImage } = await import('@/services/cloudinaryService');
+                      const { uploadProductImage } =
+                        await import('@/services/cloudinaryService');
                       const uploadResult = await uploadProductImage(file);
-                      
+
                       // Update the input with the secure Cloudinary URL
                       updateImage(idx, 'url', uploadResult.secure_url);
                     } catch (error: any) {
@@ -418,7 +471,7 @@ export default function AddProductPage() {
                 />
                 <label
                   htmlFor={`file-upload-${idx}`}
-                  className="px-3 py-1.5 text-xs font-semibold bg-stone-200 text-stone-700 rounded cursor-pointer hover:bg-stone-300 transition-colors whitespace-nowrap block text-center"
+                  className="block cursor-pointer whitespace-nowrap rounded bg-stone-200 px-3 py-1.5 text-center text-xs font-semibold text-stone-700 transition-colors hover:bg-stone-300"
                 >
                   Upload File
                 </label>
@@ -426,8 +479,10 @@ export default function AddProductPage() {
 
               <select
                 value={img.type}
-                onChange={(e) => updateImage(idx, 'type', e.target.value as ImageType)}
-                className="px-3 py-1.5 text-xs border border-stone-300 rounded bg-white font-semibold text-stone-700"
+                onChange={(e) =>
+                  updateImage(idx, 'type', e.target.value as ImageType)
+                }
+                className="rounded border border-stone-300 bg-white px-3 py-1.5 text-xs font-semibold text-stone-700"
               >
                 <option value="still">Still Photo</option>
                 <option value="model">On-Model Shot</option>
@@ -440,7 +495,7 @@ export default function AddProductPage() {
                   onClick={() => removeImage(idx)}
                   className="p-1.5 text-stone-400 hover:text-rose-600"
                 >
-                  <Trash2 className="w-4 h-4" />
+                  <Trash2 className="h-4 w-4" />
                 </button>
               )}
             </div>
@@ -448,16 +503,16 @@ export default function AddProductPage() {
         </div>
 
         {/* Submit */}
-        <div className="border-t border-stone-200 pt-4 flex justify-end space-x-3">
+        <div className="flex justify-end space-x-3 border-t border-stone-200 pt-4">
           <Link
             href="/admin/products"
-            className="px-5 py-2.5 bg-stone-100 text-stone-700 text-xs font-semibold uppercase tracking-wider rounded-lg hover:bg-stone-200"
+            className="rounded-lg bg-stone-100 px-5 py-2.5 text-xs font-semibold uppercase tracking-wider text-stone-700 hover:bg-stone-200"
           >
             Cancel
           </Link>
           <button
             type="submit"
-            className="px-6 py-2.5 bg-amber-950 text-white text-xs font-semibold uppercase tracking-wider rounded-lg hover:bg-amber-900"
+            className="rounded-lg bg-amber-950 px-6 py-2.5 text-xs font-semibold uppercase tracking-wider text-white hover:bg-amber-900"
           >
             Save Product
           </button>

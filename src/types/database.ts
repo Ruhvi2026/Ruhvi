@@ -1,7 +1,8 @@
 export type UserRole = 'customer' | 'staff' | 'manager' | 'admin';
 export type ProductStatus = 'active' | 'hidden' | 'out_of_stock';
 export type ImageType = 'model' | 'still' | 'zoom' | '360';
-export type OrderStatus = 'pending' | 'confirmed' | 'shipped' | 'delivered' | 'cancelled' | 'returned';
+export type OrderStatus =
+  'pending' | 'confirmed' | 'shipped' | 'delivered' | 'cancelled' | 'returned';
 export type PaymentMethod = 'phonepe' | 'cod';
 export type PaymentStatus = 'pending' | 'paid' | 'failed' | 'refunded';
 export type CoinLedgerType = 'earned' | 'redeemed' | 'expired' | 'cashback';
@@ -72,6 +73,8 @@ export interface Product {
   is_best_seller: boolean;
   created_at?: string;
   updated_at?: string;
+  seo_metadata?: Record<string, any> | null;
+  ai_content?: Record<string, any> | null;
   category?: Category | null;
   images?: ProductImage[];
 }
@@ -266,5 +269,31 @@ export interface AuditLog {
   entity_id?: string | null;
   ip_address?: string | null;
   details?: Record<string, any> | null;
+  created_at: string;
+}
+
+export interface Setting {
+  id: string;
+  key: string;
+  value: Record<string, any> | any[];
+  updated_at: string;
+}
+
+export interface AILog {
+  id: string;
+  provider: string;
+  model: string;
+  feature: string;
+  tokens_used: number;
+  estimated_cost: number;
+  status: 'success' | 'failed';
+  error_message?: string;
+  created_at: string;
+}
+
+export interface AIPromptVersion {
+  id: string;
+  feature_key: string;
+  prompt_text: string;
   created_at: string;
 }

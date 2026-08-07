@@ -7,6 +7,7 @@ import { ArrowLeft, Plus, Trash2, Loader2 } from 'lucide-react';
 import { DEMO_PRODUCTS } from '@/lib/products';
 import { ImageType, Product } from '@/types/database';
 import { createClient } from '@/lib/supabase/client';
+import { AIProductAssistant } from '@/components/admin/AIProductAssistant';
 
 interface EditProductPageProps {
   params: Promise<{
@@ -22,12 +23,17 @@ export default function EditProductPage({ params }: EditProductPageProps) {
   const [sku, setSku] = useState('');
   const [tags, setTags] = useState('22K Gold, BIS Hallmarked, Best Seller');
   const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
   const [mrp, setMrp] = useState('');
+  const [seoMetadata, setSeoMetadata] = useState<any>(null);
+  const [aiContent, setAiContent] = useState<any>(null);
   const [stockQuantity, setStockQuantity] = useState('');
   const [status, setStatus] = useState<any>('active');
   const [collectionSlug, setCollectionSlug] = useState('');
-  const [images, setImages] = useState<{ id?: string, url: string; type: ImageType }[]>([]);
+  const [images, setImages] = useState<
+    { id?: string; url: string; type: ImageType }[]
+  >([]);
 
   const availableCollections = [
     { slug: 'for-her', title: 'Gifts For Her' },
@@ -47,7 +53,7 @@ export default function EditProductPage({ params }: EditProductPageProps) {
           .single();
 
         if (error) throw error;
-        
+
         if (product) {
           setSku(product.sku);
           setName(product.name);
@@ -55,7 +61,10 @@ export default function EditProductPage({ params }: EditProductPageProps) {
           setMrp(String(product.mrp));
           setStockQuantity(String(product.stock_quantity));
           setStatus(product.status);
-          
+          setDescription(product.description || '');
+          setSeoMetadata(product.seo_metadata || null);
+          setAiContent(product.ai_content || null);
+
           if (product.images && product.images.length > 0) {
             setImages(product.images.map((img: any) => ({ ...img })));
           } else {
@@ -68,7 +77,7 @@ export default function EditProductPage({ params }: EditProductPageProps) {
         setIsLoading(false);
       }
     };
-    
+
     fetchProduct();
   }, [id]);
 
@@ -90,16 +99,19 @@ export default function EditProductPage({ params }: EditProductPageProps) {
     e.preventDefault();
     try {
       const supabase = createClient();
-      
+
       const { error: productError } = await supabase
         .from('products')
         .update({
           name,
           sku,
+          description,
           price: parseFloat(price),
           mrp: parseFloat(mrp),
           stock_quantity: parseInt(stockQuantity, 10),
           status,
+          seo_metadata: seoMetadata,
+          ai_content: aiContent,
         })
         .eq('id', id);
 
@@ -109,15 +121,17 @@ export default function EditProductPage({ params }: EditProductPageProps) {
       if (images.length > 0) {
         // Delete existing
         await supabase.from('product_images').delete().eq('product_id', id);
-        
+
         // Insert new ones
-        const imageInserts = images.filter(img => img.url.trim() !== '').map((img, index) => ({
-          product_id: id,
-          url: img.url,
-          type: img.type,
-          sort_order: index,
-        }));
-        
+        const imageInserts = images
+          .filter((img) => img.url.trim() !== '')
+          .map((img, index) => ({
+            product_id: id,
+            url: img.url,
+            type: img.type,
+            sort_order: index,
+          }));
+
         if (imageInserts.length > 0) {
           const { error: imageError } = await supabase
             .from('product_images')
@@ -136,30 +150,56 @@ export default function EditProductPage({ params }: EditProductPageProps) {
 
   if (isLoading) {
     return (
-      <div className="max-w-4xl mx-auto px-4 py-16 flex justify-center items-center">
-        <Loader2 className="w-8 h-8 animate-spin text-amber-900" />
+      <div className="mx-auto flex max-w-4xl items-center justify-center px-4 py-16">
+        <Loader2 className="h-8 w-8 animate-spin text-amber-900" />
       </div>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+    <div className="mx-auto max-w-4xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
       <div className="flex items-center space-x-2 text-xs text-stone-500">
-        <Link href="/admin/products" className="hover:text-amber-800 flex items-center space-x-1">
-          <ArrowLeft className="w-3.5 h-3.5" />
+        <Link
+          href="/admin/products"
+          className="flex items-center space-x-1 hover:text-amber-800"
+        >
+          <ArrowLeft className="h-3.5 w-3.5" />
           <span>Back to Products</span>
         </Link>
       </div>
 
       <div>
-        <h1 className="font-serif text-3xl font-bold text-stone-900">Edit Product ({sku})</h1>
-        <p className="text-xs text-stone-500 mt-1">Update pricing, stock availability, SKU, images, or tags.</p>
+        <h1 className="font-serif text-3xl font-bold text-stone-900">
+          Edit Product ({sku})
+        </h1>
+        <p className="mt-1 text-xs text-stone-500">
+          Update pricing, stock availability, SKU, images, or tags.
+        </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="bg-white p-6 sm:p-8 rounded-2xl border border-stone-200 shadow-sm space-y-6">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+      <AIProductAssistant
+        productData={{
+          name,
+          category: 'Uncategorized',
+          price,
+          description,
+          tags,
+        }}
+        onApply={(data) => {
+          if (data.description) setDescription(data.description);
+          if (data.tags) setTags(data.tags);
+          if (data.seo_metadata) setSeoMetadata(data.seo_metadata);
+          if (data.ai_content) setAiContent(data.ai_content);
+        }}
+      />
+
+      <form
+        onSubmit={handleSubmit}
+        className="space-y-6 rounded-2xl border border-stone-200 bg-white p-6 shadow-sm sm:p-8"
+      >
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-stone-700 mb-1">
+            <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-stone-700">
               Product Title
             </label>
             <input
@@ -167,12 +207,12 @@ export default function EditProductPage({ params }: EditProductPageProps) {
               required
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full px-3 py-2 text-xs border border-stone-300 rounded-lg focus:ring-1 focus:ring-amber-500"
+              className="w-full rounded-lg border border-stone-300 px-3 py-2 text-xs focus:ring-1 focus:ring-amber-500"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-amber-900 mb-1">
+            <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-amber-900">
               SKU Code (Editable)
             </label>
             <input
@@ -180,18 +220,18 @@ export default function EditProductPage({ params }: EditProductPageProps) {
               required
               value={sku}
               onChange={(e) => setSku(e.target.value)}
-              className="w-full px-3 py-2 text-xs border border-amber-300 bg-amber-50 rounded-lg focus:ring-1 focus:ring-amber-500 font-mono font-bold text-amber-950"
+              className="w-full rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 font-mono text-xs font-bold text-amber-950 focus:ring-1 focus:ring-amber-500"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-amber-800 mb-1">
+            <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-amber-800">
               Collection (Optional)
             </label>
             <select
               value={collectionSlug}
               onChange={(e) => setCollectionSlug(e.target.value)}
-              className="w-full px-3 py-2 text-xs border border-amber-300 rounded-lg focus:ring-1 focus:ring-amber-500 focus:outline-none bg-amber-50/50 font-medium text-amber-900"
+              className="w-full rounded-lg border border-amber-300 bg-amber-50/50 px-3 py-2 text-xs font-medium text-amber-900 focus:outline-none focus:ring-1 focus:ring-amber-500"
             >
               <option value="">-- None (Standard Catalog) --</option>
               {availableCollections.map((col) => (
@@ -203,9 +243,9 @@ export default function EditProductPage({ params }: EditProductPageProps) {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-stone-700 mb-1">
+            <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-stone-700">
               Selling Price (₹)
             </label>
             <input
@@ -213,12 +253,12 @@ export default function EditProductPage({ params }: EditProductPageProps) {
               required
               value={price}
               onChange={(e) => setPrice(e.target.value)}
-              className="w-full px-3 py-2 text-xs border border-stone-300 rounded-lg focus:ring-1 focus:ring-amber-500"
+              className="w-full rounded-lg border border-stone-300 px-3 py-2 text-xs focus:ring-1 focus:ring-amber-500"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-stone-700 mb-1">
+            <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-stone-700">
               MRP (₹)
             </label>
             <input
@@ -226,14 +266,14 @@ export default function EditProductPage({ params }: EditProductPageProps) {
               required
               value={mrp}
               onChange={(e) => setMrp(e.target.value)}
-              className="w-full px-3 py-2 text-xs border border-stone-300 rounded-lg focus:ring-1 focus:ring-amber-500"
+              className="w-full rounded-lg border border-stone-300 px-3 py-2 text-xs focus:ring-1 focus:ring-amber-500"
             />
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-stone-700 mb-1">
+            <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-stone-700">
               Stock Quantity
             </label>
             <input
@@ -241,18 +281,18 @@ export default function EditProductPage({ params }: EditProductPageProps) {
               required
               value={stockQuantity}
               onChange={(e) => setStockQuantity(e.target.value)}
-              className="w-full px-3 py-2 text-xs border border-stone-300 rounded-lg focus:ring-1 focus:ring-amber-500"
+              className="w-full rounded-lg border border-stone-300 px-3 py-2 text-xs focus:ring-1 focus:ring-amber-500"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-stone-700 mb-1">
+            <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-stone-700">
               Status
             </label>
             <select
               value={status}
               onChange={(e) => setStatus(e.target.value as any)}
-              className="w-full px-3 py-2 text-xs border border-stone-300 rounded-lg focus:ring-1 focus:ring-amber-500 bg-white"
+              className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-xs focus:ring-1 focus:ring-amber-500"
             >
               <option value="active">Active (Visible)</option>
               <option value="out_of_stock">Out of Stock</option>
@@ -261,21 +301,35 @@ export default function EditProductPage({ params }: EditProductPageProps) {
           </div>
         </div>
 
-        <div>
-          <label className="block text-xs font-semibold uppercase tracking-wider text-stone-700 mb-1">
-            Product Tags (Comma Separated)
-          </label>
-          <input
-            type="text"
-            value={tags}
-            onChange={(e) => setTags(e.target.value)}
-            placeholder="e.g. 22K Gold, Solitaire, Anniversary Gift, Wedding"
-            className="w-full px-3 py-2 text-xs border border-stone-300 rounded-lg focus:ring-1 focus:ring-amber-500 bg-stone-50 font-mono"
-          />
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+          <div>
+            <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-stone-700">
+              Description
+            </label>
+            <textarea
+              rows={3}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              className="w-full rounded-lg border border-stone-300 px-3 py-2 text-xs focus:ring-1 focus:ring-amber-500"
+            />
+          </div>
+
+          <div>
+            <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-stone-700">
+              Product Tags (Comma Separated)
+            </label>
+            <input
+              type="text"
+              value={tags}
+              onChange={(e) => setTags(e.target.value)}
+              placeholder="e.g. 22K Gold, Solitaire, Anniversary Gift, Wedding"
+              className="w-full rounded-lg border border-stone-300 bg-stone-50 px-3 py-2 font-mono text-xs focus:ring-1 focus:ring-amber-500"
+            />
+          </div>
         </div>
 
         {/* Image Tagger */}
-        <div className="border-t border-stone-200 pt-4 space-y-4">
+        <div className="space-y-4 border-t border-stone-200 pt-4">
           <div className="flex items-center justify-between">
             <label className="block text-xs font-semibold uppercase tracking-wider text-stone-900">
               Product Images & Tags (Model / Still / Zoom / 360)
@@ -283,24 +337,27 @@ export default function EditProductPage({ params }: EditProductPageProps) {
             <button
               type="button"
               onClick={addImageField}
-              className="text-xs text-amber-800 font-semibold hover:underline flex items-center space-x-1"
+              className="flex items-center space-x-1 text-xs font-semibold text-amber-800 hover:underline"
             >
-              <Plus className="w-3.5 h-3.5" />
+              <Plus className="h-3.5 w-3.5" />
               <span>Add Image</span>
             </button>
           </div>
 
           {images.map((img, idx) => (
-            <div key={idx} className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-3 bg-stone-50 p-3 rounded-lg border border-stone-200">
+            <div
+              key={idx}
+              className="flex flex-col space-y-2 rounded-lg border border-stone-200 bg-stone-50 p-3 sm:flex-row sm:items-center sm:space-x-3 sm:space-y-0"
+            >
               <input
                 type="url"
                 required
                 value={img.url}
                 onChange={(e) => updateImage(idx, 'url', e.target.value)}
                 placeholder="https://images.unsplash.com/..."
-                className="flex-1 px-3 py-1.5 text-xs border border-stone-300 rounded bg-white"
+                className="flex-1 rounded border border-stone-300 bg-white px-3 py-1.5 text-xs"
               />
-              
+
               <div className="relative">
                 <input
                   type="file"
@@ -310,11 +367,12 @@ export default function EditProductPage({ params }: EditProductPageProps) {
                   onChange={async (e) => {
                     const file = e.target.files?.[0];
                     if (!file) return;
-                    
+
                     try {
-                      const { uploadProductImage } = await import('@/services/cloudinaryService');
+                      const { uploadProductImage } =
+                        await import('@/services/cloudinaryService');
                       const uploadResult = await uploadProductImage(file);
-                      
+
                       updateImage(idx, 'url', uploadResult.secure_url);
                     } catch (error: any) {
                       alert('Cloudinary upload failed: ' + error.message);
@@ -323,7 +381,7 @@ export default function EditProductPage({ params }: EditProductPageProps) {
                 />
                 <label
                   htmlFor={`file-upload-${idx}`}
-                  className="px-3 py-1.5 text-xs font-semibold bg-stone-200 text-stone-700 rounded cursor-pointer hover:bg-stone-300 transition-colors whitespace-nowrap block text-center"
+                  className="block cursor-pointer whitespace-nowrap rounded bg-stone-200 px-3 py-1.5 text-center text-xs font-semibold text-stone-700 transition-colors hover:bg-stone-300"
                 >
                   Upload File
                 </label>
@@ -331,8 +389,10 @@ export default function EditProductPage({ params }: EditProductPageProps) {
 
               <select
                 value={img.type}
-                onChange={(e) => updateImage(idx, 'type', e.target.value as ImageType)}
-                className="px-3 py-1.5 text-xs border border-stone-300 rounded bg-white font-semibold text-stone-700"
+                onChange={(e) =>
+                  updateImage(idx, 'type', e.target.value as ImageType)
+                }
+                className="rounded border border-stone-300 bg-white px-3 py-1.5 text-xs font-semibold text-stone-700"
               >
                 <option value="still">Still Photo</option>
                 <option value="model">On-Model Shot</option>
@@ -345,23 +405,23 @@ export default function EditProductPage({ params }: EditProductPageProps) {
                   onClick={() => removeImage(idx)}
                   className="p-1.5 text-stone-400 hover:text-rose-600"
                 >
-                  <Trash2 className="w-4 h-4" />
+                  <Trash2 className="h-4 w-4" />
                 </button>
               )}
             </div>
           ))}
         </div>
 
-        <div className="border-t border-stone-200 pt-4 flex justify-end space-x-3">
+        <div className="flex justify-end space-x-3 border-t border-stone-200 pt-4">
           <Link
             href="/admin/products"
-            className="px-5 py-2.5 bg-stone-100 text-stone-700 text-xs font-semibold uppercase tracking-wider rounded-lg"
+            className="rounded-lg bg-stone-100 px-5 py-2.5 text-xs font-semibold uppercase tracking-wider text-stone-700"
           >
             Cancel
           </Link>
           <button
             type="submit"
-            className="px-6 py-2.5 bg-amber-950 text-white text-xs font-semibold uppercase tracking-wider rounded-lg hover:bg-amber-900"
+            className="rounded-lg bg-amber-950 px-6 py-2.5 text-xs font-semibold uppercase tracking-wider text-white hover:bg-amber-900"
           >
             Update Product
           </button>

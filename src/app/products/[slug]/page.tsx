@@ -5,6 +5,7 @@ import { DEMO_PRODUCTS } from '@/lib/products';
 import { ProductDetailPageClient } from './ProductDetailPageClient';
 import { createClient } from '@/lib/supabase/server';
 import { Breadcrumbs } from '@/components/seo/Breadcrumbs';
+import ProductSchema from '@/components/ProductSchema';
 
 interface PageProps {
   params: Promise<{
@@ -12,7 +13,9 @@ interface PageProps {
   }>;
 }
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const supabase = await createClient();
 
@@ -83,36 +86,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
     notFound();
   }
 
-  // Server-rendered JSON-LD Product Schema
-  const jsonLd = {
-    '@context': 'https://schema.org/',
-    '@type': 'Product',
-    name: product.name,
-    sku: product.sku,
-    image: product.images?.map((i: any) => i.url) || [],
-    description: product.description,
-    brand: {
-      '@type': 'Brand',
-      name: 'Ruhvi Fine Jewellery',
-    },
-    offers: {
-      '@type': 'Offer',
-      url: `https://ruhvi.in/products/${product.slug}`,
-      priceCurrency: 'INR',
-      price: product.price,
-      priceValidUntil: '2030-12-31',
-      itemCondition: 'https://schema.org/NewCondition',
-      availability:
-        product.status === 'out_of_stock'
-          ? 'https://schema.org/OutOfStock'
-          : 'https://schema.org/InStock',
-    },
-    aggregateRating: {
-      '@type': 'AggregateRating',
-      ratingValue: '5.0',
-      reviewCount: '1',
-    },
-  };
+  // We use the new ProductSchema component for JSON-LD and FAQ Schema
 
   let { data: relatedProducts } = await supabase
     .from('products')
@@ -124,26 +98,48 @@ export default async function ProductDetailPage({ params }: PageProps) {
 
   if (!relatedProducts || relatedProducts.length === 0) {
     relatedProducts = DEMO_PRODUCTS.filter(
-      (p) => p.category_id === product.category_id && p.id !== product.id && p.status !== 'hidden'
+      (p) =>
+        p.category_id === product.category_id &&
+        p.id !== product.id &&
+        p.status !== 'hidden'
     ).slice(0, 4) as any[];
   }
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      <ProductSchema
+        product={{
+          id: product.id,
+          name: product.name,
+          description: product.description || '',
+          images: product.images?.map((i: any) => i.url) || [],
+          price: product.price,
+          currency: 'INR',
+          stock:
+            product.stock_quantity ??
+            (product.status === 'out_of_stock' ? 0 : 1),
+        }}
       />
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
-        <Breadcrumbs 
+      <div className="mx-auto max-w-7xl px-4 pt-8 sm:px-6 lg:px-8">
+        <Breadcrumbs
           items={[
             { label: 'Collections', url: '/products' },
-            ...(product.category ? [{ label: product.category.name, url: `/category/${product.category.slug}` }] : []),
-            { label: product.name, url: `/products/${product.slug}` }
-          ]} 
+            ...(product.category
+              ? [
+                  {
+                    label: product.category.name,
+                    url: `/category/${product.category.slug}`,
+                  },
+                ]
+              : []),
+            { label: product.name, url: `/products/${product.slug}` },
+          ]}
         />
       </div>
-      <ProductDetailPageClient product={product} relatedProducts={relatedProducts} />
+      <ProductDetailPageClient
+        product={product}
+        relatedProducts={relatedProducts}
+      />
     </>
   );
 }
