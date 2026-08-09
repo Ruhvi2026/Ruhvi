@@ -1,9 +1,17 @@
 import { Resend } from 'resend';
 import fs from 'fs';
 import path from 'path';
-import Handlebars from 'handlebars';
+import Handlebars from 'handlebars/dist/handlebars.js';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const getResendClient = () => {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    console.warn('RESEND_API_KEY is not configured. Email will not be sent.');
+    return null;
+  }
+  return new Resend(apiKey);
+};
+
 const senderEmail = process.env.RESEND_SENDER_EMAIL || 'notifications@ruhvi.in';
 const senderName = 'Ruhvi';
 
@@ -13,6 +21,10 @@ export const getSender = () => `${senderName} <${senderEmail}>`;
 const compileTemplate = (fileName: string) => {
   try {
     const filePath = path.join(process.cwd(), 'Resend_Templates', fileName);
+    if (!fs.existsSync(filePath)) {
+      console.warn(`Template file not found: ${filePath}`);
+      return () => '';
+    }
     const source = fs.readFileSync(filePath, 'utf-8');
     return Handlebars.compile(source);
   } catch (error) {
@@ -26,6 +38,9 @@ export async function sendWelcomeEmail(
   email: string,
   name: string = 'Beautiful'
 ) {
+  const resend = getResendClient();
+  if (!resend) return null;
+
   const template = compileTemplate(
     'Welcome to Ruhvi, {{customer.name}} ✨.html'
   );
@@ -41,12 +56,15 @@ export async function sendWelcomeEmail(
     return data;
   } catch (error) {
     console.error('Error sending Resend Welcome email:', error);
-    throw error;
+    return null;
   }
 }
 
 // 2. Order Confirmation
 export async function sendOrderConfirmationEmail(email: string, data: any) {
+  const resend = getResendClient();
+  if (!resend) return null;
+
   const template = compileTemplate(
     'Your Ruhvi Order #{{order.number}} is Confirmed.html'
   );
@@ -64,12 +82,15 @@ export async function sendOrderConfirmationEmail(email: string, data: any) {
     return response;
   } catch (error) {
     console.error('Error sending Resend Order Confirmation email:', error);
-    throw error;
+    return null;
   }
 }
 
 // 3. Shipping Updates (Shipped)
 export async function sendOrderShippedEmail(email: string, data: any) {
+  const resend = getResendClient();
+  if (!resend) return null;
+
   const template = compileTemplate(
     'Your Ruhvi Order #{{order.number}} Has Shipped.html'
   );
@@ -85,12 +106,15 @@ export async function sendOrderShippedEmail(email: string, data: any) {
     return response;
   } catch (error) {
     console.error('Error sending Resend Order Shipped email:', error);
-    throw error;
+    return null;
   }
 }
 
 // 4. Shipping Updates (Out for Delivery)
 export async function sendOrderOutForDeliveryEmail(email: string, data: any) {
+  const resend = getResendClient();
+  if (!resend) return null;
+
   const template = compileTemplate(
     'Your Ruhvi Order #{{order.number}} Is Out for Delivery.html'
   );
@@ -106,12 +130,15 @@ export async function sendOrderOutForDeliveryEmail(email: string, data: any) {
     return response;
   } catch (error) {
     console.error('Error sending Resend Out for Delivery email:', error);
-    throw error;
+    return null;
   }
 }
 
 // 5. Shipping Updates (Delivered)
 export async function sendOrderDeliveredEmail(email: string, data: any) {
+  const resend = getResendClient();
+  if (!resend) return null;
+
   const template = compileTemplate(
     'Your Ruhvi Order #{{order.number}} Has Been Delivered.html'
   );
@@ -127,12 +154,15 @@ export async function sendOrderDeliveredEmail(email: string, data: any) {
     return response;
   } catch (error) {
     console.error('Error sending Resend Delivered email:', error);
-    throw error;
+    return null;
   }
 }
 
 // 6. Order Cancelled
 export async function sendOrderCancelledEmail(email: string, data: any) {
+  const resend = getResendClient();
+  if (!resend) return null;
+
   const template = compileTemplate(
     'Your Ruhvi Order #{{order.number}} Has Been Cancelled.html'
   );
@@ -148,12 +178,15 @@ export async function sendOrderCancelledEmail(email: string, data: any) {
     return response;
   } catch (error) {
     console.error('Error sending Resend Cancelled email:', error);
-    throw error;
+    return null;
   }
 }
 
 // 7. Payment Received
 export async function sendPaymentReceivedEmail(email: string, data: any) {
+  const resend = getResendClient();
+  if (!resend) return null;
+
   const template = compileTemplate(
     'Payment Received — Ruhvi Order #{{order.number}}.html'
   );
@@ -169,12 +202,15 @@ export async function sendPaymentReceivedEmail(email: string, data: any) {
     return response;
   } catch (error) {
     console.error('Error sending Resend Payment Received email:', error);
-    throw error;
+    return null;
   }
 }
 
 // 8. Payment Failed
 export async function sendPaymentFailedEmail(email: string, data: any) {
+  const resend = getResendClient();
+  if (!resend) return null;
+
   const template = compileTemplate(
     'Payment Failed — Action Needed for Ruhvi Order #{{order.number}}.html'
   );
@@ -190,7 +226,7 @@ export async function sendPaymentFailedEmail(email: string, data: any) {
     return response;
   } catch (error) {
     console.error('Error sending Resend Payment Failed email:', error);
-    throw error;
+    return null;
   }
 }
 
@@ -215,6 +251,9 @@ export async function sendPasswordResetEmail(
   resetLink: string,
   name: string = 'Customer'
 ) {
+  const resend = getResendClient();
+  if (!resend) return null;
+
   const subject = 'Reset Your Ruhvi Password 🔑';
   const htmlContent = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #121110;">
@@ -236,6 +275,7 @@ export async function sendPasswordResetEmail(
       html: htmlContent,
     });
   } catch (err) {
-    throw err;
+    console.error('Error sending Resend Password Reset email:', err);
+    return null;
   }
 }
