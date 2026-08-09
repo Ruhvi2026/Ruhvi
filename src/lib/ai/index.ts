@@ -22,6 +22,19 @@ export interface AIProvider {
     content: Record<string, any>;
     usage: { tokens: number; cost: number };
   }>;
+
+  /**
+   * Generates content while allowing the model to call tools
+   */
+  generateWithTools?(
+    prompt: string,
+    modelName: string,
+    tools: import('./tools/index').AITool[]
+  ): Promise<{
+    content: string;
+    toolCalls?: any[];
+    usage: { tokens: number; cost: number };
+  }>;
 }
 
 // Global load balancing & latency tracking state
@@ -31,41 +44,23 @@ const latencyTracker = new Map<
   { avgLatencyMs: number; failCount: number }
 >();
 
+import { resolveEffectiveApiKey } from './keys';
+
 export async function getAIProvider(
   providerId: string,
   modelName: string,
   providerConfig?: any
 ): Promise<{ provider: AIProvider; model: string }> {
-  let type = 'gemini';
-  let apiKey = '';
-
-  if (providerConfig) {
-    type = providerConfig.type || 'gemini';
-    if (providerConfig.apiKey) {
-      apiKey = providerConfig.apiKey;
-    } else {
-      if (type === 'gemini') apiKey = process.env.GEMINI_API_KEY || '';
-      else if (type === 'openai') apiKey = process.env.OPENAI_API_KEY || '';
-      else if (type === 'anthropic')
-        apiKey = process.env.ANTHROPIC_API_KEY || '';
-      else if (type === 'openrouter')
-        apiKey = process.env.OPENROUTER_API_KEY || '';
-      else if (type === 'deepseek') apiKey = process.env.DEEPSEEK_API_KEY || '';
-      else if (type === 'custom')
-        apiKey = process.env.CUSTOM_GATEWAY_API_KEY || '';
-    }
-  } else if (providerId === 'gemini') {
-    type = 'gemini';
-    apiKey = process.env.GEMINI_API_KEY || '';
-  } else {
-    throw new Error(`Provider configuration for ${providerId} not found.`);
-  }
+  const type =
+    providerConfig?.type || (providerId === 'gemini' ? 'gemini' : providerId);
+  const resolved = resolveEffectiveApiKey(type, providerConfig?.apiKey, null);
+  let apiKey = resolved.apiKey;
 
   if (!apiKey) {
-    throw new Error(`No API key configured for provider '${providerId}'.`);
+    throw new Error(
+      `No API key configured for provider '${providerId}' (${type}). Please configure an API key in Admin AI Control Center or set the ${type.toUpperCase()}_API_KEY environment variable.`
+    );
   }
-
-  apiKey = apiKey.trim();
 
   let activeProvider: AIProvider;
 

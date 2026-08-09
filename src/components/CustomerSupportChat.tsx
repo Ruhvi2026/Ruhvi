@@ -56,7 +56,7 @@ function BotMessage({
   const isTypingOut = displayed.length < text.length;
 
   return (
-    <div className="max-w-[80%] rounded-2xl rounded-bl-none border border-gold-200/70 bg-white p-3 text-xs leading-relaxed text-stone-800 shadow-sm">
+    <div className="max-w-[80%] rounded-2xl rounded-bl-none border border-gold-200/70 bg-white p-3 text-xs font-medium leading-relaxed text-stone-800 shadow-sm">
       {displayed}
       {isTypingOut && <span className="typing-caret" aria-hidden />}
     </div>
@@ -70,14 +70,54 @@ export default function CustomerSupportChat() {
   >([
     {
       sender: 'bot',
-      text: 'Namaste! I am Noor, Ruhvi\u2019s Golden Concierge. I grew up among goldsmiths in Jaipur, so pieces, hallmarking, and orders are my world. How may I help you today?',
+      text: 'Namaste! I am Gia, Ruhvi\u2019s Golden Concierge. I grew up among goldsmiths in Jaipur, so pieces, hallmarking, and orders are my world. How may I help you today?',
     },
   ]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [thinkingStep, setThinkingStep] = useState(0);
   const [hasUnread, setHasUnread] = useState(false);
+  const [winSize, setWinSize] = useState({ width: 384, height: 520 });
   const feedRef = useRef<HTMLDivElement>(null);
+  const resizeRef = useRef<{
+    startX: number;
+    startY: number;
+    width: number;
+    height: number;
+  } | null>(null);
+
+  const MIN_W = 280;
+  const MIN_H = 360;
+  const MAX_W = 560;
+  const MAX_H = 720;
+
+  const onResizeStart = (e: React.PointerEvent) => {
+    e.preventDefault();
+    resizeRef.current = {
+      startX: e.clientX,
+      startY: e.clientY,
+      width: winSize.width,
+      height: winSize.height,
+    };
+    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+  };
+
+  const onResizeMove = (e: React.PointerEvent) => {
+    const start = resizeRef.current;
+    if (!start) return;
+    const dx = e.clientX - start.startX;
+    const dy = e.clientY - start.startY;
+    const maxW = Math.min(window.innerWidth - 48, MAX_W);
+    const maxH = Math.min(window.innerHeight - 48, MAX_H);
+    setWinSize({
+      width: Math.min(Math.max(start.width + dx, MIN_W), maxW),
+      height: Math.min(Math.max(start.height + dy, MIN_H), maxH),
+    });
+  };
+
+  const onResizeEnd = () => {
+    resizeRef.current = null;
+  };
 
   useEffect(() => {
     if (feedRef.current) {
@@ -198,14 +238,17 @@ export default function CustomerSupportChat() {
           )}
         </button>
       ) : (
-        <div className="animate-fade-up flex h-[520px] w-80 flex-col overflow-hidden rounded-3xl border border-gold-200/60 bg-white shadow-2xl shadow-gold-500/15 sm:w-96">
+        <div
+          className="animate-fade-up relative flex flex-col overflow-hidden rounded-3xl border border-gold-200/60 bg-white shadow-2xl shadow-gold-500/15"
+          style={{ width: winSize.width, height: winSize.height }}
+        >
           {/* Header */}
           <div className="gold-gradient-bg flex items-center justify-between p-4 text-white">
             <div className="flex items-center space-x-3">
               <BotMascot size={42} state="idle" />
               <div>
                 <h3 className="font-serif text-sm font-bold">
-                  Noor — Golden Concierge
+                  Gia — Golden Concierge
                 </h3>
                 <p className="flex items-center gap-1 text-[10px] text-gold-50/90">
                   <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />
@@ -234,7 +277,7 @@ export default function CustomerSupportChat() {
                 {m.sender === 'bot' ? (
                   <BotMessage text={m.text} feedRef={feedRef} />
                 ) : (
-                  <div className="gold-gradient-bg max-w-[80%] rounded-2xl rounded-br-none p-3 text-xs leading-relaxed text-white shadow-md shadow-gold-500/25">
+                  <div className="gold-gradient-bg max-w-[80%] rounded-2xl rounded-br-none p-3 text-xs font-medium leading-relaxed text-white shadow-md shadow-gold-500/25">
                     {m.text}
                   </div>
                 )}
@@ -292,7 +335,7 @@ export default function CustomerSupportChat() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-              className="flex-1 rounded-xl border border-gold-200/80 bg-cream-50 px-3 py-2 text-xs outline-none transition-all focus:border-gold-500 focus:ring-2 focus:ring-gold-400/30"
+              className="flex-1 rounded-xl border border-gold-200/80 bg-cream-50 px-3 py-2 text-xs font-medium outline-none transition-all focus:border-gold-500 focus:ring-2 focus:ring-gold-400/30"
             />
             <button
               onClick={() => handleSend()}
@@ -300,6 +343,27 @@ export default function CustomerSupportChat() {
             >
               <Send className="h-4 w-4" />
             </button>
+          </div>
+
+          {/* Resize Handle */}
+          <div
+            aria-hidden
+            onPointerDown={onResizeStart}
+            onPointerMove={onResizeMove}
+            onPointerUp={onResizeEnd}
+            onPointerCancel={onResizeEnd}
+            className="absolute bottom-1 right-1 flex h-6 w-6 cursor-nwse-resize touch-none items-center justify-center rounded-bl-lg text-gold-400 transition-colors hover:bg-gold-100/70 hover:text-gold-600"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              className="h-3.5 w-3.5"
+            >
+              <path d="M21 15L15 21M21 9L9 21" />
+            </svg>
           </div>
         </div>
       )}

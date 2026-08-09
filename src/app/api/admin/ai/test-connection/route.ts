@@ -16,6 +16,9 @@ async function verifyAdmin() {
   }
 }
 
+import { resolveEffectiveApiKey } from '@/lib/ai/keys';
+import { createServerClient } from '@supabase/ssr';
+
 export async function POST(req: Request) {
   if (!(await verifyAdmin())) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -23,16 +26,54 @@ export async function POST(req: Request) {
 
   try {
     const body = await req.json();
-    const { provider, providerId, providerType, apiKey } = body;
+    const cookieStore = await cookies();
+    const supabaseAdmin = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL ||
+        'https://igrkrkxdantrolbldapj.supabase.co',
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      {
+        cookies: {
+          getAll() {
+            return cookieStore.getAll();
+          },
+          setAll() {},
+        },
+      }
+    );
 
-    const id = provider?.id || providerId;
+    const { provider, providerId, providerType, apiKey } = body;
+    const id = provider?.id || providerId || 'gemini';
     const typeToTest =
-      provider?.type || providerType || (id === 'gemini' ? 'gemini' : null);
-    const key = provider?.apiKey || apiKey;
+      provider?.type || providerType || (id === 'gemini' ? 'gemini' : id);
+    const candidateKey = provider?.apiKey || apiKey;
+
+    // Fetch DB key for this provider if candidateKey is not a newly provided raw key
+    let dbKey = '';
+    const { data: dbData } = await supabaseAdmin
+      .from('settings')
+      .select('value')
+      .eq('key', 'ai_providers')
+      .single();
+
+    if (dbData && Array.isArray(dbData.value)) {
+      const match = dbData.value.find(
+        (p: any) => p.id === id || p.type === typeToTest
+      );
+      if (match?.apiKey) dbKey = match.apiKey;
+    }
+
+    const keyResolution = resolveEffectiveApiKey(
+      typeToTest,
+      candidateKey,
+      dbKey
+    );
+    const key = keyResolution.apiKey;
 
     if (!key && typeToTest !== 'custom') {
       return NextResponse.json(
-        { error: 'API Key is required.' },
+        {
+          error: `No API key configured for ${typeToTest}. Please enter an API key or configure ${typeToTest.toUpperCase()}_API_KEY in environment.`,
+        },
         { status: 400 }
       );
     }

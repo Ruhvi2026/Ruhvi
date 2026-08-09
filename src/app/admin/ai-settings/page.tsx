@@ -134,6 +134,14 @@ export default function AISettingsPage() {
         }),
       });
       if (!res.ok) throw new Error('Failed to save settings');
+      const data = await res.json();
+      if (data.ai_providers && Array.isArray(data.ai_providers)) {
+        setProviders(data.ai_providers);
+      }
+      if (data.ai_features) setFeatures(data.ai_features);
+      if (data.ai_prompts) setPrompts(data.ai_prompts);
+      if (data.ai_global) setGlobalConfig(data.ai_global);
+
       setMessage({ type: 'success', text: 'Settings saved successfully!' });
       setTimeout(() => setMessage(null), 3000);
     } catch (err: any) {

@@ -38,7 +38,9 @@ The application is a modern, headless e-commerce storefront. It utilizes Next.js
 | **Photoswipe** | UI | Image gallery for product detail pages. | `src/app/products/[slug]/ProductDetailPageClient.tsx` (assumed) | None | Active |
 | **OneSignal Web Push** | Marketing/Push | Marketing and engagement push notifications (abandoned cart, flash sales). | `src/components/OneSignalInit.tsx`, `public/OneSignalSDKWorker.js` | `NEXT_PUBLIC_ONESIGNAL_APP_ID` | Active |
 | **Firebase Cloud Messaging (FCM)** | System/Push | Transactional and system notifications (orders, shipping, OTP). | `src/lib/fcm.ts`, `src/components/FcmInit.tsx`, `public/firebase-messaging-sw.js` | `NEXT_PUBLIC_FIREBASE_VAPID_KEY` | Active |
-| **Brevo** | Email | Transactional emails and automated cron email campaigns (Welcome, Abandoned Cart, Win-back, etc.). | `src/lib/brevo.ts`, `src/app/api/cron/automations/route.ts` | `BREVO_API_KEY`, `BREVO_SENDER_NAME`, `BREVO_SENDER_EMAIL` | Active |
+| **Brevo** | Email & AI Tools | Marketing emails, automated cron email campaigns, and AI model tool calling via Brevo MCP SDK / REST API. | `src/lib/brevo.ts`, `src/lib/brevo/mcp.ts`, `src/lib/ai/tools/brevo.ts`, `src/app/admin/actions/marketing.ts` | `BREVO_API_KEY`, `BREVO_MCP_API_KEY`, `BREVO_SENDER_NAME`, `BREVO_SENDER_EMAIL` | Active |
+| **Model Context Protocol (MCP)** | AI Tooling / Protocol | `@modelcontextprotocol/sdk` client for AI tool invocation and MCP server integration. | `src/lib/brevo/mcp.ts`, `src/lib/ai/tools/*` | `BREVO_MCP_API_KEY` | Active |
+| **Resend** | Email | Transactional emails (Welcome, Order Confirmation, Shipping). | `src/lib/resend.ts`, API routes | `RESEND_API_KEY`, `RESEND_SENDER_EMAIL` | Active |
 
 ---
 
@@ -93,9 +95,22 @@ The application is a modern, headless e-commerce storefront. It utilizes Next.js
 - `TURNSTILE_SECRET_KEY`
 - `NEXT_PUBLIC_META_PIXEL_ID`
 - `BREVO_API_KEY`
+- `BREVO_MCP_API_KEY`
 - `BREVO_SENDER_NAME`
 - `BREVO_SENDER_EMAIL`
+- `RESEND_API_KEY`
+- `RESEND_SENDER_EMAIL`
 - `SUPABASE_JWT_SECRET`
+- `SUPABASE_SERVICE_ROLE_KEY`
+- `NEXT_PUBLIC_ONESIGNAL_APP_ID`
+- `ONESIGNAL_REST_API_KEY`
+- `NEXT_PUBLIC_GA_MEASUREMENT_ID`
+- `META_CAPI_ACCESS_TOKEN`
+- `GEMINI_API_KEY`
+- `DEEPSEEK_API_KEY`
+- `OPENROUTER_API_KEY`
+- `CUSTOM_GATEWAY_API_KEY`
+- `CUSTOM_GATEWAY_BASE_URL`
 
 ---
 
@@ -136,11 +151,13 @@ The application is a modern, headless e-commerce storefront. It utilizes Next.js
 | Turnstile | Bot Protection | 2024 | Active | `src/app/checkout/page.tsx` | |
 | Vercel Insights | Performance Analytics | 2024 | Active | `src/app/layout.tsx` | |
 | Google Analytics 4 | General Analytics/SEO | 2026 | Active | `src/app/layout.tsx`, `src/lib/gtag.ts` | E-commerce tracking fully instrumented |
-| Brevo | Transactional Emails | 2026 | Active | `src/lib/brevo.ts` | Welcome, Abandoned Cart, Shipping, etc. |
+| Resend | Transactional Emails | 2026 | Active | `src/lib/resend.ts` | Welcome, Order Confirmation, Shipping Updates |
+| Brevo | Marketing Emails | 2026 | Active | `src/lib/brevo.ts` | Abandoned Cart, Win-back, etc. |
 | UID Sync Migration | Data consistency | 2026-08-06 | Added | `supabase/migrations/0021_firebase_uid_sync.sql` | Bulk sync and trigger for firebase_uid |
 | Permanent UID Sync | Auth reliability  | 2026-08-06 | Active | `supabase/migrations/0024_permanent_uid_sync.sql`, `src/app/api/auth/sync-token/route.ts`, `src/app/api/auth/session/route.ts` | upsert_firebase_user() RPC auto-creates/repairs user profiles on login. Eliminates all 404 auth errors. |
 | Multi-Provider Auth & Linking | Authentication | 2026-08-07 | Active | `src/services/authService.ts`, `src/lib/supabase/client.ts` | Unified auth service with collision handler and direct Supabase JWT propagation via `getIdToken()`. |
 | DeepSeek AI | AI Provider | 2026-08-07 | Active | `src/lib/ai/providers/deepseek.ts`, `src/lib/ai/index.ts` | DeepSeek AI models (deepseek-chat, deepseek-reasoner) integration for chatbot and product SEO copy generation. |
 | AI Failure Diagnostics & Rate Limiting | AI Reliability & Abuse Protection | 2026-08-08 | Active | `src/lib/ai/diagnostics.ts`, `src/lib/ai/index.ts`, `src/app/api/admin/ai/diagnostics/route.ts`, `src/components/admin/ai/AiDiagnostics.tsx`, `src/components/admin/ai/AiSecurity.tsx`, `supabase/migrations/0026_failure_diagnostics_ttl.sql` | 24-hour TTL auto-expiring failure diagnostics, multi-provider failover recovery traces, and manual rate-limiting configuration matrix for Guest, Logged-in User, Staff, Manager, and Admin. |
+| Brevo MCP & AI Tool Integration | Email Marketing & AI Tools | 2026-08-09 | Active | `src/lib/brevo.ts`, `src/lib/brevo/mcp.ts`, `src/lib/ai/tools/brevo.ts`, `src/app/admin/actions/marketing.ts`, `src/app/admin/settings/page.tsx` | Added Brevo MCP integration (`@modelcontextprotocol/sdk`), AI tool schemas (`sendTransactionalEmail`, `createOrUpdateContact`, `getCampaignStats`), context-aware API key handling (MCP key for AI vs Standard key for fallback), and Admin Marketing Quick Send UI. |
 
 

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { sendOrderConfirmation } from '@/lib/whatsapp';
-import { sendOrderConfirmationEmail } from '@/lib/brevo';
+import { sendOrderConfirmationEmail } from '@/lib/resend';
 import { createClient as createServerClient } from '@/lib/supabase/server';
 import { createClient as createJSClient } from '@supabase/supabase-js';
 import { getServerUser } from '@/lib/auth/server';
@@ -237,15 +237,53 @@ export async function POST(req: Request) {
       );
     }
 
-    // Send Brevo Email Order Confirmation asynchronously
+    // Send Resend Email Order Confirmation asynchronously
     if (user?.email) {
-      sendOrderConfirmationEmail(
-        user.email,
-        `${address.firstName || ''} ${address.lastName || ''}`.trim() ||
-          'Valued Customer',
-        orderNumber,
-        total
-      ).catch((err) =>
+      const emailData = {
+        order: {
+          number: orderNumber,
+          date: new Date().toLocaleDateString(),
+          items: items.map((item: any) => ({
+            product: {
+              name: item.product?.title || item.product?.name || 'Product',
+              image:
+                item.product?.images?.[0] || 'https://ruhvi.in/placeholder.png',
+              variant: item.product?.variant || '',
+              quantity: item.quantity,
+              unit_price: `₹${(item.product?.price || item.price_at_add).toLocaleString('en-IN')}`,
+              total_price: `₹${((item.product?.price || item.price_at_add) * item.quantity).toLocaleString('en-IN')}`,
+            },
+          })),
+        },
+        subtotal: `₹${subtotal.toLocaleString('en-IN')}`,
+        discount: `₹${(coupon_discount || 0).toLocaleString('en-IN')}`,
+        shipping_cost: `₹${(shippingCharge || 0).toLocaleString('en-IN')}`,
+        tax: `₹${(gstAmount || 0).toLocaleString('en-IN')}`,
+        total: `₹${total.toLocaleString('en-IN')}`,
+        shipping: {
+          name:
+            `${address.firstName || ''} ${address.lastName || ''}`.trim() ||
+            'Valued Customer',
+          address: address.address_line1 || '',
+          city: address.city || '',
+          state: address.state || '',
+          postal_code: address.postal_code || '',
+          country: address.country || 'India',
+          phone: address.phone || '',
+        },
+        payment: {
+          method:
+            paymentMethod === 'cod'
+              ? 'Cash on Delivery'
+              : 'Online Payment (PhonePe)',
+          status: paymentMethod === 'cod' ? 'Pending (COD)' : 'Paid',
+          transaction_id: orderNumber, // fallback
+        },
+        order_url: `${process.env.NEXT_PUBLIC_APP_URL || 'https://ruhvi.in'}/orders`,
+        support_url: `${process.env.NEXT_PUBLIC_APP_URL || 'https://ruhvi.in'}/contact`,
+      };
+
+      sendOrderConfirmationEmail(user.email, emailData).catch((err) =>
         console.error('Failed to send Email confirmation:', err)
       );
     }

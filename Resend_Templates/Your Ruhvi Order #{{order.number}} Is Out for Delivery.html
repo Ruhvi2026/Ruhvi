@@ -1,0 +1,357 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Your Ruhvi Order Is Out for Delivery</title>
+    <style type="text/css">
+      /* Client-specific Resets */
+      body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
+      table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
+      img { -ms-interpolation-mode: bicubic; border: 0; height: auto; line-height: 100%; outline: none; text-decoration: none; }
+      body { height: 100% !important; margin: 0 !important; padding: 0 !important; width: 100% !important; background-color: #FAF8F5; }
+
+      /* Mobile Responsive Styles */
+      @media screen and (max-width: 600px) {
+        .email-container { width: 100% !important; }
+        .fluid-padding { padding-left: 20px !important; padding-right: 20px !important; }
+        .mobile-stack { display: block !important; width: 100% !important; }
+        .mobile-center { text-align: center !important; }
+        .tracker-text { font-size: 11px !important; }
+        .cta-button { width: 100% !important; text-align: center !important; display: block !important; }
+      }
+    </style>
+  </head>
+  <body
+    style="margin: 0; padding: 0; background-color: #FAF8F5; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;"
+  >
+    <!-- HIDDEN PREHEADER TEXT -->
+    <div style="display: none; max-height: 0px; overflow: hidden; font-size: 1px; line-height: 1px; color: #FAF8F5;">
+      Your jewellery is almost with you. Track your delivery and stay updated.
+    </div>
+
+    <table
+      border="0"
+      cellpadding="0"
+      cellspacing="0"
+      width="100%"
+      role="presentation"
+      style="background-color: #FAF8F5;"
+    >
+      <tr>
+        <td align="center" style="padding: 20px 0;">
+          <table
+            border="0"
+            cellpadding="0"
+            cellspacing="0"
+            width="600"
+            class="email-container"
+            role="presentation"
+            style="background-color: #FFFFFF; border: 1px solid #EFEAE4; border-radius: 4px; overflow: hidden;"
+          >
+            <!-- HEADER -->
+            <tr>
+              <td align="center" style="padding: 36px 20px 24px 20px; border-bottom: 1px solid #FAF8F5;">
+                <a href="{{website_url}}" target="_blank" style="text-decoration: none;">
+                  <span
+                    style="font-family: 'Georgia', serif; font-size: 28px; font-weight: normal; letter-spacing: 4px; color: #2C2825; text-transform: uppercase;"
+                    >RUHVI</span
+                  >
+                </a>
+              </td>
+            </tr>
+            <!-- END HEADER -->
+
+            <!-- OUT FOR DELIVERY HERO -->
+            <tr>
+              <td align="center" class="fluid-padding" style="padding: 32px 40px 16px 40px;">
+                <h1
+                  style="margin: 0; font-family: 'Georgia', serif; font-size: 24px; font-weight: normal; color: #2C2825; letter-spacing: 0.5px;"
+                >
+                  Your Order Is Out for Delivery
+                </h1>
+                <p style="margin: 16px 0 0 0; font-size: 15px; line-height: 24px; color: #5A544F;">
+                  Hi {{customer.name}}, your Ruhvi order is on its way to you and is expected to arrive soon.
+                </p>
+              </td>
+            </tr>
+            <!-- END OUT FOR DELIVERY HERO -->
+
+            <!-- DELIVERY STATUS -->
+            <tr>
+              <td align="center" class="fluid-padding" style="padding: 16px 40px;">
+                <table
+                  border="0"
+                  cellpadding="0"
+                  cellspacing="0"
+                  width="100%"
+                  role="presentation"
+                  style="background-color: #FAF8F5; border-radius: 4px; border: 1px solid #EFEAE4;"
+                >
+                  <tr>
+                    <td style="padding: 20px; text-align: left;">
+                      <table border="0" cellpadding="0" cellspacing="0" width="100%" role="presentation">
+                        <tr>
+                          <td style="padding-bottom: 8px;">
+                            <span
+                              style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #A38A5E; font-weight: bold;"
+                              >Status</span
+                            >
+                            <div style="font-size: 16px; font-weight: bold; color: #2C2825; margin-top: 2px;">
+                              {{shipment.status}}
+                            </div>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td style="padding-bottom: 8px;">
+                            <span
+                              style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #8C827A;"
+                              >Order Number</span
+                            >
+                            <div style="font-size: 14px; color: #2C2825; margin-top: 2px;">#{{order.number}}</div>
+                          </td>
+                        </tr>
+                        {{#if shipment.delivery_date}}
+                        <tr>
+                          <td>
+                            <span
+                              style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #8C827A;"
+                              >Expected Arrival</span
+                            >
+                            <div style="font-size: 14px; color: #2C2825; margin-top: 2px;">
+                              {{shipment.delivery_date}}
+                            </div>
+                          </td>
+                        </tr>
+                        {{/if}}
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <!-- END DELIVERY STATUS -->
+
+            <!-- DELIVERY EXPECTATION -->
+            <tr>
+              <td align="center" class="fluid-padding" style="padding: 8px 40px 16px 40px;">
+                <p style="margin: 0; font-size: 13px; line-height: 20px; color: #5A544F;">
+                  Please keep an eye out for your delivery and make sure someone is available to receive the package, if
+                  required.
+                </p>
+                {{#if shipment.delivery_instruction}}
+                <div
+                  style="margin-top: 10px; padding: 10px; background-color: #FAF8F5; border-left: 2px solid #C5A059; font-size: 12px; color: #5A544F; text-align: left;"
+                >
+                  <strong>Instruction:</strong> {{shipment.delivery_instruction}}
+                </div>
+                {{/if}}
+              </td>
+            </tr>
+            <!-- END DELIVERY EXPECTATION -->
+
+            <!-- TRACKING CTA -->
+            <tr>
+              <td align="center" class="fluid-padding" style="padding: 12px 40px 28px 40px;">
+                <table border="0" cellpadding="0" cellspacing="0" role="presentation">
+                  <tr>
+                    <td align="center" style="border-radius: 2px; background-color: #2C2825;">
+                      <a
+                        href="{{tracking_url}}"
+                        target="_blank"
+                        class="cta-button"
+                        style="font-size: 14px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #FFFFFF; text-decoration: none; border-radius: 2px; padding: 14px 32px; border: 1px solid #2C2825; display: inline-block; letter-spacing: 1px; text-transform: uppercase; font-weight: 500;"
+                        >Track Your Order</a
+                      >
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <!-- END TRACKING CTA -->
+
+            <!-- SHIPMENT INFORMATION -->
+            <tr>
+              <td class="fluid-padding" style="padding: 0 40px 24px 40px;">
+                <table
+                  border="0"
+                  cellpadding="0"
+                  cellspacing="0"
+                  width="100%"
+                  role="presentation"
+                  style="border-top: 1px solid #EFEAE4; border-bottom: 1px solid #EFEAE4; padding: 16px 0;"
+                >
+                  <tr>
+                    <td class="mobile-stack" style="font-size: 13px; color: #5A544F; padding: 4px 0;">
+                      <strong>Courier:</strong> {{shipment.courier_name}}
+                    </td>
+                    <td
+                      class="mobile-stack"
+                      style="font-size: 13px; color: #5A544F; padding: 4px 0; word-break: break-all;"
+                    >
+                      <strong>Tracking #:</strong> {{shipment.tracking_number}}
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <!-- END SHIPMENT INFORMATION -->
+
+            <!-- DELIVERY JOURNEY -->
+            <tr>
+              <td class="fluid-padding" style="padding: 8px 40px 32px 40px;">
+                <table border="0" cellpadding="0" cellspacing="0" width="100%" role="presentation">
+                  <tr>
+                    <!-- Step 1 -->
+                    <td align="center" width="25%" style="vertical-align: top;">
+                      <div style="font-size: 10px; color: #A38A5E; font-weight: bold; text-transform: uppercase;">
+                        ✓
+                      </div>
+                      <div style="height: 2px; background-color: #C5A059; margin: 4px 0;"></div>
+                      <span class="tracker-text" style="font-size: 11px; color: #8C827A;">Confirmed</span>
+                    </td>
+                    <!-- Step 2 -->
+                    <td align="center" width="25%" style="vertical-align: top;">
+                      <div style="font-size: 10px; color: #A38A5E; font-weight: bold; text-transform: uppercase;">
+                        ✓
+                      </div>
+                      <div style="height: 2px; background-color: #C5A059; margin: 4px 0;"></div>
+                      <span class="tracker-text" style="font-size: 11px; color: #8C827A;">Shipped</span>
+                    </td>
+                    <!-- Step 3 (Active) -->
+                    <td align="center" width="25%" style="vertical-align: top;">
+                      <div style="font-size: 10px; color: #C5A059; font-weight: bold; text-transform: uppercase;">
+                        ●
+                      </div>
+                      <div style="height: 2px; background-color: #C5A059; margin: 4px 0;"></div>
+                      <span class="tracker-text" style="font-size: 11px; color: #2C2825; font-weight: bold;"
+                        >Out for Delivery</span
+                      >
+                    </td>
+                    <!-- Step 4 -->
+                    <td align="center" width="25%" style="vertical-align: top;">
+                      <div style="font-size: 10px; color: #EFEAE4; font-weight: bold; text-transform: uppercase;">
+                        ○
+                      </div>
+                      <div style="height: 2px; background-color: #EFEAE4; margin: 4px 0;"></div>
+                      <span class="tracker-text" style="font-size: 11px; color: #B3AAA1;">Delivered</span>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <!-- END DELIVERY JOURNEY -->
+
+            <!-- SHIPPING ADDRESS -->
+            <tr>
+              <td class="fluid-padding" style="padding: 0 40px 24px 40px;">
+                <div
+                  style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #8C827A; margin-bottom: 8px;"
+                >
+                  Delivery Address
+                </div>
+                <div style="font-size: 13px; line-height: 20px; color: #5A544F;">
+                  <strong>{{shipping.name}}</strong><br />
+                  {{shipping.address}}<br />
+                  {{shipping.city}}, {{shipping.state}} {{shipping.postal_code}}<br />
+                  {{shipping.country}}
+                </div>
+              </td>
+            </tr>
+            <!-- END SHIPPING ADDRESS -->
+
+            <!-- ORDER SUMMARY -->
+            <tr>
+              <td class="fluid-padding" style="padding: 0 40px 24px 40px;">
+                <table
+                  border="0"
+                  cellpadding="0"
+                  cellspacing="0"
+                  width="100%"
+                  role="presentation"
+                  style="background-color: #FAF8F5; padding: 16px; border-radius: 4px;"
+                >
+                  <tr>
+                    <td style="font-size: 13px; color: #5A544F;">
+                      Order <strong>#{{order.number}}</strong> ({{order.item_count}} {{#if
+                      order.item_count_plural}}items{{else}}item{{/if}})
+                    </td>
+                    <td align="right" style="font-size: 13px; font-weight: bold; color: #2C2825;">{{order.total}}</td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <!-- END ORDER SUMMARY -->
+
+            <!-- HELPFUL NOTE -->
+            <tr>
+              <td align="center" class="fluid-padding" style="padding: 8px 40px 24px 40px;">
+                <p
+                  style="margin: 0; font-family: 'Georgia', serif; font-style: italic; font-size: 14px; line-height: 22px; color: #8C827A;"
+                >
+                  "Your jewellery is almost with you. We hope it adds something special to your day."
+                </p>
+              </td>
+            </tr>
+            <!-- END HELPFUL NOTE -->
+
+            <!-- SUPPORT -->
+            <tr>
+              <td
+                align="center"
+                class="fluid-padding"
+                style="padding: 16px 40px 32px 40px; border-top: 1px solid #FAF8F5;"
+              >
+                <p style="margin: 0; font-size: 12px; color: #8C827A;">
+                  Need help with your delivery?
+                  <a href="{{support_url}}" target="_blank" style="color: #2C2825; text-decoration: underline;"
+                    >We're here to help.</a
+                  >
+                </p>
+              </td>
+            </tr>
+            <!-- END SUPPORT -->
+
+            <!-- FOOTER -->
+            <tr>
+              <td
+                align="center"
+                class="fluid-padding"
+                style="background-color: #FAF8F5; padding: 24px 40px; border-top: 1px solid #EFEAE4;"
+              >
+                <p
+                  style="margin: 0 0 12px 0; font-family: 'Georgia', serif; font-size: 14px; letter-spacing: 2px; color: #2C2825; text-transform: uppercase;"
+                >
+                  RUHVI
+                </p>
+                <p style="margin: 0 0 12px 0; font-size: 11px; color: #8C827A;">
+                  <a
+                    href="{{website_url}}"
+                    target="_blank"
+                    style="color: #8C827A; text-decoration: none; margin: 0 6px;"
+                    >Website</a
+                  >
+                  |
+                  <a
+                    href="{{privacy_url}}"
+                    target="_blank"
+                    style="color: #8C827A; text-decoration: none; margin: 0 6px;"
+                    >Privacy Policy</a
+                  >
+                  |
+                  <a href="{{terms_url}}" target="_blank" style="color: #8C827A; text-decoration: none; margin: 0 6px;"
+                    >Terms &amp; Conditions</a
+                  >
+                </p>
+                <p style="margin: 0; font-size: 11px; color: #B3AAA1;">
+                  &copy; {{current_year}} Ruhvi. All rights reserved.
+                </p>
+              </td>
+            </tr>
+            <!-- END FOOTER -->
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

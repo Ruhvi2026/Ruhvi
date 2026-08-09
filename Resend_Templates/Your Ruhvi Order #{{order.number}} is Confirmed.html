@@ -1,0 +1,514 @@
+`<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:v="urn:schemas-microsoft-com:vml"
+  xmlns:o="urn:schemas-microsoft-com:office:office"
+>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="x-apple-disable-message-reformatting" />
+    <meta name="color-scheme" content="light" />
+    <meta name="supported-color-schemes" content="light" />
+    <title>Ruhvi - Order Confirmation</title>
+
+    <!--[if mso]> <noscript> <xml> <o:OfficeDocumentSettings> <o:AllowPNG /> <o:PixelsPerInch>96</o:PixelsPerInch> </o:OfficeDocumentSettings> </xml> </noscript> <![endif]-->
+
+    <style type="text/css">
+      /* RESETS */
+      body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
+      table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
+      img { -ms-interpolation-mode: bicubic; border: 0; height: auto; line-height: 100%; outline: none; text-decoration: none; display: block; }
+      table { border-collapse: collapse !important; }
+      body { height: 100% !important; margin: 0 !important; padding: 0 !important; width: 100% !important; background-color: #FDFBF7; }
+
+      /* iOS BLUE LINKS FIX */
+      a[x-apple-data-detectors] {
+        color: inherit !important;
+        text-decoration: none !important;
+        font-size: inherit !important;
+        font-family: inherit !important;
+        font-weight: inherit !important;
+        line-height: inherit !important;
+      }
+
+      /* GMAIL APP MOBILE RESPONSIVE STYLES */
+      @media screen and (max-width: 600px) {
+        .email-container {
+          width: 100% !important;
+          max-width: 100% !important;
+        }
+        .responsive-padding {
+          padding-left: 20px !important;
+          padding-right: 20px !important;
+        }
+        .column-stack {
+          display: block !important;
+          width: 100% !important;
+          box-sizing: border-box !important;
+        }
+        .column-stack-bottom {
+          display: block !important;
+          width: 100% !important;
+          box-sizing: border-box !important;
+          padding-top: 20px !important;
+        }
+        .mobile-center {
+          text-align: center !important;
+        }
+        .item-image {
+          width: 80px !important;
+          height: 80px !important;
+        }
+        .item-price-mobile {
+          text-align: left !important;
+          padding-top: 8px !important;
+        }
+      }
+    </style>
+  </head>
+  <body style="margin: 0; padding: 0; background-color: #FDFBF7; -webkit-font-smoothing: antialiased;">
+    <!-- WRAPPER TABLE -->
+    <table
+      border="0"
+      cellpadding="0"
+      cellspacing="0"
+      width="100%"
+      role="presentation"
+      style="background-color: #FDFBF7; table-layout: fixed;"
+    >
+      <tr>
+        <td align="center" style="padding: 40px 10px 40px 10px;">
+          <!-- EMAIL CONTAINER -->
+          <table
+            border="0"
+            cellpadding="0"
+            cellspacing="0"
+            width="600"
+            class="email-container"
+            role="presentation"
+            style="max-width: 600px; width: 100%; background-color: #FFFFFF; border: 1px solid #EAE4D9; border-radius: 4px;"
+          >
+            <!-- HEADER -->
+            <tr>
+              <td
+                align="center"
+                style="padding: 40px 40px 30px 40px; border-bottom: 1px solid #F5EFEE;"
+                class="responsive-padding"
+              >
+                <table border="0" cellpadding="0" cellspacing="0" width="100%" role="presentation">
+                  <tr>
+                    <td align="center">
+                      <a href="{{support_url}}" target="_blank" style="text-decoration: none;">
+                        <span
+                          style="font-family: 'Times New Roman', Times, Georgia, serif; font-size: 28px; font-weight: 400; letter-spacing: 4px; color: #2C2825; text-transform: uppercase;"
+                          >RUHVI</span
+                        >
+                      </a>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td align="center" style="padding-top: 6px;">
+                      <span
+                        style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 10px; letter-spacing: 2.5px; color: #B39252; text-transform: uppercase;"
+                        >Fine Jewellery</span
+                      >
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <!-- END HEADER -->
+
+            <!-- ORDER CONFIRMATION -->
+            <tr>
+              <td
+                align="center"
+                style="padding: 40px 40px 30px 40px; background-color: #FAFAF7;"
+                class="responsive-padding"
+              >
+                <table border="0" cellpadding="0" cellspacing="0" width="100%" role="presentation">
+                  <tr>
+                    <td align="center" style="padding-bottom: 12px;">
+                      <span
+                        style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 11px; letter-spacing: 2px; color: #B39252; text-transform: uppercase; font-weight: 600;"
+                        >Order Confirmed</span
+                      >
+                    </td>
+                  </tr>
+                  <tr>
+                    <td
+                      align="center"
+                      style="font-family: 'Times New Roman', Times, Georgia, serif; font-size: 24px; font-weight: 400; color: #2C2825; line-height: 32px; padding-bottom: 16px;"
+                    >
+                      Thank you for your order, {{customer.name}}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td
+                      align="center"
+                      style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 300; color: #5C554E; line-height: 22px; max-width: 480px; padding-bottom: 24px;"
+                    >
+                      Your order has been successfully placed. We are carefully preparing your jewellery for shipment
+                      and will notify you as soon as it dispatched.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td align="center">
+                      <table
+                        border="0"
+                        cellpadding="0"
+                        cellspacing="0"
+                        role="presentation"
+                        style="background-color: #FFFFFF; border: 1px solid #EAE4D9; border-radius: 2px;"
+                      >
+                        <tr>
+                          <td
+                            style="padding: 12px 20px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 12px; color: #2C2825;"
+                          >
+                            <span style="color: #8C827A; text-transform: uppercase; letter-spacing: 1px;">Order</span>
+                            &nbsp;<strong>{{order.number}}</strong>
+                          </td>
+                          <td
+                            style="padding: 12px 20px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 12px; color: #2C2825; border-left: 1px solid #EAE4D9;"
+                          >
+                            <span style="color: #8C827A; text-transform: uppercase; letter-spacing: 1px;">Date</span>
+                            &nbsp;<strong>{{order.date}}</strong>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <!-- END ORDER CONFIRMATION -->
+
+            <!-- ORDER ITEMS -->
+            <tr>
+              <td style="padding: 40px 40px 20px 40px;" class="responsive-padding">
+                <table border="0" cellpadding="0" cellspacing="0" width="100%" role="presentation">
+                  <tr>
+                    <td
+                      style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 11px; letter-spacing: 1.5px; color: #8C827A; text-transform: uppercase; font-weight: 600; padding-bottom: 20px; border-bottom: 1px solid #EAE4D9;"
+                    >
+                      Order Details
+                    </td>
+                  </tr>
+
+                  <!-- DYNAMIC REPEATABLE ITEM BLOCK -->
+                  {{#each order.items}}
+                  <tr>
+                    <td style="padding: 20px 0; border-bottom: 1px solid #F5EFEE;">
+                      <table border="0" cellpadding="0" cellspacing="0" width="100%" role="presentation">
+                        <tr>
+                          <!-- Product Image -->
+                          <td width="90" valign="top">
+                            <img
+                              src="{{product.image}}"
+                              alt="{{product.name}}"
+                              width="80"
+                              height="80"
+                              class="item-image"
+                              style="border-radius: 2px; border: 1px solid #EAE4D9; object-fit: cover; background-color: #FDFBF7;"
+                            />
+                          </td>
+                          <!-- Product Info -->
+                          <td valign="top" style="padding-left: 15px;">
+                            <div
+                              style="font-family: 'Times New Roman', Times, Georgia, serif; font-size: 16px; color: #2C2825; font-weight: 400; padding-bottom: 4px;"
+                            >
+                              {{product.name}}
+                            </div>
+                            <div
+                              style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 12px; color: #8C827A; padding-bottom: 6px;"
+                            >
+                              {{product.variant}}
+                            </div>
+                            <div
+                              style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 12px; color: #5C554E;"
+                            >
+                              Qty: {{product.quantity}} &times; {{product.unit_price}}
+                            </div>
+                          </td>
+                          <!-- Product Price -->
+                          <td
+                            valign="top"
+                            align="right"
+                            style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 500; color: #2C2825; white-space: nowrap;"
+                          >
+                            {{product.total_price}}
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                  {{/each}}
+                  <!-- END DYNAMIC REPEATABLE ITEM BLOCK -->
+                </table>
+              </td>
+            </tr>
+            <!-- END ORDER ITEMS -->
+
+            <!-- PRICE SUMMARY -->
+            <tr>
+              <td style="padding: 0 40px 30px 40px;" class="responsive-padding">
+                <table border="0" cellpadding="0" cellspacing="0" width="100%" role="presentation">
+                  <tr>
+                    <td width="50%" class="column-stack">&nbsp;</td>
+                    <td width="50%" class="column-stack">
+                      <table border="0" cellpadding="0" cellspacing="0" width="100%" role="presentation">
+                        <tr>
+                          <td
+                            style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 13px; color: #5C554E; padding: 6px 0;"
+                          >
+                            Subtotal
+                          </td>
+                          <td
+                            align="right"
+                            style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 13px; color: #2C2825; padding: 6px 0;"
+                          >
+                            {{subtotal}}
+                          </td>
+                        </tr>
+                        <tr>
+                          <td
+                            style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 13px; color: #5C554E; padding: 6px 0;"
+                          >
+                            Discount
+                          </td>
+                          <td
+                            align="right"
+                            style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 13px; color: #B39252; padding: 6px 0;"
+                          >
+                            -{{discount}}
+                          </td>
+                        </tr>
+                        <tr>
+                          <td
+                            style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 13px; color: #5C554E; padding: 6px 0;"
+                          >
+                            Shipping
+                          </td>
+                          <td
+                            align="right"
+                            style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 13px; color: #2C2825; padding: 6px 0;"
+                          >
+                            {{shipping_cost}}
+                          </td>
+                        </tr>
+                        <tr>
+                          <td
+                            style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 13px; color: #5C554E; padding: 6px 0; border-bottom: 1px solid #EAE4D9;"
+                          >
+                            Estimated Tax
+                          </td>
+                          <td
+                            align="right"
+                            style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 13px; color: #2C2825; padding: 6px 0; border-bottom: 1px solid #EAE4D9;"
+                          >
+                            {{tax}}
+                          </td>
+                        </tr>
+                        <tr>
+                          <td
+                            style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 600; color: #2C2825; padding: 14px 0 0 0;"
+                          >
+                            Total
+                          </td>
+                          <td
+                            align="right"
+                            style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 600; color: #2C2825; padding: 14px 0 0 0;"
+                          >
+                            {{total}}
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <!-- END PRICE SUMMARY -->
+
+            <!-- ADDRESS & PAYMENT SECTION -->
+            <tr>
+              <td style="padding: 0 40px 30px 40px;" class="responsive-padding">
+                <table
+                  border="0"
+                  cellpadding="0"
+                  cellspacing="0"
+                  width="100%"
+                  role="presentation"
+                  style="border-top: 1px solid #EAE4D9; padding-top: 30px;"
+                >
+                  <tr>
+                    <!-- SHIPPING ADDRESS -->
+                    <td width="48%" valign="top" class="column-stack">
+                      <table border="0" cellpadding="0" cellspacing="0" width="100%" role="presentation">
+                        <tr>
+                          <td
+                            style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 11px; letter-spacing: 1.5px; color: #8C827A; text-transform: uppercase; font-weight: 600; padding-bottom: 12px;"
+                          >
+                            Shipping Address
+                          </td>
+                        </tr>
+                        <tr>
+                          <td
+                            style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 13px; color: #5C554E; line-height: 20px;"
+                          >
+                            <strong style="color: #2C2825; font-weight: 500;">{{shipping.name}}</strong><br />
+                            {{shipping.address}}<br />
+                            {{shipping.city}}, {{shipping.state}} {{shipping.postal_code}}<br />
+                            {{shipping.country}}<br />
+                            <span style="color: #8C827A; font-size: 12px;">{{shipping.phone}}</span>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+
+                    <td width="4%" class="column-stack">&nbsp;</td>
+
+                    <!-- PAYMENT INFORMATION -->
+                    <td width="48%" valign="top" class="column-stack-bottom">
+                      <table border="0" cellpadding="0" cellspacing="0" width="100%" role="presentation">
+                        <tr>
+                          <td
+                            style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 11px; letter-spacing: 1.5px; color: #8C827A; text-transform: uppercase; font-weight: 600; padding-bottom: 12px;"
+                          >
+                            Payment Method
+                          </td>
+                        </tr>
+                        <tr>
+                          <td
+                            style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 13px; color: #5C554E; line-height: 20px;"
+                          >
+                            <strong style="color: #2C2825; font-weight: 500;">{{payment.method}}</strong><br />
+                            Status: <span style="color: #2B7A4B; font-weight: 500;">{{payment.status}}</span><br />
+                            <span style="color: #8C827A; font-size: 12px;">Trans ID: {{payment.transaction_id}}</span>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <!-- END ADDRESS & PAYMENT SECTION -->
+
+            <!-- PRIMARY CTA -->
+            <tr>
+              <td align="center" style="padding: 10px 40px 40px 40px;" class="responsive-padding">
+                <table border="0" cellpadding="0" cellspacing="0" role="presentation">
+                  <tr>
+                    <td align="center" style="border-radius: 2px; background-color: #2C2825;">
+                      <a
+                        href="{{order_url}}"
+                        target="_blank"
+                        style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 12px; letter-spacing: 2px; color: #FFFFFF; text-decoration: none; text-transform: uppercase; padding: 16px 36px; border: 1px solid #2C2825; display: inline-block; font-weight: 500;"
+                      >
+                        View Your Order
+                      </a>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <!-- END PRIMARY CTA -->
+
+            <!-- SUPPORT SECTION -->
+            <tr>
+              <td
+                align="center"
+                style="padding: 30px 40px; background-color: #FAFAF7; border-top: 1px solid #EAE4D9;"
+                class="responsive-padding"
+              >
+                <table border="0" cellpadding="0" cellspacing="0" width="100%" role="presentation">
+                  <tr>
+                    <td
+                      align="center"
+                      style="font-family: 'Times New Roman', Times, Georgia, serif; font-size: 16px; color: #2C2825; padding-bottom: 6px;"
+                    >
+                      Need assistance with your piece?
+                    </td>
+                  </tr>
+                  <tr>
+                    <td
+                      align="center"
+                      style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 13px; color: #5C554E; line-height: 20px;"
+                    >
+                      Our Client Care team is available to assist you with care guides, resizing, or status updates.<br />
+                      <a
+                        href="{{support_url}}"
+                        target="_blank"
+                        style="color: #B39252; text-decoration: underline; font-weight: 500;"
+                        >Contact Ruhvi Client Care</a
+                      >
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <!-- END SUPPORT SECTION -->
+
+            <!-- FOOTER -->
+            <tr>
+              <td
+                align="center"
+                style="padding: 40px; background-color: #FFFFFF; border-top: 1px solid #EAE4D9;"
+                class="responsive-padding"
+              >
+                <table border="0" cellpadding="0" cellspacing="0" width="100%" role="presentation">
+                  <tr>
+                    <td
+                      align="center"
+                      style="font-family: 'Times New Roman', Times, Georgia, serif; font-size: 18px; letter-spacing: 3px; color: #2C2825; text-transform: uppercase; padding-bottom: 12px;"
+                    >
+                      RUHVI
+                    </td>
+                  </tr>
+                  <tr>
+                    <td
+                      align="center"
+                      style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 11px; color: #8C827A; line-height: 18px; padding-bottom: 20px;"
+                    >
+                      &copy; 2026 Ruhvi Fine Jewellery. All rights reserved.<br />
+                      Crafted with care for timeless elegance.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td
+                      align="center"
+                      style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 11px; color: #8C827A;"
+                    >
+                      <a
+                        href="{{support_url}}/privacy"
+                        target="_blank"
+                        style="color: #8C827A; text-decoration: underline;"
+                        >Privacy Policy</a
+                      >
+                      &nbsp;&bull;&nbsp;
+                      <a
+                        href="{{support_url}}/terms"
+                        target="_blank"
+                        style="color: #8C827A; text-decoration: underline;"
+                        >Terms &amp; Conditions</a
+                      >
+                      &nbsp;&bull;&nbsp;
+                      <a href="{{support_url}}" target="_blank" style="color: #8C827A; text-decoration: underline;"
+                        >Visit Website</a
+                      >
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <!-- END FOOTER -->
+          </table>
+          <!-- END EMAIL CONTAINER -->
+        </td>
+      </tr>
+    </table>
+    <!-- END WRAPPER TABLE -->
+  </body>
+</html>

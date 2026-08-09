@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { decodeJwt } from 'jose';
 
+import { resolveEffectiveApiKey } from '@/lib/ai/keys';
+import { createServerClient } from '@supabase/ssr';
+
 // Keep this simple to avoid caching issues in Next.js
 export const dynamic = 'force-dynamic';
 
@@ -30,8 +33,49 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
     }
 
-    const { providerId, baseUrl, customHeaders, apiKey, freeOnly } =
-      await req.json();
+    const supabaseAdmin = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL ||
+        'https://igrkrkxdantrolbldapj.supabase.co',
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      {
+        cookies: {
+          getAll() {
+            return cookieStore.getAll();
+          },
+          setAll() {},
+        },
+      }
+    );
+
+    const {
+      providerId,
+      baseUrl,
+      customHeaders,
+      apiKey: candidateKey,
+      freeOnly,
+    } = await req.json();
+
+    // Fetch DB key for this provider
+    let dbKey = '';
+    const { data: dbData } = await supabaseAdmin
+      .from('settings')
+      .select('value')
+      .eq('key', 'ai_providers')
+      .single();
+
+    if (dbData && Array.isArray(dbData.value)) {
+      const match = dbData.value.find(
+        (p: any) => p.id === providerId || p.type === providerId
+      );
+      if (match?.apiKey) dbKey = match.apiKey;
+    }
+
+    const keyResolution = resolveEffectiveApiKey(
+      providerId,
+      candidateKey,
+      dbKey
+    );
+    const apiKey = keyResolution.apiKey;
 
     let models: string[] = [];
     let rawOpenRouterData: any[] = [];
