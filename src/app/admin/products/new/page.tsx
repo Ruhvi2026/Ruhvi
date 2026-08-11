@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { toast } from 'react-hot-toast';
 import { ArrowLeft, Sparkles, Plus, Trash2 } from 'lucide-react';
 import { INITIAL_CATEGORIES } from '@/lib/products';
 import { generateSKU } from '@/lib/sku';
@@ -100,7 +101,16 @@ export default function AddProductPage() {
     try {
       const supabase = createClient();
 
-      // 1. Insert product
+      // 1. Get Category ID
+      const { data: categoryData } = await supabase
+        .from('categories')
+        .select('id')
+        .eq('slug', categorySlug)
+        .single();
+      
+      const categoryId = categoryData?.id;
+
+      // 2. Insert product
       const { data: newProduct, error: productError } = await supabase
         .from('products')
         .insert([
@@ -109,6 +119,7 @@ export default function AddProductPage() {
             name,
             slug,
             description,
+            category_id: categoryId,
             price: parseFloat(price),
             mrp: parseFloat(mrp),
             gst_rate: parseFloat(gstRate),
@@ -117,8 +128,8 @@ export default function AddProductPage() {
             status: 'active',
             is_new_arrival: isNewArrival,
             is_best_seller: isBestSeller,
-            seo_metadata: seoMetadata,
-            ai_content: aiContent,
+            ...(seoMetadata ? { seo_metadata: seoMetadata } : {}),
+            ...(aiContent ? { ai_content: aiContent } : {}),
           },
         ])
         .select()
@@ -163,11 +174,11 @@ export default function AddProductPage() {
         }
       }
 
-      alert(`Product "${name}" created successfully!`);
+      toast.success(`Product "${name}" created successfully!`);
       router.push('/admin/products');
     } catch (err: any) {
       console.error(err);
-      alert('Failed to save product: ' + err.message);
+      toast.error('Failed to save product: ' + err.message);
     }
   };
 
@@ -273,7 +284,7 @@ export default function AddProductPage() {
           </div>
 
           <div>
-            <label className="mb-1 block flex items-center justify-between text-[11px] font-semibold uppercase tracking-wider text-amber-800">
+            <label className="mb-1 flex items-center justify-between text-[11px] font-semibold uppercase tracking-wider text-amber-800">
               <span className="flex items-center space-x-1">
                 <Sparkles className="h-3 w-3 text-amber-600" />
                 <span>SKU Code (Editable)</span>
@@ -401,7 +412,7 @@ export default function AddProductPage() {
           </div>
 
           <div>
-            <label className="mb-1 block flex items-center justify-between text-xs font-semibold uppercase tracking-wider text-stone-700">
+            <label className="mb-1 flex items-center justify-between text-xs font-semibold uppercase tracking-wider text-stone-700">
               <span>Product Tags (Comma Separated)</span>
               <span className="text-[10px] font-normal text-amber-800">
                 For search & filters
@@ -465,7 +476,7 @@ export default function AddProductPage() {
                       // Update the input with the secure Cloudinary URL
                       updateImage(idx, 'url', uploadResult.secure_url);
                     } catch (error: any) {
-                      alert('Cloudinary upload failed: ' + error.message);
+                      toast.error('Cloudinary upload failed: ' + error.message);
                     }
                   }}
                 />
