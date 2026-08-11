@@ -25,11 +25,34 @@ export function createClient() {
         const fbUser = auth.currentUser;
         if (!fbUser) return '';
 
-        // Directly use the Firebase JWT for Supabase RLS
+        // Check if we have a valid cached token
+        if (customTokenCache && tokenExpiry && Date.now() < tokenExpiry) {
+          return customTokenCache;
+        }
+
         const idToken = await fbUser.getIdToken(false);
-        return idToken;
+        
+        // Fetch custom Supabase token using the Firebase ID token
+        const response = await fetch('/api/auth/sync-token', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ idToken }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to sync token');
+        }
+
+        const data = await response.json();
+        
+        if (data.supabaseToken) {
+          customTokenCache = data.supabaseToken;
+          // Token expires in 1 hour (set expiration slightly early to be safe)
+          tokenExpiry = Date.now() + 55 * 60 * 1000;
+          return customTokenCache;
+        }
       } catch (e) {
-        console.error('Failed to get Firebase JWT', e);
+        console.error('Failed to get Supabase JWT', e);
       }
       return '';
     },
