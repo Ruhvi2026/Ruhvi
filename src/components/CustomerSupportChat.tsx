@@ -56,7 +56,7 @@ function BotMessage({
   const isTypingOut = displayed.length < text.length;
 
   return (
-    <div className="max-w-[80%] rounded-2xl rounded-bl-none border border-gold-200/70 bg-white p-3 text-xs font-medium leading-relaxed text-stone-800 shadow-sm">
+    <div className="max-w-[80%] rounded-2xl rounded-bl-none border border-white/40 bg-white/70 p-3.5 text-[13px] font-medium leading-relaxed text-stone-800 shadow-sm shadow-gold-500/5 backdrop-blur-sm">
       {displayed}
       {isTypingOut && <span className="typing-caret" aria-hidden />}
     </div>
@@ -221,7 +221,7 @@ export default function CustomerSupportChat() {
       {!isOpen ? (
         <button
           onClick={() => setIsOpen(true)}
-          className="gold-gradient-bg gold-ring group relative flex items-center justify-center space-x-2 rounded-full border border-gold-300/60 p-2.5 pr-4 text-white shadow-2xl shadow-gold-500/30 transition-all duration-300 hover:scale-105 hover:from-gold-500 hover:to-gold-800"
+          className="gold-gradient-bg gold-ring group relative flex items-center justify-center space-x-2 rounded-full border border-gold-300/60 p-2.5 pr-4 text-white shadow-[0_8px_30px_rgb(186,145,81,0.4)] transition-all duration-500 ease-out hover:-translate-y-1 hover:scale-110 hover:shadow-[0_12px_40px_rgb(186,145,81,0.6)]"
         >
           <BotMascot
             size={38}
@@ -239,11 +239,11 @@ export default function CustomerSupportChat() {
         </button>
       ) : (
         <div
-          className="animate-fade-up relative flex flex-col overflow-hidden rounded-3xl border border-gold-200/60 bg-white shadow-2xl shadow-gold-500/15"
+          className="animate-fade-up relative flex flex-col overflow-hidden rounded-[32px] border border-white/60 bg-white/60 shadow-[0_16px_60px_rgb(186,145,81,0.2)] backdrop-blur-xl"
           style={{ width: winSize.width, height: winSize.height }}
         >
           {/* Header */}
-          <div className="gold-gradient-bg flex items-center justify-between p-4 text-white">
+          <div className="gold-gradient-bg flex items-center justify-between border-b border-white/20 px-5 py-4 text-white">
             <div className="flex items-center space-x-3">
               <BotMascot size={42} state="idle" />
               <div>
@@ -267,7 +267,7 @@ export default function CustomerSupportChat() {
           {/* Messages Feed */}
           <div
             ref={feedRef}
-            className="cream-radial flex-1 space-y-3 overflow-y-auto p-4"
+            className="flex-1 space-y-4 overflow-y-auto scroll-smooth p-5"
           >
             {messages.map((m, idx) => (
               <div
@@ -277,7 +277,7 @@ export default function CustomerSupportChat() {
                 {m.sender === 'bot' ? (
                   <BotMessage text={m.text} feedRef={feedRef} />
                 ) : (
-                  <div className="gold-gradient-bg max-w-[80%] rounded-2xl rounded-br-none p-3 text-xs font-medium leading-relaxed text-white shadow-md shadow-gold-500/25">
+                  <div className="max-w-[80%] rounded-2xl rounded-br-none bg-stone-900 p-3.5 text-[13px] font-medium leading-relaxed text-white shadow-md">
                     {m.text}
                   </div>
                 )}
@@ -286,27 +286,27 @@ export default function CustomerSupportChat() {
             {isTyping && (
               <div className="animate-fade-up flex items-start justify-start space-x-2">
                 <BotMascot size={30} state="thinking" showGlow={false} />
-                <div className="min-w-[150px] rounded-2xl rounded-bl-none border border-gold-200/70 bg-white px-3 py-2.5 shadow-sm">
-                  <div className="mb-2 flex items-center space-x-1.5">
+                <div className="min-w-[150px] rounded-2xl rounded-bl-none border border-white/40 bg-white/70 px-3.5 py-3 shadow-sm shadow-gold-500/5 backdrop-blur-sm">
+                  <div className="mb-2.5 flex items-center space-x-1.5">
                     <div
-                      className="h-1.5 w-1.5 animate-bounce rounded-full bg-gold-500"
+                      className="h-1.5 w-1.5 animate-bounce rounded-full bg-gold-400"
                       style={{ animationDelay: '0ms' }}
                     ></div>
                     <div
-                      className="h-1.5 w-1.5 animate-bounce rounded-full bg-gold-500"
+                      className="h-1.5 w-1.5 animate-bounce rounded-full bg-gold-400"
                       style={{ animationDelay: '150ms' }}
                     ></div>
                     <div
-                      className="h-1.5 w-1.5 animate-bounce rounded-full bg-gold-500"
+                      className="h-1.5 w-1.5 animate-bounce rounded-full bg-gold-400"
                       style={{ animationDelay: '300ms' }}
                     ></div>
                   </div>
-                  <div className="h-3.5 overflow-hidden text-[10px] font-semibold text-gold-800">
+                  <div className="h-4 overflow-hidden text-[11px] font-semibold text-gold-700">
                     <div key={thinkingStep} className="animate-fade-up">
                       {THINKING_STEPS[thinkingStep]}
                     </div>
                   </div>
-                  <div className="mt-2 h-0.5 overflow-hidden rounded-full bg-gold-100">
+                  <div className="mt-2 h-0.5 overflow-hidden rounded-full bg-black/5">
                     <div className="gold-gradient-bg thinking-progress h-full w-full rounded-full" />
                   </div>
                 </div>
@@ -315,12 +315,12 @@ export default function CustomerSupportChat() {
           </div>
 
           {/* Quick FAQ Chips */}
-          <div className="scrollbar-hide flex space-x-2 overflow-x-auto border-t border-gold-200/50 bg-white p-2 text-[10px]">
+          <div className="scrollbar-hide flex space-x-2 overflow-x-auto border-t border-white/30 bg-white/40 px-4 py-3 text-[11px] backdrop-blur-md">
             {FAQ_PRESETS.map((f, idx) => (
               <button
                 key={idx}
                 onClick={() => handleSend(f.q)}
-                className="whitespace-nowrap rounded-full border border-gold-200/60 bg-cream-100 px-2.5 py-1 font-semibold text-gold-800 transition-colors hover:bg-gold-100 hover:text-gold-900"
+                className="whitespace-nowrap rounded-full border border-white/60 bg-white/80 px-3 py-1.5 font-medium text-stone-700 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:bg-gold-50 hover:text-gold-900 hover:shadow-md"
               >
                 {f.q}
               </button>
@@ -328,20 +328,22 @@ export default function CustomerSupportChat() {
           </div>
 
           {/* Input Footer */}
-          <div className="flex items-center space-x-2 border-t border-gold-200/60 bg-white p-3">
-            <input
-              type="text"
-              placeholder="Type your question..."
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-              className="flex-1 rounded-xl border border-gold-200/80 bg-cream-50 px-3 py-2 text-xs font-medium outline-none transition-all focus:border-gold-500 focus:ring-2 focus:ring-gold-400/30"
-            />
+          <div className="flex items-center space-x-3 bg-white/60 p-4 pt-2 backdrop-blur-xl">
+            <div className="group relative flex-1">
+              <input
+                type="text"
+                placeholder="Message Gia..."
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+                className="w-full rounded-2xl border border-white/60 bg-white/80 px-4 py-3 text-[13px] font-medium text-stone-800 shadow-inner outline-none transition-all placeholder:text-stone-400 focus:border-gold-300 focus:bg-white focus:ring-4 focus:ring-gold-500/10"
+              />
+            </div>
             <button
               onClick={() => handleSend()}
-              className="gold-gradient-bg rounded-xl p-2 text-white shadow-md shadow-gold-500/25 transition-all hover:scale-105 hover:from-gold-500 hover:to-gold-800"
+              className="group flex h-11 w-11 items-center justify-center rounded-2xl bg-stone-900 text-white shadow-md transition-all duration-300 hover:scale-105 hover:bg-stone-800 hover:shadow-lg active:scale-95"
             >
-              <Send className="h-4 w-4" />
+              <Send className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
             </button>
           </div>
 
