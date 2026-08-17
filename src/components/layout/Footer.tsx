@@ -60,58 +60,28 @@ export function Footer() {
         </div>
       </div>
 
-      {/* Newsletter / WhatsApp Capture */}
+      {/* Referral Program Banner */}
       <div className="mx-auto mb-12 max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="gold-gradient-bg relative flex flex-col items-center justify-between overflow-hidden rounded-3xl p-8 shadow-2xl sm:p-12 md:flex-row">
           <div className="absolute right-0 top-0 h-64 w-64 rounded-full bg-gold-100/30 blur-3xl"></div>
 
           <div className="relative z-10 mb-8 md:mb-0 md:w-1/2">
             <h3 className="mb-3 font-serif text-3xl font-bold text-white">
-              Join the Inner Circle
+              Refer a Friend
             </h3>
             <p className="text-sm text-gold-100/90">
-              Subscribe to get 10% off your first purchase. Receive early access
-              to new collections and exclusive VIP offers via Email or WhatsApp.
+              Invite your friends to Ruhvi. You get 500 Reward Coins (₹50) and
+              your friend gets ₹100 in Wallet balance to shop.
             </p>
           </div>
 
-          <div className="relative z-10 w-full max-w-md md:w-1/2">
-            <form
-              className="flex flex-col space-y-3"
-              onSubmit={(e) => {
-                e.preventDefault();
-                alert('Subscribed!');
-              }}
+          <div className="relative z-10 flex w-full max-w-md justify-end md:w-1/2">
+            <Link
+              href="/referral"
+              className="rounded-xl bg-cream-50 px-8 py-4 text-sm font-bold uppercase tracking-wider text-gold-800 shadow-lg transition-colors hover:bg-white"
             >
-              <div className="flex overflow-hidden rounded-xl border border-gold-400/60 bg-charcoal-900/90 transition-colors focus-within:border-gold-300">
-                <input
-                  type="email"
-                  placeholder="Enter your email address"
-                  className="flex-1 bg-transparent px-4 py-3 text-sm text-cream-50 placeholder-cream-200/40 outline-none"
-                  required
-                />
-                <button
-                  type="submit"
-                  className="bg-cream-50 px-6 py-3 text-xs font-bold uppercase tracking-wider text-gold-800 transition-colors hover:bg-white"
-                >
-                  Subscribe
-                </button>
-              </div>
-              <div className="flex items-center space-x-2 pl-1">
-                <input
-                  type="checkbox"
-                  id="whatsapp-optin"
-                  defaultChecked
-                  className="h-3 w-3 rounded-sm border-gold-700 bg-charcoal-900 text-gold-600 focus:ring-gold-500"
-                />
-                <label
-                  htmlFor="whatsapp-optin"
-                  className="cursor-pointer text-[10px] uppercase tracking-widest text-gold-100/80"
-                >
-                  Also send me updates on WhatsApp
-                </label>
-              </div>
-            </form>
+              Start Referring
+            </Link>
           </div>
         </div>
       </div>
@@ -120,7 +90,7 @@ export function Footer() {
       <div className="mx-auto grid max-w-7xl grid-cols-1 gap-8 border-b border-gold-800/50 px-4 pb-8 sm:px-6 md:grid-cols-4 lg:px-8">
         <div>
           <h3 className="gold-shimmer mb-3 font-serif text-2xl font-bold uppercase tracking-widest">
-            Ruhvi
+            RUHVI JEWELS
           </h3>
           <p className="mb-4 text-xs leading-relaxed text-cream-200/60">
             Curating timeless elegance with modern Indian heritage
@@ -128,7 +98,7 @@ export function Footer() {
             for life&apos;s special moments.
           </p>
           <p className="flex items-center gap-1.5 text-xs text-gold-300">
-            <Gem className="h-3.5 w-3.5 text-gold-400" /> care@ruhvi.in
+            <Gem className="h-3.5 w-3.5 text-gold-400" /> support@ruhvi.in
           </p>
         </div>
 
@@ -254,8 +224,7 @@ export function Footer() {
       </div>
 
       <div className="mx-auto mt-6 max-w-7xl px-4 text-center text-xs text-cream-200/40 sm:px-6 lg:px-8">
-        © {new Date().getFullYear()} Ruhvi Jewellery Pvt Ltd. All rights
-        reserved.
+        © {new Date().getFullYear()} Ruhvi Jewels. All rights reserved.
       </div>
     </footer>
   );

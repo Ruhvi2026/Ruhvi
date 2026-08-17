@@ -34,7 +34,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://ruhvi.in'),
   title: {
     default: 'Ruhvi — Exquisite Fine Jewellery & Certified Gold',
-    template: '%s | Ruhvi Fine Jewellery',
+    template: '%s | Ruhvi Jewels',
   },
   description:
     'Discover handcrafted gold, diamond, and gemstone jewellery at Ruhvi. BIS hallmarked purity, lifetime warranty, and free insured shipping across India.',

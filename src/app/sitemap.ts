@@ -12,6 +12,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     '/contact',
     '/products',
     '/blog',
+    '/faq',
+    '/offers',
+    '/testimonials',
     '/gift-guide',
     '/size-guide',
     '/jewelry-care',
@@ -37,7 +40,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .select('slug, updated_at')
       .neq('status', 'hidden');
 
-    const products = dbProducts && dbProducts.length > 0 ? dbProducts : DEMO_PRODUCTS;
+    const products =
+      dbProducts && dbProducts.length > 0 ? dbProducts : DEMO_PRODUCTS;
 
     productEntries = products.map((p: any) => ({
       url: `${baseUrl}/products/${p.slug}`,

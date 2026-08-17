@@ -33,7 +33,9 @@ export default function ContactPage() {
       // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 1500));
       console.log('Form data:', data);
-      toast.success('Message sent successfully. We will get back to you shortly.');
+      toast.success(
+        'Message sent successfully. We will get back to you shortly.'
+      );
       reset();
     } catch (error) {
       toast.error('Failed to send message. Please try again later.');
@@ -43,92 +45,116 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-8">
-      <div className="text-center max-w-xl mx-auto">
-        <h1 className="font-serif text-3xl sm:text-4xl font-bold text-stone-900">Contact Concierge</h1>
-        <p className="text-xs text-stone-500 mt-2">
-          We are here to assist with custom orders, sizing queries, and purchase assistance.
+    <div className="mx-auto max-w-4xl space-y-8 px-4 py-12 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-xl text-center">
+        <h1 className="font-serif text-3xl font-bold text-stone-900 sm:text-4xl">
+          Contact Concierge
+        </h1>
+        <p className="mt-2 text-xs text-stone-500">
+          We are here to assist with custom orders, sizing queries, and purchase
+          assistance.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm space-y-6">
-          <h2 className="font-serif text-xl font-bold text-stone-900">Get in Touch</h2>
+      <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+        <div className="space-y-6 rounded-2xl border border-stone-200 bg-white p-6 shadow-sm">
+          <h2 className="font-serif text-xl font-bold text-stone-900">
+            Get in Touch
+          </h2>
 
           <div className="space-y-4 text-xs text-stone-700">
             <div className="flex items-center space-x-3">
-              <Mail className="w-5 h-5 text-amber-700" />
-              <span>care@ruhvi.in</span>
+              <Mail className="h-5 w-5 text-amber-700" />
+              <span>support@ruhvi.in</span>
             </div>
             <div className="flex items-center space-x-3">
-              <Phone className="w-5 h-5 text-amber-700" />
+              <Phone className="h-5 w-5 text-amber-700" />
               <span>+91 98765 43210</span>
             </div>
             <div className="flex items-center space-x-3">
-              <Clock className="w-5 h-5 text-amber-700" />
+              <Clock className="h-5 w-5 text-amber-700" />
               <span>Monday – Saturday: 10:00 AM – 7:00 PM IST</span>
             </div>
             <div className="flex items-center space-x-3">
-              <MapPin className="w-5 h-5 text-amber-700" />
-              <span>Ruhvi Fine Jewellery Pvt Ltd, Mumbai, Maharashtra, India</span>
+              <MapPin className="h-5 w-5 text-amber-700" />
+              <span>Ruhvi Jewels, Mumbai, Maharashtra, India</span>
             </div>
           </div>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm space-y-4">
-          <h2 className="font-serif text-xl font-bold text-stone-900">Send Us a Message</h2>
-          
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="space-y-4 rounded-2xl border border-stone-200 bg-white p-6 shadow-sm"
+        >
+          <h2 className="font-serif text-xl font-bold text-stone-900">
+            Send Us a Message
+          </h2>
+
           <div>
-            <label className="block text-xs font-semibold text-stone-700 mb-1">Your Name</label>
-            <input 
-              type="text" 
+            <label className="mb-1 block text-xs font-semibold text-stone-700">
+              Your Name
+            </label>
+            <input
+              type="text"
               {...register('name')}
-              className={`w-full px-3 py-2 text-xs border rounded-lg focus:ring-2 focus:ring-amber-500 outline-none transition-all ${
+              className={`w-full rounded-lg border px-3 py-2 text-xs outline-none transition-all focus:ring-2 focus:ring-amber-500 ${
                 errors.name ? 'border-rose-500 bg-rose-50' : 'border-stone-300'
-              }`} 
+              }`}
               disabled={isSubmitting}
             />
             {errors.name && (
-              <p className="text-rose-500 text-[10px] mt-1">{errors.name.message}</p>
+              <p className="mt-1 text-[10px] text-rose-500">
+                {errors.name.message}
+              </p>
             )}
           </div>
-          
+
           <div>
-            <label className="block text-xs font-semibold text-stone-700 mb-1">Email</label>
-            <input 
-              type="email" 
+            <label className="mb-1 block text-xs font-semibold text-stone-700">
+              Email
+            </label>
+            <input
+              type="email"
               {...register('email')}
-              className={`w-full px-3 py-2 text-xs border rounded-lg focus:ring-2 focus:ring-amber-500 outline-none transition-all ${
+              className={`w-full rounded-lg border px-3 py-2 text-xs outline-none transition-all focus:ring-2 focus:ring-amber-500 ${
                 errors.email ? 'border-rose-500 bg-rose-50' : 'border-stone-300'
-              }`} 
+              }`}
               disabled={isSubmitting}
             />
             {errors.email && (
-              <p className="text-rose-500 text-[10px] mt-1">{errors.email.message}</p>
+              <p className="mt-1 text-[10px] text-rose-500">
+                {errors.email.message}
+              </p>
             )}
           </div>
-          
+
           <div>
-            <label className="block text-xs font-semibold text-stone-700 mb-1">Message</label>
-            <textarea 
-              rows={3} 
+            <label className="mb-1 block text-xs font-semibold text-stone-700">
+              Message
+            </label>
+            <textarea
+              rows={3}
               {...register('message')}
-              className={`w-full px-3 py-2 text-xs border rounded-lg focus:ring-2 focus:ring-amber-500 outline-none transition-all ${
-                errors.message ? 'border-rose-500 bg-rose-50' : 'border-stone-300'
-              }`} 
+              className={`w-full rounded-lg border px-3 py-2 text-xs outline-none transition-all focus:ring-2 focus:ring-amber-500 ${
+                errors.message
+                  ? 'border-rose-500 bg-rose-50'
+                  : 'border-stone-300'
+              }`}
               disabled={isSubmitting}
             />
             {errors.message && (
-              <p className="text-rose-500 text-[10px] mt-1">{errors.message.message}</p>
+              <p className="mt-1 text-[10px] text-rose-500">
+                {errors.message.message}
+              </p>
             )}
           </div>
-          
-          <button 
-            type="submit" 
+
+          <button
+            type="submit"
             disabled={isSubmitting}
-            className="w-full py-2.5 bg-amber-950 text-white text-xs font-semibold uppercase tracking-wider rounded-lg hover:bg-amber-900 transition-colors disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+            className="flex w-full items-center justify-center space-x-2 rounded-lg bg-amber-950 py-2.5 text-xs font-semibold uppercase tracking-wider text-white transition-colors hover:bg-amber-900 disabled:cursor-not-allowed disabled:opacity-70"
           >
-            {isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
+            {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
             <span>{isSubmitting ? 'Sending...' : 'Send Message'}</span>
           </button>
         </form>

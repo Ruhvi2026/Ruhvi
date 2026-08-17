@@ -92,8 +92,8 @@ export function Navbar() {
               )}
             </button>
             <Link href="/" className="flex items-center space-x-1 sm:space-x-2">
-              <span className="gold-shimmer font-serif text-xl font-bold uppercase tracking-widest sm:text-3xl">
-                Ruhvi
+              <span className="font-serif text-xl font-bold tracking-widest text-gold-500">
+                RUHVI JEWELS
               </span>
               <span className="hidden rounded border border-gold-300/60 bg-gold-100 px-1.5 py-0.5 font-sans text-[10px] font-semibold uppercase tracking-widest text-gold-800 sm:inline-block">
                 Jewellery

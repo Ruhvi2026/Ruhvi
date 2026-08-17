@@ -129,9 +129,8 @@ export default async function HomePage() {
             </h1>
 
             <p className="mx-auto max-w-xl text-sm font-light leading-relaxed text-slate-600 sm:text-base lg:mx-0">
-              Explore Ruhvi&apos;s signature collections of certified 22K Gold,
-              VVS Solitaires, and modern designs crafted for life&apos;s
-              beautiful moments.
+              Explore Ruhvi&apos;s signature collections of certified 22K Gold
+              and modern designs crafted for life&apos;s beautiful moments.
             </p>
 
             <div className="flex flex-col items-stretch justify-center gap-3 pt-2 sm:flex-row sm:items-center sm:gap-4 lg:justify-start">
@@ -152,16 +151,6 @@ export default async function HomePage() {
 
             <div className="flex items-center justify-center gap-3 pt-4 text-[11px] font-medium text-slate-500 lg:justify-start">
               <span className="flex items-center gap-1.5">
-                <Star className="h-3.5 w-3.5 fill-gold-500 text-gold-500" /> 4.9
-                Rated
-              </span>
-              <span className="h-1 w-1 rounded-full bg-gold-400" />
-              <span className="flex items-center gap-1.5">
-                <BadgeCheck className="h-3.5 w-3.5 text-gold-600" /> BIS
-                Hallmarked
-              </span>
-              <span className="h-1 w-1 rounded-full bg-gold-400" />
-              <span className="flex items-center gap-1.5">
                 <ShieldCheck className="h-3.5 w-3.5 text-gold-600" /> Lifetime
                 Warranty
               </span>
@@ -179,7 +168,7 @@ export default async function HomePage() {
                     <div className="inline-flex items-center gap-2 rounded-full border border-gold-400/40 bg-charcoal-900/85 px-4 py-2 shadow-lg backdrop-blur">
                       <Gem className="h-4 w-4 text-gold-400" />
                       <span className="text-[11px] font-semibold uppercase tracking-widest text-cream-100">
-                        Handcrafted 22K Gold · VVS Solitaires
+                        Handcrafted 22K Gold
                       </span>
                     </div>
                   </div>
@@ -195,13 +184,8 @@ export default async function HomePage() {
 
       {/* ============ Trust Strip ============ */}
       <section className="mx-auto -mt-2 max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-4">
+        <div className="grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-3">
           {[
-            {
-              icon: Gem,
-              title: 'BIS Hallmarked',
-              sub: 'Certified 22K purity on every piece',
-            },
             {
               icon: Truck,
               title: 'Insured Shipping',
