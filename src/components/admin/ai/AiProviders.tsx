@@ -130,6 +130,39 @@ export default function AiProviders({
     updateProvider(id, 'apiKey', '__CLEAR_KEY__');
   };
 
+  const handleCredentialsChange = (providerId: string, creds: any[]) => {
+    const enabledCreds = creds.filter((c: any) => c.is_enabled !== false);
+    const healthyCreds = enabledCreds.filter(
+      (c: any) => c.health_status !== 'invalid'
+    );
+    const hasCreds = enabledCreds.length > 0;
+
+    setProviders(
+      providers.map((p) => {
+        if (p.id === providerId || p.type === providerId) {
+          if (hasCreds) {
+            return {
+              ...p,
+              hasKey: true,
+              status:
+                healthyCreds.length > 0
+                  ? p.isEnabled
+                    ? 'online'
+                    : 'offline'
+                  : 'offline',
+              maskedKey:
+                p.maskedKey ||
+                (enabledCreds[0]?.display_name
+                  ? `•••••••••••• (${enabledCreds.length} Key${enabledCreds.length > 1 ? 's' : ''})`
+                  : '••••••••••••'),
+            };
+          }
+        }
+        return p;
+      })
+    );
+  };
+
   const testConnection = async (provider: any) => {
     setTestingProvider(provider.id);
     const startTime = Date.now();
@@ -791,6 +824,9 @@ export default function AiProviders({
                             <CredentialManager
                               providerId={provider.id}
                               providerName={provider.name}
+                              onCredentialsChange={(creds) =>
+                                handleCredentialsChange(provider.id, creds)
+                              }
                             />
                           </div>
 

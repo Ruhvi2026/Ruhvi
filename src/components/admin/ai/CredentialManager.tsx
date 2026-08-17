@@ -27,6 +27,7 @@ import type { ProviderCredential } from './types';
 interface CredentialManagerProps {
   providerId: string;
   providerName: string;
+  onCredentialsChange?: (credentials: ProviderCredential[]) => void;
 }
 
 const HEALTH_CONFIG: Record<
@@ -107,6 +108,7 @@ function formatCooldown(until: string | null): string {
 export default function CredentialManager({
   providerId,
   providerName,
+  onCredentialsChange,
 }: CredentialManagerProps) {
   const [credentials, setCredentials] = useState<ProviderCredential[]>([]);
   const [loading, setLoading] = useState(true);
@@ -143,14 +145,16 @@ export default function CredentialManager({
       );
       if (res.ok) {
         const data = await res.json();
-        setCredentials(data.credentials || []);
+        const creds = data.credentials || [];
+        setCredentials(creds);
+        onCredentialsChange?.(creds);
       }
     } catch {
       /* silently fail */
     } finally {
       setLoading(false);
     }
-  }, [providerId]);
+  }, [providerId, onCredentialsChange]);
 
   useEffect(() => {
     fetchCredentials();

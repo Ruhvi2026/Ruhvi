@@ -75,7 +75,22 @@ export async function POST(req: Request) {
       candidateKey,
       dbKey
     );
-    const apiKey = keyResolution.apiKey;
+    let apiKey = keyResolution.apiKey;
+
+    // If no direct key or legacy settings key found, check ai_provider_credentials table
+    if (!apiKey) {
+      const { data: creds } = await supabaseAdmin
+        .from('ai_provider_credentials')
+        .select('encrypted_key')
+        .eq('provider_id', providerId)
+        .eq('is_enabled', true)
+        .neq('health_status', 'invalid')
+        .order('priority', { ascending: true })
+        .limit(1);
+      if (creds && creds.length > 0 && creds[0].encrypted_key) {
+        apiKey = creds[0].encrypted_key;
+      }
+    }
 
     let models: string[] = [];
     let rawOpenRouterData: any[] = [];

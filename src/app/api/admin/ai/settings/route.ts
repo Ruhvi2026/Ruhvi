@@ -2,7 +2,11 @@ import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { decodeJwt } from 'jose';
 import { createServerClient } from '@supabase/ssr';
-import { resolveEffectiveApiKey, isMaskedPlaceholder } from '@/lib/ai/keys';
+import {
+  resolveEffectiveApiKey,
+  isMaskedPlaceholder,
+  maskApiKey,
+} from '@/lib/ai/keys';
 
 async function verifyAdmin() {
   const cookieStore = await cookies();
@@ -141,10 +145,46 @@ export async function GET(req: Request) {
       });
     }
 
-    // Resolve API key status for each provider (DB key or ENV key)
+    // Query active credentials from ai_provider_credentials table to support multi-credential engine
+    const { data: dbCredentials } = await supabaseAdmin
+      .from('ai_provider_credentials')
+      .select(
+        'provider_id, health_status, encrypted_key, is_enabled, priority, display_name'
+      )
+      .order('priority', { ascending: true });
+
+    const credsByProvider: Record<string, any[]> = {};
+    (dbCredentials || []).forEach((c: any) => {
+      if (!credsByProvider[c.provider_id]) {
+        credsByProvider[c.provider_id] = [];
+      }
+      credsByProvider[c.provider_id].push(c);
+    });
+
+    // Resolve API key status for each provider (DB multi-cred, DB legacy key, or ENV key)
     const sanitizedProviders = rawProviders.map((p: any) => {
       const type = p.type || p.id;
       const keyInfo = resolveEffectiveApiKey(type, null, p.apiKey);
+      const providerCreds = credsByProvider[type] || [];
+      const enabledCreds = providerCreds.filter(
+        (c: any) => c.is_enabled !== false
+      );
+      const healthyCreds = enabledCreds.filter(
+        (c: any) => c.health_status !== 'invalid'
+      );
+
+      const hasMultiCreds = enabledCreds.length > 0;
+      const hasKey = keyInfo.hasKey || hasMultiCreds;
+
+      let maskedKey = '';
+      if (keyInfo.hasKey) {
+        maskedKey = keyInfo.maskedKey;
+      } else if (hasMultiCreds) {
+        const topCred = enabledCreds[0];
+        maskedKey = topCred?.encrypted_key
+          ? maskApiKey(topCred.encrypted_key)
+          : '••••••••••••';
+      }
 
       let models = p.models || [];
       if (type === 'gemini') {
@@ -160,16 +200,23 @@ export async function GET(req: Request) {
         }
       }
 
+      const isOnline = keyInfo.hasKey || healthyCreds.length > 0;
+
       return {
         ...p,
         id: p.id || type,
         type: type,
         apiKey: '', // Keep clean on frontend to avoid autofill/fake asterisks issues
-        hasKey: keyInfo.hasKey,
+        hasKey,
         isEnvKey: keyInfo.isEnvKey,
-        maskedKey: keyInfo.maskedKey,
+        maskedKey,
+        credentialCount: providerCreds.length,
         models,
-        status: keyInfo.hasKey ? p.status || 'online' : 'offline',
+        status: isOnline
+          ? p.isEnabled !== false
+            ? 'online'
+            : 'offline'
+          : 'offline',
       };
     });
 
@@ -317,15 +364,59 @@ export async function POST(req: Request) {
     // Re-sanitize providers for the response
     let sanitizedProviders: any[] = [];
     if (body.ai_providers) {
+      const { data: dbCredentials } = await supabaseAdmin
+        .from('ai_provider_credentials')
+        .select(
+          'provider_id, health_status, encrypted_key, is_enabled, priority, display_name'
+        )
+        .order('priority', { ascending: true });
+
+      const credsByProvider: Record<string, any[]> = {};
+      (dbCredentials || []).forEach((c: any) => {
+        if (!credsByProvider[c.provider_id]) {
+          credsByProvider[c.provider_id] = [];
+        }
+        credsByProvider[c.provider_id].push(c);
+      });
+
       sanitizedProviders = body.ai_providers.map((p: any) => {
         const type = p.type || p.id;
         const keyInfo = resolveEffectiveApiKey(type, null, p.apiKey);
+        const providerCreds = credsByProvider[type] || [];
+        const enabledCreds = providerCreds.filter(
+          (c: any) => c.is_enabled !== false
+        );
+        const healthyCreds = enabledCreds.filter(
+          (c: any) => c.health_status !== 'invalid'
+        );
+
+        const hasMultiCreds = enabledCreds.length > 0;
+        const hasKey = keyInfo.hasKey || hasMultiCreds;
+
+        let maskedKey = '';
+        if (keyInfo.hasKey) {
+          maskedKey = keyInfo.maskedKey;
+        } else if (hasMultiCreds) {
+          const topCred = enabledCreds[0];
+          maskedKey = topCred?.encrypted_key
+            ? maskApiKey(topCred.encrypted_key)
+            : '••••••••••••';
+        }
+
+        const isOnline = keyInfo.hasKey || healthyCreds.length > 0;
+
         return {
           ...p,
           apiKey: '',
-          hasKey: keyInfo.hasKey,
+          hasKey,
           isEnvKey: keyInfo.isEnvKey,
-          maskedKey: keyInfo.maskedKey,
+          maskedKey,
+          credentialCount: providerCreds.length,
+          status: isOnline
+            ? p.isEnabled !== false
+              ? 'online'
+              : 'offline'
+            : 'offline',
         };
       });
     }

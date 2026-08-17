@@ -67,12 +67,27 @@ export async function POST(req: Request) {
       candidateKey,
       dbKey
     );
-    const key = keyResolution.apiKey;
+    let key = keyResolution.apiKey;
+
+    // If no direct key or legacy settings key found, check ai_provider_credentials table
+    if (!key) {
+      const { data: creds } = await supabaseAdmin
+        .from('ai_provider_credentials')
+        .select('encrypted_key')
+        .eq('provider_id', typeToTest)
+        .eq('is_enabled', true)
+        .neq('health_status', 'invalid')
+        .order('priority', { ascending: true })
+        .limit(1);
+      if (creds && creds.length > 0 && creds[0].encrypted_key) {
+        key = creds[0].encrypted_key;
+      }
+    }
 
     if (!key && typeToTest !== 'custom') {
       return NextResponse.json(
         {
-          error: `No API key configured for ${typeToTest}. Please enter an API key or configure ${typeToTest.toUpperCase()}_API_KEY in environment.`,
+          error: `No API key configured for ${typeToTest}. Please enter an API key or add a credential under API Credentials.`,
         },
         { status: 400 }
       );
