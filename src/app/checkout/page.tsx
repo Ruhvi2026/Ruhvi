@@ -41,6 +41,9 @@ export default function CheckoutPage() {
   const [selectedAddressId, setSelectedAddressId] = useState<string>('');
   const [showNewAddressForm, setShowNewAddressForm] = useState<boolean>(true);
 
+  const [needsMobileVerification, setNeedsMobileVerification] = useState(false);
+  const [needsEmailVerification, setNeedsEmailVerification] = useState(false);
+
   // Cleanup reCAPTCHA on unmount
   useEffect(() => {
     return () => {
@@ -56,7 +59,7 @@ export default function CheckoutPage() {
   // Fetch saved user addresses from Supabase when user is logged in
   useEffect(() => {
     if (isLoggedIn) {
-      const fetchAddresses = async () => {
+      const fetchAddressesAndProfile = async () => {
         try {
           const supabase = createClient();
           const userIdFilter = [
@@ -64,32 +67,51 @@ export default function CheckoutPage() {
             profile?.id,
             auth?.currentUser?.uid,
           ].filter(Boolean);
-          let query = supabase.from('addresses').select('*');
-          if (userIdFilter.length > 0) {
-            query = query.in('user_id', userIdFilter);
-          }
-          const { data, error } = await query.order('is_default', {
-            ascending: false,
-          });
 
-          if (!error && data && data.length > 0) {
-            setAddresses(data as Address[]);
-            const defaultAddr = data.find((a: any) => a.is_default) || data[0];
-            setSelectedAddressId(defaultAddr.id);
-            setShowNewAddressForm(false);
-          } else {
-            setAddresses([]);
-            setShowNewAddressForm(true);
+          if (userIdFilter.length > 0) {
+            // Fetch addresses
+            const { data, error } = await supabase
+              .from('addresses')
+              .select('*')
+              .in('user_id', userIdFilter)
+              .order('is_default', { ascending: false });
+
+            if (!error && data && data.length > 0) {
+              setAddresses(data as Address[]);
+              const defaultAddr =
+                data.find((a: any) => a.is_default) || data[0];
+              setSelectedAddressId(defaultAddr.id);
+              setShowNewAddressForm(false);
+            } else {
+              setAddresses([]);
+              setShowNewAddressForm(true);
+            }
+
+            // Fetch profile verification status
+            const { data: profileData } = await supabase
+              .from('users')
+              .select('phone_verified, email_verified, email')
+              .in('id', userIdFilter)
+              .single();
+
+            if (profileData) {
+              setNeedsMobileVerification(!profileData.phone_verified);
+              setNeedsEmailVerification(
+                !!(profileData.email && !profileData.email_verified)
+              );
+            }
           }
         } catch (err) {
-          console.error('Error loading saved addresses:', err);
+          console.error('Error loading saved addresses or profile:', err);
           setShowNewAddressForm(true);
         }
       };
-      fetchAddresses();
+      fetchAddressesAndProfile();
     } else {
       setAddresses([]);
       setShowNewAddressForm(true);
+      setNeedsMobileVerification(false);
+      setNeedsEmailVerification(false);
     }
   }, [isLoggedIn, user, profile]);
 
@@ -680,8 +702,39 @@ export default function CheckoutPage() {
               )}
             </div>
 
+            {/* Step 2.5: Identity Verification */}
+            {(needsMobileVerification || needsEmailVerification) && (
+              <div className="space-y-4 rounded-2xl border border-rose-200 bg-rose-50 p-6 shadow-sm">
+                <div className="flex items-center space-x-2 border-b border-rose-100 pb-4">
+                  <AlertCircle className="h-4 w-4 text-rose-700" />
+                  <h3 className="text-sm font-semibold uppercase tracking-wider text-rose-900">
+                    Action Required: Verify Identity
+                  </h3>
+                </div>
+                <p className="text-xs text-rose-800">
+                  For your security, please verify your{' '}
+                  {needsMobileVerification ? 'mobile number' : ''}
+                  {needsMobileVerification && needsEmailVerification
+                    ? ' and '
+                    : ''}
+                  {needsEmailVerification ? 'email address' : ''} to continue
+                  with your checkout.
+                </p>
+                <div className="flex gap-4">
+                  <button
+                    onClick={() => router.push('/account/settings')}
+                    className="rounded-lg bg-rose-700 px-4 py-2 text-xs font-bold text-white shadow-sm hover:bg-rose-800"
+                  >
+                    Verify Now
+                  </button>
+                </div>
+              </div>
+            )}
+
             {/* Step 3: Payment Method */}
-            <div className="space-y-4 rounded-2xl border border-stone-200 bg-white p-6 shadow-sm">
+            <div
+              className={`space-y-4 rounded-2xl border border-stone-200 bg-white p-6 shadow-sm ${needsMobileVerification || needsEmailVerification ? 'pointer-events-none opacity-50' : ''}`}
+            >
               <div className="flex items-center space-x-2 border-b border-stone-100 pb-4">
                 <CreditCard className="h-4 w-4 text-amber-800" />
                 <h3 className="text-sm font-semibold uppercase tracking-wider text-stone-900">

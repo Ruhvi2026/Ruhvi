@@ -19,34 +19,53 @@ import {
 
 /**
  * Sync user profile to Supabase after successful login/linking.
+ * This explicitly calls the sync-token route to resolve identities via Path B.
  */
 export async function upsertUserProfile(user: User) {
-  const supabase = createClient();
-  const { error } = await supabase.rpc('sync_firebase_user', {
-    p_uid: user.uid,
-    p_email: user.email || null,
-    p_name: user.displayName || null,
-    p_phone: user.phoneNumber || null,
-  });
+  try {
+    const idToken = await user.getIdToken(true);
+    const response = await fetch('/api/auth/sync-token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ idToken }),
+    });
 
-  if (error) {
-    console.error('Supabase profile sync error:', error);
+    if (!response.ok) {
+      console.error(
+        'Failed to sync profile via sync-token',
+        await response.text()
+      );
+    }
+  } catch (error) {
+    console.error('Profile sync error:', error);
   }
 }
 
 /**
  * Handle "account-exists-with-different-credential" collision.
  */
-function handleAuthCollision(error: any): never {
-  if (error.code === 'auth/account-exists-with-different-credential') {
-    const email = error.customData?.email;
-    if (email) {
-      throw new Error(
-        `An account already exists with the same email address (${email}). ` +
-          `Please sign in using your existing provider to link this new credential.`
-      );
-    }
+export function handleAuthCollision(error: any): never {
+  if (
+    error.code === 'auth/account-exists-with-different-credential' ||
+    error.code === 'auth/email-already-in-use' ||
+    error.code === 'auth/credential-already-in-use'
+  ) {
+    const email = error.customData?.email || 'this email';
+    throw new Error(
+      `Looks like you already have an account with ${email}. Sign in instead, or use a different email.`
+    );
   }
+
+  if (error.code === 'auth/provider-already-linked') {
+    throw new Error('This is already connected to your account');
+  }
+  if (error.code === 'auth/invalid-verification-code') {
+    throw new Error("That code didn't match — try again");
+  }
+  if (error.code === 'auth/too-many-requests') {
+    throw new Error('Too many attempts — try again in a few minutes');
+  }
+
   throw error;
 }
 

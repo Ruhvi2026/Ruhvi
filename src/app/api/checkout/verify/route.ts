@@ -51,6 +51,40 @@ export async function POST(req: Request) {
       );
     }
 
+    // Server-side enforcement of checkout verification (Section 17)
+    if (user) {
+      const { data: userProfile, error: profileError } = await supabase
+        .from('users')
+        .select('phone_verified, email_verified, email')
+        .eq('id', user.id)
+        .single();
+
+      if (profileError || !userProfile) {
+        return NextResponse.json(
+          { error: 'Failed to fetch user profile verification status.' },
+          { status: 500 }
+        );
+      }
+
+      if (!userProfile.phone_verified) {
+        return NextResponse.json(
+          {
+            error:
+              'Mobile number verification is required before placing an order.',
+          },
+          { status: 403 }
+        );
+      }
+
+      // If they have an email but it's not verified, we block it.
+      if (userProfile.email && !userProfile.email_verified) {
+        return NextResponse.json(
+          { error: 'Email verification is required before placing an order.' },
+          { status: 403 }
+        );
+      }
+    }
+
     // If no authenticated user (for online payment), create a temporary guest user so the order saves to Supabase
     if (!user) {
       console.log(

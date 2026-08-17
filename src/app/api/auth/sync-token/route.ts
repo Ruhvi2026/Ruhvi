@@ -41,22 +41,39 @@ export async function POST(request: NextRequest) {
     const phone = (payload.phone_number as string) || null;
     const name = (payload.name as string) || null;
 
+    // Extract verification and provider details for Path B resolution
+    const firebase = (payload.firebase as any) || {};
+    const provider = firebase.sign_in_provider || 'password';
+
+    const emailVerified = !!payload.email_verified;
+    // Phone numbers are implicitly verified in Firebase if they are present in the top-level claim
+    const phoneVerified = !!phone;
+
+    const providerIdentifier =
+      provider === 'phone' ? phone : email || firebaseUid;
+
     const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
       auth: { autoRefreshToken: false, persistSession: false },
     });
 
-    // Upsert the user profile — creates it if it doesn't exist, updates it if it does.
-    // This is the permanent, self-healing fix: no more 404 for missing profiles.
+    // Resolve the user profile via Path A/B.
     const { data: supabaseUserId, error: upsertError } =
-      await supabaseAdmin.rpc('upsert_firebase_user', {
-        p_uid: firebaseUid,
+      await supabaseAdmin.rpc('resolve_customer_identity', {
+        p_firebase_uid: firebaseUid,
+        p_provider: provider,
+        p_provider_identifier: providerIdentifier,
         p_email: email,
-        p_name: name,
+        p_email_verified: emailVerified,
         p_phone: phone,
+        p_phone_verified: phoneVerified,
+        p_name: name,
       });
 
     if (upsertError || !supabaseUserId) {
-      console.error('[sync-token] Failed to upsert user profile:', upsertError);
+      console.error(
+        '[sync-token] Failed to resolve user identity:',
+        upsertError
+      );
       return NextResponse.json(
         { error: 'Failed to sync user profile.' },
         { status: 500 }
