@@ -92,7 +92,9 @@ export async function POST(req: Request) {
         fallback_provider:
           recoveryType === 'recovered' ? fallbackProvider : undefined,
         model:
-          recoveryType === 'recovered' ? 'claude-3-haiku' : 'gemini-2.5-flash',
+          recoveryType === 'recovered'
+            ? 'claude-3-haiku'
+            : 'gemini-3.5-flash-lite',
         error_message:
           recoveryType === 'recovered'
             ? `Primary provider '${failedProvider}' timed out after 3500ms. Fallback successfully engaged with '${fallbackProvider}'.`

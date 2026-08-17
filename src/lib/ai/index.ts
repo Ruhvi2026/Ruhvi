@@ -393,7 +393,13 @@ export async function generateAIContent(
     ? providersData.value
     : [];
   const primaryProviderId = featureConfig.provider;
-  const primaryModel = featureConfig.model;
+  let primaryModel = featureConfig.model;
+  if (
+    primaryProviderId === 'gemini' &&
+    (!primaryModel || primaryModel === 'gemini-2.5-flash')
+  ) {
+    primaryModel = 'gemini-3.5-flash-lite';
+  }
 
   const executionChain: Array<{ id: string; model: string; config: any }> = [];
 
@@ -413,16 +419,19 @@ export async function generateAIContent(
     .sort((a, b) => (a.priority || 99) - (b.priority || 99));
 
   for (const fp of fallbackProviders) {
-    const fpModel =
+    let fpModel =
       fp.models && fp.models.length > 0
         ? fp.models[0]
         : fp.type === 'gemini'
-          ? 'gemini-2.5-flash'
+          ? 'gemini-3.5-flash-lite'
           : fp.type === 'custom'
             ? 'auto/best-fast'
             : fp.type === 'deepseek'
               ? 'deepseek-chat'
               : 'gpt-4o-mini';
+    if (fp.type === 'gemini' && fpModel === 'gemini-2.5-flash') {
+      fpModel = 'gemini-3.5-flash-lite';
+    }
     executionChain.push({ id: fp.id, model: fpModel, config: fp });
   }
 

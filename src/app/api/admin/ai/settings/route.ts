@@ -25,9 +25,12 @@ const DEFAULT_PROVIDERS = [
     apiKey: '',
     isEnabled: true,
     models: [
+      'gemini-3.5-flash-lite',
+      'gemini-3.5-flash',
+      'gemini-3.7-flash',
+      'gemini-2.5-flash-lite',
       'gemini-flash-latest',
       'gemini-pro-latest',
-      'gemini-1.5-flash-latest',
     ],
     priority: 1,
     status: 'online',
@@ -143,6 +146,20 @@ export async function GET(req: Request) {
       const type = p.type || p.id;
       const keyInfo = resolveEffectiveApiKey(type, null, p.apiKey);
 
+      let models = p.models || [];
+      if (type === 'gemini') {
+        // Ensure gemini-3.5-flash-lite is the default model and remove deprecated gemini-2.5-flash
+        models = models.filter((m: string) => m !== 'gemini-2.5-flash');
+        if (!models.includes('gemini-3.5-flash-lite')) {
+          models.unshift('gemini-3.5-flash-lite');
+        } else if (models[0] !== 'gemini-3.5-flash-lite') {
+          models = [
+            'gemini-3.5-flash-lite',
+            ...models.filter((m: string) => m !== 'gemini-3.5-flash-lite'),
+          ];
+        }
+      }
+
       return {
         ...p,
         id: p.id || type,
@@ -151,6 +168,7 @@ export async function GET(req: Request) {
         hasKey: keyInfo.hasKey,
         isEnvKey: keyInfo.isEnvKey,
         maskedKey: keyInfo.maskedKey,
+        models,
         status: keyInfo.hasKey ? p.status || 'online' : 'offline',
       };
     });
@@ -166,19 +184,37 @@ export async function GET(req: Request) {
       enablePiiRedaction: true,
       routingStrategy: 'priority',
     };
+
     result.ai_features = result.ai_features || {
       product_description: {
         provider: 'gemini',
-        model: 'gemini-2.5-flash',
+        model: 'gemini-3.5-flash-lite',
         enabled: true,
       },
       seo_metadata: {
         provider: 'gemini',
-        model: 'gemini-2.5-flash',
+        model: 'gemini-3.5-flash-lite',
         enabled: true,
       },
-      chatbot: { provider: 'gemini', model: 'gemini-2.5-flash', enabled: true },
+      chatbot: {
+        provider: 'gemini',
+        model: 'gemini-3.5-flash-lite',
+        enabled: true,
+      },
     };
+
+    // Upgrade any legacy gemini-2.5-flash references in ai_features
+    if (result.ai_features) {
+      Object.keys(result.ai_features).forEach((key) => {
+        if (
+          result.ai_features[key]?.provider === 'gemini' &&
+          (!result.ai_features[key]?.model ||
+            result.ai_features[key]?.model === 'gemini-2.5-flash')
+        ) {
+          result.ai_features[key].model = 'gemini-3.5-flash-lite';
+        }
+      });
+    }
     result.ai_prompts = result.ai_prompts || {
       product_description: 'You are a world-class E-commerce SEO Expert...',
       seo_metadata: 'Focus on generating high-converting keywords...',

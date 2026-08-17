@@ -80,7 +80,9 @@ export async function POST(req: Request) {
 
     if (typeToTest === 'gemini') {
       const genAI = new GoogleGenerativeAI(key);
-      const model = genAI.getGenerativeModel({ model: 'gemini-flash-latest' });
+      const model = genAI.getGenerativeModel({
+        model: 'gemini-3.5-flash-lite',
+      });
 
       const result = await model.generateContent('Say hello world.');
       const response = await result.response;

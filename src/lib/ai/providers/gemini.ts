@@ -11,6 +11,13 @@ export class GeminiProvider implements AIProvider {
     this.genAI = new GoogleGenerativeAI(apiKey);
   }
 
+  private resolveModelName(modelName?: string): string {
+    if (!modelName || modelName === 'gemini-2.5-flash') {
+      return 'gemini-3.5-flash-lite';
+    }
+    return modelName;
+  }
+
   async generateStructuredProductContent(
     prompt: string,
     modelName: string
@@ -22,8 +29,9 @@ export class GeminiProvider implements AIProvider {
       throw new Error('Gemini provider is not initialized. Check the API key.');
     }
 
+    const effectiveModel = this.resolveModelName(modelName);
     const model = this.genAI.getGenerativeModel({
-      model: modelName || 'gemini-2.5-flash',
+      model: effectiveModel,
       generationConfig: {
         responseMimeType: 'application/json',
       },
@@ -36,7 +44,7 @@ export class GeminiProvider implements AIProvider {
 
       const usageMetadata = response.usageMetadata;
       const tokens = usageMetadata?.totalTokenCount || 0;
-      // Estimate: Gemini 1.5 Flash is ~$0.075 per 1M tokens (0.000000075 per token)
+      // Estimate: Gemini Flash Lite is ~$0.075 per 1M tokens (0.000000075 per token)
       const cost = tokens * 0.000000075;
 
       return {
@@ -69,8 +77,9 @@ export class GeminiProvider implements AIProvider {
       parameters: t.parameters as any, // simplified conversion for schema
     }));
 
+    const effectiveModel = this.resolveModelName(modelName);
     const model = this.genAI.getGenerativeModel({
-      model: modelName || 'gemini-2.5-flash',
+      model: effectiveModel,
       tools: [{ functionDeclarations: geminiTools }],
     });
 
