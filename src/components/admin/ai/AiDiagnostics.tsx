@@ -21,6 +21,9 @@ import {
   Info,
   ChevronDown,
   ChevronUp,
+  KeyRound,
+  GitBranch,
+  Hash,
 } from 'lucide-react';
 import { AiComponentProps } from './types';
 
@@ -519,6 +522,43 @@ export default function AiDiagnostics(props: AiComponentProps) {
                               ? 'Fallback Exhausted'
                               : 'Retrying Next Node'}
                         </span>
+
+                        {/* Credential name badge — shown when available */}
+                        {(item.metadata?.credential_name ||
+                          item.metadata?.credential_id) && (
+                          <span className="flex items-center gap-1 rounded border border-amber-500/20 bg-amber-500/10 px-2 py-0.5 font-mono text-[10px] font-medium text-amber-300">
+                            <KeyRound className="h-2.5 w-2.5" />
+                            {item.metadata?.credential_name ||
+                              `cred:${String(item.metadata?.credential_id).slice(0, 8)}`}
+                          </span>
+                        )}
+
+                        {/* Correlation ID badge */}
+                        {item.metadata?.correlation_id && (
+                          <span
+                            className="flex items-center gap-1 rounded border border-gray-600/50 bg-gray-700/40 px-2 py-0.5 font-mono text-[10px] text-gray-400"
+                            title={item.metadata.correlation_id}
+                          >
+                            <Hash className="h-2.5 w-2.5" />
+                            {String(item.metadata.correlation_id).slice(0, 8)}
+                          </span>
+                        )}
+
+                        {/* Fallback action badge */}
+                        {item.metadata?.fallback_action && (
+                          <span className="flex items-center gap-1 rounded border border-indigo-500/20 bg-indigo-500/10 px-2 py-0.5 text-[10px] font-medium text-indigo-300">
+                            <GitBranch className="h-2.5 w-2.5" />
+                            {item.metadata.fallback_action}
+                          </span>
+                        )}
+
+                        {/* Error category badge — more specific than error_type */}
+                        {item.metadata?.error_category &&
+                          item.metadata.error_category !== item.error_type && (
+                            <span className="rounded border border-gray-600/40 bg-gray-800/60 px-2 py-0.5 font-mono text-[10px] text-gray-500">
+                              {item.metadata.error_category}
+                            </span>
+                          )}
                       </div>
 
                       {/* Route Path Indicator */}

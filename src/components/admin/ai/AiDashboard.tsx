@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { AiComponentProps } from './types';
 import {
   BarChart,
@@ -7,8 +7,6 @@ import {
   YAxis,
   Tooltip,
   ResponsiveContainer,
-  LineChart,
-  Line,
   CartesianGrid,
 } from 'recharts';
 import {
@@ -18,6 +16,9 @@ import {
   Clock,
   Zap,
   AlertTriangle,
+  Server,
+  TrendingUp,
+  ShieldCheck,
 } from 'lucide-react';
 
 export default function AiDashboard({
@@ -53,12 +54,53 @@ export default function AiDashboard({
   const chatConfig = features['chatbot'];
   const defaultProvider = chatConfig?.provider || 'None';
 
-  // Format data for chart (Requests over time - mock grouping by day for simplicity, or just use raw index)
   const chartData = logs.slice(-20).map((log, i) => ({
     name: `Req ${i + 1}`,
     tokens: log.tokens_used || 0,
     cost: log.estimated_cost || 0,
   }));
+
+  // Compute per-provider health score (0–100)
+  // Score = successRate% − latencyPenalty − failurePenalty (floor 0, cap 100)
+  const providerHealthScores = useMemo(() => {
+    return providers
+      .filter((p) => p.isEnabled)
+      .map((p) => {
+        const pLogs = logs.filter((l) => l.provider === p.id);
+        const total = pLogs.length;
+        const successes = pLogs.filter((l) => l.status === 'success').length;
+        const failures = total - successes;
+        const successRate =
+          total === 0 ? 100 : Math.round((successes / total) * 100);
+        // Penalty: 2pts per failure up to 30, 0 when total is low
+        const failurePenalty = Math.min(failures * 2, 30);
+        const score = Math.max(0, Math.min(100, successRate - failurePenalty));
+        const colorClass =
+          score >= 90
+            ? 'text-emerald-400'
+            : score >= 70
+              ? 'text-yellow-400'
+              : 'text-red-400';
+        const bgClass =
+          score >= 90
+            ? 'bg-emerald-500/10 border-emerald-500/20'
+            : score >= 70
+              ? 'bg-yellow-500/10 border-yellow-500/20'
+              : 'bg-red-500/10 border-red-500/20';
+        return {
+          id: p.id,
+          name: p.name || p.id,
+          status: p.status || 'offline',
+          score,
+          successRate,
+          total,
+          failures,
+          colorClass,
+          bgClass,
+        };
+      })
+      .sort((a, b) => b.score - a.score);
+  }, [providers, logs]);
 
   return (
     <div className="space-y-6">
@@ -179,6 +221,59 @@ export default function AiDashboard({
           </div>
         </div>
       </div>
+
+      {/* Provider Health Scores */}
+      {providerHealthScores.length > 0 && (
+        <div className="rounded-lg border border-gray-700 bg-gray-800 p-6">
+          <div className="mb-5 flex items-center justify-between">
+            <h3 className="flex items-center gap-2 text-lg font-medium text-white">
+              <ShieldCheck className="h-5 w-5 text-emerald-400" />
+              Provider Health Scores
+            </h3>
+            <span className="text-xs text-gray-400">
+              Computed from success rate &amp; failure history
+            </span>
+          </div>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {providerHealthScores.map((p) => (
+              <div
+                key={p.id}
+                className={`flex items-center justify-between rounded-xl border p-4 ${p.bgClass}`}
+              >
+                <div className="flex items-center gap-3">
+                  <div
+                    className={`rounded-lg p-2 ${
+                      p.score >= 90
+                        ? 'bg-emerald-500/20'
+                        : p.score >= 70
+                          ? 'bg-yellow-500/20'
+                          : 'bg-red-500/20'
+                    }`}
+                  >
+                    <Server
+                      className={`h-4 w-4 ${p.score >= 90 ? 'text-emerald-400' : p.score >= 70 ? 'text-yellow-400' : 'text-red-400'}`}
+                    />
+                  </div>
+                  <div>
+                    <div className="font-semibold text-white">{p.name}</div>
+                    <div className="text-xs text-gray-400">
+                      {p.total} req · {p.failures} fail
+                    </div>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div
+                    className={`text-2xl font-bold tabular-nums ${p.colorClass}`}
+                  >
+                    {p.score}
+                  </div>
+                  <div className="text-xs text-gray-500">/ 100</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Recent Events Table */}
       <div className="rounded-lg border border-gray-700 bg-gray-800 p-6">

@@ -44,6 +44,14 @@ export default function AiRouting({
     latency: number;
   } | null>(null);
 
+  // Dry-run routing trace state
+  const [isTracing, setIsTracing] = useState(false);
+  const [traceResult, setTraceResult] = useState<{
+    trace: any[];
+    summary: any;
+  } | null>(null);
+  const [traceError, setTraceError] = useState<string | null>(null);
+
   // Real measured latency per provider from historical logs
   const getProviderLatency = (providerId: string) => {
     const pLogs = (logs || []).filter((l) => l.provider === providerId);
@@ -88,6 +96,35 @@ export default function AiRouting({
 
   const updateFeature = (key: string, field: string, value: any) => {
     setFeatures({ ...features, [key]: { ...features[key], [field]: value } });
+  };
+
+  // Dry-run routing trace — calls the real /api/admin/ai/simulate endpoint
+  const runRoutingTrace = async () => {
+    setIsTracing(true);
+    setTraceResult(null);
+    setTraceError(null);
+    try {
+      const res = await fetch('/api/admin/ai/simulate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          routingStrategy,
+          providersEnabled: activeFallbackProviders.map((p) => ({
+            id: p.id || p.type,
+            name: p.name,
+            priority: p.priority,
+            isEnabled: p.isEnabled,
+          })),
+        }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      setTraceResult(data);
+    } catch (err: any) {
+      setTraceError(err.message || 'Failed to fetch routing trace');
+    } finally {
+      setIsTracing(false);
+    }
   };
 
   // Run live simulation with user-provided input prompt
@@ -801,11 +838,168 @@ export default function AiRouting({
               </div>
 
               <div className="rounded-lg border border-gray-800 bg-gray-950 p-3 font-sans text-xs leading-relaxed text-gray-200">
-                "{simulationOutput.text}"
+                &quot;{simulationOutput.text}&quot;
               </div>
             </div>
           )}
         </div>
+      </div>
+
+      {/* ── Routing Trace (Dry-Run) ─────────────────────────────────── */}
+      <div className="rounded-xl border border-blue-500/20 bg-gray-800 p-6">
+        <div className="mb-5 flex items-center justify-between">
+          <div>
+            <h3 className="flex items-center gap-2 text-base font-semibold text-white">
+              <ChevronRight className="h-4 w-4 text-blue-400" />
+              Routing Trace — Dry-Run Analysis
+            </h3>
+            <p className="mt-0.5 text-xs text-gray-400">
+              Simulates the routing decision loop against your live DB state
+              without making any real AI API call. Shows exactly which provider,
+              credential, and model would be selected.
+            </p>
+          </div>
+          <button
+            onClick={runRoutingTrace}
+            disabled={isTracing}
+            className="flex items-center gap-2 rounded-lg border border-blue-500/30 bg-blue-600/20 px-4 py-2 text-sm font-semibold text-blue-300 transition-colors hover:bg-blue-600/30 disabled:opacity-50"
+          >
+            {isTracing ? (
+              <RefreshCw className="h-4 w-4 animate-spin" />
+            ) : (
+              <Play className="h-4 w-4" />
+            )}
+            {isTracing ? 'Tracing...' : 'Run Routing Trace'}
+          </button>
+        </div>
+
+        {traceError && (
+          <div className="rounded-lg border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-400">
+            Error: {traceError}
+          </div>
+        )}
+
+        {traceResult && (
+          <div className="space-y-3">
+            {/* Summary Banner */}
+            <div
+              className={`flex items-center justify-between rounded-xl border p-4 ${
+                traceResult.summary.wouldSucceed
+                  ? 'border-emerald-500/30 bg-emerald-500/10'
+                  : 'border-red-500/30 bg-red-500/10'
+              }`}
+            >
+              <div>
+                <div
+                  className={`font-semibold ${traceResult.summary.wouldSucceed ? 'text-emerald-300' : 'text-red-300'}`}
+                >
+                  {traceResult.summary.wouldSucceed
+                    ? '✅ Request would succeed'
+                    : '❌ Request would fail — all providers exhausted'}
+                </div>
+                {traceResult.summary.wouldSucceed && (
+                  <div className="mt-1 text-xs text-gray-400">
+                    <span className="font-mono text-white">
+                      {traceResult.summary.selectedProvider}
+                    </span>
+                    {' → '}
+                    <span className="font-mono text-amber-300">
+                      {traceResult.summary.selectedCredential}
+                    </span>
+                    {' → '}
+                    <span className="font-mono text-blue-300">
+                      {traceResult.summary.selectedModel}
+                    </span>
+                  </div>
+                )}
+              </div>
+              <div className="text-right text-xs text-gray-500">
+                {traceResult.summary.totalSteps} steps •{' '}
+                {traceResult.summary.providersChecked} provider(s) checked
+              </div>
+            </div>
+
+            {/* Step-by-step trace */}
+            <div className="space-y-2">
+              {traceResult.trace.map((step: any) => {
+                const typeColors: Record<string, string> = {
+                  provider_selected:
+                    'border-blue-500/20 bg-blue-500/5 text-blue-300',
+                  credential_selected:
+                    'border-amber-500/20 bg-amber-500/5 text-amber-300',
+                  health_check:
+                    'border-gray-600/40 bg-gray-900/40 text-gray-300',
+                  model_check:
+                    'border-purple-500/20 bg-purple-500/5 text-purple-300',
+                  would_succeed:
+                    'border-emerald-500/30 bg-emerald-500/10 text-emerald-300',
+                  would_failover_credential:
+                    'border-yellow-500/20 bg-yellow-500/5 text-yellow-300',
+                  would_failover_provider:
+                    'border-orange-500/20 bg-orange-500/5 text-orange-300',
+                  exhausted: 'border-red-500/30 bg-red-500/10 text-red-300',
+                };
+                const colorClass =
+                  typeColors[step.type] ||
+                  'border-gray-700 bg-gray-800/60 text-gray-300';
+
+                return (
+                  <div
+                    key={step.step}
+                    className={`flex items-start gap-3 rounded-lg border px-4 py-3 text-xs ${colorClass}`}
+                  >
+                    <div className="mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-gray-800 font-mono text-[10px] font-bold text-gray-400">
+                      {step.step}
+                    </div>
+                    <div className="flex-1 space-y-0.5">
+                      <div className="flex items-center gap-2">
+                        <span className="rounded bg-gray-800/80 px-1.5 py-0.5 font-mono text-[10px] uppercase">
+                          {step.type.replace(/_/g, ' ')}
+                        </span>
+                        {step.provider && (
+                          <span className="font-semibold text-white">
+                            {step.provider}
+                          </span>
+                        )}
+                        {step.credential && (
+                          <span className="font-mono text-amber-300/80">
+                            {step.credential}
+                          </span>
+                        )}
+                        {step.model && (
+                          <span className="font-mono text-blue-300/80">
+                            {step.model}
+                          </span>
+                        )}
+                      </div>
+                      {step.reason && (
+                        <div className="text-gray-400">{step.reason}</div>
+                      )}
+                      {step.action && (
+                        <div className="font-mono text-[11px] text-gray-500">
+                          → {step.action}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {!traceResult && !traceError && !isTracing && (
+          <div className="flex flex-col items-center gap-2 py-8 text-center text-sm text-gray-500">
+            <Play className="h-8 w-8 text-blue-400/30" />
+            <span>
+              Click &quot;Run Routing Trace&quot; to simulate the routing
+              decision
+            </span>
+            <span className="text-xs">
+              Uses your live DB credential and model health states
+            </span>
+          </div>
+        )}
       </div>
     </div>
   );

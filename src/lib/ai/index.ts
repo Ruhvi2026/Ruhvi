@@ -681,6 +681,7 @@ export async function generateAIContent(
                 user_identifier: userId,
                 credential_id: credential.id,
                 correlation_id: correlationId,
+                latency_ms: executionTime,
               },
             ]);
 
@@ -946,6 +947,7 @@ export async function generateAIContent(
             status: 'success',
             user_identifier: userId,
             correlation_id: correlationId,
+            latency_ms: executionTime,
           },
         ]);
 
