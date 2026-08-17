@@ -11,12 +11,19 @@ export interface DiagnosticEntry {
   error_message: string;
   error_type?:
     | 'RATE_LIMIT_EXCEEDED'
+    | 'QUOTA_EXHAUSTED'
     | 'TIMEOUT'
     | 'PROVIDER_DOWN'
     | 'AUTH_ERROR'
+    | 'AUTH_INVALID'
     | 'BAD_REQUEST'
+    | 'REQUEST_ERROR'
+    | 'MODEL_ERROR'
+    | 'SAFETY_ERROR'
+    | 'SERVER_ERROR'
     | 'PARSE_ERROR'
     | 'GENERAL_FAILURE'
+    | 'RECOVERED_VIA_FALLBACK'
     | string;
   stack_trace?: string;
   user_identifier?: string;
@@ -25,6 +32,15 @@ export interface DiagnosticEntry {
   attempt_number?: number;
   recovery_status: 'recovered' | 'exhausted' | 'retrying';
   metadata?: Record<string, any>;
+  // Enhanced observability fields (Phase 3)
+  credential_id?: string;
+  credential_name?: string;
+  correlation_id?: string;
+  http_status_code?: number;
+  provider_error_code?: string;
+  retry_count?: number;
+  fallback_action?: string;
+  error_category?: string;
   created_at?: string;
   expires_at?: string;
   ttl_seconds_remaining?: number;
@@ -160,6 +176,26 @@ export async function logFailureDiagnostic(
         attempt_number: fullEntry.attempt_number,
         recovery_status: fullEntry.recovery_status,
         metadata: fullEntry.metadata || {},
+        // Enhanced observability fields
+        credential_id: fullEntry.metadata?.credential_id || null,
+        credential_name:
+          fullEntry.metadata?.credential_name ||
+          fullEntry.credential_name ||
+          null,
+        correlation_id:
+          fullEntry.correlation_id || fullEntry.metadata?.correlationId || null,
+        http_status_code:
+          fullEntry.http_status_code ||
+          fullEntry.metadata?.http_status_code ||
+          null,
+        provider_error_code: fullEntry.provider_error_code || null,
+        retry_count: fullEntry.retry_count || 0,
+        fallback_action:
+          fullEntry.fallback_action ||
+          fullEntry.metadata?.fallback_action ||
+          null,
+        error_category:
+          fullEntry.error_category || fullEntry.error_type || null,
         created_at: createdAtISO,
         expires_at: expiresAtISO,
       },

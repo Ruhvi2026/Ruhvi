@@ -8,6 +8,7 @@ import { DEMO_PRODUCTS } from '@/lib/products';
 import { ImageType, Product } from '@/types/database';
 import { createClient } from '@/lib/supabase/client';
 import { AIProductAssistant } from '@/components/admin/AIProductAssistant';
+import { Product360Editor } from '@/components/admin/Product360Editor';
 
 interface EditProductPageProps {
   params: Promise<{
@@ -427,6 +428,8 @@ export default function EditProductPage({ params }: EditProductPageProps) {
           </button>
         </div>
       </form>
+
+      <Product360Editor productId={id} />
     </div>
   );
 }

@@ -77,6 +77,7 @@ export interface Product {
   ai_content?: Record<string, any> | null;
   category?: Category | null;
   images?: ProductImage[];
+  viewer360?: Product360Set | null;
 }
 
 export interface StockNotification {
@@ -296,4 +297,28 @@ export interface AIPromptVersion {
   feature_key: string;
   prompt_text: string;
   created_at: string;
+}
+
+export interface Product360Frame {
+  index: number;
+  url: string;
+  publicId?: string;
+  alt?: string;
+}
+
+export interface Product360Config {
+  enabled: boolean;
+  frames: Product360Frame[];
+  stepDegrees?: number;
+}
+
+export interface Product360Set {
+  id: string;
+  product_id: string;
+  enabled: boolean;
+  frame_count: number;
+  step_degrees?: number | null;
+  frames: Product360Frame[];
+  created_at?: string;
+  updated_at?: string;
 }

@@ -163,6 +163,99 @@ export default function AiGlobalSettings({
           </div>
         </div>
       </div>
+
+      {/* ── Routing Engine Limits (Phase 3) ── */}
+      <div className="rounded-xl border border-gray-700 bg-gray-800 p-6">
+        <h3 className="mb-4 flex items-center gap-2 font-medium text-white">
+          <RefreshCw className="h-5 w-5 text-blue-400" />
+          Routing Engine Limits
+        </h3>
+        <p className="mb-5 text-sm text-gray-400">
+          Controls how aggressively the engine retries failed credentials and
+          providers before giving up.
+        </p>
+        <div className="grid grid-cols-2 gap-5 md:grid-cols-4">
+          <div>
+            <label className="mb-2 block text-sm font-medium text-gray-400">
+              Max Credential Attempts
+            </label>
+            <input
+              type="number"
+              min={1}
+              max={10}
+              value={globalConfig.maxCredentialAttempts ?? 3}
+              onChange={(e) =>
+                updateGlobal('maxCredentialAttempts', parseInt(e.target.value))
+              }
+              className="w-full rounded-lg border border-gray-700 bg-gray-900 px-4 py-2 text-white"
+            />
+            <p className="mt-1 text-xs text-gray-500">
+              Keys to try per provider
+            </p>
+          </div>
+          <div>
+            <label className="mb-2 block text-sm font-medium text-gray-400">
+              Max Provider Attempts
+            </label>
+            <input
+              type="number"
+              min={1}
+              max={10}
+              value={globalConfig.maxProviderAttempts ?? 3}
+              onChange={(e) =>
+                updateGlobal('maxProviderAttempts', parseInt(e.target.value))
+              }
+              className="w-full rounded-lg border border-gray-700 bg-gray-900 px-4 py-2 text-white"
+            />
+            <p className="mt-1 text-xs text-gray-500">
+              Providers in fallback chain
+            </p>
+          </div>
+          <div>
+            <label className="mb-2 block text-sm font-medium text-gray-400">
+              Max Total Attempts
+            </label>
+            <input
+              type="number"
+              min={1}
+              max={20}
+              value={globalConfig.maxTotalAttempts ?? 5}
+              onChange={(e) =>
+                updateGlobal('maxTotalAttempts', parseInt(e.target.value))
+              }
+              className="w-full rounded-lg border border-gray-700 bg-gray-900 px-4 py-2 text-white"
+            />
+            <p className="mt-1 text-xs text-gray-500">
+              Hard cap across all providers
+            </p>
+          </div>
+          <div>
+            <label className="mb-2 block text-sm font-medium text-gray-400">
+              Model Health Check Interval (min)
+            </label>
+            <input
+              type="number"
+              min={5}
+              max={1440}
+              value={globalConfig.modelHealthCheckIntervalMinutes ?? 15}
+              onChange={(e) =>
+                updateGlobal(
+                  'modelHealthCheckIntervalMinutes',
+                  parseInt(e.target.value)
+                )
+              }
+              className="w-full rounded-lg border border-gray-700 bg-gray-900 px-4 py-2 text-white"
+            />
+            <p className="mt-1 text-xs text-gray-500">Model health cache TTL</p>
+          </div>
+        </div>
+
+        <div className="mt-4 rounded-lg border border-blue-500/20 bg-blue-500/5 px-4 py-3 text-xs text-blue-300">
+          <strong>Recommended:</strong> Credential=3, Provider=3, Total=5.
+          Increasing Total beyond 10 may cause user-facing latency. All values
+          are configurable without redeployment.
+        </div>
+      </div>
     </div>
   );
 }

@@ -133,3 +133,29 @@ export function resolveEffectiveApiKey(
     maskedKey: '',
   };
 }
+
+/**
+ * Fetch the raw API key for a specific credential from the database.
+ * This is server-side only — used by the routing engine.
+ *
+ * @param credentialId - UUID of the ai_provider_credentials row
+ * @param supabaseAdmin - Pre-initialized Supabase admin client
+ * @returns The raw API key, or empty string if not found
+ */
+export async function getCredentialKeyFromDB(
+  credentialId: string,
+  supabaseAdmin: any
+): Promise<string> {
+  try {
+    const { data, error } = await supabaseAdmin
+      .from('ai_provider_credentials')
+      .select('encrypted_key')
+      .eq('id', credentialId)
+      .single();
+
+    if (error || !data) return '';
+    return data.encrypted_key || '';
+  } catch {
+    return '';
+  }
+}

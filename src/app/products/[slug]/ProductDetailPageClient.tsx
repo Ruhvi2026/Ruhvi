@@ -15,6 +15,8 @@ import {
 import { Product } from '@/types/database';
 import { StockNotificationModal } from '@/components/products/StockNotificationModal';
 import { ProductImageGallery } from '@/components/products/ProductImageGallery';
+import { Product360Button } from '@/components/products/Product360Button';
+import { Product360Modal } from '@/components/products/Product360Modal';
 import { trackEvent } from '@/lib/analytics';
 import { ecommerceEvent } from '@/lib/gtag';
 import { useCart } from '@/context/CartContext';
@@ -35,6 +37,12 @@ export function ProductDetailPageClient({
   const [stockModalOpen, setStockModalOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const [recentlyViewed, setRecentlyViewed] = useState<Product[]>([]);
+  const [is360ModalOpen, setIs360ModalOpen] = useState(false);
+
+  const rawViewer360 = product.viewer360;
+  const viewer360 = Array.isArray(rawViewer360)
+    ? rawViewer360[0]
+    : rawViewer360;
 
   const { addToCart, items: cartItems } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
@@ -151,10 +159,23 @@ export function ProductDetailPageClient({
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-2">
           {/* Left Column: Image Gallery */}
           <div>
-            <ProductImageGallery
-              images={product.images || []}
-              productName={product.name}
-            />
+            <div className="relative">
+              <ProductImageGallery
+                images={product.images || []}
+                productName={product.name}
+              />
+              {viewer360 &&
+                viewer360.enabled &&
+                viewer360.frames &&
+                viewer360.frames.length > 0 && (
+                  <div className="absolute right-4 top-4 z-10">
+                    <Product360Button
+                      viewer360={viewer360}
+                      onClick={() => setIs360ModalOpen(true)}
+                    />
+                  </div>
+                )}
+            </div>
           </div>
 
           {/* Right Column: Product Details & Actions */}
@@ -389,6 +410,14 @@ export function ProductDetailPageClient({
           isOpen={stockModalOpen}
           onClose={() => setStockModalOpen(false)}
         />
+
+        {viewer360 && viewer360.enabled && (
+          <Product360Modal
+            viewer360={viewer360}
+            isOpen={is360ModalOpen}
+            onClose={() => setIs360ModalOpen(false)}
+          />
+        )}
       </div>
     </SpatialPage>
   );

@@ -21,7 +21,7 @@ export async function generateMetadata({
 
   let { data: product } = await supabase
     .from('products')
-    .select('*, images:product_images(*)')
+    .select('*, images:product_images(*), viewer360:product_360_sets(*)')
     .eq('slug', slug)
     .single();
 
@@ -74,7 +74,9 @@ export default async function ProductDetailPage({ params }: PageProps) {
 
   let { data: product } = await supabase
     .from('products')
-    .select('*, images:product_images(*), category:categories(*)')
+    .select(
+      '*, images:product_images(*), category:categories(*), viewer360:product_360_sets(*)'
+    )
     .eq('slug', slug)
     .single();
 

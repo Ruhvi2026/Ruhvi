@@ -2,6 +2,7 @@
 
 import React, { useState, useRef } from 'react';
 import { AiComponentProps } from './types';
+import CredentialManager from './CredentialManager';
 import {
   Plus,
   Server,
@@ -783,6 +784,14 @@ export default function AiProviders({
                                 </div>
                               )}
                             </div>
+                          </div>
+
+                          {/* ── Multi-Credential Management (Phase 2) ── */}
+                          <div className="mb-6 rounded-xl border border-gray-700/60 bg-gray-900/40 p-5">
+                            <CredentialManager
+                              providerId={provider.id}
+                              providerName={provider.name}
+                            />
                           </div>
 
                           {/* Actions & Results */}
