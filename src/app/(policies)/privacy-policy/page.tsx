@@ -257,8 +257,7 @@ export default function PrivacyPolicyPage() {
           </p>
           <div className="mt-2 text-[#121110]/80">
             <p>
-              <span className="font-semibold">Name:</span>{' '}
-              [GRIEVANCE_OFFICER_NAME]
+              <span className="font-semibold">Name:</span> SHREYA MAITY
             </p>
             <p>
               <span className="font-semibold">Designation:</span> Grievance

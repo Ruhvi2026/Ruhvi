@@ -75,7 +75,7 @@
   > **Grievance Officer**
   > In accordance with the Information Technology Act, 2000 and rules made thereunder, the name and contact details of the Grievance Officer are provided below:
   >
-  > Name: [GRIEVANCE_OFFICER_NAME]
+  > Name: SHREYA MAITY
   > Designation: Grievance Officer
   > Email: support@ruhvi.in
   > Time to respond: We will acknowledge your complaint within 48 hours and resolve it within 30 days.
