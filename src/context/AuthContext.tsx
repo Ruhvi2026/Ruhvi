@@ -5,6 +5,7 @@ import { User, Session } from '@supabase/supabase-js';
 import { createClient } from '@/lib/supabase/client';
 import toast from 'react-hot-toast';
 import { parseApiError } from '@/lib/api-errors';
+import { useRouter } from 'next/navigation';
 
 export interface UserProfile {
   id: string;
@@ -37,6 +38,7 @@ const AuthContext = createContext<AuthContextType>({
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -179,7 +181,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setSession(null);
       setProfile(null);
       toast.success('Successfully logged out');
-      window.location.href = '/login';
+      router.push('/login');
     } catch (err) {
       const apiError = parseApiError(err);
       toast.error(apiError.userMessage);

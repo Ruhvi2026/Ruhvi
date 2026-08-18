@@ -25,7 +25,15 @@ export default function ForgotPasswordPage() {
         body: JSON.stringify({ email }),
       });
 
-      const data = await res.json();
+      let data;
+      const contentType = res.headers.get('content-type');
+      if (contentType && contentType.indexOf('application/json') !== -1) {
+        data = await res.json();
+      } else {
+        const text = await res.text();
+        data = { error: 'An unexpected error occurred on the server.' };
+        console.error('Non-JSON response:', text);
+      }
 
       if (!res.ok) {
         throw new Error(data.error || 'Failed to send password reset email.');

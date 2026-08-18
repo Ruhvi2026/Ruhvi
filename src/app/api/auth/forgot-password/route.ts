@@ -4,9 +4,14 @@ import { sendPasswordResetEmail } from '@/lib/resend';
 import { createClient } from '@supabase/supabase-js';
 
 // Initialize a service-role supabase client to check user profiles
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
-const supabase = createClient(supabaseUrl, supabaseServiceKey);
+const getSupabase = () => {
+  const supabaseUrl =
+    process.env.NEXT_PUBLIC_SUPABASE_URL ||
+    'https://igrkrkxdantrolbldapj.supabase.co';
+  const supabaseServiceKey =
+    process.env.SUPABASE_SERVICE_ROLE_KEY || 'dummy_key';
+  return createClient(supabaseUrl, supabaseServiceKey);
+};
 
 export async function POST(request: NextRequest) {
   try {
@@ -37,6 +42,7 @@ export async function POST(request: NextRequest) {
 
     // 2. Fetch the user's display name from Supabase users table (optional fallback)
     let displayName = 'Customer';
+    const supabase = getSupabase();
     const { data: userProfile } = await supabase
       .from('users')
       .select('name')
