@@ -4,16 +4,16 @@
 
 @layer base {
   :root {
-    --background: 40 33% 98%;
-    --foreground: 30 10% 10%;
-    --gold-500: #c29831;
-    --gold-400: #cfa74b;
-    --gold-600: #9e7924;
+    --background: 181 48% 98%;
+    --foreground: 181 10% 10%;
+    --gold-500: #2bacad;
+    --gold-400: #4db5b7;
+    --gold-600: #228a8c;
   }
 
   * {
     scrollbar-width: thin;
-    scrollbar-color: #cfa74b transparent;
+    scrollbar-color: #4db5b7 transparent;
   }
 
   *::-webkit-scrollbar {
@@ -22,7 +22,7 @@
   }
 
   *::-webkit-scrollbar-thumb {
-    background: linear-gradient(180deg, #cfa74b, #9e7924);
+    background: linear-gradient(180deg, #4db5b7, #228a8c);
     border-radius: 9999px;
   }
 
@@ -48,8 +48,8 @@
   }
 
   ::selection {
-    background: #cfa74b;
-    color: #fffdf5;
+    background: #4db5b7;
+    color: #ffffff;
   }
 }
 
@@ -57,10 +57,10 @@
   .gold-gradient-text {
     background: linear-gradient(
       135deg,
-      #cfa74b 0%,
-      #e7d7a3 35%,
-      #c29831 60%,
-      #9e7924 100%
+      #4db5b7 0%,
+      #b6e5e7 35%,
+      #2bacad 60%,
+      #228a8c 100%
     );
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -68,17 +68,17 @@
   }
 
   .gold-gradient-bg {
-    background: linear-gradient(135deg, #cfa74b 0%, #c29831 50%, #9e7924 100%);
+    background: linear-gradient(135deg, #4db5b7 0%, #2bacad 50%, #228a8c 100%);
   }
 
   .gold-shimmer {
     background: linear-gradient(
       110deg,
-      #cfa74b 20%,
-      #f3e8c4 40%,
-      #fffbe8 50%,
-      #f3e8c4 60%,
-      #cfa74b 80%
+      #4db5b7 20%,
+      #b6e5e7 40%,
+      #ffffff 50%,
+      #b6e5e7 60%,
+      #4db5b7 80%
     );
     background-size: 200% 100%;
     -webkit-background-clip: text;
@@ -89,19 +89,19 @@
 
   .gold-ring {
     box-shadow:
-      0 0 0 1px rgba(194, 152, 49, 0.45),
-      0 0 24px rgba(194, 152, 49, 0.18),
-      0 18px 40px -18px rgba(121, 91, 25, 0.35);
+      0 0 0 1px rgba(43, 172, 173, 0.45),
+      0 0 24px rgba(43, 172, 173, 0.18),
+      0 18px 40px -18px rgba(34, 138, 140, 0.35);
   }
 
   .gold-card {
     background: linear-gradient(160deg, #fdfbf7 0%, #faf6ed 55%, #f5ecda 100%);
-    border: 1px solid rgba(194, 152, 49, 0.28);
+    border: 1px solid rgba(43, 172, 173, 0.28);
   }
 
   .gold-divider {
     height: 1px;
-    background: linear-gradient(90deg, transparent, #cfa74b, transparent);
+    background: linear-gradient(90deg, transparent, #4db5b7, transparent);
   }
 
   .cream-radial {
