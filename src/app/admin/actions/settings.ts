@@ -1,6 +1,6 @@
-'use client';
+'use server';
 
-import { createClient } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/server';
 
 export interface StoreSettings {
   id: string;
@@ -11,7 +11,7 @@ export interface StoreSettings {
 }
 
 export async function getStoreSettings(): Promise<StoreSettings | null> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data, error } = await supabase
     .from('store_settings')
     .select('*')
@@ -25,7 +25,7 @@ export async function getStoreSettings(): Promise<StoreSettings | null> {
 }
 
 export async function updateStoreSettings(settings: Partial<StoreSettings>) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data, error } = await supabase
     .from('store_settings')
     .update({ ...settings, updated_at: new Date().toISOString() })
@@ -45,7 +45,7 @@ export interface MarketingSettings {
 }
 
 export async function getMarketingSettings(): Promise<MarketingSettings> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data, error } = await supabase
     .from('settings')
     .select('value')
@@ -62,7 +62,7 @@ export async function getMarketingSettings(): Promise<MarketingSettings> {
 }
 
 export async function updateMarketingSettings(settings: MarketingSettings) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error } = await supabase.from('settings').upsert(
     {
       key: 'marketing',
@@ -97,7 +97,7 @@ export interface HomepageSettings {
 }
 
 export async function getHomepageSettings(): Promise<HomepageSettings> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data, error } = await supabase
     .from('settings')
     .select('value')
@@ -111,7 +111,7 @@ export async function getHomepageSettings(): Promise<HomepageSettings> {
 }
 
 export async function updateHomepageSettings(settings: HomepageSettings) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error } = await supabase.from('settings').upsert(
     {
       key: 'homepage',
