@@ -121,7 +121,35 @@ export default function TermsConditionsPage() {
 
         <section className="space-y-3">
           <h2 className="font-serif text-xl font-bold text-[#121110]">
-            7. Governing Law
+            7. User Accounts & Data Rights
+          </h2>
+          <p>
+            When creating an account via email, phone OTP, or third-party
+            authentication services (including Google and Facebook / Meta), you
+            are responsible for maintaining confidentiality of your credentials.
+            You retain all rights regarding your personal data under applicable
+            data protection laws. For instructions on deleting your account data
+            or Meta platform data, please refer to our{' '}
+            <a
+              href="/data-deletion"
+              className="font-semibold text-gold-700 underline hover:text-gold-900"
+            >
+              Data Deletion Instructions
+            </a>{' '}
+            and{' '}
+            <a
+              href="/privacy-policy"
+              className="font-semibold text-gold-700 underline hover:text-gold-900"
+            >
+              Privacy Policy
+            </a>
+            .
+          </p>
+        </section>
+
+        <section className="space-y-3">
+          <h2 className="font-serif text-xl font-bold text-[#121110]">
+            8. Governing Law
           </h2>
           <p>
             These terms and conditions are governed by and construed in
@@ -133,7 +161,7 @@ export default function TermsConditionsPage() {
 
         <section className="space-y-3 border-t border-[#E7D7A3]/50 pt-4">
           <h2 className="font-serif text-xl font-bold text-[#121110]">
-            8. Grievance Officer
+            9. Grievance Officer
           </h2>
           <p>
             In accordance with the Information Technology Act, 2000 and rules

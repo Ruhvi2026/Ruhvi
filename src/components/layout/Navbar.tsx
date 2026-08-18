@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   ShoppingBag,
   Heart,
@@ -91,13 +92,24 @@ export function Navbar() {
                 <Menu className="h-6 w-6" />
               )}
             </button>
-            <Link href="/" className="flex items-center space-x-1 sm:space-x-2">
-              <span className="font-serif text-xl font-bold tracking-widest text-gold-500">
-                RUHVI JEWELS
-              </span>
-              <span className="hidden rounded border border-gold-300/60 bg-gold-100 px-1.5 py-0.5 font-sans text-[10px] font-semibold uppercase tracking-widest text-gold-800 sm:inline-block">
-                Jewellery
-              </span>
+            <Link href="/" className="flex items-center space-x-2 sm:space-x-3">
+              <div className="relative h-9 w-9 flex-shrink-0 overflow-hidden rounded-full border border-gold-300/40 bg-gold-50/50 shadow-sm sm:h-10 sm:w-10">
+                <Image
+                  src="/logo.png"
+                  alt="Ruhvi Jewels"
+                  fill
+                  className="object-cover"
+                  priority
+                />
+              </div>
+              <div className="flex flex-col">
+                <span className="font-serif text-lg font-bold leading-none tracking-widest text-gold-500 sm:text-xl">
+                  RUHVI JEWELS
+                </span>
+                <span className="font-sans text-[9px] font-medium uppercase tracking-[0.2em] text-gold-700/80">
+                  Fine Jewellery
+                </span>
+              </div>
             </Link>
           </div>
 

@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import {
@@ -242,8 +243,8 @@ export default function AdminLayout({
           href="/admin/dashboard"
           className="flex flex-1 items-center gap-3 overflow-hidden"
         >
-          <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg bg-emerald-500 text-xs font-bold text-white shadow-lg shadow-emerald-500/20">
-            R
+          <div className="relative h-7 w-7 flex-shrink-0 overflow-hidden rounded-lg border border-white/20 bg-charcoal-800 shadow-md">
+            <Image src="/logo.png" alt="Ruhvi" fill className="object-cover" />
           </div>
           {!collapsed && (
             <div className="overflow-hidden">

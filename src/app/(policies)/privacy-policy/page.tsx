@@ -194,19 +194,44 @@ export default function PrivacyPolicyPage() {
 
         <section className="space-y-3">
           <h2 className="font-serif text-xl font-bold text-[#121110]">
-            7. Your Legal Rights
+            7. Your Legal Rights & Data Deletion
           </h2>
           <p>
-            Under certain circumstances, you have rights under data protection
-            laws in relation to your personal data. These include the right to:
+            Under applicable data protection laws (including the Digital
+            Personal Data Protection Act, 2023 and GDPR where applicable) and
+            Meta Platform Terms, you have rights in relation to your personal
+            data. These include the right to:
           </p>
           <ul className="list-disc space-y-1 pl-5">
             <li>Request access to your personal data.</li>
-            <li>Request correction of your personal data.</li>
-            <li>Request erasure of your personal data (Account deletion).</li>
-            <li>Withdraw consent for marketing communications.</li>
+            <li>Request correction or updating of your personal data.</li>
+            <li>
+              Request erasure and deletion of your personal data (Account and
+              Meta data deletion).
+            </li>
+            <li>
+              Withdraw consent for marketing communications and tracking pixels.
+            </li>
           </ul>
-          <p>To exercise any of these rights, please contact us.</p>
+          <p>
+            If you signed in using Facebook or wish to delete any data
+            synchronized via Meta technologies (Meta Pixel / Conversions API),
+            please follow our dedicated{' '}
+            <a
+              href="/data-deletion"
+              className="font-semibold text-gold-700 underline hover:text-gold-900"
+            >
+              Data Deletion Instructions
+            </a>{' '}
+            or contact us directly at{' '}
+            <a
+              href="mailto:support@ruhvi.in"
+              className="font-semibold text-gold-700 underline"
+            >
+              support@ruhvi.in
+            </a>
+            .
+          </p>
         </section>
 
         <section className="space-y-3 border-t border-[#E7D7A3]/50 pt-4">

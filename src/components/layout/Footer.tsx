@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { ShieldCheck, Truck, RotateCcw, Award, Gem } from 'lucide-react';
 
 export function Footer() {
@@ -89,9 +90,19 @@ export function Footer() {
       {/* Main Footer Links */}
       <div className="mx-auto grid max-w-7xl grid-cols-1 gap-8 border-b border-gold-800/50 px-4 pb-8 sm:px-6 md:grid-cols-4 lg:px-8">
         <div>
-          <h3 className="gold-shimmer mb-3 font-serif text-2xl font-bold uppercase tracking-widest">
-            RUHVI JEWELS
-          </h3>
+          <div className="mb-3 flex items-center space-x-3">
+            <div className="relative h-10 w-10 flex-shrink-0 overflow-hidden rounded-full border border-gold-500/40 bg-charcoal-800 shadow-md">
+              <Image
+                src="/logo.png"
+                alt="Ruhvi Jewels"
+                fill
+                className="object-cover"
+              />
+            </div>
+            <h3 className="gold-shimmer font-serif text-2xl font-bold uppercase leading-none tracking-widest">
+              RUHVI JEWELS
+            </h3>
+          </div>
           <p className="mb-4 text-xs leading-relaxed text-cream-200/60">
             Curating timeless elegance with modern Indian heritage
             craftsmanship. Premium Gold, Diamond, and Kundan jewellery designed
@@ -217,6 +228,14 @@ export function Footer() {
                 className="transition-colors hover:text-gold-400"
               >
                 Terms & Conditions
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/data-deletion"
+                className="transition-colors hover:text-gold-400"
+              >
+                Data Deletion Instructions
               </Link>
             </li>
           </ul>
