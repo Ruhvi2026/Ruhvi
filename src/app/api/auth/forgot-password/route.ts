@@ -38,12 +38,16 @@ export async function POST(request: NextRequest) {
 
     if (dbError) {
       console.error('[forgot-password] Supabase query error:', dbError);
+      return NextResponse.json(
+        { error: 'Failed to look up user account. Please try again.' },
+        { status: 500 }
+      );
     }
 
     if (!userProfile) {
       return NextResponse.json(
         { error: 'No registered user found with this email address.' },
-        { status: 404 }
+        { status: 400 }
       );
     }
 

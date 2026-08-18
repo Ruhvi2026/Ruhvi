@@ -279,7 +279,7 @@ Rules for action field:
 - Always try to identify the relevant order_number from context if the issue is order-related.
 `;
 
-    const content = await generateAIContent('support_chat', prompt);
+    const content = await generateAIContent('chatbot', prompt);
 
     // Parse the AI response
     let aiResponse = {

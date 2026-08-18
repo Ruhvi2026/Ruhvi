@@ -326,7 +326,10 @@ export async function generateAIContent(
     .eq('key', 'ai_global')
     .single();
 
-  const featureConfig = featuresData?.value?.[featureKey];
+  let featureConfig = featuresData?.value?.[featureKey];
+  if (!featureConfig && featureKey === 'support_chat') {
+    featureConfig = featuresData?.value?.['chatbot'];
+  }
   if (!featureConfig || !featureConfig.enabled) {
     throw new Error(`AI Feature '${featureKey}' is currently disabled.`);
   }
