@@ -47,7 +47,11 @@ export async function POST(
       .eq('id', ticketId)
       .single();
 
-    if (!ticket || !ticket.customer?.email) {
+    const customer = Array.isArray(ticket.customer)
+      ? ticket.customer[0]
+      : ticket.customer;
+
+    if (!ticket || !customer?.email) {
       return NextResponse.json(
         { error: 'Ticket or customer not found' },
         { status: 404 }
@@ -59,7 +63,7 @@ export async function POST(
 
     switch (type) {
       case 'ticket_created':
-        await sendSupportTicketEmail(ticket.customer.email, {
+        await sendSupportTicketEmail(customer.email, {
           type: 'created',
           ticket: {
             number: ticket.ticket_number,
@@ -80,20 +84,20 @@ export async function POST(
             ),
           },
           customer: {
-            name: ticket.customer.full_name || 'Customer',
+            name: customer.full_name || 'Customer',
           },
         });
         break;
 
       case 'staff_reply':
-        await sendSupportTicketEmail(ticket.customer.email, {
+        await sendSupportTicketEmail(customer.email, {
           type: 'reply',
           ticket: {
             number: ticket.ticket_number,
             title: ticket.title,
           },
           customer: {
-            name: ticket.customer.full_name || 'Customer',
+            name: customer.full_name || 'Customer',
           },
           reply_preview: body.reply_preview || '',
         });
@@ -108,7 +112,7 @@ export async function POST(
             resolved: 'Resolved',
             closed: 'Closed',
           };
-          await sendSupportTicketEmail(ticket.customer.email, {
+          await sendSupportTicketEmail(customer.email, {
             type: 'status_update',
             ticket: {
               number: ticket.ticket_number,
@@ -116,7 +120,7 @@ export async function POST(
               new_status: statusLabels[body.new_status] || body.new_status,
             },
             customer: {
-              name: ticket.customer.full_name || 'Customer',
+              name: customer.full_name || 'Customer',
             },
           });
         }
