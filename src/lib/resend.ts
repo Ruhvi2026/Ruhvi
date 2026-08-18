@@ -246,6 +246,92 @@ export async function sendShippingUpdateEmail(
   });
 }
 
+// Support Ticket Email Notifications
+export async function sendSupportTicketEmail(email: string, data: any) {
+  const resend = getResendClient();
+  if (!resend) return null;
+
+  let subject = '';
+  let htmlContent = '';
+  const ticket = data.ticket || {};
+  const customerName = data.customer?.name || 'Customer';
+
+  const headerHtml = `
+    <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #121110; background: #FDFAF3; border-radius: 12px; overflow: hidden; border: 1px solid #E8DFC6;">
+      <div style="background: #1C1B1A; padding: 24px 32px; text-align: center;">
+        <h1 style="color: #C29831; font-size: 20px; margin: 0; letter-spacing: 2px;">RUHVI</h1>
+        <p style="color: #A09080; font-size: 11px; margin: 4px 0 0; letter-spacing: 1px;">FINE JEWELLERY</p>
+      </div>
+      <div style="padding: 32px;">
+  `;
+  const footerHtml = `
+        <div style="margin-top: 32px; padding-top: 20px; border-top: 1px solid #E8DFC6;">
+          <p style="font-size: 12px; color: #8A7E6C; margin: 0;">If you have any questions, reply to this email or reach us on WhatsApp.</p>
+          <p style="font-size: 12px; color: #8A7E6C; margin: 8px 0 0;">With care,<br/>The Ruhvi Support Team</p>
+        </div>
+      </div>
+    </div>
+  `;
+
+  if (data.type === 'created') {
+    subject = `Support Ticket ${ticket.number} — We're On It ✨`;
+    htmlContent = `${headerHtml}
+      <h2 style="color: #1C1B1A; font-size: 18px; margin: 0 0 8px;">Hello ${customerName},</h2>
+      <p style="color: #4A4540; line-height: 1.6;">We've received your support request and our customer care team will be looking into it shortly.</p>
+      
+      <div style="background: #F5F0E6; border-radius: 8px; padding: 20px; margin: 20px 0;">
+        <table style="width: 100%; border-collapse: collapse;">
+          <tr><td style="padding: 6px 0; color: #8A7E6C; font-size: 13px;">Ticket ID</td><td style="padding: 6px 0; color: #1C1B1A; font-size: 13px; font-weight: 600;">${ticket.number}</td></tr>
+          <tr><td style="padding: 6px 0; color: #8A7E6C; font-size: 13px;">Issue</td><td style="padding: 6px 0; color: #1C1B1A; font-size: 13px;">${ticket.title}</td></tr>
+          <tr><td style="padding: 6px 0; color: #8A7E6C; font-size: 13px;">Category</td><td style="padding: 6px 0; color: #1C1B1A; font-size: 13px;">${ticket.category}</td></tr>
+          <tr><td style="padding: 6px 0; color: #8A7E6C; font-size: 13px;">Priority</td><td style="padding: 6px 0; color: #1C1B1A; font-size: 13px; text-transform: capitalize;">${ticket.priority}</td></tr>
+          <tr><td style="padding: 6px 0; color: #8A7E6C; font-size: 13px;">Created</td><td style="padding: 6px 0; color: #1C1B1A; font-size: 13px;">${ticket.created_at}</td></tr>
+        </table>
+      </div>
+      
+      <p style="color: #4A4540; line-height: 1.6;">You can track your ticket status anytime by visiting your <a href="https://ruhvi.in/account/support" style="color: #C29831; text-decoration: none; font-weight: 600;">Support section</a>.</p>
+    ${footerHtml}`;
+  } else if (data.type === 'reply') {
+    subject = `Update on Ticket ${ticket.number} — Ruhvi Support`;
+    htmlContent = `${headerHtml}
+      <h2 style="color: #1C1B1A; font-size: 18px; margin: 0 0 8px;">Hello ${customerName},</h2>
+      <p style="color: #4A4540; line-height: 1.6;">Our support team has responded to your ticket <strong>${ticket.number}</strong>.</p>
+      ${data.reply_preview ? `<div style="background: #F5F0E6; border-radius: 8px; padding: 20px; margin: 20px 0; color: #4A4540; font-size: 14px; line-height: 1.6;">${data.reply_preview}</div>` : ''}
+      <div style="text-align: center; margin: 24px 0;">
+        <a href="https://ruhvi.in/account/support" style="display: inline-block; background: #1C1B1A; color: #FAF6ED; padding: 12px 28px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 14px;">View Full Reply</a>
+      </div>
+    ${footerHtml}`;
+  } else if (data.type === 'status_update') {
+    subject = `Ticket ${ticket.number} — Status: ${ticket.new_status}`;
+    htmlContent = `${headerHtml}
+      <h2 style="color: #1C1B1A; font-size: 18px; margin: 0 0 8px;">Hello ${customerName},</h2>
+      <p style="color: #4A4540; line-height: 1.6;">Your support ticket <strong>${ticket.number}</strong> has been updated.</p>
+      <div style="background: #F5F0E6; border-radius: 8px; padding: 20px; margin: 20px 0; text-align: center;">
+        <p style="color: #8A7E6C; font-size: 12px; margin: 0 0 4px; text-transform: uppercase; letter-spacing: 1px;">New Status</p>
+        <p style="color: #1C1B1A; font-size: 18px; font-weight: 700; margin: 0;">${ticket.new_status}</p>
+      </div>
+      <div style="text-align: center; margin: 24px 0;">
+        <a href="https://ruhvi.in/account/support" style="display: inline-block; background: #1C1B1A; color: #FAF6ED; padding: 12px 28px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 14px;">View Ticket</a>
+      </div>
+    ${footerHtml}`;
+  }
+
+  if (!subject) return null;
+
+  try {
+    const response = await resend.emails.send({
+      from: getSender(),
+      to: [email],
+      subject,
+      html: htmlContent,
+    });
+    return response;
+  } catch (error) {
+    console.error('Error sending support ticket email:', error);
+    return null;
+  }
+}
+
 // Password Reset fallback (if you implement auth custom mailer later)
 export async function sendPasswordResetEmail(
   email: string,

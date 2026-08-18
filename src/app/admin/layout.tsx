@@ -126,6 +126,16 @@ const NAV_GROUPS: NavGroup[] = [
     ],
   },
   {
+    section: 'SUPPORT',
+    items: [
+      {
+        label: 'Support Analytics',
+        href: '/admin/support-analytics',
+        icon: AlertCircle,
+      },
+    ],
+  },
+  {
     section: 'ADMIN',
     items: [
       {

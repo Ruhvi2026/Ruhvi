@@ -17,6 +17,8 @@ export async function middleware(request: NextRequest) {
   const hostname = request.headers.get('host') || '';
   const isAdminHost =
     hostname === 'admin.ruhvi.in' || hostname.startsWith('admin.localhost');
+  const isSupportHost =
+    hostname === 'support.ruhvi.in' || hostname.startsWith('support.localhost');
   const path = request.nextUrl.pathname;
 
   // Save referral code from URL to cookie
@@ -33,8 +35,13 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/admin/dashboard', request.url));
   }
 
-  // Block signup on admin host
-  if (isAdminHost && path.startsWith('/signup')) {
+  // Root redirect on support host
+  if (isSupportHost && path === '/') {
+    return NextResponse.redirect(new URL('/support/dashboard', request.url));
+  }
+
+  // Block signup on admin/support hosts
+  if ((isAdminHost || isSupportHost) && path.startsWith('/signup')) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
 
@@ -56,19 +63,35 @@ export async function middleware(request: NextRequest) {
     if (!isAllowed) {
       return NextResponse.rewrite(new URL('/404', request.url));
     }
+  } else if (isSupportHost) {
+    // Only allow support, auth, and API routes on the support subdomain
+    const isAllowed =
+      path.startsWith('/support') ||
+      path.startsWith('/login') ||
+      path.startsWith('/api') ||
+      path.startsWith('/auth/callback') ||
+      path === '/404' ||
+      path.startsWith('/_not-found') ||
+      path.endsWith('.js') ||
+      path.endsWith('.json');
+
+    if (!isAllowed) {
+      return NextResponse.rewrite(new URL('/404', request.url));
+    }
   } else {
-    // Block admin routes on the main customer-facing domain
+    // Block admin and support routes on the main customer-facing domain
     if (
       path.startsWith('/admin') ||
       path.startsWith('/manager') ||
-      path.startsWith('/staff')
+      path.startsWith('/staff') ||
+      path.startsWith('/support')
     ) {
       return NextResponse.rewrite(new URL('/404', request.url));
     }
   }
 
-  // 3. Inject X-Robots-Tag for admin host to prevent indexing
-  if (isAdminHost) {
+  // 3. Inject X-Robots-Tag for admin/support host to prevent indexing
+  if (isAdminHost || isSupportHost) {
     supabaseResponse.headers.set('X-Robots-Tag', 'noindex, nofollow');
   }
 
@@ -99,7 +122,7 @@ export async function middleware(request: NextRequest) {
             supabaseResponse = NextResponse.next({
               request,
             });
-            if (isAdminHost) {
+            if (isAdminHost || isSupportHost) {
               supabaseResponse.headers.set('X-Robots-Tag', 'noindex, nofollow');
             }
             cookiesToSet.forEach(({ name, value, options }) =>
@@ -113,11 +136,12 @@ export async function middleware(request: NextRequest) {
       }
     );
 
-    // RBAC for /admin, /manager, /staff routes
+    // RBAC for /admin, /manager, /staff, /support routes
     if (
       path.startsWith('/admin') ||
       path.startsWith('/manager') ||
-      path.startsWith('/staff')
+      path.startsWith('/staff') ||
+      path.startsWith('/support')
     ) {
       const sessionCookie = request.cookies.get('__session')?.value;
 
@@ -125,7 +149,7 @@ export async function middleware(request: NextRequest) {
         const loginUrl = new URL('/login', request.url);
         loginUrl.searchParams.set('redirectTo', path);
         const redirectResponse = NextResponse.redirect(loginUrl);
-        if (isAdminHost) {
+        if (isAdminHost || isSupportHost) {
           redirectResponse.headers.set('X-Robots-Tag', 'noindex, nofollow');
         }
         supabaseResponse.cookies.getAll().forEach((c) => {
@@ -165,7 +189,7 @@ export async function middleware(request: NextRequest) {
         const redirectResponse = NextResponse.redirect(
           new URL('/unauthorized', request.url)
         );
-        if (isAdminHost) {
+        if (isAdminHost || isSupportHost) {
           redirectResponse.headers.set('X-Robots-Tag', 'noindex, nofollow');
         }
         supabaseResponse.cookies.getAll().forEach((c) => {
