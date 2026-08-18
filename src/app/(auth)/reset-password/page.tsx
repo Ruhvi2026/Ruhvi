@@ -16,27 +16,28 @@ function ResetPasswordForm() {
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
 
-  // The 'oobCode' query parameter sent by Firebase in the reset link
+  // Support both custom signed 'token' and Firebase 'oobCode'
+  const token = searchParams.get('token');
   const oobCode = searchParams.get('oobCode');
 
   useEffect(() => {
-    if (!oobCode) {
+    if (!token && !oobCode) {
       setError(
         'Invalid or expired password reset link. Please request a new link.'
       );
-    } else {
-      // Verify the code is valid when the page loads
+    } else if (oobCode && !token) {
+      // Legacy Firebase oobCode check
       verifyPasswordResetCode(auth, oobCode).catch((err) => {
         console.error(err);
         setError('The password reset link is invalid or has expired.');
       });
     }
-  }, [oobCode]);
+  }, [token, oobCode]);
 
   const handleUpdatePassword = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!oobCode) {
-      setError('Missing reset action code.');
+    if (!token && !oobCode) {
+      setError('Missing reset authorization token.');
       return;
     }
     if (password !== confirmPassword) {
@@ -49,8 +50,22 @@ function ResetPasswordForm() {
     setMessage(null);
 
     try {
-      // Reset the password in Firebase Auth using the oobCode
-      await confirmPasswordReset(auth, oobCode, password);
+      if (token) {
+        // 1. Call our custom secure API endpoint
+        const res = await fetch('/api/auth/reset-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token, password }),
+        });
+
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.error || 'Failed to update password.');
+        }
+      } else if (oobCode) {
+        // 2. Legacy Firebase confirmation fallback
+        await confirmPasswordReset(auth, oobCode, password);
+      }
 
       setMessage(
         'Your password has been successfully updated! Redirecting to login...'

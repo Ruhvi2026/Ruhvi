@@ -332,7 +332,7 @@ export async function sendSupportTicketEmail(email: string, data: any) {
   }
 }
 
-// Password Reset fallback (if you implement auth custom mailer later)
+// Password Reset Email (Custom Luxury Ruhvi Template)
 export async function sendPasswordResetEmail(
   email: string,
   resetLink: string,
@@ -343,15 +343,30 @@ export async function sendPasswordResetEmail(
 
   const subject = 'Reset Your Ruhvi Password 🔑';
   const htmlContent = `
-    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #121110;">
-      <h1 style="color: #C29831; text-align: center;">Password Reset Request</h1>
-      <p>Hello ${name},</p>
-      <p>We received a request to reset your password. Click the button below to set a new one:</p>
-      <div style="text-align: center; margin: 30px 0;">
-        <a href="${resetLink}" style="background-color: #1C1B1A; color: #FAF6ED; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold;">Reset Password</a>
+    <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #121110; background: #FDFAF3; border-radius: 12px; overflow: hidden; border: 1px solid #E8DFC6;">
+      <div style="background: #1C1B1A; padding: 24px 32px; text-align: center;">
+        <h1 style="color: #C29831; font-size: 20px; margin: 0; letter-spacing: 2px;">RUHVI</h1>
+        <p style="color: #A09080; font-size: 11px; margin: 4px 0 0; letter-spacing: 1px;">FINE JEWELLERY</p>
       </div>
-      <p>If you didn't request this, you can safely ignore this email.</p>
-      <p>Thank you,<br/>The Ruhvi Team</p>
+      <div style="padding: 32px;">
+        <h2 style="color: #1C1B1A; font-size: 18px; margin: 0 0 12px;">Hello ${name},</h2>
+        <p style="color: #4A4540; line-height: 1.6; font-size: 14px; margin: 0 0 20px;">
+          We received a request to reset the password for your Ruhvi account. Click the button below to choose a new password:
+        </p>
+        
+        <div style="text-align: center; margin: 32px 0;">
+          <a href="${resetLink}" style="display: inline-block; background-color: #1C1B1A; color: #FAF6ED; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 14px; letter-spacing: 0.5px;">Set New Password</a>
+        </div>
+        
+        <p style="color: #8A7E6C; font-size: 12px; line-height: 1.5; margin: 24px 0 0;">
+          This link will expire in 1 hour for your security. If you didn't request a password reset, you can safely ignore this email — your account remains secure.
+        </p>
+        
+        <div style="margin-top: 32px; padding-top: 20px; border-top: 1px solid #E8DFC6;">
+          <p style="font-size: 12px; color: #8A7E6C; margin: 0;">Need assistance? Reply directly to this email or reach us on WhatsApp.</p>
+          <p style="font-size: 12px; color: #8A7E6C; margin: 8px 0 0;">With care,<br/>The Ruhvi Team</p>
+        </div>
+      </div>
     </div>
   `;
   try {
