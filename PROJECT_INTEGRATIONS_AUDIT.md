@@ -142,7 +142,7 @@ The application is a modern, headless e-commerce storefront. It utilizes Next.js
 | Service | Purpose | Added On | Status | Files | Notes |
 |---------|---------|----------|--------|-------|-------|
 | Supabase | Primary DB, CX/Site Storage | 2024 | Active | `src/lib/supabase/*` | Custom JWTs used instead of Supabase Auth |
-| Firebase | Authentication | 2024 | Active | `src/lib/firebase.ts` | Sole auth provider |
+| Firebase | Authentication | 2024 | Active | `src/lib/firebase.ts` | Sole auth provider; custom password resets routed via backend Admin SDK to bypass Firebase Console UI bugs |
 | Cloudinary | Image Optimization | 2024 | Active | `src/services/cloudinaryService.ts` | |
 | PhonePe | Payment Gateway | 2024 | Setup Pending | `api/checkout/phonepe` | Account setup pending documentation |
 | Shiprocket | Logistics / Shipping | 2024 | Partially Implemented | `src/lib/shiprocket.ts` | Mocked logic |
@@ -151,7 +151,7 @@ The application is a modern, headless e-commerce storefront. It utilizes Next.js
 | Turnstile | Bot Protection | 2024 | Active | `src/app/checkout/page.tsx` | |
 | Vercel Insights | Performance Analytics | 2024 | Active | `src/app/layout.tsx` | |
 | Google Analytics 4 | General Analytics/SEO | 2026 | Active | `src/app/layout.tsx`, `src/lib/gtag.ts` | E-commerce tracking fully instrumented |
-| Resend | Transactional Emails | 2026 | Active | `src/lib/resend.ts` | Welcome, Order Confirmation, Shipping Updates |
+| Resend | Transactional Emails | 2026 | Active | `src/lib/resend.ts` | Welcome, Order Confirmation, Shipping Updates, Password Reset Emails |
 | Brevo | Marketing Emails | 2026 | Active | `src/lib/brevo.ts` | Abandoned Cart, Win-back, etc. |
 | UID Sync Migration | Data consistency | 2026-08-06 | Added | `supabase/migrations/0021_firebase_uid_sync.sql` | Bulk sync and trigger for firebase_uid |
 | Permanent UID Sync | Auth reliability  | 2026-08-06 | Active | `supabase/migrations/0024_permanent_uid_sync.sql`, `src/app/api/auth/sync-token/route.ts`, `src/app/api/auth/session/route.ts` | upsert_firebase_user() RPC auto-creates/repairs user profiles on login. Eliminates all 404 auth errors. |

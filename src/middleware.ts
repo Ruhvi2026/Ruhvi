@@ -19,6 +19,8 @@ export async function middleware(request: NextRequest) {
     hostname === 'admin.ruhvi.in' || hostname.startsWith('admin.localhost');
   const isSupportHost =
     hostname === 'support.ruhvi.in' || hostname.startsWith('support.localhost');
+  const isAuthHost =
+    hostname === 'auth.ruhvi.in' || hostname.startsWith('auth.localhost');
   const path = request.nextUrl.pathname;
 
   // Save referral code from URL to cookie
@@ -38,6 +40,11 @@ export async function middleware(request: NextRequest) {
   // Root redirect on support host
   if (isSupportHost && path === '/') {
     return NextResponse.redirect(new URL('/support/dashboard', request.url));
+  }
+
+  // Root redirect on auth host
+  if (isAuthHost && path === '/') {
+    return NextResponse.redirect(new URL('/login', request.url));
   }
 
   // Block signup on admin/support hosts
@@ -68,6 +75,23 @@ export async function middleware(request: NextRequest) {
     const isAllowed =
       path.startsWith('/support') ||
       path.startsWith('/login') ||
+      path.startsWith('/api') ||
+      path.startsWith('/auth/callback') ||
+      path === '/404' ||
+      path.startsWith('/_not-found') ||
+      path.endsWith('.js') ||
+      path.endsWith('.json');
+
+    if (!isAllowed) {
+      return NextResponse.rewrite(new URL('/404', request.url));
+    }
+  } else if (isAuthHost) {
+    // Only allow auth and API routes on the auth subdomain
+    const isAllowed =
+      path.startsWith('/login') ||
+      path.startsWith('/signup') ||
+      path.startsWith('/reset-password') ||
+      path.startsWith('/forgot-password') ||
       path.startsWith('/api') ||
       path.startsWith('/auth/callback') ||
       path === '/404' ||
