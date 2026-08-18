@@ -55,6 +55,10 @@ export async function POST(
       ? ticket.customer[0]
       : ticket.customer;
 
+    const category = Array.isArray(ticket.category)
+      ? ticket.category[0]
+      : ticket.category;
+
     if (!customer?.email) {
       return NextResponse.json(
         { error: 'Customer not found' },
@@ -75,7 +79,7 @@ export async function POST(
             description: ticket.description,
             status: 'New',
             priority: ticket.priority,
-            category: ticket.category?.name || 'General',
+            category: category?.name || 'General',
             created_at: new Date(ticket.created_at).toLocaleDateString(
               'en-IN',
               {
