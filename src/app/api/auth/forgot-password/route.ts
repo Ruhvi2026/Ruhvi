@@ -90,9 +90,19 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true });
   } catch (error: any) {
     console.error('[Forgot Password API Error]', error);
+
+    // Map common Firebase Admin initialization errors to user-friendly messages
+    let clientError = error.message || 'An unexpected error occurred.';
+    if (
+      clientError.includes('Failed to parse private key') ||
+      clientError.includes('missing credentials')
+    ) {
+      clientError = `Firebase Admin configuration error: ${clientError}. Please check your Vercel environment variables (FIREBASE_PRIVATE_KEY, FIREBASE_CLIENT_EMAIL, NEXT_PUBLIC_FIREBASE_PROJECT_ID).`;
+    }
+
     return NextResponse.json(
-      { error: error.message || 'An unexpected error occurred.' },
-      { status: 500 }
+      { error: clientError },
+      { status: 400 } // Use 400 to prevent Vercel from overriding with HTML 500 page
     );
   }
 }
