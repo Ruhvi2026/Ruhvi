@@ -47,13 +47,17 @@ export async function POST(
       .eq('id', ticketId)
       .single();
 
+    if (!ticket) {
+      return NextResponse.json({ error: 'Ticket not found' }, { status: 404 });
+    }
+
     const customer = Array.isArray(ticket.customer)
       ? ticket.customer[0]
       : ticket.customer;
 
-    if (!ticket || !customer?.email) {
+    if (!customer?.email) {
       return NextResponse.json(
-        { error: 'Ticket or customer not found' },
+        { error: 'Customer not found' },
         { status: 404 }
       );
     }
