@@ -88,9 +88,9 @@ export function Footer() {
       </div>
 
       {/* Main Footer Links */}
-      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-8 border-b border-gold-800/50 px-4 pb-8 sm:px-6 md:grid-cols-4 lg:px-8">
-        <div>
-          <div className="mb-3 flex items-center space-x-3">
+      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-8 border-b border-gold-800/50 px-4 pb-12 sm:px-6 md:grid-cols-5 lg:px-8">
+        <div className="md:col-span-2">
+          <div className="mb-4 flex items-center space-x-3">
             <div className="relative h-10 w-10 flex-shrink-0 overflow-hidden rounded-full border border-gold-500/40 bg-charcoal-800 shadow-md">
               <Image
                 src="/logo.png"
@@ -99,14 +99,14 @@ export function Footer() {
                 className="object-cover"
               />
             </div>
-            <h3 className="gold-shimmer font-serif text-2xl font-bold uppercase leading-none tracking-widest">
+            <h3 className="font-serif text-xl font-bold uppercase tracking-[0.2em] text-gold-400">
               RUHVI JEWELS
             </h3>
           </div>
-          <p className="mb-4 text-xs leading-relaxed text-cream-200/60">
+          <p className="mb-6 max-w-xs text-xs leading-relaxed text-cream-200/60">
             Curating timeless elegance with modern Indian heritage
-            craftsmanship. Premium Gold, Diamond, and Kundan jewellery designed
-            for life&apos;s special moments.
+            craftsmanship. Exquisite 22K gold-plated jewellery designed for
+            life&apos;s special moments.
           </p>
           <p className="flex items-center gap-1.5 text-xs text-gold-300">
             <Gem className="h-3.5 w-3.5 text-gold-400" /> support@ruhvi.in
@@ -114,24 +114,62 @@ export function Footer() {
         </div>
 
         <div>
-          <h4 className="mb-4 text-xs font-semibold uppercase tracking-wider text-gold-400">
-            Customer Care
+          <h4 className="mb-5 text-xs font-bold uppercase tracking-[0.15em] text-gold-500">
+            Shop
           </h4>
-          <ul className="space-y-2 text-xs">
+          <ul className="space-y-3 text-xs text-cream-200/80">
             <li>
               <Link
-                href="/size-guide"
+                href="/products"
                 className="transition-colors hover:text-gold-400"
               >
-                Ring & Bangle Size Guide
+                New Arrivals
               </Link>
             </li>
             <li>
               <Link
-                href="/jewelry-care"
+                href="/collections/bestsellers"
                 className="transition-colors hover:text-gold-400"
               >
-                Jewelry Care & Cleaning Guide
+                Best Sellers
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/products"
+                className="transition-colors hover:text-gold-400"
+              >
+                All Categories
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/collections/for-her"
+                className="transition-colors hover:text-gold-400"
+              >
+                Gifts for Her
+              </Link>
+            </li>
+          </ul>
+
+          <h4 className="mb-5 mt-8 text-xs font-bold uppercase tracking-[0.15em] text-gold-500">
+            About
+          </h4>
+          <ul className="space-y-3 text-xs text-cream-200/80">
+            <li>
+              <Link
+                href="/about"
+                className="transition-colors hover:text-gold-400"
+              >
+                Our Story
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/about#philosophy"
+                className="transition-colors hover:text-gold-400"
+              >
+                Our Philosophy
               </Link>
             </li>
             <li>
@@ -139,7 +177,39 @@ export function Footer() {
                 href="/blog"
                 className="transition-colors hover:text-gold-400"
               >
-                Read our Blog
+                Editorial Blog
+              </Link>
+            </li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 className="mb-5 text-xs font-bold uppercase tracking-[0.15em] text-gold-500">
+            Help
+          </h4>
+          <ul className="space-y-3 text-xs text-cream-200/80">
+            <li>
+              <Link
+                href="/contact"
+                className="transition-colors hover:text-gold-400"
+              >
+                Contact Us
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/shipping-policy"
+                className="transition-colors hover:text-gold-400"
+              >
+                Shipping & Delivery
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/return-policy"
+                className="transition-colors hover:text-gold-400"
+              >
+                Returns & Exchanges
               </Link>
             </li>
             <li>
@@ -152,68 +222,66 @@ export function Footer() {
             </li>
             <li>
               <Link
-                href="/about"
+                href="/jewelry-care"
                 className="transition-colors hover:text-gold-400"
               >
-                About Ruhvi
+                Jewelry Care
               </Link>
             </li>
             <li>
               <Link
-                href="/contact"
+                href="/size-guide"
                 className="transition-colors hover:text-gold-400"
               >
-                Contact Us
+                Size Guide
               </Link>
             </li>
           </ul>
         </div>
 
         <div>
-          <h4 className="mb-4 text-xs font-semibold uppercase tracking-wider text-gold-400">
-            Store Policies
+          <h4 className="mb-5 text-xs font-bold uppercase tracking-[0.15em] text-gold-500">
+            Account
           </h4>
-          <ul className="space-y-2 text-xs">
+          <ul className="space-y-3 text-xs text-cream-200/80">
             <li>
               <Link
-                href="/shipping-policy"
+                href="/account"
                 className="transition-colors hover:text-gold-400"
               >
-                Shipping & Delivery Policy
+                Profile
               </Link>
             </li>
             <li>
               <Link
-                href="/return-policy"
+                href="/orders"
                 className="transition-colors hover:text-gold-400"
               >
-                Return & Refund Policy
+                My Orders
               </Link>
             </li>
             <li>
               <Link
-                href="/cancellation-policy"
+                href="/wishlist"
                 className="transition-colors hover:text-gold-400"
               >
-                Cancellation Policy
+                Wishlist
               </Link>
             </li>
             <li>
               <Link
-                href="/warranty-policy"
+                href="/wallet"
                 className="transition-colors hover:text-gold-400"
               >
-                Warranty & Repair Policy
+                Wallet Balance
               </Link>
             </li>
           </ul>
-        </div>
 
-        <div>
-          <h4 className="mb-4 text-xs font-semibold uppercase tracking-wider text-gold-400">
-            Legal & Privacy
+          <h4 className="mb-5 mt-8 text-xs font-bold uppercase tracking-[0.15em] text-gold-500">
+            Legal
           </h4>
-          <ul className="space-y-2 text-xs">
+          <ul className="space-y-3 text-xs text-cream-200/80">
             <li>
               <Link
                 href="/privacy-policy"
@@ -228,14 +296,6 @@ export function Footer() {
                 className="transition-colors hover:text-gold-400"
               >
                 Terms & Conditions
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/data-deletion"
-                className="transition-colors hover:text-gold-400"
-              >
-                Data Deletion Instructions
               </Link>
             </li>
           </ul>

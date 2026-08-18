@@ -21,6 +21,7 @@ import { trackEvent } from '@/lib/analytics';
 import { ecommerceEvent } from '@/lib/gtag';
 import { useCart } from '@/context/CartContext';
 import { useWishlist } from '@/context/WishlistContext';
+import { useAuth } from '@/context/AuthContext';
 import { SpatialPage } from '@/components/design-system/SpatialPage';
 import { Carousel3D } from '@/components/design-system/Carousel3D';
 import ProductAttributes from '@/components/ProductAttributes';
@@ -38,6 +39,9 @@ export function ProductDetailPageClient({
   const [copied, setCopied] = useState(false);
   const [recentlyViewed, setRecentlyViewed] = useState<Product[]>([]);
   const [is360ModalOpen, setIs360ModalOpen] = useState(false);
+  const [activeAccordion, setActiveAccordion] = useState<string>('description');
+  const { profile } = useAuth();
+  const walletBalance = profile?.wallet_balance || 0;
 
   const rawViewer360 = product.viewer360;
   const viewer360 = Array.isArray(rawViewer360)
@@ -127,7 +131,7 @@ export function ProductDetailPageClient({
     product.status === 'out_of_stock' || product.stock_quantity === 0;
 
   return (
-    <SpatialPage showParticles showOrbs>
+    <main className="min-h-screen bg-cream-50 pb-20">
       <div className="mx-auto max-w-7xl space-y-12 px-4 py-8 sm:px-6 lg:px-8">
         {/* Breadcrumb */}
         <nav className="flex items-center space-x-2 text-xs text-slate-500">
@@ -245,46 +249,122 @@ export function ProductDetailPageClient({
               </p>
             </div>
 
-            {/* Description */}
-            <div className="border-t border-gold-200/70 pt-4">
-              <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-charcoal-900">
-                Description
-              </h3>
-              <p className="mb-4 text-sm font-light leading-relaxed text-slate-600">
-                {product.description}
-              </p>
+            {/* Description & Details Accordion */}
+            <div className="border-t border-gold-200/70 pt-6">
+              <div className="space-y-4">
+                {/* Description Accordion */}
+                <div className="border-b border-gold-200/40 pb-4">
+                  <button
+                    onClick={() =>
+                      setActiveAccordion(
+                        activeAccordion === 'description' ? '' : 'description'
+                      )
+                    }
+                    className="flex w-full items-center justify-between font-serif text-lg font-medium text-charcoal-900"
+                  >
+                    <span>Description</span>
+                    <span className="text-xl leading-none">
+                      {activeAccordion === 'description' ? '−' : '+'}
+                    </span>
+                  </button>
+                  {activeAccordion === 'description' && (
+                    <div className="animate-fade-in mt-4 space-y-4 text-sm font-light leading-relaxed text-slate-600">
+                      <p>{product.description}</p>
+                      <ProductAttributes />
+                    </div>
+                  )}
+                </div>
 
-              <ProductAttributes />
+                {/* Materials Accordion */}
+                <div className="border-b border-gold-200/40 pb-4">
+                  <button
+                    onClick={() =>
+                      setActiveAccordion(
+                        activeAccordion === 'materials' ? '' : 'materials'
+                      )
+                    }
+                    className="flex w-full items-center justify-between font-serif text-lg font-medium text-charcoal-900"
+                  >
+                    <span>Materials & Craftsmanship</span>
+                    <span className="text-xl leading-none">
+                      {activeAccordion === 'materials' ? '−' : '+'}
+                    </span>
+                  </button>
+                  {activeAccordion === 'materials' && (
+                    <div className="animate-fade-in mt-4 text-sm font-light leading-relaxed text-slate-600">
+                      <p>
+                        Handcrafted with precision, this piece is made from a
+                        premium brass base and thickly plated with 22K pure gold
+                        for enduring brilliance. Every stone is meticulously set
+                        by hand by our expert artisans, ensuring exceptional
+                        quality and a luxurious finish that mimics fine jewelry.
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Care Accordion */}
+                <div className="border-b border-gold-200/40 pb-4">
+                  <button
+                    onClick={() =>
+                      setActiveAccordion(
+                        activeAccordion === 'care' ? '' : 'care'
+                      )
+                    }
+                    className="flex w-full items-center justify-between font-serif text-lg font-medium text-charcoal-900"
+                  >
+                    <span>Care Instructions</span>
+                    <span className="text-xl leading-none">
+                      {activeAccordion === 'care' ? '−' : '+'}
+                    </span>
+                  </button>
+                  {activeAccordion === 'care' && (
+                    <div className="animate-fade-in mt-4 text-sm font-light leading-relaxed text-slate-600">
+                      <ul className="list-inside list-disc space-y-1">
+                        <li>
+                          Store in the provided Ruhvi velvet pouch when not in
+                          use.
+                        </li>
+                        <li>
+                          Keep away from perfumes, sprays, and harsh chemicals.
+                        </li>
+                        <li>
+                          Wipe with a soft, dry cotton cloth after every use.
+                        </li>
+                        <li>Avoid wearing during workouts or in water.</li>
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
 
             {/* Stock & CTA Buttons */}
-            <div className="space-y-4 pt-2">
+            <div className="relative z-20 space-y-4 pt-4">
               {!isOutOfStock ? (
-                <div className="space-y-3">
-                  {product.stock_quantity !== undefined &&
-                  product.stock_quantity > 0 &&
-                  product.stock_quantity < 10 ? (
-                    <div className="flex items-center space-x-1.5 text-xs font-bold text-gold-600">
-                      <div className="h-2 w-2 animate-ping rounded-full bg-gold-500" />
+                <div className="space-y-4">
+                  {walletBalance > 0 && (
+                    <div className="flex items-center space-x-2 rounded-lg border border-gold-200/40 bg-gold-50/50 p-3 text-xs text-charcoal-900">
+                      <div className="flex h-5 w-5 items-center justify-center rounded-full bg-gold-200/50 text-gold-700">
+                        ₹
+                      </div>
                       <span>
-                        Only {product.stock_quantity} left in stock - Order
-                        soon!
+                        Use{' '}
+                        <strong className="font-semibold text-gold-700">
+                          ₹{walletBalance.toLocaleString('en-IN')}
+                        </strong>{' '}
+                        from your Ruhvi Wallet at checkout.
                       </span>
-                    </div>
-                  ) : (
-                    <div className="flex items-center space-x-1.5 text-xs font-semibold text-emerald-700">
-                      <div className="h-2 w-2 animate-ping rounded-full bg-emerald-500" />
-                      <span>In Stock • Ready for dispatch in 24 hours</span>
                     </div>
                   )}
 
-                  <div className="flex space-x-4">
+                  <div className="flex space-x-3">
                     <button
                       onClick={handleAddToCart}
-                      className="flex flex-1 items-center justify-center space-x-2 rounded-xl bg-gradient-to-br from-gold-400 via-gold-500 to-gold-700 py-3.5 text-xs font-bold uppercase tracking-widest text-white shadow-md shadow-gold-500/30 transition-all hover:from-gold-500 hover:to-gold-800"
+                      className="flex flex-1 items-center justify-center space-x-2 bg-charcoal-900 py-4 text-xs font-bold uppercase tracking-[0.15em] text-white shadow-xl transition-all hover:-translate-y-0.5 hover:bg-charcoal-800"
                     >
                       {isInCart ? (
-                        <Check className="h-4 w-4 text-emerald-300" />
+                        <Check className="h-4 w-4 text-champagne-300" />
                       ) : (
                         <ShoppingBag className="h-4 w-4" />
                       )}
@@ -293,13 +373,22 @@ export function ProductDetailPageClient({
 
                     <button
                       onClick={handleToggleWishlist}
-                      className={`rounded-xl border p-3.5 transition-colors ${isLiked ? 'border-gold-500 bg-gold-50 text-gold-700' : 'border-gold-300/70 text-slate-700 hover:border-gold-700'}`}
+                      className={`border px-5 py-4 transition-colors hover:bg-champagne-50 ${isLiked ? 'border-charcoal-900 bg-champagne-50 text-charcoal-900' : 'border-gold-300/70 text-slate-700'}`}
                     >
                       <Heart
                         className={`h-5 w-5 ${isLiked ? 'fill-current' : ''}`}
+                        strokeWidth={1.5}
                       />
                     </button>
                   </div>
+
+                  {product.stock_quantity !== undefined &&
+                    product.stock_quantity > 0 &&
+                    product.stock_quantity < 10 && (
+                      <div className="mt-2 text-center text-[10px] font-medium uppercase tracking-widest text-gold-600">
+                        Only {product.stock_quantity} remaining
+                      </div>
+                    )}
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -419,6 +508,23 @@ export function ProductDetailPageClient({
           />
         )}
       </div>
-    </SpatialPage>
+      {/* Sticky Mobile Add to Cart */}
+      {!isOutOfStock && (
+        <div className="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-between gap-4 border-t border-gold-200/50 bg-white/95 p-4 pb-8 shadow-[0_-4px_20px_-10px_rgba(0,0,0,0.1)] backdrop-blur-md sm:hidden">
+          <div className="flex flex-col">
+            <span className="text-xs text-slate-500">Price</span>
+            <span className="text-lg font-bold text-charcoal-900">
+              ₹{product.price.toLocaleString('en-IN')}
+            </span>
+          </div>
+          <button
+            onClick={handleAddToCart}
+            className="flex-1 bg-charcoal-900 py-3.5 text-center text-xs font-bold uppercase tracking-widest text-white transition-colors hover:bg-charcoal-800"
+          >
+            {isInCart ? 'Added' : 'Add to Cart'}
+          </button>
+        </div>
+      )}
+    </main>
   );
 }

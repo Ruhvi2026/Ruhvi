@@ -31,8 +31,8 @@
   }
 
   body {
-    background-color: #faf6ed;
-    color: #121110;
+    background-color: #fdfdfb; /* champagne-50 */
+    color: #171717; /* charcoal-900 */
     font-family: var(--font-inter), sans-serif;
   }
 
@@ -43,6 +43,8 @@
   h5,
   h6 {
     font-family: var(--font-playfair), Georgia, serif;
+    color: #0f0f0f; /* charcoal-950 */
+    letter-spacing: -0.02em;
   }
 
   ::selection {

@@ -17,12 +17,19 @@ import {
   Check,
   Flag,
   Megaphone,
+  Home,
 } from 'lucide-react';
-import { getStoreSettings, updateStoreSettings } from '../actions/settings';
+import {
+  getStoreSettings,
+  updateStoreSettings,
+  getHomepageSettings,
+  updateHomepageSettings,
+} from '../actions/settings';
 import { quickSendEmail } from '../actions/marketing';
 
 const SECTIONS = [
   { id: 'store', icon: Store, label: 'Store Information' },
+  { id: 'homepage', icon: Home, label: 'Homepage Content' },
   { id: 'marketing', icon: Megaphone, label: 'Marketing & Brevo' },
   { id: 'shipping', icon: Truck, label: 'Shipping Settings' },
   { id: 'payment', icon: CreditCard, label: 'Payment Settings' },
@@ -140,6 +147,25 @@ export default function AdminSettingsPage() {
   });
   const [isSending, setIsSending] = useState(false);
 
+  // Homepage Settings
+  const [homepageSettings, setHomepageSettings] = useState({
+    hero_title: '',
+    hero_image_url: '',
+    hero_cta1_text: '',
+    hero_cta1_link: '',
+    hero_cta2_text: '',
+    hero_cta2_link: '',
+    lifestyle_title: '',
+    lifestyle_text: '',
+    lifestyle_image_url: '',
+    lifestyle_cta_text: '',
+    lifestyle_cta_link: '',
+    why_ruhvi_title: '',
+    why_ruhvi_text: '',
+    why_ruhvi_cta_text: '',
+    why_ruhvi_cta_link: '',
+  });
+
   React.useEffect(() => {
     async function loadSettings() {
       const data = await getStoreSettings();
@@ -150,6 +176,27 @@ export default function AdminSettingsPage() {
           data.banner_color || 'bg-gradient-to-r from-fuchsia-600 to-purple-600'
         );
         setBannerLink(data.banner_link || '');
+      }
+
+      const hp = await getHomepageSettings();
+      if (hp) {
+        setHomepageSettings({
+          hero_title: hp.hero_title || '',
+          hero_image_url: hp.hero_image_url || '',
+          hero_cta1_text: hp.hero_cta1_text || '',
+          hero_cta1_link: hp.hero_cta1_link || '',
+          hero_cta2_text: hp.hero_cta2_text || '',
+          hero_cta2_link: hp.hero_cta2_link || '',
+          lifestyle_title: hp.lifestyle_title || '',
+          lifestyle_text: hp.lifestyle_text || '',
+          lifestyle_image_url: hp.lifestyle_image_url || '',
+          lifestyle_cta_text: hp.lifestyle_cta_text || '',
+          lifestyle_cta_link: hp.lifestyle_cta_link || '',
+          why_ruhvi_title: hp.why_ruhvi_title || '',
+          why_ruhvi_text: hp.why_ruhvi_text || '',
+          why_ruhvi_cta_text: hp.why_ruhvi_cta_text || '',
+          why_ruhvi_cta_link: hp.why_ruhvi_cta_link || '',
+        });
       }
     }
     loadSettings();
@@ -191,6 +238,15 @@ export default function AdminSettingsPage() {
       } catch (err) {
         console.error('Failed to save settings', err);
         alert('Failed to save settings.');
+      }
+    } else if (activeSection === 'homepage') {
+      try {
+        await updateHomepageSettings(homepageSettings);
+        setSaved(true);
+        setTimeout(() => setSaved(false), 3000);
+      } catch (err) {
+        console.error('Failed to save homepage settings', err);
+        alert('Failed to save homepage settings.');
       }
     } else {
       // Mock save for other sections
@@ -247,6 +303,214 @@ export default function AdminSettingsPage() {
 
         {/* Content */}
         <form onSubmit={handleSave} className="flex-1 space-y-5">
+          {activeSection === 'homepage' && (
+            <div className="space-y-5">
+              <Section title="Hero Section">
+                <div className="grid grid-cols-2 gap-5">
+                  <div className="col-span-2">
+                    <Field label="Hero Title">
+                      <Input
+                        value={homepageSettings.hero_title}
+                        onChange={(e) =>
+                          setHomepageSettings({
+                            ...homepageSettings,
+                            hero_title: e.target.value,
+                          })
+                        }
+                        placeholder="Designed to be remembered."
+                      />
+                    </Field>
+                  </div>
+                  <div className="col-span-2">
+                    <Field label="Hero Image URL">
+                      <Input
+                        value={homepageSettings.hero_image_url}
+                        onChange={(e) =>
+                          setHomepageSettings({
+                            ...homepageSettings,
+                            hero_image_url: e.target.value,
+                          })
+                        }
+                        placeholder="https://images.unsplash.com/photo-..."
+                      />
+                    </Field>
+                  </div>
+                  <Field label="CTA 1 Text">
+                    <Input
+                      value={homepageSettings.hero_cta1_text}
+                      onChange={(e) =>
+                        setHomepageSettings({
+                          ...homepageSettings,
+                          hero_cta1_text: e.target.value,
+                        })
+                      }
+                      placeholder="Explore Collection"
+                    />
+                  </Field>
+                  <Field label="CTA 1 Link">
+                    <Input
+                      value={homepageSettings.hero_cta1_link}
+                      onChange={(e) =>
+                        setHomepageSettings({
+                          ...homepageSettings,
+                          hero_cta1_link: e.target.value,
+                        })
+                      }
+                      placeholder="/products"
+                    />
+                  </Field>
+                  <Field label="CTA 2 Text">
+                    <Input
+                      value={homepageSettings.hero_cta2_text}
+                      onChange={(e) =>
+                        setHomepageSettings({
+                          ...homepageSettings,
+                          hero_cta2_text: e.target.value,
+                        })
+                      }
+                      placeholder="Discover New Arrivals"
+                    />
+                  </Field>
+                  <Field label="CTA 2 Link">
+                    <Input
+                      value={homepageSettings.hero_cta2_link}
+                      onChange={(e) =>
+                        setHomepageSettings({
+                          ...homepageSettings,
+                          hero_cta2_link: e.target.value,
+                        })
+                      }
+                      placeholder="/collections/new-arrivals"
+                    />
+                  </Field>
+                </div>
+              </Section>
+
+              <Section title="Lifestyle Section">
+                <div className="grid grid-cols-2 gap-5">
+                  <div className="col-span-2">
+                    <Field label="Lifestyle Image URL">
+                      <Input
+                        value={homepageSettings.lifestyle_image_url}
+                        onChange={(e) =>
+                          setHomepageSettings({
+                            ...homepageSettings,
+                            lifestyle_image_url: e.target.value,
+                          })
+                        }
+                      />
+                    </Field>
+                  </div>
+                  <div className="col-span-2">
+                    <Field label="Title">
+                      <Input
+                        value={homepageSettings.lifestyle_title}
+                        onChange={(e) =>
+                          setHomepageSettings({
+                            ...homepageSettings,
+                            lifestyle_title: e.target.value,
+                          })
+                        }
+                      />
+                    </Field>
+                  </div>
+                  <div className="col-span-2">
+                    <Field label="Description">
+                      <textarea
+                        value={homepageSettings.lifestyle_text}
+                        onChange={(e) =>
+                          setHomepageSettings({
+                            ...homepageSettings,
+                            lifestyle_text: e.target.value,
+                          })
+                        }
+                        rows={3}
+                        className="w-full resize-none rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                      />
+                    </Field>
+                  </div>
+                  <Field label="CTA Text">
+                    <Input
+                      value={homepageSettings.lifestyle_cta_text}
+                      onChange={(e) =>
+                        setHomepageSettings({
+                          ...homepageSettings,
+                          lifestyle_cta_text: e.target.value,
+                        })
+                      }
+                    />
+                  </Field>
+                  <Field label="CTA Link">
+                    <Input
+                      value={homepageSettings.lifestyle_cta_link}
+                      onChange={(e) =>
+                        setHomepageSettings({
+                          ...homepageSettings,
+                          lifestyle_cta_link: e.target.value,
+                        })
+                      }
+                    />
+                  </Field>
+                </div>
+              </Section>
+
+              <Section title="Why Ruhvi Section">
+                <div className="grid grid-cols-2 gap-5">
+                  <div className="col-span-2">
+                    <Field label="Title">
+                      <Input
+                        value={homepageSettings.why_ruhvi_title}
+                        onChange={(e) =>
+                          setHomepageSettings({
+                            ...homepageSettings,
+                            why_ruhvi_title: e.target.value,
+                          })
+                        }
+                      />
+                    </Field>
+                  </div>
+                  <div className="col-span-2">
+                    <Field label="Description">
+                      <textarea
+                        value={homepageSettings.why_ruhvi_text}
+                        onChange={(e) =>
+                          setHomepageSettings({
+                            ...homepageSettings,
+                            why_ruhvi_text: e.target.value,
+                          })
+                        }
+                        rows={3}
+                        className="w-full resize-none rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                      />
+                    </Field>
+                  </div>
+                  <Field label="CTA Text">
+                    <Input
+                      value={homepageSettings.why_ruhvi_cta_text}
+                      onChange={(e) =>
+                        setHomepageSettings({
+                          ...homepageSettings,
+                          why_ruhvi_cta_text: e.target.value,
+                        })
+                      }
+                    />
+                  </Field>
+                  <Field label="CTA Link">
+                    <Input
+                      value={homepageSettings.why_ruhvi_cta_link}
+                      onChange={(e) =>
+                        setHomepageSettings({
+                          ...homepageSettings,
+                          why_ruhvi_cta_link: e.target.value,
+                        })
+                      }
+                    />
+                  </Field>
+                </div>
+              </Section>
+            </div>
+          )}
+
           {activeSection === 'marketing' && (
             <Section title="Quick Send Email">
               <div className="grid grid-cols-1 gap-5">

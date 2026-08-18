@@ -15,6 +15,7 @@ import {
   LogOut,
   Package,
   ShieldCheck,
+  Wallet,
 } from 'lucide-react';
 import { SearchBar } from '@/components/search/SearchBar';
 import { INITIAL_CATEGORIES } from '@/lib/products';
@@ -53,7 +54,7 @@ export function Navbar() {
   const userInitials = userDisplayName ? userDisplayName[0].toUpperCase() : 'U';
 
   return (
-    <header className="sticky top-0 z-40 border-b border-gold-200/80 bg-cream-50 shadow-sm transition-all">
+    <header className="sticky top-0 z-40 border-b border-gold-200/80 bg-champagne-50 shadow-sm transition-all">
       {/* Top Banner */}
       {(!bannerSettings || bannerSettings.banner_enabled) && (
         <div
@@ -139,6 +140,19 @@ export function Navbar() {
                 </span>
               )}
             </Link>
+
+            {/* Wallet Integration */}
+            <div className="group relative flex items-center">
+              <button
+                className="relative flex items-center gap-1.5 p-1.5 text-slate-700 transition-colors hover:text-gold-600 sm:p-2"
+                title="Wallet Balance"
+              >
+                <Wallet className="h-5 w-5" />
+                <span className="flex items-center justify-center rounded-full border border-gold-200/60 bg-champagne-200 px-2 py-0.5 text-[10px] font-bold text-gold-700 shadow-sm">
+                  ₹50
+                </span>
+              </button>
+            </div>
 
             <Link
               href="/wishlist"
@@ -325,7 +339,7 @@ export function Navbar() {
 
       {/* Mobile Drawer Menu */}
       {mobileMenuOpen && (
-        <div className="space-y-4 border-t border-gold-200/70 bg-cream-50 px-4 py-4 lg:hidden">
+        <div className="space-y-4 border-t border-gold-200/70 bg-champagne-50 px-4 py-4 lg:hidden">
           <div className="text-xs font-semibold uppercase tracking-wider text-slate-400">
             Categories
           </div>

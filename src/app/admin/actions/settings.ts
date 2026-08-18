@@ -63,16 +63,63 @@ export async function getMarketingSettings(): Promise<MarketingSettings> {
 
 export async function updateMarketingSettings(settings: MarketingSettings) {
   const supabase = createClient();
-  const { error } = await supabase
+  const { error } = await supabase.from('settings').upsert(
+    {
+      key: 'marketing',
+      value: settings,
+      updated_at: new Date().toISOString(),
+    },
+    { onConflict: 'key' }
+  );
+
+  if (error) {
+    throw new Error(error.message);
+  }
+  return { success: true };
+}
+
+export interface HomepageSettings {
+  hero_title?: string;
+  hero_image_url?: string;
+  hero_cta1_text?: string;
+  hero_cta1_link?: string;
+  hero_cta2_text?: string;
+  hero_cta2_link?: string;
+  lifestyle_title?: string;
+  lifestyle_text?: string;
+  lifestyle_image_url?: string;
+  lifestyle_cta_text?: string;
+  lifestyle_cta_link?: string;
+  why_ruhvi_title?: string;
+  why_ruhvi_text?: string;
+  why_ruhvi_cta_text?: string;
+  why_ruhvi_cta_link?: string;
+}
+
+export async function getHomepageSettings(): Promise<HomepageSettings> {
+  const supabase = createClient();
+  const { data, error } = await supabase
     .from('settings')
-    .upsert(
-      {
-        key: 'marketing',
-        value: settings,
-        updated_at: new Date().toISOString(),
-      },
-      { onConflict: 'key' }
-    );
+    .select('value')
+    .eq('key', 'homepage')
+    .single();
+
+  if (error || !data) {
+    return {};
+  }
+  return data.value as HomepageSettings;
+}
+
+export async function updateHomepageSettings(settings: HomepageSettings) {
+  const supabase = createClient();
+  const { error } = await supabase.from('settings').upsert(
+    {
+      key: 'homepage',
+      value: settings,
+      updated_at: new Date().toISOString(),
+    },
+    { onConflict: 'key' }
+  );
 
   if (error) {
     throw new Error(error.message);
