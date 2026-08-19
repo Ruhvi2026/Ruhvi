@@ -61,7 +61,13 @@ export async function GET(
     }
 
     const supabase = await getSupabaseAdmin(cookieStore);
-    const isStaff = ['admin', 'manager', 'staff'].includes(user.role);
+    const isStaff = [
+      'super_admin',
+      'SUPER_ADMIN',
+      'admin',
+      'manager',
+      'staff',
+    ].includes(user.role);
 
     // Fetch ticket
     let ticketQuery = supabase
@@ -234,7 +240,13 @@ export async function PATCH(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const isStaff = ['admin', 'manager', 'staff'].includes(user.role);
+    const isStaff = [
+      'super_admin',
+      'SUPER_ADMIN',
+      'admin',
+      'manager',
+      'staff',
+    ].includes(user.role);
     if (!isStaff) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }

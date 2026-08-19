@@ -15,7 +15,13 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const isStaff = ['admin', 'manager', 'staff'].includes(user.role);
+    const isStaff = [
+      'super_admin',
+      'SUPER_ADMIN',
+      'admin',
+      'manager',
+      'staff',
+    ].includes(user.role);
     if (!isStaff) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
@@ -26,7 +32,7 @@ export async function GET(req: NextRequest) {
     const { data: teamMembers, error: usersError } = await supabase
       .from('users')
       .select('id, full_name, email, phone, role, created_at')
-      .in('role', ['staff', 'manager', 'admin'])
+      .in('role', ['staff', 'manager', 'admin', 'super_admin'])
       .order('full_name', { ascending: true });
 
     if (usersError) {

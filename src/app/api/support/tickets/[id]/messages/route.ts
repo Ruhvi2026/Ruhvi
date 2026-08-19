@@ -88,7 +88,13 @@ export async function POST(
     let senderId: string | null = null;
 
     if (user) {
-      isStaff = ['admin', 'manager', 'staff'].includes(user.role);
+      isStaff = [
+        'super_admin',
+        'SUPER_ADMIN',
+        'admin',
+        'manager',
+        'staff',
+      ].includes(user.role);
       senderId = user.id;
 
       // Customers can only message on their own tickets

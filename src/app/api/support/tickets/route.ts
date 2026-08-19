@@ -88,7 +88,13 @@ export async function GET(req: NextRequest) {
     );
 
     // Customer only sees own tickets
-    const isStaff = ['admin', 'manager', 'staff'].includes(user.role);
+    const isStaff = [
+      'super_admin',
+      'SUPER_ADMIN',
+      'admin',
+      'manager',
+      'staff',
+    ].includes(user.role);
     if (!isStaff) {
       query = query.eq('customer_id', user.id);
     }
@@ -204,7 +210,13 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const isStaff = ['admin', 'manager', 'staff'].includes(user.role);
+    const isStaff = [
+      'super_admin',
+      'SUPER_ADMIN',
+      'admin',
+      'manager',
+      'staff',
+    ].includes(user.role);
 
     // Determine target customer ID
     let targetCustomerId = user.id;
