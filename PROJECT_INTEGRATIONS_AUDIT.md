@@ -28,7 +28,7 @@ The application is a modern, headless e-commerce storefront. It utilizes Next.js
 | **Next.js** | Framework | Core React framework. | `package.json`, `next.config.js` | None | Active |
 | **Supabase** | Database / Storage | Primary database, data fetching. Storage for CX/site data. | `src/lib/supabase/*`, `src/types/database.ts`, `api` routes | `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_JWT_SECRET` | Active |
 | **Firebase** | Authentication | Manages all authentication (Email/Password, OTP, OAuth). | `src/lib/firebase.ts`, `src/context/AuthContext.tsx`, auth pages | `NEXT_PUBLIC_FIREBASE_API_KEY`, `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN`, `NEXT_PUBLIC_FIREBASE_PROJECT_ID`, `NEXT_PUBLIC_FIREBASE_APP_ID`, `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID` | Active |
-| **Cloudinary** | Images | Hosting and optimizing product images. | `src/services/cloudinaryService.ts`, `src/lib/imageService.ts` | `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME`, `NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET` | Active |
+| **Cloudinary** | Images / Media | Hosting and optimizing product images and support ticket attachments. | `src/services/cloudinaryService.ts`, `src/lib/imageService.ts` | `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME`, `NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET` | Active |
 | **Meta Pixel / CAPI** | Analytics/SEO | Conversion tracking for Meta ads. | `src/app/api/capi/route.ts` | `NEXT_PUBLIC_META_PIXEL_ID`, `META_CAPI_ACCESS_TOKEN` | Active |
 | **Vercel Speed Insights** | Performance | Web Vitals performance monitoring. | `src/app/layout.tsx` | None | Active |
 | **Cloudflare Turnstile** | Security | Bot protection during checkout. | `src/app/checkout/page.tsx` | `NEXT_PUBLIC_TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY` | Active |
