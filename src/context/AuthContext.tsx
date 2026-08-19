@@ -55,6 +55,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           .from('users')
           .select('*')
           .eq('id', authUser.id)
+          .limit(1)
           .maybeSingle();
         data = userById;
       }
@@ -63,6 +64,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (!data && authUser.id) {
         const { data: userByFb, error } = await supabase
           .rpc('get_user_profile', { p_user_id: authUser.id })
+          .limit(1)
           .maybeSingle();
         data = userByFb;
       }
@@ -76,6 +78,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             .from('users')
             .select('*')
             .ilike('phone', `%${cleanedPhone}%`)
+            .limit(1)
             .maybeSingle();
           data = userByPhone;
         }
@@ -87,6 +90,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           .from('users')
           .select('*')
           .eq('email', authUser.email)
+          .limit(1)
           .maybeSingle();
         data = userByEmail;
       }

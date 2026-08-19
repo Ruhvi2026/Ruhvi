@@ -50,11 +50,11 @@ export async function POST(request: NextRequest) {
     const supabase = await getSupabaseAdmin();
 
     // 1. Verify user profile exists in Supabase
-    const { data: userProfile, error: dbError } = await supabase
+    const { data: userProfiles, error: dbError } = await supabase
       .from('users')
       .select('id, firebase_uid, email, full_name')
       .ilike('email', normalizedEmail)
-      .maybeSingle();
+      .limit(1);
 
     if (dbError) {
       console.error('[forgot-password] Database error:', dbError);
@@ -68,6 +68,9 @@ export async function POST(request: NextRequest) {
         { status: 500 }
       );
     }
+
+    const userProfile =
+      userProfiles && userProfiles.length > 0 ? userProfiles[0] : null;
 
     if (!userProfile) {
       return NextResponse.json(
