@@ -52,18 +52,85 @@ export async function POST(request: NextRequest) {
       auth: { autoRefreshToken: false, persistSession: false },
     });
 
-    // Upsert the user profile — creates it if it doesn't exist, updates it if it does.
-    // This is the permanent, self-healing fix: no more 404 for missing profiles.
-    const { data: supabaseUserId, error: upsertError } =
-      await supabaseAdmin.rpc('upsert_firebase_user', {
-        p_uid: uid,
-        p_email: email,
-        p_name: name,
-        p_phone: phone,
-      });
+    // Extract verification and provider details for Path B resolution
+    const firebase = (payload.firebase as any) || {};
+    const provider = firebase.sign_in_provider || 'password';
+    const emailVerified = !!payload.email_verified;
+    const phoneVerified = !!phone;
+    const providerIdentifier = provider === 'phone' ? phone : email || uid;
 
-    if (upsertError || !supabaseUserId) {
-      console.error('[session] Failed to upsert user profile:', upsertError);
+    // Multi-strategy identity resolution to support both v2 (resolve_customer_identity) and legacy v1 (upsert_firebase_user)
+    let supabaseUserId: string | null = null;
+
+    // Strategy 1: resolve_customer_identity (Migration 0030+)
+    const { data: resolvedId, error: resolveErr } = await supabaseAdmin.rpc(
+      'resolve_customer_identity',
+      {
+        p_firebase_uid: uid,
+        p_provider: provider,
+        p_provider_identifier: providerIdentifier,
+        p_email: email,
+        p_email_verified: emailVerified,
+        p_phone: phone,
+        p_phone_verified: phoneVerified,
+        p_name: name,
+      }
+    );
+
+    if (resolvedId && !resolveErr) {
+      supabaseUserId = resolvedId;
+    } else {
+      // Strategy 2: Legacy upsert_firebase_user
+      const { data: legacyId } = await supabaseAdmin.rpc(
+        'upsert_firebase_user',
+        {
+          p_uid: uid,
+          p_email: email,
+          p_name: name,
+          p_phone: phone,
+        }
+      );
+
+      if (legacyId) {
+        supabaseUserId = legacyId;
+      } else {
+        // Strategy 3: Direct database lookup / fallback
+        const { data: existingUser } = await supabaseAdmin
+          .from('users')
+          .select('id')
+          .or(`email.eq.${email || ''},phone.eq.${phone || ''}`)
+          .limit(1)
+          .maybeSingle();
+
+        if (existingUser?.id) {
+          supabaseUserId = existingUser.id;
+        } else {
+          // Create user record directly
+          const { data: insertedUser } = await supabaseAdmin
+            .from('users')
+            .insert({
+              email: email,
+              phone: phone,
+              full_name: name,
+              role: email === 'ruhvi.main@gmail.com' ? 'admin' : 'customer',
+              email_verified: emailVerified,
+              phone_verified: phoneVerified,
+            })
+            .select('id')
+            .single();
+
+          if (insertedUser?.id) {
+            supabaseUserId = insertedUser.id;
+          }
+        }
+      }
+    }
+
+    if (!supabaseUserId) {
+      console.error(
+        '[session] Failed to resolve or create user profile for uid:',
+        uid
+      );
       return NextResponse.json(
         { error: 'Failed to sync user profile.' },
         { status: 500 }

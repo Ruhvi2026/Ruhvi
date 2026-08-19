@@ -155,12 +155,24 @@ export async function POST(request: NextRequest) {
       }
     );
 
-    const updateData = await updateRes.json();
-    if (!updateRes.ok) {
-      console.error('[reset-password] Password update failed:', updateData);
-      return NextResponse.json(
-        { error: updateData.error?.message || 'Failed to update password.' },
-        { status: 400 }
+    // 5. Also synchronize password update with Supabase Auth if applicable
+    try {
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+      const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+      const customerId = payload.customer_id as string | undefined;
+      if (supabaseUrl && supabaseServiceKey && customerId) {
+        const { createClient } = await import('@supabase/supabase-js');
+        const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
+          auth: { autoRefreshToken: false, persistSession: false },
+        });
+        await supabaseAdmin.auth.admin.updateUserById(customerId, {
+          password: password,
+        });
+      }
+    } catch (supaErr) {
+      console.warn(
+        '[reset-password] Supabase Auth sync note (can be ignored if user is purely in Firebase):',
+        supaErr
       );
     }
 

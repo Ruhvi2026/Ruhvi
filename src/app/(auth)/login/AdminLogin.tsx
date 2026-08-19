@@ -23,15 +23,60 @@ export default function AdminLogin() {
     setError(null);
 
     try {
-      // Authenticate via Firebase Auth
-      const { signInWithEmailAndPassword } = await import('firebase/auth');
+      // Authenticate via Firebase Auth with hybrid bridge fallback
+      const { signInWithEmailAndPassword, signInWithCustomToken } =
+        await import('firebase/auth');
       const { auth } = await import('@/lib/firebase');
-      const userCredential = await signInWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-      const fbUser = userCredential.user;
+
+      let fbUser = null;
+
+      try {
+        const userCredential = await signInWithEmailAndPassword(
+          auth,
+          email,
+          password
+        );
+        fbUser = userCredential.user;
+      } catch (fbLoginErr: any) {
+        if (
+          fbLoginErr?.code === 'auth/user-not-found' ||
+          fbLoginErr?.code === 'auth/invalid-credential' ||
+          fbLoginErr?.code === 'auth/wrong-password' ||
+          fbLoginErr?.code === 'auth/invalid-login-credentials'
+        ) {
+          const hybridRes = await fetch('/api/auth/hybrid-login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password }),
+          });
+
+          if (hybridRes.ok) {
+            const hybridData = await hybridRes.json();
+            if (hybridData.customToken) {
+              const customUserCred = await signInWithCustomToken(
+                auth,
+                hybridData.customToken
+              );
+              fbUser = customUserCred.user;
+            } else if (hybridData.idToken) {
+              try {
+                const userCredential = await signInWithEmailAndPassword(
+                  auth,
+                  email,
+                  password
+                );
+                fbUser = userCredential.user;
+              } catch {
+                // proceed with direct session
+              }
+            }
+          }
+        }
+
+        if (!fbUser) {
+          throw fbLoginErr;
+        }
+      }
 
       // Create session cookie
       const idToken = await fbUser.getIdToken();

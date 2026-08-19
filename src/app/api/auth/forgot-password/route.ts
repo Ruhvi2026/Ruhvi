@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
     // 1. Verify user profile exists in Supabase
     const { data: userProfiles, error: dbError } = await supabase
       .from('users')
-      .select('id, firebase_uid, email, full_name')
+      .select('id, email, full_name')
       .ilike('email', normalizedEmail)
       .limit(1);
 
@@ -79,6 +79,23 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Look up firebase_uid from customer_identities if available
+    let targetUid = userProfile.id;
+    try {
+      const { data: identity } = await supabase
+        .from('customer_identities')
+        .select('firebase_uid')
+        .eq('customer_id', userProfile.id)
+        .limit(1)
+        .maybeSingle();
+
+      if (identity?.firebase_uid) {
+        targetUid = identity.firebase_uid;
+      }
+    } catch {
+      // ignore and use userProfile.id
+    }
+
     const jwtSecret = process.env.SUPABASE_JWT_SECRET;
     if (!jwtSecret) {
       console.error('[forgot-password] SUPABASE_JWT_SECRET is missing');
@@ -94,11 +111,12 @@ export async function POST(request: NextRequest) {
 
     const resetToken = await new SignJWT({
       email: normalizedEmail,
-      uid: userProfile.firebase_uid,
+      uid: targetUid,
+      customer_id: userProfile.id,
       type: 'password_reset',
     })
       .setProtectedHeader({ alg: 'HS256', typ: 'JWT' })
-      .setSubject(userProfile.firebase_uid)
+      .setSubject(targetUid)
       .setIssuedAt(now)
       .setExpirationTime(now + 3600) // 1 hour validity
       .sign(secretKey);

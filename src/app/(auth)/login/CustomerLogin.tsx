@@ -10,6 +10,7 @@ import {
   RecaptchaVerifier,
   signInWithPhoneNumber,
   signInWithEmailAndPassword,
+  signInWithCustomToken,
   signInWithPopup,
   GoogleAuthProvider,
   FacebookAuthProvider,
@@ -65,16 +66,72 @@ function LoginForm() {
     setError(null);
     setMessage(null);
 
-    try {
-      // Handle Email/Password login strictly via Firebase Auth
-      const userCredential = await signInWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-      const fbUser = userCredential.user;
+    let destination = redirectTo === '/admin' ? '/admin/dashboard' : redirectTo;
 
-      // Upsert user into Supabase database securely via RPC
+    try {
+      let fbUser = null;
+
+      // 1. Attempt direct Firebase login
+      try {
+        const userCredential = await signInWithEmailAndPassword(
+          auth,
+          email,
+          password
+        );
+        fbUser = userCredential.user;
+      } catch (fbLoginErr: any) {
+        // If Firebase says user not found or invalid credential, try Supabase hybrid bridge
+        if (
+          fbLoginErr?.code === 'auth/user-not-found' ||
+          fbLoginErr?.code === 'auth/invalid-credential' ||
+          fbLoginErr?.code === 'auth/wrong-password'
+        ) {
+          const hybridRes = await fetch('/api/auth/hybrid-login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password }),
+          });
+
+          if (hybridRes.ok) {
+            const hybridData = await hybridRes.json();
+            if (hybridData.customToken) {
+              const customUserCred = await signInWithCustomToken(
+                auth,
+                hybridData.customToken
+              );
+              fbUser = customUserCred.user;
+            } else if (hybridData.idToken) {
+              // Try signing in again with newly created Firebase user
+              try {
+                const userCredential = await signInWithEmailAndPassword(
+                  auth,
+                  email,
+                  password
+                );
+                fbUser = userCredential.user;
+              } catch {
+                // If direct signin fails, proceed with session creation using returned token
+                await fetch('/api/auth/session', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ idToken: hybridData.idToken }),
+                });
+                setMessage('Login successful! Redirecting...');
+                router.refresh();
+                await new Promise((resolve) => setTimeout(resolve, 50));
+                window.location.href = destination;
+                return;
+              }
+            }
+          }
+        }
+
+        if (!fbUser) {
+          throw fbLoginErr;
+        }
+      }
+
+      // 2. Upsert user into Supabase database securely via RPC
       const supabase = createClient();
       await supabase.rpc('resolve_customer_identity', {
         p_firebase_uid: fbUser.uid,
@@ -87,7 +144,7 @@ function LoginForm() {
         p_name: fbUser.displayName || null,
       });
 
-      // Create session cookie for SSR
+      // 3. Create session cookie for SSR
       const idToken = await fbUser.getIdToken();
       await fetch('/api/auth/session', {
         method: 'POST',
@@ -95,15 +152,12 @@ function LoginForm() {
         body: JSON.stringify({ idToken }),
       });
 
-      let destination =
-        redirectTo === '/admin' ? '/admin/dashboard' : redirectTo;
-
       setMessage('Login successful! Redirecting...');
       router.refresh();
       await new Promise((resolve) => setTimeout(resolve, 50));
       window.location.href = destination;
     } catch (err: any) {
-      console.error('Firebase Email login error:', err);
+      console.error('Email login error:', err);
       let msg = 'Invalid email or password. Please check your credentials.';
       if (
         err?.code === 'auth/user-not-found' ||
