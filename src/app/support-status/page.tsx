@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { useAuth } from '@/context/AuthContext';
 import {
   Ticket,
   Mail,
@@ -20,6 +21,9 @@ import Link from 'next/link';
 function StatusCheckContent() {
   const searchParams = useSearchParams();
 
+  // Auth Integration
+  const { user } = useAuth();
+
   // Search Form State
   const [ticketNumber, setTicketNumber] = useState('');
   const [email, setEmail] = useState('');
@@ -35,21 +39,33 @@ function StatusCheckContent() {
   const [sendingReply, setSendingReply] = useState(false);
   const [replyError, setReplyError] = useState<string | null>(null);
 
-  // Prefill from query params
+  // Prefill from query params and handle auto-tracking if logged in
   useEffect(() => {
     const tParam = searchParams.get('ticket');
     const eParam = searchParams.get('email');
     if (tParam) setTicketNumber(tParam);
-    if (eParam) setEmail(eParam);
 
-    if (tParam && eParam) {
-      handleSearch(tParam, eParam);
+    // Auto-populate email if user is logged in
+    if (user?.email) {
+      setEmail(user.email);
+    } else if (eParam) {
+      setEmail(eParam);
     }
-  }, [searchParams]);
+
+    if (tParam) {
+      const activeEmail = user?.email || eParam || email;
+      if (activeEmail) {
+        handleSearch(tParam, activeEmail);
+      }
+    }
+  }, [searchParams, user]);
 
   const handleSearch = async (tNum = ticketNumber, uEmail = email) => {
-    if (!tNum.trim() || !uEmail.trim()) {
-      setError('Both ticket number and email are required.');
+    const trackingEmail = user?.email || uEmail;
+    if (!tNum.trim() || !trackingEmail.trim()) {
+      setError(
+        'Ticket number is required. Guest users must also provide email.'
+      );
       return;
     }
 
@@ -59,7 +75,7 @@ function StatusCheckContent() {
 
     try {
       const res = await fetch(
-        `/api/support/tickets/status?ticketNumber=${encodeURIComponent(tNum.trim())}&email=${encodeURIComponent(uEmail.trim())}`
+        `/api/support/tickets/status?ticketNumber=${encodeURIComponent(tNum.trim())}&email=${encodeURIComponent(trackingEmail.trim())}`
       );
       const data = await res.json();
 
@@ -76,37 +92,7 @@ function StatusCheckContent() {
     }
   };
 
-  const handleSendReply = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!replyText.trim() || !ticket) return;
-
-    setSendingReply(true);
-    setReplyError(null);
-
-    try {
-      // Find matching ticket by query first to get ID
-      const res = await fetch(
-        `/api/support/tickets/status?ticketNumber=${ticket.ticket_number}&email=${email}`
-      );
-      const tData = await res.json();
-
-      const realTicketId = searchParams.get('ticket')
-        ? searchParams.get('ticket')
-        : null;
-      // We need to fetch the real uuid ticket ID from the status API.
-      // Let's check: our status API does NOT return the UUID of the ticket to prevent exposing it unless we return it.
-      // Wait! In `status/route.ts`, I returned `ticket: { ticket_number: ... }` but not `id`!
-      // Let me edit `status/route.ts` to return `id` inside the ticket details so we can POST replies!
-      // Wait, is returning UUID safe? Yes, because they already matched ticket number and email!
-      // Let's modify the GET API to include `id` in the returned ticket object so we can use it.
-    } catch (err: any) {
-      setReplyError(err.message);
-    } finally {
-      setSendingReply(false);
-    }
-  };
-
-  // Wait, I will write the actual submit message function with the correct UUID below.
+  // Reply submit function
   const handleReplySubmit = async (e: React.FormEvent, ticketId: string) => {
     e.preventDefault();
     if (!replyText.trim()) return;
@@ -114,13 +100,15 @@ function StatusCheckContent() {
     setSendingReply(true);
     setReplyError(null);
 
+    const trackingEmail = user?.email || email;
+
     try {
       const res = await fetch(`/api/support/tickets/${ticketId}/messages`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           message: replyText,
-          email: email,
+          email: trackingEmail,
         }),
       });
 
@@ -185,17 +173,19 @@ function StatusCheckContent() {
               required
             />
           </div>
-          <div className="relative sm:col-span-3">
-            <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gold-400/60" />
-            <input
-              type="email"
-              placeholder="Associated Email Address"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-xl border border-white/10 bg-white/5 py-3 pl-10 pr-4 text-sm text-white placeholder-stone-500 focus:border-gold-500 focus:outline-none focus:ring-1 focus:ring-gold-500"
-              required
-            />
-          </div>
+          {!user && (
+            <div className="relative sm:col-span-3">
+              <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gold-400/60" />
+              <input
+                type="email"
+                placeholder="Associated Email Address"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full rounded-xl border border-white/10 bg-white/5 py-3 pl-10 pr-4 text-sm text-white placeholder-stone-500 focus:border-gold-500 focus:outline-none focus:ring-1 focus:ring-gold-500"
+                required
+              />
+            </div>
+          )}
           <button
             type="submit"
             disabled={loading}

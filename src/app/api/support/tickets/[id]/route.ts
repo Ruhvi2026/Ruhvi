@@ -82,14 +82,24 @@ export async function GET(
       )
       .eq('id', id);
 
-    if (!isStaff) {
-      ticketQuery = ticketQuery.eq('customer_id', user.id);
-    }
-
     const { data: ticket, error } = await ticketQuery.maybeSingle();
 
     if (error || !ticket) {
       return NextResponse.json({ error: 'Ticket not found' }, { status: 404 });
+    }
+
+    // Access control check: staff can see anything, customers see their own, guests see if email matches
+    if (!isStaff) {
+      const isOwner = ticket.customer_id === user.id;
+      const isEmailMatch =
+        (ticket.customer?.email &&
+          ticket.customer.email.toLowerCase() === user.email?.toLowerCase()) ||
+        (ticket.guest_email &&
+          ticket.guest_email.toLowerCase() === user.email?.toLowerCase());
+
+      if (!isOwner && !isEmailMatch) {
+        return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+      }
     }
 
     // Fetch messages (customers only see customer-visible, staff see all)
