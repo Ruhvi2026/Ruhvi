@@ -58,17 +58,6 @@ export default function CompleteProfilePage() {
   const [message, setMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    // Setup recaptcha
-    if (typeof window !== 'undefined' && !(window as any).recaptchaVerifier) {
-      (window as any).recaptchaVerifier = new RecaptchaVerifier(
-        auth,
-        'recaptcha-container',
-        {
-          size: 'invisible',
-        }
-      );
-    }
-
     return () => {
       if (typeof window !== 'undefined' && (window as any).recaptchaVerifier) {
         try {
@@ -136,6 +125,27 @@ export default function CompleteProfilePage() {
       const formattedPhone = phone.startsWith('+')
         ? phone
         : `+91${phone.replace(/\D/g, '').slice(-10)}`;
+
+      if (typeof window !== 'undefined') {
+        if ((window as any).recaptchaVerifier) {
+          try {
+            (window as any).recaptchaVerifier.clear();
+          } catch (e) {}
+          (window as any).recaptchaVerifier = null;
+        }
+        const containerNode = document.getElementById('recaptcha-container');
+        if (containerNode) {
+          containerNode.innerHTML = '';
+        }
+        (window as any).recaptchaVerifier = new RecaptchaVerifier(
+          auth,
+          'recaptcha-container',
+          {
+            size: 'invisible',
+          }
+        );
+      }
+
       const appVerifier = (window as any).recaptchaVerifier;
       if (!user) throw new Error('No user found');
 

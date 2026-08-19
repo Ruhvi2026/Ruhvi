@@ -83,14 +83,22 @@ export default function AccountOverviewPage() {
         await import('firebase/auth');
       const { auth } = await import('@/lib/firebase');
       if (auth.currentUser) {
+        const actionCodeSettings = {
+          url: `${window.location.origin}/account`,
+          handleCodeInApp: true,
+        };
         if (auth.currentUser.email !== emailInput) {
-          await verifyBeforeUpdateEmail(auth.currentUser, emailInput);
+          await verifyBeforeUpdateEmail(
+            auth.currentUser,
+            emailInput,
+            actionCodeSettings
+          );
           setVerificationSent(true);
           toast.success(
             'A verification link has been sent to the new email address. Please click it to verify the change.'
           );
         } else {
-          await sendEmailVerification(auth.currentUser);
+          await sendEmailVerification(auth.currentUser, actionCodeSettings);
           setVerificationSent(true);
           toast.success('Verification link sent to your email address!');
         }
@@ -106,39 +114,46 @@ export default function AccountOverviewPage() {
   };
 
   useEffect(() => {
+    let mounted = true;
     import('@/lib/firebase').then(({ auth }) => {
       if (auth?.currentUser) {
-        setLinkedProviders(
-          auth.currentUser.providerData.map((p: any) => p.providerId)
-        );
+        auth.currentUser.reload().then(() => {
+          if (!mounted) return;
+          setLinkedProviders(
+            auth.currentUser!.providerData.map((p: any) => p.providerId)
+          );
 
-        // Sync email verification status from Firebase to Supabase if it changed
-        if (
-          auth.currentUser.emailVerified &&
-          profile &&
-          !profile.email_verified
-        ) {
-          const supabase = createClient();
-          supabase
-            .rpc('resolve_customer_identity', {
-              p_firebase_uid: auth.currentUser.uid,
-              p_provider: 'password',
-              p_provider_identifier: auth.currentUser.email || '',
-              p_email: auth.currentUser.email || null,
-              p_email_verified: true,
-              p_phone: auth.currentUser.phoneNumber || null,
-              p_phone_verified: profile.phone_verified || false,
-              p_name: profile.full_name || null,
-            })
-            .then(() => {
-              refreshProfile();
-            })
-            .catch((err: any) => {
-              console.error('Failed to sync email verification status:', err);
-            });
-        }
+          // Sync email verification status from Firebase to Supabase if it changed
+          if (
+            auth.currentUser!.emailVerified &&
+            profile &&
+            !profile.email_verified
+          ) {
+            const supabase = createClient();
+            supabase
+              .rpc('resolve_customer_identity', {
+                p_firebase_uid: auth.currentUser!.uid,
+                p_provider: 'password',
+                p_provider_identifier: auth.currentUser!.email || '',
+                p_email: auth.currentUser!.email || null,
+                p_email_verified: true,
+                p_phone: auth.currentUser!.phoneNumber || null,
+                p_phone_verified: profile.phone_verified || false,
+                p_name: profile.full_name || null,
+              })
+              .then(() => {
+                refreshProfile();
+              })
+              .catch((err: any) => {
+                console.error('Failed to sync email verification status:', err);
+              });
+          }
+        });
       }
     });
+    return () => {
+      mounted = false;
+    };
   }, [user, profile, refreshProfile]);
 
   useEffect(() => {
