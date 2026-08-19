@@ -24,10 +24,11 @@ import { useWishlist } from '@/context/WishlistContext';
 import { useNotifications } from '@/context/NotificationContext';
 import { useAuth } from '@/context/AuthContext';
 import { getStoreSettings, StoreSettings } from '@/app/admin/actions/settings';
+import { AccountDrawer } from '@/components/layout/AccountDrawer';
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+  const [accountDrawerOpen, setAccountDrawerOpen] = useState(false);
 
   const { cartCount } = useCart();
   const { wishlistCount } = useWishlist();
@@ -81,17 +82,15 @@ export function Navbar() {
       {/* Main Navbar */}
       <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between gap-1 sm:h-20 sm:gap-4">
-          {/* Brand Logo */}
+          {/* Brand Logo & Left Account Menu Trigger */}
           <div className="flex items-center space-x-2 sm:space-x-4">
             <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="text-slate-600 hover:text-gold-600 focus:outline-none lg:hidden"
+              onClick={() => setAccountDrawerOpen(true)}
+              className="rounded-lg p-1 text-slate-700 transition hover:bg-gold-50/50 hover:text-gold-600 focus:outline-none"
+              title="Account Menu"
+              aria-label="Open Account Menu"
             >
-              {mobileMenuOpen ? (
-                <X className="h-6 w-6" />
-              ) : (
-                <Menu className="h-6 w-6" />
-              )}
+              <Menu className="h-5 w-5 sm:h-6 sm:w-6" />
             </button>
             <Link href="/" className="flex items-center space-x-2 sm:space-x-3">
               <div className="relative h-9 w-9 flex-shrink-0 overflow-hidden rounded-full border border-gold-300/40 bg-gold-50/50 shadow-sm sm:h-10 sm:w-10">
@@ -150,83 +149,36 @@ export function Navbar() {
               )}
             </Link>
 
-            {/* User Profile Dropdown */}
+            {/* User Profile Side Drawer Trigger */}
             <div className="relative">
               {user ? (
-                <div className="group relative">
-                  <button
-                    onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                    className="flex items-center focus:outline-none"
-                    title="Account Menu"
-                  >
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full border border-gold-300/50 bg-gold-50/80 font-serif text-xs font-bold text-gold-700 shadow-sm transition-colors hover:bg-gold-100/50">
-                      {userInitials}
-                    </div>
-                  </button>
-
-                  <div className="pointer-events-none absolute right-0 top-full z-50 w-56 pt-2 opacity-0 transition-all duration-200 group-hover:pointer-events-auto group-hover:opacity-100">
-                    <div className="rounded-2xl border border-gold-200/50 bg-white p-2.5 text-xs shadow-xl backdrop-blur-md">
-                      <div className="mb-2 rounded-xl bg-gold-50/40 px-3 py-2 text-stone-800">
-                        <div className="flex items-center justify-between gap-1">
-                          <p className="truncate font-bold">
-                            {userDisplayName}
-                          </p>
-                          {profile?.email_verified ? (
-                            <span className="shrink-0 rounded bg-emerald-100 px-1.5 py-0.5 text-[9px] font-bold text-emerald-700">
-                              Verified
-                            </span>
-                          ) : (
-                            <span className="shrink-0 rounded bg-amber-100 px-1.5 py-0.5 text-[9px] font-bold text-amber-700">
-                              Unverified
-                            </span>
-                          )}
-                        </div>
-                        <p className="truncate font-mono text-[9px] text-stone-500">
-                          {user.email}
-                        </p>
-                      </div>
-
-                      <div className="space-y-0.5">
-                        <Link
-                          href="/account"
-                          className="flex items-center space-x-2 rounded-lg px-2.5 py-1.5 font-medium text-stone-600 transition hover:bg-gold-50/50 hover:text-gold-700"
-                        >
-                          <User className="h-4 w-4 text-gold-600" />
-                          <span>My Account</span>
-                        </Link>
-                        <Link
-                          href="/orders"
-                          className="flex items-center space-x-2 rounded-lg px-2.5 py-1.5 font-medium text-stone-600 transition hover:bg-gold-50/50 hover:text-gold-700"
-                        >
-                          <Package className="h-4 w-4 text-gold-600" />
-                          <span>My Orders</span>
-                        </Link>
-                      </div>
-
-                      <div className="mt-2 border-t border-gold-100/60 pt-2">
-                        <button
-                          onClick={signOut}
-                          className="flex w-full items-center space-x-2 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-rose-600 transition hover:bg-rose-50"
-                        >
-                          <LogOut className="h-4 w-4" />
-                          <span>Sign Out</span>
-                        </button>
-                      </div>
-                    </div>
+                <button
+                  onClick={() => setAccountDrawerOpen(true)}
+                  className="flex items-center focus:outline-none"
+                  title="Account Menu"
+                >
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full border border-gold-300/50 bg-gold-50/80 font-serif text-xs font-bold text-gold-700 shadow-sm transition-colors hover:bg-gold-100/50">
+                    {userInitials}
                   </div>
-                </div>
+                </button>
               ) : (
-                <Link
-                  href="/login"
+                <button
+                  onClick={() => setAccountDrawerOpen(true)}
                   className="p-1.5 text-slate-700 transition-colors hover:text-gold-600 sm:p-2"
-                  title="Sign In"
+                  title="Account Menu"
                 >
                   <User className="h-5 w-5" />
-                </Link>
+                </button>
               )}
             </div>
           </div>
         </div>
+
+        {/* Account Side Drawer Component */}
+        <AccountDrawer
+          isOpen={accountDrawerOpen}
+          onClose={() => setAccountDrawerOpen(false)}
+        />
 
         {/* Mobile Search Bar */}
         <div className="pb-3 lg:hidden">
