@@ -92,6 +92,7 @@ const T = {
     privacyPolicy: 'Privacy Policy',
     returnPolicy: 'Return Policy',
     shippingPolicy: 'Shipping Policy',
+    dataDeletion: 'Data Deletion Policy',
     version: 'Version',
     rightsReserved: 'All rights reserved.',
     cancel: 'Cancel',
@@ -168,6 +169,7 @@ const T = {
     privacyPolicy: 'গোপনীয়তা নীতি',
     returnPolicy: 'রিটার্ন পলিসি',
     shippingPolicy: 'শিপিং পলিসি',
+    dataDeletion: 'ডেটা মুছে ফেলার নীতি',
     version: 'ভার্সন',
     rightsReserved: 'সর্বস্বত্ব সংরক্ষিত।',
     cancel: 'বাতিল',
@@ -241,6 +243,7 @@ const T = {
     privacyPolicy: 'गोपनीयता नीति',
     returnPolicy: 'वापसी नीति',
     shippingPolicy: 'शिपिंग नीति',
+    dataDeletion: 'डेटा हटाने की नीति',
     version: 'संस्करण',
     rightsReserved: 'सर्वाधिकार सुरक्षित।',
     cancel: 'रद्द करें',
@@ -1001,7 +1004,7 @@ export default function SettingsPage() {
             </div>
           </div>
 
-          <div className="mt-5 grid grid-cols-2 gap-2 text-sm sm:grid-cols-4">
+          <div className="mt-5 grid grid-cols-2 gap-2 text-sm sm:grid-cols-5">
             <Link
               href="/terms-and-conditions"
               className="rounded-xl p-2.5 font-medium text-stone-700 transition hover:bg-stone-100 hover:text-gold-700 dark:text-stone-200 dark:hover:bg-stone-800 dark:hover:text-gold-400"
@@ -1025,6 +1028,12 @@ export default function SettingsPage() {
               className="rounded-xl p-2.5 font-medium text-stone-700 transition hover:bg-stone-100 hover:text-gold-700 dark:text-stone-200 dark:hover:bg-stone-800 dark:hover:text-gold-400"
             >
               {t.shippingPolicy}
+            </Link>
+            <Link
+              href="/data-deletion"
+              className="rounded-xl p-2.5 font-medium text-stone-700 transition hover:bg-stone-100 hover:text-gold-700 dark:text-stone-200 dark:hover:bg-stone-800 dark:hover:text-gold-400"
+            >
+              {t.dataDeletion}
             </Link>
           </div>
 

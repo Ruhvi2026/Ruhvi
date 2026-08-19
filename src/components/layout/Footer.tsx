@@ -298,6 +298,14 @@ export function Footer() {
                 Terms & Conditions
               </Link>
             </li>
+            <li>
+              <Link
+                href="/data-deletion"
+                className="transition-colors hover:text-gold-400"
+              >
+                Data Deletion Instructions
+              </Link>
+            </li>
           </ul>
         </div>
       </div>
