@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
@@ -38,9 +39,14 @@ export function AccountDrawer({ isOpen, onClose }: AccountDrawerProps) {
   const { wishlistCount } = useWishlist();
   const { unreadCount } = useNotifications();
 
+  const [mounted, setMounted] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
   const drawerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Close on Escape key press
   useEffect(() => {
@@ -173,11 +179,13 @@ export function AccountDrawer({ isOpen, onClose }: AccountDrawerProps) {
     },
   ];
 
-  return (
+  if (!mounted) return null;
+
+  return createPortal(
     <>
       {/* Backdrop */}
       <div
-        className={`backdrop-blur-xs fixed inset-0 z-50 bg-stone-950/50 transition-opacity duration-300 ${
+        className={`backdrop-blur-xs fixed inset-0 z-[9998] bg-stone-950/60 transition-opacity duration-300 ${
           isOpen
             ? 'pointer-events-auto opacity-100'
             : 'pointer-events-none opacity-0'
@@ -192,7 +200,7 @@ export function AccountDrawer({ isOpen, onClose }: AccountDrawerProps) {
         role="dialog"
         aria-modal="true"
         aria-label="Account Navigation"
-        className={`fixed inset-y-0 left-0 z-50 flex h-full w-full max-w-[360px] transform flex-col border-r border-stone-200 bg-[#FCFBF7] text-stone-800 shadow-2xl transition-transform duration-300 ease-in-out dark:border-stone-800 dark:bg-[#141211] dark:text-stone-100 ${
+        className={`fixed inset-y-0 left-0 z-[9999] flex h-[100dvh] h-screen w-full max-w-[360px] transform flex-col border-r border-stone-200 bg-[#FCFBF7] text-stone-800 shadow-2xl transition-transform duration-300 ease-in-out dark:border-stone-800 dark:bg-[#141211] dark:text-stone-100 ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
@@ -400,7 +408,7 @@ export function AccountDrawer({ isOpen, onClose }: AccountDrawerProps) {
 
       {/* Logout Confirmation Modal */}
       {showLogoutModal && (
-        <div className="z-60 backdrop-blur-xs animate-in fade-in fixed inset-0 flex items-center justify-center bg-stone-950/60 p-4 duration-150">
+        <div className="backdrop-blur-xs animate-in fade-in fixed inset-0 z-[10000] flex items-center justify-center bg-stone-950/60 p-4 duration-150">
           <div className="w-full max-w-sm space-y-4 rounded-2xl border border-stone-200 bg-white p-6 text-stone-800 shadow-2xl dark:border-stone-800 dark:bg-stone-900 dark:text-stone-100">
             <div className="flex items-center space-x-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-rose-100 text-rose-600 dark:bg-rose-950/60 dark:text-rose-400">
@@ -437,6 +445,7 @@ export function AccountDrawer({ isOpen, onClose }: AccountDrawerProps) {
           </div>
         </div>
       )}
-    </>
+    </>,
+    document.body
   );
 }
