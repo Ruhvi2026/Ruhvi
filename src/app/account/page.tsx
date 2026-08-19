@@ -422,7 +422,10 @@ export default function AccountOverviewPage() {
   };
 
   const isGoogleLinked = linkedProviders.includes('google.com');
-  const isPhoneLinked = linkedProviders.includes('phone');
+  const isPhoneLinked =
+    linkedProviders.includes('phone') ||
+    !!profile?.phone_verified ||
+    !!user?.phone;
 
   return (
     <SpatialPage showParticles showOrbs>

@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
-import { createClient } from '@/lib/supabase/client';
+import { createClient, clearSupabaseTokenCache } from '@/lib/supabase/client';
 import toast from 'react-hot-toast';
 import { parseApiError } from '@/lib/api-errors';
 import { useRouter } from 'next/navigation';
@@ -103,16 +103,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         data = userByEmail;
       }
 
-      if (data) {
+      const profileData = Array.isArray(data) ? data[0] : data;
+
+      if (profileData) {
         setProfile({
-          ...data,
-          wallet_balance: Number(data.wallet_balance) || 0,
-          reward_coins: Number(data.reward_coins) || 0,
+          ...profileData,
+          wallet_balance: Number(profileData.wallet_balance) || 0,
+          reward_coins: Number(profileData.reward_coins) || 0,
           email_verified:
-            !!data.email_verified ||
+            !!profileData.email_verified ||
             !!authUser.email_verified ||
             !!authUser.emailVerified,
-          phone_verified: !!data.phone_verified || !!authUser.phoneNumber,
+          phone_verified:
+            !!profileData.phone_verified || !!authUser.phoneNumber,
         });
       } else {
         // Fallback profile using auth metadata
@@ -194,13 +197,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // 2. Clear the __session cookie on the server
       await fetch('/api/auth/logout', { method: 'POST' }).catch(() => {});
 
-      // 3. Sign out of Supabase (in case of stale session)
+      // 3. Clear Supabase token cache & sign out
+      clearSupabaseTokenCache();
       const supabase = createClient();
       await supabase.auth.signOut().catch(() => {});
 
       setUser(null);
       setSession(null);
       setProfile(null);
+
       toast.success('Successfully logged out');
       router.push('/login');
     } catch (err) {

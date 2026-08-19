@@ -3,6 +3,7 @@ import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 let supabaseInstance: any = null;
 let customTokenCache: string | null = null;
 let tokenExpiry: number | null = null;
+let cachedUid: string | null = null;
 
 export function createClient() {
   // Use a singleton instance to prevent excessive token fetching
@@ -23,7 +24,19 @@ export function createClient() {
       try {
         const { auth } = await import('@/lib/firebase');
         const fbUser = auth.currentUser;
-        if (!fbUser) return '';
+        if (!fbUser) {
+          customTokenCache = null;
+          tokenExpiry = null;
+          cachedUid = null;
+          return '';
+        }
+
+        // If user changed, invalidate cache
+        if (cachedUid !== fbUser.uid) {
+          customTokenCache = null;
+          tokenExpiry = null;
+          cachedUid = fbUser.uid;
+        }
 
         // Check if we have a valid cached token
         if (customTokenCache && tokenExpiry && Date.now() < tokenExpiry) {
@@ -31,7 +44,7 @@ export function createClient() {
         }
 
         const idToken = await fbUser.getIdToken(false);
-        
+
         // Fetch custom Supabase token using the Firebase ID token
         const response = await fetch('/api/auth/sync-token', {
           method: 'POST',
@@ -44,7 +57,7 @@ export function createClient() {
         }
 
         const data = await response.json();
-        
+
         if (data.supabaseToken) {
           customTokenCache = data.supabaseToken;
           // Token expires in 1 hour (set expiration slightly early to be safe)
@@ -59,4 +72,10 @@ export function createClient() {
   });
 
   return supabaseInstance;
+}
+
+export function clearSupabaseTokenCache() {
+  customTokenCache = null;
+  tokenExpiry = null;
+  cachedUid = null;
 }

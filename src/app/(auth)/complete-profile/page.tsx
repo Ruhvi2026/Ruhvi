@@ -86,10 +86,37 @@ export default function CompleteProfilePage() {
           (p) => p.providerId === 'password'
         );
 
-        // Note: Google/Facebook users have email but no password.
-        const needsEmail = !currentUser.email;
-        const needsPhone = !hasPhoneProvider;
-        const needsPassword = !hasPasswordProvider;
+        const supabase = createClient();
+        let dbProfile: any = null;
+        try {
+          const { data } = await supabase
+            .rpc('get_user_profile', { p_user_id: currentUser.uid })
+            .limit(1)
+            .maybeSingle();
+          dbProfile = Array.isArray(data) ? data[0] : data;
+        } catch (e) {
+          console.error('Failed to check user profile in complete-profile:', e);
+        }
+
+        const isEmailDone =
+          !!currentUser.email ||
+          !!dbProfile?.email ||
+          !!dbProfile?.email_verified;
+        const isPhoneDone =
+          hasPhoneProvider ||
+          !!currentUser.phoneNumber ||
+          !!dbProfile?.phone_verified ||
+          !!dbProfile?.phone;
+        const isPasswordDone =
+          hasPasswordProvider ||
+          currentUser.providerData.some(
+            (p) =>
+              p.providerId === 'google.com' || p.providerId === 'facebook.com'
+          );
+
+        const needsEmail = !isEmailDone;
+        const needsPhone = !isPhoneDone;
+        const needsPassword = !isPasswordDone;
 
         if (!needsEmail && !needsPhone && !needsPassword) {
           toast.success('Your profile is already complete!');
@@ -101,7 +128,9 @@ export default function CompleteProfilePage() {
         setMissingPhone(needsPhone);
         setMissingPassword(needsPassword);
 
-        if (currentUser.email) setEmail(currentUser.email);
+        if (currentUser.email || dbProfile?.email) {
+          setEmail(currentUser.email || dbProfile?.email || '');
+        }
 
         setLoading(false);
       } else {
