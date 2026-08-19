@@ -2,6 +2,7 @@ import { NextResponse, NextRequest } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { decodeJwt } from 'jose';
+import { sendTicketCreatedEmail } from '@/lib/resend';
 
 /**
  * Support Tickets API
@@ -355,6 +356,26 @@ export async function POST(req: NextRequest) {
         assigned_to: finalAssignedTo,
       },
     });
+
+    // Send Email to Customer
+    try {
+      const { data: customerData } = await supabase
+        .from('users')
+        .select('email, full_name')
+        .eq('id', targetCustomerId)
+        .single();
+
+      if (customerData?.email) {
+        await sendTicketCreatedEmail(
+          ticket.ticket_number || ticket.id,
+          title,
+          customerData.email,
+          customerData.full_name || 'Customer'
+        );
+      }
+    } catch (emailErr) {
+      console.error('Failed to send Ticket Created email:', emailErr);
+    }
 
     return NextResponse.json({ ticket }, { status: 201 });
   } catch (err: any) {

@@ -2,6 +2,7 @@ import { NextResponse, NextRequest } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { decodeJwt } from 'jose';
+import { sendTicketUpdateEmail } from '@/lib/resend';
 
 /**
  * Ticket Messages API
@@ -70,7 +71,7 @@ export async function POST(
       .from('support_tickets')
       .select(
         `
-        id, customer_id, status, guest_email,
+        id, ticket_number, customer_id, status, guest_email,
         customer:customer_id(email)
       `
       )
@@ -179,6 +180,28 @@ export async function POST(
         .from('support_tickets')
         .update(statusUpdates)
         .eq('id', ticketId);
+    }
+
+    // Send email notification to customer if staff replied
+    if (isStaff && messageVisibility === 'customer') {
+      try {
+        const { data: customerData } = await supabase
+          .from('users')
+          .select('email, full_name')
+          .eq('id', ticket.customer_id)
+          .single();
+
+        if (customerData?.email) {
+          await sendTicketUpdateEmail(
+            ticket.ticket_number || ticket.id,
+            message.trim(),
+            customerData.email,
+            customerData.full_name || 'Customer'
+          );
+        }
+      } catch (emailErr) {
+        console.error('Failed to send Ticket Update email:', emailErr);
+      }
     }
 
     return NextResponse.json({ message: newMessage }, { status: 201 });

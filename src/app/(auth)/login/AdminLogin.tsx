@@ -118,7 +118,13 @@ export default function AdminLogin() {
       }
 
       const role = userProfile?.role;
-      const isAdmin = role === 'admin' || role === 'manager';
+      const isAdmin = [
+        'admin',
+        'manager',
+        'staff',
+        'super_admin',
+        'SUPER_ADMIN',
+      ].includes(role);
 
       if (!isAdmin) {
         await fetch('/api/auth/logout', { method: 'POST' });

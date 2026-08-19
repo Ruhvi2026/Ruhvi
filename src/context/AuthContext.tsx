@@ -19,6 +19,8 @@ export interface UserProfile {
   phone_verified?: boolean;
   created_at: string;
   updated_at?: string;
+  role_id?: string | null;
+  permissions?: string[];
 }
 
 interface AuthContextType {
@@ -106,6 +108,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const profileData = Array.isArray(data) ? data[0] : data;
 
       if (profileData) {
+        // Fetch permissions if role_id is present
+        let permissions: string[] = [];
+        if (profileData.role_id) {
+          const { data: perms } = await supabase
+            .from('role_permissions')
+            .select('permission')
+            .eq('role_id', profileData.role_id);
+
+          if (perms) {
+            permissions = perms.map((p: any) => p.permission);
+          }
+        } else if (
+          profileData.role === 'super_admin' ||
+          profileData.role === 'SUPER_ADMIN'
+        ) {
+          permissions = ['*'];
+        }
+
         setProfile({
           ...profileData,
           wallet_balance: Number(profileData.wallet_balance) || 0,
@@ -116,6 +136,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             !!authUser.emailVerified,
           phone_verified:
             !!profileData.phone_verified || !!authUser.phoneNumber,
+          permissions,
         });
       } else {
         // Fallback profile using auth metadata
@@ -138,6 +159,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           email_verified: !!authUser.email_verified || !!authUser.emailVerified,
           phone_verified: !!authUser.phoneNumber,
           created_at: authUser.created_at || new Date().toISOString(),
+          permissions: [],
         });
       }
     } catch (err) {

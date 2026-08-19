@@ -24,6 +24,7 @@ import {
   PlusCircle,
   Sparkles,
   Zap,
+  Headphones,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -154,7 +155,8 @@ export default function SupportLayout({
             unassignedCount && unassignedCount > 0
               ? String(unassignedCount)
               : undefined,
-          badgeColor: 'bg-amber-500 text-white',
+          badgeColor:
+            'bg-indigo-500 text-white shadow-[0_0_10px_rgba(99,102,241,0.5)]',
         },
         {
           label: 'My Tickets',
@@ -166,7 +168,8 @@ export default function SupportLayout({
           href: '/support/tickets?priority=urgent',
           icon: AlertTriangle,
           badge: 'SLA',
-          badgeColor: 'bg-rose-500 text-white',
+          badgeColor:
+            'bg-rose-500 text-white shadow-[0_0_10px_rgba(244,63,94,0.5)]',
         },
       ],
     },
@@ -207,25 +210,33 @@ export default function SupportLayout({
     return (
       <Link
         href={item.href}
-        className={`group flex items-center gap-3 rounded-lg px-3 py-2 text-xs font-medium transition-all ${
-          isActive
-            ? 'bg-emerald-500/10 text-emerald-400 shadow-sm'
-            : 'text-slate-400 hover:bg-white/5 hover:text-white'
+        className={`group relative flex items-center gap-3 overflow-hidden rounded-xl px-3 py-2.5 text-xs font-medium transition-all duration-300 ${
+          isActive ? 'text-white' : 'text-slate-400 hover:text-white'
         }`}
         title={collapsed ? item.label : undefined}
       >
+        {isActive && (
+          <div className="absolute inset-0 rounded-xl border border-indigo-500/20 bg-gradient-to-r from-indigo-500/20 to-cyan-500/5 shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]" />
+        )}
+        {!isActive && (
+          <div className="absolute inset-0 rounded-xl bg-white/0 transition-colors group-hover:bg-white/5" />
+        )}
         <item.icon
-          className={`h-4 w-4 flex-shrink-0 transition-transform group-hover:scale-110 ${
+          className={`relative z-10 h-4 w-4 flex-shrink-0 transition-transform duration-300 group-hover:scale-110 ${
             isActive
-              ? 'text-emerald-400'
+              ? 'text-indigo-400'
               : 'text-slate-500 group-hover:text-slate-300'
           }`}
         />
-        {!collapsed && <span className="flex-1 truncate">{item.label}</span>}
+        {!collapsed && (
+          <span className="relative z-10 flex-1 truncate tracking-wide">
+            {item.label}
+          </span>
+        )}
         {!collapsed && item.badge && (
           <span
-            className={`rounded-full px-1.5 py-0.5 text-[9px] font-bold ${
-              item.badgeColor || 'bg-emerald-500 text-white'
+            className={`relative z-10 rounded-full px-2 py-0.5 text-[9px] font-bold tracking-wider ${
+              item.badgeColor || 'bg-indigo-500 text-white'
             }`}
           >
             {item.badge}
@@ -236,28 +247,25 @@ export default function SupportLayout({
   }
 
   const SidebarContent = () => (
-    <div className="flex h-full flex-col">
+    <div className="flex h-full flex-col bg-[#080B14]">
       {/* Brand Header */}
-      <div className="flex h-14 flex-shrink-0 items-center justify-between border-b border-white/5 px-4">
+      <div className="flex h-16 flex-shrink-0 items-center justify-between border-b border-white/5 bg-white/[0.01] px-4 backdrop-blur-md">
         <Link
           href="/support/dashboard"
           className="flex flex-1 items-center gap-3 overflow-hidden"
         >
-          <div className="relative h-7 w-7 flex-shrink-0 overflow-hidden rounded-lg border border-emerald-500/30 bg-charcoal-800 shadow-md">
-            <Image src="/logo.png" alt="Ruhvi" fill className="object-cover" />
+          <div className="relative flex h-8 w-8 flex-shrink-0 items-center justify-center overflow-hidden rounded-xl border border-indigo-500/30 bg-gradient-to-br from-indigo-500/20 to-cyan-500/10 shadow-[0_0_15px_rgba(99,102,241,0.2)]">
+            <Headphones className="h-4 w-4 text-indigo-400" />
           </div>
           {!collapsed && (
             <div className="overflow-hidden">
-              <div className="flex items-center gap-1.5">
-                <p className="truncate text-sm font-bold leading-none text-white">
+              <div className="flex items-center gap-2">
+                <p className="truncate text-sm font-bold tracking-wide text-white">
                   Ruhvi Support
                 </p>
-                <span className="py-0.2 rounded border border-emerald-500/20 bg-emerald-500/10 px-1 text-[8px] font-semibold text-emerald-400">
-                  CARE
-                </span>
               </div>
-              <p className="mt-0.5 truncate text-[10px] text-slate-500">
-                Jewellery Concierge Console
+              <p className="mt-0.5 truncate text-[10px] uppercase tracking-widest text-indigo-400/80">
+                Helpdesk Console
               </p>
             </div>
           )}
@@ -265,44 +273,49 @@ export default function SupportLayout({
         {!collapsed && (
           <button
             onClick={() => setCollapsed(true)}
-            className="ml-auto text-slate-600 transition-colors hover:text-slate-400"
+            className="ml-auto flex h-6 w-6 items-center justify-center rounded-lg bg-white/5 text-slate-400 transition-colors hover:bg-white/10 hover:text-white"
             title="Collapse sidebar"
           >
-            <ChevronRight className="h-4 w-4 rotate-180" />
+            <ChevronRight className="h-3.5 w-3.5 rotate-180" />
           </button>
         )}
       </div>
 
       {/* Auto-Assign Quick Action for Managers in Sidebar */}
       {!collapsed && unassignedCount !== null && unassignedCount > 0 && (
-        <div className="mx-3 mt-3 rounded-xl border border-amber-500/20 bg-amber-500/10 p-2.5 text-xs">
-          <div className="flex items-center justify-between text-amber-400">
-            <span className="flex items-center gap-1 text-[11px] font-semibold">
-              <Sparkles className="h-3.5 w-3.5" />
-              {unassignedCount} Unassigned
-            </span>
+        <div className="relative mx-4 mt-5 overflow-hidden rounded-xl border border-indigo-500/20 bg-indigo-500/10 p-3 text-xs shadow-[0_0_20px_rgba(99,102,241,0.05)]">
+          <div className="absolute right-0 top-0 p-2 opacity-20">
+            <Sparkles className="h-12 w-12 text-indigo-400" />
           </div>
-          <button
-            onClick={handleQuickAutoAssign}
-            disabled={isAutoAssigning}
-            className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-lg bg-amber-500 px-2 py-1 text-[10px] font-bold text-slate-950 transition hover:bg-amber-400 disabled:opacity-50"
-          >
-            <Zap className="h-3 w-3" />
-            {isAutoAssigning ? 'Distributing...' : 'Auto-Distribute Load'}
-          </button>
+          <div className="relative z-10">
+            <div className="flex items-center justify-between text-indigo-300">
+              <span className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide">
+                <Sparkles className="h-3.5 w-3.5" />
+                {unassignedCount} Unassigned
+              </span>
+            </div>
+            <button
+              onClick={handleQuickAutoAssign}
+              disabled={isAutoAssigning}
+              className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r from-indigo-500 to-cyan-500 px-2 py-1.5 text-[11px] font-bold text-white shadow-lg shadow-indigo-500/25 transition-all hover:shadow-indigo-500/40 hover:brightness-110 disabled:opacity-50"
+            >
+              <Zap className="h-3.5 w-3.5" />
+              {isAutoAssigning ? 'Distributing...' : 'Auto-Distribute Load'}
+            </button>
+          </div>
         </div>
       )}
 
       {/* Navigation Groups */}
-      <nav className="flex-1 space-y-4 overflow-y-auto px-2 py-4">
+      <nav className="custom-scrollbar flex-1 space-y-6 overflow-y-auto px-3 py-6">
         {NAV_GROUPS.map((group) => (
           <div key={group.section}>
             {!collapsed && (
-              <p className="mb-2 px-3 text-[9px] font-bold uppercase tracking-widest text-slate-600">
+              <p className="mb-3 px-2 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500/80">
                 {group.section}
               </p>
             )}
-            <div className="space-y-0.5">
+            <div className="space-y-1">
               {group.items.map((item) => (
                 <NavLinkItem key={item.label} item={item} />
               ))}
@@ -312,47 +325,56 @@ export default function SupportLayout({
       </nav>
 
       {/* Footer / User Profile */}
-      <div className="flex-shrink-0 space-y-1 border-t border-white/5 p-2">
+      <div className="flex-shrink-0 border-t border-white/5 bg-white/[0.02] p-3 backdrop-blur-md">
         <Link
           href="https://ruhvi.in"
           target="_blank"
-          className="flex items-center gap-3 rounded-lg px-3 py-2 text-xs text-slate-500 transition-colors hover:bg-white/5 hover:text-white"
+          className="flex items-center gap-3 rounded-xl px-3 py-2 text-xs font-medium text-slate-400 transition-colors hover:bg-white/5 hover:text-white"
           title="View storefront"
         >
           <Home className="h-4 w-4 flex-shrink-0" />
-          {!collapsed && <span>View Store</span>}
+          {!collapsed && <span>View Storefront</span>}
         </Link>
-        <button
-          onClick={signOut}
-          className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-xs text-slate-500 transition-colors hover:bg-rose-500/5 hover:text-rose-400"
-          title="Sign out"
-        >
-          <LogOut className="h-4 w-4 flex-shrink-0" />
-          {!collapsed && <span>Sign Out</span>}
-        </button>
 
         {!collapsed && (
-          <div className="mt-1 flex items-center gap-3 rounded-xl border border-white/5 bg-white/[0.02] px-3 py-2">
-            <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-emerald-700 text-xs font-bold text-white shadow-inner">
-              {userInitial}
-            </div>
-            <div className="overflow-hidden">
-              <div className="flex items-center gap-1.5">
+          <div className="mt-3 flex items-center justify-between rounded-2xl border border-white/10 bg-[#0d0f1a] p-2 shadow-inner">
+            <div className="flex items-center gap-3 overflow-hidden">
+              <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-indigo-600 to-cyan-600 text-xs font-bold text-white shadow-md">
+                {userInitial}
+              </div>
+              <div className="overflow-hidden">
                 <p className="truncate text-xs font-semibold text-slate-200">
                   {userName}
                 </p>
+                <p className="truncate text-[10px] font-medium uppercase tracking-wider text-indigo-400/80">
+                  {roleDisplayLabel}
+                </p>
               </div>
-              <p className="truncate text-[10px] font-medium text-emerald-400/90">
-                {roleDisplayLabel}
-              </p>
             </div>
+            <button
+              onClick={signOut}
+              className="flex h-8 w-8 items-center justify-center rounded-xl bg-white/5 text-slate-400 transition-colors hover:bg-rose-500/20 hover:text-rose-400"
+              title="Sign out"
+            >
+              <LogOut className="h-4 w-4" />
+            </button>
           </div>
         )}
 
         {collapsed && (
           <button
+            onClick={signOut}
+            className="mt-2 flex w-full items-center justify-center rounded-xl p-2 text-slate-500 transition-colors hover:bg-rose-500/20 hover:text-rose-400"
+            title="Sign out"
+          >
+            <LogOut className="h-4 w-4" />
+          </button>
+        )}
+
+        {collapsed && (
+          <button
             onClick={() => setCollapsed(false)}
-            className="flex w-full items-center justify-center rounded-lg p-2 text-slate-600 transition-colors hover:bg-white/5 hover:text-white"
+            className="mt-2 flex w-full items-center justify-center rounded-xl p-2 text-slate-500 transition-colors hover:bg-white/5 hover:text-white"
             title="Expand sidebar"
           >
             <ChevronRight className="h-4 w-4" />
@@ -364,13 +386,15 @@ export default function SupportLayout({
 
   return (
     <div
-      className="flex h-screen overflow-hidden bg-[#0d0f1a] text-slate-200"
-      style={{ fontFamily: 'Inter, system-ui, -apple-system, sans-serif' }}
+      className="flex h-screen overflow-hidden bg-[#0A0D16] text-slate-200 selection:bg-indigo-500/30"
+      style={{
+        fontFamily: 'Outfit, Inter, system-ui, -apple-system, sans-serif',
+      }}
     >
       {/* Desktop Sidebar */}
       <aside
-        className={`hidden flex-shrink-0 flex-col border-r border-white/5 bg-[#131726] transition-all duration-300 lg:flex ${
-          collapsed ? 'w-16' : 'w-60'
+        className={`hidden flex-shrink-0 flex-col border-r border-white/5 bg-[#080B14] shadow-2xl transition-all duration-300 lg:flex ${
+          collapsed ? 'w-20' : 'w-72'
         }`}
       >
         <SidebarContent />
@@ -380,15 +404,15 @@ export default function SupportLayout({
       {mobileOpen && (
         <div className="fixed inset-0 z-50 flex lg:hidden">
           <div
-            className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+            className="absolute inset-0 bg-black/60 backdrop-blur-md"
             onClick={() => setMobileOpen(false)}
           />
-          <aside className="relative z-10 flex h-full w-64 flex-col border-r border-white/5 bg-[#131726] shadow-2xl">
+          <aside className="relative z-10 flex h-full w-72 flex-col border-r border-white/10 bg-[#080B14] shadow-2xl">
             <button
               onClick={() => setMobileOpen(false)}
-              className="absolute right-3 top-3 z-20 rounded-lg p-1 text-slate-400 hover:bg-white/5 hover:text-white"
+              className="absolute right-3 top-3 z-20 flex h-8 w-8 items-center justify-center rounded-xl bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white"
             >
-              <X className="h-5 w-5" />
+              <X className="h-4 w-4" />
             </button>
             <SidebarContent />
           </aside>
@@ -396,20 +420,53 @@ export default function SupportLayout({
       )}
 
       {/* Main Container */}
-      <div className="relative flex h-full flex-1 flex-col overflow-hidden">
+      <div className="relative flex h-full flex-1 flex-col overflow-hidden bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-indigo-900/10 via-[#0A0D16] to-[#0A0D16]">
         {/* Mobile menu trigger */}
         <button
-          className="absolute left-4 top-4 z-30 rounded-lg border border-white/5 bg-[#131726]/85 p-2 text-slate-400 shadow-lg backdrop-blur-sm transition-all hover:bg-[#131726] hover:text-white lg:hidden"
+          className="absolute left-4 top-4 z-30 flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-[#080B14]/80 text-slate-400 shadow-xl backdrop-blur-md transition-all hover:text-white lg:hidden"
           onClick={() => setMobileOpen(true)}
         >
-          <Menu className="h-4.5 w-4.5" />
+          <Menu className="h-5 w-5" />
         </button>
 
+        {/* Top Header (Desktop) - Optional Global Search */}
+        <header className="hidden h-16 w-full items-center justify-end px-8 lg:flex">
+          <form onSubmit={handleGlobalSearch} className="relative w-64">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
+            <input
+              type="text"
+              placeholder="Search tickets (ID, email)..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full rounded-full border border-white/10 bg-white/5 py-1.5 pl-9 pr-4 text-xs text-white placeholder-slate-500 backdrop-blur-sm transition-all focus:border-indigo-500/50 focus:bg-white/10 focus:outline-none focus:ring-1 focus:ring-indigo-500/50"
+            />
+          </form>
+        </header>
+
         {/* Page Body */}
-        <main className="flex-1 overflow-y-auto bg-[#0d0f1a]">
-          <div className="min-h-full p-4 sm:p-6 lg:p-8">{children}</div>
+        <main className="custom-scrollbar flex-1 overflow-y-auto">
+          <div className="min-h-full p-4 pt-16 sm:p-6 lg:p-8 lg:pt-4">
+            {children}
+          </div>
         </main>
       </div>
+
+      <style>{`
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 6px;
+          height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: rgba(255, 255, 255, 0.1);
+          border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: rgba(255, 255, 255, 0.2);
+        }
+      `}</style>
     </div>
   );
 }

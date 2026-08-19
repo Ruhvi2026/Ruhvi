@@ -2,6 +2,7 @@ import { NextResponse, NextRequest } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { decodeJwt } from 'jose';
+import { sendTicketResolvedEmail } from '@/lib/resend';
 
 /**
  * Single Ticket Operations
@@ -242,9 +243,9 @@ export async function PATCH(
     const body = await req.json();
 
     // Get current ticket state for audit
-    const { data: currentTicket } = await supabase
+    const { data: currentTicket, error: fetchError } = await supabase
       .from('support_tickets')
-      .select('status, priority, assigned_to')
+      .select('status, priority, assigned_to, customer_id')
       .eq('id', id)
       .single();
 
@@ -380,6 +381,27 @@ export async function PATCH(
     // Insert audit entries
     if (auditEntries.length > 0) {
       await supabase.from('support_audit_logs').insert(auditEntries);
+    }
+
+    // Send email notification to customer if ticket was resolved or closed
+    if (body.status === 'resolved' || body.status === 'closed') {
+      try {
+        const { data: customerData } = await supabase
+          .from('users')
+          .select('email, full_name')
+          .eq('id', currentTicket.customer_id)
+          .single();
+
+        if (customerData?.email) {
+          await sendTicketResolvedEmail(
+            updated.ticket_number || updated.id,
+            customerData.email,
+            customerData.full_name || 'Customer'
+          );
+        }
+      } catch (emailErr) {
+        console.error('Failed to send Ticket Resolved email:', emailErr);
+      }
     }
 
     return NextResponse.json({ ticket: updated });

@@ -42,6 +42,12 @@ export interface MarketingSettings {
   brevo_fallback_api_key?: string;
   brevo_sender_email?: string;
   brevo_sender_name?: string;
+  meta_pixel_id?: string;
+  meta_capi_token?: string;
+  meta_test_event_code?: string;
+  ga4_measurement_id?: string;
+  google_ads_conversion_id?: string;
+  google_ads_conversion_label?: string;
 }
 
 export async function getMarketingSettings(): Promise<MarketingSettings> {
@@ -56,6 +62,9 @@ export async function getMarketingSettings(): Promise<MarketingSettings> {
     return {
       brevo_sender_email: 'marketing@ruhvi.in',
       brevo_sender_name: 'Ruhvi',
+      meta_pixel_id: '',
+      ga4_measurement_id: '',
+      google_ads_conversion_id: '',
     };
   }
   return data.value as MarketingSettings;

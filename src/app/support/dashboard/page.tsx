@@ -93,7 +93,7 @@ const PRIORITY_BADGES: Record<
 };
 
 const STATUS_BADGES: Record<string, { bg: string }> = {
-  new: { bg: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' },
+  new: { bg: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20' },
   open: { bg: 'bg-blue-500/10 text-blue-400 border-blue-500/20' },
   in_progress: { bg: 'bg-amber-500/10 text-amber-400 border-amber-500/20' },
   waiting_for_customer: {
@@ -326,7 +326,7 @@ export default function SupportDashboard() {
   if (loading) {
     return (
       <div className="flex h-96 flex-col items-center justify-center gap-3">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-emerald-500 border-t-transparent shadow-lg" />
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-indigo-500 border-t-transparent shadow-lg" />
         <p className="text-xs text-slate-500">
           Loading Support Operations Console...
         </p>
@@ -343,7 +343,7 @@ export default function SupportDashboard() {
             <h1 className="text-2xl font-bold tracking-tight text-white">
               Support Command Center
             </h1>
-            <span className="rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-400">
+            <span className="rounded-full border border-indigo-500/20 bg-indigo-500/10 px-2 py-0.5 text-[10px] font-semibold text-indigo-400">
               LIVE
             </span>
           </div>
@@ -360,14 +360,14 @@ export default function SupportDashboard() {
             className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs font-medium text-slate-300 transition-all hover:bg-white/10 hover:text-white disabled:opacity-50"
           >
             <RefreshCw
-              className={`h-3.5 w-3.5 ${refreshing ? 'animate-spin text-emerald-400' : ''}`}
+              className={`h-3.5 w-3.5 ${refreshing ? 'animate-spin text-indigo-400' : ''}`}
             />
             <span>Refresh</span>
           </button>
 
           <Link
             href="/support/tickets/new"
-            className="flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3.5 py-2 text-xs font-semibold text-white shadow-md shadow-emerald-900/30 transition-all hover:bg-emerald-500"
+            className="flex items-center gap-1.5 rounded-lg bg-indigo-600 px-3.5 py-2 text-xs font-semibold text-white shadow-md shadow-emerald-900/30 transition-all hover:bg-indigo-500"
           >
             <UserPlus className="h-3.5 w-3.5" />
             <span>New Ticket</span>
@@ -427,13 +427,13 @@ export default function SupportDashboard() {
         {/* Card 1: Active Tickets */}
         <Link
           href="/support/tickets"
-          className="group flex flex-col justify-between rounded-2xl border border-white/5 bg-[#131726] p-4 transition-all hover:border-white/10 hover:bg-[#161b2e]"
+          className="group flex flex-col justify-between rounded-2xl border border-indigo-500/10 bg-[#080B14]/60 p-4 shadow-2xl backdrop-blur-xl transition-all hover:border-white/10 hover:bg-[#161b2e]"
         >
           <div className="flex items-start justify-between">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-400">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-500/10 text-indigo-400">
               <Ticket className="h-4 w-4" />
             </div>
-            <ArrowUpRight className="h-3.5 w-3.5 text-slate-600 transition-colors group-hover:text-emerald-400" />
+            <ArrowUpRight className="h-3.5 w-3.5 text-slate-600 transition-colors group-hover:text-indigo-400" />
           </div>
           <div className="mt-3">
             <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
@@ -452,7 +452,7 @@ export default function SupportDashboard() {
           className={`group flex flex-col justify-between rounded-2xl border p-4 transition-all hover:bg-[#161b2e] ${
             counts.unassigned > 0
               ? 'border-amber-500/30 bg-amber-500/5 hover:border-amber-500/50'
-              : 'border-white/5 bg-[#131726] hover:border-white/10'
+              : 'border border-indigo-500/10 bg-[#080B14]/60 shadow-2xl backdrop-blur-xl hover:border-white/10'
           }`}
         >
           <div className="flex items-start justify-between">
@@ -492,7 +492,7 @@ export default function SupportDashboard() {
           className={`group flex flex-col justify-between rounded-2xl border p-4 transition-all hover:bg-[#161b2e] ${
             counts.urgent > 0
               ? 'border-rose-500/30 bg-rose-500/5 hover:border-rose-500/50'
-              : 'border-white/5 bg-[#131726] hover:border-white/10'
+              : 'border border-indigo-500/10 bg-[#080B14]/60 shadow-2xl backdrop-blur-xl hover:border-white/10'
           }`}
         >
           <div className="flex items-start justify-between">
@@ -532,7 +532,7 @@ export default function SupportDashboard() {
           className={`group flex flex-col justify-between rounded-2xl border p-4 transition-all hover:bg-[#161b2e] ${
             counts.sla_at_risk > 0
               ? 'border-orange-500/30 bg-orange-500/5 hover:border-orange-500/50'
-              : 'border-white/5 bg-[#131726] hover:border-white/10'
+              : 'border border-indigo-500/10 bg-[#080B14]/60 shadow-2xl backdrop-blur-xl hover:border-white/10'
           }`}
         >
           <div className="flex items-start justify-between">
@@ -572,8 +572,8 @@ export default function SupportDashboard() {
         {/* Left Column: Live Urgent / Unassigned Queue (2 cols) */}
         <div className="space-y-6 xl:col-span-2">
           {/* Active Workboard Table */}
-          <div className="overflow-hidden rounded-2xl border border-white/5 bg-[#131726]">
-            <div className="flex items-center justify-between border-b border-white/5 px-5 py-4">
+          <div className="overflow-hidden rounded-2xl border border-indigo-500/10 bg-[#080B14]/60 shadow-2xl backdrop-blur-xl">
+            <div className="flex items-center justify-between border-b border-indigo-500/10 px-5 py-4">
               <div className="flex items-center gap-2.5">
                 <h2 className="text-sm font-bold text-white">
                   Live Support Queue
@@ -584,7 +584,7 @@ export default function SupportDashboard() {
               </div>
               <Link
                 href="/support/tickets"
-                className="flex items-center gap-1 text-xs font-semibold text-emerald-400 transition hover:text-emerald-300"
+                className="flex items-center gap-1 text-xs font-semibold text-indigo-400 transition hover:text-emerald-300"
               >
                 <span>Full Queue</span>
                 <ChevronRight className="h-3.5 w-3.5" />
@@ -593,7 +593,7 @@ export default function SupportDashboard() {
 
             {recentTickets.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-16 text-slate-500">
-                <CheckCircle2 className="mb-2 h-10 w-10 text-emerald-500/40" />
+                <CheckCircle2 className="mb-2 h-10 w-10 text-indigo-500/40" />
                 <p className="text-sm font-medium text-slate-300">
                   All caught up!
                 </p>
@@ -604,7 +604,7 @@ export default function SupportDashboard() {
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
-                  <thead className="border-b border-white/5 bg-white/[0.02] text-[10px] uppercase tracking-wider text-slate-500">
+                  <thead className="border-b border-indigo-500/10 bg-white/[0.02] text-[10px] uppercase tracking-wider text-slate-500">
                     <tr>
                       <th className="px-5 py-3 font-semibold">Ticket</th>
                       <th className="px-4 py-3 font-semibold">Customer</th>
@@ -634,7 +634,7 @@ export default function SupportDashboard() {
                               <div className="flex items-center gap-2">
                                 <Link
                                   href={`/support/tickets/${ticket.id}`}
-                                  className="font-mono text-[11px] font-bold text-emerald-400 hover:underline"
+                                  className="font-mono text-[11px] font-bold text-indigo-400 hover:underline"
                                 >
                                   {ticket.ticket_number}
                                 </Link>
@@ -697,7 +697,7 @@ export default function SupportDashboard() {
                                   handleManualAssign(ticket.id, e.target.value)
                                 }
                                 disabled={assigningTicketId === ticket.id}
-                                className={`w-full rounded-lg border px-2.5 py-1 text-xs transition-colors focus:outline-none focus:ring-1 focus:ring-emerald-500 ${
+                                className={`w-full rounded-lg border px-2.5 py-1 text-xs transition-colors focus:outline-none focus:ring-1 focus:ring-indigo-500 ${
                                   ticket.assigned_to
                                     ? 'border-white/10 bg-white/5 text-slate-200'
                                     : 'border-amber-500/40 bg-amber-500/10 font-semibold text-amber-300'
@@ -705,7 +705,7 @@ export default function SupportDashboard() {
                               >
                                 <option
                                   value=""
-                                  className="bg-[#131726] text-amber-400"
+                                  className="border border-indigo-500/10 bg-[#080B14]/60 text-amber-400 shadow-2xl backdrop-blur-xl"
                                 >
                                   ⚡ Unassigned
                                 </option>
@@ -713,7 +713,7 @@ export default function SupportDashboard() {
                                   <option
                                     key={member.id}
                                     value={member.id}
-                                    className="bg-[#131726] text-slate-200"
+                                    className="border border-indigo-500/10 bg-[#080B14]/60 text-slate-200 shadow-2xl backdrop-blur-xl"
                                   >
                                     {member.full_name} (
                                     {member.active_tickets_count} active)
@@ -733,7 +733,7 @@ export default function SupportDashboard() {
 
           {/* Status Breakdown Chart */}
           {chartData.length > 0 && (
-            <div className="rounded-2xl border border-white/5 bg-[#131726] p-5">
+            <div className="rounded-2xl border border-indigo-500/10 bg-[#080B14]/60 p-5 shadow-2xl backdrop-blur-xl">
               <h3 className="text-sm font-bold text-white">
                 Active Queue Distribution
               </h3>
@@ -779,15 +779,15 @@ export default function SupportDashboard() {
         {/* Right Column: Support Team Workload Live Gauge (1 col) */}
         <div className="space-y-6">
           {/* Team Workload Card */}
-          <div className="rounded-2xl border border-white/5 bg-[#131726] p-5">
-            <div className="flex items-center justify-between border-b border-white/5 pb-4">
+          <div className="rounded-2xl border border-indigo-500/10 bg-[#080B14]/60 p-5 shadow-2xl backdrop-blur-xl">
+            <div className="flex items-center justify-between border-b border-indigo-500/10 pb-4">
               <div className="flex items-center gap-2">
-                <Users className="h-4 w-4 text-emerald-400" />
+                <Users className="h-4 w-4 text-indigo-400" />
                 <h2 className="text-sm font-bold text-white">Team Workload</h2>
               </div>
               <Link
                 href="/support/team"
-                className="text-xs font-semibold text-emerald-400 hover:underline"
+                className="text-xs font-semibold text-indigo-400 hover:underline"
               >
                 Manage
               </Link>
@@ -811,7 +811,7 @@ export default function SupportDashboard() {
                   return (
                     <div
                       key={member.id}
-                      className="rounded-xl border border-white/5 bg-white/[0.02] p-3 transition-colors hover:border-white/10 hover:bg-white/[0.04]"
+                      className="rounded-xl border border-indigo-500/10 bg-white/[0.02] p-3 transition-colors hover:border-white/10 hover:bg-white/[0.04]"
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2.5">
@@ -825,7 +825,7 @@ export default function SupportDashboard() {
                               </p>
                               {isLeastLoaded && (
                                 <span
-                                  className="py-0.2 rounded border border-emerald-500/20 bg-emerald-500/10 px-1 text-[8px] font-bold text-emerald-400"
+                                  className="py-0.2 rounded border border-indigo-500/20 bg-indigo-500/10 px-1 text-[8px] font-bold text-indigo-400"
                                   title="Lowest load target for auto-assign"
                                 >
                                   AUTO TARGET
@@ -858,7 +858,7 @@ export default function SupportDashboard() {
                                 ? 'bg-rose-500'
                                 : member.capacity_level === 'moderate'
                                   ? 'bg-amber-500'
-                                  : 'bg-emerald-500'
+                                  : 'bg-indigo-500'
                             }`}
                             style={{ width: `${Math.max(loadPercent, 5)}%` }}
                           />
@@ -870,7 +870,7 @@ export default function SupportDashboard() {
               )}
             </div>
 
-            <div className="mt-4 border-t border-white/5 pt-3">
+            <div className="mt-4 border-t border-indigo-500/10 pt-3">
               <button
                 onClick={handleAutoAssignAll}
                 disabled={isAutoAssigning || counts.unassigned === 0}
@@ -883,13 +883,13 @@ export default function SupportDashboard() {
           </div>
 
           {/* Quick Support Guidelines / Shortcuts */}
-          <div className="rounded-2xl border border-white/5 bg-[#131726] p-5">
+          <div className="rounded-2xl border border-indigo-500/10 bg-[#080B14]/60 p-5 shadow-2xl backdrop-blur-xl">
             <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">
               Support Standards
             </h3>
             <ul className="mt-3 space-y-2 text-xs text-slate-400">
               <li className="flex items-start gap-2">
-                <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-emerald-400" />
+                <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-indigo-400" />
                 <span>
                   <strong className="text-slate-200">
                     First Response SLA:
@@ -898,7 +898,7 @@ export default function SupportDashboard() {
                 </span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-emerald-400" />
+                <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-indigo-400" />
                 <span>
                   <strong className="text-slate-200">
                     Gold & HUID Verification:
@@ -907,7 +907,7 @@ export default function SupportDashboard() {
                 </span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-emerald-400" />
+                <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-indigo-400" />
                 <span>
                   <strong className="text-slate-200">Internal Notes:</strong>{' '}
                   Always leave private notes for custom sizing and return

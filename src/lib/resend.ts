@@ -381,3 +381,138 @@ export async function sendPasswordResetEmail(
     return null;
   }
 }
+
+// -----------------------------------------------------------------------------
+// Support Ticket Emails
+// -----------------------------------------------------------------------------
+
+export async function sendTicketCreatedEmail(
+  ticketId: string,
+  subject: string,
+  email: string,
+  name: string
+) {
+  const resend = getResendClient();
+  if (!resend) return null;
+
+  const htmlContent = `
+    <div style="font-family: Arial, sans-serif; background-color: #FAF6ED; margin: 0; padding: 40px 20px; min-height: 100vh;">
+      <div style="max-width: 600px; margin: 0 auto; background-color: #FFFFFF; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.03);">
+        <div style="background-color: #1C1B1A; padding: 24px; text-align: center;">
+          <h1 style="color: #FAF6ED; margin: 0; font-size: 20px; letter-spacing: 2px; text-transform: uppercase;">Ruhvi Support</h1>
+        </div>
+        <div style="padding: 32px;">
+          <h2 style="color: #1C1B1A; font-size: 18px; margin: 0 0 12px;">Hello ${name},</h2>
+          <p style="color: #4A4540; line-height: 1.6; font-size: 14px; margin: 0 0 20px;">
+            We have received your support request (<strong>#${ticketId}</strong>). Our concierge team is reviewing it and will get back to you shortly.
+          </p>
+          <p style="color: #4A4540; line-height: 1.6; font-size: 14px; margin: 0 0 20px;">
+            <strong>Subject:</strong> ${subject}
+          </p>
+          <div style="margin-top: 32px; padding-top: 20px; border-top: 1px solid #E8DFC6;">
+            <p style="font-size: 12px; color: #8A7E6C; margin: 0;">You can reply directly to this email to add more information.</p>
+            <p style="font-size: 12px; color: #8A7E6C; margin: 8px 0 0;">With care,<br/>The Ruhvi Team</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+  try {
+    return await resend.emails.send({
+      from: getSender(),
+      to: [email],
+      subject: `Ticket Created: #${ticketId} - ${subject}`,
+      html: htmlContent,
+    });
+  } catch (err) {
+    console.error('Error sending Ticket Created email:', err);
+    return null;
+  }
+}
+
+export async function sendTicketResolvedEmail(
+  ticketId: string,
+  email: string,
+  name: string
+) {
+  const resend = getResendClient();
+  if (!resend) return null;
+
+  const htmlContent = `
+    <div style="font-family: Arial, sans-serif; background-color: #FAF6ED; margin: 0; padding: 40px 20px; min-height: 100vh;">
+      <div style="max-width: 600px; margin: 0 auto; background-color: #FFFFFF; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.03);">
+        <div style="background-color: #1C1B1A; padding: 24px; text-align: center;">
+          <h1 style="color: #FAF6ED; margin: 0; font-size: 20px; letter-spacing: 2px; text-transform: uppercase;">Ruhvi Support</h1>
+        </div>
+        <div style="padding: 32px;">
+          <h2 style="color: #1C1B1A; font-size: 18px; margin: 0 0 12px;">Hello ${name},</h2>
+          <p style="color: #4A4540; line-height: 1.6; font-size: 14px; margin: 0 0 20px;">
+            Your support request (<strong>#${ticketId}</strong>) has been marked as resolved.
+          </p>
+          <p style="color: #4A4540; line-height: 1.6; font-size: 14px; margin: 0 0 20px;">
+            If you need further assistance with this issue, simply reply to this email to reopen the ticket, and we'll be happy to help.
+          </p>
+          <div style="margin-top: 32px; padding-top: 20px; border-top: 1px solid #E8DFC6;">
+            <p style="font-size: 12px; color: #8A7E6C; margin: 0;">Thank you for choosing Ruhvi.</p>
+            <p style="font-size: 12px; color: #8A7E6C; margin: 8px 0 0;">With care,<br/>The Ruhvi Team</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+  try {
+    return await resend.emails.send({
+      from: getSender(),
+      to: [email],
+      subject: `Ticket Resolved: #${ticketId}`,
+      html: htmlContent,
+    });
+  } catch (err) {
+    console.error('Error sending Ticket Resolved email:', err);
+    return null;
+  }
+}
+
+export async function sendTicketUpdateEmail(
+  ticketId: string,
+  message: string,
+  email: string,
+  name: string
+) {
+  const resend = getResendClient();
+  if (!resend) return null;
+
+  const htmlContent = `
+    <div style="font-family: Arial, sans-serif; background-color: #FAF6ED; margin: 0; padding: 40px 20px; min-height: 100vh;">
+      <div style="max-width: 600px; margin: 0 auto; background-color: #FFFFFF; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.03);">
+        <div style="background-color: #1C1B1A; padding: 24px; text-align: center;">
+          <h1 style="color: #FAF6ED; margin: 0; font-size: 20px; letter-spacing: 2px; text-transform: uppercase;">Ruhvi Support</h1>
+        </div>
+        <div style="padding: 32px;">
+          <h2 style="color: #1C1B1A; font-size: 18px; margin: 0 0 12px;">Hello ${name},</h2>
+          <p style="color: #4A4540; line-height: 1.6; font-size: 14px; margin: 0 0 20px;">
+            There is a new update on your support request (<strong>#${ticketId}</strong>).
+          </p>
+          <div style="background-color: #F8F9FA; border-left: 4px solid #1C1B1A; padding: 16px; margin: 0 0 20px;">
+            <p style="color: #1C1B1A; font-size: 14px; margin: 0; white-space: pre-wrap;">${message}</p>
+          </div>
+          <div style="margin-top: 32px; padding-top: 20px; border-top: 1px solid #E8DFC6;">
+            <p style="font-size: 12px; color: #8A7E6C; margin: 0;">Reply directly to this email to respond.</p>
+            <p style="font-size: 12px; color: #8A7E6C; margin: 8px 0 0;">With care,<br/>The Ruhvi Team</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+  try {
+    return await resend.emails.send({
+      from: getSender(),
+      to: [email],
+      subject: `Update on Ticket #${ticketId}`,
+      html: htmlContent,
+    });
+  } catch (err) {
+    console.error('Error sending Ticket Update email:', err);
+    return null;
+  }
+}

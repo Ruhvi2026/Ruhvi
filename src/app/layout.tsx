@@ -121,8 +121,20 @@ export default async function RootLayout({
     host === 'support.ruhvi.in' || host.startsWith('support.localhost');
   const isAuthHost =
     host === 'auth.ruhvi.in' || host.startsWith('auth.localhost');
+  const isOperationsHost =
+    host === 'operations.ruhvi.in' || host.startsWith('operations.localhost');
+  const isMarketingHost =
+    host === 'marketing.ruhvi.in' || host.startsWith('marketing.localhost');
+  const isOrdersHost =
+    host === 'orders.ruhvi.in' || host.startsWith('orders.localhost');
 
-  const isSystemSubdomain = isAdminHost || isSupportHost || isAuthHost;
+  const isSystemSubdomain =
+    isAdminHost ||
+    isSupportHost ||
+    isAuthHost ||
+    isOperationsHost ||
+    isMarketingHost ||
+    isOrdersHost;
 
   const organizationSchema = {
     '@context': 'https://schema.org',
@@ -144,7 +156,11 @@ export default async function RootLayout({
   };
 
   return (
-    <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
+    <html
+      lang="en"
+      className={`${inter.variable} ${playfair.variable}`}
+      suppressHydrationWarning
+    >
       <body className="flex min-h-screen flex-col bg-cream-100 text-charcoal-900 antialiased">
         <script
           dangerouslySetInnerHTML={{

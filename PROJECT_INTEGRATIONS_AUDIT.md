@@ -50,7 +50,7 @@ The application is a modern, headless e-commerce storefront. It utilizes Next.js
 |----------------|----------|---------|--------|-------|
 | **PhonePe** | Payment | Payment gateway for checkout. | Setup Pending | API not set yet; account setup is pending due to documentation. Code exists in `api/checkout/phonepe`. |
 | **WhatsApp Business API**| SMS/Messaging | Sending order confirmations and shipping updates. | Setup Pending | WhatsApp Business setup is currently pending. Code exists in `src/lib/whatsapp.ts`. |
-| **Shiprocket** | Logistics | Courier assignment, label generation, order sync. | Partially Implemented | API is mocked in `src/lib/shiprocket.ts`. A webhook route exists but relies on mocked logic. |
+| **Shiprocket** | Logistics | Courier assignment, label generation, order sync. | Active | API logic resides in `src/lib/shiprocket.ts` and `api/admin/shiprocket/create-order`. Uses mock token if credentials missing. |
 
 ---
 
@@ -145,7 +145,7 @@ The application is a modern, headless e-commerce storefront. It utilizes Next.js
 | Firebase | Authentication | 2024 | Active | `src/lib/firebase.ts` | Sole auth provider; custom password resets routed via backend Admin SDK to bypass Firebase Console UI bugs |
 | Cloudinary | Image Optimization | 2024 | Active | `src/services/cloudinaryService.ts` | |
 | PhonePe | Payment Gateway | 2024 | Setup Pending | `api/checkout/phonepe` | Account setup pending documentation |
-| Shiprocket | Logistics / Shipping | 2024 | Partially Implemented | `src/lib/shiprocket.ts` | Mocked logic |
+| Shiprocket | Logistics / Shipping | 2024 | Active | `src/lib/shiprocket.ts`, `api/admin/shiprocket/create-order` | Fully wired to Orders Portal UI. Uses fallback mock if env vars absent. |
 | Meta API | WhatsApp Notifications | 2024 | Setup Pending | `src/lib/whatsapp.ts` | Business setup pending |
 | Meta CAPI | Server-side Ads Tracking | 2024 | Active | `api/capi/route.ts` | |
 | Turnstile | Bot Protection | 2024 | Active | `src/app/checkout/page.tsx` | |
@@ -165,8 +165,6 @@ The application is a modern, headless e-commerce storefront. It utilizes Next.js
 | Meta Platform Data Deletion & Policy Compliance | Compliance / Meta Platform | 2026-08-18 | Active | `src/app/(policies)/data-deletion/page.tsx`, `src/app/(policies)/privacy-policy/page.tsx`, `src/app/(policies)/terms-and-conditions/page.tsx`, `src/components/layout/Footer.tsx` | Added dedicated Meta Data Deletion URL (`/data-deletion`) fulfilling Facebook App review criteria (Method 1: Facebook app permissions revocation, Method 2: direct email request to support@ruhvi.in, Method 3: In-app account deletion). Updated Privacy Policy (Section 7) and Terms & Conditions (Section 7) to cross-link deletion instructions. |
 | Firebase Admin REST Migration | Authentication & Reliability | 2026-08-19 | Active | `src/lib/firebase-admin.ts`, `next.config.js`, `src/app/api/auth/forgot-password/route.ts` | Replaced heavy `firebase-admin` SDK and `jwks-rsa` with direct Google Identity Toolkit REST API and `jose` RS256 service account signing. Permanently eliminates all `jwks-rsa` / `jose` ESM bundler conflicts (`ERR_REQUIRE_ESM`) on Vercel Serverless. |
 | Hybrid Auth & Legacy Supabase Login Bridge | Authentication & User Sync | 2026-08-19 | Active | `src/app/api/auth/hybrid-login/route.ts`, `src/app/(auth)/login/CustomerLogin.tsx` | Implemented zero-friction login fallback: verifies credentials against Supabase Auth, dynamically provisions/syncs users to Firebase Auth on the fly via Google Identity Toolkit REST API & Custom Tokens, and establishes SSR sessions seamlessly. |
-| Post-Signup Password Setup | Authentication & User Experience | 2026-08-19 | Active | `src/app/(auth)/set-password/page.tsx`, `src/app/(auth)/signup/page.tsx`, `src/app/(auth)/login/CustomerLogin.tsx` | Added automatic redirection to password setup wizard after phone/Google/Facebook signup or login if no email/password login credentials are linked to their account yet. |
-
-
-
-
+| Ruhvi Master Data Export Engine | Data Archiving & Compliance | 2026-08-20 | Active | `src/app/api/admin/export/route.ts`, `src/app/admin/master-data/page.tsx` | Streaming CSV and JSON data export engine for Customer Master Directory (with LTV), Catalog & Inventory (with COGS), and Orders & Financial Archives with date filters. |
+| Marketing & Ad Conversion Tracking Hub | Marketing & Attribution | 2026-08-20 | Active | `src/app/admin/marketing/page.tsx`, `src/app/admin/actions/settings.ts`, `src/app/marketing/*` | Meta Pixel, Meta CAPI, Google Analytics 4, Google Ads Conversion ID/Label management with live multi-channel ROAS, CPA, and campaign optimization metrics. |
+| Enterprise Central Audit Trail | Security & Observability | 2026-08-20 | Active | `src/lib/audit.ts`, `src/app/admin/audit-logs/page.tsx`, `supabase/migrations/0020_audit_logs.sql` | Universal server-side immutable audit logging service tracking administrative events, portal actions across all 5 subdomains, and JSON change payload inspector. |

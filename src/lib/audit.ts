@@ -1,27 +1,59 @@
-/**
- * Audit Logging Helper
- * Records administrative and operational security events.
- */
+import { createClient } from '@/lib/supabase/server';
 
-export async function logAuditEvent(params: {
-  userId?: string;
+export interface AuditEventParams {
+  actorId?: string;
+  actorEmail?: string;
+  portal?:
+    'admin' | 'operations' | 'orders' | 'support' | 'marketing' | 'storefront';
   action: string;
-  entity: string;
+  entityType: string;
   entityId?: string;
+  changes?: Record<string, any>;
   ipAddress?: string;
-  details?: Record<string, any>;
-}) {
-  const { userId, action, entity, entityId, ipAddress, details } = params;
+  userAgent?: string;
+}
 
-  console.log(`[AUDIT LOG] ${new Date().toISOString()} - Action: ${action} | Entity: ${entity} (${entityId || 'N/A'}) | User: ${userId || 'System'}`);
+/**
+ * Universal Server-Side Audit Logger
+ * Writes high-integrity immutable security and operational audit records.
+ */
+export async function logAuditEvent(params: AuditEventParams) {
+  const {
+    actorId,
+    actorEmail,
+    portal = 'admin',
+    action,
+    entityType,
+    entityId,
+    changes,
+    ipAddress,
+    userAgent,
+  } = params;
 
-  // In production with Supabase:
-  // await supabase.from('audit_logs').insert({
-  //   user_id: userId,
-  //   action,
-  //   entity,
-  //   entity_id: entityId,
-  //   ip_address: ipAddress,
-  //   details,
-  // });
+  console.log(
+    `[AUDIT] [${portal.toUpperCase()}] ${action} on ${entityType}${entityId ? ` (${entityId})` : ''} by ${actorEmail || actorId || 'System'}`
+  );
+
+  try {
+    const supabase = await createClient();
+
+    // Attempt insertion into audit_logs table
+    await supabase.from('audit_logs').insert({
+      actor_id: actorId || null,
+      actor_email: actorEmail || null,
+      action: action.toLowerCase(),
+      entity_type: entityType.toLowerCase(),
+      entity_id: entityId || null,
+      changes: {
+        ...changes,
+        portal,
+        userAgent: userAgent || null,
+      },
+      ip_address: ipAddress || null,
+      created_at: new Date().toISOString(),
+    });
+  } catch (err) {
+    // Non-blocking catch to ensure operational continuity
+    console.error('Audit logging failed silently:', err);
+  }
 }

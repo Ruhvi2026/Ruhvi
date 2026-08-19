@@ -34,6 +34,7 @@ import {
 interface NavChild {
   label: string;
   href: string;
+  requiredPermission?: string;
 }
 
 interface NavItem {
@@ -43,6 +44,8 @@ interface NavItem {
   badge?: string;
   badgeColor?: string;
   children?: NavChild[];
+  requiredPermission?: string;
+  requiredRole?: string;
 }
 
 interface NavGroup {
@@ -50,101 +53,73 @@ interface NavGroup {
   items: NavItem[];
 }
 
-const NAV_GROUPS: NavGroup[] = [
+const getNavGroups = (): NavGroup[] => [
   {
     section: 'OVERVIEW',
     items: [
-      { label: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard },
+      {
+        label: 'Analytics Dashboard',
+        href: '/admin/dashboard',
+        icon: LayoutDashboard,
+      },
     ],
   },
   {
-    section: 'OPERATIONS',
+    section: 'MANAGEMENT',
     items: [
       {
         label: 'Orders',
+        href: '/admin/orders',
         icon: ShoppingBag,
-        children: [
-          { label: 'All Orders', href: '/admin/orders' },
-          { label: 'Refunds & Returns', href: '/admin/refunds' },
-        ],
+        requiredPermission: 'orders.view',
       },
-      { label: 'Payments', href: '/admin/payments', icon: CreditCard },
-    ],
-  },
-  {
-    section: 'CATALOG',
-    items: [
       {
-        label: 'Products',
+        label: 'Operations',
+        href: '/admin/operations',
         icon: Package,
-        children: [
-          { label: 'All Products', href: '/admin/products' },
-          { label: 'Add New Product', href: '/admin/products/new' },
-          { label: 'Bulk Management', href: '/admin/tools/bulk-management' },
-        ],
+        requiredPermission: 'inventory.view',
       },
-      { label: 'Categories', href: '/admin/categories', icon: Layers },
-      { label: 'Collections', href: '/admin/collections', icon: Star },
       {
-        label: 'Inventory',
-        href: '/admin/reports/inventory',
+        label: 'Marketing',
+        href: '/admin/marketing',
+        icon: Tag,
+        requiredPermission: 'marketing_analytics.view',
+      },
+      {
+        label: 'Support',
+        href: '/admin/support',
         icon: AlertCircle,
+        requiredPermission: 'support.view',
       },
     ],
   },
   {
-    section: 'CUSTOMERS',
-    items: [
-      { label: 'Customers', href: '/admin/users', icon: Users },
-      { label: 'Wallet & Coins', href: '/admin/wallet', icon: Wallet },
-    ],
-  },
-  {
-    section: 'MARKETING & SEO',
-    items: [
-      { label: 'Coupons & Offers', href: '/admin/coupons', icon: Tag },
-      { label: 'SEO Control Suite', href: '/admin/seo', icon: Globe },
-      { label: 'Notifications', href: '/admin/notifications', icon: Bell },
-    ],
-  },
-  {
-    section: 'ANALYTICS',
+    section: 'SYSTEM',
     items: [
       {
-        label: 'Reports',
+        label: 'Master Data',
+        href: '/admin/master-data',
         icon: BarChart2,
-        children: [
-          { label: 'Sales Report', href: '/admin/reports/sales' },
-          { label: 'Inventory Report', href: '/admin/reports/inventory' },
-          {
-            label: 'Coupons & Referrals',
-            href: '/admin/reports/coupons-referrals',
-          },
-          { label: 'Abandoned Carts', href: '/admin/reports/abandoned-carts' },
-        ],
+        requiredRole: 'admin',
       },
-    ],
-  },
-  {
-    section: 'SUPPORT',
-    items: [
       {
-        label: 'Support Analytics',
-        href: '/admin/support-analytics',
-        icon: AlertCircle,
+        label: 'Team & Access',
+        href: '/admin/team',
+        icon: Users,
+        requiredRole: 'admin',
       },
-    ],
-  },
-  {
-    section: 'ADMIN',
-    items: [
       {
         label: 'Audit Logs',
         href: '/admin/security/audit-logs',
         icon: FileText,
+        requiredRole: 'admin',
       },
-      { label: 'AI Control Center', href: '/admin/ai-settings', icon: Wand2 },
-      { label: 'Settings', href: '/admin/settings', icon: Settings },
+      {
+        label: 'Settings',
+        href: '/admin/settings',
+        icon: Settings,
+        requiredRole: 'admin',
+      },
     ],
   },
 ];
@@ -240,10 +215,64 @@ export default function AdminLayout({
 }) {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const { user, signOut } = useAuth();
+  const { user, profile, signOut } = useAuth();
 
-  const userInitial = user?.email?.charAt(0).toUpperCase() || 'A';
-  const userEmail = user?.email || '';
+  // RBAC Helpers
+  const permissions = profile?.permissions || [];
+  const role = profile?.role || 'customer';
+  const isAdmin = (role as string).toLowerCase() === 'admin';
+
+  const hasPermission = (requiredPerm?: string) => {
+    if (!requiredPerm) return true;
+    if (permissions.includes('*')) return true;
+    if (permissions.includes(requiredPerm)) return true;
+    const [module] = requiredPerm.split('.');
+    if (permissions.includes(`${module}.*`)) return true;
+    return false;
+  };
+
+  const hasRole = (requiredRole?: string) => {
+    if (!requiredRole) return true;
+    if (requiredRole.toLowerCase() === 'admin' && isAdmin) return true;
+    return (role as string).toLowerCase() === requiredRole.toLowerCase();
+  };
+
+  // Filter navigation groups based on permissions
+  const filteredNavGroups = getNavGroups()
+    .map((group) => {
+      const filteredItems = group.items
+        .filter((item) => {
+          // Check role/permission for the main item
+          if (!hasRole(item.requiredRole)) return false;
+          if (!hasPermission(item.requiredPermission)) return false;
+
+          return true;
+        })
+        .map((item) => {
+          // Filter children if they exist
+          if (item.children) {
+            return {
+              ...item,
+              children: item.children.filter((child) =>
+                hasPermission(child.requiredPermission)
+              ),
+            };
+          }
+          return item;
+        });
+
+      return { ...group, items: filteredItems };
+    })
+    .filter((group) => group.items.length > 0);
+
+  const userInitial =
+    profile?.full_name?.charAt(0).toUpperCase() ||
+    user?.email?.charAt(0).toUpperCase() ||
+    'A';
+  const userEmail = profile?.email || user?.email || '';
+  const userRoleDisplay = profile?.role
+    ? profile.role.replace('_', ' ').toUpperCase()
+    : 'USER';
 
   const SidebarContent = () => (
     <div className="flex h-full flex-col">
@@ -280,7 +309,7 @@ export default function AdminLayout({
 
       {/* Nav */}
       <nav className="flex-1 space-y-5 overflow-y-auto px-2 py-4">
-        {NAV_GROUPS.map((group) => (
+        {filteredNavGroups.map((group) => (
           <div key={group.section}>
             {!collapsed && (
               <p className="mb-2 px-3 text-[9px] font-bold uppercase tracking-widest text-slate-600">
@@ -321,7 +350,7 @@ export default function AdminLayout({
             </div>
             <div className="overflow-hidden">
               <p className="truncate text-xs font-medium text-slate-300">
-                Administrator
+                {userRoleDisplay}
               </p>
               <p className="truncate text-[10px] text-slate-600">{userEmail}</p>
             </div>

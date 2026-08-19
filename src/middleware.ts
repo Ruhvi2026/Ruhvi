@@ -17,10 +17,25 @@ export async function middleware(request: NextRequest) {
   const hostname = request.headers.get('host') || '';
   const isAdminHost =
     hostname === 'admin.ruhvi.in' || hostname.startsWith('admin.localhost');
+  const isOperationsHost =
+    hostname === 'operations.ruhvi.in' ||
+    hostname.startsWith('operations.localhost');
+  const isOrdersHost =
+    hostname === 'orders.ruhvi.in' || hostname.startsWith('orders.localhost');
   const isSupportHost =
     hostname === 'support.ruhvi.in' || hostname.startsWith('support.localhost');
+  const isMarketingHost =
+    hostname === 'marketing.ruhvi.in' ||
+    hostname.startsWith('marketing.localhost');
   const isAuthHost =
     hostname === 'auth.ruhvi.in' || hostname.startsWith('auth.localhost');
+
+  const isAnyPortalHost =
+    isAdminHost ||
+    isOperationsHost ||
+    isOrdersHost ||
+    isSupportHost ||
+    isMarketingHost;
   const path = request.nextUrl.pathname;
 
   // Save referral code from URL to cookie
@@ -32,90 +47,98 @@ export async function middleware(request: NextRequest) {
     });
   }
 
-  // 1. Root redirect on admin host
-  if (isAdminHost && path === '/') {
-    return NextResponse.redirect(new URL('/admin/dashboard', request.url));
+  // 1. Root redirect on portal hosts
+  if (path === '/') {
+    if (isAdminHost)
+      return NextResponse.redirect(new URL('/admin/dashboard', request.url));
+    if (isOperationsHost)
+      return NextResponse.redirect(
+        new URL('/operations/dashboard', request.url)
+      );
+    if (isOrdersHost)
+      return NextResponse.redirect(
+        new URL('/portal-orders/dashboard', request.url)
+      );
+    if (isSupportHost)
+      return NextResponse.redirect(new URL('/support/dashboard', request.url));
+    if (isMarketingHost)
+      return NextResponse.redirect(
+        new URL('/marketing/dashboard', request.url)
+      );
+    if (isAuthHost)
+      return NextResponse.redirect(new URL('/login', request.url));
   }
 
-  // Root redirect on support host
-  if (isSupportHost && path === '/') {
-    return NextResponse.redirect(new URL('/support/dashboard', request.url));
-  }
-
-  // Root redirect on auth host
-  if (isAuthHost && path === '/') {
-    return NextResponse.redirect(new URL('/login', request.url));
-  }
-
-  // Block signup on admin/support hosts
-  if ((isAdminHost || isSupportHost) && path.startsWith('/signup')) {
+  // Block signup on portal hosts
+  if (isAnyPortalHost && path.startsWith('/signup')) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
 
   // 2. Strict Subdomain Isolation
-  if (isAdminHost) {
-    // Only allow admin, auth, and API routes on the admin subdomain
-    const isAllowed =
-      path.startsWith('/admin') ||
-      path.startsWith('/manager') ||
-      path.startsWith('/staff') ||
-      path.startsWith('/login') ||
-      path.startsWith('/api') ||
-      path.startsWith('/auth/callback') ||
-      path === '/404' ||
-      path.startsWith('/_not-found') ||
-      path.endsWith('.js') ||
-      path.endsWith('.json');
+  const commonAllowedPaths = [
+    '/login',
+    '/api',
+    '/auth/callback',
+    '/404',
+    '/_not-found',
+    '/unauthorized',
+  ];
+  const isCommonAllowed =
+    commonAllowedPaths.some((p) => path.startsWith(p)) ||
+    path.endsWith('.js') ||
+    path.endsWith('.json');
 
-    if (!isAllowed) {
+  if (isAdminHost) {
+    if (
+      !isCommonAllowed &&
+      !path.startsWith('/admin') &&
+      !path.startsWith('/manager') &&
+      !path.startsWith('/staff')
+    ) {
+      return NextResponse.rewrite(new URL('/404', request.url));
+    }
+  } else if (isOperationsHost) {
+    if (!isCommonAllowed && !path.startsWith('/operations')) {
+      return NextResponse.rewrite(new URL('/404', request.url));
+    }
+  } else if (isOrdersHost) {
+    if (!isCommonAllowed && !path.startsWith('/portal-orders')) {
       return NextResponse.rewrite(new URL('/404', request.url));
     }
   } else if (isSupportHost) {
-    // Only allow support, auth, and API routes on the support subdomain
-    const isAllowed =
-      path.startsWith('/support') ||
-      path.startsWith('/login') ||
-      path.startsWith('/api') ||
-      path.startsWith('/auth/callback') ||
-      path === '/404' ||
-      path.startsWith('/_not-found') ||
-      path.endsWith('.js') ||
-      path.endsWith('.json');
-
-    if (!isAllowed) {
+    if (!isCommonAllowed && !path.startsWith('/support')) {
+      return NextResponse.rewrite(new URL('/404', request.url));
+    }
+  } else if (isMarketingHost) {
+    if (!isCommonAllowed && !path.startsWith('/marketing')) {
       return NextResponse.rewrite(new URL('/404', request.url));
     }
   } else if (isAuthHost) {
-    // Only allow auth and API routes on the auth subdomain
-    const isAllowed =
-      path.startsWith('/login') ||
+    const isAuthAllowed =
+      isCommonAllowed ||
       path.startsWith('/signup') ||
       path.startsWith('/reset-password') ||
-      path.startsWith('/forgot-password') ||
-      path.startsWith('/api') ||
-      path.startsWith('/auth/callback') ||
-      path === '/404' ||
-      path.startsWith('/_not-found') ||
-      path.endsWith('.js') ||
-      path.endsWith('.json');
-
-    if (!isAllowed) {
+      path.startsWith('/forgot-password');
+    if (!isAuthAllowed) {
       return NextResponse.rewrite(new URL('/404', request.url));
     }
   } else {
-    // Block admin and support routes on the main customer-facing domain
+    // Block internal routes on the main customer-facing domain
     if (
       path.startsWith('/admin') ||
       path.startsWith('/manager') ||
       path.startsWith('/staff') ||
-      path.startsWith('/support')
+      path.startsWith('/operations') ||
+      path.startsWith('/portal-orders') ||
+      path.startsWith('/support') ||
+      path.startsWith('/marketing')
     ) {
       return NextResponse.rewrite(new URL('/404', request.url));
     }
   }
 
-  // 3. Inject X-Robots-Tag for admin/support host to prevent indexing
-  if (isAdminHost || isSupportHost) {
+  // 3. Inject X-Robots-Tag for portal hosts to prevent indexing
+  if (isAnyPortalHost) {
     supabaseResponse.headers.set('X-Robots-Tag', 'noindex, nofollow');
   }
 
@@ -146,7 +169,7 @@ export async function middleware(request: NextRequest) {
             supabaseResponse = NextResponse.next({
               request,
             });
-            if (isAdminHost || isSupportHost) {
+            if (isAnyPortalHost) {
               supabaseResponse.headers.set('X-Robots-Tag', 'noindex, nofollow');
             }
             cookiesToSet.forEach(({ name, value, options }) =>
@@ -160,20 +183,24 @@ export async function middleware(request: NextRequest) {
       }
     );
 
-    // RBAC for /admin, /manager, /staff, /support routes
-    if (
+    // RBAC for internal routes
+    const isInternalRoute =
       path.startsWith('/admin') ||
       path.startsWith('/manager') ||
       path.startsWith('/staff') ||
-      path.startsWith('/support')
-    ) {
+      path.startsWith('/operations') ||
+      path.startsWith('/portal-orders') ||
+      path.startsWith('/support') ||
+      path.startsWith('/marketing');
+
+    if (isInternalRoute) {
       const sessionCookie = request.cookies.get('__session')?.value;
 
       if (!sessionCookie) {
         const loginUrl = new URL('/login', request.url);
         loginUrl.searchParams.set('redirectTo', path);
         const redirectResponse = NextResponse.redirect(loginUrl);
-        if (isAdminHost || isSupportHost) {
+        if (isAnyPortalHost) {
           redirectResponse.headers.set('X-Robots-Tag', 'noindex, nofollow');
         }
         supabaseResponse.cookies.getAll().forEach((c) => {
@@ -188,28 +215,91 @@ export async function middleware(request: NextRequest) {
       const uid = decodedToken.sub;
       const email = decodedToken.email as string | undefined;
 
-      // Fetch user role directly from public.users
+      // Fetch user role and allowed portals directly from public.users
       const { data: profile } = await supabase
         .from('users')
-        .select('role')
+        .select('role, account_status, allowed_portals')
         .eq('id', uid)
         .maybeSingle();
+
       let userProfile = profile;
+      let role = userProfile?.role || 'customer';
+      let accountStatus = userProfile?.account_status || 'active';
+      let allowedPortals = userProfile?.allowed_portals || [];
 
-      let role = userProfile?.role;
-
-      if (!role) {
-        role = 'customer';
+      // 1. Check account status
+      if (accountStatus !== 'active') {
+        const redirectResponse = NextResponse.redirect(
+          new URL('/unauthorized', request.url)
+        );
+        if (isAnyPortalHost) {
+          redirectResponse.headers.set('X-Robots-Tag', 'noindex, nofollow');
+        }
+        supabaseResponse.cookies.getAll().forEach((c) => {
+          redirectResponse.cookies.set(c.name, c.value, c);
+        });
+        return redirectResponse;
       }
 
-      const allowedRoles = ['admin', 'manager', 'staff'];
+      // 2. Authorize based on roles or explicit allowed_portals
+      // By default, super_admin has access to everything
+      // Other roles need explicit allowed_portals OR fallback legacy logic
+      const allowedRoles = ['super_admin', 'admin', 'manager', 'staff'];
 
       if (!allowedRoles.includes(role)) {
         // Forbidden for regular customers
         const redirectResponse = NextResponse.redirect(
           new URL('/unauthorized', request.url)
         );
-        if (isAdminHost || isSupportHost) {
+        if (isAnyPortalHost) {
+          redirectResponse.headers.set('X-Robots-Tag', 'noindex, nofollow');
+        }
+        supabaseResponse.cookies.getAll().forEach((c) => {
+          redirectResponse.cookies.set(c.name, c.value, c);
+        });
+        return redirectResponse;
+      }
+
+      // Portal-specific authorization
+      let isPortalAllowed = false;
+      if (role === 'super_admin') {
+        isPortalAllowed = true;
+      } else {
+        if (
+          isAdminHost &&
+          (allowedPortals.includes('admin') ||
+            ['admin', 'manager'].includes(role))
+        )
+          isPortalAllowed = true;
+        if (
+          isOperationsHost &&
+          (allowedPortals.includes('operations') || role === 'admin')
+        )
+          isPortalAllowed = true;
+        if (
+          isOrdersHost &&
+          (allowedPortals.includes('orders') || role === 'admin')
+        )
+          isPortalAllowed = true;
+        if (
+          isSupportHost &&
+          (allowedPortals.includes('support') ||
+            role === 'admin' ||
+            role === 'staff')
+        )
+          isPortalAllowed = true;
+        if (
+          isMarketingHost &&
+          (allowedPortals.includes('marketing') || role === 'admin')
+        )
+          isPortalAllowed = true;
+      }
+
+      if (!isPortalAllowed && isAnyPortalHost) {
+        const redirectResponse = NextResponse.redirect(
+          new URL('/unauthorized', request.url)
+        );
+        if (isAnyPortalHost) {
           redirectResponse.headers.set('X-Robots-Tag', 'noindex, nofollow');
         }
         supabaseResponse.cookies.getAll().forEach((c) => {
