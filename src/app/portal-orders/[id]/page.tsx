@@ -9,9 +9,271 @@ import {
   FileText,
   CheckCircle,
   Clock,
+  CreditCard,
+  AlertTriangle,
+  XCircle,
+  RotateCcw,
 } from 'lucide-react';
 import { Order } from '@/types/database';
 import { createClient } from '@/lib/supabase/client';
+
+interface OrderEvent {
+  id: string;
+  order_id: string;
+  event_type: string;
+  performed_by: string | null;
+  portal: string;
+  metadata: Record<string, any>;
+  created_at: string;
+  performed_by_user?: {
+    full_name: string | null;
+    email: string | null;
+  } | null;
+}
+
+function getEventDisplayConfig(eventType: string) {
+  const configs: Record<
+    string,
+    {
+      label: string;
+      color: string;
+      icon: React.ComponentType<{ className?: string }>;
+      bgColor: string;
+      borderColor: string;
+    }
+  > = {
+    ORDER_CREATED: {
+      label: 'Order Created',
+      color: 'text-blue-400',
+      icon: Package,
+      bgColor: 'bg-blue-500/10',
+      borderColor: 'border-blue-500/20',
+    },
+    PAYMENT_CONFIRMED: {
+      label: 'Payment Confirmed',
+      color: 'text-emerald-400',
+      icon: CreditCard,
+      bgColor: 'bg-emerald-500/10',
+      borderColor: 'border-emerald-500/20',
+    },
+    ORDER_CONFIRMED: {
+      label: 'Order Confirmed',
+      color: 'text-blue-400',
+      icon: CheckCircle,
+      bgColor: 'bg-blue-500/10',
+      borderColor: 'border-blue-500/20',
+    },
+    PACKING_STARTED: {
+      label: 'Packing Started',
+      color: 'text-amber-400',
+      icon: Package,
+      bgColor: 'bg-amber-500/10',
+      borderColor: 'border-amber-500/20',
+    },
+    PACKED: {
+      label: 'Packed',
+      color: 'text-amber-400',
+      icon: Package,
+      bgColor: 'bg-amber-500/10',
+      borderColor: 'border-amber-500/20',
+    },
+    LABEL_CREATED: {
+      label: 'Label Created',
+      color: 'text-indigo-400',
+      icon: FileText,
+      bgColor: 'bg-indigo-500/10',
+      borderColor: 'border-indigo-500/20',
+    },
+    MANIFEST_CREATED: {
+      label: 'Manifest Created',
+      color: 'text-indigo-400',
+      icon: FileText,
+      bgColor: 'bg-indigo-500/10',
+      borderColor: 'border-indigo-500/20',
+    },
+    SHIPPED: {
+      label: 'Shipped',
+      color: 'text-indigo-400',
+      icon: Truck,
+      bgColor: 'bg-indigo-500/10',
+      borderColor: 'border-indigo-500/20',
+    },
+    OUT_FOR_DELIVERY: {
+      label: 'Out for Delivery',
+      color: 'text-sky-400',
+      icon: Truck,
+      bgColor: 'bg-sky-500/10',
+      borderColor: 'border-sky-500/20',
+    },
+    DELIVERED: {
+      label: 'Delivered',
+      color: 'text-emerald-400',
+      icon: CheckCircle,
+      bgColor: 'bg-emerald-500/10',
+      borderColor: 'border-emerald-500/20',
+    },
+    RETURN_REQUESTED: {
+      label: 'Return Requested',
+      color: 'text-orange-400',
+      icon: RotateCcw,
+      bgColor: 'bg-orange-500/10',
+      borderColor: 'border-orange-500/20',
+    },
+    RETURN_APPROVED: {
+      label: 'Return Approved',
+      color: 'text-orange-400',
+      icon: CheckCircle,
+      bgColor: 'bg-orange-500/10',
+      borderColor: 'border-orange-500/20',
+    },
+    RETURN_PICKED: {
+      label: 'Return Picked Up',
+      color: 'text-orange-400',
+      icon: Truck,
+      bgColor: 'bg-orange-500/10',
+      borderColor: 'border-orange-500/20',
+    },
+    REFUND_INITIATED: {
+      label: 'Refund Initiated',
+      color: 'text-purple-400',
+      icon: CreditCard,
+      bgColor: 'bg-purple-500/10',
+      borderColor: 'border-purple-500/20',
+    },
+    RTO_INITIATED: {
+      label: 'RTO Initiated',
+      color: 'text-red-400',
+      icon: AlertTriangle,
+      bgColor: 'bg-red-500/10',
+      borderColor: 'border-red-500/20',
+    },
+    RTO_RECEIVED: {
+      label: 'RTO Received',
+      color: 'text-red-400',
+      icon: Package,
+      bgColor: 'bg-red-500/10',
+      borderColor: 'border-red-500/20',
+    },
+    CANCELLED: {
+      label: 'Cancelled',
+      color: 'text-rose-400',
+      icon: XCircle,
+      bgColor: 'bg-rose-500/10',
+      borderColor: 'border-rose-500/20',
+    },
+  };
+
+  return (
+    configs[eventType] || {
+      label: eventType,
+      color: 'text-slate-400',
+      icon: Clock,
+      bgColor: 'bg-slate-500/10',
+      borderColor: 'border-slate-500/20',
+    }
+  );
+}
+
+function EventIcon({
+  icon: Icon,
+  className,
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  className?: string;
+}) {
+  return <Icon className={className} />;
+}
+
+function TimelineItem({
+  event,
+  index,
+  total,
+}: {
+  event: OrderEvent;
+  index: number;
+  total: number;
+}) {
+  const config = getEventDisplayConfig(event.event_type);
+  const Icon = config.icon;
+  const isLast = index === total - 1;
+  const performedBy =
+    event.performed_by_user?.full_name ||
+    event.performed_by_user?.email ||
+    'System';
+  const portal = event.portal;
+  const metadata = event.metadata;
+
+  return (
+    <div className="relative flex space-x-4">
+      {/* Timeline line */}
+      <div className="absolute bottom-0 left-4 top-0 w-0.5 bg-gradient-to-b from-white/10 to-transparent" />
+
+      {/* Event dot */}
+      <div
+        className={`relative z-10 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full border-2 ${config.color} ${config.borderColor} ${config.bgColor}`}
+      >
+        <Icon className="h-4 w-4" />
+      </div>
+
+      {/* Event content */}
+      <div className="min-w-0 flex-1 pb-8 last:pb-0">
+        <div
+          className={`rounded-xl border p-4 ${config.borderColor} ${config.bgColor} backdrop-blur-sm`}
+        >
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h3 className="font-semibold text-white">{config.label}</h3>
+              <p className="mt-1 text-xs text-slate-500">
+                {new Date(event.created_at).toLocaleString('en-IN', {
+                  day: '2-digit',
+                  month: 'short',
+                  year: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit',
+                })}
+              </p>
+              <div className="mt-2 flex items-center space-x-2 text-xs">
+                <span className="rounded bg-white/5 px-2 py-0.5 text-slate-400">
+                  By: {performedBy}
+                </span>
+                <span className="rounded bg-white/5 px-2 py-0.5 text-slate-400">
+                  Portal: {portal}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Metadata display */}
+          {metadata && Object.keys(metadata).length > 0 && (
+            <details className="mt-3">
+              <summary className="flex cursor-pointer items-center space-x-1 text-xs text-slate-400 hover:text-slate-300">
+                <span>Details</span>
+                <ChevronDown className="h-3 w-3" />
+              </summary>
+              <div className="mt-2 max-h-48 overflow-auto rounded bg-white/5 p-3 font-mono text-xs text-slate-300">
+                <pre>{JSON.stringify(metadata, null, 2)}</pre>
+              </div>
+            </details>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ChevronDown({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+    >
+      <polyline points="6 9 12 15 18 9" />
+    </svg>
+  );
+}
 
 export default function OrderDetailsPage({
   params,
@@ -20,12 +282,14 @@ export default function OrderDetailsPage({
 }) {
   const resolvedParams = use(params);
   const [order, setOrder] = useState<Order | null>(null);
+  const [events, setEvents] = useState<OrderEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [isPushing, setIsPushing] = useState(false);
 
   React.useEffect(() => {
     fetchOrder();
+    fetchEvents();
   }, [resolvedParams.id]);
 
   const fetchOrder = async () => {
@@ -54,6 +318,37 @@ export default function OrderDetailsPage({
     }
   };
 
+  const fetchEvents = async () => {
+    try {
+      const supabase = createClient();
+      const { data, error } = await supabase
+        .from('order_events')
+        .select(
+          `
+          id,
+          order_id,
+          event_type,
+          performed_by,
+          portal,
+          metadata,
+          created_at,
+          performed_by_user:users!order_events_performed_by_fkey(full_name, email)
+        `
+        )
+        .eq('order_id', resolvedParams.id)
+        .order('created_at', { ascending: true });
+
+      if (error) {
+        console.error('Error fetching events:', error);
+        return;
+      }
+
+      setEvents((data as OrderEvent[]) || []);
+    } catch (err) {
+      console.error('Error fetching events:', err);
+    }
+  };
+
   const handlePushToShiprocket = async () => {
     if (!order) return;
     setIsPushing(true);
@@ -74,6 +369,8 @@ export default function OrderDetailsPage({
           courier_name: data.courier_name,
           status: 'shipped',
         });
+        // Refetch events to show new timeline entries
+        fetchEvents();
       } else {
         alert(`Failed to create shipment: ${data.error || 'Unknown error'}`);
       }
@@ -116,7 +413,7 @@ export default function OrderDetailsPage({
       </div>
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-        {/* Left Column: Order Details */}
+        {/* Left Column: Order Details + Timeline */}
         <div className="space-y-8 lg:col-span-2">
           {/* Items */}
           <div className="rounded-2xl border border-white/5 bg-[#131726] p-6">
@@ -161,6 +458,39 @@ export default function OrderDetailsPage({
                   {order.shipping_address.city}, {order.shipping_address.state}{' '}
                   - {order.shipping_address.pincode}
                 </p>
+              </div>
+            )}
+          </div>
+
+          {/* Order Event Timeline */}
+          <div className="rounded-2xl border border-white/5 bg-[#131726] p-6">
+            <div className="mb-6 flex items-center justify-between">
+              <h2 className="font-serif text-lg font-bold text-white">
+                Order Timeline
+              </h2>
+              <span className="text-xs text-slate-500">
+                {events.length} events
+              </span>
+            </div>
+
+            {events.length === 0 ? (
+              <div className="py-8 text-center text-slate-500">
+                <Clock className="mx-auto mb-2 h-8 w-8 text-slate-600" />
+                <p>No timeline events recorded yet.</p>
+                <p className="mt-1 text-xs">
+                  Events will appear as the order progresses.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-0">
+                {events.map((event, index) => (
+                  <TimelineItem
+                    key={event.id}
+                    event={event}
+                    index={index}
+                    total={events.length}
+                  />
+                ))}
               </div>
             )}
           </div>

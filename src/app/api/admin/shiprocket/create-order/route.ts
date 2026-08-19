@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import { getServerUser } from '@/lib/auth/server';
 import { createCustomOrder, generateAWB } from '@/lib/shiprocket';
 import { sendOrderShippedEmail } from '@/lib/resend';
+import { logOrderEvent } from '@/lib/order-events';
 
 export async function POST(request: Request) {
   try {
@@ -139,7 +140,35 @@ export async function POST(request: Request) {
 
     if (updateError) throw updateError;
 
-    // 8. Send transactional email
+    // 8. Log LABEL_CREATED event (when AWB is generated)
+    await logOrderEvent({
+      orderId,
+      eventType: 'LABEL_CREATED',
+      performedBy: user.id,
+      portal: 'orders',
+      metadata: {
+        courier_name: awbData.courier_name,
+        awb_code: awbData.awb_code,
+        shipment_id: srOrder.shipment_id.toString(),
+        tracking_url: `https://shiprocket.co/tracking/${awbData.awb_code}`,
+      },
+    });
+
+    // 9. Log SHIPPED event (when order status changes to shipped)
+    await logOrderEvent({
+      orderId,
+      eventType: 'SHIPPED',
+      performedBy: user.id,
+      portal: 'orders',
+      metadata: {
+        courier_name: awbData.courier_name,
+        awb_code: awbData.awb_code,
+        shipment_id: srOrder.shipment_id.toString(),
+        tracking_url: `https://shiprocket.co/tracking/${awbData.awb_code}`,
+      },
+    });
+
+    // 10. Send transactional email
     if (userDetails?.email) {
       const emailData = {
         order: {

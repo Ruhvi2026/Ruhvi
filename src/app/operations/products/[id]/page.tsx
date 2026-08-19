@@ -9,8 +9,9 @@ export const metadata = {
 export default async function EditProductPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
+  const resolvedParams = await params;
   const supabase = await createClient();
 
   const { data: product, error } = await supabase
@@ -21,7 +22,7 @@ export default async function EditProductPage({
       product_images ( id, url, type, sort_order )
     `
     )
-    .eq('id', params.id)
+    .eq('id', resolvedParams.id)
     .single();
 
   if (error || !product) {
