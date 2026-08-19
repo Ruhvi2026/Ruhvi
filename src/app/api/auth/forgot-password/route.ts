@@ -57,9 +57,14 @@ export async function POST(request: NextRequest) {
       .maybeSingle();
 
     if (dbError) {
-      console.error('[forgot-password] Supabase query error:', dbError);
+      console.error('[forgot-password] Database error:', dbError);
       return NextResponse.json(
-        { error: 'Failed to look up user account. Please try again.' },
+        {
+          error: 'Failed to look up user account. Please try again.',
+          details: dbError.message,
+          hasServiceKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
+          hasJwtSecret: !!process.env.SUPABASE_JWT_SECRET,
+        },
         { status: 500 }
       );
     }
