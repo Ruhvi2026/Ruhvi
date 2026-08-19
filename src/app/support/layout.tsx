@@ -406,60 +406,22 @@ export default function SupportLayout({
             >
               <Menu className="h-5 w-5" />
             </button>
-
-            {/* Global Search Bar */}
-            <form
-              onSubmit={handleGlobalSearch}
-              className="relative hidden sm:block"
-            >
-              <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-500" />
-              <input
-                type="text"
-                placeholder="Search ticket #, subject, customer, email..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="md:w-84 w-72 rounded-lg border border-white/10 bg-white/5 py-1.5 pl-9 pr-4 text-xs text-slate-200 placeholder-slate-500 transition-all focus:border-emerald-500/50 focus:bg-white/[0.08] focus:outline-none focus:ring-1 focus:ring-emerald-500"
-              />
-            </form>
+            <span className="text-xs font-semibold text-slate-400">
+              Support Console Workstation
+            </span>
           </div>
 
           <div className="flex items-center gap-3">
-            {/* Quick Auto-Assign Header Button (if unassigned exists) */}
-            {unassignedCount !== null && unassignedCount > 0 && (
-              <button
-                onClick={handleQuickAutoAssign}
-                disabled={isAutoAssigning}
-                className="hidden items-center gap-1.5 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-1.5 text-xs font-semibold text-amber-400 transition-all hover:bg-amber-500/20 disabled:opacity-50 sm:flex"
-              >
-                <Sparkles className="h-3.5 w-3.5" />
-                <span>Auto-Assign ({unassignedCount})</span>
-              </button>
-            )}
-
-            {/* Notifications / Live Ping */}
-            <Link
-              href="/support/tickets?assignee=unassigned"
-              className="relative rounded-lg p-2 text-slate-400 transition-colors hover:bg-white/5 hover:text-white"
-              title="Unassigned Queue"
-            >
-              <Bell className="h-4 w-4" />
-              {unassignedCount !== null && unassignedCount > 0 && (
-                <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-amber-400 ring-2 ring-[#131726]" />
-              )}
-            </Link>
-
-            <div className="mx-1 h-5 w-px bg-white/10" />
-
             {/* User Profile Pill */}
             <div className="flex items-center gap-2.5">
               <div className="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-700 text-xs font-bold text-white shadow-md">
                 {userInitial}
               </div>
-              <div className="hidden text-left sm:block">
+              <div className="text-left">
                 <p className="text-xs font-semibold leading-tight text-white">
                   {userName}
                 </p>
-                <p className="text-[10px] text-emerald-400/90">
+                <p className="text-[10px] leading-none text-emerald-400/90">
                   {roleDisplayLabel}
                 </p>
               </div>

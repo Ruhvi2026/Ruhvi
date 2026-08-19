@@ -117,6 +117,12 @@ export default async function RootLayout({
   const host = headersList.get('host') || '';
   const isAdminHost =
     host === 'admin.ruhvi.in' || host.startsWith('admin.localhost');
+  const isSupportHost =
+    host === 'support.ruhvi.in' || host.startsWith('support.localhost');
+  const isAuthHost =
+    host === 'auth.ruhvi.in' || host.startsWith('auth.localhost');
+
+  const isSystemSubdomain = isAdminHost || isSupportHost || isAuthHost;
 
   const organizationSchema = {
     '@context': 'https://schema.org',
@@ -180,10 +186,10 @@ export default async function RootLayout({
             <WishlistProvider>
               <NotificationProvider>
                 <FcmInit />
-                {!isAdminHost && <Navbar />}
+                {!isSystemSubdomain && <Navbar />}
                 <main className="flex-1">{children}</main>
-                {!isAdminHost && <Footer />}
-                {!isAdminHost && <CustomerSupportChat />}
+                {!isSystemSubdomain && <Footer />}
+                {!isSystemSubdomain && <CustomerSupportChat />}
                 <SpeedInsights />
                 <ToastProvider />
                 <OfflineDetector />
