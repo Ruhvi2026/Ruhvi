@@ -192,7 +192,7 @@ export function AccountDrawer({ isOpen, onClose }: AccountDrawerProps) {
         role="dialog"
         aria-modal="true"
         aria-label="Account Navigation"
-        className={`fixed bottom-0 left-0 top-0 z-50 flex w-full max-w-[360px] transform flex-col border-r border-gold-200/50 bg-[#FCFBF7] text-stone-800 shadow-2xl transition-transform duration-300 ease-in-out ${
+        className={`fixed bottom-0 left-0 top-0 z-50 flex w-full max-w-[360px] transform flex-col border-r border-gold-200/50 bg-[#FCFBF7] text-stone-800 shadow-2xl transition-transform duration-300 ease-in-out dark:border-stone-800 dark:bg-stone-900 dark:text-stone-200 ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
@@ -216,15 +216,15 @@ export function AccountDrawer({ isOpen, onClose }: AccountDrawerProps) {
         </div>
 
         {/* Profile Header (Sticky Top) */}
-        <div className="border-b border-gold-200/40 bg-gradient-to-b from-[#FAF8F2] to-[#FCFBF7] px-5 py-3">
+        <div className="border-b border-gold-200/40 bg-gradient-to-b from-[#FAF8F2] to-[#FCFBF7] px-5 py-3 dark:border-stone-800 dark:from-stone-950 dark:to-stone-900">
           {user ? (
             <div className="flex items-center space-x-3.5">
-              <div className="relative flex h-12 w-12 flex-shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-gold-300/60 bg-gold-50 font-serif text-sm font-bold text-gold-700 shadow-sm">
+              <div className="relative flex h-12 w-12 flex-shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-gold-300/60 bg-gold-50 font-serif text-sm font-bold text-gold-700 shadow-sm dark:border-stone-700 dark:bg-stone-800 dark:text-gold-400">
                 {userInitials}
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center space-x-1.5">
-                  <h3 className="truncate font-serif text-sm font-bold text-stone-900">
+                  <h3 className="truncate font-serif text-sm font-bold text-stone-900 dark:text-white">
                     {userDisplayName}
                   </h3>
                   {profile?.email_verified && (
@@ -234,12 +234,12 @@ export function AccountDrawer({ isOpen, onClose }: AccountDrawerProps) {
                     />
                   )}
                 </div>
-                <p className="truncate font-mono text-xs text-stone-500">
+                <p className="truncate font-mono text-xs text-stone-500 dark:text-stone-400">
                   {userEmail}
                 </p>
                 <Link
                   href="/account"
-                  className="group mt-1 inline-flex items-center text-[11px] font-semibold text-gold-600 transition hover:text-gold-700"
+                  className="group mt-1 inline-flex items-center text-[11px] font-semibold text-gold-600 transition hover:text-gold-700 dark:text-gold-500"
                 >
                   <span>View Profile</span>
                   <ArrowRight className="ml-1 h-3 w-3 transition-transform group-hover:translate-x-0.5" />
@@ -248,10 +248,10 @@ export function AccountDrawer({ isOpen, onClose }: AccountDrawerProps) {
             </div>
           ) : (
             <div className="py-2">
-              <h3 className="font-serif text-sm font-bold text-stone-900">
+              <h3 className="font-serif text-sm font-bold text-stone-900 dark:text-white">
                 Welcome to Ruhvi
               </h3>
-              <p className="mt-0.5 text-xs text-stone-500">
+              <p className="mt-0.5 text-xs text-stone-500 dark:text-stone-400">
                 Sign in to manage your orders & wallet balance.
               </p>
               <div className="mt-3 flex items-center space-x-2">
@@ -263,7 +263,7 @@ export function AccountDrawer({ isOpen, onClose }: AccountDrawerProps) {
                 </Link>
                 <Link
                   href="/signup"
-                  className="flex-1 rounded-xl border border-gold-300/60 bg-white px-3 py-2 text-center text-xs font-bold text-stone-800 transition hover:bg-gold-50/50"
+                  className="flex-1 rounded-xl border border-gold-300/60 bg-white px-3 py-2 text-center text-xs font-bold text-stone-800 transition hover:bg-[#FAF8F2]/10 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300"
                 >
                   Sign Up
                 </Link>
@@ -288,16 +288,16 @@ export function AccountDrawer({ isOpen, onClose }: AccountDrawerProps) {
                   href={item.href}
                   className={`group flex items-center justify-between rounded-xl px-3 py-2.5 transition-all ${
                     isActive
-                      ? 'text-gold-900 shadow-xs bg-gold-100/60 font-semibold'
-                      : 'text-stone-700 hover:bg-stone-100/70 hover:text-stone-900'
+                      ? 'text-gold-900 shadow-xs bg-gold-100/60 font-semibold dark:bg-gold-950/40 dark:text-gold-400'
+                      : 'text-stone-700 hover:bg-stone-100/70 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-stone-800/70 dark:hover:text-white'
                   }`}
                 >
                   <div className="flex min-w-0 items-center space-x-3">
                     <Icon
                       className={`h-4 w-4 flex-shrink-0 transition-colors ${
                         isActive
-                          ? 'text-gold-600'
-                          : 'text-stone-500 group-hover:text-gold-600'
+                          ? 'text-gold-600 dark:text-gold-400'
+                          : 'text-stone-500 group-hover:text-gold-600 dark:text-stone-400 dark:group-hover:text-gold-400'
                       }`}
                     />
                     <span className="truncate text-xs">{item.name}</span>
@@ -307,12 +307,12 @@ export function AccountDrawer({ isOpen, onClose }: AccountDrawerProps) {
                     <span
                       className={`rounded-full px-2 py-0.5 text-[10px] font-bold transition ${
                         item.badgeType === 'wallet'
-                          ? 'border border-gold-200/50 bg-gold-100 font-mono text-gold-800'
+                          ? 'border border-gold-200/50 bg-gold-100 font-mono text-gold-800 dark:border-stone-700 dark:bg-stone-800 dark:text-gold-400'
                           : item.badgeType === 'highlight'
-                            ? 'bg-amber-100 text-amber-800'
+                            ? 'bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-400'
                             : item.badgeType === 'alert'
-                              ? 'bg-rose-100 text-rose-700'
-                              : 'bg-stone-200/80 text-stone-700'
+                              ? 'bg-rose-100 text-rose-700 dark:bg-rose-950/40 dark:text-rose-400'
+                              : 'bg-stone-200/80 text-stone-700 dark:bg-stone-800 dark:text-stone-300'
                       }`}
                     >
                       {item.badge}
@@ -337,16 +337,16 @@ export function AccountDrawer({ isOpen, onClose }: AccountDrawerProps) {
                   href={item.href}
                   className={`group flex items-center justify-between rounded-xl px-3 py-2.5 transition-all ${
                     isActive
-                      ? 'text-gold-900 bg-gold-100/60 font-semibold'
-                      : 'text-stone-700 hover:bg-stone-100/70 hover:text-stone-900'
+                      ? 'text-gold-900 bg-gold-100/60 font-semibold dark:bg-gold-950/40 dark:text-gold-400'
+                      : 'text-stone-700 hover:bg-stone-100/70 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-stone-800/70 dark:hover:text-white'
                   }`}
                 >
                   <div className="flex min-w-0 items-center space-x-3">
                     <Icon
                       className={`h-4 w-4 flex-shrink-0 transition-colors ${
                         isActive
-                          ? 'text-gold-600'
-                          : 'text-stone-500 group-hover:text-gold-600'
+                          ? 'text-gold-600 dark:text-gold-400'
+                          : 'text-stone-500 group-hover:text-gold-600 dark:text-stone-400 dark:group-hover:text-gold-400'
                       }`}
                     />
                     <span className="truncate text-xs">{item.name}</span>
@@ -365,31 +365,31 @@ export function AccountDrawer({ isOpen, onClose }: AccountDrawerProps) {
               href="/account/settings"
               className={`group flex items-center justify-between rounded-xl px-3 py-2.5 transition-all ${
                 pathname === '/account/settings'
-                  ? 'text-gold-900 bg-gold-100/60 font-semibold'
-                  : 'text-stone-700 hover:bg-stone-100/70 hover:text-stone-900'
+                  ? 'text-gold-900 bg-gold-100/60 font-semibold dark:bg-gold-950/40 dark:text-gold-400'
+                  : 'text-stone-700 hover:bg-stone-100/70 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-stone-800/70 dark:hover:text-white'
               }`}
             >
               <div className="flex min-w-0 items-center space-x-3">
                 <Settings
                   className={`h-4 w-4 flex-shrink-0 transition-colors ${
                     pathname === '/account/settings'
-                      ? 'text-gold-600'
-                      : 'text-stone-500 group-hover:text-gold-600'
+                      ? 'text-gold-600 dark:text-gold-400'
+                      : 'text-stone-500 group-hover:text-gold-600 dark:text-stone-400 dark:group-hover:text-gold-400'
                   }`}
                 />
                 <span className="truncate text-xs">Settings</span>
               </div>
-              <ChevronRight className="h-3.5 w-3.5 text-stone-400 transition-transform group-hover:translate-x-0.5 group-hover:text-stone-600" />
+              <ChevronRight className="h-3.5 w-3.5 text-stone-400 transition-transform group-hover:translate-x-0.5 group-hover:text-stone-600 dark:text-stone-500" />
             </Link>
           </div>
         </div>
 
         {/* Sticky Bottom Area: Logout */}
         {user && (
-          <div className="border-t border-gold-200/40 bg-[#FAF8F2] p-3">
+          <div className="border-t border-gold-200/40 bg-[#FAF8F2] p-3 dark:border-stone-800 dark:bg-stone-950">
             <button
               onClick={() => setShowLogoutModal(true)}
-              className="shadow-2xs flex w-full items-center justify-center space-x-2 rounded-xl border border-rose-200/50 bg-rose-50/70 px-4 py-2.5 text-xs font-semibold text-rose-700 transition hover:bg-rose-100/80"
+              className="shadow-2xs flex w-full items-center justify-center space-x-2 rounded-xl border border-rose-200/50 bg-rose-50/70 px-4 py-2.5 text-xs font-semibold text-rose-700 transition hover:bg-rose-100/80 dark:border-rose-950/30 dark:bg-rose-950/20"
             >
               <LogOut className="h-4 w-4" />
               <span>Log Out</span>
