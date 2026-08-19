@@ -387,6 +387,56 @@
     opacity: 0;
   }
 }
+/* Gemini Wave Loader */
+@keyframes gemini-wave-1 {
+  0%,
+  100% {
+    height: 30%;
+  }
+  50% {
+    height: 100%;
+  }
+}
+@keyframes gemini-wave-2 {
+  0%,
+  100% {
+    height: 45%;
+  }
+  50% {
+    height: 90%;
+  }
+}
+@keyframes gemini-wave-3 {
+  0%,
+  100% {
+    height: 20%;
+  }
+  50% {
+    height: 80%;
+  }
+}
+@keyframes gemini-wave-4 {
+  0%,
+  100% {
+    height: 35%;
+  }
+  50% {
+    height: 95%;
+  }
+}
+
+.animate-gemini-line-1 {
+  animation: gemini-wave-1 1.2s ease-in-out infinite;
+}
+.animate-gemini-line-2 {
+  animation: gemini-wave-2 1.2s ease-in-out infinite 0.15s;
+}
+.animate-gemini-line-3 {
+  animation: gemini-wave-3 1.2s ease-in-out infinite 0.3s;
+}
+.animate-gemini-line-4 {
+  animation: gemini-wave-4 1.2s ease-in-out infinite 0.45s;
+}
 
 @media (prefers-reduced-motion: reduce) {
   .thinking-progress,

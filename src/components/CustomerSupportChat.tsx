@@ -288,23 +288,33 @@ export default function CustomerSupportChat() {
 
             {/* Thinking Indicator */}
             {isTyping && (
-              <div className="max-w-[85%] rounded-2xl rounded-bl-none border border-white/40 bg-white/60 px-4 py-3 backdrop-blur-sm">
-                <div className="flex items-center gap-2">
-                  <div className="flex gap-1">
-                    <span
-                      className="h-1.5 w-1.5 animate-bounce rounded-full bg-gold-500"
-                      style={{ animationDelay: '0ms' }}
-                    />
-                    <span
-                      className="h-1.5 w-1.5 animate-bounce rounded-full bg-gold-500"
-                      style={{ animationDelay: '150ms' }}
-                    />
-                    <span
-                      className="h-1.5 w-1.5 animate-bounce rounded-full bg-gold-500"
-                      style={{ animationDelay: '300ms' }}
-                    />
+              <div className="max-w-[85%] rounded-2xl rounded-bl-none border border-gold-200/40 bg-white/60 p-4 shadow-sm backdrop-blur-sm">
+                <div className="flex flex-col gap-2">
+                  <div className="flex h-6 items-center gap-2">
+                    {/* Gemini-like glowing wave bars */}
+                    <div className="flex h-4 items-end gap-1">
+                      <div
+                        className="animate-gemini-line-1 w-1 rounded-full bg-gradient-to-t from-[#4285F4] via-[#9B72CB] to-[#D96570]"
+                        style={{ height: '30%' }}
+                      />
+                      <div
+                        className="animate-gemini-line-2 w-1 rounded-full bg-gradient-to-t from-[#4285F4] via-[#9B72CB] to-[#D96570]"
+                        style={{ height: '30%' }}
+                      />
+                      <div
+                        className="animate-gemini-line-3 w-1 rounded-full bg-gradient-to-t from-[#4285F4] via-[#9B72CB] to-[#D96570]"
+                        style={{ height: '30%' }}
+                      />
+                      <div
+                        className="animate-gemini-line-4 w-1 rounded-full bg-gradient-to-t from-[#4285F4] via-[#9B72CB] to-[#D96570]"
+                        style={{ height: '30%' }}
+                      />
+                    </div>
+                    <span className="animate-pulse bg-gradient-to-r from-[#4285F4] via-[#9B72CB] to-[#D96570] bg-clip-text text-[10px] font-bold uppercase tracking-wider text-transparent">
+                      Gemini is thinking
+                    </span>
                   </div>
-                  <span className="text-[11px] italic text-stone-400">
+                  <span className="text-[11px] font-medium text-stone-500/80">
                     {THINKING_STEPS[thinkingStep]}
                   </span>
                 </div>
