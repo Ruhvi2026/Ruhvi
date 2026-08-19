@@ -516,21 +516,6 @@ html.dark .text-slate-400 {
   color: #a8a29e !important;
 }
 
-/* Mobile navigation drawer dark mode overrides */
-html.dark aside,
-html.dark aside .bg-gradient-to-b,
-html.dark aside .bg-\[\#FAF8F2\],
-html.dark aside .bg-\[\#FAF8F2\] * {
-  background: #171717 !important;
-  background-color: #171717 !important;
-  border-color: #2a2726 !important;
-}
-
-html.dark aside a.text-stone-700:hover,
-html.dark aside button:hover {
-  background-color: #2a2726 !important;
-}
-
 html.dark header {
   background-color: rgba(15, 15, 15, 0.8) !important;
   backdrop-filter: blur(12px) !important;

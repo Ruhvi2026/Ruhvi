@@ -177,7 +177,7 @@ export function AccountDrawer({ isOpen, onClose }: AccountDrawerProps) {
     <>
       {/* Backdrop */}
       <div
-        className={`fixed inset-0 z-50 bg-stone-900/40 backdrop-blur-sm transition-opacity duration-300 ${
+        className={`backdrop-blur-xs fixed inset-0 z-50 bg-stone-950/50 transition-opacity duration-300 ${
           isOpen
             ? 'pointer-events-auto opacity-100'
             : 'pointer-events-none opacity-0'
@@ -192,23 +192,23 @@ export function AccountDrawer({ isOpen, onClose }: AccountDrawerProps) {
         role="dialog"
         aria-modal="true"
         aria-label="Account Navigation"
-        className={`fixed bottom-0 left-0 top-0 z-50 flex w-full max-w-[360px] transform flex-col border-r border-gold-200/50 bg-[#FCFBF7] text-stone-800 shadow-2xl transition-transform duration-300 ease-in-out dark:border-stone-800 dark:bg-stone-900 dark:text-stone-200 ${
+        className={`fixed inset-y-0 left-0 z-50 flex h-full w-full max-w-[360px] transform flex-col border-r border-stone-200 bg-[#FCFBF7] text-stone-800 shadow-2xl transition-transform duration-300 ease-in-out dark:border-stone-800 dark:bg-[#141211] dark:text-stone-100 ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
         {/* Top Header / Close Bar */}
-        <div className="flex items-center justify-between px-5 pb-2 pt-4">
+        <div className="flex items-center justify-between border-b border-stone-200/60 bg-[#FAF8F2] px-5 pb-3 pt-4 dark:border-stone-800 dark:bg-[#1c1a19]">
           <div className="flex items-center space-x-2">
-            <span className="font-serif text-sm font-bold tracking-widest text-gold-600">
+            <span className="font-serif text-sm font-bold tracking-widest text-gold-600 dark:text-gold-400">
               RUHVI
             </span>
-            <span className="text-[10px] uppercase tracking-widest text-stone-400">
+            <span className="text-[10px] uppercase tracking-widest text-stone-400 dark:text-stone-500">
               Account
             </span>
           </div>
           <button
             onClick={onClose}
-            className="rounded-full p-1.5 text-stone-400 transition hover:bg-stone-100 hover:text-stone-700"
+            className="rounded-full p-1.5 text-stone-400 transition hover:bg-stone-200/50 hover:text-stone-700 dark:hover:bg-stone-800 dark:hover:text-stone-200"
             aria-label="Close menu"
           >
             <X className="h-5 w-5" />
@@ -216,10 +216,10 @@ export function AccountDrawer({ isOpen, onClose }: AccountDrawerProps) {
         </div>
 
         {/* Profile Header (Sticky Top) */}
-        <div className="border-b border-gold-200/40 bg-gradient-to-b from-[#FAF8F2] to-[#FCFBF7] px-5 py-3 dark:border-stone-800 dark:from-stone-950 dark:to-stone-900">
+        <div className="border-b border-stone-200/60 bg-gradient-to-b from-[#FAF8F2] to-[#FCFBF7] px-5 py-4 dark:border-stone-800 dark:from-[#1c1a19] dark:to-[#141211]">
           {user ? (
             <div className="flex items-center space-x-3.5">
-              <div className="relative flex h-12 w-12 flex-shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-gold-300/60 bg-gold-50 font-serif text-sm font-bold text-gold-700 shadow-sm dark:border-stone-700 dark:bg-stone-800 dark:text-gold-400">
+              <div className="relative flex h-12 w-12 flex-shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-gold-400/60 bg-gold-50 font-serif text-sm font-bold text-gold-700 shadow-sm dark:border-gold-500/40 dark:bg-stone-800 dark:text-gold-400">
                 {userInitials}
               </div>
               <div className="min-w-0 flex-1">
@@ -239,7 +239,7 @@ export function AccountDrawer({ isOpen, onClose }: AccountDrawerProps) {
                 </p>
                 <Link
                   href="/account"
-                  className="group mt-1 inline-flex items-center text-[11px] font-semibold text-gold-600 transition hover:text-gold-700 dark:text-gold-500"
+                  className="group mt-1 inline-flex items-center text-[11px] font-semibold text-gold-600 transition hover:text-gold-700 dark:text-gold-400 dark:hover:text-gold-300"
                 >
                   <span>View Profile</span>
                   <ArrowRight className="ml-1 h-3 w-3 transition-transform group-hover:translate-x-0.5" />
@@ -247,7 +247,7 @@ export function AccountDrawer({ isOpen, onClose }: AccountDrawerProps) {
               </div>
             </div>
           ) : (
-            <div className="py-2">
+            <div className="py-1">
               <h3 className="font-serif text-sm font-bold text-stone-900 dark:text-white">
                 Welcome to Ruhvi
               </h3>
@@ -257,13 +257,13 @@ export function AccountDrawer({ isOpen, onClose }: AccountDrawerProps) {
               <div className="mt-3 flex items-center space-x-2">
                 <Link
                   href="/login"
-                  className="flex-1 rounded-xl bg-gold-500 px-3 py-2 text-center text-xs font-bold text-white shadow-sm transition hover:bg-gold-600"
+                  className="flex-1 rounded-xl bg-gold-600 px-3 py-2 text-center text-xs font-bold text-white shadow-sm transition hover:bg-gold-700 dark:bg-gold-500 dark:text-stone-950 dark:hover:bg-gold-400"
                 >
                   Sign In
                 </Link>
                 <Link
                   href="/signup"
-                  className="flex-1 rounded-xl border border-gold-300/60 bg-white px-3 py-2 text-center text-xs font-bold text-stone-800 transition hover:bg-[#FAF8F2]/10 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300"
+                  className="flex-1 rounded-xl border border-stone-300 bg-white px-3 py-2 text-center text-xs font-bold text-stone-800 transition hover:bg-stone-50 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-200 dark:hover:bg-stone-700"
                 >
                   Sign Up
                 </Link>
@@ -273,10 +273,10 @@ export function AccountDrawer({ isOpen, onClose }: AccountDrawerProps) {
         </div>
 
         {/* Scrollable Navigation Area */}
-        <div className="flex-1 space-y-4 divide-y divide-stone-200/40 overflow-y-auto px-3 py-3">
+        <div className="flex-1 space-y-5 divide-y divide-stone-200/60 overflow-y-auto bg-[#FCFBF7] px-3 py-4 dark:divide-stone-800/80 dark:bg-[#141211]">
           {/* Section: Account */}
-          <div className="space-y-0.5">
-            <p className="px-3 pb-1.5 text-[10px] font-bold uppercase tracking-widest text-stone-400">
+          <div className="space-y-1">
+            <p className="px-3 pb-1 text-[10px] font-bold uppercase tracking-widest text-stone-400 dark:text-stone-400">
               Account
             </p>
             {primaryNavItems.map((item) => {
@@ -288,8 +288,8 @@ export function AccountDrawer({ isOpen, onClose }: AccountDrawerProps) {
                   href={item.href}
                   className={`group flex items-center justify-between rounded-xl px-3 py-2.5 transition-all ${
                     isActive
-                      ? 'text-gold-900 shadow-xs bg-gold-100/60 font-semibold dark:bg-gold-950/40 dark:text-gold-400'
-                      : 'text-stone-700 hover:bg-stone-100/70 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-stone-800/70 dark:hover:text-white'
+                      ? 'text-gold-900 shadow-xs bg-gold-100 font-semibold dark:bg-gold-500/20 dark:text-gold-300'
+                      : 'text-stone-700 hover:bg-stone-100 hover:text-stone-900 dark:text-stone-200 dark:hover:bg-stone-800/80 dark:hover:text-white'
                   }`}
                 >
                   <div className="flex min-w-0 items-center space-x-3">
@@ -307,11 +307,11 @@ export function AccountDrawer({ isOpen, onClose }: AccountDrawerProps) {
                     <span
                       className={`rounded-full px-2 py-0.5 text-[10px] font-bold transition ${
                         item.badgeType === 'wallet'
-                          ? 'border border-gold-200/50 bg-gold-100 font-mono text-gold-800 dark:border-stone-700 dark:bg-stone-800 dark:text-gold-400'
+                          ? 'border border-gold-300/60 bg-gold-100 font-mono text-gold-800 dark:border-gold-500/40 dark:bg-gold-950/60 dark:text-gold-300'
                           : item.badgeType === 'highlight'
-                            ? 'bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-400'
+                            ? 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300'
                             : item.badgeType === 'alert'
-                              ? 'bg-rose-100 text-rose-700 dark:bg-rose-950/40 dark:text-rose-400'
+                              ? 'bg-rose-100 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300'
                               : 'bg-stone-200/80 text-stone-700 dark:bg-stone-800 dark:text-stone-300'
                       }`}
                     >
@@ -324,8 +324,8 @@ export function AccountDrawer({ isOpen, onClose }: AccountDrawerProps) {
           </div>
 
           {/* Section: Help */}
-          <div className="space-y-0.5 pt-3">
-            <p className="px-3 pb-1.5 text-[10px] font-bold uppercase tracking-widest text-stone-400">
+          <div className="space-y-1 pt-4">
+            <p className="px-3 pb-1 text-[10px] font-bold uppercase tracking-widest text-stone-400 dark:text-stone-400">
               Help & Assistance
             </p>
             {helpNavItems.map((item) => {
@@ -337,8 +337,8 @@ export function AccountDrawer({ isOpen, onClose }: AccountDrawerProps) {
                   href={item.href}
                   className={`group flex items-center justify-between rounded-xl px-3 py-2.5 transition-all ${
                     isActive
-                      ? 'text-gold-900 bg-gold-100/60 font-semibold dark:bg-gold-950/40 dark:text-gold-400'
-                      : 'text-stone-700 hover:bg-stone-100/70 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-stone-800/70 dark:hover:text-white'
+                      ? 'text-gold-900 bg-gold-100 font-semibold dark:bg-gold-500/20 dark:text-gold-300'
+                      : 'text-stone-700 hover:bg-stone-100 hover:text-stone-900 dark:text-stone-200 dark:hover:bg-stone-800/80 dark:hover:text-white'
                   }`}
                 >
                   <div className="flex min-w-0 items-center space-x-3">
@@ -357,16 +357,16 @@ export function AccountDrawer({ isOpen, onClose }: AccountDrawerProps) {
           </div>
 
           {/* Section: Preferences */}
-          <div className="space-y-0.5 pt-3">
-            <p className="px-3 pb-1.5 text-[10px] font-bold uppercase tracking-widest text-stone-400">
+          <div className="space-y-1 pt-4">
+            <p className="px-3 pb-1 text-[10px] font-bold uppercase tracking-widest text-stone-400 dark:text-stone-400">
               Preferences
             </p>
             <Link
               href="/account/settings"
               className={`group flex items-center justify-between rounded-xl px-3 py-2.5 transition-all ${
                 pathname === '/account/settings'
-                  ? 'text-gold-900 bg-gold-100/60 font-semibold dark:bg-gold-950/40 dark:text-gold-400'
-                  : 'text-stone-700 hover:bg-stone-100/70 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-stone-800/70 dark:hover:text-white'
+                  ? 'text-gold-900 bg-gold-100 font-semibold dark:bg-gold-500/20 dark:text-gold-300'
+                  : 'text-stone-700 hover:bg-stone-100 hover:text-stone-900 dark:text-stone-200 dark:hover:bg-stone-800/80 dark:hover:text-white'
               }`}
             >
               <div className="flex min-w-0 items-center space-x-3">
@@ -379,17 +379,17 @@ export function AccountDrawer({ isOpen, onClose }: AccountDrawerProps) {
                 />
                 <span className="truncate text-xs">Settings</span>
               </div>
-              <ChevronRight className="h-3.5 w-3.5 text-stone-400 transition-transform group-hover:translate-x-0.5 group-hover:text-stone-600 dark:text-stone-500" />
+              <ChevronRight className="h-3.5 w-3.5 text-stone-400 transition-transform group-hover:translate-x-0.5 group-hover:text-stone-600 dark:text-stone-400 dark:group-hover:text-stone-200" />
             </Link>
           </div>
         </div>
 
         {/* Sticky Bottom Area: Logout */}
         {user && (
-          <div className="border-t border-gold-200/40 bg-[#FAF8F2] p-3 dark:border-stone-800 dark:bg-stone-950">
+          <div className="border-t border-stone-200/60 bg-[#FAF8F2] p-3 dark:border-stone-800 dark:bg-[#1c1a19]">
             <button
               onClick={() => setShowLogoutModal(true)}
-              className="shadow-2xs flex w-full items-center justify-center space-x-2 rounded-xl border border-rose-200/50 bg-rose-50/70 px-4 py-2.5 text-xs font-semibold text-rose-700 transition hover:bg-rose-100/80 dark:border-rose-950/30 dark:bg-rose-950/20"
+              className="shadow-2xs flex w-full items-center justify-center space-x-2 rounded-xl border border-rose-200/50 bg-rose-50/70 px-4 py-2.5 text-xs font-semibold text-rose-700 transition hover:bg-rose-100/80 dark:border-rose-900/40 dark:bg-rose-950/30 dark:text-rose-400 dark:hover:bg-rose-950/50"
             >
               <LogOut className="h-4 w-4" />
               <span>Log Out</span>
@@ -400,28 +400,28 @@ export function AccountDrawer({ isOpen, onClose }: AccountDrawerProps) {
 
       {/* Logout Confirmation Modal */}
       {showLogoutModal && (
-        <div className="z-60 backdrop-blur-xs animate-in fade-in fixed inset-0 flex items-center justify-center bg-stone-900/50 p-4 duration-150">
-          <div className="w-full max-w-sm space-y-4 rounded-2xl border border-stone-200 bg-white p-6 text-stone-800 shadow-2xl">
+        <div className="z-60 backdrop-blur-xs animate-in fade-in fixed inset-0 flex items-center justify-center bg-stone-950/60 p-4 duration-150">
+          <div className="w-full max-w-sm space-y-4 rounded-2xl border border-stone-200 bg-white p-6 text-stone-800 shadow-2xl dark:border-stone-800 dark:bg-stone-900 dark:text-stone-100">
             <div className="flex items-center space-x-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-rose-100 text-rose-600">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-rose-100 text-rose-600 dark:bg-rose-950/60 dark:text-rose-400">
                 <LogOut className="h-5 w-5" />
               </div>
               <div>
-                <h4 className="font-serif text-sm font-bold text-stone-900">
+                <h4 className="font-serif text-sm font-bold text-stone-900 dark:text-white">
                   Confirm Sign Out
                 </h4>
-                <p className="text-xs text-stone-500">
+                <p className="text-xs text-stone-500 dark:text-stone-400">
                   Are you sure you want to log out?
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center justify-end space-x-2 border-t border-stone-100 pt-2">
+            <div className="flex items-center justify-end space-x-2 border-t border-stone-100 pt-2 dark:border-stone-800">
               <button
                 type="button"
                 disabled={loggingOut}
                 onClick={() => setShowLogoutModal(false)}
-                className="rounded-xl px-4 py-2 text-xs font-semibold text-stone-600 transition hover:bg-stone-100 hover:text-stone-900"
+                className="rounded-xl px-4 py-2 text-xs font-semibold text-stone-600 transition hover:bg-stone-100 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-stone-800 dark:hover:text-white"
               >
                 Cancel
               </button>
