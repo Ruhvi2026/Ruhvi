@@ -495,10 +495,10 @@ export default function SettingsPage() {
               <p className="text-xs font-bold uppercase tracking-wider text-gold-600 dark:text-gold-400">
                 Account Preferences
               </p>
-              <h1 className="mt-1.5 font-serif text-3xl font-bold tracking-tight text-stone-900 sm:text-4xl dark:text-white">
+              <h1 className="mt-1.5 font-serif text-3xl font-bold tracking-tight text-stone-900 dark:text-white sm:text-4xl">
                 {t.title}
               </h1>
-              <p className="mt-2 text-sm leading-relaxed text-stone-600 sm:text-base dark:text-stone-300">
+              <p className="mt-2 text-sm leading-relaxed text-stone-600 dark:text-stone-300 sm:text-base">
                 {t.subtitle}
               </p>
             </div>
@@ -506,13 +506,13 @@ export default function SettingsPage() {
         </div>
 
         {/* Section 1: Appearance */}
-        <section className="rounded-2xl border border-gold-200/60 bg-[#FCFBF7] p-6 shadow-sm sm:p-7 dark:border-gold-500/20 dark:bg-[#1c1a19]">
+        <section className="rounded-2xl border border-gold-200/60 bg-[#FCFBF7] p-6 shadow-sm dark:border-gold-500/20 dark:bg-[#1c1a19] sm:p-7">
           <div className="flex items-center space-x-3.5 border-b border-stone-200/60 pb-4 dark:border-stone-800">
             <div className="rounded-xl bg-gold-100/80 p-2.5 text-gold-800 dark:bg-gold-950/60 dark:text-gold-300">
               <Sun className="h-6 w-6" />
             </div>
             <div>
-              <h2 className="font-serif text-lg font-bold text-stone-900 sm:text-xl dark:text-white">
+              <h2 className="font-serif text-lg font-bold text-stone-900 dark:text-white sm:text-xl">
                 {t.appearanceTitle}
               </h2>
               <p className="mt-0.5 text-sm text-stone-600 dark:text-stone-300">
@@ -535,7 +535,7 @@ export default function SettingsPage() {
               <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-stone-100 text-stone-700 dark:bg-stone-800 dark:text-stone-200">
                 <Laptop className="h-6 w-6" />
               </div>
-              <span className="font-serif text-sm font-bold text-stone-900 sm:text-base dark:text-white">
+              <span className="font-serif text-sm font-bold text-stone-900 dark:text-white sm:text-base">
                 {t.systemDefault}
               </span>
               <span className="mt-1 text-xs font-medium text-stone-500 dark:text-stone-300">
@@ -563,7 +563,7 @@ export default function SettingsPage() {
               <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-amber-100 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300">
                 <Sun className="h-6 w-6" />
               </div>
-              <span className="font-serif text-sm font-bold text-stone-900 sm:text-base dark:text-white">
+              <span className="font-serif text-sm font-bold text-stone-900 dark:text-white sm:text-base">
                 {t.warmIvory}
               </span>
               <span className="mt-1 text-xs font-medium text-stone-500 dark:text-stone-300">
@@ -591,7 +591,7 @@ export default function SettingsPage() {
               <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-stone-800 text-gold-400 dark:bg-stone-800 dark:text-gold-300">
                 <Moon className="h-6 w-6" />
               </div>
-              <span className="font-serif text-sm font-bold text-stone-900 sm:text-base dark:text-white">
+              <span className="font-serif text-sm font-bold text-stone-900 dark:text-white sm:text-base">
                 {t.nightVelvet}
               </span>
               <span className="mt-1 text-xs font-medium text-stone-500 dark:text-stone-300">
@@ -609,13 +609,13 @@ export default function SettingsPage() {
         </section>
 
         {/* Section 2: Language */}
-        <section className="rounded-2xl border border-gold-200/60 bg-[#FCFBF7] p-6 shadow-sm sm:p-7 dark:border-gold-500/20 dark:bg-[#1c1a19]">
+        <section className="rounded-2xl border border-gold-200/60 bg-[#FCFBF7] p-6 shadow-sm dark:border-gold-500/20 dark:bg-[#1c1a19] sm:p-7">
           <div className="flex items-center space-x-3.5 border-b border-stone-200/60 pb-4 dark:border-stone-800">
             <div className="rounded-xl bg-gold-100/80 p-2.5 text-gold-800 dark:bg-gold-950/60 dark:text-gold-300">
               <Globe className="h-6 w-6" />
             </div>
             <div>
-              <h2 className="font-serif text-lg font-bold text-stone-900 sm:text-xl dark:text-white">
+              <h2 className="font-serif text-lg font-bold text-stone-900 dark:text-white sm:text-xl">
                 {t.languageTitle}
               </h2>
               <p className="mt-0.5 text-sm text-stone-600 dark:text-stone-300">
@@ -636,7 +636,7 @@ export default function SettingsPage() {
               }`}
             >
               <div>
-                <p className="font-serif text-sm font-bold text-stone-900 sm:text-base dark:text-white">
+                <p className="font-serif text-sm font-bold text-stone-900 dark:text-white sm:text-base">
                   {t.english}
                 </p>
                 <p className="mt-0.5 text-xs font-medium text-stone-500 dark:text-stone-300">
@@ -659,7 +659,7 @@ export default function SettingsPage() {
               }`}
             >
               <div>
-                <p className="font-serif text-sm font-bold text-stone-900 sm:text-base dark:text-white">
+                <p className="font-serif text-sm font-bold text-stone-900 dark:text-white sm:text-base">
                   {t.bengali}
                 </p>
                 <p className="mt-0.5 text-xs font-medium text-stone-500 dark:text-stone-300">
@@ -682,7 +682,7 @@ export default function SettingsPage() {
               }`}
             >
               <div>
-                <p className="font-serif text-sm font-bold text-stone-900 sm:text-base dark:text-white">
+                <p className="font-serif text-sm font-bold text-stone-900 dark:text-white sm:text-base">
                   {t.hindi}
                 </p>
                 <p className="mt-0.5 text-xs font-medium text-stone-500 dark:text-stone-300">
@@ -697,13 +697,13 @@ export default function SettingsPage() {
         </section>
 
         {/* Section 3: Notification Preferences */}
-        <section className="rounded-2xl border border-gold-200/60 bg-[#FCFBF7] p-6 shadow-sm sm:p-7 dark:border-gold-500/20 dark:bg-[#1c1a19]">
+        <section className="rounded-2xl border border-gold-200/60 bg-[#FCFBF7] p-6 shadow-sm dark:border-gold-500/20 dark:bg-[#1c1a19] sm:p-7">
           <div className="flex items-center space-x-3.5 border-b border-stone-200/60 pb-4 dark:border-stone-800">
             <div className="rounded-xl bg-gold-100/80 p-2.5 text-gold-800 dark:bg-gold-950/60 dark:text-gold-300">
               <Bell className="h-6 w-6" />
             </div>
             <div>
-              <h2 className="font-serif text-lg font-bold text-stone-900 sm:text-xl dark:text-white">
+              <h2 className="font-serif text-lg font-bold text-stone-900 dark:text-white sm:text-xl">
                 {t.notifTitle}
               </h2>
               <p className="mt-0.5 text-sm text-stone-600 dark:text-stone-300">
@@ -845,13 +845,13 @@ export default function SettingsPage() {
         </section>
 
         {/* Section 4: Privacy & Security */}
-        <section className="rounded-2xl border border-gold-200/60 bg-[#FCFBF7] p-6 shadow-sm sm:p-7 dark:border-gold-500/20 dark:bg-[#1c1a19]">
+        <section className="rounded-2xl border border-gold-200/60 bg-[#FCFBF7] p-6 shadow-sm dark:border-gold-500/20 dark:bg-[#1c1a19] sm:p-7">
           <div className="flex items-center space-x-3.5 border-b border-stone-200/60 pb-4 dark:border-stone-800">
             <div className="rounded-xl bg-gold-100/80 p-2.5 text-gold-800 dark:bg-gold-950/60 dark:text-gold-300">
               <Shield className="h-6 w-6" />
             </div>
             <div>
-              <h2 className="font-serif text-lg font-bold text-stone-900 sm:text-xl dark:text-white">
+              <h2 className="font-serif text-lg font-bold text-stone-900 dark:text-white sm:text-xl">
                 {t.privacyTitle}
               </h2>
               <p className="mt-0.5 text-sm text-stone-600 dark:text-stone-300">
@@ -868,7 +868,7 @@ export default function SettingsPage() {
                   <Lock className="h-5 w-5" />
                 </div>
                 <div>
-                  <p className="font-serif text-sm font-bold text-stone-900 sm:text-base dark:text-white">
+                  <p className="font-serif text-sm font-bold text-stone-900 dark:text-white sm:text-base">
                     {t.password}
                   </p>
                   <p className="mt-0.5 text-xs font-medium text-stone-500 dark:text-stone-300">
@@ -887,7 +887,7 @@ export default function SettingsPage() {
 
             {/* Active Sessions */}
             <div className="p-4.5 shadow-xs rounded-xl border border-stone-200 bg-white dark:border-stone-800 dark:bg-stone-900">
-              <p className="mb-3 font-serif text-sm font-bold text-stone-900 sm:text-base dark:text-white">
+              <p className="mb-3 font-serif text-sm font-bold text-stone-900 dark:text-white sm:text-base">
                 {t.activeDevices}
               </p>
               <div className="space-y-3.5">
@@ -927,7 +927,7 @@ export default function SettingsPage() {
             <div className="p-4.5 rounded-xl border border-rose-200 bg-rose-50/60 dark:border-rose-950/40 dark:bg-rose-950/20">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-serif text-sm font-bold text-rose-900 sm:text-base dark:text-rose-300">
+                  <p className="font-serif text-sm font-bold text-rose-900 dark:text-rose-300 sm:text-base">
                     {t.deleteAccount}
                   </p>
                   <p className="mt-0.5 text-xs font-medium text-rose-700 dark:text-rose-300/90">
@@ -989,13 +989,13 @@ export default function SettingsPage() {
         </section>
 
         {/* Section 6: Legal & About */}
-        <section className="rounded-2xl border border-gold-200/60 bg-[#FCFBF7] p-6 shadow-sm sm:p-7 dark:border-gold-500/20 dark:bg-[#1c1a19]">
+        <section className="rounded-2xl border border-gold-200/60 bg-[#FCFBF7] p-6 shadow-sm dark:border-gold-500/20 dark:bg-[#1c1a19] sm:p-7">
           <div className="flex items-center space-x-3.5 border-b border-stone-200/60 pb-4 dark:border-stone-800">
             <div className="rounded-xl bg-gold-100/80 p-2.5 text-gold-800 dark:bg-gold-950/60 dark:text-gold-300">
               <FileText className="h-6 w-6" />
             </div>
             <div>
-              <h2 className="font-serif text-lg font-bold text-stone-900 sm:text-xl dark:text-white">
+              <h2 className="font-serif text-lg font-bold text-stone-900 dark:text-white sm:text-xl">
                 {t.legalTitle}
               </h2>
               <p className="mt-0.5 text-sm text-stone-600 dark:text-stone-300">
@@ -1037,7 +1037,7 @@ export default function SettingsPage() {
             </Link>
           </div>
 
-          <div className="mt-6 flex flex-col items-center justify-between gap-2 border-t border-stone-200/60 pt-4 text-xs text-stone-500 sm:flex-row dark:border-stone-800 dark:text-stone-400">
+          <div className="mt-6 flex flex-col items-center justify-between gap-2 border-t border-stone-200/60 pt-4 text-xs text-stone-500 dark:border-stone-800 dark:text-stone-400 sm:flex-row">
             <div className="flex items-center space-x-2">
               <span className="font-serif font-bold text-stone-800 dark:text-stone-200">
                 RUHVI JEWELS

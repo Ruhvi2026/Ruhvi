@@ -467,9 +467,11 @@ html.dark {
 }
 
 html.dark body {
-  background-color: #0B0B0F !important;
-  color: #F6F5F4 !important; /* Soft ivory */
-  transition: background-color 0.3s ease, color 0.3s ease;
+  background-color: #0b0b0f !important;
+  color: #f6f5f4 !important; /* Soft ivory */
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
 }
 
 /* Typography Overrides */
@@ -479,12 +481,19 @@ html.dark h3,
 html.dark h4,
 html.dark h5,
 html.dark h6 {
-  color: #FFFFFF !important;
+  color: #ffffff !important;
   transition: color 0.3s ease;
 }
 
-html.dark p, html.dark span, html.dark div, html.dark section {
-  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+html.dark p,
+html.dark span,
+html.dark div,
+html.dark section {
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease,
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 /* Background overrides: Mapping Light to Midnight */
@@ -496,14 +505,14 @@ html.dark .bg-white {
 }
 
 html.dark .bg-\[\#FCFBF7\] {
-  background-color: #17171D !important;
+  background-color: #17171d !important;
   border-color: rgba(214, 179, 106, 0.15) !important;
 }
 
 html.dark .bg-stone-50,
 html.dark .bg-stone-100,
 html.dark .bg-slate-50 {
-  background-color: #17171D !important;
+  background-color: #17171d !important;
 }
 
 /* Text color overrides */
@@ -514,7 +523,7 @@ html.dark .text-stone-700,
 html.dark .text-slate-900,
 html.dark .text-slate-800,
 html.dark .text-slate-700 {
-  color: #F6F5F4 !important; /* Soft Ivory */
+  color: #f6f5f4 !important; /* Soft Ivory */
 }
 
 html.dark .text-stone-600,
@@ -525,14 +534,14 @@ html.dark .text-slate-500,
 html.dark .text-slate-400,
 html.dark .text-charcoal-600,
 html.dark .text-charcoal-500 {
-  color: #A8A29E !important; /* Muted Warm Grey */
+  color: #a8a29e !important; /* Muted Warm Grey */
 }
 
 /* Accent texts */
 html.dark .text-gold-600,
 html.dark .text-gold-500,
 html.dark .text-gold-700 {
-  color: #D6B36A !important;
+  color: #d6b36a !important;
 }
 
 /* Border overrides */
@@ -541,7 +550,7 @@ html.dark .border-stone-300,
 html.dark .border-slate-200,
 html.dark .border-gold-200\/50,
 html.dark .border-gold-200\/80 {
-  border-color: #3A2046 !important; /* Subtle Royal Plum for borders */
+  border-color: #3a2046 !important; /* Subtle Royal Plum for borders */
 }
 
 /* Header overrides */
@@ -556,14 +565,14 @@ html.dark input,
 html.dark select,
 html.dark textarea {
   background-color: rgba(255, 255, 255, 0.05) !important;
-  color: #F6F5F4 !important;
-  border-color: #3A2046 !important;
+  color: #f6f5f4 !important;
+  border-color: #3a2046 !important;
 }
 
 html.dark input:focus,
 html.dark select:focus,
 html.dark textarea:focus {
-  border-color: #D6B36A !important;
+  border-color: #d6b36a !important;
   box-shadow: 0 0 0 1px rgba(214, 179, 106, 0.3) !important;
   outline: none !important;
 }
@@ -572,21 +581,21 @@ html.dark textarea:focus {
 html.dark button.bg-charcoal-900,
 html.dark a.bg-charcoal-900,
 html.dark .bg-charcoal-900 {
-  background-color: #D6B36A !important;
-  color: #0B0B0F !important;
+  background-color: #d6b36a !important;
+  color: #0b0b0f !important;
 }
 html.dark button.bg-charcoal-900:hover,
 html.dark a.bg-charcoal-900:hover,
 html.dark .bg-charcoal-900:hover {
-  background-color: #E2C27A !important;
+  background-color: #e2c27a !important;
 }
 
 /* Secondary Buttons */
 html.dark button.bg-white,
 html.dark a.bg-white {
-  background-color: #17171D !important;
+  background-color: #17171d !important;
   border: 1px solid rgba(214, 179, 106, 0.3) !important;
-  color: #F6F5F4 !important;
+  color: #f6f5f4 !important;
 }
 
 html.dark button.bg-white:hover,
@@ -599,25 +608,32 @@ html.dark a.bg-white:hover {
 /* Accent Backgrounds */
 html.dark .bg-gold-50\/50,
 html.dark .bg-gold-50 {
-  background-color: rgba(90, 58, 104, 0.1) !important; /* Subtle plum instead of gold bg */
+  background-color: rgba(
+    90,
+    58,
+    104,
+    0.1
+  ) !important; /* Subtle plum instead of gold bg */
 }
 
 html.dark .bg-gold-600 {
-  background-color: #D6B36A !important;
-  color: #0B0B0F !important;
+  background-color: #d6b36a !important;
+  color: #0b0b0f !important;
 }
 html.dark .bg-gold-600:hover {
-  background-color: #E2C27A !important;
+  background-color: #e2c27a !important;
 }
 
 /* Product Cards */
 html.dark .gold-card {
-  background: linear-gradient(160deg, #17171D 0%, #111116 100%) !important;
+  background: linear-gradient(160deg, #17171d 0%, #111116 100%) !important;
   border: 1px solid rgba(90, 58, 104, 0.3) !important; /* Plum border */
 }
 html.dark .gold-card:hover {
   border-color: rgba(214, 179, 106, 0.4) !important;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5), 0 0 15px rgba(214, 179, 106, 0.05) !important;
+  box-shadow:
+    0 8px 30px rgba(0, 0, 0, 0.5),
+    0 0 15px rgba(214, 179, 106, 0.05) !important;
 }
 
 /* Banners / gradients */
@@ -629,7 +645,12 @@ html.dark .gold-gradient-bg * {
 
 /* Overriding gold gradient text with the new Champagne Gold */
 html.dark .gold-gradient-text {
-  background: linear-gradient(135deg, #F0D99A 0%, #E2C27A 50%, #D6B36A 100%) !important;
+  background: linear-gradient(
+    135deg,
+    #f0d99a 0%,
+    #e2c27a 50%,
+    #d6b36a 100%
+  ) !important;
   -webkit-background-clip: text !important;
   -webkit-text-fill-color: transparent !important;
   background-clip: text !important;
