@@ -20,6 +20,19 @@ import {
   ExternalLink,
   Shield,
   History,
+  Sparkles,
+  Zap,
+  Users,
+  Copy,
+  Check,
+  CreditCard,
+  Truck,
+  HelpCircle,
+  ChevronDown,
+  Phone,
+  Mail,
+  Wallet,
+  Coins,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -43,43 +56,68 @@ const PRIORITY_OPTIONS = [
   { value: 'urgent', label: 'Urgent', color: 'text-red-400' },
 ];
 
-function formatDate(dateStr: string) {
-  return new Date(dateStr).toLocaleDateString('en-IN', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
+interface CannedResponse {
+  id: string;
+  category: string;
+  title: string;
+  shortcut: string;
+  content: string;
 }
 
-function timeSince(dateStr: string) {
-  const diff = Date.now() - new Date(dateStr).getTime();
-  const mins = Math.floor(diff / 60000);
-  if (mins < 60) return `${mins}m ago`;
-  const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `${hrs}h ago`;
-  const days = Math.floor(hrs / 24);
-  return `${days}d ago`;
+interface TeamMember {
+  id: string;
+  full_name: string;
+  email: string;
+  role: string;
+  active_tickets_count: number;
 }
 
 export default function SupportTicketDetail() {
   const params = useParams();
   const router = useRouter();
   const ticketId = params.id as string;
+
   const [data, setData] = useState<any>(null);
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
+  const [cannedResponses, setCannedResponses] = useState<CannedResponse[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Reply Composer
   const [replyText, setReplyText] = useState('');
   const [replyVisibility, setReplyVisibility] = useState<
     'customer' | 'internal'
   >('customer');
   const [sending, setSending] = useState(false);
   const [updating, setUpdating] = useState(false);
+  const [isAutoAssigning, setIsAutoAssigning] = useState(false);
+  const [copiedNum, setCopiedNum] = useState(false);
+  const [showCannedMenu, setShowCannedMenu] = useState(false);
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetchTicket();
+    fetchMeta();
   }, [ticketId]);
+
+  async function fetchMeta() {
+    try {
+      const [teamRes, crRes] = await Promise.all([
+        fetch('/api/support/team'),
+        fetch('/api/support/canned-responses'),
+      ]);
+      if (teamRes.ok) {
+        const tData = await teamRes.json();
+        setTeamMembers(tData.team || []);
+      }
+      if (crRes.ok) {
+        const cData = await crRes.json();
+        setCannedResponses(cData.canned_responses || []);
+      }
+    } catch {
+      // ignore
+    }
+  }
 
   async function fetchTicket() {
     try {
@@ -113,26 +151,67 @@ export default function SupportTicketDetail() {
     }
   }
 
-  async function handleSendReply() {
-    if (!replyText.trim()) return;
+  async function handleAutoAssignTicket() {
+    setIsAutoAssigning(true);
+    try {
+      const res = await fetch('/api/support/auto-assign', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ticket_id: ticketId }),
+      });
+      const resData = await res.json();
+      if (res.ok && resData.results?.[0]) {
+        const assigned = resData.results[0].assigned_to;
+        toast.success(
+          `✨ Assigned to ${assigned.name} (Lowest active workload)`
+        );
+        fetchTicket();
+      } else {
+        toast.error(resData.error || 'Auto-assign failed');
+      }
+    } catch {
+      toast.error('Network error during auto-assign');
+    } finally {
+      setIsAutoAssigning(false);
+    }
+  }
+
+  async function handleSendReply(nextStatus?: string) {
+    if (!replyText.trim()) {
+      toast.error('Please enter a reply message');
+      return;
+    }
     setSending(true);
     try {
       const res = await fetch(`/api/support/tickets/${ticketId}/messages`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          message: replyText,
+          message: replyText.trim(),
           visibility: replyVisibility,
         }),
       });
-      if (!res.ok) throw new Error('Failed');
+
+      if (!res.ok) throw new Error('Failed to post message');
+
+      // Update status if requested
+      if (nextStatus && nextStatus !== data?.ticket?.status) {
+        await fetch(`/api/support/tickets/${ticketId}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: nextStatus }),
+        });
+      }
+
       setReplyText('');
       toast.success(
-        replyVisibility === 'internal' ? 'Internal note added' : 'Reply sent'
+        replyVisibility === 'internal'
+          ? 'Internal note saved'
+          : 'Reply sent to customer'
       );
       fetchTicket();
 
-      // Send email notification for customer-visible replies
+      // Dispatch email notification in background for public customer replies
       if (replyVisibility === 'customer') {
         fetch(`/api/support/tickets/${ticketId}/notify`, {
           method: 'POST',
@@ -144,16 +223,32 @@ export default function SupportTicketDetail() {
         }).catch(() => {});
       }
     } catch {
-      toast.error('Failed to send');
+      toast.error('Failed to send reply');
     } finally {
       setSending(false);
     }
   }
 
+  const handleInsertCanned = (cr: CannedResponse) => {
+    setReplyText((prev) => (prev ? `${prev}\n\n${cr.content}` : cr.content));
+    setShowCannedMenu(false);
+    toast.success(`Inserted template: ${cr.title}`);
+  };
+
+  const handleCopyTicket = () => {
+    if (data?.ticket?.ticket_number) {
+      navigator.clipboard.writeText(data.ticket.ticket_number);
+      setCopiedNum(true);
+      toast.success('Copied ticket number');
+      setTimeout(() => setCopiedNum(false), 2000);
+    }
+  };
+
   if (loading) {
     return (
-      <div className="flex h-64 items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-amber-500 border-t-transparent" />
+      <div className="flex h-96 flex-col items-center justify-center gap-3">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-emerald-500 border-t-transparent shadow-md" />
+        <p className="text-xs text-slate-500">Loading ticket details...</p>
       </div>
     );
   }
@@ -162,485 +257,642 @@ export default function SupportTicketDetail() {
 
   const {
     ticket,
-    messages,
-    attachments,
-    auditLogs,
-    orderItems,
-    previousTickets,
-    trackingUpdates,
+    messages = [],
+    auditLogs = [],
+    orderItems = [],
+    previousTickets = [],
+    trackingUpdates = [],
   } = data;
 
-  const slaStatus = ticket.sla_breached
-    ? 'breached'
-    : ticket.sla_due_at && new Date(ticket.sla_due_at) < new Date()
-      ? 'overdue'
-      : 'on_track';
+  const isSlaOverdue =
+    !['resolved', 'closed'].includes(ticket.status) &&
+    (ticket.sla_breached ||
+      (ticket.sla_due_at && new Date(ticket.sla_due_at) < new Date()));
 
   return (
-    <div className="space-y-4">
-      {/* Top Bar */}
-      <div className="flex items-center gap-3">
-        <button
-          onClick={() => router.back()}
-          className="text-slate-400 hover:text-white"
-        >
-          <ArrowLeft className="h-5 w-5" />
-        </button>
-        <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="font-mono text-sm text-slate-400">
-              {ticket.ticket_number}
-            </span>
-            {ticket.ai_created && (
-              <span className="rounded-full bg-violet-500/20 px-2 py-0.5 text-[10px] font-bold text-violet-400">
-                AI Created
+    <div className="space-y-5">
+      {/* Top Breadcrumb & Navigation */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => router.push('/support/tickets')}
+            className="flex h-8 w-8 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-slate-400 transition hover:bg-white/10 hover:text-white"
+            title="Back to queue"
+          >
+            <ArrowLeft className="h-4 w-4" />
+          </button>
+
+          <div>
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="font-mono text-xs font-bold text-emerald-400">
+                {ticket.ticket_number}
               </span>
-            )}
-            {slaStatus === 'breached' && (
-              <span className="rounded-full bg-red-500/20 px-2 py-0.5 text-[10px] font-bold text-red-400">
-                SLA Breached
-              </span>
-            )}
-            {slaStatus === 'overdue' && (
-              <span className="rounded-full bg-orange-500/20 px-2 py-0.5 text-[10px] font-bold text-orange-400">
-                SLA Overdue
-              </span>
-            )}
+
+              <button
+                onClick={handleCopyTicket}
+                className="text-slate-500 hover:text-slate-300"
+                title="Copy ticket number"
+              >
+                {copiedNum ? (
+                  <Check className="h-3.5 w-3.5 text-emerald-400" />
+                ) : (
+                  <Copy className="h-3.5 w-3.5" />
+                )}
+              </button>
+
+              {ticket.ai_created && (
+                <span className="rounded border border-violet-500/30 bg-violet-500/20 px-1.5 py-0.5 text-[9px] font-bold text-violet-400">
+                  AI CREATED
+                </span>
+              )}
+
+              {isSlaOverdue && (
+                <span className="inline-flex items-center gap-1 rounded-full border border-rose-500/30 bg-rose-500/15 px-2 py-0.5 text-[9px] font-bold text-rose-400">
+                  <Clock className="h-3 w-3" />
+                  SLA OVERDUE
+                </span>
+              )}
+            </div>
+
+            <h1 className="mt-1 text-lg font-bold text-white sm:text-xl">
+              {ticket.title}
+            </h1>
           </div>
-          <h1 className="mt-1 truncate text-lg font-bold text-white">
-            {ticket.title}
-          </h1>
+        </div>
+
+        {/* Action Controls Bar */}
+        <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-white/5 bg-[#131726] p-2">
+          {/* Status Dropdown */}
+          <div className="flex items-center gap-1.5 px-2">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+              Status
+            </span>
+            <select
+              value={ticket.status}
+              onChange={(e) => handleUpdate({ status: e.target.value })}
+              disabled={updating}
+              className="rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 text-xs font-medium text-slate-200 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+            >
+              {STATUS_OPTIONS.map((s) => (
+                <option key={s.value} value={s.value} className="bg-[#131726]">
+                  {s.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Priority Dropdown */}
+          <div className="flex items-center gap-1.5 px-2">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+              Priority
+            </span>
+            <select
+              value={ticket.priority}
+              onChange={(e) => handleUpdate({ priority: e.target.value })}
+              disabled={updating}
+              className="rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 text-xs font-medium text-slate-200 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+            >
+              {PRIORITY_OPTIONS.map((p) => (
+                <option key={p.value} value={p.value} className="bg-[#131726]">
+                  {p.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Assignee / Auto-Assign */}
+          <div className="flex items-center gap-1.5 px-2">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+              Assignee
+            </span>
+            <select
+              value={ticket.assigned_to || ''}
+              onChange={(e) => {
+                if (e.target.value === 'AUTO_ASSIGN') {
+                  handleAutoAssignTicket();
+                } else {
+                  handleUpdate({ assigned_to: e.target.value || null });
+                }
+              }}
+              disabled={updating || isAutoAssigning}
+              className={`rounded-lg border px-2.5 py-1 text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-emerald-500 ${
+                ticket.assigned_to
+                  ? 'border-white/10 bg-white/5 text-slate-200'
+                  : 'border-amber-500/40 bg-amber-500/10 text-amber-300'
+              }`}
+            >
+              <option value="" className="bg-[#131726] text-amber-400">
+                ⚡ Unassigned
+              </option>
+              <option
+                value="AUTO_ASSIGN"
+                className="bg-[#131726] font-bold text-emerald-400"
+              >
+                ✨ Auto-Assign (Lowest Load)
+              </option>
+              {teamMembers.map((m) => (
+                <option
+                  key={m.id}
+                  value={m.id}
+                  className="bg-[#131726] text-slate-200"
+                >
+                  {m.full_name} ({m.active_tickets_count} active)
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
       </div>
 
-      {/* Main Grid: Left = Timeline, Right = Context Panels */}
-      <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
-        {/* Left Column: Conversation + Reply */}
-        <div className="space-y-4 xl:col-span-2">
-          {/* Controls */}
-          <div className="flex flex-wrap gap-3 rounded-xl border border-white/5 bg-[#131726] p-3">
-            <div className="flex items-center gap-2">
-              <label className="text-[10px] font-semibold uppercase tracking-wider text-slate-600">
-                Status
-              </label>
-              <select
-                value={ticket.status}
-                onChange={(e) => handleUpdate({ status: e.target.value })}
-                disabled={updating}
-                className="rounded-lg border border-white/10 bg-white/5 px-2 py-1 text-xs text-slate-200 focus:outline-none focus:ring-1 focus:ring-amber-500"
-              >
-                {STATUS_OPTIONS.map((s) => (
-                  <option key={s.value} value={s.value}>
-                    {s.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="flex items-center gap-2">
-              <label className="text-[10px] font-semibold uppercase tracking-wider text-slate-600">
-                Priority
-              </label>
-              <select
-                value={ticket.priority}
-                onChange={(e) => handleUpdate({ priority: e.target.value })}
-                disabled={updating}
-                className="rounded-lg border border-white/10 bg-white/5 px-2 py-1 text-xs text-slate-200 focus:outline-none focus:ring-1 focus:ring-amber-500"
-              >
-                {PRIORITY_OPTIONS.map((p) => (
-                  <option key={p.value} value={p.value}>
-                    {p.label}
-                  </option>
-                ))}
-              </select>
-            </div>
+      {/* AI Summary Banner (if AI processed or summary available) */}
+      {ticket.ai_summary && (
+        <div className="rounded-2xl border border-violet-500/20 bg-gradient-to-r from-violet-500/10 via-[#131726] to-violet-500/5 p-4 text-xs">
+          <div className="flex items-center gap-2 font-bold text-violet-400">
+            <Sparkles className="h-4 w-4" />
+            <span>AI Customer Context & Intent Summary</span>
           </div>
+          <p className="mt-1.5 leading-relaxed text-slate-300">
+            {ticket.ai_summary}
+          </p>
+        </div>
+      )}
 
-          {/* Conversation Timeline */}
-          <div className="rounded-xl border border-white/5 bg-[#131726]">
-            <div className="border-b border-white/5 px-5 py-3">
-              <h2 className="flex items-center gap-2 text-sm font-semibold text-white">
-                <MessageSquare className="h-4 w-4 text-amber-400" />
-                Conversation
-              </h2>
-            </div>
-            <div className="max-h-[500px] space-y-4 overflow-y-auto px-5 py-4">
-              {messages.map((msg: any) => {
-                const isInternal = msg.visibility === 'internal';
+      {/* Main Grid: Left (Timeline + Composer), Right (Context 360) */}
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
+        {/* Left Column (2 cols): Conversation Timeline + Rich Reply Composer */}
+        <div className="space-y-5 xl:col-span-2">
+          {/* Conversation Timeline Stream */}
+          <div className="space-y-4">
+            {messages.length === 0 ? (
+              <div className="rounded-2xl border border-white/5 bg-[#131726] p-8 text-center text-slate-500">
+                <MessageSquare className="mx-auto mb-2 h-8 w-8 text-slate-600" />
+                <p className="text-xs">
+                  No messages recorded in this conversation timeline yet.
+                </p>
+              </div>
+            ) : (
+              messages.map((msg: any) => {
                 const isCustomer = msg.sender_type === 'customer';
-                const isAI = msg.sender_type === 'ai';
+                const isInternal = msg.visibility === 'internal';
+                const isStaff = msg.sender_type === 'staff';
+                const isSystem = msg.sender_type === 'system';
 
+                if (isInternal) {
+                  return (
+                    <div
+                      key={msg.id}
+                      className="rounded-2xl border border-amber-500/30 bg-amber-500/5 p-4 shadow-sm"
+                    >
+                      <div className="flex items-center justify-between border-b border-amber-500/20 pb-2">
+                        <div className="flex items-center gap-2 text-xs font-bold text-amber-400">
+                          <Lock className="h-3.5 w-3.5" />
+                          <span>Staff Internal Note</span>
+                          <span className="py-0.2 rounded bg-amber-500/20 px-1 text-[9px] font-semibold text-amber-300">
+                            Private (Hidden from Customer)
+                          </span>
+                        </div>
+                        <span className="text-[10px] text-slate-500">
+                          {new Date(msg.created_at).toLocaleTimeString(
+                            'en-IN',
+                            {
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            }
+                          )}
+                        </span>
+                      </div>
+                      <div className="mt-2 whitespace-pre-wrap text-xs leading-relaxed text-slate-200">
+                        {msg.message}
+                      </div>
+                      <div className="mt-2 text-[10px] text-slate-500">
+                        Logged by{' '}
+                        {msg.sender?.full_name ||
+                          msg.sender?.email ||
+                          'Support Staff'}
+                      </div>
+                    </div>
+                  );
+                }
+
+                if (isCustomer) {
+                  return (
+                    <div
+                      key={msg.id}
+                      className="rounded-2xl border border-white/5 bg-[#131726] p-4 shadow-sm"
+                    >
+                      <div className="flex items-center justify-between border-b border-white/5 pb-2">
+                        <div className="flex items-center gap-2">
+                          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-slate-700 text-[10px] font-bold text-white">
+                            {ticket.customer?.full_name?.charAt(0) || 'C'}
+                          </div>
+                          <div>
+                            <span className="text-xs font-bold text-white">
+                              {ticket.customer?.full_name ||
+                                ticket.customer?.email ||
+                                'Customer'}
+                            </span>
+                            <span className="py-0.2 ml-2 rounded bg-slate-800 px-1.5 text-[9px] text-slate-400">
+                              Customer
+                            </span>
+                          </div>
+                        </div>
+                        <span className="text-[10px] text-slate-500">
+                          {new Date(msg.created_at).toLocaleDateString(
+                            'en-IN',
+                            {
+                              day: 'numeric',
+                              month: 'short',
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            }
+                          )}
+                        </span>
+                      </div>
+                      <div className="mt-3 whitespace-pre-wrap text-xs leading-relaxed text-slate-200">
+                        {msg.message}
+                      </div>
+                    </div>
+                  );
+                }
+
+                // Staff Public Reply
                 return (
                   <div
                     key={msg.id}
-                    className={`flex ${isCustomer ? 'justify-start' : 'justify-end'}`}
+                    className="rounded-2xl border border-emerald-500/20 bg-emerald-500/[0.04] p-4 shadow-sm"
                   >
-                    <div
-                      className={`max-w-[80%] rounded-xl p-3.5 ${
-                        isInternal
-                          ? 'border border-amber-500/20 bg-amber-500/5'
-                          : isCustomer
-                            ? 'border border-white/10 bg-white/5'
-                            : isAI
-                              ? 'border border-violet-500/20 bg-violet-500/5'
-                              : 'border border-blue-500/20 bg-blue-500/5'
-                      }`}
-                    >
-                      <div className="mb-1.5 flex items-center gap-2 text-[10px]">
-                        {isInternal && (
-                          <Lock className="h-3 w-3 text-amber-400" />
-                        )}
-                        <span
-                          className={`font-semibold ${
-                            isInternal
-                              ? 'text-amber-400'
-                              : isCustomer
-                                ? 'text-slate-400'
-                                : isAI
-                                  ? 'text-violet-400'
-                                  : 'text-blue-400'
-                          }`}
-                        >
-                          {isInternal
-                            ? `Internal Note · ${msg.sender?.full_name || 'Staff'}`
-                            : isCustomer
-                              ? msg.sender?.full_name || 'Customer'
-                              : isAI
-                                ? 'GIA (AI Assistant)'
-                                : msg.sender?.full_name || 'Support'}
-                        </span>
-                        <span className="text-slate-600">
-                          {timeSince(msg.created_at)}
-                        </span>
+                    <div className="flex items-center justify-between border-b border-emerald-500/15 pb-2">
+                      <div className="flex items-center gap-2">
+                        <div className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-700 text-[10px] font-bold text-white">
+                          {msg.sender?.full_name?.charAt(0) || 'R'}
+                        </div>
+                        <div>
+                          <span className="text-xs font-bold text-emerald-400">
+                            {msg.sender?.full_name || 'Ruhvi Concierge Support'}
+                          </span>
+                          <span className="py-0.2 ml-2 rounded bg-emerald-500/20 px-1.5 text-[9px] font-semibold text-emerald-300">
+                            Staff Reply
+                          </span>
+                        </div>
                       </div>
-                      <p className="whitespace-pre-wrap text-sm leading-relaxed text-slate-300">
-                        {msg.message}
-                      </p>
+                      <span className="text-[10px] text-slate-500">
+                        {new Date(msg.created_at).toLocaleDateString('en-IN', {
+                          day: 'numeric',
+                          month: 'short',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
+                      </span>
+                    </div>
+                    <div className="mt-3 whitespace-pre-wrap text-xs leading-relaxed text-slate-200">
+                      {msg.message}
                     </div>
                   </div>
                 );
-              })}
-              <div ref={messagesEndRef} />
-            </div>
+              })
+            )}
+            <div ref={messagesEndRef} />
+          </div>
 
-            {/* Reply Box */}
-            <div className="border-t border-white/5 p-4">
-              <div className="mb-2 flex items-center gap-2">
+          {/* Reply Composer Box */}
+          <div className="rounded-2xl border border-white/10 bg-[#131726] p-4 shadow-xl">
+            {/* Mode Switch Tabs & Canned Dropdown */}
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/5 pb-3">
+              <div className="flex items-center gap-2">
                 <button
                   onClick={() => setReplyVisibility('customer')}
-                  className={`rounded-full px-3 py-1 text-[10px] font-semibold transition-all ${
+                  className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
                     replyVisibility === 'customer'
-                      ? 'bg-blue-500/20 text-blue-400'
-                      : 'bg-white/5 text-slate-500 hover:text-slate-300'
+                      ? 'border border-emerald-500/30 bg-emerald-500/20 text-emerald-400'
+                      : 'text-slate-400 hover:bg-white/5 hover:text-white'
                   }`}
                 >
-                  Reply to Customer
+                  <Send className="h-3.5 w-3.5" />
+                  <span>Public Reply to Customer</span>
                 </button>
+
                 <button
                   onClick={() => setReplyVisibility('internal')}
-                  className={`flex items-center gap-1 rounded-full px-3 py-1 text-[10px] font-semibold transition-all ${
+                  className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
                     replyVisibility === 'internal'
-                      ? 'bg-amber-500/20 text-amber-400'
-                      : 'bg-white/5 text-slate-500 hover:text-slate-300'
+                      ? 'border border-amber-500/30 bg-amber-500/20 text-amber-300'
+                      : 'text-slate-400 hover:bg-white/5 hover:text-white'
                   }`}
                 >
-                  <Lock className="h-3 w-3" />
-                  Internal Note
+                  <Lock className="h-3.5 w-3.5" />
+                  <span>Internal Staff Note (Private)</span>
                 </button>
               </div>
-              <div className="flex gap-2">
-                <textarea
-                  value={replyText}
-                  onChange={(e) => setReplyText(e.target.value)}
-                  placeholder={
-                    replyVisibility === 'internal'
-                      ? 'Add an internal note...'
-                      : 'Reply to customer...'
-                  }
-                  rows={3}
-                  className="flex-1 resize-none rounded-lg border border-white/10 bg-white/5 p-3 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-amber-500"
-                />
+
+              {/* Canned Responses Quick Picker */}
+              <div className="relative">
                 <button
-                  onClick={handleSendReply}
-                  disabled={sending || !replyText.trim()}
-                  className="self-end rounded-lg bg-amber-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-amber-500 disabled:opacity-40"
+                  onClick={() => setShowCannedMenu(!showCannedMenu)}
+                  className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 text-xs text-slate-300 transition hover:bg-white/10 hover:text-white"
                 >
-                  {sending ? '...' : <Send className="h-4 w-4" />}
+                  <Sparkles className="h-3 w-3 text-amber-400" />
+                  <span>Canned Responses</span>
+                  <ChevronDown className="h-3 w-3" />
+                </button>
+
+                {showCannedMenu && (
+                  <div className="absolute right-0 z-30 mt-2 w-72 rounded-xl border border-white/10 bg-[#1a1f33] p-2 shadow-2xl">
+                    <p className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                      Select Template
+                    </p>
+                    <div className="max-h-60 space-y-1 overflow-y-auto">
+                      {cannedResponses.map((cr) => (
+                        <button
+                          key={cr.id}
+                          onClick={() => handleInsertCanned(cr)}
+                          className="w-full rounded-lg p-2 text-left transition hover:bg-white/10"
+                        >
+                          <p className="truncate text-xs font-semibold text-white">
+                            {cr.title}
+                          </p>
+                          <p className="truncate text-[10px] text-slate-400">
+                            {cr.category}
+                          </p>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Textarea */}
+            <div className="mt-3">
+              <textarea
+                value={replyText}
+                onChange={(e) => setReplyText(e.target.value)}
+                placeholder={
+                  replyVisibility === 'internal'
+                    ? 'Write a private note for staff (e.g. tracking courier status, custom artisan instructions)...'
+                    : 'Write a public response to the customer...'
+                }
+                rows={5}
+                className="w-full rounded-xl border border-white/10 bg-white/5 p-3.5 text-xs text-slate-200 placeholder-slate-500 focus:border-emerald-500/50 focus:bg-white/[0.08] focus:outline-none focus:ring-1 focus:ring-emerald-500"
+              />
+            </div>
+
+            {/* Send Actions Bar */}
+            <div className="mt-3 flex flex-wrap items-center justify-between gap-3 border-t border-white/5 pt-3">
+              <div className="flex items-center gap-2 text-[11px] text-slate-500">
+                {replyVisibility === 'customer' ? (
+                  <span>
+                    Customer will receive an email update with this response
+                  </span>
+                ) : (
+                  <span className="text-amber-400/80">
+                    Visible only to support managers and staff
+                  </span>
+                )}
+              </div>
+
+              <div className="flex items-center gap-2">
+                {replyVisibility === 'customer' && (
+                  <>
+                    <button
+                      onClick={() => handleSendReply('in_progress')}
+                      disabled={sending || !replyText.trim()}
+                      className="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium text-slate-300 transition hover:bg-white/10 hover:text-white disabled:opacity-40"
+                    >
+                      Send & In Progress
+                    </button>
+                    <button
+                      onClick={() => handleSendReply('waiting_for_customer')}
+                      disabled={sending || !replyText.trim()}
+                      className="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium text-slate-300 transition hover:bg-white/10 hover:text-white disabled:opacity-40"
+                    >
+                      Send & Mark Waiting
+                    </button>
+                    <button
+                      onClick={() => handleSendReply('resolved')}
+                      disabled={sending || !replyText.trim()}
+                      className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-1.5 text-xs font-semibold text-emerald-400 transition hover:bg-emerald-500/20 disabled:opacity-40"
+                    >
+                      Send & Resolve
+                    </button>
+                  </>
+                )}
+
+                <button
+                  onClick={() => handleSendReply()}
+                  disabled={sending || !replyText.trim()}
+                  className={`flex items-center gap-1.5 rounded-lg px-4 py-1.5 text-xs font-bold text-white shadow-md transition disabled:opacity-40 ${
+                    replyVisibility === 'internal'
+                      ? 'bg-amber-600 shadow-amber-900/30 hover:bg-amber-500'
+                      : 'bg-emerald-600 shadow-emerald-900/30 hover:bg-emerald-500'
+                  }`}
+                >
+                  <Send className="h-3.5 w-3.5" />
+                  <span>
+                    {sending
+                      ? 'Sending...'
+                      : replyVisibility === 'internal'
+                        ? 'Add Internal Note'
+                        : 'Send Reply'}
+                  </span>
                 </button>
               </div>
             </div>
           </div>
+        </div>
 
-          {/* Audit Log */}
-          {auditLogs.length > 0 && (
-            <div className="rounded-xl border border-white/5 bg-[#131726]">
-              <div className="border-b border-white/5 px-5 py-3">
-                <h2 className="flex items-center gap-2 text-sm font-semibold text-white">
-                  <History className="h-4 w-4 text-slate-400" />
-                  Activity Log
-                </h2>
+        {/* Right Column (1 col): Deep Context Panels (Customer 360, Order, Past Tickets) */}
+        <div className="space-y-5">
+          {/* Customer 360 Card */}
+          <div className="rounded-2xl border border-white/5 bg-[#131726] p-5 shadow-lg">
+            <div className="flex items-center justify-between border-b border-white/5 pb-3">
+              <div className="flex items-center gap-2">
+                <User className="h-4 w-4 text-emerald-400" />
+                <h3 className="text-xs font-bold uppercase tracking-wider text-white">
+                  Customer 360
+                </h3>
               </div>
-              <div className="max-h-60 space-y-2 overflow-y-auto px-5 py-3">
-                {auditLogs.map((log: any) => (
-                  <div
-                    key={log.id}
-                    className="flex items-start gap-3 text-[11px] text-slate-500"
-                  >
-                    <div className="mt-1 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-slate-600" />
-                    <div>
-                      <span className="font-medium text-slate-400">
-                        {log.actor?.full_name || log.actor_type}
-                      </span>{' '}
-                      {log.action.replace(/_/g, ' ')}
-                      {log.new_value?.status && (
-                        <span className="ml-1 font-medium text-amber-400/70">
-                          → {log.new_value.status}
-                        </span>
-                      )}
-                      {log.new_value?.priority && (
-                        <span className="ml-1 font-medium text-amber-400/70">
-                          → {log.new_value.priority}
-                        </span>
-                      )}
-                      <span className="ml-2 text-slate-600">
-                        {formatDate(log.created_at)}
+              <span className="rounded border border-emerald-500/20 bg-emerald-500/10 px-1.5 py-0.5 text-[9px] font-bold text-emerald-400">
+                VERIFIED
+              </span>
+            </div>
+
+            <div className="mt-3.5 space-y-2.5 text-xs">
+              <div>
+                <p className="text-[10px] font-semibold uppercase text-slate-500">
+                  Full Name
+                </p>
+                <p className="font-semibold text-white">
+                  {ticket.customer?.full_name || 'Guest User'}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-[10px] font-semibold uppercase text-slate-500">
+                  Email Address
+                </p>
+                <p className="font-mono text-slate-300">
+                  {ticket.customer?.email || '—'}
+                </p>
+              </div>
+
+              {ticket.customer?.phone && (
+                <div>
+                  <p className="text-[10px] font-semibold uppercase text-slate-500">
+                    Phone Number
+                  </p>
+                  <p className="font-mono text-slate-300">
+                    {ticket.customer?.phone}
+                  </p>
+                </div>
+              )}
+
+              {/* Wallet & Coins balances */}
+              <div className="grid grid-cols-2 gap-2 border-t border-white/5 pt-2">
+                <div className="rounded-xl border border-white/5 bg-white/[0.02] p-2 text-center">
+                  <p className="text-[9px] font-semibold uppercase text-slate-500">
+                    Wallet
+                  </p>
+                  <p className="text-xs font-bold text-emerald-400">
+                    ₹{ticket.customer?.wallet_balance || 0}
+                  </p>
+                </div>
+                <div className="rounded-xl border border-white/5 bg-white/[0.02] p-2 text-center">
+                  <p className="text-[9px] font-semibold uppercase text-slate-500">
+                    Coins
+                  </p>
+                  <p className="text-xs font-bold text-amber-400">
+                    {ticket.customer?.reward_coins || 0}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Linked Order Card (if order attached) */}
+          {ticket.order && (
+            <div className="rounded-2xl border border-white/5 bg-[#131726] p-5 shadow-lg">
+              <div className="flex items-center justify-between border-b border-white/5 pb-3">
+                <div className="flex items-center gap-2">
+                  <ShoppingBag className="h-4 w-4 text-emerald-400" />
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-white">
+                    Linked Order
+                  </h3>
+                </div>
+                <span className="font-mono text-xs font-bold text-emerald-400">
+                  #{ticket.order.order_number}
+                </span>
+              </div>
+
+              <div className="mt-3 space-y-2 text-xs">
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-500">Order Status:</span>
+                  <span className="font-semibold capitalize text-white">
+                    {ticket.order.status}
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-500">Total Amount:</span>
+                  <span className="font-bold text-white">
+                    ₹{ticket.order.total?.toLocaleString('en-IN')}
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-500">Payment Status:</span>
+                  <span className="font-medium capitalize text-emerald-400">
+                    {ticket.order.payment_status || 'Paid'}
+                  </span>
+                </div>
+
+                {/* AWB Tracking Code */}
+                {ticket.order.awb_code && (
+                  <div className="mt-2 rounded-xl border border-white/5 bg-white/[0.02] p-2.5">
+                    <p className="text-[10px] font-semibold uppercase text-slate-500">
+                      Courier & AWB
+                    </p>
+                    <div className="mt-1 flex items-center justify-between">
+                      <span className="font-mono text-xs font-bold text-white">
+                        {ticket.order.courier_name || 'Insured Courier'}:{' '}
+                        {ticket.order.awb_code}
                       </span>
+                      <Link
+                        href={`https://ruhvi.in/tracking?awb=${ticket.order.awb_code}`}
+                        target="_blank"
+                        className="text-[10px] font-bold text-emerald-400 hover:underline"
+                      >
+                        Track →
+                      </Link>
                     </div>
                   </div>
-                ))}
+                )}
               </div>
             </div>
           )}
-        </div>
 
-        {/* Right Column: Context Panels */}
-        <div className="space-y-4">
-          {/* Customer Info */}
-          <div className="rounded-xl border border-white/5 bg-[#131726]">
-            <div className="border-b border-white/5 px-4 py-3">
-              <h3 className="flex items-center gap-2 text-xs font-semibold text-white">
-                <User className="h-3.5 w-3.5 text-amber-400" />
-                Customer
-              </h3>
-            </div>
-            <div className="space-y-2 px-4 py-3 text-xs">
-              <p className="font-medium text-slate-200">
-                {ticket.customer?.full_name || 'N/A'}
-              </p>
-              <p className="text-slate-500">{ticket.customer?.email}</p>
-              {ticket.customer?.phone && (
-                <p className="text-slate-500">{ticket.customer.phone}</p>
-              )}
-              <p className="text-slate-600">
-                Member since{' '}
-                {ticket.customer?.created_at
-                  ? formatDate(ticket.customer.created_at)
-                  : 'N/A'}
-              </p>
-            </div>
-            {previousTickets.length > 0 && (
-              <div className="border-t border-white/5 px-4 py-2">
-                <p className="mb-1 text-[10px] font-semibold text-slate-600">
-                  Previous Tickets
-                </p>
+          {/* Customer Other Past Tickets */}
+          {previousTickets.length > 0 && (
+            <div className="rounded-2xl border border-white/5 bg-[#131726] p-5 shadow-lg">
+              <div className="flex items-center justify-between border-b border-white/5 pb-3">
+                <div className="flex items-center gap-2">
+                  <History className="h-4 w-4 text-emerald-400" />
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-white">
+                    Previous Inquiries
+                  </h3>
+                </div>
+                <span className="text-[10px] text-slate-500">
+                  {previousTickets.length} past
+                </span>
+              </div>
+
+              <div className="mt-3 space-y-2">
                 {previousTickets.map((pt: any) => (
                   <Link
                     key={pt.id}
                     href={`/support/tickets/${pt.id}`}
-                    className="block py-0.5 text-[11px] text-slate-500 hover:text-amber-400"
+                    className="block rounded-xl border border-white/5 bg-white/[0.02] p-2.5 transition hover:border-white/10 hover:bg-white/[0.04]"
                   >
-                    {pt.ticket_number} — {pt.title}
+                    <div className="flex items-center justify-between">
+                      <span className="font-mono text-[11px] font-bold text-slate-400">
+                        {pt.ticket_number}
+                      </span>
+                      <span className="text-[9px] capitalize text-slate-500">
+                        {pt.status}
+                      </span>
+                    </div>
+                    <p className="mt-0.5 truncate text-xs font-medium text-slate-200">
+                      {pt.title}
+                    </p>
                   </Link>
                 ))}
               </div>
-            )}
-          </div>
-
-          {/* Issue Info */}
-          <div className="rounded-xl border border-white/5 bg-[#131726]">
-            <div className="border-b border-white/5 px-4 py-3">
-              <h3 className="flex items-center gap-2 text-xs font-semibold text-white">
-                <FileText className="h-3.5 w-3.5 text-amber-400" />
-                Issue Details
-              </h3>
             </div>
-            <div className="space-y-3 px-4 py-3 text-xs">
-              <div>
-                <span className="text-slate-600">Category</span>
-                <p className="text-slate-300">
-                  {ticket.category?.name || 'Uncategorized'}
-                </p>
-              </div>
-              {ticket.subcategory && (
-                <div>
-                  <span className="text-slate-600">Subcategory</span>
-                  <p className="text-slate-300">{ticket.subcategory.name}</p>
-                </div>
-              )}
-              <div>
-                <span className="text-slate-600">Created</span>
-                <p className="text-slate-300">
-                  {formatDate(ticket.created_at)}
-                </p>
-              </div>
-              {ticket.sla_due_at && (
-                <div>
-                  <span className="text-slate-600">SLA Due</span>
-                  <p
-                    className={`font-medium ${slaStatus === 'on_track' ? 'text-green-400' : 'text-red-400'}`}
-                  >
-                    {formatDate(ticket.sla_due_at)}
-                  </p>
-                </div>
-              )}
-              {ticket.ai_summary && (
-                <div>
-                  <span className="text-slate-600">AI Summary</span>
-                  <p className="mt-1 rounded-lg border border-violet-500/10 bg-violet-500/5 p-2 text-[11px] leading-relaxed text-slate-400">
-                    {ticket.ai_summary}
-                  </p>
-                </div>
-              )}
-              {ticket.description && (
-                <div>
-                  <span className="text-slate-600">Description</span>
-                  <p className="mt-1 whitespace-pre-wrap leading-relaxed text-slate-400">
-                    {ticket.description}
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
+          )}
 
-          {/* Order Info */}
-          {ticket.order && (
-            <div className="rounded-xl border border-white/5 bg-[#131726]">
-              <div className="border-b border-white/5 px-4 py-3">
-                <h3 className="flex items-center gap-2 text-xs font-semibold text-white">
-                  <ShoppingBag className="h-3.5 w-3.5 text-amber-400" />
-                  Order
+          {/* Audit History Log */}
+          {auditLogs.length > 0 && (
+            <div className="rounded-2xl border border-white/5 bg-[#131726] p-5 shadow-lg">
+              <div className="flex items-center gap-2 border-b border-white/5 pb-3">
+                <FileText className="h-4 w-4 text-slate-400" />
+                <h3 className="text-xs font-bold uppercase tracking-wider text-white">
+                  Audit Trail
                 </h3>
               </div>
-              <div className="space-y-2 px-4 py-3 text-xs">
-                <div className="flex justify-between">
-                  <span className="text-slate-600">Order #</span>
-                  <span className="font-mono font-medium text-slate-200">
-                    {ticket.order.order_number}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-600">Status</span>
-                  <span className="capitalize text-slate-300">
-                    {ticket.order.status}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-600">Total</span>
-                  <span className="font-medium text-slate-200">
-                    ₹{ticket.order.total}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-600">Payment</span>
-                  <span className="capitalize text-slate-300">
-                    {ticket.order.payment_status}
-                  </span>
-                </div>
-                {ticket.order.awb_code && (
-                  <div className="flex justify-between">
-                    <span className="text-slate-600">Tracking</span>
-                    <span className="font-mono text-slate-300">
-                      {ticket.order.awb_code}
+
+              <div className="mt-3 max-h-48 space-y-2 overflow-y-auto">
+                {auditLogs.map((log: any) => (
+                  <div key={log.id} className="text-[11px] text-slate-400">
+                    <span className="font-semibold capitalize text-slate-300">
+                      {log.action.replace(/_/g, ' ')}
+                    </span>{' '}
+                    <span className="text-[10px] text-slate-500">
+                      ·{' '}
+                      {new Date(log.created_at).toLocaleTimeString('en-IN', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })}
                     </span>
                   </div>
-                )}
-
-                {/* Order Items */}
-                {orderItems.length > 0 && (
-                  <div className="mt-2 space-y-1.5 border-t border-white/5 pt-2">
-                    <p className="text-[10px] font-semibold text-slate-600">
-                      Items
-                    </p>
-                    {orderItems.map((item: any) => (
-                      <div
-                        key={item.id}
-                        className="flex justify-between text-[11px]"
-                      >
-                        <span className="mr-2 truncate text-slate-400">
-                          {item.product?.name || item.sku}
-                        </span>
-                        <span className="flex-shrink-0 text-slate-500">
-                          ×{item.quantity} · ₹{item.price_at_purchase}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {/* Tracking Updates */}
-                {trackingUpdates.length > 0 && (
-                  <div className="mt-2 space-y-1 border-t border-white/5 pt-2">
-                    <p className="text-[10px] font-semibold text-slate-600">
-                      Tracking
-                    </p>
-                    {trackingUpdates.slice(0, 3).map((t: any) => (
-                      <div key={t.id} className="text-[10px] text-slate-500">
-                        <span className="text-slate-400">{t.status}</span> —{' '}
-                        {t.activity}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Product Info */}
-          {ticket.product && (
-            <div className="rounded-xl border border-white/5 bg-[#131726]">
-              <div className="border-b border-white/5 px-4 py-3">
-                <h3 className="flex items-center gap-2 text-xs font-semibold text-white">
-                  <Package className="h-3.5 w-3.5 text-amber-400" />
-                  Product
-                </h3>
-              </div>
-              <div className="space-y-2 px-4 py-3 text-xs">
-                <p className="font-medium text-slate-200">
-                  {ticket.product.name}
-                </p>
-                {ticket.product.sku && (
-                  <p className="text-slate-500">SKU: {ticket.product.sku}</p>
-                )}
-                {ticket.product.price && (
-                  <p className="text-slate-500">
-                    Price: ₹{ticket.product.price}
-                  </p>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Attachments */}
-          {attachments.length > 0 && (
-            <div className="rounded-xl border border-white/5 bg-[#131726]">
-              <div className="border-b border-white/5 px-4 py-3">
-                <h3 className="flex items-center gap-2 text-xs font-semibold text-white">
-                  <Paperclip className="h-3.5 w-3.5 text-amber-400" />
-                  Attachments ({attachments.length})
-                </h3>
-              </div>
-              <div className="space-y-1 px-4 py-2">
-                {attachments.map((att: any) => (
-                  <a
-                    key={att.id}
-                    href={att.storage_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 rounded-lg px-2 py-1.5 text-xs text-slate-400 transition-colors hover:bg-white/5 hover:text-white"
-                  >
-                    <Paperclip className="h-3 w-3 flex-shrink-0" />
-                    <span className="truncate">{att.file_name}</span>
-                    <ExternalLink className="h-3 w-3 flex-shrink-0 text-slate-600" />
-                  </a>
                 ))}
               </div>
             </div>
