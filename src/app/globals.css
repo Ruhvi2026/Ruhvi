@@ -460,51 +460,61 @@
 }
 
 /* ==========================================================================
-   Night Velvet Dark Theme Overrides
+   Midnight Luxury Dark Theme Overrides
    ========================================================================== */
 html.dark {
   color-scheme: dark;
 }
 
 html.dark body {
-  background-color: #0f0f0f !important;
-  color: #e6e6e6 !important;
+  background-color: #0B0B0F !important;
+  color: #F6F5F4 !important; /* Soft ivory */
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+/* Typography Overrides */
 html.dark h1,
 html.dark h2,
 html.dark h3,
 html.dark h4,
 html.dark h5,
 html.dark h6 {
-  color: #ffffff !important;
+  color: #FFFFFF !important;
+  transition: color 0.3s ease;
 }
 
+html.dark p, html.dark span, html.dark div, html.dark section {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Background overrides: Mapping Light to Midnight */
 html.dark .bg-cream-100,
 html.dark .bg-cream-50,
 html.dark .bg-champagne-50,
 html.dark .bg-white {
-  background-color: #171717 !important;
+  background-color: #111116 !important;
 }
 
 html.dark .bg-\[\#FCFBF7\] {
-  background-color: #1c1a19 !important;
-  border-color: rgba(77, 181, 183, 0.15) !important;
+  background-color: #17171D !important;
+  border-color: rgba(214, 179, 106, 0.15) !important;
 }
 
-html.dark .border-stone-200,
-html.dark .border-gold-200\/50,
-html.dark .border-gold-200\/80 {
-  border-color: #2a2726 !important;
+html.dark .bg-stone-50,
+html.dark .bg-stone-100,
+html.dark .bg-slate-50 {
+  background-color: #17171D !important;
 }
 
+/* Text color overrides */
+html.dark .text-charcoal-900,
 html.dark .text-stone-900,
 html.dark .text-stone-800,
 html.dark .text-stone-700,
 html.dark .text-slate-900,
 html.dark .text-slate-800,
 html.dark .text-slate-700 {
-  color: #f6f5f4 !important;
+  color: #F6F5F4 !important; /* Soft Ivory */
 }
 
 html.dark .text-stone-600,
@@ -512,104 +522,153 @@ html.dark .text-stone-500,
 html.dark .text-stone-400,
 html.dark .text-slate-600,
 html.dark .text-slate-500,
-html.dark .text-slate-400 {
-  color: #a8a29e !important;
+html.dark .text-slate-400,
+html.dark .text-charcoal-600,
+html.dark .text-charcoal-500 {
+  color: #A8A29E !important; /* Muted Warm Grey */
 }
 
+/* Accent texts */
+html.dark .text-gold-600,
+html.dark .text-gold-500,
+html.dark .text-gold-700 {
+  color: #D6B36A !important;
+}
+
+/* Border overrides */
+html.dark .border-stone-200,
+html.dark .border-stone-300,
+html.dark .border-slate-200,
+html.dark .border-gold-200\/50,
+html.dark .border-gold-200\/80 {
+  border-color: #3A2046 !important; /* Subtle Royal Plum for borders */
+}
+
+/* Header overrides */
 html.dark header {
-  background-color: rgba(15, 15, 15, 0.8) !important;
-  backdrop-filter: blur(12px) !important;
-  border-bottom: 1px solid rgba(77, 181, 183, 0.15) !important;
+  background-color: rgba(11, 11, 15, 0.75) !important;
+  backdrop-filter: blur(16px) !important;
+  border-bottom: 1px solid rgba(214, 179, 106, 0.15) !important;
 }
 
-html.dark .text-charcoal-900 {
-  color: #e6e6e6 !important;
-}
-
+/* Form Elements */
 html.dark input,
 html.dark select,
 html.dark textarea {
-  background-color: #2a2726 !important;
-  color: #ffffff !important;
-  border-color: #3d3936 !important;
+  background-color: rgba(255, 255, 255, 0.05) !important;
+  color: #F6F5F4 !important;
+  border-color: #3A2046 !important;
 }
 
-html.dark button.bg-white {
-  background-color: #2a2726 !important;
-  border-color: #3d3936 !important;
-  color: #f6f5f4 !important;
+html.dark input:focus,
+html.dark select:focus,
+html.dark textarea:focus {
+  border-color: #D6B36A !important;
+  box-shadow: 0 0 0 1px rgba(214, 179, 106, 0.3) !important;
+  outline: none !important;
 }
 
-html.dark button.bg-white:hover {
-  background-color: #3d3936 !important;
+/* Primary buttons overriding bg-charcoal-900 */
+html.dark button.bg-charcoal-900,
+html.dark a.bg-charcoal-900,
+html.dark .bg-charcoal-900 {
+  background-color: #D6B36A !important;
+  color: #0B0B0F !important;
+}
+html.dark button.bg-charcoal-900:hover,
+html.dark a.bg-charcoal-900:hover,
+html.dark .bg-charcoal-900:hover {
+  background-color: #E2C27A !important;
 }
 
-html.dark .bg-gold-50\/50 {
-  background-color: rgba(43, 172, 173, 0.1) !important;
+/* Secondary Buttons */
+html.dark button.bg-white,
+html.dark a.bg-white {
+  background-color: #17171D !important;
+  border: 1px solid rgba(214, 179, 106, 0.3) !important;
+  color: #F6F5F4 !important;
 }
 
-/* Ensure the gold gradient banner elements maintain their custom styling in dark mode */
+html.dark button.bg-white:hover,
+html.dark a.bg-white:hover {
+  background-color: #111116 !important;
+  border-color: rgba(214, 179, 106, 0.6) !important;
+  box-shadow: 0 0 10px rgba(214, 179, 106, 0.1) !important;
+}
+
+/* Accent Backgrounds */
+html.dark .bg-gold-50\/50,
+html.dark .bg-gold-50 {
+  background-color: rgba(90, 58, 104, 0.1) !important; /* Subtle plum instead of gold bg */
+}
+
+html.dark .bg-gold-600 {
+  background-color: #D6B36A !important;
+  color: #0B0B0F !important;
+}
+html.dark .bg-gold-600:hover {
+  background-color: #E2C27A !important;
+}
+
+/* Product Cards */
+html.dark .gold-card {
+  background: linear-gradient(160deg, #17171D 0%, #111116 100%) !important;
+  border: 1px solid rgba(90, 58, 104, 0.3) !important; /* Plum border */
+}
+html.dark .gold-card:hover {
+  border-color: rgba(214, 179, 106, 0.4) !important;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5), 0 0 15px rgba(214, 179, 106, 0.05) !important;
+}
+
+/* Banners / gradients */
 html.dark .gold-gradient-bg,
 html.dark .gold-gradient-bg * {
   background-color: transparent !important;
   color: #ffffff !important;
 }
 
-html.dark .gold-gradient-bg button.bg-white {
-  background-color: #ffffff !important;
-  color: #228a8c !important;
-}
-
-html.dark .gold-gradient-bg button.bg-white:hover {
-  background-color: #d9f2f3 !important;
-}
-
-html.dark .gold-gradient-bg .bg-white\/20 {
-  background-color: rgba(255, 255, 255, 0.2) !important;
-}
-
-html.dark .gold-gradient-bg .border-gold-100\/40 {
-  border-color: rgba(255, 255, 255, 0.4) !important;
-}
-
-html.dark .gold-gradient-bg .border-gold-100\/50 {
-  border-color: rgba(255, 255, 255, 0.5) !important;
+/* Overriding gold gradient text with the new Champagne Gold */
+html.dark .gold-gradient-text {
+  background: linear-gradient(135deg, #F0D99A 0%, #E2C27A 50%, #D6B36A 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
 }
 
 /* Wallet and Coins card custom styling in dark mode */
 html.dark .group[href='/account/wallet'] {
-  background-color: rgba(16, 185, 129, 0.04) !important;
-  border-color: rgba(16, 185, 129, 0.2) !important;
+  background-color: rgba(31, 90, 70, 0.1) !important; /* Emerald */
+  border-color: rgba(31, 90, 70, 0.3) !important;
 }
 
 html.dark .group[href='/account/wallet']:hover {
-  border-color: rgba(16, 185, 129, 0.7) !important;
-  box-shadow: 0 0 15px rgba(16, 185, 129, 0.15);
+  border-color: rgba(31, 90, 70, 0.7) !important;
+  box-shadow: 0 0 15px rgba(31, 90, 70, 0.15);
 }
 
 html.dark .group[href='/account/coins'] {
-  background-color: rgba(245, 158, 11, 0.04) !important;
-  border-color: rgba(245, 158, 11, 0.2) !important;
+  background-color: rgba(214, 179, 106, 0.04) !important;
+  border-color: rgba(214, 179, 106, 0.2) !important;
 }
 
 html.dark .group[href='/account/coins']:hover {
-  border-color: rgba(245, 158, 11, 0.7) !important;
-  box-shadow: 0 0 15px rgba(245, 158, 11, 0.15);
+  border-color: rgba(214, 179, 106, 0.7) !important;
+  box-shadow: 0 0 15px rgba(214, 179, 106, 0.15);
 }
 
-/* Glowing border effect */
-@keyframes border-glow {
+/* Glowing border effect (updated to Champagne Gold) */
+@keyframes midnight-border-glow {
   0%,
   100% {
-    border-color: rgba(77, 181, 183, 0.2);
-    box-shadow: 0 0 8px rgba(77, 181, 183, 0.15);
+    border-color: rgba(214, 179, 106, 0.2);
+    box-shadow: 0 0 8px rgba(214, 179, 106, 0.1);
   }
   50% {
-    border-color: rgba(218, 165, 32, 0.6);
-    box-shadow: 0 0 16px rgba(218, 165, 32, 0.3);
+    border-color: rgba(214, 179, 106, 0.6);
+    box-shadow: 0 0 16px rgba(214, 179, 106, 0.2);
   }
 }
 
-.glow-card-focus {
-  animation: border-glow 3s infinite ease-in-out;
+html.dark .glow-card-focus {
+  animation: midnight-border-glow 3s infinite ease-in-out;
 }

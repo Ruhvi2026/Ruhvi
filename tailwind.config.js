@@ -5,9 +5,23 @@ module.exports = {
     './src/components/**/*.{js,ts,jsx,tsx,mdx}',
     './src/app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {
+        midnight: {
+          bg: '#0B0B0F',
+          surface: '#111116',
+          elevated: '#17171D',
+          glass: 'rgba(255, 255, 255, 0.05)',
+          gold: '#D6B36A',
+          goldLight: '#E2C27A',
+          goldLighter: '#F0D99A',
+          plum: '#5A3A68',
+          plumDark: '#3A2046', // Adding a slightly darker plum for hovers
+          ruby: '#7A2635',
+          emerald: '#1F5A46',
+        },
         gold: {
           50: '#f0fafb',
           100: '#d9f2f3',

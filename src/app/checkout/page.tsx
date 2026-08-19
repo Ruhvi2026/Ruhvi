@@ -1149,7 +1149,7 @@ export default function CheckoutPage() {
                       turnstileRef.current?.reset();
                     }}
                     options={{
-                      theme: 'light',
+                      theme: 'auto',
                     }}
                   />
                 </div>

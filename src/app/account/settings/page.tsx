@@ -42,8 +42,8 @@ const T = {
     systemDesc: 'Matches OS theme',
     warmIvory: 'Warm Ivory (Light)',
     warmIvoryDesc: 'Polished cream surfaces',
-    nightVelvet: 'Night Velvet (Dark)',
-    nightVelvetDesc: 'Muted charcoal tones',
+    nightVelvet: 'Midnight Luxury (Dark)',
+    nightVelvetDesc: 'Deep charcoal & champagne gold',
     languageTitle: 'Language',
     languageSubtitle:
       'Select your preferred language for navigation and notifications.',
@@ -373,7 +373,7 @@ export default function SettingsPage() {
         ? 'Theme updated to System Default'
         : newTheme === 'light'
           ? 'Theme updated to Warm Ivory (Light)'
-          : 'Theme updated to Night Velvet (Dark)';
+          : 'Theme updated to Midnight Luxury (Dark)';
     toast.success(toastMsg);
   };
 
