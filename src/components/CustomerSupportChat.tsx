@@ -311,7 +311,7 @@ export default function CustomerSupportChat() {
                       />
                     </div>
                     <span className="animate-pulse bg-gradient-to-r from-[#4285F4] via-[#9B72CB] to-[#D96570] bg-clip-text text-[10px] font-bold uppercase tracking-wider text-transparent">
-                      Gemini is thinking
+                      Gia is thinking
                     </span>
                   </div>
                   <span className="text-[11px] font-medium text-stone-500/80">
