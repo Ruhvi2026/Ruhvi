@@ -541,3 +541,69 @@ html.dark button.bg-white:hover {
 html.dark .bg-gold-50\/50 {
   background-color: rgba(43, 172, 173, 0.1) !important;
 }
+
+/* Ensure the gold gradient banner elements maintain their custom styling in dark mode */
+html.dark .gold-gradient-bg,
+html.dark .gold-gradient-bg * {
+  background-color: transparent !important;
+  color: #ffffff !important;
+}
+
+html.dark .gold-gradient-bg button.bg-white {
+  background-color: #ffffff !important;
+  color: #228a8c !important;
+}
+
+html.dark .gold-gradient-bg button.bg-white:hover {
+  background-color: #d9f2f3 !important;
+}
+
+html.dark .gold-gradient-bg .bg-white\/20 {
+  background-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+html.dark .gold-gradient-bg .border-gold-100\/40 {
+  border-color: rgba(255, 255, 255, 0.4) !important;
+}
+
+html.dark .gold-gradient-bg .border-gold-100\/50 {
+  border-color: rgba(255, 255, 255, 0.5) !important;
+}
+
+/* Wallet and Coins card custom styling in dark mode */
+html.dark .group[href='/account/wallet'] {
+  background-color: rgba(16, 185, 129, 0.04) !important;
+  border-color: rgba(16, 185, 129, 0.2) !important;
+}
+
+html.dark .group[href='/account/wallet']:hover {
+  border-color: rgba(16, 185, 129, 0.7) !important;
+  box-shadow: 0 0 15px rgba(16, 185, 129, 0.15);
+}
+
+html.dark .group[href='/account/coins'] {
+  background-color: rgba(245, 158, 11, 0.04) !important;
+  border-color: rgba(245, 158, 11, 0.2) !important;
+}
+
+html.dark .group[href='/account/coins']:hover {
+  border-color: rgba(245, 158, 11, 0.7) !important;
+  box-shadow: 0 0 15px rgba(245, 158, 11, 0.15);
+}
+
+/* Glowing border effect */
+@keyframes border-glow {
+  0%,
+  100% {
+    border-color: rgba(77, 181, 183, 0.2);
+    box-shadow: 0 0 8px rgba(77, 181, 183, 0.15);
+  }
+  50% {
+    border-color: rgba(218, 165, 32, 0.6);
+    box-shadow: 0 0 16px rgba(218, 165, 32, 0.3);
+  }
+}
+
+.glow-card-focus {
+  animation: border-glow 3s infinite ease-in-out;
+}

@@ -544,7 +544,7 @@ export default function AccountOverviewPage() {
 
           <Link
             href="/account/wallet"
-            className="group rounded-2xl border border-stone-200 bg-white p-6 shadow-sm transition-all hover:border-emerald-500 hover:shadow-md"
+            className="glow-card-focus group rounded-2xl border border-stone-200 bg-white p-6 shadow-sm transition-all hover:border-emerald-500 hover:shadow-md"
           >
             <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700 transition-colors group-hover:bg-emerald-700 group-hover:text-emerald-50">
               <Wallet className="h-6 w-6" />
@@ -563,7 +563,7 @@ export default function AccountOverviewPage() {
 
           <Link
             href="/account/coins"
-            className="group rounded-2xl border border-stone-200 bg-white p-6 shadow-sm transition-all hover:border-yellow-500 hover:shadow-md"
+            className="glow-card-focus group rounded-2xl border border-stone-200 bg-white p-6 shadow-sm transition-all hover:border-yellow-500 hover:shadow-md"
           >
             <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-yellow-50 text-yellow-600 transition-colors group-hover:bg-yellow-600 group-hover:text-yellow-50">
               <Coins className="h-6 w-6" />
