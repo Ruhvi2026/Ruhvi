@@ -79,16 +79,21 @@ export default function AccountOverviewPage() {
     }
     try {
       setSendingVerification(true);
-      const { sendEmailVerification, updateEmail } =
+      const { sendEmailVerification, verifyBeforeUpdateEmail } =
         await import('firebase/auth');
       const { auth } = await import('@/lib/firebase');
       if (auth.currentUser) {
         if (auth.currentUser.email !== emailInput) {
-          await updateEmail(auth.currentUser, emailInput);
+          await verifyBeforeUpdateEmail(auth.currentUser, emailInput);
+          setVerificationSent(true);
+          toast.success(
+            'A verification link has been sent to the new email address. Please click it to verify the change.'
+          );
+        } else {
+          await sendEmailVerification(auth.currentUser);
+          setVerificationSent(true);
+          toast.success('Verification link sent to your email address!');
         }
-        await sendEmailVerification(auth.currentUser);
-        setVerificationSent(true);
-        toast.success('Verification link sent to your email address!');
       } else {
         toast.error('Could not find active user session.');
       }
