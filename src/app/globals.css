@@ -500,14 +500,35 @@ html.dark .border-gold-200\/80 {
 
 html.dark .text-stone-900,
 html.dark .text-stone-800,
+html.dark .text-stone-700,
+html.dark .text-slate-900,
 html.dark .text-slate-800,
 html.dark .text-slate-700 {
   color: #f6f5f4 !important;
 }
 
+html.dark .text-stone-600,
 html.dark .text-stone-500,
-html.dark .text-slate-500 {
-  color: #9a928c !important;
+html.dark .text-stone-400,
+html.dark .text-slate-600,
+html.dark .text-slate-500,
+html.dark .text-slate-400 {
+  color: #a8a29e !important;
+}
+
+/* Mobile navigation drawer dark mode overrides */
+html.dark aside,
+html.dark aside .bg-gradient-to-b,
+html.dark aside .bg-\[\#FAF8F2\],
+html.dark aside .bg-\[\#FAF8F2\] * {
+  background: #171717 !important;
+  background-color: #171717 !important;
+  border-color: #2a2726 !important;
+}
+
+html.dark aside a.text-stone-700:hover,
+html.dark aside button:hover {
+  background-color: #2a2726 !important;
 }
 
 html.dark header {
