@@ -128,7 +128,7 @@ export default function AccountOverviewPage() {
             .then(() => {
               refreshProfile();
             })
-            .catch((err) => {
+            .catch((err: any) => {
               console.error('Failed to sync email verification status:', err);
             });
         }

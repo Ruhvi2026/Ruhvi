@@ -59,8 +59,8 @@ export default function CompleteProfilePage() {
 
   useEffect(() => {
     // Setup recaptcha
-    if (typeof window !== 'undefined' && !window.recaptchaVerifier) {
-      window.recaptchaVerifier = new RecaptchaVerifier(
+    if (typeof window !== 'undefined' && !(window as any).recaptchaVerifier) {
+      (window as any).recaptchaVerifier = new RecaptchaVerifier(
         auth,
         'recaptcha-container',
         {
@@ -70,11 +70,11 @@ export default function CompleteProfilePage() {
     }
 
     return () => {
-      if (typeof window !== 'undefined' && window.recaptchaVerifier) {
+      if (typeof window !== 'undefined' && (window as any).recaptchaVerifier) {
         try {
-          window.recaptchaVerifier.clear();
+          (window as any).recaptchaVerifier.clear();
         } catch (e) {}
-        window.recaptchaVerifier = null;
+        (window as any).recaptchaVerifier = null;
       }
     };
   }, []);
