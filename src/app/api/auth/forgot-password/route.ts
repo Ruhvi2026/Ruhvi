@@ -8,9 +8,15 @@ const getSupabaseAdmin = () => {
   const supabaseUrl =
     process.env.NEXT_PUBLIC_SUPABASE_URL ||
     'https://igrkrkxdantrolbldapj.supabase.co';
-  const supabaseServiceKey =
-    process.env.SUPABASE_SERVICE_ROLE_KEY || 'dummy_key';
-  return createClient(supabaseUrl, supabaseServiceKey, {
+  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!supabaseServiceKey) {
+    console.error(
+      '[forgot-password] CRITICAL: SUPABASE_SERVICE_ROLE_KEY environment variable is not configured in Vercel.'
+    );
+  }
+
+  return createClient(supabaseUrl, supabaseServiceKey || 'dummy_key', {
     auth: { autoRefreshToken: false, persistSession: false },
   });
 };
