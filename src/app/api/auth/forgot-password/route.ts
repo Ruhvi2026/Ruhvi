@@ -4,16 +4,30 @@ import { SignJWT } from 'jose';
 import { sendPasswordResetEmail } from '@/lib/resend';
 
 // Initialize service-role Supabase client
-const getSupabaseAdmin = () => {
+const getSupabaseAdmin = async () => {
   const supabaseUrl =
     process.env.NEXT_PUBLIC_SUPABASE_URL ||
     'https://igrkrkxdantrolbldapj.supabase.co';
-  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  let supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
   if (!supabaseServiceKey) {
-    console.error(
-      '[forgot-password] CRITICAL: SUPABASE_SERVICE_ROLE_KEY environment variable is not configured in Vercel.'
-    );
+    const jwtSecret = process.env.SUPABASE_JWT_SECRET;
+    if (jwtSecret) {
+      const secretKey = new TextEncoder().encode(jwtSecret);
+      supabaseServiceKey = await new SignJWT({
+        iss: 'supabase',
+        ref: 'igrkrkxdantrolbldapj',
+        role: 'service_role',
+      })
+        .setProtectedHeader({ alg: 'HS256', typ: 'JWT' })
+        .setIssuedAt()
+        .setExpirationTime('10y')
+        .sign(secretKey);
+    } else {
+      console.error(
+        '[forgot-password] CRITICAL: Both SUPABASE_SERVICE_ROLE_KEY and SUPABASE_JWT_SECRET are missing on server.'
+      );
+    }
   }
 
   return createClient(supabaseUrl, supabaseServiceKey || 'dummy_key', {
@@ -33,7 +47,7 @@ export async function POST(request: NextRequest) {
     }
 
     const normalizedEmail = email.trim().toLowerCase();
-    const supabase = getSupabaseAdmin();
+    const supabase = await getSupabaseAdmin();
 
     // 1. Verify user profile exists in Supabase
     const { data: userProfile, error: dbError } = await supabase
