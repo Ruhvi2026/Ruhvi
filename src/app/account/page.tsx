@@ -44,6 +44,7 @@ export default function AccountOverviewPage() {
 
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
+  const [emailInput, setEmailInput] = useState('');
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [savingProfile, setSavingProfile] = useState(false);
   const [profileSuccessMsg, setProfileSuccessMsg] = useState<string | null>(
@@ -72,11 +73,19 @@ export default function AccountOverviewPage() {
   const [linkedProviders, setLinkedProviders] = useState<string[]>([]);
 
   const handleSendVerificationEmail = async () => {
+    if (!emailInput) {
+      toast.error('Please enter an email address first.');
+      return;
+    }
     try {
       setSendingVerification(true);
-      const { sendEmailVerification } = await import('firebase/auth');
+      const { sendEmailVerification, updateEmail } =
+        await import('firebase/auth');
       const { auth } = await import('@/lib/firebase');
       if (auth.currentUser) {
+        if (auth.currentUser.email !== emailInput) {
+          await updateEmail(auth.currentUser, emailInput);
+        }
         await sendEmailVerification(auth.currentUser);
         setVerificationSent(true);
         toast.success('Verification link sent to your email address!');
@@ -97,16 +106,45 @@ export default function AccountOverviewPage() {
         setLinkedProviders(
           auth.currentUser.providerData.map((p: any) => p.providerId)
         );
+
+        // Sync email verification status from Firebase to Supabase if it changed
+        if (
+          auth.currentUser.emailVerified &&
+          profile &&
+          !profile.email_verified
+        ) {
+          const supabase = createClient();
+          supabase
+            .rpc('resolve_customer_identity', {
+              p_firebase_uid: auth.currentUser.uid,
+              p_provider: 'password',
+              p_provider_identifier: auth.currentUser.email || '',
+              p_email: auth.currentUser.email || null,
+              p_email_verified: true,
+              p_phone: auth.currentUser.phoneNumber || null,
+              p_phone_verified: profile.phone_verified || false,
+              p_name: profile.full_name || null,
+            })
+            .then(() => {
+              refreshProfile();
+            })
+            .catch((err) => {
+              console.error('Failed to sync email verification status:', err);
+            });
+        }
       }
     });
-  }, [user]);
+  }, [user, profile, refreshProfile]);
+
   useEffect(() => {
     if (profile) {
       setFullName(profile.full_name || '');
       setPhone(profile.phone || '');
+      setEmailInput(profile.email || user?.email || '');
     } else if (user) {
       setFullName(user.user_metadata?.full_name || '');
       setPhone(user.user_metadata?.phone || user.phone || '');
+      setEmailInput(user.email || '');
     }
   }, [profile, user]);
 
@@ -578,9 +616,15 @@ export default function AccountOverviewPage() {
                 <div className="relative">
                   <input
                     type="email"
-                    disabled
-                    value={userEmail}
-                    className="w-full cursor-not-allowed rounded-xl border border-stone-300 bg-stone-100 px-4 py-2.5 font-medium text-stone-600"
+                    disabled={profile?.email_verified}
+                    value={emailInput}
+                    onChange={(e) => setEmailInput(e.target.value)}
+                    placeholder="Enter your email"
+                    className={`w-full rounded-xl border border-stone-300 px-4 py-2.5 font-medium text-stone-900 focus:outline-none focus:ring-2 focus:ring-amber-500/50 ${
+                      profile?.email_verified
+                        ? 'cursor-not-allowed bg-stone-100 text-stone-600'
+                        : ''
+                    }`}
                   />
                 </div>
                 {!profile?.email_verified && (
@@ -608,9 +652,20 @@ export default function AccountOverviewPage() {
               </div>
 
               <div>
-                <label className="mb-1 block font-semibold text-stone-700">
-                  Mobile Phone Number
-                </label>
+                <div className="mb-1 flex items-center justify-between">
+                  <label className="font-semibold text-stone-700">
+                    Mobile Phone Number
+                  </label>
+                  {isPhoneLinked ? (
+                    <span className="inline-flex items-center gap-1 rounded bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-700">
+                      VERIFIED
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 rounded bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-700">
+                      UNVERIFIED
+                    </span>
+                  )}
+                </div>
                 <input
                   type="tel"
                   disabled={!isEditingProfile}
@@ -619,6 +674,20 @@ export default function AccountOverviewPage() {
                   placeholder="+91 98765 43210"
                   className="w-full rounded-xl border border-stone-300 px-4 py-2.5 font-medium text-stone-900 focus:outline-none focus:ring-2 focus:ring-amber-500/50 disabled:bg-stone-50"
                 />
+                {!isPhoneLinked && (
+                  <div className="mt-2 flex items-center justify-between rounded-lg border border-amber-200/80 bg-amber-50/70 p-2 text-stone-800">
+                    <p className="text-[11px] text-amber-800">
+                      Phone not verified. Link your phone to verify.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => router.push('/complete-profile')}
+                      className="rounded-md bg-amber-600 px-2.5 py-1 text-[10px] font-bold text-white shadow-sm transition hover:bg-amber-700"
+                    >
+                      Verify Now
+                    </button>
+                  </div>
+                )}
               </div>
 
               {isEditingProfile && (
@@ -723,7 +792,7 @@ export default function AccountOverviewPage() {
                         </span>
                       ) : (
                         <button
-                          onClick={() => router.push('/login?method=phone')}
+                          onClick={() => router.push('/complete-profile')}
                           className="rounded-lg border border-stone-200 px-3 py-1 text-[10px] font-bold text-stone-700 hover:bg-stone-50"
                         >
                           Link Phone

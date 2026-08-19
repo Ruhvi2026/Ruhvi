@@ -326,6 +326,33 @@ export default function WalletPage() {
         </div>
       </div>
 
+      {/* Signup Bonus Verification Prompt */}
+      {(!profile?.email_verified || !profile?.phone_verified) && (
+        <div className="flex items-center justify-between gap-4 rounded-2xl border border-emerald-200/60 bg-gradient-to-r from-emerald-50/50 to-white p-4 shadow-sm sm:p-5">
+          <div className="flex items-center space-x-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">
+              <CheckCircle2 className="h-5 w-5" />
+            </div>
+            <div className="text-xs">
+              <p className="font-bold text-stone-900">Complete Verification</p>
+              <p className="mt-0.5 text-stone-600">
+                Verify your email and mobile number and get a{' '}
+                <span className="font-bold text-emerald-700">
+                  ₹50 Sign-up Bonus
+                </span>{' '}
+                instantly!
+              </p>
+            </div>
+          </div>
+          <Link
+            href="/account"
+            className="shrink-0 rounded-xl bg-emerald-700 px-4 py-2 text-xs font-bold text-white shadow-sm transition hover:bg-emerald-800"
+          >
+            Verify Now
+          </Link>
+        </div>
+      )}
+
       {/* Promos Banner */}
       <div className="flex items-center justify-between gap-4 rounded-2xl border border-amber-300/60 bg-gradient-to-r from-amber-500/10 via-amber-400/5 to-amber-500/10 p-4 sm:p-5">
         <div className="flex items-center space-x-3">

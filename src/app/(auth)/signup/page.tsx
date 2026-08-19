@@ -24,9 +24,9 @@ export default function SignUpPage() {
 
   const [fullName, setFullName] = useState('');
 
-  // Email state
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
   // Phone state
   const [phone, setPhone] = useState('');
@@ -53,6 +53,10 @@ export default function SignUpPage() {
 
   const handleEmailSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (password !== confirmPassword) {
+      setError('Passwords do not match.');
+      return;
+    }
     setLoading(true);
     setError(null);
     setMessage(null);
@@ -138,7 +142,7 @@ export default function SignUpPage() {
 
       setMessage('Account created successfully! Redirecting...');
       setTimeout(() => {
-        router.push('/');
+        router.push('/complete-profile');
         router.refresh();
       }, 1000);
     } catch (err: any) {
@@ -278,10 +282,10 @@ export default function SignUpPage() {
       }
 
       setMessage(
-        'Account verified successfully! Redirecting to set your password...'
+        'Account verified successfully! Redirecting to complete your profile...'
       );
       setTimeout(() => {
-        router.push('/set-password');
+        router.push('/complete-profile');
         router.refresh();
       }, 1000);
     } catch (err: any) {
@@ -352,10 +356,10 @@ export default function SignUpPage() {
       }
 
       setMessage(
-        'Account created successfully! Redirecting to set your password...'
+        'Account created successfully! Redirecting to complete your profile...'
       );
       setTimeout(() => {
-        router.push('/set-password');
+        router.push('/complete-profile');
         router.refresh();
       }, 1000);
     } catch (err: any) {
@@ -426,10 +430,10 @@ export default function SignUpPage() {
       }
 
       setMessage(
-        'Account created successfully! Redirecting to set your password...'
+        'Account created successfully! Redirecting to complete your profile...'
       );
       setTimeout(() => {
-        router.push('/set-password');
+        router.push('/complete-profile');
         router.refresh();
       }, 1000);
     } catch (err: any) {
@@ -556,6 +560,21 @@ export default function SignUpPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Minimum 6 characters"
+                className="w-full rounded-xl border border-[#E7D7A3] bg-[#FAF7ED]/50 px-4 py-3 text-sm text-[#121110] focus:outline-none focus:ring-2 focus:ring-[#C29831]/50"
+              />
+            </div>
+
+            <div>
+              <label className="mb-1 block text-xs font-medium text-[#121110]/80">
+                Confirm Password
+              </label>
+              <input
+                type="password"
+                required
+                minLength={6}
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="Confirm your password"
                 className="w-full rounded-xl border border-[#E7D7A3] bg-[#FAF7ED]/50 px-4 py-3 text-sm text-[#121110] focus:outline-none focus:ring-2 focus:ring-[#C29831]/50"
               />
             </div>
