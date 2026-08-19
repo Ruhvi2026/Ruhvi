@@ -73,6 +73,106 @@ export default function CustomerSupportChat() {
   const [thinkingStep, setThinkingStep] = useState(0);
   const [hasUnread, setHasUnread] = useState(false);
   const [winSize, setWinSize] = useState({ width: 400, height: 560 });
+
+  // Floating, draggable mascot state
+  const [position, setPosition] = useState({ x: -1000, y: -1000 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [isClosed, setIsClosed] = useState(false);
+  const [isNearCloseZone, setIsNearCloseZone] = useState(false);
+  const dragStart = useRef({
+    pointerX: 0,
+    pointerY: 0,
+    posX: 0,
+    posY: 0,
+    hasMoved: false,
+  });
+
+  useEffect(() => {
+    // Set initial position at bottom-right on mount
+    setPosition({
+      x: window.innerWidth - 90,
+      y: window.innerHeight - 100,
+    });
+  }, []);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setPosition((prev) => ({
+        x: Math.max(10, Math.min(window.innerWidth - 85, prev.x)),
+        y: Math.max(10, Math.min(window.innerHeight - 95, prev.y)),
+      }));
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const onPointerDown = (e: React.PointerEvent) => {
+    if (e.button !== 0) return;
+    const el = e.currentTarget;
+    try {
+      el.setPointerCapture(e.pointerId);
+    } catch (err) {}
+
+    dragStart.current = {
+      pointerX: e.clientX,
+      pointerY: e.clientY,
+      posX: position.x === -1000 ? window.innerWidth - 90 : position.x,
+      posY: position.y === -1000 ? window.innerHeight - 100 : position.y,
+      hasMoved: false,
+    };
+    setIsDragging(true);
+  };
+
+  const onPointerMove = (e: React.PointerEvent) => {
+    if (!isDragging) return;
+
+    const dx = e.clientX - dragStart.current.pointerX;
+    const dy = e.clientY - dragStart.current.pointerY;
+
+    if (Math.abs(dx) > 4 || Math.abs(dy) > 4) {
+      dragStart.current.hasMoved = true;
+    }
+
+    const newX = Math.max(
+      10,
+      Math.min(window.innerWidth - 85, dragStart.current.posX + dx)
+    );
+    const newY = Math.max(
+      10,
+      Math.min(window.innerHeight - 95, dragStart.current.posY + dy)
+    );
+
+    setPosition({ x: newX, y: newY });
+
+    // Close zone is bottom center (roughly 60px from bottom, centered)
+    const closeX = window.innerWidth / 2;
+    const closeY = window.innerHeight - 60;
+    const mascotCenterX = newX + 35; // size is 70, center is +35
+    const mascotCenterY = newY + 35;
+
+    const distance = Math.sqrt(
+      Math.pow(mascotCenterX - closeX, 2) + Math.pow(mascotCenterY - closeY, 2)
+    );
+    setIsNearCloseZone(distance < 75);
+  };
+
+  const onPointerUp = (e: React.PointerEvent) => {
+    if (!isDragging) return;
+    setIsDragging(false);
+
+    try {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    } catch (err) {}
+
+    if (!dragStart.current.hasMoved) {
+      // Toggle support chat
+      setIsOpen(!isOpen);
+      setHasUnread(false);
+    } else if (isNearCloseZone) {
+      setIsClosed(true);
+    }
+    setIsNearCloseZone(false);
+  };
   const feedRef = useRef<HTMLDivElement>(null);
   const resizeRef = useRef<{
     startX: number;
@@ -441,26 +541,61 @@ export default function CustomerSupportChat() {
         </div>
       )}
 
-      {/* FAB */}
-      <button
-        onClick={() => {
-          setIsOpen(!isOpen);
-          setHasUnread(false);
-        }}
-        className="fixed bottom-5 right-5 z-[100] flex h-14 w-14 items-center justify-center rounded-full border border-gold-400/30 bg-gradient-to-br from-charcoal-900 to-charcoal-800 shadow-lg shadow-charcoal-900/40 transition-transform hover:scale-105 active:scale-95"
-        aria-label={isOpen ? 'Close support chat' : 'Open support chat'}
-      >
-        {isOpen ? (
-          <X className="h-5 w-5 text-cream-100" />
-        ) : (
-          <>
-            <BotMascot size={30} />
-            {hasUnread && (
-              <span className="absolute -right-0.5 -top-0.5 h-3.5 w-3.5 rounded-full border-2 border-charcoal-900 bg-emerald-400" />
+      {/* Draggable Floating Mascot */}
+      {!isClosed && (
+        <div
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={onPointerUp}
+          className={`fixed z-[100] cursor-grab touch-none select-none transition-transform duration-100 active:cursor-grabbing ${
+            isDragging ? 'scale-105' : 'hover:scale-110 active:scale-95'
+          }`}
+          style={{
+            left: position.x === -1000 ? 'auto' : `${position.x}px`,
+            top: position.y === -1000 ? 'auto' : `${position.y}px`,
+            bottom: position.x === -1000 ? '20px' : 'auto',
+            right: position.x === -1000 ? '20px' : 'auto',
+          }}
+          aria-label={isOpen ? 'Close support chat' : 'Open support chat'}
+        >
+          <div className="relative">
+            <BotMascot
+              size={70}
+              showGlow={true}
+              state={isTyping ? 'thinking' : 'idle'}
+            />
+            {hasUnread && !isOpen && (
+              <span className="absolute right-1 top-1 h-4 w-4 animate-pulse rounded-full border-2 border-charcoal-900 bg-emerald-400" />
             )}
-          </>
-        )}
-      </button>
+          </div>
+        </div>
+      )}
+
+      {/* Drop Target Zone to Close/Hide Mascot */}
+      {isDragging && !isClosed && (
+        <div className="pointer-events-none fixed bottom-6 left-1/2 z-[99] flex -translate-x-1/2 flex-col items-center gap-1.5">
+          <div
+            className={`flex h-16 w-16 items-center justify-center rounded-full border-2 transition-all duration-300 ${
+              isNearCloseZone
+                ? 'scale-125 border-rose-500 bg-rose-500/20 shadow-lg shadow-rose-500/30'
+                : 'scale-100 border-gold-400/40 bg-stone-900/40 backdrop-blur-md'
+            }`}
+          >
+            <X
+              className={`h-6 w-6 transition-colors duration-300 ${isNearCloseZone ? 'text-rose-500' : 'text-cream-100'}`}
+            />
+          </div>
+          <span
+            className={`rounded px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider transition-all duration-300 ${
+              isNearCloseZone
+                ? 'bg-rose-500/10 text-rose-500'
+                : 'bg-stone-900/20 text-stone-400 backdrop-blur-sm'
+            }`}
+          >
+            {isNearCloseZone ? 'Drop to Hide Gia' : 'Drag here to hide'}
+          </span>
+        </div>
+      )}
     </>
   );
 }
