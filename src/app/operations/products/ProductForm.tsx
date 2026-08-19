@@ -14,6 +14,8 @@ import {
   AlertTriangle,
   Check,
   ShieldCheck,
+  Upload,
+  Trash,
 } from 'lucide-react';
 import { generateSKU } from '@/lib/sku';
 import Link from 'next/link';
@@ -43,9 +45,10 @@ export default function ProductForm({ initialData, isEdit }: ProductFormProps) {
   const [description, setDescription] = useState(
     initialData?.description || ''
   );
-  const [imageUrls, setImageUrls] = useState(
-    initialData?.product_images?.map((img: any) => img.url).join('\n') || ''
+  const [imagesList, setImagesList] = useState<{ url: string }[]>(
+    initialData?.product_images?.map((img: any) => ({ url: img.url })) || []
   );
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
 
   // New Fields (SEO & Dimensions)
   const [aiContent, setAiContent] = useState<any>(
@@ -266,6 +269,46 @@ export default function ProductForm({ initialData, isEdit }: ProductFormProps) {
     setShowAuditModal(false);
   };
 
+  const handleLocalImageUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    setIsUploadingImage(true);
+    const loadingToast = toast.loading(`Uploading ${files.length} image(s)...`);
+
+    try {
+      const { uploadProductImage } =
+        await import('@/services/cloudinaryService');
+      const uploadedUrls: string[] = [];
+
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const res = await uploadProductImage(file);
+        if (res?.secure_url) {
+          uploadedUrls.push(res.secure_url);
+        }
+      }
+
+      setImagesList((prev) => [
+        ...prev,
+        ...uploadedUrls.map((url) => ({ url })),
+      ]);
+      toast.success('Images uploaded successfully!', { id: loadingToast });
+    } catch (err: any) {
+      toast.error(`Upload failed: ${err.message}`, { id: loadingToast });
+    } finally {
+      setIsUploadingImage(false);
+      e.target.value = '';
+    }
+  };
+
+  const handleRemoveImage = (index: number) => {
+    setImagesList((prev) => prev.filter((_, idx) => idx !== index));
+    toast.success('Image removed from listing');
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -296,7 +339,7 @@ export default function ProductForm({ initialData, isEdit }: ProductFormProps) {
     formData.append('stock_quantity', stockQuantity.toString());
     formData.append('status', status);
     formData.append('description', description);
-    formData.append('image_urls', imageUrls);
+    formData.append('image_urls', imagesList.map((img) => img.url).join('\n'));
     formData.append('seo_metadata', JSON.stringify(finalSeoMetadata));
     formData.append('ai_content', JSON.stringify(aiContent));
     formData.append('gst_rate', gstRate.toString());
@@ -803,21 +846,60 @@ export default function ProductForm({ initialData, isEdit }: ProductFormProps) {
           <div className="space-y-6 rounded-xl border border-white/5 bg-[#151520] p-6 shadow-xl">
             <div className="flex items-center gap-2 border-b border-white/10 pb-4">
               <ImageIcon className="h-5 w-5 text-indigo-400" />
-              <h2 className="text-lg font-bold text-white">Media (URLs)</h2>
+              <h2 className="text-lg font-bold text-white">Product Images</h2>
             </div>
 
-            <div>
-              <label className="mb-1.5 block text-sm text-slate-400">
-                Paste direct image URLs here (one per line). The first URL will
-                be used as the thumbnail.
-              </label>
-              <textarea
-                rows={5}
-                value={imageUrls}
-                onChange={(e) => setImageUrls(e.target.value)}
-                className="w-full rounded-lg border border-white/10 bg-black/20 px-4 py-2.5 font-mono text-sm text-xs text-white placeholder-slate-600 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                placeholder="https://example.com/image1.jpg&#10;https://example.com/image2.jpg"
-              />
+            <div className="space-y-4">
+              <p className="text-xs text-slate-400">
+                Upload product photos. The first image will be used as the main
+                search listing thumbnail.
+              </p>
+
+              <div className="flex flex-wrap gap-4">
+                {imagesList.map((img, idx) => (
+                  <div
+                    key={idx}
+                    className="group relative h-24 w-24 overflow-hidden rounded-lg border border-white/10 bg-black/40"
+                  >
+                    <img
+                      src={img.url}
+                      alt="Product"
+                      className="h-full w-full object-cover"
+                    />
+                    {idx === 0 && (
+                      <span className="absolute left-1 top-1 rounded bg-indigo-600 px-1.5 py-0.5 text-[9px] font-bold text-white shadow">
+                        Main
+                      </span>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveImage(idx)}
+                      className="absolute right-1 top-1 rounded bg-black/60 p-1 text-rose-400 opacity-0 transition-colors hover:text-rose-300 group-hover:opacity-100"
+                    >
+                      <Trash className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                ))}
+
+                <label className="flex h-24 w-24 cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-white/10 bg-white/5 transition-all hover:border-indigo-500/50 hover:bg-white/10">
+                  {isUploadingImage ? (
+                    <Loader2 className="h-5 w-5 animate-spin text-indigo-400" />
+                  ) : (
+                    <Upload className="h-5 w-5 text-slate-400" />
+                  )}
+                  <span className="mt-1 text-[10px] font-semibold text-slate-400">
+                    Upload
+                  </span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    className="hidden"
+                    disabled={isUploadingImage}
+                    onChange={handleLocalImageUpload}
+                  />
+                </label>
+              </div>
             </div>
           </div>
         </div>
