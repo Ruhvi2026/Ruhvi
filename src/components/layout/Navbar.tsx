@@ -120,54 +120,23 @@ export function Navbar() {
           </div>
 
           {/* Navigation Actions */}
-          <div className="flex items-center space-x-1 sm:space-x-6">
-            <Link
-              href="/orders"
-              className="hidden text-xs font-semibold uppercase tracking-wider text-slate-700 transition-colors hover:text-gold-600 sm:inline-flex"
-            >
-              My Orders
-            </Link>
-
-            <Link
-              href="/account/notifications"
-              className="relative p-1.5 text-slate-700 transition-colors hover:text-gold-600 sm:p-2"
-              title="Notifications"
-            >
-              <Bell className="h-5 w-5" />
-              {unreadCount > 0 && (
-                <span className="animate-scale-in absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-gold-600 text-[10px] font-bold text-white">
-                  {unreadCount}
-                </span>
-              )}
-            </Link>
-
+          <div className="flex items-center space-x-2 sm:space-x-4">
             {/* Wallet Integration */}
-            <div className="group relative flex items-center">
-              <Link
-                href="/account/wallet"
-                className="relative flex items-center gap-1.5 p-1.5 text-slate-700 transition-colors hover:text-gold-600 sm:p-2"
-                title="Wallet Balance"
-              >
-                <Wallet className="h-5 w-5" />
-                <span className="flex items-center justify-center rounded-full border border-gold-200/60 bg-champagne-200 px-2 py-0.5 text-[10px] font-bold text-gold-700 shadow-sm">
-                  ₹{user ? (profile?.wallet_balance ?? 0) : 0}
-                </span>
-              </Link>
-            </div>
-
             <Link
-              href="/wishlist"
-              className="relative p-1.5 text-slate-700 transition-colors hover:text-gold-600 sm:p-2"
-              title="Wishlist"
+              href="/account/wallet"
+              className="flex items-center gap-1.5 rounded-full border border-gold-300/40 bg-gold-50/50 px-2.5 py-1 text-slate-700 shadow-sm transition-all hover:bg-gold-100/40 hover:text-gold-700 sm:gap-2 sm:px-3.5 sm:py-1.5"
+              title="Wallet Balance"
             >
-              <Heart className="h-5 w-5" />
-              {wishlistCount > 0 && (
-                <span className="animate-scale-in absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-rose-500 text-[10px] font-bold text-white">
-                  {wishlistCount}
-                </span>
-              )}
+              <Wallet className="sm:h-4.5 sm:w-4.5 h-4 w-4 text-gold-600" />
+              <span className="font-mono text-[10px] font-bold text-gold-800 sm:text-xs">
+                ₹
+                {user
+                  ? (profile?.wallet_balance ?? 0).toLocaleString('en-IN')
+                  : 0}
+              </span>
             </Link>
 
+            {/* Cart Link */}
             <Link
               href="/cart"
               className="relative p-1.5 text-slate-700 transition-colors hover:text-gold-600 sm:p-2"
@@ -175,62 +144,56 @@ export function Navbar() {
             >
               <ShoppingBag className="h-5 w-5" />
               {cartCount > 0 && (
-                <span className="animate-scale-in absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-charcoal-900 text-[10px] font-bold text-gold-200">
+                <span className="absolute right-0.5 top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-gold-600 text-[9px] font-bold text-white shadow-sm">
                   {cartCount}
                 </span>
               )}
             </Link>
 
-            {/* User Profile Navigation Icon / Dropdown */}
+            {/* User Profile Dropdown */}
             <div className="relative">
               {user ? (
                 <div className="group relative">
                   <button
                     onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                    className="flex items-center space-x-1.5 p-1 text-slate-700 transition-colors hover:text-charcoal-900 focus:outline-none"
+                    className="flex items-center focus:outline-none"
                     title="Account Menu"
                   >
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full border border-gold-400/50 bg-charcoal-900 font-serif text-xs font-bold text-gold-300 shadow-sm">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full border border-gold-300/50 bg-gold-50/80 font-serif text-xs font-bold text-gold-700 shadow-sm transition-colors hover:bg-gold-100/50">
                       {userInitials}
                     </div>
                   </button>
 
-                  <div className="pointer-events-none absolute right-0 top-full z-50 w-60 pt-2 opacity-0 transition-all duration-200 group-hover:pointer-events-auto group-hover:opacity-100">
-                    <div className="space-y-2 rounded-2xl border border-gold-200 bg-white p-3 text-xs shadow-xl">
-                      <div className="space-y-0.5 rounded-xl border border-gold-200/70 bg-cream-50 px-3 py-2">
-                        <p className="truncate font-bold text-stone-900">
-                          {userDisplayName}
-                        </p>
-                        <p className="truncate font-mono text-[10px] text-stone-500">
+                  <div className="pointer-events-none absolute right-0 top-full z-50 w-56 pt-2 opacity-0 transition-all duration-200 group-hover:pointer-events-auto group-hover:opacity-100">
+                    <div className="rounded-2xl border border-gold-200/50 bg-white p-2.5 text-xs shadow-xl backdrop-blur-md">
+                      <div className="mb-2 rounded-xl bg-gold-50/40 px-3 py-2 text-stone-800">
+                        <p className="truncate font-bold">{userDisplayName}</p>
+                        <p className="truncate font-mono text-[9px] text-stone-500">
                           {user.email}
                         </p>
-                        <span className="inline-flex items-center gap-1 pt-0.5 text-[9px] font-semibold text-emerald-700">
-                          <ShieldCheck className="h-3 w-3 text-emerald-600" />{' '}
-                          Email Authenticated
-                        </span>
                       </div>
 
-                      <div className="space-y-1 pt-1">
+                      <div className="space-y-0.5">
                         <Link
                           href="/account"
-                          className="flex items-center space-x-2 rounded-xl px-3 py-2 font-medium text-stone-700 hover:bg-gold-50 hover:text-charcoal-900"
+                          className="flex items-center space-x-2 rounded-lg px-2.5 py-1.5 font-medium text-stone-600 transition hover:bg-gold-50/50 hover:text-gold-700"
                         >
-                          <User className="h-4 w-4 text-gold-700" />
-                          <span>My Account Profile</span>
+                          <User className="h-4 w-4 text-gold-600" />
+                          <span>My Account</span>
                         </Link>
                         <Link
                           href="/orders"
-                          className="flex items-center space-x-2 rounded-xl px-3 py-2 font-medium text-stone-700 hover:bg-gold-50 hover:text-charcoal-900"
+                          className="flex items-center space-x-2 rounded-lg px-2.5 py-1.5 font-medium text-stone-600 transition hover:bg-gold-50/50 hover:text-gold-700"
                         >
-                          <Package className="h-4 w-4 text-gold-700" />
-                          <span>My Purchases</span>
+                          <Package className="h-4 w-4 text-gold-600" />
+                          <span>My Orders</span>
                         </Link>
                       </div>
 
-                      <div className="border-t border-stone-100 pt-2">
+                      <div className="mt-2 border-t border-gold-100/60 pt-2">
                         <button
                           onClick={signOut}
-                          className="flex w-full items-center space-x-2 rounded-xl px-3 py-2 text-xs font-semibold text-rose-700 transition hover:bg-rose-50"
+                          className="flex w-full items-center space-x-2 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-rose-600 transition hover:bg-rose-50"
                         >
                           <LogOut className="h-4 w-4" />
                           <span>Sign Out</span>
@@ -242,7 +205,7 @@ export function Navbar() {
               ) : (
                 <Link
                   href="/login"
-                  className="flex items-center gap-1 p-1.5 text-slate-700 transition-colors hover:text-gold-600 sm:p-2"
+                  className="p-1.5 text-slate-700 transition-colors hover:text-gold-600 sm:p-2"
                   title="Sign In"
                 >
                   <User className="h-5 w-5" />
