@@ -15,6 +15,8 @@ export interface UserProfile {
   role: 'customer' | 'staff' | 'manager' | 'admin';
   wallet_balance: number;
   reward_coins: number;
+  email_verified?: boolean;
+  phone_verified?: boolean;
   created_at: string;
   updated_at?: string;
 }
@@ -47,10 +49,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const fetchProfile = async (authUser: any) => {
     try {
       const supabase = createClient();
-      let data = null;
+      let data: any = null;
 
-      // 1. Try fetching by ID (Supabase Auth ID)
-      if (authUser.id) {
+      const isUuid =
+        authUser.id &&
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+          authUser.id
+        );
+
+      // 1. Try fetching by ID (if valid UUID)
+      if (isUuid) {
         const { data: userById } = await supabase
           .from('users')
           .select('*')
@@ -62,7 +70,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       // 2. Try fetching by firebase_uid using the secure RPC (bypasses RLS)
       if (!data && authUser.id) {
-        const { data: userByFb, error } = await supabase
+        const { data: userByFb } = await supabase
           .rpc('get_user_profile', { p_user_id: authUser.id })
           .limit(1)
           .maybeSingle();
@@ -96,7 +104,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       if (data) {
-        setProfile(data as UserProfile);
+        setProfile({
+          ...data,
+          wallet_balance: Number(data.wallet_balance) || 0,
+          reward_coins: Number(data.reward_coins) || 0,
+          email_verified:
+            !!data.email_verified ||
+            !!authUser.email_verified ||
+            !!authUser.emailVerified,
+          phone_verified: !!data.phone_verified || !!authUser.phoneNumber,
+        });
       } else {
         // Fallback profile using auth metadata
         setProfile({
@@ -115,14 +132,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           role: 'customer',
           wallet_balance: 0,
           reward_coins: 0,
+          email_verified: !!authUser.email_verified || !!authUser.emailVerified,
+          phone_verified: !!authUser.phoneNumber,
           created_at: authUser.created_at || new Date().toISOString(),
         });
       }
     } catch (err) {
-      const apiError = parseApiError(err);
       console.error('Error fetching profile:', err);
-      // We don't want to show a toast every time the profile fails to load in background,
-      // but we do want to log it and potentially flag an error state if critical.
     }
   };
 
@@ -145,11 +161,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           id: fbUser.uid,
           email: fbUser.email || null,
           phone: fbUser.phoneNumber || null,
+          emailVerified: fbUser.emailVerified,
           user_metadata: {
             full_name: fbUser.displayName || null,
             phone: fbUser.phoneNumber || null,
           },
-          created_at: fbUser.metadata.creationTime || new Date().toISOString(),
+          created_at: fbUser.metadata?.creationTime || new Date().toISOString(),
         };
         setUser(formattedUser);
         await fetchProfile(formattedUser);
@@ -282,6 +299,49 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (unsubFirebase) unsubFirebase();
     };
   }, []);
+
+  // Real-time synchronization for profile and wallet balance changes
+  useEffect(() => {
+    if (!profile?.id) return;
+    const isUuid =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+        profile.id
+      );
+    if (!isUuid) return;
+
+    const supabase = createClient();
+    const channel = supabase
+      .channel(`profile-sync-${profile.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'users',
+          filter: `id=eq.${profile.id}`,
+        },
+        (payload: any) => {
+          if (payload.new) {
+            const updated = payload.new as any;
+            setProfile((prev) =>
+              prev
+                ? {
+                    ...prev,
+                    ...updated,
+                    wallet_balance: Number(updated.wallet_balance) || 0,
+                    reward_coins: Number(updated.reward_coins) || 0,
+                  }
+                : updated
+            );
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [profile?.id]);
 
   return (
     <AuthContext.Provider

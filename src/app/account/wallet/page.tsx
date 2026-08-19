@@ -51,10 +51,14 @@ export default function WalletPage() {
   const presetAmounts = [350, 500, 1000, 2500, 5000, 10000];
 
   useEffect(() => {
-    if (profile) {
+    refreshProfile();
+  }, []);
+
+  useEffect(() => {
+    if (profile && typeof profile.wallet_balance !== 'undefined') {
       setBalance(Number(profile.wallet_balance) || 0);
     }
-  }, [profile]);
+  }, [profile?.wallet_balance]);
 
   useEffect(() => {
     async function fetchLedger() {
@@ -104,6 +108,21 @@ export default function WalletPage() {
 
         if (data && data.length > 0) {
           setTransactions(data as WalletTxn[]);
+          // Calculate ledger balance
+          const ledgerSum = (data as WalletTxn[]).reduce((acc, curr) => {
+            const amt = Number(curr.amount) || 0;
+            if (curr.type === 'credit' || curr.type === 'cashback')
+              return acc + amt;
+            if (curr.type === 'debit') return acc - amt;
+            return acc;
+          }, 0);
+
+          if (
+            !profile?.wallet_balance ||
+            Number(profile.wallet_balance) === 0
+          ) {
+            setBalance(ledgerSum);
+          }
         } else {
           setTransactions([]);
         }
@@ -115,7 +134,30 @@ export default function WalletPage() {
     }
 
     fetchLedger();
-  }, [user]);
+
+    // Setup realtime subscription on wallet_ledger if user exists
+    if (!user) return;
+    const supabase = createClient();
+    const channel = supabase
+      .channel(`wallet-ledger-${user.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'wallet_ledger',
+        },
+        () => {
+          fetchLedger();
+          refreshProfile();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user, profile?.wallet_balance]);
 
   const effectiveAmount = customAmount
     ? parseFloat(customAmount) || 0

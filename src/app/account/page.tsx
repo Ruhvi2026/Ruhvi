@@ -30,6 +30,7 @@ import {
   Wallet,
   Gift,
 } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 export default function AccountOverviewPage() {
   const router = useRouter();
@@ -50,6 +51,10 @@ export default function AccountOverviewPage() {
   );
   const [profileErrorMsg, setProfileErrorMsg] = useState<string | null>(null);
 
+  // Email verification state
+  const [sendingVerification, setSendingVerification] = useState(false);
+  const [verificationSent, setVerificationSent] = useState(false);
+
   // Password update state
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [newPassword, setNewPassword] = useState('');
@@ -65,15 +70,36 @@ export default function AccountOverviewPage() {
 
   // Linked Providers State
   const [linkedProviders, setLinkedProviders] = useState<string[]>([]);
-  const { auth } = require('@/lib/firebase');
+
+  const handleSendVerificationEmail = async () => {
+    try {
+      setSendingVerification(true);
+      const { sendEmailVerification } = await import('firebase/auth');
+      const { auth } = await import('@/lib/firebase');
+      if (auth.currentUser) {
+        await sendEmailVerification(auth.currentUser);
+        setVerificationSent(true);
+        toast.success('Verification link sent to your email address!');
+      } else {
+        toast.error('Could not find active user session.');
+      }
+    } catch (err: any) {
+      console.error('Error sending verification email:', err);
+      toast.error(err.message || 'Failed to send verification email.');
+    } finally {
+      setSendingVerification(false);
+    }
+  };
 
   useEffect(() => {
-    if (auth?.currentUser) {
-      setLinkedProviders(
-        auth.currentUser.providerData.map((p: any) => p.providerId)
-      );
-    }
-  }, [user, auth?.currentUser]);
+    import('@/lib/firebase').then(({ auth }) => {
+      if (auth?.currentUser) {
+        setLinkedProviders(
+          auth.currentUser.providerData.map((p: any) => p.providerId)
+        );
+      }
+    });
+  }, [user]);
   useEffect(() => {
     if (profile) {
       setFullName(profile.full_name || '');
@@ -535,9 +561,20 @@ export default function AccountOverviewPage() {
               </div>
 
               <div>
-                <label className="mb-1 block font-semibold text-stone-700">
-                  Email Address (Authenticated)
-                </label>
+                <div className="mb-1 flex items-center justify-between">
+                  <label className="font-semibold text-stone-700">
+                    Email Address
+                  </label>
+                  {profile?.email_verified ? (
+                    <span className="inline-flex items-center gap-1 rounded bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-700">
+                      VERIFIED
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 rounded bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-700">
+                      UNVERIFIED
+                    </span>
+                  )}
+                </div>
                 <div className="relative">
                   <input
                     type="email"
@@ -545,12 +582,28 @@ export default function AccountOverviewPage() {
                     value={userEmail}
                     className="w-full cursor-not-allowed rounded-xl border border-stone-300 bg-stone-100 px-4 py-2.5 font-medium text-stone-600"
                   />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 rounded bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-700">
-                    VERIFIED
-                  </span>
                 </div>
+                {!profile?.email_verified && (
+                  <div className="mt-2 flex items-center justify-between rounded-lg border border-amber-200/80 bg-amber-50/70 p-2 text-stone-800">
+                    <p className="text-[11px] text-amber-800">
+                      Email not verified. Click to verify your email.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={handleSendVerificationEmail}
+                      disabled={sendingVerification}
+                      className="rounded-md bg-amber-600 px-2.5 py-1 text-[10px] font-bold text-white shadow-sm transition hover:bg-amber-700 disabled:opacity-50"
+                    >
+                      {sendingVerification
+                        ? 'Sending...'
+                        : verificationSent
+                          ? 'Link Sent!'
+                          : 'Send Link'}
+                    </button>
+                  </div>
+                )}
                 <p className="mt-1 text-[10px] text-stone-400">
-                  Your email address is linked to your Supabase Auth identity.
+                  Your email address is linked to your Ruhvi customer account.
                 </p>
               </div>
 
