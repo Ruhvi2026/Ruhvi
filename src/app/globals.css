@@ -458,3 +458,86 @@
     animation: none;
   }
 }
+
+/* ==========================================================================
+   Night Velvet Dark Theme Overrides
+   ========================================================================== */
+html.dark {
+  color-scheme: dark;
+}
+
+html.dark body {
+  background-color: #0f0f0f !important;
+  color: #e6e6e6 !important;
+}
+
+html.dark h1,
+html.dark h2,
+html.dark h3,
+html.dark h4,
+html.dark h5,
+html.dark h6 {
+  color: #ffffff !important;
+}
+
+html.dark .bg-cream-100,
+html.dark .bg-cream-50,
+html.dark .bg-champagne-50,
+html.dark .bg-white {
+  background-color: #171717 !important;
+}
+
+html.dark .bg-\[\#FCFBF7\] {
+  background-color: #1c1a19 !important;
+  border-color: rgba(77, 181, 183, 0.15) !important;
+}
+
+html.dark .border-stone-200,
+html.dark .border-gold-200\/50,
+html.dark .border-gold-200\/80 {
+  border-color: #2a2726 !important;
+}
+
+html.dark .text-stone-900,
+html.dark .text-stone-800,
+html.dark .text-slate-800,
+html.dark .text-slate-700 {
+  color: #f6f5f4 !important;
+}
+
+html.dark .text-stone-500,
+html.dark .text-slate-500 {
+  color: #9a928c !important;
+}
+
+html.dark header {
+  background-color: rgba(15, 15, 15, 0.8) !important;
+  backdrop-filter: blur(12px) !important;
+  border-bottom: 1px solid rgba(77, 181, 183, 0.15) !important;
+}
+
+html.dark .text-charcoal-900 {
+  color: #e6e6e6 !important;
+}
+
+html.dark input,
+html.dark select,
+html.dark textarea {
+  background-color: #2a2726 !important;
+  color: #ffffff !important;
+  border-color: #3d3936 !important;
+}
+
+html.dark button.bg-white {
+  background-color: #2a2726 !important;
+  border-color: #3d3936 !important;
+  color: #f6f5f4 !important;
+}
+
+html.dark button.bg-white:hover {
+  background-color: #3d3936 !important;
+}
+
+html.dark .bg-gold-50\/50 {
+  background-color: rgba(43, 172, 173, 0.1) !important;
+}

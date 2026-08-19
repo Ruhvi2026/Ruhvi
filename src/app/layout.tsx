@@ -141,6 +141,29 @@ export default async function RootLayout({
     <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
       <body className="flex min-h-screen flex-col bg-cream-100 text-charcoal-900 antialiased">
         <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  var theme = localStorage.getItem('theme') || 'system';
+                  var root = document.documentElement;
+                  root.classList.remove('dark', 'light');
+                  var activeTheme = theme;
+                  if (theme === 'system') {
+                    var systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                    activeTheme = systemPrefersDark ? 'dark' : 'light';
+                  }
+                  if (activeTheme === 'dark') {
+                    root.classList.add('dark');
+                  } else {
+                    root.classList.add('light');
+                  }
+                } catch (e) {}
+              })();
+            `,
+          }}
+        />
+        <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify(organizationSchema),
