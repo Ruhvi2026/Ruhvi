@@ -89,6 +89,15 @@ export async function GET(req: NextRequest) {
       console.error('Messages query error:', messagesError);
     }
 
+    // 4. Fetch attachments
+    const { data: attachments } = await supabase
+      .from('support_attachments')
+      .select(
+        'id, file_name, file_type, file_size, storage_url, created_at, message_id'
+      )
+      .eq('ticket_id', ticket.id)
+      .order('created_at', { ascending: true });
+
     const categoryObj = Array.isArray(ticket.category)
       ? ticket.category[0]
       : ticket.category;
@@ -111,6 +120,7 @@ export async function GET(req: NextRequest) {
         customer_name: customer?.full_name || ticket.guest_name || 'Customer',
       },
       messages: messages || [],
+      attachments: attachments || [],
     });
   } catch (err: any) {
     console.error('Status Check API Error:', err);

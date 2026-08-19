@@ -15,6 +15,7 @@ import {
   Loader2,
   MessageSquare,
   AlertCircle,
+  Paperclip,
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -33,11 +34,68 @@ function StatusCheckContent() {
   // Result State
   const [ticket, setTicket] = useState<any | null>(null);
   const [messages, setMessages] = useState<any[]>([]);
+  const [attachments, setAttachments] = useState<any[]>([]);
 
   // Reply State
   const [replyText, setReplyText] = useState('');
   const [sendingReply, setSendingReply] = useState(false);
   const [replyError, setReplyError] = useState<string | null>(null);
+  const [attachmentsList, setAttachmentsList] = useState<
+    {
+      file_name: string;
+      file_type: string;
+      file_size: number;
+      storage_url: string;
+    }[]
+  >([]);
+  const [isUploadingAttachment, setIsUploadingAttachment] = useState(false);
+
+  const handleAttachmentUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    setIsUploadingAttachment(true);
+    // Dynamic import to avoid SSR issues if any
+    try {
+      const { uploadAttachment } = await import('@/services/cloudinaryService');
+      const uploaded: typeof attachmentsList = [];
+
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+
+        // Size limits: 2MB for images, 5MB for videos/files
+        const isImage = file.type.startsWith('image/');
+        const isVideo = file.type.startsWith('video/');
+        const maxSize = isImage ? 2 * 1024 * 1024 : 5 * 1024 * 1024;
+
+        if (file.size > maxSize) {
+          alert(
+            `File "${file.name}" exceeds size limit (${isImage ? '2MB for images' : '5MB for videos/files'})`
+          );
+          continue;
+        }
+
+        const res = await uploadAttachment(file);
+        if (res?.secure_url) {
+          uploaded.push({
+            file_name: file.name,
+            file_type: file.type,
+            file_size: file.size,
+            storage_url: res.secure_url,
+          });
+        }
+      }
+
+      setAttachmentsList((prev) => [...prev, ...uploaded]);
+    } catch (err: any) {
+      alert(`Upload failed: ${err.message}`);
+    } finally {
+      setIsUploadingAttachment(false);
+      e.target.value = '';
+    }
+  };
 
   // Prefill from query params and handle auto-tracking if logged in
   useEffect(() => {
@@ -85,6 +143,7 @@ function StatusCheckContent() {
 
       setTicket(data.ticket);
       setMessages(data.messages || []);
+      setAttachments(data.attachments || []);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -109,6 +168,7 @@ function StatusCheckContent() {
         body: JSON.stringify({
           message: replyText,
           email: trackingEmail,
+          attachments: attachmentsList,
         }),
       });
 
@@ -118,13 +178,72 @@ function StatusCheckContent() {
         throw new Error(data.error || 'Failed to send message.');
       }
 
-      setMessages((prev) => [...prev, data.message]);
+      if (attachmentsList.length > 0) {
+        handleSearch();
+      } else {
+        setMessages((prev) => [...prev, data.message]);
+      }
       setReplyText('');
+      setAttachmentsList([]);
     } catch (err: any) {
       setReplyError(err.message);
     } finally {
       setSendingReply(false);
     }
+  };
+
+  const renderMessageAttachments = (msg: any) => {
+    const msgAttachments = attachments.filter(
+      (att: any) => att.message_id === msg.id
+    );
+    if (msgAttachments.length === 0) return null;
+
+    return (
+      <div className="mt-2 flex flex-wrap gap-2">
+        {msgAttachments.map((att: any) => {
+          const isImg = att.file_type?.startsWith('image/');
+          const isVid = att.file_type?.startsWith('video/');
+          return (
+            <div
+              key={att.id}
+              className="flex flex-col items-center gap-1 rounded-lg border border-white/5 bg-white/5 p-1.5"
+            >
+              {isImg ? (
+                <a
+                  href={att.storage_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <img
+                    src={att.storage_url}
+                    alt={att.file_name}
+                    className="max-h-[100px] max-w-[150px] rounded border border-white/5 object-cover"
+                  />
+                </a>
+              ) : isVid ? (
+                <video
+                  src={att.storage_url}
+                  controls
+                  className="max-w-[150px] rounded border border-white/5"
+                />
+              ) : (
+                <a
+                  href={att.storage_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1 text-[11px] text-amber-400 hover:underline"
+                >
+                  📎{' '}
+                  <span className="max-w-[120px] truncate">
+                    {att.file_name}
+                  </span>
+                </a>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    );
   };
 
   const STATUS_STEPS = [
@@ -377,6 +496,7 @@ function StatusCheckContent() {
                         <p className="whitespace-pre-wrap leading-relaxed">
                           {msg.message}
                         </p>
+                        {renderMessageAttachments(msg)}
                       </div>
                     </div>
                   );
@@ -398,6 +518,51 @@ function StatusCheckContent() {
                   className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-xs text-white placeholder-stone-500 focus:border-gold-500 focus:outline-none focus:ring-1 focus:ring-gold-500"
                   required
                 />
+
+                {/* Attachments List */}
+                {attachmentsList.length > 0 && (
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {attachmentsList.map((att, idx) => (
+                      <div
+                        key={idx}
+                        className="animate-fade-in flex items-center gap-1.5 rounded-lg border border-white/5 bg-white/5 px-2.5 py-1 text-xs text-slate-300"
+                      >
+                        <span className="max-w-[120px] truncate">
+                          {att.file_name}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setAttachmentsList((prev) =>
+                              prev.filter((_, i) => i !== idx)
+                            )
+                          }
+                          className="font-bold text-rose-400 hover:text-rose-300"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Actions Bar */}
+                <div className="mt-2 flex items-center justify-between">
+                  <label className="flex cursor-pointer items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-slate-300 transition hover:bg-white/10 hover:text-white disabled:opacity-40">
+                    <Paperclip className="h-3.5 w-3.5" />
+                    <span>
+                      {isUploadingAttachment ? 'Uploading...' : 'Attach Files'}
+                    </span>
+                    <input
+                      type="file"
+                      multiple
+                      accept="image/*,video/*"
+                      className="hidden"
+                      onChange={handleAttachmentUpload}
+                      disabled={isUploadingAttachment}
+                    />
+                  </label>
+                </div>
 
                 {replyError && (
                   <p className="text-xs text-red-400">{replyError}</p>

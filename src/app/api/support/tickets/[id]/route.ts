@@ -275,8 +275,10 @@ export async function PATCH(
         'open',
         'in_progress',
         'waiting_for_customer',
+        'waiting_for_team',
         'resolved',
         'closed',
+        'reopened',
       ];
       if (!validStatuses.includes(body.status)) {
         return NextResponse.json({ error: 'Invalid status' }, { status: 400 });

@@ -45,8 +45,14 @@ const STATUS_OPTIONS = [
     label: 'Waiting for Customer',
     color: 'bg-purple-500',
   },
+  {
+    value: 'waiting_for_team',
+    label: 'Waiting for Internal Team',
+    color: 'bg-teal-500',
+  },
   { value: 'resolved', label: 'Resolved', color: 'bg-green-500' },
   { value: 'closed', label: 'Closed', color: 'bg-slate-500' },
+  { value: 'reopened', label: 'Reopened', color: 'bg-orange-500' },
 ];
 
 const PRIORITY_OPTIONS = [
@@ -89,6 +95,15 @@ export default function SupportTicketDetail() {
   >('customer');
   const [sending, setSending] = useState(false);
   const [updating, setUpdating] = useState(false);
+  const [attachmentsList, setAttachmentsList] = useState<
+    {
+      file_name: string;
+      file_type: string;
+      file_size: number;
+      storage_url: string;
+    }[]
+  >([]);
+  const [isUploadingAttachment, setIsUploadingAttachment] = useState(false);
   const [isAutoAssigning, setIsAutoAssigning] = useState(false);
   const [copiedNum, setCopiedNum] = useState(false);
   const [showCannedMenu, setShowCannedMenu] = useState(false);
@@ -189,6 +204,7 @@ export default function SupportTicketDetail() {
         body: JSON.stringify({
           message: replyText.trim(),
           visibility: replyVisibility,
+          attachments: attachmentsList,
         }),
       });
 
@@ -204,6 +220,7 @@ export default function SupportTicketDetail() {
       }
 
       setReplyText('');
+      setAttachmentsList([]);
       toast.success(
         replyVisibility === 'internal'
           ? 'Internal note saved'
@@ -228,6 +245,57 @@ export default function SupportTicketDetail() {
       setSending(false);
     }
   }
+
+  const handleAttachmentUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    setIsUploadingAttachment(true);
+    const loadingToast = toast.loading(
+      `Uploading ${files.length} attachment(s)...`
+    );
+
+    try {
+      const { uploadAttachment } = await import('@/services/cloudinaryService');
+      const uploaded: typeof attachmentsList = [];
+
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+
+        // Size limits: 2MB for images, 5MB for videos/files
+        const isImage = file.type.startsWith('image/');
+        const isVideo = file.type.startsWith('video/');
+        const maxSize = isImage ? 2 * 1024 * 1024 : 5 * 1024 * 1024;
+
+        if (file.size > maxSize) {
+          toast.error(
+            `File "${file.name}" exceeds size limit (${isImage ? '2MB for images' : '5MB for videos/files'})`
+          );
+          continue;
+        }
+
+        const res = await uploadAttachment(file);
+        if (res?.secure_url) {
+          uploaded.push({
+            file_name: file.name,
+            file_type: file.type,
+            file_size: file.size,
+            storage_url: res.secure_url,
+          });
+        }
+      }
+
+      setAttachmentsList((prev) => [...prev, ...uploaded]);
+      toast.success('Attachments uploaded successfully!', { id: loadingToast });
+    } catch (err: any) {
+      toast.error(`Upload failed: ${err.message}`, { id: loadingToast });
+    } finally {
+      setIsUploadingAttachment(false);
+      e.target.value = '';
+    }
+  };
 
   const handleInsertCanned = (cr: CannedResponse) => {
     setReplyText((prev) => (prev ? `${prev}\n\n${cr.content}` : cr.content));
@@ -258,6 +326,7 @@ export default function SupportTicketDetail() {
   const {
     ticket,
     messages = [],
+    attachments = [],
     auditLogs = [],
     orderItems = [],
     previousTickets = [],
@@ -268,6 +337,60 @@ export default function SupportTicketDetail() {
     !['resolved', 'closed'].includes(ticket.status) &&
     (ticket.sla_breached ||
       (ticket.sla_due_at && new Date(ticket.sla_due_at) < new Date()));
+
+  const renderMessageAttachments = (msg: any) => {
+    const msgAttachments = attachments.filter(
+      (att: any) => att.message_id === msg.id
+    );
+    if (msgAttachments.length === 0) return null;
+
+    return (
+      <div className="mt-3 flex flex-wrap gap-2.5">
+        {msgAttachments.map((att: any) => {
+          const isImg = att.file_type?.startsWith('image/');
+          const isVid = att.file_type?.startsWith('video/');
+          return (
+            <div
+              key={att.id}
+              className="flex flex-col items-center gap-1 rounded-lg border border-white/5 bg-white/[0.02] p-1.5"
+            >
+              {isImg ? (
+                <a
+                  href={att.storage_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <img
+                    src={att.storage_url}
+                    alt={att.file_name}
+                    className="max-h-[100px] max-w-[150px] rounded border border-white/5 object-cover"
+                  />
+                </a>
+              ) : isVid ? (
+                <video
+                  src={att.storage_url}
+                  controls
+                  className="max-w-[150px] rounded border border-white/5"
+                />
+              ) : (
+                <a
+                  href={att.storage_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1 text-[11px] text-indigo-400 hover:underline"
+                >
+                  📎{' '}
+                  <span className="max-w-[120px] truncate">
+                    {att.file_name}
+                  </span>
+                </a>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
 
   return (
     <div className="space-y-5">
@@ -464,6 +587,7 @@ export default function SupportTicketDetail() {
                       <div className="mt-2 whitespace-pre-wrap text-xs leading-relaxed text-slate-200">
                         {msg.message}
                       </div>
+                      {renderMessageAttachments(msg)}
                       <div className="mt-2 text-[10px] text-slate-500">
                         Logged by{' '}
                         {msg.sender?.full_name ||
@@ -511,6 +635,7 @@ export default function SupportTicketDetail() {
                       <div className="mt-3 whitespace-pre-wrap text-xs leading-relaxed text-slate-200">
                         {msg.message}
                       </div>
+                      {renderMessageAttachments(msg)}
                     </div>
                   );
                 }
@@ -547,6 +672,7 @@ export default function SupportTicketDetail() {
                     <div className="mt-3 whitespace-pre-wrap text-xs leading-relaxed text-slate-200">
                       {msg.message}
                     </div>
+                    {renderMessageAttachments(msg)}
                   </div>
                 );
               })
@@ -634,6 +760,51 @@ export default function SupportTicketDetail() {
                 rows={5}
                 className="w-full rounded-xl border border-white/10 bg-white/5 p-3.5 text-xs text-slate-200 placeholder-slate-500 focus:border-emerald-500/50 focus:bg-white/[0.08] focus:outline-none focus:ring-1 focus:ring-emerald-500"
               />
+            </div>
+
+            {/* Attachments List */}
+            {attachmentsList.length > 0 && (
+              <div className="mt-2 flex flex-wrap gap-2">
+                {attachmentsList.map((att, idx) => (
+                  <div
+                    key={idx}
+                    className="animate-fade-in flex items-center gap-1.5 rounded-lg border border-white/5 bg-white/5 px-2.5 py-1 text-xs text-slate-300"
+                  >
+                    <span className="max-w-[120px] truncate">
+                      {att.file_name}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setAttachmentsList((prev) =>
+                          prev.filter((_, i) => i !== idx)
+                        )
+                      }
+                      className="font-bold text-rose-400 hover:text-rose-300"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Textarea Actions Bar */}
+            <div className="mt-2 flex items-center justify-between">
+              <label className="flex cursor-pointer items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-slate-300 transition hover:bg-white/10 hover:text-white disabled:opacity-40">
+                <Paperclip className="h-3.5 w-3.5" />
+                <span>
+                  {isUploadingAttachment ? 'Uploading...' : 'Attach Files'}
+                </span>
+                <input
+                  type="file"
+                  multiple
+                  accept="image/*,video/*,application/pdf"
+                  className="hidden"
+                  onChange={handleAttachmentUpload}
+                  disabled={isUploadingAttachment}
+                />
+              </label>
             </div>
 
             {/* Send Actions Bar */}
@@ -730,9 +901,19 @@ export default function SupportTicketDetail() {
                 <p className="text-[10px] font-semibold uppercase text-slate-500">
                   Email Address
                 </p>
-                <p className="font-mono text-slate-300">
-                  {ticket.customer?.email || '—'}
-                </p>
+                <div className="mt-0.5 flex items-center justify-between">
+                  <p className="font-mono text-slate-300">
+                    {ticket.customer?.email || '—'}
+                  </p>
+                  {ticket.customer?.email && (
+                    <a
+                      href={`mailto:${ticket.customer.email}`}
+                      className="rounded bg-indigo-600/20 px-2 py-0.5 text-[10px] font-bold text-indigo-400 transition-colors hover:bg-indigo-600/30"
+                    >
+                      Email Customer
+                    </a>
+                  )}
+                </div>
               </div>
 
               {ticket.customer?.phone && (
@@ -740,9 +921,17 @@ export default function SupportTicketDetail() {
                   <p className="text-[10px] font-semibold uppercase text-slate-500">
                     Phone Number
                   </p>
-                  <p className="font-mono text-slate-300">
-                    {ticket.customer?.phone}
-                  </p>
+                  <div className="mt-0.5 flex items-center justify-between">
+                    <p className="font-mono text-slate-300">
+                      {ticket.customer?.phone}
+                    </p>
+                    <a
+                      href={`tel:${ticket.customer.phone}`}
+                      className="rounded bg-indigo-600/20 px-2 py-0.5 text-[10px] font-bold text-indigo-400 transition-colors hover:bg-indigo-600/30"
+                    >
+                      Call Agent
+                    </a>
+                  </div>
                 </div>
               )}
 
@@ -826,6 +1015,89 @@ export default function SupportTicketDetail() {
                     </div>
                   </div>
                 )}
+
+                {/* Order Items & Products */}
+                {orderItems && orderItems.length > 0 && (
+                  <div className="mt-3 border-t border-white/5 pt-3">
+                    <p className="mb-1.5 text-[10px] font-semibold uppercase text-slate-500">
+                      Products in Order
+                    </p>
+                    <div className="space-y-2">
+                      {orderItems.map((item: any) => (
+                        <div
+                          key={item.id}
+                          className="flex items-start justify-between rounded border border-white/5 bg-white/[0.01] p-1.5 text-xs"
+                        >
+                          <div>
+                            <p className="font-semibold text-slate-200">
+                              {item.product?.name || 'Product'}
+                            </p>
+                            <p className="font-mono text-[10px] text-slate-500">
+                              SKU: {item.sku} | Qty: {item.quantity}
+                            </p>
+                          </div>
+                          <span className="font-mono text-slate-300">
+                            ₹{item.price_at_purchase?.toLocaleString('en-IN')}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Delivery Date & Return / Warranty */}
+                <div className="mt-3 space-y-1.5 border-t border-white/5 pt-3 text-[11px]">
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Delivered On:</span>
+                    <span className="text-slate-300">
+                      {ticket.order.status === 'delivered' ||
+                      ticket.order.status === 'completed'
+                        ? new Date(
+                            ticket.order.updated_at || ticket.order.created_at
+                          ).toLocaleDateString('en-IN', {
+                            day: 'numeric',
+                            month: 'short',
+                            year: 'numeric',
+                          })
+                        : 'Not delivered yet'}
+                    </span>
+                  </div>
+
+                  {(ticket.order.status === 'delivered' ||
+                    ticket.order.status === 'completed') && (
+                    <div className="flex justify-between">
+                      <span className="text-slate-500">
+                        15-Day Return Window:
+                      </span>
+                      <span className="font-medium text-rose-400">
+                        {(() => {
+                          const deliveryDate = new Date(
+                            ticket.order.updated_at || ticket.order.created_at
+                          );
+                          const returnExpiry = new Date(
+                            deliveryDate.setDate(deliveryDate.getDate() + 15)
+                          );
+                          const isExpired = returnExpiry < new Date();
+                          return `${returnExpiry.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })} (${isExpired ? 'Expired' : 'Active'})`;
+                        })()}
+                      </span>
+                    </div>
+                  )}
+
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Warranty (1-Year):</span>
+                    <span className="font-medium text-emerald-400">
+                      {(() => {
+                        const orderDate = new Date(ticket.order.created_at);
+                        const warrantyExpiry = new Date(
+                          orderDate.setFullYear(orderDate.getFullYear() + 1)
+                        );
+                        const isExpired = warrantyExpiry < new Date();
+                        return `Expires ${warrantyExpiry.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })} (${isExpired ? 'Expired' : 'Active'})`;
+                      })()}
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
           )}
@@ -869,31 +1141,61 @@ export default function SupportTicketDetail() {
             </div>
           )}
 
-          {/* Audit History Log */}
+          {/* Audit History & Assignments Log */}
           {auditLogs.length > 0 && (
             <div className="rounded-2xl border border-white/5 bg-[#131726] p-5 shadow-lg">
               <div className="flex items-center gap-2 border-b border-white/5 pb-3">
-                <FileText className="h-4 w-4 text-slate-400" />
+                <FileText className="h-4 w-4 text-emerald-400" />
                 <h3 className="text-xs font-bold uppercase tracking-wider text-white">
-                  Audit Trail
+                  Audit Trail & History
                 </h3>
               </div>
 
-              <div className="mt-3 max-h-48 space-y-2 overflow-y-auto">
-                {auditLogs.map((log: any) => (
-                  <div key={log.id} className="text-[11px] text-slate-400">
-                    <span className="font-semibold capitalize text-slate-300">
-                      {log.action.replace(/_/g, ' ')}
-                    </span>{' '}
-                    <span className="text-[10px] text-slate-500">
-                      ·{' '}
-                      {new Date(log.created_at).toLocaleTimeString('en-IN', {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })}
-                    </span>
-                  </div>
-                ))}
+              <div className="mt-3 max-h-60 space-y-2.5 overflow-y-auto">
+                {auditLogs.map((log: any) => {
+                  let detailsStr = '';
+                  if (log.action === 'status_changed') {
+                    detailsStr = `Status: ${log.old_value?.status || 'new'} → ${log.new_value?.status}`;
+                  } else if (log.action === 'priority_changed') {
+                    detailsStr = `Priority: ${log.old_value?.priority || 'normal'} → ${log.new_value?.priority}`;
+                  } else if (log.action === 'assignment_changed') {
+                    detailsStr = log.new_value?.assigned_to
+                      ? 'Assigned'
+                      : 'Unassigned';
+                  }
+
+                  return (
+                    <div
+                      key={log.id}
+                      className="border-b border-white/5 pb-2 text-[11px] text-slate-400 last:border-0 last:pb-0"
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="font-semibold capitalize text-slate-300">
+                          {log.action.replace(/_/g, ' ')}
+                        </span>
+                        <span className="font-mono text-[9px] text-slate-500">
+                          {new Date(log.created_at).toLocaleString('en-IN', {
+                            day: 'numeric',
+                            month: 'short',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}
+                        </span>
+                      </div>
+                      <p className="mt-0.5 text-[10px] text-slate-500">
+                        Actor:{' '}
+                        <span className="text-slate-400">
+                          {log.actor?.full_name || 'System'}
+                        </span>
+                        {detailsStr && (
+                          <span className="mt-0.5 block font-semibold text-slate-300">
+                            {detailsStr}
+                          </span>
+                        )}
+                      </p>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}

@@ -107,6 +107,8 @@ export async function GET(req: NextRequest) {
           'open',
           'in_progress',
           'waiting_for_customer',
+          'waiting_for_team',
+          'reopened',
         ]);
       } else if (status === 'resolved_all') {
         query = query.in('status', ['resolved', 'closed']);

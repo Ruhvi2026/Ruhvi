@@ -152,6 +152,27 @@ export async function POST(
       );
     }
 
+    // Insert attachments if provided
+    if (body.attachments && Array.isArray(body.attachments)) {
+      const attachmentsToInsert = body.attachments.map((att: any) => ({
+        ticket_id: ticketId,
+        message_id: newMessage.id,
+        uploaded_by: senderId || null,
+        file_name: att.file_name,
+        file_type: att.file_type,
+        file_size: att.file_size || 0,
+        storage_url: att.storage_url,
+      }));
+
+      const { error: attachError } = await supabase
+        .from('support_attachments')
+        .insert(attachmentsToInsert);
+
+      if (attachError) {
+        console.error('Failed to insert message attachments:', attachError);
+      }
+    }
+
     // Audit log
     await supabase.from('support_audit_logs').insert({
       ticket_id: ticketId,
