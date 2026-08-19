@@ -396,38 +396,14 @@ export default function SupportLayout({
       )}
 
       {/* Main Container */}
-      <div className="flex h-full flex-1 flex-col overflow-hidden">
-        {/* Top Header */}
-        <header className="flex h-14 flex-shrink-0 items-center justify-between border-b border-white/5 bg-[#131726] px-4 sm:px-6">
-          <div className="flex items-center gap-3">
-            <button
-              className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-white/5 hover:text-white lg:hidden"
-              onClick={() => setMobileOpen(true)}
-            >
-              <Menu className="h-5 w-5" />
-            </button>
-            <span className="text-xs font-semibold text-slate-400">
-              Support Console Workstation
-            </span>
-          </div>
-
-          <div className="flex items-center gap-3">
-            {/* User Profile Pill */}
-            <div className="flex items-center gap-2.5">
-              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-700 text-xs font-bold text-white shadow-md">
-                {userInitial}
-              </div>
-              <div className="text-left">
-                <p className="text-xs font-semibold leading-tight text-white">
-                  {userName}
-                </p>
-                <p className="text-[10px] leading-none text-emerald-400/90">
-                  {roleDisplayLabel}
-                </p>
-              </div>
-            </div>
-          </div>
-        </header>
+      <div className="relative flex h-full flex-1 flex-col overflow-hidden">
+        {/* Mobile menu trigger */}
+        <button
+          className="absolute left-4 top-4 z-30 rounded-lg border border-white/5 bg-[#131726]/85 p-2 text-slate-400 shadow-lg backdrop-blur-sm transition-all hover:bg-[#131726] hover:text-white lg:hidden"
+          onClick={() => setMobileOpen(true)}
+        >
+          <Menu className="h-4.5 w-4.5" />
+        </button>
 
         {/* Page Body */}
         <main className="flex-1 overflow-y-auto bg-[#0d0f1a]">
