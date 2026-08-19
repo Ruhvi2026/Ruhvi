@@ -474,25 +474,28 @@ export default function SettingsPage() {
       <div className="mx-auto max-w-4xl space-y-8 pb-16">
         {/* Header and Breadcrumbs */}
         <div>
-          <div className="mb-3 flex items-center space-x-2 text-xs text-stone-500">
-            <Link href="/account" className="transition hover:text-gold-600">
+          <div className="mb-3 flex items-center space-x-2 text-sm font-medium text-stone-500 dark:text-stone-400">
+            <Link
+              href="/account"
+              className="transition hover:text-gold-600 dark:hover:text-gold-400"
+            >
               {t.breadcrumbsAccount}
             </Link>
             <span>/</span>
-            <span className="font-semibold text-stone-800 dark:text-stone-300">
+            <span className="font-semibold text-stone-800 dark:text-stone-200">
               {t.breadcrumbsSettings}
             </span>
           </div>
 
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-gold-600">
+              <p className="text-xs font-bold uppercase tracking-wider text-gold-600 dark:text-gold-400">
                 Account Preferences
               </p>
-              <h1 className="mt-1 font-serif text-2xl font-bold text-stone-900 sm:text-3xl dark:text-white">
+              <h1 className="mt-1.5 font-serif text-3xl font-bold tracking-tight text-stone-900 sm:text-4xl dark:text-white">
                 {t.title}
               </h1>
-              <p className="mt-1 text-xs text-stone-500 sm:text-sm dark:text-stone-400">
+              <p className="mt-2 text-sm leading-relaxed text-stone-600 sm:text-base dark:text-stone-300">
                 {t.subtitle}
               </p>
             </div>
@@ -500,45 +503,47 @@ export default function SettingsPage() {
         </div>
 
         {/* Section 1: Appearance */}
-        <section className="shadow-xs rounded-2xl border border-gold-200/50 bg-[#FCFBF7] p-6 dark:border-gold-200/10 dark:bg-[#1c1a19]">
-          <div className="flex items-center space-x-3 border-b border-stone-200/50 pb-4 dark:border-stone-800">
-            <div className="rounded-xl bg-gold-100/60 p-2 text-gold-700 dark:bg-gold-950/40">
-              <Sun className="h-5 w-5" />
+        <section className="rounded-2xl border border-gold-200/60 bg-[#FCFBF7] p-6 shadow-sm sm:p-7 dark:border-gold-500/20 dark:bg-[#1c1a19]">
+          <div className="flex items-center space-x-3.5 border-b border-stone-200/60 pb-4 dark:border-stone-800">
+            <div className="rounded-xl bg-gold-100/80 p-2.5 text-gold-800 dark:bg-gold-950/60 dark:text-gold-300">
+              <Sun className="h-6 w-6" />
             </div>
             <div>
-              <h2 className="font-serif text-base font-bold text-stone-900 dark:text-white">
+              <h2 className="font-serif text-lg font-bold text-stone-900 sm:text-xl dark:text-white">
                 {t.appearanceTitle}
               </h2>
-              <p className="text-xs text-stone-500 dark:text-stone-400">
+              <p className="mt-0.5 text-sm text-stone-600 dark:text-stone-300">
                 {t.appearanceSubtitle}
               </p>
             </div>
           </div>
 
-          <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
             {/* System */}
             <button
               type="button"
               onClick={() => handleThemeChange('system')}
-              className={`flex flex-col items-center justify-between rounded-xl border p-4 text-center transition-all ${
+              className={`flex flex-col items-center justify-between rounded-xl border p-5 text-center transition-all ${
                 theme === 'system'
-                  ? 'border-gold-500 bg-gold-50/50 ring-2 ring-gold-400/30 dark:bg-gold-950/20'
-                  : 'border-stone-200 bg-white hover:border-stone-300 dark:border-stone-800 dark:bg-stone-900'
+                  ? 'shadow-xs border-gold-500 bg-gold-50/60 ring-2 ring-gold-400/40 dark:border-gold-400 dark:bg-gold-950/30'
+                  : 'border-stone-200 bg-white hover:border-stone-300 dark:border-stone-800 dark:bg-stone-900 dark:hover:border-stone-700'
               }`}
             >
-              <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-stone-100 text-stone-700 dark:bg-stone-800 dark:text-stone-300">
-                <Laptop className="h-5 w-5" />
+              <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-stone-100 text-stone-700 dark:bg-stone-800 dark:text-stone-200">
+                <Laptop className="h-6 w-6" />
               </div>
-              <span className="font-serif text-xs font-bold text-stone-900 dark:text-white">
+              <span className="font-serif text-sm font-bold text-stone-900 sm:text-base dark:text-white">
                 {t.systemDefault}
               </span>
-              <span className="mt-0.5 text-[10px] text-stone-400">
+              <span className="mt-1 text-xs font-medium text-stone-500 dark:text-stone-300">
                 {t.systemDesc}
               </span>
-              {theme === 'system' && (
-                <span className="mt-2 inline-flex items-center text-[10px] font-bold text-gold-600">
-                  <Check className="mr-1 h-3 w-3" /> Active
+              {theme === 'system' ? (
+                <span className="mt-3 inline-flex items-center text-xs font-bold text-gold-700 dark:text-gold-400">
+                  <Check className="mr-1 h-3.5 w-3.5" /> Active
                 </span>
+              ) : (
+                <span className="mt-3 text-xs opacity-0">Inactive</span>
               )}
             </button>
 
@@ -546,25 +551,27 @@ export default function SettingsPage() {
             <button
               type="button"
               onClick={() => handleThemeChange('light')}
-              className={`flex flex-col items-center justify-between rounded-xl border p-4 text-center transition-all ${
+              className={`flex flex-col items-center justify-between rounded-xl border p-5 text-center transition-all ${
                 theme === 'light'
-                  ? 'border-gold-500 bg-gold-50/50 ring-2 ring-gold-400/30 dark:bg-gold-950/20'
-                  : 'border-stone-200 bg-white hover:border-stone-300 dark:border-stone-800 dark:bg-stone-900'
+                  ? 'shadow-xs border-gold-500 bg-gold-50/60 ring-2 ring-gold-400/40 dark:border-gold-400 dark:bg-gold-950/30'
+                  : 'border-stone-200 bg-white hover:border-stone-300 dark:border-stone-800 dark:bg-stone-900 dark:hover:border-stone-700'
               }`}
             >
-              <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-amber-100 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400">
-                <Sun className="h-5 w-5" />
+              <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-amber-100 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300">
+                <Sun className="h-6 w-6" />
               </div>
-              <span className="font-serif text-xs font-bold text-stone-900 dark:text-white">
+              <span className="font-serif text-sm font-bold text-stone-900 sm:text-base dark:text-white">
                 {t.warmIvory}
               </span>
-              <span className="mt-0.5 text-[10px] text-stone-400">
+              <span className="mt-1 text-xs font-medium text-stone-500 dark:text-stone-300">
                 {t.warmIvoryDesc}
               </span>
-              {theme === 'light' && (
-                <span className="mt-2 inline-flex items-center text-[10px] font-bold text-gold-600">
-                  <Check className="mr-1 h-3 w-3" /> Active
+              {theme === 'light' ? (
+                <span className="mt-3 inline-flex items-center text-xs font-bold text-gold-700 dark:text-gold-400">
+                  <Check className="mr-1 h-3.5 w-3.5" /> Active
                 </span>
+              ) : (
+                <span className="mt-3 text-xs opacity-0">Inactive</span>
               )}
             </button>
 
@@ -572,64 +579,70 @@ export default function SettingsPage() {
             <button
               type="button"
               onClick={() => handleThemeChange('dark')}
-              className={`flex flex-col items-center justify-between rounded-xl border p-4 text-center transition-all ${
+              className={`flex flex-col items-center justify-between rounded-xl border p-5 text-center transition-all ${
                 theme === 'dark'
-                  ? 'border-gold-500 bg-gold-50/50 ring-2 ring-gold-400/30 dark:bg-gold-950/20'
-                  : 'border-stone-200 bg-white hover:border-stone-300 dark:border-stone-800 dark:bg-stone-900'
+                  ? 'shadow-xs border-gold-500 bg-gold-50/60 ring-2 ring-gold-400/40 dark:border-gold-400 dark:bg-gold-950/30'
+                  : 'border-stone-200 bg-white hover:border-stone-300 dark:border-stone-800 dark:bg-stone-900 dark:hover:border-stone-700'
               }`}
             >
-              <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-stone-800 text-gold-400 dark:bg-stone-700 dark:text-gold-300">
-                <Moon className="h-5 w-5" />
+              <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-stone-800 text-gold-400 dark:bg-stone-800 dark:text-gold-300">
+                <Moon className="h-6 w-6" />
               </div>
-              <span className="font-serif text-xs font-bold text-stone-900 dark:text-white">
+              <span className="font-serif text-sm font-bold text-stone-900 sm:text-base dark:text-white">
                 {t.nightVelvet}
               </span>
-              <span className="mt-0.5 text-[10px] text-stone-400">
+              <span className="mt-1 text-xs font-medium text-stone-500 dark:text-stone-300">
                 {t.nightVelvetDesc}
               </span>
-              {theme === 'dark' && (
-                <span className="mt-2 inline-flex items-center text-[10px] font-bold text-gold-600">
-                  <Check className="mr-1 h-3 w-3" /> Active
+              {theme === 'dark' ? (
+                <span className="mt-3 inline-flex items-center text-xs font-bold text-gold-700 dark:text-gold-400">
+                  <Check className="mr-1 h-3.5 w-3.5" /> Active
                 </span>
+              ) : (
+                <span className="mt-3 text-xs opacity-0">Inactive</span>
               )}
             </button>
           </div>
         </section>
 
         {/* Section 2: Language */}
-        <section className="shadow-xs rounded-2xl border border-gold-200/50 bg-[#FCFBF7] p-6 dark:border-gold-200/10 dark:bg-[#1c1a19]">
-          <div className="flex items-center space-x-3 border-b border-stone-200/50 pb-4 dark:border-stone-800">
-            <div className="rounded-xl bg-gold-100/60 p-2 text-gold-700 dark:bg-gold-950/40">
-              <Globe className="h-5 w-5" />
+        <section className="rounded-2xl border border-gold-200/60 bg-[#FCFBF7] p-6 shadow-sm sm:p-7 dark:border-gold-500/20 dark:bg-[#1c1a19]">
+          <div className="flex items-center space-x-3.5 border-b border-stone-200/60 pb-4 dark:border-stone-800">
+            <div className="rounded-xl bg-gold-100/80 p-2.5 text-gold-800 dark:bg-gold-950/60 dark:text-gold-300">
+              <Globe className="h-6 w-6" />
             </div>
             <div>
-              <h2 className="font-serif text-base font-bold text-stone-900 dark:text-white">
+              <h2 className="font-serif text-lg font-bold text-stone-900 sm:text-xl dark:text-white">
                 {t.languageTitle}
               </h2>
-              <p className="text-xs text-stone-500 dark:text-stone-400">
+              <p className="mt-0.5 text-sm text-stone-600 dark:text-stone-300">
                 {t.languageSubtitle}
               </p>
             </div>
           </div>
 
-          <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
             {/* English */}
             <button
               type="button"
               onClick={() => handleLanguageChange('en')}
               className={`flex items-center justify-between rounded-xl border p-4 text-left transition-all ${
                 language === 'en'
-                  ? 'border-gold-500 bg-gold-50/50 ring-2 ring-gold-400/30 dark:bg-gold-950/20'
-                  : 'border-stone-200 bg-white hover:border-stone-300 dark:border-stone-800 dark:bg-stone-900'
+                  ? 'shadow-xs border-gold-500 bg-gold-50/60 ring-2 ring-gold-400/40 dark:border-gold-400 dark:bg-gold-950/30'
+                  : 'border-stone-200 bg-white hover:border-stone-300 dark:border-stone-800 dark:bg-stone-900 dark:hover:border-stone-700'
               }`}
             >
               <div>
-                <p className="font-serif text-xs font-bold text-stone-900 dark:text-white">
+                <p className="font-serif text-sm font-bold text-stone-900 sm:text-base dark:text-white">
                   {t.english}
                 </p>
-                <p className="text-[10px] text-stone-400">{t.englishDesc}</p>
+                <p className="mt-0.5 text-xs font-medium text-stone-500 dark:text-stone-300">
+                  {t.englishDesc}
+                </p>
               </div>
-              {language === 'en' && <Check className="h-4 w-4 text-gold-600" />}
+              {language === 'en' && (
+                <Check className="h-5 w-5 font-bold text-gold-600 dark:text-gold-400" />
+              )}
             </button>
 
             {/* Bengali */}
@@ -638,17 +651,21 @@ export default function SettingsPage() {
               onClick={() => handleLanguageChange('bn')}
               className={`flex items-center justify-between rounded-xl border p-4 text-left transition-all ${
                 language === 'bn'
-                  ? 'border-gold-500 bg-gold-50/50 ring-2 ring-gold-400/30 dark:bg-gold-950/20'
-                  : 'border-stone-200 bg-white hover:border-stone-300 dark:border-stone-800 dark:bg-stone-900'
+                  ? 'shadow-xs border-gold-500 bg-gold-50/60 ring-2 ring-gold-400/40 dark:border-gold-400 dark:bg-gold-950/30'
+                  : 'border-stone-200 bg-white hover:border-stone-300 dark:border-stone-800 dark:bg-stone-900 dark:hover:border-stone-700'
               }`}
             >
               <div>
-                <p className="font-serif text-xs font-bold text-stone-900 dark:text-white">
+                <p className="font-serif text-sm font-bold text-stone-900 sm:text-base dark:text-white">
                   {t.bengali}
                 </p>
-                <p className="text-[10px] text-stone-400">{t.bengaliDesc}</p>
+                <p className="mt-0.5 text-xs font-medium text-stone-500 dark:text-stone-300">
+                  {t.bengaliDesc}
+                </p>
               </div>
-              {language === 'bn' && <Check className="h-4 w-4 text-gold-600" />}
+              {language === 'bn' && (
+                <Check className="h-5 w-5 font-bold text-gold-600 dark:text-gold-400" />
+              )}
             </button>
 
             {/* Hindi */}
@@ -657,46 +674,50 @@ export default function SettingsPage() {
               onClick={() => handleLanguageChange('hi')}
               className={`flex items-center justify-between rounded-xl border p-4 text-left transition-all ${
                 language === 'hi'
-                  ? 'border-gold-500 bg-gold-50/50 ring-2 ring-gold-400/30 dark:bg-gold-950/20'
-                  : 'border-stone-200 bg-white hover:border-stone-300 dark:border-stone-800 dark:bg-stone-900'
+                  ? 'shadow-xs border-gold-500 bg-gold-50/60 ring-2 ring-gold-400/40 dark:border-gold-400 dark:bg-gold-950/30'
+                  : 'border-stone-200 bg-white hover:border-stone-300 dark:border-stone-800 dark:bg-stone-900 dark:hover:border-stone-700'
               }`}
             >
               <div>
-                <p className="font-serif text-xs font-bold text-stone-900 dark:text-white">
+                <p className="font-serif text-sm font-bold text-stone-900 sm:text-base dark:text-white">
                   {t.hindi}
                 </p>
-                <p className="text-[10px] text-stone-400">{t.hindiDesc}</p>
+                <p className="mt-0.5 text-xs font-medium text-stone-500 dark:text-stone-300">
+                  {t.hindiDesc}
+                </p>
               </div>
-              {language === 'hi' && <Check className="h-4 w-4 text-gold-600" />}
+              {language === 'hi' && (
+                <Check className="h-5 w-5 font-bold text-gold-600 dark:text-gold-400" />
+              )}
             </button>
           </div>
         </section>
 
         {/* Section 3: Notification Preferences */}
-        <section className="shadow-xs rounded-2xl border border-gold-200/50 bg-[#FCFBF7] p-6 dark:border-gold-200/10 dark:bg-[#1c1a19]">
-          <div className="flex items-center space-x-3 border-b border-stone-200/50 pb-4 dark:border-stone-800">
-            <div className="rounded-xl bg-gold-100/60 p-2 text-gold-700 dark:bg-gold-950/40">
-              <Bell className="h-5 w-5" />
+        <section className="rounded-2xl border border-gold-200/60 bg-[#FCFBF7] p-6 shadow-sm sm:p-7 dark:border-gold-500/20 dark:bg-[#1c1a19]">
+          <div className="flex items-center space-x-3.5 border-b border-stone-200/60 pb-4 dark:border-stone-800">
+            <div className="rounded-xl bg-gold-100/80 p-2.5 text-gold-800 dark:bg-gold-950/60 dark:text-gold-300">
+              <Bell className="h-6 w-6" />
             </div>
             <div>
-              <h2 className="font-serif text-base font-bold text-stone-900 dark:text-white">
+              <h2 className="font-serif text-lg font-bold text-stone-900 sm:text-xl dark:text-white">
                 {t.notifTitle}
               </h2>
-              <p className="text-xs text-stone-500 dark:text-stone-400">
+              <p className="mt-0.5 text-sm text-stone-600 dark:text-stone-300">
                 {t.notifSubtitle}
               </p>
             </div>
           </div>
 
-          <div className="mt-5 space-y-6">
+          <div className="mt-6 space-y-6">
             {/* Delivery Channels */}
             <div>
-              <h3 className="text-xs font-bold uppercase tracking-wider text-stone-400 dark:text-stone-500">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-stone-600 dark:text-stone-400">
                 {t.commChannels}
               </h3>
               <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
-                <label className="flex cursor-pointer items-center justify-between rounded-xl border border-stone-200 bg-white p-3 dark:border-stone-800 dark:bg-stone-900">
-                  <span className="text-xs font-medium text-stone-800 dark:text-stone-300">
+                <label className="shadow-xs flex cursor-pointer items-center justify-between rounded-xl border border-stone-200 bg-white p-3.5 transition hover:border-gold-300 dark:border-stone-800 dark:bg-stone-900 dark:hover:border-stone-700">
+                  <span className="text-sm font-semibold text-stone-800 dark:text-stone-200">
                     {t.email}
                   </span>
                   <input
@@ -705,11 +726,11 @@ export default function SettingsPage() {
                     onChange={(e) =>
                       handleChannelChange('email', e.target.checked)
                     }
-                    className="h-4 w-4 rounded accent-gold-600"
+                    className="h-4.5 w-4.5 rounded accent-gold-600"
                   />
                 </label>
-                <label className="flex cursor-pointer items-center justify-between rounded-xl border border-stone-200 bg-white p-3 dark:border-stone-800 dark:bg-stone-900">
-                  <span className="text-xs font-medium text-stone-800 dark:text-stone-300">
+                <label className="shadow-xs flex cursor-pointer items-center justify-between rounded-xl border border-stone-200 bg-white p-3.5 transition hover:border-gold-300 dark:border-stone-800 dark:bg-stone-900 dark:hover:border-stone-700">
+                  <span className="text-sm font-semibold text-stone-800 dark:text-stone-200">
                     {t.whatsapp}
                   </span>
                   <input
@@ -718,11 +739,11 @@ export default function SettingsPage() {
                     onChange={(e) =>
                       handleChannelChange('whatsapp', e.target.checked)
                     }
-                    className="h-4 w-4 rounded accent-gold-600"
+                    className="h-4.5 w-4.5 rounded accent-gold-600"
                   />
                 </label>
-                <label className="flex cursor-pointer items-center justify-between rounded-xl border border-stone-200 bg-white p-3 dark:border-stone-800 dark:bg-stone-900">
-                  <span className="text-xs font-medium text-stone-800 dark:text-stone-300">
+                <label className="shadow-xs flex cursor-pointer items-center justify-between rounded-xl border border-stone-200 bg-white p-3.5 transition hover:border-gold-300 dark:border-stone-800 dark:bg-stone-900 dark:hover:border-stone-700">
+                  <span className="text-sm font-semibold text-stone-800 dark:text-stone-200">
                     {t.pushNotifs}
                   </span>
                   <input
@@ -731,18 +752,18 @@ export default function SettingsPage() {
                     onChange={(e) =>
                       handleChannelChange('push', e.target.checked)
                     }
-                    className="h-4 w-4 rounded accent-gold-600"
+                    className="h-4.5 w-4.5 rounded accent-gold-600"
                   />
                 </label>
               </div>
             </div>
 
             {/* Order Notifications */}
-            <div className="border-t border-stone-100 pt-4 dark:border-stone-800">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-stone-400 dark:text-stone-500">
+            <div className="border-t border-stone-200/60 pt-5 dark:border-stone-800">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-stone-600 dark:text-stone-400">
                 {t.orderUpdates}
               </h3>
-              <div className="mt-3 space-y-2">
+              <div className="mt-3 space-y-2.5">
                 {[
                   {
                     key: 'confirmation',
@@ -760,9 +781,9 @@ export default function SettingsPage() {
                 ].map((item) => (
                   <label
                     key={item.key}
-                    className="flex cursor-pointer items-center justify-between rounded-xl border border-stone-100 bg-white px-4 py-2.5 transition hover:bg-stone-50 dark:border-stone-800 dark:bg-stone-900 dark:hover:bg-stone-800"
+                    className="shadow-xs flex cursor-pointer items-center justify-between rounded-xl border border-stone-200/80 bg-white px-4 py-3 transition hover:bg-stone-50 dark:border-stone-800 dark:bg-stone-900 dark:hover:bg-stone-800/60"
                   >
-                    <span className="text-xs font-medium text-stone-800 dark:text-stone-300">
+                    <span className="text-sm font-medium text-stone-800 dark:text-stone-200">
                       {item.label}
                     </span>
                     <input
@@ -771,7 +792,7 @@ export default function SettingsPage() {
                       onChange={(e) =>
                         handleOrderNotifChange(item.key, e.target.checked)
                       }
-                      className="h-4 w-4 rounded accent-gold-600"
+                      className="h-4.5 w-4.5 rounded accent-gold-600"
                     />
                   </label>
                 ))}
@@ -779,11 +800,11 @@ export default function SettingsPage() {
             </div>
 
             {/* Marketing Notifications */}
-            <div className="border-t border-stone-100 pt-4 dark:border-stone-800">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-stone-400 dark:text-stone-500">
+            <div className="border-t border-stone-200/60 pt-5 dark:border-stone-800">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-stone-600 dark:text-stone-400">
                 {t.promotionsOffers}
               </h3>
-              <div className="mt-3 space-y-2">
+              <div className="mt-3 space-y-2.5">
                 {[
                   {
                     key: 'offers',
@@ -800,9 +821,9 @@ export default function SettingsPage() {
                 ].map((item) => (
                   <label
                     key={item.key}
-                    className="flex cursor-pointer items-center justify-between rounded-xl border border-stone-100 bg-white px-4 py-2.5 transition hover:bg-stone-50 dark:border-stone-800 dark:bg-stone-900 dark:hover:bg-stone-800"
+                    className="shadow-xs flex cursor-pointer items-center justify-between rounded-xl border border-stone-200/80 bg-white px-4 py-3 transition hover:bg-stone-50 dark:border-stone-800 dark:bg-stone-900 dark:hover:bg-stone-800/60"
                   >
-                    <span className="text-xs font-medium text-stone-800 dark:text-stone-300">
+                    <span className="text-sm font-medium text-stone-800 dark:text-stone-200">
                       {item.label}
                     </span>
                     <input
@@ -811,7 +832,7 @@ export default function SettingsPage() {
                       onChange={(e) =>
                         handleMarketingNotifChange(item.key, e.target.checked)
                       }
-                      className="h-4 w-4 rounded accent-gold-600"
+                      className="h-4.5 w-4.5 rounded accent-gold-600"
                     />
                   </label>
                 ))}
@@ -821,63 +842,67 @@ export default function SettingsPage() {
         </section>
 
         {/* Section 4: Privacy & Security */}
-        <section className="shadow-xs rounded-2xl border border-gold-200/50 bg-[#FCFBF7] p-6 dark:border-gold-200/10 dark:bg-[#1c1a19]">
-          <div className="flex items-center space-x-3 border-b border-stone-200/50 pb-4 dark:border-stone-800">
-            <div className="rounded-xl bg-gold-100/60 p-2 text-gold-700 dark:bg-gold-950/40">
-              <Shield className="h-5 w-5" />
+        <section className="rounded-2xl border border-gold-200/60 bg-[#FCFBF7] p-6 shadow-sm sm:p-7 dark:border-gold-500/20 dark:bg-[#1c1a19]">
+          <div className="flex items-center space-x-3.5 border-b border-stone-200/60 pb-4 dark:border-stone-800">
+            <div className="rounded-xl bg-gold-100/80 p-2.5 text-gold-800 dark:bg-gold-950/60 dark:text-gold-300">
+              <Shield className="h-6 w-6" />
             </div>
             <div>
-              <h2 className="font-serif text-base font-bold text-stone-900 dark:text-white">
+              <h2 className="font-serif text-lg font-bold text-stone-900 sm:text-xl dark:text-white">
                 {t.privacyTitle}
               </h2>
-              <p className="text-xs text-stone-500 dark:text-stone-400">
+              <p className="mt-0.5 text-sm text-stone-600 dark:text-stone-300">
                 {t.privacySubtitle}
               </p>
             </div>
           </div>
 
-          <div className="mt-5 space-y-4">
+          <div className="mt-6 space-y-4">
             {/* Password */}
-            <div className="flex items-center justify-between rounded-xl border border-stone-200 bg-white p-4 dark:border-stone-800 dark:bg-stone-900">
-              <div className="flex items-center space-x-3">
-                <Lock className="h-4 w-4 text-stone-500" />
+            <div className="p-4.5 shadow-xs flex items-center justify-between rounded-xl border border-stone-200 bg-white dark:border-stone-800 dark:bg-stone-900">
+              <div className="flex items-center space-x-3.5">
+                <div className="rounded-lg bg-stone-100 p-2 text-stone-700 dark:bg-stone-800 dark:text-stone-300">
+                  <Lock className="h-5 w-5" />
+                </div>
                 <div>
-                  <p className="font-serif text-xs font-bold text-stone-900 dark:text-white">
+                  <p className="font-serif text-sm font-bold text-stone-900 sm:text-base dark:text-white">
                     {t.password}
                   </p>
-                  <p className="text-[10px] text-stone-400">{t.passwordDesc}</p>
+                  <p className="mt-0.5 text-xs font-medium text-stone-500 dark:text-stone-300">
+                    {t.passwordDesc}
+                  </p>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => setShowPasswordModal(true)}
-                className="rounded-lg border border-stone-300 px-3 py-1.5 text-xs font-semibold text-stone-700 transition hover:bg-stone-50 dark:border-stone-700 dark:text-stone-300 dark:hover:bg-stone-800"
+                className="rounded-xl border border-stone-300 px-4 py-2 text-xs font-bold text-stone-800 transition hover:bg-stone-50 dark:border-stone-700 dark:text-stone-200 dark:hover:bg-stone-800"
               >
                 {t.changePassword}
               </button>
             </div>
 
             {/* Active Sessions */}
-            <div className="rounded-xl border border-stone-200 bg-white p-4 dark:border-stone-800 dark:bg-stone-900">
-              <p className="mb-3 font-serif text-xs font-bold text-stone-900 dark:text-white">
+            <div className="p-4.5 shadow-xs rounded-xl border border-stone-200 bg-white dark:border-stone-800 dark:bg-stone-900">
+              <p className="mb-3 font-serif text-sm font-bold text-stone-900 sm:text-base dark:text-white">
                 {t.activeDevices}
               </p>
-              <div className="space-y-3">
+              <div className="space-y-3.5">
                 {activeSessions.map((sess) => (
                   <div
                     key={sess.id}
-                    className="flex items-center justify-between text-xs"
+                    className="flex items-center justify-between text-sm"
                   >
                     <div>
-                      <p className="flex items-center gap-1.5 font-medium text-stone-800 dark:text-stone-300">
+                      <p className="flex items-center gap-2 font-medium text-stone-900 dark:text-stone-200">
                         {sess.device}
                         {sess.isCurrent && (
-                          <span className="rounded bg-emerald-100 px-1.5 py-0.5 text-[9px] font-bold text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400">
+                          <span className="rounded-md bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300">
                             {t.currentSession}
                           </span>
                         )}
                       </p>
-                      <p className="text-[10px] text-stone-400">
+                      <p className="mt-0.5 text-xs font-medium text-stone-500 dark:text-stone-300">
                         {sess.location} • {sess.lastActive}
                       </p>
                     </div>
@@ -885,7 +910,7 @@ export default function SettingsPage() {
                       <button
                         type="button"
                         onClick={() => toast.success('Signed out from device')}
-                        className="text-[11px] font-semibold text-rose-600 hover:underline"
+                        className="text-xs font-bold text-rose-600 hover:underline dark:text-rose-400"
                       >
                         {t.signOut}
                       </button>
@@ -896,20 +921,20 @@ export default function SettingsPage() {
             </div>
 
             {/* Danger Zone: Delete Account */}
-            <div className="rounded-xl border border-rose-200 bg-rose-50/50 p-4 dark:border-rose-950/30 dark:bg-rose-950/10">
+            <div className="p-4.5 rounded-xl border border-rose-200 bg-rose-50/60 dark:border-rose-950/40 dark:bg-rose-950/20">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-serif text-xs font-bold text-rose-900 dark:text-rose-400">
+                  <p className="font-serif text-sm font-bold text-rose-900 sm:text-base dark:text-rose-300">
                     {t.deleteAccount}
                   </p>
-                  <p className="text-[10px] text-rose-700/80 dark:text-rose-300/80">
+                  <p className="mt-0.5 text-xs font-medium text-rose-700 dark:text-rose-300/90">
                     {t.deleteAccountDesc}
                   </p>
                 </div>
                 <button
                   type="button"
                   onClick={() => setShowDeleteModal(true)}
-                  className="shadow-xs rounded-lg bg-rose-600 px-3 py-1.5 text-xs font-bold text-white transition hover:bg-rose-700"
+                  className="shadow-xs rounded-xl bg-rose-600 px-4 py-2 text-xs font-bold text-white transition hover:bg-rose-700"
                 >
                   {t.deleteAccount}
                 </button>
@@ -922,90 +947,90 @@ export default function SettingsPage() {
         <section className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Link
             href="/account/addresses"
-            className="shadow-xs group flex items-center justify-between rounded-2xl border border-gold-200/50 bg-[#FCFBF7] p-5 transition hover:border-gold-300 dark:border-gold-200/10 dark:bg-[#1c1a19]"
+            className="group flex items-center justify-between rounded-2xl border border-gold-200/60 bg-[#FCFBF7] p-5 shadow-sm transition hover:border-gold-300 dark:border-gold-500/20 dark:bg-[#1c1a19] dark:hover:border-gold-500/40"
           >
             <div className="flex items-center space-x-3.5">
-              <div className="rounded-xl bg-gold-100/60 p-2.5 text-gold-700 dark:bg-gold-950/40">
-                <MapPin className="h-5 w-5" />
+              <div className="rounded-xl bg-gold-100/80 p-2.5 text-gold-800 dark:bg-gold-950/60 dark:text-gold-300">
+                <MapPin className="h-6 w-6" />
               </div>
               <div>
-                <h3 className="font-serif text-sm font-bold text-stone-900 dark:text-white">
+                <h3 className="font-serif text-base font-bold text-stone-900 dark:text-white">
                   {t.savedAddresses}
                 </h3>
-                <p className="text-xs text-stone-500 dark:text-stone-400">
+                <p className="mt-0.5 text-xs font-medium text-stone-500 dark:text-stone-300">
                   {t.savedAddressesDesc}
                 </p>
               </div>
             </div>
-            <ChevronRight className="h-4 w-4 text-stone-400 transition-transform group-hover:translate-x-0.5 group-hover:text-stone-700" />
+            <ChevronRight className="h-5 w-5 text-stone-400 transition-transform group-hover:translate-x-1 group-hover:text-stone-700 dark:text-stone-500 dark:group-hover:text-stone-300" />
           </Link>
 
-          <div className="shadow-xs flex items-center justify-between rounded-2xl border border-gold-200/50 bg-[#FCFBF7] p-5 dark:border-gold-200/10 dark:bg-[#1c1a19]">
+          <div className="flex items-center justify-between rounded-2xl border border-gold-200/60 bg-[#FCFBF7] p-5 shadow-sm dark:border-gold-500/20 dark:bg-[#1c1a19]">
             <div className="flex items-center space-x-3.5">
-              <div className="rounded-xl bg-gold-100/60 p-2.5 text-gold-700 dark:bg-gold-950/40">
-                <CreditCard className="h-5 w-5" />
+              <div className="rounded-xl bg-gold-100/80 p-2.5 text-gold-800 dark:bg-gold-950/60 dark:text-gold-300">
+                <CreditCard className="h-6 w-6" />
               </div>
               <div>
-                <h3 className="font-serif text-sm font-bold text-stone-900 dark:text-white">
+                <h3 className="font-serif text-base font-bold text-stone-900 dark:text-white">
                   {t.savedPayment}
                 </h3>
-                <p className="text-xs text-stone-500 dark:text-stone-400">
+                <p className="mt-0.5 text-xs font-medium text-stone-500 dark:text-stone-300">
                   {t.savedPaymentDesc}
                 </p>
               </div>
             </div>
-            <span className="text-[10px] font-bold uppercase tracking-wider text-stone-400">
+            <span className="rounded-md bg-stone-100 px-2 py-1 text-xs font-bold uppercase tracking-wider text-stone-600 dark:bg-stone-800 dark:text-stone-300">
               {t.tokenized}
             </span>
           </div>
         </section>
 
         {/* Section 6: Legal & About */}
-        <section className="shadow-xs rounded-2xl border border-gold-200/50 bg-[#FCFBF7] p-6 dark:border-gold-200/10 dark:bg-[#1c1a19]">
-          <div className="flex items-center space-x-3 border-b border-stone-200/50 pb-4 dark:border-stone-800">
-            <div className="rounded-xl bg-gold-100/60 p-2 text-gold-700 dark:bg-gold-950/40">
-              <FileText className="h-5 w-5" />
+        <section className="rounded-2xl border border-gold-200/60 bg-[#FCFBF7] p-6 shadow-sm sm:p-7 dark:border-gold-500/20 dark:bg-[#1c1a19]">
+          <div className="flex items-center space-x-3.5 border-b border-stone-200/60 pb-4 dark:border-stone-800">
+            <div className="rounded-xl bg-gold-100/80 p-2.5 text-gold-800 dark:bg-gold-950/60 dark:text-gold-300">
+              <FileText className="h-6 w-6" />
             </div>
             <div>
-              <h2 className="font-serif text-base font-bold text-stone-900 dark:text-white">
+              <h2 className="font-serif text-lg font-bold text-stone-900 sm:text-xl dark:text-white">
                 {t.legalTitle}
               </h2>
-              <p className="text-xs text-stone-500 dark:text-stone-400">
+              <p className="mt-0.5 text-sm text-stone-600 dark:text-stone-300">
                 {t.legalSubtitle}
               </p>
             </div>
           </div>
 
-          <div className="mt-5 grid grid-cols-2 gap-2 text-xs sm:grid-cols-4">
+          <div className="mt-5 grid grid-cols-2 gap-2 text-sm sm:grid-cols-4">
             <Link
               href="/terms-and-conditions"
-              className="rounded-lg p-2 text-stone-700 transition hover:bg-stone-100 hover:text-gold-700 dark:text-stone-300 dark:hover:bg-stone-800"
+              className="rounded-xl p-2.5 font-medium text-stone-700 transition hover:bg-stone-100 hover:text-gold-700 dark:text-stone-200 dark:hover:bg-stone-800 dark:hover:text-gold-400"
             >
               {t.terms}
             </Link>
             <Link
               href="/privacy-policy"
-              className="rounded-lg p-2 text-stone-700 transition hover:bg-stone-100 hover:text-gold-700 dark:text-stone-300 dark:hover:bg-stone-800"
+              className="rounded-xl p-2.5 font-medium text-stone-700 transition hover:bg-stone-100 hover:text-gold-700 dark:text-stone-200 dark:hover:bg-stone-800 dark:hover:text-gold-400"
             >
               {t.privacyPolicy}
             </Link>
             <Link
               href="/return-policy"
-              className="rounded-lg p-2 text-stone-700 transition hover:bg-stone-100 hover:text-gold-700 dark:text-stone-300 dark:hover:bg-stone-800"
+              className="rounded-xl p-2.5 font-medium text-stone-700 transition hover:bg-stone-100 hover:text-gold-700 dark:text-stone-200 dark:hover:bg-stone-800 dark:hover:text-gold-400"
             >
               {t.returnPolicy}
             </Link>
             <Link
               href="/shipping-policy"
-              className="rounded-lg p-2 text-stone-700 transition hover:bg-stone-100 hover:text-gold-700 dark:text-stone-300 dark:hover:bg-stone-800"
+              className="rounded-xl p-2.5 font-medium text-stone-700 transition hover:bg-stone-100 hover:text-gold-700 dark:text-stone-200 dark:hover:bg-stone-800 dark:hover:text-gold-400"
             >
               {t.shippingPolicy}
             </Link>
           </div>
 
-          <div className="mt-6 flex flex-col items-center justify-between gap-2 border-t border-stone-200/40 pt-4 text-[11px] text-stone-400 sm:flex-row dark:border-stone-800">
+          <div className="mt-6 flex flex-col items-center justify-between gap-2 border-t border-stone-200/60 pt-4 text-xs text-stone-500 sm:flex-row dark:border-stone-800 dark:text-stone-400">
             <div className="flex items-center space-x-2">
-              <span className="font-serif font-bold text-stone-700 dark:text-stone-300">
+              <span className="font-serif font-bold text-stone-800 dark:text-stone-200">
                 RUHVI JEWELS
               </span>
               <span>• {t.version} 1.0.0</span>
@@ -1017,14 +1042,14 @@ export default function SettingsPage() {
 
       {/* Password Modal */}
       {showPasswordModal && (
-        <div className="backdrop-blur-xs fixed inset-0 z-50 flex items-center justify-center bg-stone-900/50 p-4">
+        <div className="backdrop-blur-xs fixed inset-0 z-50 flex items-center justify-center bg-stone-900/60 p-4">
           <div className="w-full max-w-md space-y-4 rounded-2xl border border-stone-200 bg-white p-6 text-stone-800 shadow-2xl dark:border-stone-800 dark:bg-stone-900">
-            <h3 className="font-serif text-base font-bold text-stone-900 dark:text-white">
+            <h3 className="font-serif text-lg font-bold text-stone-900 dark:text-white">
               {t.updatePassword}
             </h3>
-            <form onSubmit={handlePasswordChange} className="space-y-3 text-xs">
+            <form onSubmit={handlePasswordChange} className="space-y-4 text-sm">
               <div>
-                <label className="mb-1 block font-semibold text-stone-700 dark:text-stone-300">
+                <label className="mb-1.5 block font-semibold text-stone-800 dark:text-stone-200">
                   {t.newPasswordLabel}
                 </label>
                 <input
@@ -1033,11 +1058,11 @@ export default function SettingsPage() {
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   placeholder={t.minCharacters}
-                  className="w-full rounded-xl border border-stone-300 px-3.5 py-2 text-stone-900 focus:outline-none focus:ring-2 focus:ring-gold-500/50 dark:border-stone-700 dark:bg-stone-800 dark:text-white"
+                  className="w-full rounded-xl border border-stone-300 px-3.5 py-2.5 text-sm text-stone-900 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-gold-500/50 dark:border-stone-700 dark:bg-stone-800 dark:text-white dark:placeholder:text-stone-500"
                 />
               </div>
               <div>
-                <label className="mb-1 block font-semibold text-stone-700 dark:text-stone-300">
+                <label className="mb-1.5 block font-semibold text-stone-800 dark:text-stone-200">
                   {t.confirmPasswordLabel}
                 </label>
                 <input
@@ -1046,21 +1071,21 @@ export default function SettingsPage() {
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder={t.repeatPassword}
-                  className="w-full rounded-xl border border-stone-300 px-3.5 py-2 text-stone-900 focus:outline-none focus:ring-2 focus:ring-gold-500/50 dark:border-stone-700 dark:bg-stone-800 dark:text-white"
+                  className="w-full rounded-xl border border-stone-300 px-3.5 py-2.5 text-sm text-stone-900 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-gold-500/50 dark:border-stone-700 dark:bg-stone-800 dark:text-white dark:placeholder:text-stone-500"
                 />
               </div>
-              <div className="flex justify-end space-x-2 border-t border-stone-100 pt-3 dark:border-stone-800">
+              <div className="flex justify-end space-x-3 border-t border-stone-100 pt-4 dark:border-stone-800">
                 <button
                   type="button"
                   onClick={() => setShowPasswordModal(false)}
-                  className="rounded-xl px-4 py-2 font-semibold text-stone-600 hover:text-stone-900 dark:text-stone-400 dark:hover:text-white"
+                  className="rounded-xl px-4 py-2.5 font-semibold text-stone-600 hover:text-stone-900 dark:text-stone-300 dark:hover:text-white"
                 >
                   {t.cancel}
                 </button>
                 <button
                   type="submit"
                   disabled={changingPass}
-                  className="shadow-xs rounded-xl bg-gold-600 px-4 py-2 font-bold text-white transition hover:bg-gold-700 disabled:opacity-50"
+                  className="rounded-xl bg-gold-600 px-5 py-2.5 font-bold text-white shadow-sm transition hover:bg-gold-700 disabled:opacity-50"
                 >
                   {changingPass ? t.updating : t.updatePassword}
                 </button>
@@ -1072,22 +1097,22 @@ export default function SettingsPage() {
 
       {/* Delete Account Modal */}
       {showDeleteModal && (
-        <div className="backdrop-blur-xs fixed inset-0 z-50 flex items-center justify-center bg-stone-900/50 p-4">
+        <div className="backdrop-blur-xs fixed inset-0 z-50 flex items-center justify-center bg-stone-900/60 p-4">
           <div className="w-full max-w-md space-y-4 rounded-2xl border border-stone-200 bg-white p-6 text-stone-800 shadow-2xl dark:border-stone-800 dark:bg-stone-900">
-            <div className="flex items-center space-x-3 text-rose-600">
+            <div className="flex items-center space-x-3 text-rose-600 dark:text-rose-400">
               <AlertTriangle className="h-6 w-6" />
-              <h3 className="font-serif text-base font-bold text-rose-900 dark:text-rose-400">
+              <h3 className="font-serif text-lg font-bold text-rose-900 dark:text-rose-300">
                 {t.deleteAccount}
               </h3>
             </div>
-            <p className="text-xs leading-relaxed text-stone-600 dark:text-stone-400">
+            <p className="text-sm leading-relaxed text-stone-600 dark:text-stone-300">
               {t.deleteWarning}
             </p>
-            <div className="flex justify-end space-x-2 border-t border-stone-100 pt-3 dark:border-stone-800">
+            <div className="flex justify-end space-x-3 border-t border-stone-100 pt-4 dark:border-stone-800">
               <button
                 type="button"
                 onClick={() => setShowDeleteModal(false)}
-                className="rounded-xl px-4 py-2 text-xs font-semibold text-stone-600 hover:text-stone-900 dark:text-stone-400 dark:hover:text-white"
+                className="rounded-xl px-4 py-2.5 text-sm font-semibold text-stone-600 hover:text-stone-900 dark:text-stone-300 dark:hover:text-white"
               >
                 {t.cancel}
               </button>
@@ -1095,7 +1120,7 @@ export default function SettingsPage() {
                 type="button"
                 disabled={deletingAccount}
                 onClick={handleDeleteAccount}
-                className="shadow-xs rounded-xl bg-rose-600 px-4 py-2 text-xs font-bold text-white transition hover:bg-rose-700 disabled:opacity-50"
+                className="rounded-xl bg-rose-600 px-5 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-rose-700 disabled:opacity-50"
               >
                 {deletingAccount ? t.deleting : t.confirmDeletion}
               </button>
