@@ -89,6 +89,13 @@ export async function GET(req: NextRequest) {
       console.error('Messages query error:', messagesError);
     }
 
+    const categoryObj = Array.isArray(ticket.category)
+      ? ticket.category[0]
+      : ticket.category;
+    const subcategoryObj = Array.isArray(ticket.subcategory)
+      ? ticket.subcategory[0]
+      : ticket.subcategory;
+
     return NextResponse.json({
       ticket: {
         id: ticket.id,
@@ -99,8 +106,8 @@ export async function GET(req: NextRequest) {
         priority: ticket.priority,
         created_at: ticket.created_at,
         updated_at: ticket.updated_at,
-        category: ticket.category?.name || 'General',
-        subcategory: ticket.subcategory?.name || null,
+        category: categoryObj?.name || 'General',
+        subcategory: subcategoryObj?.name || null,
         customer_name: customer?.full_name || ticket.guest_name || 'Customer',
       },
       messages: messages || [],
