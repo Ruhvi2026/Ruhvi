@@ -147,6 +147,12 @@ export default function SignUpPage() {
       }, 1000);
     } catch (err: any) {
       console.error('Firebase Email Signup error:', err);
+      try {
+        const { signOut } = await import('firebase/auth');
+        await signOut(auth);
+      } catch (signOutErr) {
+        console.error('Failed to clean up Firebase session:', signOutErr);
+      }
       let msg = 'An error occurred during sign up.';
       if (err?.code === 'auth/email-already-in-use') {
         msg = 'An account with this email address already exists.';

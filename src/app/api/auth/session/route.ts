@@ -59,10 +59,7 @@ export async function POST(request: NextRequest) {
     const phoneVerified = !!phone;
     const providerIdentifier = provider === 'phone' ? phone : email || uid;
 
-    // Multi-strategy identity resolution to support both v2 (resolve_customer_identity) and legacy v1 (upsert_firebase_user)
-    let supabaseUserId: string | null = null;
-
-    // Strategy 1: resolve_customer_identity (Migration 0030+)
+    // Strictly resolve identity via resolve_customer_identity (Migration 0030+)
     const { data: resolvedId, error: resolveErr } = await supabaseAdmin.rpc(
       'resolve_customer_identity',
       {
@@ -77,65 +74,18 @@ export async function POST(request: NextRequest) {
       }
     );
 
-    if (resolvedId && !resolveErr) {
-      supabaseUserId = resolvedId;
-    } else {
-      // Strategy 2: Legacy upsert_firebase_user
-      const { data: legacyId } = await supabaseAdmin.rpc(
-        'upsert_firebase_user',
-        {
-          p_uid: uid,
-          p_email: email,
-          p_name: name,
-          p_phone: phone,
-        }
-      );
-
-      if (legacyId) {
-        supabaseUserId = legacyId;
-      } else {
-        // Strategy 3: Direct database lookup / fallback
-        const { data: existingUser } = await supabaseAdmin
-          .from('users')
-          .select('id')
-          .or(`email.eq.${email || ''},phone.eq.${phone || ''}`)
-          .limit(1)
-          .maybeSingle();
-
-        if (existingUser?.id) {
-          supabaseUserId = existingUser.id;
-        } else {
-          // Create user record directly
-          const { data: insertedUser } = await supabaseAdmin
-            .from('users')
-            .insert({
-              email: email,
-              phone: phone,
-              full_name: name,
-              role: email === 'ruhvi.main@gmail.com' ? 'admin' : 'customer',
-              email_verified: emailVerified,
-              phone_verified: phoneVerified,
-            })
-            .select('id')
-            .single();
-
-          if (insertedUser?.id) {
-            supabaseUserId = insertedUser.id;
-          }
-        }
-      }
-    }
-
-    if (!supabaseUserId) {
+    if (resolveErr || !resolvedId) {
       console.error(
-        '[session] Failed to resolve or create user profile for uid:',
-        uid
+        '[session] Failed to resolve customer identity via RPC:',
+        resolveErr || 'No ID returned'
       );
       return NextResponse.json(
-        { error: 'Failed to sync user profile.' },
-        { status: 500 }
+        { error: 'Failed to sync user profile. No linked account found.' },
+        { status: 401 }
       );
     }
+
+    const supabaseUserId = resolvedId;
 
     const expiresInSeconds = 60 * 60 * 24 * 5; // 5 days
     const secret = new TextEncoder().encode(jwtSecret);

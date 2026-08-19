@@ -34,23 +34,11 @@ async function getCurrentUser(cookieStore: any) {
     if (!uid) return null;
 
     const supabase = await getSupabaseAdmin(cookieStore);
-    const { data: identity } = await supabase
-      .from('customer_identities')
-      .select('customer_id')
-      .eq('firebase_uid', uid)
-      .maybeSingle();
-
-    if (!identity?.customer_id) return null;
-
     const { data: user } = await supabase
       .from('users')
       .select('id, full_name, email, phone, role')
-      .eq('id', identity.customer_id)
+      .eq('id', uid)
       .maybeSingle();
-
-    if (user && decoded.email === 'ruhvi.main@gmail.com') {
-      user.role = 'admin';
-    }
 
     return user;
   } catch {

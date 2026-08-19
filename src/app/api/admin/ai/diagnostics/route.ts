@@ -14,7 +14,7 @@ async function verifyAdmin() {
   if (!sessionCookie) return false;
   try {
     const decoded = decodeJwt(sessionCookie);
-    if (!decoded || !decoded.sub) return false;
+    if (!decoded || !(decoded.firebase_uid || decoded.sub)) return false;
     return true;
   } catch (e) {
     return false;

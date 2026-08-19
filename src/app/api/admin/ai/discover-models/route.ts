@@ -23,7 +23,7 @@ export async function POST(req: Request) {
 
     try {
       const decoded = decodeJwt(sessionCookie);
-      if (!decoded || !decoded.sub) {
+      if (!decoded || !(decoded.firebase_uid || decoded.sub)) {
         return NextResponse.json(
           { error: 'Invalid session token.' },
           { status: 401 }

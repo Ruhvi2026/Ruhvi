@@ -25,13 +25,13 @@ export async function POST(req: Request) {
     let uid = 'unknown';
     try {
       const decoded = decodeJwt(sessionCookie);
-      if (!decoded || !decoded.sub) {
+      if (!decoded || !(decoded.firebase_uid || decoded.sub)) {
         return NextResponse.json(
           { error: 'Invalid session token.' },
           { status: 401 }
         );
       }
-      uid = decoded.sub;
+      uid = (decoded.firebase_uid || decoded.sub) as string;
     } catch (e) {
       return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
     }

@@ -158,6 +158,12 @@ function LoginForm() {
       window.location.href = destination;
     } catch (err: any) {
       console.error('Email login error:', err);
+      try {
+        const { signOut } = await import('firebase/auth');
+        await signOut(auth);
+      } catch (signOutErr) {
+        console.error('Failed to clean up Firebase session:', signOutErr);
+      }
       let msg = 'Invalid email or password. Please check your credentials.';
       if (
         err?.code === 'auth/user-not-found' ||
@@ -274,6 +280,12 @@ function LoginForm() {
       window.location.href = targetPath;
     } catch (err: any) {
       console.error('OTP verify error:', err);
+      try {
+        const { signOut } = await import('firebase/auth');
+        await signOut(auth);
+      } catch (signOutErr) {
+        console.error('Failed to clean up Firebase session:', signOutErr);
+      }
       setError(
         err?.message || 'Invalid OTP. Please check the code and try again.'
       );
@@ -322,6 +334,12 @@ function LoginForm() {
       window.location.href = targetPath;
     } catch (err: any) {
       console.error('Firebase Google sign in error:', err);
+      try {
+        const { signOut } = await import('firebase/auth');
+        await signOut(auth);
+      } catch (signOutErr) {
+        console.error('Failed to clean up Firebase session:', signOutErr);
+      }
       setError(err?.message || 'Failed to sign in with Google.');
       setLoading(false);
     }
@@ -368,6 +386,12 @@ function LoginForm() {
       window.location.href = targetPath;
     } catch (err: any) {
       console.error('Firebase Facebook sign in error:', err);
+      try {
+        const { signOut } = await import('firebase/auth');
+        await signOut(auth);
+      } catch (signOutErr) {
+        console.error('Failed to clean up Firebase session:', signOutErr);
+      }
       setError(err?.message || 'Failed to sign in with Facebook.');
       setLoading(false);
     }

@@ -22,7 +22,7 @@ async function getAuthenticatedUser(cookieStore: any) {
 
   try {
     const decoded = decodeJwt(sessionCookie);
-    const uid = decoded.sub;
+    const uid = decoded.firebase_uid || decoded.sub;
     if (!uid) return null;
 
     const supabase = createServerClient(
@@ -39,20 +39,12 @@ async function getAuthenticatedUser(cookieStore: any) {
       }
     );
 
-    const { data: identity } = await supabase
-      .from('customer_identities')
-      .select('customer_id')
-      .eq('firebase_uid', uid)
-      .maybeSingle();
-
-    if (!identity?.customer_id) return null;
-
     const { data: user } = await supabase
       .from('users')
       .select(
         'id, full_name, email, phone, role, wallet_balance, reward_coins, created_at'
       )
-      .eq('id', identity.customer_id)
+      .eq('id', uid)
       .maybeSingle();
 
     return user;

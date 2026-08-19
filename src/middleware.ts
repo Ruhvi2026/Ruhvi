@@ -188,29 +188,15 @@ export async function middleware(request: NextRequest) {
       const uid = decodedToken.sub;
       const email = decodedToken.email as string | undefined;
 
-      // Fetch user role from public.customer_identities and public.users
-      const { data: identity } = await supabase
-        .from('customer_identities')
-        .select('customer_id')
-        .eq('firebase_uid', uid)
+      // Fetch user role directly from public.users
+      const { data: profile } = await supabase
+        .from('users')
+        .select('role')
+        .eq('id', uid)
         .maybeSingle();
-
-      let userProfile = null;
-      if (identity?.customer_id) {
-        const { data: profile } = await supabase
-          .from('users')
-          .select('role')
-          .eq('id', identity.customer_id)
-          .maybeSingle();
-        userProfile = profile;
-      }
+      let userProfile = profile;
 
       let role = userProfile?.role;
-
-      // Always grant admin privileges to the primary admin email
-      if (email === 'ruhvi.main@gmail.com') {
-        role = 'admin';
-      }
 
       if (!role) {
         role = 'customer';

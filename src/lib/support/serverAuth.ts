@@ -38,26 +38,13 @@ export async function getCurrentSupportUser(): Promise<SupportStaffUser | null> 
     if (!uid) return null;
 
     const supabase = await getSupabaseAdminClient(cookieStore);
-    const { data: identity } = await supabase
-      .from('customer_identities')
-      .select('customer_id')
-      .eq('firebase_uid', uid)
-      .maybeSingle();
-
-    if (!identity?.customer_id) return null;
-
     const { data: user } = await supabase
       .from('users')
       .select('id, full_name, email, phone, role')
-      .eq('id', identity.customer_id)
+      .eq('id', uid)
       .maybeSingle();
 
     if (!user) return null;
-
-    // Grant admin privileges to primary administrator email
-    if (decoded.email === 'ruhvi.main@gmail.com') {
-      user.role = 'admin';
-    }
 
     return user as SupportStaffUser;
   } catch (err) {

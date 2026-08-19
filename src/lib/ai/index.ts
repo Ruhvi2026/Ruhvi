@@ -355,22 +355,13 @@ export async function generateAIContent(
       const decodedToken = decodeJwt(sessionCookie);
       userId = decodedToken.sub || 'anonymous';
       if (userId !== 'anonymous') {
-        const { data: identity } = await supabaseAdmin
-          .from('customer_identities')
-          .select('customer_id')
-          .eq('firebase_uid', userId)
+        const { data: profile } = await supabaseAdmin
+          .from('users')
+          .select('role')
+          .eq('id', userId)
           .maybeSingle();
-        let userProfile = null;
-        if (identity?.customer_id) {
-          const { data: profile } = await supabaseAdmin
-            .from('users')
-            .select('role')
-            .eq('id', identity.customer_id)
-            .maybeSingle();
-          userProfile = profile;
-        }
+        let userProfile = profile;
         userRole = userProfile?.role || 'user';
-        if (decodedToken.email === 'ruhvi.main@gmail.com') userRole = 'admin';
       }
     }
   } catch (e) {

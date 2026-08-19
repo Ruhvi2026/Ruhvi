@@ -118,10 +118,7 @@ export default function AdminLogin() {
       }
 
       const role = userProfile?.role;
-      const isAdmin =
-        fbUser.email === 'ruhvi.main@gmail.com' ||
-        role === 'admin' ||
-        role === 'manager';
+      const isAdmin = role === 'admin' || role === 'manager';
 
       if (!isAdmin) {
         await fetch('/api/auth/logout', { method: 'POST' });
@@ -135,6 +132,13 @@ export default function AdminLogin() {
       window.location.href = redirectTo;
     } catch (err: any) {
       console.error('Admin login error:', err);
+      try {
+        const { signOut } = await import('firebase/auth');
+        const { auth } = await import('@/lib/firebase');
+        await signOut(auth);
+      } catch (signOutErr) {
+        console.error('Failed to clean up Firebase session:', signOutErr);
+      }
       let msg = 'Invalid email or password.';
       if (
         err?.code === 'auth/user-not-found' ||

@@ -34,25 +34,14 @@ export async function GET(req: NextRequest) {
       }
     );
 
-    // Verify admin role
-    const { data: identity } = await supabase
-      .from('customer_identities')
-      .select('customer_id')
-      .eq('firebase_uid', uid)
+    // Verify admin role directly from users table
+    const { data: user } = await supabase
+      .from('users')
+      .select('role')
+      .eq('id', uid)
       .maybeSingle();
 
-    let user = null;
-    if (identity?.customer_id) {
-      const { data: profile } = await supabase
-        .from('users')
-        .select('role')
-        .eq('id', identity.customer_id)
-        .maybeSingle();
-      user = profile;
-    }
-
-    const isAdmin =
-      user?.role === 'admin' || decoded.email === 'ruhvi.main@gmail.com';
+    const isAdmin = user?.role === 'admin';
     if (!isAdmin) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
