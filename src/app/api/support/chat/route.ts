@@ -39,12 +39,20 @@ async function getAuthenticatedUser(cookieStore: any) {
       }
     );
 
+    const { data: identity } = await supabase
+      .from('customer_identities')
+      .select('customer_id')
+      .eq('firebase_uid', uid)
+      .maybeSingle();
+
+    if (!identity?.customer_id) return null;
+
     const { data: user } = await supabase
       .from('users')
       .select(
         'id, full_name, email, phone, role, wallet_balance, reward_coins, created_at'
       )
-      .eq('firebase_uid', uid)
+      .eq('id', identity.customer_id)
       .maybeSingle();
 
     return user;

@@ -188,12 +188,22 @@ export async function middleware(request: NextRequest) {
       const uid = decodedToken.sub;
       const email = decodedToken.email as string | undefined;
 
-      // Fetch user role from public.users table using firebase_uid
-      const { data: userProfile } = await supabase
-        .from('users')
-        .select('role')
+      // Fetch user role from public.customer_identities and public.users
+      const { data: identity } = await supabase
+        .from('customer_identities')
+        .select('customer_id')
         .eq('firebase_uid', uid)
         .maybeSingle();
+
+      let userProfile = null;
+      if (identity?.customer_id) {
+        const { data: profile } = await supabase
+          .from('users')
+          .select('role')
+          .eq('id', identity.customer_id)
+          .maybeSingle();
+        userProfile = profile;
+      }
 
       let role = userProfile?.role;
 

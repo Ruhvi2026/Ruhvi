@@ -35,11 +35,21 @@ export async function GET(req: NextRequest) {
     );
 
     // Verify admin role
-    const { data: user } = await supabase
-      .from('users')
-      .select('role')
+    const { data: identity } = await supabase
+      .from('customer_identities')
+      .select('customer_id')
       .eq('firebase_uid', uid)
       .maybeSingle();
+
+    let user = null;
+    if (identity?.customer_id) {
+      const { data: profile } = await supabase
+        .from('users')
+        .select('role')
+        .eq('id', identity.customer_id)
+        .maybeSingle();
+      user = profile;
+    }
 
     const isAdmin =
       user?.role === 'admin' || decoded.email === 'ruhvi.main@gmail.com';
