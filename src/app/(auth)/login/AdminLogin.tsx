@@ -56,11 +56,21 @@ export default function AdminLogin() {
 
       // Check role using Supabase
       const supabase = createClient();
-      const { data: userProfile } = await supabase
-        .from('users')
-        .select('role')
+      const { data: identity } = await supabase
+        .from('customer_identities')
+        .select('customer_id')
         .eq('firebase_uid', fbUser.uid)
         .single();
+
+      let userProfile = null;
+      if (identity?.customer_id) {
+        const { data: profileData } = await supabase
+          .from('users')
+          .select('role')
+          .eq('id', identity.customer_id)
+          .single();
+        userProfile = profileData;
+      }
 
       const role = userProfile?.role;
       const isAdmin =

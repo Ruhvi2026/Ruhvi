@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { X, Send, Paperclip, Ticket, ExternalLink } from 'lucide-react';
 import BotMascot from '@/components/design-system/BotMascot';
 import Link from 'next/link';
+import { useAuth } from '@/context/AuthContext';
 
 const THINKING_STEPS = [
   'Reading your words…',
@@ -59,6 +60,7 @@ interface ChatMessage {
 }
 
 export default function CustomerSupportChat() {
+  const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
@@ -262,10 +264,15 @@ export default function CustomerSupportChat() {
                         has been created.
                       </p>
                       <Link
-                        href="/account/support"
+                        href={
+                          user
+                            ? '/account/support'
+                            : `/support-status?ticket=${m.ticketInfo.ticket_number}`
+                        }
                         className="mt-2 inline-flex items-center gap-1 rounded-lg bg-emerald-600 px-3 py-1 text-[10px] font-semibold text-white transition-colors hover:bg-emerald-500"
                       >
-                        View Tickets <ExternalLink className="h-3 w-3" />
+                        {user ? 'View Tickets' : 'Check Status'}{' '}
+                        <ExternalLink className="h-3 w-3" />
                       </Link>
                     </div>
                   )}

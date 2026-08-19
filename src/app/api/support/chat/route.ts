@@ -201,7 +201,7 @@ ${
 }`;
     } else {
       customerContext =
-        '\nCUSTOMER CONTEXT: Guest user (not logged in). If they have an order-specific issue, ask them to log in first.';
+        '\nCUSTOMER CONTEXT: Guest user (not logged in). If they have an order-specific issue or need to raise a ticket, you MUST first ask them to provide their email address. Do NOT attempt to raise a ticket until they have provided a valid email address.';
     }
 
     const latestMessage = messages[messages.length - 1];
@@ -267,13 +267,16 @@ RESPONSE FORMAT — You MUST respond in valid JSON with this structure:
     "subcategory_slug": "specific subcategory slug or null",
     "priority": "low | normal | high | urgent",
     "order_number": "order number if applicable or null",
+    "guest_email": "the email address provided by the customer in conversation if they are a guest (null if logged in or not provided yet)",
+    "guest_name": "the guest's name if they shared it, or null",
     "needs_info": ["list of missing information still needed, if any"]
   }
 }
 
 Rules for action field:
 - Use "none" for normal conversation, resolution, or information responses.
-- Use "create_ticket" ONLY when you've determined human support is needed AND you have enough information to create a meaningful ticket.
+- Use "create_ticket" ONLY when you've determined human support is needed AND you have the customer's email (either via logged-in context or because they provided it).
+- If you are interacting with a guest and need to raise a ticket, you MUST first ask for their email address and set action to "none". Do NOT create a ticket without an email.
 - When creating a ticket, your response should inform the customer that a ticket is being created and what to expect.
 - If you need more information before creating a ticket, use "none" and ask the customer in your response.
 - Always try to identify the relevant order_number from context if the issue is order-related.
@@ -301,96 +304,107 @@ Rules for action field:
       }
     }
 
-    // If AI wants to create a ticket and user is authenticated
-    if (
-      aiResponse.action === 'create_ticket' &&
-      currentUser &&
-      aiResponse.ticket_data
-    ) {
-      const supabase = createServerClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL ||
-          'https://igrkrkxdantrolbldapj.supabase.co',
-        process.env.SUPABASE_SERVICE_ROLE_KEY!,
-        {
-          cookies: {
-            getAll() {
-              return cookieStore.getAll();
-            },
-            setAll() {},
-          },
-        }
-      );
+    // If AI wants to create a ticket (handles both auth and guest)
+    if (aiResponse.action === 'create_ticket' && aiResponse.ticket_data) {
+      const isGuest = !currentUser;
+      const guestEmail = aiResponse.ticket_data.guest_email;
 
-      // Look up category
-      const { data: category } = await supabase
-        .from('support_categories')
-        .select('id')
-        .eq('slug', aiResponse.ticket_data.category_slug || 'other')
-        .is('parent_id', null)
-        .maybeSingle();
-
-      // Look up subcategory
-      let subcategoryId = null;
-      if (aiResponse.ticket_data.subcategory_slug && category) {
-        const { data: subcategory } = await supabase
-          .from('support_categories')
-          .select('id')
-          .eq('slug', aiResponse.ticket_data.subcategory_slug)
-          .eq('parent_id', category.id)
-          .maybeSingle();
-        subcategoryId = subcategory?.id || null;
-      }
-
-      // Look up order if referenced
-      let orderId = null;
-      let productId = null;
-      if (aiResponse.ticket_data.order_number) {
-        const { data: order } = await supabase
-          .from('orders')
-          .select('id')
-          .eq('order_number', aiResponse.ticket_data.order_number)
-          .eq('user_id', currentUser.id)
-          .maybeSingle();
-        orderId = order?.id || null;
-
-        // Get first product from order items if available
-        if (orderId) {
-          const { data: firstItem } = await supabase
-            .from('order_items')
-            .select('product_id')
-            .eq('order_id', orderId)
-            .limit(1)
-            .maybeSingle();
-          productId = firstItem?.product_id || null;
-        }
-      }
-
-      // Check for duplicate ticket
-      const duplicateQuery = supabase
-        .from('support_tickets')
-        .select('id, ticket_number')
-        .eq('customer_id', currentUser.id)
-        .not('status', 'in', '("resolved","closed")');
-
-      if (orderId) {
-        duplicateQuery.eq('order_id', orderId);
-      }
-
-      const { data: duplicates } = await duplicateQuery.limit(1);
-
-      if (duplicates && duplicates.length > 0 && orderId) {
-        // Existing open ticket for same order — don't create duplicate
-        aiResponse.response += `\n\nI noticed you already have an open ticket (${duplicates[0].ticket_number}) for this order. Our team is working on it. You can check its status in your account under Support.`;
+      if (isGuest && !guestEmail) {
+        // AI wanted to create a ticket but didn't have/extract the guest email
         aiResponse.action = 'none';
+        aiResponse.response =
+          'I would be glad to raise a support ticket for you. Could you please share your email address so we can send you updates and resolve this for you?';
         aiResponse.ticket_data = null;
       } else {
-        // Create the ticket
-        const conversationId = `conv_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
+        const supabase = createServerClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL ||
+            'https://igrkrkxdantrolbldapj.supabase.co',
+          process.env.SUPABASE_SERVICE_ROLE_KEY!,
+          {
+            cookies: {
+              getAll() {
+                return cookieStore.getAll();
+              },
+              setAll() {},
+            },
+          }
+        );
 
-        const { data: ticket, error: ticketError } = await supabase
-          .from('support_tickets')
-          .insert({
-            customer_id: currentUser.id,
+        // Look up category
+        const { data: category } = await supabase
+          .from('support_categories')
+          .select('id')
+          .eq('slug', aiResponse.ticket_data.category_slug || 'other')
+          .is('parent_id', null)
+          .maybeSingle();
+
+        // Look up subcategory
+        let subcategoryId = null;
+        if (aiResponse.ticket_data.subcategory_slug && category) {
+          const { data: subcategory } = await supabase
+            .from('support_categories')
+            .select('id')
+            .eq('slug', aiResponse.ticket_data.subcategory_slug)
+            .eq('parent_id', category.id)
+            .maybeSingle();
+          subcategoryId = subcategory?.id || null;
+        }
+
+        // Look up order if referenced and auth user
+        let orderId = null;
+        let productId = null;
+        if (currentUser && aiResponse.ticket_data.order_number) {
+          const { data: order } = await supabase
+            .from('orders')
+            .select('id')
+            .eq('order_number', aiResponse.ticket_data.order_number)
+            .eq('user_id', currentUser.id)
+            .maybeSingle();
+          orderId = order?.id || null;
+
+          // Get first product from order items if available
+          if (orderId) {
+            const { data: firstItem } = await supabase
+              .from('order_items')
+              .select('product_id')
+              .eq('order_id', orderId)
+              .limit(1)
+              .maybeSingle();
+            productId = firstItem?.product_id || null;
+          }
+        }
+
+        // Check for duplicate ticket (only for authenticated users)
+        let hasDuplicate = false;
+        let duplicateTicketNumber = '';
+        if (currentUser) {
+          const duplicateQuery = supabase
+            .from('support_tickets')
+            .select('id, ticket_number')
+            .eq('customer_id', currentUser.id)
+            .not('status', 'in', '("resolved","closed")');
+
+          if (orderId) {
+            duplicateQuery.eq('order_id', orderId);
+          }
+
+          const { data: duplicates } = await duplicateQuery.limit(1);
+          if (duplicates && duplicates.length > 0 && orderId) {
+            hasDuplicate = true;
+            duplicateTicketNumber = duplicates[0].ticket_number;
+          }
+        }
+
+        if (hasDuplicate) {
+          // Existing open ticket for same order — don't create duplicate
+          aiResponse.response += `\n\nI noticed you already have an open ticket (${duplicateTicketNumber}) for this order. Our team is working on it. You can check its status in your account under Support.`;
+          aiResponse.action = 'none';
+          aiResponse.ticket_data = null;
+        } else {
+          // Create the ticket
+          const conversationId = `conv_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
+
+          const ticketPayload: any = {
             order_id: orderId,
             product_id: productId,
             category_id: category?.id || null,
@@ -403,64 +417,81 @@ Rules for action field:
             source: 'ai_chat',
             ai_created: true,
             ai_conversation_id: conversationId,
-          })
-          .select('id, ticket_number')
-          .single();
-
-        if (ticket && !ticketError) {
-          // Save the AI conversation context as the first message
-          const conversationSummary = messages
-            .map(
-              (m: any) =>
-                `**${m.sender === 'user' ? 'Customer' : 'GIA'}**: ${m.text}`
-            )
-            .join('\n\n');
-
-          await supabase.from('support_messages').insert({
-            ticket_id: ticket.id,
-            sender_type: 'ai',
-            message: `**AI Conversation Summary**\n\n${conversationSummary}`,
-            visibility: 'internal',
-          });
-
-          // Add the customer's original issue as a customer-visible message
-          await supabase.from('support_messages').insert({
-            ticket_id: ticket.id,
-            sender_type: 'customer',
-            sender_id: currentUser.id,
-            message: aiResponse.ticket_data.description || latestMessage.text,
-            visibility: 'customer',
-          });
-
-          // Create audit log entry
-          await supabase.from('support_audit_logs').insert({
-            ticket_id: ticket.id,
-            actor_type: 'ai',
-            action: 'ticket_created',
-            new_value: {
-              ticket_number: ticket.ticket_number,
-              category: aiResponse.ticket_data.category_slug,
-              priority: aiResponse.ticket_data.priority,
-              source: 'ai_chat',
-            },
-          });
-
-          // Return ticket info with the response
-          aiResponse.ticket_data = {
-            ...aiResponse.ticket_data,
-            ticket_id: ticket.id,
-            ticket_number: ticket.ticket_number,
           };
 
-          // Trigger ticket confirmation email (async, don't await)
-          fetch(
-            `${req.nextUrl.origin}/api/support/tickets/${ticket.id}/notify`,
-            {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ type: 'ticket_created' }),
-            }
-          ).catch(() => {});
+          if (currentUser) {
+            ticketPayload.customer_id = currentUser.id;
+          } else {
+            ticketPayload.customer_id = null;
+            ticketPayload.guest_email = guestEmail;
+            ticketPayload.guest_name =
+              aiResponse.ticket_data.guest_name || 'Guest';
+          }
+
+          const { data: ticket, error: ticketError } = await supabase
+            .from('support_tickets')
+            .insert(ticketPayload)
+            .select('id, ticket_number')
+            .single();
+
+          if (ticket && !ticketError) {
+            // Save the AI conversation context as the first message
+            const conversationSummary = messages
+              .map(
+                (m: any) =>
+                  `**${m.sender === 'user' ? 'Customer' : 'GIA'}**: ${m.text}`
+              )
+              .join('\n\n');
+
+            await supabase.from('support_messages').insert({
+              ticket_id: ticket.id,
+              sender_type: 'ai',
+              message: `**AI Conversation Summary**\n\n${conversationSummary}`,
+              visibility: 'internal',
+            });
+
+            // Add the customer's original issue as a customer-visible message
+            await supabase.from('support_messages').insert({
+              ticket_id: ticket.id,
+              sender_type: 'customer',
+              sender_id: currentUser ? currentUser.id : null,
+              message: aiResponse.ticket_data.description || latestMessage.text,
+              visibility: 'customer',
+            });
+
+            // Create audit log entry
+            await supabase.from('support_audit_logs').insert({
+              ticket_id: ticket.id,
+              actor_type: isGuest ? 'customer' : 'ai',
+              action: 'ticket_created',
+              new_value: {
+                ticket_number: ticket.ticket_number,
+                category: aiResponse.ticket_data.category_slug,
+                priority: aiResponse.ticket_data.priority,
+                source: 'ai_chat',
+                guest_email: isGuest ? guestEmail : undefined,
+              },
+            });
+
+            // Return ticket info with the response
+            aiResponse.ticket_data = {
+              ...aiResponse.ticket_data,
+              ticket_id: ticket.id,
+              ticket_number: ticket.ticket_number,
+            };
+
+            // Trigger ticket confirmation email (async, don't await)
+            fetch(
+              `${req.nextUrl.origin}/api/support/tickets/${ticket.id}/notify`,
+              {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ type: 'ticket_created' }),
+              }
+            ).catch(() => {});
+          } else {
+            console.error('Database insertion error:', ticketError);
+          }
         }
       }
     }

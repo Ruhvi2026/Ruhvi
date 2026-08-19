@@ -35,7 +35,7 @@ INSERT INTO public.customer_identities (customer_id, firebase_uid, provider, pro
 SELECT id, firebase_uid, 'password', email
 FROM public.users
 WHERE firebase_uid IS NOT NULL
-ON CONFLICT (firebase_uid) DO NOTHING;
+ON CONFLICT DO NOTHING;
 
 -- Drop the trigger that forces firebase_uid on users table
 DROP TRIGGER IF EXISTS trg_set_firebase_uid ON public.users;

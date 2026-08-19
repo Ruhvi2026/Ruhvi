@@ -76,11 +76,15 @@ function LoginForm() {
 
       // Upsert user into Supabase database securely via RPC
       const supabase = createClient();
-      await supabase.rpc('sync_firebase_user', {
-        p_uid: fbUser.uid,
+      await supabase.rpc('resolve_customer_identity', {
+        p_firebase_uid: fbUser.uid,
+        p_provider: 'password',
+        p_provider_identifier: fbUser.email || '',
         p_email: fbUser.email || null,
-        p_name: fbUser.displayName || null,
+        p_email_verified: fbUser.emailVerified || false,
         p_phone: fbUser.phoneNumber || null,
+        p_phone_verified: false,
+        p_name: fbUser.displayName || null,
       });
 
       // Create session cookie for SSR
@@ -184,11 +188,15 @@ function LoginForm() {
       const user = userCredential.user;
 
       const supabase = createClient();
-      await supabase.rpc('sync_firebase_user', {
-        p_uid: user.uid,
+      await supabase.rpc('resolve_customer_identity', {
+        p_firebase_uid: user.uid,
+        p_provider: 'phone',
+        p_provider_identifier: user.phoneNumber || '',
         p_email: user.email || null,
-        p_name: user.displayName || null,
+        p_email_verified: false,
         p_phone: user.phoneNumber || null,
+        p_phone_verified: true,
+        p_name: user.displayName || null,
       });
 
       // Create session cookie for SSR
@@ -222,11 +230,15 @@ function LoginForm() {
       const fbUser = userCredential.user;
 
       const supabase = createClient();
-      await supabase.rpc('sync_firebase_user', {
-        p_uid: fbUser.uid,
+      await supabase.rpc('resolve_customer_identity', {
+        p_firebase_uid: fbUser.uid,
+        p_provider: 'google',
+        p_provider_identifier: fbUser.email || fbUser.uid,
         p_email: fbUser.email || null,
-        p_name: fbUser.displayName || null,
+        p_email_verified: fbUser.emailVerified || true,
         p_phone: fbUser.phoneNumber || null,
+        p_phone_verified: !!fbUser.phoneNumber,
+        p_name: fbUser.displayName || null,
       });
 
       const idToken = await fbUser.getIdToken();
@@ -257,11 +269,15 @@ function LoginForm() {
       const fbUser = userCredential.user;
 
       const supabase = createClient();
-      await supabase.rpc('sync_firebase_user', {
-        p_uid: fbUser.uid,
+      await supabase.rpc('resolve_customer_identity', {
+        p_firebase_uid: fbUser.uid,
+        p_provider: 'facebook',
+        p_provider_identifier: fbUser.email || fbUser.uid,
         p_email: fbUser.email || null,
-        p_name: fbUser.displayName || null,
+        p_email_verified: fbUser.emailVerified || true,
         p_phone: fbUser.phoneNumber || null,
+        p_phone_verified: !!fbUser.phoneNumber,
+        p_name: fbUser.displayName || null,
       });
 
       const idToken = await fbUser.getIdToken();

@@ -40,6 +40,7 @@ export async function POST(
       .select(
         `
         id, ticket_number, title, description, status, priority, created_at,
+        guest_email, guest_name,
         customer:customer_id(id, full_name, email),
         category:category_id(name)
       `
@@ -59,10 +60,13 @@ export async function POST(
       ? ticket.category[0]
       : ticket.category;
 
-    if (!customer?.email) {
+    const email = customer?.email || ticket.guest_email;
+    const name = customer?.full_name || ticket.guest_name || 'Customer';
+
+    if (!email) {
       return NextResponse.json(
-        { error: 'Customer not found' },
-        { status: 404 }
+        { error: 'Recipient email not found for this ticket.' },
+        { status: 400 }
       );
     }
 
@@ -71,7 +75,7 @@ export async function POST(
 
     switch (type) {
       case 'ticket_created':
-        await sendSupportTicketEmail(customer.email, {
+        await sendSupportTicketEmail(email, {
           type: 'created',
           ticket: {
             number: ticket.ticket_number,
@@ -92,20 +96,20 @@ export async function POST(
             ),
           },
           customer: {
-            name: customer.full_name || 'Customer',
+            name: name,
           },
         });
         break;
 
       case 'staff_reply':
-        await sendSupportTicketEmail(customer.email, {
+        await sendSupportTicketEmail(email, {
           type: 'reply',
           ticket: {
             number: ticket.ticket_number,
             title: ticket.title,
           },
           customer: {
-            name: customer.full_name || 'Customer',
+            name: name,
           },
           reply_preview: body.reply_preview || '',
         });
@@ -120,7 +124,7 @@ export async function POST(
             resolved: 'Resolved',
             closed: 'Closed',
           };
-          await sendSupportTicketEmail(customer.email, {
+          await sendSupportTicketEmail(email, {
             type: 'status_update',
             ticket: {
               number: ticket.ticket_number,
@@ -128,7 +132,7 @@ export async function POST(
               new_status: statusLabels[body.new_status] || body.new_status,
             },
             customer: {
-              name: customer.full_name || 'Customer',
+              name: name,
             },
           });
         }

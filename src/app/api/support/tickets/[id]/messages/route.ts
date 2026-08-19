@@ -58,13 +58,9 @@ export async function POST(
     const { id: ticketId } = await params;
     const cookieStore = await cookies();
     const user = await getCurrentUser(cookieStore);
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
     const supabase = await getSupabaseAdmin(cookieStore);
     const body = await req.json();
-    const { message, visibility } = body;
+    const { message, visibility, email } = body;
 
     if (!message || !message.trim()) {
       return NextResponse.json(
@@ -73,12 +69,15 @@ export async function POST(
       );
     }
 
-    const isStaff = ['admin', 'manager', 'staff'].includes(user.role);
-
-    // Verify ticket access
+    // Verify ticket existence and retrieve details
     const { data: ticket } = await supabase
       .from('support_tickets')
-      .select('id, customer_id, status')
+      .select(
+        `
+        id, customer_id, status, guest_email,
+        customer:customer_id(email)
+      `
+      )
       .eq('id', ticketId)
       .maybeSingle();
 
@@ -86,21 +85,47 @@ export async function POST(
       return NextResponse.json({ error: 'Ticket not found' }, { status: 404 });
     }
 
-    // Customers can only message on their own tickets
-    if (!isStaff && ticket.customer_id !== user.id) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-    }
-
-    // Determine sender type and visibility
     let senderType: string;
     let messageVisibility: string;
+    let isStaff = false;
+    let senderId: string | null = null;
 
-    if (isStaff) {
-      senderType = 'staff';
-      messageVisibility = visibility === 'internal' ? 'internal' : 'customer';
+    if (user) {
+      isStaff = ['admin', 'manager', 'staff'].includes(user.role);
+      senderId = user.id;
+
+      // Customers can only message on their own tickets
+      if (!isStaff && ticket.customer_id !== user.id) {
+        return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+      }
+
+      if (isStaff) {
+        senderType = 'staff';
+        messageVisibility = visibility === 'internal' ? 'internal' : 'customer';
+      } else {
+        senderType = 'customer';
+        messageVisibility = 'customer';
+      }
     } else {
+      // Guest user posting comment
+      if (!email) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      }
+
+      const cleanEmail = email.trim().toLowerCase();
+      const customerObj = Array.isArray(ticket.customer)
+        ? ticket.customer[0]
+        : ticket.customer;
+      const customerEmail = customerObj?.email?.toLowerCase();
+      const guestEmail = ticket.guest_email?.toLowerCase();
+
+      if (cleanEmail !== customerEmail && cleanEmail !== guestEmail) {
+        return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+      }
+
       senderType = 'customer';
-      messageVisibility = 'customer'; // Customers can never create internal notes
+      messageVisibility = 'customer';
+      senderId = null;
     }
 
     // Insert message
@@ -109,7 +134,7 @@ export async function POST(
       .insert({
         ticket_id: ticketId,
         sender_type: senderType,
-        sender_id: user.id,
+        sender_id: senderId,
         message: message.trim(),
         visibility: messageVisibility,
       })
@@ -127,7 +152,7 @@ export async function POST(
     // Audit log
     await supabase.from('support_audit_logs').insert({
       ticket_id: ticketId,
-      actor_id: user.id,
+      actor_id: senderId,
       actor_type: senderType,
       action:
         messageVisibility === 'internal'

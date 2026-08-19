@@ -81,6 +81,12 @@ export default function SupportTicketQueue() {
           <h1 className="text-xl font-bold text-white">Ticket Queue</h1>
           <p className="mt-0.5 text-sm text-slate-500">{total} tickets total</p>
         </div>
+        <Link
+          href="/support/tickets/new"
+          className="rounded-lg bg-amber-500 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-amber-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-500"
+        >
+          New Ticket
+        </Link>
       </div>
 
       {/* Search & Filters */}
