@@ -6,8 +6,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(15, 23, 42, 0.7);
-  backdrop-filter: blur(8px);
+  background: transparent;
+  backdrop-filter: none;
   z-index: 9999;
 }
 
@@ -17,16 +17,16 @@
   align-items: center;
   justify-content: center;
   gap: 1.5rem;
-  background: rgba(30, 41, 59, 0.9);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 3rem 4rem;
+  background: transparent;
+  border: none;
+  padding: 2rem;
   border-radius: 1.5rem;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-  min-height: 180px;
+  box-shadow: none;
+  min-height: auto;
 }
 
 .spinner {
-  border: 4px solid rgba(255, 255, 255, 0.1);
+  border: 4px solid rgba(0, 0, 0, 0.1);
   border-left-color: #f59e0b;
   border-radius: 50%;
   width: 48px;
@@ -37,8 +37,11 @@
 .message {
   font-family: 'Inter', sans-serif;
   font-size: 1.1rem;
-  font-weight: 500;
-  color: #f1f5f9;
+  font-weight: 600;
+  color: #1c1917;
+  text-shadow:
+    0 1px 3px rgba(255, 255, 255, 0.8),
+    0 0 20px rgba(255, 255, 255, 0.9);
 }
 
 @keyframes spin {
