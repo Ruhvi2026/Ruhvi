@@ -18,8 +18,8 @@ export async function middleware(request: NextRequest) {
   const isAdminHost =
     hostname === 'admin.ruhvi.in' || hostname.startsWith('admin.localhost');
   const isOperationsHost =
-    hostname === 'operations.ruhvi.in' ||
-    hostname.startsWith('operations.localhost');
+    hostname === 'operation.ruhvi.in' ||
+    hostname.startsWith('operation.localhost');
   const isOrdersHost =
     hostname === 'orders.ruhvi.in' || hostname.startsWith('orders.localhost');
   const isSupportHost =

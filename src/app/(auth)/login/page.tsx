@@ -8,7 +8,7 @@ export default async function LoginPage() {
   const isAdminHost =
     host === 'admin.ruhvi.in' || host.startsWith('admin.localhost');
   const isOperationsHost =
-    host === 'operations.ruhvi.in' || host.startsWith('operations.localhost');
+    host === 'operation.ruhvi.in' || host.startsWith('operation.localhost');
   const isMarketingHost =
     host === 'marketing.ruhvi.in' || host.startsWith('marketing.localhost');
   const isOrdersHost =
