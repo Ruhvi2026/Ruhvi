@@ -171,8 +171,27 @@ export default function CheckoutPage() {
     discount: number;
   } | null>(null);
   const [validatingCoupon, setValidatingCoupon] = useState(false);
+  const [availableCoupons, setAvailableCoupons] = useState<any[]>([]);
   const [useCoins, setUseCoins] = useState(false);
   const [useWallet, setUseWallet] = useState(false);
+
+  useEffect(() => {
+    const fetchCoupons = async () => {
+      try {
+        const supabase = createClient();
+        const { data } = await supabase
+          .from('coupons')
+          .select('*')
+          .eq('is_active', true);
+        if (data) {
+          setAvailableCoupons(data);
+        }
+      } catch (err) {
+        console.error('Failed to load coupons:', err);
+      }
+    };
+    fetchCoupons();
+  }, []);
 
   const walletBalance = Number(profile?.wallet_balance) || 0;
   const coinsBalance = Number(profile?.reward_coins) || 0; // 10 coins = ₹1
@@ -212,16 +231,15 @@ export default function CheckoutPage() {
   const selectedAddress =
     addresses.find((a) => a.id === selectedAddressId) || addresses[0];
 
-  const handleApplyCoupon = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!couponCode) return;
+  const applyCouponCode = async (code: string) => {
+    setCouponCode(code);
     setValidatingCoupon(true);
     try {
       const res = await fetch('/api/checkout/validate-coupon', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          code: couponCode,
+          code,
           subtotal,
           userEmail: user?.email || profile?.email,
           userPhone: (user as any)?.phoneNumber || profile?.phone,
@@ -231,7 +249,7 @@ export default function CheckoutPage() {
 
       if (data.success) {
         setAppliedCoupon({
-          code: couponCode.toUpperCase(),
+          code: code.toUpperCase(),
           discount: data.discount,
         });
         toast.success('Coupon applied successfully!');
@@ -244,6 +262,12 @@ export default function CheckoutPage() {
     } finally {
       setValidatingCoupon(false);
     }
+  };
+
+  const handleApplyCoupon = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!couponCode) return;
+    await applyCouponCode(couponCode);
   };
 
   const handleAddAddress = (e: React.FormEvent) => {
@@ -951,6 +975,40 @@ export default function CheckoutPage() {
                     </button>
                   )}
                 </form>
+
+                {/* Available Coupons Option List */}
+                {availableCoupons.length > 0 && !appliedCoupon && (
+                  <div className="mt-2 space-y-2 border-b border-stone-100 pb-3">
+                    <p className="text-[11px] font-bold uppercase tracking-wider text-stone-400">
+                      Available Coupons
+                    </p>
+                    <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                      {availableCoupons.map((coupon) => (
+                        <button
+                          key={coupon.id}
+                          type="button"
+                          onClick={() => applyCouponCode(coupon.code)}
+                          className="flex flex-col items-start rounded-xl border border-dashed border-amber-300 bg-amber-50/50 p-2.5 text-left transition hover:bg-amber-50"
+                        >
+                          <span className="rounded bg-amber-100 px-1.5 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider text-amber-900">
+                            {coupon.code}
+                          </span>
+                          <span className="mt-1 text-[11px] font-bold text-stone-800">
+                            {coupon.title}
+                          </span>
+                          <span className="mt-0.5 text-[10px] leading-tight text-stone-500">
+                            {coupon.description}
+                          </span>
+                          {coupon.min_order_value > 0 && (
+                            <span className="mt-1 text-[9px] font-semibold text-amber-800">
+                              Min Order: ₹{coupon.min_order_value}
+                            </span>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 {/* Coins Toggle */}
                 {coinsBalance > 0 && subtotalAfterCoupon >= 250 && (

@@ -55,6 +55,7 @@ export default function AccountOverviewPage() {
   // Email verification state
   const [sendingVerification, setSendingVerification] = useState(false);
   const [verificationSent, setVerificationSent] = useState(false);
+  const [checkingVerification, setCheckingVerification] = useState(false);
 
   // Password update state
   const [showPasswordModal, setShowPasswordModal] = useState(false);
@@ -94,12 +95,14 @@ export default function AccountOverviewPage() {
             actionCodeSettings
           );
           setVerificationSent(true);
+          localStorage.setItem('emailVerificationSent', 'true');
           toast.success(
             'A verification link has been sent to the new email address. Please click it to verify the change.'
           );
         } else {
           await sendEmailVerification(auth.currentUser, actionCodeSettings);
           setVerificationSent(true);
+          localStorage.setItem('emailVerificationSent', 'true');
           toast.success('Verification link sent to your email address!');
         }
       } else {
@@ -113,15 +116,63 @@ export default function AccountOverviewPage() {
     }
   };
 
+  const handleCheckVerification = async () => {
+    try {
+      setCheckingVerification(true);
+      const { auth } = await import('@/lib/firebase');
+      if (auth.currentUser) {
+        await auth.currentUser.reload();
+        if (auth.currentUser.emailVerified) {
+          const supabase = createClient();
+          const hasPhoneProvider = auth.currentUser.providerData.some(
+            (p: any) => p.providerId === 'phone'
+          );
+          await supabase.rpc('resolve_customer_identity', {
+            p_firebase_uid: auth.currentUser.uid,
+            p_provider: 'password',
+            p_provider_identifier: auth.currentUser.email || '',
+            p_email: auth.currentUser.email || null,
+            p_email_verified: true,
+            p_phone: auth.currentUser.phoneNumber || null,
+            p_phone_verified:
+              profile?.phone_verified || hasPhoneProvider || false,
+            p_name: profile?.full_name || null,
+          });
+          localStorage.removeItem('emailVerificationSent');
+          setVerificationSent(false);
+          await refreshProfile();
+          toast.success(
+            'Email successfully verified! Bonus credited if both verified.'
+          );
+        } else {
+          toast.error('Email is not verified yet. Please check your inbox.');
+        }
+      }
+    } catch (err: any) {
+      console.error('Error checking verification:', err);
+      toast.error('Failed to check verification status.');
+    } finally {
+      setCheckingVerification(false);
+    }
+  };
+
   useEffect(() => {
     let mounted = true;
     import('@/lib/firebase').then(({ auth }) => {
       if (auth?.currentUser) {
         auth.currentUser.reload().then(() => {
           if (!mounted) return;
-          setLinkedProviders(
-            auth.currentUser!.providerData.map((p: any) => p.providerId)
+          const providers = auth.currentUser!.providerData.map(
+            (p: any) => p.providerId
           );
+          setLinkedProviders(providers);
+
+          // Check if verification email sent state is stored in localStorage
+          const wasSent =
+            localStorage.getItem('emailVerificationSent') === 'true';
+          if (wasSent) {
+            setVerificationSent(true);
+          }
 
           // Sync email verification status from Firebase to Supabase if it changed
           if (
@@ -130,6 +181,7 @@ export default function AccountOverviewPage() {
             !profile.email_verified
           ) {
             const supabase = createClient();
+            const hasPhoneProvider = providers.includes('phone');
             supabase
               .rpc('resolve_customer_identity', {
                 p_firebase_uid: auth.currentUser!.uid,
@@ -138,10 +190,13 @@ export default function AccountOverviewPage() {
                 p_email: auth.currentUser!.email || null,
                 p_email_verified: true,
                 p_phone: auth.currentUser!.phoneNumber || null,
-                p_phone_verified: profile.phone_verified || false,
+                p_phone_verified:
+                  profile.phone_verified || hasPhoneProvider || false,
                 p_name: profile.full_name || null,
               })
               .then(() => {
+                localStorage.removeItem('emailVerificationSent');
+                setVerificationSent(false);
                 refreshProfile();
               })
               .catch((err: any) => {
@@ -652,18 +707,30 @@ export default function AccountOverviewPage() {
                     <p className="text-[11px] text-amber-800">
                       Email not verified. Click to verify your email.
                     </p>
-                    <button
-                      type="button"
-                      onClick={handleSendVerificationEmail}
-                      disabled={sendingVerification}
-                      className="rounded-md bg-amber-600 px-2.5 py-1 text-[10px] font-bold text-white shadow-sm transition hover:bg-amber-700 disabled:opacity-50"
-                    >
-                      {sendingVerification
-                        ? 'Sending...'
-                        : verificationSent
-                          ? 'Link Sent!'
-                          : 'Send Link'}
-                    </button>
+                    <div className="flex gap-2">
+                      {verificationSent && (
+                        <button
+                          type="button"
+                          onClick={handleCheckVerification}
+                          disabled={checkingVerification}
+                          className="rounded-md bg-emerald-600 px-2.5 py-1 text-[10px] font-bold text-white shadow-sm transition hover:bg-emerald-700 disabled:opacity-50"
+                        >
+                          {checkingVerification ? 'Checking...' : 'Check'}
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        onClick={handleSendVerificationEmail}
+                        disabled={sendingVerification}
+                        className="rounded-md bg-amber-600 px-2.5 py-1 text-[10px] font-bold text-white shadow-sm transition hover:bg-amber-700 disabled:opacity-50"
+                      >
+                        {sendingVerification
+                          ? 'Sending...'
+                          : verificationSent
+                            ? 'Resend'
+                            : 'Send Link'}
+                      </button>
+                    </div>
                   </div>
                 )}
                 <p className="mt-1 text-[10px] text-stone-400">

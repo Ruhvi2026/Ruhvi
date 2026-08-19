@@ -133,12 +133,15 @@ export function AccountDrawer({ isOpen, onClose }: AccountDrawerProps) {
       description: 'Store credits & cashback',
     },
     {
-      name: 'Rewards & Coupons',
-      href: '/offers',
+      name: 'Rewards',
+      href: '/account/coins',
       icon: Gift,
-      badge: 3,
+      badge:
+        profile?.reward_coins !== undefined && profile.reward_coins !== null
+          ? `${profile.reward_coins} Coins`
+          : null,
       badgeType: 'highlight',
-      description: 'Special discounts & vouchers',
+      description: 'View your reward coins & history',
     },
     {
       name: 'Notifications',
