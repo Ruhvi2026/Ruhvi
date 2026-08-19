@@ -277,9 +277,11 @@ export default function SignUpPage() {
         });
       }
 
-      setMessage('Account verified successfully! Redirecting...');
+      setMessage(
+        'Account verified successfully! Redirecting to set your password...'
+      );
       setTimeout(() => {
-        router.push('/');
+        router.push('/set-password');
         router.refresh();
       }, 1000);
     } catch (err: any) {
@@ -349,9 +351,11 @@ export default function SignUpPage() {
         });
       }
 
-      setMessage('Account created successfully! Redirecting...');
+      setMessage(
+        'Account created successfully! Redirecting to set your password...'
+      );
       setTimeout(() => {
-        router.push('/');
+        router.push('/set-password');
         router.refresh();
       }, 1000);
     } catch (err: any) {
@@ -421,9 +425,11 @@ export default function SignUpPage() {
         });
       }
 
-      setMessage('Account created successfully! Redirecting...');
+      setMessage(
+        'Account created successfully! Redirecting to set your password...'
+      );
       setTimeout(() => {
-        router.push('/');
+        router.push('/set-password');
         router.refresh();
       }, 1000);
     } catch (err: any) {

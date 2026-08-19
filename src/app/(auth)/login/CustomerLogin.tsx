@@ -261,10 +261,17 @@ function LoginForm() {
         body: JSON.stringify({ idToken }),
       });
 
+      const hasPassword = user.providerData.some(
+        (p) => p.providerId === 'password'
+      );
+      const targetPath = hasPassword
+        ? destination
+        : `/set-password?redirectTo=${encodeURIComponent(destination)}`;
+
       setMessage('Login successful! Redirecting...');
       router.refresh();
       await new Promise((resolve) => setTimeout(resolve, 50));
-      window.location.href = destination;
+      window.location.href = targetPath;
     } catch (err: any) {
       console.error('OTP verify error:', err);
       setError(
@@ -302,10 +309,17 @@ function LoginForm() {
         body: JSON.stringify({ idToken }),
       });
 
+      const hasPassword = fbUser.providerData.some(
+        (p) => p.providerId === 'password'
+      );
+      const targetPath = hasPassword
+        ? targetUrl
+        : `/set-password?redirectTo=${encodeURIComponent(targetUrl)}`;
+
       setMessage('Login successful! Redirecting...');
       router.refresh();
       await new Promise((resolve) => setTimeout(resolve, 50));
-      window.location.href = targetUrl;
+      window.location.href = targetPath;
     } catch (err: any) {
       console.error('Firebase Google sign in error:', err);
       setError(err?.message || 'Failed to sign in with Google.');
@@ -341,10 +355,17 @@ function LoginForm() {
         body: JSON.stringify({ idToken }),
       });
 
+      const hasPassword = fbUser.providerData.some(
+        (p) => p.providerId === 'password'
+      );
+      const targetPath = hasPassword
+        ? targetUrl
+        : `/set-password?redirectTo=${encodeURIComponent(targetUrl)}`;
+
       setMessage('Login successful! Redirecting...');
       router.refresh();
       await new Promise((resolve) => setTimeout(resolve, 50));
-      window.location.href = targetUrl;
+      window.location.href = targetPath;
     } catch (err: any) {
       console.error('Firebase Facebook sign in error:', err);
       setError(err?.message || 'Failed to sign in with Facebook.');

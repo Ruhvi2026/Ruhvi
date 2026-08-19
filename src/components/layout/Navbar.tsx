@@ -143,15 +143,16 @@ export function Navbar() {
 
             {/* Wallet Integration */}
             <div className="group relative flex items-center">
-              <button
+              <Link
+                href="/account/wallet"
                 className="relative flex items-center gap-1.5 p-1.5 text-slate-700 transition-colors hover:text-gold-600 sm:p-2"
                 title="Wallet Balance"
               >
                 <Wallet className="h-5 w-5" />
                 <span className="flex items-center justify-center rounded-full border border-gold-200/60 bg-champagne-200 px-2 py-0.5 text-[10px] font-bold text-gold-700 shadow-sm">
-                  ₹50
+                  ₹{user ? (profile?.wallet_balance ?? 0) : 0}
                 </span>
-              </button>
+              </Link>
             </div>
 
             <Link
@@ -279,25 +280,25 @@ export function Navbar() {
                 </div>
                 <Link
                   href="/collections/for-her"
-                  className="block px-4 py-2 text-xs font-medium text-slate-700 hover:bg-gold-50 hover:text-gold-900"
+                  className="hover:text-gold-900 block px-4 py-2 text-xs font-medium text-slate-700 hover:bg-gold-50"
                 >
                   Gifts For Her
                 </Link>
                 <Link
                   href="/collections/under-15000"
-                  className="block px-4 py-2 text-xs font-medium text-slate-700 hover:bg-gold-50 hover:text-gold-900"
+                  className="hover:text-gold-900 block px-4 py-2 text-xs font-medium text-slate-700 hover:bg-gold-50"
                 >
                   Gifts Under ₹15,000
                 </Link>
                 <Link
                   href="/collections/anniversary"
-                  className="block px-4 py-2 text-xs font-medium text-slate-700 hover:bg-gold-50 hover:text-gold-900"
+                  className="hover:text-gold-900 block px-4 py-2 text-xs font-medium text-slate-700 hover:bg-gold-50"
                 >
                   Anniversary Specials
                 </Link>
                 <Link
                   href="/collections/bridal"
-                  className="block px-4 py-2 text-xs font-medium text-slate-700 hover:bg-gold-50 hover:text-gold-900"
+                  className="hover:text-gold-900 block px-4 py-2 text-xs font-medium text-slate-700 hover:bg-gold-50"
                 >
                   Royal Bridal Collection
                 </Link>
@@ -326,7 +327,7 @@ export function Navbar() {
                   <Link
                     key={cat.id}
                     href={`/category/${cat.slug}`}
-                    className="block px-4 py-2 text-xs text-slate-700 hover:bg-gold-50 hover:text-gold-900"
+                    className="hover:text-gold-900 block px-4 py-2 text-xs text-slate-700 hover:bg-gold-50"
                   >
                     {cat.name}
                   </Link>
@@ -347,7 +348,7 @@ export function Navbar() {
             <Link
               href="/products"
               onClick={() => setMobileMenuOpen(false)}
-              className="rounded border border-gold-300/60 bg-gold-100 p-3 font-medium text-gold-900"
+              className="text-gold-900 rounded border border-gold-300/60 bg-gold-100 p-3 font-medium"
             >
               All Jewellery
             </Link>
