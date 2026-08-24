@@ -186,16 +186,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const refreshProfile = async () => {
-    const supabase = createClient();
-    const {
-      data: { user: currentUser },
-    } = await supabase.auth.getUser();
-    if (currentUser) {
-      setUser(currentUser as any);
-      await fetchProfile(currentUser);
-      return;
-    }
-
     try {
       const { auth } = await import('@/lib/firebase');
       const fbUser = auth.currentUser;
