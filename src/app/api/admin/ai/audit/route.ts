@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { generateAIContent } from '@/lib/ai';
-import { cookies } from 'next/headers';
-import { verifySessionToken } from '@/lib/auth/verify-session';
+import { requireAdmin } from '@/lib/auth/require-admin';
 
 // Simple in-memory rate limiter for Audit API
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
@@ -11,29 +10,11 @@ const WINDOW_MS = 60 * 1000; // 1 minute
 export async function POST(req: Request) {
   try {
     // 1. Security Check: Authenticated session
-    const cookieStore = await cookies();
-    const sessionCookie = cookieStore.get('__session')?.value;
-
-    if (!sessionCookie) {
-      return NextResponse.json(
-        { error: 'Unauthorized. No active session.' },
-        { status: 401 }
-      );
+    const auth = await requireAdmin();
+    if (!auth.ok) {
+      return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
-
-    let uid = 'unknown';
-    try {
-      const decoded = await verifySessionToken(sessionCookie);
-      if (!decoded || !(decoded.firebase_uid || decoded.sub)) {
-        return NextResponse.json(
-          { error: 'Invalid session token.' },
-          { status: 401 }
-        );
-      }
-      uid = (decoded.firebase_uid || decoded.sub) as string;
-    } catch (e) {
-      return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
-    }
+    const uid = auth.uid;
 
     // Rate Limiting (by UID)
     const now = Date.now();

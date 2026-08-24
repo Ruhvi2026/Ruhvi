@@ -8,7 +8,7 @@
 
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import { verifySessionToken } from '@/lib/auth/verify-session';
+import { requireAdmin } from '@/lib/auth/require-admin';
 import { createServerClient } from '@supabase/ssr';
 import {
   getAllModelHealth,
@@ -17,18 +17,6 @@ import {
   inferModelCapabilities,
 } from '@/lib/ai/model-health';
 import { resolveEffectiveApiKey } from '@/lib/ai/keys';
-
-async function verifyAdmin() {
-  const cookieStore = await cookies();
-  const sessionCookie = cookieStore.get('__session')?.value;
-  if (!sessionCookie) return false;
-  try {
-    const decoded = await verifySessionToken(sessionCookie);
-    return Boolean(decoded?.sub);
-  } catch {
-    return false;
-  }
-}
 
 function createAdminClient(cookieStore: any) {
   return createServerClient(
@@ -49,8 +37,9 @@ function createAdminClient(cookieStore: any) {
 // ── GET ────────────────────────────────────────────────────────────────────
 
 export async function GET(req: Request) {
-  if (!(await verifyAdmin()))
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const auth = await requireAdmin();
+  if (!auth.ok)
+    return NextResponse.json({ error: auth.error }, { status: auth.status });
 
   const { searchParams } = new URL(req.url);
   const providerId = searchParams.get('providerId');
@@ -81,8 +70,9 @@ export async function GET(req: Request) {
 // ── POST ───────────────────────────────────────────────────────────────────
 
 export async function POST(req: Request) {
-  if (!(await verifyAdmin()))
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const auth = await requireAdmin();
+  if (!auth.ok)
+    return NextResponse.json({ error: auth.error }, { status: auth.status });
 
   const cookieStore = await cookies();
   const db = createAdminClient(cookieStore);
@@ -268,8 +258,9 @@ export async function POST(req: Request) {
 // ── DELETE ─────────────────────────────────────────────────────────────────
 
 export async function DELETE(req: Request) {
-  if (!(await verifyAdmin()))
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const auth = await requireAdmin();
+  if (!auth.ok)
+    return NextResponse.json({ error: auth.error }, { status: auth.status });
 
   const { searchParams } = new URL(req.url);
   const providerId = searchParams.get('providerId');

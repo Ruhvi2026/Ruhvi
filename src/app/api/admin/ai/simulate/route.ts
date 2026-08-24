@@ -12,22 +12,10 @@
 
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import { verifySessionToken } from '@/lib/auth/verify-session';
+import { requireAdmin } from '@/lib/auth/require-admin';
 import { createServerClient } from '@supabase/ssr';
 import { getAllCredentials } from '@/lib/ai/credentials';
 import { getAllModelHealth } from '@/lib/ai/model-health';
-
-async function verifyAdmin() {
-  const cookieStore = await cookies();
-  const sessionCookie = cookieStore.get('__session')?.value;
-  if (!sessionCookie) return false;
-  try {
-    const decoded = await verifySessionToken(sessionCookie);
-    return Boolean(decoded?.sub);
-  } catch {
-    return false;
-  }
-}
 
 function createAdminClient(cookieStore: any) {
   return createServerClient(
@@ -66,8 +54,9 @@ export interface SimulationStep {
 }
 
 export async function POST(req: Request) {
-  if (!(await verifyAdmin()))
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const auth = await requireAdmin();
+  if (!auth.ok)
+    return NextResponse.json({ error: auth.error }, { status: auth.status });
 
   const { routingStrategy = 'priority', providersEnabled = [] } = await req
     .json()
@@ -76,15 +65,19 @@ export async function POST(req: Request) {
   const cookieStore = await cookies();
   const db = createAdminClient(cookieStore);
 
-  // Load all providers (represented as settings rows) via a simple query
-  const { data: providerRows, error: provErr } = await db
-    .from('ai_providers')
-    .select('id, name, priority, is_enabled, routing_strategy')
-    .eq('is_enabled', true)
-    .order('priority', { ascending: true });
+  // Load all providers from the settings table (stored as JSON under key 'ai_providers')
+  const { data: settingsRow, error: provErr } = await db
+    .from('settings')
+    .select('value')
+    .eq('key', 'ai_providers')
+    .single();
 
-  if (provErr || !providerRows || providerRows.length === 0) {
-    // Fallback: use the providersEnabled list from the request body if DB isn't available
+  const settingsProviders: any[] = settingsRow?.value ?? [];
+  const enabledProviders = settingsProviders
+    .filter((p: any) => p.isEnabled !== false)
+    .sort((a: any, b: any) => (a.priority ?? 99) - (b.priority ?? 99));
+
+  if (provErr || !settingsRow || enabledProviders.length === 0) {
     if (!providersEnabled || providersEnabled.length === 0) {
       return NextResponse.json({
         trace: [
@@ -104,13 +97,14 @@ export async function POST(req: Request) {
   }
 
   const providers: any[] =
-    providerRows ??
-    providersEnabled.map((p: any) => ({
-      id: p.id || p.type,
-      name: p.name,
-      priority: p.priority || 1,
-      is_enabled: p.isEnabled !== false,
-    }));
+    enabledProviders.length > 0
+      ? enabledProviders
+      : providersEnabled.map((p: any) => ({
+          id: p.id || p.type,
+          name: p.name,
+          priority: p.priority || 1,
+          isEnabled: p.isEnabled !== false,
+        }));
 
   const steps: SimulationStep[] = [];
   let stepNum = 0;

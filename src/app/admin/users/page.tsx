@@ -2,24 +2,24 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { 
-  Users, 
-  Search, 
-  Filter, 
-  ShieldCheck, 
-  ArrowLeft, 
-  RefreshCw, 
-  UserCheck, 
-  Shield, 
-  Wallet, 
-  Coins, 
-  Edit, 
-  Check, 
+import {
+  Users,
+  Search,
+  Filter,
+  ShieldCheck,
+  ArrowLeft,
+  RefreshCw,
+  UserCheck,
+  Shield,
+  Wallet,
+  Coins,
+  Edit,
+  Check,
   X,
   Plus,
   Minus,
   Key,
-  Mail
+  Mail,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { sendPasswordResetLink, setAuthPassword } from '../actions/auth';
@@ -40,11 +40,15 @@ export default function AdminUsersPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
-  const [roleFilter, setRoleFilter] = useState<'all' | 'customer' | 'staff' | 'admin'>('all');
+  const [roleFilter, setRoleFilter] = useState<
+    'all' | 'customer' | 'staff' | 'admin'
+  >('all');
 
   // Role Edit Modal
   const [editingUser, setEditingUser] = useState<UserRecord | null>(null);
-  const [selectedRole, setSelectedRole] = useState<'customer' | 'staff' | 'manager' | 'admin'>('customer');
+  const [selectedRole, setSelectedRole] = useState<
+    'customer' | 'staff' | 'manager' | 'admin'
+  >('customer');
   const [isUpdatingRole, setIsUpdatingRole] = useState(false);
 
   // Balance Adjust Modal
@@ -67,10 +71,7 @@ export default function AdminUsersPage() {
     setError('');
     try {
       const supabase = createClient();
-      const { data, error } = await supabase
-        .from('users')
-        .select('*')
-        .order('created_at', { ascending: false });
+      const { data, error } = await supabase.rpc('admin_get_all_users');
 
       if (error) throw error;
       setUsers((data as UserRecord[]) || []);
@@ -87,18 +88,24 @@ export default function AdminUsersPage() {
     setIsUpdatingRole(true);
     try {
       const supabase = createClient();
-      const { error } = await supabase
-        .from('users')
-        .update({ role: selectedRole, updated_at: new Date().toISOString() })
-        .eq('id', editingUser.id);
+      const { error } = await supabase.rpc('admin_update_user_role', {
+        target_user_id: editingUser.id,
+        new_role: selectedRole,
+      });
 
       if (error) throw error;
 
-      setUsers(prev => prev.map(u => u.id === editingUser.id ? { ...u, role: selectedRole } : u));
+      setUsers((prev) =>
+        prev.map((u) =>
+          u.id === editingUser.id ? { ...u, role: selectedRole } : u
+        )
+      );
       setEditingUser(null);
     } catch (err: any) {
       console.error('Failed to update role:', err);
-      alert('Failed to update user role. Make sure you have admin permissions.');
+      alert(
+        'Failed to update user role. Make sure you have admin permissions.'
+      );
     } finally {
       setIsUpdatingRole(false);
     }
@@ -108,22 +115,31 @@ export default function AdminUsersPage() {
     if (!adjustingUser) return;
     setIsUpdatingBalance(true);
     try {
-      const newWallet = walletAmount !== '' ? parseFloat(walletAmount) : adjustingUser.wallet_balance;
-      const newCoins = coinsAmount !== '' ? parseInt(coinsAmount, 10) : adjustingUser.reward_coins;
+      const newWallet =
+        walletAmount !== ''
+          ? parseFloat(walletAmount)
+          : adjustingUser.wallet_balance;
+      const newCoins =
+        coinsAmount !== ''
+          ? parseInt(coinsAmount, 10)
+          : adjustingUser.reward_coins;
 
       const supabase = createClient();
-      const { error } = await supabase
-        .from('users')
-        .update({ 
-          wallet_balance: newWallet, 
-          reward_coins: newCoins,
-          updated_at: new Date().toISOString() 
-        })
-        .eq('id', adjustingUser.id);
+      const { error } = await supabase.rpc('admin_update_user_balance', {
+        target_user_id: adjustingUser.id,
+        new_wallet: newWallet,
+        new_coins: newCoins,
+      });
 
       if (error) throw error;
 
-      setUsers(prev => prev.map(u => u.id === adjustingUser.id ? { ...u, wallet_balance: newWallet, reward_coins: newCoins } : u));
+      setUsers((prev) =>
+        prev.map((u) =>
+          u.id === adjustingUser.id
+            ? { ...u, wallet_balance: newWallet, reward_coins: newCoins }
+            : u
+        )
+      );
       setAdjustingUser(null);
     } catch (err: any) {
       console.error('Failed to adjust balances:', err);
@@ -133,7 +149,12 @@ export default function AdminUsersPage() {
   };
 
   const handleSendResetLink = async (email: string) => {
-    if (!confirm(`Are you sure you want to send a password reset link to ${email}?`)) return;
+    if (
+      !confirm(
+        `Are you sure you want to send a password reset link to ${email}?`
+      )
+    )
+      return;
     try {
       const res = await sendPasswordResetLink(email);
       if (res.error) throw new Error(res.error);
@@ -150,12 +171,12 @@ export default function AdminUsersPage() {
       alert('Password must be at least 6 characters long.');
       return;
     }
-    
+
     setIsUpdatingPassword(true);
     try {
       const res = await setAuthPassword(passwordUser.id, newPassword);
       if (res.error) throw new Error(res.error);
-      
+
       alert(`Password updated successfully for ${passwordUser.email}!`);
       setPasswordUser(null);
       setNewPassword('');
@@ -167,16 +188,19 @@ export default function AdminUsersPage() {
     }
   };
 
-  const filteredUsers = users.filter(user => {
-    const matchesSearch = 
-      (user.full_name?.toLowerCase() || '').includes(searchQuery.toLowerCase()) ||
+  const filteredUsers = users.filter((user) => {
+    const matchesSearch =
+      (user.full_name?.toLowerCase() || '').includes(
+        searchQuery.toLowerCase()
+      ) ||
       user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (user.phone || '').includes(searchQuery);
 
-    const matchesRole = 
-      roleFilter === 'all' || 
+    const matchesRole =
+      roleFilter === 'all' ||
       (roleFilter === 'customer' && user.role === 'customer') ||
-      (roleFilter === 'staff' && (user.role === 'staff' || user.role === 'manager')) ||
+      (roleFilter === 'staff' &&
+        (user.role === 'staff' || user.role === 'manager')) ||
       (roleFilter === 'admin' && user.role === 'admin');
 
     return matchesSearch && matchesRole;
@@ -185,182 +209,234 @@ export default function AdminUsersPage() {
   const getRoleBadge = (role: string) => {
     switch (role) {
       case 'admin':
-        return <span className="bg-rose-100 text-rose-800 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border border-rose-200">Admin</span>;
+        return (
+          <span className="rounded-full border border-rose-200 bg-rose-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-rose-800">
+            Admin
+          </span>
+        );
       case 'manager':
       case 'staff':
-        return <span className="bg-purple-100 text-purple-800 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border border-purple-200">Staff</span>;
+        return (
+          <span className="rounded-full border border-purple-200 bg-purple-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-purple-800">
+            Staff
+          </span>
+        );
       default:
-        return <span className="bg-stone-100 text-stone-700 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border border-stone-200">Customer</span>;
+        return (
+          <span className="rounded-full border border-stone-200 bg-stone-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-stone-700">
+            Customer
+          </span>
+        );
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#FAF6ED] flex flex-col pb-16">
+    <div className="flex min-h-screen flex-col bg-[#FAF6ED] pb-16">
       {/* Header */}
-      <header className="bg-[#1C1B1A] text-[#FAF6ED] px-6 py-4 flex items-center justify-between border-b border-[#E7D7A3]/30 shadow-md">
+      <header className="flex items-center justify-between border-b border-[#E7D7A3]/30 bg-[#1C1B1A] px-6 py-4 text-[#FAF6ED] shadow-md">
         <div className="flex items-center gap-3">
-          <ShieldCheck className="w-6 h-6 text-[#E7D7A3]" />
-          <span className="font-serif text-xl font-bold tracking-wider text-[#E7D7A3]">RUHVI ADMIN CONSOLE</span>
+          <ShieldCheck className="h-6 w-6 text-[#E7D7A3]" />
+          <span className="font-serif text-xl font-bold tracking-wider text-[#E7D7A3]">
+            RUHVI ADMIN CONSOLE
+          </span>
         </div>
         <div className="flex items-center gap-4 text-xs">
-          <Link href="/admin/dashboard" className="flex items-center gap-1 bg-[#FAF6ED]/10 px-3 py-1.5 rounded-lg hover:bg-[#FAF6ED]/20 transition text-[#FAF6ED]">
-            <ArrowLeft className="w-3.5 h-3.5" /> Back to Dashboard
+          <Link
+            href="/admin/dashboard"
+            className="flex items-center gap-1 rounded-lg bg-[#FAF6ED]/10 px-3 py-1.5 text-[#FAF6ED] transition hover:bg-[#FAF6ED]/20"
+          >
+            <ArrowLeft className="h-3.5 w-3.5" /> Back to Dashboard
           </Link>
         </div>
       </header>
 
       {/* Main Container */}
-      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 space-y-8 w-full">
+      <main className="mx-auto w-full max-w-7xl flex-1 space-y-8 px-4 pt-8 sm:px-6 lg:px-8">
         {/* Page Title & Refresh */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 border-b border-stone-200 pb-4">
+        <div className="flex flex-col items-start justify-between gap-4 border-b border-stone-200 pb-4 sm:flex-row sm:items-end">
           <div>
-            <div className="inline-flex items-center space-x-2 bg-amber-500/10 text-amber-900 text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full border border-amber-500/20 mb-2">
-              <Users className="w-3.5 h-3.5" />
+            <div className="mb-2 inline-flex items-center space-x-2 rounded-full border border-amber-500/20 bg-amber-500/10 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-amber-900">
+              <Users className="h-3.5 w-3.5" />
               <span>User & Privilege Manager</span>
             </div>
-            <h1 className="font-serif text-3xl font-bold text-stone-900">User Directory</h1>
-            <p className="text-xs text-stone-500 mt-1">Manage customer accounts, staff permissions, wallets, and reward coins.</p>
+            <h1 className="font-serif text-3xl font-bold text-stone-900">
+              User Directory
+            </h1>
+            <p className="mt-1 text-xs text-stone-500">
+              Manage customer accounts, staff permissions, wallets, and reward
+              coins.
+            </p>
           </div>
-          
-          <button 
-            onClick={fetchUsers} 
-            className="flex items-center space-x-2 text-stone-700 hover:text-amber-900 transition-colors bg-white px-4 py-2 rounded-xl shadow-sm border border-stone-200 text-xs font-bold uppercase tracking-wider"
+
+          <button
+            onClick={fetchUsers}
+            className="flex items-center space-x-2 rounded-xl border border-stone-200 bg-white px-4 py-2 text-xs font-bold uppercase tracking-wider text-stone-700 shadow-sm transition-colors hover:text-amber-900"
           >
-            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
             <span>Refresh</span>
           </button>
         </div>
 
         {error && (
-          <div className="bg-rose-50 text-rose-800 p-4 rounded-xl border border-rose-200 text-sm">
+          <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800">
             {error}
           </div>
         )}
 
         {/* Stats Summary */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-white p-5 rounded-2xl border border-stone-200 shadow-sm">
-            <p className="text-[10px] font-bold uppercase tracking-wider text-stone-500">Total Registered Users</p>
-            <p className="text-2xl font-serif font-bold text-stone-900 mt-1">{users.length}</p>
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+          <div className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-stone-500">
+              Total Registered Users
+            </p>
+            <p className="mt-1 font-serif text-2xl font-bold text-stone-900">
+              {users.length}
+            </p>
           </div>
-          <div className="bg-white p-5 rounded-2xl border border-stone-200 shadow-sm">
-            <p className="text-[10px] font-bold uppercase tracking-wider text-stone-500">Customers</p>
-            <p className="text-2xl font-serif font-bold text-stone-900 mt-1">{users.filter(u => u.role === 'customer').length}</p>
+          <div className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-stone-500">
+              Customers
+            </p>
+            <p className="mt-1 font-serif text-2xl font-bold text-stone-900">
+              {users.filter((u) => u.role === 'customer').length}
+            </p>
           </div>
-          <div className="bg-white p-5 rounded-2xl border border-stone-200 shadow-sm">
-            <p className="text-[10px] font-bold uppercase tracking-wider text-stone-500">Admins & Staff</p>
-            <p className="text-2xl font-serif font-bold text-purple-900 mt-1">{users.filter(u => u.role !== 'customer').length}</p>
+          <div className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-stone-500">
+              Admins & Staff
+            </p>
+            <p className="mt-1 font-serif text-2xl font-bold text-purple-900">
+              {users.filter((u) => u.role !== 'customer').length}
+            </p>
           </div>
-          <div className="bg-white p-5 rounded-2xl border border-stone-200 shadow-sm">
-            <p className="text-[10px] font-bold uppercase tracking-wider text-stone-500">Total User Wallets</p>
-            <p className="text-2xl font-serif font-bold text-emerald-900 mt-1">₹{users.reduce((acc, u) => acc + (Number(u.wallet_balance) || 0), 0).toLocaleString('en-IN')}</p>
+          <div className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-stone-500">
+              Total User Wallets
+            </p>
+            <p className="mt-1 font-serif text-2xl font-bold text-emerald-900">
+              ₹
+              {users
+                .reduce((acc, u) => acc + (Number(u.wallet_balance) || 0), 0)
+                .toLocaleString('en-IN')}
+            </p>
           </div>
         </div>
 
         {/* Controls: Search & Role Filters */}
-        <div className="flex flex-col md:flex-row justify-between items-center gap-4 bg-white p-4 rounded-2xl border border-stone-200 shadow-sm">
+        <div className="flex flex-col items-center justify-between gap-4 rounded-2xl border border-stone-200 bg-white p-4 shadow-sm md:flex-row">
           {/* Search Bar */}
           <div className="relative w-full md:w-80">
-            <Search className="w-4 h-4 text-stone-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
             <input
               type="text"
               placeholder="Search by name, email or phone..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 border border-stone-300 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-amber-800"
+              className="w-full rounded-xl border border-stone-300 py-2 pl-9 pr-4 text-xs focus:outline-none focus:ring-1 focus:ring-amber-800"
             />
           </div>
 
           {/* Filter Tabs */}
-          <div className="flex items-center space-x-1 bg-stone-100 p-1 rounded-xl w-full md:w-auto text-xs font-semibold">
+          <div className="flex w-full items-center space-x-1 rounded-xl bg-stone-100 p-1 text-xs font-semibold md:w-auto">
             <button
               onClick={() => setRoleFilter('all')}
-              className={`px-3 py-1.5 rounded-lg transition-colors ${roleFilter === 'all' ? 'bg-white text-stone-900 shadow-sm' : 'text-stone-600 hover:text-stone-900'}`}
+              className={`rounded-lg px-3 py-1.5 transition-colors ${roleFilter === 'all' ? 'bg-white text-stone-900 shadow-sm' : 'text-stone-600 hover:text-stone-900'}`}
             >
               All Users ({users.length})
             </button>
             <button
               onClick={() => setRoleFilter('customer')}
-              className={`px-3 py-1.5 rounded-lg transition-colors ${roleFilter === 'customer' ? 'bg-white text-stone-900 shadow-sm' : 'text-stone-600 hover:text-stone-900'}`}
+              className={`rounded-lg px-3 py-1.5 transition-colors ${roleFilter === 'customer' ? 'bg-white text-stone-900 shadow-sm' : 'text-stone-600 hover:text-stone-900'}`}
             >
-              Customers ({users.filter(u => u.role === 'customer').length})
+              Customers ({users.filter((u) => u.role === 'customer').length})
             </button>
             <button
               onClick={() => setRoleFilter('admin')}
-              className={`px-3 py-1.5 rounded-lg transition-colors ${roleFilter === 'admin' ? 'bg-white text-stone-900 shadow-sm' : 'text-stone-600 hover:text-stone-900'}`}
+              className={`rounded-lg px-3 py-1.5 transition-colors ${roleFilter === 'admin' ? 'bg-white text-stone-900 shadow-sm' : 'text-stone-600 hover:text-stone-900'}`}
             >
-              Admins ({users.filter(u => u.role === 'admin').length})
+              Admins ({users.filter((u) => u.role === 'admin').length})
             </button>
           </div>
         </div>
 
         {/* Users Table */}
         {loading ? (
-          <div className="text-center py-16 text-stone-500 text-sm">Loading user directory from Supabase...</div>
+          <div className="py-16 text-center text-sm text-stone-500">
+            Loading user directory from Supabase...
+          </div>
         ) : filteredUsers.length === 0 ? (
-          <div className="text-center py-16 bg-white rounded-3xl border border-stone-200 shadow-sm">
-            <Users className="w-12 h-12 text-stone-300 mx-auto mb-3" />
-            <p className="text-stone-600 font-medium">No users found.</p>
-            <p className="text-stone-400 text-xs mt-1">Try adjusting your search query or role filter.</p>
+          <div className="rounded-3xl border border-stone-200 bg-white py-16 text-center shadow-sm">
+            <Users className="mx-auto mb-3 h-12 w-12 text-stone-300" />
+            <p className="font-medium text-stone-600">No users found.</p>
+            <p className="mt-1 text-xs text-stone-400">
+              Try adjusting your search query or role filter.
+            </p>
           </div>
         ) : (
-          <div className="bg-white rounded-2xl border border-stone-200 shadow-sm overflow-x-auto">
-            <table className="w-full text-left border-collapse min-w-[700px]">
+          <div className="overflow-x-auto rounded-2xl border border-stone-200 bg-white shadow-sm">
+            <table className="w-full min-w-[700px] border-collapse text-left">
               <thead>
-                <tr className="bg-stone-50 border-b border-stone-200 text-xs uppercase tracking-wider text-stone-500 font-semibold">
+                <tr className="border-b border-stone-200 bg-stone-50 text-xs font-semibold uppercase tracking-wider text-stone-500">
                   <th className="p-4 pl-6">User</th>
                   <th className="p-4">Contact</th>
                   <th className="p-4">Role</th>
                   <th className="p-4 text-right">Wallet Balance</th>
                   <th className="p-4 text-right">Reward Coins</th>
-                  <th className="p-4 text-right pr-6">Actions</th>
+                  <th className="p-4 pr-6 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-stone-100 text-xs text-stone-700">
-                {filteredUsers.map(user => (
-                  <tr key={user.id} className="hover:bg-stone-50 transition-colors">
+                {filteredUsers.map((user) => (
+                  <tr
+                    key={user.id}
+                    className="transition-colors hover:bg-stone-50"
+                  >
                     <td className="p-4 pl-6">
-                      <div className="font-semibold text-stone-900">{user.full_name || 'Anonymous User'}</div>
-                      <div className="text-stone-400 font-mono text-[10px]">{user.email}</div>
+                      <div className="font-semibold text-stone-900">
+                        {user.full_name || 'Anonymous User'}
+                      </div>
+                      <div className="font-mono text-[10px] text-stone-400">
+                        {user.email}
+                      </div>
                     </td>
                     <td className="p-4 font-mono text-stone-600">
                       {user.phone || 'N/A'}
                     </td>
-                    <td className="p-4">
-                      {getRoleBadge(user.role)}
-                    </td>
+                    <td className="p-4">{getRoleBadge(user.role)}</td>
                     <td className="p-4 text-right font-bold text-stone-900">
-                      ₹{Number(user.wallet_balance || 0).toLocaleString('en-IN')}
+                      ₹
+                      {Number(user.wallet_balance || 0).toLocaleString('en-IN')}
                     </td>
                     <td className="p-4 text-right font-bold text-amber-900">
-                      🪙 {Number(user.reward_coins || 0).toLocaleString('en-IN')}
+                      🪙{' '}
+                      {Number(user.reward_coins || 0).toLocaleString('en-IN')}
                     </td>
-                    <td className="p-4 text-right pr-6 space-x-2 whitespace-nowrap">
+                    <td className="space-x-2 whitespace-nowrap p-4 pr-6 text-right">
                       <button
                         onClick={() => handleSendResetLink(user.email)}
-                        className="px-2.5 py-1 bg-sky-50 hover:bg-sky-100 text-sky-900 font-semibold rounded-lg transition-colors border border-sky-200 inline-flex items-center gap-1"
+                        className="inline-flex items-center gap-1 rounded-lg border border-sky-200 bg-sky-50 px-2.5 py-1 font-semibold text-sky-900 transition-colors hover:bg-sky-100"
                         title="Send Password Reset Link"
                       >
-                        <Mail className="w-3 h-3 text-sky-700" /> Link
+                        <Mail className="h-3 w-3 text-sky-700" /> Link
                       </button>
                       <button
                         onClick={() => {
                           setPasswordUser(user);
                           setNewPassword('');
                         }}
-                        className="px-2.5 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-900 font-semibold rounded-lg transition-colors border border-indigo-200 inline-flex items-center gap-1"
+                        className="inline-flex items-center gap-1 rounded-lg border border-indigo-200 bg-indigo-50 px-2.5 py-1 font-semibold text-indigo-900 transition-colors hover:bg-indigo-100"
                         title="Set Password Directly"
                       >
-                        <Key className="w-3 h-3 text-indigo-700" /> Pass
+                        <Key className="h-3 w-3 text-indigo-700" /> Pass
                       </button>
                       <button
                         onClick={() => {
                           setEditingUser(user);
                           setSelectedRole(user.role);
                         }}
-                        className="px-2.5 py-1 bg-stone-100 hover:bg-stone-200 text-stone-800 font-semibold rounded-lg transition-colors border border-stone-200 inline-flex items-center gap-1"
+                        className="inline-flex items-center gap-1 rounded-lg border border-stone-200 bg-stone-100 px-2.5 py-1 font-semibold text-stone-800 transition-colors hover:bg-stone-200"
                       >
-                        <Shield className="w-3 h-3 text-stone-600" /> Role
+                        <Shield className="h-3 w-3 text-stone-600" /> Role
                       </button>
                       <button
                         onClick={() => {
@@ -368,9 +444,9 @@ export default function AdminUsersPage() {
                           setWalletAmount(user.wallet_balance.toString());
                           setCoinsAmount(user.reward_coins.toString());
                         }}
-                        className="px-2.5 py-1 bg-amber-50 hover:bg-amber-100 text-amber-950 font-semibold rounded-lg transition-colors border border-amber-200 inline-flex items-center gap-1"
+                        className="inline-flex items-center gap-1 rounded-lg border border-amber-200 bg-amber-50 px-2.5 py-1 font-semibold text-amber-950 transition-colors hover:bg-amber-100"
                       >
-                        <Wallet className="w-3 h-3 text-amber-800" /> Funds
+                        <Wallet className="h-3 w-3 text-amber-800" /> Funds
                       </button>
                     </td>
                   </tr>
@@ -383,26 +459,39 @@ export default function AdminUsersPage() {
 
       {/* Role Edit Modal */}
       {editingUser && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6 space-y-6 shadow-2xl">
-            <div className="flex justify-between items-center border-b border-stone-100 pb-3">
-              <h3 className="font-serif font-bold text-lg text-stone-900">Update User Role</h3>
-              <button onClick={() => setEditingUser(null)} className="text-stone-400 hover:text-stone-700">
-                <X className="w-5 h-5" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-md space-y-6 rounded-2xl bg-white p-6 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-stone-100 pb-3">
+              <h3 className="font-serif text-lg font-bold text-stone-900">
+                Update User Role
+              </h3>
+              <button
+                onClick={() => setEditingUser(null)}
+                className="text-stone-400 hover:text-stone-700"
+              >
+                <X className="h-5 w-5" />
               </button>
             </div>
 
-            <div className="text-xs text-stone-600 space-y-1">
-              <p><strong className="text-stone-900">User:</strong> {editingUser.full_name || 'Anonymous'}</p>
-              <p><strong className="text-stone-900">Email:</strong> {editingUser.email}</p>
+            <div className="space-y-1 text-xs text-stone-600">
+              <p>
+                <strong className="text-stone-900">User:</strong>{' '}
+                {editingUser.full_name || 'Anonymous'}
+              </p>
+              <p>
+                <strong className="text-stone-900">Email:</strong>{' '}
+                {editingUser.email}
+              </p>
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs font-bold text-stone-700 uppercase tracking-wider">Select New Role</label>
+              <label className="text-xs font-bold uppercase tracking-wider text-stone-700">
+                Select New Role
+              </label>
               <select
                 value={selectedRole}
                 onChange={(e) => setSelectedRole(e.target.value as any)}
-                className="w-full px-3 py-2 border border-stone-300 rounded-xl text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-amber-800"
+                className="w-full rounded-xl border border-stone-300 px-3 py-2 text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-amber-800"
               >
                 <option value="customer">Customer (Standard User)</option>
                 <option value="staff">Staff (Catalog & Fulfillment)</option>
@@ -414,14 +503,14 @@ export default function AdminUsersPage() {
             <div className="flex justify-end space-x-3 pt-2">
               <button
                 onClick={() => setEditingUser(null)}
-                className="px-4 py-2 border border-stone-300 text-stone-700 text-xs font-semibold rounded-xl hover:bg-stone-50"
+                className="rounded-xl border border-stone-300 px-4 py-2 text-xs font-semibold text-stone-700 hover:bg-stone-50"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSaveRole}
                 disabled={isUpdatingRole}
-                className="px-4 py-2 bg-amber-950 text-white text-xs font-bold rounded-xl hover:bg-amber-900 disabled:opacity-50"
+                className="rounded-xl bg-amber-950 px-4 py-2 text-xs font-bold text-white hover:bg-amber-900 disabled:opacity-50"
               >
                 {isUpdatingRole ? 'Updating...' : 'Save Role'}
               </button>
@@ -432,39 +521,54 @@ export default function AdminUsersPage() {
 
       {/* Adjust Funds/Coins Modal */}
       {adjustingUser && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6 space-y-6 shadow-2xl">
-            <div className="flex justify-between items-center border-b border-stone-100 pb-3">
-              <h3 className="font-serif font-bold text-lg text-stone-900">Adjust Wallet & Reward Coins</h3>
-              <button onClick={() => setAdjustingUser(null)} className="text-stone-400 hover:text-stone-700">
-                <X className="w-5 h-5" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-md space-y-6 rounded-2xl bg-white p-6 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-stone-100 pb-3">
+              <h3 className="font-serif text-lg font-bold text-stone-900">
+                Adjust Wallet & Reward Coins
+              </h3>
+              <button
+                onClick={() => setAdjustingUser(null)}
+                className="text-stone-400 hover:text-stone-700"
+              >
+                <X className="h-5 w-5" />
               </button>
             </div>
 
-            <div className="text-xs text-stone-600 space-y-1">
-              <p><strong className="text-stone-900">User:</strong> {adjustingUser.full_name || 'Anonymous'}</p>
-              <p><strong className="text-stone-900">Email:</strong> {adjustingUser.email}</p>
+            <div className="space-y-1 text-xs text-stone-600">
+              <p>
+                <strong className="text-stone-900">User:</strong>{' '}
+                {adjustingUser.full_name || 'Anonymous'}
+              </p>
+              <p>
+                <strong className="text-stone-900">Email:</strong>{' '}
+                {adjustingUser.email}
+              </p>
             </div>
 
             <div className="space-y-4 text-xs">
               <div>
-                <label className="font-bold text-stone-700 block mb-1">Wallet Balance (₹)</label>
+                <label className="mb-1 block font-bold text-stone-700">
+                  Wallet Balance (₹)
+                </label>
                 <input
                   type="number"
                   step="0.01"
                   value={walletAmount}
                   onChange={(e) => setWalletAmount(e.target.value)}
-                  className="w-full px-3 py-2 border border-stone-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-amber-800"
+                  className="w-full rounded-xl border border-stone-300 px-3 py-2 focus:outline-none focus:ring-1 focus:ring-amber-800"
                 />
               </div>
 
               <div>
-                <label className="font-bold text-stone-700 block mb-1">Reward Coins (🪙)</label>
+                <label className="mb-1 block font-bold text-stone-700">
+                  Reward Coins (🪙)
+                </label>
                 <input
                   type="number"
                   value={coinsAmount}
                   onChange={(e) => setCoinsAmount(e.target.value)}
-                  className="w-full px-3 py-2 border border-stone-300 rounded-xl focus:outline-none focus:ring-1 focus:ring-amber-800"
+                  className="w-full rounded-xl border border-stone-300 px-3 py-2 focus:outline-none focus:ring-1 focus:ring-amber-800"
                 />
               </div>
             </div>
@@ -472,14 +576,14 @@ export default function AdminUsersPage() {
             <div className="flex justify-end space-x-3 pt-2">
               <button
                 onClick={() => setAdjustingUser(null)}
-                className="px-4 py-2 border border-stone-300 text-stone-700 text-xs font-semibold rounded-xl hover:bg-stone-50"
+                className="rounded-xl border border-stone-300 px-4 py-2 text-xs font-semibold text-stone-700 hover:bg-stone-50"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSaveBalance}
                 disabled={isUpdatingBalance}
-                className="px-4 py-2 bg-amber-950 text-white text-xs font-bold rounded-xl hover:bg-amber-900 disabled:opacity-50"
+                className="rounded-xl bg-amber-950 px-4 py-2 text-xs font-bold text-white hover:bg-amber-900 disabled:opacity-50"
               >
                 {isUpdatingBalance ? 'Saving...' : 'Update Balances'}
               </button>
@@ -490,43 +594,59 @@ export default function AdminUsersPage() {
 
       {/* Set Password Modal */}
       {passwordUser && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6 space-y-6 shadow-2xl">
-            <div className="flex justify-between items-center border-b border-stone-100 pb-3">
-              <h3 className="font-serif font-bold text-lg text-stone-900">Set User Password</h3>
-              <button onClick={() => setPasswordUser(null)} className="text-stone-400 hover:text-stone-700">
-                <X className="w-5 h-5" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-md space-y-6 rounded-2xl bg-white p-6 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-stone-100 pb-3">
+              <h3 className="font-serif text-lg font-bold text-stone-900">
+                Set User Password
+              </h3>
+              <button
+                onClick={() => setPasswordUser(null)}
+                className="text-stone-400 hover:text-stone-700"
+              >
+                <X className="h-5 w-5" />
               </button>
             </div>
 
-            <div className="text-xs text-stone-600 space-y-1">
-              <p><strong className="text-stone-900">User:</strong> {passwordUser.full_name || 'Anonymous'}</p>
-              <p><strong className="text-stone-900">Email:</strong> {passwordUser.email}</p>
-              <p className="text-rose-600 italic mt-2">Warning: This will overwrite their existing password immediately without requiring current password confirmation.</p>
+            <div className="space-y-1 text-xs text-stone-600">
+              <p>
+                <strong className="text-stone-900">User:</strong>{' '}
+                {passwordUser.full_name || 'Anonymous'}
+              </p>
+              <p>
+                <strong className="text-stone-900">Email:</strong>{' '}
+                {passwordUser.email}
+              </p>
+              <p className="mt-2 italic text-rose-600">
+                Warning: This will overwrite their existing password immediately
+                without requiring current password confirmation.
+              </p>
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs font-bold text-stone-700 uppercase tracking-wider">New Password</label>
+              <label className="text-xs font-bold uppercase tracking-wider text-stone-700">
+                New Password
+              </label>
               <input
                 type="text"
                 placeholder="Enter new password (min 6 chars)"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
-                className="w-full px-3 py-2 border border-stone-300 rounded-xl text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-indigo-800"
+                className="w-full rounded-xl border border-stone-300 px-3 py-2 text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-indigo-800"
               />
             </div>
 
             <div className="flex justify-end space-x-3 pt-2">
               <button
                 onClick={() => setPasswordUser(null)}
-                className="px-4 py-2 border border-stone-300 text-stone-700 text-xs font-semibold rounded-xl hover:bg-stone-50"
+                className="rounded-xl border border-stone-300 px-4 py-2 text-xs font-semibold text-stone-700 hover:bg-stone-50"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSavePassword}
                 disabled={isUpdatingPassword || newPassword.length < 6}
-                className="px-4 py-2 bg-indigo-900 text-white text-xs font-bold rounded-xl hover:bg-indigo-800 disabled:opacity-50"
+                className="rounded-xl bg-indigo-900 px-4 py-2 text-xs font-bold text-white hover:bg-indigo-800 disabled:opacity-50"
               >
                 {isUpdatingPassword ? 'Saving...' : 'Set Password'}
               </button>

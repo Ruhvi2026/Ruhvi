@@ -63,6 +63,20 @@ The application is a modern, headless e-commerce storefront. It utilizes Next.js
 
 ---
 
+## Infrastructure, Hosting & Business Services
+
+| Tool / Service | Category | Purpose | Status |
+|----------------|----------|---------|--------|
+| **Hostinger** | Domain | Domain purchase/registration for ruhvi.in. | Active |
+| **Cloudflare** | DNS & Security | DNS hosting/proxy for ruhvi.in subdomains (also provides Turnstile bot protection in-app). | Active |
+| **Vercel** | Hosting | Production website hosting & deployments (Vercel platform; Vercel Speed Insights also used in-app). | Active |
+| **GitHub** | Version Control | Source code repository, version control, CI/CD via Vercel git integration. | Active |
+| **PostHog** | Analytics / CX | Customer behavior analysis (product analytics, funnels, session replay, heatmaps). | Active |
+| **Zoho** | Email | Business email service on custom domain (e.g., support@ruhvi.in, MX records). | Active |
+| **Airtel SIM** | Mobile / SMS | Mobile connectivity & SMS (OTP delivery, WhatsApp Business messaging). | Active |
+
+---
+
 ## Environment Variable Inventory
 *(Variable names only)*
 
@@ -141,6 +155,7 @@ The application is a modern, headless e-commerce storefront. It utilizes Next.js
 
 | Service | Purpose | Added On | Status | Files | Notes |
 |---------|---------|----------|--------|-------|-------|
+| PostHog | Product Analytics / CX | 2026-08-24 | Active | `src/lib/posthog.ts`, `src/lib/env.ts` | Server-side client (`posthog-node`); `posthog-js` installed for client tracking. Host: `eu.i.posthog.com`. |
 | Supabase | Primary DB, CX/Site Storage | 2024 | Active | `src/lib/supabase/*` | Custom JWTs used instead of Supabase Auth |
 | Firebase | Authentication | 2024 | Active | `src/lib/firebase.ts` | Sole auth provider; custom password resets routed via backend Admin SDK to bypass Firebase Console UI bugs |
 | Cloudinary | Image Optimization | 2024 | Active | `src/services/cloudinaryService.ts` | |

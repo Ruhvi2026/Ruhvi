@@ -16,11 +16,18 @@ import {
   XCircle,
   Clock,
   AlertCircle,
+  RotateCcw,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 
 type OrderStatus =
-  'all' | 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+  | 'all'
+  | 'pending'
+  | 'confirmed'
+  | 'shipped'
+  | 'delivered'
+  | 'cancelled'
+  | 'returned';
 
 interface Order {
   id: string;
@@ -41,8 +48,8 @@ const STATUS_CONFIG: Record<
     icon: Clock,
     cls: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
   },
-  processing: {
-    label: 'Processing',
+  confirmed: {
+    label: 'Confirmed',
     icon: AlertCircle,
     cls: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
   },
@@ -61,15 +68,21 @@ const STATUS_CONFIG: Record<
     icon: XCircle,
     cls: 'bg-rose-500/10 text-rose-400 border-rose-500/20',
   },
+  returned: {
+    label: 'Returned',
+    icon: RotateCcw,
+    cls: 'bg-slate-500/10 text-slate-400 border-slate-500/20',
+  },
 };
 
 const ALL_STATUSES: OrderStatus[] = [
   'all',
   'pending',
-  'processing',
+  'confirmed',
   'shipped',
   'delivered',
   'cancelled',
+  'returned',
 ];
 
 export default function AdminOrdersPage() {

@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
-import { verifySessionToken } from '@/lib/auth/verify-session';
+import { requireAdmin } from '@/lib/auth/require-admin';
 import {
   getActiveDiagnostics,
   purgeExpiredNow,
@@ -8,27 +7,15 @@ import {
   logFailureDiagnostic,
 } from '@/lib/ai/diagnostics';
 
-async function verifyAdmin() {
-  const cookieStore = await cookies();
-  const sessionCookie = cookieStore.get('__session')?.value;
-  if (!sessionCookie) return false;
-  try {
-    const decoded = await verifySessionToken(sessionCookie);
-    if (!decoded || !(decoded.firebase_uid || decoded.sub)) return false;
-    return true;
-  } catch (e) {
-    return false;
-  }
-}
-
 /**
  * GET /api/admin/ai/diagnostics
  * Returns active failure diagnostics & fallback history (strictly within 24h TTL)
  * Automatically cleans up any entries older than 24 hours.
  */
 export async function GET(req: Request) {
-  if (!(await verifyAdmin())) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const auth = await requireAdmin();
+  if (!auth.ok) {
+    return NextResponse.json({ error: auth.error }, { status: auth.status });
   }
 
   try {
@@ -60,8 +47,9 @@ export async function GET(req: Request) {
  * 2. Action: "simulate_failure" - Trigger a simulated multi-tier fallback failure & recovery event to test diagnostics & TTL logging
  */
 export async function POST(req: Request) {
-  if (!(await verifyAdmin())) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const auth = await requireAdmin();
+  if (!auth.ok) {
+    return NextResponse.json({ error: auth.error }, { status: auth.status });
   }
 
   try {
@@ -143,8 +131,9 @@ export async function POST(req: Request) {
  * Clears all failure diagnostics on demand.
  */
 export async function DELETE(req: Request) {
-  if (!(await verifyAdmin())) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const auth = await requireAdmin();
+  if (!auth.ok) {
+    return NextResponse.json({ error: auth.error }, { status: auth.status });
   }
 
   try {

@@ -1,27 +1,16 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import { verifySessionToken } from '@/lib/auth/verify-session';
+import { requireAdmin } from '@/lib/auth/require-admin';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-
-async function verifyAdmin() {
-  const cookieStore = await cookies();
-  const sessionCookie = cookieStore.get('__session')?.value;
-  if (!sessionCookie) return false;
-  try {
-    const decoded = await verifySessionToken(sessionCookie);
-    if (!decoded || !(decoded.firebase_uid || decoded.sub)) return false;
-    return true;
-  } catch (e) {
-    return false;
-  }
-}
 
 import { resolveEffectiveApiKey } from '@/lib/ai/keys';
 import { createServerClient } from '@supabase/ssr';
+import { safeFetch, UnsafeUrlError } from '@/lib/security/ssrf';
 
 export async function POST(req: Request) {
-  if (!(await verifyAdmin())) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const auth = await requireAdmin();
+  if (!auth.ok) {
+    return NextResponse.json({ error: auth.error }, { status: auth.status });
   }
 
   try {
@@ -204,9 +193,22 @@ export async function POST(req: Request) {
       } catch (e) {}
 
       // Ping the models endpoint (standard OpenAI spec)
-      const res = await fetch(`${provider.baseUrl.replace(/\/$/, '')}/models`, {
-        headers: headers,
-      });
+      const modelsUrl = `${provider.baseUrl.replace(/\/$/, '')}/models`;
+      let res: Response;
+      try {
+        res = await safeFetch(modelsUrl, { headers });
+      } catch (e: any) {
+        if (e instanceof UnsafeUrlError) {
+          return NextResponse.json(
+            { error: `Blocked gateway URL: ${e.message}` },
+            { status: 400 }
+          );
+        }
+        return NextResponse.json(
+          { error: `Connection failed: ${e.message}` },
+          { status: 400 }
+        );
+      }
 
       if (res.ok) {
         return NextResponse.json({

@@ -1,4 +1,9 @@
 import { AIProvider } from '../index';
+import {
+  assertSafeOutboundUrl,
+  safeFetch,
+  UnsafeUrlError,
+} from '@/lib/security/ssrf';
 
 export class CustomProvider implements AIProvider {
   private config: any;
@@ -28,6 +33,17 @@ export class CustomProvider implements AIProvider {
     const baseUrl = this.config.baseUrl.replace(/\/$/, '');
     const endpoint = `${baseUrl}/chat/completions`;
 
+    try {
+      await assertSafeOutboundUrl(endpoint);
+    } catch (e) {
+      if (e instanceof UnsafeUrlError) {
+        // Re-raise as a request error so the AI engine classifies it as
+        // REQUEST_ERROR (fail fast) instead of rotating credentials.
+        throw new Error(`Bad request: ${e.message}`);
+      }
+      throw e;
+    }
+
     let headers: Record<string, string> = {
       'Content-Type': 'application/json',
     };
@@ -45,15 +61,23 @@ export class CustomProvider implements AIProvider {
       console.warn('Failed to parse custom headers:', e);
     }
 
-    const res = await fetch(endpoint, {
-      method: 'POST',
-      headers: headers,
-      body: JSON.stringify({
-        model: modelName || 'auto/best-coding',
-        messages: [{ role: 'user', content: prompt }],
-        stream: false, // Explicitly request non-streaming response
-      }),
-    });
+    let res: Response;
+    try {
+      res = await safeFetch(endpoint, {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify({
+          model: modelName || 'auto/best-coding',
+          messages: [{ role: 'user', content: prompt }],
+          stream: false,
+        }),
+      });
+    } catch (e) {
+      if (e instanceof UnsafeUrlError) {
+        throw new Error(`Bad request: ${e.message}`);
+      }
+      throw e;
+    }
 
     if (!res.ok) {
       const err = await res.text();

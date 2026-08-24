@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import { verifySessionToken } from '@/lib/auth/verify-session';
+import { requireAdmin } from '@/lib/auth/require-admin';
 
 import { resolveEffectiveApiKey } from '@/lib/ai/keys';
 import { createServerClient } from '@supabase/ssr';
+import { safeFetch, UnsafeUrlError } from '@/lib/security/ssrf';
 
 // Keep this simple to avoid caching issues in Next.js
 export const dynamic = 'force-dynamic';
@@ -11,28 +12,12 @@ export const dynamic = 'force-dynamic';
 export async function POST(req: Request) {
   try {
     // 1. Security Check: Ensure user is an admin
+    const auth = await requireAdmin();
+    if (!auth.ok) {
+      return NextResponse.json({ error: auth.error }, { status: auth.status });
+    }
+
     const cookieStore = await cookies();
-    const sessionCookie = cookieStore.get('__session')?.value;
-
-    if (!sessionCookie) {
-      return NextResponse.json(
-        { error: 'Unauthorized. No active session.' },
-        { status: 401 }
-      );
-    }
-
-    try {
-      const decoded = await verifySessionToken(sessionCookie);
-      if (!decoded || !(decoded.firebase_uid || decoded.sub)) {
-        return NextResponse.json(
-          { error: 'Invalid session token.' },
-          { status: 401 }
-        );
-      }
-    } catch (e) {
-      return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
-    }
-
     const supabaseAdmin = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL ||
         'https://igrkrkxdantrolbldapj.supabase.co',
@@ -189,10 +174,25 @@ export async function POST(req: Request) {
           : baseUrl;
         const discoverUrl = `${normalizedUrl}/models`;
 
-        const res = await fetch(discoverUrl, {
-          headers,
-          signal: controller.signal,
-        });
+        let res: Response;
+        try {
+          res = await safeFetch(discoverUrl, {
+            headers,
+            signal: controller.signal,
+          });
+        } catch (err: any) {
+          clearTimeout(timeout);
+          if (err?.name === 'AbortError') throw err;
+          return NextResponse.json(
+            {
+              error:
+                err instanceof UnsafeUrlError
+                  ? `Blocked gateway URL: ${err.message}`
+                  : `Connection failed: ${err.message}`,
+            },
+            { status: 400 }
+          );
+        }
         clearTimeout(timeout);
         if (!res.ok)
           throw new Error(`Gateway returned ${res.status}: ${res.statusText}`);

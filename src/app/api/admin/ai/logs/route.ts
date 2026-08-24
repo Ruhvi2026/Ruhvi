@@ -1,24 +1,12 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import { verifySessionToken } from '@/lib/auth/verify-session';
+import { requireAdmin } from '@/lib/auth/require-admin';
 import { createServerClient } from '@supabase/ssr';
 
-async function verifyAdmin() {
-  const cookieStore = await cookies();
-  const sessionCookie = cookieStore.get('__session')?.value;
-  if (!sessionCookie) return false;
-  try {
-    const decoded = await verifySessionToken(sessionCookie);
-    if (!decoded || !(decoded.firebase_uid || decoded.sub)) return false;
-    return true;
-  } catch (e) {
-    return false;
-  }
-}
-
 export async function GET(req: Request) {
-  if (!(await verifyAdmin())) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const auth = await requireAdmin();
+  if (!auth.ok) {
+    return NextResponse.json({ error: auth.error }, { status: auth.status });
   }
 
   const { searchParams } = new URL(req.url);

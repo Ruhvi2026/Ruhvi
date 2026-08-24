@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
+import { verifySessionToken } from '@/lib/auth/verify-session';
 
 function convertToCSV(data: any[]): string {
   if (!data || data.length === 0) return '';
@@ -23,29 +24,44 @@ function convertToCSV(data: any[]): string {
 export async function GET(req: NextRequest) {
   try {
     const cookieStore = await cookies();
-    const token =
-      cookieStore.get('sb-access-token')?.value ||
-      cookieStore.get('supabase-auth-token')?.value;
+    const sessionCookie = cookieStore.get('__session')?.value;
+
+    if (!sessionCookie) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const decoded = await verifySessionToken(sessionCookie);
+    if (!decoded) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    const uid = decoded.sub;
 
     const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      process.env.NEXT_PUBLIC_SUPABASE_URL ||
+        'https://igrkrkxdantrolbldapj.supabase.co',
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
       {
         cookies: {
-          get(name: string) {
-            return cookieStore.get(name)?.value;
+          getAll() {
+            return cookieStore.getAll();
           },
+          setAll() {},
         },
       }
     );
 
-    // Auth check
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-    if (userError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    // Verify admin role directly from users table
+    const { data: user } = await supabase
+      .from('users')
+      .select('role')
+      .eq('id', uid)
+      .maybeSingle();
+
+    const isAdmin =
+      !!user?.role &&
+      ['super_admin', 'admin', 'manager', 'staff'].includes(user.role);
+    if (!isAdmin) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
     const { searchParams } = new URL(req.url);
@@ -96,11 +112,11 @@ export async function GET(req: NextRequest) {
         .select(
           `
           id,
-          title,
+          name,
           sku,
           price,
-          compare_at_price,
-          stock,
+          mrp,
+          stock_quantity,
           low_stock_threshold,
           status,
           created_at,
@@ -118,11 +134,11 @@ export async function GET(req: NextRequest) {
       exportData = (data || []).map((p: any) => ({
         'Product ID': p.id,
         SKU: p.sku || 'N/A',
-        'Product Title': p.title || 'Untitled',
+        'Product Name': p.name || 'Untitled',
         Category: p.category?.name || 'Uncategorized',
         'Selling Price (INR)': p.price || 0,
-        'Compare Price (INR)': p.compare_at_price || 0,
-        'Current Stock Quantity': p.stock ?? 0,
+        'MRP (INR)': p.mrp || 0,
+        'Current Stock Quantity': p.stock_quantity ?? 0,
         'Low Stock Threshold': p.low_stock_threshold ?? 5,
         Status: p.status || 'draft',
         'Created Date': p.created_at
@@ -136,11 +152,12 @@ export async function GET(req: NextRequest) {
           `
           id,
           order_number,
-          total_amount,
+          total,
           subtotal,
-          discount_amount,
-          shipping_amount,
-          tax_amount,
+          coupon_discount,
+          shipping_charge,
+          cod_charge,
+          gst_amount,
           status,
           payment_status,
           payment_method,
@@ -166,10 +183,11 @@ export async function GET(req: NextRequest) {
         'Payment Status': o.payment_status || 'pending',
         'Payment Method': o.payment_method || 'COD',
         'Subtotal (INR)': o.subtotal || 0,
-        'Discount (INR)': o.discount_amount || 0,
-        'Shipping (INR)': o.shipping_amount || 0,
-        'Tax (INR)': o.tax_amount || 0,
-        'Total Amount (INR)': o.total_amount || 0,
+        'Discount (INR)': o.coupon_discount || 0,
+        'Shipping (INR)': o.shipping_charge || 0,
+        'COD Charge (INR)': o.cod_charge || 0,
+        'Tax (INR)': o.gst_amount || 0,
+        'Total Amount (INR)': o.total || 0,
         'Order Placed At': o.created_at
           ? new Date(o.created_at).toLocaleString('en-IN')
           : 'N/A',

@@ -1,25 +1,13 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import { verifySessionToken } from '@/lib/auth/verify-session';
+import { requireAdmin } from '@/lib/auth/require-admin';
 import { createServerClient } from '@supabase/ssr';
 import {
   resolveEffectiveApiKey,
   isMaskedPlaceholder,
   maskApiKey,
 } from '@/lib/ai/keys';
-
-async function verifyAdmin() {
-  const cookieStore = await cookies();
-  const sessionCookie = cookieStore.get('__session')?.value;
-  if (!sessionCookie) return false;
-  try {
-    const decoded = await verifySessionToken(sessionCookie);
-    if (!decoded || !(decoded.firebase_uid || decoded.sub)) return false;
-    return true;
-  } catch (e) {
-    return false;
-  }
-}
+import { assertSafeOutboundUrl, UnsafeUrlError } from '@/lib/security/ssrf';
 
 const DEFAULT_PROVIDERS = [
   {
@@ -97,8 +85,9 @@ const DEFAULT_PROVIDERS = [
 ];
 
 export async function GET(req: Request) {
-  if (!(await verifyAdmin())) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const auth = await requireAdmin();
+  if (!auth.ok) {
+    return NextResponse.json({ error: auth.error }, { status: auth.status });
   }
 
   try {
@@ -280,8 +269,9 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
-  if (!(await verifyAdmin())) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const auth = await requireAdmin();
+  if (!auth.ok) {
+    return NextResponse.json({ error: auth.error }, { status: auth.status });
   }
 
   try {
@@ -343,6 +333,29 @@ export async function POST(req: Request) {
           isCustom: Boolean(p.isCustom),
         };
       });
+
+      // Reject internal/private gateway base URLs before persisting them
+      for (const p of body.ai_providers) {
+        if (p.type === 'custom' && p.baseUrl) {
+          try {
+            await assertSafeOutboundUrl(p.baseUrl);
+          } catch (e: any) {
+            if (e instanceof UnsafeUrlError) {
+              // A transient DNS failure must not block the save; the runtime
+              // path (custom.ts) re-validates the URL on every request.
+              if (e.message.includes('Unable to resolve host')) continue;
+              return NextResponse.json(
+                {
+                  error: `Blocked gateway base URL: ${e.message}`,
+                  provider: p.id,
+                },
+                { status: 400 }
+              );
+            }
+            throw e;
+          }
+        }
+      }
     }
 
     // Upsert all modified keys

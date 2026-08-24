@@ -32,3 +32,6 @@ next-env.d.ts
 vercel.env
 .ai.env
 .ai.env
+
+# Sentry Config File
+.env.sentry-build-plugin

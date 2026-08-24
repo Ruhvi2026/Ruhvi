@@ -11,7 +11,7 @@
 
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import { verifySessionToken } from '@/lib/auth/verify-session';
+import { requireAdmin } from '@/lib/auth/require-admin';
 import { createServerClient } from '@supabase/ssr';
 import {
   getAllCredentials,
@@ -22,19 +22,6 @@ import {
 } from '@/lib/ai/credentials';
 import { maskApiKey, isMaskedPlaceholder } from '@/lib/ai/keys';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-
-async function verifyAdmin() {
-  const cookieStore = await cookies();
-  const sessionCookie = cookieStore.get('__session')?.value;
-  if (!sessionCookie) return { ok: false, uid: '' };
-  try {
-    const decoded = await verifySessionToken(sessionCookie);
-    if (!decoded?.sub) return { ok: false, uid: '' };
-    return { ok: true, uid: decoded.sub as string };
-  } catch {
-    return { ok: false, uid: '' };
-  }
-}
 
 function createAdminClient(cookieStore: any) {
   return createServerClient(
@@ -84,8 +71,9 @@ function sanitizeCredential(c: any) {
 // ── GET ────────────────────────────────────────────────────────────────────
 
 export async function GET(req: Request) {
-  const { ok } = await verifyAdmin();
-  if (!ok) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const auth = await requireAdmin();
+  if (!auth.ok)
+    return NextResponse.json({ error: auth.error }, { status: auth.status });
 
   const { searchParams } = new URL(req.url);
   const providerId = searchParams.get('providerId');
@@ -116,8 +104,9 @@ export async function GET(req: Request) {
 // ── POST ───────────────────────────────────────────────────────────────────
 
 export async function POST(req: Request) {
-  const { ok } = await verifyAdmin();
-  if (!ok) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const auth = await requireAdmin();
+  if (!auth.ok)
+    return NextResponse.json({ error: auth.error }, { status: auth.status });
 
   const cookieStore = await cookies();
   const db = createAdminClient(cookieStore);
@@ -245,16 +234,27 @@ export async function POST(req: Request) {
   // ── Reorder priorities ──────────────────────────────────────────────────
   if (action === 'reorder') {
     const { order } = body; // Array of { id, priority }
-    if (!Array.isArray(order))
+    if (
+      !Array.isArray(order) ||
+      order.length === 0 ||
+      !order.every(
+        (item: any) =>
+          item &&
+          typeof item.id === 'string' &&
+          Number.isInteger(Number(item.priority)) &&
+          Number(item.priority) >= 1
+      )
+    ) {
       return NextResponse.json(
-        { error: 'order array is required' },
+        { error: 'order must be a non-empty array of { id, priority }' },
         { status: 400 }
       );
+    }
 
     for (const item of order) {
       await db
         .from('ai_provider_credentials')
-        .update({ priority: item.priority })
+        .update({ priority: Number(item.priority) })
         .eq('id', item.id);
     }
     return NextResponse.json({
@@ -265,21 +265,64 @@ export async function POST(req: Request) {
 
   // ── Create credential ───────────────────────────────────────────────────
   const { provider_id, display_name, apiKey, priority, is_enabled } = body;
-  if (!provider_id || !display_name) {
+
+  const KNOWN_PROVIDERS = new Set([
+    'gemini',
+    'openai',
+    'anthropic',
+    'openrouter',
+    'deepseek',
+    'custom',
+  ]);
+
+  if (
+    !provider_id ||
+    typeof provider_id !== 'string' ||
+    !KNOWN_PROVIDERS.has(provider_id)
+  ) {
     return NextResponse.json(
-      { error: 'provider_id and display_name are required' },
+      { error: 'provider_id is required and must be a known provider' },
       { status: 400 }
     );
   }
-  if (!apiKey || isMaskedPlaceholder(apiKey)) {
+  if (
+    !display_name ||
+    typeof display_name !== 'string' ||
+    !display_name.trim() ||
+    display_name.trim().length > 100
+  ) {
+    return NextResponse.json(
+      {
+        error:
+          'display_name is required and must be a string up to 100 characters',
+      },
+      { status: 400 }
+    );
+  }
+  if (!apiKey || typeof apiKey !== 'string' || isMaskedPlaceholder(apiKey)) {
     return NextResponse.json(
       { error: 'A valid API key is required' },
       { status: 400 }
     );
   }
+  if (
+    priority !== undefined &&
+    (!Number.isInteger(Number(priority)) || Number(priority) < 1)
+  ) {
+    return NextResponse.json(
+      { error: 'priority must be a positive integer' },
+      { status: 400 }
+    );
+  }
 
   const credential = await createCredential(
-    { provider_id, display_name, apiKey: apiKey.trim(), priority, is_enabled },
+    {
+      provider_id,
+      display_name: display_name.trim(),
+      apiKey: apiKey.trim(),
+      priority,
+      is_enabled,
+    },
     db
   );
 
@@ -299,21 +342,47 @@ export async function POST(req: Request) {
 // ── PATCH ──────────────────────────────────────────────────────────────────
 
 export async function PATCH(req: Request) {
-  const { ok } = await verifyAdmin();
-  if (!ok) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const auth = await requireAdmin();
+  if (!auth.ok)
+    return NextResponse.json({ error: auth.error }, { status: auth.status });
 
   const cookieStore = await cookies();
   const db = createAdminClient(cookieStore);
   const body = await req.json().catch(() => ({}));
   const { id, display_name, priority, is_enabled, apiKey } = body;
 
-  if (!id)
+  if (!id || typeof id !== 'string')
     return NextResponse.json({ error: 'id is required' }, { status: 400 });
 
   const update: Record<string, any> = {};
-  if (display_name !== undefined) update.display_name = display_name;
-  if (priority !== undefined) update.priority = Number(priority);
-  if (is_enabled !== undefined) update.is_enabled = Boolean(is_enabled);
+
+  if (display_name !== undefined) {
+    if (typeof display_name !== 'string' || !display_name.trim())
+      return NextResponse.json(
+        { error: 'display_name must be a non-empty string' },
+        { status: 400 }
+      );
+    update.display_name = display_name.trim();
+  }
+
+  if (priority !== undefined) {
+    const p = Number(priority);
+    if (!Number.isInteger(p) || p < 1)
+      return NextResponse.json(
+        { error: 'priority must be a positive integer' },
+        { status: 400 }
+      );
+    update.priority = p;
+  }
+
+  if (is_enabled !== undefined) {
+    if (typeof is_enabled !== 'boolean')
+      return NextResponse.json(
+        { error: 'is_enabled must be a boolean' },
+        { status: 400 }
+      );
+    update.is_enabled = is_enabled;
+  }
 
   // Replace API key if a valid new one was provided
   if (apiKey && !isMaskedPlaceholder(apiKey) && apiKey !== '__UNCHANGED__') {
@@ -338,8 +407,14 @@ export async function PATCH(req: Request) {
     .select('*')
     .single();
 
-  if (error)
+  if (error) {
+    if (error.code === 'PGRST116')
+      return NextResponse.json(
+        { error: 'Credential not found' },
+        { status: 404 }
+      );
     return NextResponse.json({ error: error.message }, { status: 500 });
+  }
 
   return NextResponse.json({
     success: true,
@@ -350,8 +425,9 @@ export async function PATCH(req: Request) {
 // ── DELETE ─────────────────────────────────────────────────────────────────
 
 export async function DELETE(req: Request) {
-  const { ok } = await verifyAdmin();
-  if (!ok) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const auth = await requireAdmin();
+  if (!auth.ok)
+    return NextResponse.json({ error: auth.error }, { status: auth.status });
 
   const { searchParams } = new URL(req.url);
   const id = searchParams.get('id');
@@ -360,6 +436,18 @@ export async function DELETE(req: Request) {
 
   const cookieStore = await cookies();
   const db = createAdminClient(cookieStore);
+
+  const { data: existing } = await db
+    .from('ai_provider_credentials')
+    .select('id')
+    .eq('id', id)
+    .maybeSingle();
+
+  if (!existing)
+    return NextResponse.json(
+      { error: 'Credential not found' },
+      { status: 404 }
+    );
 
   const { error } = await db
     .from('ai_provider_credentials')
