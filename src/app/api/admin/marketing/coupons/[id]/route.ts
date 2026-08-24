@@ -22,9 +22,31 @@ export async function PUT(
     const { id } = await context.params;
     const body = await request.json();
 
+    const allowedFields = [
+      'code',
+      'discount_type',
+      'discount_value',
+      'min_order_value',
+      'usage_limit_total',
+      'usage_limit_per_user',
+      'applicable_to',
+      'target_users',
+      'is_public',
+      'expiry_date',
+      'cod_charge_waiver',
+      'active',
+    ] as const;
+
+    const updateData: Record<string, unknown> = {};
+    for (const field of allowedFields) {
+      if (field in body) {
+        updateData[field] = body[field];
+      }
+    }
+
     const { data, error } = await supabase
       .from('coupons')
-      .update(body)
+      .update(updateData)
       .eq('id', id)
       .select()
       .single();

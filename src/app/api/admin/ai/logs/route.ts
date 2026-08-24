@@ -14,6 +14,21 @@ export async function GET(req: Request) {
   const from = searchParams.get('from');
   const to = searchParams.get('to');
 
+  const parseDate = (value: string | null): Date | null => {
+    if (!value) return null;
+    const date = new Date(value);
+    return Number.isNaN(date.getTime()) ? null : date;
+  };
+
+  const fromDate = parseDate(from);
+  const toDate = parseDate(to);
+  if ((from && !fromDate) || (to && !toDate)) {
+    return NextResponse.json(
+      { error: 'Invalid date param. Use a valid ISO date string.' },
+      { status: 400 }
+    );
+  }
+
   try {
     const cookieStore = await cookies();
     const supabaseAdmin = createServerClient(
@@ -34,8 +49,8 @@ export async function GET(req: Request) {
     let fromISO: string | null = null;
     const now = new Date();
 
-    if (from) {
-      fromISO = new Date(from).toISOString();
+    if (fromDate) {
+      fromISO = fromDate.toISOString();
     } else if (period === 'today') {
       const startOfDay = new Date();
       startOfDay.setHours(0, 0, 0, 0);
@@ -53,7 +68,7 @@ export async function GET(req: Request) {
       .limit(500);
 
     if (fromISO) query = query.gte('created_at', fromISO);
-    if (to) query = query.lte('created_at', new Date(to).toISOString());
+    if (toDate) query = query.lte('created_at', toDate.toISOString());
 
     const { data: logs, error } = await query;
 

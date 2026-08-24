@@ -7,6 +7,7 @@ import {
   isMaskedPlaceholder,
   maskApiKey,
 } from '@/lib/ai/keys';
+import { decryptApiKey } from '@/lib/ai/credential-encryption';
 import { assertSafeOutboundUrl, UnsafeUrlError } from '@/lib/security/ssrf';
 
 const DEFAULT_PROVIDERS = [
@@ -171,7 +172,7 @@ export async function GET(req: Request) {
       } else if (hasMultiCreds) {
         const topCred = enabledCreds[0];
         maskedKey = topCred?.encrypted_key
-          ? maskApiKey(topCred.encrypted_key)
+          ? maskApiKey(decryptApiKey(topCred.encrypted_key))
           : '••••••••••••';
       }
 
@@ -412,7 +413,7 @@ export async function POST(req: Request) {
         } else if (hasMultiCreds) {
           const topCred = enabledCreds[0];
           maskedKey = topCred?.encrypted_key
-            ? maskApiKey(topCred.encrypted_key)
+            ? maskApiKey(decryptApiKey(topCred.encrypted_key))
             : '••••••••••••';
         }
 

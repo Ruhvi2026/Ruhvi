@@ -124,6 +124,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           profileData.role === 'SUPER_ADMIN'
         ) {
           permissions = ['*'];
+        } else if (profileData.role) {
+          // Fall back to the base role (ADMIN/MANAGER/STAFF) permissions
+          const { data: roleRow } = await supabase
+            .from('roles')
+            .select('id')
+            .eq('name', profileData.role.toUpperCase())
+            .maybeSingle();
+
+          if (roleRow) {
+            const { data: rolePerms } = await supabase
+              .from('role_permissions')
+              .select('permission')
+              .eq('role_id', roleRow.id);
+
+            if (rolePerms) {
+              permissions = rolePerms.map((p: any) => p.permission);
+            }
+          }
         }
 
         setProfile({

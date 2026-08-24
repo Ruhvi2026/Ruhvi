@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { getServerUser } from '@/lib/auth/server';
+import { computeSalesMetrics } from '@/lib/sales-metrics';
 import SalesDashboard from './SalesDashboard';
 import OperationsDashboard from './OperationsDashboard';
 import OrdersDashboard from './OrdersDashboard';
@@ -146,6 +147,8 @@ export default async function AdminDashboardPage({
     { data: orderItems },
     { data: recentOrders },
     { data: recentReviews },
+    { data: stockProducts },
+    { count: openRefundsCount },
   ] = await Promise.all([
     supabase
       .from('orders')
@@ -176,68 +179,41 @@ export default async function AdminDashboardPage({
       .select('customer_name, rating, review_text, created_at')
       .order('created_at', { ascending: false })
       .limit(5),
+    supabase.from('products').select('stock_quantity, low_stock_threshold'),
+    supabase
+      .from('returns')
+      .select('*', { count: 'exact', head: true })
+      .eq('status', 'requested'),
   ]);
 
-  // Process KPIs
-  const totalRevenue = (allOrdersMonth || []).reduce(
-    (s, o) => s + Number(o.total),
-    0
-  );
-  const totalOrders = (allOrdersMonth || []).length;
-  const todayRevenue = (todayOrders || []).reduce(
-    (s, o) => s + Number(o.total),
-    0
-  );
+  // Process KPIs (shared aggregation with SalesDashboard)
   const pendingCount = (pendingOrders || []).length;
-  const aov = totalOrders > 0 ? totalRevenue / totalOrders : 0;
+  const {
+    totalRevenue,
+    totalOrders,
+    todayRevenue,
+    aov,
+    cancelledOrders,
+    cancelledRevenue,
+    salesChartData,
+    topProductsData,
+    earningsByCategoryData,
+  } = computeSalesMetrics({ allOrdersMonth, todayOrders, orderItems });
 
-  // Sales chart data
-  const salesDataMap: Record<
-    string,
-    { date: string; Revenue: number; Orders: number }
-  > = {};
-  (allOrdersMonth || []).forEach((order) => {
-    const dateStr = new Date(order.created_at).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-    });
-    if (!salesDataMap[dateStr])
-      salesDataMap[dateStr] = { date: dateStr, Revenue: 0, Orders: 0 };
-    salesDataMap[dateStr].Revenue += Number(order.total);
-    salesDataMap[dateStr].Orders += 1;
-  });
-  const salesChartData = Object.values(salesDataMap);
-
-  // Top products + category earnings
-  const productCounts: Record<string, { name: string; value: number }> = {};
-  const categoryEarnings: Record<string, { name: string; value: number }> = {};
-  (orderItems || []).forEach((item: any) => {
-    const productObj = Array.isArray(item.product)
-      ? item.product[0]
-      : item.product;
-    const productName = productObj?.name || 'Unknown';
-    if (!productCounts[productName])
-      productCounts[productName] = { name: productName, value: 0 };
-    productCounts[productName].value += item.quantity;
-    const catId = productObj?.category_id || 'other';
-    if (!categoryEarnings[catId])
-      categoryEarnings[catId] = { name: `Cat ${catId.slice(0, 6)}`, value: 0 };
-    categoryEarnings[catId].value += item.price_at_purchase * item.quantity;
-  });
-
-  const topProductsData = Object.values(productCounts)
-    .sort((a, b) => b.value - a.value)
-    .slice(0, 5);
-  const earningsByCategoryData = Object.values(categoryEarnings)
-    .sort((a, b) => b.value - a.value)
-    .slice(0, 5);
+  const lowStockCount = (stockProducts || []).filter(
+    (p) =>
+      (p.stock_quantity || 0) <= (p.low_stock_threshold || 5) &&
+      (p.stock_quantity || 0) > 0
+  ).length;
 
   const statusBadgeClass: Record<string, string> = {
     pending: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+    confirmed: 'bg-sky-500/10 text-sky-400 border-sky-500/20',
     processing: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
     shipped: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
     delivered: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
     cancelled: 'bg-rose-500/10 text-rose-400 border-rose-500/20',
+    returned: 'bg-orange-500/10 text-orange-400 border-orange-500/20',
   };
 
   const tabs = [
@@ -308,7 +284,7 @@ export default async function AdminDashboardPage({
                 color="amber"
               />
               <AlertCard
-                count={0}
+                count={openRefundsCount ?? 0}
                 label="Open refund requests"
                 href="/admin/refunds"
                 color="red"
@@ -372,7 +348,7 @@ export default async function AdminDashboardPage({
             />
             <KpiCard
               label="Open Refunds"
-              value="0"
+              value={(openRefundsCount ?? 0).toString()}
               icon={RotateCcw}
               iconColor="text-rose-400"
               iconBg="bg-rose-500/10"
@@ -380,7 +356,7 @@ export default async function AdminDashboardPage({
             />
             <KpiCard
               label="Low Stock Alerts"
-              value="—"
+              value={lowStockCount.toString()}
               icon={AlertCircle}
               iconColor="text-orange-400"
               iconBg="bg-orange-500/10"
@@ -396,6 +372,9 @@ export default async function AdminDashboardPage({
             topProductsData={topProductsData}
             earningsByCategoryData={earningsByCategoryData}
             recentReviews={recentReviews || []}
+            todayRevenue={todayRevenue}
+            cancelledOrders={cancelledOrders}
+            cancelledRevenue={cancelledRevenue}
           />
 
           {/* Recent Orders */}

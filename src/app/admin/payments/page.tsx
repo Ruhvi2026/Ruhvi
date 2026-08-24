@@ -32,7 +32,7 @@ export default function AdminPaymentsPage() {
       // Fall back to orders table for payment data until a dedicated transactions table exists
       const { data } = await supabase
         .from('orders')
-        .select('id, order_number, total, payment_method, payment_status, transaction_id, created_at')
+        .select('id, order_number, total, payment_method, payment_status, phonepe_transaction_id, phonepe_merchant_transaction_id, created_at')
         .order('created_at', { ascending: false });
 
       const mapped = (data || []).map((o: any) => ({
@@ -41,7 +41,7 @@ export default function AdminPaymentsPage() {
         amount: o.total,
         method: o.payment_method || 'unknown',
         status: o.payment_status || (o.payment_method === 'cod' ? 'pending' : 'success'),
-        gateway_ref: o.transaction_id || null,
+        gateway_ref: o.phonepe_transaction_id || o.phonepe_merchant_transaction_id || null,
         created_at: o.created_at,
         order: { order_number: o.order_number },
       }));
@@ -185,9 +185,15 @@ export default function AdminPaymentsPage() {
                       <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold border ${
                         tx.method === 'cod'
                           ? 'bg-amber-500/10 text-amber-400 border-amber-500/20'
-                          : 'bg-purple-500/10 text-purple-400 border-purple-500/20'
+                          : tx.method === 'phonepe'
+                          ? 'bg-purple-500/10 text-purple-400 border-purple-500/20'
+                          : 'bg-slate-500/10 text-slate-400 border-slate-500/20'
                       }`}>
-                        {tx.method === 'cod' ? 'COD' : 'PhonePe'}
+                        {tx.method === 'cod'
+                          ? 'COD'
+                          : tx.method === 'phonepe'
+                          ? 'PhonePe'
+                          : tx.method || 'Unknown'}
                       </span>
                     </td>
                     <td className="px-5 py-3 font-mono text-slate-400 text-[11px]">

@@ -21,6 +21,7 @@ import {
   getCredentialKey,
 } from '@/lib/ai/credentials';
 import { maskApiKey, isMaskedPlaceholder } from '@/lib/ai/keys';
+import { decryptApiKey, encryptApiKey } from '@/lib/ai/credential-encryption';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
 function createAdminClient(cookieStore: any) {
@@ -62,7 +63,7 @@ function sanitizeCredential(c: any) {
     last_failure_at: c.last_failure_at || null,
     last_error: c.last_error || null,
     has_key: Boolean(c.encrypted_key),
-    masked_key: maskApiKey(c.encrypted_key || ''),
+    masked_key: maskApiKey(decryptApiKey(c.encrypted_key || '')),
     created_at: c.created_at,
     updated_at: c.updated_at,
   };
@@ -133,7 +134,7 @@ export async function POST(req: Request) {
         { status: 404 }
       );
 
-    const apiKey = cred.encrypted_key;
+    const apiKey = decryptApiKey(cred.encrypted_key);
     if (!apiKey)
       return NextResponse.json(
         { error: 'No API key stored for this credential' },
@@ -386,7 +387,7 @@ export async function PATCH(req: Request) {
 
   // Replace API key if a valid new one was provided
   if (apiKey && !isMaskedPlaceholder(apiKey) && apiKey !== '__UNCHANGED__') {
-    update.encrypted_key = apiKey.trim();
+    update.encrypted_key = encryptApiKey(apiKey.trim());
     update.health_status = 'unknown'; // Reset health on key change
     update.failure_count = 0;
     update.cooldown_until = null;

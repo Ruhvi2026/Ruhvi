@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import {
   Store,
   Truck,
@@ -131,8 +132,12 @@ function Toggle({
   );
 }
 
-export default function AdminSettingsPage() {
-  const [activeSection, setActiveSection] = useState('store');
+function AdminSettingsPage() {
+  const searchParams = useSearchParams();
+  const tab = searchParams.get('tab');
+  const initialSection =
+    SECTIONS.find((s) => s.id === tab)?.id || 'store';
+  const [activeSection, setActiveSection] = useState(initialSection);
   const [saved, setSaved] = useState(false);
 
   // Store settings
@@ -1107,5 +1112,19 @@ export default function AdminSettingsPage() {
         </form>
       </div>
     </div>
+  );
+}
+
+export default function SettingsPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-[60vh] items-center justify-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-white/10 border-t-emerald-500" />
+        </div>
+      }
+    >
+      <AdminSettingsPage />
+    </Suspense>
   );
 }

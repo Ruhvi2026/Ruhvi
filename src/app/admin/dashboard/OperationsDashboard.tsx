@@ -11,17 +11,17 @@ export default async function OperationsDashboard() {
 
   const { data: products } = await supabase
     .from('products')
-    .select('stock, low_stock_threshold');
+    .select('stock_quantity, low_stock_threshold');
 
   const totalStock = (products || []).reduce(
-    (acc, p) => acc + (p.stock || 0),
+    (acc, p) => acc + (p.stock_quantity || 0),
     0
   );
   const lowStockCount = (products || []).filter(
-    (p) => (p.stock || 0) <= (p.low_stock_threshold || 5) && (p.stock || 0) > 0
+    (p) => (p.stock_quantity || 0) <= (p.low_stock_threshold || 5) && (p.stock_quantity || 0) > 0
   ).length;
   const outOfStockCount = (products || []).filter(
-    (p) => (p.stock || 0) === 0
+    (p) => (p.stock_quantity || 0) === 0
   ).length;
 
   return (

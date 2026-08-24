@@ -59,13 +59,11 @@ function getActionColor(action: string): string {
   return ACTION_COLORS.other;
 }
 
-// Since a dedicated audit_logs table may not exist yet, we build a synthetic log from orders
 export default function AdminAuditLogsPage() {
   const [logs, setLogs] = useState<AuditLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [entityFilter, setEntityFilter] = useState('all');
-  const [isTableCreated, setIsTableCreated] = useState(false);
 
   useEffect(() => {
     fetchLogs();
@@ -76,37 +74,14 @@ export default function AdminAuditLogsPage() {
     try {
       const supabase = createClient();
 
-      // Try to fetch from audit_logs table first
-      const { data: auditData, error: auditError } = await supabase
+      const { data, error } = await supabase
         .from('audit_logs')
         .select('*')
         .order('created_at', { ascending: false })
         .limit(200);
 
-      // If the error code is not '42P01' (undefined_table), it means the table exists
-      if (!auditError || auditError.code !== '42P01') {
-        setIsTableCreated(true);
-        setLogs((auditData as AuditLog[]) || []);
-      } else {
-        setIsTableCreated(false);
-        // Fallback: synthesize from orders table
-        const { data: orders } = await supabase
-          .from('orders')
-          .select('id, order_number, status, created_at, updated_at, user_id')
-          .order('created_at', { ascending: false })
-          .limit(100);
-
-        const synthetic: AuditLog[] = (orders || []).map((o: any) => ({
-          id: `order-${o.id}`,
-          actor_id: o.user_id || 'system',
-          actor_email: 'customer',
-          action: 'order.created',
-          entity_type: 'order',
-          entity_id: o.order_number,
-          created_at: o.created_at,
-        }));
-        setLogs(synthetic);
-      }
+      if (error) throw error;
+      setLogs((data as AuditLog[]) || []);
     } catch {
       setLogs([]);
     } finally {
@@ -155,18 +130,6 @@ export default function AdminAuditLogsPage() {
         </button>
       </div>
 
-      {/* Note */}
-      {!isTableCreated && (
-        <div className="rounded-xl border border-blue-500/10 bg-blue-500/5 px-4 py-3">
-          <p className="text-xs font-medium text-blue-400">
-            💡 For full audit logging, create an{' '}
-            <code className="rounded bg-blue-500/10 px-1">audit_logs</code>{' '}
-            table in Supabase. Currently showing synthesized activity from order
-            data.
-          </p>
-        </div>
-      )}
-
       {/* Filters */}
       <div className="flex flex-col gap-3 sm:flex-row">
         <div className="relative max-w-sm flex-1">
@@ -207,9 +170,6 @@ export default function AdminAuditLogsPage() {
             <FileText className="mx-auto mb-3 h-10 w-10 text-slate-700" />
             <p className="text-sm font-medium text-slate-500">
               No audit logs found
-            </p>
-            <p className="mt-1 text-xs text-slate-600">
-              Create an audit_logs table in Supabase for full event tracking
             </p>
           </div>
         ) : (

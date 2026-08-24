@@ -25,9 +25,26 @@ export async function PUT(
     const { id } = await context.params;
     const body = await request.json();
 
+    const allowedFields = [
+      'name',
+      'discount_type',
+      'discount_value',
+      'start_date',
+      'end_date',
+      'active',
+      'applicable_to',
+    ] as const;
+
+    const updateData: Record<string, unknown> = {};
+    for (const field of allowedFields) {
+      if (field in body) {
+        updateData[field] = body[field];
+      }
+    }
+
     const { data, error } = await supabase
       .from('promotions')
-      .update(body)
+      .update(updateData)
       .eq('id', id)
       .select()
       .single();

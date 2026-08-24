@@ -5,19 +5,10 @@ import Link from 'next/link';
 import {
   Users,
   Search,
-  Filter,
-  ShieldCheck,
-  ArrowLeft,
   RefreshCw,
-  UserCheck,
   Shield,
   Wallet,
-  Coins,
-  Edit,
-  Check,
   X,
-  Plus,
-  Minus,
   Key,
   Mail,
 } from 'lucide-react';
@@ -210,20 +201,20 @@ export default function AdminUsersPage() {
     switch (role) {
       case 'admin':
         return (
-          <span className="rounded-full border border-rose-200 bg-rose-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-rose-800">
+          <span className="rounded-full border border-rose-500/20 bg-rose-500/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-rose-400">
             Admin
           </span>
         );
       case 'manager':
       case 'staff':
         return (
-          <span className="rounded-full border border-purple-200 bg-purple-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-purple-800">
+          <span className="rounded-full border border-purple-500/20 bg-purple-500/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-purple-400">
             Staff
           </span>
         );
       default:
         return (
-          <span className="rounded-full border border-stone-200 bg-stone-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-stone-700">
+          <span className="rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-slate-400">
             Customer
           </span>
         );
@@ -231,152 +222,140 @@ export default function AdminUsersPage() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#FAF6ED] pb-16">
-      {/* Header */}
-      <header className="flex items-center justify-between border-b border-[#E7D7A3]/30 bg-[#1C1B1A] px-6 py-4 text-[#FAF6ED] shadow-md">
-        <div className="flex items-center gap-3">
-          <ShieldCheck className="h-6 w-6 text-[#E7D7A3]" />
-          <span className="font-serif text-xl font-bold tracking-wider text-[#E7D7A3]">
-            RUHVI ADMIN CONSOLE
-          </span>
-        </div>
-        <div className="flex items-center gap-4 text-xs">
-          <Link
-            href="/admin/dashboard"
-            className="flex items-center gap-1 rounded-lg bg-[#FAF6ED]/10 px-3 py-1.5 text-[#FAF6ED] transition hover:bg-[#FAF6ED]/20"
-          >
-            <ArrowLeft className="h-3.5 w-3.5" /> Back to Dashboard
-          </Link>
-        </div>
-      </header>
-
-      {/* Main Container */}
-      <main className="mx-auto w-full max-w-7xl flex-1 space-y-8 px-4 pt-8 sm:px-6 lg:px-8">
-        {/* Page Title & Refresh */}
-        <div className="flex flex-col items-start justify-between gap-4 border-b border-stone-200 pb-4 sm:flex-row sm:items-end">
-          <div>
-            <div className="mb-2 inline-flex items-center space-x-2 rounded-full border border-amber-500/20 bg-amber-500/10 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-amber-900">
-              <Users className="h-3.5 w-3.5" />
-              <span>User & Privilege Manager</span>
-            </div>
-            <h1 className="font-serif text-3xl font-bold text-stone-900">
-              User Directory
-            </h1>
-            <p className="mt-1 text-xs text-stone-500">
-              Manage customer accounts, staff permissions, wallets, and reward
-              coins.
-            </p>
+    <div className="mx-auto max-w-7xl space-y-5">
+      {/* Page Title & Refresh */}
+      <div className="flex flex-col items-start justify-between gap-4 border-b border-white/5 pb-4 sm:flex-row sm:items-end">
+        <div>
+          <div className="mb-2 inline-flex items-center space-x-2 rounded-full border border-amber-500/20 bg-amber-500/10 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-amber-400">
+            <Users className="h-3.5 w-3.5" />
+            <span>User & Privilege Manager</span>
           </div>
+          <h1 className="text-2xl font-bold text-white">User Directory</h1>
+          <p className="mt-1 text-xs text-slate-500">
+            Manage customer accounts, staff permissions, wallets, and reward
+            coins.
+          </p>
+        </div>
 
+        <button
+          onClick={fetchUsers}
+          className="flex items-center space-x-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold text-slate-300 transition-colors hover:bg-white/10"
+        >
+          <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+          <span>Refresh</span>
+        </button>
+      </div>
+
+      {error && (
+        <div className="rounded-xl border border-rose-500/20 bg-rose-500/10 p-4 text-sm text-rose-400">
+          {error}
+        </div>
+      )}
+
+      {/* Stats Summary */}
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+        <div className="rounded-2xl border border-white/5 bg-[#131726] p-5">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+            Total Registered Users
+          </p>
+          <p className="mt-1 text-2xl font-bold text-white">{users.length}</p>
+        </div>
+        <div className="rounded-2xl border border-white/5 bg-[#131726] p-5">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+            Customers
+          </p>
+          <p className="mt-1 text-2xl font-bold text-white">
+            {users.filter((u) => u.role === 'customer').length}
+          </p>
+        </div>
+        <div className="rounded-2xl border border-white/5 bg-[#131726] p-5">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+            Admins & Staff
+          </p>
+          <p className="mt-1 text-2xl font-bold text-purple-400">
+            {users.filter((u) => u.role !== 'customer').length}
+          </p>
+        </div>
+        <div className="rounded-2xl border border-white/5 bg-[#131726] p-5">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+            Total User Wallets
+          </p>
+          <p className="mt-1 text-2xl font-bold text-emerald-400">
+            ₹
+            {users
+              .reduce((acc, u) => acc + (Number(u.wallet_balance) || 0), 0)
+              .toLocaleString('en-IN')}
+          </p>
+        </div>
+      </div>
+
+      {/* Controls: Search & Role Filters */}
+      <div className="flex flex-col items-center justify-between gap-4 rounded-2xl border border-white/5 bg-[#131726] p-4 md:flex-row">
+        {/* Search Bar */}
+        <div className="relative w-full md:w-80">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
+          <input
+            type="text"
+            placeholder="Search by name, email or phone..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full rounded-xl border border-white/10 bg-white/5 py-2 pl-9 pr-4 text-xs text-slate-300 placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+          />
+        </div>
+
+        {/* Filter Tabs */}
+        <div className="flex w-full items-center space-x-1 rounded-xl bg-white/5 p-1 text-xs font-semibold md:w-auto">
           <button
-            onClick={fetchUsers}
-            className="flex items-center space-x-2 rounded-xl border border-stone-200 bg-white px-4 py-2 text-xs font-bold uppercase tracking-wider text-stone-700 shadow-sm transition-colors hover:text-amber-900"
+            onClick={() => setRoleFilter('all')}
+            className={`rounded-lg px-3 py-1.5 transition-colors ${
+              roleFilter === 'all'
+                ? 'bg-emerald-500/10 text-emerald-400'
+                : 'text-slate-500 hover:text-slate-300'
+            }`}
           >
-            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-            <span>Refresh</span>
+            All Users ({users.length})
+          </button>
+          <button
+            onClick={() => setRoleFilter('customer')}
+            className={`rounded-lg px-3 py-1.5 transition-colors ${
+              roleFilter === 'customer'
+                ? 'bg-emerald-500/10 text-emerald-400'
+                : 'text-slate-500 hover:text-slate-300'
+            }`}
+          >
+            Customers ({users.filter((u) => u.role === 'customer').length})
+          </button>
+          <button
+            onClick={() => setRoleFilter('admin')}
+            className={`rounded-lg px-3 py-1.5 transition-colors ${
+              roleFilter === 'admin'
+                ? 'bg-emerald-500/10 text-emerald-400'
+                : 'text-slate-500 hover:text-slate-300'
+            }`}
+          >
+            Admins ({users.filter((u) => u.role === 'admin').length})
           </button>
         </div>
-
-        {error && (
-          <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800">
-            {error}
-          </div>
-        )}
-
-        {/* Stats Summary */}
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-          <div className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
-            <p className="text-[10px] font-bold uppercase tracking-wider text-stone-500">
-              Total Registered Users
-            </p>
-            <p className="mt-1 font-serif text-2xl font-bold text-stone-900">
-              {users.length}
-            </p>
-          </div>
-          <div className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
-            <p className="text-[10px] font-bold uppercase tracking-wider text-stone-500">
-              Customers
-            </p>
-            <p className="mt-1 font-serif text-2xl font-bold text-stone-900">
-              {users.filter((u) => u.role === 'customer').length}
-            </p>
-          </div>
-          <div className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
-            <p className="text-[10px] font-bold uppercase tracking-wider text-stone-500">
-              Admins & Staff
-            </p>
-            <p className="mt-1 font-serif text-2xl font-bold text-purple-900">
-              {users.filter((u) => u.role !== 'customer').length}
-            </p>
-          </div>
-          <div className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
-            <p className="text-[10px] font-bold uppercase tracking-wider text-stone-500">
-              Total User Wallets
-            </p>
-            <p className="mt-1 font-serif text-2xl font-bold text-emerald-900">
-              ₹
-              {users
-                .reduce((acc, u) => acc + (Number(u.wallet_balance) || 0), 0)
-                .toLocaleString('en-IN')}
-            </p>
-          </div>
-        </div>
-
-        {/* Controls: Search & Role Filters */}
-        <div className="flex flex-col items-center justify-between gap-4 rounded-2xl border border-stone-200 bg-white p-4 shadow-sm md:flex-row">
-          {/* Search Bar */}
-          <div className="relative w-full md:w-80">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
-            <input
-              type="text"
-              placeholder="Search by name, email or phone..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full rounded-xl border border-stone-300 py-2 pl-9 pr-4 text-xs focus:outline-none focus:ring-1 focus:ring-amber-800"
-            />
-          </div>
-
-          {/* Filter Tabs */}
-          <div className="flex w-full items-center space-x-1 rounded-xl bg-stone-100 p-1 text-xs font-semibold md:w-auto">
-            <button
-              onClick={() => setRoleFilter('all')}
-              className={`rounded-lg px-3 py-1.5 transition-colors ${roleFilter === 'all' ? 'bg-white text-stone-900 shadow-sm' : 'text-stone-600 hover:text-stone-900'}`}
-            >
-              All Users ({users.length})
-            </button>
-            <button
-              onClick={() => setRoleFilter('customer')}
-              className={`rounded-lg px-3 py-1.5 transition-colors ${roleFilter === 'customer' ? 'bg-white text-stone-900 shadow-sm' : 'text-stone-600 hover:text-stone-900'}`}
-            >
-              Customers ({users.filter((u) => u.role === 'customer').length})
-            </button>
-            <button
-              onClick={() => setRoleFilter('admin')}
-              className={`rounded-lg px-3 py-1.5 transition-colors ${roleFilter === 'admin' ? 'bg-white text-stone-900 shadow-sm' : 'text-stone-600 hover:text-stone-900'}`}
-            >
-              Admins ({users.filter((u) => u.role === 'admin').length})
-            </button>
-          </div>
-        </div>
+      </div>
 
         {/* Users Table */}
         {loading ? (
-          <div className="py-16 text-center text-sm text-stone-500">
+          <div className="py-16 text-center text-sm text-slate-500">
             Loading user directory from Supabase...
           </div>
         ) : filteredUsers.length === 0 ? (
-          <div className="rounded-3xl border border-stone-200 bg-white py-16 text-center shadow-sm">
-            <Users className="mx-auto mb-3 h-12 w-12 text-stone-300" />
-            <p className="font-medium text-stone-600">No users found.</p>
-            <p className="mt-1 text-xs text-stone-400">
+          <div className="rounded-2xl border border-white/5 bg-[#131726] py-16 text-center">
+            <Users className="mx-auto mb-3 h-12 w-12 text-slate-700" />
+            <p className="font-medium text-slate-400">No users found.</p>
+            <p className="mt-1 text-xs text-slate-600">
               Try adjusting your search query or role filter.
             </p>
           </div>
         ) : (
-          <div className="overflow-x-auto rounded-2xl border border-stone-200 bg-white shadow-sm">
+          <div className="overflow-x-auto rounded-2xl border border-white/5 bg-[#131726]">
             <table className="w-full min-w-[700px] border-collapse text-left">
               <thead>
-                <tr className="border-b border-stone-200 bg-stone-50 text-xs font-semibold uppercase tracking-wider text-stone-500">
+                <tr className="border-b border-white/5 text-xs font-semibold uppercase tracking-wider text-slate-500">
                   <th className="p-4 pl-6">User</th>
                   <th className="p-4">Contact</th>
                   <th className="p-4">Role</th>
@@ -385,58 +364,55 @@ export default function AdminUsersPage() {
                   <th className="p-4 pr-6 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-stone-100 text-xs text-stone-700">
+              <tbody className="divide-y divide-white/5 text-xs text-slate-400">
                 {filteredUsers.map((user) => (
-                  <tr
-                    key={user.id}
-                    className="transition-colors hover:bg-stone-50"
-                  >
+                  <tr key={user.id} className="transition-colors hover:bg-white/5">
                     <td className="p-4 pl-6">
-                      <div className="font-semibold text-stone-900">
+                      <div className="font-semibold text-slate-200">
                         {user.full_name || 'Anonymous User'}
                       </div>
-                      <div className="font-mono text-[10px] text-stone-400">
+                      <div className="font-mono text-[10px] text-slate-600">
                         {user.email}
                       </div>
                     </td>
-                    <td className="p-4 font-mono text-stone-600">
+                    <td className="p-4 font-mono text-slate-500">
                       {user.phone || 'N/A'}
                     </td>
                     <td className="p-4">{getRoleBadge(user.role)}</td>
-                    <td className="p-4 text-right font-bold text-stone-900">
+                    <td className="p-4 text-right font-bold text-white">
                       ₹
                       {Number(user.wallet_balance || 0).toLocaleString('en-IN')}
                     </td>
-                    <td className="p-4 text-right font-bold text-amber-900">
+                    <td className="p-4 text-right font-bold text-amber-400">
                       🪙{' '}
                       {Number(user.reward_coins || 0).toLocaleString('en-IN')}
                     </td>
                     <td className="space-x-2 whitespace-nowrap p-4 pr-6 text-right">
                       <button
                         onClick={() => handleSendResetLink(user.email)}
-                        className="inline-flex items-center gap-1 rounded-lg border border-sky-200 bg-sky-50 px-2.5 py-1 font-semibold text-sky-900 transition-colors hover:bg-sky-100"
+                        className="inline-flex items-center gap-1 rounded-lg border border-sky-500/20 bg-sky-500/10 px-2.5 py-1 font-semibold text-sky-400 transition-colors hover:bg-sky-500/20"
                         title="Send Password Reset Link"
                       >
-                        <Mail className="h-3 w-3 text-sky-700" /> Link
+                        <Mail className="h-3 w-3 text-sky-500" /> Link
                       </button>
                       <button
                         onClick={() => {
                           setPasswordUser(user);
                           setNewPassword('');
                         }}
-                        className="inline-flex items-center gap-1 rounded-lg border border-indigo-200 bg-indigo-50 px-2.5 py-1 font-semibold text-indigo-900 transition-colors hover:bg-indigo-100"
+                        className="inline-flex items-center gap-1 rounded-lg border border-indigo-500/20 bg-indigo-500/10 px-2.5 py-1 font-semibold text-indigo-400 transition-colors hover:bg-indigo-500/20"
                         title="Set Password Directly"
                       >
-                        <Key className="h-3 w-3 text-indigo-700" /> Pass
+                        <Key className="h-3 w-3 text-indigo-400" /> Pass
                       </button>
                       <button
                         onClick={() => {
                           setEditingUser(user);
                           setSelectedRole(user.role);
                         }}
-                        className="inline-flex items-center gap-1 rounded-lg border border-stone-200 bg-stone-100 px-2.5 py-1 font-semibold text-stone-800 transition-colors hover:bg-stone-200"
+                        className="inline-flex items-center gap-1 rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 font-semibold text-slate-300 transition-colors hover:bg-white/10"
                       >
-                        <Shield className="h-3 w-3 text-stone-600" /> Role
+                        <Shield className="h-3 w-3 text-slate-500" /> Role
                       </button>
                       <button
                         onClick={() => {
@@ -444,9 +420,9 @@ export default function AdminUsersPage() {
                           setWalletAmount(user.wallet_balance.toString());
                           setCoinsAmount(user.reward_coins.toString());
                         }}
-                        className="inline-flex items-center gap-1 rounded-lg border border-amber-200 bg-amber-50 px-2.5 py-1 font-semibold text-amber-950 transition-colors hover:bg-amber-100"
+                        className="inline-flex items-center gap-1 rounded-lg border border-amber-500/20 bg-amber-500/10 px-2.5 py-1 font-semibold text-amber-400 transition-colors hover:bg-amber-500/20"
                       >
-                        <Wallet className="h-3 w-3 text-amber-800" /> Funds
+                        <Wallet className="h-3 w-3 text-amber-500" /> Funds
                       </button>
                     </td>
                   </tr>
@@ -455,7 +431,7 @@ export default function AdminUsersPage() {
             </table>
           </div>
         )}
-      </main>
+      </div>
 
       {/* Role Edit Modal */}
       {editingUser && (

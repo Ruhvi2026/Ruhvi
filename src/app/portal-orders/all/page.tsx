@@ -302,10 +302,16 @@ export default function AdminOrdersPage() {
                           className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold ${
                             order.payment_method === 'cod'
                               ? 'border-amber-500/20 bg-amber-500/10 text-amber-400'
-                              : 'border-purple-500/20 bg-purple-500/10 text-purple-400'
+                              : order.payment_method === 'phonepe'
+                              ? 'border-purple-500/20 bg-purple-500/10 text-purple-400'
+                              : 'border-slate-500/20 bg-slate-500/10 text-slate-400'
                           }`}
                         >
-                          {order.payment_method === 'cod' ? 'COD' : 'PhonePe'}
+                          {order.payment_method === 'cod'
+                            ? 'COD'
+                            : order.payment_method === 'phonepe'
+                            ? 'PhonePe'
+                            : order.payment_method || 'Unknown'}
                         </span>
                       </td>
                       <td className="px-4 py-3">

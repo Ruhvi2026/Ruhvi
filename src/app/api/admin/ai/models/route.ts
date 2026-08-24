@@ -17,6 +17,7 @@ import {
   inferModelCapabilities,
 } from '@/lib/ai/model-health';
 import { resolveEffectiveApiKey } from '@/lib/ai/keys';
+import { decryptApiKey } from '@/lib/ai/credential-encryption';
 
 function createAdminClient(cookieStore: any) {
   return createServerClient(
@@ -163,7 +164,7 @@ export async function POST(req: Request) {
         .order('priority', { ascending: true })
         .limit(1)
         .single();
-      if (credData?.encrypted_key) apiKey = credData.encrypted_key;
+      if (credData?.encrypted_key) apiKey = decryptApiKey(credData.encrypted_key);
     }
 
     // Fall back to environment variable

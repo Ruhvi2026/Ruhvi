@@ -316,6 +316,11 @@ export default function CheckoutPage() {
       return;
     }
 
+    if (paymentMethod === 'cod' && !isLoggedIn) {
+      toast.error('Login is required to place a Cash on Delivery order.');
+      return;
+    }
+
     if (paymentMethod === 'cod' && !turnstileToken) {
       toast.error('Please complete the security check.');
       return;
@@ -346,13 +351,16 @@ export default function CheckoutPage() {
     });
 
     try {
-      if (paymentMethod === 'phonepe') {
+      if (paymentMethod === 'phonepe' || (paymentMethod === 'cod' && totalPayable > 2000)) {
+        const isPartialCod = paymentMethod === 'cod';
+        const phonePeAmount = isPartialCod ? totalPayable * 0.1 : totalPayable;
+        
         // 1. Initialize PhonePe payment on backend API
         const res = await fetch('/api/checkout/phonepe', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            amount: totalPayable,
+            amount: phonePeAmount,
             mobileNumber: selectedAddress.phone,
           }),
         });
@@ -376,6 +384,8 @@ export default function CheckoutPage() {
             orderData.merchantTransactionId || `MT_${Date.now()}`,
           phonepe_transaction_id: `T_SIM_${Date.now()}`,
           phonepe_payment_state: 'COMPLETED',
+          isPartialCod,
+          prepaidAmount: isPartialCod ? phonePeAmount : undefined,
         });
       } else {
         // COD order
@@ -895,11 +905,18 @@ export default function CheckoutPage() {
                             </Link>
                           </div>
                         )}
+                        {totalPayable > 2000 && isLoggedIn && (
+                          <span className="rounded bg-amber-100 px-1.5 py-0.5 text-[9px] font-bold text-amber-900">
+                            10% Deposit Required
+                          </span>
+                        )}
                       </div>
-                      <div className="text-[10px] text-stone-500">
+                      <div className="text-[10px] text-stone-500 mt-1">
                         {!isLoggedIn
                           ? 'Available for logged-in users only. Please log in or choose online payment.'
-                          : 'Pay cash upon delivery (+ ₹49 COD processing charge)'}
+                          : totalPayable > 2000
+                            ? `Pay ₹${(totalPayable * 0.1).toFixed(2)} upfront via online payment. The remaining balance (₹${(totalPayable * 0.9).toFixed(2)} + ₹49 COD processing charge) will be collected upon delivery.`
+                            : 'Pay cash upon delivery (+ ₹49 COD processing charge)'}
                       </div>
                     </div>
                   </div>
@@ -1164,7 +1181,9 @@ export default function CheckoutPage() {
                   ? 'Processing Order...'
                   : paymentMethod === 'phonepe'
                     ? 'Pay via PhonePe'
-                    : 'Place COD Order'}
+                    : (paymentMethod === 'cod' && totalPayable > 2000)
+                      ? `Pay 10% Deposit (₹${(totalPayable * 0.1).toFixed(2)})`
+                      : 'Place COD Order'}
               </button>
 
               <div className="space-y-1 text-center text-[10px] text-stone-400">

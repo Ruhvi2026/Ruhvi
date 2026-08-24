@@ -35,18 +35,28 @@ export async function hasPermission(
       return true;
     }
 
-    if (!user.role_id) {
-      // If no role_id is assigned yet, fallback to hardcoded checks if necessary
-      // e.g., if user.role === 'admin' and they need a specific permission,
-      // you could grant it here if migrating incrementally.
-      return false;
+    let roleId = user.role_id;
+
+    if (!roleId) {
+      const roleName = String(user.role || '').toUpperCase();
+      const { data: roleRow, error: roleError } = await supabase
+        .from('roles')
+        .select('id')
+        .eq('name', roleName)
+        .maybeSingle();
+
+      if (roleError || !roleRow) {
+        return false;
+      }
+
+      roleId = roleRow.id;
     }
 
     // 2. Check the role_permissions table
     const { data: permissions, error: permError } = await supabase
       .from('role_permissions')
       .select('permission')
-      .eq('role_id', user.role_id);
+      .eq('role_id', roleId);
 
     if (permError || !permissions) {
       return false;

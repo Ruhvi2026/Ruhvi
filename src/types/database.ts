@@ -141,6 +141,8 @@ export interface Order {
   phonepe_merchant_transaction_id?: string | null;
   phonepe_transaction_id?: string | null;
   phonepe_payment_state?: string | null;
+  prepaid_amount?: number;
+  cod_balance?: number;
   created_at?: string;
   updated_at?: string;
   shipping_address?: Address | null;

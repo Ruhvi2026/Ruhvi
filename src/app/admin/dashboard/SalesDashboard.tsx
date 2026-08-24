@@ -1,6 +1,7 @@
 import React from 'react';
 import { createClient } from '@supabase/supabase-js';
 import DashboardCharts from './DashboardCharts';
+import { computeSalesMetrics } from '@/lib/sales-metrics';
 import { ShoppingBag, TrendingUp, CreditCard, Star } from 'lucide-react';
 
 export default async function SalesDashboard() {
@@ -41,58 +42,17 @@ export default async function SalesDashboard() {
       .gte('created_at', startOfMonth),
   ]);
 
-  const totalRevenue = (allOrdersMonth || []).reduce(
-    (s, o) => s + Number(o.total),
-    0
-  );
-  const totalOrders = (allOrdersMonth || []).length;
-  const todayRevenue = (todayOrders || []).reduce(
-    (s, o) => s + Number(o.total),
-    0
-  );
-  const aov = totalOrders > 0 ? totalRevenue / totalOrders : 0;
-
-  // Sales chart data
-  const salesDataMap: Record<
-    string,
-    { date: string; Revenue: number; Orders: number }
-  > = {};
-  (allOrdersMonth || []).forEach((order) => {
-    const dateStr = new Date(order.created_at).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-    });
-    if (!salesDataMap[dateStr])
-      salesDataMap[dateStr] = { date: dateStr, Revenue: 0, Orders: 0 };
-    salesDataMap[dateStr].Revenue += Number(order.total);
-    salesDataMap[dateStr].Orders += 1;
-  });
-  const salesChartData = Object.values(salesDataMap);
-
-  // Top products + category earnings
-  const productCounts: Record<string, { name: string; value: number }> = {};
-  const categoryEarnings: Record<string, { name: string; value: number }> = {};
-  (orderItems || []).forEach((item: any) => {
-    const productObj = Array.isArray(item.product)
-      ? item.product[0]
-      : item.product;
-    const productName = productObj?.name || 'Unknown';
-    if (!productCounts[productName])
-      productCounts[productName] = { name: productName, value: 0 };
-    productCounts[productName].value += item.quantity;
-
-    const catId = productObj?.category_id || 'other';
-    if (!categoryEarnings[catId])
-      categoryEarnings[catId] = { name: `Cat ${catId.slice(0, 6)}`, value: 0 };
-    categoryEarnings[catId].value += item.price_at_purchase * item.quantity;
-  });
-
-  const topProductsData = Object.values(productCounts)
-    .sort((a, b) => b.value - a.value)
-    .slice(0, 5);
-  const earningsByCategoryData = Object.values(categoryEarnings)
-    .sort((a, b) => b.value - a.value)
-    .slice(0, 5);
+  const {
+    totalRevenue,
+    totalOrders,
+    todayRevenue,
+    aov,
+    cancelledOrders,
+    cancelledRevenue,
+    salesChartData,
+    topProductsData,
+    earningsByCategoryData,
+  } = computeSalesMetrics({ allOrdersMonth, todayOrders, orderItems });
 
   return (
     <div className="space-y-6">
@@ -142,6 +102,9 @@ export default async function SalesDashboard() {
         topProductsData={topProductsData}
         earningsByCategoryData={earningsByCategoryData}
         recentReviews={[]}
+        todayRevenue={todayRevenue}
+        cancelledOrders={cancelledOrders}
+        cancelledRevenue={cancelledRevenue}
       />
     </div>
   );

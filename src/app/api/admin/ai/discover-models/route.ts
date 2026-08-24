@@ -3,6 +3,7 @@ import { cookies } from 'next/headers';
 import { requireAdmin } from '@/lib/auth/require-admin';
 
 import { resolveEffectiveApiKey } from '@/lib/ai/keys';
+import { decryptApiKey } from '@/lib/ai/credential-encryption';
 import { createServerClient } from '@supabase/ssr';
 import { safeFetch, UnsafeUrlError } from '@/lib/security/ssrf';
 
@@ -73,7 +74,7 @@ export async function POST(req: Request) {
         .order('priority', { ascending: true })
         .limit(1);
       if (creds && creds.length > 0 && creds[0].encrypted_key) {
-        apiKey = creds[0].encrypted_key;
+        apiKey = decryptApiKey(creds[0].encrypted_key);
       }
     }
 

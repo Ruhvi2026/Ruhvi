@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { getServerUser } from '@/lib/auth/server';
 import { getSupabaseAdminClient } from '@/lib/support/serverAuth';
-import { sendShippingUpdateEmail } from '@/lib/resend';
 
 export async function POST(request: Request) {
   try {
@@ -38,7 +37,38 @@ export async function POST(request: Request) {
       );
     }
 
+    const VALID_STATUSES = [
+      'pending',
+      'confirmed',
+      'shipped',
+      'out_for_delivery',
+      'delivered',
+      'cancelled',
+      'returned',
+    ];
+    if (!VALID_STATUSES.includes(newStatus)) {
+      return NextResponse.json(
+        { error: `Invalid order status: ${newStatus}` },
+        { status: 400 }
+      );
+    }
+
     // Update the database
+    const { data: existingOrder, error: fetchError } = await supabase
+      .from('orders')
+      .select('id')
+      .eq('id', orderId)
+      .maybeSingle();
+
+    if (fetchError) throw fetchError;
+
+    if (!existingOrder) {
+      return NextResponse.json(
+        { error: `Order not found: ${orderId}` },
+        { status: 404 }
+      );
+    }
+
     const { error: updateError } = await supabase
       .from('orders')
       .update({ status: newStatus, updated_at: new Date().toISOString() })
@@ -74,12 +104,11 @@ export async function POST(request: Request) {
         },
         shipping: {
           name: name,
-          address: (orderDetails.shipping_address as any)?.address_line1 || '',
+          address: (orderDetails.shipping_address as any)?.line1 || '',
           city: (orderDetails.shipping_address as any)?.city || '',
           state: (orderDetails.shipping_address as any)?.state || '',
-          postal_code:
-            (orderDetails.shipping_address as any)?.postal_code || '',
-          country: (orderDetails.shipping_address as any)?.country || 'India',
+          postal_code: (orderDetails.shipping_address as any)?.pincode || '',
+          country: 'India',
           phone: (orderDetails.shipping_address as any)?.phone || '',
         },
         tracking_url: trackingLink || '#',

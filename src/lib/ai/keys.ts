@@ -154,6 +154,10 @@ export async function getCredentialKeyFromDB(
       .single();
 
     if (error || !data) return '';
+    // encrypted_key is stored AES-256-GCM encrypted at rest. This helper is
+    // shared with client bundles and cannot import the Node crypto module, so
+    // server-side callers should use getCredentialKey (lib/ai/credentials.ts),
+    // which decrypts transparently. See lib/ai/credential-encryption.ts.
     return data.encrypted_key || '';
   } catch {
     return '';

@@ -24,6 +24,8 @@ export async function POST(req: Request) {
       phonepe_merchant_transaction_id,
       phonepe_transaction_id,
       phonepe_payment_state,
+      isPartialCod,
+      prepaidAmount,
     } = body;
 
     if (!items || items.length === 0) {
@@ -203,7 +205,9 @@ export async function POST(req: Request) {
         gst_amount: gstAmount,
         total,
         payment_method: paymentMethod || 'phonepe',
-        payment_status: paymentMethod === 'phonepe' ? 'paid' : 'pending',
+        payment_status: paymentMethod === 'phonepe' || (paymentMethod === 'cod' && isPartialCod) ? 'paid' : 'pending',
+        prepaid_amount: isPartialCod ? prepaidAmount : (paymentMethod === 'phonepe' ? total : 0),
+        cod_balance: isPartialCod ? total - prepaidAmount : (paymentMethod === 'cod' ? total : 0),
         gift_wrap: giftWrap,
         gift_message: giftMessage,
         shipping_address_id: shippingAddressId,

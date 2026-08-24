@@ -1,12 +1,6 @@
 -- Migration 0003: Phase 2 Purchase Flow (Cart, Wishlist, Addresses, Orders & Payment fields)
 
--- 1. Add Razorpay payment tracking columns to orders table if not exists
-ALTER TABLE public.orders 
-ADD COLUMN IF NOT EXISTS razorpay_order_id text,
-ADD COLUMN IF NOT EXISTS razorpay_payment_id text,
-ADD COLUMN IF NOT EXISTS razorpay_signature text;
-
--- 2. RLS Policies for Addresses
+-- 1. RLS Policies for Addresses
 CREATE POLICY "Users can view own addresses"
   ON public.addresses FOR SELECT
   USING (auth.uid() = user_id);
@@ -23,7 +17,7 @@ CREATE POLICY "Users can delete own addresses"
   ON public.addresses FOR DELETE
   USING (auth.uid() = user_id);
 
--- 3. RLS Policies for Wishlists
+-- 2. RLS Policies for Wishlists
 CREATE POLICY "Public wishlists are viewable for sharing"
   ON public.wishlists FOR SELECT
   USING (true);
@@ -36,7 +30,7 @@ CREATE POLICY "Users can delete from own wishlist"
   ON public.wishlists FOR DELETE
   USING (auth.uid() = user_id);
 
--- 4. RLS Policies for Carts
+-- 3. RLS Policies for Carts
 CREATE POLICY "Users can view own cart"
   ON public.carts FOR SELECT
   USING (auth.uid() = user_id);
@@ -53,7 +47,7 @@ CREATE POLICY "Users can delete own cart"
   ON public.carts FOR DELETE
   USING (auth.uid() = user_id);
 
--- 5. RLS Policies for Cart Items
+-- 4. RLS Policies for Cart Items
 CREATE POLICY "Users can view items in own cart"
   ON public.cart_items FOR SELECT
   USING (
@@ -90,7 +84,7 @@ CREATE POLICY "Users can delete items from own cart"
     )
   );
 
--- 6. RLS Policies for Orders
+-- 5. RLS Policies for Orders
 CREATE POLICY "Users can view own orders"
   ON public.orders FOR SELECT
   USING (
@@ -113,7 +107,7 @@ CREATE POLICY "Users can update own orders"
     )
   );
 
--- 7. RLS Policies for Order Items
+-- 6. RLS Policies for Order Items
 CREATE POLICY "Users can view own order items"
   ON public.order_items FOR SELECT
   USING (

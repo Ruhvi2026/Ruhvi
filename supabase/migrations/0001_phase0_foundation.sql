@@ -3,7 +3,7 @@ CREATE TYPE user_role AS ENUM ('customer', 'staff', 'manager', 'admin');
 CREATE TYPE product_status AS ENUM ('active', 'hidden', 'out_of_stock');
 CREATE TYPE image_type AS ENUM ('model', 'still', 'zoom', '360');
 CREATE TYPE order_status AS ENUM ('pending', 'confirmed', 'shipped', 'delivered', 'cancelled', 'returned');
-CREATE TYPE payment_method AS ENUM ('razorpay', 'cod');
+CREATE TYPE payment_method AS ENUM ('phonepe', 'cod');
 CREATE TYPE payment_status AS ENUM ('pending', 'paid', 'failed', 'refunded');
 CREATE TYPE coin_ledger_type AS ENUM ('earned', 'redeemed', 'expired', 'cashback');
 CREATE TYPE wallet_ledger_type AS ENUM ('credit', 'debit', 'cashback');
@@ -120,7 +120,7 @@ CREATE TABLE public.orders (
   coins_redeemed integer NOT NULL DEFAULT 0,
   gst_amount numeric(12,2) NOT NULL DEFAULT 0.00,
   total numeric(12,2) NOT NULL,
-  payment_method payment_method NOT NULL DEFAULT 'cod',
+  payment_method payment_method NOT NULL DEFAULT 'phonepe',
   payment_status payment_status NOT NULL DEFAULT 'pending',
   gift_wrap boolean NOT NULL DEFAULT false,
   gift_message text,

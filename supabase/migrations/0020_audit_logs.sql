@@ -1,3 +1,23 @@
+-- Shared admin/staff role check used by RLS policies in this and later
+-- migrations (0021/0022/0043/0045/0046). Must exist before policies reference it.
+CREATE OR REPLACE FUNCTION public.is_admin_or_staff()
+RETURNS boolean
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT EXISTS (
+    SELECT 1
+    FROM public.users
+    WHERE id = auth.uid()
+      AND role IN ('super_admin', 'admin', 'manager', 'staff')
+  );
+$$;
+
+REVOKE ALL ON FUNCTION public.is_admin_or_staff() FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.is_admin_or_staff() TO authenticated;
+
 -- Create the audit_logs table
 CREATE TABLE IF NOT EXISTS public.audit_logs (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,

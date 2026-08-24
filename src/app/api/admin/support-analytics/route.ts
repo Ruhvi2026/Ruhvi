@@ -44,7 +44,9 @@ export async function GET(req: NextRequest) {
       .eq('id', uid)
       .maybeSingle();
 
-    const isAdmin = user?.role === 'admin';
+    const isAdmin = ['super_admin', 'admin', 'manager', 'staff'].includes(
+      user?.role
+    );
     if (!isAdmin) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
@@ -110,9 +112,14 @@ export async function GET(req: NextRequest) {
           waiting_for_customer: allTickets.filter(
             (t: any) => t.status === 'waiting_for_customer'
           ).length,
+          waiting_for_team: allTickets.filter(
+            (t: any) => t.status === 'waiting_for_team'
+          ).length,
           resolved: allTickets.filter((t: any) => t.status === 'resolved')
             .length,
           closed: allTickets.filter((t: any) => t.status === 'closed').length,
+          reopened: allTickets.filter((t: any) => t.status === 'reopened')
+            .length,
         },
         by_priority: {
           low: allTickets.filter((t: any) => t.priority === 'low').length,

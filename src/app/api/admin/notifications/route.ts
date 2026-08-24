@@ -3,6 +3,11 @@ import { cookies } from 'next/headers';
 import { getServerUser } from '@/lib/auth/server';
 import { getSupabaseAdminClient } from '@/lib/support/serverAuth';
 
+// In-memory rate limiter (per admin + IP) to prevent broadcast abuse
+const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
+const RATE_LIMIT = 5; // max broadcast requests per window
+const WINDOW_MS = 60 * 60 * 1000; // 1 hour
+
 export async function POST(request: Request) {
   try {
     const cookieStore = await cookies();
@@ -10,7 +15,8 @@ export async function POST(request: Request) {
 
     // Verify user is logged in
     const { user } = await getServerUser();
-    if (!user) {
+    const userId = user?.id;
+    if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -18,7 +24,7 @@ export async function POST(request: Request) {
     const { data: profile } = await supabase
       .from('users')
       .select('role')
-      .eq('id', user.id)
+      .eq('id', userId)
       .single();
 
     if (
@@ -26,6 +32,21 @@ export async function POST(request: Request) {
       !['super_admin', 'admin', 'manager', 'staff'].includes(profile.role)
     ) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
+    // Rate limit by admin id (client-supplied IP headers are spoofable)
+    const rateKey = userId;
+    const now = Date.now();
+    const entry = rateLimitMap.get(rateKey);
+    if (!entry || entry.resetTime < now) {
+      rateLimitMap.set(rateKey, { count: 1, resetTime: now + WINDOW_MS });
+    } else if (entry.count >= RATE_LIMIT) {
+      return NextResponse.json(
+        { error: 'Rate limit exceeded. Please try again later.' },
+        { status: 429 }
+      );
+    } else {
+      entry.count++;
     }
 
     const body = await request.json();
@@ -89,7 +110,7 @@ export async function POST(request: Request) {
       target_url: url || null,
       image_url: imageUrl || null,
       audience: audience || 'Subscribed Users',
-      sent_by: user.id,
+      sent_by: userId,
       onesignal_id: result.id,
     });
 

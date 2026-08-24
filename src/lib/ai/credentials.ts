@@ -17,6 +17,7 @@
 
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
+import { encryptApiKey, decryptApiKey } from './credential-encryption';
 
 export interface ProviderCredential {
   id: string;
@@ -164,10 +165,9 @@ export async function getCredentialKey(
 
   if (error || !data) return '';
 
-  // In the current implementation, encrypted_key stores the raw key server-side
-  // (protected by Supabase RLS + service role). A pgcrypto encryption layer
-  // can be added transparently here in the future.
-  return data.encrypted_key || '';
+  // Keys are stored AES-256-GCM encrypted at rest (see credential-encryption).
+  // Legacy plaintext rows are still returned as-is to avoid breaking existing data.
+  return decryptApiKey(data.encrypted_key || '');
 }
 
 /**
@@ -438,7 +438,7 @@ export async function createCredential(
     .insert({
       provider_id: input.provider_id,
       display_name: input.display_name,
-      encrypted_key: input.apiKey, // Server-side storage, never returned to frontend
+      encrypted_key: encryptApiKey(input.apiKey), // AES-256-GCM encrypted at rest, never returned to frontend
       priority,
       is_enabled: input.is_enabled !== false,
       health_status: 'unknown',

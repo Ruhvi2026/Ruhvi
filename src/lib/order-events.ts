@@ -76,16 +76,17 @@ export async function logOrderEvent(
   params: LogOrderEventParams
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const supabase = await createClient();
-
     // Verify the caller is authenticated (server-side)
     const { user } = await getServerUser();
     if (!user) {
       return { success: false, error: 'Unauthorized: No authenticated user' };
     }
 
+    // Use service role to bypass RLS (Firebase custom-JWT has no Supabase session)
+    const serviceSupabase = getServiceClient();
+
     // Verify user has admin/staff role
-    const { data: profile } = await supabase
+    const { data: profile } = await serviceSupabase
       .from('users')
       .select('role')
       .eq('id', user.id)
@@ -97,9 +98,6 @@ export async function logOrderEvent(
     ) {
       return { success: false, error: 'Forbidden: Insufficient permissions' };
     }
-
-    // Use service role to bypass RLS for inserts (since policy checks is_admin_or_staff)
-    const serviceSupabase = getServiceClient();
 
     const { error } = await serviceSupabase.from('order_events').insert({
       order_id: params.orderId,
