@@ -1,6 +1,6 @@
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
-import { decodeJwt } from 'jose';
+import { verifySessionToken } from '@/lib/auth/verify-session';
 
 export interface SupportStaffUser {
   id: string;
@@ -33,8 +33,8 @@ export async function getCurrentSupportUser(): Promise<SupportStaffUser | null> 
   if (!sessionCookie) return null;
 
   try {
-    const decoded = decodeJwt(sessionCookie);
-    const uid = decoded.sub;
+    const decoded = await verifySessionToken(sessionCookie);
+    const uid = decoded?.sub;
     if (!uid) return null;
 
     const supabase = await getSupabaseAdminClient(cookieStore);

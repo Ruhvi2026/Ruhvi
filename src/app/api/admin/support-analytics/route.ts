@@ -1,7 +1,7 @@
 import { NextResponse, NextRequest } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
-import { decodeJwt } from 'jose';
+import { verifySessionToken } from '@/lib/auth/verify-session';
 
 /**
  * Admin Support Analytics API
@@ -17,7 +17,10 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const decoded = decodeJwt(sessionCookie);
+    const decoded = await verifySessionToken(sessionCookie);
+    if (!decoded) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     const uid = decoded.sub;
 
     const supabase = createServerClient(

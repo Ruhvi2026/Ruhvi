@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import { decodeJwt } from 'jose';
+import { verifySessionToken } from '@/lib/auth/verify-session';
 
 import { resolveEffectiveApiKey } from '@/lib/ai/keys';
 import { createServerClient } from '@supabase/ssr';
@@ -22,7 +22,7 @@ export async function POST(req: Request) {
     }
 
     try {
-      const decoded = decodeJwt(sessionCookie);
+      const decoded = await verifySessionToken(sessionCookie);
       if (!decoded || !(decoded.firebase_uid || decoded.sub)) {
         return NextResponse.json(
           { error: 'Invalid session token.' },

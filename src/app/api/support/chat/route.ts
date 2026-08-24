@@ -1,7 +1,7 @@
 import { NextResponse, NextRequest } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
-import { decodeJwt } from 'jose';
+import { verifySessionToken } from '@/lib/auth/verify-session';
 import { generateAIContent } from '@/lib/ai';
 
 /**
@@ -21,8 +21,8 @@ async function getAuthenticatedUser(cookieStore: any) {
   if (!sessionCookie) return null;
 
   try {
-    const decoded = decodeJwt(sessionCookie);
-    const uid = decoded.firebase_uid || decoded.sub;
+    const decoded = await verifySessionToken(sessionCookie);
+    const uid = decoded?.firebase_uid || decoded?.sub;
     if (!uid) return null;
 
     const supabase = createServerClient(

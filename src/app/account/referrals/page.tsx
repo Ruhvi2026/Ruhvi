@@ -2,27 +2,17 @@ import React from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Users, Gift } from 'lucide-react';
 import ReferralLink from './ReferralLink';
-import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { getServerUser } from '@/lib/auth/server';
+import { getSupabaseAdminClient } from '@/lib/support/serverAuth';
 
 export default async function ReferralsPage() {
   const cookieStore = await cookies();
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL ||
-      'https://igrkrkxdantrolbldapj.supabase.co',
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlncmtya3hkYW50cm9sYmxkYXBqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU0MzQ0NDIsImV4cCI6MjEwMTAxMDQ0Mn0.Ks0ZUolRtSKa57knTkV0GP5wDKS3kWKLcAzAKxSD2ko',
-    {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll();
-        },
-        setAll() {},
-      },
-    }
-  );
+  // Service-role client: the app's `__session` cookie is not a Supabase auth
+  // cookie, so anon-key reads would be blocked by RLS. Access is already
+  // gated by getServerUser() below.
+  const supabase = await getSupabaseAdminClient(cookieStore);
 
   const { user } = await getServerUser();
   if (!user) {
@@ -83,8 +73,9 @@ export default async function ReferralsPage() {
               Refer a Friend, Get 500 Coins
             </h1>
             <p className="text-sm text-gold-100">
-              Invite friends to Ruhvi. When they make their first purchase, you
-              get 500 Reward Coins (worth ₹50) after their return window closes.
+              Invite friends to Ruhvi. When their order is delivered, you get
+              500 Reward Coins (worth ₹50). Coins are recovered if the order is
+              returned or cancelled.
             </p>
           </div>
 
@@ -142,7 +133,7 @@ export default async function ReferralsPage() {
                           Pending
                         </p>
                         <p className="mt-0.5 text-[10px] text-stone-500">
-                          Awaiting return window
+                          Awaiting order delivery
                         </p>
                       </>
                     )}
@@ -186,7 +177,7 @@ export default async function ReferralsPage() {
                 3
               </div>
               <p>
-                When they place their first order (minimum ₹100), it enters the{' '}
+                When they place their first order, it enters the{' '}
                 <strong className="font-semibold text-stone-800">
                   Pending
                 </strong>{' '}
@@ -198,8 +189,11 @@ export default async function ReferralsPage() {
                 4
               </div>
               <p>
-                Once their 7-day return window closes without a return, you get
-                500 coins!
+                Once their order is delivered, you get{' '}
+                <strong className="font-semibold text-stone-800">
+                  500 coins
+                </strong>
+                ! Coins are recovered if the order is returned or cancelled.
               </p>
             </div>
           </div>

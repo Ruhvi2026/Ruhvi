@@ -11,7 +11,7 @@
 
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import { decodeJwt } from 'jose';
+import { verifySessionToken } from '@/lib/auth/verify-session';
 import { createServerClient } from '@supabase/ssr';
 import {
   getAllCredentials,
@@ -28,7 +28,7 @@ async function verifyAdmin() {
   const sessionCookie = cookieStore.get('__session')?.value;
   if (!sessionCookie) return { ok: false, uid: '' };
   try {
-    const decoded = decodeJwt(sessionCookie);
+    const decoded = await verifySessionToken(sessionCookie);
     if (!decoded?.sub) return { ok: false, uid: '' };
     return { ok: true, uid: decoded.sub as string };
   } catch {

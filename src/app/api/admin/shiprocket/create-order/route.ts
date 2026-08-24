@@ -1,13 +1,15 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { cookies } from 'next/headers';
 import { getServerUser } from '@/lib/auth/server';
+import { getSupabaseAdminClient } from '@/lib/support/serverAuth';
 import { createCustomOrder, generateAWB } from '@/lib/shiprocket';
 import { sendOrderShippedEmail } from '@/lib/resend';
 import { logOrderEvent } from '@/lib/order-events';
 
 export async function POST(request: Request) {
   try {
-    const supabase = await createClient();
+    const cookieStore = await cookies();
+    const supabase = await getSupabaseAdminClient(cookieStore);
 
     // 1. Verify user is logged in
     const { user } = await getServerUser();
@@ -17,7 +19,7 @@ export async function POST(request: Request) {
 
     // 2. Verify user is admin, manager, or staff
     const { data: profile } = await supabase
-      .from('profiles')
+      .from('users')
       .select('role')
       .eq('id', user.id)
       .single();

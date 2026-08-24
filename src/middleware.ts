@@ -1,5 +1,6 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
+import { verifySessionToken } from '@/lib/auth/verify-session';
 
 export async function middleware(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
@@ -209,9 +210,20 @@ export async function middleware(request: NextRequest) {
         return redirectResponse;
       }
 
-      // Decode the Firebase session cookie to get the user's UID and Email
-      const { decodeJwt } = await import('jose');
-      const decodedToken = decodeJwt(sessionCookie);
+      // Verify the signed session cookie to get the user's UID and Email
+      const decodedToken = await verifySessionToken(sessionCookie);
+      if (!decodedToken) {
+        const loginUrl = new URL('/login', request.url);
+        loginUrl.searchParams.set('redirectTo', path);
+        const redirectResponse = NextResponse.redirect(loginUrl);
+        if (isAnyPortalHost) {
+          redirectResponse.headers.set('X-Robots-Tag', 'noindex, nofollow');
+        }
+        supabaseResponse.cookies.getAll().forEach((c) => {
+          redirectResponse.cookies.set(c.name, c.value, c);
+        });
+        return redirectResponse;
+      }
       const uid = decodedToken.sub;
       const email = decodedToken.email as string | undefined;
 

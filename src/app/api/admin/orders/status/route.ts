@@ -1,11 +1,13 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
-import { sendShippingUpdateEmail } from '@/lib/resend';
+import { cookies } from 'next/headers';
 import { getServerUser } from '@/lib/auth/server';
+import { getSupabaseAdminClient } from '@/lib/support/serverAuth';
+import { sendShippingUpdateEmail } from '@/lib/resend';
 
 export async function POST(request: Request) {
   try {
-    const supabase = await createClient();
+    const cookieStore = await cookies();
+    const supabase = await getSupabaseAdminClient(cookieStore);
 
     // Verify user is logged in
     const { user } = await getServerUser();
@@ -13,14 +15,17 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Verify user is an admin or staff
+    // Verify user is an admin, manager, or staff
     const { data: profile } = await supabase
-      .from('profiles')
+      .from('users')
       .select('role')
       .eq('id', user.id)
       .single();
 
-    if (!profile || (profile.role !== 'admin' && profile.role !== 'staff')) {
+    if (
+      !profile ||
+      !['super_admin', 'admin', 'manager', 'staff'].includes(profile.role)
+    ) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 

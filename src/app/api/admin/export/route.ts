@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
-import { decodeJwt } from 'jose';
 
 function convertToCSV(data: any[]): string {
   if (!data || data.length === 0) return '';

@@ -451,9 +451,9 @@ export default function SettingsPage() {
       const supabase = createClient();
       const { error } = await supabase.rpc('delete_user_account');
       if (error) {
-        // Fallback: delete profiles row
+        // Fallback: delete users row
         const { error: profileErr } = await supabase
-          .from('profiles')
+          .from('users')
           .delete()
           .eq('id', user?.id);
         if (profileErr) throw profileErr;

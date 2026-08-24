@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import { decodeJwt } from 'jose';
+import { verifySessionToken } from '@/lib/auth/verify-session';
 import {
   getActiveDiagnostics,
   purgeExpiredNow,
@@ -13,7 +13,7 @@ async function verifyAdmin() {
   const sessionCookie = cookieStore.get('__session')?.value;
   if (!sessionCookie) return false;
   try {
-    const decoded = decodeJwt(sessionCookie);
+    const decoded = await verifySessionToken(sessionCookie);
     if (!decoded || !(decoded.firebase_uid || decoded.sub)) return false;
     return true;
   } catch (e) {

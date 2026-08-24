@@ -1,25 +1,30 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { cookies } from 'next/headers';
 import { getServerUser } from '@/lib/auth/server';
+import { getSupabaseAdminClient } from '@/lib/support/serverAuth';
 
 export async function POST(request: Request) {
   try {
-    const supabase = await createClient();
-    
+    const cookieStore = await cookies();
+    const supabase = await getSupabaseAdminClient(cookieStore);
+
     // Verify user is logged in
     const { user } = await getServerUser();
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Verify user is an admin or staff
+    // Verify user is an admin, manager, or staff
     const { data: profile } = await supabase
-      .from('profiles')
+      .from('users')
       .select('role')
       .eq('id', user.id)
       .single();
 
-    if (!profile || (profile.role !== 'admin' && profile.role !== 'staff')) {
+    if (
+      !profile ||
+      !['super_admin', 'admin', 'manager', 'staff'].includes(profile.role)
+    ) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
@@ -27,7 +32,10 @@ export async function POST(request: Request) {
     const { title, message, url, imageUrl, audience } = body;
 
     if (!title || !message) {
-      return NextResponse.json({ error: 'Title and message are required' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Title and message are required' },
+        { status: 400 }
+      );
     }
 
     const appId = process.env.NEXT_PUBLIC_ONESIGNAL_APP_ID;
@@ -59,7 +67,7 @@ export async function POST(request: Request) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Basic ${restApiKey}`,
+        Authorization: `Basic ${restApiKey}`,
       },
       body: JSON.stringify(payload),
     });
@@ -68,21 +76,22 @@ export async function POST(request: Request) {
 
     if (!response.ok) {
       console.error('OneSignal API Error:', result);
-      return NextResponse.json({ error: 'Failed to send notification via OneSignal' }, { status: 500 });
+      return NextResponse.json(
+        { error: 'Failed to send notification via OneSignal' },
+        { status: 500 }
+      );
     }
 
     // Insert into history
-    const { error: dbError } = await supabase
-      .from('push_campaigns')
-      .insert({
-        title,
-        message,
-        target_url: url || null,
-        image_url: imageUrl || null,
-        audience: audience || 'Subscribed Users',
-        sent_by: user.id,
-        onesignal_id: result.id,
-      });
+    const { error: dbError } = await supabase.from('push_campaigns').insert({
+      title,
+      message,
+      target_url: url || null,
+      image_url: imageUrl || null,
+      audience: audience || 'Subscribed Users',
+      sent_by: user.id,
+      onesignal_id: result.id,
+    });
 
     if (dbError) {
       console.error('Failed to log campaign to database:', dbError);
@@ -92,6 +101,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: true, id: result.id });
   } catch (error: any) {
     console.error('Error sending push notification:', error);
-    return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
+    return NextResponse.json(
+      { error: error.message || 'Internal Server Error' },
+      { status: 500 }
+    );
   }
 }

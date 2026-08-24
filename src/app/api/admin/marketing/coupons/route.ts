@@ -1,31 +1,18 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { cookies } from 'next/headers';
 import { getServerUser } from '@/lib/auth/server';
-
-function hasPermission(profile: any, reqPerm: string) {
-  if (!profile) return false;
-  const role = profile.role?.toUpperCase();
-  if (role === 'SUPER_ADMIN') return true;
-  const perms = profile.permissions || [];
-  if (perms.includes('*') || perms.includes(reqPerm)) return true;
-  const [module] = reqPerm.split('.');
-  if (perms.includes(`${module}.*`)) return true;
-  return false;
-}
+import { getSupabaseAdminClient } from '@/lib/support/serverAuth';
+import { hasPermission } from '@/lib/auth/rbac';
 
 export async function GET(request: Request) {
   try {
-    const supabase = await createClient();
+    const cookieStore = await cookies();
+    const supabase = await getSupabaseAdminClient(cookieStore);
     const { user } = await getServerUser();
-    if (!user)
+    if (!user?.id)
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', user.id)
-      .single();
-    if (!hasPermission(profile, 'coupons.view')) {
+    if (!(await hasPermission(user.id, 'coupons.view', supabase))) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
@@ -47,17 +34,13 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const supabase = await createClient();
+    const cookieStore = await cookies();
+    const supabase = await getSupabaseAdminClient(cookieStore);
     const { user } = await getServerUser();
-    if (!user)
+    if (!user?.id)
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', user.id)
-      .single();
-    if (!hasPermission(profile, 'coupons.create')) {
+    if (!(await hasPermission(user.id, 'coupons.create', supabase))) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 

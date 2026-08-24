@@ -25,7 +25,7 @@
 
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
-import { decodeJwt } from 'jose';
+import { verifySessionToken } from '@/lib/auth/verify-session';
 
 // ── Sub-modules ────────────────────────────────────────────────────────────
 import { resolveEffectiveApiKey } from './keys';
@@ -352,8 +352,8 @@ export async function generateAIContent(
   try {
     const sessionCookie = cookieStore.get('__session')?.value;
     if (sessionCookie) {
-      const decodedToken = decodeJwt(sessionCookie);
-      userId = decodedToken.sub || 'anonymous';
+      const decodedToken = await verifySessionToken(sessionCookie);
+      userId = decodedToken?.sub || 'anonymous';
       if (userId !== 'anonymous') {
         const { data: profile } = await supabaseAdmin
           .from('users')

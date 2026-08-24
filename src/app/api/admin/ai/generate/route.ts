@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { generateAIContent } from '@/lib/ai';
 import { generateProductContentPrompt } from '@/lib/ai/prompts';
 import { cookies } from 'next/headers';
-import { decodeJwt } from 'jose';
+import { verifySessionToken } from '@/lib/auth/verify-session';
 
 // Simple in-memory rate limiter for Admin API
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
@@ -24,7 +24,7 @@ export async function POST(req: Request) {
 
     let uid = 'unknown';
     try {
-      const decoded = decodeJwt(sessionCookie);
+      const decoded = await verifySessionToken(sessionCookie);
       if (!decoded || !(decoded.firebase_uid || decoded.sub)) {
         return NextResponse.json(
           { error: 'Invalid session token.' },
