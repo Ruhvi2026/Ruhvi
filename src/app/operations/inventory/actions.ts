@@ -1,30 +1,11 @@
 'use server';
 
-import { createClient } from '@/lib/supabase/server';
-import { hasPermission } from '@/lib/auth/rbac';
+import { requireAdminClient } from '@/lib/auth/require-admin-client';
 import { revalidatePath } from 'next/cache';
-
-async function checkAuth(permission: string) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    throw new Error('Unauthorized');
-  }
-
-  const isAllowed = await hasPermission(user.id, permission, supabase);
-  if (!isAllowed) {
-    throw new Error('Forbidden: Insufficient permissions');
-  }
-
-  return { supabase, user };
-}
 
 export async function adjustStock(formData: FormData) {
   try {
-    const { supabase, user } = await checkAuth('inventory.adjust');
+    const { supabase, userId } = await requireAdminClient();
 
     const productId = formData.get('product_id') as string;
     const adjustmentStr = formData.get('adjustment') as string;
@@ -45,7 +26,7 @@ export async function adjustStock(formData: FormData) {
       'adjust_product_stock',
       {
         p_product_id: productId,
-        p_user_id: user.id,
+        p_user_id: userId,
         p_adjustment: adjustment,
         p_reason: reason,
         p_notes: notes || null,

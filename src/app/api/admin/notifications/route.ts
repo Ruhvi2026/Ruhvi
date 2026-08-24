@@ -72,7 +72,7 @@ export async function POST(request: Request) {
     // Prepare OneSignal Payload
     const payload: any = {
       app_id: appId,
-      included_segments: [audience || 'Subscribed Users'],
+      included_segments: [audience || 'All Users'],
       headings: { en: title },
       contents: { en: message },
     };
@@ -109,7 +109,7 @@ export async function POST(request: Request) {
       message,
       target_url: url || null,
       image_url: imageUrl || null,
-      audience: audience || 'Subscribed Users',
+      audience: audience || 'All Users',
       sent_by: userId,
       onesignal_id: result.id,
     });

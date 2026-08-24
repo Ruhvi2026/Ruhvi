@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import Link from 'next/link';
 import {
   Users,
   Search,
@@ -338,155 +337,161 @@ export default function AdminUsersPage() {
         </div>
       </div>
 
-        {/* Users Table */}
-        {loading ? (
-          <div className="py-16 text-center text-sm text-slate-500">
-            Loading user directory from Supabase...
-          </div>
-        ) : filteredUsers.length === 0 ? (
-          <div className="rounded-2xl border border-white/5 bg-[#131726] py-16 text-center">
-            <Users className="mx-auto mb-3 h-12 w-12 text-slate-700" />
-            <p className="font-medium text-slate-400">No users found.</p>
-            <p className="mt-1 text-xs text-slate-600">
-              Try adjusting your search query or role filter.
-            </p>
-          </div>
-        ) : (
-          <div className="overflow-x-auto rounded-2xl border border-white/5 bg-[#131726]">
-            <table className="w-full min-w-[700px] border-collapse text-left">
-              <thead>
-                <tr className="border-b border-white/5 text-xs font-semibold uppercase tracking-wider text-slate-500">
-                  <th className="p-4 pl-6">User</th>
-                  <th className="p-4">Contact</th>
-                  <th className="p-4">Role</th>
-                  <th className="p-4 text-right">Wallet Balance</th>
-                  <th className="p-4 text-right">Reward Coins</th>
-                  <th className="p-4 pr-6 text-right">Actions</th>
+      {/* Users Table */}
+      {loading ? (
+        <div className="py-16 text-center text-sm text-slate-500">
+          Loading user directory from Supabase...
+        </div>
+      ) : filteredUsers.length === 0 ? (
+        <div className="rounded-2xl border border-white/5 bg-[#131726] py-16 text-center">
+          <Users className="mx-auto mb-3 h-12 w-12 text-slate-700" />
+          <p className="font-medium text-slate-400">No users found.</p>
+          <p className="mt-1 text-xs text-slate-600">
+            Try adjusting your search query or role filter.
+          </p>
+        </div>
+      ) : (
+        <div className="overflow-x-auto rounded-2xl border border-white/5 bg-[#131726]">
+          <table className="w-full min-w-[700px] border-collapse text-left">
+            <thead>
+              <tr className="border-b border-white/5 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                <th className="p-4 pl-6">User</th>
+                <th className="p-4">Contact</th>
+                <th className="p-4">Role</th>
+                <th className="p-4 text-right">Wallet Balance</th>
+                <th className="p-4 text-right">Reward Coins</th>
+                <th className="p-4 pr-6 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-white/5 text-xs text-slate-400">
+              {filteredUsers.map((user) => (
+                <tr
+                  key={user.id}
+                  className="transition-colors hover:bg-white/5"
+                >
+                  <td className="p-4 pl-6">
+                    <div className="font-semibold text-slate-200">
+                      {user.full_name || 'Anonymous User'}
+                    </div>
+                    <div className="font-mono text-[10px] text-slate-600">
+                      {user.email}
+                    </div>
+                  </td>
+                  <td className="p-4 font-mono text-slate-500">
+                    {user.phone || 'N/A'}
+                  </td>
+                  <td className="p-4">{getRoleBadge(user.role)}</td>
+                  <td className="p-4 text-right font-bold text-white">
+                    ₹{Number(user.wallet_balance || 0).toLocaleString('en-IN')}
+                  </td>
+                  <td className="p-4 text-right font-bold text-amber-400">
+                    🪙 {Number(user.reward_coins || 0).toLocaleString('en-IN')}
+                  </td>
+                  <td className="space-x-2 whitespace-nowrap p-4 pr-6 text-right">
+                    <button
+                      onClick={() => handleSendResetLink(user.email)}
+                      className="inline-flex items-center gap-1 rounded-lg border border-sky-500/20 bg-sky-500/10 px-2.5 py-1 font-semibold text-sky-400 transition-colors hover:bg-sky-500/20"
+                      title="Send Password Reset Link"
+                    >
+                      <Mail className="h-3 w-3 text-sky-500" /> Link
+                    </button>
+                    <button
+                      onClick={() => {
+                        setPasswordUser(user);
+                        setNewPassword('');
+                      }}
+                      className="inline-flex items-center gap-1 rounded-lg border border-indigo-500/20 bg-indigo-500/10 px-2.5 py-1 font-semibold text-indigo-400 transition-colors hover:bg-indigo-500/20"
+                      title="Set Password Directly"
+                    >
+                      <Key className="h-3 w-3 text-indigo-400" /> Pass
+                    </button>
+                    <button
+                      onClick={() => {
+                        setEditingUser(user);
+                        setSelectedRole(user.role);
+                      }}
+                      className="inline-flex items-center gap-1 rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 font-semibold text-slate-300 transition-colors hover:bg-white/10"
+                    >
+                      <Shield className="h-3 w-3 text-slate-500" /> Role
+                    </button>
+                    <button
+                      onClick={() => {
+                        setAdjustingUser(user);
+                        setWalletAmount(user.wallet_balance.toString());
+                        setCoinsAmount(user.reward_coins.toString());
+                      }}
+                      className="inline-flex items-center gap-1 rounded-lg border border-amber-500/20 bg-amber-500/10 px-2.5 py-1 font-semibold text-amber-400 transition-colors hover:bg-amber-500/20"
+                    >
+                      <Wallet className="h-3 w-3 text-amber-500" /> Funds
+                    </button>
+                  </td>
                 </tr>
-              </thead>
-              <tbody className="divide-y divide-white/5 text-xs text-slate-400">
-                {filteredUsers.map((user) => (
-                  <tr key={user.id} className="transition-colors hover:bg-white/5">
-                    <td className="p-4 pl-6">
-                      <div className="font-semibold text-slate-200">
-                        {user.full_name || 'Anonymous User'}
-                      </div>
-                      <div className="font-mono text-[10px] text-slate-600">
-                        {user.email}
-                      </div>
-                    </td>
-                    <td className="p-4 font-mono text-slate-500">
-                      {user.phone || 'N/A'}
-                    </td>
-                    <td className="p-4">{getRoleBadge(user.role)}</td>
-                    <td className="p-4 text-right font-bold text-white">
-                      ₹
-                      {Number(user.wallet_balance || 0).toLocaleString('en-IN')}
-                    </td>
-                    <td className="p-4 text-right font-bold text-amber-400">
-                      🪙{' '}
-                      {Number(user.reward_coins || 0).toLocaleString('en-IN')}
-                    </td>
-                    <td className="space-x-2 whitespace-nowrap p-4 pr-6 text-right">
-                      <button
-                        onClick={() => handleSendResetLink(user.email)}
-                        className="inline-flex items-center gap-1 rounded-lg border border-sky-500/20 bg-sky-500/10 px-2.5 py-1 font-semibold text-sky-400 transition-colors hover:bg-sky-500/20"
-                        title="Send Password Reset Link"
-                      >
-                        <Mail className="h-3 w-3 text-sky-500" /> Link
-                      </button>
-                      <button
-                        onClick={() => {
-                          setPasswordUser(user);
-                          setNewPassword('');
-                        }}
-                        className="inline-flex items-center gap-1 rounded-lg border border-indigo-500/20 bg-indigo-500/10 px-2.5 py-1 font-semibold text-indigo-400 transition-colors hover:bg-indigo-500/20"
-                        title="Set Password Directly"
-                      >
-                        <Key className="h-3 w-3 text-indigo-400" /> Pass
-                      </button>
-                      <button
-                        onClick={() => {
-                          setEditingUser(user);
-                          setSelectedRole(user.role);
-                        }}
-                        className="inline-flex items-center gap-1 rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 font-semibold text-slate-300 transition-colors hover:bg-white/10"
-                      >
-                        <Shield className="h-3 w-3 text-slate-500" /> Role
-                      </button>
-                      <button
-                        onClick={() => {
-                          setAdjustingUser(user);
-                          setWalletAmount(user.wallet_balance.toString());
-                          setCoinsAmount(user.reward_coins.toString());
-                        }}
-                        className="inline-flex items-center gap-1 rounded-lg border border-amber-500/20 bg-amber-500/10 px-2.5 py-1 font-semibold text-amber-400 transition-colors hover:bg-amber-500/20"
-                      >
-                        <Wallet className="h-3 w-3 text-amber-500" /> Funds
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       {/* Role Edit Modal */}
       {editingUser && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-md space-y-6 rounded-2xl bg-white p-6 shadow-2xl">
-            <div className="flex items-center justify-between border-b border-stone-100 pb-3">
-              <h3 className="font-serif text-lg font-bold text-stone-900">
-                Update User Role
-              </h3>
+          <div className="w-full max-w-md space-y-6 rounded-2xl bg-[#1e2235] p-6 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-white/5 pb-3">
+              <h3 className="text-lg font-bold text-white">Update User Role</h3>
               <button
                 onClick={() => setEditingUser(null)}
-                className="text-stone-400 hover:text-stone-700"
+                className="text-slate-500 hover:text-slate-300"
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
 
-            <div className="space-y-1 text-xs text-stone-600">
+            <div className="space-y-1 text-xs text-slate-400">
               <p>
-                <strong className="text-stone-900">User:</strong>{' '}
+                <strong className="text-slate-200">User:</strong>{' '}
                 {editingUser.full_name || 'Anonymous'}
               </p>
               <p>
-                <strong className="text-stone-900">Email:</strong>{' '}
+                <strong className="text-slate-200">Email:</strong>{' '}
                 {editingUser.email}
               </p>
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs font-bold uppercase tracking-wider text-stone-700">
+              <label className="text-xs font-bold uppercase tracking-wider text-slate-500">
                 Select New Role
               </label>
               <select
                 value={selectedRole}
                 onChange={(e) => setSelectedRole(e.target.value as any)}
-                className="w-full rounded-xl border border-stone-300 px-3 py-2 text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-amber-800"
+                className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-white focus:outline-none focus:ring-1 focus:ring-emerald-500"
               >
-                <option value="customer">Customer (Standard User)</option>
-                <option value="staff">Staff (Catalog & Fulfillment)</option>
-                <option value="manager">Manager (Full Operations)</option>
-                <option value="admin">Administrator (Full Control)</option>
+                <option value="customer" className="bg-[#1e2235] text-white">
+                  Customer (Standard User)
+                </option>
+                <option value="staff" className="bg-[#1e2235] text-white">
+                  Staff (Catalog & Fulfillment)
+                </option>
+                <option value="manager" className="bg-[#1e2235] text-white">
+                  Manager (Full Operations)
+                </option>
+                <option value="admin" className="bg-[#1e2235] text-white">
+                  Administrator (Full Control)
+                </option>
               </select>
             </div>
 
             <div className="flex justify-end space-x-3 pt-2">
               <button
                 onClick={() => setEditingUser(null)}
-                className="rounded-xl border border-stone-300 px-4 py-2 text-xs font-semibold text-stone-700 hover:bg-stone-50"
+                className="rounded-xl border border-white/10 px-4 py-2 text-xs font-semibold text-slate-300 hover:bg-white/5"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSaveRole}
                 disabled={isUpdatingRole}
-                className="rounded-xl bg-amber-950 px-4 py-2 text-xs font-bold text-white hover:bg-amber-900 disabled:opacity-50"
+                className="rounded-xl bg-emerald-600 px-4 py-2 text-xs font-bold text-white hover:bg-emerald-500 disabled:opacity-50"
               >
                 {isUpdatingRole ? 'Updating...' : 'Save Role'}
               </button>
@@ -498,33 +503,33 @@ export default function AdminUsersPage() {
       {/* Adjust Funds/Coins Modal */}
       {adjustingUser && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-md space-y-6 rounded-2xl bg-white p-6 shadow-2xl">
-            <div className="flex items-center justify-between border-b border-stone-100 pb-3">
-              <h3 className="font-serif text-lg font-bold text-stone-900">
+          <div className="w-full max-w-md space-y-6 rounded-2xl bg-[#1e2235] p-6 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-white/5 pb-3">
+              <h3 className="text-lg font-bold text-white">
                 Adjust Wallet & Reward Coins
               </h3>
               <button
                 onClick={() => setAdjustingUser(null)}
-                className="text-stone-400 hover:text-stone-700"
+                className="text-slate-500 hover:text-slate-300"
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
 
-            <div className="space-y-1 text-xs text-stone-600">
+            <div className="space-y-1 text-xs text-slate-400">
               <p>
-                <strong className="text-stone-900">User:</strong>{' '}
+                <strong className="text-slate-200">User:</strong>{' '}
                 {adjustingUser.full_name || 'Anonymous'}
               </p>
               <p>
-                <strong className="text-stone-900">Email:</strong>{' '}
+                <strong className="text-slate-200">Email:</strong>{' '}
                 {adjustingUser.email}
               </p>
             </div>
 
             <div className="space-y-4 text-xs">
               <div>
-                <label className="mb-1 block font-bold text-stone-700">
+                <label className="mb-1 block font-bold text-slate-500">
                   Wallet Balance (₹)
                 </label>
                 <input
@@ -532,19 +537,19 @@ export default function AdminUsersPage() {
                   step="0.01"
                   value={walletAmount}
                   onChange={(e) => setWalletAmount(e.target.value)}
-                  className="w-full rounded-xl border border-stone-300 px-3 py-2 focus:outline-none focus:ring-1 focus:ring-amber-800"
+                  className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-white focus:outline-none focus:ring-1 focus:ring-emerald-500"
                 />
               </div>
 
               <div>
-                <label className="mb-1 block font-bold text-stone-700">
+                <label className="mb-1 block font-bold text-slate-500">
                   Reward Coins (🪙)
                 </label>
                 <input
                   type="number"
                   value={coinsAmount}
                   onChange={(e) => setCoinsAmount(e.target.value)}
-                  className="w-full rounded-xl border border-stone-300 px-3 py-2 focus:outline-none focus:ring-1 focus:ring-amber-800"
+                  className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-white focus:outline-none focus:ring-1 focus:ring-emerald-500"
                 />
               </div>
             </div>
@@ -552,14 +557,14 @@ export default function AdminUsersPage() {
             <div className="flex justify-end space-x-3 pt-2">
               <button
                 onClick={() => setAdjustingUser(null)}
-                className="rounded-xl border border-stone-300 px-4 py-2 text-xs font-semibold text-stone-700 hover:bg-stone-50"
+                className="rounded-xl border border-white/10 px-4 py-2 text-xs font-semibold text-slate-300 hover:bg-white/5"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSaveBalance}
                 disabled={isUpdatingBalance}
-                className="rounded-xl bg-amber-950 px-4 py-2 text-xs font-bold text-white hover:bg-amber-900 disabled:opacity-50"
+                className="rounded-xl bg-emerald-600 px-4 py-2 text-xs font-bold text-white hover:bg-emerald-500 disabled:opacity-50"
               >
                 {isUpdatingBalance ? 'Saving...' : 'Update Balances'}
               </button>
@@ -571,36 +576,36 @@ export default function AdminUsersPage() {
       {/* Set Password Modal */}
       {passwordUser && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-md space-y-6 rounded-2xl bg-white p-6 shadow-2xl">
-            <div className="flex items-center justify-between border-b border-stone-100 pb-3">
-              <h3 className="font-serif text-lg font-bold text-stone-900">
+          <div className="w-full max-w-md space-y-6 rounded-2xl bg-[#1e2235] p-6 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-white/5 pb-3">
+              <h3 className="text-lg font-bold text-white">
                 Set User Password
               </h3>
               <button
                 onClick={() => setPasswordUser(null)}
-                className="text-stone-400 hover:text-stone-700"
+                className="text-slate-500 hover:text-slate-300"
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
 
-            <div className="space-y-1 text-xs text-stone-600">
+            <div className="space-y-1 text-xs text-slate-400">
               <p>
-                <strong className="text-stone-900">User:</strong>{' '}
+                <strong className="text-slate-200">User:</strong>{' '}
                 {passwordUser.full_name || 'Anonymous'}
               </p>
               <p>
-                <strong className="text-stone-900">Email:</strong>{' '}
+                <strong className="text-slate-200">Email:</strong>{' '}
                 {passwordUser.email}
               </p>
-              <p className="mt-2 italic text-rose-600">
+              <p className="mt-2 italic text-rose-400">
                 Warning: This will overwrite their existing password immediately
                 without requiring current password confirmation.
               </p>
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs font-bold uppercase tracking-wider text-stone-700">
+              <label className="text-xs font-bold uppercase tracking-wider text-slate-500">
                 New Password
               </label>
               <input
@@ -608,21 +613,21 @@ export default function AdminUsersPage() {
                 placeholder="Enter new password (min 6 chars)"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
-                className="w-full rounded-xl border border-stone-300 px-3 py-2 text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-indigo-800"
+                className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-white focus:outline-none focus:ring-1 focus:ring-indigo-500"
               />
             </div>
 
             <div className="flex justify-end space-x-3 pt-2">
               <button
                 onClick={() => setPasswordUser(null)}
-                className="rounded-xl border border-stone-300 px-4 py-2 text-xs font-semibold text-stone-700 hover:bg-stone-50"
+                className="rounded-xl border border-white/10 px-4 py-2 text-xs font-semibold text-slate-300 hover:bg-white/5"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSavePassword}
                 disabled={isUpdatingPassword || newPassword.length < 6}
-                className="rounded-xl bg-indigo-900 px-4 py-2 text-xs font-bold text-white hover:bg-indigo-800 disabled:opacity-50"
+                className="rounded-xl bg-indigo-600 px-4 py-2 text-xs font-bold text-white hover:bg-indigo-500 disabled:opacity-50"
               >
                 {isUpdatingPassword ? 'Saving...' : 'Set Password'}
               </button>

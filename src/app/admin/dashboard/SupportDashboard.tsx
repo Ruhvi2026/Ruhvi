@@ -26,7 +26,7 @@ export default async function SupportDashboard() {
   const resolutionRate =
     totalTickets > 0
       ? ((resolvedTickets / totalTickets) * 100).toFixed(1)
-      : '100.0';
+      : '0.0';
 
   // Calculate Avg Response Time
   let totalResponseMs = 0;

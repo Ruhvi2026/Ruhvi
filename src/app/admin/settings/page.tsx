@@ -135,8 +135,7 @@ function Toggle({
 function AdminSettingsPage() {
   const searchParams = useSearchParams();
   const tab = searchParams.get('tab');
-  const initialSection =
-    SECTIONS.find((s) => s.id === tab)?.id || 'store';
+  const initialSection = SECTIONS.find((s) => s.id === tab)?.id || 'store';
   const [activeSection, setActiveSection] = useState(initialSection);
   const [saved, setSaved] = useState(false);
 
@@ -1034,10 +1033,15 @@ function AdminSettingsPage() {
                     Admin Access Restricted
                   </p>
                   <p className="mt-1 text-[11px] text-slate-500">
-                    The admin panel is only accessible via{' '}
-                    <strong className="text-slate-300">admin.ruhvi.in</strong>.
-                    Customer-facing site at ruhvi.vercel.app does not expose any
-                    admin routes.
+                    Admin routes are protected by role-based access control in{' '}
+                    <code className="text-slate-300">middleware.ts</code>. Only
+                    signed-in accounts with an{' '}
+                    <strong className="text-slate-300">admin</strong>,{' '}
+                    <strong className="text-slate-300">manager</strong>, or{' '}
+                    <strong className="text-slate-300">staff</strong> role can
+                    access these pages; customers and inactive accounts are
+                    redirected to{' '}
+                    <code className="text-slate-300">/unauthorized</code>.
                   </p>
                 </div>
                 <div className="bg-white/3 space-y-3 rounded-xl border border-white/5 p-4">

@@ -1,6 +1,22 @@
 'use server';
 
 import { createClient } from '@/lib/supabase/server';
+import { requireAdmin } from '@/lib/auth/require-admin';
+
+// All mutating settings actions and admin-only getters must verify the
+// __session JWT + role. The customer-facing storefront reads
+// getStoreSettings()/getHomepageSettings(), which stay public.
+async function assertAdminAction() {
+  const auth = await requireAdmin();
+  if (!auth.ok) {
+    throw new Error(
+      auth.error === 'Unauthorized'
+        ? 'Unauthorized. Please sign in.'
+        : 'Forbidden. Admin privileges are required.'
+    );
+  }
+  return auth;
+}
 
 export interface StoreSettings {
   id: string;
@@ -25,6 +41,7 @@ export async function getStoreSettings(): Promise<StoreSettings | null> {
 }
 
 export async function updateStoreSettings(settings: Partial<StoreSettings>) {
+  await assertAdminAction();
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('store_settings')
@@ -48,6 +65,7 @@ export interface MarketingSettings {
 }
 
 export async function getMarketingSettings(): Promise<MarketingSettings> {
+  await assertAdminAction();
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('settings')
@@ -68,6 +86,7 @@ export async function getMarketingSettings(): Promise<MarketingSettings> {
 }
 
 export async function updateMarketingSettings(settings: MarketingSettings) {
+  await assertAdminAction();
   const supabase = await createClient();
   const { error } = await supabase.from('settings').upsert(
     {
@@ -117,6 +136,7 @@ export async function getHomepageSettings(): Promise<HomepageSettings> {
 }
 
 export async function updateHomepageSettings(settings: HomepageSettings) {
+  await assertAdminAction();
   const supabase = await createClient();
   const { error } = await supabase.from('settings').upsert(
     {
@@ -214,6 +234,7 @@ async function upsertJsonSettings(
 }
 
 export async function getStoreIdentitySettings(): Promise<StoreIdentitySettings> {
+  await assertAdminAction();
   const data = await getJsonSettings('store_identity');
   return (data as StoreIdentitySettings) ?? {};
 }
@@ -221,6 +242,7 @@ export async function getStoreIdentitySettings(): Promise<StoreIdentitySettings>
 export async function updateStoreIdentitySettings(
   settings: StoreIdentitySettings
 ) {
+  await assertAdminAction();
   return upsertJsonSettings(
     'store_identity',
     settings as Record<string, unknown>
@@ -228,38 +250,46 @@ export async function updateStoreIdentitySettings(
 }
 
 export async function getShippingSettings(): Promise<ShippingSettings> {
+  await assertAdminAction();
   const data = await getJsonSettings('shipping');
   return (data as ShippingSettings) ?? {};
 }
 
 export async function updateShippingSettings(settings: ShippingSettings) {
+  await assertAdminAction();
   return upsertJsonSettings('shipping', settings as Record<string, unknown>);
 }
 
 export async function getLoyaltySettings(): Promise<LoyaltySettings> {
+  await assertAdminAction();
   const data = await getJsonSettings('loyalty');
   return (data as LoyaltySettings) ?? {};
 }
 
 export async function updateLoyaltySettings(settings: LoyaltySettings) {
+  await assertAdminAction();
   return upsertJsonSettings('loyalty', settings as Record<string, unknown>);
 }
 
 export async function getReturnsSettings(): Promise<ReturnsSettings> {
+  await assertAdminAction();
   const data = await getJsonSettings('returns');
   return (data as ReturnsSettings) ?? {};
 }
 
 export async function updateReturnsSettings(settings: ReturnsSettings) {
+  await assertAdminAction();
   return upsertJsonSettings('returns', settings as Record<string, unknown>);
 }
 
 export async function getIntegrationSettings(): Promise<IntegrationSettings> {
+  await assertAdminAction();
   const data = await getJsonSettings('integrations');
   return (data as IntegrationSettings) ?? {};
 }
 
 export async function updateIntegrationSettings(settings: IntegrationSettings) {
+  await assertAdminAction();
   return upsertJsonSettings(
     'integrations',
     settings as Record<string, unknown>
@@ -267,15 +297,18 @@ export async function updateIntegrationSettings(settings: IntegrationSettings) {
 }
 
 export async function getPaymentSettings(): Promise<PaymentSettings> {
+  await assertAdminAction();
   const data = await getJsonSettings('payment');
   return (data as PaymentSettings) ?? {};
 }
 
 export async function updatePaymentSettings(settings: PaymentSettings) {
+  await assertAdminAction();
   return upsertJsonSettings('payment', settings as Record<string, unknown>);
 }
 
 export async function getNotificationSettings(): Promise<NotificationSettings> {
+  await assertAdminAction();
   const data = await getJsonSettings('notifications');
   return (data as NotificationSettings) ?? {};
 }
@@ -283,6 +316,7 @@ export async function getNotificationSettings(): Promise<NotificationSettings> {
 export async function updateNotificationSettings(
   settings: NotificationSettings
 ) {
+  await assertAdminAction();
   return upsertJsonSettings(
     'notifications',
     settings as Record<string, unknown>

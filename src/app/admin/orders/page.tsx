@@ -96,6 +96,13 @@ export default function AdminOrdersPage() {
   );
   const [updatingId, setUpdatingId] = useState<string | null>(null);
 
+  const PAGE_SIZE = 15;
+  const [page, setPage] = useState(1);
+
+  useEffect(() => {
+    setPage(1);
+  }, [activeStatus, paymentFilter, search]);
+
   useEffect(() => {
     fetchOrders();
   }, []);
@@ -161,6 +168,47 @@ export default function AdminOrdersPage() {
     return counts;
   }, [orders]);
 
+  const totalPages = Math.max(1, Math.ceil(filteredOrders.length / PAGE_SIZE));
+  const pageOrders = useMemo(
+    () => filteredOrders.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE),
+    [filteredOrders, page]
+  );
+
+  const exportCsv = () => {
+    const escapeCell = (v: string | number) => {
+      const s = String(v ?? '');
+      return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+    };
+    const headers = [
+      'Order Number',
+      'Customer',
+      'Phone',
+      'Date',
+      'Payment',
+      'Status',
+      'Amount (INR)',
+    ];
+    const rows = filteredOrders.map((o) => [
+      o.order_number,
+      (o.shipping_address as any)?.full_name || 'Guest',
+      (o.shipping_address as any)?.phone || '',
+      new Date(o.created_at).toLocaleDateString('en-IN'),
+      o.payment_method || '',
+      o.status,
+      o.total,
+    ]);
+    const csv = [headers, ...rows]
+      .map((r) => r.map(escapeCell).join(','))
+      .join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `orders-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="mx-auto max-w-7xl space-y-5">
       {/* Header */}
@@ -181,7 +229,10 @@ export default function AdminOrdersPage() {
             />
             Refresh
           </button>
-          <button className="flex items-center gap-2 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-emerald-500">
+          <button
+            onClick={exportCsv}
+            className="flex items-center gap-2 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-emerald-500"
+          >
             <Download className="h-3.5 w-3.5" />
             Export CSV
           </button>
@@ -276,7 +327,7 @@ export default function AdminOrdersPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
-                {filteredOrders.map((order) => {
+                {pageOrders.map((order) => {
                   const cfg = STATUS_CONFIG[order.status];
                   return (
                     <tr
@@ -316,15 +367,15 @@ export default function AdminOrdersPage() {
                             order.payment_method === 'cod'
                               ? 'border-amber-500/20 bg-amber-500/10 text-amber-400'
                               : order.payment_method === 'phonepe'
-                              ? 'border-purple-500/20 bg-purple-500/10 text-purple-400'
-                              : 'border-slate-500/20 bg-slate-500/10 text-slate-400'
+                                ? 'border-purple-500/20 bg-purple-500/10 text-purple-400'
+                                : 'border-slate-500/20 bg-slate-500/10 text-slate-400'
                           }`}
                         >
                           {order.payment_method === 'cod'
                             ? 'COD'
                             : order.payment_method === 'phonepe'
-                            ? 'PhonePe'
-                            : order.payment_method || 'Unknown'}
+                              ? 'PhonePe'
+                              : order.payment_method || 'Unknown'}
                         </span>
                       </td>
                       <td className="px-4 py-3">
@@ -376,9 +427,32 @@ export default function AdminOrdersPage() {
       </div>
 
       {filteredOrders.length > 0 && (
-        <p className="text-center text-xs text-slate-600">
-          Showing {filteredOrders.length} of {orders.length} orders
-        </p>
+        <div className="flex flex-col items-center justify-between gap-3 text-xs text-slate-500 sm:flex-row">
+          <span>
+            Showing {(page - 1) * PAGE_SIZE + 1}–
+            {Math.min(page * PAGE_SIZE, filteredOrders.length)} of{' '}
+            {filteredOrders.length} orders
+          </span>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page === 1}
+              className="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-slate-300 transition-colors hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              Previous
+            </button>
+            <span className="text-slate-600">
+              Page {page} of {totalPages}
+            </span>
+            <button
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              disabled={page >= totalPages}
+              className="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-slate-300 transition-colors hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              Next
+            </button>
+          </div>
+        </div>
       )}
     </div>
   );

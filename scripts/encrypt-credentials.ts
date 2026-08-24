@@ -48,7 +48,7 @@ async function main() {
     `Found ${plaintext.length} plaintext credentials out of ${credentials.length} total.`
   );
 
-  const { encryptApiKey } = await import('../src/lib/ai/credential-encryption.ts');
+  const { encryptApiKey } = await import('../src/lib/ai/credential-encryption');
 
   let success = 0;
   let failed = 0;

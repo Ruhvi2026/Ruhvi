@@ -1,26 +1,7 @@
 'use server';
 
-import { createClient } from '@/lib/supabase/server';
-import { hasPermission } from '@/lib/auth/rbac';
+import { requireAdminClient } from '@/lib/auth/require-admin-client';
 import { revalidatePath } from 'next/cache';
-
-async function checkAuth(permission: string) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    throw new Error('Unauthorized');
-  }
-
-  const isAllowed = await hasPermission(user.id, permission, supabase);
-  if (!isAllowed) {
-    throw new Error('Forbidden: Insufficient permissions');
-  }
-
-  return { supabase, user };
-}
 
 // -----------------------------------------------------------------------------
 // Top Banner Actions
@@ -28,7 +9,7 @@ async function checkAuth(permission: string) {
 
 export async function updateStoreBanner(formData: FormData) {
   try {
-    const { supabase } = await checkAuth('banner.edit');
+    const { supabase } = await requireAdminClient();
 
     const bannerEnabled = formData.get('banner_enabled') === 'on';
     const bannerText = formData.get('banner_text') as string;
@@ -62,7 +43,7 @@ export async function updateStoreBanner(formData: FormData) {
 
 export async function createHeroSlide(formData: FormData) {
   try {
-    const { supabase } = await checkAuth('hero.edit');
+    const { supabase } = await requireAdminClient();
 
     const title = formData.get('title') as string;
     const subtitle = formData.get('subtitle') as string;
@@ -100,7 +81,7 @@ export async function createHeroSlide(formData: FormData) {
 
 export async function updateHeroSlide(id: string, formData: FormData) {
   try {
-    const { supabase } = await checkAuth('hero.edit');
+    const { supabase } = await requireAdminClient();
 
     const title = formData.get('title') as string;
     const subtitle = formData.get('subtitle') as string;
@@ -140,7 +121,7 @@ export async function updateHeroSlide(id: string, formData: FormData) {
 
 export async function deleteHeroSlide(id: string) {
   try {
-    const { supabase } = await checkAuth('hero.edit');
+    const { supabase } = await requireAdminClient();
 
     const { error } = await supabase.from('hero_slides').delete().eq('id', id);
 

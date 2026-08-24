@@ -1,31 +1,11 @@
 'use server';
 
-import { createClient } from '@/lib/supabase/server';
-import { hasPermission } from '@/lib/auth/rbac';
+import { requireAdminClient } from '@/lib/auth/require-admin-client';
 import { revalidatePath } from 'next/cache';
-
-// Helper to check permission inside server actions
-async function checkAuth(permission: string) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    throw new Error('Unauthorized');
-  }
-
-  const isAllowed = await hasPermission(user.id, permission, supabase);
-  if (!isAllowed) {
-    throw new Error('Forbidden: Insufficient permissions');
-  }
-
-  return supabase;
-}
 
 export async function createProduct(formData: FormData) {
   try {
-    const supabase = await checkAuth('products.create');
+    const { supabase } = await requireAdminClient();
 
     const name = formData.get('name') as string;
     const sku = formData.get('sku') as string;
@@ -109,7 +89,7 @@ export async function createProduct(formData: FormData) {
 
 export async function updateProduct(id: string, formData: FormData) {
   try {
-    const supabase = await checkAuth('products.edit');
+    const { supabase } = await requireAdminClient();
 
     const name = formData.get('name') as string;
     const sku = formData.get('sku') as string;
@@ -194,7 +174,7 @@ export async function updateProduct(id: string, formData: FormData) {
 
 export async function deleteProduct(id: string) {
   try {
-    const supabase = await checkAuth('products.delete');
+    const { supabase } = await requireAdminClient();
 
     const { error } = await supabase.from('products').delete().eq('id', id);
 

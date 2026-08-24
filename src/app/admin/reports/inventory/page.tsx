@@ -1,149 +1,397 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, AlertTriangle, Package, CheckCircle, Search, Filter } from 'lucide-react';
+import {
+  ArrowLeft,
+  AlertTriangle,
+  Package,
+  CheckCircle,
+  Search,
+  RefreshCw,
+  IndianRupee,
+  Boxes,
+  XCircle,
+  Download,
+} from 'lucide-react';
+import { createClient } from '@/lib/supabase/client';
+import { DEMO_PRODUCTS } from '@/lib/products';
 
-const MOCK_INVENTORY = [
-  { id: 'SKU-001', name: 'Aurelia Solitaire Diamond Ring', category: 'Rings', stock: 2, threshold: 5, price: 12500, status: 'low_stock' },
-  { id: 'SKU-002', name: 'Celestial Pearl Drop Earrings', category: 'Earrings', stock: 14, threshold: 5, price: 7500, status: 'in_stock' },
-  { id: 'SKU-003', name: 'Royal Heritage Gold Bangle', category: 'Bangles', stock: 1, threshold: 3, price: 39500, status: 'low_stock' },
-  { id: 'SKU-004', name: 'Kundan Choker Statement Necklace', category: 'Necklaces', stock: 0, threshold: 2, price: 85000, status: 'out_of_stock' },
-  { id: 'SKU-005', name: 'Minimalist 22K Gold Chain', category: 'Chains', stock: 18, threshold: 5, price: 12000, status: 'in_stock' },
-];
+interface InventoryItem {
+  id: string;
+  sku: string;
+  name: string;
+  category: string;
+  stock: number;
+  threshold: number;
+  price: number;
+  status: 'in_stock' | 'low_stock' | 'out_of_stock';
+}
 
 export default function InventoryReportPage() {
+  const [items, setItems] = useState<InventoryItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [filter, setFilter] = useState<string>('all');
   const [search, setSearch] = useState<string>('');
 
-  const filteredInventory = MOCK_INVENTORY.filter(item => {
-    const matchesFilter = filter === 'all' || item.status === filter;
-    const matchesSearch = item.name.toLowerCase().includes(search.toLowerCase()) || item.id.toLowerCase().includes(search.toLowerCase());
-    return matchesFilter && matchesSearch;
-  });
+  const fetchInventory = async () => {
+    try {
+      setRefreshing(true);
+      const supabase = createClient();
+      const { data: products, error } = await supabase
+        .from('products')
+        .select(
+          'id, sku, name, price, stock_quantity, low_stock_threshold, status, category:categories(name)'
+        )
+        .order('stock_quantity', { ascending: true });
 
-  const lowStockCount = MOCK_INVENTORY.filter(i => i.status === 'low_stock').length;
-  const outOfStockCount = MOCK_INVENTORY.filter(i => i.status === 'out_of_stock').length;
-  const totalValuation = MOCK_INVENTORY.reduce((acc, curr) => acc + (curr.stock * curr.price), 0);
+      if (error || !products || products.length === 0) {
+        console.warn('Using fallback demo inventory data:', error);
+        loadFallback();
+        return;
+      }
+
+      const formatted: InventoryItem[] = products.map((p: any) => {
+        const stock = Number(p.stock_quantity) || 0;
+        const threshold = Number(p.low_stock_threshold) || 5;
+        let derivedStatus: 'in_stock' | 'low_stock' | 'out_of_stock' =
+          'in_stock';
+
+        if (stock === 0 || p.status === 'out_of_stock') {
+          derivedStatus = 'out_of_stock';
+        } else if (stock <= threshold) {
+          derivedStatus = 'low_stock';
+        }
+
+        return {
+          id: p.id,
+          sku: p.sku || 'SKU-GEN',
+          name: p.name,
+          category: p.category?.name || 'Jewellery',
+          stock,
+          threshold,
+          price: Number(p.price) || 0,
+          status: derivedStatus,
+        };
+      });
+
+      setItems(formatted);
+    } catch (err) {
+      console.error('Error fetching inventory report:', err);
+      loadFallback();
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  const loadFallback = () => {
+    const fallback: InventoryItem[] = DEMO_PRODUCTS.map((p) => {
+      let st: 'in_stock' | 'low_stock' | 'out_of_stock' = 'in_stock';
+      if (p.stock_quantity === 0) st = 'out_of_stock';
+      else if (p.stock_quantity <= p.low_stock_threshold) st = 'low_stock';
+      return {
+        id: p.id,
+        sku: p.sku,
+        name: p.name,
+        category: p.category?.name || 'Fine Jewellery',
+        stock: p.stock_quantity,
+        threshold: p.low_stock_threshold,
+        price: p.price,
+        status: st,
+      };
+    });
+    setItems(fallback);
+  };
+
+  useEffect(() => {
+    fetchInventory();
+  }, []);
+
+  const filteredInventory = useMemo(() => {
+    return items.filter((item) => {
+      const matchesFilter = filter === 'all' || item.status === filter;
+      const matchesSearch =
+        item.name.toLowerCase().includes(search.toLowerCase()) ||
+        item.sku.toLowerCase().includes(search.toLowerCase());
+      return matchesFilter && matchesSearch;
+    });
+  }, [items, filter, search]);
+
+  const lowStockCount = useMemo(
+    () => items.filter((i) => i.status === 'low_stock').length,
+    [items]
+  );
+  const outOfStockCount = useMemo(
+    () => items.filter((i) => i.status === 'out_of_stock').length,
+    [items]
+  );
+  const totalValuation = useMemo(
+    () => items.reduce((acc, curr) => acc + curr.stock * curr.price, 0),
+    [items]
+  );
+  const totalUnits = useMemo(
+    () => items.reduce((acc, curr) => acc + curr.stock, 0),
+    [items]
+  );
+
+  const exportCSV = () => {
+    if (items.length === 0) return;
+    const headers =
+      'SKU,Product Name,Category,Stock Quantity,Threshold,Unit Price,Total Valuation,Status\n';
+    const rows = items
+      .map(
+        (i) =>
+          `"${i.sku}","${i.name.replace(/"/g, '""')}","${i.category}",${i.stock},${i.threshold},${i.price},${
+            i.stock * i.price
+          },"${i.status}"`
+      )
+      .join('\n');
+    const blob = new Blob([headers + rows], {
+      type: 'text/csv;charset=utf-8;',
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `inventory-valuation-report-${new Date().toISOString().slice(0, 10)}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
+    <div className="mx-auto max-w-7xl space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-stone-200 pb-6 gap-4">
-        <div className="flex items-center space-x-4">
-          <Link href="/admin/dashboard" className="p-2 bg-stone-100 hover:bg-stone-200 rounded-lg transition-colors">
-            <ArrowLeft className="w-5 h-5 text-stone-700" />
+      <div className="flex flex-col items-start justify-between gap-4 border-b border-white/5 pb-5 sm:flex-row sm:items-end">
+        <div className="flex items-center space-x-3">
+          <Link
+            href="/admin/dashboard"
+            className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-slate-400 transition-colors hover:bg-white/10 hover:text-white"
+          >
+            <ArrowLeft className="h-4 w-4" />
           </Link>
           <div>
-            <h1 className="font-serif text-2xl sm:text-3xl font-bold text-stone-900">Inventory & Low-Stock Valuation</h1>
-            <p className="text-xs text-stone-500 mt-1">Real-time stock alerts and warehouse valuation</p>
+            <div className="mb-1 inline-flex items-center space-x-2 rounded-full border border-amber-500/20 bg-amber-500/10 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-widest text-amber-400">
+              <Boxes className="h-3 w-3" />
+              <span>Stock Management</span>
+            </div>
+            <h1 className="text-2xl font-bold text-white">
+              Inventory & Valuation Report
+            </h1>
+            <p className="text-xs text-slate-400">
+              Real-time stock alerts, warehouse valuation, and low threshold
+              notifications.
+            </p>
           </div>
+        </div>
+
+        <div className="flex items-center space-x-2">
+          <button
+            onClick={fetchInventory}
+            disabled={refreshing}
+            className="flex h-8 items-center space-x-1 rounded-xl border border-white/10 bg-white/5 px-3 text-xs font-semibold text-slate-300 hover:bg-white/10 disabled:opacity-50"
+          >
+            <RefreshCw
+              className={`h-3.5 w-3.5 ${refreshing ? 'animate-spin' : ''}`}
+            />
+            <span>Refresh</span>
+          </button>
+          <button
+            onClick={exportCSV}
+            className="flex h-8 items-center space-x-1.5 rounded-xl bg-amber-500 px-3 text-xs font-bold text-slate-950 hover:bg-amber-400"
+          >
+            <Download className="h-3.5 w-3.5" />
+            <span>Export CSV</span>
+          </button>
         </div>
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-        <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm space-y-2">
-          <div className="flex items-center justify-between text-stone-500">
-            <span className="text-xs font-semibold uppercase tracking-wider">Total Valuation</span>
-            <Package className="w-5 h-5 text-stone-700" />
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="rounded-2xl border border-white/5 bg-[#131726] p-5">
+          <div className="flex items-center justify-between text-slate-400">
+            <span className="text-[10px] font-bold uppercase tracking-wider">
+              Total Valuation
+            </span>
+            <IndianRupee className="h-4 w-4 text-emerald-400" />
           </div>
-          <p className="text-3xl font-serif font-bold text-stone-900">₹{totalValuation.toLocaleString('en-IN')}</p>
-          <p className="text-xs text-stone-400">Total in-stock inventory value</p>
+          <p className="mt-2 text-2xl font-bold text-white">
+            ₹{totalValuation.toLocaleString('en-IN')}
+          </p>
+          <p className="mt-1 text-[11px] text-emerald-400">
+            Cumulative stock holding value
+          </p>
         </div>
 
-        <div className="bg-amber-50 p-6 rounded-2xl border border-amber-200 shadow-sm space-y-2">
-          <div className="flex items-center justify-between text-amber-800">
-            <span className="text-xs font-semibold uppercase tracking-wider">Low Stock Warnings</span>
-            <AlertTriangle className="w-5 h-5 text-amber-600" />
+        <div className="rounded-2xl border border-white/5 bg-[#131726] p-5">
+          <div className="flex items-center justify-between text-slate-400">
+            <span className="text-[10px] font-bold uppercase tracking-wider">
+              Total Units in Stock
+            </span>
+            <Package className="h-4 w-4 text-sky-400" />
           </div>
-          <p className="text-3xl font-serif font-bold text-amber-950">{lowStockCount} Items</p>
-          <p className="text-xs text-amber-700">Stock below reorder threshold</p>
+          <p className="mt-2 text-2xl font-bold text-white">
+            {totalUnits.toLocaleString('en-IN')}
+          </p>
+          <p className="mt-1 text-[11px] text-slate-400">
+            Across {items.length} SKUs
+          </p>
         </div>
 
-        <div className="bg-rose-50 p-6 rounded-2xl border border-rose-200 shadow-sm space-y-2">
-          <div className="flex items-center justify-between text-rose-800">
-            <span className="text-xs font-semibold uppercase tracking-wider">Out of Stock</span>
-            <AlertTriangle className="w-5 h-5 text-rose-600" />
+        <div className="rounded-2xl border border-white/5 bg-[#131726] p-5">
+          <div className="flex items-center justify-between text-slate-400">
+            <span className="text-[10px] font-bold uppercase tracking-wider">
+              Low Stock Warnings
+            </span>
+            <AlertTriangle className="h-4 w-4 text-amber-400" />
           </div>
-          <p className="text-3xl font-serif font-bold text-rose-950">{outOfStockCount} Items</p>
-          <p className="text-xs text-rose-700">Requires urgent restocking</p>
+          <p className="mt-2 text-2xl font-bold text-amber-400">
+            {lowStockCount} Items
+          </p>
+          <p className="mt-1 text-[11px] text-amber-400/80">
+            At or below reorder threshold
+          </p>
+        </div>
+
+        <div className="rounded-2xl border border-white/5 bg-[#131726] p-5">
+          <div className="flex items-center justify-between text-slate-400">
+            <span className="text-[10px] font-bold uppercase tracking-wider">
+              Out of Stock
+            </span>
+            <XCircle className="h-4 w-4 text-rose-400" />
+          </div>
+          <p className="mt-2 text-2xl font-bold text-rose-400">
+            {outOfStockCount} Items
+          </p>
+          <p className="mt-1 text-[11px] text-rose-400/80">
+            Require replenishment
+          </p>
         </div>
       </div>
 
-      {/* Filters Toolbar */}
-      <div className="bg-white p-4 rounded-2xl border border-stone-200 shadow-sm flex flex-col sm:flex-row justify-between gap-4">
-        <div className="relative flex-1">
-          <Search className="w-4 h-4 text-stone-400 absolute left-3 top-3" />
-          <input 
-            type="text" 
-            placeholder="Search by product name or SKU..." 
+      {/* Controls Bar */}
+      <div className="flex flex-col items-center justify-between gap-4 rounded-2xl border border-white/5 bg-[#131726] p-4 sm:flex-row">
+        <div className="relative w-full sm:w-80">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
+          <input
+            type="text"
+            placeholder="Search by product name or SKU..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 border border-stone-200 rounded-xl text-sm outline-none focus:border-amber-900"
+            className="w-full rounded-xl border border-white/10 bg-white/5 py-2 pl-9 pr-4 text-xs text-slate-300 placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-amber-500"
           />
         </div>
 
-        <div className="flex items-center space-x-2">
-          <Filter className="w-4 h-4 text-stone-400" />
-          <select 
-            value={filter} 
-            onChange={(e) => setFilter(e.target.value)}
-            className="border border-stone-200 rounded-xl px-3 py-2 text-xs font-bold text-stone-700 uppercase outline-none focus:border-amber-900 bg-white"
+        <div className="flex w-full items-center space-x-1 rounded-xl bg-white/5 p-1 text-xs font-semibold sm:w-auto">
+          <button
+            onClick={() => setFilter('all')}
+            className={`rounded-lg px-3 py-1.5 transition-colors ${
+              filter === 'all'
+                ? 'bg-amber-500 font-bold text-slate-950'
+                : 'text-slate-400 hover:text-white'
+            }`}
           >
-            <option value="all">All Statuses</option>
-            <option value="in_stock">In Stock</option>
-            <option value="low_stock">Low Stock</option>
-            <option value="out_of_stock">Out of Stock</option>
-          </select>
+            All ({items.length})
+          </button>
+          <button
+            onClick={() => setFilter('low_stock')}
+            className={`rounded-lg px-3 py-1.5 transition-colors ${
+              filter === 'low_stock'
+                ? 'bg-amber-500 font-bold text-slate-950'
+                : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            Low Stock ({lowStockCount})
+          </button>
+          <button
+            onClick={() => setFilter('out_of_stock')}
+            className={`rounded-lg px-3 py-1.5 transition-colors ${
+              filter === 'out_of_stock'
+                ? 'bg-amber-500 font-bold text-slate-950'
+                : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            Out of Stock ({outOfStockCount})
+          </button>
         </div>
       </div>
 
       {/* Inventory Table */}
-      <div className="bg-white rounded-2xl border border-stone-200 shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse text-sm">
+      {loading ? (
+        <div className="rounded-2xl border border-white/5 bg-[#131726] py-20 text-center text-xs text-slate-500">
+          <RefreshCw className="mx-auto mb-2 h-6 w-6 animate-spin text-amber-500/50" />
+          <span>Loading inventory valuation records...</span>
+        </div>
+      ) : filteredInventory.length === 0 ? (
+        <div className="rounded-2xl border border-white/5 bg-[#131726] py-16 text-center">
+          <Package className="mx-auto mb-3 h-10 w-10 text-slate-700" />
+          <p className="font-semibold text-slate-300">
+            No inventory records found
+          </p>
+          <p className="mt-1 text-xs text-slate-600">
+            Try changing your search query or status filter.
+          </p>
+        </div>
+      ) : (
+        <div className="overflow-x-auto rounded-2xl border border-white/5 bg-[#131726]">
+          <table className="w-full min-w-[700px] border-collapse text-left text-xs">
             <thead>
-              <tr className="border-b border-stone-200 text-stone-400 uppercase text-[10px] font-semibold tracking-wider bg-stone-50">
-                <th className="py-3 px-4">SKU</th>
-                <th className="py-3 px-4">Product Name</th>
-                <th className="py-3 px-4">Category</th>
-                <th className="py-3 px-4">Unit Price</th>
-                <th className="py-3 px-4">Stock Level</th>
-                <th className="py-3 px-4">Status</th>
+              <tr className="border-b border-white/5 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                <th className="p-4 pl-6">Product / SKU</th>
+                <th className="p-4">Category</th>
+                <th className="p-4 text-right">Unit Price</th>
+                <th className="p-4 text-right">In Stock</th>
+                <th className="p-4 text-right">Threshold</th>
+                <th className="p-4 text-right">Total Valuation</th>
+                <th className="p-4 pr-6 text-right">Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-stone-100">
+            <tbody className="divide-y divide-white/5 text-slate-300">
               {filteredInventory.map((item) => (
-                <tr key={item.id} className="hover:bg-stone-50 transition-colors">
-                  <td className="py-3 px-4 font-mono text-xs text-stone-500 font-semibold">{item.id}</td>
-                  <td className="py-3 px-4 font-bold text-stone-900">{item.name}</td>
-                  <td className="py-3 px-4 text-stone-600">{item.category}</td>
-                  <td className="py-3 px-4 font-semibold text-stone-900">₹{item.price.toLocaleString('en-IN')}</td>
-                  <td className="py-3 px-4 font-bold text-stone-900">{item.stock} units</td>
-                  <td className="py-3 px-4">
-                    {item.status === 'in_stock' && (
-                      <span className="bg-emerald-100 text-emerald-800 text-[10px] uppercase font-bold px-2.5 py-1 rounded-md inline-flex items-center">
-                        <CheckCircle className="w-3 h-3 mr-1" /> Healthy
-                      </span>
-                    )}
-                    {item.status === 'low_stock' && (
-                      <span className="bg-amber-100 text-amber-800 text-[10px] uppercase font-bold px-2.5 py-1 rounded-md inline-flex items-center">
-                        <AlertTriangle className="w-3 h-3 mr-1" /> Low Stock ({item.stock})
-                      </span>
-                    )}
-                    {item.status === 'out_of_stock' && (
-                      <span className="bg-rose-100 text-rose-800 text-[10px] uppercase font-bold px-2.5 py-1 rounded-md inline-flex items-center">
-                        <AlertTriangle className="w-3 h-3 mr-1" /> Out of Stock
-                      </span>
-                    )}
+                <tr
+                  key={item.id}
+                  className="transition-colors hover:bg-white/5"
+                >
+                  <td className="p-4 pl-6">
+                    <div className="font-semibold text-slate-200">
+                      {item.name}
+                    </div>
+                    <div className="font-mono text-[10px] text-slate-500">
+                      {item.sku}
+                    </div>
+                  </td>
+                  <td className="p-4 text-slate-400">{item.category}</td>
+                  <td className="p-4 text-right font-medium text-white">
+                    ₹{item.price.toLocaleString('en-IN')}
+                  </td>
+                  <td className="p-4 text-right font-bold text-white">
+                    {item.stock}
+                  </td>
+                  <td className="p-4 text-right font-mono text-slate-500">
+                    {item.threshold}
+                  </td>
+                  <td className="p-4 text-right font-bold text-emerald-400">
+                    ₹{(item.stock * item.price).toLocaleString('en-IN')}
+                  </td>
+                  <td className="p-4 pr-6 text-right">
+                    <span
+                      className={`inline-block rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
+                        item.status === 'in_stock'
+                          ? 'border-emerald-500/20 bg-emerald-500/10 text-emerald-400'
+                          : item.status === 'low_stock'
+                            ? 'border-amber-500/20 bg-amber-500/10 text-amber-400'
+                            : 'border-rose-500/20 bg-rose-500/10 text-rose-400'
+                      }`}
+                    >
+                      {item.status.replace('_', ' ')}
+                    </span>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-      </div>
+      )}
     </div>
   );
 }
