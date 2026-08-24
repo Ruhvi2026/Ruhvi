@@ -21,15 +21,19 @@ export async function getServerUser() {
     }
 
     const secret = new TextEncoder().encode(jwtSecret);
-    const { payload } = await jwtVerify(sessionCookie, secret);
+    const { payload } = await jwtVerify(sessionCookie, secret, {
+      algorithms: ['HS256'],
+    });
 
     const user = {
       id: payload.sub,
       email: payload.email as string | undefined,
-      phone: undefined,
+      phone: payload.phone as string | undefined,
       app_metadata: { provider: 'firebase' },
       user_metadata: {
-        full_name: (payload.email as string | undefined)?.split('@')[0],
+        full_name:
+          (payload.name as string | undefined) ||
+          (payload.email as string | undefined)?.split('@')[0],
       },
     };
 

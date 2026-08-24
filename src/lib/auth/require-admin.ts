@@ -36,10 +36,10 @@ export async function requireAdmin(): Promise<RequireAdminResult> {
 
   try {
     const decoded = await verifySessionToken(sessionCookie);
-    // `sub` is the Supabase `users.id` UUID minted by /api/auth/session.
-    // `firebase_uid` is only the Firebase UID, which no longer maps to `users.id`
-    // since migration 0030 moved it to customer_identities.
-    const uid = (decoded?.sub || decoded?.firebase_uid) as string | undefined;
+    // `sub` is always the Supabase `users.id` UUID minted by /api/auth/session.
+    // Do NOT fall back to `firebase_uid` — it lives in a different namespace
+    // (customer_identities) and must never be used to look up users.id.
+    const uid = decoded?.sub as string | undefined;
     if (!decoded || !uid) {
       return {
         ok: false,

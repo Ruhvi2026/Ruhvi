@@ -19,7 +19,7 @@ export interface UserRecord {
   full_name: string | null;
   email: string;
   phone: string | null;
-  role: 'customer' | 'staff' | 'manager' | 'admin';
+  role: 'customer' | 'staff' | 'manager' | 'admin' | 'super_admin';
   wallet_balance: number;
   reward_coins: number;
   created_at: string;
@@ -37,7 +37,7 @@ export default function AdminUsersPage() {
   // Role Edit Modal
   const [editingUser, setEditingUser] = useState<UserRecord | null>(null);
   const [selectedRole, setSelectedRole] = useState<
-    'customer' | 'staff' | 'manager' | 'admin'
+    'customer' | 'staff' | 'manager' | 'admin' | 'super_admin'
   >('customer');
   const [isUpdatingRole, setIsUpdatingRole] = useState(false);
 
@@ -131,6 +131,9 @@ export default function AdminUsersPage() {
         )
       );
       setAdjustingUser(null);
+      setWalletAmount('');
+      setCoinsAmount('');
+      setIsUpdatingBalance(false);
     } catch (err: any) {
       console.error('Failed to adjust balances:', err);
       alert('Failed to update user balances.');
@@ -191,13 +194,23 @@ export default function AdminUsersPage() {
       (roleFilter === 'customer' && user.role === 'customer') ||
       (roleFilter === 'staff' &&
         (user.role === 'staff' || user.role === 'manager')) ||
-      (roleFilter === 'admin' && user.role === 'admin');
+      (roleFilter === 'admin' &&
+        (user.role === 'admin' ||
+          user.role === 'manager' ||
+          user.role === 'staff' ||
+          user.role === 'super_admin'));
 
     return matchesSearch && matchesRole;
   });
 
   const getRoleBadge = (role: string) => {
     switch (role) {
+      case 'super_admin':
+        return (
+          <span className="rounded-full border border-fuchsia-500/20 bg-fuchsia-500/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-fuchsia-400">
+            Super Admin
+          </span>
+        );
       case 'admin':
         return (
           <span className="rounded-full border border-rose-500/20 bg-rose-500/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-rose-400">
@@ -332,7 +345,7 @@ export default function AdminUsersPage() {
                 : 'text-slate-500 hover:text-slate-300'
             }`}
           >
-            Admins ({users.filter((u) => u.role === 'admin').length})
+            Admins ({users.filter((u) => u.role !== 'customer').length})
           </button>
         </div>
       </div>

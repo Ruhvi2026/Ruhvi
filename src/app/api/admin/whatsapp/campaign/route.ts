@@ -4,8 +4,9 @@ import { getServerUser } from '@/lib/auth/server';
 import { getSupabaseAdminClient } from '@/lib/support/serverAuth';
 import { sendWhatsAppMessage } from '@/lib/whatsapp';
 
-// In-memory rate limiter (per admin + IP) to prevent broadcast abuse
-const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
+// DB-backed rate limiter (per admin) to prevent broadcast abuse. Stored in
+// audit_logs so the count survives cold starts and is shared across
+// serverless instances.
 const RATE_LIMIT = 5; // max broadcast requests per window
 const WINDOW_MS = 60 * 60 * 1000; // 1 hour
 const MAX_RECIPIENTS = 500; // hard cap per request
@@ -91,19 +92,26 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    // 3. Rate limit by admin id (client-supplied IP headers are spoofable)
-    const rateKey = user.id;
-    const now = Date.now();
-    const entry = rateLimitMap.get(rateKey);
-    if (!entry || entry.resetTime < now) {
-      rateLimitMap.set(rateKey, { count: 1, resetTime: now + WINDOW_MS });
-    } else if (entry.count >= RATE_LIMIT) {
+    // 3. Rate limit by admin id (DB-backed via audit_logs so the count is
+    //    shared across serverless instances and survives cold starts)
+    const windowStart = new Date(Date.now() - WINDOW_MS).toISOString();
+    const { data: recentBroadcasts, error: rateCheckError } = await supabase
+      .from('audit_logs')
+      .select('id')
+      .eq('actor_id', user.id)
+      .eq('entity_type', 'whatsapp_broadcast')
+      .gte('created_at', windowStart);
+
+    if (rateCheckError) {
+      console.error(
+        '[WhatsApp Campaign] rate limit check failed:',
+        rateCheckError
+      );
+    } else if ((recentBroadcasts?.length ?? 0) >= RATE_LIMIT) {
       return NextResponse.json(
         { error: 'Rate limit exceeded. Please try again later.' },
         { status: 429 }
       );
-    } else {
-      entry.count++;
     }
 
     // 4. Validate payload
@@ -192,6 +200,27 @@ export async function POST(req: Request) {
     }
 
     const campaignId = crypto.randomUUID();
+
+    // 7. Persist this broadcast request so the per-admin hourly cap is
+    //    DB-backed and enforced across serverless instances.
+    const { error: auditError } = await supabase.from('audit_logs').insert({
+      actor_id: user.id,
+      action: 'broadcast',
+      entity_type: 'whatsapp_broadcast',
+      entity_id: campaignId,
+      changes: {
+        template_name: templateName,
+        recipients: activePhones.length,
+        invalid: invalidPhones.length,
+        cooldown: cooledDown.length,
+      },
+    });
+    if (auditError) {
+      console.error(
+        `[WhatsApp Campaign ${campaignId}] failed to log broadcast:`,
+        auditError
+      );
+    }
 
     // Deliver after the response is sent so the request doesn't block on the
     // whole broadcast (up to MAX_RECIPIENTS sequential network calls).

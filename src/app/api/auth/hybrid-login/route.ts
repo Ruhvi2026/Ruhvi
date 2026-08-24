@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import crypto from 'crypto';
+import { SignJWT, importPKCS8 } from 'jose';
 
 function formatPrivateKey(key: string): string {
   let cleaned = key.trim();
@@ -17,38 +17,25 @@ function formatPrivateKey(key: string): string {
   return cleaned;
 }
 
-function base64url(input: string): string {
-  return Buffer.from(input).toString('base64url');
-}
-
-function createFirebaseCustomToken(
+async function createFirebaseCustomToken(
   uid: string,
   clientEmail: string,
   privateKeyPem: string
-): string {
+): Promise<string> {
   const now = Math.floor(Date.now() / 1000);
   const formattedKey = formatPrivateKey(privateKeyPem);
+  const privateKey = await importPKCS8(formattedKey, 'RS256');
 
-  const header = { alg: 'RS256', typ: 'JWT' };
-  const payload = {
-    iss: clientEmail,
-    sub: clientEmail,
-    aud: 'https://identitytoolkit.googleapis.com/google.identity.identitytoolkit.v1.IdentityToolkit',
-    iat: now,
-    exp: now + 3600,
-    uid: uid,
-    claims: {},
-  };
-
-  const encodedHeader = base64url(JSON.stringify(header));
-  const encodedPayload = base64url(JSON.stringify(payload));
-  const signatureInput = `${encodedHeader}.${encodedPayload}`;
-
-  const signer = crypto.createSign('RSA-SHA256');
-  signer.update(signatureInput);
-  const signature = signer.sign(formattedKey, 'base64url');
-
-  return `${signatureInput}.${signature}`;
+  return new SignJWT({ uid, claims: {} })
+    .setProtectedHeader({ alg: 'RS256', typ: 'JWT' })
+    .setIssuer(clientEmail)
+    .setSubject(clientEmail)
+    .setAudience(
+      'https://identitytoolkit.googleapis.com/google.identity.identitytoolkit.v1.IdentityToolkit'
+    )
+    .setIssuedAt(now)
+    .setExpirationTime(now + 3600)
+    .sign(privateKey);
 }
 
 export async function POST(request: NextRequest) {
@@ -130,7 +117,7 @@ export async function POST(request: NextRequest) {
 
         // If email already exists in Firebase Auth, we update its password or sign in with custom token
         if (clientEmail && rawPrivateKey) {
-          const customToken = createFirebaseCustomToken(
+          const customToken = await createFirebaseCustomToken(
             supaUserId,
             clientEmail,
             rawPrivateKey

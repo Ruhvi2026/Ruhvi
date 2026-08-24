@@ -81,6 +81,7 @@ export async function POST(request: NextRequest) {
     }
 
     const encodedSecret = new TextEncoder().encode(secret);
+    const now = Math.floor(Date.now() / 1000);
 
     // Mint a custom Supabase JWT that maps the Firebase UID to the Supabase UUID
     const supabaseToken = await new SignJWT({
@@ -98,7 +99,8 @@ export async function POST(request: NextRequest) {
       },
     })
       .setProtectedHeader({ alg: 'HS256', typ: 'JWT' })
-      .setExpirationTime('1h')
+      .setIssuedAt(now)
+      .setExpirationTime(now + 3600)
       .sign(encodedSecret);
 
     return NextResponse.json({ supabaseToken }, { status: 200 });

@@ -88,6 +88,7 @@ export async function POST(request: NextRequest) {
     const supabaseUserId = resolvedId;
 
     const expiresInSeconds = 60 * 60 * 24 * 5; // 5 days
+    const now = Math.floor(Date.now() / 1000);
     const secret = new TextEncoder().encode(jwtSecret);
 
     // Mint a signed session JWT using SUPABASE_JWT_SECRET
@@ -97,8 +98,8 @@ export async function POST(request: NextRequest) {
       firebase_uid: uid,
     })
       .setProtectedHeader({ alg: 'HS256' })
-      .setIssuedAt()
-      .setExpirationTime(Math.floor(Date.now() / 1000) + expiresInSeconds)
+      .setIssuedAt(now)
+      .setExpirationTime(now + expiresInSeconds)
       .sign(secret);
 
     const response = NextResponse.json({ status: 'success' }, { status: 200 });

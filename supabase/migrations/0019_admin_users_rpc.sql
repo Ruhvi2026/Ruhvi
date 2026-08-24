@@ -8,11 +8,11 @@ SECURITY DEFINER
 SET search_path = public
 AS $$
 BEGIN
-  -- Check if caller is admin, manager, or staff
+  -- Check if caller is super admin, admin, manager, or staff
   IF EXISTS (
     SELECT 1 FROM public.users 
     WHERE id = auth.uid() 
-    AND role IN ('admin', 'manager', 'staff')
+    AND role IN ('super_admin', 'admin', 'manager', 'staff')
   ) THEN
     RETURN QUERY SELECT * FROM public.users ORDER BY created_at DESC;
   ELSE
@@ -28,11 +28,11 @@ SECURITY DEFINER
 SET search_path = public
 AS $$
 BEGIN
-  -- Check if caller is admin
+  -- Check if caller is super admin or admin
   IF EXISTS (
     SELECT 1 FROM public.users 
     WHERE id = auth.uid() 
-    AND role = 'admin'
+    AND role IN ('super_admin', 'admin')
   ) THEN
     UPDATE public.users SET role = new_role::public.user_role, updated_at = NOW() WHERE id = target_user_id;
   ELSE
@@ -48,11 +48,11 @@ SECURITY DEFINER
 SET search_path = public
 AS $$
 BEGIN
-  -- Check if caller is admin or manager
+  -- Check if caller is super admin, admin, or manager
   IF EXISTS (
     SELECT 1 FROM public.users 
     WHERE id = auth.uid() 
-    AND role IN ('admin', 'manager')
+    AND role IN ('super_admin', 'admin', 'manager')
   ) THEN
     UPDATE public.users 
     SET wallet_balance = new_wallet, reward_coins = new_coins, updated_at = NOW() 

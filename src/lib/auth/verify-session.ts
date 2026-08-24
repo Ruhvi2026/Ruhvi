@@ -16,7 +16,9 @@ export async function verifySessionToken(
       return null;
     }
     const secret = new TextEncoder().encode(jwtSecret);
-    const { payload } = await jwtVerify(sessionCookie, secret);
+    const { payload } = await jwtVerify(sessionCookie, secret, {
+      algorithms: ['HS256'],
+    });
     return payload;
   } catch {
     return null;
