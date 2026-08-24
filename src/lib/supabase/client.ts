@@ -21,57 +21,61 @@ export function createClient() {
       headers: {},
     },
     accessToken: async () => {
-      try {
-        const { auth } = await import('@/lib/firebase');
-        const fbUser = auth.currentUser;
-        if (!fbUser) {
-          customTokenCache = null;
-          tokenExpiry = null;
-          cachedUid = null;
-          return '';
-        }
-
-        // If user changed, invalidate cache
-        if (cachedUid !== fbUser.uid) {
-          customTokenCache = null;
-          tokenExpiry = null;
-          cachedUid = fbUser.uid;
-        }
-
-        // Check if we have a valid cached token
-        if (customTokenCache && tokenExpiry && Date.now() < tokenExpiry) {
-          return customTokenCache;
-        }
-
-        const idToken = await fbUser.getIdToken(false);
-
-        // Fetch custom Supabase token using the Firebase ID token
-        const response = await fetch('/api/auth/sync-token', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ idToken }),
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to sync token');
-        }
-
-        const data = await response.json();
-
-        if (data.supabaseToken) {
-          customTokenCache = data.supabaseToken;
-          // Token expires in 1 hour (set expiration slightly early to be safe)
-          tokenExpiry = Date.now() + 55 * 60 * 1000;
-          return customTokenCache;
-        }
-      } catch (e) {
-        console.error('Failed to get Supabase JWT', e);
-      }
-      return '';
+      return await getCustomToken();
     },
   });
 
   return supabaseInstance;
+}
+
+export async function getCustomToken(): Promise<string> {
+  try {
+    const { auth } = await import('@/lib/firebase');
+    const fbUser = auth.currentUser;
+    if (!fbUser) {
+      customTokenCache = null;
+      tokenExpiry = null;
+      cachedUid = null;
+      return '';
+    }
+
+    // If user changed, invalidate cache
+    if (cachedUid !== fbUser.uid) {
+      customTokenCache = null;
+      tokenExpiry = null;
+      cachedUid = fbUser.uid;
+    }
+
+    // Check if we have a valid cached token
+    if (customTokenCache && tokenExpiry && Date.now() < tokenExpiry) {
+      return customTokenCache;
+    }
+
+    const idToken = await fbUser.getIdToken(false);
+
+    // Fetch custom Supabase token using the Firebase ID token
+    const response = await fetch('/api/auth/sync-token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ idToken }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to sync token');
+    }
+
+    const data = await response.json();
+
+    if (data.supabaseToken) {
+      customTokenCache = data.supabaseToken;
+      // Token expires in 1 hour (set expiration slightly early to be safe)
+      tokenExpiry = Date.now() + 55 * 60 * 1000;
+      return customTokenCache;
+    }
+  } catch (e) {
+    console.error('Failed to get Supabase JWT', e);
+  }
+  return '';
 }
 
 export function clearSupabaseTokenCache() {

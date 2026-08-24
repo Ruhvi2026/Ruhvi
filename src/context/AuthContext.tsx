@@ -2,7 +2,12 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
-import { createClient, clearSupabaseTokenCache } from '@/lib/supabase/client';
+import {
+  createClient,
+  clearSupabaseTokenCache,
+  getCustomToken,
+} from '@/lib/supabase/client';
+import { decodeJwt } from 'jose';
 import toast from 'react-hot-toast';
 import { parseApiError } from '@/lib/api-errors';
 import { useRouter } from 'next/navigation';
@@ -189,28 +194,39 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const { auth } = await import('@/lib/firebase');
       const fbUser = auth.currentUser;
-      if (fbUser) {
-        const formattedUser: any = {
-          id: fbUser.uid,
-          email: fbUser.email || null,
-          phone: fbUser.phoneNumber || null,
-          emailVerified: fbUser.emailVerified,
-          user_metadata: {
-            full_name: fbUser.displayName || null,
-            phone: fbUser.phoneNumber || null,
-          },
-          created_at: fbUser.metadata?.creationTime || new Date().toISOString(),
-        };
-        setUser(formattedUser);
-        await fetchProfile(formattedUser);
+
+      if (!fbUser) {
+        setUser(null);
+        setProfile(null);
         return;
       }
-    } catch (e) {
-      console.error('Firebase refresh error:', e);
-    }
 
-    setUser(null);
-    setProfile(null);
+      // Fetch custom JWT to get real Supabase UUID
+      const token = await getCustomToken();
+      if (!token) throw new Error('No custom token available');
+
+      const decoded = decodeJwt(token);
+
+      const formattedUser: any = {
+        id: decoded.sub, // Use real Supabase UUID
+        email: decoded.email || fbUser.email || null,
+        phone: decoded.phone || fbUser.phoneNumber || null,
+        emailVerified: fbUser.emailVerified,
+        user_metadata: decoded.user_metadata || {
+          full_name: fbUser.displayName || null,
+          phone: fbUser.phoneNumber || null,
+        },
+        created_at: fbUser.metadata?.creationTime || new Date().toISOString(),
+      };
+
+      setUser(formattedUser);
+      await fetchProfile(formattedUser);
+      return;
+    } catch (e) {
+      console.error('Profile refresh error:', e);
+      setUser(null);
+      setProfile(null);
+    }
   };
 
   const signOut = async () => {
