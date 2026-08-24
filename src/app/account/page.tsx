@@ -34,13 +34,7 @@ import toast from 'react-hot-toast';
 
 export default function AccountOverviewPage() {
   const router = useRouter();
-  const {
-    user,
-    profile,
-    loading: authLoading,
-    signOut,
-    refreshProfile,
-  } = useAuth();
+  const { user, profile, loading: authLoading, signOut } = useAuth();
 
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
@@ -140,7 +134,6 @@ export default function AccountOverviewPage() {
           });
           localStorage.removeItem('emailVerificationSent');
           setVerificationSent(false);
-          await refreshProfile();
           toast.success(
             'Email successfully verified! Bonus credited if both verified.'
           );
@@ -197,7 +190,6 @@ export default function AccountOverviewPage() {
               .then(() => {
                 localStorage.removeItem('emailVerificationSent');
                 setVerificationSent(false);
-                refreshProfile();
               })
               .catch((err: any) => {
                 console.error('Failed to sync email verification status:', err);
@@ -209,7 +201,7 @@ export default function AccountOverviewPage() {
     return () => {
       mounted = false;
     };
-  }, [user, profile, refreshProfile]);
+  }, [user, profile]);
 
   useEffect(() => {
     if (profile) {
@@ -280,7 +272,6 @@ export default function AccountOverviewPage() {
         },
       });
 
-      await refreshProfile();
       setIsEditingProfile(false);
       setProfileSuccessMsg('Profile details updated successfully!');
       setTimeout(() => setProfileSuccessMsg(null), 4000);

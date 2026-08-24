@@ -32,7 +32,7 @@ interface WalletTxn {
 }
 
 export default function WalletPage() {
-  const { user, profile, loading: authLoading, refreshProfile } = useAuth();
+  const { user, profile, loading: authLoading } = useAuth();
   const [balance, setBalance] = useState<number>(0);
   const [transactions, setTransactions] = useState<WalletTxn[]>([]);
   const [loadingTxns, setLoadingTxns] = useState(true);
@@ -49,10 +49,6 @@ export default function WalletPage() {
   const [topUpError, setTopUpError] = useState<string | null>(null);
 
   const presetAmounts = [350, 500, 1000, 2500, 5000, 10000];
-
-  useEffect(() => {
-    refreshProfile();
-  }, []);
 
   useEffect(() => {
     if (profile && typeof profile.wallet_balance !== 'undefined') {
@@ -149,7 +145,6 @@ export default function WalletPage() {
         },
         () => {
           fetchLedger();
-          refreshProfile();
         }
       )
       .subscribe();
@@ -223,9 +218,6 @@ export default function WalletPage() {
       const result = await response.json();
       if (!response.ok)
         throw new Error(result.error || 'Failed to top up wallet');
-
-      // 2. Refresh Auth profile to get updated balance
-      await refreshProfile();
 
       // 3. Re-fetch ledger
       const supabase = createClient();

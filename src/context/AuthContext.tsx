@@ -34,7 +34,6 @@ interface AuthContextType {
   profile: UserProfile | null;
   loading: boolean;
   signOut: () => Promise<void>;
-  refreshProfile: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -43,7 +42,6 @@ const AuthContext = createContext<AuthContextType>({
   profile: null,
   loading: true,
   signOut: async () => {},
-  refreshProfile: async () => {},
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -190,45 +188,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const refreshProfile = async () => {
-    try {
-      const { auth } = await import('@/lib/firebase');
-      const fbUser = auth.currentUser;
-
-      if (!fbUser) {
-        setUser(null);
-        setProfile(null);
-        return;
-      }
-
-      // Fetch custom JWT to get real Supabase UUID
-      const token = await getCustomToken();
-      if (!token) throw new Error('No custom token available');
-
-      const decoded = decodeJwt(token);
-
-      const formattedUser: any = {
-        id: decoded.sub, // Use real Supabase UUID
-        email: decoded.email || fbUser.email || null,
-        phone: decoded.phone || fbUser.phoneNumber || null,
-        emailVerified: fbUser.emailVerified,
-        user_metadata: decoded.user_metadata || {
-          full_name: fbUser.displayName || null,
-          phone: fbUser.phoneNumber || null,
-        },
-        created_at: fbUser.metadata?.creationTime || new Date().toISOString(),
-      };
-
-      setUser(formattedUser);
-      await fetchProfile(formattedUser);
-      return;
-    } catch (e) {
-      console.error('Profile refresh error:', e);
-      setUser(null);
-      setProfile(null);
-    }
-  };
-
   const signOut = async () => {
     try {
       // 1. Sign out of Firebase (client-side)
@@ -280,21 +239,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const handleFirebaseUser = async (fbUser: any) => {
       if (!isMounted) return false;
       if (fbUser) {
-        const formattedUser: any = {
-          id: fbUser.uid,
-          email: fbUser.email || null,
-          phone: fbUser.phoneNumber || null,
-          user_metadata: {
-            full_name: fbUser.displayName || null,
-            phone: fbUser.phoneNumber || null,
-          },
-          created_at: fbUser.metadata?.creationTime || new Date().toISOString(),
-        };
-        setUser(formattedUser);
-        setSession(null);
-        await fetchProfile(formattedUser);
-        if (isMounted) setLoading(false);
-        return true;
+        try {
+          // Fetch custom JWT to get real Supabase UUID
+          const token = await getCustomToken();
+          if (!token) throw new Error('No custom token available');
+
+          const decoded = decodeJwt(token);
+
+          const formattedUser: any = {
+            id: decoded.sub, // Use real Supabase UUID
+            email: decoded.email || fbUser.email || null,
+            phone: decoded.phone || fbUser.phoneNumber || null,
+            user_metadata: decoded.user_metadata || {
+              full_name: fbUser.displayName || null,
+              phone: fbUser.phoneNumber || null,
+            },
+            created_at:
+              fbUser.metadata?.creationTime || new Date().toISOString(),
+          };
+          setUser(formattedUser);
+          setSession(null);
+          await fetchProfile(formattedUser);
+          if (isMounted) setLoading(false);
+          return true;
+        } catch (e) {
+          console.error('Firebase user JWT resolution error:', e);
+        }
       }
       return false;
     };
@@ -402,7 +372,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         profile,
         loading,
         signOut,
-        refreshProfile,
       }}
     >
       {children}
