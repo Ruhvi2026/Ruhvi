@@ -48,7 +48,7 @@ export async function getCustomToken(): Promise<string> {
 
     // Check if we have a valid cached token
     if (customTokenCache && tokenExpiry && Date.now() < tokenExpiry) {
-      return customTokenCache;
+      return customTokenCache || '';
     }
 
     const idToken = await fbUser.getIdToken(false);
@@ -70,7 +70,7 @@ export async function getCustomToken(): Promise<string> {
       customTokenCache = data.supabaseToken;
       // Token expires in 1 hour (set expiration slightly early to be safe)
       tokenExpiry = Date.now() + 55 * 60 * 1000;
-      return customTokenCache;
+      return customTokenCache || '';
     }
   } catch (e) {
     console.error('Failed to get Supabase JWT', e);
