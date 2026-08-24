@@ -53,6 +53,7 @@ export interface ProductImage {
   url: string;
   type: ImageType;
   sort_order: number;
+  alt?: string | null;
   created_at?: string;
 }
 

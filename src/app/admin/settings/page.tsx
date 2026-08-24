@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react';
 import {
-  Settings,
   Store,
   Truck,
   CreditCard,
@@ -24,6 +23,20 @@ import {
   updateStoreSettings,
   getHomepageSettings,
   updateHomepageSettings,
+  getStoreIdentitySettings,
+  updateStoreIdentitySettings,
+  getShippingSettings,
+  updateShippingSettings,
+  getLoyaltySettings,
+  updateLoyaltySettings,
+  getReturnsSettings,
+  updateReturnsSettings,
+  getIntegrationSettings,
+  updateIntegrationSettings,
+  getPaymentSettings,
+  updatePaymentSettings,
+  getNotificationSettings,
+  updateNotificationSettings,
 } from '../actions/settings';
 import { quickSendEmail } from '../actions/marketing';
 
@@ -178,6 +191,81 @@ export default function AdminSettingsPage() {
         setBannerLink(data.banner_link || '');
       }
 
+      const identity = await getStoreIdentitySettings();
+      if (identity) {
+        setStoreName(identity.store_name || 'Ruhvi Fine Jewellery');
+        setStoreEmail(identity.store_email || 'support@ruhvi.in');
+        setStorePhone(identity.store_phone || '+91-');
+        setGstNumber(identity.gst_number || '');
+        setStoreAddress(identity.store_address || '');
+      }
+
+      const ship = await getShippingSettings();
+      if (ship) {
+        setFreeShippingThreshold(
+          ship.free_shipping_threshold !== undefined
+            ? String(ship.free_shipping_threshold)
+            : '500'
+        );
+        setCodCharge(
+          ship.cod_charge !== undefined ? String(ship.cod_charge) : '49'
+        );
+        setCodEnabled(ship.cod_enabled ?? true);
+        setPickupAddress(ship.pickup_address || '');
+      }
+
+      const loyalty = await getLoyaltySettings();
+      if (loyalty) {
+        setCoinsPerRupee(
+          loyalty.coins_per_rupee !== undefined
+            ? String(loyalty.coins_per_rupee)
+            : '1'
+        );
+        setMinRedeem(
+          loyalty.min_redeem !== undefined ? String(loyalty.min_redeem) : '100'
+        );
+        setCoinsExpiry(
+          loyalty.coins_expiry !== undefined
+            ? String(loyalty.coins_expiry)
+            : '12'
+        );
+      }
+
+      const returns = await getReturnsSettings();
+      if (returns) {
+        setReturnWindow(
+          returns.return_window !== undefined
+            ? String(returns.return_window)
+            : '7'
+        );
+        setAutoApprove(returns.auto_approve ?? false);
+        setAutoApproveLimit(
+          returns.auto_approve_limit !== undefined
+            ? String(returns.auto_approve_limit)
+            : '500'
+        );
+      }
+
+      const integrations = await getIntegrationSettings();
+      if (integrations) {
+        setGa4Id(integrations.ga4_id || 'G-7LY7LND9S9');
+        setMetaPixelId(integrations.meta_pixel_id || '');
+        setClarityId(integrations.clarity_id || '');
+      }
+
+      const payment = await getPaymentSettings();
+      if (payment) {
+        setPhonepeEnabled(payment.phonepe_enabled ?? true);
+      }
+
+      const notifications = await getNotificationSettings();
+      if (notifications) {
+        setEmailEnabled(notifications.email_enabled ?? true);
+        setWhatsappEnabled(notifications.whatsapp_enabled ?? false);
+        setNotifSenderEmail(notifications.sender_email || 'marketing@ruhvi.in');
+        setNotifSenderName(notifications.sender_name || 'Ruhvi');
+      }
+
       const hp = await getHomepageSettings();
       if (hp) {
         setHomepageSettings({
@@ -223,35 +311,80 @@ export default function AdminSettingsPage() {
   const [metaPixelId, setMetaPixelId] = useState('');
   const [clarityId, setClarityId] = useState('');
 
+  // Payment
+  const [phonepeEnabled, setPhonepeEnabled] = useState(true);
+
+  // Notifications
+  const [emailEnabled, setEmailEnabled] = useState(true);
+  const [whatsappEnabled, setWhatsappEnabled] = useState(false);
+  const [notifSenderEmail, setNotifSenderEmail] =
+    useState('marketing@ruhvi.in');
+  const [notifSenderName, setNotifSenderName] = useState('Ruhvi');
+
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (activeSection === 'banner') {
-      try {
+    try {
+      if (activeSection === 'banner') {
         await updateStoreSettings({
           banner_enabled: bannerEnabled,
           banner_text: bannerText,
           banner_color: bannerColor,
           banner_link: bannerLink || null,
         });
-        setSaved(true);
-        setTimeout(() => setSaved(false), 3000);
-      } catch (err) {
-        console.error('Failed to save settings', err);
-        alert('Failed to save settings.');
-      }
-    } else if (activeSection === 'homepage') {
-      try {
+      } else if (activeSection === 'homepage') {
         await updateHomepageSettings(homepageSettings);
-        setSaved(true);
-        setTimeout(() => setSaved(false), 3000);
-      } catch (err) {
-        console.error('Failed to save homepage settings', err);
-        alert('Failed to save homepage settings.');
+      } else if (activeSection === 'store') {
+        await updateStoreIdentitySettings({
+          store_name: storeName,
+          store_email: storeEmail,
+          store_phone: storePhone,
+          gst_number: gstNumber,
+          store_address: storeAddress,
+        });
+      } else if (activeSection === 'shipping') {
+        await updateShippingSettings({
+          free_shipping_threshold: Number(freeShippingThreshold) || 0,
+          cod_charge: Number(codCharge) || 0,
+          cod_enabled: codEnabled,
+          pickup_address: pickupAddress,
+        });
+      } else if (activeSection === 'loyalty') {
+        await updateLoyaltySettings({
+          coins_per_rupee: Number(coinsPerRupee) || 0,
+          min_redeem: Number(minRedeem) || 0,
+          coins_expiry: Number(coinsExpiry) || 0,
+        });
+      } else if (activeSection === 'returns') {
+        await updateReturnsSettings({
+          return_window: Number(returnWindow) || 0,
+          auto_approve: autoApprove,
+          auto_approve_limit: Number(autoApproveLimit) || 0,
+        });
+      } else if (activeSection === 'integrations') {
+        await updateIntegrationSettings({
+          ga4_id: ga4Id,
+          meta_pixel_id: metaPixelId,
+          clarity_id: clarityId,
+        });
+      } else if (activeSection === 'payment') {
+        await updatePaymentSettings({
+          phonepe_enabled: phonepeEnabled,
+        });
+      } else if (activeSection === 'notifications') {
+        await updateNotificationSettings({
+          email_enabled: emailEnabled,
+          whatsapp_enabled: whatsappEnabled,
+          sender_email: notifSenderEmail,
+          sender_name: notifSenderName,
+        });
+      } else if (activeSection === 'security') {
+        // No editable fields to persist
       }
-    } else {
-      // Mock save for other sections
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
+    } catch (err) {
+      console.error('Failed to save settings', err);
+      alert('Failed to save settings.');
     }
   };
 
@@ -918,21 +1051,58 @@ export default function AdminSettingsPage() {
             </Section>
           )}
 
-          {(activeSection === 'payment' ||
-            activeSection === 'notifications') && (
-            <div className="rounded-2xl border border-white/5 bg-[#131726] p-8 text-center">
-              <Settings className="mx-auto mb-3 h-10 w-10 text-slate-700" />
-              <p className="text-sm font-medium text-slate-500">
-                {activeSection === 'payment'
-                  ? 'Payment Settings'
-                  : 'Notification Templates'}
-              </p>
-              <p className="mt-1 text-xs text-slate-600">
-                {activeSection === 'payment'
-                  ? 'Configure when PhonePe account is active. COD settings are in Shipping.'
-                  : 'Email and WhatsApp templates configurable once integrations are active.'}
-              </p>
-            </div>
+          {activeSection === 'payment' && (
+            <Section title="Payment Settings">
+              <div className="grid grid-cols-1 gap-5">
+                <Toggle
+                  label="PhonePe Online Payments"
+                  checked={phonepeEnabled}
+                  onChange={setPhonepeEnabled}
+                  hint="Accept UPI, cards and netbanking at checkout via PhonePe."
+                />
+                <div className="bg-white/3 rounded-xl border border-white/5 p-4 text-[11px] text-slate-500">
+                  COD availability is controlled under Shipping Settings.
+                  PhonePe credentials are configured via environment variables
+                  (PHONEPE_MERCHANT_ID, PHONEPE_SALT_KEY).
+                </div>
+              </div>
+            </Section>
+          )}
+
+          {activeSection === 'notifications' && (
+            <Section title="Notification Settings">
+              <div className="grid grid-cols-1 gap-5">
+                <Toggle
+                  label="Email Notifications"
+                  checked={emailEnabled}
+                  onChange={setEmailEnabled}
+                  hint="Send transactional emails such as order confirmations and shipping updates."
+                />
+                <Toggle
+                  label="WhatsApp Notifications"
+                  checked={whatsappEnabled}
+                  onChange={setWhatsappEnabled}
+                  hint="Send order updates via WhatsApp once the Business API integration is active."
+                />
+                <div className="grid grid-cols-2 gap-5">
+                  <Field label="Sender Email">
+                    <Input
+                      type="email"
+                      value={notifSenderEmail}
+                      onChange={(e) => setNotifSenderEmail(e.target.value)}
+                      placeholder="marketing@ruhvi.in"
+                    />
+                  </Field>
+                  <Field label="Sender Name">
+                    <Input
+                      value={notifSenderName}
+                      onChange={(e) => setNotifSenderName(e.target.value)}
+                      placeholder="Ruhvi"
+                    />
+                  </Field>
+                </div>
+              </div>
+            </Section>
           )}
         </form>
       </div>

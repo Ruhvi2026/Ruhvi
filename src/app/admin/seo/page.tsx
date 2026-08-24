@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Globe,
   Search,
@@ -12,28 +12,95 @@ import {
   Save,
   RefreshCw,
   BarChart2,
-  Sparkles,
   ShieldCheck,
 } from 'lucide-react';
 import { DEMO_PRODUCTS } from '@/lib/products';
+import { Product, ProductImage } from '@/types/database';
+import { createClient } from '@/lib/supabase/client';
+
+const DEFAULT_META = {
+  siteTitle: 'Ruhvi — Exquisite Fine Jewellery & Certified Gold',
+  titleTemplate: '%s | Ruhvi Fine Jewellery',
+  metaDescription:
+    'Discover handcrafted gold, diamond, and gemstone jewellery at Ruhvi. BIS hallmarked purity, lifetime warranty, and free insured shipping across India.',
+  ogImageUrl:
+    'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?q=80&w=1200&auto=format&fit=crop',
+  robotsIndex: true,
+  robotsFollow: true,
+};
+
+type Message = { type: 'success' | 'error'; text: string } | null;
 
 export default function AdminSEOPage() {
-  const [activeTab, setActiveTab] = useState<'health' | 'meta' | 'alts' | 'sitemap'>('health');
-  const [metaSettings, setMetaSettings] = useState({
-    siteTitle: 'Ruhvi — Exquisite Fine Jewellery & Certified Gold',
-    titleTemplate: '%s | Ruhvi Fine Jewellery',
-    metaDescription:
-      'Discover handcrafted gold, diamond, and gemstone jewellery at Ruhvi. BIS hallmarked purity, lifetime warranty, and free insured shipping across India.',
-    ogImageUrl:
-      'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?q=80&w=1200&auto=format&fit=crop',
-    robotsIndex: true,
-    robotsFollow: true,
-  });
+  const [activeTab, setActiveTab] = useState<
+    'health' | 'meta' | 'alts' | 'sitemap'
+  >('health');
+  const [products, setProducts] = useState<Product[]>(DEMO_PRODUCTS);
+  const [loadingProducts, setLoadingProducts] = useState(true);
+  const [metaSettings, setMetaSettings] = useState(DEFAULT_META);
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState<Message>(null);
+  const [altDrafts, setAltDrafts] = useState<Record<string, string>>({});
 
-  const [savedSuccess, setSavedSuccess] = useState(false);
+  useEffect(() => {
+    const loadProducts = async () => {
+      try {
+        const supabase = createClient();
+        const { data, error } = await supabase
+          .from('products')
+          .select('*, images:product_images(*), category:categories(*)')
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        setProducts(data && data.length > 0 ? data : DEMO_PRODUCTS);
+      } catch (err) {
+        console.error('Failed to load products for SEO audit', err);
+        setProducts(DEMO_PRODUCTS);
+      } finally {
+        setLoadingProducts(false);
+      }
+    };
+
+    const loadMetaSettings = async () => {
+      try {
+        const supabase = createClient();
+        const { data } = await supabase
+          .from('settings')
+          .select('value')
+          .eq('key', 'seo_meta')
+          .maybeSingle();
+
+        if (data?.value) {
+          setMetaSettings((prev) => ({ ...prev, ...data.value }));
+        }
+      } catch (err) {
+        console.error('Failed to load SEO meta settings', err);
+      }
+    };
+
+    loadProducts();
+    loadMetaSettings();
+  }, []);
+
+  // Initialize alt text drafts once real/demo products are available
+  useEffect(() => {
+    if (loadingProducts) return;
+    setAltDrafts((prev) => {
+      const next = { ...prev };
+      products.forEach((p) => {
+        (p.images || []).forEach((img) => {
+          if (!(img.id in next)) {
+            next[img.id] =
+              img.alt || `${p.name} - BIS Hallmarked Gold Jewellery by Ruhvi`;
+          }
+        });
+      });
+      return next;
+    });
+  }, [loadingProducts, products]);
 
   // Compute product SEO health
-  const productAudits = DEMO_PRODUCTS.map((product) => {
+  const productAudits = products.map((product) => {
     const issues: string[] = [];
     if (!product.description || product.description.length < 30) {
       issues.push('Short description');
@@ -53,28 +120,118 @@ export default function AdminSEOPage() {
     };
   });
 
-  const avgScore = Math.round(
-    productAudits.reduce((acc, p) => acc + p.score, 0) / productAudits.length
-  );
+  const avgScore =
+    productAudits.length > 0
+      ? Math.round(
+          productAudits.reduce((acc, p) => acc + p.score, 0) /
+            productAudits.length
+        )
+      : 0;
 
-  const handleSaveMeta = (e: React.FormEvent) => {
-    e.preventDefault();
-    setSavedSuccess(true);
-    setTimeout(() => setSavedSuccess(false), 3000);
+  const showMessage = (msg: Message) => {
+    setMessage(msg);
+    setTimeout(() => setMessage(null), 4000);
   };
 
+  const handleSaveMeta = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      const supabase = createClient();
+      const { error } = await supabase.from('settings').upsert(
+        {
+          key: 'seo_meta',
+          value: metaSettings,
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: 'key' }
+      );
+
+      if (error) throw error;
+      showMessage({
+        type: 'success',
+        text: 'SEO Meta settings saved successfully!',
+      });
+    } catch (err: any) {
+      showMessage({
+        type: 'error',
+        text:
+          'Failed to save meta settings: ' + (err?.message || 'unknown error'),
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleSaveAlt = async (image: ProductImage) => {
+    setSaving(true);
+    try {
+      const supabase = createClient();
+      const { error } = await supabase
+        .from('product_images')
+        .update({ alt: altDrafts[image.id]?.trim() || null })
+        .eq('id', image.id);
+
+      if (error) throw error;
+      showMessage({ type: 'success', text: 'Alt text updated successfully!' });
+    } catch (err: any) {
+      showMessage({
+        type: 'error',
+        text: 'Failed to save alt text: ' + (err?.message || 'unknown error'),
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleSaveAllAlts = async () => {
+    const allImages = products.flatMap((p) => p.images || []);
+    if (allImages.length === 0) return;
+
+    setSaving(true);
+    try {
+      const supabase = createClient();
+      for (const img of allImages) {
+        const { error } = await supabase
+          .from('product_images')
+          .update({ alt: altDrafts[img.id]?.trim() || null })
+          .eq('id', img.id);
+        if (error) throw error;
+      }
+      showMessage({ type: 'success', text: 'All alt text updates saved!' });
+    } catch (err: any) {
+      showMessage({
+        type: 'error',
+        text: 'Failed to save alt text: ' + (err?.message || 'unknown error'),
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const productsWithImages = products.filter(
+    (p) => (p.images?.length ?? 0) > 0
+  );
+  const totalImages = products.reduce(
+    (acc, p) => acc + (p.images?.length ?? 0),
+    0
+  );
+
   return (
-    <div className="space-y-6 max-w-7xl mx-auto">
+    <div className="mx-auto max-w-7xl space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-[#131726] p-6 rounded-2xl border border-white/5 shadow-xl">
+      <div className="flex flex-col gap-4 rounded-2xl border border-white/5 bg-[#131726] p-6 shadow-xl sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <div className="flex items-center gap-2 text-emerald-400 text-xs font-semibold uppercase tracking-wider mb-1">
-            <Globe className="w-4 h-4" />
+          <div className="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-emerald-400">
+            <Globe className="h-4 w-4" />
             <span>Search Engine Optimization</span>
           </div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">SEO Control Suite</h1>
-          <p className="text-slate-400 text-xs mt-1">
-            Manage meta tags, dynamic sitemaps, image alt text, and product search engine health.
+          <h1 className="text-2xl font-bold tracking-tight text-white">
+            SEO Control Suite
+          </h1>
+          <p className="mt-1 text-xs text-slate-400">
+            Manage meta tags, dynamic sitemaps, image alt text, and product
+            search engine health.
           </p>
         </div>
 
@@ -83,70 +240,87 @@ export default function AdminSEOPage() {
             href="/sitemap.xml"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2 px-3.5 py-2 bg-white/5 hover:bg-white/10 text-slate-300 text-xs font-semibold rounded-lg border border-white/10 transition-colors"
+            className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3.5 py-2 text-xs font-semibold text-slate-300 transition-colors hover:bg-white/10"
           >
-            <ExternalLink className="w-3.5 h-3.5" />
+            <ExternalLink className="h-3.5 w-3.5" />
             <span>View sitemap.xml</span>
           </a>
           <a
             href="/robots.txt"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2 px-3.5 py-2 bg-white/5 hover:bg-white/10 text-slate-300 text-xs font-semibold rounded-lg border border-white/10 transition-colors"
+            className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3.5 py-2 text-xs font-semibold text-slate-300 transition-colors hover:bg-white/10"
           >
-            <FileText className="w-3.5 h-3.5" />
+            <FileText className="h-3.5 w-3.5" />
             <span>View robots.txt</span>
           </a>
         </div>
       </div>
 
+      {message && (
+        <div
+          className={`flex items-center gap-2 rounded-lg border p-3 text-xs ${
+            message.type === 'success'
+              ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-400'
+              : 'border-rose-500/30 bg-rose-500/10 text-rose-400'
+          }`}
+        >
+          {message.type === 'success' ? (
+            <CheckCircle2 className="h-4 w-4 flex-shrink-0" />
+          ) : (
+            <AlertTriangle className="h-4 w-4 flex-shrink-0" />
+          )}
+          <span>{message.text}</span>
+        </div>
+      )}
+
       {/* Tabs */}
-      <div className="flex border-b border-white/10 space-x-2">
+      <div className="flex space-x-2 border-b border-white/10">
         <button
           onClick={() => setActiveTab('health')}
-          className={`flex items-center gap-2 py-3 px-4 text-xs font-semibold border-b-2 transition-colors ${
+          className={`flex items-center gap-2 border-b-2 px-4 py-3 text-xs font-semibold transition-colors ${
             activeTab === 'health'
               ? 'border-emerald-500 text-emerald-400'
               : 'border-transparent text-slate-400 hover:text-slate-200'
           }`}
         >
-          <BarChart2 className="w-4 h-4" />
+          <BarChart2 className="h-4 w-4" />
           <span>SEO Health Audit ({avgScore}%)</span>
         </button>
 
         <button
           onClick={() => setActiveTab('meta')}
-          className={`flex items-center gap-2 py-3 px-4 text-xs font-semibold border-b-2 transition-colors ${
+          className={`flex items-center gap-2 border-b-2 px-4 py-3 text-xs font-semibold transition-colors ${
             activeTab === 'meta'
               ? 'border-emerald-500 text-emerald-400'
               : 'border-transparent text-slate-400 hover:text-slate-200'
           }`}
         >
-          <Search className="w-4 h-4" />
+          <Search className="h-4 w-4" />
           <span>Global Meta Tags</span>
         </button>
 
         <button
           onClick={() => setActiveTab('alts')}
-          className={`flex items-center gap-2 py-3 px-4 text-xs font-semibold border-b-2 transition-colors ${
+          className={`flex items-center gap-2 border-b-2 px-4 py-3 text-xs font-semibold transition-colors ${
             activeTab === 'alts'
               ? 'border-emerald-500 text-emerald-400'
               : 'border-transparent text-slate-400 hover:text-slate-200'
           }`}
         >
-          <ImageIcon className="w-4 h-4" />
+          <ImageIcon className="h-4 w-4" />
           <span>Image Alt Text</span>
         </button>
 
         <button
           onClick={() => setActiveTab('sitemap')}
-          className={`flex items-center gap-2 py-3 px-4 text-xs font-semibold border-b-2 transition-colors ${
+          className={`flex items-center gap-2 border-b-2 px-4 py-3 text-xs font-semibold transition-colors ${
             activeTab === 'sitemap'
               ? 'border-emerald-500 text-emerald-400'
               : 'border-transparent text-slate-400 hover:text-slate-200'
           }`}
         >
-          <ShieldCheck className="w-4 h-4" />
+          <ShieldCheck className="h-4 w-4" />
           <span>Sitemap & Indexing</span>
         </button>
       </div>
@@ -155,89 +329,119 @@ export default function AdminSEOPage() {
       {activeTab === 'health' && (
         <div className="space-y-6">
           {/* Health Stats */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="bg-[#131726] p-5 rounded-xl border border-white/5">
-              <p className="text-slate-400 text-xs font-medium">Catalog SEO Health Score</p>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <div className="rounded-xl border border-white/5 bg-[#131726] p-5">
+              <p className="text-xs font-medium text-slate-400">
+                Catalog SEO Health Score
+              </p>
               <div className="mt-2 flex items-baseline gap-2">
-                <span className="text-3xl font-bold text-emerald-400">{avgScore}%</span>
-                <span className="text-xs text-emerald-500/80 font-medium">Optimized</span>
+                <span className="text-3xl font-bold text-emerald-400">
+                  {avgScore}%
+                </span>
+                <span className="text-xs font-medium text-emerald-500/80">
+                  Optimized
+                </span>
               </div>
             </div>
 
-            <div className="bg-[#131726] p-5 rounded-xl border border-white/5">
-              <p className="text-slate-400 text-xs font-medium">Total Audited Products</p>
+            <div className="rounded-xl border border-white/5 bg-[#131726] p-5">
+              <p className="text-xs font-medium text-slate-400">
+                Total Audited Products
+              </p>
               <div className="mt-2 flex items-baseline gap-2">
-                <span className="text-3xl font-bold text-white">{productAudits.length}</span>
+                <span className="text-3xl font-bold text-white">
+                  {loadingProducts ? '…' : productAudits.length}
+                </span>
                 <span className="text-xs text-slate-400">Products</span>
               </div>
             </div>
 
-            <div className="bg-[#131726] p-5 rounded-xl border border-white/5">
-              <p className="text-slate-400 text-xs font-medium">Items Needing Optimization</p>
+            <div className="rounded-xl border border-white/5 bg-[#131726] p-5">
+              <p className="text-xs font-medium text-slate-400">
+                Items Needing Optimization
+              </p>
               <div className="mt-2 flex items-baseline gap-2">
                 <span className="text-3xl font-bold text-amber-400">
                   {productAudits.filter((p) => p.issues.length > 0).length}
                 </span>
-                <span className="text-xs text-amber-500">Action recommended</span>
+                <span className="text-xs text-amber-500">
+                  Action recommended
+                </span>
               </div>
             </div>
           </div>
 
           {/* Product Audit Table */}
-          <div className="bg-[#131726] rounded-xl border border-white/5 overflow-hidden">
-            <div className="p-4 border-b border-white/5 flex items-center justify-between">
-              <h3 className="text-sm font-semibold text-white">Product Technical SEO Breakdown</h3>
-              <span className="text-xs text-slate-400">Showing {productAudits.length} items</span>
+          <div className="overflow-hidden rounded-xl border border-white/5 bg-[#131726]">
+            <div className="flex items-center justify-between border-b border-white/5 p-4">
+              <h3 className="text-sm font-semibold text-white">
+                Product Technical SEO Breakdown
+              </h3>
+              <span className="text-xs text-slate-400">
+                {loadingProducts
+                  ? 'Loading live catalog…'
+                  : `Showing ${productAudits.length} items`}
+              </span>
             </div>
 
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs text-slate-300">
-                <thead className="bg-white/5 text-slate-400 font-semibold uppercase text-[10px] tracking-wider">
+                <thead className="bg-white/5 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
                   <tr>
-                    <th className="py-3 px-4">Product Name</th>
-                    <th className="py-3 px-4">SKU</th>
-                    <th className="py-3 px-4">SEO Health</th>
-                    <th className="py-3 px-4">Detected Issues</th>
-                    <th className="py-3 px-4 text-right">Action</th>
+                    <th className="px-4 py-3">Product Name</th>
+                    <th className="px-4 py-3">SKU</th>
+                    <th className="px-4 py-3">SEO Health</th>
+                    <th className="px-4 py-3">Detected Issues</th>
+                    <th className="px-4 py-3 text-right">Action</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/5">
                   {productAudits.map((p) => (
-                    <tr key={p.id} className="hover:bg-white/5 transition-colors">
-                      <td className="py-3 px-4 font-medium text-white flex items-center gap-3">
+                    <tr
+                      key={p.id}
+                      className="transition-colors hover:bg-white/5"
+                    >
+                      <td className="flex items-center gap-3 px-4 py-3 font-medium text-white">
                         <img
-                          src={p.images?.[0]?.url || 'https://via.placeholder.com/40'}
+                          src={
+                            p.images?.[0]?.url ||
+                            'https://via.placeholder.com/40'
+                          }
                           alt={p.name}
-                          className="w-8 h-8 rounded object-cover border border-white/10"
+                          className="h-8 w-8 rounded border border-white/10 object-cover"
                         />
                         <span>{p.name}</span>
                       </td>
-                      <td className="py-3 px-4 font-mono text-slate-400">{p.sku}</td>
-                      <td className="py-3 px-4">
+                      <td className="px-4 py-3 font-mono text-slate-400">
+                        {p.sku}
+                      </td>
+                      <td className="px-4 py-3">
                         <span
-                          className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                          className={`inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px] font-bold ${
                             p.score >= 90
-                              ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-                              : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
+                              ? 'border border-emerald-500/20 bg-emerald-500/10 text-emerald-400'
+                              : 'border border-amber-500/20 bg-amber-500/10 text-amber-400'
                           }`}
                         >
                           {p.score >= 90 ? (
-                            <CheckCircle2 className="w-3 h-3" />
+                            <CheckCircle2 className="h-3 w-3" />
                           ) : (
-                            <AlertTriangle className="w-3 h-3" />
+                            <AlertTriangle className="h-3 w-3" />
                           )}
                           {p.score}%
                         </span>
                       </td>
-                      <td className="py-3 px-4">
+                      <td className="px-4 py-3">
                         {p.issues.length === 0 ? (
-                          <span className="text-emerald-400/80 text-[11px]">No issues found</span>
+                          <span className="text-[11px] text-emerald-400/80">
+                            No issues found
+                          </span>
                         ) : (
                           <div className="flex flex-wrap gap-1">
                             {p.issues.map((iss) => (
                               <span
                                 key={iss}
-                                className="px-2 py-0.5 bg-amber-500/10 text-amber-300 text-[10px] rounded"
+                                className="rounded bg-amber-500/10 px-2 py-0.5 text-[10px] text-amber-300"
                               >
                                 {iss}
                               </span>
@@ -245,10 +449,10 @@ export default function AdminSEOPage() {
                           </div>
                         )}
                       </td>
-                      <td className="py-3 px-4 text-right">
+                      <td className="px-4 py-3 text-right">
                         <a
                           href={`/admin/products/${p.id}/edit`}
-                          className="text-emerald-400 hover:text-emerald-300 font-semibold"
+                          className="font-semibold text-emerald-400 hover:text-emerald-300"
                         >
                           Edit Meta
                         </a>
@@ -264,74 +468,89 @@ export default function AdminSEOPage() {
 
       {/* TAB CONTENT: GLOBAL META */}
       {activeTab === 'meta' && (
-        <form onSubmit={handleSaveMeta} className="bg-[#131726] p-6 rounded-xl border border-white/5 space-y-5">
-          {savedSuccess && (
-            <div className="bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 p-3 rounded-lg text-xs flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
-              <span>SEO Meta settings saved successfully!</span>
-            </div>
-          )}
-
+        <form
+          onSubmit={handleSaveMeta}
+          className="space-y-5 rounded-xl border border-white/5 bg-[#131726] p-6"
+        >
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+            <label className="mb-1.5 block text-xs font-semibold text-slate-300">
               Default Site Meta Title
             </label>
             <input
               type="text"
               value={metaSettings.siteTitle}
-              onChange={(e) => setMetaSettings({ ...metaSettings, siteTitle: e.target.value })}
-              className="w-full bg-white/5 border border-white/10 rounded-lg px-3.5 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-emerald-500"
+              onChange={(e) =>
+                setMetaSettings({ ...metaSettings, siteTitle: e.target.value })
+              }
+              className="w-full rounded-lg border border-white/10 bg-white/5 px-3.5 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-emerald-500"
             />
-            <p className="text-[11px] text-slate-500 mt-1">Recommended length: 50-60 characters.</p>
+            <p className="mt-1 text-[11px] text-slate-500">
+              Recommended length: 50-60 characters.
+            </p>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+            <label className="mb-1.5 block text-xs font-semibold text-slate-300">
               Title Template Format
             </label>
             <input
               type="text"
               value={metaSettings.titleTemplate}
-              onChange={(e) => setMetaSettings({ ...metaSettings, titleTemplate: e.target.value })}
-              className="w-full bg-white/5 border border-white/10 rounded-lg px-3.5 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-emerald-500 font-mono"
+              onChange={(e) =>
+                setMetaSettings({
+                  ...metaSettings,
+                  titleTemplate: e.target.value,
+                })
+              }
+              className="w-full rounded-lg border border-white/10 bg-white/5 px-3.5 py-2 font-mono text-xs text-white focus:outline-none focus:ring-1 focus:ring-emerald-500"
             />
-            <p className="text-[11px] text-slate-500 mt-1">
+            <p className="mt-1 text-[11px] text-slate-500">
               Used across inner pages (e.g. %s | Ruhvi Fine Jewellery).
             </p>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+            <label className="mb-1.5 block text-xs font-semibold text-slate-300">
               Global Meta Description
             </label>
             <textarea
               rows={3}
               value={metaSettings.metaDescription}
-              onChange={(e) => setMetaSettings({ ...metaSettings, metaDescription: e.target.value })}
-              className="w-full bg-white/5 border border-white/10 rounded-lg px-3.5 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-emerald-500"
+              onChange={(e) =>
+                setMetaSettings({
+                  ...metaSettings,
+                  metaDescription: e.target.value,
+                })
+              }
+              className="w-full rounded-lg border border-white/10 bg-white/5 px-3.5 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-emerald-500"
             />
-            <p className="text-[11px] text-slate-500 mt-1">Recommended length: 140-160 characters.</p>
+            <p className="mt-1 text-[11px] text-slate-500">
+              Recommended length: 140-160 characters.
+            </p>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+            <label className="mb-1.5 block text-xs font-semibold text-slate-300">
               Default OpenGraph Social Share Image URL
             </label>
             <input
               type="url"
               value={metaSettings.ogImageUrl}
-              onChange={(e) => setMetaSettings({ ...metaSettings, ogImageUrl: e.target.value })}
-              className="w-full bg-white/5 border border-white/10 rounded-lg px-3.5 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-emerald-500"
+              onChange={(e) =>
+                setMetaSettings({ ...metaSettings, ogImageUrl: e.target.value })
+              }
+              className="w-full rounded-lg border border-white/10 bg-white/5 px-3.5 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-emerald-500"
             />
           </div>
 
           <div className="pt-2">
             <button
               type="submit"
-              className="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-lg transition-colors shadow-lg shadow-emerald-600/20"
+              disabled={saving}
+              className="flex items-center gap-2 rounded-lg bg-emerald-600 px-5 py-2.5 text-xs font-semibold text-white shadow-lg shadow-emerald-600/20 transition-colors hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              <Save className="w-4 h-4" />
-              <span>Save Meta Settings</span>
+              <Save className="h-4 w-4" />
+              <span>{saving ? 'Saving…' : 'Save Meta Settings'}</span>
             </button>
           </div>
         </form>
@@ -339,82 +558,148 @@ export default function AdminSEOPage() {
 
       {/* TAB CONTENT: IMAGE ALTS */}
       {activeTab === 'alts' && (
-        <div className="bg-[#131726] p-6 rounded-xl border border-white/5 space-y-4">
+        <div className="space-y-4 rounded-xl border border-white/5 bg-[#131726] p-6">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-sm font-semibold text-white">Product Image Alt Text Manager</h3>
-              <p className="text-slate-400 text-xs">
-                Ensure every product image has descriptive accessibility alt text for Google Image Search.
+              <h3 className="text-sm font-semibold text-white">
+                Product Image Alt Text Manager
+              </h3>
+              <p className="text-xs text-slate-400">
+                Ensure every product image has descriptive accessibility alt
+                text for Google Image Search.
               </p>
             </div>
+            {productsWithImages.length > 0 && (
+              <button
+                onClick={handleSaveAllAlts}
+                disabled={saving}
+                className="flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                <Save className="h-3.5 w-3.5" />
+                <span>{saving ? 'Saving…' : `Save All (${totalImages})`}</span>
+              </button>
+            )}
           </div>
 
-          <div className="space-y-3 pt-2">
-            {DEMO_PRODUCTS.map((p) => (
-              <div
-                key={p.id}
-                className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-3 bg-white/5 rounded-lg border border-white/5"
-              >
-                <div className="flex items-center gap-3">
-                  <img
-                    src={p.images?.[0]?.url || 'https://via.placeholder.com/50'}
-                    alt={p.name}
-                    className="w-10 h-10 rounded object-cover border border-white/10"
-                  />
-                  <div>
-                    <p className="text-xs font-semibold text-white">{p.name}</p>
-                    <p className="text-[10px] text-slate-400">SKU: {p.sku}</p>
+          {loadingProducts ? (
+            <div className="flex items-center justify-center gap-2 py-8 text-xs text-slate-400">
+              <RefreshCw className="h-4 w-4 animate-spin" />
+              <span>Loading product images…</span>
+            </div>
+          ) : productsWithImages.length === 0 ? (
+            <div className="py-8 text-center text-xs text-slate-400">
+              No products with images found in the catalog.
+            </div>
+          ) : (
+            <div className="space-y-3 pt-2">
+              {productsWithImages.map((p) => (
+                <div
+                  key={p.id}
+                  className="rounded-lg border border-white/5 bg-white/5 p-3"
+                >
+                  <div className="flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                      <img
+                        src={
+                          p.images?.[0]?.url || 'https://via.placeholder.com/50'
+                        }
+                        alt={p.name}
+                        className="h-10 w-10 rounded border border-white/10 object-cover"
+                      />
+                      <div>
+                        <p className="text-xs font-semibold text-white">
+                          {p.name}
+                        </p>
+                        <p className="text-[10px] text-slate-400">
+                          SKU: {p.sku}
+                        </p>
+                      </div>
+                    </div>
+                    <span className="text-[10px] text-slate-500">
+                      {p.images?.length ?? 0} image
+                      {(p.images?.length ?? 0) === 1 ? '' : 's'}
+                    </span>
+                  </div>
+
+                  <div className="mt-3 space-y-2">
+                    {(p.images || []).map((img) => (
+                      <div key={img.id} className="flex items-center gap-3">
+                        <img
+                          src={img.url || 'https://via.placeholder.com/50'}
+                          alt={img.alt || p.name}
+                          className="h-12 w-12 flex-shrink-0 rounded border border-white/10 object-cover"
+                        />
+                        <input
+                          type="text"
+                          value={altDrafts[img.id] ?? ''}
+                          onChange={(e) =>
+                            setAltDrafts((drafts) => ({
+                              ...drafts,
+                              [img.id]: e.target.value,
+                            }))
+                          }
+                          placeholder="Descriptive alt text for this image…"
+                          className="w-full min-w-0 flex-1 rounded border border-white/10 bg-black/20 px-3 py-1.5 text-xs text-slate-300 focus:border-emerald-500 focus:outline-none"
+                        />
+                        <button
+                          onClick={() => handleSaveAlt(img)}
+                          disabled={saving}
+                          className="flex flex-shrink-0 items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] font-semibold text-slate-300 transition-colors hover:bg-emerald-600 hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                          <Save className="h-3 w-3" />
+                          Save
+                        </button>
+                      </div>
+                    ))}
                   </div>
                 </div>
-
-                <div className="flex-1 max-w-md">
-                  <input
-                    type="text"
-                    defaultValue={`${p.name} - BIS Hallmarked Gold Jewellery by Ruhvi`}
-                    className="w-full bg-black/20 border border-white/10 rounded px-3 py-1.5 text-xs text-slate-300 focus:outline-none focus:border-emerald-500"
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
       {/* TAB CONTENT: SITEMAP */}
       {activeTab === 'sitemap' && (
-        <div className="bg-[#131726] p-6 rounded-xl border border-white/5 space-y-4">
-          <h3 className="text-sm font-semibold text-white">Sitemap & Indexing Engine</h3>
-          <p className="text-slate-400 text-xs">
-            Your website sitemap is dynamically generated at <code className="text-emerald-400 font-mono">/sitemap.xml</code> and includes all live product pages, categories, and static policies.
+        <div className="space-y-4 rounded-xl border border-white/5 bg-[#131726] p-6">
+          <h3 className="text-sm font-semibold text-white">
+            Sitemap & Indexing Engine
+          </h3>
+          <p className="text-xs text-slate-400">
+            Your website sitemap is dynamically generated at{' '}
+            <code className="font-mono text-emerald-400">/sitemap.xml</code> and
+            includes all live product pages, categories, and static policies.
           </p>
 
-          <div className="p-4 bg-white/5 rounded-lg border border-white/10 space-y-2">
+          <div className="space-y-2 rounded-lg border border-white/10 bg-white/5 p-4">
             <div className="flex items-center justify-between text-xs">
-              <span className="text-slate-300 font-semibold">Sitemap URL:</span>
+              <span className="font-semibold text-slate-300">Sitemap URL:</span>
               <a
                 href="https://ruhvi.in/sitemap.xml"
                 target="_blank"
                 rel="noreferrer"
-                className="text-emerald-400 font-mono hover:underline"
+                className="font-mono text-emerald-400 hover:underline"
               >
                 https://ruhvi.in/sitemap.xml
               </a>
             </div>
             <div className="flex items-center justify-between text-xs">
-              <span className="text-slate-300 font-semibold">Robots.txt URL:</span>
+              <span className="font-semibold text-slate-300">
+                Robots.txt URL:
+              </span>
               <a
                 href="https://ruhvi.in/robots.txt"
                 target="_blank"
                 rel="noreferrer"
-                className="text-emerald-400 font-mono hover:underline"
+                className="font-mono text-emerald-400 hover:underline"
               >
                 https://ruhvi.in/robots.txt
               </a>
             </div>
             <div className="flex items-center justify-between text-xs">
-              <span className="text-slate-300 font-semibold">Status:</span>
-              <span className="text-emerald-400 font-semibold flex items-center gap-1">
-                <CheckCircle2 className="w-3.5 h-3.5" /> Dynamic Indexing Active
+              <span className="font-semibold text-slate-300">Status:</span>
+              <span className="flex items-center gap-1 font-semibold text-emerald-400">
+                <CheckCircle2 className="h-3.5 w-3.5" /> Dynamic Indexing Active
               </span>
             </div>
           </div>
