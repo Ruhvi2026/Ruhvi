@@ -9,6 +9,12 @@ const envSchema = z.object({
   NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(1),
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(1).optional(),
 
+  // Upstash Redis
+  UPSTASH_REDIS_REST_URL: z.string().url().optional(),
+  UPSTASH_REDIS_REST_TOKEN: z.string().min(1).optional(),
+  UPSTASH_REDIS_REST_READONLY_URL: z.string().url().optional(),
+  UPSTASH_REDIS_REST_READONLY_TOKEN: z.string().min(1).optional(),
+
   // Firebase
   NEXT_PUBLIC_FIREBASE_API_KEY: z.string().min(1).optional(),
   NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: z.string().min(1).optional(),
@@ -23,6 +29,11 @@ const envSchema = z.object({
   // Meta/Analytics
   NEXT_PUBLIC_META_PIXEL_ID: z.string().optional(),
   NEXT_PUBLIC_GA_MEASUREMENT_ID: z.string().optional(),
+
+  // PostHog (Product Analytics, Web Analytics, Session Replay)
+  NEXT_PUBLIC_POSTHOG_KEY: z.string().min(1).optional(),
+  NEXT_PUBLIC_POSTHOG_HOST: z.string().url().optional(),
+  NEXT_PUBLIC_POSTHOG_UI_HOST: z.string().url().optional(),
 
   // Cloudinary
   NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: z.string().optional(),
@@ -43,6 +54,11 @@ const _env = envSchema.safeParse({
   NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
   NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
   SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
+  UPSTASH_REDIS_REST_URL: process.env.UPSTASH_REDIS_REST_URL,
+  UPSTASH_REDIS_REST_TOKEN: process.env.UPSTASH_REDIS_REST_TOKEN,
+  UPSTASH_REDIS_REST_READONLY_URL: process.env.UPSTASH_REDIS_REST_READONLY_URL,
+  UPSTASH_REDIS_REST_READONLY_TOKEN:
+    process.env.UPSTASH_REDIS_REST_READONLY_TOKEN,
   NEXT_PUBLIC_FIREBASE_API_KEY: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
   NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN:
     process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
@@ -53,6 +69,9 @@ const _env = envSchema.safeParse({
   ONESIGNAL_REST_API_KEY: process.env.ONESIGNAL_REST_API_KEY,
   NEXT_PUBLIC_META_PIXEL_ID: process.env.NEXT_PUBLIC_META_PIXEL_ID,
   NEXT_PUBLIC_GA_MEASUREMENT_ID: process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID,
+  NEXT_PUBLIC_POSTHOG_KEY: process.env.NEXT_PUBLIC_POSTHOG_KEY,
+  NEXT_PUBLIC_POSTHOG_HOST: process.env.NEXT_PUBLIC_POSTHOG_HOST,
+  NEXT_PUBLIC_POSTHOG_UI_HOST: process.env.NEXT_PUBLIC_POSTHOG_UI_HOST,
   NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME:
     process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
   NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET:

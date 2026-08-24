@@ -19,6 +19,8 @@ import { FcmInit } from '@/components/FcmInit';
 import { AuthProvider } from '@/context/AuthContext';
 import { ToastProvider } from '@/components/layout/ToastProvider';
 import { OfflineDetector } from '@/components/layout/OfflineDetector';
+import PostHogProvider from '@/components/PostHogProvider';
+import PostHogPageView from '@/components/PostHogPageView';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -198,20 +200,25 @@ export default async function RootLayout({
           <OneSignalInit />
         </Suspense>
         <AuthProvider>
-          <CartProvider>
-            <WishlistProvider>
-              <NotificationProvider>
-                <FcmInit />
-                {!isSystemSubdomain && <Navbar />}
-                <main className="flex-1">{children}</main>
-                {!isSystemSubdomain && <Footer />}
-                {!isSystemSubdomain && <CustomerSupportChat />}
-                <SpeedInsights />
-                <ToastProvider />
-                <OfflineDetector />
-              </NotificationProvider>
-            </WishlistProvider>
-          </CartProvider>
+          <PostHogProvider>
+            <CartProvider>
+              <WishlistProvider>
+                <NotificationProvider>
+                  <FcmInit />
+                  <Suspense fallback={null}>
+                    <PostHogPageView />
+                  </Suspense>
+                  {!isSystemSubdomain && <Navbar />}
+                  <main className="flex-1">{children}</main>
+                  {!isSystemSubdomain && <Footer />}
+                  {!isSystemSubdomain && <CustomerSupportChat />}
+                  <SpeedInsights />
+                  <ToastProvider />
+                  <OfflineDetector />
+                </NotificationProvider>
+              </WishlistProvider>
+            </CartProvider>
+          </PostHogProvider>
         </AuthProvider>
       </body>
     </html>
