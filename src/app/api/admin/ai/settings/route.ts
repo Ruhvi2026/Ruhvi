@@ -20,7 +20,12 @@ const DEFAULT_PROVIDERS = [
     name: 'Google Gemini',
     apiKey: '',
     isEnabled: true,
-    models: ['gemini-3.5-flash', 'gemini-1.5-flash', 'gemini-1.5-pro'],
+    models: [
+      'gemini-3.6-flash',
+      'gemini-2.0-flash',
+      'gemini-1.5-flash',
+      'gemini-1.5-pro',
+    ],
     priority: 1,
     status: 'online',
   },
@@ -177,10 +182,11 @@ export async function GET(req: Request) {
         // Ensure deprecated model names are replaced with valid ones
         const DEPRECATED_GEMINI_MODELS = [
           'gemini-2.5-flash',
-          'gemini-3.5-flash-lite',
           'gemini-3.5-flash',
+          'gemini-3.5-flash-lite',
           'gemini-3.7-flash',
           'gemini-2.5-flash-lite',
+          'gemini-2.0-flash',
           'gemini-flash-latest',
           'gemini-pro-latest',
         ];
@@ -188,18 +194,18 @@ export async function GET(req: Request) {
           (m: string) => !DEPRECATED_GEMINI_MODELS.includes(m)
         );
         const VALID_GEMINI_MODELS = [
-          'gemini-3.5-flash',
+          'gemini-3.6-flash',
           'gemini-1.5-flash',
           'gemini-1.5-pro',
         ];
         for (const vm of VALID_GEMINI_MODELS) {
           if (!models.includes(vm)) models.push(vm);
         }
-        // Ensure gemini-3.5-flash is first (default)
-        if (models[0] !== 'gemini-3.5-flash') {
+        // Ensure gemini-3.6-flash is first (default)
+        if (models[0] !== 'gemini-3.6-flash') {
           models = [
-            'gemini-3.5-flash',
-            ...models.filter((m: string) => m !== 'gemini-3.5-flash'),
+            'gemini-3.6-flash',
+            ...models.filter((m: string) => m !== 'gemini-3.6-flash'),
           ];
         }
       }
@@ -239,29 +245,30 @@ export async function GET(req: Request) {
     result.ai_features = result.ai_features || {
       product_description: {
         provider: 'gemini',
-        model: 'gemini-3.5-flash',
+        model: 'gemini-3.6-flash',
         enabled: true,
       },
       seo_metadata: {
         provider: 'gemini',
-        model: 'gemini-3.5-flash',
+        model: 'gemini-3.6-flash',
         enabled: true,
       },
       chatbot: {
         provider: 'gemini',
-        model: 'gemini-3.5-flash',
+        model: 'gemini-3.6-flash',
         enabled: true,
       },
     };
 
-    // Upgrade any legacy gemini-2.5-flash references in ai_features
+    // Upgrade any legacy/deprecated Gemini model references in ai_features
     if (result.ai_features) {
       // Upgrade any deprecated model references
       const DEPRECATED_GEMINI = [
         'gemini-2.5-flash',
-        'gemini-3.5-flash-lite',
         'gemini-3.5-flash',
+        'gemini-3.5-flash-lite',
         'gemini-3.7-flash',
+        'gemini-2.0-flash',
       ];
       Object.keys(result.ai_features).forEach((key) => {
         if (
@@ -269,7 +276,7 @@ export async function GET(req: Request) {
           (!result.ai_features[key]?.model ||
             DEPRECATED_GEMINI.includes(result.ai_features[key]?.model))
         ) {
-          result.ai_features[key].model = 'gemini-3.5-flash';
+          result.ai_features[key].model = 'gemini-3.6-flash';
         }
       });
     }

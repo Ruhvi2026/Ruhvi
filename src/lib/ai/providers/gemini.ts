@@ -12,11 +12,11 @@ export class GeminiProvider implements AIProvider {
   }
 
   private resolveModelName(modelName?: string): string {
-    if (!modelName) return 'gemini-3.5-flash';
+    if (!modelName) return 'gemini-3.6-flash';
 
     // Current active models
     const ACTIVE_MODELS = [
-      'gemini-3.5-flash',
+      'gemini-3.6-flash',
       'gemini-2.0-flash',
       'gemini-1.5-flash',
       'gemini-1.5-pro',
@@ -29,10 +29,14 @@ export class GeminiProvider implements AIProvider {
     const MODEL_ALIASES: Record<string, string> = {
       'gemini-pro-latest': 'gemini-1.5-pro',
       'gemini-1.5-pro-latest': 'gemini-1.5-pro',
-      'gemini-3.5-flash-lite': 'gemini-3.5-flash',
+      'gemini-3.5-flash': 'gemini-3.6-flash',
+      'gemini-3.5-flash-lite': 'gemini-3.6-flash',
+      'gemini-3.7-flash': 'gemini-3.6-flash',
+      'gemini-2.5-flash': 'gemini-3.6-flash',
+      'gemini-2.5-pro': 'gemini-3.6-flash',
     };
 
-    return MODEL_ALIASES[modelName] || 'gemini-3.5-flash';
+    return MODEL_ALIASES[modelName] || 'gemini-3.6-flash';
   }
 
   async generateStructuredProductContent(

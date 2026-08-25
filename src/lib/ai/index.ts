@@ -28,7 +28,7 @@ import { cookies } from 'next/headers';
 import { verifySessionToken } from '@/lib/auth/verify-session';
 
 // ── Sub-modules ────────────────────────────────────────────────────────────
-import { resolveEffectiveApiKey } from './keys';
+import { resolveEffectiveApiKey, isMaskedPlaceholder } from './keys';
 import { logFailureDiagnostic } from './diagnostics';
 import {
   classifyError,
@@ -419,7 +419,7 @@ export async function generateAIContent(
   const primaryProviderId = featureConfig.provider;
   let primaryModel = featureConfig.model;
   if (primaryProviderId === 'gemini' && !primaryModel) {
-    primaryModel = 'gemini-3.5-flash';
+    primaryModel = 'gemini-3.6-flash';
   }
 
   const executionChain: Array<{ id: string; model: string; config: any }> = [];
@@ -444,7 +444,7 @@ export async function generateAIContent(
       fp.models && fp.models.length > 0
         ? fp.models[0]
         : fp.type === 'gemini'
-          ? 'gemini-3.5-flash'
+          ? 'gemini-3.6-flash'
           : fp.type === 'custom'
             ? 'auto/best-fast'
             : fp.type === 'deepseek'
@@ -561,15 +561,33 @@ export async function generateAIContent(
       );
 
       if (credentials.length === 0) {
-        errors.push(`${chainItem.id}: No healthy credentials available`);
-        console.log(
-          `[AI_PROVIDER_SKIPPED] correlationId=${correlationId} provider=${chainItem.id} reason=no_healthy_credentials`
-        );
-        if (!firstFailedProvider) {
-          firstFailedProvider = chainItem.id;
-          initialFailureError = 'No healthy credentials available';
+        // No healthy credentials in the multi-credential table. Fall back to
+        // the provider's legacy apiKey from settings when one is configured,
+        // so a missing/undecryptable credential never leaves the chatbot down.
+        const legacyKey = chainItem.config?.apiKey;
+        if (legacyKey && !isMaskedPlaceholder(legacyKey)) {
+          credentials.push({
+            id: `legacy-${chainItem.id}`,
+            provider_id: chainItem.id,
+            display_name: 'Provider API Key (legacy)',
+            priority: 999,
+            is_enabled: true,
+            health_status: 'healthy',
+          } as any);
+          console.log(
+            `[AI_CREDENTIAL_FALLBACK] correlationId=${correlationId} provider=${chainItem.id} reason=no_healthy_credentials → using legacy provider apiKey`
+          );
+        } else {
+          errors.push(`${chainItem.id}: No healthy credentials available`);
+          console.log(
+            `[AI_PROVIDER_SKIPPED] correlationId=${correlationId} provider=${chainItem.id} reason=no_healthy_credentials`
+          );
+          if (!firstFailedProvider) {
+            firstFailedProvider = chainItem.id;
+            initialFailureError = 'No healthy credentials available';
+          }
+          continue; // Try next provider
         }
-        continue; // Try next provider
       }
 
       let credentialAttempts = 0;
@@ -589,12 +607,27 @@ export async function generateAIContent(
           credentialAttempts++;
           totalAttempts++;
 
-          const apiKey = await getCredentialKey(credential.id, supabaseAdmin);
+          let apiKey = await getCredentialKey(credential.id, supabaseAdmin);
           if (!apiKey) {
-            console.warn(
-              `[AI_CREDENTIAL_SKIPPED] credential=${credential.id} reason=no_key`
-            );
-            continue;
+            // Stored key is missing or cannot be decrypted (e.g. the
+            // CREDENTIAL_ENCRYPTION_KEY changed). Fall back to the provider's
+            // legacy apiKey from settings before skipping the credential.
+            const legacyKey = chainItem.config?.apiKey;
+            if (
+              legacyKey &&
+              !isMaskedPlaceholder(legacyKey) &&
+              legacyKey !== '__CLEAR_KEY__'
+            ) {
+              apiKey = legacyKey.trim();
+              console.warn(
+                `[AI_CREDENTIAL_FALLBACK] credential=${credential.id} reason=no_key → using provider legacy apiKey`
+              );
+            } else {
+              console.warn(
+                `[AI_CREDENTIAL_SKIPPED] credential=${credential.id} reason=no_key`
+              );
+              continue;
+            }
           }
 
           console.log(
