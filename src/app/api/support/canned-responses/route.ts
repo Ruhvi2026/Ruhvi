@@ -14,10 +14,10 @@ const DEFAULT_CANNED_RESPONSES: CannedResponse[] = [
   {
     id: 'cr-hallmark',
     category: 'Product & Authenticity',
-    title: 'BIS Hallmark & HUID Verification Guide',
+    title: 'Gold Plating & Materials Guide',
     shortcut: '!hallmark',
-    content: `Dear Customer,\n\nThank you for reaching out to Ruhvi Support regarding product authenticity.\n\nEvery piece of Ruhvi Fine Jewellery is 100% BIS Hallmarked and laser-engraved with a unique 6-digit HUID (Hallmark Unique Identification) code. You can verify this HUID directly through the official government "BIS CARE" mobile app to view the assaying center, testing date, and purity certificate.\n\nPlease let us know if you need any assistance locating the stamp on your jewellery piece!\n\nWarm regards,\nRuhvi Concierge Team`,
-    tags: ['authenticity', 'huid', 'hallmark', 'certificate'],
+    content: `Dear Customer,\n\nThank you for reaching out to Ruhvi Support regarding product materials.\n\nOur products are premium gold-plated jewellery: each piece is crafted on a nickel-free brass base and plated with a thick layer of 22K gold, finished with an anti-tarnish e-coating and backed by a 6-month color guarantee.\n\nPlease note that government BIS hallmarking applies only to solid precious metals (like 14K/18K/22K solid gold). As our pieces are gold-plated rather than solid gold, BIS hallmark certification is not applicable to them.\n\nPlease let us know if you need any assistance with your piece!\n\nWarm regards,\nRuhvi Concierge Team`,
+    tags: ['authenticity', 'materials', 'plating', 'gold', 'certificate'],
   },
   {
     id: 'cr-tracking',

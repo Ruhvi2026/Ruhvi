@@ -85,12 +85,17 @@ export function Navbar() {
           {/* Brand Logo & Left Account Menu Trigger */}
           <div className="flex items-center space-x-2 sm:space-x-4">
             <button
-              onClick={() => setAccountDrawerOpen(true)}
-              className="rounded-lg p-1 text-slate-700 transition hover:bg-gold-50/50 hover:text-gold-600 focus:outline-none"
-              title="Account Menu"
-              aria-label="Open Account Menu"
+              onClick={() => setMobileMenuOpen((open) => !open)}
+              className="rounded-lg p-1 text-slate-700 transition hover:bg-gold-50/50 hover:text-gold-600 focus:outline-none lg:hidden"
+              title={mobileMenuOpen ? 'Close Menu' : 'Open Menu'}
+              aria-label={mobileMenuOpen ? 'Close Menu' : 'Open Menu'}
+              aria-expanded={mobileMenuOpen}
             >
-              <Menu className="h-5 w-5 sm:h-6 sm:w-6" />
+              {mobileMenuOpen ? (
+                <X className="h-5 w-5 sm:h-6 sm:w-6" />
+              ) : (
+                <Menu className="h-5 w-5 sm:h-6 sm:w-6" />
+              )}
             </button>
             <Link href="/" className="flex items-center space-x-2 sm:space-x-3">
               <div className="relative h-9 w-9 flex-shrink-0 overflow-hidden rounded-full border border-gold-300/40 bg-gold-50/50 shadow-sm sm:h-10 sm:w-10">

@@ -19,7 +19,8 @@ export class CustomProvider implements AIProvider {
 
   async generateStructuredProductContent(
     prompt: string,
-    modelName: string
+    modelName: string,
+    config?: { temperature?: number; maxTokens?: number }
   ): Promise<{
     content: Record<string, any>;
     usage: { tokens: number; cost: number };
@@ -70,6 +71,12 @@ export class CustomProvider implements AIProvider {
           model: modelName || 'auto/best-coding',
           messages: [{ role: 'user', content: prompt }],
           stream: false,
+          ...(config?.temperature !== undefined && {
+            temperature: config.temperature,
+          }),
+          ...(config?.maxTokens !== undefined && {
+            max_tokens: config.maxTokens,
+          }),
         }),
       });
     } catch (e) {

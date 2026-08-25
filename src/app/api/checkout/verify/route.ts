@@ -1,266 +1,32 @@
 import { NextResponse } from 'next/server';
+import crypto from 'crypto';
 import { sendOrderConfirmation } from '@/lib/whatsapp';
 import { sendOrderConfirmationEmail } from '@/lib/resend';
-import { createClient as createServerClient } from '@/lib/supabase/server';
 import { createClient as createJSClient } from '@supabase/supabase-js';
-import { getServerUser } from '@/lib/auth/server';
+import { createOrder, OrderError } from '@/lib/orders/create-order';
+import { finalizePhonePeOrder } from '@/lib/orders/finalize-phonepe-order';
+import { getSiteUrl } from '@/lib/utils/url';
 
+const FAILED_STATES = [
+  'FAILED',
+  'REJECTED',
+  'TIMED_OUT',
+  'PAYMENT_ERROR',
+  'PAYMENT_FAILED',
+  'CANCELLED',
+];
+
+// ---------------------------------------------------------------------------
+// POST — finalize an order placed directly by the client
+// (COD, simulated PhonePe, or wallet-only checkout).
+// ---------------------------------------------------------------------------
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const {
-      items,
-      address,
-      paymentMethod,
-      giftWrap,
-      giftMessage,
-      subtotal,
-      shippingCharge,
-      codCharge,
-      total,
-      wallet_used,
-      coins_redeemed,
-      coupon_discount,
-      phonepe_merchant_transaction_id,
-      phonepe_transaction_id,
-      phonepe_payment_state,
-      isPartialCod,
-      prepaidAmount,
-    } = body;
+    const { items, address } = body;
 
-    if (!items || items.length === 0) {
-      return NextResponse.json({ error: 'Cart is empty' }, { status: 400 });
-    }
-
-    if (!address) {
-      return NextResponse.json(
-        { error: 'Shipping address is required' },
-        { status: 400 }
-      );
-    }
-
-    let supabase = await createServerClient();
-    let { user } = await getServerUser();
-
-    // Disable COD for guest accounts
-    if (paymentMethod === 'cod' && !user) {
-      return NextResponse.json(
-        {
-          error:
-            'Cash on Delivery (COD) is available only for logged-in accounts. Please log in or select an online payment method.',
-        },
-        { status: 403 }
-      );
-    }
-
-    // Server-side enforcement of checkout verification (Section 17)
-    if (user) {
-      const { data: userProfile, error: profileError } = await supabase
-        .from('users')
-        .select('phone_verified, email_verified, email')
-        .eq('id', user.id)
-        .single();
-
-      if (profileError || !userProfile) {
-        return NextResponse.json(
-          { error: 'Failed to fetch user profile verification status.' },
-          { status: 500 }
-        );
-      }
-
-      if (!userProfile.phone_verified) {
-        return NextResponse.json(
-          {
-            error:
-              'Mobile number verification is required before placing an order.',
-          },
-          { status: 403 }
-        );
-      }
-
-      // If they have an email but it's not verified, we block it.
-      if (userProfile.email && !userProfile.email_verified) {
-        return NextResponse.json(
-          { error: 'Email verification is required before placing an order.' },
-          { status: 403 }
-        );
-      }
-    }
-
-    // If no authenticated user (for online payment), create a temporary guest user so the order saves to Supabase
-    if (!user) {
-      console.log(
-        'No authenticated user found. Creating guest session for online order...'
-      );
-      const guestEmail = `guest_${Date.now()}_${Math.floor(Math.random() * 1000)}@ruhvi.com`;
-      const guestPassword = `Guest!${Date.now()}`;
-
-      // We must use a separate JS client to establish the session in memory without touching cookies
-      supabase = createJSClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-      );
-
-      const { getAdminAuth } = await import('@/lib/firebase-admin');
-
-      let fbUser;
-      try {
-        const adminAuth = getAdminAuth();
-        fbUser = await adminAuth.createUser({
-          email: guestEmail,
-          password: guestPassword,
-          displayName: address.firstName
-            ? `${address.firstName} ${address.lastName}`
-            : 'Guest User',
-        });
-      } catch (err: any) {
-        console.error('Failed to create guest user in Firebase:', err);
-        return NextResponse.json(
-          { error: 'Failed to initiate guest checkout.' },
-          { status: 500 }
-        );
-      }
-
-      // We still need to sync this user to our public.users table in Supabase
-      // Using Service Role to bypass RLS for user creation
-      const adminSupabase = createJSClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.SUPABASE_SERVICE_ROLE_KEY!
-      );
-
-      const { data: newUser, error: dbError } = await adminSupabase
-        .from('users')
-        .upsert(
-          {
-            firebase_uid: fbUser.uid,
-            email: fbUser.email,
-            full_name: fbUser.displayName,
-          },
-          { onConflict: 'firebase_uid' }
-        )
-        .select()
-        .single();
-
-      if (dbError || !newUser) {
-        console.error('Failed to create guest user in DB:', dbError);
-        return NextResponse.json(
-          { error: 'Failed to initiate guest checkout.' },
-          { status: 500 }
-        );
-      }
-
-      user = { id: newUser.id, email: newUser.email } as any;
-    }
-
-    // Generate unique order number (e.g. RHV-2026-XXXX)
-    const orderNumber = `RHV-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
-    const orderId = `ord-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`;
-
-    // Calculate GST amount (3% included in price for jewellery)
-    const gstAmount = Math.round(subtotal * 0.03);
-
-    // Handle Address Insertion
-    let shippingAddressId = address.id;
-    if (!shippingAddressId || shippingAddressId.startsWith('addr-')) {
-      const { data: newAddressData, error: addressError } = await supabase
-        .from('addresses')
-        .insert({
-          user_id: user!.id,
-          label: address.label || 'Home',
-          full_name:
-            address.full_name || address.firstName + ' ' + address.lastName,
-          phone: address.phone,
-          line1: address.line1 || address.address,
-          line2: address.line2 || '',
-          city: address.city,
-          state: address.state,
-          pincode: address.pincode,
-          is_default: address.is_default || false,
-        })
-        .select('id')
-        .single();
-
-      if (addressError) {
-        console.error('Failed to save address:', addressError);
-        return NextResponse.json(
-          { error: 'Failed to save shipping address' },
-          { status: 500 }
-        );
-      }
-      shippingAddressId = newAddressData.id;
-    }
-
-    const { data: insertedOrder, error: orderError } = await supabase
-      .from('orders')
-      .insert({
-        user_id: user!.id,
-        order_number: orderNumber,
-        status: 'confirmed',
-        subtotal,
-        shipping_charge: shippingCharge,
-        cod_charge: codCharge,
-        coupon_discount: coupon_discount || 0,
-        wallet_used: wallet_used || 0,
-        coins_redeemed: coins_redeemed || 0,
-        gst_amount: gstAmount,
-        total,
-        payment_method: paymentMethod || 'phonepe',
-        payment_status: paymentMethod === 'phonepe' || (paymentMethod === 'cod' && isPartialCod) ? 'paid' : 'pending',
-        prepaid_amount: isPartialCod ? prepaidAmount : (paymentMethod === 'phonepe' ? total : 0),
-        cod_balance: isPartialCod ? total - prepaidAmount : (paymentMethod === 'cod' ? total : 0),
-        gift_wrap: giftWrap,
-        gift_message: giftMessage,
-        shipping_address_id: shippingAddressId,
-      })
-      .select('id')
-      .single();
-
-    if (orderError || !insertedOrder) {
-      console.error('Failed to create order:', orderError);
-      return NextResponse.json(
-        { error: 'Failed to create order in database' },
-        { status: 500 }
-      );
-    }
-
-    const orderItemsToInsert = items.map((item: any) => ({
-      order_id: insertedOrder.id,
-      product_id: item.product?.id || item.product_id,
-      sku: item.product?.sku || 'RHV-SKU',
-      quantity: item.quantity,
-      price_at_purchase: item.product?.price || item.price_at_add,
-    }));
-
-    const { error: itemsError } = await supabase
-      .from('order_items')
-      .insert(orderItemsToInsert);
-
-    if (itemsError) {
-      console.error('Failed to save order items:', itemsError);
-      // We don't rollback here for simplicity, but in production we'd use a transaction
-    }
-
-    const newOrder = {
-      id: insertedOrder.id,
-      order_number: orderNumber,
-      user_id: user!.id,
-      status: 'confirmed',
-      subtotal,
-      shipping_charge: shippingCharge,
-      cod_charge: codCharge,
-      coupon_discount: coupon_discount || 0,
-      wallet_used: wallet_used || 0,
-      coins_redeemed: coins_redeemed || 0,
-      gst_amount: gstAmount,
-      total,
-      payment_method: paymentMethod || 'phonepe',
-      payment_status: paymentMethod === 'phonepe' ? 'paid' : 'pending',
-      gift_wrap: giftWrap,
-      gift_message: giftMessage,
-      shipping_address: address,
-      created_at: new Date().toISOString(),
-      order_items: orderItemsToInsert,
-    };
+    const { user, orderNumber, gstAmount, newOrder } = await createOrder(body);
+    const total = newOrder.total;
 
     // Send WhatsApp Order Confirmation asynchronously
     if (address.phone) {
@@ -293,9 +59,9 @@ export async function POST(req: Request) {
             },
           })),
         },
-        subtotal: `₹${subtotal.toLocaleString('en-IN')}`,
-        discount: `₹${(coupon_discount || 0).toLocaleString('en-IN')}`,
-        shipping_cost: `₹${(shippingCharge || 0).toLocaleString('en-IN')}`,
+        subtotal: `₹${subtotalText(body.subtotal)}`,
+        discount: `₹${(body.coupon_discount || 0).toLocaleString('en-IN')}`,
+        shipping_cost: `₹${(body.shippingCharge || 0).toLocaleString('en-IN')}`,
         tax: `₹${(gstAmount || 0).toLocaleString('en-IN')}`,
         total: `₹${total.toLocaleString('en-IN')}`,
         shipping: {
@@ -311,10 +77,10 @@ export async function POST(req: Request) {
         },
         payment: {
           method:
-            paymentMethod === 'cod'
+            body.paymentMethod === 'cod'
               ? 'Cash on Delivery'
               : 'Online Payment (PhonePe)',
-          status: paymentMethod === 'cod' ? 'Pending (COD)' : 'Paid',
+          status: body.paymentMethod === 'cod' ? 'Pending (COD)' : 'Paid',
           transaction_id: orderNumber, // fallback
         },
         order_url: `${process.env.NEXT_PUBLIC_APP_URL || 'https://ruhvi.in'}/orders`,
@@ -328,15 +94,224 @@ export async function POST(req: Request) {
 
     return NextResponse.json({
       success: true,
-      orderId,
+      orderId: newOrder.id,
       orderNumber,
       order: newOrder,
     });
   } catch (error: any) {
     console.error('Order verification error:', error);
+    if (error instanceof OrderError) {
+      return NextResponse.json(
+        { error: error.message },
+        { status: error.status }
+      );
+    }
     return NextResponse.json(
       { error: 'Failed to complete order placement' },
       { status: 500 }
     );
   }
+}
+
+// ---------------------------------------------------------------------------
+// GET — browser return redirect from the PhonePe gateway
+// (redirectUrl configured in /api/checkout/phonepe). Confirms payment
+// against the PhonePe status API, finalizes the pending order and forwards
+// the customer to the success or checkout page.
+// ---------------------------------------------------------------------------
+export async function GET(req: Request) {
+  const { searchParams } = new URL(req.url);
+  const merchantTransactionId = searchParams.get('merchantTransactionId');
+  const isSimulated = searchParams.get('isSimulated') === 'true';
+  const siteUrl = getSiteUrl();
+
+  if (!merchantTransactionId) {
+    return renderRedirectPage(`${siteUrl}/checkout?payment=pending`);
+  }
+
+  const successPage = (orderId: string) =>
+    renderRedirectPage(`${siteUrl}/order-success/${orderId}`, {
+      clearCart: true,
+    });
+
+  const supabase = createJSClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+
+  const { data: order, error: lookupError } = await supabase
+    .from('orders')
+    .select('*')
+    .eq('phonepe_merchant_transaction_id', merchantTransactionId)
+    .maybeSingle();
+
+  if (lookupError) {
+    console.error('Failed to look up order on PhonePe return:', lookupError);
+    return renderRedirectPage(`${siteUrl}/checkout?payment=pending`);
+  }
+
+  if (!order) {
+    console.log(
+      'PhonePe return for unknown transaction:',
+      merchantTransactionId
+    );
+    return renderRedirectPage(`${siteUrl}/checkout?payment=pending`);
+  }
+
+  // Simulated mode (no real PhonePe keys configured) — mark the order paid
+  if (isSimulated) {
+    const result = await finalizePhonePeOrder(merchantTransactionId, {
+      phonepeTransactionId: `T_SIM_${Date.now()}`,
+      phonepePaymentState: 'COMPLETED',
+    });
+    if (result.status === 'paid') {
+      return successPage(order.id);
+    }
+    return renderRedirectPage(`${siteUrl}/checkout?payment=pending`);
+  }
+
+  const saltKey = process.env.PHONEPE_SALT_KEY;
+
+  // Real keys configured — verify the transaction with the PhonePe status API
+  if (saltKey) {
+    try {
+      const status = await checkPhonePeStatus(merchantTransactionId);
+
+      if (status.state === 'COMPLETED' || status.state === 'SUCCESS') {
+        await finalizePhonePeOrder(merchantTransactionId, {
+          phonepeTransactionId: status.transactionId,
+          phonepePaymentState: status.state,
+        });
+        return successPage(order.id);
+      }
+
+      if (FAILED_STATES.includes(status.state)) {
+        await finalizePhonePeOrder(merchantTransactionId, {
+          phonepeTransactionId: status.transactionId,
+          phonepePaymentState: status.state,
+        });
+        return renderRedirectPage(`${siteUrl}/checkout?payment=failed`);
+      }
+
+      // PENDING — the webhook may have finalized the order already; re-check
+      const { data: fresh } = await supabase
+        .from('orders')
+        .select('id, payment_status')
+        .eq('phonepe_merchant_transaction_id', merchantTransactionId)
+        .maybeSingle();
+      if (fresh?.payment_status === 'paid') {
+        return successPage(fresh.id);
+      }
+      return renderRedirectPage(`${siteUrl}/checkout?payment=pending`);
+    } catch (err) {
+      console.error('PhonePe status check failed:', err);
+      // Fall through to DB state so a completed webhook still lands correctly
+    }
+  }
+
+  // No keys or status check failed — rely on the order state in the DB
+  if (order.payment_status === 'paid') {
+    return successPage(order.id);
+  }
+  if (order.payment_status === 'failed') {
+    return renderRedirectPage(`${siteUrl}/checkout?payment=failed`);
+  }
+  return renderRedirectPage(`${siteUrl}/checkout?payment=pending`);
+}
+
+async function checkPhonePeStatus(merchantTransactionId: string) {
+  const merchantId = process.env.PHONEPE_MERCHANT_ID || 'PGTESTPAYUAT';
+  const saltKey = process.env.PHONEPE_SALT_KEY!;
+  const saltIndex = process.env.PHONEPE_SALT_INDEX || '1';
+  const env = process.env.PHONEPE_ENV || 'UAT';
+
+  const baseUrl =
+    env === 'PRODUCTION'
+      ? 'https://api.phonepe.com/apis/hermes'
+      : 'https://api-preprod.phonepe.com/apis/pg-sandbox';
+
+  const apiEndpoint = `/pg/v1/status/${merchantId}/${merchantTransactionId}`;
+  const payload = JSON.stringify({ merchantId, merchantTransactionId });
+  const base64Payload = Buffer.from(payload).toString('base64');
+  const checksum = crypto
+    .createHash('sha256')
+    .update(base64Payload + apiEndpoint + saltKey)
+    .digest('hex');
+  const xVerifyHeader = `${checksum}###${saltIndex}`;
+
+  const response = await fetch(`${baseUrl}${apiEndpoint}`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-VERIFY': xVerifyHeader,
+    },
+  });
+
+  const data = await response.json();
+
+  if (!data.success) {
+    console.error('PhonePe status API error:', data);
+    return { state: 'PENDING', transactionId: '' };
+  }
+
+  // The status response embeds the payment object either directly in
+  // `data` or as a base64-encoded `data.response`.
+  const responseData =
+    typeof data.data?.response === 'string'
+      ? JSON.parse(Buffer.from(data.data.response, 'base64').toString('utf8'))
+      : data.data;
+
+  return {
+    state: responseData?.state || 'PENDING',
+    transactionId: responseData?.transactionId || '',
+    amount: responseData?.amount,
+  };
+}
+
+function subtotalText(value: any): string {
+  return (Number(value) || 0).toLocaleString('en-IN');
+}
+
+function renderRedirectPage(
+  targetUrl: string,
+  options?: { clearCart?: boolean }
+) {
+  const safeUrl = targetUrl
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+
+  const cartClearScript = options?.clearCart
+    ? "try { localStorage.removeItem('ruhvi_cart_v1'); } catch (e) {}"
+    : '';
+
+  const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="refresh" content="0; url=${safeUrl}" />
+  <title>Redirecting...</title>
+  <style>
+    body { font-family: system-ui, sans-serif; background: #faf6ed; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; color: #1c1b1a; }
+    .box { text-align: center; }
+    .spinner { width: 40px; height: 40px; border: 4px solid #e8dfc6; border-top-color: #c29831; border-radius: 50%; margin: 0 auto 16px; animation: spin 1s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <div class="spinner"></div>
+    <p>Finalizing your payment...</p>
+    <noscript><a href="${safeUrl}">Click here to continue</a></noscript>
+  </div>
+  <script>${cartClearScript}
+  window.location.replace("${safeUrl}");</script>
+</body>
+</html>`;
+
+  return new NextResponse(html, {
+    status: 200,
+    headers: { 'Content-Type': 'text/html; charset=utf-8' },
+  });
 }

@@ -31,6 +31,7 @@ interface TopProduct {
 export default function SalesReportPage() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [timeRange, setTimeRange] = useState<'7d' | '30d' | 'all'>('7d');
   const [salesData, setSalesData] = useState<DailySales[]>([]);
   const [topProducts, setTopProducts] = useState<TopProduct[]>([]);
@@ -42,6 +43,7 @@ export default function SalesReportPage() {
   const fetchSalesReport = async () => {
     try {
       setRefreshing(true);
+      setLoadError(null);
       const supabase = createClient();
 
       let query = supabase
@@ -68,8 +70,14 @@ export default function SalesReportPage() {
       });
 
       if (error) {
-        console.warn('Failed to fetch orders, using demo stats:', error);
-        loadFallback();
+        console.error('Failed to fetch orders:', error);
+        setLoadError(error.message || 'Failed to load sales data.');
+        setSalesData([]);
+        setTopProducts([]);
+        setTotalRevenue(0);
+        setTotalOrders(0);
+        setCodOrders(0);
+        setPrepaidOrders(0);
         return;
       }
 
@@ -146,36 +154,13 @@ export default function SalesReportPage() {
         .sort((a, b) => b.revenue - a.revenue)
         .slice(0, 5);
       setTopProducts(topList);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error computing sales report:', err);
-      loadFallback();
+      setLoadError(err?.message || 'Failed to load sales data.');
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
-  };
-
-  const loadFallback = () => {
-    const fallbackTimeline: DailySales[] = [
-      { date: 'Day 1', revenue: 45000, orders: 3 },
-      { date: 'Day 2', revenue: 62000, orders: 4 },
-      { date: 'Day 3', revenue: 89000, orders: 6 },
-      { date: 'Day 4', revenue: 54000, orders: 4 },
-      { date: 'Day 5', revenue: 112000, orders: 8 },
-      { date: 'Day 6', revenue: 98000, orders: 7 },
-      { date: 'Day 7', revenue: 125000, orders: 9 },
-    ];
-    setSalesData(fallbackTimeline);
-    setTotalRevenue(585000);
-    setTotalOrders(41);
-    setCodOrders(12);
-    setPrepaidOrders(29);
-    setTopProducts([
-      { name: 'Aurelia Solitaire Diamond Ring', count: 18, revenue: 245000 },
-      { name: 'Celestial Pearl Drop Earrings', count: 24, revenue: 185000 },
-      { name: 'Kundan Choker Statement Necklace', count: 6, revenue: 115000 },
-      { name: 'Royal Heritage Gold Bangle', count: 4, revenue: 45000 },
-    ]);
   };
 
   useEffect(() => {
@@ -284,6 +269,22 @@ export default function SalesReportPage() {
           </button>
         </div>
       </div>
+
+      {/* Load Error Alert */}
+      {loadError && (
+        <div className="flex items-center justify-between rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-xs font-medium text-rose-300">
+          <span className="flex items-center gap-2">
+            <TrendingUp className="h-4 w-4 flex-shrink-0" />
+            Failed to load sales data from the database: {loadError}
+          </span>
+          <button
+            onClick={fetchSalesReport}
+            className="ml-4 flex items-center gap-1 rounded-lg border border-rose-500/30 bg-rose-500/10 px-3 py-1 font-semibold text-rose-300 transition-colors hover:bg-rose-500/20"
+          >
+            <RefreshCw className="h-3 w-3" /> Retry
+          </button>
+        </div>
+      )}
 
       {/* KPI Overview Cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">

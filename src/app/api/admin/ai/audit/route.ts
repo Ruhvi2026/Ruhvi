@@ -76,7 +76,7 @@ AUDIT REQUIREMENTS & CHECKLIST:
 2. SEO Meta Description: Check if it is persuasive, contains the focus keyword, has a call-to-action (CTA), and is within 160 characters.
 3. Product Description: Check if it is detailed, utilizes luxurious vocabulary suitable for premium jewelry, and integrates focus/secondary keywords naturally.
 4. Focus Keyword: Ensure the focus keyword appears in the name/title, description, and meta description.
-5. Product Tags: Check if tags are descriptive (karatage, hallmarking, style, material) and optimal for search.
+5. Product Tags: Check if tags are descriptive (karatage, plating, style, material) and optimal for search.
 6. Dimension Data: Check if height, width, length, or weight are specified. If any are missing, suggest adding them as a recommendation for complete listings, but do NOT fail the audit solely on this since they are optional.
 7. Return a numerical score from 0 to 100 based on overall readiness.
 

@@ -719,7 +719,7 @@ export default function ProductForm({ initialData, isEdit }: ProductFormProps) {
                   value={metaDescription}
                   onChange={(e) => setMetaDescription(e.target.value)}
                   className="w-full rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                  placeholder="Crafted in 18k white gold, our diamond solitaire ring is the epitome of elegance. Shop certified hallmarked jewelry at Ruhvi today."
+                  placeholder="Crafted in premium 22k gold-plated finish, our diamond solitaire ring is the epitome of elegance. Shop premium gold plated jewellery at Ruhvi today."
                 />
               </div>
 

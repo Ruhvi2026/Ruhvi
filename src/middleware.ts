@@ -118,6 +118,7 @@ export async function middleware(request: NextRequest) {
     const isAuthAllowed =
       isCommonAllowed ||
       path.startsWith('/signup') ||
+      path.startsWith('/set-password') ||
       path.startsWith('/reset-password') ||
       path.startsWith('/forgot-password');
     if (!isAuthAllowed) {

@@ -23,6 +23,11 @@ export function isMaskedPlaceholder(key: string | null | undefined): boolean {
   if (trimmed === '__STORED_KEY__' || trimmed === '__UNCHANGED__') return true;
   if (trimmed === '********') return true;
   if (trimmed.includes('••••') || trimmed.includes('****')) return true;
+
+  // Check if it's literally the string name of an environment variable
+  const isEnvPlaceholder = Object.values(ENV_KEY_MAP).includes(trimmed);
+  if (isEnvPlaceholder) return true;
+
   return false;
 }
 

@@ -131,6 +131,22 @@ export default function CheckoutPage() {
     }
   }, [items, subtotal]);
 
+  // Surface payment outcome when redirected back from the PhonePe gateway
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const payment = params.get('payment');
+    if (payment === 'failed') {
+      toast.error(
+        'Payment failed. Please try again or choose a different payment method.'
+      );
+    } else if (payment === 'pending') {
+      toast.error('Payment was not completed. Please try again.');
+    }
+    if (payment) {
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+  }, []);
+
   // New Address Form State
   const [newAddress, setNewAddress] = useState({
     label: 'Home',
@@ -351,10 +367,13 @@ export default function CheckoutPage() {
     });
 
     try {
-      if (paymentMethod === 'phonepe' || (paymentMethod === 'cod' && totalPayable > 2000)) {
+      if (
+        paymentMethod === 'phonepe' ||
+        (paymentMethod === 'cod' && totalPayable > 2000)
+      ) {
         const isPartialCod = paymentMethod === 'cod';
         const phonePeAmount = isPartialCod ? totalPayable * 0.1 : totalPayable;
-        
+
         // 1. Initialize PhonePe payment on backend API
         const res = await fetch('/api/checkout/phonepe', {
           method: 'POST',
@@ -362,6 +381,20 @@ export default function CheckoutPage() {
           body: JSON.stringify({
             amount: phonePeAmount,
             mobileNumber: selectedAddress.phone,
+            items,
+            address: selectedAddress,
+            paymentMethod,
+            giftWrap,
+            giftMessage,
+            subtotal,
+            shippingCharge,
+            codCharge,
+            total: totalPayable,
+            wallet_used: walletDiscount,
+            coins_redeemed: coinsDiscount,
+            coupon_discount: couponDiscount,
+            isPartialCod,
+            prepaidAmount: isPartialCod ? phonePeAmount : undefined,
           }),
         });
 
@@ -502,7 +535,7 @@ export default function CheckoutPage() {
       );
 
       clearCart();
-      router.push(`/order-success/${data.orderId}`);
+      router.push(`/order-success/${data.order?.id || data.orderId}`);
     } catch (err: any) {
       toast.error(err.message || 'Failed to save order.');
       setIsProcessing(false);
@@ -563,37 +596,88 @@ export default function CheckoutPage() {
               </div>
 
               {/* Saved Addresses List */}
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                {addresses.map((addr) => (
-                  <div
-                    key={addr.id}
-                    onClick={() => setSelectedAddressId(addr.id)}
-                    className={`cursor-pointer rounded-xl border p-4 transition-all ${
-                      selectedAddressId === addr.id
-                        ? 'border-amber-900 bg-amber-950/5 ring-1 ring-amber-900'
-                        : 'border-stone-200 bg-stone-50/50 hover:border-stone-300'
-                    }`}
-                  >
-                    <div className="mb-2 flex items-start justify-between">
-                      <span className="rounded bg-stone-200 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-stone-800">
-                        {addr.label}
-                      </span>
-                      {selectedAddressId === addr.id && (
-                        <Check className="h-4 w-4 font-bold text-amber-900" />
-                      )}
-                    </div>
-                    <div className="text-xs font-semibold text-stone-900">
-                      {addr.full_name}
-                    </div>
-                    <div className="mt-1 text-[11px] leading-relaxed text-stone-600">
-                      {addr.line1}, {addr.line2 ? `${addr.line2}, ` : ''}
-                      {addr.city}, {addr.state} - {addr.pincode}
-                    </div>
-                    <div className="mt-2 font-mono text-[10px] text-stone-400">
-                      {addr.phone}
-                    </div>
-                  </div>
-                ))}
+              <div
+                className="grid grid-cols-1 gap-4 sm:grid-cols-2"
+                role="radiogroup"
+                aria-label="Saved delivery addresses"
+              >
+                {addresses.map((addr) => {
+                  const isAddressSelected = selectedAddressId === addr.id;
+                  return (
+                    <button
+                      key={addr.id}
+                      type="button"
+                      role="radio"
+                      aria-checked={isAddressSelected}
+                      tabIndex={isAddressSelected ? 0 : -1}
+                      onClick={() => setSelectedAddressId(addr.id)}
+                      onKeyDown={(e) => {
+                        const radios = Array.from(
+                          (
+                            e.currentTarget.parentNode as HTMLElement
+                          ).querySelectorAll<HTMLElement>('[role="radio"]')
+                        );
+                        const currentIdx = radios.indexOf(e.currentTarget);
+                        let nextIdx: number | null = null;
+                        switch (e.key) {
+                          case 'ArrowUp':
+                          case 'ArrowLeft':
+                            e.preventDefault();
+                            nextIdx =
+                              currentIdx > 0
+                                ? currentIdx - 1
+                                : radios.length - 1;
+                            break;
+                          case 'ArrowDown':
+                          case 'ArrowRight':
+                            e.preventDefault();
+                            nextIdx =
+                              currentIdx < radios.length - 1
+                                ? currentIdx + 1
+                                : 0;
+                            break;
+                          case 'Home':
+                            e.preventDefault();
+                            nextIdx = 0;
+                            break;
+                          case 'End':
+                            e.preventDefault();
+                            nextIdx = radios.length - 1;
+                            break;
+                        }
+                        if (nextIdx !== null) {
+                          const nextRadio = radios[nextIdx];
+                          nextRadio.focus();
+                          nextRadio.click();
+                        }
+                      }}
+                      className={`w-full cursor-pointer rounded-xl border p-4 text-left transition-all ${
+                        isAddressSelected
+                          ? 'border-amber-900 bg-amber-950/5 ring-1 ring-amber-900'
+                          : 'border-stone-200 bg-stone-50/50 hover:border-stone-300'
+                      }`}
+                    >
+                      <div className="mb-2 flex items-start justify-between">
+                        <span className="rounded bg-stone-200 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-stone-800">
+                          {addr.label}
+                        </span>
+                        {isAddressSelected && (
+                          <Check className="h-4 w-4 font-bold text-amber-900" />
+                        )}
+                      </div>
+                      <div className="text-xs font-semibold text-stone-900">
+                        {addr.full_name}
+                      </div>
+                      <div className="mt-1 text-[11px] leading-relaxed text-stone-600">
+                        {addr.line1}, {addr.line2 ? `${addr.line2}, ` : ''}
+                        {addr.city}, {addr.state} - {addr.pincode}
+                      </div>
+                      <div className="mt-2 font-mono text-[10px] text-stone-400">
+                        {addr.phone}
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
 
               {/* Add New Address Form Modal/Dropdown */}
@@ -606,81 +690,156 @@ export default function CheckoutPage() {
                     Add Delivery Address
                   </h4>
                   <div className="grid grid-cols-1 gap-3 text-xs sm:grid-cols-2">
-                    <input
-                      type="text"
-                      placeholder="Full Name *"
-                      required
-                      value={newAddress.full_name}
-                      onChange={(e) =>
-                        setNewAddress({
-                          ...newAddress,
-                          full_name: e.target.value,
-                        })
-                      }
-                      className="rounded-lg border border-stone-300 px-3 py-2 focus:outline-none focus:ring-1 focus:ring-amber-500"
-                    />
-                    <input
-                      type="tel"
-                      placeholder="Phone Number *"
-                      required
-                      value={newAddress.phone}
-                      onChange={(e) =>
-                        setNewAddress({ ...newAddress, phone: e.target.value })
-                      }
-                      className="rounded-lg border border-stone-300 px-3 py-2 focus:outline-none focus:ring-1 focus:ring-amber-500"
-                    />
-                    <input
-                      type="text"
-                      placeholder="Address Line 1 *"
-                      required
-                      value={newAddress.line1}
-                      onChange={(e) =>
-                        setNewAddress({ ...newAddress, line1: e.target.value })
-                      }
-                      className="rounded-lg border border-stone-300 px-3 py-2 focus:outline-none focus:ring-1 focus:ring-amber-500 sm:col-span-2"
-                    />
-                    <input
-                      type="text"
-                      placeholder="Address Line 2 (Optional)"
-                      value={newAddress.line2}
-                      onChange={(e) =>
-                        setNewAddress({ ...newAddress, line2: e.target.value })
-                      }
-                      className="rounded-lg border border-stone-300 px-3 py-2 focus:outline-none focus:ring-1 focus:ring-amber-500 sm:col-span-2"
-                    />
-                    <input
-                      type="text"
-                      placeholder="City *"
-                      required
-                      value={newAddress.city}
-                      onChange={(e) =>
-                        setNewAddress({ ...newAddress, city: e.target.value })
-                      }
-                      className="rounded-lg border border-stone-300 px-3 py-2 focus:outline-none focus:ring-1 focus:ring-amber-500"
-                    />
-                    <input
-                      type="text"
-                      placeholder="State *"
-                      required
-                      value={newAddress.state}
-                      onChange={(e) =>
-                        setNewAddress({ ...newAddress, state: e.target.value })
-                      }
-                      className="rounded-lg border border-stone-300 px-3 py-2 focus:outline-none focus:ring-1 focus:ring-amber-500"
-                    />
-                    <input
-                      type="text"
-                      placeholder="Pincode *"
-                      required
-                      value={newAddress.pincode}
-                      onChange={(e) =>
-                        setNewAddress({
-                          ...newAddress,
-                          pincode: e.target.value,
-                        })
-                      }
-                      className="rounded-lg border border-stone-300 px-3 py-2 focus:outline-none focus:ring-1 focus:ring-amber-500"
-                    />
+                    <div>
+                      <label
+                        htmlFor="checkout-full-name"
+                        className="mb-1 block font-semibold text-stone-700"
+                      >
+                        Full Name *
+                      </label>
+                      <input
+                        type="text"
+                        id="checkout-full-name"
+                        autoComplete="name"
+                        required
+                        value={newAddress.full_name}
+                        onChange={(e) =>
+                          setNewAddress({
+                            ...newAddress,
+                            full_name: e.target.value,
+                          })
+                        }
+                        className="w-full rounded-lg border border-stone-300 px-3 py-2 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                      />
+                    </div>
+                    <div>
+                      <label
+                        htmlFor="checkout-phone"
+                        className="mb-1 block font-semibold text-stone-700"
+                      >
+                        Phone Number *
+                      </label>
+                      <input
+                        type="tel"
+                        id="checkout-phone"
+                        autoComplete="tel"
+                        required
+                        value={newAddress.phone}
+                        onChange={(e) =>
+                          setNewAddress({
+                            ...newAddress,
+                            phone: e.target.value,
+                          })
+                        }
+                        className="w-full rounded-lg border border-stone-300 px-3 py-2 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                      />
+                    </div>
+                    <div className="sm:col-span-2">
+                      <label
+                        htmlFor="checkout-address-line1"
+                        className="mb-1 block font-semibold text-stone-700"
+                      >
+                        Address Line 1 *
+                      </label>
+                      <input
+                        type="text"
+                        id="checkout-address-line1"
+                        autoComplete="address-line1"
+                        required
+                        value={newAddress.line1}
+                        onChange={(e) =>
+                          setNewAddress({
+                            ...newAddress,
+                            line1: e.target.value,
+                          })
+                        }
+                        className="w-full rounded-lg border border-stone-300 px-3 py-2 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                      />
+                    </div>
+                    <div className="sm:col-span-2">
+                      <label
+                        htmlFor="checkout-address-line2"
+                        className="mb-1 block font-semibold text-stone-700"
+                      >
+                        Address Line 2 (Optional)
+                      </label>
+                      <input
+                        type="text"
+                        id="checkout-address-line2"
+                        autoComplete="address-line2"
+                        value={newAddress.line2}
+                        onChange={(e) =>
+                          setNewAddress({
+                            ...newAddress,
+                            line2: e.target.value,
+                          })
+                        }
+                        className="w-full rounded-lg border border-stone-300 px-3 py-2 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                      />
+                    </div>
+                    <div>
+                      <label
+                        htmlFor="checkout-city"
+                        className="mb-1 block font-semibold text-stone-700"
+                      >
+                        City *
+                      </label>
+                      <input
+                        type="text"
+                        id="checkout-city"
+                        autoComplete="address-level2"
+                        required
+                        value={newAddress.city}
+                        onChange={(e) =>
+                          setNewAddress({ ...newAddress, city: e.target.value })
+                        }
+                        className="w-full rounded-lg border border-stone-300 px-3 py-2 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                      />
+                    </div>
+                    <div>
+                      <label
+                        htmlFor="checkout-state"
+                        className="mb-1 block font-semibold text-stone-700"
+                      >
+                        State *
+                      </label>
+                      <input
+                        type="text"
+                        id="checkout-state"
+                        autoComplete="address-level1"
+                        required
+                        value={newAddress.state}
+                        onChange={(e) =>
+                          setNewAddress({
+                            ...newAddress,
+                            state: e.target.value,
+                          })
+                        }
+                        className="w-full rounded-lg border border-stone-300 px-3 py-2 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                      />
+                    </div>
+                    <div>
+                      <label
+                        htmlFor="checkout-pincode"
+                        className="mb-1 block font-semibold text-stone-700"
+                      >
+                        Pincode *
+                      </label>
+                      <input
+                        type="text"
+                        id="checkout-pincode"
+                        autoComplete="postal-code"
+                        required
+                        value={newAddress.pincode}
+                        onChange={(e) =>
+                          setNewAddress({
+                            ...newAddress,
+                            pincode: e.target.value,
+                          })
+                        }
+                        className="w-full rounded-lg border border-stone-300 px-3 py-2 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                      />
+                    </div>
                   </div>
                   <div className="flex justify-end space-x-2 pt-2">
                     <button
@@ -776,7 +935,11 @@ export default function CheckoutPage() {
                 </h3>
               </div>
 
-              <div className="space-y-3">
+              <div
+                className="space-y-3"
+                role="radiogroup"
+                aria-label="Payment method"
+              >
                 {/* Wallet Option */}
                 {walletBalance > 0 && (
                   <label
@@ -833,13 +996,18 @@ export default function CheckoutPage() {
                 )}
 
                 {/* PhonePe Option */}
-                <div
+                <button
+                  type="button"
+                  role="radio"
+                  aria-checked={paymentMethod === 'phonepe'}
                   onClick={() => setPaymentMethod('phonepe')}
-                  className={`flex cursor-pointer items-center justify-between rounded-xl border p-4 transition-all ${
+                  onKeyDown={handlePaymentKeyDown}
+                  disabled={useWallet && walletBalance >= preWalletTotal}
+                  className={`flex w-full cursor-pointer items-center justify-between rounded-xl border p-4 text-left transition-all ${
                     paymentMethod === 'phonepe'
                       ? 'border-gold-700 bg-gold-50 ring-1 ring-gold-700'
                       : 'border-stone-200 hover:border-stone-300'
-                  } ${useWallet && walletBalance >= preWalletTotal ? 'pointer-events-none opacity-50' : ''}`}
+                  } disabled:pointer-events-none disabled:opacity-50`}
                 >
                   <div className="flex items-center space-x-3">
                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gold-100 font-serif text-base font-bold text-gold-800">
@@ -861,10 +1029,13 @@ export default function CheckoutPage() {
                   {paymentMethod === 'phonepe' && (
                     <Check className="h-4 w-4 font-bold text-gold-700" />
                   )}
-                </div>
+                </button>
 
                 {/* COD Option */}
-                <div
+                <button
+                  type="button"
+                  role="radio"
+                  aria-checked={paymentMethod === 'cod'}
                   onClick={() => {
                     if (!isLoggedIn) {
                       toast.error(
@@ -874,13 +1045,15 @@ export default function CheckoutPage() {
                     }
                     setPaymentMethod('cod');
                   }}
-                  className={`flex items-center justify-between rounded-xl border p-4 transition-all ${
+                  onKeyDown={handlePaymentKeyDown}
+                  disabled={useWallet && walletBalance >= preWalletTotal}
+                  className={`flex w-full items-center justify-between rounded-xl border p-4 text-left transition-all ${
                     !isLoggedIn
                       ? 'border-stone-200 bg-stone-50/80 opacity-80'
                       : paymentMethod === 'cod'
                         ? 'cursor-pointer border-amber-900 bg-amber-950/5 ring-1 ring-amber-900'
                         : 'cursor-pointer border-stone-200 hover:border-stone-300'
-                  } ${useWallet && walletBalance >= preWalletTotal ? 'pointer-events-none opacity-50' : ''}`}
+                  } disabled:pointer-events-none disabled:opacity-50`}
                 >
                   <div className="flex items-center space-x-3">
                     <div
@@ -911,7 +1084,7 @@ export default function CheckoutPage() {
                           </span>
                         )}
                       </div>
-                      <div className="text-[10px] text-stone-500 mt-1">
+                      <div className="mt-1 text-[10px] text-stone-500">
                         {!isLoggedIn
                           ? 'Available for logged-in users only. Please log in or choose online payment.'
                           : totalPayable > 2000
@@ -923,7 +1096,7 @@ export default function CheckoutPage() {
                   {paymentMethod === 'cod' && isLoggedIn && (
                     <Check className="h-4 w-4 font-bold text-amber-900" />
                   )}
-                </div>
+                </button>
               </div>
             </div>
           </div>
@@ -1181,7 +1354,7 @@ export default function CheckoutPage() {
                   ? 'Processing Order...'
                   : paymentMethod === 'phonepe'
                     ? 'Pay via PhonePe'
-                    : (paymentMethod === 'cod' && totalPayable > 2000)
+                    : paymentMethod === 'cod' && totalPayable > 2000
                       ? `Pay 10% Deposit (₹${(totalPayable * 0.1).toFixed(2)})`
                       : 'Place COD Order'}
               </button>

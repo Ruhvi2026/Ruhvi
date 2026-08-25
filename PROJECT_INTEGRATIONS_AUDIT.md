@@ -159,7 +159,7 @@ The application is a modern, headless e-commerce storefront. It utilizes Next.js
 | Supabase | Primary DB, CX/Site Storage | 2024 | Active | `src/lib/supabase/*` | Custom JWTs used instead of Supabase Auth |
 | Firebase | Authentication | 2024 | Active | `src/lib/firebase.ts` | Sole auth provider; custom password resets routed via backend Admin SDK to bypass Firebase Console UI bugs |
 | Cloudinary | Image Optimization | 2024 | Active | `src/services/cloudinaryService.ts` | |
-| PhonePe | Payment Gateway | 2024 | Setup Pending | `api/checkout/phonepe` | Account setup pending documentation |
+| PhonePe | Payment Gateway | 2024 | Active | `src/app/api/checkout/phonepe`, `src/app/api/webhooks/phonepe/route.ts`, `src/lib/orders/create-order.ts`, `src/lib/orders/finalize-phonepe-order.ts` | Cryptographically verified webhook callback and order lifecycle state machine |
 | Shiprocket | Logistics / Shipping | 2024 | Active | `src/lib/shiprocket.ts`, `api/admin/shiprocket/create-order` | Fully wired to Orders Portal UI. Uses fallback mock if env vars absent. |
 | Meta API | WhatsApp Notifications | 2024 | Setup Pending | `src/lib/whatsapp.ts` | Business setup pending |
 | Meta CAPI | Server-side Ads Tracking | 2024 | Active | `api/capi/route.ts` | |

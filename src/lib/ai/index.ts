@@ -63,7 +63,8 @@ export interface AIProvider {
    */
   generateStructuredProductContent(
     prompt: string,
-    modelName: string
+    modelName: string,
+    config?: { temperature?: number; maxTokens?: number }
   ): Promise<{
     content: Record<string, any>;
     usage: { tokens: number; cost: number };
@@ -75,7 +76,8 @@ export interface AIProvider {
   generateWithTools?(
     prompt: string,
     modelName: string,
-    tools: import('./tools/index').AITool[]
+    tools: import('./tools/index').AITool[],
+    config?: { temperature?: number; maxTokens?: number }
   ): Promise<{
     content: string;
     toolCalls?: any[];
@@ -289,6 +291,17 @@ export async function generateAIContent(
   featureKey: string,
   prompt: string
 ): Promise<Record<string, any>> {
+  if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    throw new Error(
+      'Server misconfiguration: SUPABASE_SERVICE_ROLE_KEY is missing. AI modules cannot launch.'
+    );
+  }
+  if (!process.env.CREDENTIAL_ENCRYPTION_KEY) {
+    throw new Error(
+      'Server misconfiguration: CREDENTIAL_ENCRYPTION_KEY is missing. AI modules cannot securely load credentials.'
+    );
+  }
+
   const correlationId = generateCorrelationId();
   const cookieStore = await cookies();
   const supabaseAdmin = createServerClient(
@@ -397,11 +410,8 @@ export async function generateAIContent(
     : [];
   const primaryProviderId = featureConfig.provider;
   let primaryModel = featureConfig.model;
-  if (
-    primaryProviderId === 'gemini' &&
-    (!primaryModel || primaryModel === 'gemini-2.5-flash')
-  ) {
-    primaryModel = 'gemini-3.5-flash-lite';
+  if (primaryProviderId === 'gemini' && !primaryModel) {
+    primaryModel = 'gemini-3.5-flash';
   }
 
   const executionChain: Array<{ id: string; model: string; config: any }> = [];
@@ -426,15 +436,12 @@ export async function generateAIContent(
       fp.models && fp.models.length > 0
         ? fp.models[0]
         : fp.type === 'gemini'
-          ? 'gemini-3.5-flash-lite'
+          ? 'gemini-3.5-flash'
           : fp.type === 'custom'
             ? 'auto/best-fast'
             : fp.type === 'deepseek'
               ? 'deepseek-chat'
               : 'gpt-4o-mini';
-    if (fp.type === 'gemini' && fpModel === 'gemini-2.5-flash') {
-      fpModel = 'gemini-3.5-flash-lite';
-    }
     executionChain.push({ id: fp.id, model: fpModel, config: fp });
   }
 

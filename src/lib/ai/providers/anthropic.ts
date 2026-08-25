@@ -12,7 +12,8 @@ export class AnthropicProvider implements AIProvider {
 
   async generateStructuredProductContent(
     prompt: string,
-    modelName: string
+    modelName: string,
+    config?: { temperature?: number; maxTokens?: number }
   ): Promise<{
     content: Record<string, any>;
     usage: { tokens: number; cost: number };
@@ -31,7 +32,10 @@ export class AnthropicProvider implements AIProvider {
       },
       body: JSON.stringify({
         model: modelName || 'claude-3-haiku-20240307',
-        max_tokens: 2000,
+        max_tokens: config?.maxTokens || 2000,
+        ...(config?.temperature !== undefined && {
+          temperature: config.temperature,
+        }),
         messages: [
           {
             role: 'user',

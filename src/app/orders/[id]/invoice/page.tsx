@@ -10,6 +10,8 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { Order } from '@/types/database';
+import { useAuth } from '@/context/AuthContext';
+import { createClient } from '@/lib/supabase/client';
 
 export default function InvoicePage({
   params,
@@ -19,28 +21,73 @@ export default function InvoicePage({
   const resolvedParams = use(params);
   const orderId = resolvedParams.id;
 
+  const { user } = useAuth();
+
   const [order, setOrder] = useState<Order | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem('ruhvi_orders_v1');
-      if (saved) {
-        const parsed: Order[] = JSON.parse(saved);
-        const match = parsed.find(
-          (o) => o.id === orderId || o.order_number === orderId
-        );
-        if (match) setOrder(match);
+    let isMounted = true;
+
+    async function fetchInvoice() {
+      if (!user) {
+        let match: Order | null = null;
+        try {
+          const saved = localStorage.getItem('ruhvi_orders_v1');
+          if (saved) {
+            const parsed: Order[] = JSON.parse(saved);
+            match =
+              parsed.find(
+                (o) => o.id === orderId || o.order_number === orderId
+              ) || null;
+          }
+        } catch (e) {
+          console.error(e);
+        }
+        if (isMounted) setOrder(match || demoOrder);
+        if (isMounted) setLoading(false);
+        return;
       }
-    } catch (e) {
-      console.error(e);
+
+      try {
+        const supabase = createClient();
+        let { data, error } = await supabase
+          .from('orders')
+          .select('*, order_items(*, product(*))')
+          .eq('id', orderId)
+          .maybeSingle();
+
+        if (!data && !error) {
+          const byNumber = await supabase
+            .from('orders')
+            .select('*, order_items(*, product(*))')
+            .eq('order_number', orderId)
+            .maybeSingle();
+          data = byNumber.data;
+          error = byNumber.error;
+        }
+
+        if (error) throw error;
+        if (isMounted && data) setOrder(data as Order);
+      } catch (err) {
+        console.error('Error fetching real order:', err);
+      } finally {
+        if (isMounted) setLoading(false);
+      }
     }
-  }, [orderId]);
+
+    fetchInvoice();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [orderId, user]);
 
   const handlePrint = () => {
     window.print();
   };
 
-  const dummyOrder: Order = order || {
+  const demoOrder: Order = {
     id: orderId,
     user_id: 'demo-user',
     order_number: 'RHV-2026-8942',
@@ -94,9 +141,36 @@ export default function InvoicePage({
     ],
   };
 
-  const invoiceNo = `INV/${new Date().getFullYear()}/${dummyOrder.order_number.split('-').pop()}`;
-  const taxableSubtotal = Math.round(dummyOrder.subtotal / 1.03);
-  const totalGst = dummyOrder.subtotal - taxableSubtotal;
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <p className="text-xs text-stone-500">Loading invoice...</p>
+      </div>
+    );
+  }
+
+  if (!order) {
+    return (
+      <div className="mx-auto max-w-xl space-y-4 px-4 py-16 text-center">
+        <h2 className="font-serif text-2xl font-bold text-stone-900">
+          Order Not Found
+        </h2>
+        <p className="text-xs text-stone-500">
+          We could not locate the requested order.
+        </p>
+        <Link
+          href="/orders"
+          className="inline-block rounded-lg bg-amber-950 px-6 py-2.5 text-xs font-bold uppercase tracking-wider text-amber-100"
+        >
+          Back to Orders
+        </Link>
+      </div>
+    );
+  }
+
+  const invoiceNo = `INV/${new Date().getFullYear()}/${order.order_number.split('-').pop()}`;
+  const taxableSubtotal = Math.round(order.subtotal / 1.03);
+  const totalGst = order.subtotal - taxableSubtotal;
   const cgst = Math.round(totalGst / 2);
   const sgst = totalGst - cgst;
 
@@ -105,7 +179,7 @@ export default function InvoicePage({
       {/* Top Controls Bar (Hidden during printing) */}
       <div className="mx-auto mb-6 flex max-w-4xl items-center justify-between print:hidden">
         <Link
-          href={`/orders/${dummyOrder.id}`}
+          href={`/orders/${order.id}`}
           className="flex items-center space-x-1 text-xs font-bold uppercase tracking-wider text-stone-600 hover:text-stone-900"
         >
           <ArrowLeft className="h-4 w-4" />
@@ -154,13 +228,13 @@ export default function InvoicePage({
               </p>
               <p>
                 Order Ref:{' '}
-                <span className="font-mono">{dummyOrder.order_number}</span>
+                <span className="font-mono">{order.order_number}</span>
               </p>
               <p>
                 Date:{' '}
-                {new Date(
-                  dummyOrder.created_at || Date.now()
-                ).toLocaleDateString('en-IN')}
+                {new Date(order.created_at || Date.now()).toLocaleDateString(
+                  'en-IN'
+                )}
               </p>
               <p>
                 Place of Supply:{' '}
@@ -176,22 +250,21 @@ export default function InvoicePage({
             <h4 className="mb-1 text-[11px] font-bold uppercase tracking-wider text-amber-950">
               Billed To & Shipped To
             </h4>
-            {dummyOrder.shipping_address && (
+            {order.shipping_address && (
               <div className="space-y-0.5 text-stone-700">
                 <p className="text-sm font-bold text-stone-900">
-                  {dummyOrder.shipping_address.full_name}
+                  {order.shipping_address.full_name}
                 </p>
-                <p>{dummyOrder.shipping_address.line1}</p>
-                {dummyOrder.shipping_address.line2 && (
-                  <p>{dummyOrder.shipping_address.line2}</p>
+                <p>{order.shipping_address.line1}</p>
+                {order.shipping_address.line2 && (
+                  <p>{order.shipping_address.line2}</p>
                 )}
                 <p>
-                  {dummyOrder.shipping_address.city},{' '}
-                  {dummyOrder.shipping_address.state} -{' '}
-                  {dummyOrder.shipping_address.pincode}
+                  {order.shipping_address.city}, {order.shipping_address.state}{' '}
+                  - {order.shipping_address.pincode}
                 </p>
                 <p className="pt-1 font-mono text-stone-500">
-                  Phone: {dummyOrder.shipping_address.phone}
+                  Phone: {order.shipping_address.phone}
                 </p>
               </div>
             )}
@@ -205,13 +278,13 @@ export default function InvoicePage({
               <span className="font-semibold text-stone-700">
                 Payment Method:
               </span>{' '}
-              {dummyOrder.payment_method.toUpperCase()}
+              {order.payment_method.toUpperCase()}
             </p>
             <p>
               <span className="font-semibold text-stone-700">
                 Payment Status:
               </span>{' '}
-              {dummyOrder.payment_status.toUpperCase()}
+              {order.payment_status.toUpperCase()}
             </p>
             <p>
               <span className="font-semibold text-stone-700">
@@ -220,10 +293,8 @@ export default function InvoicePage({
               Blue Dart Express
             </p>
             <p>
-              <span className="font-semibold text-stone-700">
-                BIS Hallmarked:
-              </span>{' '}
-              Certified 22K/22K Gold & VVS Diamond
+              <span className="font-semibold text-stone-700">Material:</span>{' '}
+              Premium 22K Gold-Plated & VVS Diamond
             </p>
           </div>
         </div>
@@ -243,7 +314,7 @@ export default function InvoicePage({
             </tr>
           </thead>
           <tbody className="divide-y divide-stone-200">
-            {dummyOrder.order_items?.map((item, idx) => {
+            {order.order_items?.map((item, idx) => {
               const itemTotal = item.price_at_purchase * item.quantity;
               const itemTaxable = Math.round(itemTotal / 1.03);
               const itemTax = itemTotal - itemTaxable;
@@ -310,22 +381,22 @@ export default function InvoicePage({
             <div className="flex justify-between text-stone-600">
               <span>Shipping Charge</span>
               <span>
-                {dummyOrder.shipping_charge === 0
+                {order.shipping_charge === 0
                   ? 'FREE'
-                  : `₹${dummyOrder.shipping_charge}`}
+                  : `₹${order.shipping_charge}`}
               </span>
             </div>
-            {dummyOrder.cod_charge > 0 && (
+            {order.cod_charge > 0 && (
               <div className="flex justify-between text-stone-600">
                 <span>COD Charge</span>
-                <span>₹{dummyOrder.cod_charge}</span>
+                <span>₹{order.cod_charge}</span>
               </div>
             )}
 
             <div className="flex justify-between border-t-2 border-stone-900 pt-2 text-sm font-bold text-amber-950">
               <span>Grand Total</span>
               <span className="font-mono">
-                ₹{dummyOrder.total.toLocaleString('en-IN')}
+                ₹{order.total.toLocaleString('en-IN')}
               </span>
             </div>
           </div>

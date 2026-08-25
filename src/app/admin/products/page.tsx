@@ -18,7 +18,6 @@ import {
   XCircle,
   Sparkles,
 } from 'lucide-react';
-import { DEMO_PRODUCTS } from '@/lib/products';
 import { Product } from '@/types/database';
 import { createClient } from '@/lib/supabase/client';
 
@@ -26,6 +25,7 @@ export default function AdminProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -38,6 +38,7 @@ export default function AdminProductsPage() {
   const fetchProducts = async () => {
     try {
       setRefreshing(true);
+      setLoadError(null);
       const supabase = createClient();
       const { data, error } = await supabase
         .from('products')
@@ -45,19 +46,17 @@ export default function AdminProductsPage() {
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.warn(
-          'Could not query Supabase products, falling back to demo catalog:',
-          error
-        );
-        setProducts(DEMO_PRODUCTS);
-      } else if (data && data.length > 0) {
-        setProducts(data);
-      } else {
-        setProducts(DEMO_PRODUCTS);
+        console.error('Could not query Supabase products:', error);
+        setLoadError(error.message || 'Failed to load products.');
+        setProducts([]);
+        return;
       }
-    } catch (err) {
+
+      setProducts(data ?? []);
+    } catch (err: any) {
       console.error('Error loading products:', err);
-      setProducts(DEMO_PRODUCTS);
+      setLoadError(err?.message || 'Failed to load products.');
+      setProducts([]);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -221,6 +220,22 @@ export default function AdminProductsPage() {
             className="text-slate-400 hover:text-white"
           >
             ✕
+          </button>
+        </div>
+      )}
+
+      {/* Load Error Alert */}
+      {loadError && (
+        <div className="flex items-center justify-between rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-xs font-medium text-rose-300">
+          <span className="flex items-center gap-2">
+            <AlertTriangle className="h-4 w-4 flex-shrink-0" />
+            Failed to load products from the database: {loadError}
+          </span>
+          <button
+            onClick={fetchProducts}
+            className="ml-4 flex items-center gap-1 rounded-lg border border-rose-500/30 bg-rose-500/10 px-3 py-1 font-semibold text-rose-300 transition-colors hover:bg-rose-500/20"
+          >
+            <RefreshCw className="h-3 w-3" /> Retry
           </button>
         </div>
       )}

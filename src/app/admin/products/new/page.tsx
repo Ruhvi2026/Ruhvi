@@ -36,7 +36,7 @@ export default function AddProductPage() {
     },
   ]);
 
-  const [tags, setTags] = useState('22K Gold, BIS Hallmarked, Diamond');
+  const [tags, setTags] = useState('22K Gold Plated, Anti-Tarnish, Diamond');
   const [availableCollections, setAvailableCollections] = useState<
     { slug: string; title: string }[]
   >([
@@ -107,7 +107,7 @@ export default function AddProductPage() {
         .select('id')
         .eq('slug', categorySlug)
         .single();
-      
+
       const categoryId = categoryData?.id;
 
       // 2. Insert product

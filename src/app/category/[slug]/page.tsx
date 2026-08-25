@@ -12,7 +12,9 @@ interface CategoryPageProps {
   }>;
 }
 
-export async function generateMetadata({ params }: CategoryPageProps): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: CategoryPageProps): Promise<Metadata> {
   const { slug } = await params;
   const supabase = await createClient();
 
@@ -30,8 +32,8 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
     return { title: 'Category Not Found | Ruhvi' };
   }
 
-  const title = `Buy Fine ${category.name} Online — Certified Gold & Diamonds`;
-  const description = `Explore handcrafted ${category.name.toLowerCase()} at Ruhvi. Certified 22K gold, ethically sourced diamonds, lifetime warranty, and free insured shipping in India.`;
+  const title = `Buy Fine ${category.name} Online — Premium Gold Plated Jewellery`;
+  const description = `Explore handcrafted ${category.name.toLowerCase()} at Ruhvi. Premium 22K gold-plated finish, anti-tarnish coating, 6-month color guarantee, and free insured shipping in India.`;
 
   return {
     title,
@@ -55,7 +57,7 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
 export default async function CategoryPage({ params }: CategoryPageProps) {
   const { slug } = await params;
   const supabase = await createClient();
-  
+
   let { data: category } = await supabase
     .from('categories')
     .select('*')
@@ -83,57 +85,64 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <Breadcrumbs 
+    <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+      <Breadcrumbs
         items={[
           { label: 'Collections', url: '/products' },
-          { label: category.name, url: `/category/${category.slug}` }
-        ]} 
+          { label: category.name, url: `/category/${category.slug}` },
+        ]}
       />
       {/* Category Header */}
-      <div className="bg-gradient-to-r from-amber-950 to-stone-900 text-white rounded-2xl p-8 sm:p-12 mb-10 border border-amber-500/20 text-center relative overflow-hidden">
-        <div className="relative z-10 max-w-xl mx-auto space-y-2">
-          <span className="text-xs uppercase tracking-widest text-amber-400 font-semibold">
+      <div className="relative mb-10 overflow-hidden rounded-2xl border border-amber-500/20 bg-gradient-to-r from-amber-950 to-stone-900 p-8 text-center text-white sm:p-12">
+        <div className="relative z-10 mx-auto max-w-xl space-y-2">
+          <span className="text-xs font-semibold uppercase tracking-widest text-amber-400">
             Collection
           </span>
-          <h1 className="font-serif text-3xl sm:text-5xl font-bold tracking-tight">
+          <h1 className="font-serif text-3xl font-bold tracking-tight sm:text-5xl">
             {category.name}
           </h1>
-          <p className="text-stone-300 text-xs sm:text-sm font-light">
-            Handcrafted with certified 22K & 22K Gold and ethically sourced gemstones.
+          <p className="text-xs font-light text-stone-300 sm:text-sm">
+            Handcrafted with premium 22K gold plating and ethically sourced
+            gemstones.
           </p>
         </div>
       </div>
 
       {/* Category Product Grid */}
       {categoryProducts.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {categoryProducts.map((product) => (
             <Link
               key={product.id}
               href={`/products/${product.slug}`}
-              className="group bg-white rounded-xl overflow-hidden border border-stone-200 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col"
+              className="group flex flex-col overflow-hidden rounded-xl border border-stone-200 bg-white shadow-sm transition-all duration-300 hover:shadow-xl"
             >
               <div className="relative aspect-square overflow-hidden bg-stone-100">
                 {product.images && product.images[0] && (
                   <img
                     src={product.images[0].url}
                     alt={product.name}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
                 )}
               </div>
-              <div className="p-4 flex-1 flex flex-col justify-between">
+              <div className="flex flex-1 flex-col justify-between p-4">
                 <div>
-                  <div className="text-[10px] font-mono text-stone-400 uppercase mb-1">{product.sku}</div>
-                  <h3 className="text-sm font-semibold text-stone-900 group-hover:text-amber-800 transition-colors line-clamp-2">
+                  <div className="mb-1 font-mono text-[10px] uppercase text-stone-400">
+                    {product.sku}
+                  </div>
+                  <h3 className="line-clamp-2 text-sm font-semibold text-stone-900 transition-colors group-hover:text-amber-800">
                     {product.name}
                   </h3>
                 </div>
                 <div className="mt-4 flex items-baseline space-x-2">
-                  <span className="text-base font-bold text-amber-950">₹{product.price.toLocaleString('en-IN')}</span>
+                  <span className="text-base font-bold text-amber-950">
+                    ₹{product.price.toLocaleString('en-IN')}
+                  </span>
                   {product.mrp > product.price && (
-                    <span className="text-xs text-stone-400 line-through">₹{product.mrp.toLocaleString('en-IN')}</span>
+                    <span className="text-xs text-stone-400 line-through">
+                      ₹{product.mrp.toLocaleString('en-IN')}
+                    </span>
                   )}
                 </div>
               </div>
@@ -141,12 +150,16 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
           ))}
         </div>
       ) : (
-        <div className="bg-white rounded-2xl p-12 text-center border border-stone-200 shadow-sm">
-          <h3 className="text-lg font-serif font-bold text-stone-800 mb-2">No Items Currently in {category.name}</h3>
-          <p className="text-xs text-stone-500 mb-6">Explore our complete catalog for other designs.</p>
+        <div className="rounded-2xl border border-stone-200 bg-white p-12 text-center shadow-sm">
+          <h3 className="mb-2 font-serif text-lg font-bold text-stone-800">
+            No Items Currently in {category.name}
+          </h3>
+          <p className="mb-6 text-xs text-stone-500">
+            Explore our complete catalog for other designs.
+          </p>
           <Link
             href="/products"
-            className="px-6 py-2.5 bg-amber-950 text-white text-xs font-semibold uppercase tracking-wider rounded-lg"
+            className="rounded-lg bg-amber-950 px-6 py-2.5 text-xs font-semibold uppercase tracking-wider text-white"
           >
             Browse All Fine Jewellery
           </Link>
@@ -154,17 +167,28 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
       )}
 
       {/* SEO Content Block */}
-      <div className="mt-16 pt-12 border-t border-stone-200">
+      <div className="mt-16 border-t border-stone-200 pt-12">
         <div className="max-w-3xl">
-          <h2 className="font-serif text-2xl font-bold text-stone-900 mb-4">
+          <h2 className="mb-4 font-serif text-2xl font-bold text-stone-900">
             Buy Exquisite {category.name} Online
           </h2>
-          <div className="text-sm text-stone-600 space-y-4 font-light leading-relaxed">
+          <div className="space-y-4 text-sm font-light leading-relaxed text-stone-600">
             <p>
-              Discover our exclusive collection of {category.name.toLowerCase()}, meticulously handcrafted to blend traditional elegance with contemporary design. At Ruhvi Fine Jewellery, every piece is a testament to superior craftsmanship and timeless beauty.
+              Discover our exclusive collection of {category.name.toLowerCase()}
+              , meticulously handcrafted to blend traditional elegance with
+              contemporary design. At Ruhvi Fine Jewellery, every piece is a
+              testament to superior craftsmanship and timeless beauty.
             </p>
             <p>
-              Whether you are looking for an everyday staple or a statement piece for a grand celebration, our {category.name.toLowerCase()} are crafted using <strong>100% BIS Hallmarked 22K Gold</strong> and adorned with ethically sourced, VVS certified diamonds and gemstones. Enjoy the peace of mind that comes with our lifetime warranty, transparent pricing, and complimentary insured shipping across India.
+              Whether you are looking for an everyday staple or a statement
+              piece for a grand celebration, our {category.name.toLowerCase()}{' '}
+              are crafted with a <strong>premium 22K gold-plated finish</strong>{' '}
+              over a nickel-free brass base, with an anti-tarnish e-coating that
+              is backed by our 6-month color guarantee. Every piece is finished
+              with ethically sourced, VVS certified diamonds and gemstones.
+              Enjoy the peace of mind that comes with our 6-month color
+              guarantee, transparent pricing, and complimentary insured shipping
+              across India.
             </p>
           </div>
         </div>

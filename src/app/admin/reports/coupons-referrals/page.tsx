@@ -21,10 +21,13 @@ export default function CouponsReferralsReportPage() {
   const [referrals, setReferrals] = useState<Referral[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   const fetchData = async () => {
     try {
       setRefreshing(true);
+      setLoadError(null);
+
       const supabase = createClient();
 
       const [couponsRes, referralsRes] = await Promise.all([
@@ -38,59 +41,27 @@ export default function CouponsReferralsReportPage() {
           .order('created_at', { ascending: false }),
       ]);
 
-      if (couponsRes.data && couponsRes.data.length > 0) {
-        setCoupons(couponsRes.data);
+      if (couponsRes.error) {
+        console.error('Failed to fetch coupons:', couponsRes.error);
+        setLoadError(couponsRes.error.message || 'Failed to load coupons.');
+        setCoupons([]);
       } else {
-        setCoupons([
-          {
-            id: 'c1',
-            code: 'WELCOME10',
-            discount_type: 'percentage',
-            discount_value: 10,
-            min_order_value: 5000,
-            usage_limit_total: 100,
-            usage_limit_per_user: 1,
-            applicable_to: 'all',
-            expiry_date: null,
-            cod_charge_waiver: false,
-            active: true,
-          },
-          {
-            id: 'c2',
-            code: 'WEDDING25',
-            discount_type: 'percentage',
-            discount_value: 25,
-            min_order_value: 50000,
-            usage_limit_total: 50,
-            usage_limit_per_user: 1,
-            applicable_to: 'all',
-            expiry_date: null,
-            cod_charge_waiver: true,
-            active: true,
-          },
-          {
-            id: 'c3',
-            code: 'FESTIVE500',
-            discount_type: 'flat',
-            discount_value: 500,
-            min_order_value: 10000,
-            usage_limit_total: 200,
-            usage_limit_per_user: 2,
-            applicable_to: 'all',
-            expiry_date: '2026-12-31',
-            cod_charge_waiver: false,
-            active: true,
-          },
-        ]);
+        setCoupons(couponsRes.data ?? []);
       }
 
-      if (referralsRes.data && referralsRes.data.length > 0) {
-        setReferrals(referralsRes.data);
-      } else {
+      if (referralsRes.error) {
+        console.error('Failed to fetch referrals:', referralsRes.error);
+        setLoadError(
+          (prev) =>
+            prev || referralsRes.error?.message || 'Failed to load referrals.'
+        );
         setReferrals([]);
+      } else {
+        setReferrals(referralsRes.data ?? []);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error fetching coupons/referrals report:', err);
+      setLoadError(err?.message || 'Failed to load data.');
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -148,6 +119,22 @@ export default function CouponsReferralsReportPage() {
           <span>Refresh</span>
         </button>
       </div>
+
+      {/* Load Error Alert */}
+      {loadError && (
+        <div className="flex items-center justify-between rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-xs font-medium text-rose-300">
+          <span className="flex items-center gap-2">
+            <XCircle className="h-4 w-4 flex-shrink-0" />
+            Failed to load data from the database: {loadError}
+          </span>
+          <button
+            onClick={fetchData}
+            className="ml-4 flex items-center gap-1 rounded-lg border border-rose-500/30 bg-rose-500/10 px-3 py-1 font-semibold text-rose-300 transition-colors hover:bg-rose-500/20"
+          >
+            <RefreshCw className="h-3 w-3" /> Retry
+          </button>
+        </div>
+      )}
 
       {/* KPI Overview */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -234,42 +221,53 @@ export default function CouponsReferralsReportPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5 text-slate-300">
-              {coupons.map((c) => (
-                <tr key={c.id} className="transition-colors hover:bg-white/5">
-                  <td className="p-4 pl-6">
-                    <span className="font-mono text-xs font-bold text-purple-400">
-                      {c.code}
-                    </span>
-                  </td>
-                  <td className="p-4 font-semibold text-white">
-                    {c.discount_type === 'percentage'
-                      ? `${c.discount_value}% OFF`
-                      : `₹${c.discount_value} FLAT`}
-                  </td>
-                  <td className="p-4 text-slate-400">
-                    ₹{c.min_order_value?.toLocaleString('en-IN') || 0}
-                  </td>
-                  <td className="p-4 text-slate-400">
-                    {c.usage_limit_total || 'Unlimited'}
-                  </td>
-                  <td className="p-4 font-mono text-[11px] text-slate-500">
-                    {c.expiry_date
-                      ? new Date(c.expiry_date).toLocaleDateString('en-IN')
-                      : 'No Expiry'}
-                  </td>
-                  <td className="p-4 pr-6 text-right">
-                    <span
-                      className={`inline-block rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
-                        c.active
-                          ? 'border-emerald-500/20 bg-emerald-500/10 text-emerald-400'
-                          : 'border-slate-500/20 bg-slate-500/10 text-slate-400'
-                      }`}
-                    >
-                      {c.active ? 'Active' : 'Inactive'}
-                    </span>
+              {coupons.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan={6}
+                    className="py-8 text-center text-xs text-slate-500"
+                  >
+                    No coupons configured yet.
                   </td>
                 </tr>
-              ))}
+              ) : (
+                coupons.map((c) => (
+                  <tr key={c.id} className="transition-colors hover:bg-white/5">
+                    <td className="p-4 pl-6">
+                      <span className="font-mono text-xs font-bold text-purple-400">
+                        {c.code}
+                      </span>
+                    </td>
+                    <td className="p-4 font-semibold text-white">
+                      {c.discount_type === 'percentage'
+                        ? `${c.discount_value}% OFF`
+                        : `₹${c.discount_value} FLAT`}
+                    </td>
+                    <td className="p-4 text-slate-400">
+                      ₹{c.min_order_value?.toLocaleString('en-IN') || 0}
+                    </td>
+                    <td className="p-4 text-slate-400">
+                      {c.usage_limit_total || 'Unlimited'}
+                    </td>
+                    <td className="p-4 font-mono text-[11px] text-slate-500">
+                      {c.expiry_date
+                        ? new Date(c.expiry_date).toLocaleDateString('en-IN')
+                        : 'No Expiry'}
+                    </td>
+                    <td className="p-4 pr-6 text-right">
+                      <span
+                        className={`inline-block rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
+                          c.active
+                            ? 'border-emerald-500/20 bg-emerald-500/10 text-emerald-400'
+                            : 'border-slate-500/20 bg-slate-500/10 text-slate-400'
+                        }`}
+                      >
+                        {c.active ? 'Active' : 'Inactive'}
+                      </span>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

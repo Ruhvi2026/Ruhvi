@@ -148,7 +148,7 @@ export async function POST(req: Request) {
       if (providerType === 'gemini') {
         const genAI = new GoogleGenerativeAI(apiKey);
         const model = genAI.getGenerativeModel({
-          model: 'gemini-3.5-flash-lite',
+          model: 'gemini-3.5-flash',
         });
         const result = await model.generateContent('Say hello in one word.');
         const text = result.response.text();

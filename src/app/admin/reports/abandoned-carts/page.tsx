@@ -32,6 +32,7 @@ export default function AbandonedCartsPage() {
   const [carts, setCarts] = useState<AbandonedCart[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [notifyingId, setNotifyingId] = useState<string | null>(null);
   const [notice, setNotice] = useState<{ id: string; text: string } | null>(
     null
@@ -40,6 +41,7 @@ export default function AbandonedCartsPage() {
   const fetchAbandonedCarts = async () => {
     try {
       setRefreshing(true);
+      setLoadError(null);
       const supabase = createClient();
 
       const { data, error } = await supabase
@@ -49,16 +51,17 @@ export default function AbandonedCartsPage() {
         )
         .order('created_at', { ascending: false });
 
-      if (error || !data || data.length === 0) {
-        console.warn('Using fallback abandoned carts data:', error);
-        loadFallback();
+      if (error) {
+        console.error('Failed to fetch abandoned carts:', error);
+        setLoadError(error.message || 'Failed to load abandoned carts.');
+        setCarts([]);
         return;
       }
 
       // Group cart items by user
       const userMap: Record<string, AbandonedCart> = {};
 
-      data.forEach((row: any) => {
+      (data ?? []).forEach((row: any) => {
         const uid = row.user_id;
         const pName = row.product?.name || 'Fine Jewellery Piece';
         const pPrice = Number(row.product?.price) || 0;
@@ -84,51 +87,14 @@ export default function AbandonedCartsPage() {
       });
 
       setCarts(Object.values(userMap));
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error loading abandoned carts:', err);
-      loadFallback();
+      setLoadError(err?.message || 'Failed to load abandoned carts.');
+      setCarts([]);
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
-  };
-
-  const loadFallback = () => {
-    setCarts([
-      {
-        id: 'cart-101',
-        userId: 'u1',
-        customerName: 'Meera Rajput',
-        customerEmail: 'meera.r@example.com',
-        customerPhone: '+91 98765 12345',
-        items: ['Aurelia Solitaire Diamond Ring'],
-        totalValue: 12500,
-        itemCount: 1,
-        lastUpdated: new Date(Date.now() - 2 * 3600 * 1000).toISOString(),
-      },
-      {
-        id: 'cart-102',
-        userId: 'u2',
-        customerName: 'Vikas Sharma',
-        customerEmail: 'vikas.s@example.com',
-        customerPhone: '+91 98123 45678',
-        items: ['Royal Heritage Gold Bangle', 'Celestial Pearl Drop'],
-        totalValue: 47000,
-        itemCount: 2,
-        lastUpdated: new Date(Date.now() - 5 * 3600 * 1000).toISOString(),
-      },
-      {
-        id: 'cart-103',
-        userId: 'u3',
-        customerName: 'Deepika Padukone',
-        customerEmail: 'deepika@example.com',
-        customerPhone: '+91 99000 11223',
-        items: ['Kundan Choker Statement Necklace'],
-        totalValue: 85000,
-        itemCount: 1,
-        lastUpdated: new Date(Date.now() - 24 * 3600 * 1000).toISOString(),
-      },
-    ]);
   };
 
   useEffect(() => {
@@ -207,6 +173,22 @@ export default function AbandonedCartsPage() {
         </button>
       </div>
 
+      {/* Load Error Alert */}
+      {loadError && (
+        <div className="flex items-center justify-between rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-xs font-medium text-rose-300">
+          <span className="flex items-center gap-2">
+            <AlertCircle className="h-4 w-4 flex-shrink-0" />
+            Failed to load abandoned carts from the database: {loadError}
+          </span>
+          <button
+            onClick={fetchAbandonedCarts}
+            className="ml-4 flex items-center gap-1 rounded-lg border border-rose-500/30 bg-rose-500/10 px-3 py-1 font-semibold text-rose-300 transition-colors hover:bg-rose-500/20"
+          >
+            <RefreshCw className="h-3 w-3" /> Retry
+          </button>
+        </div>
+      )}
+
       {/* KPI Overview */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <div className="rounded-2xl border border-white/5 bg-[#131726] p-5">
@@ -278,59 +260,70 @@ export default function AbandonedCartsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5 text-slate-300">
-              {carts.map((cart) => (
-                <tr
-                  key={cart.id}
-                  className="transition-colors hover:bg-white/5"
-                >
-                  <td className="p-4 pl-6">
-                    <div className="font-semibold text-slate-200">
-                      {cart.customerName}
-                    </div>
-                    <div className="font-mono text-[10px] text-slate-500">
-                      {cart.customerEmail}{' '}
-                      {cart.customerPhone !== 'N/A' &&
-                        `• ${cart.customerPhone}`}
-                    </div>
-                  </td>
-                  <td className="p-4">
-                    <div className="font-medium text-slate-300">
-                      {cart.items.join(', ')}
-                    </div>
-                    <span className="text-[10px] text-slate-500">
-                      {cart.itemCount} piece{cart.itemCount > 1 ? 's' : ''}
-                    </span>
-                  </td>
-                  <td className="p-4 text-right font-bold text-emerald-400">
-                    ₹{cart.totalValue.toLocaleString('en-IN')}
-                  </td>
-                  <td className="p-4 font-mono text-[11px] text-slate-400">
-                    {new Date(cart.lastUpdated).toLocaleString('en-IN', {
-                      month: 'short',
-                      day: 'numeric',
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })}
-                  </td>
-                  <td className="p-4 pr-6 text-right">
-                    {notice?.id === cart.id ? (
-                      <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-400">
-                        <CheckCircle2 className="h-3.5 w-3.5" />
-                        {notice.text}
-                      </span>
-                    ) : (
-                      <button
-                        onClick={() => handleSendReminder(cart)}
-                        disabled={notifyingId === cart.id}
-                        className="inline-flex items-center gap-1.5 rounded-xl border border-amber-500/20 bg-amber-500/10 px-3 py-1.5 text-xs font-semibold text-amber-400 transition-colors hover:bg-amber-500/20 disabled:opacity-50"
-                      >
-                        <Send className="h-3 w-3" />
-                        <span>Send Nudge</span>
-                      </button>
-                    )}
+              {carts.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan={5}
+                    className="py-8 text-center text-xs text-slate-500"
+                  >
+                    No pending carts found. Abandoned baskets will appear here.
                   </td>
                 </tr>
-              ))}
+              ) : (
+                carts.map((cart) => (
+                  <tr
+                    key={cart.id}
+                    className="transition-colors hover:bg-white/5"
+                  >
+                    <td className="p-4 pl-6">
+                      <div className="font-semibold text-slate-200">
+                        {cart.customerName}
+                      </div>
+                      <div className="font-mono text-[10px] text-slate-500">
+                        {cart.customerEmail}{' '}
+                        {cart.customerPhone !== 'N/A' &&
+                          `• ${cart.customerPhone}`}
+                      </div>
+                    </td>
+                    <td className="p-4">
+                      <div className="font-medium text-slate-300">
+                        {cart.items.join(', ')}
+                      </div>
+                      <span className="text-[10px] text-slate-500">
+                        {cart.itemCount} piece{cart.itemCount > 1 ? 's' : ''}
+                      </span>
+                    </td>
+                    <td className="p-4 text-right font-bold text-emerald-400">
+                      ₹{cart.totalValue.toLocaleString('en-IN')}
+                    </td>
+                    <td className="p-4 font-mono text-[11px] text-slate-400">
+                      {new Date(cart.lastUpdated).toLocaleString('en-IN', {
+                        month: 'short',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })}
+                    </td>
+                    <td className="p-4 pr-6 text-right">
+                      {notice?.id === cart.id ? (
+                        <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-400">
+                          <CheckCircle2 className="h-3.5 w-3.5" />
+                          {notice.text}
+                        </span>
+                      ) : (
+                        <button
+                          onClick={() => handleSendReminder(cart)}
+                          disabled={notifyingId === cart.id}
+                          className="inline-flex items-center gap-1.5 rounded-xl border border-amber-500/20 bg-amber-500/10 px-3 py-1.5 text-xs font-semibold text-amber-400 transition-colors hover:bg-amber-500/20 disabled:opacity-50"
+                        >
+                          <Send className="h-3 w-3" />
+                          <span>Send Nudge</span>
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

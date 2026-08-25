@@ -901,9 +901,10 @@ export default function SupportDashboard() {
                 <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-indigo-400" />
                 <span>
                   <strong className="text-slate-200">
-                    Gold & HUID Verification:
+                    Materials & Plating:
                   </strong>{' '}
-                  Guide customers to the BIS Care app for hallmark verification.
+                  Our products are premium gold-plated; guide customers to the
+                  product details page for material information.
                 </span>
               </li>
               <li className="flex items-start gap-2">

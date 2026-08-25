@@ -213,7 +213,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       toast.success('Successfully logged out');
       router.push('/login');
-    } catch (err) {
+    } catch (err: any) {
+      console.error('Logout error:', err);
+      // Next.js might throw a NEXT_REDIRECT error which should not be caught as an API error
+      if (
+        err?.message?.includes('NEXT_REDIRECT') ||
+        err?.digest?.includes('NEXT_REDIRECT')
+      ) {
+        throw err;
+      }
       const apiError = parseApiError(err);
       toast.error(apiError.userMessage);
     }

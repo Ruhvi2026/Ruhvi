@@ -537,6 +537,30 @@ html.dark .text-charcoal-500 {
   color: #a8a29e !important; /* Muted Warm Grey */
 }
 
+html.dark .text-\[\#121110\] {
+  color: #f6f5f4 !important;
+}
+
+html.dark .text-\[\#121110\]\/80 {
+  color: rgba(246, 245, 244, 0.8) !important;
+}
+
+html.dark .text-\[\#121110\]\/70 {
+  color: rgba(246, 245, 244, 0.7) !important;
+}
+
+html.dark .text-\[\#121110\]\/60 {
+  color: rgba(246, 245, 244, 0.6) !important;
+}
+
+html.dark .text-\[\#121110\]\/40 {
+  color: rgba(246, 245, 244, 0.4) !important;
+}
+
+html.dark .hover\:text-\[\#121110\]:hover {
+  color: #f6f5f4 !important;
+}
+
 /* Accent texts */
 html.dark .text-gold-600,
 html.dark .text-gold-500,

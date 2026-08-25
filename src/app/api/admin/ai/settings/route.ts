@@ -6,9 +6,12 @@ import {
   resolveEffectiveApiKey,
   isMaskedPlaceholder,
   maskApiKey,
+  ENV_KEY_MAP,
 } from '@/lib/ai/keys';
 import { decryptApiKey } from '@/lib/ai/credential-encryption';
 import { assertSafeOutboundUrl, UnsafeUrlError } from '@/lib/security/ssrf';
+import fs from 'fs';
+import path from 'path';
 
 const DEFAULT_PROVIDERS = [
   {
@@ -17,14 +20,7 @@ const DEFAULT_PROVIDERS = [
     name: 'Google Gemini',
     apiKey: '',
     isEnabled: true,
-    models: [
-      'gemini-3.5-flash-lite',
-      'gemini-3.5-flash',
-      'gemini-3.7-flash',
-      'gemini-2.5-flash-lite',
-      'gemini-flash-latest',
-      'gemini-pro-latest',
-    ],
+    models: ['gemini-3.5-flash', 'gemini-1.5-flash', 'gemini-1.5-pro'],
     priority: 1,
     status: 'online',
   },
@@ -178,14 +174,32 @@ export async function GET(req: Request) {
 
       let models = p.models || [];
       if (type === 'gemini') {
-        // Ensure gemini-3.5-flash-lite is the default model and remove deprecated gemini-2.5-flash
-        models = models.filter((m: string) => m !== 'gemini-2.5-flash');
-        if (!models.includes('gemini-3.5-flash-lite')) {
-          models.unshift('gemini-3.5-flash-lite');
-        } else if (models[0] !== 'gemini-3.5-flash-lite') {
+        // Ensure deprecated model names are replaced with valid ones
+        const DEPRECATED_GEMINI_MODELS = [
+          'gemini-2.5-flash',
+          'gemini-3.5-flash-lite',
+          'gemini-3.5-flash',
+          'gemini-3.7-flash',
+          'gemini-2.5-flash-lite',
+          'gemini-flash-latest',
+          'gemini-pro-latest',
+        ];
+        models = models.filter(
+          (m: string) => !DEPRECATED_GEMINI_MODELS.includes(m)
+        );
+        const VALID_GEMINI_MODELS = [
+          'gemini-3.5-flash',
+          'gemini-1.5-flash',
+          'gemini-1.5-pro',
+        ];
+        for (const vm of VALID_GEMINI_MODELS) {
+          if (!models.includes(vm)) models.push(vm);
+        }
+        // Ensure gemini-3.5-flash is first (default)
+        if (models[0] !== 'gemini-3.5-flash') {
           models = [
-            'gemini-3.5-flash-lite',
-            ...models.filter((m: string) => m !== 'gemini-3.5-flash-lite'),
+            'gemini-3.5-flash',
+            ...models.filter((m: string) => m !== 'gemini-3.5-flash'),
           ];
         }
       }
@@ -225,30 +239,37 @@ export async function GET(req: Request) {
     result.ai_features = result.ai_features || {
       product_description: {
         provider: 'gemini',
-        model: 'gemini-3.5-flash-lite',
+        model: 'gemini-3.5-flash',
         enabled: true,
       },
       seo_metadata: {
         provider: 'gemini',
-        model: 'gemini-3.5-flash-lite',
+        model: 'gemini-3.5-flash',
         enabled: true,
       },
       chatbot: {
         provider: 'gemini',
-        model: 'gemini-3.5-flash-lite',
+        model: 'gemini-3.5-flash',
         enabled: true,
       },
     };
 
     // Upgrade any legacy gemini-2.5-flash references in ai_features
     if (result.ai_features) {
+      // Upgrade any deprecated model references
+      const DEPRECATED_GEMINI = [
+        'gemini-2.5-flash',
+        'gemini-3.5-flash-lite',
+        'gemini-3.5-flash',
+        'gemini-3.7-flash',
+      ];
       Object.keys(result.ai_features).forEach((key) => {
         if (
           result.ai_features[key]?.provider === 'gemini' &&
           (!result.ai_features[key]?.model ||
-            result.ai_features[key]?.model === 'gemini-2.5-flash')
+            DEPRECATED_GEMINI.includes(result.ai_features[key]?.model))
         ) {
-          result.ai_features[key].model = 'gemini-3.5-flash-lite';
+          result.ai_features[key].model = 'gemini-3.5-flash';
         }
       });
     }
@@ -304,6 +325,8 @@ export async function POST(req: Request) {
         ? existingData.value
         : [];
 
+      const envUpdates: Record<string, string> = {};
+
       body.ai_providers = body.ai_providers.map((p: any) => {
         const type = p.type || p.id;
         const existing = existingProviders.find(
@@ -315,9 +338,13 @@ export async function POST(req: Request) {
         // If user submitted an explicit clear command
         if (p.apiKey === '__CLEAR_KEY__') {
           finalApiKey = '';
+          const envVar = ENV_KEY_MAP[type];
+          if (envVar) envUpdates[envVar] = '';
         } else if (p.apiKey && !isMaskedPlaceholder(p.apiKey)) {
           // If user typed a genuine new raw key
           finalApiKey = p.apiKey.trim();
+          const envVar = ENV_KEY_MAP[type];
+          if (envVar) envUpdates[envVar] = finalApiKey;
         }
 
         return {
@@ -334,6 +361,39 @@ export async function POST(req: Request) {
           isCustom: Boolean(p.isCustom),
         };
       });
+
+      // Update .env.local directly if any keys were changed
+      if (Object.keys(envUpdates).length > 0) {
+        try {
+          const envPath = path.join(process.cwd(), '.env.local');
+          let envContent = '';
+          if (fs.existsSync(envPath)) {
+            envContent = fs.readFileSync(envPath, 'utf8');
+          }
+
+          for (const [envVar, newValue] of Object.entries(envUpdates)) {
+            const regex = new RegExp(`^${envVar}=.*$`, 'm');
+            if (newValue === '') {
+              if (regex.test(envContent)) {
+                envContent = envContent.replace(regex, `${envVar}=`);
+              }
+            } else {
+              if (regex.test(envContent)) {
+                envContent = envContent.replace(
+                  regex,
+                  `${envVar}='${newValue}'`
+                );
+              } else {
+                envContent += `\n${envVar}='${newValue}'`;
+              }
+            }
+          }
+
+          fs.writeFileSync(envPath, envContent.trim() + '\n', 'utf8');
+        } catch (err) {
+          console.error('Failed to update .env.local:', err);
+        }
+      }
 
       // Reject internal/private gateway base URLs before persisting them
       for (const p of body.ai_providers) {

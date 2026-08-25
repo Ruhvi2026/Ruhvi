@@ -15,7 +15,6 @@ import {
   Download,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
-import { DEMO_PRODUCTS } from '@/lib/products';
 
 interface InventoryItem {
   id: string;
@@ -32,12 +31,14 @@ export default function InventoryReportPage() {
   const [items, setItems] = useState<InventoryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [filter, setFilter] = useState<string>('all');
   const [search, setSearch] = useState<string>('');
 
   const fetchInventory = async () => {
     try {
       setRefreshing(true);
+      setLoadError(null);
       const supabase = createClient();
       const { data: products, error } = await supabase
         .from('products')
@@ -46,13 +47,14 @@ export default function InventoryReportPage() {
         )
         .order('stock_quantity', { ascending: true });
 
-      if (error || !products || products.length === 0) {
-        console.warn('Using fallback demo inventory data:', error);
-        loadFallback();
+      if (error) {
+        console.error('Failed to fetch inventory report:', error);
+        setLoadError(error.message || 'Failed to load inventory data.');
+        setItems([]);
         return;
       }
 
-      const formatted: InventoryItem[] = products.map((p: any) => {
+      const formatted: InventoryItem[] = (products ?? []).map((p: any) => {
         const stock = Number(p.stock_quantity) || 0;
         const threshold = Number(p.low_stock_threshold) || 5;
         let derivedStatus: 'in_stock' | 'low_stock' | 'out_of_stock' =
@@ -77,32 +79,14 @@ export default function InventoryReportPage() {
       });
 
       setItems(formatted);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error fetching inventory report:', err);
-      loadFallback();
+      setLoadError(err?.message || 'Failed to load inventory data.');
+      setItems([]);
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
-  };
-
-  const loadFallback = () => {
-    const fallback: InventoryItem[] = DEMO_PRODUCTS.map((p) => {
-      let st: 'in_stock' | 'low_stock' | 'out_of_stock' = 'in_stock';
-      if (p.stock_quantity === 0) st = 'out_of_stock';
-      else if (p.stock_quantity <= p.low_stock_threshold) st = 'low_stock';
-      return {
-        id: p.id,
-        sku: p.sku,
-        name: p.name,
-        category: p.category?.name || 'Fine Jewellery',
-        stock: p.stock_quantity,
-        threshold: p.low_stock_threshold,
-        price: p.price,
-        status: st,
-      };
-    });
-    setItems(fallback);
   };
 
   useEffect(() => {
@@ -205,6 +189,22 @@ export default function InventoryReportPage() {
           </button>
         </div>
       </div>
+
+      {/* Load Error Alert */}
+      {loadError && (
+        <div className="flex items-center justify-between rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-xs font-medium text-rose-300">
+          <span className="flex items-center gap-2">
+            <AlertTriangle className="h-4 w-4 flex-shrink-0" />
+            Failed to load inventory data from the database: {loadError}
+          </span>
+          <button
+            onClick={fetchInventory}
+            className="ml-4 flex items-center gap-1 rounded-lg border border-rose-500/30 bg-rose-500/10 px-3 py-1 font-semibold text-rose-300 transition-colors hover:bg-rose-500/20"
+          >
+            <RefreshCw className="h-3 w-3" /> Retry
+          </button>
+        </div>
+      )}
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">

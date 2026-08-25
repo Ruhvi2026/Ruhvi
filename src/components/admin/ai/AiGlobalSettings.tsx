@@ -67,6 +67,23 @@ export default function AiGlobalSettings({
 
           <div>
             <label className="mb-2 block text-sm font-medium text-gray-400">
+              Default Model Temperature
+            </label>
+            <input
+              type="number"
+              step="0.1"
+              min="0"
+              max="2"
+              value={globalConfig.temperature ?? 0.7}
+              onChange={(e) =>
+                updateGlobal('temperature', parseFloat(e.target.value))
+              }
+              className="w-full rounded-lg border border-gray-700 bg-gray-900 px-4 py-2 text-white"
+            />
+          </div>
+
+          <div>
+            <label className="mb-2 block text-sm font-medium text-gray-400">
               Max Output Tokens (Global Cap)
             </label>
             <input

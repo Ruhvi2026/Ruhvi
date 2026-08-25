@@ -2,19 +2,37 @@
 
 import React, { useEffect } from 'react';
 import Link from 'next/link';
-import { ShoppingBag, Trash2, Plus, Minus, ArrowRight, ShieldCheck, Truck, RefreshCw, Sparkles, ImageOff } from 'lucide-react';
+import {
+  ShoppingBag,
+  Trash2,
+  Plus,
+  Minus,
+  ArrowRight,
+  ShieldCheck,
+  Truck,
+  RefreshCw,
+  Sparkles,
+  ImageOff,
+} from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ImageWithFallback } from '@/components/ui/ImageWithFallback';
 import { ecommerceEvent } from '@/lib/gtag';
 
 export default function CartPage() {
-  const { items, updateQuantity, removeFromCart, subtotal, clearCart } = useCart();
+  const { items, updateQuantity, removeFromCart, subtotal, clearCart } =
+    useCart();
 
   const FREE_SHIPPING_THRESHOLD = 500;
   const isFreeShipping = subtotal >= FREE_SHIPPING_THRESHOLD;
-  const remainingForFreeShipping = Math.max(0, FREE_SHIPPING_THRESHOLD - subtotal);
-  const freeShippingProgress = Math.min(100, (subtotal / FREE_SHIPPING_THRESHOLD) * 100);
+  const remainingForFreeShipping = Math.max(
+    0,
+    FREE_SHIPPING_THRESHOLD - subtotal
+  );
+  const freeShippingProgress = Math.min(
+    100,
+    (subtotal / FREE_SHIPPING_THRESHOLD) * 100
+  );
 
   const estimatedShipping = isFreeShipping || items.length === 0 ? 0 : 49;
   const grandTotal = subtotal + estimatedShipping;
@@ -24,33 +42,33 @@ export default function CartPage() {
       ecommerceEvent('view_cart', {
         currency: 'INR',
         value: subtotal,
-        items: items.map(item => ({
+        items: items.map((item) => ({
           item_id: item.product_id,
           item_name: item.product?.name,
           price: item.product?.price || item.price_at_add,
-          quantity: item.quantity
-        }))
+          quantity: item.quantity,
+        })),
       });
     }
   }, [items]);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-stone-200 pb-6 mb-8">
+      <div className="mb-8 flex items-center justify-between border-b border-stone-200 pb-6">
         <div>
-          <h1 className="font-serif text-3xl sm:text-4xl font-bold text-stone-900 flex items-center space-x-3">
-            <ShoppingBag className="w-8 h-8 text-amber-900" />
+          <h1 className="flex items-center space-x-3 font-serif text-3xl font-bold text-stone-900 sm:text-4xl">
+            <ShoppingBag className="h-8 w-8 text-amber-900" />
             <span>Shopping Cart</span>
           </h1>
-          <p className="text-stone-500 text-xs sm:text-sm mt-1">
+          <p className="mt-1 text-xs text-stone-500 sm:text-sm">
             {items.length} {items.length === 1 ? 'item' : 'items'} in your bag
           </p>
         </div>
         {items.length > 0 && (
           <button
             onClick={clearCart}
-            className="text-xs text-stone-400 hover:text-rose-600 font-medium transition-colors"
+            className="text-xs font-medium text-stone-400 transition-colors hover:text-rose-600"
           >
             Clear Cart
           </button>
@@ -58,14 +76,14 @@ export default function CartPage() {
       </div>
 
       {items.length > 0 ? (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
           {/* Main Cart Items List */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="space-y-6 lg:col-span-2">
             {/* Free Shipping Progress Card */}
-            <div className="bg-amber-950/5 border border-amber-900/10 p-4 rounded-xl space-y-2">
+            <div className="space-y-2 rounded-xl border border-amber-900/10 bg-amber-950/5 p-4">
               <div className="flex items-center justify-between text-xs font-semibold text-amber-950">
                 <span className="flex items-center space-x-1.5">
-                  <Sparkles className="w-4 h-4 text-amber-600" />
+                  <Sparkles className="h-4 w-4 text-amber-600" />
                   <span>
                     {isFreeShipping
                       ? 'Congratulations! You qualify for FREE Insured Express Shipping.'
@@ -74,9 +92,9 @@ export default function CartPage() {
                 </span>
                 <span>{Math.round(freeShippingProgress)}%</span>
               </div>
-              <div className="w-full bg-stone-200 h-2 rounded-full overflow-hidden">
+              <div className="h-2 w-full overflow-hidden rounded-full bg-stone-200">
                 <div
-                  className="bg-amber-800 h-full transition-all duration-500 rounded-full"
+                  className="h-full rounded-full bg-amber-800 transition-all duration-500"
                   style={{ width: `${freeShippingProgress}%` }}
                 />
               </div>
@@ -88,68 +106,75 @@ export default function CartPage() {
                 const product = item.product;
                 if (!product) return null;
 
-                const image = product.images?.[0]?.url || 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=800&q=80';
-                const itemTotal = (product.price || item.price_at_add) * item.quantity;
+                const image =
+                  product.images?.[0]?.url ||
+                  'https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=800&q=80';
+                const itemTotal =
+                  (product.price || item.price_at_add) * item.quantity;
 
                 return (
                   <div
                     key={item.id}
-                    className="bg-white rounded-2xl p-4 sm:p-6 border border-stone-200 shadow-sm flex flex-col sm:flex-row items-center gap-6"
+                    className="flex flex-col items-center gap-6 rounded-2xl border border-stone-200 bg-white p-4 shadow-sm sm:flex-row sm:p-6"
                   >
                     <Link
                       href={`/products/${product.slug}`}
-                      className="w-24 h-24 sm:w-28 sm:h-28 rounded-xl overflow-hidden bg-stone-100 flex-shrink-0 border border-stone-100 relative"
+                      className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-xl border border-stone-100 bg-stone-100 sm:h-28 sm:w-28"
                     >
                       <ImageWithFallback
                         src={image}
                         alt={product.name}
                         fill
-                        className="object-cover hover:scale-105 transition-transform duration-300"
+                        className="object-cover transition-transform duration-300 hover:scale-105"
                         sizes="(max-width: 768px) 96px, 112px"
                       />
                     </Link>
 
-                    <div className="flex-1 w-full space-y-2">
-                      <div className="flex justify-between items-start">
+                    <div className="w-full flex-1 space-y-2">
+                      <div className="flex items-start justify-between">
                         <div>
-                          <span className="text-[10px] font-mono text-stone-400 uppercase">
+                          <span className="font-mono text-[10px] uppercase text-stone-400">
                             {product.sku}
                           </span>
                           <Link
                             href={`/products/${product.slug}`}
-                            className="block font-semibold text-sm sm:text-base text-stone-900 hover:text-amber-900 transition-colors"
+                            className="block text-sm font-semibold text-stone-900 transition-colors hover:text-amber-900 sm:text-base"
                           >
                             {product.name}
                           </Link>
                         </div>
                         <button
                           onClick={() => removeFromCart(product.id)}
-                          className="p-1.5 text-stone-400 hover:text-rose-600 transition-colors rounded-lg hover:bg-rose-50"
+                          className="rounded-lg p-1.5 text-stone-400 transition-colors hover:bg-rose-50 hover:text-rose-600"
                           title="Remove Item"
                         >
-                          <Trash2 className="w-4 h-4" />
+                          <Trash2 className="h-4 w-4" />
                         </button>
                       </div>
 
-                      <div className="flex flex-wrap items-center justify-between pt-2 border-t border-stone-100">
+                      <div className="flex flex-wrap items-center justify-between border-t border-stone-100 pt-2">
                         {/* Quantity controls */}
-                        <div className="flex items-center border border-stone-200 rounded-lg overflow-hidden bg-stone-50">
+                        <div className="flex items-center overflow-hidden rounded-lg border border-stone-200 bg-stone-50">
                           <button
-                            onClick={() => updateQuantity(product.id, item.quantity - 1)}
-                            className="px-2.5 py-1 text-stone-600 hover:bg-stone-200 transition-colors"
+                            onClick={() =>
+                              updateQuantity(product.id, item.quantity - 1)
+                            }
+                            className="px-2.5 py-1 text-stone-600 transition-colors hover:bg-stone-200"
                             title="Decrease Quantity"
                           >
-                            <Minus className="w-3.5 h-3.5" />
+                            <Minus className="h-3.5 w-3.5" />
                           </button>
                           <span className="px-3 py-1 text-xs font-bold text-stone-800">
                             {item.quantity}
                           </span>
                           <button
-                            onClick={() => updateQuantity(product.id, item.quantity + 1)}
-                            className="px-2.5 py-1 text-stone-600 hover:bg-stone-200 transition-colors"
+                            onClick={() =>
+                              updateQuantity(product.id, item.quantity + 1)
+                            }
+                            className="px-2.5 py-1 text-stone-600 transition-colors hover:bg-stone-200"
                             title="Increase Quantity"
                           >
-                            <Plus className="w-3.5 h-3.5" />
+                            <Plus className="h-3.5 w-3.5" />
                           </button>
                         </div>
 
@@ -174,8 +199,8 @@ export default function CartPage() {
 
           {/* Sidebar Summary */}
           <div className="space-y-6">
-            <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm space-y-6 sticky top-24">
-              <h3 className="font-serif text-lg font-bold text-stone-900 border-b border-stone-100 pb-4">
+            <div className="sticky top-24 space-y-6 rounded-2xl border border-stone-200 bg-white p-6 shadow-sm">
+              <h3 className="border-b border-stone-100 pb-4 font-serif text-lg font-bold text-stone-900">
                 Order Summary
               </h3>
 
@@ -191,7 +216,7 @@ export default function CartPage() {
                   <span>Insured Shipping</span>
                   <span className="font-semibold text-stone-900">
                     {estimatedShipping === 0 ? (
-                      <span className="text-emerald-700 font-bold uppercase tracking-wider text-[11px]">
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-700">
                         FREE
                       </span>
                     ) : (
@@ -205,11 +230,11 @@ export default function CartPage() {
                   <span>3.0%</span>
                 </div>
 
-                <div className="border-t border-stone-200 pt-4 flex justify-between items-baseline">
-                  <span className="font-serif font-bold text-base text-stone-900">
+                <div className="flex items-baseline justify-between border-t border-stone-200 pt-4">
+                  <span className="font-serif text-base font-bold text-stone-900">
                     Total Payable
                   </span>
-                  <span className="font-serif font-bold text-xl text-amber-950">
+                  <span className="font-serif text-xl font-bold text-amber-950">
                     ₹{grandTotal.toLocaleString('en-IN')}
                   </span>
                 </div>
@@ -217,23 +242,23 @@ export default function CartPage() {
 
               <Link
                 href="/checkout"
-                className="w-full block text-center py-3.5 bg-amber-950 hover:bg-amber-900 text-amber-100 font-bold text-xs uppercase tracking-widest rounded-xl shadow-lg transition-all hover:scale-[1.02]"
+                className="block w-full rounded-xl bg-amber-950 py-3.5 text-center text-xs font-bold uppercase tracking-widest text-amber-100 shadow-lg transition-all hover:scale-[1.02] hover:bg-amber-900"
               >
                 Proceed to Checkout
               </Link>
 
               {/* Trust badges */}
-              <div className="pt-4 border-t border-stone-100 grid grid-cols-3 gap-2 text-center text-[10px] text-stone-500">
+              <div className="grid grid-cols-3 gap-2 border-t border-stone-100 pt-4 text-center text-[10px] text-stone-500">
                 <div className="space-y-1">
-                  <Truck className="w-4 h-4 mx-auto text-amber-800" />
+                  <Truck className="mx-auto h-4 w-4 text-amber-800" />
                   <span>Insured Delivery</span>
                 </div>
                 <div className="space-y-1">
-                  <ShieldCheck className="w-4 h-4 mx-auto text-amber-800" />
-                  <span>Certified Gold</span>
+                  <ShieldCheck className="mx-auto h-4 w-4 text-amber-800" />
+                  <span>Premium Plating</span>
                 </div>
                 <div className="space-y-1">
-                  <RefreshCw className="w-4 h-4 mx-auto text-amber-800" />
+                  <RefreshCw className="mx-auto h-4 w-4 text-amber-800" />
                   <span>7-Day Returns</span>
                 </div>
               </div>
@@ -243,7 +268,7 @@ export default function CartPage() {
       ) : (
         /* Empty Cart State */
         <EmptyState
-          icon={<ShoppingBag className="w-8 h-8" />}
+          icon={<ShoppingBag className="h-8 w-8" />}
           title="Your Bag is Empty"
           description="Looks like you haven't added any fine jewellery pieces yet. Explore our handcrafted collection today."
           actionLabel="Browse Collection"

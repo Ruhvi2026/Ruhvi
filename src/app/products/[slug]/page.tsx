@@ -26,7 +26,9 @@ export async function generateMetadata({
     .single();
 
   if (!product) {
-    product = DEMO_PRODUCTS.find((p) => p.slug === slug) as any;
+    product = DEMO_PRODUCTS.find(
+      (p) => p.slug === slug || p.id === slug
+    ) as any;
   }
 
   if (!product) {
@@ -40,7 +42,7 @@ export async function generateMetadata({
     'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?q=80&w=1200&auto=format&fit=crop';
   const description =
     product.description ||
-    `Buy ${product.name} at Ruhvi. BIS hallmarked gold & certified diamond fine jewellery with lifetime warranty and free insured shipping.`;
+    `Buy ${product.name} at Ruhvi. Premium gold-plated & diamond-set fine jewellery with a 6-month color guarantee and free insured shipping.`;
 
   return {
     title: `${product.name} — Buy Online`,
@@ -81,7 +83,9 @@ export default async function ProductDetailPage({ params }: PageProps) {
     .single();
 
   if (!product) {
-    product = DEMO_PRODUCTS.find((p) => p.slug === slug) as any;
+    product = DEMO_PRODUCTS.find(
+      (p) => p.slug === slug || p.id === slug
+    ) as any;
   }
 
   if (!product) {

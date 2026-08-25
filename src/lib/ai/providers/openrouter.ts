@@ -12,7 +12,8 @@ export class OpenRouterProvider implements AIProvider {
 
   async generateStructuredProductContent(
     prompt: string,
-    modelName: string
+    modelName: string,
+    config?: { temperature?: number; maxTokens?: number }
   ): Promise<{
     content: Record<string, any>;
     usage: { tokens: number; cost: number };
@@ -39,6 +40,12 @@ export class OpenRouterProvider implements AIProvider {
               '\n\nPlease return strictly valid JSON and nothing else.',
           },
         ],
+        ...(config?.temperature !== undefined && {
+          temperature: config.temperature,
+        }),
+        ...(config?.maxTokens !== undefined && {
+          max_tokens: config.maxTokens,
+        }),
       }),
     });
 

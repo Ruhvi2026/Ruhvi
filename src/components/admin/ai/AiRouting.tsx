@@ -518,6 +518,52 @@ export default function AiRouting({
                           </select>
                         </div>
                       </div>
+
+                      <div className="mt-3 grid grid-cols-2 gap-3 border-t border-gray-800 pt-3">
+                        <div>
+                          <label className="mb-1 block text-[11px] font-medium text-gray-400">
+                            Temperature
+                          </label>
+                          <input
+                            type="number"
+                            step="0.1"
+                            min="0"
+                            max="2"
+                            placeholder="Global Default"
+                            className="w-full rounded-lg border border-gray-700 bg-gray-800 px-2.5 py-1.5 text-xs font-medium text-white placeholder-gray-500 focus:ring-1 focus:ring-emerald-500"
+                            value={f.temperature ?? ''}
+                            onChange={(e) =>
+                              updateFeature(
+                                featureKey,
+                                'temperature',
+                                e.target.value !== ''
+                                  ? parseFloat(e.target.value)
+                                  : undefined
+                              )
+                            }
+                          />
+                        </div>
+                        <div>
+                          <label className="mb-1 block text-[11px] font-medium text-gray-400">
+                            Max Tokens
+                          </label>
+                          <input
+                            type="number"
+                            placeholder="Global Default"
+                            className="w-full rounded-lg border border-gray-700 bg-gray-800 px-2.5 py-1.5 text-xs font-medium text-white placeholder-gray-500 focus:ring-1 focus:ring-emerald-500"
+                            value={f.maxTokens ?? ''}
+                            onChange={(e) =>
+                              updateFeature(
+                                featureKey,
+                                'maxTokens',
+                                e.target.value !== ''
+                                  ? parseInt(e.target.value)
+                                  : undefined
+                              )
+                            }
+                          />
+                        </div>
+                      </div>
                     </div>
                   );
                 }

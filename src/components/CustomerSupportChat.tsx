@@ -65,7 +65,7 @@ export default function CustomerSupportChat() {
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       sender: 'bot',
-      text: 'Namaste! I am Gia, Ruhvi\u2019s Golden Concierge. I grew up among goldsmiths in Jaipur, so pieces, hallmarking, and orders are my world. How may I help you today?\n\nI can help with order tracking, returns, warranty questions, payment issues, and more. Just tell me what\u2019s on your mind!',
+      text: 'Namaste! I am Gia, Ruhvi\u2019s Golden Concierge. I grew up among goldsmiths in Jaipur, so pieces, materials, and orders are my world. How may I help you today?\n\nI can help with order tracking, returns, warranty questions, payment issues, and more. Just tell me what\u2019s on your mind!',
     },
   ]);
   const [input, setInput] = useState('');

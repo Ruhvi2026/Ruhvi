@@ -13,9 +13,9 @@ INSERT INTO public.settings (key, value)
 VALUES (
   'seo_meta',
   '{
-    "siteTitle": "Ruhvi — Exquisite Fine Jewellery & Certified Gold",
+    "siteTitle": "Ruhvi — Exquisite Fine Jewellery & Gold-Plated Luxury",
     "titleTemplate": "%s | Ruhvi Fine Jewellery",
-    "metaDescription": "Discover handcrafted gold, diamond, and gemstone jewellery at Ruhvi. BIS hallmarked purity, lifetime warranty, and free insured shipping across India.",
+    "metaDescription": "Discover handcrafted premium gold-plated jewellery at Ruhvi. Anti-tarnish 22K gold plating with a 6-month color guarantee, and free insured shipping across India.",
     "ogImageUrl": "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?q=80&w=1200&auto=format&fit=crop",
     "robotsIndex": true,
     "robotsFollow": true

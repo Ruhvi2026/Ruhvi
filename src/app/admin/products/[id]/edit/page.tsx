@@ -22,7 +22,9 @@ export default function EditProductPage({ params }: EditProductPageProps) {
 
   const [isLoading, setIsLoading] = useState(true);
   const [sku, setSku] = useState('');
-  const [tags, setTags] = useState('22K Gold, BIS Hallmarked, Best Seller');
+  const [tags, setTags] = useState(
+    '22K Gold Plated, Anti-Tarnish, Best Seller'
+  );
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');

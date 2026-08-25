@@ -12,7 +12,8 @@ export class OpenAIProvider implements AIProvider {
 
   async generateStructuredProductContent(
     prompt: string,
-    modelName: string
+    modelName: string,
+    config?: { temperature?: number; maxTokens?: number }
   ): Promise<{
     content: Record<string, any>;
     usage: { tokens: number; cost: number };
@@ -32,6 +33,12 @@ export class OpenAIProvider implements AIProvider {
         model: modelName || 'gpt-3.5-turbo',
         messages: [{ role: 'user', content: prompt }],
         response_format: { type: 'json_object' },
+        ...(config?.temperature !== undefined && {
+          temperature: config.temperature,
+        }),
+        ...(config?.maxTokens !== undefined && {
+          max_tokens: config.maxTokens,
+        }),
       }),
     });
 

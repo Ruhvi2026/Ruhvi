@@ -59,6 +59,7 @@ const COLLECTIONS_DATA: Record<string, any> = {
     products: [
       {
         id: 'prod-5',
+        slug: 'modern-minimalist-diamond-mangalsutra',
         name: 'Eternity Diamond Band',
         price: 45000,
         image:
@@ -66,10 +67,51 @@ const COLLECTIONS_DATA: Record<string, any> = {
       },
       {
         id: 'prod-6',
+        slug: 'lotus-blossom-ruby-pendant',
         name: 'Heritage Gold Necklace',
         price: 85000,
         image:
           'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&q=80',
+      },
+    ],
+  },
+  bestsellers: {
+    title: 'Bestsellers',
+    subtitle: 'Our most loved and sought-after jewellery pieces.',
+    cover:
+      'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&q=80',
+    products: [
+      {
+        id: 'prod-1',
+        slug: 'aurelia-solitaire-diamond-ring',
+        name: 'Aurelia Diamond Ring',
+        price: 15500,
+        image:
+          'https://images.unsplash.com/photo-1605100804763-247f67b2548e?auto=format&fit=crop&q=80',
+      },
+      {
+        id: 'prod-2',
+        slug: 'royal-heritage-emerald-choker-necklace',
+        name: 'Royal Heritage Emerald Choker',
+        price: 189999,
+        image:
+          'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&q=80',
+      },
+    ],
+  },
+  bridal: {
+    title: 'Bridal Collection',
+    subtitle: 'Exquisite jewelry for your special day.',
+    cover:
+      'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&q=80',
+    products: [
+      {
+        id: 'prod-2',
+        slug: 'royal-heritage-emerald-choker-necklace',
+        name: 'Royal Heritage Emerald Choker',
+        price: 189999,
+        image:
+          'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&q=80',
       },
     ],
   },
@@ -196,7 +238,7 @@ export default async function CollectionPage({
         <div className="grid grid-cols-1 gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {collection.products.map((product: any) => (
             <Link
-              href={`/products/${product.id}`}
+              href={`/products/${product.slug || product.id}`}
               key={product.id}
               className="group flex flex-col"
             >

@@ -14,15 +14,14 @@ import {
   BarChart2,
   ShieldCheck,
 } from 'lucide-react';
-import { DEMO_PRODUCTS } from '@/lib/products';
 import { Product, ProductImage } from '@/types/database';
 import { createClient } from '@/lib/supabase/client';
 
 const DEFAULT_META = {
-  siteTitle: 'Ruhvi — Exquisite Fine Jewellery & Certified Gold',
+  siteTitle: 'Ruhvi — Exquisite Fine Jewellery & Gold-Plated Luxury',
   titleTemplate: '%s | Ruhvi Fine Jewellery',
   metaDescription:
-    'Discover handcrafted gold, diamond, and gemstone jewellery at Ruhvi. BIS hallmarked purity, lifetime warranty, and free insured shipping across India.',
+    'Discover handcrafted premium gold-plated jewellery at Ruhvi. Anti-tarnish 22K gold plating with a 6-month color guarantee, and free insured shipping across India.',
   ogImageUrl:
     'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?q=80&w=1200&auto=format&fit=crop',
   robotsIndex: true,
@@ -35,12 +34,14 @@ export default function AdminSEOPage() {
   const [activeTab, setActiveTab] = useState<
     'health' | 'meta' | 'alts' | 'sitemap'
   >('health');
-  const [products, setProducts] = useState<Product[]>(DEMO_PRODUCTS);
+  const [products, setProducts] = useState<Product[]>([]);
   const [loadingProducts, setLoadingProducts] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [metaSettings, setMetaSettings] = useState(DEFAULT_META);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<Message>(null);
   const [altDrafts, setAltDrafts] = useState<Record<string, string>>({});
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     const loadProducts = async () => {
@@ -51,11 +52,18 @@ export default function AdminSEOPage() {
           .select('*, images:product_images(*), category:categories(*)')
           .order('created_at', { ascending: false });
 
-        if (error) throw error;
-        setProducts(data && data.length > 0 ? data : DEMO_PRODUCTS);
-      } catch (err) {
+        if (error) {
+          console.error('Failed to load products for SEO audit', error);
+          setLoadError(error.message || 'Failed to load products.');
+          setProducts([]);
+          return;
+        }
+
+        setProducts(data ?? []);
+      } catch (err: any) {
         console.error('Failed to load products for SEO audit', err);
-        setProducts(DEMO_PRODUCTS);
+        setLoadError(err?.message || 'Failed to load products.');
+        setProducts([]);
       } finally {
         setLoadingProducts(false);
       }
@@ -80,7 +88,7 @@ export default function AdminSEOPage() {
 
     loadProducts();
     loadMetaSettings();
-  }, []);
+  }, [reloadKey]);
 
   // Initialize alt text drafts once real/demo products are available
   useEffect(() => {
@@ -91,7 +99,7 @@ export default function AdminSEOPage() {
         (p.images || []).forEach((img) => {
           if (!(img.id in next)) {
             next[img.id] =
-              img.alt || `${p.name} - BIS Hallmarked Gold Jewellery by Ruhvi`;
+              img.alt || `${p.name} - Premium Gold Plated Jewellery by Ruhvi`;
           }
         });
       });
@@ -271,6 +279,22 @@ export default function AdminSEOPage() {
             <AlertTriangle className="h-4 w-4 flex-shrink-0" />
           )}
           <span>{message.text}</span>
+        </div>
+      )}
+
+      {/* Load Error Alert */}
+      {loadError && (
+        <div className="flex items-center justify-between rounded-lg border border-rose-500/30 bg-rose-500/10 p-3 text-xs font-medium text-rose-300">
+          <span className="flex items-center gap-2">
+            <AlertTriangle className="h-4 w-4 flex-shrink-0" />
+            Failed to load the live catalog for SEO audit: {loadError}
+          </span>
+          <button
+            onClick={() => setReloadKey((k) => k + 1)}
+            className="ml-4 flex items-center gap-1 rounded-lg border border-rose-500/30 bg-rose-500/10 px-3 py-1 font-semibold text-rose-300 transition-colors hover:bg-rose-500/20"
+          >
+            <RefreshCw className="h-3 w-3" /> Retry
+          </button>
         </div>
       )}
 

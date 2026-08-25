@@ -1,6 +1,13 @@
 import React from 'react';
 import type { Metadata } from 'next';
-import { ShieldCheck, Sparkles, Droplets, Sun, Box, HeartHandshake } from 'lucide-react';
+import {
+  ShieldCheck,
+  Sparkles,
+  Droplets,
+  Sun,
+  Box,
+  HeartHandshake,
+} from 'lucide-react';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
@@ -45,9 +52,9 @@ export default function JewelryCarePage() {
 
   const materialCare = [
     {
-      name: '22K & 22K Solid Gold',
+      name: '22K Gold Plated',
       tips: [
-        'Pure gold is soft; handle intricate filigree with care.',
+        'The plated finish is delicate; handle intricate filigree with care.',
         'Polish with a specialized gold polishing cloth to restore natural lustre.',
         'Avoid abrasive household cleaners.',
       ],
@@ -71,64 +78,75 @@ export default function JewelryCarePage() {
   ];
 
   return (
-    <div className="bg-stone-50 min-h-screen py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto space-y-12">
+    <div className="min-h-screen bg-stone-50 px-4 py-12 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-4xl space-y-12">
         {/* Header Banner */}
-        <div className="bg-gradient-to-r from-amber-950 to-stone-900 text-white rounded-3xl p-8 sm:p-12 text-center border border-amber-500/20 shadow-2xl relative overflow-hidden">
+        <div className="relative overflow-hidden rounded-3xl border border-amber-500/20 bg-gradient-to-r from-amber-950 to-stone-900 p-8 text-center text-white shadow-2xl sm:p-12">
           <div className="relative z-10 space-y-3">
-            <span className="text-amber-400 font-semibold uppercase tracking-widest text-xs">
+            <span className="text-xs font-semibold uppercase tracking-widest text-amber-400">
               Preserving Timeless Beauty
             </span>
-            <h1 className="font-serif text-3xl sm:text-5xl font-bold tracking-tight">
+            <h1 className="font-serif text-3xl font-bold tracking-tight sm:text-5xl">
               Jewelry Care & Maintenance Guide
             </h1>
-            <p className="text-stone-300 text-sm max-w-xl mx-auto font-light leading-relaxed">
-              Every piece of Ruhvi jewellery is handcrafted with certified metals and gemstones designed to last generations. Follow these simple tips to maintain their pristine sparkle.
+            <p className="mx-auto max-w-xl text-sm font-light leading-relaxed text-stone-300">
+              Every piece of Ruhvi jewellery is handcrafted with certified
+              metals and gemstones designed to last generations. Follow these
+              simple tips to maintain their pristine sparkle.
             </p>
           </div>
         </div>
 
         {/* 4 Golden Rules */}
         <div className="space-y-6">
-          <div className="text-center space-y-1">
+          <div className="space-y-1 text-center">
             <h2 className="font-serif text-2xl font-bold text-stone-900">
               The 4 Golden Rules of Fine Jewelry Care
             </h2>
-            <p className="text-stone-500 text-xs">Simple habits to keep your treasures looking new</p>
+            <p className="text-xs text-stone-500">
+              Simple habits to keep your treasures looking new
+            </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
             {careTips.map((tip) => (
               <div
                 key={tip.title}
-                className="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm hover:shadow-md transition-shadow space-y-3"
+                className="space-y-3 rounded-2xl border border-stone-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md"
               >
-                <div className="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center text-amber-900 border border-amber-200">
-                  <tip.icon className="w-5 h-5" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-amber-200 bg-amber-50 text-amber-900">
+                  <tip.icon className="h-5 w-5" />
                 </div>
-                <h3 className="font-serif text-base font-bold text-stone-900">{tip.title}</h3>
-                <p className="text-xs text-stone-600 leading-relaxed font-light">{tip.description}</p>
+                <h3 className="font-serif text-base font-bold text-stone-900">
+                  {tip.title}
+                </h3>
+                <p className="text-xs font-light leading-relaxed text-stone-600">
+                  {tip.description}
+                </p>
               </div>
             ))}
           </div>
         </div>
 
         {/* Specific Material Care */}
-        <div className="bg-white rounded-2xl p-8 border border-stone-200 shadow-sm space-y-6">
-          <h2 className="font-serif text-xl font-bold text-stone-900 border-b border-stone-100 pb-4">
+        <div className="space-y-6 rounded-2xl border border-stone-200 bg-white p-8 shadow-sm">
+          <h2 className="border-b border-stone-100 pb-4 font-serif text-xl font-bold text-stone-900">
             Care Instructions by Material
           </h2>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
             {materialCare.map((mat) => (
               <div key={mat.name} className="space-y-3">
-                <h3 className="text-sm font-bold text-amber-950 uppercase tracking-wide font-mono">
+                <h3 className="font-mono text-sm font-bold uppercase tracking-wide text-amber-950">
                   {mat.name}
                 </h3>
                 <ul className="space-y-2">
                   {mat.tips.map((t, idx) => (
-                    <li key={idx} className="text-xs text-stone-600 flex items-start gap-2">
-                      <span className="text-amber-600 font-bold">•</span>
+                    <li
+                      key={idx}
+                      className="flex items-start gap-2 text-xs text-stone-600"
+                    >
+                      <span className="font-bold text-amber-600">•</span>
                       <span>{t}</span>
                     </li>
                   ))}
@@ -139,21 +157,24 @@ export default function JewelryCarePage() {
         </div>
 
         {/* Lifetime Support Banner */}
-        <div className="bg-amber-900/10 border border-amber-900/20 rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
+        <div className="flex flex-col items-center justify-between gap-4 rounded-2xl border border-amber-900/20 bg-amber-900/10 p-6 text-center sm:flex-row sm:text-left">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-amber-950 rounded-full flex items-center justify-center text-white flex-shrink-0">
-              <ShieldCheck className="w-6 h-6 text-amber-400" />
+            <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-amber-950 text-white">
+              <ShieldCheck className="h-6 w-6 text-amber-400" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-stone-900">Ruhvi Lifetime Polish & Maintenance</h3>
+              <h3 className="text-sm font-bold text-stone-900">
+                Ruhvi Lifetime Polish & Maintenance
+              </h3>
               <p className="text-xs text-stone-600">
-                All Ruhvi fine jewellery comes with complimentary annual professional cleaning and inspection.
+                All Ruhvi fine jewellery comes with complimentary annual
+                professional cleaning and inspection.
               </p>
             </div>
           </div>
           <Link
             href="/contact"
-            className="px-5 py-2.5 bg-amber-950 text-white text-xs font-semibold rounded-xl hover:bg-amber-900 transition-colors flex-shrink-0"
+            className="flex-shrink-0 rounded-xl bg-amber-950 px-5 py-2.5 text-xs font-semibold text-white transition-colors hover:bg-amber-900"
           >
             Contact Support
           </Link>

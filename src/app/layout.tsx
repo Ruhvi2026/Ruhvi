@@ -35,18 +35,19 @@ const playfair = Playfair_Display({
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://ruhvi.in'),
   title: {
-    default: 'Ruhvi — Exquisite Fine Jewellery & Certified Gold',
+    default: 'Ruhvi — Exquisite Fine Jewellery & Gold-Plated Luxury',
     template: '%s | Ruhvi Jewels',
   },
   description:
-    'Discover handcrafted gold, diamond, and gemstone jewellery at Ruhvi. BIS hallmarked purity, lifetime warranty, and free insured shipping across India.',
+    'Discover handcrafted premium gold-plated jewellery at Ruhvi. Anti-tarnish 22K gold plating with a 6-month color guarantee, and free insured shipping across India.',
   keywords: [
     'Fine Jewellery',
-    'Gold Jewellery',
+    'Gold Plated Jewellery',
+    '22K Gold Plated',
     'Diamond Rings',
     'Kundan Necklace',
     'Solitaire Ring',
-    'BIS Hallmarked Gold',
+    'Anti-Tarnish Jewellery',
     'Luxury Jewellery India',
     'Ruhvi Jewellery',
   ],
@@ -54,9 +55,9 @@ export const metadata: Metadata = {
   creator: 'Ruhvi Fine Jewellery',
   publisher: 'Ruhvi Fine Jewellery',
   openGraph: {
-    title: 'Ruhvi — Exquisite Fine Jewellery & Certified Gold',
+    title: 'Ruhvi — Exquisite Fine Jewellery & Gold-Plated Luxury',
     description:
-      'Discover handcrafted gold, diamond, and gemstone jewellery at Ruhvi. BIS hallmarked purity and free insured shipping across India.',
+      'Discover handcrafted premium gold-plated jewellery at Ruhvi. Anti-tarnish 22K gold finish and free insured shipping across India.',
     url: 'https://ruhvi.in',
     siteName: 'Ruhvi Fine Jewellery',
     images: [
@@ -72,9 +73,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Ruhvi — Exquisite Fine Jewellery & Certified Gold',
-    description:
-      'Discover handcrafted gold, diamond, and gemstone jewellery at Ruhvi.',
+    title: 'Ruhvi — Exquisite Fine Jewellery & Gold-Plated Luxury',
+    description: 'Discover handcrafted premium gold-plated jewellery at Ruhvi.',
     images: [
       'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?q=80&w=1200&auto=format&fit=crop',
     ],
@@ -164,6 +164,12 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <body className="flex min-h-screen flex-col bg-cream-100 text-charcoal-900 antialiased">
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-charcoal-900 focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-white focus:shadow-lg focus:outline-2 focus:outline-offset-2 focus:outline-charcoal-900"
+        >
+          Skip to main content
+        </a>
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -209,7 +215,9 @@ export default async function RootLayout({
                     <PostHogPageView />
                   </Suspense>
                   {!isSystemSubdomain && <Navbar />}
-                  <main className="flex-1">{children}</main>
+                  <main id="main-content" className="flex-1">
+                    {children}
+                  </main>
                   {!isSystemSubdomain && <Footer />}
                   {!isSystemSubdomain && <CustomerSupportChat />}
                   <SpeedInsights />

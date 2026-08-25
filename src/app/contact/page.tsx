@@ -30,15 +30,30 @@ export default function ContactPage() {
   const onSubmit = async (data: ContactFormData) => {
     setIsSubmitting(true);
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      console.log('Form data:', data);
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+
+      const result = await response.json().catch(() => null);
+
+      if (!response.ok) {
+        throw new Error(
+          result?.error || 'Failed to send message. Please try again later.'
+        );
+      }
+
       toast.success(
         'Message sent successfully. We will get back to you shortly.'
       );
       reset();
     } catch (error) {
-      toast.error('Failed to send message. Please try again later.');
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : 'Failed to send message. Please try again later.'
+      );
     } finally {
       setIsSubmitting(false);
     }

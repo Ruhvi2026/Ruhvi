@@ -59,7 +59,7 @@ const FALLBACK_HOME_COLLECTIONS: Collection[] = [
 export const metadata: Metadata = {
   title: 'Ruhvi Fine Jewellery: Everyday Elegance, Crafted for You',
   description:
-    "Explore Ruhvi's signature collections of certified 22K Gold, VVS Solitaires, and modern designs crafted for life's beautiful moments.",
+    "Explore Ruhvi's signature collections of premium 22K gold-plated jewellery, VVS Solitaires, and modern designs crafted for life's beautiful moments.",
   alternates: {
     canonical: '/',
   },
@@ -166,8 +166,8 @@ export default async function HomePage() {
             },
             {
               icon: ShieldCheck,
-              title: 'Lifetime Warranty',
-              sub: 'On all gold plated pieces',
+              title: '6-Month Color Guarantee',
+              sub: 'Covers gold plating fading & discoloration',
             },
           ].map((item) => (
             <div

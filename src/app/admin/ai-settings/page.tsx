@@ -55,18 +55,11 @@ export default function AISettingsPage() {
   const PREDEFINED_PROVIDERS: Record<string, any> = {
     gemini: {
       name: 'Google Gemini',
-      models: [
-        'gemini-3.5-flash-lite',
-        'gemini-3.5-flash',
-        'gemini-3.7-flash',
-        'gemini-2.5-flash-lite',
-        'gemini-flash-latest',
-        'gemini-pro-latest',
-      ],
+      models: ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-pro'],
     },
     openai: {
       name: 'OpenAI',
-      models: ['gpt-3.5-turbo', 'gpt-4o', 'gpt-4o-mini'],
+      models: ['gpt-4o-mini', 'gpt-4o', 'gpt-3.5-turbo'],
     },
     anthropic: {
       name: 'Anthropic Claude',
@@ -156,9 +149,18 @@ export default function AISettingsPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center gap-4 p-8 text-white">
-        <div className="h-6 w-6 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
-        Loading AI Configuration...
+      <div className="flex min-h-[60vh] flex-col items-center justify-center space-y-4 text-white">
+        <div className="relative flex h-16 w-16 items-center justify-center">
+          <div className="absolute h-full w-full animate-ping rounded-full border-2 border-emerald-500/30"></div>
+          <div className="absolute h-12 w-12 animate-spin rounded-full border-4 border-emerald-500 border-t-transparent"></div>
+          <Wand2 className="h-5 w-5 text-emerald-400" />
+        </div>
+        <div className="text-lg font-medium text-gray-300">
+          Initializing AI Core...
+        </div>
+        <div className="text-sm text-gray-500">
+          Loading secure keys and routing topology
+        </div>
       </div>
     );
   }
@@ -239,12 +241,23 @@ export default function AISettingsPage() {
         </p>
       </div>
 
-      {/* Notifications */}
+      {/* Floating Toast Notification */}
       {message && (
-        <div
-          className={`flex items-center gap-3 rounded-lg p-4 ${message.type === 'success' ? 'border border-emerald-500/20 bg-emerald-500/10 text-emerald-400' : 'border border-red-500/20 bg-red-500/10 text-red-400'}`}
-        >
-          {message.text}
+        <div className="animate-in slide-in-from-bottom-5 fade-in fixed bottom-6 right-6 z-50 duration-300">
+          <div
+            className={`flex items-center gap-3 rounded-xl border px-6 py-4 shadow-2xl backdrop-blur-md ${
+              message.type === 'success'
+                ? 'border-emerald-500/30 bg-emerald-950/90 text-emerald-300 shadow-emerald-900/20'
+                : 'border-red-500/30 bg-red-950/90 text-red-300 shadow-red-900/20'
+            }`}
+          >
+            {message.type === 'success' ? (
+              <ShieldCheck className="h-5 w-5 text-emerald-400" />
+            ) : (
+              <AlertOctagon className="h-5 w-5 text-red-400" />
+            )}
+            <span className="text-sm font-semibold">{message.text}</span>
+          </div>
         </div>
       )}
 

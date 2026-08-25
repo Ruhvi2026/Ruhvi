@@ -12,15 +12,33 @@ export class GeminiProvider implements AIProvider {
   }
 
   private resolveModelName(modelName?: string): string {
-    if (!modelName || modelName === 'gemini-2.5-flash') {
-      return 'gemini-3.5-flash-lite';
+    if (!modelName) return 'gemini-3.5-flash';
+
+    // Current active models
+    const ACTIVE_MODELS = [
+      'gemini-3.5-flash',
+      'gemini-2.0-flash',
+      'gemini-1.5-flash',
+      'gemini-1.5-pro',
+    ];
+    if (ACTIVE_MODELS.includes(modelName)) {
+      return modelName;
     }
-    return modelName;
+
+    // Map deprecated, removed, or non-existent model names to current equivalents
+    const MODEL_ALIASES: Record<string, string> = {
+      'gemini-pro-latest': 'gemini-1.5-pro',
+      'gemini-1.5-pro-latest': 'gemini-1.5-pro',
+      'gemini-3.5-flash-lite': 'gemini-3.5-flash',
+    };
+
+    return MODEL_ALIASES[modelName] || 'gemini-3.5-flash';
   }
 
   async generateStructuredProductContent(
     prompt: string,
-    modelName: string
+    modelName: string,
+    config?: { temperature?: number; maxTokens?: number }
   ): Promise<{
     content: Record<string, any>;
     usage: { tokens: number; cost: number };
@@ -34,6 +52,12 @@ export class GeminiProvider implements AIProvider {
       model: effectiveModel,
       generationConfig: {
         responseMimeType: 'application/json',
+        ...(config?.temperature !== undefined && {
+          temperature: config.temperature,
+        }),
+        ...(config?.maxTokens !== undefined && {
+          maxOutputTokens: config.maxTokens,
+        }),
       },
     });
 
@@ -60,7 +84,8 @@ export class GeminiProvider implements AIProvider {
   async generateWithTools(
     prompt: string,
     modelName: string,
-    tools: import('../tools/index').AITool[]
+    tools: import('../tools/index').AITool[],
+    config?: { temperature?: number; maxTokens?: number }
   ): Promise<{
     content: string;
     toolCalls?: any[];
@@ -81,6 +106,14 @@ export class GeminiProvider implements AIProvider {
     const model = this.genAI.getGenerativeModel({
       model: effectiveModel,
       tools: [{ functionDeclarations: geminiTools }],
+      generationConfig: {
+        ...(config?.temperature !== undefined && {
+          temperature: config.temperature,
+        }),
+        ...(config?.maxTokens !== undefined && {
+          maxOutputTokens: config.maxTokens,
+        }),
+      },
     });
 
     try {
