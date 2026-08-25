@@ -372,6 +372,14 @@ export async function POST(req: Request) {
           }
 
           for (const [envVar, newValue] of Object.entries(envUpdates)) {
+            // Reject values that could break out of the quoted .env assignment
+            // (quote or line-break injection into the env file).
+            if (newValue !== '' && /['"\r\n]/.test(newValue)) {
+              console.error(
+                `Refusing to write ${envVar} to .env.local: value contains invalid characters.`
+              );
+              continue;
+            }
             const regex = new RegExp(`^${envVar}=.*$`, 'm');
             if (newValue === '') {
               if (regex.test(envContent)) {

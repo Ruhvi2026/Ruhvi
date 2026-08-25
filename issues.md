@@ -1,6 +1,6 @@
 # Admin Panel & Codebase Issues Report
 
-*Date: August 2026*
+*Date: August 26, 2026*
 
 This is a fresh analysis of the Ruhvi codebase, including the Admin Panel (`src/app/admin/**` and `src/app/api/admin/**`).
 
@@ -24,6 +24,8 @@ The following critical issues from previous audits are **now completely resolved
 - **Coupons & Referral Analytics (`src/app/admin/reports/coupons-referrals/page.tsx`):** Connected to `coupons` and `referrals` tables tracking redemption rules and reward coins awarded.
 - **Abandoned Carts Recovery (`src/app/admin/reports/abandoned-carts/page.tsx`):** Fetches real pending items from `cart_items` with customer contact info and in-app nudge reminders.
 - **Dynamic Imports & TypeScript Compilation:** Fixed dynamic import paths in `scripts/encrypt-credentials.ts` and validated the whole codebase with `npx tsc --noEmit` (currently passing clean).
+- **PhonePe checkout flow finalized:** Webhook endpoint (`src/app/api/webhooks/phonepe/route.ts`) now cryptographically verifies callbacks and finalizes order creation via `src/lib/orders/finalize-phonepe-order.ts`; the checkout redirect path and DB UUID order routing were corrected (closes UI & UX audit items C2/C3).
+- **AI settings route hardening:** `src/app/api/admin/ai/settings/route.ts` now enforces authenticated backend clients with strict role checks on top of the secure AI-credentials RLS policies.
 
 ---
 
@@ -47,3 +49,27 @@ All major frontend and backend modules are wired directly to the Supabase databa
   - Empty results render explicit empty states instead of demo data.
   - Data lists are cleared on error so stale/mock rows are never shown alongside a failure.
   - Verified with `npx tsc --noEmit` (passing clean).
+
+---
+
+## 4. Verification Pass (2026-08-26) — All Confirmed Resolved
+
+A fresh verification pass on **August 26, 2026** re-checked every fix in this report against the live codebase. All items remain fixed:
+
+- **WhatsApp broadcast rate limiter (DB-backed):** confirmed — `src/app/api/admin/whatsapp/campaign/route.ts:99` counts requests in `audit_logs` and persists the 24h per-recipient cooldown (`:244`), so limits survive serverless cold starts and are shared across instances.
+- **SSRF protection:** confirmed — `safeFetch` (`src/lib/security/ssrf.ts:316`) is used by `src/app/api/admin/ai/test-connection/route.ts:200` and `src/app/api/admin/ai/discover-models/route.ts:180`.
+- **AI credentials security:** confirmed — `supabase/migrations/0045_secure_ai_credentials_rls.sql` exists and all `/api/admin/ai/*` routes use authenticated backend clients.
+- **No silent demo-data fallbacks:** confirmed — query errors surface visible error banners with Retry, empty results render explicit empty states, and stale rows are cleared on error.
+- **TypeScript compilation:** confirmed clean — `npx tsc --noEmit` exits with zero errors.
+
+## 5. Status Summary
+
+| Audit | Result |
+|-------|--------|
+| Security (auth, SSRF, credentials, rate limiting) | ✅ Resolved |
+| Schema / RLS / Supabase wiring | ✅ Resolved |
+| Dashboard & report demo-data fallbacks | ✅ Resolved |
+| TypeScript compilation | ✅ Clean |
+| PhonePe checkout flow (webhook + finalization) | ✅ Resolved |
+
+**No open items remain.** All issues in this report are fully resolved and can be considered closed.

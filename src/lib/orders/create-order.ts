@@ -210,8 +210,16 @@ export async function createOrder(
     shippingAddressId = newAddressData.id;
   }
 
+  // PhonePe orders are only marked paid from this direct-POST path when the
+  // server is running in simulated mode (no PHONEPE_SALT_KEY). When real
+  // gateway keys are configured, a phonepe order must stay pending and can
+  // only be finalized by the verified status check or webhook.
+  const simulatedPhonePe =
+    !process.env.PHONEPE_SALT_KEY && process.env.PHONEPE_SIMULATED !== 'false';
+
   const defaultPaymentStatus =
-    paymentMethod === 'phonepe' || (paymentMethod === 'cod' && isPartialCod)
+    simulatedPhonePe &&
+    (paymentMethod === 'phonepe' || (paymentMethod === 'cod' && isPartialCod))
       ? 'paid'
       : 'pending';
 

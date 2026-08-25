@@ -47,12 +47,10 @@ export function encryptApiKey(plaintext: string): string {
   if (typeof plaintext !== 'string') return '';
   const key = getMasterKey();
   if (!key) {
-    // Without an encryption key, store plaintext (legacy behavior).
-    // Log a warning so admins know encryption is not active.
-    console.warn(
-      '[AI Credentials] Storing API key in plaintext — set CREDENTIAL_ENCRYPTION_KEY to enable encryption.'
+    // Fail closed: never persist provider keys as plaintext.
+    throw new Error(
+      'CREDENTIAL_ENCRYPTION_KEY is not set. Provider API keys cannot be securely stored.'
     );
-    return plaintext;
   }
   try {
     const iv = crypto.randomBytes(IV_BYTES);
@@ -70,7 +68,7 @@ export function encryptApiKey(plaintext: string): string {
     ].join(':');
   } catch (error) {
     console.error('[AI Credentials] Encryption failed:', error);
-    return plaintext;
+    throw new Error('Failed to encrypt provider API key. No key was saved.');
   }
 }
 

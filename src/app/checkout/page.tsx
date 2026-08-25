@@ -169,6 +169,43 @@ export default function CheckoutPage() {
   );
   const [isProcessing, setIsProcessing] = useState(false);
 
+  const handlePaymentKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>) => {
+    const parent = e.currentTarget.parentElement;
+    if (!parent) return;
+    const radios = Array.from(
+      parent.querySelectorAll<HTMLButtonElement>(
+        'button[role="radio"]:not([disabled])'
+      )
+    );
+    const currentIdx = radios.indexOf(e.currentTarget);
+    let nextIdx: number | null = null;
+    switch (e.key) {
+      case 'ArrowUp':
+      case 'ArrowLeft':
+        e.preventDefault();
+        nextIdx = currentIdx > 0 ? currentIdx - 1 : radios.length - 1;
+        break;
+      case 'ArrowDown':
+      case 'ArrowRight':
+        e.preventDefault();
+        nextIdx = currentIdx < radios.length - 1 ? currentIdx + 1 : 0;
+        break;
+      case 'Home':
+        e.preventDefault();
+        nextIdx = 0;
+        break;
+      case 'End':
+        e.preventDefault();
+        nextIdx = radios.length - 1;
+        break;
+    }
+    if (nextIdx !== null && radios[nextIdx]) {
+      const nextRadio = radios[nextIdx];
+      nextRadio.focus();
+      nextRadio.click();
+    }
+  };
+
   // Bot Protection State
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const turnstileRef = useRef<TurnstileInstance>(null);
@@ -1000,6 +1037,7 @@ export default function CheckoutPage() {
                   type="button"
                   role="radio"
                   aria-checked={paymentMethod === 'phonepe'}
+                  tabIndex={paymentMethod === 'phonepe' ? 0 : -1}
                   onClick={() => setPaymentMethod('phonepe')}
                   onKeyDown={handlePaymentKeyDown}
                   disabled={useWallet && walletBalance >= preWalletTotal}
@@ -1036,6 +1074,7 @@ export default function CheckoutPage() {
                   type="button"
                   role="radio"
                   aria-checked={paymentMethod === 'cod'}
+                  tabIndex={paymentMethod === 'cod' ? 0 : -1}
                   onClick={() => {
                     if (!isLoggedIn) {
                       toast.error(

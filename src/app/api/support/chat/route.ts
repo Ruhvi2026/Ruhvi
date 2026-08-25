@@ -197,16 +197,9 @@ async function loadChatbotConfig(supabase: any) {
     .eq('key', 'ai_prompts')
     .single();
 
-  const { data: globalData } = await supabase
-    .from('settings')
-    .select('value')
-    .eq('key', 'ai_global')
-    .single();
-
   const systemPrompt = promptsData?.value?.chatbot || DEFAULT_CHATBOT_PROMPT;
-  const globalConfig = globalData?.value || {};
 
-  return { systemPrompt, globalConfig };
+  return { systemPrompt };
 }
 
 export async function POST(req: NextRequest) {

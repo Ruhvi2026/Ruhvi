@@ -45,16 +45,26 @@ export async function POST(req: Request) {
       );
     }
 
-    const merchantId = process.env.PHONEPE_MERCHANT_ID || 'PGTESTPAYUAT';
     const saltKey = process.env.PHONEPE_SALT_KEY;
     const saltIndex = process.env.PHONEPE_SALT_INDEX || '1';
-    const env = process.env.PHONEPE_ENV || 'UAT';
-
     const merchantTransactionId = `MT_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
     const siteUrl = getSiteUrl();
 
     // If real PhonePe keys exist, initiate standard PhonePe PG payment flow
     if (saltKey) {
+      const merchantId = process.env.PHONEPE_MERCHANT_ID;
+      const env = process.env.PHONEPE_ENV;
+
+      // Fail loudly rather than silently routing live payments to the sandbox.
+      if (!merchantId || !env) {
+        return NextResponse.json(
+          {
+            error:
+              'PHONEPE_MERCHANT_ID and PHONEPE_ENV must be configured when PHONEPE_SALT_KEY is set.',
+          },
+          { status: 500 }
+        );
+      }
       // 1. Pre-create the order in a pending state so the redirect return
       //    (GET /api/checkout/verify) and the callback
       //    (POST /api/webhooks/phonepe) can finalize it.
@@ -176,11 +186,11 @@ export async function POST(req: Request) {
     return NextResponse.json({
       success: true,
       merchantTransactionId,
-      merchantId,
+      merchantId: 'PGTESTPAYUAT',
       amount: Math.round(amount * 100),
       currency: 'INR',
       isSimulated: true,
-      redirectUrl: `${siteUrl}/api/checkout/verify?merchantTransactionId=${merchantTransactionId}&isSimulated=true`,
+      redirectUrl: `${siteUrl}/api/checkout/verify?merchantTransactionId=${merchantTransactionId}`,
     });
   } catch (error: any) {
     console.error('PhonePe Payment API Error:', error);

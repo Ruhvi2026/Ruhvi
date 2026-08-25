@@ -13,13 +13,13 @@ export interface FinalizePhonePeDetails {
   phonepePaymentState?: string;
 }
 
-const PAYED_STATES = [
+export const PAYED_STATES = [
   'COMPLETED',
   'SUCCESS',
   'PAYMENT_SUCCESS',
   'AUTHORIZATION_SUCCESSFUL',
 ];
-const FAILED_STATES = [
+export const FAILED_STATES = [
   'FAILED',
   'REJECTED',
   'TIMED_OUT',
@@ -203,7 +203,12 @@ async function sendOrderNotifications(supabase: any, order: any) {
           order.payment_method === 'cod'
             ? 'Cash on Delivery'
             : 'Online Payment (PhonePe)',
-        status: order.payment_status === 'paid' ? 'Paid' : 'Pending (COD)',
+        status:
+          order.payment_method === 'cod' && Number(order.cod_balance) > 0
+            ? 'Partially Paid — balance payable on delivery'
+            : order.payment_status === 'paid'
+              ? 'Paid'
+              : 'Pending (COD)',
         transaction_id: order.phonepe_transaction_id || orderNumber,
       },
       order_url: `${process.env.NEXT_PUBLIC_APP_URL || 'https://ruhvi.in'}/orders`,

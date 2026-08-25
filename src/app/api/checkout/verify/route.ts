@@ -4,17 +4,12 @@ import { sendOrderConfirmation } from '@/lib/whatsapp';
 import { sendOrderConfirmationEmail } from '@/lib/resend';
 import { createClient as createJSClient } from '@supabase/supabase-js';
 import { createOrder, OrderError } from '@/lib/orders/create-order';
-import { finalizePhonePeOrder } from '@/lib/orders/finalize-phonepe-order';
+import {
+  finalizePhonePeOrder,
+  PAYED_STATES,
+  FAILED_STATES,
+} from '@/lib/orders/finalize-phonepe-order';
 import { getSiteUrl } from '@/lib/utils/url';
-
-const FAILED_STATES = [
-  'FAILED',
-  'REJECTED',
-  'TIMED_OUT',
-  'PAYMENT_ERROR',
-  'PAYMENT_FAILED',
-  'CANCELLED',
-];
 
 // ---------------------------------------------------------------------------
 // POST — finalize an order placed directly by the client
@@ -80,7 +75,12 @@ export async function POST(req: Request) {
             body.paymentMethod === 'cod'
               ? 'Cash on Delivery'
               : 'Online Payment (PhonePe)',
-          status: body.paymentMethod === 'cod' ? 'Pending (COD)' : 'Paid',
+          status:
+            body.paymentMethod === 'cod' && body.isPartialCod
+              ? 'Partially Paid — balance payable on delivery'
+              : body.paymentMethod === 'cod'
+                ? 'Pending (COD)'
+                : 'Paid',
           transaction_id: orderNumber, // fallback
         },
         order_url: `${process.env.NEXT_PUBLIC_APP_URL || 'https://ruhvi.in'}/orders`,
@@ -122,7 +122,6 @@ export async function POST(req: Request) {
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const merchantTransactionId = searchParams.get('merchantTransactionId');
-  const isSimulated = searchParams.get('isSimulated') === 'true';
   const siteUrl = getSiteUrl();
 
   if (!merchantTransactionId) {
@@ -159,7 +158,10 @@ export async function GET(req: Request) {
   }
 
   // Simulated mode (no real PhonePe keys configured) — mark the order paid
-  if (isSimulated) {
+  if (
+    process.env.PHONEPE_SIMULATED === 'true' &&
+    !process.env.PHONEPE_SALT_KEY
+  ) {
     const result = await finalizePhonePeOrder(merchantTransactionId, {
       phonepeTransactionId: `T_SIM_${Date.now()}`,
       phonepePaymentState: 'COMPLETED',
@@ -177,7 +179,7 @@ export async function GET(req: Request) {
     try {
       const status = await checkPhonePeStatus(merchantTransactionId);
 
-      if (status.state === 'COMPLETED' || status.state === 'SUCCESS') {
+      if (PAYED_STATES.includes(status.state)) {
         await finalizePhonePeOrder(merchantTransactionId, {
           phonepeTransactionId: status.transactionId,
           phonepePaymentState: status.state,
@@ -220,10 +222,17 @@ export async function GET(req: Request) {
 }
 
 async function checkPhonePeStatus(merchantTransactionId: string) {
-  const merchantId = process.env.PHONEPE_MERCHANT_ID || 'PGTESTPAYUAT';
+  const merchantId = process.env.PHONEPE_MERCHANT_ID;
   const saltKey = process.env.PHONEPE_SALT_KEY!;
   const saltIndex = process.env.PHONEPE_SALT_INDEX || '1';
-  const env = process.env.PHONEPE_ENV || 'UAT';
+  const env = process.env.PHONEPE_ENV;
+
+  // Fail loudly rather than silently routing live payments to the sandbox.
+  if (!merchantId || !env) {
+    throw new Error(
+      'PHONEPE_MERCHANT_ID and PHONEPE_ENV must be configured when PHONEPE_SALT_KEY is set.'
+    );
+  }
 
   const baseUrl =
     env === 'PRODUCTION'

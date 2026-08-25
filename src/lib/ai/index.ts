@@ -349,6 +349,14 @@ export async function generateAIContent(
 
   const globalConfig = globalData?.value || {};
 
+  // Per-feature generation settings, falling back to global defaults. These
+  // are passed to providers so the Admin UI temperature/maxTokens inputs
+  // actually take effect.
+  const generationConfig: { temperature?: number; maxTokens?: number } = {
+    temperature: featureConfig.temperature ?? globalConfig.temperature,
+    maxTokens: featureConfig.maxTokens ?? globalConfig.maxTokens,
+  };
+
   // ── 2. PII Redaction ─────────────────────────────────────────────────────
   if (globalConfig.enablePiiRedaction) {
     prompt = prompt.replace(
@@ -631,7 +639,8 @@ export async function generateAIContent(
             const { content, usage } =
               await activeProvider.generateStructuredProductContent(
                 prompt,
-                currentModelForProvider
+                currentModelForProvider,
+                generationConfig
               );
             const executionTime = Date.now() - startTime;
 
@@ -921,7 +930,11 @@ export async function generateAIContent(
         );
 
         const { content, usage } =
-          await aiProvider.generateStructuredProductContent(prompt, modelName);
+          await aiProvider.generateStructuredProductContent(
+            prompt,
+            modelName,
+            generationConfig
+          );
         const executionTime = Date.now() - startTime;
 
         // Update latency tracker

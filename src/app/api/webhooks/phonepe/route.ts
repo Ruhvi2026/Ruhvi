@@ -9,11 +9,9 @@ function verifyPhonePeWebhook(
   saltIndex = '1'
 ): boolean {
   if (!saltKey) {
-    // No salt key configured yet — accept in dev/simulated mode so flows can be tested.
-    console.warn(
-      '[PhonePe Webhook] PHONEPE_SALT_KEY not set, skipping checksum verification'
-    );
-    return true;
+    // Fail closed: without PHONEPE_SALT_KEY the checksum cannot be verified.
+    // Accepting unverified callbacks would let anyone mark orders as paid.
+    return false;
   }
 
   const expected =
