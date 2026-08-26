@@ -16,8 +16,6 @@ import {
   Package,
   ShieldCheck,
   Wallet,
-  Sun,
-  Moon,
 } from 'lucide-react';
 import { SearchBar } from '@/components/search/SearchBar';
 import { INITIAL_CATEGORIES } from '@/lib/products';
@@ -42,36 +40,6 @@ export function Navbar() {
   const [bannerSettings, setBannerSettings] = useState<StoreSettings | null>(
     null
   );
-  const [isDark, setIsDark] = useState(false);
-
-  React.useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const stored = localStorage.getItem('theme') || 'system';
-    const dark =
-      stored === 'dark' ||
-      (stored === 'system' &&
-        window.matchMedia('(prefers-color-scheme: dark)').matches);
-    setIsDark(dark);
-  }, []);
-
-  const toggleTheme = () => {
-    if (typeof window === 'undefined') return;
-    const stored = localStorage.getItem('theme') || 'system';
-    const activeTheme: 'light' | 'dark' =
-      stored === 'system'
-        ? window.matchMedia('(prefers-color-scheme: dark)').matches
-          ? 'dark'
-          : 'light'
-        : stored === 'dark'
-          ? 'dark'
-          : 'light';
-    const next: 'light' | 'dark' = activeTheme === 'dark' ? 'light' : 'dark';
-    localStorage.setItem('theme', next);
-    const root = document.documentElement;
-    root.classList.remove('dark', 'light');
-    root.classList.add(next);
-    setIsDark(next === 'dark');
-  };
 
   React.useEffect(() => {
     async function fetchBanner() {
@@ -191,19 +159,19 @@ export function Navbar() {
               </span>
             </Link>
 
-            {/* Theme Toggle */}
-            <button
-              onClick={toggleTheme}
-              className="p-1.5 text-slate-700 transition-colors hover:text-gold-600 sm:p-2"
-              title="Toggle dark mode"
-              aria-label="Toggle dark mode"
+            {/* Wishlist Link */}
+            <Link
+              href="/wishlist"
+              className="relative p-1.5 text-slate-700 transition-colors hover:text-gold-600 sm:p-2"
+              title="Wishlist"
             >
-              {isDark ? (
-                <Sun className="h-5 w-5" />
-              ) : (
-                <Moon className="h-5 w-5" />
+              <Heart className="h-5 w-5" />
+              {wishlistCount > 0 && (
+                <span className="absolute right-0.5 top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-gold-600 text-[9px] font-bold text-white shadow-sm">
+                  {wishlistCount}
+                </span>
               )}
-            </button>
+            </Link>
 
             {/* Cart Link */}
             <Link

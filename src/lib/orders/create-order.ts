@@ -1,6 +1,7 @@
 import { createClient as createServerClient } from '@/lib/supabase/server';
 import { createClient as createJSClient } from '@supabase/supabase-js';
 import { getServerUser } from '@/lib/auth/server';
+import { assertWalletBalance, debitWalletForOrder } from '@/lib/wallet/debit';
 
 export class OrderError extends Error {
   status: number;
@@ -179,6 +180,11 @@ export async function createOrder(
   // Generate unique order number (e.g. RHV-2026-XXXX)
   const orderNumber = `RHV-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
 
+  // Server-side wallet validation before anything is created
+  if (Number(wallet_used || 0) > 0) {
+    await assertWalletBalance(user!.id as string, wallet_used!);
+  }
+
   // Calculate GST amount (3% included in price for jewellery)
   const gstAmount = Math.round(subtotal * 0.03);
 
@@ -262,6 +268,26 @@ export async function createOrder(
   if (orderError || !insertedOrder) {
     console.error('Failed to create order:', orderError);
     throw new OrderError('Failed to create order in database', 500);
+  }
+
+  // Debit wallet if wallet was used and the order is finalized at creation
+  const shouldDebitWalletNow =
+    Number(wallet_used || 0) > 0 &&
+    (defaultPaymentStatus === 'paid' ||
+      (paymentMethod === 'cod' && !isPartialCod));
+  if (shouldDebitWalletNow) {
+    try {
+      await debitWalletForOrder(
+        user!.id as string,
+        wallet_used!,
+        insertedOrder.id
+      );
+    } catch (debitErr) {
+      console.error(
+        `Failed to redeem wallet for order ${orderNumber}:`,
+        debitErr
+      );
+    }
   }
 
   const orderItemsToInsert = items.map((item: any) => ({

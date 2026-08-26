@@ -23,6 +23,10 @@ import { Address } from '@/types/database';
 import { createClient } from '@/lib/supabase/client';
 import { auth } from '@/lib/firebase';
 import {
+  AddressTagSelector,
+  MAX_ADDRESSES,
+} from '@/components/AddressTagSelector';
+import {
   RecaptchaVerifier,
   signInWithPhoneNumber,
   ConfirmationResult,
@@ -382,19 +386,35 @@ export default function CheckoutPage() {
   const handleAddAddress = async (e: React.FormEvent) => {
     e.preventDefault();
     if (
-      !newAddress.full_name ||
-      !newAddress.phone ||
-      !newAddress.line1 ||
-      !newAddress.city ||
-      !newAddress.pincode
+      !newAddress.full_name.trim() ||
+      !newAddress.phone.trim() ||
+      !newAddress.line1.trim() ||
+      !newAddress.city.trim() ||
+      !newAddress.pincode.trim()
     ) {
-      alert('Please fill in all required address fields.');
+      toast.error('Please fill in all required address fields.');
+      return;
+    }
+    if (!/^[6-9]\d{9}$/.test(newAddress.phone.replace(/\D/g, '').slice(-10))) {
+      toast.error('Please enter a valid 10-digit mobile number.');
+      return;
+    }
+    if (!/^\d{6}$/.test(newAddress.pincode.trim())) {
+      toast.error('Please enter a valid 6-digit pincode.');
+      return;
+    }
+    if (addresses.length >= MAX_ADDRESSES) {
+      toast.error(
+        `You can save up to ${MAX_ADDRESSES} addresses. Please delete one before adding a new address.`
+      );
       return;
     }
 
     const userId = user?.id || profile?.id || auth?.currentUser?.uid;
     const addressData = {
       ...newAddress,
+      label: newAddress.label.trim() || 'Home',
+      phone: newAddress.phone.replace(/\D/g, '').slice(-10),
       is_default: addresses.length === 0,
     };
 
@@ -791,11 +811,23 @@ export default function CheckoutPage() {
                   <span>1. Delivery Address</span>
                 </h3>
                 <button
-                  onClick={() => setShowNewAddressForm(!showNewAddressForm)}
+                  onClick={() => {
+                    if (addresses.length >= MAX_ADDRESSES) {
+                      toast.error(
+                        `You've reached the maximum of ${MAX_ADDRESSES} addresses. Delete one to add a new address.`
+                      );
+                      return;
+                    }
+                    setShowNewAddressForm(!showNewAddressForm);
+                  }}
                   className="flex items-center space-x-1 text-xs font-semibold text-amber-800 hover:underline"
                 >
                   <Plus className="h-3.5 w-3.5" />
-                  <span>Add New Address</span>
+                  <span>
+                    {addresses.length >= MAX_ADDRESSES
+                      ? 'Address Limit Reached'
+                      : 'Add New Address'}
+                  </span>
                 </button>
               </div>
 
@@ -893,6 +925,19 @@ export default function CheckoutPage() {
                   <h4 className="text-xs font-bold uppercase text-stone-800">
                     Add Delivery Address
                   </h4>
+
+                  <div className="mb-2">
+                    <label className="mb-1 block text-xs font-semibold text-stone-700">
+                      Address Tag
+                    </label>
+                    <AddressTagSelector
+                      value={newAddress.label}
+                      onChange={(label) =>
+                        setNewAddress({ ...newAddress, label })
+                      }
+                    />
+                  </div>
+
                   <div className="grid grid-cols-1 gap-3 text-xs sm:grid-cols-2">
                     <div>
                       <label
@@ -928,11 +973,16 @@ export default function CheckoutPage() {
                         id="checkout-phone"
                         autoComplete="tel"
                         required
+                        maxLength={10}
+                        inputMode="numeric"
+                        placeholder="10-digit mobile number"
                         value={newAddress.phone}
                         onChange={(e) =>
                           setNewAddress({
                             ...newAddress,
-                            phone: e.target.value,
+                            phone: e.target.value
+                              .replace(/\D/g, '')
+                              .slice(0, 10),
                           })
                         }
                         className="w-full rounded-lg border border-stone-300 px-3 py-2 focus:outline-none focus:ring-1 focus:ring-amber-500"
@@ -1034,11 +1084,16 @@ export default function CheckoutPage() {
                         id="checkout-pincode"
                         autoComplete="postal-code"
                         required
+                        inputMode="numeric"
+                        maxLength={6}
+                        placeholder="6-digit pincode"
                         value={newAddress.pincode}
                         onChange={(e) =>
                           setNewAddress({
                             ...newAddress,
-                            pincode: e.target.value,
+                            pincode: e.target.value
+                              .replace(/\D/g, '')
+                              .slice(0, 6),
                           })
                         }
                         className="w-full rounded-lg border border-stone-300 px-3 py-2 focus:outline-none focus:ring-1 focus:ring-amber-500"

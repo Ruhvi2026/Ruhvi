@@ -34,6 +34,8 @@ const envSchema = z.object({
   NEXT_PUBLIC_POSTHOG_KEY: z.string().min(1).optional(),
   NEXT_PUBLIC_POSTHOG_HOST: z.string().url().optional(),
   NEXT_PUBLIC_POSTHOG_UI_HOST: z.string().url().optional(),
+  POSTHOG_PERSONAL_API_KEY: z.string().optional(),
+  POSTHOG_PROJECT_ID: z.string().optional(),
 
   // Cloudinary
   NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: z.string().optional(),
@@ -72,6 +74,8 @@ const _env = envSchema.safeParse({
   NEXT_PUBLIC_POSTHOG_KEY: process.env.NEXT_PUBLIC_POSTHOG_KEY,
   NEXT_PUBLIC_POSTHOG_HOST: process.env.NEXT_PUBLIC_POSTHOG_HOST,
   NEXT_PUBLIC_POSTHOG_UI_HOST: process.env.NEXT_PUBLIC_POSTHOG_UI_HOST,
+  POSTHOG_PERSONAL_API_KEY: process.env.POSTHOG_PERSONAL_API_KEY,
+  POSTHOG_PROJECT_ID: process.env.POSTHOG_PROJECT_ID,
   NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME:
     process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
   NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET:

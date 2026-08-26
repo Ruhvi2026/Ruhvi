@@ -20,7 +20,7 @@ import OperationsDashboard from './OperationsDashboard';
 import OrdersDashboard from './OrdersDashboard';
 import SupportDashboard from './SupportDashboard';
 import MarketingDashboard from './MarketingDashboard';
-
+import { getDailyPageviews } from '@/services/posthog-analytics.service';
 function KpiCard({
   label,
   value,
@@ -149,6 +149,7 @@ export default async function AdminDashboardPage({
     { data: recentReviews },
     { data: stockProducts },
     { count: openRefundsCount },
+    posthogPageviewsData,
   ] = await Promise.all([
     supabase
       .from('orders')
@@ -184,6 +185,7 @@ export default async function AdminDashboardPage({
       .from('returns')
       .select('*', { count: 'exact', head: true })
       .eq('status', 'requested'),
+    getDailyPageviews(),
   ]);
 
   // Process KPIs (shared aggregation with SalesDashboard)
@@ -375,6 +377,7 @@ export default async function AdminDashboardPage({
             todayRevenue={todayRevenue}
             cancelledOrders={cancelledOrders}
             cancelledRevenue={cancelledRevenue}
+            posthogPageviewsData={posthogPageviewsData}
           />
 
           {/* Recent Orders */}

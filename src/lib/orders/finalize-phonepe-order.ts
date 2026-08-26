@@ -1,6 +1,7 @@
 import { createClient as createJSClient } from '@supabase/supabase-js';
 import { sendOrderConfirmation } from '@/lib/whatsapp';
 import { sendOrderConfirmationEmail } from '@/lib/resend';
+import { debitWalletForOrder } from '@/lib/wallet/debit';
 
 export interface FinalizePhonePeResult {
   status: 'paid' | 'failed' | 'pending' | 'not_found';
@@ -84,6 +85,20 @@ export async function finalizePhonePeOrder(
     if (updateError) {
       console.error('Failed to mark PhonePe order as paid:', updateError);
       return { status: 'pending', error: 'Failed to update order' };
+    }
+
+    // Redeem wallet balance used on this order (PhonePe & partial-COD orders
+    // that were pre-created as pending). Idempotent per order_id.
+    const walletUsed = Number(order.wallet_used) || 0;
+    if (walletUsed > 0) {
+      try {
+        await debitWalletForOrder(order.user_id, walletUsed, order.id);
+      } catch (walletErr: any) {
+        console.error(
+          `Failed to redeem wallet for order ${order.order_number}:`,
+          walletErr
+        );
+      }
     }
 
     // Fire confirmation notifications (WhatsApp + email) asynchronously

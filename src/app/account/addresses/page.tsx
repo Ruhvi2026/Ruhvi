@@ -10,11 +10,59 @@ import {
   Check,
   ArrowLeft,
   Loader2,
+  Home,
+  Briefcase,
+  Building2,
+  Tag,
+  AlertTriangle,
 } from 'lucide-react';
 import { Address } from '@/types/database';
 import { useAuth } from '@/context/AuthContext';
 import { createClient } from '@/lib/supabase/client';
 import toast from 'react-hot-toast';
+import {
+  AddressTagSelector,
+  MAX_ADDRESSES,
+} from '@/components/AddressTagSelector';
+
+const EMPTY_FORM = {
+  label: 'Home',
+  full_name: '',
+  phone: '',
+  line1: '',
+  line2: '',
+  city: '',
+  state: '',
+  pincode: '',
+};
+
+const normalizePhone = (phone: string) => phone.replace(/\D/g, '').slice(-10);
+const isValidPhone = (phone: string) =>
+  /^[6-9]\d{9}$/.test(normalizePhone(phone));
+const isValidPincode = (pincode: string) => /^\d{6}$/.test(pincode.trim());
+
+function TagBadge({ tag }: { tag?: string }) {
+  const label = tag?.trim() || 'Home';
+  const icon = (() => {
+    switch (label) {
+      case 'Home':
+        return <Home className="h-3 w-3" />;
+      case 'Office':
+        return <Briefcase className="h-3 w-3" />;
+      case 'Other':
+        return <Building2 className="h-3 w-3" />;
+      default:
+        return <Tag className="h-3 w-3" />;
+    }
+  })();
+
+  return (
+    <span className="inline-flex items-center space-x-1 rounded-md bg-amber-950/10 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-amber-950">
+      {icon}
+      <span>{label}</span>
+    </span>
+  );
+}
 
 export default function AddressBookPage() {
   const { user } = useAuth();
@@ -23,6 +71,7 @@ export default function AddressBookPage() {
   const [saving, setSaving] = useState<boolean>(false);
   const [showForm, setShowForm] = useState(false);
   const [editingAddress, setEditingAddress] = useState<Address | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Address | null>(null);
 
   const fetchAddresses = useCallback(async () => {
     if (!user) {
@@ -37,7 +86,8 @@ export default function AddressBookPage() {
         .from('addresses')
         .select('*')
         .eq('user_id', user.id)
-        .order('is_default', { ascending: false });
+        .order('is_default', { ascending: false })
+        .order('created_at', { ascending: true });
 
       if (error) {
         toast.error('Failed to load addresses.');
@@ -56,23 +106,28 @@ export default function AddressBookPage() {
     fetchAddresses();
   }, [fetchAddresses]);
 
-  const [formData, setFormData] = useState({
-    label: 'Home',
-    full_name: '',
-    phone: '',
-    line1: '',
-    line2: '',
-    city: '',
-    state: '',
-    pincode: '',
-  });
+  const [formData, setFormData] = useState(EMPTY_FORM);
+
+  const atLimit = addresses.length >= MAX_ADDRESSES;
+
+  const openAddForm = () => {
+    if (atLimit) {
+      toast.error(
+        `You've reached the maximum of ${MAX_ADDRESSES} addresses. Delete one to add a new address.`
+      );
+      return;
+    }
+    setEditingAddress(null);
+    setFormData(EMPTY_FORM);
+    setShowForm(true);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   const handleSetDefault = async (id: string) => {
     if (!user || saving) return;
     setSaving(true);
     try {
       const supabase = createClient();
-      // Clear previous default, then set the new one
       const { error: clearError } = await supabase
         .from('addresses')
         .update({ is_default: false })
@@ -106,11 +161,10 @@ export default function AddressBookPage() {
 
   const handleDelete = async (id: string) => {
     if (!user || saving) return;
-    if (!confirm('Are you sure you want to delete this address?')) return;
-
     setSaving(true);
     try {
       const supabase = createClient();
+      const target = addresses.find((a) => a.id === id);
       const { error } = await supabase
         .from('addresses')
         .delete()
@@ -118,7 +172,26 @@ export default function AddressBookPage() {
         .eq('user_id', user.id);
       if (error) throw error;
 
-      setAddresses((prev) => prev.filter((a) => a.id !== id));
+      let remaining = addresses.filter((a) => a.id !== id);
+
+      // Auto-promote the next address when the default one is deleted
+      if (target?.is_default && remaining.length > 0) {
+        const nextDefault = remaining[0];
+        const { error: promError } = await supabase
+          .from('addresses')
+          .update({ is_default: true })
+          .eq('id', nextDefault.id)
+          .eq('user_id', user.id);
+        if (!promError) {
+          remaining = remaining.map((a) => ({
+            ...a,
+            is_default: a.id === nextDefault.id,
+          }));
+        }
+      }
+
+      setAddresses(remaining);
+      setDeleteTarget(null);
       toast.success('Address deleted.');
     } catch (err: any) {
       console.error('Error deleting address:', err);
@@ -131,7 +204,7 @@ export default function AddressBookPage() {
   const handleOpenEdit = (addr: Address) => {
     setEditingAddress(addr);
     setFormData({
-      label: addr.label || '',
+      label: addr.label || 'Home',
       full_name: addr.full_name,
       phone: addr.phone,
       line1: addr.line1,
@@ -141,21 +214,61 @@ export default function AddressBookPage() {
       pincode: addr.pincode,
     });
     setShowForm(true);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user || saving) return;
 
+    const label = formData.label.trim() || 'Home';
+
+    if (!formData.full_name.trim()) {
+      toast.error('Please enter the recipient name.');
+      return;
+    }
+    if (!isValidPhone(formData.phone)) {
+      toast.error('Please enter a valid 10-digit mobile number.');
+      return;
+    }
+    if (!formData.line1.trim()) {
+      toast.error('Please enter the street address.');
+      return;
+    }
+    if (!formData.city.trim()) {
+      toast.error('Please enter the city.');
+      return;
+    }
+    if (!formData.state.trim()) {
+      toast.error('Please enter the state.');
+      return;
+    }
+    if (!isValidPincode(formData.pincode)) {
+      toast.error('Please enter a valid 6-digit pincode.');
+      return;
+    }
+
+    if (!editingAddress && addresses.length >= MAX_ADDRESSES) {
+      toast.error(
+        `You can save up to ${MAX_ADDRESSES} addresses. Please delete one before adding a new address.`
+      );
+      return;
+    }
+
+    const payload = {
+      ...formData,
+      label,
+      phone: normalizePhone(formData.phone),
+    };
+
     setSaving(true);
     try {
       const supabase = createClient();
 
       if (editingAddress) {
-        // Update existing address
         const { data, error } = await supabase
           .from('addresses')
-          .update(formData)
+          .update(payload)
           .eq('id', editingAddress.id)
           .eq('user_id', user.id)
           .select('*')
@@ -172,12 +285,11 @@ export default function AddressBookPage() {
           toast.success('Address updated successfully.');
         }
       } else {
-        // Insert new address; first address becomes the default
         const { data, error } = await supabase
           .from('addresses')
           .insert({
             user_id: user.id,
-            ...formData,
+            ...payload,
             is_default: addresses.length === 0,
           })
           .select('*')
@@ -192,7 +304,11 @@ export default function AddressBookPage() {
       }
     } catch (err: any) {
       console.error('Error saving address:', err);
-      toast.error(err?.message || 'Failed to save address.');
+      toast.error(
+        err?.message?.includes('up to 10')
+          ? `You can save up to ${MAX_ADDRESSES} addresses. Please delete one before adding a new address.`
+          : err?.message || 'Failed to save address.'
+      );
       return;
     } finally {
       setSaving(false);
@@ -200,22 +316,15 @@ export default function AddressBookPage() {
 
     setShowForm(false);
     setEditingAddress(null);
-    setFormData({
-      label: 'Home',
-      full_name: '',
-      phone: '',
-      line1: '',
-      line2: '',
-      city: '',
-      state: '',
-      pincode: '',
-    });
+    setFormData(EMPTY_FORM);
   };
+
+  const usagePercent = Math.min(100, (addresses.length / MAX_ADDRESSES) * 100);
 
   return (
     <div className="mx-auto max-w-5xl space-y-8 px-4 py-10 sm:px-6 lg:px-8">
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-stone-200 pb-6">
+      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-stone-200 pb-6">
         <div className="flex items-center space-x-3">
           <Link
             href="/account"
@@ -234,26 +343,38 @@ export default function AddressBookPage() {
           </div>
         </div>
 
-        <button
-          onClick={() => {
-            setEditingAddress(null);
-            setFormData({
-              label: 'Home',
-              full_name: '',
-              phone: '',
-              line1: '',
-              line2: '',
-              city: '',
-              state: '',
-              pincode: '',
-            });
-            setShowForm(!showForm);
-          }}
-          className="flex items-center space-x-1.5 rounded-xl bg-amber-950 px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-amber-100 shadow hover:bg-amber-900"
-        >
-          <Plus className="h-4 w-4" />
-          <span>Add New Address</span>
-        </button>
+        <div className="flex items-center gap-4">
+          {/* Usage counter */}
+          <div
+            className="flex items-center gap-2"
+            title={`${addresses.length} of ${MAX_ADDRESSES} addresses used`}
+          >
+            <div className="w-32">
+              <div className="mb-1 flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-stone-400">
+                <span>
+                  {addresses.length}/{MAX_ADDRESSES} used
+                </span>
+              </div>
+              <div className="h-1.5 w-full overflow-hidden rounded-full bg-stone-200">
+                <div
+                  className="h-full rounded-full bg-amber-900 transition-all"
+                  style={{ width: `${usagePercent}%` }}
+                />
+              </div>
+            </div>
+          </div>
+
+          <button
+            onClick={openAddForm}
+            disabled={atLimit}
+            className={`flex items-center space-x-1.5 rounded-xl bg-amber-950 px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-amber-100 shadow transition-colors ${
+              atLimit ? 'cursor-not-allowed opacity-50' : 'hover:bg-amber-900'
+            }`}
+          >
+            <Plus className="h-4 w-4" />
+            <span>{atLimit ? 'Address Limit Reached' : 'Add New Address'}</span>
+          </button>
+        </div>
       </div>
 
       {/* Address Form */}
@@ -267,25 +388,22 @@ export default function AddressBookPage() {
           </h3>
 
           <div className="grid grid-cols-1 gap-4 text-xs sm:grid-cols-2">
-            <div>
+            <div className="sm:col-span-2">
               <label
                 htmlFor="address-label"
                 className="mb-1 block font-semibold text-stone-700"
               >
-                Address Label
+                Address Tag *
               </label>
-              <select
-                id="address-label"
+              <p className="mb-2 text-[11px] text-stone-500">
+                Give this address a name you&rsquo;ll recognise at a glance,
+                like &ldquo;Home&rdquo;, &ldquo;Office&rdquo; or &ldquo;My
+                Parents&rsquo; House&rdquo;.
+              </p>
+              <AddressTagSelector
                 value={formData.label}
-                onChange={(e) =>
-                  setFormData({ ...formData, label: e.target.value })
-                }
-                className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2 focus:outline-none focus:ring-1 focus:ring-amber-500"
-              >
-                <option value="Home">Home</option>
-                <option value="Office">Office</option>
-                <option value="Other">Other</option>
-              </select>
+                onChange={(label) => setFormData({ ...formData, label })}
+              />
             </div>
 
             <div>
@@ -298,6 +416,7 @@ export default function AddressBookPage() {
               <input
                 id="address-full-name"
                 type="text"
+                autoComplete="name"
                 required
                 value={formData.full_name}
                 onChange={(e) =>
@@ -317,16 +436,23 @@ export default function AddressBookPage() {
               <input
                 id="address-phone"
                 type="tel"
+                autoComplete="tel"
                 required
+                maxLength={10}
+                inputMode="numeric"
+                placeholder="10-digit mobile number"
                 value={formData.phone}
                 onChange={(e) =>
-                  setFormData({ ...formData, phone: e.target.value })
+                  setFormData({
+                    ...formData,
+                    phone: e.target.value.replace(/\D/g, '').slice(0, 10),
+                  })
                 }
                 className="w-full rounded-lg border border-stone-300 px-3 py-2 focus:outline-none focus:ring-1 focus:ring-amber-500"
               />
             </div>
 
-            <div>
+            <div className="sm:col-span-2">
               <label
                 htmlFor="address-line1"
                 className="mb-1 block font-semibold text-stone-700"
@@ -336,7 +462,9 @@ export default function AddressBookPage() {
               <input
                 id="address-line1"
                 type="text"
+                autoComplete="address-line1"
                 required
+                placeholder="House number, building, street"
                 value={formData.line1}
                 onChange={(e) =>
                   setFormData({ ...formData, line1: e.target.value })
@@ -345,7 +473,7 @@ export default function AddressBookPage() {
               />
             </div>
 
-            <div>
+            <div className="sm:col-span-2">
               <label
                 htmlFor="address-line2"
                 className="mb-1 block font-semibold text-stone-700"
@@ -355,6 +483,8 @@ export default function AddressBookPage() {
               <input
                 id="address-line2"
                 type="text"
+                autoComplete="address-line2"
+                placeholder="Apartment, area, landmark"
                 value={formData.line2}
                 onChange={(e) =>
                   setFormData({ ...formData, line2: e.target.value })
@@ -373,6 +503,7 @@ export default function AddressBookPage() {
               <input
                 id="address-city"
                 type="text"
+                autoComplete="address-level2"
                 required
                 value={formData.city}
                 onChange={(e) =>
@@ -392,6 +523,7 @@ export default function AddressBookPage() {
               <input
                 id="address-state"
                 type="text"
+                autoComplete="address-level1"
                 required
                 value={formData.state}
                 onChange={(e) =>
@@ -411,10 +543,17 @@ export default function AddressBookPage() {
               <input
                 id="address-pincode"
                 type="text"
+                autoComplete="postal-code"
                 required
+                inputMode="numeric"
+                maxLength={6}
+                placeholder="6-digit pincode"
                 value={formData.pincode}
                 onChange={(e) =>
-                  setFormData({ ...formData, pincode: e.target.value })
+                  setFormData({
+                    ...formData,
+                    pincode: e.target.value.replace(/\D/g, '').slice(0, 6),
+                  })
                 }
                 className="w-full rounded-lg border border-stone-300 px-3 py-2 focus:outline-none focus:ring-1 focus:ring-amber-500"
               />
@@ -424,7 +563,10 @@ export default function AddressBookPage() {
           <div className="flex justify-end space-x-3 border-t border-stone-100 pt-4">
             <button
               type="button"
-              onClick={() => setShowForm(false)}
+              onClick={() => {
+                setShowForm(false);
+                setEditingAddress(null);
+              }}
               className="px-4 py-2 text-xs font-semibold text-stone-500 hover:text-stone-800"
             >
               Cancel
@@ -435,7 +577,7 @@ export default function AddressBookPage() {
               className="flex items-center space-x-2 rounded-lg bg-amber-950 px-5 py-2 text-xs font-bold uppercase text-amber-100 hover:bg-amber-900 disabled:opacity-50"
             >
               {saving && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-              <span>Save Address</span>
+              <span>{editingAddress ? 'Save Changes' : 'Save Address'}</span>
             </button>
           </div>
         </form>
@@ -450,14 +592,22 @@ export default function AddressBookPage() {
           </span>
         </div>
       ) : addresses.length === 0 ? (
-        <div className="py-16 text-center">
+        <div className="rounded-2xl border border-dashed border-stone-300 bg-white py-16 text-center">
           <MapPin className="mx-auto mb-3 h-10 w-10 text-stone-300" />
-          <p className="text-sm font-semibold text-stone-500">
+          <p className="text-sm font-semibold text-stone-600">
             No saved addresses yet.
           </p>
-          <p className="mt-1 text-xs text-stone-400">
-            Click "Add New Address" to save your first delivery location.
+          <p className="mx-auto mt-1 max-w-sm text-xs text-stone-400">
+            Save your delivery locations so checkout is just a tap away. You can
+            save up to {MAX_ADDRESSES} addresses.
           </p>
+          <button
+            onClick={openAddForm}
+            className="mx-auto mt-5 flex items-center space-x-1.5 rounded-xl bg-amber-950 px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-amber-100 shadow hover:bg-amber-900"
+          >
+            <Plus className="h-4 w-4" />
+            <span>Add Your First Address</span>
+          </button>
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
@@ -472,11 +622,9 @@ export default function AddressBookPage() {
             >
               <div>
                 <div className="mb-3 flex items-center justify-between">
-                  <span className="rounded bg-stone-200 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-stone-800">
-                    {addr.label}
-                  </span>
+                  <TagBadge tag={addr.label} />
                   {addr.is_default && (
-                    <span className="flex items-center space-x-1 rounded bg-amber-100 px-2 py-0.5 text-[10px] font-bold uppercase text-amber-950">
+                    <span className="flex items-center space-x-1 rounded bg-amber-100 px-2 py-1 text-[10px] font-bold uppercase text-amber-950">
                       <Check className="h-3 w-3" />
                       <span>Default Address</span>
                     </span>
@@ -514,7 +662,7 @@ export default function AddressBookPage() {
                     <Edit2 className="h-4 w-4" />
                   </button>
                   <button
-                    onClick={() => handleDelete(addr.id)}
+                    onClick={() => setDeleteTarget(addr)}
                     className="rounded p-1.5 text-stone-500 transition-colors hover:bg-rose-50 hover:text-rose-600"
                     title="Delete Address"
                   >
@@ -524,6 +672,57 @@ export default function AddressBookPage() {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {deleteTarget && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-stone-900/50 p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="delete-address-title"
+        >
+          <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl">
+            <div className="flex items-start space-x-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-rose-100 text-rose-600">
+                <AlertTriangle className="h-5 w-5" />
+              </div>
+              <div>
+                <h3
+                  id="delete-address-title"
+                  className="text-sm font-bold text-stone-900"
+                >
+                  Delete this address?
+                </h3>
+                <p className="mt-1 text-xs leading-relaxed text-stone-500">
+                  You&rsquo;re about to remove{' '}
+                  <span className="font-semibold text-stone-700">
+                    {deleteTarget.label || 'Home'}
+                  </span>{' '}
+                  — {deleteTarget.line1}, {deleteTarget.city}. This action
+                  can&rsquo;t be undone.
+                </p>
+              </div>
+            </div>
+            <div className="mt-5 flex justify-end space-x-3">
+              <button
+                onClick={() => setDeleteTarget(null)}
+                disabled={saving}
+                className="rounded-lg px-4 py-2 text-xs font-semibold text-stone-500 hover:bg-stone-100 hover:text-stone-800"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleDelete(deleteTarget.id)}
+                disabled={saving}
+                className="flex items-center space-x-1.5 rounded-lg bg-rose-600 px-4 py-2 text-xs font-bold uppercase text-white hover:bg-rose-700 disabled:opacity-50"
+              >
+                {saving && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                <span>Delete Address</span>
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

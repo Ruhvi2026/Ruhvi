@@ -127,6 +127,8 @@ The application is a modern, headless e-commerce storefront. It utilizes Next.js
 - `CUSTOM_GATEWAY_API_KEY`
 - `CUSTOM_GATEWAY_BASE_URL`
 - `SENTRY_AUTH_TOKEN`
+- `POSTHOG_PERSONAL_API_KEY`
+- `POSTHOG_PROJECT_ID`
 
 ---
 
@@ -157,7 +159,7 @@ The application is a modern, headless e-commerce storefront. It utilizes Next.js
 
 | Service | Purpose | Added On | Status | Files | Notes |
 |---------|---------|----------|--------|-------|-------|
-| PostHog | Product Analytics / CX | 2026-08-24 | Active | `src/lib/posthog.ts`, `src/lib/env.ts` | Server-side client (`posthog-node`); `posthog-js` installed for client tracking. Host: `eu.i.posthog.com`. |
+| PostHog | Product Analytics / CX / Admin API | 2026-08-24 | Active | `src/lib/posthog.ts`, `src/lib/env.ts`, `src/services/posthog-analytics.service.ts` | Client tracking via `posthog-js`; server tracking via `posthog-node`; live analytics fetched via REST API using PAT. |
 | Supabase | Primary DB, CX/Site Storage | 2024 | Active | `src/lib/supabase/*` | Custom JWTs used instead of Supabase Auth |
 | Firebase | Authentication | 2024 | Active | `src/lib/firebase.ts` | Sole auth provider; custom password resets routed via backend Admin SDK to bypass Firebase Console UI bugs |
 | Cloudinary | Image Optimization | 2024 | Active | `src/services/cloudinaryService.ts` | |
