@@ -39,7 +39,7 @@ export async function fetchAllGalleryImages(): Promise<GalleryImage[]> {
       .from('product_images')
       .select('url, created_at');
     if (pImages) {
-      pImages.forEach((img) => {
+      pImages.forEach((img: any) => {
         if (img.url && !allImages.has(img.url)) {
           allImages.set(img.url, {
             url: img.url,
@@ -59,7 +59,7 @@ export async function fetchAllGalleryImages(): Promise<GalleryImage[]> {
       .from('categories')
       .select('image_url, created_at');
     if (catImages) {
-      catImages.forEach((cat) => {
+      catImages.forEach((cat: any) => {
         if (cat.image_url && !allImages.has(cat.image_url)) {
           allImages.set(cat.image_url, {
             url: cat.image_url,
@@ -79,7 +79,7 @@ export async function fetchAllGalleryImages(): Promise<GalleryImage[]> {
       .from('collections')
       .select('image_url, created_at');
     if (colImages) {
-      colImages.forEach((col) => {
+      colImages.forEach((col: any) => {
         if (col.image_url && !allImages.has(col.image_url)) {
           allImages.set(col.image_url, {
             url: col.image_url,
@@ -124,7 +124,7 @@ export async function addImageToStandaloneGallery(url: string): Promise<void> {
   }
 
   // Prevent duplicates in standalone gallery
-  if (!existingGallery.find((img) => img.url === url)) {
+  if (!existingGallery.find((img: any) => img.url === url)) {
     existingGallery.unshift({
       url,
       addedAt: new Date().toISOString(),
