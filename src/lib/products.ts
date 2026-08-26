@@ -2,84 +2,84 @@ import { Product, Category, ImageType } from '@/types/database';
 
 export const INITIAL_CATEGORIES: Category[] = [
   {
-    id: 'cat-1',
+    id: 'a1111111-1111-1111-1111-111111111111',
     name: 'Rings',
     slug: 'rings',
     image_url: '/images/categories/rings.jpg',
   },
   {
-    id: 'cat-2',
+    id: 'a2222222-2222-2222-2222-222222222222',
     name: 'Necklaces',
     slug: 'necklaces',
     image_url: '/images/categories/necklaces.jpg',
   },
   {
-    id: 'cat-3',
+    id: 'a3333333-3333-3333-3333-333333333333',
     name: 'Earrings',
     slug: 'earrings',
     image_url:
       'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&q=80&w=400',
   },
   {
-    id: 'cat-4',
+    id: 'a4444444-4444-4444-4444-444444444444',
     name: 'Bracelets',
     slug: 'bracelets',
     image_url:
       'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&q=80&w=400',
   },
   {
-    id: 'cat-5',
+    id: 'a5555555-5555-5555-5555-555555555555',
     name: 'Bangles',
     slug: 'bangles',
     image_url:
       'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&q=80&w=400',
   },
   {
-    id: 'cat-6',
+    id: 'a6666666-6666-6666-6666-666666666666',
     name: 'Pendants',
     slug: 'pendants',
     image_url: '/images/categories/pendants.jpg',
   },
   {
-    id: 'cat-7',
+    id: 'a7777777-7777-7777-7777-777777777777',
     name: 'Chains',
     slug: 'chains',
     image_url: '/images/categories/chains.jpg',
   },
   {
-    id: 'cat-8',
+    id: 'a8888888-8888-8888-8888-888888888888',
     name: 'Anklets',
     slug: 'anklets',
     image_url:
       'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&q=80&w=400',
   },
   {
-    id: 'cat-9',
+    id: 'a9999999-9999-9999-9999-999999999999',
     name: 'Nose Pins',
     slug: 'nose-pins',
     image_url:
       'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&q=80&w=400',
   },
   {
-    id: 'cat-10',
+    id: 'b1111111-1111-1111-1111-111111111111',
     name: 'Mangalsutra',
     slug: 'mangalsutra',
     image_url: '/images/categories/mangalsutra.jpg',
   },
   {
-    id: 'cat-11',
+    id: 'b2222222-2222-2222-2222-222222222222',
     name: 'Bridal Jewellery',
     slug: 'bridal',
     image_url: '/images/categories/bridal.jpg',
   },
   {
-    id: 'cat-12',
+    id: 'b3333333-3333-3333-3333-333333333333',
     name: "Men's Jewellery",
     slug: 'mens',
     image_url: '/images/categories/mens.jpg',
   },
   {
-    id: 'cat-13',
+    id: 'b4444444-4444-4444-4444-444444444444',
     name: "Kids' Jewellery",
     slug: 'kids',
     image_url:
@@ -95,7 +95,7 @@ export const DEMO_PRODUCTS: Product[] = [
     slug: 'aurelia-solitaire-diamond-ring',
     description:
       'An exquisite 22K Gold Plated Solitaire Ring crafted with precision, featuring a anti-tarnish finish and brilliant CZ stone centerpiece that radiates timeless elegance.',
-    category_id: 'cat-1',
+    category_id: 'a1111111-1111-1111-1111-111111111111',
     price: 1999,
     mrp: 3999,
     gst_rate: 3.0,
@@ -143,7 +143,7 @@ export const DEMO_PRODUCTS: Product[] = [
     slug: 'royal-heritage-emerald-choker-necklace',
     description:
       'A regal Kundan and Emerald choker, hand-crafted in 22K Premium Gold Plating with anti-tarnish protective coating. Designed for grand celebrations.',
-    category_id: 'cat-2',
+    category_id: 'a2222222-2222-2222-2222-222222222222',
     price: 189999,
     mrp: 219999,
     gst_rate: 3.0,
@@ -177,7 +177,7 @@ export const DEMO_PRODUCTS: Product[] = [
     slug: 'celestia-pearl-drop-earrings',
     description:
       'Freshwater cultured pearls suspended from delicate diamond-studded 22K rose gold studs. Graceful, light, and stunning.',
-    category_id: 'cat-3',
+    category_id: 'a3333333-3333-3333-3333-333333333333',
     price: 24999,
     mrp: 29999,
     gst_rate: 3.0,
@@ -211,7 +211,7 @@ export const DEMO_PRODUCTS: Product[] = [
     slug: 'eternal-rose-gold-filigree-bangle',
     description:
       'Intricately handcrafted 22K Rose Gold bangle with delicate laser filigree motifs. A contemporary tribute to Indian craftsmanship.',
-    category_id: 'cat-5',
+    category_id: 'a5555555-5555-5555-5555-555555555555',
     price: 65999,
     mrp: 72999,
     gst_rate: 3.0,
@@ -238,7 +238,7 @@ export const DEMO_PRODUCTS: Product[] = [
     slug: 'modern-minimalist-diamond-mangalsutra',
     description:
       'Sleek black bead chain with a brilliant curved diamond pendant in 22K Yellow Gold. Designed for daily comfort and timeless grace.',
-    category_id: 'cat-10',
+    category_id: 'b1111111-1111-1111-1111-111111111111',
     price: 38999,
     mrp: 44999,
     gst_rate: 3.0,
@@ -265,7 +265,7 @@ export const DEMO_PRODUCTS: Product[] = [
     slug: 'lotus-blossom-ruby-pendant',
     description:
       'A vivid Burmese Ruby wrapped in diamond-paved lotus petals. Crafted in 22K White Gold.',
-    category_id: 'cat-6',
+    category_id: 'a6666666-6666-6666-6666-666666666666',
     price: 29999,
     mrp: 34999,
     gst_rate: 3.0,

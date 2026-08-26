@@ -108,20 +108,25 @@ export default function CategoryManagerPage() {
           .update(payload)
           .eq('id', editingCategory.id);
         if (error) {
-          setCategories((prev) =>
-            prev.map((c) =>
-              c.id === editingCategory.id ? { ...c, ...payload } : c
-            )
-          );
+          setMessage({
+            type: 'error',
+            text: error.message || 'Failed to update category',
+          });
+          setSaving(false);
+          return;
         }
       } else {
-        const newId = `cat-${Date.now()}`;
         const { data, error } = await supabase
           .from('categories')
           .insert([{ ...payload }])
           .select();
         if (error || !data) {
-          setCategories((prev) => [{ id: newId, ...payload }, ...prev]);
+          setMessage({
+            type: 'error',
+            text: error?.message || 'Failed to create category',
+          });
+          setSaving(false);
+          return;
         }
       }
       setMessage({
@@ -134,20 +139,11 @@ export default function CategoryManagerPage() {
         setIsModalOpen(false);
         fetchCategories();
       }, 800);
-    } catch {
-      if (editingCategory) {
-        setCategories((prev) =>
-          prev.map((c) =>
-            c.id === editingCategory.id ? { ...c, ...payload } : c
-          )
-        );
-      } else {
-        setCategories((prev) => [
-          { id: `cat-${Date.now()}`, ...payload },
-          ...prev,
-        ]);
-      }
-      setIsModalOpen(false);
+    } catch (err: any) {
+      setMessage({
+        type: 'error',
+        text: err?.message || 'An unexpected error occurred',
+      });
     } finally {
       setSaving(false);
     }

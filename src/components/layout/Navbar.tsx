@@ -18,7 +18,7 @@ import {
   Wallet,
 } from 'lucide-react';
 import { SearchBar } from '@/components/search/SearchBar';
-import { INITIAL_CATEGORIES } from '@/lib/products';
+import { useTaxonomy } from '@/hooks/useTaxonomy';
 import { useCart } from '@/context/CartContext';
 import { useWishlist } from '@/context/WishlistContext';
 import { useNotifications } from '@/context/NotificationContext';
@@ -40,6 +40,7 @@ export function Navbar() {
   const [bannerSettings, setBannerSettings] = useState<StoreSettings | null>(
     null
   );
+  const { categories } = useTaxonomy();
 
   React.useEffect(() => {
     async function fetchBanner() {
@@ -284,7 +285,7 @@ export function Navbar() {
             </div>
           </div>
 
-          {INITIAL_CATEGORIES.slice(0, 6).map((cat) => (
+          {categories.slice(0, 6).map((cat) => (
             <Link
               key={cat.id}
               href={`/category/${cat.slug}`}
@@ -309,7 +310,7 @@ export function Navbar() {
               className="pointer-events-none absolute left-0 top-full z-50 w-48 pt-1 opacity-0 transition-opacity duration-150 group-focus-within:pointer-events-auto group-focus-within:opacity-100 group-hover:pointer-events-auto group-hover:opacity-100"
             >
               <div className="rounded-lg border border-gold-200 bg-white py-2 shadow-lg">
-                {INITIAL_CATEGORIES.slice(6).map((cat) => (
+                {categories.slice(6).map((cat) => (
                   <Link
                     key={cat.id}
                     role="menuitem"
@@ -367,7 +368,7 @@ export function Navbar() {
                 All Jewellery
               </Link>
               <div className="grid grid-cols-1 gap-1 pt-1">
-                {INITIAL_CATEGORIES.map((cat) => (
+                {categories.map((cat) => (
                   <Link
                     key={cat.id}
                     href={`/category/${cat.slug}`}

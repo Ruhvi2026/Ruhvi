@@ -15,7 +15,8 @@ import {
   RefreshCw,
   Sparkles,
 } from 'lucide-react';
-import { DEMO_PRODUCTS, INITIAL_CATEGORIES } from '@/lib/products';
+import { DEMO_PRODUCTS } from '@/lib/products';
+import { useTaxonomy } from '@/hooks/useTaxonomy';
 import { ProductCard } from '@/components/products/ProductCard';
 import { SpatialPage } from '@/components/design-system/SpatialPage';
 import { GlassPanel } from '@/components/design-system/GlassPanel';
@@ -29,6 +30,7 @@ function ProductsCatalogContent() {
   const searchParams = useSearchParams();
   const initialSearch = searchParams.get('search') || '';
   const initialCategory = searchParams.get('category') || 'all';
+  const { categories } = useTaxonomy();
 
   const [dbProducts, setDbProducts] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -262,7 +264,7 @@ function ProductsCatalogContent() {
                   className="w-full rounded-xl border border-gold-200/70 bg-white px-3 py-2.5 text-xs transition-all focus:outline-none focus:ring-2 focus:ring-gold-400/40"
                 >
                   <option value="all">All Categories</option>
-                  {INITIAL_CATEGORIES.map((cat) => (
+                  {categories.map((cat) => (
                     <option key={cat.id} value={cat.slug}>
                       {cat.name}
                     </option>
