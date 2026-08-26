@@ -13,6 +13,7 @@ import {
   Check,
 } from 'lucide-react';
 import Image from 'next/image';
+import { ImagePicker } from '@/components/admin/ImagePicker';
 
 export default function CategoryManagerPage() {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -46,6 +47,9 @@ export default function CategoryManagerPage() {
         .order('name');
       if (!error && data && data.length > 0) {
         setCategories(data);
+      } else if (!error && data && data.length === 0) {
+        await supabase.from('categories').insert(INITIAL_CATEGORIES);
+        setCategories(INITIAL_CATEGORIES);
       } else {
         setCategories(INITIAL_CATEGORIES);
       }
@@ -326,40 +330,11 @@ export default function CategoryManagerPage() {
                     placeholder="https://images.unsplash.com/photo-..."
                     className="flex-1 rounded-lg border border-stone-300 px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-amber-500"
                   />
-                  <input
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    id="category-image-upload"
-                    onChange={async (e) => {
-                      const file = e.target.files?.[0];
-                      if (file) {
-                        try {
-                          setIsUploadingImage(true);
-                          const { uploadProductImage } =
-                            await import('@/services/cloudinaryService');
-                          const uploadResult = await uploadProductImage(file);
-                          setImageUrl(uploadResult.secure_url);
-                        } catch (error: any) {
-                          alert('Cloudinary upload failed: ' + error.message);
-                        } finally {
-                          setIsUploadingImage(false);
-                        }
-                      }
-                    }}
+                  <ImagePicker
+                    onSelect={(url) => setImageUrl(url)}
+                    buttonLabel="Upload / Select"
+                    buttonClassName="flex shrink-0 cursor-pointer items-center justify-center gap-1 whitespace-nowrap rounded-lg border border-stone-300 bg-stone-100 px-4 text-xs font-semibold text-stone-700 transition-colors hover:bg-stone-200 hover:text-stone-900"
                   />
-                  <label
-                    htmlFor="category-image-upload"
-                    className={`flex shrink-0 cursor-pointer items-center justify-center gap-1 whitespace-nowrap rounded-lg border border-stone-300 bg-stone-100 px-4 text-xs font-semibold text-stone-700 transition-colors hover:bg-stone-200 hover:text-stone-900 ${isUploadingImage ? 'pointer-events-none opacity-50' : ''}`}
-                  >
-                    {isUploadingImage ? (
-                      <>Uploading...</>
-                    ) : (
-                      <>
-                        <ImageIcon className="h-3.5 w-3.5" /> Upload
-                      </>
-                    )}
-                  </label>
                 </div>
                 {imageUrl && (
                   <div className="relative mt-2 h-24 w-full overflow-hidden rounded-lg border border-stone-200 bg-stone-100">

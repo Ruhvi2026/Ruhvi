@@ -9,6 +9,7 @@ import { ImageType, Product } from '@/types/database';
 import { createClient } from '@/lib/supabase/client';
 import { AIProductAssistant } from '@/components/admin/AIProductAssistant';
 import { Product360Editor } from '@/components/admin/Product360Editor';
+import { ImagePicker } from '@/components/admin/ImagePicker';
 
 interface EditProductPageProps {
   params: Promise<{
@@ -361,34 +362,11 @@ export default function EditProductPage({ params }: EditProductPageProps) {
                 className="flex-1 rounded border border-stone-300 bg-white px-3 py-1.5 text-xs"
               />
 
-              <div className="relative">
-                <input
-                  type="file"
-                  accept="image/*"
-                  id={`file-upload-${idx}`}
-                  className="hidden"
-                  onChange={async (e) => {
-                    const file = e.target.files?.[0];
-                    if (!file) return;
-
-                    try {
-                      const { uploadProductImage } =
-                        await import('@/services/cloudinaryService');
-                      const uploadResult = await uploadProductImage(file);
-
-                      updateImage(idx, 'url', uploadResult.secure_url);
-                    } catch (error: any) {
-                      alert('Cloudinary upload failed: ' + error.message);
-                    }
-                  }}
-                />
-                <label
-                  htmlFor={`file-upload-${idx}`}
-                  className="block cursor-pointer whitespace-nowrap rounded bg-stone-200 px-3 py-1.5 text-center text-xs font-semibold text-stone-700 transition-colors hover:bg-stone-300"
-                >
-                  Upload File
-                </label>
-              </div>
+              <ImagePicker
+                onSelect={(url) => updateImage(idx, 'url', url)}
+                buttonLabel="Select Image"
+                buttonClassName="block whitespace-nowrap rounded bg-stone-200 px-3 py-1.5 text-center text-xs font-semibold text-stone-700 transition-colors hover:bg-stone-300"
+              />
 
               <select
                 value={img.type}

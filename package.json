@@ -23,6 +23,7 @@
     "@types/three": "^0.185.4",
     "@upstash/redis": "^1.38.2",
     "@vercel/speed-insights": "^2.0.0",
+    "cloudinary": "^2.10.1",
     "clsx": "^2.1.1",
     "firebase": "^12.18.0",
     "firebase-admin": "^14.2.0",
