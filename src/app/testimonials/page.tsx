@@ -1,7 +1,8 @@
 import React from 'react';
 import type { Metadata } from 'next';
-import { Star, ShieldCheck, PlayCircle } from 'lucide-react';
+import { Star, ShieldCheck } from 'lucide-react';
 import { createClient } from '@/lib/supabase/server';
+import { Breadcrumbs } from '@/components/seo/Breadcrumbs';
 
 export const metadata: Metadata = {
   title: 'Customer Testimonials | Ruhvi Fine Jewellery',
@@ -31,7 +32,15 @@ export default async function TestimonialsPage() {
     .order('created_at', { ascending: false });
 
   return (
-    <div className="min-h-screen bg-[#FAF6ED]">
+    <div className="min-h-screen bg-champagne-100">
+      <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">
+        <Breadcrumbs
+          items={[
+            { label: 'Home', url: '/' },
+            { label: 'Testimonials', url: '/testimonials' },
+          ]}
+        />
+      </div>
       {/* Header */}
       <div className="bg-stone-900 px-4 py-16 text-center">
         <h1 className="mb-4 font-serif text-4xl font-bold text-white sm:text-5xl">
@@ -80,15 +89,12 @@ export default async function TestimonialsPage() {
                   <div className="group relative mb-6 aspect-[4/5] overflow-hidden rounded-2xl bg-stone-900">
                     <video
                       src={testimonial.video_url}
-                      className="h-full w-full object-cover opacity-80 transition-opacity group-hover:opacity-100"
-                      muted
-                      loop
-                      autoPlay
+                      className="h-full w-full object-cover"
+                      controls
                       playsInline
+                      preload="metadata"
+                      poster={undefined}
                     />
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <PlayCircle className="h-12 w-12 text-white/80 transition-transform group-hover:scale-110" />
-                    </div>
                   </div>
                 )}
 

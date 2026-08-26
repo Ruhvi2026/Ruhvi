@@ -144,6 +144,12 @@ export default function CheckoutPage() {
     }
     if (payment) {
       window.history.replaceState({}, '', window.location.pathname);
+      // Reconcile checkout state after a gateway return: clear the pending
+      // order key on success; keep it on failure/pending so a retry reuses the
+      // same pending order instead of creating a duplicate.
+      if (payment === 'success') {
+        window.localStorage.removeItem('checkout_order_id');
+      }
     }
   }, []);
 
@@ -216,6 +222,56 @@ export default function CheckoutPage() {
   const [confirmationResult, setConfirmationResult] =
     useState<ConfirmationResult | null>(null);
   const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
+
+  // OTP modal refs for dialog semantics & focus management
+  const otpModalRef = useRef<HTMLDivElement>(null);
+  const otpInputRef = useRef<HTMLInputElement>(null);
+
+  // Prevents the order-create path from running twice for the same cart session
+  const orderCreateInFlight = useRef(false);
+
+  // OTP Modal: dialog semantics, ESC to close, and a basic focus trap
+  useEffect(() => {
+    if (!showOtpModal) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setShowOtpModal(false);
+        setOtpCode('');
+        return;
+      }
+      if (e.key === 'Tab') {
+        const modal = otpModalRef.current;
+        if (!modal) return;
+        const focusables = Array.from(
+          modal.querySelectorAll<HTMLElement>(
+            'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+          )
+        );
+        if (focusables.length === 0) return;
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    const focusTimer = window.setTimeout(
+      () => otpInputRef.current?.focus(),
+      50
+    );
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      window.clearTimeout(focusTimer);
+    };
+  }, [showOtpModal]);
 
   // Money Features State
   const [couponCode, setCouponCode] = useState('');
@@ -323,7 +379,7 @@ export default function CheckoutPage() {
     await applyCouponCode(couponCode);
   };
 
-  const handleAddAddress = (e: React.FormEvent) => {
+  const handleAddAddress = async (e: React.FormEvent) => {
     e.preventDefault();
     if (
       !newAddress.full_name ||
@@ -336,12 +392,49 @@ export default function CheckoutPage() {
       return;
     }
 
-    const created: Address = {
-      id: `addr-${Date.now()}`,
-      user_id: user?.id || profile?.id || auth?.currentUser?.uid || 'guest',
+    const userId = user?.id || profile?.id || auth?.currentUser?.uid;
+    const addressData = {
       ...newAddress,
       is_default: addresses.length === 0,
     };
+
+    let created: Address;
+
+    // Persist to the address book when authenticated (non-blocking on failure)
+    if (isLoggedIn && userId) {
+      try {
+        const supabase = createClient();
+        const { data, error } = await supabase
+          .from('addresses')
+          .insert({ user_id: userId, ...addressData })
+          .select('*')
+          .single();
+
+        if (error) {
+          console.error('Error saving address to Supabase:', error);
+          created = {
+            id: `addr-${Date.now()}`,
+            user_id: userId,
+            ...addressData,
+          };
+        } else {
+          created = data as Address;
+        }
+      } catch (err) {
+        console.error('Error saving address to Supabase:', err);
+        created = {
+          id: `addr-${Date.now()}`,
+          user_id: userId,
+          ...addressData,
+        };
+      }
+    } else {
+      created = {
+        id: `addr-${Date.now()}`,
+        user_id: userId || 'guest',
+        ...addressData,
+      };
+    }
 
     setAddresses((prev) => [...prev, created]);
     setSelectedAddressId(created.id);
@@ -369,14 +462,30 @@ export default function CheckoutPage() {
       return;
     }
 
-    if (paymentMethod === 'cod' && !isLoggedIn) {
-      toast.error('Login is required to place a Cash on Delivery order.');
-      return;
-    }
-
     if (paymentMethod === 'cod' && !turnstileToken) {
       toast.error('Please complete the security check.');
       return;
+    }
+
+    // Idempotency guard: never run the order-create path twice for the same
+    // cart session (prevents duplicate orders from double-submits).
+    if (orderCreateInFlight.current) {
+      toast.error('Your order is already being processed. Please wait.');
+      return;
+    }
+    orderCreateInFlight.current = true;
+
+    // Reuse a pending order id from a previous gateway attempt so a redirect
+    // back + retry does not create a duplicate order for the same cart session.
+    let pendingOrderId =
+      typeof window !== 'undefined'
+        ? window.localStorage.getItem('checkout_order_id')
+        : null;
+    if (!pendingOrderId && typeof window !== 'undefined') {
+      pendingOrderId = `chk_${Date.now()}_${Math.random()
+        .toString(36)
+        .slice(2, 10)}`;
+      window.localStorage.setItem('checkout_order_id', pendingOrderId);
     }
 
     setIsProcessing(true);
@@ -432,6 +541,7 @@ export default function CheckoutPage() {
             coupon_discount: couponDiscount,
             isPartialCod,
             prepaidAmount: isPartialCod ? phonePeAmount : undefined,
+            idempotencyKey: pendingOrderId,
           }),
         });
 
@@ -440,6 +550,12 @@ export default function CheckoutPage() {
           throw new Error(
             orderData.error || 'Failed to initialize PhonePe payment'
           );
+        }
+
+        // Persist the created order id so a gateway return can't create a duplicate
+        const createdOrderId = orderData.orderId || orderData.order?.id || null;
+        if (createdOrderId && typeof window !== 'undefined') {
+          window.localStorage.setItem('checkout_order_id', createdOrderId);
         }
 
         if (orderData.redirectUrl && !orderData.isSimulated) {
@@ -506,6 +622,7 @@ export default function CheckoutPage() {
         setConfirmationResult(confirmation);
         setShowOtpModal(true);
         setIsProcessing(false);
+        orderCreateInFlight.current = false;
       }
     } catch (err: any) {
       console.error('COD payment / OTP error:', err);
@@ -513,6 +630,7 @@ export default function CheckoutPage() {
         err.message || 'Payment processing failed. Please try again.'
       );
       setIsProcessing(false);
+      orderCreateInFlight.current = false;
       if (paymentMethod === 'cod') {
         turnstileRef.current?.reset();
         setTurnstileToken(null);
@@ -537,6 +655,11 @@ export default function CheckoutPage() {
 
   const finalizeOrder = async (phonepeDetails?: any) => {
     try {
+      const orderIdempotencyKey =
+        typeof window !== 'undefined'
+          ? window.localStorage.getItem('checkout_order_id')
+          : null;
+
       const response = await fetch('/api/checkout/verify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -553,6 +676,9 @@ export default function CheckoutPage() {
           coins_redeemed: coinsDiscount,
           coupon_discount: couponDiscount,
           total: totalPayable,
+          ...(orderIdempotencyKey
+            ? { idempotencyKey: orderIdempotencyKey }
+            : {}),
           ...phonepeDetails,
         }),
       });
@@ -560,6 +686,11 @@ export default function CheckoutPage() {
       const data = await response.json();
       if (!response.ok) {
         throw new Error(data.error || 'Failed to place order');
+      }
+
+      // Order placed successfully; clear the idempotency key
+      if (typeof window !== 'undefined') {
+        window.localStorage.removeItem('checkout_order_id');
       }
 
       // Store created order in localStorage for orders history demo view
@@ -576,6 +707,7 @@ export default function CheckoutPage() {
     } catch (err: any) {
       toast.error(err.message || 'Failed to save order.');
       setIsProcessing(false);
+      orderCreateInFlight.current = false;
     }
   };
 
@@ -600,7 +732,7 @@ export default function CheckoutPage() {
 
   return (
     <>
-      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl px-4 pb-28 pt-10 sm:px-6 lg:px-8 lg:pb-10">
         <div className="mb-8 flex items-center space-x-3 border-b border-stone-200 pb-6">
           <button
             onClick={() => router.push('/cart')}
@@ -611,6 +743,41 @@ export default function CheckoutPage() {
           <h1 className="font-serif text-3xl font-bold text-stone-900">
             Checkout
           </h1>
+        </div>
+
+        {/* Checkout Progress Indicator */}
+        <div className="mb-8" role="list" aria-label="Checkout progress steps">
+          <div className="flex items-center">
+            <div className="flex flex-col items-center">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-600 text-white">
+                <Check className="h-4 w-4" />
+              </div>
+              <span className="mt-1.5 text-xs font-bold uppercase tracking-wider text-emerald-700">
+                Cart
+              </span>
+            </div>
+            <div className="mx-2 mb-5 h-0.5 flex-1 rounded bg-emerald-600" />
+            <div className="flex flex-col items-center">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-amber-900 bg-amber-950 text-white">
+                <span className="text-xs font-bold">2</span>
+              </div>
+              <span className="mt-1.5 text-xs font-bold uppercase tracking-wider text-amber-900">
+                Details &amp; Address
+              </span>
+            </div>
+            <div className="mx-2 mb-5 h-0.5 flex-1 rounded bg-stone-200" />
+            <div className="flex flex-col items-center">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-stone-300 bg-white text-stone-400">
+                <span className="text-xs font-bold">3</span>
+              </div>
+              <span className="mt-1.5 text-xs font-bold uppercase tracking-wider text-stone-400">
+                Payment &amp; Review
+              </span>
+            </div>
+          </div>
+          <p className="mt-2 text-center text-xs font-medium text-stone-500">
+            Step <span className="font-bold text-stone-700">2</span> of 3
+          </p>
         </div>
 
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
@@ -695,7 +862,7 @@ export default function CheckoutPage() {
                       }`}
                     >
                       <div className="mb-2 flex items-start justify-between">
-                        <span className="rounded bg-stone-200 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-stone-800">
+                        <span className="rounded bg-stone-200 px-2 py-0.5 text-xs font-bold uppercase tracking-wider text-stone-800">
                           {addr.label}
                         </span>
                         {isAddressSelected && (
@@ -705,11 +872,11 @@ export default function CheckoutPage() {
                       <div className="text-xs font-semibold text-stone-900">
                         {addr.full_name}
                       </div>
-                      <div className="mt-1 text-[11px] leading-relaxed text-stone-600">
+                      <div className="mt-1 text-xs leading-relaxed text-stone-600">
                         {addr.line1}, {addr.line2 ? `${addr.line2}, ` : ''}
                         {addr.city}, {addr.state} - {addr.pincode}
                       </div>
-                      <div className="mt-2 font-mono text-[10px] text-stone-400">
+                      <div className="mt-2 font-mono text-xs text-stone-400">
                         {addr.phone}
                       </div>
                     </button>
@@ -917,11 +1084,21 @@ export default function CheckoutPage() {
                   Add Signature Ruhvi Velvet Box Gift Wrap & Personalized
                   Greeting Card
                 </span>
+                <span className="rounded bg-emerald-50 px-1.5 py-0.5 text-xs font-bold uppercase tracking-wider text-emerald-700">
+                  FREE
+                </span>
               </label>
 
               {giftWrap && (
                 <div className="pt-2">
+                  <label
+                    htmlFor="checkout-gift-message"
+                    className="mb-1 block text-xs font-semibold text-stone-800"
+                  >
+                    Personalized Gift Message
+                  </label>
                   <textarea
+                    id="checkout-gift-message"
                     rows={3}
                     placeholder="Enter your personalized gift message for the recipient..."
                     value={giftMessage}
@@ -1008,7 +1185,7 @@ export default function CheckoutPage() {
                           Pay with Ruhvi Wallet (Balance: ₹
                           {walletBalance.toFixed(2)})
                         </div>
-                        <div className="mt-0.5 text-[10px] font-semibold text-emerald-700">
+                        <div className="mt-0.5 text-xs font-semibold text-emerald-700">
                           Get 5% guaranteed cashback when you use your wallet!
                         </div>
                       </div>
@@ -1049,16 +1226,16 @@ export default function CheckoutPage() {
                 >
                   <div className="flex items-center space-x-3">
                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gold-100 font-serif text-base font-bold text-gold-800">
-                      ₱
+                      Pe
                     </div>
                     <div>
                       <div className="flex items-center gap-1.5 text-xs font-semibold text-stone-900">
                         <span>PhonePe Payment Gateway</span>
-                        <span className="rounded border border-gold-300/60 bg-gold-100 px-1.5 py-0.5 text-[9px] font-bold text-gold-800">
+                        <span className="rounded border border-gold-300/60 bg-gold-100 px-1.5 py-0.5 text-xs font-bold text-gold-800">
                           UPI / Cards / Wallet
                         </span>
                       </div>
-                      <div className="text-[10px] text-stone-500">
+                      <div className="text-xs text-stone-500">
                         Pay via PhonePe, GPay, Paytm, UPI Apps, Credit/Debit
                         Cards & NetBanking
                       </div>
@@ -1105,25 +1282,25 @@ export default function CheckoutPage() {
                         <span>Cash on Delivery (COD)</span>
                         {!isLoggedIn && (
                           <div className="flex items-center gap-1.5">
-                            <span className="rounded bg-amber-100 px-1.5 py-0.5 text-[9px] font-bold text-amber-900">
+                            <span className="rounded bg-amber-100 px-1.5 py-0.5 text-xs font-bold text-amber-900">
                               Log-in Required
                             </span>
                             <Link
                               href="/login?redirectTo=/checkout"
                               onClick={(e) => e.stopPropagation()}
-                              className="inline-flex items-center rounded bg-amber-950 px-2.5 py-0.5 text-[10px] font-bold text-white shadow-sm transition-colors hover:bg-amber-900"
+                              className="inline-flex items-center rounded bg-amber-950 px-2.5 py-0.5 text-xs font-bold text-white shadow-sm transition-colors hover:bg-amber-900"
                             >
                               Log In
                             </Link>
                           </div>
                         )}
                         {totalPayable > 2000 && isLoggedIn && (
-                          <span className="rounded bg-amber-100 px-1.5 py-0.5 text-[9px] font-bold text-amber-900">
+                          <span className="rounded bg-amber-100 px-1.5 py-0.5 text-xs font-bold text-amber-900">
                             10% Deposit Required
                           </span>
                         )}
                       </div>
-                      <div className="mt-1 text-[10px] text-stone-500">
+                      <div className="mt-1 text-xs text-stone-500">
                         {!isLoggedIn
                           ? 'Available for logged-in users only. Please log in or choose online payment.'
                           : totalPayable > 2000
@@ -1175,7 +1352,11 @@ export default function CheckoutPage() {
                   onSubmit={handleApplyCoupon}
                   className="flex items-center space-x-2 pb-2"
                 >
+                  <label htmlFor="checkout-coupon" className="sr-only">
+                    Promo code
+                  </label>
                   <input
+                    id="checkout-coupon"
                     type="text"
                     placeholder="Got a Promo Code?"
                     value={couponCode}
@@ -1208,7 +1389,7 @@ export default function CheckoutPage() {
                 {/* Available Coupons Option List */}
                 {availableCoupons.length > 0 && !appliedCoupon && (
                   <div className="mt-2 space-y-2 border-b border-stone-100 pb-3">
-                    <p className="text-[11px] font-bold uppercase tracking-wider text-stone-400">
+                    <p className="text-xs font-bold uppercase tracking-wider text-stone-400">
                       Available Coupons
                     </p>
                     <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
@@ -1219,17 +1400,17 @@ export default function CheckoutPage() {
                           onClick={() => applyCouponCode(coupon.code)}
                           className="flex flex-col items-start rounded-xl border border-dashed border-amber-300 bg-amber-50/50 p-2.5 text-left transition hover:bg-amber-50"
                         >
-                          <span className="rounded bg-amber-100 px-1.5 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider text-amber-900">
+                          <span className="rounded bg-amber-100 px-1.5 py-0.5 font-mono text-xs font-bold uppercase tracking-wider text-amber-900">
                             {coupon.code}
                           </span>
-                          <span className="mt-1 text-[11px] font-bold text-stone-800">
+                          <span className="mt-1 text-xs font-bold text-stone-800">
                             {coupon.title}
                           </span>
-                          <span className="mt-0.5 text-[10px] leading-tight text-stone-500">
+                          <span className="mt-0.5 text-xs leading-tight text-stone-500">
                             {coupon.description}
                           </span>
                           {coupon.min_order_value > 0 && (
-                            <span className="mt-1 text-[9px] font-semibold text-amber-800">
+                            <span className="mt-1 text-xs font-semibold text-amber-800">
                               Min Order: ₹{coupon.min_order_value}
                             </span>
                           )}
@@ -1274,7 +1455,7 @@ export default function CheckoutPage() {
                 )}
                 {coinsBalance > 0 && subtotalAfterCoupon < 250 && (
                   <div className="mb-2 rounded-xl border border-stone-100 bg-stone-50 p-3">
-                    <p className="flex items-center text-[10px] text-stone-500">
+                    <p className="flex items-center text-xs text-stone-500">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="12"
@@ -1322,11 +1503,20 @@ export default function CheckoutPage() {
                   </div>
                 )}
 
+                {giftWrap && (
+                  <div className="flex justify-between text-stone-600">
+                    <span>Gift Wrap &amp; Greeting Card</span>
+                    <span className="text-xs font-bold uppercase tracking-wider text-emerald-700">
+                      FREE
+                    </span>
+                  </div>
+                )}
+
                 <div className="flex justify-between text-stone-600">
                   <span>Shipping Fee</span>
                   <span>
                     {shippingCharge === 0 ? (
-                      <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-700">
+                      <span className="text-xs font-bold uppercase tracking-wider text-emerald-700">
                         FREE
                       </span>
                     ) : (
@@ -1398,10 +1588,51 @@ export default function CheckoutPage() {
                       : 'Place COD Order'}
               </button>
 
-              <div className="space-y-1 text-center text-[10px] text-stone-400">
-                <ShieldCheck className="mx-auto mb-1 h-4 w-4 text-amber-800" />
-                <p>100% Safe & Secure Checkout</p>
-                <p>Insured Shipping across India</p>
+              <div className="space-y-2 text-center text-xs text-stone-400">
+                <div className="flex items-center justify-center space-x-1.5">
+                  <Truck className="h-4 w-4 text-amber-800" />
+                  <p className="font-medium text-stone-500">
+                    Arrives by{' '}
+                    {new Date(
+                      Date.now() + 5 * 24 * 60 * 60 * 1000
+                    ).toLocaleDateString('en-IN', {
+                      weekday: 'short',
+                      day: 'numeric',
+                      month: 'short',
+                    })}
+                    {''} — free insured shipping
+                  </p>
+                </div>
+                <div className="flex items-center justify-center space-x-1.5">
+                  <ShieldCheck className="h-4 w-4 text-amber-800" />
+                  <p>100% Safe & Secure Checkout</p>
+                </div>
+                <div className="flex items-center justify-center space-x-1.5">
+                  <ShieldCheck className="h-4 w-4 text-amber-800" />
+                  <Link
+                    href="/return-policy"
+                    className="font-medium text-amber-900 underline-offset-2 hover:underline"
+                  >
+                    7-Day Return Guarantee
+                  </Link>
+                </div>
+                <div className="flex items-center justify-center space-x-2 pt-1">
+                  <span className="rounded border border-stone-200 bg-white px-1.5 py-0.5 text-xs font-bold uppercase tracking-wider text-emerald-700">
+                    UPI
+                  </span>
+                  <span className="rounded border border-stone-200 bg-white px-1.5 py-0.5 text-xs font-bold uppercase tracking-wider text-blue-700">
+                    Visa
+                  </span>
+                  <span className="rounded border border-stone-200 bg-white px-1.5 py-0.5 text-xs font-bold uppercase tracking-wider text-rose-700">
+                    MC
+                  </span>
+                  <span className="rounded border border-stone-200 bg-white px-1.5 py-0.5 text-xs font-bold uppercase tracking-wider text-sky-700">
+                    GPay
+                  </span>
+                  <span className="rounded border border-stone-200 bg-white px-1.5 py-0.5 text-xs font-bold uppercase tracking-wider text-amber-700">
+                    NetBanking
+                  </span>
+                </div>
               </div>
 
               <div id="recaptcha-container"></div>
@@ -1413,8 +1644,17 @@ export default function CheckoutPage() {
       {/* OTP Modal */}
       {showOtpModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl sm:p-8">
-            <h3 className="mb-2 font-serif text-xl font-bold text-stone-900">
+          <div
+            ref={otpModalRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="otp-modal-title"
+            className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl sm:p-8"
+          >
+            <h3
+              id="otp-modal-title"
+              className="mb-2 font-serif text-xl font-bold text-stone-900"
+            >
               Verify Your Phone Number
             </h3>
             <p className="mb-6 text-xs text-stone-600">
@@ -1424,6 +1664,7 @@ export default function CheckoutPage() {
             </p>
 
             <input
+              ref={otpInputRef}
               type="text"
               placeholder="Enter 6-digit OTP"
               value={otpCode}
@@ -1455,6 +1696,31 @@ export default function CheckoutPage() {
           </div>
         </div>
       )}
+
+      {/* Mobile sticky checkout bar (hidden on desktop) */}
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-stone-200 bg-white/95 px-4 py-3 shadow-lg backdrop-blur lg:hidden">
+        <div className="flex items-center justify-between space-x-3">
+          <div className="shrink-0">
+            <div className="text-xs font-bold uppercase tracking-wider text-stone-500">
+              Total Payable
+            </div>
+            <div className="font-serif text-lg font-bold text-amber-950">
+              ₹{totalPayable.toLocaleString('en-IN')}
+            </div>
+          </div>
+          <button
+            onClick={handlePlaceOrder}
+            disabled={isProcessing}
+            className="flex-1 rounded-xl bg-amber-950 py-3 text-xs font-bold uppercase tracking-widest text-amber-100 shadow-lg transition-all hover:bg-amber-900 disabled:opacity-50"
+          >
+            {isProcessing
+              ? 'Processing...'
+              : paymentMethod === 'phonepe'
+                ? 'Proceed to Pay'
+                : 'Place Order'}
+          </button>
+        </div>
+      </div>
     </>
   );
 }

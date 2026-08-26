@@ -6,15 +6,9 @@
  * to avoid exposing the Cloudinary API Secret.
  */
 
-// Use NEXT_PUBLIC_ for Next.js, fallback to VITE_ if in a Vite context
-const CLOUD_NAME =
-  process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME ||
-  process.env.VITE_CLOUDINARY_CLOUD_NAME ||
-  'tfelmupe';
+const CLOUD_NAME = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || 'tfelmupe';
 const UPLOAD_PRESET =
-  process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET ||
-  process.env.VITE_CLOUDINARY_UPLOAD_PRESET ||
-  'ruhvi_products';
+  process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || 'ruhvi_products';
 
 const CLOUDINARY_API_BASE = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}`;
 const CLOUDINARY_FETCH_BASE = `https://res.cloudinary.com/${CLOUD_NAME}/image/fetch`;

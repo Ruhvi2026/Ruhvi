@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import {
   Heart,
   Share2,
@@ -11,10 +12,15 @@ import {
   Bell,
   Check,
   ShoppingBag,
+  Minus,
+  Plus,
+  Zap,
 } from 'lucide-react';
 import { Product } from '@/types/database';
+import { ImageWithFallback } from '@/components/ui/ImageWithFallback';
 import { StockNotificationModal } from '@/components/products/StockNotificationModal';
 import { ProductImageGallery } from '@/components/products/ProductImageGallery';
+import { ProductReviews } from '@/components/products/ProductReviews';
 import { Product360Button } from '@/components/products/Product360Button';
 import { Product360Modal } from '@/components/products/Product360Modal';
 import { trackEvent } from '@/lib/analytics';
@@ -40,6 +46,8 @@ export function ProductDetailPageClient({
   const [recentlyViewed, setRecentlyViewed] = useState<Product[]>([]);
   const [is360ModalOpen, setIs360ModalOpen] = useState(false);
   const [activeAccordion, setActiveAccordion] = useState<string>('description');
+  const [quantity, setQuantity] = useState(1);
+  const router = useRouter();
   const { profile } = useAuth();
   const walletBalance = profile?.wallet_balance || 0;
 
@@ -93,6 +101,7 @@ export function ProductDetailPageClient({
   }, [product]);
 
   const handleShare = async () => {
+    if (typeof window === 'undefined') return;
     if (navigator.share) {
       try {
         await navigator.share({
@@ -100,28 +109,58 @@ export function ProductDetailPageClient({
           text: `Check out ${product.name} on Ruhvi Fine Jewellery`,
           url: window.location.href,
         });
+        return;
       } catch {
-        // Fallback
+        // Fallback to clipboard
       }
-    } else {
-      navigator.clipboard.writeText(window.location.href);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
     }
+    if (navigator.clipboard) {
+      try {
+        await navigator.clipboard.writeText(window.location.href);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      } catch {
+        // Clipboard failed
+      }
+    }
+  };
+
+  const handleWhatsAppShare = () => {
+    if (typeof window === 'undefined') return;
+    const url = window.location.href;
+    const message = `Check out ${product.name} on Ruhvi Fine Jewellery: ${url}`;
+    window.open(
+      `https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`,
+      '_blank',
+      'noopener,noreferrer'
+    );
   };
 
   const handleAddToCart = () => {
     if (!isOutOfStock) {
-      addToCart(product, 1);
+      addToCart(product, quantity);
       trackEvent('AddToCart', {
         content_name: product.name,
-        content_ids: [product.sku],
+        content_ids: [product.sku || product.id],
         content_type: 'product',
-        value: product.price,
+        value: product.price || 0,
         currency: 'INR',
       });
     }
   };
+
+  const handleBuyNow = () => {
+    if (isOutOfStock) return;
+    addToCart(product, quantity);
+    router.push('/checkout');
+  };
+
+  const maxQuantity = Math.max(1, product.stock_quantity ?? 1);
+
+  const incrementQuantity = () =>
+    setQuantity((q) => Math.min(maxQuantity, q + 1));
+
+  const decrementQuantity = () => setQuantity((q) => Math.max(1, q - 1));
 
   const handleToggleWishlist = () => {
     toggleWishlist(product);
@@ -133,32 +172,6 @@ export function ProductDetailPageClient({
   return (
     <main className="min-h-screen bg-cream-50 pb-20">
       <div className="mx-auto max-w-7xl space-y-12 px-4 py-8 sm:px-6 lg:px-8">
-        {/* Breadcrumb */}
-        <nav className="flex items-center space-x-2 text-xs text-slate-500">
-          <Link href="/" className="hover:text-gold-700">
-            Home
-          </Link>
-          <span>/</span>
-          <Link href="/products" className="hover:text-gold-700">
-            Products
-          </Link>
-          <span>/</span>
-          {product.category && (
-            <>
-              <Link
-                href={`/category/${product.category.slug}`}
-                className="hover:text-gold-700"
-              >
-                {product.category.name}
-              </Link>
-              <span>/</span>
-            </>
-          )}
-          <span className="truncate font-medium text-slate-800">
-            {product.name}
-          </span>
-        </nav>
-
         {/* Main Product Layout */}
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-2">
           {/* Left Column: Image Gallery */}
@@ -188,7 +201,7 @@ export function ProductDetailPageClient({
               <div className="flex items-start justify-between">
                 <div>
                   <span className="font-mono text-xs uppercase tracking-widest text-slate-400">
-                    {product.sku}
+                    {product.sku || 'RUHVI-COLLECTION'}
                   </span>
                   <h1 className="mt-1 font-serif text-2xl font-bold text-charcoal-900 sm:text-4xl">
                     {product.name}
@@ -196,16 +209,14 @@ export function ProductDetailPageClient({
                 </div>
 
                 <div className="flex items-center space-x-2">
-                  <a
-                    href={`https://api.whatsapp.com/send?text=${encodeURIComponent(`Check out ${product.name} on Ruhvi Fine Jewellery: ${typeof window !== 'undefined' ? window.location.href : ''}`)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <button
+                    onClick={handleWhatsAppShare}
                     className="flex items-center space-x-1 rounded-full bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white shadow-sm transition-colors hover:bg-emerald-700"
                     title="Share on WhatsApp"
                   >
                     <Share2 className="h-3.5 w-3.5" />
                     <span>WhatsApp</span>
-                  </a>
+                  </button>
 
                   <button
                     onClick={handleShare}
@@ -224,9 +235,9 @@ export function ProductDetailPageClient({
               {/* Price & Savings Breakdown */}
               <div className="mt-4 flex items-baseline space-x-3">
                 <span className="text-3xl font-bold text-charcoal-900">
-                  ₹{product.price.toLocaleString('en-IN')}
+                  ₹{(product.price ?? 0).toLocaleString('en-IN')}
                 </span>
-                {product.mrp > product.price && (
+                {product.mrp && product.mrp > product.price && (
                   <>
                     <span className="text-base text-slate-400 line-through">
                       ₹{product.mrp.toLocaleString('en-IN')}
@@ -244,8 +255,8 @@ export function ProductDetailPageClient({
               </div>
 
               <p className="mt-1 text-xs text-slate-500">
-                Price inclusive of all taxes (GST {product.gst_rate}% included)
-                & complimentary insured delivery.
+                Price inclusive of all taxes (GST {product.gst_rate ?? 3}%
+                included) & complimentary insured delivery.
               </p>
             </div>
 
@@ -260,6 +271,8 @@ export function ProductDetailPageClient({
                         activeAccordion === 'description' ? '' : 'description'
                       )
                     }
+                    aria-expanded={activeAccordion === 'description'}
+                    aria-controls="pdp-description-panel"
                     className="flex w-full items-center justify-between font-serif text-lg font-medium text-charcoal-900"
                   >
                     <span>Description</span>
@@ -268,8 +281,15 @@ export function ProductDetailPageClient({
                     </span>
                   </button>
                   {activeAccordion === 'description' && (
-                    <div className="animate-fade-in mt-4 space-y-4 text-sm font-light leading-relaxed text-slate-600">
-                      <p>{product.description}</p>
+                    <div
+                      id="pdp-description-panel"
+                      aria-hidden={activeAccordion !== 'description'}
+                      className="animate-fade-in mt-4 space-y-4 text-sm font-light leading-relaxed text-slate-600"
+                    >
+                      <p>
+                        {product.description ||
+                          'An exquisite handcrafted piece of fine jewellery with 22K pure gold plating, featuring an anti-tarnish protective finish and radiant shine.'}
+                      </p>
                       <ProductAttributes />
                     </div>
                   )}
@@ -283,6 +303,8 @@ export function ProductDetailPageClient({
                         activeAccordion === 'materials' ? '' : 'materials'
                       )
                     }
+                    aria-expanded={activeAccordion === 'materials'}
+                    aria-controls="pdp-materials-panel"
                     className="flex w-full items-center justify-between font-serif text-lg font-medium text-charcoal-900"
                   >
                     <span>Materials & Craftsmanship</span>
@@ -291,7 +313,11 @@ export function ProductDetailPageClient({
                     </span>
                   </button>
                   {activeAccordion === 'materials' && (
-                    <div className="animate-fade-in mt-4 text-sm font-light leading-relaxed text-slate-600">
+                    <div
+                      id="pdp-materials-panel"
+                      aria-hidden={activeAccordion !== 'materials'}
+                      className="animate-fade-in mt-4 text-sm font-light leading-relaxed text-slate-600"
+                    >
                       <p>
                         Handcrafted with precision, this piece is made from a
                         premium brass base and thickly plated with 22K pure gold
@@ -311,6 +337,8 @@ export function ProductDetailPageClient({
                         activeAccordion === 'care' ? '' : 'care'
                       )
                     }
+                    aria-expanded={activeAccordion === 'care'}
+                    aria-controls="pdp-care-panel"
                     className="flex w-full items-center justify-between font-serif text-lg font-medium text-charcoal-900"
                   >
                     <span>Care Instructions</span>
@@ -319,7 +347,11 @@ export function ProductDetailPageClient({
                     </span>
                   </button>
                   {activeAccordion === 'care' && (
-                    <div className="animate-fade-in mt-4 text-sm font-light leading-relaxed text-slate-600">
+                    <div
+                      id="pdp-care-panel"
+                      aria-hidden={activeAccordion !== 'care'}
+                      className="animate-fade-in mt-4 text-sm font-light leading-relaxed text-slate-600"
+                    >
                       <ul className="list-inside list-disc space-y-1">
                         <li>
                           Store in the provided Ruhvi velvet pouch when not in
@@ -358,17 +390,43 @@ export function ProductDetailPageClient({
                     </div>
                   )}
 
+                  <div className="flex items-center space-x-4">
+                    <div className="flex items-center rounded-lg border border-gold-300/60 bg-white shadow-sm">
+                      <button
+                        type="button"
+                        onClick={decrementQuantity}
+                        disabled={quantity <= 1}
+                        className="flex h-11 w-10 items-center justify-center text-slate-600 transition hover:text-charcoal-900 disabled:opacity-40"
+                        aria-label="Decrease quantity"
+                      >
+                        <Minus className="h-4 w-4" />
+                      </button>
+                      <span className="w-10 text-center font-mono text-sm font-semibold text-charcoal-900">
+                        {quantity}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={incrementQuantity}
+                        disabled={quantity >= maxQuantity}
+                        className="flex h-11 w-10 items-center justify-center text-slate-600 transition hover:text-charcoal-900 disabled:opacity-40"
+                        aria-label="Increase quantity"
+                      >
+                        <Plus className="h-4 w-4" />
+                      </button>
+                    </div>
+
+                    <span className="text-xs text-slate-500">
+                      {maxQuantity} in stock
+                    </span>
+                  </div>
+
                   <div className="flex space-x-3">
                     <button
-                      onClick={handleAddToCart}
-                      className="flex flex-1 items-center justify-center space-x-2 bg-charcoal-900 py-4 text-xs font-bold uppercase tracking-[0.15em] text-white shadow-xl transition-all hover:-translate-y-0.5 hover:bg-charcoal-800"
+                      onClick={handleBuyNow}
+                      className="flex flex-1 items-center justify-center space-x-2 bg-gold-700 py-4 text-xs font-bold uppercase tracking-[0.15em] text-white shadow-xl transition-all hover:-translate-y-0.5 hover:bg-gold-800"
                     >
-                      {isInCart ? (
-                        <Check className="h-4 w-4 text-champagne-300" />
-                      ) : (
-                        <ShoppingBag className="h-4 w-4" />
-                      )}
-                      <span>{isInCart ? 'Added to Cart' : 'Add to Cart'}</span>
+                      <Zap className="h-4 w-4" />
+                      <span>Buy Now</span>
                     </button>
 
                     <button
@@ -381,6 +439,18 @@ export function ProductDetailPageClient({
                       />
                     </button>
                   </div>
+
+                  <button
+                    onClick={handleAddToCart}
+                    className="flex w-full items-center justify-center space-x-2 bg-charcoal-900 py-3.5 text-xs font-bold uppercase tracking-[0.15em] text-white shadow-xl transition-all hover:-translate-y-0.5 hover:bg-charcoal-800"
+                  >
+                    {isInCart ? (
+                      <Check className="h-4 w-4 text-champagne-300" />
+                    ) : (
+                      <ShoppingBag className="h-4 w-4" />
+                    )}
+                    <span>{isInCart ? 'Added to Cart' : 'Add to Cart'}</span>
+                  </button>
 
                   {product.stock_quantity !== undefined &&
                     product.stock_quantity > 0 &&
@@ -425,36 +495,44 @@ export function ProductDetailPageClient({
           </div>
         </div>
 
+        {/* Reviews & Ratings Section */}
+        <ProductReviews productId={product.id} productName={product.name} />
+
         {/* Related Products Section - 3D Carousel */}
         {relatedProducts.length > 0 && (
           <section className="pt-12">
             <Carousel3D title="You May Also Like" viewAllHref="/products">
-              {relatedProducts.map((p) => (
-                <Link
-                  key={p.id}
-                  href={`/products/${p.slug}`}
-                  className="group min-w-[200px] flex-shrink-0 overflow-hidden rounded-2xl border border-gold-200/60 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-gold-400 hover:shadow-xl hover:shadow-gold-500/15 sm:min-w-[240px]"
-                  style={{ scrollSnapAlign: 'start' }}
-                >
-                  <div className="aspect-square overflow-hidden bg-gold-50/60">
-                    {p.images && p.images[0] && (
-                      <img
-                        src={p.images[0].url}
+              {relatedProducts.map((p) => {
+                const pImg =
+                  p.images?.[0]?.url ||
+                  'https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=800&q=80';
+                return (
+                  <Link
+                    key={p.id}
+                    href={`/products/${p.slug || p.id}`}
+                    className="group min-w-[200px] flex-shrink-0 overflow-hidden rounded-2xl border border-gold-200/60 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-gold-400 hover:shadow-xl hover:shadow-gold-500/15 sm:min-w-[240px]"
+                    style={{ scrollSnapAlign: 'start' }}
+                  >
+                    <div className="relative aspect-square overflow-hidden bg-gold-50/60">
+                      <ImageWithFallback
+                        src={pImg}
                         alt={p.name}
-                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        fill
+                        sizes="(max-width: 768px) 50vw, 240px"
+                        className="object-cover transition-transform duration-500 group-hover:scale-105"
                       />
-                    )}
-                  </div>
-                  <div className="p-3">
-                    <h4 className="line-clamp-1 text-xs font-semibold text-slate-800 group-hover:text-gold-700">
-                      {p.name}
-                    </h4>
-                    <div className="mt-1 text-xs font-bold text-slate-900">
-                      ₹{p.price.toLocaleString('en-IN')}
                     </div>
-                  </div>
-                </Link>
-              ))}
+                    <div className="p-3">
+                      <h4 className="line-clamp-1 text-xs font-semibold text-slate-800 group-hover:text-gold-700">
+                        {p.name}
+                      </h4>
+                      <div className="mt-1 text-xs font-bold text-slate-900">
+                        ₹{(p.price ?? 0).toLocaleString('en-IN')}
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })}
             </Carousel3D>
           </section>
         )}
@@ -466,29 +544,36 @@ export function ProductDetailPageClient({
               Recently Viewed
             </h2>
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-              {recentlyViewed.map((p) => (
-                <Link
-                  key={p.id}
-                  href={`/products/${p.slug}`}
-                  className="flex items-center space-x-3 rounded-xl border border-gold-200/70 bg-cream-50 p-3 transition-colors hover:border-gold-400"
-                >
-                  {p.images && p.images[0] && (
-                    <img
-                      src={p.images[0].url}
-                      alt={p.name}
-                      className="h-12 w-12 rounded-md object-cover"
-                    />
-                  )}
-                  <div>
-                    <h4 className="line-clamp-1 text-xs font-semibold text-slate-800">
-                      {p.name}
-                    </h4>
-                    <div className="text-xs font-bold text-slate-900">
-                      ₹{p.price.toLocaleString('en-IN')}
+              {recentlyViewed.map((p) => {
+                const pImg =
+                  p.images?.[0]?.url ||
+                  'https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=800&q=80';
+                return (
+                  <Link
+                    key={p.id}
+                    href={`/products/${p.slug || p.id}`}
+                    className="flex items-center space-x-3 rounded-xl border border-gold-200/70 bg-cream-50 p-3 transition-colors hover:border-gold-400"
+                  >
+                    <div className="relative h-12 w-12 flex-shrink-0 overflow-hidden rounded-md">
+                      <ImageWithFallback
+                        src={pImg}
+                        alt={p.name}
+                        fill
+                        sizes="48px"
+                        className="object-cover"
+                      />
                     </div>
-                  </div>
-                </Link>
-              ))}
+                    <div>
+                      <h4 className="line-clamp-1 text-xs font-semibold text-slate-800">
+                        {p.name}
+                      </h4>
+                      <div className="text-xs font-bold text-slate-900">
+                        ₹{(p.price ?? 0).toLocaleString('en-IN')}
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })}
             </div>
           </section>
         )}
@@ -514,7 +599,7 @@ export function ProductDetailPageClient({
           <div className="flex flex-col">
             <span className="text-xs text-slate-500">Price</span>
             <span className="text-lg font-bold text-charcoal-900">
-              ₹{product.price.toLocaleString('en-IN')}
+              ₹{(product.price ?? 0).toLocaleString('en-IN')}
             </span>
           </div>
           <button

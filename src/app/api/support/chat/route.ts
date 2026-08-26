@@ -919,7 +919,7 @@ Rules for action field:
     const content = await generateAIContent('chatbot', prompt);
 
     // Parse the AI response
-    let aiResponse = {
+    const aiResponse = {
       response:
         "Thank you for reaching out! I'm having a moment — please try again shortly, or our team is always available on WhatsApp.",
       action: 'none' as string,

@@ -18,6 +18,7 @@ import { Order } from '@/types/database';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
 import { createClient } from '@/lib/supabase/client';
+import { ImageWithFallback } from '@/components/ui/ImageWithFallback';
 
 export default function OrderDetailsPage({
   params,
@@ -91,7 +92,7 @@ export default function OrderDetailsPage({
     };
   }, [orderId, user]);
 
-  const handleCancelOrder = () => {
+  const handleCancelOrder = async () => {
     if (!order) return;
 
     if (order.status === 'shipped' || order.status === 'delivered') {
@@ -101,23 +102,45 @@ export default function OrderDetailsPage({
       return;
     }
 
-    if (confirm('Are you sure you want to cancel this order?')) {
-      const updatedOrder: Order = { ...order, status: 'cancelled' };
-      setOrder(updatedOrder);
+    if (!confirm('Are you sure you want to cancel this order?')) return;
 
-      // Update in localStorage
+    const updatedOrder: Order = { ...order, status: 'cancelled' };
+    setOrder(updatedOrder);
+
+    if (user) {
       try {
-        const saved = JSON.parse(
-          localStorage.getItem('ruhvi_orders_v1') || '[]'
+        const supabase = createClient();
+        const { error } = await supabase
+          .from('orders')
+          .update({
+            status: 'cancelled',
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', order.id)
+          .eq('user_id', user.id);
+
+        if (error) throw error;
+        setActionMessage('Order has been successfully cancelled.');
+      } catch (err) {
+        console.error('Failed to cancel order:', err);
+        setOrder(order);
+        setActionMessage(
+          'Failed to cancel the order. Please contact support@ruhvi.in for assistance.'
         );
-        const updated = saved.map((o: Order) =>
-          o.id === order.id ? updatedOrder : o
-        );
-        localStorage.setItem('ruhvi_orders_v1', JSON.stringify(updated));
-      } catch (e) {
-        console.error(e);
       }
+      return;
+    }
+
+    // Guest fallback — update the locally stored preview order
+    try {
+      const saved = JSON.parse(localStorage.getItem('ruhvi_orders_v1') || '[]');
+      const updated = saved.map((o: Order) =>
+        o.id === order.id ? updatedOrder : o
+      );
+      localStorage.setItem('ruhvi_orders_v1', JSON.stringify(updated));
       setActionMessage('Order has been successfully cancelled.');
+    } catch (e) {
+      console.error(e);
     }
   };
 
@@ -175,7 +198,7 @@ export default function OrderDetailsPage({
             <ArrowLeft className="h-5 w-5" />
           </button>
           <div>
-            <span className="block font-mono text-[10px] uppercase text-stone-400">
+            <span className="block font-mono text-xs uppercase text-stone-400">
               Order Details
             </span>
             <h1 className="font-serif text-2xl font-bold text-stone-900 sm:text-3xl">
@@ -204,7 +227,7 @@ export default function OrderDetailsPage({
         <h3 className="text-xs font-semibold uppercase tracking-wider text-stone-700">
           Order Progress
         </h3>
-        <div className="grid grid-cols-4 gap-2 text-center text-[10px]">
+        <div className="grid grid-cols-4 gap-2 text-center text-xs">
           <div
             className={`rounded-lg p-2 ${order.status !== 'cancelled' ? 'bg-emerald-50 font-bold text-emerald-800' : 'bg-stone-100 text-stone-400'}`}
           >
@@ -242,18 +265,20 @@ export default function OrderDetailsPage({
                   key={item.id}
                   className="flex items-center space-x-4 border-b border-stone-100 pb-4 last:border-0 last:pb-0"
                 >
-                  <div className="h-20 w-20 flex-shrink-0 overflow-hidden rounded-xl border border-stone-100 bg-stone-100">
-                    <img
+                  <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-xl border border-stone-100 bg-stone-100">
+                    <ImageWithFallback
                       src={
                         item.product?.images?.[0]?.url ||
                         'https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=800&q=80'
                       }
                       alt={item.sku}
-                      className="h-full w-full object-cover"
+                      fill
+                      sizes="80px"
+                      className="object-cover"
                     />
                   </div>
                   <div className="flex-1">
-                    <span className="font-mono text-[10px] uppercase text-stone-400">
+                    <span className="font-mono text-xs uppercase text-stone-400">
                       {item.sku}
                     </span>
                     <h4 className="text-sm font-semibold text-stone-900">
@@ -357,7 +382,7 @@ export default function OrderDetailsPage({
                   <span>-₹{order.wallet_used.toLocaleString('en-IN')}</span>
                 </div>
               )}
-              <div className="flex justify-between text-[11px] text-stone-400">
+              <div className="flex justify-between text-xs text-stone-400">
                 <span>GST (3% Included)</span>
                 <span>₹{order.gst_amount.toLocaleString('en-IN')}</span>
               </div>
@@ -372,7 +397,7 @@ export default function OrderDetailsPage({
               </div>
             </div>
 
-            <div className="pt-2 text-[10px] font-semibold uppercase tracking-wider text-stone-500">
+            <div className="pt-2 text-xs font-semibold uppercase tracking-wider text-stone-500">
               Payment Method:{' '}
               <span className="font-bold text-stone-900">
                 {order.payment_method.toUpperCase()}
@@ -385,15 +410,9 @@ export default function OrderDetailsPage({
           <div className="space-y-3">
             {order.payment_status === 'pending' &&
               order.payment_method === 'cod' && (
-                <button
-                  onClick={() => {
-                    alert('Redirecting to Payment Gateway...');
-                    // In a real app, this would initialize PhonePe and redirect
-                  }}
-                  className="flex w-full items-center justify-center space-x-2 rounded-xl bg-emerald-700 py-3 text-xs font-bold uppercase tracking-widest text-white shadow transition-all hover:bg-emerald-800"
-                >
-                  <span>Pay Now Securely</span>
-                </button>
+                <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-center text-xs font-medium text-amber-900">
+                  Cash on Delivery — please pay when your order arrives.
+                </div>
               )}
 
             <button
@@ -413,7 +432,7 @@ export default function OrderDetailsPage({
                 <span>Cancel Order</span>
               </button>
             ) : (
-              <div className="py-2 text-center text-[10px] text-stone-400">
+              <div className="py-2 text-center text-xs text-stone-400">
                 Order status is{' '}
                 <span className="font-bold">{order.status}</span> (Cancellation
                 unavailable).

@@ -1,13 +1,28 @@
-'use client';
-
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import type { Metadata } from 'next';
 import { BookOpen, ArrowRight, Calendar } from 'lucide-react';
+import { createClient } from '@/lib/supabase/server';
 
-const MOCK_POSTS = [
+export const metadata: Metadata = {
+  title: 'The Ruhvi Journal | Ruhvi Fine Jewellery',
+  description:
+    'Stories of craftsmanship, styling tips, and guides to understanding fine jewellery from Ruhvi.',
+  alternates: { canonical: '/blog' },
+  openGraph: {
+    title: 'The Ruhvi Journal',
+    description:
+      'Stories of craftsmanship, styling tips, and guides to understanding fine jewellery from Ruhvi.',
+    type: 'website',
+    url: '/blog',
+    siteName: 'Ruhvi Fine Jewellery',
+  },
+};
+
+const FALLBACK_POSTS = [
   {
-    slug: 'how-to-care-for-18k-gold-jewellery',
+    slug: 'how-to-care-for-22k-gold-jewellery',
     title: 'How to Care for Your 22K Gold Jewellery at Home',
     excerpt:
       'Keep your Ruhvi pieces shining forever with these simple, expert-approved home cleaning techniques.',
@@ -38,17 +53,53 @@ const MOCK_POSTS = [
   },
 ];
 
-export default function BlogIndexPage() {
+interface BlogPostRow {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string | null;
+  cover_image: string | null;
+  published_at: string | null;
+}
+
+export default async function BlogIndexPage() {
+  let posts = FALLBACK_POSTS;
+
+  try {
+    const supabase = await createClient();
+    const { data } = await supabase
+      .from('blog_posts')
+      .select('title, slug, excerpt, cover_image, published_at')
+      .eq('is_published', true)
+      .order('published_at', { ascending: false })
+      .limit(9);
+
+    if (data && data.length > 0) {
+      posts = (data as BlogPostRow[]).map((p) => ({
+        slug: p.slug,
+        title: p.title,
+        excerpt: p.excerpt || '',
+        cover_image:
+          p.cover_image ||
+          'https://images.unsplash.com/photo-1599643478524-fb66f70a0066?auto=format&fit=crop&q=80',
+        published_at: p.published_at || new Date().toISOString(),
+        category: 'Journal',
+      }));
+    }
+  } catch (err) {
+    console.error('Failed to load blog posts:', err);
+  }
+
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
-      <div className="border-b border-stone-200 bg-[#FAF6ED] px-4 py-20 text-center">
+      <div className="border-b border-taupe-200 bg-champagne-100 px-4 py-20 text-center">
         <div className="mx-auto max-w-3xl space-y-6">
-          <BookOpen className="mx-auto h-8 w-8 text-amber-900" />
-          <h1 className="font-serif text-4xl font-bold text-stone-900 sm:text-5xl">
+          <BookOpen className="mx-auto h-8 w-8 text-gold-700" />
+          <h1 className="font-serif text-4xl font-bold text-charcoal-900 sm:text-5xl">
             The Ruhvi Journal
           </h1>
-          <p className="text-lg text-stone-600">
+          <p className="text-lg text-charcoal-600">
             Stories of craftsmanship, styling tips, and guides to understanding
             fine jewellery.
           </p>
@@ -58,14 +109,11 @@ export default function BlogIndexPage() {
       {/* Blog Grid */}
       <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-12 md:grid-cols-2 lg:grid-cols-3">
-          {MOCK_POSTS.map((post) => (
-            <article
-              key={post.slug}
-              className="group flex h-full cursor-pointer flex-col"
-            >
+          {posts.map((post) => (
+            <article key={post.slug} className="group flex h-full flex-col">
               <Link
                 href={`/blog/${post.slug}`}
-                className="relative mb-6 block aspect-[4/3] overflow-hidden rounded-2xl bg-stone-100"
+                className="relative mb-6 block aspect-[4/3] overflow-hidden rounded-2xl bg-taupe-100"
               >
                 <Image
                   src={post.cover_image}
@@ -73,13 +121,13 @@ export default function BlogIndexPage() {
                   fill
                   className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                 />
-                <div className="absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-stone-900 backdrop-blur-sm">
+                <div className="absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-charcoal-900 backdrop-blur-sm">
                   {post.category}
                 </div>
               </Link>
 
               <div className="flex flex-grow flex-col">
-                <div className="mb-3 flex items-center space-x-2 font-mono text-xs uppercase text-stone-400">
+                <div className="mb-3 flex items-center space-x-2 font-mono text-xs uppercase text-charcoal-400">
                   <Calendar className="h-3.5 w-3.5" />
                   <span>
                     {new Date(post.published_at).toLocaleDateString('en-IN', {
@@ -91,19 +139,19 @@ export default function BlogIndexPage() {
                 </div>
 
                 <Link href={`/blog/${post.slug}`}>
-                  <h2 className="mb-3 line-clamp-2 font-serif text-2xl font-bold text-stone-900 transition-colors group-hover:text-amber-900">
+                  <h2 className="mb-3 line-clamp-2 font-serif text-2xl font-bold text-charcoal-900 transition-colors group-hover:text-gold-700">
                     {post.title}
                   </h2>
                 </Link>
 
-                <p className="mb-6 line-clamp-3 text-sm leading-relaxed text-stone-600">
+                <p className="mb-6 line-clamp-3 text-sm leading-relaxed text-charcoal-600">
                   {post.excerpt}
                 </p>
 
                 <div className="mt-auto">
                   <Link
                     href={`/blog/${post.slug}`}
-                    className="inline-flex items-center space-x-2 text-xs font-bold uppercase tracking-wider text-amber-900 transition-all group-hover:space-x-3"
+                    className="inline-flex items-center space-x-2 text-xs font-bold uppercase tracking-wider text-gold-700 transition-all group-hover:space-x-3"
                   >
                     <span>Read Article</span>
                     <ArrowRight className="h-4 w-4" />

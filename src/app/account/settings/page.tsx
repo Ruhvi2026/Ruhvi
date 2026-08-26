@@ -426,12 +426,16 @@ export default function SettingsPage() {
 
     try {
       setChangingPass(true);
-      const { createClient } = await import('@/lib/supabase/client');
-      const supabase = createClient();
-      const { error } = await supabase.auth.updateUser({
-        password: newPassword,
+      const response = await fetch('/api/auth/change-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: newPassword }),
       });
-      if (error) throw error;
+
+      const result = await response.json();
+      if (!response.ok)
+        throw new Error(result.error || 'Failed to update password');
+
       toast.success('Password updated successfully');
       setShowPasswordModal(false);
       setNewPassword('');
@@ -1058,10 +1062,14 @@ export default function SettingsPage() {
             </h3>
             <form onSubmit={handlePasswordChange} className="space-y-4 text-sm">
               <div>
-                <label className="mb-1.5 block font-semibold text-stone-800 dark:text-stone-200">
+                <label
+                  htmlFor="settings-new-password"
+                  className="mb-1.5 block font-semibold text-stone-800 dark:text-stone-200"
+                >
                   {t.newPasswordLabel}
                 </label>
                 <input
+                  id="settings-new-password"
                   type="password"
                   required
                   value={newPassword}
@@ -1071,10 +1079,14 @@ export default function SettingsPage() {
                 />
               </div>
               <div>
-                <label className="mb-1.5 block font-semibold text-stone-800 dark:text-stone-200">
+                <label
+                  htmlFor="settings-confirm-password"
+                  className="mb-1.5 block font-semibold text-stone-800 dark:text-stone-200"
+                >
                   {t.confirmPasswordLabel}
                 </label>
                 <input
+                  id="settings-confirm-password"
                   type="password"
                   required
                   value={confirmPassword}

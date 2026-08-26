@@ -233,19 +233,20 @@ function NavLink({ item, collapsed }: { item: NavItem; collapsed: boolean }) {
   );
 }
 
-export default function AdminLayout({
-  children,
+function AdminSidebarContent({
+  collapsed,
+  onToggleCollapsed,
+  userInitial,
+  userEmail,
+  signOut,
 }: {
-  children: React.ReactNode;
+  collapsed: boolean;
+  onToggleCollapsed: () => void;
+  userInitial: string;
+  userEmail: string;
+  signOut: () => Promise<void>;
 }) {
-  const [collapsed, setCollapsed] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const { user, signOut } = useAuth();
-
-  const userInitial = user?.email?.charAt(0).toUpperCase() || 'A';
-  const userEmail = user?.email || '';
-
-  const SidebarContent = () => (
+  return (
     <div className="flex h-full flex-col">
       {/* Logo */}
       <div className="flex h-14 flex-shrink-0 items-center gap-3 border-b border-white/5 px-4">
@@ -269,7 +270,7 @@ export default function AdminLayout({
         </Link>
         {!collapsed && (
           <button
-            onClick={() => setCollapsed(true)}
+            onClick={onToggleCollapsed}
             className="ml-auto text-slate-600 transition-colors hover:text-slate-400"
             title="Collapse sidebar"
           >
@@ -329,7 +330,7 @@ export default function AdminLayout({
         )}
         {collapsed && (
           <button
-            onClick={() => setCollapsed(false)}
+            onClick={onToggleCollapsed}
             className="flex w-full items-center justify-center rounded-lg p-2 text-slate-600 transition-colors hover:bg-white/5 hover:text-white"
             title="Expand sidebar"
           >
@@ -339,6 +340,19 @@ export default function AdminLayout({
       </div>
     </div>
   );
+}
+
+export default function AdminLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const [collapsed, setCollapsed] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const { user, signOut } = useAuth();
+
+  const userInitial = user?.email?.charAt(0).toUpperCase() || 'A';
+  const userEmail = user?.email || '';
 
   return (
     <div
@@ -351,7 +365,13 @@ export default function AdminLayout({
           collapsed ? 'w-16' : 'w-60'
         }`}
       >
-        <SidebarContent />
+        <AdminSidebarContent
+          collapsed={collapsed}
+          onToggleCollapsed={() => setCollapsed(!collapsed)}
+          userInitial={userInitial}
+          userEmail={userEmail}
+          signOut={signOut}
+        />
       </aside>
 
       {/* Mobile Sidebar */}
@@ -368,7 +388,13 @@ export default function AdminLayout({
             >
               <X className="h-5 w-5" />
             </button>
-            <SidebarContent />
+            <AdminSidebarContent
+              collapsed={collapsed}
+              onToggleCollapsed={() => setCollapsed(!collapsed)}
+              userInitial={userInitial}
+              userEmail={userEmail}
+              signOut={signOut}
+            />
           </aside>
         </div>
       )}

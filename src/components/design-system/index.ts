@@ -1,5 +1,3 @@
-'use client';
-
 export { FloatingParticles } from './FloatingParticles';
 export { GlassPanel } from './GlassPanel';
 export { DepthCard } from './DepthCard';

@@ -268,10 +268,14 @@ export default function AddressBookPage() {
 
           <div className="grid grid-cols-1 gap-4 text-xs sm:grid-cols-2">
             <div>
-              <label className="mb-1 block font-semibold text-stone-700">
+              <label
+                htmlFor="address-label"
+                className="mb-1 block font-semibold text-stone-700"
+              >
                 Address Label
               </label>
               <select
+                id="address-label"
                 value={formData.label}
                 onChange={(e) =>
                   setFormData({ ...formData, label: e.target.value })
@@ -285,10 +289,14 @@ export default function AddressBookPage() {
             </div>
 
             <div>
-              <label className="mb-1 block font-semibold text-stone-700">
+              <label
+                htmlFor="address-full-name"
+                className="mb-1 block font-semibold text-stone-700"
+              >
                 Full Name *
               </label>
               <input
+                id="address-full-name"
                 type="text"
                 required
                 value={formData.full_name}
@@ -300,10 +308,14 @@ export default function AddressBookPage() {
             </div>
 
             <div>
-              <label className="mb-1 block font-semibold text-stone-700">
+              <label
+                htmlFor="address-phone"
+                className="mb-1 block font-semibold text-stone-700"
+              >
                 Phone Number *
               </label>
               <input
+                id="address-phone"
                 type="tel"
                 required
                 value={formData.phone}
@@ -315,10 +327,14 @@ export default function AddressBookPage() {
             </div>
 
             <div>
-              <label className="mb-1 block font-semibold text-stone-700">
+              <label
+                htmlFor="address-line1"
+                className="mb-1 block font-semibold text-stone-700"
+              >
                 Address Line 1 *
               </label>
               <input
+                id="address-line1"
                 type="text"
                 required
                 value={formData.line1}
@@ -330,10 +346,14 @@ export default function AddressBookPage() {
             </div>
 
             <div>
-              <label className="mb-1 block font-semibold text-stone-700">
+              <label
+                htmlFor="address-line2"
+                className="mb-1 block font-semibold text-stone-700"
+              >
                 Address Line 2 (Optional)
               </label>
               <input
+                id="address-line2"
                 type="text"
                 value={formData.line2}
                 onChange={(e) =>
@@ -344,10 +364,14 @@ export default function AddressBookPage() {
             </div>
 
             <div>
-              <label className="mb-1 block font-semibold text-stone-700">
+              <label
+                htmlFor="address-city"
+                className="mb-1 block font-semibold text-stone-700"
+              >
                 City *
               </label>
               <input
+                id="address-city"
                 type="text"
                 required
                 value={formData.city}
@@ -359,10 +383,14 @@ export default function AddressBookPage() {
             </div>
 
             <div>
-              <label className="mb-1 block font-semibold text-stone-700">
+              <label
+                htmlFor="address-state"
+                className="mb-1 block font-semibold text-stone-700"
+              >
                 State *
               </label>
               <input
+                id="address-state"
                 type="text"
                 required
                 value={formData.state}
@@ -374,10 +402,14 @@ export default function AddressBookPage() {
             </div>
 
             <div>
-              <label className="mb-1 block font-semibold text-stone-700">
+              <label
+                htmlFor="address-pincode"
+                className="mb-1 block font-semibold text-stone-700"
+              >
                 Pincode *
               </label>
               <input
+                id="address-pincode"
                 type="text"
                 required
                 value={formData.pincode}

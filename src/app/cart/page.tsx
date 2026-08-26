@@ -36,6 +36,14 @@ export default function CartPage() {
 
   const estimatedShipping = isFreeShipping || items.length === 0 ? 0 : 49;
   const grandTotal = subtotal + estimatedShipping;
+  const cartCount = items.reduce((sum, item) => sum + item.quantity, 0);
+  const estimatedGst = Math.round(grandTotal - grandTotal / 1.03);
+
+  const handleClearCart = () => {
+    if (confirm('Are you sure you want to remove all items from your cart?')) {
+      clearCart();
+    }
+  };
 
   useEffect(() => {
     if (items.length > 0) {
@@ -62,12 +70,12 @@ export default function CartPage() {
             <span>Shopping Cart</span>
           </h1>
           <p className="mt-1 text-xs text-stone-500 sm:text-sm">
-            {items.length} {items.length === 1 ? 'item' : 'items'} in your bag
+            {cartCount} {cartCount === 1 ? 'item' : 'items'} in your bag
           </p>
         </div>
         {items.length > 0 && (
           <button
-            onClick={clearCart}
+            onClick={handleClearCart}
             className="text-xs font-medium text-stone-400 transition-colors hover:text-rose-600"
           >
             Clear Cart
@@ -133,7 +141,7 @@ export default function CartPage() {
                     <div className="w-full flex-1 space-y-2">
                       <div className="flex items-start justify-between">
                         <div>
-                          <span className="font-mono text-[10px] uppercase text-stone-400">
+                          <span className="font-mono text-xs uppercase text-stone-400">
                             {product.sku}
                           </span>
                           <Link
@@ -159,7 +167,8 @@ export default function CartPage() {
                             onClick={() =>
                               updateQuantity(product.id, item.quantity - 1)
                             }
-                            className="px-2.5 py-1 text-stone-600 transition-colors hover:bg-stone-200"
+                            disabled={item.quantity <= 1}
+                            className="px-2.5 py-1 text-stone-600 transition-colors hover:bg-stone-200 disabled:opacity-40"
                             title="Decrease Quantity"
                           >
                             <Minus className="h-3.5 w-3.5" />
@@ -171,12 +180,24 @@ export default function CartPage() {
                             onClick={() =>
                               updateQuantity(product.id, item.quantity + 1)
                             }
-                            className="px-2.5 py-1 text-stone-600 transition-colors hover:bg-stone-200"
+                            disabled={
+                              product.stock_quantity !== undefined &&
+                              product.stock_quantity !== null &&
+                              item.quantity >= product.stock_quantity
+                            }
+                            className="px-2.5 py-1 text-stone-600 transition-colors hover:bg-stone-200 disabled:opacity-40"
                             title="Increase Quantity"
                           >
                             <Plus className="h-3.5 w-3.5" />
                           </button>
                         </div>
+                        {product.stock_quantity !== undefined &&
+                          product.stock_quantity !== null &&
+                          item.quantity >= product.stock_quantity && (
+                            <div className="mt-1 text-xs font-medium text-amber-800">
+                              Max stock reached
+                            </div>
+                          )}
 
                         {/* Price */}
                         <div className="text-right">
@@ -184,7 +205,7 @@ export default function CartPage() {
                             ₹{itemTotal.toLocaleString('en-IN')}
                           </div>
                           {item.quantity > 1 && (
-                            <div className="text-[10px] text-stone-400">
+                            <div className="text-xs text-stone-400">
                               (₹{product.price.toLocaleString('en-IN')} each)
                             </div>
                           )}
@@ -206,7 +227,9 @@ export default function CartPage() {
 
               <div className="space-y-3 text-xs sm:text-sm">
                 <div className="flex justify-between text-stone-600">
-                  <span>Subtotal ({items.length} items)</span>
+                  <span>
+                    Subtotal ({cartCount} {cartCount === 1 ? 'item' : 'items'})
+                  </span>
                   <span className="font-semibold text-stone-900">
                     ₹{subtotal.toLocaleString('en-IN')}
                   </span>
@@ -216,7 +239,7 @@ export default function CartPage() {
                   <span>Insured Shipping</span>
                   <span className="font-semibold text-stone-900">
                     {estimatedShipping === 0 ? (
-                      <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-700">
+                      <span className="text-xs font-bold uppercase tracking-wider text-emerald-700">
                         FREE
                       </span>
                     ) : (
@@ -225,9 +248,9 @@ export default function CartPage() {
                   </span>
                 </div>
 
-                <div className="flex justify-between text-[11px] text-stone-400">
+                <div className="flex justify-between text-xs text-stone-400">
                   <span>Estimated GST (Included)</span>
-                  <span>3.0%</span>
+                  <span>₹{estimatedGst.toLocaleString('en-IN')}</span>
                 </div>
 
                 <div className="flex items-baseline justify-between border-t border-stone-200 pt-4">
@@ -248,7 +271,7 @@ export default function CartPage() {
               </Link>
 
               {/* Trust badges */}
-              <div className="grid grid-cols-3 gap-2 border-t border-stone-100 pt-4 text-center text-[10px] text-stone-500">
+              <div className="grid grid-cols-3 gap-2 border-t border-stone-100 pt-4 text-center text-xs text-stone-500">
                 <div className="space-y-1">
                   <Truck className="mx-auto h-4 w-4 text-amber-800" />
                   <span>Insured Delivery</span>

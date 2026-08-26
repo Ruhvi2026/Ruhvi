@@ -248,6 +248,7 @@ export interface BlogPost {
 export interface Testimonial {
   id: string;
   user_id?: string | null;
+  product_id?: string | null;
   customer_name: string;
   rating: number;
   review_text: string;

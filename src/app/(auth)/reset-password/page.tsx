@@ -114,10 +114,14 @@ function ResetPasswordForm() {
         {!error && (
           <form onSubmit={handleUpdatePassword} className="space-y-4">
             <div>
-              <label className="mb-1 block text-xs font-medium text-[#121110]/80">
+              <label
+                htmlFor="reset-new-password"
+                className="mb-1 block text-xs font-medium text-[#121110]/80"
+              >
                 New Password
               </label>
               <input
+                id="reset-new-password"
                 type="password"
                 required
                 minLength={6}
@@ -129,10 +133,14 @@ function ResetPasswordForm() {
             </div>
 
             <div>
-              <label className="mb-1 block text-xs font-medium text-[#121110]/80">
+              <label
+                htmlFor="reset-confirm-password"
+                className="mb-1 block text-xs font-medium text-[#121110]/80"
+              >
                 Confirm New Password
               </label>
               <input
+                id="reset-confirm-password"
                 type="password"
                 required
                 minLength={6}

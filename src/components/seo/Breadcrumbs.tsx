@@ -37,20 +37,29 @@ export function Breadcrumbs({ items }: BreadcrumbsProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
-      <nav aria-label="Breadcrumb" className="flex items-center text-xs text-stone-500 mb-6 font-medium">
-        <Link href="/" className="hover:text-amber-700 transition-colors flex items-center">
-          <Home className="w-3.5 h-3.5" />
+      <nav
+        aria-label="Breadcrumb"
+        className="mb-6 flex items-center text-xs font-medium text-stone-500"
+      >
+        <Link
+          href="/"
+          className="flex items-center transition-colors hover:text-gold-600"
+        >
+          <Home className="h-3.5 w-3.5" />
           <span className="sr-only">Home</span>
         </Link>
         {items.map((item, index) => (
           <React.Fragment key={item.url}>
-            <ChevronRight className="w-3 h-3 mx-2 text-stone-400 flex-shrink-0" />
+            <ChevronRight className="mx-2 h-3 w-3 flex-shrink-0 text-stone-400" />
             {index === items.length - 1 ? (
-              <span className="text-stone-900 truncate" aria-current="page">
+              <span className="truncate text-stone-900" aria-current="page">
                 {item.label}
               </span>
             ) : (
-              <Link href={item.url} className="hover:text-amber-700 transition-colors truncate">
+              <Link
+                href={item.url}
+                className="truncate transition-colors hover:text-gold-600"
+              >
                 {item.label}
               </Link>
             )}

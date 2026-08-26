@@ -26,7 +26,7 @@ export default async function ReferralsPage() {
     .eq('id', user.id)
     .single();
 
-  const referralCode = profile?.referral_code || 'PENDING';
+  const referralCode = profile?.referral_code || null;
 
   // Get referrals
   const { data: referralsList } = await supabase
@@ -79,9 +79,9 @@ export default async function ReferralsPage() {
             </p>
           </div>
 
-          {referralCode === 'PENDING' ? (
+          {!referralCode ? (
             <div className="mt-8 text-sm text-gold-100">
-              Your referral code is being generated...
+              Generating your referral code...
             </div>
           ) : (
             <ReferralLink referralCode={referralCode} />

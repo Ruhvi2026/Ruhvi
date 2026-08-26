@@ -2,8 +2,45 @@ import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
+import type { Metadata } from 'next';
 import { ArrowLeft, Sparkles, Filter } from 'lucide-react';
 import { createClient } from '@/lib/supabase/server';
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ type: string }>;
+}): Promise<Metadata> {
+  const { type } = await params;
+  const fallback = COLLECTIONS_DATA[type];
+
+  let title = fallback?.title;
+  let description = fallback?.subtitle;
+
+  if (!fallback) {
+    const supabase = await createClient();
+    const { data } = await supabase
+      .from('collections')
+      .select('title, subtitle')
+      .eq('slug', type)
+      .single();
+    title = data?.title;
+    description = data?.subtitle;
+  }
+
+  return {
+    title: title ? `${title} | Ruhvi Fine Jewellery` : 'Collections | Ruhvi',
+    description,
+    alternates: { canonical: `/collections/${type}` },
+    openGraph: {
+      title: title ? `${title} | Ruhvi` : 'Ruhvi Collections',
+      description,
+      url: `/collections/${type}`,
+      siteName: 'Ruhvi Fine Jewellery',
+      type: 'website',
+    },
+  };
+}
 
 const COLLECTIONS_DATA: Record<string, any> = {
   'for-her': {
@@ -148,8 +185,8 @@ export default async function CollectionPage({
         .from('products')
         .select(
           `
-          id, name, slug, description, base_price, is_new_arrival, is_best_seller, 
-          status, categories(name), product_images(url)
+          id, name, slug, description, price, mrp, is_new_arrival, is_best_seller, 
+          status, category:categories(name), images:product_images(url)
         `
         )
         .in('id', productIds)
@@ -158,9 +195,9 @@ export default async function CollectionPage({
       if (prodData) {
         products = prodData.map((p: any) => ({
           ...p,
-          price: p.base_price,
+          price: p.price,
           image:
-            p.product_images?.[0]?.url ||
+            p.images?.[0]?.url ||
             'https://images.unsplash.com/photo-1605100804763-247f67b4549e?auto=format&fit=crop&w=400&q=80',
         }));
       }

@@ -230,16 +230,13 @@ export default function AccountOverviewPage() {
   };
 
   const formatDate = (dateStr?: string) => {
-    if (!dateStr) return 'July 2026';
-    try {
-      const date = new Date(dateStr);
-      return date.toLocaleDateString('en-US', {
-        month: 'long',
-        year: 'numeric',
-      });
-    } catch {
-      return 'July 2026';
-    }
+    if (!dateStr) return 'recently';
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return 'recently';
+    return date.toLocaleDateString('en-IN', {
+      month: 'long',
+      year: 'numeric',
+    });
   };
 
   const handleSaveProfile = async (e: React.FormEvent) => {
@@ -264,14 +261,8 @@ export default function AccountOverviewPage() {
 
       if (dbError) throw dbError;
 
-      // 2. Update auth.user_metadata
-      await supabase.auth.updateUser({
-        data: {
-          full_name: fullName,
-          phone: phone,
-        },
-      });
-
+      // Note: supabase.auth is unavailable when using custom accessToken,
+      // so the users table upsert above is the only profile save path.
       setIsEditingProfile(false);
       setProfileSuccessMsg('Profile details updated successfully!');
       setTimeout(() => setProfileSuccessMsg(null), 4000);
@@ -299,12 +290,15 @@ export default function AccountOverviewPage() {
     setPassMsg(null);
 
     try {
-      const supabase = createClient();
-      const { error } = await supabase.auth.updateUser({
-        password: newPassword,
+      const response = await fetch('/api/auth/change-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: newPassword }),
       });
 
-      if (error) throw error;
+      const result = await response.json();
+      if (!response.ok)
+        throw new Error(result.error || 'Failed to update password.');
 
       setPassMsg('Password successfully updated!');
       setNewPassword('');
@@ -323,16 +317,24 @@ export default function AccountOverviewPage() {
   const handleDeleteAccount = async () => {
     setDeletingAccount(true);
     try {
-      // Execute signout as deletion request acknowledgement
-      alert(
-        'Your account deletion request has been registered. Our security team will process it within 24 hours.'
-      );
+      const supabase = createClient();
+      const { error } = await supabase.rpc('delete_user_account');
+      if (error) {
+        const { error: profileErr } = await supabase
+          .from('users')
+          .delete()
+          .eq('id', user?.id);
+        if (profileErr) throw profileErr;
+      }
       setShowDeleteModal(false);
       await signOut();
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-    } finally {
       setDeletingAccount(false);
+      alert(
+        err?.message ||
+          'Failed to delete account. Please contact support@ruhvi.in.'
+      );
     }
   };
 
@@ -391,19 +393,20 @@ export default function AccountOverviewPage() {
 
   const handleLinkGoogle = async () => {
     try {
-      const { auth } = require('@/lib/firebase');
-      const { GoogleAuthProvider, linkWithPopup } = require('firebase/auth');
+      const { auth } = await import('@/lib/firebase');
+      const { GoogleAuthProvider, linkWithPopup } =
+        await import('firebase/auth');
       if (!auth.currentUser) return;
       const provider = new GoogleAuthProvider();
       await linkWithPopup(auth.currentUser, provider);
       setLinkedProviders(
         auth.currentUser.providerData.map((p: any) => p.providerId)
       );
-      const { upsertUserProfile } = require('@/services/authService');
+      const { upsertUserProfile } = await import('@/services/authService');
       await upsertUserProfile(auth.currentUser);
       alert('Google account linked successfully!');
     } catch (err: any) {
-      const { handleAuthCollision } = require('@/services/authService');
+      const { handleAuthCollision } = await import('@/services/authService');
       try {
         handleAuthCollision(err);
       } catch (e: any) {
@@ -455,11 +458,23 @@ export default function AccountOverviewPage() {
               </div>
 
               <div className="flex items-center justify-center gap-2 pt-0.5 text-[11px] text-gold-100/90 sm:justify-start">
-                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-300" />
-                <span>
-                  Email Authenticated • Member since{' '}
-                  {formatDate(profile?.created_at || user.created_at)}
-                </span>
+                {profile?.email_verified ? (
+                  <>
+                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-300" />
+                    <span>
+                      Email Verified • Member since{' '}
+                      {formatDate(profile?.created_at || user.created_at)}
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <AlertTriangle className="h-3.5 w-3.5 text-amber-300" />
+                    <span>
+                      Email Unverified • Member since{' '}
+                      {formatDate(profile?.created_at || user.created_at)}
+                    </span>
+                  </>
+                )}
               </div>
             </div>
           </div>
@@ -505,9 +520,9 @@ export default function AccountOverviewPage() {
             <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gold-100 text-gold-700 transition-colors group-hover:bg-gold-600 group-hover:text-white">
               <Package className="h-6 w-6" />
             </div>
-            <h3 className="text-sm font-bold text-stone-900 group-hover:text-gold-700">
+            <h2 className="text-sm font-bold text-stone-900 group-hover:text-gold-700">
               My Orders
-            </h3>
+            </h2>
             <p className="mt-1 text-xs text-stone-500">
               Track purchases & view GST invoices
             </p>
@@ -524,9 +539,9 @@ export default function AccountOverviewPage() {
             <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gold-100 text-gold-700 transition-colors group-hover:bg-gold-600 group-hover:text-white">
               <MapPin className="h-6 w-6" />
             </div>
-            <h3 className="text-sm font-bold text-stone-900 group-hover:text-gold-700">
+            <h2 className="text-sm font-bold text-stone-900 group-hover:text-gold-700">
               Saved Addresses
-            </h3>
+            </h2>
             <p className="mt-1 text-xs text-stone-500">
               Manage shipping locations & defaults
             </p>
@@ -543,9 +558,9 @@ export default function AccountOverviewPage() {
             <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700 transition-colors group-hover:bg-emerald-700 group-hover:text-emerald-50">
               <Wallet className="h-6 w-6" />
             </div>
-            <h3 className="text-sm font-bold text-stone-900 group-hover:text-emerald-700">
+            <h2 className="text-sm font-bold text-stone-900 group-hover:text-emerald-700">
               Ruhvi Wallet
-            </h3>
+            </h2>
             <p className="mt-1 text-xs text-stone-500">
               Balance: ₹{(profile?.wallet_balance || 0).toLocaleString('en-IN')}
             </p>
@@ -562,9 +577,9 @@ export default function AccountOverviewPage() {
             <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-yellow-50 text-yellow-600 transition-colors group-hover:bg-yellow-600 group-hover:text-yellow-50">
               <Coins className="h-6 w-6" />
             </div>
-            <h3 className="text-sm font-bold text-stone-900 group-hover:text-yellow-600">
+            <h2 className="text-sm font-bold text-stone-900 group-hover:text-yellow-600">
               Reward Coins
-            </h3>
+            </h2>
             <p className="mt-1 text-xs text-stone-500">
               Available: {profile?.reward_coins || 0} Coins
             </p>
@@ -581,9 +596,9 @@ export default function AccountOverviewPage() {
             <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gold-100 text-gold-700 transition-colors group-hover:bg-gold-600 group-hover:text-white">
               <Gift className="h-6 w-6" />
             </div>
-            <h3 className="text-sm font-bold text-stone-900 group-hover:text-gold-700">
+            <h2 className="text-sm font-bold text-stone-900 group-hover:text-gold-700">
               Refer a Friend
-            </h3>
+            </h2>
             <p className="mt-1 text-xs text-stone-500">
               Earn 500 coins per referral
             </p>
@@ -600,9 +615,9 @@ export default function AccountOverviewPage() {
             <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gold-100 text-gold-700 transition-colors group-hover:bg-gold-600 group-hover:text-white">
               <RefreshCw className="h-6 w-6" />
             </div>
-            <h3 className="text-sm font-bold text-stone-900 group-hover:text-gold-700">
+            <h2 className="text-sm font-bold text-stone-900 group-hover:text-gold-700">
               7-Day Returns
-            </h3>
+            </h2>
             <p className="mt-1 text-xs text-stone-500">
               Submit & track return requests
             </p>
@@ -619,9 +634,9 @@ export default function AccountOverviewPage() {
             <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gold-100 text-gold-700 transition-colors group-hover:bg-gold-600 group-hover:text-white">
               <Bell className="h-6 w-6" />
             </div>
-            <h3 className="text-sm font-bold text-stone-900 group-hover:text-gold-700">
+            <h2 className="text-sm font-bold text-stone-900 group-hover:text-gold-700">
               Notifications
-            </h3>
+            </h2>
             <p className="mt-1 text-xs text-stone-500">
               Order alerts & exclusive offers
             </p>
@@ -637,10 +652,10 @@ export default function AccountOverviewPage() {
           {/* Profile Details Card */}
           <div className="space-y-6 rounded-2xl border border-stone-200 bg-white p-6 shadow-sm sm:p-8">
             <div className="flex items-center justify-between border-b border-stone-100 pb-4">
-              <h3 className="flex items-center space-x-2 font-serif text-lg font-bold text-stone-900">
+              <h2 className="flex items-center space-x-2 font-serif text-lg font-bold text-stone-900">
                 <User className="h-5 w-5 text-amber-800" />
                 <span>Profile Details</span>
-              </h3>
+              </h2>
               {!isEditingProfile && (
                 <button
                   onClick={() => setIsEditingProfile(true)}
@@ -653,10 +668,14 @@ export default function AccountOverviewPage() {
 
             <form onSubmit={handleSaveProfile} className="space-y-4 text-xs">
               <div>
-                <label className="mb-1 block font-semibold text-stone-700">
+                <label
+                  htmlFor="account-full-name"
+                  className="mb-1 block font-semibold text-stone-700"
+                >
                   Full Name
                 </label>
                 <input
+                  id="account-full-name"
                   type="text"
                   required
                   disabled={!isEditingProfile}
@@ -669,7 +688,10 @@ export default function AccountOverviewPage() {
 
               <div>
                 <div className="mb-1 flex items-center justify-between">
-                  <label className="font-semibold text-stone-700">
+                  <label
+                    htmlFor="account-email"
+                    className="font-semibold text-stone-700"
+                  >
                     Email Address
                   </label>
                   {profile?.email_verified ? (
@@ -684,6 +706,7 @@ export default function AccountOverviewPage() {
                 </div>
                 <div className="relative">
                   <input
+                    id="account-email"
                     type="email"
                     disabled={profile?.email_verified}
                     value={emailInput}
@@ -734,7 +757,10 @@ export default function AccountOverviewPage() {
 
               <div>
                 <div className="mb-1 flex items-center justify-between">
-                  <label className="font-semibold text-stone-700">
+                  <label
+                    htmlFor="account-phone"
+                    className="font-semibold text-stone-700"
+                  >
                     Mobile Phone Number
                   </label>
                   {isPhoneLinked ? (
@@ -748,6 +774,7 @@ export default function AccountOverviewPage() {
                   )}
                 </div>
                 <input
+                  id="account-phone"
                   type="tel"
                   disabled={!isEditingProfile}
                   value={phone}
@@ -800,10 +827,10 @@ export default function AccountOverviewPage() {
           {/* Account Security & Privacy Card */}
           <div className="flex flex-col justify-between space-y-6 rounded-2xl border border-stone-200 bg-white p-6 shadow-sm sm:p-8">
             <div className="space-y-6">
-              <h3 className="flex items-center space-x-2 border-b border-stone-100 pb-4 font-serif text-lg font-bold text-stone-900">
+              <h2 className="flex items-center space-x-2 border-b border-stone-100 pb-4 font-serif text-lg font-bold text-stone-900">
                 <Shield className="h-5 w-5 text-amber-800" />
                 <span>Email & Password Security</span>
-              </h3>
+              </h2>
 
               <div className="space-y-4 text-xs">
                 {/* Login Methods (Path A Support) */}
@@ -955,11 +982,15 @@ export default function AccountOverviewPage() {
                 className="space-y-4 text-xs"
               >
                 <div>
-                  <label className="mb-1 block font-semibold text-stone-800">
+                  <label
+                    htmlFor="account-new-password"
+                    className="mb-1 block font-semibold text-stone-800"
+                  >
                     New Password
                   </label>
                   <div className="relative">
                     <input
+                      id="account-new-password"
                       type={showPass ? 'text' : 'password'}
                       required
                       minLength={6}
@@ -983,10 +1014,14 @@ export default function AccountOverviewPage() {
                 </div>
 
                 <div>
-                  <label className="mb-1 block font-semibold text-stone-800">
+                  <label
+                    htmlFor="account-confirm-password"
+                    className="mb-1 block font-semibold text-stone-800"
+                  >
                     Confirm New Password
                   </label>
                   <input
+                    id="account-confirm-password"
                     type={showPass ? 'text' : 'password'}
                     required
                     minLength={6}

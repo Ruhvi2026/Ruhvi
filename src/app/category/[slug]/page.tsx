@@ -1,5 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { INITIAL_CATEGORIES, DEMO_PRODUCTS } from '@/lib/products';
@@ -119,10 +120,12 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
             >
               <div className="relative aspect-square overflow-hidden bg-stone-100">
                 {product.images && product.images[0] && (
-                  <img
+                  <Image
                     src={product.images[0].url}
                     alt={product.name}
-                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    fill
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    className="object-cover transition-transform duration-500 group-hover:scale-105"
                   />
                 )}
               </div>

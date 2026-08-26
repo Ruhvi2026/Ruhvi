@@ -71,7 +71,7 @@ export async function GET(req: NextRequest) {
     const endDate = searchParams.get('endDate');
 
     let exportData: any[] = [];
-    let filename = `${type}-export-${new Date().toISOString().split('T')[0]}`;
+    const filename = `${type}-export-${new Date().toISOString().split('T')[0]}`;
 
     if (type === 'customers') {
       let query = supabase

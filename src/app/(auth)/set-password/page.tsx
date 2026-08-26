@@ -95,7 +95,7 @@ function SetPasswordForm() {
     try {
       const credential = EmailAuthProvider.credential(linkEmail, password);
       const userCred = await linkWithCredential(user, credential);
-      let updatedUser = userCred.user;
+      const updatedUser = userCred.user;
 
       await updatedUser.getIdToken(true);
 
@@ -200,11 +200,15 @@ function SetPasswordForm() {
 
         <form onSubmit={handleSetPassword} className="space-y-4">
           <div>
-            <label className="mb-1 block text-xs font-medium text-[#121110]/80">
+            <label
+              htmlFor="set-password-email"
+              className="mb-1 block text-xs font-medium text-[#121110]/80"
+            >
               Email Address
             </label>
             <div className="relative">
               <input
+                id="set-password-email"
                 type="email"
                 required
                 disabled={!!user?.email}
@@ -218,11 +222,15 @@ function SetPasswordForm() {
           </div>
 
           <div>
-            <label className="mb-1 block text-xs font-medium text-[#121110]/80">
+            <label
+              htmlFor="set-password-new"
+              className="mb-1 block text-xs font-medium text-[#121110]/80"
+            >
               New Password
             </label>
             <div className="relative">
               <input
+                id="set-password-new"
                 type={showPassword ? 'text' : 'password'}
                 required
                 minLength={6}
@@ -248,11 +256,15 @@ function SetPasswordForm() {
           </div>
 
           <div>
-            <label className="mb-1 block text-xs font-medium text-[#121110]/80">
+            <label
+              htmlFor="set-password-confirm"
+              className="mb-1 block text-xs font-medium text-[#121110]/80"
+            >
               Confirm New Password
             </label>
             <div className="relative">
               <input
+                id="set-password-confirm"
                 type={showConfirmPassword ? 'text' : 'password'}
                 required
                 minLength={6}

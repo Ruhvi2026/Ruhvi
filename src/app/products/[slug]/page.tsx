@@ -21,9 +21,20 @@ export async function generateMetadata({
 
   let { data: product } = await supabase
     .from('products')
-    .select('*, images:product_images(*), viewer360:product_360_sets(*)')
+    .select('*, images:product_images(*), category:categories(*)')
     .eq('slug', slug)
     .single();
+
+  if (!product) {
+    const { data: productById } = await supabase
+      .from('products')
+      .select('*, images:product_images(*), category:categories(*)')
+      .eq('id', slug)
+      .single();
+    if (productById) {
+      product = productById;
+    }
+  }
 
   if (!product) {
     product = DEMO_PRODUCTS.find(
@@ -48,12 +59,12 @@ export async function generateMetadata({
     title: `${product.name} — Buy Online`,
     description,
     alternates: {
-      canonical: `/products/${product.slug}`,
+      canonical: `/products/${product.slug || product.id}`,
     },
     openGraph: {
       title: `${product.name} | Ruhvi Fine Jewellery`,
       description,
-      url: `https://ruhvi.in/products/${product.slug}`,
+      url: `https://ruhvi.in/products/${product.slug || product.id}`,
       images: [
         {
           url: mainImage,
@@ -76,11 +87,20 @@ export default async function ProductDetailPage({ params }: PageProps) {
 
   let { data: product } = await supabase
     .from('products')
-    .select(
-      '*, images:product_images(*), category:categories(*), viewer360:product_360_sets(*)'
-    )
+    .select('*, images:product_images(*), category:categories(*)')
     .eq('slug', slug)
     .single();
+
+  if (!product) {
+    const { data: productById } = await supabase
+      .from('products')
+      .select('*, images:product_images(*), category:categories(*)')
+      .eq('id', slug)
+      .single();
+    if (productById) {
+      product = productById;
+    }
+  }
 
   if (!product) {
     product = DEMO_PRODUCTS.find(
@@ -92,35 +112,78 @@ export default async function ProductDetailPage({ params }: PageProps) {
     notFound();
   }
 
-  // We use the new ProductSchema component for JSON-LD and FAQ Schema
+  // Safely fetch 360 viewer if available (without failing the entire page if table is missing)
+  if (product && !product.viewer360) {
+    try {
+      const { data: viewer360Data } = await supabase
+        .from('product_360_sets')
+        .select('*')
+        .eq('product_id', product.id)
+        .maybeSingle();
+      if (viewer360Data) {
+        product.viewer360 = viewer360Data;
+      }
+    } catch {
+      // product_360_sets table might not exist or error, continue safely
+    }
+  }
 
-  let { data: relatedProducts } = await supabase
-    .from('products')
-    .select('*, images:product_images(*), category:categories(*)')
-    .eq('category_id', product.category_id || '')
-    .neq('id', product.id)
-    .neq('status', 'hidden')
-    .limit(4);
+  // Ensure images array has at least one valid image
+  if (!product.images || product.images.length === 0) {
+    product.images = [
+      {
+        id: `img-default-${product.id}`,
+        product_id: product.id,
+        url: 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=800&q=80',
+        type: 'still',
+        sort_order: 0,
+      },
+    ];
+  }
+
+  let relatedProducts: any[] = [];
+  if (product.category_id) {
+    const { data: relDb } = await supabase
+      .from('products')
+      .select('*, images:product_images(*), category:categories(*)')
+      .eq('category_id', product.category_id)
+      .neq('id', product.id)
+      .neq('status', 'hidden')
+      .limit(4);
+    if (relDb && relDb.length > 0) {
+      relatedProducts = relDb;
+    }
+  }
 
   if (!relatedProducts || relatedProducts.length === 0) {
-    relatedProducts = DEMO_PRODUCTS.filter(
-      (p) =>
-        p.category_id === product.category_id &&
-        p.id !== product.id &&
-        p.status !== 'hidden'
-    ).slice(0, 4) as any[];
+    const { data: anyDbProducts } = await supabase
+      .from('products')
+      .select('*, images:product_images(*), category:categories(*)')
+      .neq('id', product.id)
+      .neq('status', 'hidden')
+      .limit(4);
+
+    if (anyDbProducts && anyDbProducts.length > 0) {
+      relatedProducts = anyDbProducts;
+    } else {
+      relatedProducts = DEMO_PRODUCTS.filter(
+        (p) => p.id !== product.id && p.status !== 'hidden'
+      ).slice(0, 4) as any[];
+    }
   }
 
   return (
     <>
       <ProductSchema
         product={{
-          id: product.id,
+          id: product.slug || product.id,
           name: product.name,
           description: product.description || '',
           images: product.images?.map((i: any) => i.url) || [],
           price: product.price,
           currency: 'INR',
+          sku: product.sku,
+          slug: product.slug,
           stock:
             product.stock_quantity ??
             (product.status === 'out_of_stock' ? 0 : 1),
@@ -138,7 +201,10 @@ export default async function ProductDetailPage({ params }: PageProps) {
                   },
                 ]
               : []),
-            { label: product.name, url: `/products/${product.slug}` },
+            {
+              label: product.name,
+              url: `/products/${product.slug || product.id}`,
+            },
           ]}
         />
       </div>

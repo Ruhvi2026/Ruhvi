@@ -15,14 +15,14 @@ export default function TermsConditionsPage() {
         Terms & Conditions
       </h1>
 
-      <div className="space-y-6 rounded-2xl border border-[#E7D7A3]/50 bg-white p-6 text-sm leading-relaxed text-[#121110]/80 shadow-sm sm:p-10">
+      <div className="space-y-6 rounded-2xl border border-gold-200/50 bg-white p-6 text-sm leading-relaxed text-charcoal-900/80 shadow-sm sm:p-10">
         <p className="font-medium">
           Welcome to Ruhvi.in. These terms and conditions outline the rules and
           regulations for the use of our website.
         </p>
 
         <section className="space-y-3">
-          <h2 className="font-serif text-xl font-bold text-[#121110]">
+          <h2 className="font-serif text-xl font-bold text-charcoal-900">
             1. Acceptance of Terms
           </h2>
           <p>
@@ -33,7 +33,7 @@ export default function TermsConditionsPage() {
         </section>
 
         <section className="space-y-3">
-          <h2 className="font-serif text-xl font-bold text-[#121110]">
+          <h2 className="font-serif text-xl font-bold text-charcoal-900">
             2. Wallet & Reward Coins
           </h2>
           <p>
@@ -69,7 +69,7 @@ export default function TermsConditionsPage() {
         </section>
 
         <section className="space-y-3">
-          <h2 className="font-serif text-xl font-bold text-[#121110]">
+          <h2 className="font-serif text-xl font-bold text-charcoal-900">
             3. Pricing and Availability
           </h2>
           <p>
@@ -82,7 +82,7 @@ export default function TermsConditionsPage() {
         </section>
 
         <section className="space-y-3">
-          <h2 className="font-serif text-xl font-bold text-[#121110]">
+          <h2 className="font-serif text-xl font-bold text-charcoal-900">
             4. Product Materials & Hallmarking
           </h2>
           <p>
@@ -95,7 +95,7 @@ export default function TermsConditionsPage() {
         </section>
 
         <section className="space-y-3">
-          <h2 className="font-serif text-xl font-bold text-[#121110]">
+          <h2 className="font-serif text-xl font-bold text-charcoal-900">
             5. Coupons & Discounts
           </h2>
           <p>
@@ -107,7 +107,7 @@ export default function TermsConditionsPage() {
         </section>
 
         <section className="space-y-3">
-          <h2 className="font-serif text-xl font-bold text-[#121110]">
+          <h2 className="font-serif text-xl font-bold text-charcoal-900">
             6. Intellectual Property
           </h2>
           <p>
@@ -120,7 +120,7 @@ export default function TermsConditionsPage() {
         </section>
 
         <section className="space-y-3">
-          <h2 className="font-serif text-xl font-bold text-[#121110]">
+          <h2 className="font-serif text-xl font-bold text-charcoal-900">
             7. User Accounts & Data Rights
           </h2>
           <p>
@@ -148,7 +148,7 @@ export default function TermsConditionsPage() {
         </section>
 
         <section className="space-y-3">
-          <h2 className="font-serif text-xl font-bold text-[#121110]">
+          <h2 className="font-serif text-xl font-bold text-charcoal-900">
             8. Governing Law
           </h2>
           <p>
@@ -159,8 +159,8 @@ export default function TermsConditionsPage() {
           </p>
         </section>
 
-        <section className="space-y-3 border-t border-[#E7D7A3]/50 pt-4">
-          <h2 className="font-serif text-xl font-bold text-[#121110]">
+        <section className="space-y-3 border-t border-gold-200/50 pt-4">
+          <h2 className="font-serif text-xl font-bold text-charcoal-900">
             9. Grievance Officer
           </h2>
           <p>
@@ -168,7 +168,7 @@ export default function TermsConditionsPage() {
             made thereunder, the name and contact details of the Grievance
             Officer are provided below:
           </p>
-          <div className="mt-2 text-[#121110]/80">
+          <div className="mt-2 text-charcoal-900/80">
             <p>
               <span className="font-semibold">Name:</span> SHREYA MAITY
             </p>

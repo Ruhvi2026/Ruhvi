@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Inter, Playfair_Display } from 'next/font/google';
 import './globals.css';
 import '@/lib/env'; // Validate env variables on boot
@@ -107,6 +107,10 @@ export const metadata: Metadata = {
   },
 };
 
+export const viewport: Viewport = {
+  colorScheme: 'light dark',
+};
+
 import Script from 'next/script';
 import { headers } from 'next/headers';
 
@@ -201,16 +205,20 @@ export default async function RootLayout({
         />
         <Suspense fallback={null}>
           <GoogleAnalytics />
-          <MetaPixel />
-          <MicrosoftClarity />
-          <OneSignalInit />
+          {!isSystemSubdomain && (
+            <>
+              <MetaPixel />
+              <MicrosoftClarity />
+              <OneSignalInit />
+            </>
+          )}
         </Suspense>
         <AuthProvider>
           <PostHogProvider>
             <CartProvider>
               <WishlistProvider>
                 <NotificationProvider>
-                  <FcmInit />
+                  {!isSystemSubdomain && <FcmInit />}
                   <Suspense fallback={null}>
                     <PostHogPageView />
                   </Suspense>

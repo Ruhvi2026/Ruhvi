@@ -181,7 +181,7 @@ export default async function HomePage() {
                 <h3 className="font-serif text-sm font-bold text-charcoal-900">
                   {item.title}
                 </h3>
-                <p className="mt-0.5 text-[11px] text-slate-500">{item.sub}</p>
+                <p className="mt-0.5 text-[11px] text-slate-600">{item.sub}</p>
               </div>
             </div>
           ))}

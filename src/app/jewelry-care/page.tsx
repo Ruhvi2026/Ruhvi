@@ -9,6 +9,7 @@ import {
   HeartHandshake,
 } from 'lucide-react';
 import Link from 'next/link';
+import { Breadcrumbs } from '@/components/seo/Breadcrumbs';
 
 export const metadata: Metadata = {
   title: 'Jewelry Care Guide — How to Clean & Protect Your Gold & Diamonds',
@@ -79,6 +80,14 @@ export default function JewelryCarePage() {
 
   return (
     <div className="min-h-screen bg-stone-50 px-4 py-12 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-4xl">
+        <Breadcrumbs
+          items={[
+            { label: 'Home', url: '/' },
+            { label: 'Jewelry Care', url: '/jewelry-care' },
+          ]}
+        />
+      </div>
       <div className="mx-auto max-w-4xl space-y-12">
         {/* Header Banner */}
         <div className="relative overflow-hidden rounded-3xl border border-amber-500/20 bg-gradient-to-r from-amber-950 to-stone-900 p-8 text-center text-white shadow-2xl sm:p-12">

@@ -16,6 +16,8 @@ import {
   Package,
   ShieldCheck,
   Wallet,
+  Sun,
+  Moon,
 } from 'lucide-react';
 import { SearchBar } from '@/components/search/SearchBar';
 import { INITIAL_CATEGORIES } from '@/lib/products';
@@ -23,12 +25,14 @@ import { useCart } from '@/context/CartContext';
 import { useWishlist } from '@/context/WishlistContext';
 import { useNotifications } from '@/context/NotificationContext';
 import { useAuth } from '@/context/AuthContext';
+import { usePathname } from 'next/navigation';
 import { getStoreSettings, StoreSettings } from '@/app/admin/actions/settings';
 import { AccountDrawer } from '@/components/layout/AccountDrawer';
 
 export function Navbar() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [accountDrawerOpen, setAccountDrawerOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const pathname = usePathname();
 
   const { cartCount } = useCart();
   const { wishlistCount } = useWishlist();
@@ -38,6 +42,36 @@ export function Navbar() {
   const [bannerSettings, setBannerSettings] = useState<StoreSettings | null>(
     null
   );
+  const [isDark, setIsDark] = useState(false);
+
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const stored = localStorage.getItem('theme') || 'system';
+    const dark =
+      stored === 'dark' ||
+      (stored === 'system' &&
+        window.matchMedia('(prefers-color-scheme: dark)').matches);
+    setIsDark(dark);
+  }, []);
+
+  const toggleTheme = () => {
+    if (typeof window === 'undefined') return;
+    const stored = localStorage.getItem('theme') || 'system';
+    const activeTheme: 'light' | 'dark' =
+      stored === 'system'
+        ? window.matchMedia('(prefers-color-scheme: dark)').matches
+          ? 'dark'
+          : 'light'
+        : stored === 'dark'
+          ? 'dark'
+          : 'light';
+    const next: 'light' | 'dark' = activeTheme === 'dark' ? 'light' : 'dark';
+    localStorage.setItem('theme', next);
+    const root = document.documentElement;
+    root.classList.remove('dark', 'light');
+    root.classList.add(next);
+    setIsDark(next === 'dark');
+  };
 
   React.useEffect(() => {
     async function fetchBanner() {
@@ -46,6 +80,26 @@ export function Navbar() {
     }
     fetchBanner();
   }, []);
+
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && mobileMenuOpen) {
+        setMobileMenuOpen(false);
+      }
+    };
+    if (mobileMenuOpen) {
+      document.addEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = 'hidden';
+    }
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = 'unset';
+    };
+  }, [mobileMenuOpen]);
+
+  React.useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [pathname]);
 
   const userDisplayName =
     profile?.full_name ||
@@ -85,17 +139,14 @@ export function Navbar() {
           {/* Brand Logo & Left Account Menu Trigger */}
           <div className="flex items-center space-x-2 sm:space-x-4">
             <button
-              onClick={() => setMobileMenuOpen((open) => !open)}
-              className="rounded-lg p-1 text-slate-700 transition hover:bg-gold-50/50 hover:text-gold-600 focus:outline-none lg:hidden"
-              title={mobileMenuOpen ? 'Close Menu' : 'Open Menu'}
-              aria-label={mobileMenuOpen ? 'Close Menu' : 'Open Menu'}
+              onClick={() => setMobileMenuOpen(true)}
+              className="rounded-lg p-1 text-slate-700 transition hover:bg-gold-50/50 hover:text-gold-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-gold-500 lg:hidden"
+              title="Browse categories"
+              aria-label="Browse categories"
               aria-expanded={mobileMenuOpen}
+              aria-haspopup="dialog"
             >
-              {mobileMenuOpen ? (
-                <X className="h-5 w-5 sm:h-6 sm:w-6" />
-              ) : (
-                <Menu className="h-5 w-5 sm:h-6 sm:w-6" />
-              )}
+              <Menu className="h-5 w-5 sm:h-6 sm:w-6" />
             </button>
             <Link href="/" className="flex items-center space-x-2 sm:space-x-3">
               <div className="relative h-9 w-9 flex-shrink-0 overflow-hidden rounded-full border border-gold-300/40 bg-gold-50/50 shadow-sm sm:h-10 sm:w-10">
@@ -139,6 +190,20 @@ export function Navbar() {
                   : 0}
               </span>
             </Link>
+
+            {/* Theme Toggle */}
+            <button
+              onClick={toggleTheme}
+              className="p-1.5 text-slate-700 transition-colors hover:text-gold-600 sm:p-2"
+              title="Toggle dark mode"
+              aria-label="Toggle dark mode"
+            >
+              {isDark ? (
+                <Sun className="h-5 w-5" />
+              ) : (
+                <Moon className="h-5 w-5" />
+              )}
+            </button>
 
             {/* Cart Link */}
             <Link
@@ -201,37 +266,49 @@ export function Navbar() {
 
           {/* Collections Dropdown */}
           <div className="group relative">
-            <button className="flex items-center space-x-1 py-2 font-bold text-charcoal-900 transition-colors hover:text-gold-600 focus:outline-none">
+            <button
+              className="flex items-center space-x-1 rounded py-2 font-bold text-charcoal-900 transition-colors hover:text-gold-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-500"
+              aria-expanded="false"
+              aria-haspopup="menu"
+            >
               <Sparkles className="h-3.5 w-3.5 text-gold-500" />
               <span>Collections</span>
               <ChevronDown className="h-3.5 w-3.5 text-gold-500" />
             </button>
-            <div className="pointer-events-none absolute left-0 top-full z-50 w-56 pt-1 opacity-0 transition-opacity duration-150 group-hover:pointer-events-auto group-hover:opacity-100">
+            <div
+              role="menu"
+              aria-label="Collections"
+              className="pointer-events-none absolute left-0 top-full z-50 w-56 pt-1 opacity-0 transition-opacity duration-150 group-focus-within:pointer-events-auto group-focus-within:opacity-100 group-hover:pointer-events-auto group-hover:opacity-100"
+            >
               <div className="rounded-xl border border-gold-200 bg-white py-2 shadow-xl">
                 <div className="mb-1 border-b border-gold-200/70 px-4 py-1 text-[10px] font-bold uppercase tracking-widest text-gold-700">
                   Curated Collections
                 </div>
                 <Link
                   href="/collections/for-her"
-                  className="hover:text-gold-900 block px-4 py-2 text-xs font-medium text-slate-700 hover:bg-gold-50"
+                  role="menuitem"
+                  className="block px-4 py-2 text-xs font-medium text-slate-700 hover:bg-gold-50 hover:text-gold-900"
                 >
                   Gifts For Her
                 </Link>
                 <Link
                   href="/collections/under-15000"
-                  className="hover:text-gold-900 block px-4 py-2 text-xs font-medium text-slate-700 hover:bg-gold-50"
+                  role="menuitem"
+                  className="block px-4 py-2 text-xs font-medium text-slate-700 hover:bg-gold-50 hover:text-gold-900"
                 >
                   Gifts Under ₹15,000
                 </Link>
                 <Link
                   href="/collections/anniversary"
-                  className="hover:text-gold-900 block px-4 py-2 text-xs font-medium text-slate-700 hover:bg-gold-50"
+                  role="menuitem"
+                  className="block px-4 py-2 text-xs font-medium text-slate-700 hover:bg-gold-50 hover:text-gold-900"
                 >
                   Anniversary Specials
                 </Link>
                 <Link
                   href="/collections/bridal"
-                  className="hover:text-gold-900 block px-4 py-2 text-xs font-medium text-slate-700 hover:bg-gold-50"
+                  role="menuitem"
+                  className="block px-4 py-2 text-xs font-medium text-slate-700 hover:bg-gold-50 hover:text-gold-900"
                 >
                   Royal Bridal Collection
                 </Link>
@@ -250,17 +327,26 @@ export function Navbar() {
           ))}
           {/* Dropdown for more */}
           <div className="group relative">
-            <button className="flex items-center space-x-1 py-2 transition-colors hover:text-gold-600 focus:outline-none">
+            <button
+              className="flex items-center space-x-1 rounded py-2 transition-colors hover:text-gold-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-500"
+              aria-expanded="false"
+              aria-haspopup="menu"
+            >
               <span>More Categories</span>
               <ChevronDown className="h-3.5 w-3.5" />
             </button>
-            <div className="pointer-events-none absolute left-0 top-full z-50 w-48 pt-1 opacity-0 transition-opacity duration-150 group-hover:pointer-events-auto group-hover:opacity-100">
+            <div
+              role="menu"
+              aria-label="More categories"
+              className="pointer-events-none absolute left-0 top-full z-50 w-48 pt-1 opacity-0 transition-opacity duration-150 group-focus-within:pointer-events-auto group-focus-within:opacity-100 group-hover:pointer-events-auto group-hover:opacity-100"
+            >
               <div className="rounded-lg border border-gold-200 bg-white py-2 shadow-lg">
                 {INITIAL_CATEGORIES.slice(6).map((cat) => (
                   <Link
                     key={cat.id}
+                    role="menuitem"
                     href={`/category/${cat.slug}`}
-                    className="hover:text-gold-900 block px-4 py-2 text-xs text-slate-700 hover:bg-gold-50"
+                    className="block px-4 py-2 text-xs text-slate-700 hover:bg-gold-50 hover:text-gold-900"
                   >
                     {cat.name}
                   </Link>
@@ -271,43 +357,110 @@ export function Navbar() {
         </nav>
       </div>
 
-      {/* Mobile Drawer Menu */}
-      {mobileMenuOpen && (
-        <div className="space-y-4 border-t border-gold-200/70 bg-champagne-50 px-4 py-4 lg:hidden">
-          <div className="text-xs font-semibold uppercase tracking-wider text-slate-400">
-            Categories
-          </div>
-          <div className="grid grid-cols-2 gap-2 text-sm text-slate-700">
-            <Link
-              href="/products"
+      {/* Mobile Category Menu Drawer */}
+      <div
+        className={`fixed inset-0 z-50 lg:hidden ${mobileMenuOpen ? 'pointer-events-auto' : 'pointer-events-none'}`}
+        aria-hidden={!mobileMenuOpen}
+      >
+        <div
+          className={`absolute inset-0 bg-stone-950/60 transition-opacity duration-300 ${mobileMenuOpen ? 'opacity-100' : 'opacity-0'}`}
+          onClick={() => setMobileMenuOpen(false)}
+        />
+        <aside
+          role="dialog"
+          aria-modal="true"
+          aria-label="Categories"
+          className={`absolute inset-y-0 left-0 flex w-full max-w-xs transform flex-col bg-champagne-50 shadow-2xl transition-transform duration-300 ${
+            mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
+          }`}
+        >
+          <div className="flex items-center justify-between border-b border-gold-200/70 bg-gold-50/50 px-4 py-3.5">
+            <span className="font-serif text-base font-bold tracking-widest text-charcoal-900">
+              RUHVI
+            </span>
+            <button
               onClick={() => setMobileMenuOpen(false)}
-              className="text-gold-900 rounded border border-gold-300/60 bg-gold-100 p-3 font-medium"
+              className="rounded-full p-1.5 text-slate-700 transition hover:bg-gold-100/60 hover:text-gold-700"
+              aria-label="Close menu"
             >
-              All Jewellery
-            </Link>
-            {INITIAL_CATEGORIES.map((cat) => (
-              <Link
-                key={cat.id}
-                href={`/category/${cat.slug}`}
-                onClick={() => setMobileMenuOpen(false)}
-                className="rounded p-3 hover:bg-gold-50"
-              >
-                {cat.name}
-              </Link>
-            ))}
+              <X className="h-5 w-5" />
+            </button>
           </div>
 
-          <div className="border-t border-gold-200/70 pt-4">
-            <Link
-              href="/faq"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block rounded border border-gold-300/60 bg-gold-100 p-3 text-center text-sm font-semibold text-charcoal-900"
-            >
-              Help & Support
-            </Link>
-          </div>
-        </div>
-      )}
+          <nav className="flex-1 space-y-5 overflow-y-auto px-4 py-4">
+            <div className="space-y-1">
+              <p className="px-1 pb-1 text-xs font-bold uppercase tracking-wider text-slate-400">
+                Shop
+              </p>
+              <Link
+                href="/products"
+                className="block rounded-xl border border-gold-300/60 bg-gold-100 px-4 py-3 text-sm font-semibold text-gold-900"
+              >
+                All Jewellery
+              </Link>
+              <div className="grid grid-cols-1 gap-1 pt-1">
+                {INITIAL_CATEGORIES.map((cat) => (
+                  <Link
+                    key={cat.id}
+                    href={`/category/${cat.slug}`}
+                    className="rounded-lg px-4 py-2.5 text-sm text-slate-700 transition hover:bg-gold-50 hover:text-gold-800"
+                  >
+                    {cat.name}
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-1 border-t border-gold-200/70 pt-4">
+              <p className="px-1 pb-1 text-xs font-bold uppercase tracking-wider text-slate-400">
+                Collections
+              </p>
+              <Link
+                href="/collections/for-her"
+                className="block rounded-lg px-4 py-2.5 text-sm text-slate-700 transition hover:bg-gold-50 hover:text-gold-800"
+              >
+                Gifts For Her
+              </Link>
+              <Link
+                href="/collections/under-15000"
+                className="block rounded-lg px-4 py-2.5 text-sm text-slate-700 transition hover:bg-gold-50 hover:text-gold-800"
+              >
+                Gifts Under ₹15,000
+              </Link>
+              <Link
+                href="/collections/anniversary"
+                className="block rounded-lg px-4 py-2.5 text-sm text-slate-700 transition hover:bg-gold-50 hover:text-gold-800"
+              >
+                Anniversary Specials
+              </Link>
+              <Link
+                href="/collections/bridal"
+                className="block rounded-lg px-4 py-2.5 text-sm text-slate-700 transition hover:bg-gold-50 hover:text-gold-800"
+              >
+                Royal Bridal Collection
+              </Link>
+            </div>
+
+            <div className="space-y-1 border-t border-gold-200/70 pt-4">
+              <p className="px-1 pb-1 text-xs font-bold uppercase tracking-wider text-slate-400">
+                Support
+              </p>
+              <Link
+                href="/faq"
+                className="block rounded-lg px-4 py-2.5 text-sm text-slate-700 transition hover:bg-gold-50 hover:text-gold-800"
+              >
+                Help & FAQ
+              </Link>
+              <Link
+                href="/contact"
+                className="block rounded-lg px-4 py-2.5 text-sm text-slate-700 transition hover:bg-gold-50 hover:text-gold-800"
+              >
+                Contact Us
+              </Link>
+            </div>
+          </nav>
+        </aside>
+      </div>
     </header>
   );
 }

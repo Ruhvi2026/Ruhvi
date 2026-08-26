@@ -480,9 +480,17 @@ export default function SignUpPage() {
           </p>
         </div>
 
-        <div className="mb-6 flex rounded-xl bg-[#FAF7ED] p-1">
+        <div
+          className="mb-6 flex rounded-xl bg-[#FAF7ED] p-1"
+          role="tablist"
+          aria-label="Sign up method"
+        >
           <button
             type="button"
+            role="tab"
+            aria-selected={authMethod === 'email'}
+            aria-controls="email-signup-panel"
+            id="signup-tab-email"
             onClick={() => {
               setAuthMethod('email');
               setError(null);
@@ -498,6 +506,10 @@ export default function SignUpPage() {
           </button>
           <button
             type="button"
+            role="tab"
+            aria-selected={authMethod === 'phone'}
+            aria-controls="phone-signup-panel"
+            id="signup-tab-phone"
             onClick={() => {
               setAuthMethod('phone');
               setError(null);
@@ -528,10 +540,14 @@ export default function SignUpPage() {
         {authMethod === 'email' ? (
           <form onSubmit={handleEmailSignUp} className="space-y-4">
             <div>
-              <label className="mb-1 block text-xs font-medium text-[#121110]/80">
+              <label
+                htmlFor="signup-full-name"
+                className="mb-1 block text-xs font-medium text-[#121110]/80"
+              >
                 Full Name
               </label>
               <input
+                id="signup-full-name"
                 type="text"
                 required
                 value={fullName}
@@ -542,10 +558,14 @@ export default function SignUpPage() {
             </div>
 
             <div>
-              <label className="mb-1 block text-xs font-medium text-[#121110]/80">
+              <label
+                htmlFor="signup-email"
+                className="mb-1 block text-xs font-medium text-[#121110]/80"
+              >
                 Email Address
               </label>
               <input
+                id="signup-email"
                 type="email"
                 required
                 value={email}
@@ -556,10 +576,14 @@ export default function SignUpPage() {
             </div>
 
             <div>
-              <label className="mb-1 block text-xs font-medium text-[#121110]/80">
+              <label
+                htmlFor="signup-password"
+                className="mb-1 block text-xs font-medium text-[#121110]/80"
+              >
                 Password
               </label>
               <input
+                id="signup-password"
                 type="password"
                 required
                 minLength={6}
@@ -571,10 +595,14 @@ export default function SignUpPage() {
             </div>
 
             <div>
-              <label className="mb-1 block text-xs font-medium text-[#121110]/80">
+              <label
+                htmlFor="signup-confirm-password"
+                className="mb-1 block text-xs font-medium text-[#121110]/80"
+              >
                 Confirm Password
               </label>
               <input
+                id="signup-confirm-password"
                 type="password"
                 required
                 minLength={6}
@@ -605,10 +633,14 @@ export default function SignUpPage() {
             className="space-y-4"
           >
             <div>
-              <label className="mb-1 block text-xs font-medium text-[#121110]/80">
+              <label
+                htmlFor="signup-phone-full-name"
+                className="mb-1 block text-xs font-medium text-[#121110]/80"
+              >
                 Full Name
               </label>
               <input
+                id="signup-phone-full-name"
                 type="text"
                 required
                 disabled={showOtpInput}
@@ -620,10 +652,14 @@ export default function SignUpPage() {
             </div>
 
             <div>
-              <label className="mb-1 block text-xs font-medium text-[#121110]/80">
+              <label
+                htmlFor="signup-phone"
+                className="mb-1 block text-xs font-medium text-[#121110]/80"
+              >
                 Phone Number
               </label>
               <input
+                id="signup-phone"
                 type="tel"
                 required
                 disabled={showOtpInput}
@@ -636,10 +672,14 @@ export default function SignUpPage() {
 
             {showOtpInput && (
               <div>
-                <label className="mb-1 block text-xs font-medium text-[#121110]/80">
+                <label
+                  htmlFor="signup-otp"
+                  className="mb-1 block text-xs font-medium text-[#121110]/80"
+                >
                   Enter OTP
                 </label>
                 <input
+                  id="signup-otp"
                   type="text"
                   required
                   value={otp}

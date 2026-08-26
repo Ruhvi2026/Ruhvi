@@ -25,6 +25,8 @@ export default function InvoicePage({
 
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
+  const gstin = process.env.NEXT_PUBLIC_GSTIN || '';
+  const isTaxInvoice = gstin.length > 0;
 
   useEffect(() => {
     let isMounted = true;
@@ -44,7 +46,7 @@ export default function InvoicePage({
         } catch (e) {
           console.error(e);
         }
-        if (isMounted) setOrder(match || demoOrder);
+        if (isMounted) setOrder(match);
         if (isMounted) setLoading(false);
         return;
       }
@@ -85,60 +87,6 @@ export default function InvoicePage({
 
   const handlePrint = () => {
     window.print();
-  };
-
-  const demoOrder: Order = {
-    id: orderId,
-    user_id: 'demo-user',
-    order_number: 'RHV-2026-8942',
-    status: 'confirmed',
-    subtotal: 49999,
-    shipping_charge: 0,
-    cod_charge: 0,
-    coupon_discount: 0,
-    wallet_used: 0,
-    coins_redeemed: 0,
-    gst_amount: 1456,
-    total: 49999,
-    payment_method: 'phonepe',
-    payment_status: 'paid',
-    gift_wrap: true,
-    created_at: new Date().toISOString(),
-    shipping_address: {
-      id: 'a1',
-      user_id: 'u1',
-      label: 'Home',
-      full_name: 'Ananya Sharma',
-      phone: '+91 98765 43210',
-      line1: 'Flat 402, Royal Palms Apartments',
-      city: 'Hyderabad',
-      state: 'Telangana',
-      pincode: '500033',
-      is_default: true,
-    },
-    order_items: [
-      {
-        id: 'i1',
-        order_id: orderId,
-        sku: 'RNG-000101',
-        quantity: 1,
-        price_at_purchase: 49999,
-        product: {
-          id: 'p1',
-          sku: 'RNG-000101',
-          name: 'Aurelia Solitaire Diamond Ring',
-          slug: 'aurelia-solitaire-diamond-ring',
-          price: 49999,
-          mrp: 59999,
-          gst_rate: 3.0,
-          stock_quantity: 10,
-          low_stock_threshold: 2,
-          status: 'active',
-          is_new_arrival: true,
-          is_best_seller: true,
-        },
-      },
-    ],
   };
 
   if (loading) {
@@ -203,16 +151,16 @@ export default function InvoicePage({
             <span className="block font-serif text-3xl font-bold uppercase tracking-widest text-amber-950">
               RUHVI JEWELS
             </span>
-            <span className="mt-0.5 block font-sans text-[10px] font-semibold uppercase tracking-widest text-stone-500">
+            <span className="mt-0.5 block font-sans text-xs font-semibold uppercase tracking-widest text-stone-500">
               Sole Proprietorship
             </span>
             <div className="mt-2 space-y-0.5 text-xs text-stone-600">
               <p>Plot 12, Road No. 36, Jubilee Hills</p>
               <p>Hyderabad, Telangana - 500033</p>
-              <p className="font-mono text-[11px] font-bold text-stone-800">
-                GSTIN: [GST_NUMBER_PENDING]
+              <p className="font-mono text-xs font-bold text-stone-800">
+                GSTIN: {gstin || 'Pending Registration'}
               </p>
-              <p className="text-[11px]">
+              <p className="text-xs">
                 Email: support@ruhvi.in | Web: www.ruhvi.in
               </p>
             </div>
@@ -220,7 +168,7 @@ export default function InvoicePage({
 
           <div className="space-y-1 text-right">
             <span className="inline-block rounded bg-amber-950 px-3 py-1 text-xs font-bold uppercase tracking-widest text-amber-100">
-              TAX INVOICE
+              {isTaxInvoice ? 'TAX INVOICE' : 'PROFORMA INVOICE'}
             </span>
             <div className="space-y-0.5 pt-2 text-xs text-stone-600">
               <p className="font-mono text-sm font-bold text-stone-900">
@@ -247,7 +195,7 @@ export default function InvoicePage({
         {/* Billed To / Shipped To Grid */}
         <div className="mb-8 grid grid-cols-2 gap-6 rounded-xl border border-stone-200 bg-stone-50 p-4 text-xs">
           <div>
-            <h4 className="mb-1 text-[11px] font-bold uppercase tracking-wider text-amber-950">
+            <h4 className="mb-1 text-xs font-bold uppercase tracking-wider text-amber-950">
               Billed To & Shipped To
             </h4>
             {order.shipping_address && (
@@ -271,7 +219,7 @@ export default function InvoicePage({
           </div>
 
           <div className="space-y-1 border-l border-stone-200 pl-6">
-            <h4 className="mb-1 text-[11px] font-bold uppercase tracking-wider text-amber-950">
+            <h4 className="mb-1 text-xs font-bold uppercase tracking-wider text-amber-950">
               Payment & Dispatch Info
             </h4>
             <p>
@@ -302,7 +250,7 @@ export default function InvoicePage({
         {/* Itemized Invoice Table */}
         <table className="mb-8 w-full border-collapse text-left text-xs">
           <thead>
-            <tr className="bg-amber-950 text-[10px] uppercase tracking-wider text-amber-100">
+            <tr className="bg-amber-950 text-xs uppercase tracking-wider text-amber-100">
               <th className="rounded-l p-3">S.No</th>
               <th className="p-3">Item Description</th>
               <th className="p-3 font-mono">HSN Code</th>
@@ -326,7 +274,7 @@ export default function InvoicePage({
                   <td className="p-3 font-mono">{idx + 1}</td>
                   <td className="p-3 font-medium">
                     <div>{item.product?.name || item.sku}</div>
-                    <div className="font-mono text-[10px] text-stone-400">
+                    <div className="font-mono text-xs text-stone-400">
                       SKU: {item.sku}
                     </div>
                   </td>
@@ -352,14 +300,15 @@ export default function InvoicePage({
 
         {/* Calculations & Totals Box */}
         <div className="flex items-start justify-between border-t border-stone-200 pt-6">
-          <div className="max-w-xs space-y-2 text-[11px] text-stone-500">
+          <div className="max-w-xs space-y-2 text-xs text-stone-500">
             <div className="flex items-center space-x-1 font-bold text-amber-950">
               <ShieldCheck className="h-4 w-4 text-amber-800" />
               <span>Certified Authenticity Guarantee</span>
             </div>
             <p>
-              This is a computer-generated tax invoice issued in accordance with
-              GST Rules 2017.
+              {isTaxInvoice
+                ? 'This is a computer-generated tax invoice issued in accordance with GST Rules 2017.'
+                : 'This is a proforma document for display purposes. A final tax invoice will be shared once the GST registration is complete.'}
             </p>
           </div>
 
@@ -406,11 +355,11 @@ export default function InvoicePage({
         <div className="mt-12 flex items-end justify-between border-t border-stone-100 pt-6 text-xs text-stone-500">
           <div>
             <p className="font-bold text-stone-800">Terms & Conditions:</p>
-            <p className="text-[10px]">
+            <p className="text-xs">
               1. Goods once sold carry a 7-day return policy subject to
               condition tag.
             </p>
-            <p className="text-[10px]">
+            <p className="text-xs">
               2. All disputes subject to Hyderabad jurisdiction.
             </p>
           </div>
@@ -419,7 +368,7 @@ export default function InvoicePage({
             <div className="mb-1 font-serif text-lg font-bold italic text-amber-950">
               RUHVI JEWELS
             </div>
-            <div className="border-t border-stone-300 pt-1 font-sans text-[10px] uppercase tracking-wider">
+            <div className="border-t border-stone-300 pt-1 font-sans text-xs uppercase tracking-wider">
               Authorized Signatory
             </div>
           </div>

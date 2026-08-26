@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import React from 'react';
+import { Breadcrumbs } from '@/components/seo/Breadcrumbs';
 
 export const metadata: Metadata = {
   title: 'Frequently Asked Questions | Ruhvi',
@@ -86,18 +87,24 @@ export default function FAQPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
       />
+      <Breadcrumbs
+        items={[
+          { label: 'Home', url: '/' },
+          { label: 'FAQs', url: '/faq' },
+        ]}
+      />
       <h1 className="text-center font-serif text-3xl font-bold text-stone-900">
         Frequently Asked Questions
       </h1>
 
-      <div className="space-y-8 rounded-2xl border border-[#E7D7A3]/50 bg-white p-6 text-sm leading-relaxed text-[#121110]/80 shadow-sm sm:p-10">
+      <div className="space-y-8 rounded-2xl border border-gold-200/50 bg-white p-6 text-sm leading-relaxed text-charcoal-900/80 shadow-sm sm:p-10">
         <section className="space-y-3">
-          <h2 className="font-serif text-xl font-bold text-[#121110]">
+          <h2 className="font-serif text-xl font-bold text-charcoal-900">
             Orders & Shipping
           </h2>
           <div className="space-y-4">
             <div>
-              <h3 className="font-semibold text-[#121110]">
+              <h3 className="font-semibold text-charcoal-900">
                 How much does shipping cost?
               </h3>
               <p>
@@ -108,7 +115,7 @@ export default function FAQPage() {
               </p>
             </div>
             <div>
-              <h3 className="font-semibold text-[#121110]">
+              <h3 className="font-semibold text-charcoal-900">
                 How long does delivery take?
               </h3>
               <p>
@@ -118,7 +125,7 @@ export default function FAQPage() {
               </p>
             </div>
             <div>
-              <h3 className="font-semibold text-[#121110]">
+              <h3 className="font-semibold text-charcoal-900">
                 How can I track my order?
               </h3>
               <p>
@@ -131,12 +138,12 @@ export default function FAQPage() {
         </section>
 
         <section className="space-y-3">
-          <h2 className="font-serif text-xl font-bold text-[#121110]">
+          <h2 className="font-serif text-xl font-bold text-charcoal-900">
             Returns & Cancellations
           </h2>
           <div className="space-y-4">
             <div>
-              <h3 className="font-semibold text-[#121110]">
+              <h3 className="font-semibold text-charcoal-900">
                 Can I return an item if I don't like it?
               </h3>
               <p>
@@ -150,7 +157,7 @@ export default function FAQPage() {
               </p>
             </div>
             <div>
-              <h3 className="font-semibold text-[#121110]">
+              <h3 className="font-semibold text-charcoal-900">
                 Can I cancel my order?
               </h3>
               <p>
@@ -163,12 +170,12 @@ export default function FAQPage() {
         </section>
 
         <section className="space-y-3">
-          <h2 className="font-serif text-xl font-bold text-[#121110]">
+          <h2 className="font-serif text-xl font-bold text-charcoal-900">
             Product Information
           </h2>
           <div className="space-y-4">
             <div>
-              <h3 className="font-semibold text-[#121110]">
+              <h3 className="font-semibold text-charcoal-900">
                 Is the jewelry hallmarked?
               </h3>
               <p>
@@ -181,12 +188,12 @@ export default function FAQPage() {
         </section>
 
         <section className="space-y-3">
-          <h2 className="font-serif text-xl font-bold text-[#121110]">
+          <h2 className="font-serif text-xl font-bold text-charcoal-900">
             Rewards & Wallet
           </h2>
           <div className="space-y-4">
             <div>
-              <h3 className="font-semibold text-[#121110]">
+              <h3 className="font-semibold text-charcoal-900">
                 How do Reward Coins work?
               </h3>
               <p>
@@ -198,7 +205,7 @@ export default function FAQPage() {
               </p>
             </div>
             <div>
-              <h3 className="font-semibold text-[#121110]">
+              <h3 className="font-semibold text-charcoal-900">
                 Can I transfer my Wallet balance to my bank account?
               </h3>
               <p>
@@ -210,8 +217,8 @@ export default function FAQPage() {
           </div>
         </section>
 
-        <section className="space-y-3 border-t border-[#E7D7A3]/50 pt-4">
-          <h2 className="font-serif text-xl font-bold text-[#121110]">
+        <section className="space-y-3 border-t border-gold-200/50 pt-4">
+          <h2 className="font-serif text-xl font-bold text-charcoal-900">
             Still have questions?
           </h2>
           <p>

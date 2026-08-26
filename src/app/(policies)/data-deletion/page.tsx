@@ -10,6 +10,8 @@ export const metadata: Metadata = {
   alternates: { canonical: '/data-deletion' },
 };
 
+const EFFECTIVE_DATE = 'July 1, 2026';
+
 export default function DataDeletionPage() {
   return (
     <div className="mx-auto max-w-4xl space-y-8 px-4 py-12 sm:px-6 lg:px-8">
@@ -22,20 +24,14 @@ export default function DataDeletionPage() {
         </p>
       </div>
 
-      <div className="space-y-8 rounded-2xl border border-[#E7D7A3]/50 bg-white p-6 text-sm leading-relaxed text-[#121110]/80 shadow-sm sm:p-10">
+      <div className="space-y-8 rounded-2xl border border-gold-200/50 bg-white p-6 text-sm leading-relaxed text-charcoal-900/80 shadow-sm sm:p-10">
         <div>
           <p className="font-medium text-stone-700">
-            Effective Date:{' '}
-            {new Date().toLocaleDateString('en-US', {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
-            })}
+            Effective Date: {EFFECTIVE_DATE}
           </p>
           <p className="mt-3">
             At <strong>Ruhvi Jewels</strong> (operated at{' '}
-            <span className="font-medium text-gold-700">ruhvi.in</span> /{' '}
-            <span className="font-medium text-gold-700">ruhvi.vercel.app</span>
+            <span className="font-medium text-gold-700">ruhvi.in</span>
             ), we deeply value your privacy and are committed to full compliance
             with Meta's Platform Data Protection Terms, General Data Protection
             Regulation (GDPR), and India's Digital Personal Data Protection Act
@@ -50,10 +46,10 @@ export default function DataDeletionPage() {
         </div>
 
         {/* Section 1: How to remove Ruhvi data via Facebook */}
-        <section className="space-y-4 rounded-xl border border-stone-200 bg-[#FAF7ED]/60 p-5">
+        <section className="space-y-4 rounded-xl border border-stone-200 bg-champagne-100/60 p-5">
           <div className="flex items-center gap-2">
             <ShieldCheck className="h-5 w-5 flex-shrink-0 text-gold-600" />
-            <h2 className="font-serif text-lg font-bold text-[#121110]">
+            <h2 className="font-serif text-lg font-bold text-charcoal-900">
               Method 1: Remove via Facebook / Meta Settings
             </h2>
           </div>
@@ -88,7 +84,7 @@ export default function DataDeletionPage() {
         <section className="space-y-4 rounded-xl border border-stone-200 bg-white p-5">
           <div className="flex items-center gap-2">
             <Mail className="h-5 w-5 flex-shrink-0 text-gold-600" />
-            <h2 className="font-serif text-lg font-bold text-[#121110]">
+            <h2 className="font-serif text-lg font-bold text-charcoal-900">
               Method 2: Submit a Data Deletion Request Directly to Ruhvi
             </h2>
           </div>
@@ -136,7 +132,7 @@ export default function DataDeletionPage() {
 
         {/* Section 3: In-App deletion */}
         <section className="space-y-3">
-          <h2 className="font-serif text-lg font-bold text-[#121110]">
+          <h2 className="font-serif text-lg font-bold text-charcoal-900">
             Method 3: In-App Self-Service Deletion
           </h2>
           <p className="text-xs text-stone-700">
@@ -154,10 +150,10 @@ export default function DataDeletionPage() {
         </section>
 
         {/* Section 4: What happens after request */}
-        <section className="space-y-3 border-t border-[#E7D7A3]/50 pt-6">
+        <section className="space-y-3 border-t border-gold-200/50 pt-6">
           <div className="flex items-center gap-2">
             <CheckCircle2 className="h-5 w-5 flex-shrink-0 text-emerald-600" />
-            <h2 className="font-serif text-lg font-bold text-[#121110]">
+            <h2 className="font-serif text-lg font-bold text-charcoal-900">
               What Happens Next & Timelines
             </h2>
           </div>
@@ -183,10 +179,10 @@ export default function DataDeletionPage() {
         </section>
 
         {/* Section 5: Grievance Officer & Contact */}
-        <section className="space-y-3 border-t border-[#E7D7A3]/50 pt-6">
+        <section className="space-y-3 border-t border-gold-200/50 pt-6">
           <div className="flex items-center gap-2">
             <AlertCircle className="h-5 w-5 flex-shrink-0 text-gold-600" />
-            <h2 className="font-serif text-lg font-bold text-[#121110]">
+            <h2 className="font-serif text-lg font-bold text-charcoal-900">
               Questions & Grievance Contact
             </h2>
           </div>

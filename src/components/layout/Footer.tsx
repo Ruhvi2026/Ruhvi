@@ -1,11 +1,62 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ShieldCheck, Truck, RotateCcw, Award, Gem } from 'lucide-react';
+import {
+  ShieldCheck,
+  Truck,
+  RotateCcw,
+  Award,
+  Gem,
+  Instagram,
+  Facebook,
+} from 'lucide-react';
+
+const SOCIAL_LINKS = [
+  {
+    label: 'Instagram',
+    href: 'https://instagram.com/ruhvi.in',
+    icon: Instagram,
+  },
+  { label: 'Facebook', href: 'https://facebook.com/ruhvi.in', icon: Facebook },
+];
 
 export function Footer() {
+  const [email, setEmail] = useState('');
+  const [status, setStatus] = useState<
+    'idle' | 'loading' | 'success' | 'error'
+  >('idle');
+  const [message, setMessage] = useState('');
+
+  const handleSubscribe = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const trimmed = email.trim();
+    if (!trimmed || status === 'loading') return;
+
+    setStatus('loading');
+    setMessage('');
+    try {
+      const res = await fetch('/api/newsletter', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: trimmed }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setStatus('success');
+        setMessage(data.message || 'Thanks for subscribing to Ruhvi!');
+        setEmail('');
+      } else {
+        setStatus('error');
+        setMessage(data.error || 'Something went wrong. Please try again.');
+      }
+    } catch {
+      setStatus('error');
+      setMessage('Something went wrong. Please try again.');
+    }
+  };
+
   return (
     <footer className="border-t border-gold-800/60 bg-charcoal-900 pb-8 pt-12 text-cream-200">
       {/* Brand Reassurance Bar */}
@@ -111,6 +162,69 @@ export function Footer() {
           <p className="flex items-center gap-1.5 text-xs text-gold-300">
             <Gem className="h-3.5 w-3.5 text-gold-400" /> support@ruhvi.in
           </p>
+
+          {/* Follow Us */}
+          <div className="mb-6 mt-6">
+            <h4 className="mb-3 text-xs font-bold uppercase tracking-[0.15em] text-gold-500">
+              Follow Us
+            </h4>
+            <div className="flex items-center space-x-3">
+              {SOCIAL_LINKS.map(({ label, href, icon: Icon }) => (
+                <a
+                  key={label}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={label}
+                  title={label}
+                  className="flex h-9 w-9 items-center justify-center rounded-full border border-gold-700/40 bg-charcoal-800 text-gold-300 transition-colors hover:border-gold-500 hover:bg-gold-500/10 hover:text-gold-200"
+                >
+                  <Icon className="h-4 w-4" />
+                </a>
+              ))}
+            </div>
+          </div>
+
+          {/* Newsletter Signup */}
+          <div>
+            <h4 className="mb-3 text-xs font-bold uppercase tracking-[0.15em] text-gold-500">
+              Stay in the Loop
+            </h4>
+            <form onSubmit={handleSubscribe} className="flex gap-2">
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Your email address"
+                aria-label="Email address"
+                className="w-full min-w-0 flex-1 rounded-lg border border-gold-700/40 bg-charcoal-800 px-3 py-2 text-xs text-cream-100 placeholder-cream-200/40 outline-none transition focus:border-gold-400 focus:ring-1 focus:ring-gold-400/50"
+              />
+              <button
+                type="submit"
+                disabled={status === 'loading'}
+                className="flex-shrink-0 rounded-lg bg-gold-500 px-3.5 py-2 text-xs font-bold uppercase tracking-wider text-charcoal-900 transition hover:bg-gold-400 disabled:opacity-60"
+              >
+                {status === 'loading' ? 'Joining…' : 'Join'}
+              </button>
+            </form>
+            {status === 'success' && (
+              <p
+                role="status"
+                className="mt-2 text-xs font-medium text-gold-300"
+              >
+                {message}
+              </p>
+            )}
+            {status === 'error' && (
+              <p
+                role="alert"
+                className="mt-2 text-xs font-medium text-rose-300"
+              >
+                {message}
+              </p>
+            )}
+          </div>
         </div>
 
         <div>

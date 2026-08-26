@@ -14,9 +14,9 @@ export default function CancellationPolicyPage() {
         Cancellation Policy
       </h1>
 
-      <div className="space-y-6 rounded-2xl border border-[#E7D7A3]/50 bg-white p-6 text-sm leading-relaxed text-[#121110]/80 shadow-sm sm:p-10">
+      <div className="space-y-6 rounded-2xl border border-gold-200/50 bg-white p-6 text-sm leading-relaxed text-charcoal-900/80 shadow-sm sm:p-10">
         <section className="space-y-3">
-          <h2 className="font-serif text-xl font-bold text-[#121110]">
+          <h2 className="font-serif text-xl font-bold text-charcoal-900">
             1. When can I cancel my order?
           </h2>
           <p>
@@ -34,7 +34,7 @@ export default function CancellationPolicyPage() {
         </section>
 
         <section className="space-y-3">
-          <h2 className="font-serif text-xl font-bold text-[#121110]">
+          <h2 className="font-serif text-xl font-bold text-charcoal-900">
             2. How to cancel an order
           </h2>
           <p>To cancel an eligible order:</p>
@@ -53,7 +53,7 @@ export default function CancellationPolicyPage() {
         </section>
 
         <section className="space-y-3">
-          <h2 className="font-serif text-xl font-bold text-[#121110]">
+          <h2 className="font-serif text-xl font-bold text-charcoal-900">
             3. Refunds for Cancelled Orders
           </h2>
           <ul className="list-disc space-y-1 pl-5">
@@ -79,7 +79,7 @@ export default function CancellationPolicyPage() {
         </section>
 
         <section className="space-y-3">
-          <h2 className="font-serif text-xl font-bold text-[#121110]">
+          <h2 className="font-serif text-xl font-bold text-charcoal-900">
             4. Cancellations by Ruhvi
           </h2>
           <p>

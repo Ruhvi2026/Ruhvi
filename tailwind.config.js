@@ -22,7 +22,7 @@ module.exports = {
           ruby: '#7A2635',
           emerald: '#1F5A46',
         },
-        gold: {
+        rasa: {
           50: '#f0fafb',
           100: '#d9f2f3',
           200: '#b6e5e7',
@@ -33,6 +33,19 @@ module.exports = {
           700: '#1f7072',
           800: '#1e5a5c',
           950: '#1d4c4d',
+        },
+        gold: {
+          50: '#FCF9F1',
+          100: '#F6EFDD',
+          200: '#EADCB5',
+          300: '#E0C88F',
+          400: '#D6B36A', // Signature champagne gold
+          500: '#C6A14F',
+          600: '#B08A3A',
+          700: '#8F6D2E',
+          800: '#6E5222',
+          900: '#4F3B19',
+          950: '#382B12',
         },
         cream: {
           50: '#FCFBF8',
@@ -82,5 +95,5 @@ module.exports = {
       },
     },
   },
-  plugins: [],
+  plugins: [require('@tailwindcss/typography')],
 };

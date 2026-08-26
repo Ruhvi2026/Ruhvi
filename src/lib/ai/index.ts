@@ -109,7 +109,7 @@ export async function getAIProvider(
   const type =
     providerConfig?.type || (providerId === 'gemini' ? 'gemini' : providerId);
   const resolved = resolveEffectiveApiKey(type, providerConfig?.apiKey, null);
-  let apiKey = resolved.apiKey;
+  const apiKey = resolved.apiKey;
 
   if (!apiKey) {
     throw new Error(
@@ -194,14 +194,14 @@ async function enforceRateLimit(
   const limits =
     (globalConfig.rateLimits && globalConfig.rateLimits[roleKey]) ||
     (userRole === 'admin'
-      ? { rpm: 60, daily: 1000, tokens: 500000, maxPromptLength: 15000 }
+      ? { rpm: 60, daily: 1000, tokens: 500000, maxPromptLength: 50000 }
       : userRole === 'manager'
-        ? { rpm: 30, daily: 400, tokens: 200000, maxPromptLength: 10000 }
+        ? { rpm: 30, daily: 400, tokens: 200000, maxPromptLength: 25000 }
         : userRole === 'staff'
-          ? { rpm: 20, daily: 200, tokens: 100000, maxPromptLength: 8000 }
+          ? { rpm: 20, daily: 200, tokens: 100000, maxPromptLength: 25000 }
           : userRole === 'user' || userRole === 'customer'
-            ? { rpm: 10, daily: 100, tokens: 25000, maxPromptLength: 4000 }
-            : { rpm: 5, daily: 30, tokens: 10000, maxPromptLength: 2000 });
+            ? { rpm: 10, daily: 100, tokens: 25000, maxPromptLength: 25000 }
+            : { rpm: 5, daily: 30, tokens: 10000, maxPromptLength: 25000 });
 
   if (limits.maxPromptLength > 0 && prompt.length > limits.maxPromptLength) {
     throw new Error(
@@ -381,7 +381,7 @@ export async function generateAIContent(
           .select('role')
           .eq('id', userId)
           .maybeSingle();
-        let userProfile = profile;
+        const userProfile = profile;
         userRole = userProfile?.role || 'user';
       }
     }
@@ -440,7 +440,7 @@ export async function generateAIContent(
     .sort((a, b) => (a.priority || 99) - (b.priority || 99));
 
   for (const fp of fallbackProviders) {
-    let fpModel =
+    const fpModel =
       fp.models && fp.models.length > 0
         ? fp.models[0]
         : fp.type === 'gemini'
@@ -596,7 +596,7 @@ export async function generateAIContent(
 
       // Model-level outer loop: try current model, then fallback models
       while (true) {
-        let modelSucceeded = false;
+        const modelSucceeded = false;
 
         for (const credential of credentials) {
           if (visitedCredentials.has(credential.id)) continue;

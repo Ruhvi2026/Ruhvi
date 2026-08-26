@@ -346,11 +346,15 @@ export default function CompleteProfilePage() {
 
           {(missingEmail || !missingEmail) && (
             <div>
-              <label className="mb-1 block text-xs font-medium text-[#121110]/80">
+              <label
+                htmlFor="complete-profile-email"
+                className="mb-1 block text-xs font-medium text-[#121110]/80"
+              >
                 Email Address
               </label>
               <div className="relative">
                 <input
+                  id="complete-profile-email"
                   type="email"
                   required={missingEmail}
                   disabled={!missingEmail}
@@ -367,11 +371,15 @@ export default function CompleteProfilePage() {
           {missingPhone && (
             <>
               <div>
-                <label className="mb-1 block text-xs font-medium text-[#121110]/80">
+                <label
+                  htmlFor="complete-profile-phone"
+                  className="mb-1 block text-xs font-medium text-[#121110]/80"
+                >
                   Phone Number
                 </label>
                 <div className="relative">
                   <input
+                    id="complete-profile-phone"
                     type="tel"
                     required
                     disabled={showOtpInput}
@@ -386,10 +394,14 @@ export default function CompleteProfilePage() {
 
               {showOtpInput && (
                 <div>
-                  <label className="mb-1 block text-xs font-medium text-[#121110]/80">
+                  <label
+                    htmlFor="complete-profile-otp"
+                    className="mb-1 block text-xs font-medium text-[#121110]/80"
+                  >
                     Enter OTP
                   </label>
                   <input
+                    id="complete-profile-otp"
                     type="text"
                     required
                     value={otp}
@@ -417,11 +429,15 @@ export default function CompleteProfilePage() {
 
           {missingPassword && (
             <div>
-              <label className="mb-1 block text-xs font-medium text-[#121110]/80">
+              <label
+                htmlFor="complete-profile-password"
+                className="mb-1 block text-xs font-medium text-[#121110]/80"
+              >
                 Choose Password {missingPhone && '(Optional)'}
               </label>
               <div className="relative">
                 <input
+                  id="complete-profile-password"
                   type={showPassword ? 'text' : 'password'}
                   required={!missingPhone}
                   minLength={6}

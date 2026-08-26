@@ -106,10 +106,14 @@ export default function ContactPage() {
           </h2>
 
           <div>
-            <label className="mb-1 block text-xs font-semibold text-stone-700">
+            <label
+              htmlFor="contact-name"
+              className="mb-1 block text-xs font-semibold text-stone-700"
+            >
               Your Name
             </label>
             <input
+              id="contact-name"
               type="text"
               {...register('name')}
               className={`w-full rounded-lg border px-3 py-2 text-xs outline-none transition-all focus:ring-2 focus:ring-amber-500 ${
@@ -125,10 +129,14 @@ export default function ContactPage() {
           </div>
 
           <div>
-            <label className="mb-1 block text-xs font-semibold text-stone-700">
+            <label
+              htmlFor="contact-email"
+              className="mb-1 block text-xs font-semibold text-stone-700"
+            >
               Email
             </label>
             <input
+              id="contact-email"
               type="email"
               {...register('email')}
               className={`w-full rounded-lg border px-3 py-2 text-xs outline-none transition-all focus:ring-2 focus:ring-amber-500 ${
@@ -144,10 +152,14 @@ export default function ContactPage() {
           </div>
 
           <div>
-            <label className="mb-1 block text-xs font-semibold text-stone-700">
+            <label
+              htmlFor="contact-message"
+              className="mb-1 block text-xs font-semibold text-stone-700"
+            >
               Message
             </label>
             <textarea
+              id="contact-message"
               rows={3}
               {...register('message')}
               className={`w-full rounded-lg border px-3 py-2 text-xs outline-none transition-all focus:ring-2 focus:ring-amber-500 ${

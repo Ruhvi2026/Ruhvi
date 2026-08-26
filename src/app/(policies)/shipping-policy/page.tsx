@@ -8,6 +8,8 @@ export const metadata: Metadata = {
   alternates: { canonical: '/shipping-policy' },
 };
 
+const EFFECTIVE_DATE = 'July 1, 2026';
+
 export default function ShippingPolicyPage() {
   return (
     <div className="mx-auto max-w-4xl space-y-8 px-4 py-12 sm:px-6 lg:px-8">
@@ -15,18 +17,11 @@ export default function ShippingPolicyPage() {
         Shipping & Delivery Policy
       </h1>
 
-      <div className="space-y-6 rounded-2xl border border-[#E7D7A3]/50 bg-white p-6 text-sm leading-relaxed text-[#121110]/80 shadow-sm sm:p-10">
-        <p className="font-medium">
-          Effective Date:{' '}
-          {new Date().toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-          })}
-        </p>
+      <div className="space-y-6 rounded-2xl border border-gold-200/50 bg-white p-6 text-sm leading-relaxed text-charcoal-900/80 shadow-sm sm:p-10">
+        <p className="font-medium">Effective Date: {EFFECTIVE_DATE}</p>
 
         <section className="space-y-3">
-          <h2 className="font-serif text-xl font-bold text-[#121110]">
+          <h2 className="font-serif text-xl font-bold text-charcoal-900">
             1. Shipping Charges
           </h2>
           <ul className="list-disc space-y-1 pl-5">
@@ -48,7 +43,7 @@ export default function ShippingPolicyPage() {
         </section>
 
         <section className="space-y-3">
-          <h2 className="font-serif text-xl font-bold text-[#121110]">
+          <h2 className="font-serif text-xl font-bold text-charcoal-900">
             2. Processing & Delivery Timelines
           </h2>
           <p>
@@ -74,7 +69,7 @@ export default function ShippingPolicyPage() {
         </section>
 
         <section className="space-y-3">
-          <h2 className="font-serif text-xl font-bold text-[#121110]">
+          <h2 className="font-serif text-xl font-bold text-charcoal-900">
             3. Order Tracking
           </h2>
           <p>
@@ -86,7 +81,7 @@ export default function ShippingPolicyPage() {
         </section>
 
         <section className="space-y-3">
-          <h2 className="font-serif text-xl font-bold text-[#121110]">
+          <h2 className="font-serif text-xl font-bold text-charcoal-900">
             4. Delivery Attempts & Failed Deliveries
           </h2>
           <p>
@@ -108,8 +103,8 @@ export default function ShippingPolicyPage() {
           </ul>
         </section>
 
-        <section className="space-y-3 border-t border-[#E7D7A3]/50 pt-4">
-          <h2 className="font-serif text-xl font-bold text-[#121110]">
+        <section className="space-y-3 border-t border-gold-200/50 pt-4">
+          <h2 className="font-serif text-xl font-bold text-charcoal-900">
             Questions?
           </h2>
           <p>

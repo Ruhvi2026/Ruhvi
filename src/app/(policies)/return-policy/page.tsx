@@ -15,9 +15,9 @@ export default function ReturnPolicyPage() {
         Return & Refund Policy
       </h1>
 
-      <div className="space-y-6 rounded-2xl border border-[#E7D7A3]/50 bg-white p-6 text-sm leading-relaxed text-[#121110]/80 shadow-sm sm:p-10">
+      <div className="space-y-6 rounded-2xl border border-gold-200/50 bg-white p-6 text-sm leading-relaxed text-charcoal-900/80 shadow-sm sm:p-10">
         <section className="space-y-3">
-          <h2 className="font-serif text-xl font-bold text-[#121110]">
+          <h2 className="font-serif text-xl font-bold text-charcoal-900">
             1. 7-Day Return Window
           </h2>
           <p>
@@ -30,7 +30,7 @@ export default function ReturnPolicyPage() {
         </section>
 
         <section className="space-y-3">
-          <h2 className="font-serif text-xl font-bold text-[#121110]">
+          <h2 className="font-serif text-xl font-bold text-charcoal-900">
             2. Conditions for Return
           </h2>
           <p>
@@ -58,7 +58,7 @@ export default function ReturnPolicyPage() {
         </section>
 
         <section className="space-y-3">
-          <h2 className="font-serif text-xl font-bold text-[#121110]">
+          <h2 className="font-serif text-xl font-bold text-charcoal-900">
             3. How to Initiate a Return
           </h2>
           <ol className="list-decimal space-y-1 pl-5">
@@ -82,7 +82,7 @@ export default function ReturnPolicyPage() {
         </section>
 
         <section className="space-y-3">
-          <h2 className="font-serif text-xl font-bold text-[#121110]">
+          <h2 className="font-serif text-xl font-bold text-charcoal-900">
             4. Refund Process
           </h2>
           <p>
@@ -112,7 +112,7 @@ export default function ReturnPolicyPage() {
         </section>
 
         <section className="space-y-3">
-          <h2 className="font-serif text-xl font-bold text-[#121110]">
+          <h2 className="font-serif text-xl font-bold text-charcoal-900">
             5. Non-Returnable Items
           </h2>
           <p>

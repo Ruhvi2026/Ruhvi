@@ -41,6 +41,7 @@ The application is a modern, headless e-commerce storefront. It utilizes Next.js
 | **Brevo** | Email & AI Tools | Marketing emails, automated cron email campaigns, and AI model tool calling via Brevo MCP SDK / REST API. | `src/lib/brevo.ts`, `src/lib/brevo/mcp.ts`, `src/lib/ai/tools/brevo.ts`, `src/app/admin/actions/marketing.ts` | `BREVO_API_KEY`, `BREVO_MCP_API_KEY`, `BREVO_SENDER_NAME`, `BREVO_SENDER_EMAIL` | Active |
 | **Model Context Protocol (MCP)** | AI Tooling / Protocol | `@modelcontextprotocol/sdk` client for AI tool invocation and MCP server integration. | `src/lib/brevo/mcp.ts`, `src/lib/ai/tools/*` | `BREVO_MCP_API_KEY` | Active |
 | **Resend** | Email | Transactional emails (Welcome, Order Confirmation, Shipping). | `src/lib/resend.ts`, API routes | `RESEND_API_KEY`, `RESEND_SENDER_EMAIL` | Active |
+| **Sentry** | Observability | Application performance monitoring, error tracking, and MCP integration. | `sentry.*.config.ts`, `next.config.js` | `SENTRY_AUTH_TOKEN` | Active |
 
 ---
 
@@ -125,6 +126,7 @@ The application is a modern, headless e-commerce storefront. It utilizes Next.js
 - `OPENROUTER_API_KEY`
 - `CUSTOM_GATEWAY_API_KEY`
 - `CUSTOM_GATEWAY_BASE_URL`
+- `SENTRY_AUTH_TOKEN`
 
 ---
 
@@ -186,3 +188,4 @@ The application is a modern, headless e-commerce storefront. It utilizes Next.js
 | AI Operations Product SEO & Audit | AI Copywriting & Audit | 2026-08-20 | Active | `src/app/api/admin/ai/audit/route.ts`, `src/app/operations/products/ProductForm.tsx`, `src/app/operations/products/actions.ts` | Added on-demand AI SEO auditing, category-aware SKU auto-generation, optional dimension specifications, and AI description generation in the Operations panel. |
 | Partial COD Payment Flow | Payment Gateway | 2026-08-25 | Active | `src/app/checkout/page.tsx`, `src/app/api/checkout/verify/route.ts`, `supabase/migrations/0054_partial_cod_support.sql` | Enabled 10% partial pre-payment via PhonePe for Cash on Delivery (COD) orders exceeding ₹2000. Remaining balance stored in new order fields. |
 | JWT Subsystem Hardening & Security Audit | Authentication & Security | 2026-08-25 | Active | `src/app/api/auth/sync-token/route.ts`, `src/app/api/auth/session/route.ts`, `src/app/api/auth/hybrid-login/route.ts`, `src/lib/auth/verify-session.ts`, `src/lib/auth/require-admin.ts`, `src/lib/auth/server.ts`, `scripts/test-jwt.mjs` | Hardened full JWT lifecycle: (1) Added missing `iat` claim to Supabase custom JWT in `sync-token`; (2) Enforced atomic `now` capture in `session/route.ts` preventing clock-skew errors; (3) Migrated `hybrid-login` from blocking sync crypto to async `jose` `SignJWT` + `importPKCS8`; (4) Pinned `jwtVerify` algorithms strictly to `HS256` in `verify-session.ts` and `server.ts`; (5) Removed dangerous `firebase_uid` fallback in `require-admin.ts`; (6) Automated 26/26 test validation suite with 100% pass rate. |
+| Sentry | Observability & Error Tracking | 2026-08-26 | Active | `sentry.client.config.ts`, `sentry.server.config.ts`, `sentry.edge.config.ts`, `next.config.js`, `.agents/mcp_config.json` | Installed `@sentry/nextjs`, set up automatic instrumentation with Vercel monitors, and configured Sentry MCP server integration (`mcp.sentry.dev`) scoped to `ruhvi-jewels/javascript-nextjs`. |

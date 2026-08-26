@@ -2,93 +2,158 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { RefreshCw, ArrowLeft, Clock, CheckCircle2, XCircle, ShieldCheck, ShoppingBag } from 'lucide-react';
+import {
+  RefreshCw,
+  ArrowLeft,
+  Clock,
+  CheckCircle2,
+  XCircle,
+  ShieldCheck,
+  ShoppingBag,
+} from 'lucide-react';
 import { ReturnRequest } from '@/types/database';
+import { useAuth } from '@/context/AuthContext';
+import { createClient } from '@/lib/supabase/client';
 
-const SAMPLE_RETURNS: ReturnRequest[] = [
-  {
-    id: 'ret-demo-101',
-    order_id: 'ord-demo-1001',
-    order_number: 'RHV-2026-8942',
-    reason: 'Size mismatch / Incorrect fit',
-    item_condition: 'tag_intact',
-    refund_method: 'wallet',
-    comments: 'Requesting size 14 instead of size 12 ring.',
-    status: 'approved',
-    requested_at: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(),
-  },
-];
+interface ReturnRow {
+  id: string;
+  order_id: string;
+  reason: string;
+  status: ReturnRequest['status'];
+  refund_method: string;
+  item_condition?: string | null;
+  comments?: string | null;
+  requested_at: string;
+  resolved_at?: string | null;
+  order?: { order_number: string } | null;
+}
 
 export default function ReturnsHistoryPage() {
+  const { user } = useAuth();
   const [returns, setReturns] = useState<ReturnRequest[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem('ruhvi_returns_v1');
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        setReturns(parsed.length > 0 ? parsed : SAMPLE_RETURNS);
-      } else {
-        setReturns(SAMPLE_RETURNS);
+    async function fetchReturns() {
+      if (!user) {
+        try {
+          const saved = localStorage.getItem('ruhvi_returns_v1');
+          if (saved) setReturns(JSON.parse(saved));
+        } catch (e) {
+          console.error(e);
+        } finally {
+          setLoading(false);
+        }
+        return;
       }
-    } catch (e) {
-      console.error(e);
-      setReturns(SAMPLE_RETURNS);
-    } finally {
-      setLoading(false);
+
+      try {
+        const supabase = createClient();
+        const { data, error } = await supabase
+          .from('returns')
+          .select('*, order:orders!inner(order_number)')
+          .eq('order.user_id', user.id)
+          .order('requested_at', { ascending: false });
+
+        if (error) throw error;
+
+        const mapped: ReturnRequest[] = ((data as ReturnRow[]) || []).map(
+          (r) => ({
+            id: r.id,
+            order_id: r.order_id,
+            order_number: r.order?.order_number,
+            reason: r.reason,
+            item_condition: r.item_condition || undefined,
+            status: r.status,
+            refund_method: r.refund_method,
+            comments: r.comments || undefined,
+            requested_at: r.requested_at,
+            resolved_at: r.resolved_at || undefined,
+          })
+        );
+
+        setReturns(mapped);
+      } catch (err) {
+        console.error('Error fetching returns:', err);
+      } finally {
+        setLoading(false);
+      }
     }
-  }, []);
+
+    fetchReturns();
+  }, [user]);
 
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'approved':
-        return <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded">Approved (Pickup Scheduled)</span>;
+        return (
+          <span className="rounded bg-emerald-100 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-emerald-800">
+            Approved (Pickup Scheduled)
+          </span>
+        );
       case 'completed':
-        return <span className="bg-amber-100 text-amber-900 text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded">Completed (Refund Issued)</span>;
+        return (
+          <span className="rounded bg-amber-100 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-amber-900">
+            Completed (Refund Issued)
+          </span>
+        );
       case 'rejected':
-        return <span className="bg-rose-100 text-rose-800 text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded">Rejected</span>;
+        return (
+          <span className="rounded bg-rose-100 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-rose-800">
+            Rejected
+          </span>
+        );
       default:
-        return <span className="bg-stone-100 text-stone-700 text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded">Under Review</span>;
+        return (
+          <span className="rounded bg-stone-100 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-stone-700">
+            Under Review
+          </span>
+        );
     }
   };
 
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
+    <div className="mx-auto max-w-5xl space-y-8 px-4 py-10 sm:px-6 lg:px-8">
       {/* Header */}
       <div className="flex items-center justify-between border-b border-stone-200 pb-6">
         <div className="flex items-center space-x-3">
           <Link
             href="/account"
-            className="p-2 text-stone-500 hover:text-stone-900 rounded-lg hover:bg-stone-100 transition-colors"
+            className="rounded-lg p-2 text-stone-500 transition-colors hover:bg-stone-100 hover:text-stone-900"
           >
-            <ArrowLeft className="w-5 h-5" />
+            <ArrowLeft className="h-5 w-5" />
           </Link>
           <div>
-            <h1 className="font-serif text-3xl font-bold text-stone-900 flex items-center space-x-3">
-              <RefreshCw className="w-7 h-7 text-amber-900" />
+            <h1 className="flex items-center space-x-3 font-serif text-3xl font-bold text-stone-900">
+              <RefreshCw className="h-7 w-7 text-amber-900" />
               <span>Return Requests</span>
             </h1>
-            <p className="text-stone-500 text-xs mt-1">Track status & updates on your 7-day return requests</p>
+            <p className="mt-1 text-xs text-stone-500">
+              Track status & updates on your 7-day return requests
+            </p>
           </div>
         </div>
       </div>
 
       {loading ? (
-        <div className="p-12 text-center text-xs text-stone-500">Loading return requests...</div>
+        <div className="p-12 text-center text-xs text-stone-500">
+          Loading return requests...
+        </div>
       ) : returns.length > 0 ? (
         <div className="space-y-4">
           {returns.map((ret) => (
             <div
               key={ret.id}
-              className="bg-white rounded-2xl p-6 border border-stone-200 shadow-sm space-y-4"
+              className="space-y-4 rounded-2xl border border-stone-200 bg-white p-6 shadow-sm"
             >
               <div className="flex flex-wrap items-center justify-between gap-3 border-b border-stone-100 pb-3">
                 <div className="flex items-center space-x-3">
-                  <span className="text-xs uppercase font-bold text-stone-400">Order Ref:</span>
+                  <span className="text-xs font-bold uppercase text-stone-400">
+                    Order Ref:
+                  </span>
                   <Link
                     href={`/orders/${ret.order_id}`}
-                    className="font-mono font-bold text-xs text-amber-950 hover:underline"
+                    className="font-mono text-xs font-bold text-amber-950 hover:underline"
                   >
                     {ret.order_number || ret.order_id}
                   </Link>
@@ -96,40 +161,54 @@ export default function ReturnsHistoryPage() {
                 {getStatusBadge(ret.status)}
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+              <div className="grid grid-cols-1 gap-4 text-xs sm:grid-cols-2">
                 <div>
-                  <span className="text-stone-400 block text-[10px] uppercase font-semibold">Reason</span>
-                  <span className="font-semibold text-stone-800">{ret.reason}</span>
+                  <span className="block text-[10px] font-semibold uppercase text-stone-400">
+                    Reason
+                  </span>
+                  <span className="font-semibold text-stone-800">
+                    {ret.reason}
+                  </span>
                 </div>
 
                 <div>
-                  <span className="text-stone-400 block text-[10px] uppercase font-semibold">Refund Preference</span>
+                  <span className="block text-[10px] font-semibold uppercase text-stone-400">
+                    Refund Preference
+                  </span>
                   <span className="font-semibold text-stone-800">
-                    {ret.refund_method === 'wallet' ? 'Ruhvi Wallet / Store Credit' : 'Original Payment Method'}
+                    {ret.refund_method === 'wallet'
+                      ? 'Ruhvi Wallet / Store Credit'
+                      : 'Original Payment Method'}
                   </span>
                 </div>
               </div>
 
               {ret.comments && (
-                <div className="p-3 bg-stone-50 rounded-xl text-xs text-stone-600 italic">
+                <div className="rounded-xl bg-stone-50 p-3 text-xs italic text-stone-600">
                   "{ret.comments}"
                 </div>
               )}
 
-              <div className="text-[10px] text-stone-400 font-mono">
-                Requested on {new Date(ret.requested_at || Date.now()).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' })}
+              <div className="font-mono text-[10px] text-stone-400">
+                Requested on{' '}
+                {new Date(ret.requested_at || Date.now()).toLocaleDateString(
+                  'en-IN',
+                  { month: 'short', day: 'numeric', year: 'numeric' }
+                )}
               </div>
             </div>
           ))}
         </div>
       ) : (
-        <div className="bg-white rounded-2xl p-16 text-center border border-stone-200 shadow-sm max-w-lg mx-auto space-y-6">
-          <div className="w-20 h-20 rounded-full bg-amber-50 text-amber-900 flex items-center justify-center mx-auto">
-            <RefreshCw className="w-10 h-10" />
+        <div className="mx-auto max-w-lg space-y-6 rounded-2xl border border-stone-200 bg-white p-16 text-center shadow-sm">
+          <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-amber-50 text-amber-900">
+            <RefreshCw className="h-10 w-10" />
           </div>
           <div className="space-y-2">
-            <h2 className="font-serif text-2xl font-bold text-stone-900">No Return Requests</h2>
-            <p className="text-xs text-stone-500 max-w-xs mx-auto">
+            <h2 className="font-serif text-2xl font-bold text-stone-900">
+              No Return Requests
+            </h2>
+            <p className="mx-auto max-w-xs text-xs text-stone-500">
               You currently have no active or past return requests.
             </p>
           </div>

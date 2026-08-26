@@ -70,7 +70,7 @@ export async function GET(
     ].includes(user.role);
 
     // Fetch ticket
-    let ticketQuery = supabase
+    const ticketQuery = supabase
       .from('support_tickets')
       .select(
         `

@@ -1,6 +1,12 @@
 'use client';
 
-import React, { useState, useEffect, useMemo, Suspense } from 'react';
+import React, {
+  useState,
+  useEffect,
+  useMemo,
+  useCallback,
+  Suspense,
+} from 'react';
 import { useSearchParams } from 'next/navigation';
 import {
   Filter,
@@ -17,6 +23,8 @@ import { DepthCard } from '@/components/design-system/DepthCard';
 import { DepthButton } from '@/components/design-system/DepthButton';
 import { ecommerceEvent } from '@/lib/gtag';
 
+const PAGE_SIZE = 12;
+
 function ProductsCatalogContent() {
   const searchParams = useSearchParams();
   const initialSearch = searchParams.get('search') || '';
@@ -24,6 +32,10 @@ function ProductsCatalogContent() {
 
   const [dbProducts, setDbProducts] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [hasMoreDb, setHasMoreDb] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   const [searchQuery, setSearchQuery] = useState(initialSearch);
   const [selectedCategory, setSelectedCategory] = useState(initialCategory);
@@ -35,24 +47,59 @@ function ProductsCatalogContent() {
     'newest'
   );
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const { createClient } = await import('@/lib/supabase/client');
-        const supabase = createClient();
-        const { data } = await supabase
-          .from('products')
-          .select('*, images:product_images(*), category:categories(*)');
+  const fetchProducts = useCallback(async () => {
+    try {
+      const { createClient } = await import('@/lib/supabase/client');
+      const supabase = createClient();
+      const { data, count } = await supabase
+        .from('products')
+        .select('*, images:product_images(*), category:categories(*)', {
+          count: 'exact',
+        })
+        .range(0, PAGE_SIZE - 1);
 
-        if (data) setDbProducts(data);
-      } catch (err) {
-        console.error('Failed to fetch products', err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchProducts();
+      setDbProducts(data ?? []);
+      setHasMoreDb(count != null && (data?.length ?? 0) < count);
+    } catch (err) {
+      console.error('Failed to fetch products', err);
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
+
+  const loadMoreDb = async () => {
+    if (isLoadingMore || !hasMoreDb) return;
+    setIsLoadingMore(true);
+    try {
+      const { createClient } = await import('@/lib/supabase/client');
+      const supabase = createClient();
+      const { data, count } = await supabase
+        .from('products')
+        .select('*, images:product_images(*), category:categories(*)', {
+          count: 'exact',
+        })
+        .range(dbProducts.length, dbProducts.length + PAGE_SIZE - 1);
+
+      if (data && data.length > 0) {
+        setDbProducts((prev) => [...prev, ...data]);
+      }
+      setHasMoreDb(
+        count != null && dbProducts.length + (data?.length ?? 0) < count
+      );
+    } catch (err) {
+      console.error('Failed to load more products', err);
+    } finally {
+      setIsLoadingMore(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchProducts();
+  }, [fetchProducts]);
+
+  useEffect(() => {
+    setVisibleCount(PAGE_SIZE);
+  }, [searchQuery, selectedCategory, stockFilter, priceRange, sortBy]);
 
   const filteredProducts = useMemo(() => {
     const sourceProducts =
@@ -88,6 +135,11 @@ function ProductsCatalogContent() {
       .sort((a, b) => {
         if (sortBy === 'price-low') return a.price - b.price;
         if (sortBy === 'price-high') return b.price - a.price;
+        if (sortBy === 'newest') {
+          const aTime = a.created_at ? new Date(a.created_at).getTime() : 0;
+          const bTime = b.created_at ? new Date(b.created_at).getTime() : 0;
+          return bTime - aTime;
+        }
         return 0;
       });
   }, [
@@ -115,6 +167,21 @@ function ProductsCatalogContent() {
       });
     }
   }, [filteredProducts]);
+
+  const isDbSource = dbProducts.length > 0;
+  const showLoadMore =
+    visibleCount < filteredProducts.length || (isDbSource && hasMoreDb);
+
+  const handleLoadMore = () => {
+    if (visibleCount < filteredProducts.length) {
+      setVisibleCount((c) => c + PAGE_SIZE);
+      return;
+    }
+    if (isDbSource && hasMoreDb) {
+      setVisibleCount((c) => c + PAGE_SIZE);
+      loadMoreDb();
+    }
+  };
 
   const resetFilters = () => {
     setSearchQuery('');
@@ -149,7 +216,9 @@ function ProductsCatalogContent() {
 
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-4">
           {/* Glass Filter Sidebar */}
-          <aside className="h-fit lg:sticky lg:top-32">
+          <aside
+            className={`h-fit lg:sticky lg:top-32 ${isFilterOpen ? 'block' : 'hidden'} lg:block`}
+          >
             <GlassPanel
               intensity="medium"
               depth={1}
@@ -252,6 +321,15 @@ function ProductsCatalogContent() {
 
           {/* Main Product Grid */}
           <div className="space-y-6 lg:col-span-3">
+            {/* Mobile Filter Toggle */}
+            <button
+              onClick={() => setIsFilterOpen((prev) => !prev)}
+              className="flex w-full items-center justify-center space-x-2 rounded-xl border border-gold-300/70 bg-white px-4 py-3 text-xs font-bold uppercase tracking-wider text-gold-700 shadow-sm transition-colors hover:bg-gold-50 lg:hidden"
+            >
+              <Filter className="h-4 w-4" />
+              <span>{isFilterOpen ? 'Hide Filters' : 'Show Filters'}</span>
+            </button>
+
             {/* Sort Bar */}
             <GlassPanel
               intensity="light"
@@ -281,19 +359,51 @@ function ProductsCatalogContent() {
             </GlassPanel>
 
             {/* Product Grid with staggered depth */}
-            {filteredProducts.length > 0 ? (
+            {isLoading ? (
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                {filteredProducts.map((product, index) => (
-                  <div
-                    key={product.id}
-                    style={{
-                      animation: `fade-up 0.5s ease-out ${Math.min(index * 0.05, 0.4)}s both`,
-                    }}
-                  >
-                    <ProductCard product={product} />
+                {[...Array(PAGE_SIZE)].map((_, i) => (
+                  <div key={i} className="animate-pulse">
+                    <div className="aspect-[4/5] w-full rounded-lg bg-gold-100" />
+                    <div className="mt-4 space-y-2">
+                      <div className="h-3 w-2/3 rounded bg-gold-100" />
+                      <div className="h-3 w-1/3 rounded bg-gold-200" />
+                    </div>
                   </div>
                 ))}
               </div>
+            ) : filteredProducts.length > 0 ? (
+              <>
+                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                  {filteredProducts
+                    .slice(0, visibleCount)
+                    .map((product, index) => (
+                      <div
+                        key={product.id}
+                        style={{
+                          animation: `fade-up 0.5s ease-out ${Math.min(
+                            index * 0.05,
+                            0.4
+                          )}s both`,
+                        }}
+                      >
+                        <ProductCard product={product} />
+                      </div>
+                    ))}
+                </div>
+
+                {showLoadMore && (
+                  <div className="flex justify-center pt-2">
+                    <DepthButton
+                      variant="secondary"
+                      size="lg"
+                      onClick={handleLoadMore}
+                      disabled={isLoadingMore}
+                    >
+                      {isLoadingMore ? 'Loading more...' : 'Load More'}
+                    </DepthButton>
+                  </div>
+                )}
+              </>
             ) : (
               <DepthCard depth={1} glow className="p-12 text-center">
                 <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gold-100">

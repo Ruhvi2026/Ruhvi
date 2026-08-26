@@ -21,7 +21,7 @@ export async function GET(req: Request) {
       );
     }
 
-    let providers = providersData.value as any[];
+    const providers = providersData.value as any[];
 
     const results = [];
     let updated = false;

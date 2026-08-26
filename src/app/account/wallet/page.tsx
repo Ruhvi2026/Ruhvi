@@ -1,9 +1,11 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { createClient } from '@/lib/supabase/client';
+import toast from 'react-hot-toast';
 import {
   ArrowLeft,
   Wallet,
@@ -32,8 +34,9 @@ interface WalletTxn {
 }
 
 export default function WalletPage() {
+  const router = useRouter();
   const { user, profile, loading: authLoading } = useAuth();
-  const [balance, setBalance] = useState<number>(0);
+  const [ledgerBalance, setLedgerBalance] = useState<number | null>(null);
   const [transactions, setTransactions] = useState<WalletTxn[]>([]);
   const [loadingTxns, setLoadingTxns] = useState(true);
 
@@ -45,94 +48,52 @@ export default function WalletPage() {
     'upi' | 'card' | 'netbanking'
   >('upi');
   const [isProcessing, setIsProcessing] = useState(false);
-  const [topUpSuccess, setTopUpSuccess] = useState<string | null>(null);
   const [topUpError, setTopUpError] = useState<string | null>(null);
 
   const presetAmounts = [350, 500, 1000, 2500, 5000, 10000];
 
-  useEffect(() => {
-    if (profile && typeof profile.wallet_balance !== 'undefined') {
-      setBalance(Number(profile.wallet_balance) || 0);
+  const fetchLedger = useCallback(async () => {
+    if (!user) return;
+    try {
+      const supabase = createClient();
+      const { data, error } = await supabase.rpc('get_wallet_transactions', {
+        p_user_id: user.id,
+      });
+
+      if (error) throw error;
+
+      if (data && data.length > 0) {
+        setTransactions(data as WalletTxn[]);
+        // Calculate ledger balance
+        const ledgerSum = (data as WalletTxn[]).reduce((acc, curr) => {
+          const amt = Number(curr.amount) || 0;
+          if (curr.type === 'credit' || curr.type === 'cashback')
+            return acc + amt;
+          if (curr.type === 'debit') return acc - amt;
+          return acc;
+        }, 0);
+
+        setLedgerBalance(ledgerSum);
+      } else {
+        setTransactions([]);
+        setLedgerBalance(null);
+      }
+    } catch (err) {
+      console.error('Error fetching wallet ledger:', err);
+    } finally {
+      setLoadingTxns(false);
     }
-  }, [profile?.wallet_balance]);
+  }, [user, profile?.wallet_balance]);
 
   useEffect(() => {
-    async function fetchLedger() {
-      if (!user) {
-        // Fallback demo ledger for unauthenticated/guest preview
-        setTransactions([
-          {
-            id: 'txn-0',
-            created_at: new Date().toISOString(),
-            type: 'credit',
-            amount: 350.0,
-            description: 'Added ₹350 to Ruhvi Wallet',
-          },
-          {
-            id: 'txn-1',
-            created_at: new Date(Date.now() - 3600000 * 4).toISOString(),
-            type: 'cashback',
-            amount: 150.0,
-            description: '5% Cashback on Order #R-837492',
-          },
-          {
-            id: 'txn-2',
-            created_at: new Date(Date.now() - 86400000 * 3).toISOString(),
-            type: 'credit',
-            amount: 1100.0,
-            description: 'Refund for Order #R-293847 (Store Credit)',
-          },
-          {
-            id: 'txn-3',
-            created_at: new Date(Date.now() - 86400000 * 14).toISOString(),
-            type: 'debit',
-            amount: 500.0,
-            description: 'Paid for Order #R-102938',
-          },
-        ]);
-        setLoadingTxns(false);
-        return;
-      }
-
-      try {
-        const supabase = createClient();
-        const { data, error } = await supabase.rpc('get_wallet_transactions', {
-          p_user_id: user.id,
-        });
-
-        if (error) throw error;
-
-        if (data && data.length > 0) {
-          setTransactions(data as WalletTxn[]);
-          // Calculate ledger balance
-          const ledgerSum = (data as WalletTxn[]).reduce((acc, curr) => {
-            const amt = Number(curr.amount) || 0;
-            if (curr.type === 'credit' || curr.type === 'cashback')
-              return acc + amt;
-            if (curr.type === 'debit') return acc - amt;
-            return acc;
-          }, 0);
-
-          if (
-            !profile?.wallet_balance ||
-            Number(profile.wallet_balance) === 0
-          ) {
-            setBalance(ledgerSum);
-          }
-        } else {
-          setTransactions([]);
-        }
-      } catch (err) {
-        console.error('Error fetching wallet ledger:', err);
-      } finally {
-        setLoadingTxns(false);
-      }
+    if (!user) {
+      setLoadingTxns(false);
+      return;
     }
 
     fetchLedger();
 
-    // Setup realtime subscription on wallet_ledger if user exists
-    if (!user) return;
+    // Setup realtime subscription on wallet_ledger
     const supabase = createClient();
     const channel = supabase
       .channel(`wallet-ledger-${user.id}`)
@@ -152,7 +113,28 @@ export default function WalletPage() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user, profile?.wallet_balance]);
+  }, [user, fetchLedger]);
+
+  // Surface top-up outcome when redirected back from the payment gateway.
+  useEffect(() => {
+    if (!user || authLoading) return;
+    const params = new URLSearchParams(window.location.search);
+    const topup = params.get('topup');
+    if (!topup) return;
+
+    const amount = Number(params.get('amount')) || 0;
+    if (topup === 'success') {
+      toast.success(
+        `₹${amount.toLocaleString('en-IN')} added to your Ruhvi Wallet!`
+      );
+      fetchLedger();
+    } else if (topup === 'failed') {
+      toast.error('Top-up failed. No money was deducted from your account.');
+    } else if (topup === 'pending') {
+      toast('Your top-up is being confirmed. Check back shortly.');
+    }
+    window.history.replaceState({}, '', window.location.pathname);
+  }, [user, authLoading, fetchLedger]);
 
   const effectiveAmount = customAmount
     ? parseFloat(customAmount) || 0
@@ -169,6 +151,14 @@ export default function WalletPage() {
   const bonusAmount = calculateBonus(effectiveAmount);
   const totalCreditAmount = effectiveAmount + bonusAmount;
 
+  const openAddMoneyModal = () => {
+    if (!user) {
+      router.push('/login?redirectTo=/account/wallet');
+      return;
+    }
+    setShowAddMoneyModal(true);
+  };
+
   const handleAddMoney = async (e: React.FormEvent) => {
     e.preventDefault();
     if (effectiveAmount < 100) {
@@ -180,62 +170,40 @@ export default function WalletPage() {
       return;
     }
 
+    if (!user) {
+      router.push('/login?redirectTo=/account/wallet');
+      return;
+    }
+
     setIsProcessing(true);
     setTopUpError(null);
-    setTopUpSuccess(null);
 
     try {
-      if (!user) {
-        // Guest mode simulation
-        setTimeout(() => {
-          setBalance((prev) => prev + totalCreditAmount);
-          const newTxn: WalletTxn = {
-            id: `txn-sim-${Date.now()}`,
-            created_at: new Date().toISOString(),
-            type: 'credit',
-            amount: totalCreditAmount,
-            description:
-              bonusAmount > 0
-                ? `Added ₹${effectiveAmount} (+₹${bonusAmount} Bonus)`
-                : `Added ₹${effectiveAmount} to Wallet`,
-          };
-          setTransactions((prev) => [newTxn, ...prev]);
-          setIsProcessing(false);
-          setTopUpSuccess(
-            `₹${totalCreditAmount.toLocaleString('en-IN')} added to your Ruhvi Wallet successfully!`
-          );
-        }, 1200);
-        return;
-      }
-
-      // 1. Call secure API route to process top-up
+      // 1. Initialize a real wallet top-up (PhonePe gateway) on the server.
       const response = await fetch('/api/wallet/topup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: user.id, amount: effectiveAmount }),
+        body: JSON.stringify({ amount: effectiveAmount, paymentMethod }),
       });
 
       const result = await response.json();
-      if (!response.ok)
-        throw new Error(result.error || 'Failed to top up wallet');
-
-      // 3. Re-fetch ledger
-      const supabase = createClient();
-      const { data: updatedLedger } = await supabase.rpc(
-        'get_wallet_transactions',
-        { p_user_id: user.id }
-      );
-
-      if (updatedLedger) {
-        setTransactions(updatedLedger as WalletTxn[]);
+      if (!response.ok) {
+        if (response.status === 401) {
+          router.push('/login?redirectTo=/account/wallet');
+          return;
+        }
+        throw new Error(
+          result.error || 'Failed to start wallet top-up. Please try again.'
+        );
       }
 
-      setBalance((prev) => prev + totalCreditAmount);
-      setTopUpSuccess(
-        `₹${totalCreditAmount.toLocaleString('en-IN')} credited to your Ruhvi Wallet!`
-      );
-      setCustomAmount('');
-      setSelectedAmount(1000);
+      // 2. Redirect to the secure gateway (or simulated verify page).
+      if (result.redirectUrl) {
+        window.location.href = result.redirectUrl;
+        return;
+      }
+
+      throw new Error('Payment could not be started. Please try again.');
     } catch (err: any) {
       console.error('Top-up error:', err);
       setTopUpError(
@@ -260,6 +228,16 @@ export default function WalletPage() {
       return dateStr;
     }
   };
+
+  const isGuest = !user && !authLoading;
+
+  const profileBalance = Number(profile?.wallet_balance) || 0;
+  const displayBalance =
+    ledgerBalance !== null ? ledgerBalance : profileBalance;
+  const reconciliationNote =
+    ledgerBalance !== null && Math.abs(ledgerBalance - profileBalance) > 0.009
+      ? `Balance: ₹${profileBalance.toLocaleString('en-IN')} (Ledger: ₹${ledgerBalance.toLocaleString('en-IN')})`
+      : null;
 
   return (
     <div className="mx-auto max-w-5xl space-y-8 px-4 py-10 sm:px-6 lg:px-8">
@@ -287,17 +265,23 @@ export default function WalletPage() {
             </p>
             <h1 className="mt-1 font-serif text-4xl font-bold tracking-tight sm:text-5xl">
               ₹
-              {balance.toLocaleString('en-IN', {
+              {displayBalance.toLocaleString('en-IN', {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2,
               })}
             </h1>
+            {reconciliationNote && (
+              <p className="mt-1 flex items-center gap-1 font-mono text-xs font-medium text-amber-200">
+                <AlertCircle className="h-3 w-3 shrink-0" />
+                <span>{reconciliationNote}</span>
+              </p>
+            )}
             <div className="mt-1.5 space-y-1">
-              <p className="flex items-center gap-1 text-[11px] font-medium text-emerald-300/90">
+              <p className="flex items-center gap-1 text-xs font-medium text-emerald-300/90">
                 <Sparkles className="h-3 w-3 shrink-0 text-amber-300" /> 100%
                 Usable on all Fine Jewellery with Coins
               </p>
-              <p className="font-mono text-[10px] text-emerald-200/60">
+              <p className="font-mono text-xs text-emerald-200/60">
                 * Wallet amount is non-withdrawable to bank accounts
               </p>
             </div>
@@ -305,21 +289,33 @@ export default function WalletPage() {
         </div>
 
         <div className="z-10 flex w-full flex-col items-center space-y-3 md:w-auto md:items-end">
-          <button
-            onClick={() => setShowAddMoneyModal(true)}
-            className="flex w-full items-center justify-center gap-2 rounded-xl border border-amber-300 bg-gradient-to-r from-amber-400 to-amber-500 px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-emerald-950 shadow-lg transition-all hover:scale-105 hover:from-amber-300 hover:to-amber-400 md:w-auto"
-          >
-            <PlusCircle className="h-4 w-4" />
-            <span>Add Money to Wallet</span>
-          </button>
-          <p className="text-center text-[10px] text-emerald-200/90 md:text-right">
+          {authLoading ? (
+            <div className="h-12 w-full animate-pulse rounded-xl border border-emerald-500/40 bg-emerald-800/60 md:w-auto md:px-16"></div>
+          ) : user ? (
+            <button
+              onClick={openAddMoneyModal}
+              className="flex w-full items-center justify-center gap-2 rounded-xl border border-amber-300 bg-gradient-to-r from-amber-400 to-amber-500 px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-emerald-950 shadow-lg transition-all hover:scale-105 hover:from-amber-300 hover:to-amber-400 md:w-auto"
+            >
+              <PlusCircle className="h-4 w-4" />
+              <span>Add Money to Wallet</span>
+            </button>
+          ) : (
+            <Link
+              href="/login?redirectTo=/account/wallet"
+              className="flex w-full items-center justify-center gap-2 rounded-xl border border-amber-300 bg-gradient-to-r from-amber-400 to-amber-500 px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-emerald-950 shadow-lg transition-all hover:scale-105 hover:from-amber-300 hover:to-amber-400 md:w-auto"
+            >
+              <Lock className="h-4 w-4" />
+              <span>Login to Add Money</span>
+            </Link>
+          )}
+          <p className="text-center text-xs text-emerald-200/90 md:text-right">
             Instant Top-Up via UPI, Cards & NetBanking
           </p>
         </div>
       </div>
 
       {/* Signup Bonus Verification Prompt */}
-      {(!profile?.email_verified || !profile?.phone_verified) && (
+      {!isGuest && (!profile?.email_verified || !profile?.phone_verified) && (
         <div className="flex items-center justify-between gap-4 rounded-2xl border border-emerald-200/60 bg-gradient-to-r from-emerald-50/50 to-white p-4 shadow-sm sm:p-5">
           <div className="flex items-center space-x-3">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">
@@ -364,7 +360,7 @@ export default function WalletPage() {
           onClick={() => {
             setSelectedAmount(5000);
             setCustomAmount('');
-            setShowAddMoneyModal(true);
+            openAddMoneyModal();
           }}
           className="shrink-0 rounded-xl bg-amber-950 px-4 py-2 text-xs font-bold text-amber-100 transition hover:bg-black"
         >
@@ -385,86 +381,117 @@ export default function WalletPage() {
             </span>
           </div>
 
-          <div className="divide-y divide-stone-100 overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm">
-            {loadingTxns ? (
-              <div className="space-y-2 p-8 text-center text-xs text-stone-500">
-                <div className="mx-auto h-6 w-6 animate-spin rounded-full border-2 border-emerald-600 border-t-transparent"></div>
-                <p>Loading transactions...</p>
+          {isGuest ? (
+            <div className="space-y-4 overflow-hidden rounded-2xl border border-stone-200 bg-white p-8 text-center shadow-sm">
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
+                <Wallet className="h-7 w-7" />
               </div>
-            ) : transactions.length === 0 ? (
-              <div className="space-y-3 p-10 text-center">
-                <Wallet className="mx-auto h-10 w-10 text-stone-300" />
-                <p className="text-sm font-semibold text-stone-700">
-                  No wallet transactions yet
+              <div className="space-y-1.5">
+                <p className="text-sm font-bold text-stone-900">
+                  Sign in to view your wallet
                 </p>
                 <p className="mx-auto max-w-sm text-xs text-stone-500">
-                  Add money to your Ruhvi Wallet to get instant checkouts and
-                  guaranteed 5% cashback on purchases.
+                  Login to see your balance, add money via UPI / Cards /
+                  NetBanking and unlock cashback rewards.
                 </p>
-                <button
-                  onClick={() => setShowAddMoneyModal(true)}
-                  className="mt-2 rounded-xl bg-emerald-900 px-5 py-2.5 text-xs font-bold text-white transition hover:bg-emerald-950"
-                >
-                  Add Money Now
-                </button>
               </div>
-            ) : (
-              transactions.map((txn) => {
-                const isCredit =
-                  txn.type === 'credit' || txn.type === 'cashback';
-                return (
-                  <div
-                    key={txn.id}
-                    className="flex items-center justify-between p-5 transition-colors hover:bg-stone-50 sm:p-6"
+              <div className="flex flex-col items-center justify-center gap-3 pt-2 sm:flex-row">
+                <Link
+                  href="/login?redirectTo=/account/wallet"
+                  className="w-full rounded-xl bg-emerald-900 px-5 py-2.5 text-xs font-bold text-white transition hover:bg-emerald-950 sm:w-auto"
+                >
+                  Login to Add Money
+                </Link>
+                <Link
+                  href="/signup"
+                  className="w-full rounded-xl border border-stone-200 bg-stone-50 px-5 py-2.5 text-xs font-bold text-stone-800 transition hover:bg-stone-100 sm:w-auto"
+                >
+                  Create Account
+                </Link>
+              </div>
+            </div>
+          ) : (
+            <div className="divide-y divide-stone-100 overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm">
+              {loadingTxns ? (
+                <div className="space-y-2 p-8 text-center text-xs text-stone-500">
+                  <div className="mx-auto h-6 w-6 animate-spin rounded-full border-2 border-emerald-600 border-t-transparent"></div>
+                  <p>Loading transactions...</p>
+                </div>
+              ) : transactions.length === 0 ? (
+                <div className="space-y-3 p-10 text-center">
+                  <Wallet className="mx-auto h-10 w-10 text-stone-300" />
+                  <p className="text-sm font-semibold text-stone-700">
+                    No wallet transactions yet
+                  </p>
+                  <p className="mx-auto max-w-sm text-xs text-stone-500">
+                    Add money to your Ruhvi Wallet to get instant checkouts and
+                    guaranteed 5% cashback on purchases.
+                  </p>
+                  <button
+                    onClick={openAddMoneyModal}
+                    className="mt-2 rounded-xl bg-emerald-900 px-5 py-2.5 text-xs font-bold text-white transition hover:bg-emerald-950"
                   >
-                    <div className="flex items-center space-x-4">
+                    Add Money Now
+                  </button>
+                </div>
+              ) : (
+                transactions.map((txn) => {
+                  const isCredit =
+                    txn.type === 'credit' || txn.type === 'cashback';
+                  return (
+                    <div
+                      key={txn.id}
+                      className="flex items-center justify-between p-5 transition-colors hover:bg-stone-50 sm:p-6"
+                    >
+                      <div className="flex items-center space-x-4">
+                        <div
+                          className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${
+                            txn.type === 'cashback'
+                              ? 'bg-amber-100 text-amber-700'
+                              : isCredit
+                                ? 'bg-emerald-100 text-emerald-700'
+                                : 'bg-stone-100 text-stone-600'
+                          }`}
+                        >
+                          {isCredit ? (
+                            <ArrowDownLeft className="h-5 w-5" />
+                          ) : (
+                            <ArrowUpRight className="h-5 w-5" />
+                          )}
+                        </div>
+                        <div>
+                          <p className="text-sm font-bold text-stone-900">
+                            {txn.description ||
+                              (txn.type === 'cashback'
+                                ? 'Cashback Bonus'
+                                : isCredit
+                                  ? 'Wallet Top-Up'
+                                  : 'Order Payment')}
+                          </p>
+                          <p className="mt-1 text-xs text-stone-500">
+                            {formatDate(txn.created_at)} •{' '}
+                            <span className="text-xs font-semibold uppercase tracking-wider">
+                              {txn.type}
+                            </span>
+                          </p>
+                        </div>
+                      </div>
                       <div
-                        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${
-                          txn.type === 'cashback'
-                            ? 'bg-amber-100 text-amber-700'
-                            : isCredit
-                              ? 'bg-emerald-100 text-emerald-700'
-                              : 'bg-stone-100 text-stone-600'
+                        className={`whitespace-nowrap text-base font-bold ${
+                          isCredit ? 'text-emerald-700' : 'text-stone-900'
                         }`}
                       >
-                        {isCredit ? (
-                          <ArrowDownLeft className="h-5 w-5" />
-                        ) : (
-                          <ArrowUpRight className="h-5 w-5" />
-                        )}
-                      </div>
-                      <div>
-                        <p className="text-sm font-bold text-stone-900">
-                          {txn.description ||
-                            (txn.type === 'cashback'
-                              ? 'Cashback Bonus'
-                              : isCredit
-                                ? 'Wallet Top-Up'
-                                : 'Order Payment')}
-                        </p>
-                        <p className="mt-1 text-[11px] text-stone-500">
-                          {formatDate(txn.created_at)} •{' '}
-                          <span className="text-[10px] font-semibold uppercase tracking-wider">
-                            {txn.type}
-                          </span>
-                        </p>
+                        {isCredit ? '+' : '-'}₹
+                        {Number(txn.amount).toLocaleString('en-IN', {
+                          minimumFractionDigits: 2,
+                        })}
                       </div>
                     </div>
-                    <div
-                      className={`whitespace-nowrap text-base font-bold ${
-                        isCredit ? 'text-emerald-700' : 'text-stone-900'
-                      }`}
-                    >
-                      {isCredit ? '+' : '-'}₹
-                      {Number(txn.amount).toLocaleString('en-IN', {
-                        minimumFractionDigits: 2,
-                      })}
-                    </div>
-                  </div>
-                );
-              })
-            )}
-          </div>
+                  );
+                })
+              )}
+            </div>
+          )}
         </div>
 
         {/* Benefits Sidebar */}
@@ -511,7 +538,7 @@ export default function WalletPage() {
       </div>
 
       {/* Add Money Modal */}
-      {showAddMoneyModal && (
+      {showAddMoneyModal && user && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
           <div className="relative w-full max-w-lg space-y-6 overflow-hidden rounded-3xl bg-white p-6 shadow-2xl sm:p-8">
             <div className="flex items-center justify-between border-b border-stone-100 pb-4">
@@ -523,15 +550,14 @@ export default function WalletPage() {
                   <h3 className="font-serif text-lg font-bold text-stone-900">
                     Add Money to Wallet
                   </h3>
-                  <p className="text-[11px] text-stone-500">
-                    Current Balance: ₹{balance.toLocaleString('en-IN')}
+                  <p className="text-xs text-stone-500">
+                    Current Balance: ₹{displayBalance.toLocaleString('en-IN')}
                   </p>
                 </div>
               </div>
               <button
                 onClick={() => {
                   setShowAddMoneyModal(false);
-                  setTopUpSuccess(null);
                   setTopUpError(null);
                 }}
                 className="p-1 font-bold text-stone-400 hover:text-stone-700"
@@ -540,191 +566,175 @@ export default function WalletPage() {
               </button>
             </div>
 
-            {topUpSuccess ? (
-              <div className="space-y-4 py-6 text-center">
-                <div className="mx-auto flex h-16 w-16 animate-bounce items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
-                  <CheckCircle2 className="h-10 w-10" />
+            <form onSubmit={handleAddMoney} className="space-y-6">
+              {topUpError && (
+                <div className="flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 p-3 text-xs font-semibold text-red-700">
+                  <AlertCircle className="h-4 w-4 shrink-0 text-red-600" />
+                  <span>{topUpError}</span>
                 </div>
-                <div className="space-y-1">
-                  <h4 className="font-serif text-xl font-bold text-stone-900">
-                    Payment Successful!
-                  </h4>
-                  <p className="text-xs text-stone-600">{topUpSuccess}</p>
+              )}
+
+              {/* Preset Amounts */}
+              <div className="space-y-2">
+                <label className="block text-xs font-bold uppercase tracking-wider text-stone-800">
+                  Select Top-Up Amount
+                </label>
+                <div className="grid grid-cols-3 gap-2 sm:grid-cols-5">
+                  {presetAmounts.map((amt) => {
+                    const isSelected = selectedAmount === amt && !customAmount;
+                    return (
+                      <button
+                        key={amt}
+                        type="button"
+                        onClick={() => {
+                          setSelectedAmount(amt);
+                          setCustomAmount('');
+                        }}
+                        className={`rounded-xl border px-2 py-2.5 text-xs font-bold transition-all ${
+                          isSelected
+                            ? 'scale-105 border-emerald-900 bg-emerald-900 text-white shadow-md'
+                            : 'border-stone-200 bg-stone-50 text-stone-800 hover:bg-stone-100'
+                        }`}
+                      >
+                        +₹{amt.toLocaleString('en-IN')}
+                      </button>
+                    );
+                  })}
                 </div>
-                <button
-                  onClick={() => {
-                    setShowAddMoneyModal(false);
-                    setTopUpSuccess(null);
-                  }}
-                  className="w-full rounded-xl bg-emerald-900 py-3 text-xs font-bold text-white transition hover:bg-emerald-950"
-                >
-                  Done
-                </button>
               </div>
-            ) : (
-              <form onSubmit={handleAddMoney} className="space-y-6">
-                {topUpError && (
-                  <div className="flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 p-3 text-xs font-semibold text-red-700">
-                    <AlertCircle className="h-4 w-4 shrink-0 text-red-600" />
-                    <span>{topUpError}</span>
-                  </div>
-                )}
 
-                {/* Preset Amounts */}
-                <div className="space-y-2">
-                  <label className="block text-xs font-bold uppercase tracking-wider text-stone-800">
-                    Select Top-Up Amount
-                  </label>
-                  <div className="grid grid-cols-3 gap-2 sm:grid-cols-5">
-                    {presetAmounts.map((amt) => {
-                      const isSelected =
-                        selectedAmount === amt && !customAmount;
-                      return (
-                        <button
-                          key={amt}
-                          type="button"
-                          onClick={() => {
-                            setSelectedAmount(amt);
-                            setCustomAmount('');
-                          }}
-                          className={`rounded-xl border px-2 py-2.5 text-xs font-bold transition-all ${
-                            isSelected
-                              ? 'scale-105 border-emerald-900 bg-emerald-900 text-white shadow-md'
-                              : 'border-stone-200 bg-stone-50 text-stone-800 hover:bg-stone-100'
-                          }`}
-                        >
-                          +₹{amt.toLocaleString('en-IN')}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* Custom Amount Input */}
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-semibold text-stone-700">
-                    Or Enter Custom Amount (₹)
-                  </label>
-                  <div className="relative">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-bold text-stone-400">
-                      ₹
-                    </span>
-                    <input
-                      type="number"
-                      min={100}
-                      max={100000}
-                      value={customAmount}
-                      onChange={(e) => setCustomAmount(e.target.value)}
-                      placeholder="e.g. 3500"
-                      className="w-full rounded-xl border border-stone-300 py-3 pl-8 pr-4 text-sm font-bold text-stone-900 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                    />
-                  </div>
-                </div>
-
-                {/* Cashback bonus calculation alert */}
-                {bonusAmount > 0 && (
-                  <div className="flex items-center justify-between rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs font-semibold text-amber-900">
-                    <div className="flex items-center gap-1.5">
-                      <Sparkles className="h-4 w-4 text-amber-600" />
-                      <span>Cashback Bonus Unlocked!</span>
-                    </div>
-                    <span className="font-bold text-emerald-700">
-                      +₹{bonusAmount} Extra
-                    </span>
-                  </div>
-                )}
-
-                {/* Payment Method Selection */}
-                <div className="space-y-2">
-                  <label className="block text-xs font-bold uppercase tracking-wider text-stone-800">
-                    Select Payment Method
-                  </label>
-                  <div className="grid grid-cols-3 gap-2 text-xs">
-                    <button
-                      type="button"
-                      onClick={() => setPaymentMethod('upi')}
-                      className={`flex flex-col items-center justify-center gap-1 rounded-xl border p-3 font-medium transition ${
-                        paymentMethod === 'upi'
-                          ? 'border-emerald-700 bg-emerald-50 font-bold text-emerald-950'
-                          : 'border-stone-200 text-stone-600 hover:bg-stone-50'
-                      }`}
-                    >
-                      <Smartphone className="h-4 w-4 text-emerald-600" />
-                      <span>UPI / GPay</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => setPaymentMethod('card')}
-                      className={`flex flex-col items-center justify-center gap-1 rounded-xl border p-3 font-medium transition ${
-                        paymentMethod === 'card'
-                          ? 'border-emerald-700 bg-emerald-50 font-bold text-emerald-950'
-                          : 'border-stone-200 text-stone-600 hover:bg-stone-50'
-                      }`}
-                    >
-                      <CreditCard className="h-4 w-4 text-emerald-600" />
-                      <span>Cards</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => setPaymentMethod('netbanking')}
-                      className={`flex flex-col items-center justify-center gap-1 rounded-xl border p-3 font-medium transition ${
-                        paymentMethod === 'netbanking'
-                          ? 'border-emerald-700 bg-emerald-50 font-bold text-emerald-950'
-                          : 'border-stone-200 text-stone-600 hover:bg-stone-50'
-                      }`}
-                    >
-                      <Building2 className="h-4 w-4 text-emerald-600" />
-                      <span>NetBanking</span>
-                    </button>
-                  </div>
-                </div>
-
-                {/* Summary Box */}
-                <div className="space-y-2 rounded-2xl border border-stone-200/80 bg-stone-50 p-4 text-xs">
-                  <div className="flex justify-between text-stone-600">
-                    <span>Top-Up Amount:</span>
-                    <span className="font-semibold text-stone-900">
-                      ₹{effectiveAmount.toLocaleString('en-IN')}
-                    </span>
-                  </div>
-                  {bonusAmount > 0 && (
-                    <div className="flex justify-between font-semibold text-emerald-700">
-                      <span>Bonus Cashback:</span>
-                      <span>+₹{bonusAmount.toLocaleString('en-IN')}</span>
-                    </div>
-                  )}
-                  <div className="flex justify-between border-t border-stone-200 pt-2 text-sm font-bold text-stone-900">
-                    <span>Total Wallet Credit:</span>
-                    <span className="text-emerald-700">
-                      ₹{totalCreditAmount.toLocaleString('en-IN')}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Submit Button */}
-                <button
-                  type="submit"
-                  disabled={isProcessing || effectiveAmount < 100}
-                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-900 py-4 text-sm font-bold text-white shadow-lg transition hover:bg-emerald-950 disabled:opacity-50"
+              {/* Custom Amount Input */}
+              <div className="space-y-1.5">
+                <label
+                  htmlFor="wallet-custom-amount"
+                  className="block text-xs font-semibold text-stone-700"
                 >
-                  {isProcessing ? (
-                    <>
-                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
-                      <span>Processing Payment...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Lock className="h-4 w-4 text-emerald-300" />
-                      <span>
-                        Pay ₹{effectiveAmount.toLocaleString('en-IN')} Securly
-                      </span>
-                    </>
-                  )}
-                </button>
-              </form>
-            )}
+                  Or Enter Custom Amount (₹)
+                </label>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-bold text-stone-400">
+                    ₹
+                  </span>
+                  <input
+                    id="wallet-custom-amount"
+                    type="number"
+                    min={100}
+                    max={100000}
+                    value={customAmount}
+                    onChange={(e) => setCustomAmount(e.target.value)}
+                    placeholder="e.g. 3500"
+                    className="w-full rounded-xl border border-stone-300 py-3 pl-8 pr-4 text-sm font-bold text-stone-900 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  />
+                </div>
+              </div>
+
+              {/* Cashback bonus calculation alert */}
+              {bonusAmount > 0 && (
+                <div className="flex items-center justify-between rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs font-semibold text-amber-900">
+                  <div className="flex items-center gap-1.5">
+                    <Sparkles className="h-4 w-4 text-amber-600" />
+                    <span>Cashback Bonus Unlocked!</span>
+                  </div>
+                  <span className="font-bold text-emerald-700">
+                    +₹{bonusAmount} Extra
+                  </span>
+                </div>
+              )}
+
+              {/* Payment Method Selection */}
+              <div className="space-y-2">
+                <label className="block text-xs font-bold uppercase tracking-wider text-stone-800">
+                  Select Payment Method
+                </label>
+                <div className="grid grid-cols-3 gap-2 text-xs">
+                  <button
+                    type="button"
+                    onClick={() => setPaymentMethod('upi')}
+                    className={`flex flex-col items-center justify-center gap-1 rounded-xl border p-3 font-medium transition ${
+                      paymentMethod === 'upi'
+                        ? 'border-emerald-700 bg-emerald-50 font-bold text-emerald-950'
+                        : 'border-stone-200 text-stone-600 hover:bg-stone-50'
+                    }`}
+                  >
+                    <Smartphone className="h-4 w-4 text-emerald-600" />
+                    <span>UPI / GPay</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setPaymentMethod('card')}
+                    className={`flex flex-col items-center justify-center gap-1 rounded-xl border p-3 font-medium transition ${
+                      paymentMethod === 'card'
+                        ? 'border-emerald-700 bg-emerald-50 font-bold text-emerald-950'
+                        : 'border-stone-200 text-stone-600 hover:bg-stone-50'
+                    }`}
+                  >
+                    <CreditCard className="h-4 w-4 text-emerald-600" />
+                    <span>Cards</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setPaymentMethod('netbanking')}
+                    className={`flex flex-col items-center justify-center gap-1 rounded-xl border p-3 font-medium transition ${
+                      paymentMethod === 'netbanking'
+                        ? 'border-emerald-700 bg-emerald-50 font-bold text-emerald-950'
+                        : 'border-stone-200 text-stone-600 hover:bg-stone-50'
+                    }`}
+                  >
+                    <Building2 className="h-4 w-4 text-emerald-600" />
+                    <span>NetBanking</span>
+                  </button>
+                </div>
+                <p className="text-xs text-stone-400">
+                  You will be redirected to our secure payment partner to
+                  complete the transaction.
+                </p>
+              </div>
+
+              {/* Summary Box */}
+              <div className="space-y-2 rounded-2xl border border-stone-200/80 bg-stone-50 p-4 text-xs">
+                <div className="flex justify-between text-stone-600">
+                  <span>Top-Up Amount:</span>
+                  <span className="font-semibold text-stone-900">
+                    ₹{effectiveAmount.toLocaleString('en-IN')}
+                  </span>
+                </div>
+                {bonusAmount > 0 && (
+                  <div className="flex justify-between font-semibold text-emerald-700">
+                    <span>Bonus Cashback:</span>
+                    <span>+₹{bonusAmount.toLocaleString('en-IN')}</span>
+                  </div>
+                )}
+                <div className="flex justify-between border-t border-stone-200 pt-2 text-sm font-bold text-stone-900">
+                  <span>Total Wallet Credit:</span>
+                  <span className="text-emerald-700">
+                    ₹{totalCreditAmount.toLocaleString('en-IN')}
+                  </span>
+                </div>
+              </div>
+
+              {/* Submit Button */}
+              <button
+                type="submit"
+                disabled={isProcessing || effectiveAmount < 100}
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-900 py-4 text-sm font-bold text-white shadow-lg transition hover:bg-emerald-950 disabled:opacity-50"
+              >
+                {isProcessing ? (
+                  <>
+                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+                    <span>Redirecting to Secure Payment...</span>
+                  </>
+                ) : (
+                  <>
+                    <Lock className="h-4 w-4 text-emerald-300" />
+                    <span>
+                      Pay ₹{effectiveAmount.toLocaleString('en-IN')} Securely
+                    </span>
+                  </>
+                )}
+              </button>
+            </form>
           </div>
         </div>
       )}

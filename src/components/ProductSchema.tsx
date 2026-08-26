@@ -10,6 +10,8 @@ interface ProductSchemaProps {
     price: number;
     currency?: string;
     stock?: number;
+    sku?: string;
+    slug?: string;
   };
 }
 
@@ -20,14 +22,19 @@ export default function ProductSchema({ product }: ProductSchemaProps) {
     name: product.name,
     image: product.images,
     description: product.description,
-    sku: product.id,
+    sku: product.sku || product.id,
     brand: {
       '@type': 'Brand',
       name: 'RUHVI',
     },
+    aggregateRating: {
+      '@type': 'AggregateRating',
+      ratingValue: 0,
+      reviewCount: 0,
+    },
     offers: {
       '@type': 'Offer',
-      url: `https://ruhvi.in/products/${product.id}`,
+      url: `https://ruhvi.in/products/${product.slug || product.id}`,
       priceCurrency: product.currency || 'INR',
       price: product.price,
       availability:
@@ -61,15 +68,17 @@ export default function ProductSchema({ product }: ProductSchemaProps) {
     ],
   };
 
+  const scriptId = encodeURIComponent(product.id).replace(/%/g, '_');
+
   return (
     <>
       <Script
-        id={`product-schema-${product.id}`}
+        id={`product-schema-${scriptId}`}
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
       />
       <Script
-        id={`faq-schema-${product.id}`}
+        id={`faq-schema-${scriptId}`}
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
       />

@@ -8,6 +8,8 @@ export const metadata: Metadata = {
   alternates: { canonical: '/privacy-policy' },
 };
 
+const EFFECTIVE_DATE = 'July 1, 2026';
+
 export default function PrivacyPolicyPage() {
   return (
     <div className="mx-auto max-w-4xl space-y-8 px-4 py-12 sm:px-6 lg:px-8">
@@ -15,30 +17,23 @@ export default function PrivacyPolicyPage() {
         Privacy Policy
       </h1>
 
-      <div className="space-y-6 rounded-2xl border border-[#E7D7A3]/50 bg-white p-6 text-sm leading-relaxed text-[#121110]/80 shadow-sm sm:p-10">
-        <p className="font-medium">
-          Effective Date:{' '}
-          {new Date().toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-          })}
-        </p>
+      <div className="space-y-6 rounded-2xl border border-gold-200/50 bg-white p-6 text-sm leading-relaxed text-charcoal-900/80 shadow-sm sm:p-10">
+        <p className="font-medium">Effective Date: {EFFECTIVE_DATE}</p>
 
         <section className="space-y-3">
-          <h2 className="font-serif text-xl font-bold text-[#121110]">
+          <h2 className="font-serif text-xl font-bold text-charcoal-900">
             1. Introduction
           </h2>
           <p>
             Welcome to Ruhvi. We respect your privacy and are committed to
             protecting your personal data. This Privacy Policy informs you about
             how we look after your personal data when you visit our website
-            (ruhvi.vercel.app) and tells you about your privacy rights.
+            (ruhvi.in) and tells you about your privacy rights.
           </p>
         </section>
 
         <section className="space-y-3">
-          <h2 className="font-serif text-xl font-bold text-[#121110]">
+          <h2 className="font-serif text-xl font-bold text-charcoal-900">
             2. The Data We Collect About You
           </h2>
           <p>
@@ -82,7 +77,7 @@ export default function PrivacyPolicyPage() {
         </section>
 
         <section className="space-y-3">
-          <h2 className="font-serif text-xl font-bold text-[#121110]">
+          <h2 className="font-serif text-xl font-bold text-charcoal-900">
             3. How We Use Your Personal Data
           </h2>
           <p>
@@ -119,7 +114,7 @@ export default function PrivacyPolicyPage() {
         </section>
 
         <section className="space-y-3">
-          <h2 className="font-serif text-xl font-bold text-[#121110]">
+          <h2 className="font-serif text-xl font-bold text-charcoal-900">
             4. Disclosures of Your Personal Data
           </h2>
           <p>
@@ -153,7 +148,7 @@ export default function PrivacyPolicyPage() {
         </section>
 
         <section className="space-y-3">
-          <h2 className="font-serif text-xl font-bold text-[#121110]">
+          <h2 className="font-serif text-xl font-bold text-charcoal-900">
             5. Cookies and Tracking Technologies
           </h2>
           <p>
@@ -165,7 +160,7 @@ export default function PrivacyPolicyPage() {
         </section>
 
         <section className="space-y-3">
-          <h2 className="font-serif text-xl font-bold text-[#121110]">
+          <h2 className="font-serif text-xl font-bold text-charcoal-900">
             6. Data Security
           </h2>
           <p>
@@ -179,7 +174,7 @@ export default function PrivacyPolicyPage() {
         </section>
 
         <section className="space-y-3">
-          <h2 className="font-serif text-xl font-bold text-[#121110]">
+          <h2 className="font-serif text-xl font-bold text-charcoal-900">
             International Data Transfers
           </h2>
           <p>
@@ -193,7 +188,7 @@ export default function PrivacyPolicyPage() {
         </section>
 
         <section className="space-y-3">
-          <h2 className="font-serif text-xl font-bold text-[#121110]">
+          <h2 className="font-serif text-xl font-bold text-charcoal-900">
             7. Your Legal Rights & Data Deletion
           </h2>
           <p>
@@ -234,8 +229,8 @@ export default function PrivacyPolicyPage() {
           </p>
         </section>
 
-        <section className="space-y-3 border-t border-[#E7D7A3]/50 pt-4">
-          <h2 className="font-serif text-xl font-bold text-[#121110]">
+        <section className="space-y-3 border-t border-gold-200/50 pt-4">
+          <h2 className="font-serif text-xl font-bold text-charcoal-900">
             Contact Us
           </h2>
           <p>
@@ -246,8 +241,8 @@ export default function PrivacyPolicyPage() {
           <p>Email: support@ruhvi.in</p>
         </section>
 
-        <section className="space-y-3 border-t border-[#E7D7A3]/50 pt-4">
-          <h2 className="font-serif text-xl font-bold text-[#121110]">
+        <section className="space-y-3 border-t border-gold-200/50 pt-4">
+          <h2 className="font-serif text-xl font-bold text-charcoal-900">
             Grievance Officer
           </h2>
           <p>
@@ -255,7 +250,7 @@ export default function PrivacyPolicyPage() {
             made thereunder, the name and contact details of the Grievance
             Officer are provided below:
           </p>
-          <div className="mt-2 text-[#121110]/80">
+          <div className="mt-2 text-charcoal-900/80">
             <p>
               <span className="font-semibold">Name:</span> SHREYA MAITY
             </p>

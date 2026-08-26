@@ -43,7 +43,7 @@ function BotMessage({
   const isTypingOut = displayed.length < text.length;
 
   return (
-    <div className="max-w-[85%] rounded-2xl rounded-bl-none border border-white/40 bg-white/70 p-3.5 text-[13px] font-medium leading-relaxed text-stone-800 shadow-sm shadow-gold-500/5 backdrop-blur-sm">
+    <div className="max-w-[85%] rounded-2xl rounded-bl-none border border-white/40 bg-white/70 p-3.5 text-[13px] font-medium leading-relaxed text-[#292524] shadow-sm shadow-gold-500/5 backdrop-blur-sm">
       {displayed}
       {isTypingOut && <span className="typing-caret" aria-hidden />}
     </div>
@@ -88,14 +88,6 @@ export default function CustomerSupportChat() {
   });
 
   useEffect(() => {
-    // Set initial position at bottom-right on mount
-    setPosition({
-      x: window.innerWidth - 90,
-      y: window.innerHeight - 100,
-    });
-  }, []);
-
-  useEffect(() => {
     const handleResize = () => {
       setPosition((prev) => ({
         x: Math.max(10, Math.min(window.innerWidth - 85, prev.x)),
@@ -113,11 +105,12 @@ export default function CustomerSupportChat() {
       el.setPointerCapture(e.pointerId);
     } catch (err) {}
 
+    const rect = el.getBoundingClientRect();
     dragStart.current = {
       pointerX: e.clientX,
       pointerY: e.clientY,
-      posX: position.x === -1000 ? window.innerWidth - 90 : position.x,
-      posY: position.y === -1000 ? window.innerHeight - 100 : position.y,
+      posX: position.x === -1000 ? rect.left : position.x,
+      posY: position.y === -1000 ? rect.top : position.y,
       hasMoved: false,
     };
     setIsDragging(true);
@@ -307,7 +300,9 @@ export default function CustomerSupportChat() {
           className="fixed bottom-24 right-5 z-[100] flex flex-col overflow-hidden rounded-2xl border border-white/30 shadow-2xl shadow-black/30 backdrop-blur-md"
           style={{
             width: `${winSize.width}px`,
+            maxWidth: 'calc(100vw - 40px)',
             height: `${winSize.height}px`,
+            maxHeight: 'calc(100dvh - 140px)',
             background:
               'linear-gradient(145deg, #FDFAF3 0%, #F5F0E6 60%, #EDE6D5 100%)',
           }}
@@ -343,6 +338,9 @@ export default function CustomerSupportChat() {
           {/* Messages */}
           <div
             ref={feedRef}
+            role="log"
+            aria-live="polite"
+            aria-label="Chat messages"
             className="flex-1 space-y-3 overflow-y-auto px-4 py-3"
           >
             {messages.map((m, i) =>
@@ -388,7 +386,11 @@ export default function CustomerSupportChat() {
 
             {/* Thinking Indicator */}
             {isTyping && (
-              <div className="max-w-[85%] rounded-2xl rounded-bl-none border border-gold-200/40 bg-white/60 p-4 shadow-sm backdrop-blur-sm">
+              <div
+                className="max-w-[85%] rounded-2xl rounded-bl-none border border-gold-200/40 bg-white/60 p-4 shadow-sm backdrop-blur-sm"
+                role="status"
+                aria-live="polite"
+              >
                 <div className="flex flex-col gap-2">
                   <div className="flex h-6 items-center gap-2">
                     {/* Gemini-like glowing wave bars */}
@@ -414,7 +416,10 @@ export default function CustomerSupportChat() {
                       Gia is thinking
                     </span>
                   </div>
-                  <span className="text-[11px] font-medium text-stone-500/80">
+                  <span
+                    className="text-[11px] font-medium text-[#78716c]/80"
+                    aria-hidden="true"
+                  >
                     {THINKING_STEPS[thinkingStep]}
                   </span>
                 </div>
@@ -496,7 +501,7 @@ export default function CustomerSupportChat() {
                           });
                       }, 50);
                     }}
-                    className="rounded-full border border-charcoal-200/60 bg-white/50 px-3 py-1.5 text-[11px] font-medium text-charcoal-600 transition-all hover:border-gold-300 hover:bg-gold-50 hover:text-charcoal-800"
+                    className="rounded-full border border-charcoal-200/60 bg-white/50 px-3 py-1.5 text-[11px] font-medium text-[#525252] transition-all hover:border-gold-300 hover:bg-gold-50 hover:text-[#252525]"
                   >
                     {q}
                   </button>
@@ -514,6 +519,7 @@ export default function CustomerSupportChat() {
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="Describe your issue or ask a question…"
+                aria-label="Message"
                 rows={1}
                 className="flex-1 resize-none rounded-xl border border-charcoal-200/60 bg-white/70 px-3 py-2 text-[13px] text-charcoal-800 placeholder-stone-400/60 transition-all focus:border-gold-400 focus:outline-none focus:ring-1 focus:ring-gold-300"
                 style={{ maxHeight: '80px' }}
@@ -521,6 +527,7 @@ export default function CustomerSupportChat() {
               <button
                 onClick={handleSend}
                 disabled={!input.trim() || isTyping}
+                aria-label="Send message"
                 className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-charcoal-900 text-cream-50 shadow-sm transition-all hover:bg-charcoal-800 disabled:opacity-30"
               >
                 <Send className="h-4 w-4" />

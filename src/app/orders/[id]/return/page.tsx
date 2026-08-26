@@ -14,6 +14,7 @@ import {
 import { Order, ReturnRequest } from '@/types/database';
 import { useAuth } from '@/context/AuthContext';
 import { createClient } from '@/lib/supabase/client';
+import toast from 'react-hot-toast';
 
 export default function OrderReturnPage({
   params,
@@ -95,7 +96,7 @@ export default function OrderReturnPage({
     };
   }, [orderId, user]);
 
-  const handleSubmitReturn = (e: React.FormEvent) => {
+  const handleSubmitReturn = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!tagIntact) {
       setErrorMessage(
@@ -107,6 +108,38 @@ export default function OrderReturnPage({
     setIsSubmitting(true);
     setErrorMessage('');
 
+    if (user) {
+      try {
+        const supabase = createClient();
+        const { error } = await supabase.from('returns').insert({
+          order_id: order?.id || orderId,
+          user_id: user.id,
+          reason,
+          status: 'requested',
+          item_condition: 'tag_intact',
+          refund_method: refundMethod,
+          comments,
+        });
+
+        if (error) throw error;
+
+        toast.success('Return request submitted successfully.');
+        setTimeout(() => {
+          setIsSubmitting(false);
+          router.push('/account/returns');
+        }, 600);
+        return;
+      } catch (err) {
+        console.error('Failed to submit return:', err);
+        setErrorMessage(
+          'Failed to submit return request. Please contact support@ruhvi.in.'
+        );
+        setIsSubmitting(false);
+        return;
+      }
+    }
+
+    // Guest fallback — store locally
     const newReturn: ReturnRequest = {
       id: `ret-${Date.now()}`,
       order_id: order?.id || orderId,
@@ -120,7 +153,6 @@ export default function OrderReturnPage({
       order: order || undefined,
     };
 
-    // Store in localStorage
     try {
       const existing = JSON.parse(
         localStorage.getItem('ruhvi_returns_v1') || '[]'
@@ -178,7 +210,7 @@ export default function OrderReturnPage({
           <span className="font-bold">
             Ruhvi 7-Day Hassle-Free Return Guarantee
           </span>
-          <p className="text-[11px] leading-relaxed text-stone-600">
+          <p className="text-xs leading-relaxed text-stone-600">
             All fine jewellery items are eligible for return within 7 days of
             delivery provided the security seal and authenticity tag are intact
             and un-tampered.
@@ -242,7 +274,7 @@ export default function OrderReturnPage({
                   I confirm that the original Ruhvi security seal & authenticity
                   tag is unbroken and intact *
                 </span>
-                <p className="mt-0.5 text-[11px] text-stone-500">
+                <p className="mt-0.5 text-xs text-stone-500">
                   Items with broken or tampered security tags cannot be accepted
                   under GSTR return rules.
                 </p>
@@ -266,7 +298,7 @@ export default function OrderReturnPage({
               >
                 <div>
                   <div className="text-stone-900">Original Payment Source</div>
-                  <div className="text-[10px] text-stone-500">
+                  <div className="text-xs text-stone-500">
                     Refund back to original UPI/Card/Bank (5-7 days)
                   </div>
                 </div>
@@ -287,7 +319,7 @@ export default function OrderReturnPage({
                   <div className="text-stone-900">
                     Ruhvi Store Credit / Wallet
                   </div>
-                  <div className="text-[10px] text-stone-500">
+                  <div className="text-xs text-stone-500">
                     Instant credit upon return pickup (Bonus 5% cashback)
                   </div>
                 </div>

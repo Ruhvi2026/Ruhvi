@@ -190,38 +190,61 @@ export default function AdminLogin() {
             )}
 
             <form onSubmit={handleLogin} className="space-y-5">
-              <div className="group relative">
-                <input
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="admin@ruhvi.in"
-                  className="w-full rounded-lg bg-[#F3F4F6] px-5 py-3.5 text-sm text-gray-900 placeholder-gray-500 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500/50"
-                />
-                <User className="absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-800" />
+              <div>
+                <label
+                  htmlFor="admin-email"
+                  className="mb-1.5 block text-sm font-medium text-gray-700"
+                >
+                  Email Address
+                </label>
+                <div className="group relative">
+                  <input
+                    id="admin-email"
+                    type="email"
+                    required
+                    autoComplete="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="admin@ruhvi.in"
+                    className="w-full rounded-lg bg-[#F3F4F6] px-5 py-3.5 text-sm text-gray-900 placeholder-gray-500 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                  />
+                  <User className="absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-800" />
+                </div>
               </div>
 
-              <div className="group relative">
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="w-full rounded-lg bg-[#F3F4F6] px-5 py-3.5 text-sm text-gray-900 placeholder-gray-500 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500/50"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-800 transition-colors hover:text-black"
+              <div>
+                <label
+                  htmlFor="admin-password"
+                  className="mb-1.5 block text-sm font-medium text-gray-700"
                 >
-                  {showPassword ? (
-                    <EyeOff className="h-4 w-4" />
-                  ) : (
-                    <Eye className="h-4 w-4" />
-                  )}
-                </button>
+                  Password
+                </label>
+                <div className="group relative">
+                  <input
+                    id="admin-password"
+                    type={showPassword ? 'text' : 'password'}
+                    required
+                    autoComplete="current-password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    className="w-full rounded-lg bg-[#F3F4F6] px-5 py-3.5 text-sm text-gray-900 placeholder-gray-500 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-800 transition-colors hover:text-black"
+                    aria-label={
+                      showPassword ? 'Hide password' : 'Show password'
+                    }
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </button>
+                </div>
               </div>
 
               <div className="flex justify-end pt-1">

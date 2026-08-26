@@ -17,20 +17,18 @@ export function EmptyState({
   actionHref,
 }: EmptyStateProps) {
   return (
-    <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
-      <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-stone-50 text-stone-400 mb-6">
+    <div className="flex flex-col items-center justify-center px-4 py-16 text-center">
+      <div className="mb-6 inline-flex h-20 w-20 items-center justify-center rounded-full bg-cream-50 text-stone-400">
         {icon}
       </div>
-      <h3 className="text-2xl font-serif font-semibold text-stone-900 mb-2">
+      <h3 className="mb-2 font-serif text-2xl font-semibold text-stone-900">
         {title}
       </h3>
-      <p className="text-sm text-stone-500 max-w-sm mb-8">
-        {description}
-      </p>
+      <p className="mb-8 max-w-sm text-sm text-stone-500">{description}</p>
       {actionLabel && actionHref && (
         <Link
           href={actionHref}
-          className="inline-flex items-center justify-center px-8 py-3 bg-amber-950 text-white text-xs font-semibold uppercase tracking-wider rounded-lg hover:bg-amber-900 transition-colors"
+          className="inline-flex items-center justify-center rounded-lg bg-charcoal-900 px-8 py-3 text-xs font-semibold uppercase tracking-wider text-white transition-colors hover:bg-charcoal-800"
         >
           {actionLabel}
         </Link>

@@ -66,7 +66,8 @@ function LoginForm() {
     setError(null);
     setMessage(null);
 
-    let destination = redirectTo === '/admin' ? '/admin/dashboard' : redirectTo;
+    const destination =
+      redirectTo === '/admin' ? '/admin/dashboard' : redirectTo;
 
     try {
       let fbUser = null;
@@ -438,9 +439,17 @@ function LoginForm() {
         </p>
       </div>
 
-      <div className="mb-6 flex rounded-xl bg-[#FAF7ED] p-1">
+      <div
+        className="mb-6 flex rounded-xl bg-[#FAF7ED] p-1"
+        role="tablist"
+        aria-label="Sign in method"
+      >
         <button
           type="button"
+          role="tab"
+          aria-selected={authMethod === 'email'}
+          aria-controls="email-login-panel"
+          id="tab-email"
           onClick={() => {
             setAuthMethod('email');
             setError(null);
@@ -456,6 +465,10 @@ function LoginForm() {
         </button>
         <button
           type="button"
+          role="tab"
+          aria-selected={authMethod === 'phone'}
+          aria-controls="phone-login-panel"
+          id="tab-phone"
           onClick={() => {
             setAuthMethod('phone');
             setError(null);
@@ -484,14 +497,25 @@ function LoginForm() {
       )}
 
       {authMethod === 'email' ? (
-        <form onSubmit={handleEmailLogin} className="space-y-4">
+        <form
+          onSubmit={handleEmailLogin}
+          className="space-y-4"
+          id="email-login-panel"
+          role="tabpanel"
+          aria-labelledby="tab-email"
+        >
           <div>
-            <label className="mb-1 block text-xs font-medium text-[#121110]/80">
+            <label
+              htmlFor="login-email"
+              className="mb-1 block text-xs font-medium text-[#121110]/80"
+            >
               Email Address
             </label>
             <input
+              id="login-email"
               type="email"
               required
+              autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="aarav@example.com"
@@ -501,7 +525,10 @@ function LoginForm() {
 
           <div>
             <div className="mb-1 flex items-center justify-between">
-              <label className="text-xs font-medium text-[#121110]/80">
+              <label
+                htmlFor="login-password"
+                className="text-xs font-medium text-[#121110]/80"
+              >
                 Password
               </label>
               <Link
@@ -513,8 +540,10 @@ function LoginForm() {
             </div>
             <div className="relative">
               <input
+                id="login-password"
                 type={showPassword ? 'text' : 'password'}
                 required
+                autoComplete="current-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
@@ -553,14 +582,22 @@ function LoginForm() {
         <form
           onSubmit={showOtpInput ? handleVerifyOtp : handleSendOtp}
           className="space-y-4"
+          id="phone-login-panel"
+          role="tabpanel"
+          aria-labelledby="tab-phone"
         >
           <div>
-            <label className="mb-1 block text-xs font-medium text-[#121110]/80">
+            <label
+              htmlFor="login-phone"
+              className="mb-1 block text-xs font-medium text-[#121110]/80"
+            >
               Phone Number
             </label>
             <input
+              id="login-phone"
               type="tel"
               required
+              autoComplete="tel"
               disabled={showOtpInput}
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
@@ -571,12 +608,18 @@ function LoginForm() {
 
           {showOtpInput && (
             <div>
-              <label className="mb-1 block text-xs font-medium text-[#121110]/80">
+              <label
+                htmlFor="login-otp"
+                className="mb-1 block text-xs font-medium text-[#121110]/80"
+              >
                 Enter OTP
               </label>
               <input
+                id="login-otp"
                 type="text"
                 required
+                inputMode="numeric"
+                autoComplete="one-time-code"
                 value={otp}
                 onChange={(e) => setOtp(e.target.value)}
                 placeholder="123456"

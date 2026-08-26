@@ -1,10 +1,12 @@
 'use client';
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { Gallery, Item } from 'react-photoswipe-gallery';
 import { Sparkles, ZoomIn } from 'lucide-react';
 import 'photoswipe/dist/photoswipe.css';
 import { ProductImage } from '@/types/database';
+import { ImageWithFallback } from '@/components/ui/ImageWithFallback';
 import {
   getProductImage,
   getZoomImage,
@@ -31,7 +33,8 @@ export function ProductImageGallery({
     );
   }
 
-  const currentImage = images[activeImageIndex];
+  const currentImage = images[activeImageIndex] || images[0];
+  if (!currentImage) return null;
 
   return (
     <div className="space-y-4">
@@ -71,10 +74,12 @@ export function ProductImageGallery({
                   ref={ref as React.RefCallback<HTMLDivElement>}
                   onClick={open}
                 >
-                  <img
+                  <ImageWithFallback
                     src={getProductImage(currentImage.url)}
                     alt={`${productName} | Ruhvi Fine Jewellery`}
-                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    fill
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                    className="object-cover transition-transform duration-500 group-hover:scale-105"
                   />
                   <div className="absolute bottom-4 right-4 flex items-center space-x-1 rounded-full bg-white/90 p-2 text-xs text-slate-800 shadow-md transition-colors hover:bg-white">
                     <ZoomIn className="h-4 w-4" />
@@ -98,13 +103,19 @@ export function ProductImageGallery({
                 alt={`${productName} - View ${idx + 1}`}
               >
                 {({ ref, open }) => (
-                  <img
-                    ref={ref as React.RefCallback<HTMLImageElement>}
-                    src={getProductImage(img.url)}
+                  <div
+                    ref={ref as React.RefCallback<HTMLDivElement>}
                     style={{ display: 'none' }}
                     onClick={open}
-                    alt=""
-                  />
+                    aria-hidden="true"
+                  >
+                    <Image
+                      src={getProductImage(img.url)}
+                      width={1600}
+                      height={1600}
+                      alt=""
+                    />
+                  </div>
                 )}
               </Item>
             );
@@ -125,10 +136,12 @@ export function ProductImageGallery({
                   : 'border-gold-200/70 hover:border-gold-400'
               }`}
             >
-              <img
+              <ImageWithFallback
                 src={getThumbnailImage(img.url)}
                 alt={`${productName} thumbnail ${idx + 1}`}
-                className="h-full w-full object-cover"
+                fill
+                sizes="80px"
+                className="object-cover"
               />
               <span className="absolute inset-x-0 bottom-0 bg-slate-900/80 py-0.5 text-center text-[9px] uppercase tracking-wider text-white backdrop-blur-sm">
                 {img.type}

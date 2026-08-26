@@ -46,12 +46,233 @@ interface NavGroup {
   items: NavItem[];
 }
 
+function NavLinkItem({
+  item,
+  pathname,
+  collapsed,
+}: {
+  item: NavItem;
+  pathname: string;
+  collapsed: boolean;
+}) {
+  const isExact = pathname === item.href;
+  const isChild =
+    !item.href.includes('?') && pathname.startsWith(item.href + '/');
+  const isActive = isExact || isChild;
+
+  return (
+    <Link
+      href={item.href}
+      className={`group relative flex items-center gap-3 overflow-hidden rounded-xl px-3 py-2.5 text-xs font-medium transition-all duration-300 ${
+        isActive ? 'text-white' : 'text-slate-400 hover:text-white'
+      }`}
+      title={collapsed ? item.label : undefined}
+    >
+      {isActive && (
+        <div className="absolute inset-0 rounded-xl border border-indigo-500/20 bg-gradient-to-r from-indigo-500/20 to-cyan-500/5 shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]" />
+      )}
+      {!isActive && (
+        <div className="absolute inset-0 rounded-xl bg-white/0 transition-colors group-hover:bg-white/5" />
+      )}
+      <item.icon
+        className={`relative z-10 h-4 w-4 flex-shrink-0 transition-transform duration-300 group-hover:scale-110 ${
+          isActive
+            ? 'text-indigo-400'
+            : 'text-slate-500 group-hover:text-slate-300'
+        }`}
+      />
+      {!collapsed && (
+        <span className="relative z-10 flex-1 truncate tracking-wide">
+          {item.label}
+        </span>
+      )}
+      {!collapsed && item.badge && (
+        <span
+          className={`relative z-10 rounded-full px-2 py-0.5 text-[9px] font-bold tracking-wider ${
+            item.badgeColor || 'bg-indigo-500 text-white'
+          }`}
+        >
+          {item.badge}
+        </span>
+      )}
+    </Link>
+  );
+}
+
+function SupportSidebarContent({
+  collapsed,
+  onToggleCollapsed,
+  navGroups,
+  unassignedCount,
+  isAutoAssigning,
+  onAutoAssign,
+  userInitial,
+  userName,
+  roleDisplayLabel,
+  signOut,
+}: {
+  collapsed: boolean;
+  onToggleCollapsed: () => void;
+  navGroups: NavGroup[];
+  unassignedCount: number | null;
+  isAutoAssigning: boolean;
+  onAutoAssign: () => void;
+  userInitial: string;
+  userName: string;
+  roleDisplayLabel: string;
+  signOut: () => Promise<void>;
+}) {
+  const pathname = usePathname();
+
+  return (
+    <div className="flex h-full flex-col bg-[#080B14]">
+      {/* Brand Header */}
+      <div className="flex h-16 flex-shrink-0 items-center justify-between border-b border-white/5 bg-white/[0.01] px-4 backdrop-blur-md">
+        <Link
+          href="/support/dashboard"
+          className="flex flex-1 items-center gap-3 overflow-hidden"
+        >
+          <div className="relative flex h-8 w-8 flex-shrink-0 items-center justify-center overflow-hidden rounded-xl border border-indigo-500/30 bg-gradient-to-br from-indigo-500/20 to-cyan-500/10 shadow-[0_0_15px_rgba(99,102,241,0.2)]">
+            <Headphones className="h-4 w-4 text-indigo-400" />
+          </div>
+          {!collapsed && (
+            <div className="overflow-hidden">
+              <div className="flex items-center gap-2">
+                <p className="truncate text-sm font-bold tracking-wide text-white">
+                  Ruhvi Support
+                </p>
+              </div>
+              <p className="mt-0.5 truncate text-[10px] uppercase tracking-widest text-indigo-400/80">
+                Helpdesk Console
+              </p>
+            </div>
+          )}
+        </Link>
+        {!collapsed && (
+          <button
+            onClick={onToggleCollapsed}
+            className="ml-auto flex h-6 w-6 items-center justify-center rounded-lg bg-white/5 text-slate-400 transition-colors hover:bg-white/10 hover:text-white"
+            title="Collapse sidebar"
+          >
+            <ChevronRight className="h-3.5 w-3.5 rotate-180" />
+          </button>
+        )}
+      </div>
+
+      {/* Auto-Assign Quick Action for Managers in Sidebar */}
+      {!collapsed && unassignedCount !== null && unassignedCount > 0 && (
+        <div className="relative mx-4 mt-5 overflow-hidden rounded-xl border border-indigo-500/20 bg-indigo-500/10 p-3 text-xs shadow-[0_0_20px_rgba(99,102,241,0.05)]">
+          <div className="absolute right-0 top-0 p-2 opacity-20">
+            <Sparkles className="h-12 w-12 text-indigo-400" />
+          </div>
+          <div className="relative z-10">
+            <div className="flex items-center justify-between text-indigo-300">
+              <span className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide">
+                <Sparkles className="h-3.5 w-3.5" />
+                {unassignedCount} Unassigned
+              </span>
+            </div>
+            <button
+              onClick={onAutoAssign}
+              disabled={isAutoAssigning}
+              className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r from-indigo-500 to-cyan-500 px-2 py-1.5 text-[11px] font-bold text-white shadow-lg shadow-indigo-500/25 transition-all hover:shadow-indigo-500/40 hover:brightness-110 disabled:opacity-50"
+            >
+              <Zap className="h-3.5 w-3.5" />
+              {isAutoAssigning ? 'Distributing...' : 'Auto-Distribute Load'}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Navigation Groups */}
+      <nav className="custom-scrollbar flex-1 space-y-6 overflow-y-auto px-3 py-6">
+        {navGroups.map((group) => (
+          <div key={group.section}>
+            {!collapsed && (
+              <p className="mb-3 px-2 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500/80">
+                {group.section}
+              </p>
+            )}
+            <div className="space-y-1">
+              {group.items.map((item) => (
+                <NavLinkItem
+                  key={item.label}
+                  item={item}
+                  pathname={pathname}
+                  collapsed={collapsed}
+                />
+              ))}
+            </div>
+          </div>
+        ))}
+      </nav>
+
+      {/* Footer / User Profile */}
+      <div className="flex-shrink-0 border-t border-white/5 bg-white/[0.02] p-3 backdrop-blur-md">
+        <Link
+          href="https://ruhvi.in"
+          target="_blank"
+          className="flex items-center gap-3 rounded-xl px-3 py-2 text-xs font-medium text-slate-400 transition-colors hover:bg-white/5 hover:text-white"
+          title="View storefront"
+        >
+          <Home className="h-4 w-4 flex-shrink-0" />
+          {!collapsed && <span>View Storefront</span>}
+        </Link>
+
+        {!collapsed && (
+          <div className="mt-3 flex items-center justify-between rounded-2xl border border-white/10 bg-[#0d0f1a] p-2 shadow-inner">
+            <div className="flex items-center gap-3 overflow-hidden">
+              <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-indigo-600 to-cyan-600 text-xs font-bold text-white shadow-md">
+                {userInitial}
+              </div>
+              <div className="overflow-hidden">
+                <p className="truncate text-xs font-semibold text-slate-200">
+                  {userName}
+                </p>
+                <p className="truncate text-[10px] font-medium uppercase tracking-wider text-indigo-400/80">
+                  {roleDisplayLabel}
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={signOut}
+              className="flex h-8 w-8 items-center justify-center rounded-xl bg-white/5 text-slate-400 transition-colors hover:bg-rose-500/20 hover:text-rose-400"
+              title="Sign out"
+            >
+              <LogOut className="h-4 w-4" />
+            </button>
+          </div>
+        )}
+
+        {collapsed && (
+          <button
+            onClick={signOut}
+            className="mt-2 flex w-full items-center justify-center rounded-xl p-2 text-slate-500 transition-colors hover:bg-rose-500/20 hover:text-rose-400"
+            title="Sign out"
+          >
+            <LogOut className="h-4 w-4" />
+          </button>
+        )}
+
+        {collapsed && (
+          <button
+            onClick={onToggleCollapsed}
+            className="mt-2 flex w-full items-center justify-center rounded-xl p-2 text-slate-500 transition-colors hover:bg-white/5 hover:text-white"
+            title="Expand sidebar"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function SupportLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const pathname = usePathname();
   const router = useRouter();
   const { user, profile, signOut } = useAuth();
   const [collapsed, setCollapsed] = useState(false);
@@ -201,188 +422,18 @@ export default function SupportLayout({
     },
   ];
 
-  function NavLinkItem({ item }: { item: NavItem }) {
-    const isExact = pathname === item.href;
-    const isChild =
-      !item.href.includes('?') && pathname.startsWith(item.href + '/');
-    const isActive = isExact || isChild;
-
-    return (
-      <Link
-        href={item.href}
-        className={`group relative flex items-center gap-3 overflow-hidden rounded-xl px-3 py-2.5 text-xs font-medium transition-all duration-300 ${
-          isActive ? 'text-white' : 'text-slate-400 hover:text-white'
-        }`}
-        title={collapsed ? item.label : undefined}
-      >
-        {isActive && (
-          <div className="absolute inset-0 rounded-xl border border-indigo-500/20 bg-gradient-to-r from-indigo-500/20 to-cyan-500/5 shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]" />
-        )}
-        {!isActive && (
-          <div className="absolute inset-0 rounded-xl bg-white/0 transition-colors group-hover:bg-white/5" />
-        )}
-        <item.icon
-          className={`relative z-10 h-4 w-4 flex-shrink-0 transition-transform duration-300 group-hover:scale-110 ${
-            isActive
-              ? 'text-indigo-400'
-              : 'text-slate-500 group-hover:text-slate-300'
-          }`}
-        />
-        {!collapsed && (
-          <span className="relative z-10 flex-1 truncate tracking-wide">
-            {item.label}
-          </span>
-        )}
-        {!collapsed && item.badge && (
-          <span
-            className={`relative z-10 rounded-full px-2 py-0.5 text-[9px] font-bold tracking-wider ${
-              item.badgeColor || 'bg-indigo-500 text-white'
-            }`}
-          >
-            {item.badge}
-          </span>
-        )}
-      </Link>
-    );
-  }
-
-  const SidebarContent = () => (
-    <div className="flex h-full flex-col bg-[#080B14]">
-      {/* Brand Header */}
-      <div className="flex h-16 flex-shrink-0 items-center justify-between border-b border-white/5 bg-white/[0.01] px-4 backdrop-blur-md">
-        <Link
-          href="/support/dashboard"
-          className="flex flex-1 items-center gap-3 overflow-hidden"
-        >
-          <div className="relative flex h-8 w-8 flex-shrink-0 items-center justify-center overflow-hidden rounded-xl border border-indigo-500/30 bg-gradient-to-br from-indigo-500/20 to-cyan-500/10 shadow-[0_0_15px_rgba(99,102,241,0.2)]">
-            <Headphones className="h-4 w-4 text-indigo-400" />
-          </div>
-          {!collapsed && (
-            <div className="overflow-hidden">
-              <div className="flex items-center gap-2">
-                <p className="truncate text-sm font-bold tracking-wide text-white">
-                  Ruhvi Support
-                </p>
-              </div>
-              <p className="mt-0.5 truncate text-[10px] uppercase tracking-widest text-indigo-400/80">
-                Helpdesk Console
-              </p>
-            </div>
-          )}
-        </Link>
-        {!collapsed && (
-          <button
-            onClick={() => setCollapsed(true)}
-            className="ml-auto flex h-6 w-6 items-center justify-center rounded-lg bg-white/5 text-slate-400 transition-colors hover:bg-white/10 hover:text-white"
-            title="Collapse sidebar"
-          >
-            <ChevronRight className="h-3.5 w-3.5 rotate-180" />
-          </button>
-        )}
-      </div>
-
-      {/* Auto-Assign Quick Action for Managers in Sidebar */}
-      {!collapsed && unassignedCount !== null && unassignedCount > 0 && (
-        <div className="relative mx-4 mt-5 overflow-hidden rounded-xl border border-indigo-500/20 bg-indigo-500/10 p-3 text-xs shadow-[0_0_20px_rgba(99,102,241,0.05)]">
-          <div className="absolute right-0 top-0 p-2 opacity-20">
-            <Sparkles className="h-12 w-12 text-indigo-400" />
-          </div>
-          <div className="relative z-10">
-            <div className="flex items-center justify-between text-indigo-300">
-              <span className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide">
-                <Sparkles className="h-3.5 w-3.5" />
-                {unassignedCount} Unassigned
-              </span>
-            </div>
-            <button
-              onClick={handleQuickAutoAssign}
-              disabled={isAutoAssigning}
-              className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r from-indigo-500 to-cyan-500 px-2 py-1.5 text-[11px] font-bold text-white shadow-lg shadow-indigo-500/25 transition-all hover:shadow-indigo-500/40 hover:brightness-110 disabled:opacity-50"
-            >
-              <Zap className="h-3.5 w-3.5" />
-              {isAutoAssigning ? 'Distributing...' : 'Auto-Distribute Load'}
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Navigation Groups */}
-      <nav className="custom-scrollbar flex-1 space-y-6 overflow-y-auto px-3 py-6">
-        {NAV_GROUPS.map((group) => (
-          <div key={group.section}>
-            {!collapsed && (
-              <p className="mb-3 px-2 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500/80">
-                {group.section}
-              </p>
-            )}
-            <div className="space-y-1">
-              {group.items.map((item) => (
-                <NavLinkItem key={item.label} item={item} />
-              ))}
-            </div>
-          </div>
-        ))}
-      </nav>
-
-      {/* Footer / User Profile */}
-      <div className="flex-shrink-0 border-t border-white/5 bg-white/[0.02] p-3 backdrop-blur-md">
-        <Link
-          href="https://ruhvi.in"
-          target="_blank"
-          className="flex items-center gap-3 rounded-xl px-3 py-2 text-xs font-medium text-slate-400 transition-colors hover:bg-white/5 hover:text-white"
-          title="View storefront"
-        >
-          <Home className="h-4 w-4 flex-shrink-0" />
-          {!collapsed && <span>View Storefront</span>}
-        </Link>
-
-        {!collapsed && (
-          <div className="mt-3 flex items-center justify-between rounded-2xl border border-white/10 bg-[#0d0f1a] p-2 shadow-inner">
-            <div className="flex items-center gap-3 overflow-hidden">
-              <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-indigo-600 to-cyan-600 text-xs font-bold text-white shadow-md">
-                {userInitial}
-              </div>
-              <div className="overflow-hidden">
-                <p className="truncate text-xs font-semibold text-slate-200">
-                  {userName}
-                </p>
-                <p className="truncate text-[10px] font-medium uppercase tracking-wider text-indigo-400/80">
-                  {roleDisplayLabel}
-                </p>
-              </div>
-            </div>
-            <button
-              onClick={signOut}
-              className="flex h-8 w-8 items-center justify-center rounded-xl bg-white/5 text-slate-400 transition-colors hover:bg-rose-500/20 hover:text-rose-400"
-              title="Sign out"
-            >
-              <LogOut className="h-4 w-4" />
-            </button>
-          </div>
-        )}
-
-        {collapsed && (
-          <button
-            onClick={signOut}
-            className="mt-2 flex w-full items-center justify-center rounded-xl p-2 text-slate-500 transition-colors hover:bg-rose-500/20 hover:text-rose-400"
-            title="Sign out"
-          >
-            <LogOut className="h-4 w-4" />
-          </button>
-        )}
-
-        {collapsed && (
-          <button
-            onClick={() => setCollapsed(false)}
-            className="mt-2 flex w-full items-center justify-center rounded-xl p-2 text-slate-500 transition-colors hover:bg-white/5 hover:text-white"
-            title="Expand sidebar"
-          >
-            <ChevronRight className="h-4 w-4" />
-          </button>
-        )}
-      </div>
-    </div>
-  );
+  const sidebarProps = {
+    collapsed,
+    onToggleCollapsed: () => setCollapsed(!collapsed),
+    navGroups: NAV_GROUPS,
+    unassignedCount,
+    isAutoAssigning,
+    onAutoAssign: handleQuickAutoAssign,
+    userInitial,
+    userName,
+    roleDisplayLabel,
+    signOut,
+  };
 
   return (
     <div
@@ -397,7 +448,7 @@ export default function SupportLayout({
           collapsed ? 'w-20' : 'w-72'
         }`}
       >
-        <SidebarContent />
+        <SupportSidebarContent {...sidebarProps} />
       </aside>
 
       {/* Mobile Drawer */}
@@ -414,7 +465,7 @@ export default function SupportLayout({
             >
               <X className="h-4 w-4" />
             </button>
-            <SidebarContent />
+            <SupportSidebarContent {...sidebarProps} />
           </aside>
         </div>
       )}

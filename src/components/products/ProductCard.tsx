@@ -51,7 +51,7 @@ export function ProductCard({ product }: ProductCardProps) {
       {/* Image container */}
       <div className="relative aspect-[4/5] w-full overflow-hidden bg-champagne-50">
         <Link
-          href={`/products/${product.slug}`}
+          href={`/products/${product.slug || product.id}`}
           onClick={() => {
             ecommerceEvent('select_item', {
               items: [
@@ -75,6 +75,22 @@ export function ProductCard({ product }: ProductCardProps) {
           />
         </Link>
 
+        {/* New Arrival / Best Seller badges */}
+        {(product.is_new_arrival || product.is_best_seller) && (
+          <div className="absolute left-2 top-2 flex flex-col items-start gap-1.5">
+            {product.is_new_arrival && (
+              <span className="bg-gold-600 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.15em] text-white shadow-sm">
+                New Arrival
+              </span>
+            )}
+            {product.is_best_seller && (
+              <span className="bg-gradient-to-br from-gold-400 via-gold-500 to-gold-700 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.15em] text-white shadow-sm">
+                Best Seller
+              </span>
+            )}
+          </div>
+        )}
+
         {/* Out of Stock overlay */}
         {product.status === 'out_of_stock' && (
           <div className="absolute inset-0 flex items-center justify-center bg-white/40 backdrop-blur-[2px]">
@@ -87,7 +103,7 @@ export function ProductCard({ product }: ProductCardProps) {
         {/* Wishlist Heart Button */}
         <button
           onClick={handleToggleWishlist}
-          className="absolute right-3 top-3 z-10 text-slate-400 transition-colors hover:text-charcoal-900"
+          className="absolute right-2 top-2 z-10 rounded-full p-2.5 text-slate-400 transition-colors hover:text-charcoal-900"
           title={isLiked ? 'Remove from Wishlist' : 'Add to Wishlist'}
         >
           <Heart
@@ -96,9 +112,9 @@ export function ProductCard({ product }: ProductCardProps) {
           />
         </button>
 
-        {/* Quick Add to Cart hover button */}
+        {/* Quick Add to Cart button */}
         {product.status !== 'out_of_stock' && (
-          <div className="absolute inset-x-0 bottom-0 hidden translate-y-full p-4 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100 sm:block">
+          <div className="absolute inset-x-0 bottom-0 translate-y-0 p-4 opacity-100 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100 sm:translate-y-full sm:opacity-0 sm:group-hover:translate-y-0 sm:group-hover:opacity-100">
             <button
               onClick={handleAddToCart}
               className="flex w-full items-center justify-center space-x-2 bg-charcoal-900/95 py-3 text-white backdrop-blur-sm transition-colors hover:bg-charcoal-900"
@@ -127,14 +143,14 @@ export function ProductCard({ product }: ProductCardProps) {
       {/* Card Info */}
       <div className="flex flex-col pt-4">
         <Link
-          href={`/products/${product.slug}`}
+          href={`/products/${product.slug || product.id}`}
           onClick={() => {
             ecommerceEvent('select_item', {
               items: [
                 {
                   item_id: product.id,
                   item_name: product.name,
-                  price: product.price,
+                  price: product.price || 0,
                   item_category: product.category?.name || undefined,
                 },
               ],
@@ -148,9 +164,9 @@ export function ProductCard({ product }: ProductCardProps) {
 
         <div className="mt-1.5 flex items-baseline space-x-2">
           <span className="text-sm font-semibold text-charcoal-900">
-            ₹{product.price.toLocaleString('en-IN')}
+            ₹{(product.price ?? 0).toLocaleString('en-IN')}
           </span>
-          {product.mrp > product.price && (
+          {product.mrp && product.mrp > product.price && (
             <span className="text-xs text-slate-400 line-through">
               ₹{product.mrp.toLocaleString('en-IN')}
             </span>

@@ -235,10 +235,10 @@ export async function middleware(request: NextRequest) {
         .eq('id', uid)
         .maybeSingle();
 
-      let userProfile = profile;
-      let role = userProfile?.role || 'customer';
-      let accountStatus = userProfile?.account_status || 'active';
-      let allowedPortals = userProfile?.allowed_portals || [];
+      const userProfile = profile;
+      const role = userProfile?.role || 'customer';
+      const accountStatus = userProfile?.account_status || 'active';
+      const allowedPortals = userProfile?.allowed_portals || [];
 
       // 1. Check account status
       if (accountStatus !== 'active') {

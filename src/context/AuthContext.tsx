@@ -203,9 +203,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       await fetch('/api/auth/logout', { method: 'POST' }).catch(() => {});
 
       // 3. Clear Supabase token cache & sign out
+      // Note: supabase.auth is unavailable when the client uses a custom accessToken,
+      // so Firebase sign-out + cache clear is the complete teardown.
       clearSupabaseTokenCache();
-      const supabase = createClient();
-      await supabase.auth.signOut().catch(() => {});
 
       setUser(null);
       setSession(null);
@@ -231,18 +231,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const supabase = createClient();
     let isMounted = true;
     let unsubFirebase: (() => void) | null = null;
-
-    const handleSupabaseSession = async (currentSession: Session | null) => {
-      if (!isMounted) return false;
-      if (currentSession?.user) {
-        setSession(currentSession);
-        setUser(currentSession.user as any);
-        await fetchProfile(currentSession.user);
-        if (isMounted) setLoading(false);
-        return true;
-      }
-      return false;
-    };
 
     const handleFirebaseUser = async (fbUser: any) => {
       if (!isMounted) return false;
@@ -278,21 +266,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     const initAuth = async () => {
-      // 1. Check Supabase first
-      let hasSupabase = false;
-      try {
-        const {
-          data: { session: initialSession },
-        } = await supabase.auth.getSession();
-        hasSupabase = await handleSupabaseSession(initialSession);
-      } catch (e) {
-        // Ignored. If client uses custom accessToken, getSession will throw.
-        console.log(
-          'Supabase session fetch bypassed due to custom accessToken'
-        );
-      }
-
-      // 2. Setup Firebase listener
+      // Note: supabase.auth is unavailable when the client uses a custom accessToken,
+      // so Firebase is the only source of truth for the session.
+      // 1. Setup Firebase listener
       try {
         const { onAuthStateChanged } = await import('firebase/auth');
         const { auth } = await import('@/lib/firebase');
@@ -313,7 +289,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         });
       } catch (err) {
         console.error('Firebase auth listener error:', err);
-        if (!hasSupabase && isMounted) {
+        if (isMounted) {
           setLoading(false);
         }
       }

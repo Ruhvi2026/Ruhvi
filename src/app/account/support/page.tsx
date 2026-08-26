@@ -108,9 +108,9 @@ export default function CustomerSupportPage() {
       {tickets.length === 0 ? (
         <div className="rounded-xl border border-charcoal-100 bg-white py-16 text-center">
           <Ticket className="mx-auto mb-4 h-12 w-12 text-charcoal-300" />
-          <h3 className="text-lg font-semibold text-charcoal-700">
+          <h2 className="text-lg font-semibold text-charcoal-700">
             No Support Tickets
-          </h3>
+          </h2>
           <p className="mt-2 text-sm text-charcoal-400">
             Need help? Start a conversation with our support assistant.
           </p>
@@ -140,9 +140,9 @@ export default function CustomerSupportPage() {
                       {STATUS_LABELS[ticket.status] || ticket.status}
                     </span>
                   </div>
-                  <h3 className="mt-1.5 text-sm font-semibold text-charcoal-800">
+                  <h2 className="mt-1.5 text-sm font-semibold text-charcoal-800">
                     {ticket.title}
-                  </h3>
+                  </h2>
                   <div className="mt-1 flex items-center gap-3 text-xs text-charcoal-400">
                     <span className="flex items-center gap-1">
                       <Clock className="h-3 w-3" />

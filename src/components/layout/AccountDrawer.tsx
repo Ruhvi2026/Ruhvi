@@ -63,6 +63,18 @@ export function AccountDrawer({ isOpen, onClose }: AccountDrawerProps) {
     if (isOpen) {
       document.addEventListener('keydown', handleKeyDown);
       document.body.style.overflow = 'hidden';
+      // Focus the close button when drawer opens
+      const timer = setTimeout(() => {
+        const closeBtn = drawerRef.current?.querySelector<HTMLButtonElement>(
+          'button[aria-label="Close menu"]'
+        );
+        closeBtn?.focus();
+      }, 50);
+      return () => {
+        clearTimeout(timer);
+        document.removeEventListener('keydown', handleKeyDown);
+        document.body.style.overflow = 'unset';
+      };
     }
 
     return () => {
@@ -75,6 +87,40 @@ export function AccountDrawer({ isOpen, onClose }: AccountDrawerProps) {
   useEffect(() => {
     onClose();
   }, [pathname]);
+
+  // Focus trap: keep Tab/Shift+Tab within the drawer while open
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const previouslyFocused = document.activeElement as HTMLElement | null;
+
+    const handleTab = (e: KeyboardEvent) => {
+      if (e.key !== 'Tab') return;
+      const drawer = drawerRef.current;
+      if (!drawer) return;
+      const focusables = Array.from(
+        drawer.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        )
+      ).filter((el) => el.offsetParent !== null);
+      if (focusables.length === 0) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener('keydown', handleTab);
+    return () => {
+      document.removeEventListener('keydown', handleTab);
+      previouslyFocused?.focus?.();
+    };
+  }, [isOpen]);
 
   const handleLogoutConfirm = async () => {
     try {
@@ -185,7 +231,7 @@ export function AccountDrawer({ isOpen, onClose }: AccountDrawerProps) {
     <>
       {/* Backdrop */}
       <div
-        className={`backdrop-blur-xs fixed inset-0 z-[9998] bg-stone-950/60 transition-opacity duration-300 ${
+        className={`fixed inset-0 z-[9998] bg-stone-950/60 backdrop-blur-sm transition-opacity duration-300 ${
           isOpen
             ? 'pointer-events-auto opacity-100'
             : 'pointer-events-none opacity-0'
@@ -224,10 +270,10 @@ export function AccountDrawer({ isOpen, onClose }: AccountDrawerProps) {
         </div>
 
         {/* Profile Header (Sticky Top) */}
-        <div className="py-4.5 border-b border-stone-200/60 bg-gradient-to-b from-[#FAF8F2] to-[#FCFBF7] px-5 dark:border-stone-800 dark:from-[#1c1a19] dark:to-[#141211]">
+        <div className="border-b border-stone-200/60 bg-gradient-to-b from-[#FAF8F2] to-[#FCFBF7] px-5 py-[18px] dark:border-stone-800 dark:from-[#1c1a19] dark:to-[#141211]">
           {user ? (
             <div className="flex items-center space-x-3.5">
-              <div className="h-13 w-13 shadow-xs relative flex flex-shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-gold-400/60 bg-gold-50 font-serif text-base font-bold text-gold-700 dark:border-gold-500/40 dark:bg-stone-800 dark:text-gold-400">
+              <div className="relative flex h-[52px] w-[52px] flex-shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-gold-400/60 bg-gold-50 font-serif text-base font-bold text-gold-700 shadow-sm dark:border-gold-500/40 dark:bg-stone-800 dark:text-gold-400">
                 {userInitials}
               </div>
               <div className="min-w-0 flex-1">
@@ -296,13 +342,13 @@ export function AccountDrawer({ isOpen, onClose }: AccountDrawerProps) {
                   href={item.href}
                   className={`group flex items-center justify-between rounded-xl px-3 py-2.5 transition-all ${
                     isActive
-                      ? 'text-gold-900 shadow-xs bg-gold-100 font-semibold dark:bg-gold-500/20 dark:text-gold-300'
+                      ? 'bg-gold-100 font-semibold text-gold-900 shadow-sm dark:bg-gold-500/20 dark:text-gold-300'
                       : 'text-stone-700 hover:bg-stone-100 hover:text-stone-900 dark:text-stone-200 dark:hover:bg-stone-800/80 dark:hover:text-white'
                   }`}
                 >
                   <div className="flex min-w-0 items-center space-x-3">
                     <Icon
-                      className={`h-4.5 w-4.5 flex-shrink-0 transition-colors ${
+                      className={`h-[18px] w-[18px] flex-shrink-0 transition-colors ${
                         isActive
                           ? 'text-gold-600 dark:text-gold-400'
                           : 'text-stone-500 group-hover:text-gold-600 dark:text-stone-400 dark:group-hover:text-gold-400'
@@ -347,13 +393,13 @@ export function AccountDrawer({ isOpen, onClose }: AccountDrawerProps) {
                   href={item.href}
                   className={`group flex items-center justify-between rounded-xl px-3 py-2.5 transition-all ${
                     isActive
-                      ? 'text-gold-900 bg-gold-100 font-semibold dark:bg-gold-500/20 dark:text-gold-300'
+                      ? 'bg-gold-100 font-semibold text-gold-900 dark:bg-gold-500/20 dark:text-gold-300'
                       : 'text-stone-700 hover:bg-stone-100 hover:text-stone-900 dark:text-stone-200 dark:hover:bg-stone-800/80 dark:hover:text-white'
                   }`}
                 >
                   <div className="flex min-w-0 items-center space-x-3">
                     <Icon
-                      className={`h-4.5 w-4.5 flex-shrink-0 transition-colors ${
+                      className={`h-[18px] w-[18px] flex-shrink-0 transition-colors ${
                         isActive
                           ? 'text-gold-600 dark:text-gold-400'
                           : 'text-stone-500 group-hover:text-gold-600 dark:text-stone-400 dark:group-hover:text-gold-400'
@@ -377,13 +423,13 @@ export function AccountDrawer({ isOpen, onClose }: AccountDrawerProps) {
               href="/account/settings"
               className={`group flex items-center justify-between rounded-xl px-3 py-2.5 transition-all ${
                 pathname === '/account/settings'
-                  ? 'text-gold-900 bg-gold-100 font-semibold dark:bg-gold-500/20 dark:text-gold-300'
+                  ? 'bg-gold-100 font-semibold text-gold-900 dark:bg-gold-500/20 dark:text-gold-300'
                   : 'text-stone-700 hover:bg-stone-100 hover:text-stone-900 dark:text-stone-200 dark:hover:bg-stone-800/80 dark:hover:text-white'
               }`}
             >
               <div className="flex min-w-0 items-center space-x-3">
                 <Settings
-                  className={`h-4.5 w-4.5 flex-shrink-0 transition-colors ${
+                  className={`h-[18px] w-[18px] flex-shrink-0 transition-colors ${
                     pathname === '/account/settings'
                       ? 'text-gold-600 dark:text-gold-400'
                       : 'text-stone-500 group-hover:text-gold-600 dark:text-stone-400 dark:group-hover:text-gold-400'
@@ -401,9 +447,9 @@ export function AccountDrawer({ isOpen, onClose }: AccountDrawerProps) {
           <div className="border-t border-stone-200/60 bg-[#FAF8F2] p-3 dark:border-stone-800 dark:bg-[#1c1a19]">
             <button
               onClick={() => setShowLogoutModal(true)}
-              className="shadow-2xs flex w-full items-center justify-center space-x-2 rounded-xl border border-rose-200/50 bg-rose-50/70 px-4 py-3 text-sm font-semibold text-rose-700 transition hover:bg-rose-100/80 dark:border-rose-900/40 dark:bg-rose-950/30 dark:text-rose-400 dark:hover:bg-rose-950/50"
+              className="flex w-full items-center justify-center space-x-2 rounded-xl border border-rose-200/50 bg-rose-50/70 px-4 py-3 text-sm font-semibold text-rose-700 shadow-sm transition hover:bg-rose-100/80 dark:border-rose-900/40 dark:bg-rose-950/30 dark:text-rose-400 dark:hover:bg-rose-950/50"
             >
-              <LogOut className="h-4.5 w-4.5" />
+              <LogOut className="h-[18px] w-[18px]" />
               <span>Log Out</span>
             </button>
           </div>
@@ -412,7 +458,7 @@ export function AccountDrawer({ isOpen, onClose }: AccountDrawerProps) {
 
       {/* Logout Confirmation Modal */}
       {showLogoutModal && (
-        <div className="backdrop-blur-xs animate-in fade-in fixed inset-0 z-[10000] flex items-center justify-center bg-stone-950/60 p-4 duration-150">
+        <div className="animate-in fade-in fixed inset-0 z-[10000] flex items-center justify-center bg-stone-950/60 p-4 backdrop-blur-sm duration-150">
           <div className="w-full max-w-sm space-y-4 rounded-2xl border border-stone-200 bg-white p-6 text-stone-800 shadow-2xl dark:border-stone-800 dark:bg-stone-900 dark:text-stone-100">
             <div className="flex items-center space-x-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-rose-100 text-rose-600 dark:bg-rose-950/60 dark:text-rose-400">

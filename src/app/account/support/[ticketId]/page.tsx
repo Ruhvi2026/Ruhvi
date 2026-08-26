@@ -257,7 +257,11 @@ export default function CustomerTicketDetail() {
         {!isClosed && (
           <div className="border-t border-charcoal-100 p-4">
             <div className="flex gap-2">
+              <label htmlFor="ticket-reply" className="sr-only">
+                Type your reply
+              </label>
               <textarea
+                id="ticket-reply"
                 value={replyText}
                 onChange={(e) => setReplyText(e.target.value)}
                 placeholder="Type your reply..."
