@@ -5,6 +5,9 @@ import type { Metadata } from 'next';
 import { BookOpen, ArrowRight, Calendar } from 'lucide-react';
 import { createClient } from '@/lib/supabase/server';
 
+// Uses cookies() via createClient(), so it must render on demand, not at build time.
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: 'The Ruhvi Journal | Ruhvi Fine Jewellery',
   description:
