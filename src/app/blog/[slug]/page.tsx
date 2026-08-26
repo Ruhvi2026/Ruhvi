@@ -44,8 +44,7 @@ const FALLBACK_POSTS: Record<
       <h2>When to Seek Professional Cleaning</h2>
       <p>While home cleaning is great for regular maintenance, we recommend bringing your everyday pieces to a professional jeweller once a year for an ultrasonic cleaning and prong inspection to ensure your diamonds are secure.</p>
     `,
-    cover_image:
-      'https://images.unsplash.com/photo-1599643478524-fb66f70a0066?auto=format&fit=crop&q=80',
+    cover_image: '/images/categories/necklaces.jpg',
     published_at: '2026-07-28T10:00:00Z',
     category: 'Care Guide',
     author: 'Ruhvi Editorial Team',
@@ -108,9 +107,7 @@ async function fetchPost(slug: string): Promise<BlogPost | null> {
         slug: data.slug,
         excerpt: data.excerpt || '',
         content: data.content,
-        cover_image:
-          data.cover_image ||
-          'https://images.unsplash.com/photo-1599643478524-fb66f70a0066?auto=format&fit=crop&q=80',
+        cover_image: data.cover_image || '/images/categories/necklaces.jpg',
         published_at: data.published_at || new Date().toISOString(),
         category: 'Journal',
         author: 'Ruhvi Editorial Team',

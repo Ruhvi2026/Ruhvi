@@ -4,7 +4,14 @@ import React, { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { Category } from '@/types/database';
 import { INITIAL_CATEGORIES } from '@/lib/products';
-import { Plus, Edit2, Trash2, Image as ImageIcon, X, Check } from 'lucide-react';
+import {
+  Plus,
+  Edit2,
+  Trash2,
+  Image as ImageIcon,
+  X,
+  Check,
+} from 'lucide-react';
 import Image from 'next/image';
 
 export default function CategoryManagerPage() {
@@ -18,7 +25,11 @@ export default function CategoryManagerPage() {
   const [slug, setSlug] = useState('');
   const [imageUrl, setImageUrl] = useState('');
   const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [message, setMessage] = useState<{
+    type: 'success' | 'error';
+    text: string;
+  } | null>(null);
 
   const supabase = createClient();
 
@@ -29,7 +40,10 @@ export default function CategoryManagerPage() {
   const fetchCategories = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase.from('categories').select('*').order('name');
+      const { data, error } = await supabase
+        .from('categories')
+        .select('*')
+        .order('name');
       if (!error && data && data.length > 0) {
         setCategories(data);
       } else {
@@ -85,20 +99,33 @@ export default function CategoryManagerPage() {
 
     try {
       if (editingCategory) {
-        const { error } = await supabase.from('categories').update(payload).eq('id', editingCategory.id);
+        const { error } = await supabase
+          .from('categories')
+          .update(payload)
+          .eq('id', editingCategory.id);
         if (error) {
           setCategories((prev) =>
-            prev.map((c) => (c.id === editingCategory.id ? { ...c, ...payload } : c))
+            prev.map((c) =>
+              c.id === editingCategory.id ? { ...c, ...payload } : c
+            )
           );
         }
       } else {
         const newId = `cat-${Date.now()}`;
-        const { data, error } = await supabase.from('categories').insert([{ ...payload }]).select();
+        const { data, error } = await supabase
+          .from('categories')
+          .insert([{ ...payload }])
+          .select();
         if (error || !data) {
           setCategories((prev) => [{ id: newId, ...payload }, ...prev]);
         }
       }
-      setMessage({ type: 'success', text: editingCategory ? 'Category updated successfully!' : 'Category created successfully!' });
+      setMessage({
+        type: 'success',
+        text: editingCategory
+          ? 'Category updated successfully!'
+          : 'Category created successfully!',
+      });
       setTimeout(() => {
         setIsModalOpen(false);
         fetchCategories();
@@ -106,10 +133,15 @@ export default function CategoryManagerPage() {
     } catch {
       if (editingCategory) {
         setCategories((prev) =>
-          prev.map((c) => (c.id === editingCategory.id ? { ...c, ...payload } : c))
+          prev.map((c) =>
+            c.id === editingCategory.id ? { ...c, ...payload } : c
+          )
         );
       } else {
-        setCategories((prev) => [{ id: `cat-${Date.now()}`, ...payload }, ...prev]);
+        setCategories((prev) => [
+          { id: `cat-${Date.now()}`, ...payload },
+          ...prev,
+        ]);
       }
       setIsModalOpen(false);
     } finally {
@@ -129,68 +161,91 @@ export default function CategoryManagerPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-stone-900">Category Manager</h1>
-          <p className="text-sm text-stone-500 mt-1">Manage product categories and cover images</p>
+          <h1 className="text-2xl font-bold text-stone-900">
+            Category Manager
+          </h1>
+          <p className="mt-1 text-sm text-stone-500">
+            Manage product categories and cover images
+          </p>
         </div>
         <button
           onClick={handleOpenAddModal}
-          className="flex items-center gap-2 bg-stone-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-stone-800 transition-colors shadow-sm"
+          className="flex items-center gap-2 rounded-lg bg-stone-900 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-stone-800"
         >
-          <Plus className="w-4 h-4" />
+          <Plus className="h-4 w-4" />
           Add Category
         </button>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-stone-200 overflow-hidden">
+      <div className="overflow-hidden rounded-xl border border-stone-200 bg-white shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
-            <thead className="bg-stone-50 text-stone-500 border-b border-stone-200">
+            <thead className="border-b border-stone-200 bg-stone-50 text-stone-500">
               <tr>
                 <th className="px-6 py-4 font-medium">Image</th>
                 <th className="px-6 py-4 font-medium">Name</th>
                 <th className="px-6 py-4 font-medium">Slug</th>
-                <th className="px-6 py-4 font-medium text-right">Actions</th>
+                <th className="px-6 py-4 text-right font-medium">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-100">
               {loading ? (
                 <tr>
-                  <td colSpan={4} className="px-6 py-8 text-center text-stone-500">Loading categories...</td>
+                  <td
+                    colSpan={4}
+                    className="px-6 py-8 text-center text-stone-500"
+                  >
+                    Loading categories...
+                  </td>
                 </tr>
               ) : categories.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="px-6 py-8 text-center text-stone-500">No categories found. Click "Add Category" to create one.</td>
+                  <td
+                    colSpan={4}
+                    className="px-6 py-8 text-center text-stone-500"
+                  >
+                    No categories found. Click "Add Category" to create one.
+                  </td>
                 </tr>
               ) : (
                 categories.map((cat) => (
                   <tr key={cat.id} className="hover:bg-stone-50/50">
                     <td className="px-6 py-4">
                       {cat.image_url ? (
-                        <div className="relative w-12 h-12 rounded-md overflow-hidden bg-stone-100 border border-stone-200">
-                          <Image src={cat.image_url} alt={cat.name} fill className="object-cover" />
+                        <div className="relative h-12 w-12 overflow-hidden rounded-md border border-stone-200 bg-stone-100">
+                          <Image
+                            src={cat.image_url}
+                            alt={cat.name}
+                            fill
+                            className="object-cover"
+                          />
                         </div>
                       ) : (
-                        <div className="w-12 h-12 rounded-md bg-stone-100 flex items-center justify-center text-stone-400 border border-stone-200">
-                          <ImageIcon className="w-5 h-5" />
+                        <div className="flex h-12 w-12 items-center justify-center rounded-md border border-stone-200 bg-stone-100 text-stone-400">
+                          <ImageIcon className="h-5 w-5" />
                         </div>
                       )}
                     </td>
-                    <td className="px-6 py-4 font-medium text-stone-900">{cat.name}</td>
-                    <td className="px-6 py-4 text-stone-500 font-mono text-xs">{cat.slug}</td>
-                    <td className="px-6 py-4 text-right space-x-3">
+                    <td className="px-6 py-4 font-medium text-stone-900">
+                      {cat.name}
+                    </td>
+                    <td className="px-6 py-4 font-mono text-xs text-stone-500">
+                      {cat.slug}
+                    </td>
+                    <td className="space-x-3 px-6 py-4 text-right">
                       <button
                         onClick={() => handleOpenEditModal(cat)}
-                        className="text-amber-700 hover:text-amber-800 font-medium text-xs inline-flex items-center gap-1"
+                        className="inline-flex items-center gap-1 text-xs font-medium text-amber-700 hover:text-amber-800"
                       >
-                        <Edit2 className="w-3.5 h-3.5" /> Edit
+                        <Edit2 className="h-3.5 w-3.5" /> Edit
                       </button>
                       <button
                         onClick={() => deleteCategory(cat.id)}
-                        className="text-rose-600 hover:text-rose-700 font-medium text-xs inline-flex items-center gap-1"
+                        className="inline-flex items-center gap-1 text-xs font-medium text-rose-600 hover:text-rose-700"
                       >
-                        <Trash2 className="w-3.5 h-3.5" /> Delete
+                        <Trash2 className="h-3.5 w-3.5" /> Delete
                       </button>
                     </td>
                   </tr>
@@ -203,34 +258,36 @@ export default function CategoryManagerPage() {
 
       {/* Add / Edit Category Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-          <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-stone-200 space-y-5 animate-in fade-in zoom-in duration-150">
-            <div className="flex justify-between items-center border-b border-stone-100 pb-3">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+          <div className="animate-in fade-in zoom-in w-full max-w-lg space-y-5 rounded-2xl border border-stone-200 bg-white p-6 shadow-2xl duration-150">
+            <div className="flex items-center justify-between border-b border-stone-100 pb-3">
               <h3 className="font-serif text-lg font-bold text-stone-900">
                 {editingCategory ? 'Edit Category' : 'Add New Category'}
               </h3>
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="text-stone-400 hover:text-stone-600 p-1 rounded-lg hover:bg-stone-100"
+                className="rounded-lg p-1 text-stone-400 hover:bg-stone-100 hover:text-stone-600"
               >
-                <X className="w-5 h-5" />
+                <X className="h-5 w-5" />
               </button>
             </div>
 
             {message && (
               <div
-                className={`p-3 rounded-lg text-xs font-medium flex items-center gap-2 ${
-                  message.type === 'success' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-rose-50 text-rose-800 border border-rose-200'
+                className={`flex items-center gap-2 rounded-lg p-3 text-xs font-medium ${
+                  message.type === 'success'
+                    ? 'border border-emerald-200 bg-emerald-50 text-emerald-800'
+                    : 'border border-rose-200 bg-rose-50 text-rose-800'
                 }`}
               >
-                <Check className="w-4 h-4" />
+                <Check className="h-4 w-4" />
                 <span>{message.text}</span>
               </div>
             )}
 
             <form onSubmit={handleSaveCategory} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-stone-700 mb-1">
+                <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-stone-700">
                   Category Name *
                 </label>
                 <input
@@ -239,12 +296,12 @@ export default function CategoryManagerPage() {
                   value={name}
                   onChange={(e) => handleNameChange(e.target.value)}
                   placeholder="e.g. Emerald Necklaces"
-                  className="w-full px-3 py-2 text-xs border border-stone-300 rounded-lg focus:ring-1 focus:ring-amber-500 focus:outline-none"
+                  className="w-full rounded-lg border border-stone-300 px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-amber-500"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-stone-700 mb-1">
+                <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-stone-700">
                   URL Slug *
                 </label>
                 <input
@@ -253,24 +310,65 @@ export default function CategoryManagerPage() {
                   value={slug}
                   onChange={(e) => setSlug(e.target.value)}
                   placeholder="e.g. emerald-necklaces"
-                  className="w-full px-3 py-2 text-xs border border-stone-300 rounded-lg focus:ring-1 focus:ring-amber-500 focus:outline-none font-mono text-amber-900 bg-stone-50"
+                  className="w-full rounded-lg border border-stone-300 bg-stone-50 px-3 py-2 font-mono text-xs text-amber-900 focus:outline-none focus:ring-1 focus:ring-amber-500"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-stone-700 mb-1">
+                <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-stone-700">
                   Cover Image URL
                 </label>
-                <input
-                  type="url"
-                  value={imageUrl}
-                  onChange={(e) => setImageUrl(e.target.value)}
-                  placeholder="https://images.unsplash.com/photo-..."
-                  className="w-full px-3 py-2 text-xs border border-stone-300 rounded-lg focus:ring-1 focus:ring-amber-500 focus:outline-none"
-                />
+                <div className="flex gap-2">
+                  <input
+                    type="url"
+                    value={imageUrl}
+                    onChange={(e) => setImageUrl(e.target.value)}
+                    placeholder="https://images.unsplash.com/photo-..."
+                    className="flex-1 rounded-lg border border-stone-300 px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-amber-500"
+                  />
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    id="category-image-upload"
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        try {
+                          setIsUploadingImage(true);
+                          const { uploadProductImage } =
+                            await import('@/services/cloudinaryService');
+                          const uploadResult = await uploadProductImage(file);
+                          setImageUrl(uploadResult.secure_url);
+                        } catch (error: any) {
+                          alert('Cloudinary upload failed: ' + error.message);
+                        } finally {
+                          setIsUploadingImage(false);
+                        }
+                      }
+                    }}
+                  />
+                  <label
+                    htmlFor="category-image-upload"
+                    className={`flex shrink-0 cursor-pointer items-center justify-center gap-1 whitespace-nowrap rounded-lg border border-stone-300 bg-stone-100 px-4 text-xs font-semibold text-stone-700 transition-colors hover:bg-stone-200 hover:text-stone-900 ${isUploadingImage ? 'pointer-events-none opacity-50' : ''}`}
+                  >
+                    {isUploadingImage ? (
+                      <>Uploading...</>
+                    ) : (
+                      <>
+                        <ImageIcon className="h-3.5 w-3.5" /> Upload
+                      </>
+                    )}
+                  </label>
+                </div>
                 {imageUrl && (
-                  <div className="mt-2 relative h-24 w-full rounded-lg overflow-hidden border border-stone-200 bg-stone-100">
-                    <Image src={imageUrl} alt="Preview" fill className="object-cover" />
+                  <div className="relative mt-2 h-24 w-full overflow-hidden rounded-lg border border-stone-200 bg-stone-100">
+                    <Image
+                      src={imageUrl}
+                      alt="Preview"
+                      fill
+                      className="object-cover"
+                    />
                   </div>
                 )}
               </div>
@@ -279,16 +377,20 @@ export default function CategoryManagerPage() {
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 text-xs font-semibold text-stone-600 hover:text-stone-800 hover:bg-stone-100 rounded-lg transition-colors"
+                  className="rounded-lg px-4 py-2 text-xs font-semibold text-stone-600 transition-colors hover:bg-stone-100 hover:text-stone-800"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={saving}
-                  className="px-5 py-2 bg-stone-900 hover:bg-stone-800 text-white text-xs font-bold rounded-lg transition-colors shadow-sm disabled:opacity-50"
+                  className="rounded-lg bg-stone-900 px-5 py-2 text-xs font-bold text-white shadow-sm transition-colors hover:bg-stone-800 disabled:opacity-50"
                 >
-                  {saving ? 'Saving...' : editingCategory ? 'Update Category' : 'Create Category'}
+                  {saving
+                    ? 'Saving...'
+                    : editingCategory
+                      ? 'Update Category'
+                      : 'Create Category'}
                 </button>
               </div>
             </form>
@@ -298,4 +400,3 @@ export default function CategoryManagerPage() {
     </div>
   );
 }
-

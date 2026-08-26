@@ -1,19 +1,90 @@
 import { Product, Category, ImageType } from '@/types/database';
 
 export const INITIAL_CATEGORIES: Category[] = [
-  { id: 'cat-1', name: 'Rings', slug: 'rings', image_url: 'https://images.unsplash.com/photo-1605100804763-247f67b4549e?auto=format&fit=crop&q=80&w=400' },
-  { id: 'cat-2', name: 'Necklaces', slug: 'necklaces', image_url: 'https://images.unsplash.com/photo-1599643478524-fb66f70d00f0?auto=format&fit=crop&q=80&w=400' },
-  { id: 'cat-3', name: 'Earrings', slug: 'earrings', image_url: 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&q=80&w=400' },
-  { id: 'cat-4', name: 'Bracelets', slug: 'bracelets', image_url: 'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&q=80&w=400' },
-  { id: 'cat-5', name: 'Bangles', slug: 'bangles', image_url: 'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&q=80&w=400' },
-  { id: 'cat-6', name: 'Pendants', slug: 'pendants', image_url: 'https://images.unsplash.com/photo-1599643478524-fb66f70d00f0?auto=format&fit=crop&q=80&w=400' },
-  { id: 'cat-7', name: 'Chains', slug: 'chains', image_url: 'https://images.unsplash.com/photo-1599643478524-fb66f70d00f0?auto=format&fit=crop&q=80&w=400' },
-  { id: 'cat-8', name: 'Anklets', slug: 'anklets', image_url: 'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&q=80&w=400' },
-  { id: 'cat-9', name: 'Nose Pins', slug: 'nose-pins', image_url: 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&q=80&w=400' },
-  { id: 'cat-10', name: 'Mangalsutra', slug: 'mangalsutra', image_url: 'https://images.unsplash.com/photo-1599643478524-fb66f70d00f0?auto=format&fit=crop&q=80&w=400' },
-  { id: 'cat-11', name: 'Bridal Jewellery', slug: 'bridal', image_url: 'https://images.unsplash.com/photo-1599643478524-fb66f70d00f0?auto=format&fit=crop&q=80&w=400' },
-  { id: 'cat-12', name: "Men's Jewellery", slug: 'mens', image_url: 'https://images.unsplash.com/photo-1605100804763-247f67b4549e?auto=format&fit=crop&q=80&w=400' },
-  { id: 'cat-13', name: "Kids' Jewellery", slug: 'kids', image_url: 'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&q=80&w=400' },
+  {
+    id: 'cat-1',
+    name: 'Rings',
+    slug: 'rings',
+    image_url: '/images/categories/rings.jpg',
+  },
+  {
+    id: 'cat-2',
+    name: 'Necklaces',
+    slug: 'necklaces',
+    image_url: '/images/categories/necklaces.jpg',
+  },
+  {
+    id: 'cat-3',
+    name: 'Earrings',
+    slug: 'earrings',
+    image_url:
+      'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&q=80&w=400',
+  },
+  {
+    id: 'cat-4',
+    name: 'Bracelets',
+    slug: 'bracelets',
+    image_url:
+      'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&q=80&w=400',
+  },
+  {
+    id: 'cat-5',
+    name: 'Bangles',
+    slug: 'bangles',
+    image_url:
+      'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&q=80&w=400',
+  },
+  {
+    id: 'cat-6',
+    name: 'Pendants',
+    slug: 'pendants',
+    image_url: '/images/categories/pendants.jpg',
+  },
+  {
+    id: 'cat-7',
+    name: 'Chains',
+    slug: 'chains',
+    image_url: '/images/categories/chains.jpg',
+  },
+  {
+    id: 'cat-8',
+    name: 'Anklets',
+    slug: 'anklets',
+    image_url:
+      'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&q=80&w=400',
+  },
+  {
+    id: 'cat-9',
+    name: 'Nose Pins',
+    slug: 'nose-pins',
+    image_url:
+      'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&q=80&w=400',
+  },
+  {
+    id: 'cat-10',
+    name: 'Mangalsutra',
+    slug: 'mangalsutra',
+    image_url: '/images/categories/mangalsutra.jpg',
+  },
+  {
+    id: 'cat-11',
+    name: 'Bridal Jewellery',
+    slug: 'bridal',
+    image_url: '/images/categories/bridal.jpg',
+  },
+  {
+    id: 'cat-12',
+    name: "Men's Jewellery",
+    slug: 'mens',
+    image_url: '/images/categories/mens.jpg',
+  },
+  {
+    id: 'cat-13',
+    name: "Kids' Jewellery",
+    slug: 'kids',
+    image_url:
+      'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&q=80&w=400',
+  },
 ];
 
 export const DEMO_PRODUCTS: Product[] = [
@@ -22,7 +93,8 @@ export const DEMO_PRODUCTS: Product[] = [
     sku: 'RNG-000101',
     name: 'Aurelia Solitaire Diamond Ring',
     slug: 'aurelia-solitaire-diamond-ring',
-    description: 'An exquisite 22K Gold Plated Solitaire Ring crafted with precision, featuring a anti-tarnish finish and brilliant CZ stone centerpiece that radiates timeless elegance.',
+    description:
+      'An exquisite 22K Gold Plated Solitaire Ring crafted with precision, featuring a anti-tarnish finish and brilliant CZ stone centerpiece that radiates timeless elegance.',
     category_id: 'cat-1',
     price: 1999,
     mrp: 3999,
@@ -34,18 +106,43 @@ export const DEMO_PRODUCTS: Product[] = [
     is_best_seller: true,
     category: INITIAL_CATEGORIES[0],
     images: [
-      { id: 'img-1-1', product_id: 'prod-1', url: 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=800&q=80', type: 'still', sort_order: 1 },
-      { id: 'img-1-2', product_id: 'prod-1', url: 'https://images.unsplash.com/photo-1603561591411-07134e71a2a9?auto=format&fit=crop&w=800&q=80', type: 'model', sort_order: 2 },
-      { id: 'img-1-3', product_id: 'prod-1', url: 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=1200&q=90', type: 'zoom', sort_order: 3 },
-      { id: 'img-1-4', product_id: 'prod-1', url: 'https://images.unsplash.com/photo-1603561591411-07134e71a2a9?auto=format&fit=crop&w=800&q=80', type: '360', sort_order: 4 },
-    ]
+      {
+        id: 'img-1-1',
+        product_id: 'prod-1',
+        url: 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=800&q=80',
+        type: 'still',
+        sort_order: 1,
+      },
+      {
+        id: 'img-1-2',
+        product_id: 'prod-1',
+        url: 'https://images.unsplash.com/photo-1603561591411-07134e71a2a9?auto=format&fit=crop&w=800&q=80',
+        type: 'model',
+        sort_order: 2,
+      },
+      {
+        id: 'img-1-3',
+        product_id: 'prod-1',
+        url: 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=1200&q=90',
+        type: 'zoom',
+        sort_order: 3,
+      },
+      {
+        id: 'img-1-4',
+        product_id: 'prod-1',
+        url: 'https://images.unsplash.com/photo-1603561591411-07134e71a2a9?auto=format&fit=crop&w=800&q=80',
+        type: '360',
+        sort_order: 4,
+      },
+    ],
   },
   {
     id: 'prod-2',
     sku: 'NCK-000102',
     name: 'Royal Heritage Emerald Choker Necklace',
     slug: 'royal-heritage-emerald-choker-necklace',
-    description: 'A regal Kundan and Emerald choker, hand-crafted in 22K Premium Gold Plating with anti-tarnish protective coating. Designed for grand celebrations.',
+    description:
+      'A regal Kundan and Emerald choker, hand-crafted in 22K Premium Gold Plating with anti-tarnish protective coating. Designed for grand celebrations.',
     category_id: 'cat-2',
     price: 189999,
     mrp: 219999,
@@ -57,16 +154,29 @@ export const DEMO_PRODUCTS: Product[] = [
     is_best_seller: true,
     category: INITIAL_CATEGORIES[1],
     images: [
-      { id: 'img-2-1', product_id: 'prod-2', url: 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&w=800&q=80', type: 'still', sort_order: 1 },
-      { id: 'img-2-2', product_id: 'prod-2', url: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=800&q=80', type: 'model', sort_order: 2 },
-    ]
+      {
+        id: 'img-2-1',
+        product_id: 'prod-2',
+        url: 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&w=800&q=80',
+        type: 'still',
+        sort_order: 1,
+      },
+      {
+        id: 'img-2-2',
+        product_id: 'prod-2',
+        url: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=800&q=80',
+        type: 'model',
+        sort_order: 2,
+      },
+    ],
   },
   {
     id: 'prod-3',
     sku: 'ERG-000103',
     name: 'Celestia Pearl Drop Earrings',
     slug: 'celestia-pearl-drop-earrings',
-    description: 'Freshwater cultured pearls suspended from delicate diamond-studded 22K rose gold studs. Graceful, light, and stunning.',
+    description:
+      'Freshwater cultured pearls suspended from delicate diamond-studded 22K rose gold studs. Graceful, light, and stunning.',
     category_id: 'cat-3',
     price: 24999,
     mrp: 29999,
@@ -78,16 +188,29 @@ export const DEMO_PRODUCTS: Product[] = [
     is_best_seller: true,
     category: INITIAL_CATEGORIES[2],
     images: [
-      { id: 'img-3-1', product_id: 'prod-3', url: 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&w=800&q=80', type: 'still', sort_order: 1 },
-      { id: 'img-3-2', product_id: 'prod-3', url: 'https://images.unsplash.com/photo-1630019852942-f89202989a59?auto=format&fit=crop&w=800&q=80', type: 'model', sort_order: 2 },
-    ]
+      {
+        id: 'img-3-1',
+        product_id: 'prod-3',
+        url: 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&w=800&q=80',
+        type: 'still',
+        sort_order: 1,
+      },
+      {
+        id: 'img-3-2',
+        product_id: 'prod-3',
+        url: 'https://images.unsplash.com/photo-1630019852942-f89202989a59?auto=format&fit=crop&w=800&q=80',
+        type: 'model',
+        sort_order: 2,
+      },
+    ],
   },
   {
     id: 'prod-4',
     sku: 'BNG-000104',
     name: 'Eternal Rose Gold Filigree Bangle',
     slug: 'eternal-rose-gold-filigree-bangle',
-    description: 'Intricately handcrafted 22K Rose Gold bangle with delicate laser filigree motifs. A contemporary tribute to Indian craftsmanship.',
+    description:
+      'Intricately handcrafted 22K Rose Gold bangle with delicate laser filigree motifs. A contemporary tribute to Indian craftsmanship.',
     category_id: 'cat-5',
     price: 65999,
     mrp: 72999,
@@ -99,15 +222,22 @@ export const DEMO_PRODUCTS: Product[] = [
     is_best_seller: false,
     category: INITIAL_CATEGORIES[4],
     images: [
-      { id: 'img-4-1', product_id: 'prod-4', url: 'https://images.unsplash.com/photo-1611591475179-be250325d774?auto=format&fit=crop&w=800&q=80', type: 'still', sort_order: 1 },
-    ]
+      {
+        id: 'img-4-1',
+        product_id: 'prod-4',
+        url: 'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&w=800&q=80',
+        type: 'still',
+        sort_order: 1,
+      },
+    ],
   },
   {
     id: 'prod-5',
     sku: 'MGL-000105',
     name: 'Modern Minimalist Diamond Mangalsutra',
     slug: 'modern-minimalist-diamond-mangalsutra',
-    description: 'Sleek black bead chain with a brilliant curved diamond pendant in 22K Yellow Gold. Designed for daily comfort and timeless grace.',
+    description:
+      'Sleek black bead chain with a brilliant curved diamond pendant in 22K Yellow Gold. Designed for daily comfort and timeless grace.',
     category_id: 'cat-10',
     price: 38999,
     mrp: 44999,
@@ -119,15 +249,22 @@ export const DEMO_PRODUCTS: Product[] = [
     is_best_seller: true,
     category: INITIAL_CATEGORIES[9],
     images: [
-      { id: 'img-5-1', product_id: 'prod-5', url: 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&w=800&q=80', type: 'still', sort_order: 1 },
-    ]
+      {
+        id: 'img-5-1',
+        product_id: 'prod-5',
+        url: 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&w=800&q=80',
+        type: 'still',
+        sort_order: 1,
+      },
+    ],
   },
   {
     id: 'prod-6',
     sku: 'PDT-000106',
     name: 'Lotus Blossom Ruby Pendant',
     slug: 'lotus-blossom-ruby-pendant',
-    description: 'A vivid Burmese Ruby wrapped in diamond-paved lotus petals. Crafted in 22K White Gold.',
+    description:
+      'A vivid Burmese Ruby wrapped in diamond-paved lotus petals. Crafted in 22K White Gold.',
     category_id: 'cat-6',
     price: 29999,
     mrp: 34999,
@@ -139,7 +276,13 @@ export const DEMO_PRODUCTS: Product[] = [
     is_best_seller: false,
     category: INITIAL_CATEGORIES[5],
     images: [
-      { id: 'img-6-1', product_id: 'prod-6', url: 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=800&q=80', type: 'still', sort_order: 1 },
-    ]
-  }
+      {
+        id: 'img-6-1',
+        product_id: 'prod-6',
+        url: 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=800&q=80',
+        type: 'still',
+        sort_order: 1,
+      },
+    ],
+  },
 ];

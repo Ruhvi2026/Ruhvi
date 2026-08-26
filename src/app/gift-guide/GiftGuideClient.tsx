@@ -9,8 +9,7 @@ const GIFT_CATEGORIES = [
   {
     title: 'Gifts for Her',
     description: 'Timeless pieces she will cherish forever.',
-    image:
-      'https://images.unsplash.com/photo-1599643478524-fb66f70a0066?auto=format&fit=crop&q=80',
+    image: '/images/categories/necklaces.jpg',
     link: '/collections/for-her',
     icon: Heart,
   },
@@ -25,8 +24,7 @@ const GIFT_CATEGORIES = [
   {
     title: 'Anniversary Specials',
     description: 'Celebrate milestones with 22K Gold.',
-    image:
-      'https://images.unsplash.com/photo-1605100804763-247f67b2548e?auto=format&fit=crop&q=80',
+    image: '/images/categories/rings.jpg',
     link: '/collections/anniversary',
     icon: Gift,
   },

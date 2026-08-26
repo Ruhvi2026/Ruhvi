@@ -46,15 +46,13 @@ const COLLECTIONS_DATA: Record<string, any> = {
   'for-her': {
     title: 'Gifts For Her',
     subtitle: 'Timeless pieces designed to make her feel extraordinary.',
-    cover:
-      'https://images.unsplash.com/photo-1599643478524-fb66f70a0066?auto=format&fit=crop&q=80',
+    cover: '/images/categories/necklaces.jpg',
     products: [
       {
         id: 'prod-1',
         name: 'Aurelia Diamond Ring',
         price: 15500,
-        image:
-          'https://images.unsplash.com/photo-1605100804763-247f67b2548e?auto=format&fit=crop&q=80',
+        image: '/images/categories/rings.jpg',
       },
       {
         id: 'prod-2',
@@ -75,15 +73,13 @@ const COLLECTIONS_DATA: Record<string, any> = {
         id: 'prod-3',
         name: 'Minimalist Gold Chain',
         price: 12000,
-        image:
-          'https://images.unsplash.com/photo-1599643478524-fb66f70a0066?auto=format&fit=crop&q=80',
+        image: '/images/categories/necklaces.jpg',
       },
       {
         id: 'prod-4',
         name: 'Rose Gold Studs',
         price: 7500,
-        image:
-          'https://images.unsplash.com/photo-1605100804763-247f67b2548e?auto=format&fit=crop&q=80',
+        image: '/images/categories/rings.jpg',
       },
     ],
   },
@@ -91,8 +87,7 @@ const COLLECTIONS_DATA: Record<string, any> = {
     title: 'Anniversary Specials',
     subtitle:
       'Celebrate your beautiful journey with the timeless elegance of gold and diamonds.',
-    cover:
-      'https://images.unsplash.com/photo-1605100804763-247f67b2548e?auto=format&fit=crop&q=80',
+    cover: '/images/categories/rings.jpg',
     products: [
       {
         id: 'prod-5',
@@ -123,8 +118,7 @@ const COLLECTIONS_DATA: Record<string, any> = {
         slug: 'aurelia-solitaire-diamond-ring',
         name: 'Aurelia Diamond Ring',
         price: 15500,
-        image:
-          'https://images.unsplash.com/photo-1605100804763-247f67b2548e?auto=format&fit=crop&q=80',
+        image: '/images/categories/rings.jpg',
       },
       {
         id: 'prod-2',
@@ -196,9 +190,7 @@ export default async function CollectionPage({
         products = prodData.map((p: any) => ({
           ...p,
           price: p.price,
-          image:
-            p.images?.[0]?.url ||
-            'https://images.unsplash.com/photo-1605100804763-247f67b4549e?auto=format&fit=crop&w=400&q=80',
+          image: p.images?.[0]?.url || '/images/categories/rings.jpg',
         }));
       }
     }
@@ -206,9 +198,7 @@ export default async function CollectionPage({
     collection = {
       title: dbCollection.title,
       subtitle: dbCollection.subtitle,
-      cover:
-        dbCollection.image_url ||
-        'https://images.unsplash.com/photo-1599643478524-fb66f70a0066?auto=format&fit=crop&q=80',
+      cover: dbCollection.image_url || '/images/categories/necklaces.jpg',
       products: products,
     };
   } else {

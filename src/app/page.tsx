@@ -27,8 +27,7 @@ const FALLBACK_HOME_COLLECTIONS: Collection[] = [
     title: 'Gifts For Her',
     slug: 'for-her',
     subtitle: 'Timeless pieces designed to make her feel extraordinary.',
-    image_url:
-      'https://images.unsplash.com/photo-1599643478524-fb66f70a0066?auto=format&fit=crop&q=80',
+    image_url: '/images/categories/necklaces.jpg',
   },
   {
     id: 'col-2',
@@ -43,8 +42,7 @@ const FALLBACK_HOME_COLLECTIONS: Collection[] = [
     title: 'Anniversary Specials',
     slug: 'anniversary',
     subtitle: 'Celebrate your journey with gold and solitaire diamonds.',
-    image_url:
-      'https://images.unsplash.com/photo-1605100804763-247f67b4549e?auto=format&fit=crop&q=80',
+    image_url: '/images/categories/rings.jpg',
   },
   {
     id: 'col-4',
@@ -287,8 +285,7 @@ export default async function HomePage() {
             <div className="group relative h-[600px] overflow-hidden bg-champagne-100 md:col-span-8">
               <Image
                 src={
-                  collections[0].image_url ||
-                  'https://images.unsplash.com/photo-1599643478524-fb66f70a0066?auto=format&fit=crop&q=80'
+                  collections[0].image_url || '/images/categories/necklaces.jpg'
                 }
                 fill
                 className="object-cover transition-transform duration-1000 group-hover:scale-105"
@@ -341,8 +338,7 @@ export default async function HomePage() {
               <div className="group relative h-[288px] overflow-hidden bg-champagne-100">
                 <Image
                   src={
-                    collections[2].image_url ||
-                    'https://images.unsplash.com/photo-1605100804763-247f67b4549e?auto=format&fit=crop&q=80'
+                    collections[2].image_url || '/images/categories/rings.jpg'
                   }
                   fill
                   className="object-cover transition-transform duration-1000 group-hover:scale-105"

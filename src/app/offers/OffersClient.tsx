@@ -31,8 +31,7 @@ const DISCOUNTED_PRODUCTS = [
   {
     id: 'prod-demo-1',
     name: 'Aurelia Solitaire Diamond Ring',
-    image:
-      'https://images.unsplash.com/photo-1605100804763-247f67b2548e?auto=format&fit=crop&q=80',
+    image: '/images/categories/rings.jpg',
     originalPrice: 15500,
     price: 12500,
     discountBadge: 'Save ₹3,000',

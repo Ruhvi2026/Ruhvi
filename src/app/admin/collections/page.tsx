@@ -3,20 +3,50 @@
 import React, { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { Collection } from '@/types/database';
-import { Plus, Edit2, Trash2, Image as ImageIcon, X, Sparkles, Check } from 'lucide-react';
+import {
+  Plus,
+  Edit2,
+  Trash2,
+  Image as ImageIcon,
+  X,
+  Sparkles,
+  Check,
+} from 'lucide-react';
 import Image from 'next/image';
 
 const INITIAL_FALLBACK_COLLECTIONS: Collection[] = [
-  { id: 'col-1', title: 'Gifts For Her', slug: 'for-her', subtitle: 'Timeless pieces designed to make her feel extraordinary.', image_url: 'https://images.unsplash.com/photo-1599643478524-fb66f70a0066?auto=format&fit=crop&q=80' },
-  { id: 'col-2', title: 'Gifts Under ₹15,000', slug: 'under-15000', subtitle: 'Beautiful 22K Gold jewellery that fits perfectly within budget.', image_url: 'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&q=80' },
-  { id: 'col-3', title: 'Anniversary Specials', slug: 'anniversary', subtitle: 'Celebrate your beautiful journey with the timeless elegance of gold and diamonds.', image_url: 'https://images.unsplash.com/photo-1605100804763-247f67b4549e?auto=format&fit=crop&q=80' },
+  {
+    id: 'col-1',
+    title: 'Gifts For Her',
+    slug: 'for-her',
+    subtitle: 'Timeless pieces designed to make her feel extraordinary.',
+    image_url: '/images/categories/necklaces.jpg',
+  },
+  {
+    id: 'col-2',
+    title: 'Gifts Under ₹15,000',
+    slug: 'under-15000',
+    subtitle: 'Beautiful 22K Gold jewellery that fits perfectly within budget.',
+    image_url:
+      'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'col-3',
+    title: 'Anniversary Specials',
+    slug: 'anniversary',
+    subtitle:
+      'Celebrate your beautiful journey with the timeless elegance of gold and diamonds.',
+    image_url: '/images/categories/rings.jpg',
+  },
 ];
 
 export default function CollectionManagerPage() {
   const [collections, setCollections] = useState<Collection[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingCollection, setEditingCollection] = useState<Collection | null>(null);
+  const [editingCollection, setEditingCollection] = useState<Collection | null>(
+    null
+  );
 
   // Form State
   const [title, setTitle] = useState('');
@@ -24,7 +54,11 @@ export default function CollectionManagerPage() {
   const [subtitle, setSubtitle] = useState('');
   const [imageUrl, setImageUrl] = useState('');
   const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [message, setMessage] = useState<{
+    type: 'success' | 'error';
+    text: string;
+  } | null>(null);
 
   const supabase = createClient();
 
@@ -35,7 +69,10 @@ export default function CollectionManagerPage() {
   const fetchCollections = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase.from('collections').select('*').order('title');
+      const { data, error } = await supabase
+        .from('collections')
+        .select('*')
+        .order('title');
       if (!error && data && data.length > 0) {
         setCollections(data);
       } else {
@@ -94,21 +131,34 @@ export default function CollectionManagerPage() {
 
     try {
       if (editingCollection) {
-        const { error } = await supabase.from('collections').update(payload).eq('id', editingCollection.id);
+        const { error } = await supabase
+          .from('collections')
+          .update(payload)
+          .eq('id', editingCollection.id);
         if (error) {
           // Update local state fallback
           setCollections((prev) =>
-            prev.map((c) => (c.id === editingCollection.id ? { ...c, ...payload } : c))
+            prev.map((c) =>
+              c.id === editingCollection.id ? { ...c, ...payload } : c
+            )
           );
         }
       } else {
         const newId = `col-${Date.now()}`;
-        const { data, error } = await supabase.from('collections').insert([{ ...payload }]).select();
+        const { data, error } = await supabase
+          .from('collections')
+          .insert([{ ...payload }])
+          .select();
         if (error || !data) {
           setCollections((prev) => [{ id: newId, ...payload }, ...prev]);
         }
       }
-      setMessage({ type: 'success', text: editingCollection ? 'Collection updated successfully!' : 'Collection created successfully!' });
+      setMessage({
+        type: 'success',
+        text: editingCollection
+          ? 'Collection updated successfully!'
+          : 'Collection created successfully!',
+      });
       setTimeout(() => {
         setIsModalOpen(false);
         fetchCollections();
@@ -117,10 +167,15 @@ export default function CollectionManagerPage() {
       // Local state fallback
       if (editingCollection) {
         setCollections((prev) =>
-          prev.map((c) => (c.id === editingCollection.id ? { ...c, ...payload } : c))
+          prev.map((c) =>
+            c.id === editingCollection.id ? { ...c, ...payload } : c
+          )
         );
       } else {
-        setCollections((prev) => [{ id: `col-${Date.now()}`, ...payload }, ...prev]);
+        setCollections((prev) => [
+          { id: `col-${Date.now()}`, ...payload },
+          ...prev,
+        ]);
       }
       setIsModalOpen(false);
     } finally {
@@ -140,71 +195,94 @@ export default function CollectionManagerPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-stone-900">Collection Manager</h1>
-          <p className="text-sm text-stone-500 mt-1">Manage collections, cover images, and promotional subtitles</p>
+          <h1 className="text-2xl font-bold text-stone-900">
+            Collection Manager
+          </h1>
+          <p className="mt-1 text-sm text-stone-500">
+            Manage collections, cover images, and promotional subtitles
+          </p>
         </div>
         <button
           onClick={handleOpenAddModal}
-          className="flex items-center gap-2 bg-stone-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-stone-800 transition-colors shadow-sm"
+          className="flex items-center gap-2 rounded-lg bg-stone-900 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-stone-800"
         >
-          <Plus className="w-4 h-4" />
+          <Plus className="h-4 w-4" />
           Add Collection
         </button>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-stone-200 overflow-hidden">
+      <div className="overflow-hidden rounded-xl border border-stone-200 bg-white shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
-            <thead className="bg-stone-50 text-stone-500 border-b border-stone-200">
+            <thead className="border-b border-stone-200 bg-stone-50 text-stone-500">
               <tr>
                 <th className="px-6 py-4 font-medium">Cover Image</th>
                 <th className="px-6 py-4 font-medium">Title & Slug</th>
                 <th className="px-6 py-4 font-medium">Subtitle</th>
-                <th className="px-6 py-4 font-medium text-right">Actions</th>
+                <th className="px-6 py-4 text-right font-medium">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-100">
               {loading ? (
                 <tr>
-                  <td colSpan={4} className="px-6 py-8 text-center text-stone-500">Loading collections...</td>
+                  <td
+                    colSpan={4}
+                    className="px-6 py-8 text-center text-stone-500"
+                  >
+                    Loading collections...
+                  </td>
                 </tr>
               ) : collections.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="px-6 py-8 text-center text-stone-500">No collections found. Click "Add Collection" to create one.</td>
+                  <td
+                    colSpan={4}
+                    className="px-6 py-8 text-center text-stone-500"
+                  >
+                    No collections found. Click "Add Collection" to create one.
+                  </td>
                 </tr>
               ) : (
                 collections.map((col) => (
                   <tr key={col.id} className="hover:bg-stone-50/50">
                     <td className="px-6 py-4">
                       {col.image_url ? (
-                        <div className="relative w-16 h-12 rounded-md overflow-hidden bg-stone-100 border border-stone-200">
-                          <Image src={col.image_url} alt={col.title} fill className="object-cover" />
+                        <div className="relative h-12 w-16 overflow-hidden rounded-md border border-stone-200 bg-stone-100">
+                          <Image
+                            src={col.image_url}
+                            alt={col.title}
+                            fill
+                            className="object-cover"
+                          />
                         </div>
                       ) : (
-                        <div className="w-16 h-12 rounded-md bg-stone-100 flex items-center justify-center text-stone-400 border border-stone-200">
-                          <ImageIcon className="w-5 h-5" />
+                        <div className="flex h-12 w-16 items-center justify-center rounded-md border border-stone-200 bg-stone-100 text-stone-400">
+                          <ImageIcon className="h-5 w-5" />
                         </div>
                       )}
                     </td>
                     <td className="px-6 py-4 font-medium text-stone-900">
                       <div>{col.title}</div>
-                      <div className="text-xs text-amber-800 font-mono font-normal mt-0.5">/collections/{col.slug}</div>
+                      <div className="mt-0.5 font-mono text-xs font-normal text-amber-800">
+                        /collections/{col.slug}
+                      </div>
                     </td>
-                    <td className="px-6 py-4 text-stone-500 max-w-[280px] truncate">{col.subtitle || '-'}</td>
-                    <td className="px-6 py-4 text-right space-x-3">
+                    <td className="max-w-[280px] truncate px-6 py-4 text-stone-500">
+                      {col.subtitle || '-'}
+                    </td>
+                    <td className="space-x-3 px-6 py-4 text-right">
                       <button
                         onClick={() => handleOpenEditModal(col)}
-                        className="text-amber-700 hover:text-amber-800 font-medium text-xs inline-flex items-center gap-1"
+                        className="inline-flex items-center gap-1 text-xs font-medium text-amber-700 hover:text-amber-800"
                       >
-                        <Edit2 className="w-3.5 h-3.5" /> Edit
+                        <Edit2 className="h-3.5 w-3.5" /> Edit
                       </button>
                       <button
                         onClick={() => deleteCollection(col.id)}
-                        className="text-rose-600 hover:text-rose-700 font-medium text-xs inline-flex items-center gap-1"
+                        className="inline-flex items-center gap-1 text-xs font-medium text-rose-600 hover:text-rose-700"
                       >
-                        <Trash2 className="w-3.5 h-3.5" /> Delete
+                        <Trash2 className="h-3.5 w-3.5" /> Delete
                       </button>
                     </td>
                   </tr>
@@ -217,34 +295,36 @@ export default function CollectionManagerPage() {
 
       {/* Add / Edit Collection Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-          <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-stone-200 space-y-5 animate-in fade-in zoom-in duration-150">
-            <div className="flex justify-between items-center border-b border-stone-100 pb-3">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+          <div className="animate-in fade-in zoom-in w-full max-w-lg space-y-5 rounded-2xl border border-stone-200 bg-white p-6 shadow-2xl duration-150">
+            <div className="flex items-center justify-between border-b border-stone-100 pb-3">
               <h3 className="font-serif text-lg font-bold text-stone-900">
                 {editingCollection ? 'Edit Collection' : 'Add New Collection'}
               </h3>
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="text-stone-400 hover:text-stone-600 p-1 rounded-lg hover:bg-stone-100"
+                className="rounded-lg p-1 text-stone-400 hover:bg-stone-100 hover:text-stone-600"
               >
-                <X className="w-5 h-5" />
+                <X className="h-5 w-5" />
               </button>
             </div>
 
             {message && (
               <div
-                className={`p-3 rounded-lg text-xs font-medium flex items-center gap-2 ${
-                  message.type === 'success' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-rose-50 text-rose-800 border border-rose-200'
+                className={`flex items-center gap-2 rounded-lg p-3 text-xs font-medium ${
+                  message.type === 'success'
+                    ? 'border border-emerald-200 bg-emerald-50 text-emerald-800'
+                    : 'border border-rose-200 bg-rose-50 text-rose-800'
                 }`}
               >
-                <Check className="w-4 h-4" />
+                <Check className="h-4 w-4" />
                 <span>{message.text}</span>
               </div>
             )}
 
             <form onSubmit={handleSaveCollection} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-stone-700 mb-1">
+                <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-stone-700">
                   Collection Title *
                 </label>
                 <input
@@ -253,12 +333,12 @@ export default function CollectionManagerPage() {
                   value={title}
                   onChange={(e) => handleTitleChange(e.target.value)}
                   placeholder="e.g. Royal Bridal Collection"
-                  className="w-full px-3 py-2 text-xs border border-stone-300 rounded-lg focus:ring-1 focus:ring-amber-500 focus:outline-none"
+                  className="w-full rounded-lg border border-stone-300 px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-amber-500"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-stone-700 mb-1">
+                <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-stone-700">
                   URL Slug *
                 </label>
                 <input
@@ -267,12 +347,12 @@ export default function CollectionManagerPage() {
                   value={slug}
                   onChange={(e) => setSlug(e.target.value)}
                   placeholder="e.g. royal-bridal-collection"
-                  className="w-full px-3 py-2 text-xs border border-stone-300 rounded-lg focus:ring-1 focus:ring-amber-500 focus:outline-none font-mono text-amber-900 bg-stone-50"
+                  className="w-full rounded-lg border border-stone-300 bg-stone-50 px-3 py-2 font-mono text-xs text-amber-900 focus:outline-none focus:ring-1 focus:ring-amber-500"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-stone-700 mb-1">
+                <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-stone-700">
                   Subtitle / Promo Text
                 </label>
                 <textarea
@@ -280,24 +360,65 @@ export default function CollectionManagerPage() {
                   value={subtitle}
                   onChange={(e) => setSubtitle(e.target.value)}
                   placeholder="e.g. Exquisite handcrafted pieces for your special wedding day."
-                  className="w-full px-3 py-2 text-xs border border-stone-300 rounded-lg focus:ring-1 focus:ring-amber-500 focus:outline-none resize-none"
+                  className="w-full resize-none rounded-lg border border-stone-300 px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-amber-500"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-stone-700 mb-1">
+                <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-stone-700">
                   Cover Image URL
                 </label>
-                <input
-                  type="url"
-                  value={imageUrl}
-                  onChange={(e) => setImageUrl(e.target.value)}
-                  placeholder="https://images.unsplash.com/photo-..."
-                  className="w-full px-3 py-2 text-xs border border-stone-300 rounded-lg focus:ring-1 focus:ring-amber-500 focus:outline-none"
-                />
+                <div className="flex gap-2">
+                  <input
+                    type="url"
+                    value={imageUrl}
+                    onChange={(e) => setImageUrl(e.target.value)}
+                    placeholder="https://images.unsplash.com/photo-..."
+                    className="flex-1 rounded-lg border border-stone-300 px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-amber-500"
+                  />
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    id="collection-image-upload"
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        try {
+                          setIsUploadingImage(true);
+                          const { uploadProductImage } =
+                            await import('@/services/cloudinaryService');
+                          const uploadResult = await uploadProductImage(file);
+                          setImageUrl(uploadResult.secure_url);
+                        } catch (error: any) {
+                          alert('Cloudinary upload failed: ' + error.message);
+                        } finally {
+                          setIsUploadingImage(false);
+                        }
+                      }
+                    }}
+                  />
+                  <label
+                    htmlFor="collection-image-upload"
+                    className={`flex shrink-0 cursor-pointer items-center justify-center gap-1 whitespace-nowrap rounded-lg border border-stone-300 bg-stone-100 px-4 text-xs font-semibold text-stone-700 transition-colors hover:bg-stone-200 hover:text-stone-900 ${isUploadingImage ? 'pointer-events-none opacity-50' : ''}`}
+                  >
+                    {isUploadingImage ? (
+                      <>Uploading...</>
+                    ) : (
+                      <>
+                        <ImageIcon className="h-3.5 w-3.5" /> Upload
+                      </>
+                    )}
+                  </label>
+                </div>
                 {imageUrl && (
-                  <div className="mt-2 relative h-24 w-full rounded-lg overflow-hidden border border-stone-200 bg-stone-100">
-                    <Image src={imageUrl} alt="Preview" fill className="object-cover" />
+                  <div className="relative mt-2 h-24 w-full overflow-hidden rounded-lg border border-stone-200 bg-stone-100">
+                    <Image
+                      src={imageUrl}
+                      alt="Preview"
+                      fill
+                      className="object-cover"
+                    />
                   </div>
                 )}
               </div>
@@ -306,16 +427,20 @@ export default function CollectionManagerPage() {
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 text-xs font-semibold text-stone-600 hover:text-stone-800 hover:bg-stone-100 rounded-lg transition-colors"
+                  className="rounded-lg px-4 py-2 text-xs font-semibold text-stone-600 transition-colors hover:bg-stone-100 hover:text-stone-800"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={saving}
-                  className="px-5 py-2 bg-stone-900 hover:bg-stone-800 text-white text-xs font-bold rounded-lg transition-colors shadow-sm disabled:opacity-50"
+                  className="rounded-lg bg-stone-900 px-5 py-2 text-xs font-bold text-white shadow-sm transition-colors hover:bg-stone-800 disabled:opacity-50"
                 >
-                  {saving ? 'Saving...' : editingCollection ? 'Update Collection' : 'Create Collection'}
+                  {saving
+                    ? 'Saving...'
+                    : editingCollection
+                      ? 'Update Collection'
+                      : 'Create Collection'}
                 </button>
               </div>
             </form>
@@ -325,4 +450,3 @@ export default function CollectionManagerPage() {
     </div>
   );
 }
-

@@ -29,8 +29,7 @@ const FALLBACK_POSTS = [
     title: 'How to Care for Your 22K Gold Jewellery at Home',
     excerpt:
       'Keep your Ruhvi pieces shining forever with these simple, expert-approved home cleaning techniques.',
-    cover_image:
-      'https://images.unsplash.com/photo-1599643478524-fb66f70a0066?auto=format&fit=crop&q=80',
+    cover_image: '/images/categories/necklaces.jpg',
     published_at: '2026-07-28T10:00:00Z',
     category: 'Care Guide',
   },
@@ -39,8 +38,7 @@ const FALLBACK_POSTS = [
     title: 'Gold Plated vs Solid Gold: What You Need to Know',
     excerpt:
       'Learn how Ruhvi\u2019s premium 22K gold-plated pieces are crafted and how to make their brilliance last.',
-    cover_image:
-      'https://images.unsplash.com/photo-1605100804763-247f67b2548e?auto=format&fit=crop&q=80',
+    cover_image: '/images/categories/rings.jpg',
     published_at: '2026-07-20T10:00:00Z',
     category: 'Education',
   },
@@ -82,9 +80,7 @@ export default async function BlogIndexPage() {
         slug: p.slug,
         title: p.title,
         excerpt: p.excerpt || '',
-        cover_image:
-          p.cover_image ||
-          'https://images.unsplash.com/photo-1599643478524-fb66f70a0066?auto=format&fit=crop&q=80',
+        cover_image: p.cover_image || '/images/categories/necklaces.jpg',
         published_at: p.published_at || new Date().toISOString(),
         category: 'Journal',
       }));
