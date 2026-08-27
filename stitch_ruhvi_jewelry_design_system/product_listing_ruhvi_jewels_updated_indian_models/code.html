@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>RUHVI - Timeless Collections</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&amp;family=Marcellus&amp;family=Jost:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<style>
+  :root{
+    --cream: #F7F1E7;
+    --cream-deep: #EFE6D5;
+    --ink: #2A2118;
+    --ink-soft: #4A3F33;
+    --gold: #C79A4B;
+    --gold-deep: #A87C2E;
+    --gold-pale: #E9C989;
+    --brown-dark: #1C140D;
+    --brown-mid: #2E2115;
+    --line: rgba(42,33,24,0.12);
+    --maxw: 1180px;
+  }
+
+  *{ margin:0; padding:0; box-sizing:border-box; }
+
+  html{ scroll-behavior:smooth; }
+
+  body{
+    background: var(--cream);
+    color: var(--ink);
+    font-family: 'Jost', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  a{ color:inherit; text-decoration:none; }
+  button{ font-family:inherit; border:none; background:none; cursor:pointer; }
+  img{ display:block; width:100%; height:100%; object-fit:cover; }
+
+  .display{ font-family:'Marcellus', serif; }
+  .serif{ font-family:'Cormorant Garamond', serif; }
+
+  ::selection{ background: var(--gold-pale); color: var(--brown-dark); }
+
+  :focus-visible{
+    outline: 2px solid var(--gold-deep);
+    outline-offset: 3px;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; scroll-behavior:auto !important; }
+  }
+
+  .wrap{
+    max-width: var(--maxw);
+    margin: 0 auto;
+    padding: 0 clamp(20px, 4vw, 40px);
+  }
+
+  /* ---------- Header ---------- */
+  header{
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(247,241,231,0.92);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .nav-inner{
+    max-width: var(--maxw);
+    margin: 0 auto;
+    padding: 18px clamp(20px, 4vw, 40px);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap: 16px;
+  }
+
+  .icon-btn{
+    width: 40px; height: 40px;
+    display:flex; align-items:center; justify-content:center;
+    color: var(--ink);
+    border-radius: 50%;
+    transition: background .2s ease, transform .2s ease;
+    position: relative;
+  }
+  .icon-btn:hover{ background: var(--cream-deep); transform: translateY(-1px); }
+  .icon-btn svg{ width:20px; height:20px; }
+
+  .nav-left, .nav-right{ display:flex; align-items:center; gap:4px; flex:1; }
+  .nav-right{ justify-content:flex-end; gap:6px; }
+
+  .brand{ text-align:center; flex-shrink:0; }
+  .brand .word{
+    font-family:'Marcellus', serif;
+    font-size: clamp(22px, 3.4vw, 30px);
+    letter-spacing: 0.28em;
+    color: var(--gold-deep);
+    line-height:1;
+  }
+  .brand .sub{
+    font-size: 9px;
+    letter-spacing: 0.42em;
+    color: var(--ink-soft);
+    margin-top: 5px;
+  }
+  .brand .spark{
+    color: var(--gold);
+    font-size: 12px;
+    display:block;
+    margin-bottom: 2px;
+  }
+
+  .cart-dot{
+    position:absolute;
+    top: 2px; right: 2px;
+    background: var(--gold-deep);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 600;
+    width: 16px; height:16px;
+    border-radius: 50%;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Jost',sans-serif;
+  }
+
+  .burger{ display:flex; flex-direction:column; gap:5px; width:20px; }
+  .burger span{ display:block; height:1.6px; background:var(--ink); width:100%; transition: transform .25s ease, opacity .25s ease; }
+  .icon-btn.burger-btn:hover .burger span:nth-child(1){ transform: translateX(2px); }
+  .icon-btn.burger-btn:hover .burger span:nth-child(3){ transform: translateX(-2px); }
+
+  /* ---------- Section label ---------- */
+  .eyebrow{
+    display:flex; align-items:center; gap:8px;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    font-weight: 500;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  .eyebrow.dark{ color: var(--gold-pale); }
+
+  .shop-now{
+    display:inline-flex;
+    align-items:center;
+    gap: 7px;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    font-weight: 600;
+    color: var(--gold-deep);
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--gold-deep);
+    padding-bottom: 3px;
+    width: fit-content;
+    transition: gap .2s ease, color .2s ease, border-color .2s ease;
+  }
+  .shop-now svg{ width:13px; height:13px; transition: transform .2s ease; }
+  .shop-now:hover{ gap: 11px; color: var(--brown-dark); border-color: var(--brown-dark); }
+  .shop-now.on-dark{ color: var(--gold-pale); border-color: var(--gold-pale); }
+  .shop-now.on-dark:hover{ color: #fff; border-color:#fff; }
+
+  .pill-btn{
+    display:inline-flex;
+    align-items:center;
+    gap: 10px;
+    background: linear-gradient(180deg, var(--gold-pale), var(--gold));
+    color: var(--brown-dark);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 15px 26px;
+    border-radius: 999px;
+    box-shadow: 0 8px 20px -8px rgba(167,124,46,0.6);
+    transition: transform .25s ease, box-shadow .25s ease, letter-spacing .25s ease;
+  }
+  .pill-btn svg{ width:14px; height:14px; }
+  .pill-btn:hover{ transform: translateY(-2px); box-shadow: 0 12px 26px -8px rgba(167,124,46,0.75); letter-spacing:0.16em; }
+  .pill-btn:active{ transform: translateY(0); }
+  
+  .add-btn {
+    width: 40px; height: 40px;
+    background: rgba(239, 230, 213, 0.9);
+    backdrop-filter: blur(4px);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--gold-deep);
+    transition: background 0.2s ease, color 0.2s ease;
+  }
+  .add-btn:hover {
+    background: var(--gold-pale);
+    color: var(--brown-dark);
+  }
+  .add-btn svg { width: 20px; height: 20px; }
+
+  /* ---------- Page Intro ---------- */
+  main{ padding-top: 16px; padding-bottom: 80px; }
+
+  .page-intro {
+    text-align: center;
+    padding: 40px 0 30px;
+  }
+  .page-intro .eyebrow {
+    justify-content: center;
+  }
+  .page-intro h1 {
+    font-size: clamp(34px, 5.4vw, 54px);
+    line-height: 1.06;
+    font-weight: 400;
+    margin-bottom: 20px;
+    color: var(--ink);
+  }
+  .page-intro p {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 25px;
+    font-weight: 500;
+    font-style: italic;
+    color: var(--ink-soft);
+    max-width: 650px;
+    margin: 0 auto;
+  }
+
+  /* ---------- Filter Bar ---------- */
+  .filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 0;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 30px;
+    gap: 16px;
+  }
+  .filter-group {
+    display: flex;
+    gap: 24px;
+    overflow-x: auto;
+    scrollbar-width: none; /* Firefox */
+  }
+  .filter-group::-webkit-scrollbar { display: none; /* Chrome/Safari */ }
+  
+  .filter-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    white-space: nowrap;
+    transition: color 0.2s ease;
+  }
+  .filter-btn:hover { color: var(--gold-deep); }
+  .filter-btn svg { width: 14px; height: 14px; }
+  
+  .filter-meta {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-size: 14.5px;
+    color: var(--ink-soft);
+  }
+
+  @keyframes rise{
+    from{ opacity:0; transform: translateY(16px); }
+    to{ opacity:1; transform: translateY(0); }
+  }
+
+  /* ---------- Bento Grid ---------- */
+  .bento-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+  }
+  
+  .product-card {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    grid-column: span 1;
+  }
+  
+  .product-img-box {
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+    background: var(--cream-deep);
+    aspect-ratio: 3/4;
+  }
+  .product-img-box img {
+    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .product-img-box:hover img {
+    transform: scale(1.05);
+  }
+  
+  .product-img-box .add-btn {
+    position: absolute;
+    bottom: 16px;
+    right: 16px;
+    z-index: 10;
+  }
+  
+  .product-info {
+    text-align: center;
+  }
+  .product-info h3 {
+    font-size: 15px;
+    font-weight: 400;
+    color: var(--ink);
+    margin-bottom: 2px;
+  }
+  .product-info .price {
+    font-size: 14.5px;
+    color: var(--ink-soft);
+  }
+  
+  .card-lift{ transition: transform .35s ease, box-shadow .35s ease; }
+  .card-lift:hover{ transform: translateY(-5px); box-shadow: 0 18px 34px -18px rgba(42,33,24,0.35); }
+
+  /* Feature tile */
+  .feature-tile {
+    grid-column: span 2;
+    grid-row: span 2;
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+    background: var(--brown-dark);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+  }
+  .feature-tile-img {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+  .feature-tile-img::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(0deg, rgba(28,20,13,0.85) 0%, rgba(28,20,13,0.2) 50%, transparent 100%);
+  }
+  .feature-tile-content {
+    position: relative;
+    z-index: 1;
+    padding: 32px;
+    color: #F7F1E7;
+  }
+  .feature-tile-content h2 {
+    font-size: 36px;
+    line-height: 1.14;
+    font-weight: 400;
+    margin-bottom: 16px;
+  }
+  .feature-tile-content p {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 25px;
+    font-style: italic;
+    color: rgba(247,241,231,0.9);
+    margin-bottom: 24px;
+    max-width: 400px;
+  }
+  
+  /* Centered bottom product */
+  .center-product {
+    grid-column: 2 / span 1;
+    margin-top: 24px;
+  }
+
+  /* ---------- Footer ---------- */
+  footer {
+    background: var(--brown-dark);
+    color: #F7F1E7;
+    padding: 60px 0 30px;
+  }
+  .footer-inner {
+    max-width: var(--maxw);
+    margin: 0 auto;
+    padding: 0 clamp(20px, 4vw, 40px);
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 40px;
+  }
+  .footer-col {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .footer-brand {
+    font-family: 'Marcellus', serif;
+    font-size: 24px;
+    letter-spacing: 0.28em;
+    color: var(--gold-pale);
+    margin-bottom: 8px;
+  }
+  .footer-desc {
+    font-size: 14.5px;
+    color: rgba(247,241,231,0.7);
+    line-height: 1.7;
+    max-width: 300px;
+  }
+  .footer-label {
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    font-weight: 500;
+    color: var(--gold-pale);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .footer-link {
+    font-size: 14.5px;
+    color: rgba(247,241,231,0.7);
+    transition: color 0.2s ease, transform 0.2s ease;
+    width: fit-content;
+  }
+  .footer-link:hover {
+    color: var(--gold-pale);
+    transform: translateX(4px);
+  }
+  .footer-bottom {
+    max-width: var(--maxw);
+    margin: 40px auto 0;
+    padding: 30px clamp(20px, 4vw, 40px) 0;
+    border-top: 1px solid rgba(247,241,231,0.1);
+    text-align: center;
+    font-size: 14.5px;
+    color: rgba(247,241,231,0.5);
+  }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 880px){
+    .bento-grid { grid-template-columns: repeat(2, 1fr); }
+    .feature-tile { grid-column: span 2; }
+    .center-product { grid-column: span 1; margin-top: 0; }
+    .footer-inner { grid-template-columns: 1fr; gap: 32px; }
+  }
+
+  @media (max-width: 680px){
+    .nav-left, .nav-right{ flex:none; }
+    .page-intro h1 { font-size: 34px; }
+    .page-intro p { font-size: 20px; }
+    .filter-bar { flex-direction: column; align-items: flex-start; }
+    .filter-meta { width: 100%; justify-content: space-between; }
+  }
+
+  @media (max-width: 420px){
+    .bento-grid { grid-template-columns: 1fr; }
+    .feature-tile { grid-column: span 1; }
+  }
+</style>
+</head>
+<body>
+<header>
+<div class="nav-inner">
+<div class="nav-left">
+<button aria-label="Open menu" class="icon-btn burger-btn" id="menuBtn">
+<div class="burger"><span></span><span></span><span></span></div>
+</button>
+</div>
+<a aria-label="Ruhvi Jewels home" class="brand" href="/">
+<span class="spark">✦</span>
+<div class="word">RUHVI</div>
+<div class="sub">JEWELS</div>
+</a>
+<div class="nav-right">
+<button aria-label="Search" class="icon-btn" id="searchBtn">
+<svg fill="none" stroke="currentColor" stroke-width="1.6" viewbox="0 0 24 24"><circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4.3-4.3" stroke-linecap="round"></path></svg>
+</button>
+<button aria-label="Wishlist" class="icon-btn" id="wishBtn">
+<svg fill="none" stroke="currentColor" stroke-width="1.6" viewbox="0 0 24 24"><path d="M12 20.5s-7.5-4.6-10-9.3C.5 7.8 2.4 4.5 6 4.2c2.2-.2 4 1 6 3.3 2-2.3 3.8-3.5 6-3.3 3.6.3 5.5 3.6 4 7-2.5 4.7-10 9.3-10 9.3z" stroke-linejoin="round"></path></svg>
+</button>
+<button aria-label="Cart, 2 items" class="icon-btn" id="cartBtn">
+<svg fill="none" stroke="currentColor" stroke-width="1.6" viewbox="0 0 24 24"><path d="M6 8h12l-1 12H7L6 8z" stroke-linejoin="round"></path><path d="M9 8V6a3 3 0 016 0v2"></path></svg>
+<span class="cart-dot">2</span>
+</button>
+</div>
+</div>
+</header>
+<main>
+<div class="wrap">
+<!-- Page Intro -->
+<section class="page-intro rise-anim" style="animation: 0.7s cubic-bezier(0.16, 0.84, 0.44, 1) 0s 1 normal both running rise;">
+<div class="eyebrow">FINE JEWELRY</div>
+<h1 class="display">Timeless Collections</h1>
+<p class="">A curated selection of artisanal pieces, designed to transcend seasons and capture the essence of effortless elegance.</p>
+</section>
+<!-- Filter Bar -->
+<section class="filter-bar rise-anim" style="animation: 0.7s cubic-bezier(0.16, 0.84, 0.44, 1) 0s 1 normal both running rise;">
+<div class="filter-group">
+<button class="filter-btn">
+          Material <svg fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+</button>
+<button class="filter-btn">
+          Collection <svg fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+</button>
+<button class="filter-btn">
+          Price <svg fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+</button>
+</div>
+<div class="filter-meta">
+<span class="">Showing 1-5 of 24 pieces</span>
+<button class="filter-btn">
+          Sort By <svg fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+</button>
+</div>
+</section>
+<!-- Product Bento Grid -->
+<section class="bento-grid">
+<!-- Product 1 -->
+<div class="product-card" style="animation: 0.7s cubic-bezier(0.16, 0.84, 0.44, 1) 0s 1 normal both running rise;">
+<a class="product-img-box card-lift" href="#">
+<img alt="A delicate pair of gold hoop earrings resting softly on a textured cream linen fabric" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCLiL_bospB-O8p1aGLbdF6jEjky06Vlbrjhju0BSBxHh5iinGRnJplg0uZzLwkT2iDXbB7WW0s6sVdpkUlGGae30W0cE2iDwhWlrQlzAiISrbh4Kvut_R0V4VCPuKPsOMt0CZu0YruaGH8KuAXCqyuu5jJ8zDgjC9xkacKuxbWCt0SntaOFQ0Chm0G7IXC42-kTszS2mJqo7QiHZK9r2id6K0ds-n_PAWeD3GhFwjecBCCge6q-wPO5g"/>
+<button aria-label="Add to cart" class="add-btn">
+<svg fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+</button>
+</a>
+<div class="product-info">
+<h3 class="">Aura Gold Hoops</h3>
+<span class="price">$450</span>
+</div>
+</div>
+<!-- Product 2 -->
+<div class="product-card" style="animation: 0.7s cubic-bezier(0.16, 0.84, 0.44, 1) 0s 1 normal both running rise;">
+<a class="product-img-box card-lift" href="#">
+<img alt="An elegant pearl pendant necklace draped elegantly over a piece of raw white marble" src="https://lh3.googleusercontent.com/aida-public/AB6AXuALXOcWzg8gAqq53k1D6Kw80aIoJzvU8Nm9_xGgf8tmQ2aOgfcJHSBQVk5rzQZFDR7_w8_ESPUl7PNrSsHZJhqLW6czQby497SnNnfAEksBRKipNRPUzsRc8A4t3CwEXWECK2dpnEIsADZHnHbOddsZlG_LtY_4Q6vfBKg4bceNYv0QLVPiPrvD--xEuIW2Vj53_L_tD7OcN4XTWlMWFGy1CziHpZLzeflgNS1o1of9wh3p4OeFawa8lg"/>
+<button aria-label="Add to cart" class="add-btn">
+<svg fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+</button>
+</a>
+<div class="product-info">
+<h3 class="">Ethereal Pearl Pendant (Gold-Plated)</h3>
+<span class="price">$680</span>
+</div>
+</div>
+<!-- Editorial Feature Tile -->
+<div class="feature-tile card-lift" style="animation: 0.7s cubic-bezier(0.16, 0.84, 0.44, 1) 0s 1 normal both running rise;">
+<div class="feature-tile-img">
+<img alt="Portrait of a stunning Indian model for a luxury jewelry editorial" src="https://lh3.googleusercontent.com/aida/AEtjO1Wi32Tb0no1vUc9ivOcIu9QJYikDwZdFJjnji9lFdoISZ9PoLff7hiqNjUCdV2rhkuMFVj-YpSn3XxThRUKAkTwUmhB-paC0J_mcwAH4bPeuP0RFB0Ek9SWGjQqPV_EME7hecFNiJBvJpCH3fB9I4V_3eCDpDfgCQcbBqwt29vn3Bglwmj603jgusHSKJyA1mYJlrNLRDt39348yT9HX7T4GCgd2x6hbsfC7Dp7HpKzqALAFJ2CxRBDKKwl"/>
+</div>
+<div class="feature-tile-content">
+<div class="eyebrow dark">✦ The Gold Standard</div>
+<h2 class="display">Artisan Craftsmanship</h2>
+<p class="">Every piece tells a story of heritage and hand-finished detail.</p>
+<a class="shop-now on-dark" href="#">Explore Heritage
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+</a>
+</div>
+</div>
+<!-- Product 3 -->
+<div class="product-card" style="animation: 0.7s cubic-bezier(0.16, 0.84, 0.44, 1) 0s 1 normal both running rise;">
+<a class="product-img-box card-lift" href="#">
+<img alt="A delicate Luna moonstone ring placed on a textured stone surface" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCSPtj0j7aHGnvPEdHn2Mj-NXmYVRDA0NOQMxCgY9MuVrSwSLgOzrm5ZTGb4Mb4tmlcpm45lGwTcwND09wCvjFuWeOL2dokexrRnHKA7N3igXePR6-B0mARYulOzn9ubB3KVZyqxxYnVlffkY-mAJtvwCQ33xsU4ssILcCRtiOgnyQdQrkc9ALuNpk2FiGvaz49LPoif8uVdFT4E8JpryLNnHVKHF3pa7muwg6wFzZE_T49YlFPTLfcjw"/>
+<button aria-label="Add to cart" class="add-btn">
+<svg fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+</button>
+</a>
+<div class="product-info">
+<h3 class="">Luna Moonstone Ring (18k Gold)</h3>
+<span class="price">$320</span>
+</div>
+</div>
+<!-- Product 4 -->
+<div class="product-card" style="animation: 0.7s cubic-bezier(0.16, 0.84, 0.44, 1) 0s 1 normal both running rise;">
+<a class="product-img-box card-lift" href="#">
+<img alt="A chunky 18k gold Solstice chain bracelet laid flat on a pristine cream background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAZA0cxEjXoduxZ9RoJ8TpAU-au527S9qmOSfKelDwI-t8FKAQTnuB_4YqPOp1n6_015Z-qRRbpVdPrCKHi8yJmXEJQ9TRqMjjN21HRSRwkhnq7_pMeAA9Zg3wmX2CAtEDtKhrjCnRTykvDamlCCh7j8XjUtxSxH9Kf8CU-ppoDERHl5bgvygjMbXbI1pBor7HB2D0SXrGS3RqFuUcUs3CdZuIGV5qwpPk-WaQpgEw-mKb85JwykFjfuA"/>
+<button aria-label="Add to cart" class="add-btn">
+<svg fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+</button>
+</a>
+<div class="product-info">
+<h3 class="">Solstice Gold Chain Bracelet</h3>
+<span class="price">$950</span>
+</div>
+</div>
+<!-- Product 5 (Centered) -->
+<div class="product-card center-product" style="animation: 0.7s cubic-bezier(0.16, 0.84, 0.44, 1) 0s 1 normal both running rise;">
+<a class="product-img-box card-lift" href="#">
+<img alt="A pair of Celestial Drop earrings featuring small diamonds" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBmc4udFqwca4RTyEFT6u5u7YA4MKnhf1mHacWy-kpJjSBrxfKclifQr6c-JZJM3CvWAaE-HnHDDP7D1qIUaAYi6Wv773VB_VPRwHAflBSSVIL5xH7JtLbufBPNua-Exvh2zdKAJaXNlkARI0ljBOc4eDu-Og8xdrZkMoc729iFD0VT-qrSEn5OfM9Zfi38c_MgffLzFDonKWP4-73fDNyb2lp813Ducxghmekm3YzKB5_9OAsSotsQTw"/>
+<button aria-label="Add to cart" class="add-btn">
+<svg fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+</button>
+</a>
+<div class="product-info">
+<h3 class="">Celestial Drop Earrings</h3>
+<span class="price">$1,200</span>
+</div>
+</div>
+</section>
+</div>
+</main>
+<footer>
+<div class="footer-inner">
+<div class="footer-col">
+<a class="footer-brand" href="/">RUHVI</a>
+<p class="footer-desc">Artisanal jewelry crafted for the modern romantic. Heritage techniques, contemporary design.</p>
+</div>
+<div class="footer-col">
+<div class="footer-label">Customer Care</div>
+<a class="footer-link" href="#">Complimentary Shipping</a>
+<a class="footer-link" href="#">Returns &amp; Exchanges</a>
+<a class="footer-link" href="#">Size Guide</a>
+<a class="footer-link" href="#">Care Instructions</a>
+</div>
+<div class="footer-col">
+<div class="footer-label">Company</div>
+<a class="footer-link" href="#">Contact Us</a>
+<a class="footer-link" href="#">Privacy Policy</a>
+</div>
+</div>
+<div class="footer-bottom">
+    © 2024 RUHVI JEWELS. ARTISANAL LUXURY.
+  </div>
+</footer>
+<script>
+  // Cart counter demo
+  const cartBtn = document.getElementById('cartBtn');
+  const cartDot = cartBtn.querySelector('.cart-dot');
+  let cartCount = 2;
+
+  document.querySelectorAll('.shop-now, .pill-btn, .add-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      if (btn.tagName === 'A' && btn.getAttribute('href') === '#' ) e.preventDefault();
+      if (btn.tagName === 'BUTTON' && btn.closest('a') && btn.closest('a').getAttribute('href') === '#') e.preventDefault();
+    });
+  });
+
+  // Wishlist toggle
+  const wishBtn = document.getElementById('wishBtn');
+  wishBtn.addEventListener('click', () => {
+    const path = wishBtn.querySelector('path');
+    const filled = wishBtn.dataset.filled === 'true';
+    path.setAttribute('fill', filled ? 'none' : 'currentColor');
+    wishBtn.dataset.filled = filled ? 'false' : 'true';
+  });
+
+  // Menu toggle
+  const menuBtn = document.getElementById('menuBtn');
+  menuBtn.addEventListener('click', () => {
+    menuBtn.classList.toggle('open');
+  });
+
+  // Reveal animations
+  const revealTargets = document.querySelectorAll('.rise-anim, .product-card, .feature-tile');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting){
+        entry.target.style.animation = 'rise .7s cubic-bezier(.16,.84,.44,1) both';
+        io.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  revealTargets.forEach(el => io.observe(el));
+</script>
+</body></html>

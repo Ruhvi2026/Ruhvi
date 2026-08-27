@@ -2,21 +2,6 @@ import React from 'react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
-import {
-  ArrowRight,
-  Sparkles,
-  ShieldCheck,
-  Star,
-  Layers,
-  Gem,
-  Truck,
-  RotateCcw,
-  BadgeCheck,
-} from 'lucide-react';
-import { INITIAL_CATEGORIES, DEMO_PRODUCTS } from '@/lib/products';
-import { ProductCard } from '@/components/products/ProductCard';
-import { TiltCard } from '@/components/ui/TiltCard';
-import Hero3D from '@/components/three/Hero3D';
 import { createClient } from '@/lib/supabase/server';
 import { Category, Collection, Product } from '@/types/database';
 import { getHomepageSettings } from '@/app/admin/actions/settings';
@@ -71,8 +56,7 @@ export default async function HomePage() {
     .from('categories')
     .select('*')
     .order('name');
-  const categories: Category[] =
-    catData && catData.length > 0 ? catData : INITIAL_CATEGORIES;
+  const categories: Category[] = catData || [];
 
   const { data: colData } = await supabase
     .from('collections')
@@ -80,16 +64,6 @@ export default async function HomePage() {
     .order('title');
   const collections: Collection[] =
     colData && colData.length > 0 ? colData : FALLBACK_HOME_COLLECTIONS;
-
-  const { data: prodData } = await supabase
-    .from('products')
-    .select('*, images:product_images(*)')
-    .eq('status', 'active');
-  const products: Product[] =
-    prodData && prodData.length > 0 ? prodData : DEMO_PRODUCTS;
-
-  const newArrivals = products.filter((p) => p.is_new_arrival);
-  const bestSellers = products.filter((p) => p.is_best_seller);
 
   const websiteSchema = {
     '@context': 'https://schema.org',
@@ -104,332 +78,387 @@ export default async function HomePage() {
   };
 
   return (
-    <div className="bg-cream-100 pb-20 text-charcoal-900">
+    <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
       />
-
-      {/* ============ Cinematic Hero Section ============ */}
-      <section className="relative flex h-[85vh] min-h-[600px] w-full items-center justify-center overflow-hidden bg-charcoal-900">
-        {/* Cinematic Photography (Indian Model, Gold-Plated Jewelry) */}
-        <div className="absolute inset-0 z-0">
-          <Image
-            src={
-              hp.hero_image_url ||
-              'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&q=80'
-            }
-            alt={hp.hero_title || 'Ruhvi - Designed to be remembered'}
-            fill
-            className="object-cover opacity-65"
-            priority
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-charcoal-900/30 via-transparent to-charcoal-900/90" />
-        </div>
-
-        <div className="animate-fade-up relative z-10 mx-auto max-w-4xl px-4 text-center">
-          <h1 className="mb-8 font-serif text-5xl font-medium tracking-tight text-white drop-shadow-lg sm:text-6xl md:text-7xl lg:text-8xl">
-            {hp.hero_title || 'Designed to be remembered.'}
-          </h1>
-          <div className="mt-12 flex flex-col items-center justify-center gap-5 sm:flex-row">
-            <Link
-              href={hp.hero_cta1_link || '/products'}
-              className="min-w-[220px] bg-white px-10 py-4 text-xs font-bold uppercase tracking-[0.15em] text-charcoal-900 transition-colors hover:bg-champagne-100"
-            >
-              {hp.hero_cta1_text || 'Explore Collection'}
-            </Link>
-            <Link
-              href={hp.hero_cta2_link || '/collections/new-arrivals'}
-              className="min-w-[220px] border border-white/50 px-10 py-4 text-xs font-bold uppercase tracking-[0.15em] text-white backdrop-blur-sm transition-all hover:bg-white/10"
-            >
-              {hp.hero_cta2_text || 'Discover New Arrivals'}
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* ============ Trust Strip ============ */}
-      <section className="mx-auto -mt-2 max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-3">
-          {[
-            {
-              icon: Truck,
-              title: 'Insured Shipping',
-              sub: 'Tamper-proof delivery across India',
-            },
-            {
-              icon: RotateCcw,
-              title: '7-Day Returns',
-              sub: 'Hassle-free exchange & refund',
-            },
-            {
-              icon: ShieldCheck,
-              title: '6-Month Color Guarantee',
-              sub: 'Covers gold plating fading & discoloration',
-            },
-          ].map((item) => (
-            <div
-              key={item.title}
-              className="group flex flex-col items-center gap-2 rounded-2xl border border-gold-200/70 bg-white/70 p-4 text-center transition-all duration-300 hover:border-gold-400 hover:shadow-lg hover:shadow-gold-500/10 sm:p-5"
-            >
-              <div className="flex h-11 w-11 items-center justify-center rounded-full border border-gold-300/60 bg-gold-100 text-gold-700 transition-colors duration-300 group-hover:bg-gold-500 group-hover:text-white">
-                <item.icon className="h-5 w-5" />
-              </div>
-              <div>
-                <h3 className="font-serif text-sm font-bold text-charcoal-900">
-                  {item.title}
-                </h3>
-                <p className="mt-0.5 text-[11px] text-slate-600">{item.sub}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ============ Editorial Category Experience ============ */}
-      <section className="mx-auto mt-24 max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mb-12 flex items-center justify-between border-b border-gold-200/50 pb-4">
-          <h2 className="font-serif text-3xl font-medium tracking-wide text-charcoal-900">
-            Shop by Category
-          </h2>
-          <Link
-            href="/products"
-            className="hidden text-[10px] font-bold uppercase tracking-[0.2em] text-gold-600 transition-colors hover:text-charcoal-900 sm:block"
-          >
-            Explore All Categories
-          </Link>
-        </div>
-
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-          {categories.slice(0, 8).map((cat) => (
-            <Link
-              key={cat.id}
-              href={`/category/${cat.slug}`}
-              className="group relative h-[300px] overflow-hidden bg-champagne-100 sm:h-[420px]"
-            >
-              {cat.image_url ? (
-                <Image
-                  src={cat.image_url}
-                  alt={cat.name}
-                  fill
-                  className="object-cover opacity-90 transition-transform duration-1000 group-hover:scale-105"
-                  sizes="(max-width: 768px) 50vw, 25vw"
-                />
-              ) : (
-                <div className="absolute inset-0 flex items-center justify-center bg-champagne-200/50">
-                  <Sparkles className="h-6 w-6 text-gold-300" />
-                </div>
-              )}
-              <div className="absolute inset-0 bg-gradient-to-t from-charcoal-900/40 via-transparent to-transparent transition-opacity duration-500 group-hover:opacity-80" />
-              <div className="absolute inset-x-0 bottom-8 text-center">
-                <h3 className="font-serif text-2xl font-medium tracking-wide text-white">
-                  {cat.name}
-                </h3>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      {/* ============ Lifestyle & Editorial Video Section ============ */}
-      <section className="mx-auto mt-32 max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
-          <div className="relative order-2 aspect-[3/4] w-full overflow-hidden bg-champagne-100 lg:order-1">
-            <Image
-              src={
-                hp.lifestyle_image_url ||
-                'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&q=80'
-              }
-              alt="Lifestyle"
-              fill
-              className="object-cover"
-            />
-          </div>
-          <div className="order-1 mx-auto flex max-w-md flex-col justify-center text-center lg:order-2 lg:mx-0 lg:text-left">
-            <span className="mb-4 text-[10px] font-bold uppercase tracking-[0.2em] text-gold-600">
-              Editorial
-            </span>
-            <h2 className="mb-6 font-serif text-4xl font-medium leading-tight tracking-wide text-charcoal-900 sm:text-5xl">
-              {hp.lifestyle_title || 'Elegance in Motion'}
-            </h2>
-            <p className="mb-10 text-sm leading-relaxed text-slate-600">
-              {hp.lifestyle_text ||
-                'See how our 22K gold-plated pieces come to life. Designed to drape perfectly, capturing light and attention wherever you go. Styled by leading Indian fashion curators for the modern woman.'}
-            </p>
-            <div>
-              <Link
-                href={hp.lifestyle_cta_link || '/products'}
-                className="inline-block border border-charcoal-900 px-10 py-4 text-xs font-bold uppercase tracking-[0.15em] text-charcoal-900 transition-colors hover:bg-charcoal-900 hover:text-white"
-              >
-                {hp.lifestyle_cta_text || 'Read The Journal'}
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ============ Editorial Featured Collections ============ */}
-      <section className="mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8">
-        <div className="mb-16 flex flex-col items-center text-center">
-          <span className="mb-3 text-[10px] font-bold uppercase tracking-[0.2em] text-gold-600">
-            The Essentials
-          </span>
-          <h2 className="font-serif text-3xl font-medium tracking-wide text-charcoal-900 sm:text-4xl">
-            Curated Collections
-          </h2>
-        </div>
-
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-12">
-          {/* Large Feature */}
-          {collections[0] && (
-            <div className="group relative h-[600px] overflow-hidden bg-champagne-100 md:col-span-8">
+      <main className="pt-4">
+        <div className="wrap">
+          {/* HERO */}
+          <section className="hero">
+            <div className="hero-img">
               <Image
                 src={
-                  collections[0].image_url || '/images/categories/necklaces.jpg'
+                  hp.hero_image_url ||
+                  'https://res.cloudinary.com/tfelmupe/image/upload/v1787781771/timeless_elegance_efj5j3.jpg'
                 }
+                alt={hp.hero_title || 'Woman wearing gold-plated jewellery'}
                 fill
-                className="object-cover transition-transform duration-1000 group-hover:scale-105"
-                alt={collections[0].title}
+                className="object-cover"
+                style={{ objectPosition: '78% 30%' }}
+                priority
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-charcoal-900/60 via-transparent to-transparent" />
-              <div className="absolute bottom-10 left-10 text-white">
-                <h3 className="mb-3 font-serif text-4xl font-medium">
-                  {collections[0].title}
-                </h3>
-                <Link
-                  href={`/collections/${collections[0].slug}`}
-                  className="border-b border-white/60 pb-1 text-xs uppercase tracking-[0.2em] transition-colors hover:border-white"
+            </div>
+            <div className="hero-content">
+              <div className="eyebrow">
+                <span>✦</span> FEATURED COLLECTION
+              </div>
+              <h1 className="display">
+                {hp.hero_title ? (
+                  <span
+                    dangerouslySetInnerHTML={{
+                      __html: hp.hero_title.replace('\n', '<br>'),
+                    }}
+                  />
+                ) : (
+                  <>
+                    Timeless Elegance,
+                    <br />
+                    Crafted for You
+                  </>
+                )}
+              </h1>
+              <p>
+                Discover our finest gold-plated jewellery, designed to celebrate
+                your every moment.
+              </p>
+              <Link
+                href={hp.hero_cta1_link || '/products'}
+                className="pill-btn"
+              >
+                EXPLORE COLLECTION
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
                 >
-                  Discover Collection
+                  <path
+                    d="M5 12h14M13 6l6 6-6 6"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </Link>
+            </div>
+          </section>
+
+          {/* NEW ARRIVALS / BEST SELLERS */}
+          <section className="promo-row">
+            <div className="promo-card card-lift">
+              <div className="promo-img">
+                <Image
+                  src="https://res.cloudinary.com/tfelmupe/image/upload/v1787781631/earings_h9z62v.jpg"
+                  alt="New Arrivals"
+                  fill
+                  className="object-cover"
+                />
+              </div>
+              <div className="promo-body">
+                <div className="eyebrow">NEW ARRIVALS</div>
+                <h3 className="serif">
+                  Fresh designs,
+                  <br />
+                  just for you
+                </h3>
+                <Link href="/collections/new-arrivals" className="shop-now">
+                  SHOP NOW
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <path
+                      d="M5 12h14M13 6l6 6-6 6"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
                 </Link>
               </div>
             </div>
-          )}
 
-          {/* Smaller Supporting */}
-          <div className="flex flex-col gap-6 md:col-span-4">
-            {collections[1] && (
-              <div className="group relative h-[288px] overflow-hidden bg-champagne-100">
+            <div className="promo-card card-lift">
+              <div className="promo-img">
                 <Image
-                  src={
-                    collections[1].image_url ||
-                    'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&q=80'
-                  }
+                  src="https://res.cloudinary.com/tfelmupe/image/upload/v1787776431/oomy99pe62ani5lne1g8.jpg"
+                  alt="Best Sellers"
                   fill
-                  className="object-cover transition-transform duration-1000 group-hover:scale-105"
-                  alt={collections[1].title}
+                  className="object-cover"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-charcoal-900/60 via-transparent to-transparent" />
-                <div className="absolute bottom-8 left-8 text-white">
-                  <h3 className="mb-2 font-serif text-2xl font-medium">
-                    {collections[1].title}
-                  </h3>
-                  <Link
-                    href={`/collections/${collections[1].slug}`}
-                    className="border-b border-white/60 pb-1 text-[10px] uppercase tracking-[0.2em] transition-colors hover:border-white"
+              </div>
+              <div className="promo-body">
+                <div className="eyebrow">BEST SELLERS</div>
+                <h3 className="serif">
+                  Loved by
+                  <br />
+                  thousands
+                </h3>
+                <Link href="/collections/best-sellers" className="shop-now">
+                  SHOP NOW
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
                   >
-                    Explore
+                    <path
+                      d="M5 12h14M13 6l6 6-6 6"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </Link>
+              </div>
+            </div>
+          </section>
+
+          {/* CATEGORY GRID */}
+          <section className="cat-grid" id="categories">
+            {categories.slice(0, 4).map((cat) => (
+              <div className="cat-card" key={cat.slug}>
+                <div className="cat-img">
+                  <Image
+                    src={
+                      cat.image_url ||
+                      'https://res.cloudinary.com/tfelmupe/image/upload/vuz7w55c3jyu5u4hljk3.jpg'
+                    }
+                    alt={cat.name}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+                <div className="cat-body">
+                  <div className="cat-label">{cat.name}</div>
+                  <h4>{'Elegant & Timeless'}</h4>
+                  <Link
+                    href={`/category/${cat.slug}`}
+                    className="shop-now on-dark"
+                  >
+                    SHOP NOW
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                    >
+                      <path
+                        d="M5 12h14M13 6l6 6-6 6"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
                   </Link>
                 </div>
               </div>
-            )}
-
-            {collections[2] && (
-              <div className="group relative h-[288px] overflow-hidden bg-champagne-100">
-                <Image
-                  src={
-                    collections[2].image_url || '/images/categories/rings.jpg'
-                  }
-                  fill
-                  className="object-cover transition-transform duration-1000 group-hover:scale-105"
-                  alt={collections[2].title}
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-charcoal-900/60 via-transparent to-transparent" />
-                <div className="absolute bottom-8 left-8 text-white">
-                  <h3 className="mb-2 font-serif text-2xl font-medium">
-                    {collections[2].title}
-                  </h3>
-                  <Link
-                    href={`/collections/${collections[2].slug}`}
-                    className="border-b border-white/60 pb-1 text-[10px] uppercase tracking-[0.2em] transition-colors hover:border-white"
-                  >
-                    Explore
-                  </Link>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      </section>
-
-      {/* ============ New Arrivals ============ */}
-      <section className="mx-auto mt-20 max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mb-8 flex items-end justify-between">
-          <div>
-            <span className="text-xs font-semibold uppercase tracking-widest text-gold-600">
-              Curated Additions
-            </span>
-            <h2 className="mt-1 font-serif text-3xl font-bold text-charcoal-900 sm:text-4xl">
-              New Arrivals
-            </h2>
-          </div>
-          <Link
-            href="/products"
-            className="group flex items-center space-x-1 text-xs font-semibold uppercase tracking-wider text-gold-700 hover:text-gold-600"
-          >
-            <span>View All</span>
-            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-          </Link>
-        </div>
-
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {newArrivals.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
-      </section>
-
-      {/* ============ Best Sellers ============ */}
-      <section className="mt-20 border-y border-gold-200/70 bg-gradient-to-b from-cream-50 to-cream-200/60 py-14">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mx-auto mb-10 max-w-xl text-center">
-            <span className="text-xs font-semibold uppercase tracking-widest text-gold-600">
-              Most Loved
-            </span>
-            <h2 className="mt-1 font-serif text-3xl font-bold text-charcoal-900 sm:text-4xl">
-              Best Sellers
-            </h2>
-            <div className="gold-divider mx-auto mt-4 w-24" />
-          </div>
-
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {bestSellers.map((product) => (
-              <ProductCard key={product.id} product={product} />
             ))}
-          </div>
-        </div>
-      </section>
+          </section>
 
-      {/* ============ Brand CTA Banner (Why Ruhvi) ============ */}
-      <section className="mx-auto mb-20 mt-32 max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="relative overflow-hidden bg-champagne-100 p-12 text-center sm:p-20">
-          <div className="relative z-10 mx-auto max-w-2xl">
-            <h2 className="mt-4 font-serif text-3xl font-medium text-charcoal-900 sm:text-5xl">
-              {hp.why_ruhvi_title || 'Why Ruhvi?'}
-            </h2>
-            <p className="mx-auto mt-6 max-w-xl text-sm font-light leading-relaxed text-slate-700 sm:text-base">
-              {hp.why_ruhvi_text ||
-                'At Ruhvi, we believe in uncompromised craftsmanship. Our jewellery is meticulously designed and intricately plated in 22K gold to ensure lasting brilliance, elevating your everyday style with an enduring premium identity.'}
-            </p>
-            <Link
-              href={hp.why_ruhvi_cta_link || '/about'}
-              className="mt-10 inline-block border-b border-charcoal-900 pb-1 text-xs font-bold uppercase tracking-[0.2em] text-charcoal-900 transition-colors hover:border-gold-600 hover:text-gold-600"
-            >
-              {hp.why_ruhvi_cta_text || 'Discover Our Philosophy'}
+          {/* OCCASION SPLIT */}
+          <section className="split card-lift">
+            <div className="split-body">
+              <div className="eyebrow">CRAFTED FOR EVERY OCCASION</div>
+              <h2 className="display">
+                {hp.lifestyle_title ? (
+                  <span
+                    dangerouslySetInnerHTML={{
+                      __html: hp.lifestyle_title.replace('\n', '<br>'),
+                    }}
+                  />
+                ) : (
+                  <>
+                    For every you,
+                    <br />
+                    for every moment.
+                  </>
+                )}
+              </h2>
+              <p>
+                {hp.lifestyle_text ||
+                  "From everyday beauty to life's most special celebrations, Ruhvi is with you."}
+              </p>
+              <Link
+                href={hp.lifestyle_cta_link || '/products'}
+                className="shop-now"
+              >
+                {hp.lifestyle_cta_text || 'EXPLORE NOW'}
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <path
+                    d="M5 12h14M13 6l6 6-6 6"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </Link>
+            </div>
+            <div className="split-img">
+              <Image
+                src={
+                  hp.lifestyle_image_url ||
+                  'https://res.cloudinary.com/tfelmupe/image/upload/v1787781770/explor_collections_etp3bp.jpg'
+                }
+                alt="Occasion Split"
+                fill
+                className="object-cover"
+                style={{ objectPosition: '50% 22%' }}
+              />
+            </div>
+          </section>
+
+          {/* LIMITED COLLECTION */}
+          <section className="limited">
+            <div className="limited-img">
+              <Image
+                src="https://res.cloudinary.com/tfelmupe/image/upload/v1787781769/exclusive_dropslimited_times_vsstgx.jpg"
+                alt="Limited Collection"
+                fill
+                className="object-cover"
+              />
+            </div>
+            <div className="limited-body">
+              <div className="eyebrow dark">LIMITED COLLECTION</div>
+              <h2 className="display">
+                Exclusive Drops.
+                <br />
+                Limited Time.
+              </h2>
+              <p>Unique designs in limited quantities.</p>
+              <Link href="/collections/limited" className="shop-now on-dark">
+                SHOP NOW
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <path
+                    d="M5 12h14M13 6l6 6-6 6"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </Link>
+            </div>
+          </section>
+
+          {/* CTA STRIP */}
+          <section className="cta-strip">
+            <div className="cta-img">
+              <Image
+                src="https://res.cloudinary.com/tfelmupe/image/upload/v1787781771/full_model_yfat2m.jpg"
+                alt="Explore Collection"
+                fill
+                className="object-cover"
+                style={{ objectPosition: '50% 18%' }}
+              />
+            </div>
+            <div className="cta-text">
+              <div className="eyebrow dark" style={{ marginBottom: '8px' }}>
+                YOUR STORY, YOUR SPARKLE
+              </div>
+              <h2 className="serif">Explore the Collection</h2>
+              <div className="rule"></div>
+            </div>
+            <Link href="/products" className="pill-btn">
+              EXPLORE ALL
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <path
+                  d="M5 12h14M13 6l6 6-6 6"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
             </Link>
-          </div>
+          </section>
+
+          {/* TRUST STRIP */}
+          <section className="trust">
+            <div className="trust-item">
+              <div className="trust-icon">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.6"
+                >
+                  <path d="M20 12v7a1 1 0 01-1 1H5a1 1 0 01-1-1v-7" />
+                  <rect x="2" y="7" width="20" height="5" rx="1" />
+                  <path d="M12 7V20M12 7c-1.5-3.5-6-3.5-6-1s3 1 6 1zm0 0c1.5-3.5 6-3.5 6-1s-3 1-6 1z" />
+                </svg>
+              </div>
+              <div>
+                <h5>FREE SHIPPING</h5>
+                <p>On orders above ₹999</p>
+              </div>
+            </div>
+            <div className="trust-item">
+              <div className="trust-icon">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.6"
+                >
+                  <path d="M12 3l7 3v6c0 4.5-3 8-7 9-4-1-7-4.5-7-9V6l7-3z" />
+                </svg>
+              </div>
+              <div>
+                <h5>SECURE PAYMENT</h5>
+                <p>100% safe &amp; secure</p>
+              </div>
+            </div>
+            <div className="trust-item">
+              <div className="trust-icon">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.6"
+                >
+                  <circle cx="12" cy="12" r="3.4" />
+                  <path d="M12 3v2.2M12 18.8V21M21 12h-2.2M5.2 12H3M18.1 5.9l-1.5 1.5M7.4 16.6l-1.5 1.5M18.1 18.1l-1.5-1.5M7.4 7.4L5.9 5.9" />
+                </svg>
+              </div>
+              <div>
+                <h5>PREMIUM QUALITY</h5>
+                <p>Crafted with care</p>
+              </div>
+            </div>
+            <div className="trust-item">
+              <div className="trust-icon">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.6"
+                >
+                  <path
+                    d="M4 12a8 8 0 1114.9 4M4 12V7M4 12H9"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </div>
+              <div>
+                <h5>EASY RETURNS</h5>
+                <p>Hassle-free returns</p>
+              </div>
+            </div>
+          </section>
         </div>
-      </section>
-    </div>
+      </main>
+    </>
   );
 }

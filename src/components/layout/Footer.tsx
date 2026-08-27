@@ -58,7 +58,10 @@ export function Footer() {
   };
 
   return (
-    <footer className="border-t border-gold-800/60 bg-charcoal-900 pb-8 pt-12 text-cream-200">
+    <footer
+      className="border-t border-[var(--line)] pb-8 pt-12 text-[var(--cream)]"
+      style={{ backgroundColor: 'var(--ink)' }}
+    >
       {/* Brand Reassurance Bar */}
       <div className="mx-auto mb-12 max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-2 gap-6 rounded-2xl border border-gold-700/40 bg-charcoal-800/80 p-6 md:grid-cols-4">
@@ -114,7 +117,10 @@ export function Footer() {
 
       {/* Referral Program Banner */}
       <div className="mx-auto mb-12 max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="gold-gradient-bg relative flex flex-col items-center justify-between overflow-hidden rounded-3xl p-8 shadow-2xl sm:p-12 md:flex-row">
+        <div
+          className="relative flex flex-col items-center justify-between overflow-hidden rounded-3xl p-8 shadow-2xl sm:p-12 md:flex-row"
+          style={{ background: 'var(--brown-dark)' }}
+        >
           <div className="absolute right-0 top-0 h-64 w-64 rounded-full bg-gold-100/30 blur-3xl"></div>
 
           <div className="relative z-10 mb-8 md:mb-0 md:w-1/2">
@@ -130,7 +136,8 @@ export function Footer() {
           <div className="relative z-10 flex w-full max-w-md justify-end md:w-1/2">
             <Link
               href="/referral"
-              className="rounded-xl bg-cream-50 px-8 py-4 text-sm font-bold uppercase tracking-wider text-gold-800 shadow-lg transition-colors hover:bg-white"
+              className="rounded-xl px-8 py-4 text-sm font-bold uppercase tracking-wider shadow-lg transition-colors"
+              style={{ background: 'var(--gold)', color: 'var(--ink)' }}
             >
               Start Referring
             </Link>
@@ -150,7 +157,10 @@ export function Footer() {
                 className="object-cover"
               />
             </div>
-            <h3 className="font-serif text-xl font-bold uppercase tracking-[0.2em] text-gold-400">
+            <h3
+              className="font-serif text-xl font-bold uppercase tracking-[0.2em]"
+              style={{ color: 'var(--gold)' }}
+            >
               RUHVI JEWELS
             </h3>
           </div>
@@ -160,12 +170,19 @@ export function Footer() {
             life&apos;s special moments.
           </p>
           <p className="flex items-center gap-1.5 text-xs text-gold-300">
-            <Gem className="h-3.5 w-3.5 text-gold-400" /> support@ruhvi.in
+            <Gem
+              className="h-3.5 w-3.5"
+              style={{ color: 'var(--gold-pale)' }}
+            />{' '}
+            support@ruhvi.in
           </p>
 
           {/* Follow Us */}
           <div className="mb-6 mt-6">
-            <h4 className="mb-3 text-xs font-bold uppercase tracking-[0.15em] text-gold-500">
+            <h4
+              className="mb-3 text-xs font-bold uppercase tracking-[0.15em]"
+              style={{ color: 'var(--gold-pale)' }}
+            >
               Follow Us
             </h4>
             <div className="flex items-center space-x-3">
@@ -187,7 +204,10 @@ export function Footer() {
 
           {/* Newsletter Signup */}
           <div>
-            <h4 className="mb-3 text-xs font-bold uppercase tracking-[0.15em] text-gold-500">
+            <h4
+              className="mb-3 text-xs font-bold uppercase tracking-[0.15em]"
+              style={{ color: 'var(--gold-pale)' }}
+            >
               Stay in the Loop
             </h4>
             <form onSubmit={handleSubscribe} className="flex gap-2">

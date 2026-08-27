@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Order Confirmation - Ruhvi Jewels</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&amp;family=Jost:wght@300;400;500;600&amp;family=Marcellus&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "brown-mid": "#2E2115",
+                        "inverse-on-surface": "#f6f0e6",
+                        "on-surface-variant": "#4f4538",
+                        "surface-container-highest": "#e8e2d8",
+                        "tertiary": "#7e5707",
+                        "on-error-container": "#93000a",
+                        "outline-variant": "#d2c4b3",
+                        "secondary-fixed-dim": "#d4c4b6",
+                        "error-container": "#ffdad6",
+                        "line": "rgba(42,33,24,0.12)",
+                        "surface-dim": "#dfd9d0",
+                        "on-tertiary": "#ffffff",
+                        "on-primary-fixed-variant": "#5f4100",
+                        "surface-container-low": "#f9f3e9",
+                        "outline": "#817566",
+                        "surface-variant": "#e8e2d8",
+                        "primary-fixed-dim": "#f0bf6c",
+                        "on-secondary-fixed": "#221a11",
+                        "error": "#ba1a1a",
+                        "ink-soft": "#4A3F33",
+                        "on-surface": "#1d1b16",
+                        "on-secondary-container": "#6f6257",
+                        "secondary-fixed": "#f1dfd1",
+                        "on-error": "#ffffff",
+                        "tertiary-fixed-dim": "#f2be69",
+                        "primary": "#7c580b",
+                        "on-tertiary-fixed": "#281900",
+                        "on-secondary-fixed-variant": "#50453a",
+                        "surface-container-high": "#ede7de",
+                        "primary-container": "#c79a4b",
+                        "cream-deep": "#EFE6D5",
+                        "brown-dark": "#1C140D",
+                        "inverse-surface": "#33302a",
+                        "primary-fixed": "#ffdeab",
+                        "surface-tint": "#7c580b",
+                        "tertiary-fixed": "#ffdead",
+                        "on-background": "#1d1b16",
+                        "on-primary": "#ffffff",
+                        "on-primary-fixed": "#271900",
+                        "background": "#fff9ee",
+                        "on-tertiary-container": "#4d3300",
+                        "surface-bright": "#fff9ee",
+                        "secondary-container": "#f1dfd1",
+                        "on-tertiary-fixed-variant": "#604100",
+                        "secondary": "#685c51",
+                        "gold-pale": "#E9C989",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container": "#f3ede3",
+                        "on-primary-container": "#4c3300",
+                        "tertiary-container": "#c99948",
+                        "inverse-primary": "#f0bf6c",
+                        "on-secondary": "#ffffff",
+                        "surface": "#fff9ee"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "max-width": "1180px",
+                        "gutter": "18px",
+                        "padding-pill": "15px 26px",
+                        "gap-nav": "16px",
+                        "padding-container": "clamp(20px, 4vw, 40px)",
+                        "margin-section": "22px"
+                    },
+                    "fontFamily": {
+                        "eyebrow": ["Jost"],
+                        "section-heading": ["Marcellus"],
+                        "cta-label": ["Jost"],
+                        "sub-heading-serif": ["Cormorant Garamond"],
+                        "body-lg": ["Jost"],
+                        "brand-logo": ["Marcellus"],
+                        "display-hero-mobile": ["Marcellus"],
+                        "display-hero": ["Marcellus"],
+                        "body-md": ["Jost"]
+                    },
+                    "fontSize": {
+                        "eyebrow": ["11px", { "letterSpacing": "0.18em", "fontWeight": "500" }],
+                        "section-heading": ["36px", { "lineHeight": "1.14", "fontWeight": "400" }],
+                        "cta-label": ["12px", { "letterSpacing": "0.12em", "fontWeight": "600" }],
+                        "sub-heading-serif": ["25px", { "fontWeight": "500" }],
+                        "body-lg": ["15px", { "lineHeight": "1.65", "fontWeight": "400" }],
+                        "brand-logo": ["30px", { "letterSpacing": "0.28em", "fontWeight": "400" }],
+                        "display-hero-mobile": ["34px", { "lineHeight": "1.1", "fontWeight": "400" }],
+                        "display-hero": ["54px", { "lineHeight": "1.06", "letterSpacing": "0em", "fontWeight": "400" }],
+                        "body-md": ["14.5px", { "lineHeight": "1.7", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: theme('colors.background');
+            color: theme('colors.on-background');
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        
+        .animate-rise {
+            animation: rise 0.8s cubic-bezier(.16, .84, .44, 1) forwards;
+            opacity: 0;
+            transform: translateY(16px);
+        }
+        
+        .animate-rise-delay-1 { animation-delay: 0.1s; }
+        .animate-rise-delay-2 { animation-delay: 0.2s; }
+        .animate-rise-delay-3 { animation-delay: 0.3s; }
+        
+        @keyframes rise {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Subtle gold tint shadow for premium feel */
+        .gold-shadow {
+            box-shadow: 0 4px 20px -5px rgba(167,124,46,0.15);
+        }
+        
+        .bento-cell {
+            background-color: theme('colors.surface-container-lowest');
+            border: 1px solid theme('colors.line');
+            border-radius: theme('borderRadius.DEFAULT');
+            padding: theme('spacing.padding-container');
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .bento-cell:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px -10px rgba(167,124,46,0.1);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+<!-- TopNavBar -->
+<header class="fixed top-0 w-full z-50 bg-background/92 shadow-[0_2px_15px_-3px_rgba(167,124,46,0.1)] backdrop-blur-md">
+<div class="max-w-[1180px] mx-auto px-gutter h-20 flex items-center justify-between">
+<!-- Navigation Links (Left on Desktop, Hidden on Mobile) -->
+<nav class="hidden md:flex items-center gap-nav">
+<a class="font-eyebrow text-eyebrow uppercase text-on-surface-variant hover:text-primary transition-colors duration-300" href="#">Our Story</a>
+<a class="font-eyebrow text-eyebrow uppercase text-on-surface-variant hover:text-primary transition-colors duration-300" href="#">Jewelry</a>
+<a class="font-eyebrow text-eyebrow uppercase text-on-surface-variant hover:text-primary transition-colors duration-300" href="#">Collections</a>
+<a class="font-eyebrow text-eyebrow uppercase text-on-surface-variant hover:text-primary transition-colors duration-300" href="#">Bespoke</a>
+</nav>
+<!-- Mobile Menu Toggle -->
+<button class="md:hidden text-brown-dark hover:text-primary transition-all duration-300">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<!-- Brand Logo -->
+<a class="font-brand-logo text-brand-logo text-brown-dark tracking-widest absolute left-1/2 -translate-x-1/2 md:static md:translate-x-0" href="#">
+                Ruhvi Jewels
+            </a>
+<!-- Trailing Actions -->
+<div class="flex items-center gap-6">
+<button class="text-brown-dark hover:text-primary transition-all duration-300">
+<span class="material-symbols-outlined">search</span>
+</button>
+<button class="text-brown-dark hover:text-primary transition-all duration-300">
+<span class="material-symbols-outlined">person</span>
+</button>
+<button class="text-brown-dark hover:text-primary transition-all duration-300 relative">
+<span class="material-symbols-outlined">shopping_bag</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Main Canvas -->
+<main class="flex-grow pt-32 pb-24 px-gutter max-w-[1180px] mx-auto w-full">
+<!-- Success Header -->
+<div class="text-center max-w-2xl mx-auto mb-16 animate-rise">
+<span class="font-eyebrow text-eyebrow text-primary uppercase tracking-[0.2em] flex items-center justify-center gap-2 mb-4">
+                ✦ Order Confirmed
+            </span>
+<h1 class="font-section-heading text-section-heading text-brown-dark mb-4">
+                Your Radiance is on its Way
+            </h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant">
+                Order #RJ-88291 <span class="mx-2 text-primary-container">•</span> October 24, 2024
+            </p>
+</div>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-gutter animate-rise animate-rise-delay-1">
+<!-- Item 1 (Large): Order Summary -->
+<div class="md:col-span-3 bento-cell flex flex-col h-full">
+<h2 class="font-sub-heading-serif text-sub-heading-serif text-brown-dark mb-6 border-b border-line pb-4 flex justify-between items-end">
+            Order Summary
+            <span class="font-body-md text-body-md text-on-surface-variant">2 Items</span>
+</h2>
+<div class="flex-grow flex flex-col gap-6">
+<!-- Item 1 -->
+<div class="flex items-center gap-6 group">
+<div class="w-24 h-24 bg-surface-container rounded overflow-hidden relative flex-shrink-0">
+<img alt="Celestial Drop Earrings" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBQkRKEnXV9p6lBm2WaWI0QqCb6Y5hnPgaXFH6q9Geg_lr2wEIbGiuHHHAuOHveik9wU_1QZ9XOajdyImMifwvT-cH11MKh8WXvsQnIocPHRZe_mUqBmHpIuvRtItjCfdZMCMY3fWnasyUQTuh7E5hrFvU9KK0hFCZ_hOKCQjUPLKFnm8_eRLaRtkPXGdzQH6Y_ygJy7rxSIhW8leNjubKgK1_3TDFUWBiYCX7VNMp9at7jmsD076ek8g"/>
+</div>
+<div class="flex-grow flex flex-col justify-center">
+<h3 class="font-body-lg text-body-lg text-brown-dark font-medium">Celestial Drop Earrings</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1">18k Gold Plated • One Size</p>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1">Qty: 1</p>
+</div>
+<div class="text-right">
+<span class="font-body-lg text-body-lg text-brown-dark">$185.00</span>
+</div>
+</div>
+<!-- Item 2 -->
+<div class="flex items-center gap-6 group">
+<div class="w-24 h-24 bg-surface-container rounded overflow-hidden relative flex-shrink-0">
+<img alt="Aura Gold Hoops" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDf_PlShd7VSgNKQIcefLVboJWoBSTZU_d1sG5rX-W1NAbYYaznK8uICE03gok6DOMj7R6G0hi1hZ82x0rI7L-xxJfrcxhxBq72vKVWLI1hUEs2SwF7HzXE1X2p9dUbZbmGZdNGjLmw5gSQEU5PZ0VOGlTeclqpuBYGxKsoXArzMpx1rQ72TivE-ySujQDt59D9QFCSUM3iReP_WgvZxPAINsGyyjT1Gx6suQ1oR-bS3FgXTQ1_Dkmz6A"/>
+</div>
+<div class="flex-grow flex flex-col justify-center">
+<h3 class="font-body-lg text-body-lg text-brown-dark font-medium">Aura Gold Hoops</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1">18k Gold Plated • Medium</p>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1">Qty: 1</p>
+</div>
+<div class="text-right">
+<span class="font-body-lg text-body-lg text-brown-dark">$140.00</span>
+</div>
+</div>
+</div>
+<div class="mt-8 pt-6 border-t border-line font-body-lg text-body-lg">
+<div class="flex justify-between text-brown-dark font-medium text-lg pt-4 border-t border-line border-dashed">
+<span>Total</span>
+<span>$351.00</span>
+</div>
+</div>
+</div>
+<!-- Item 2 (Medium): Delivery Details -->
+<div class="md:col-span-1 bento-cell">
+<h3 class="font-sub-heading-serif text-sub-heading-serif text-brown-dark mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary-container" style="font-variation-settings: 'FILL' 1;">local_shipping</span>
+            Delivery
+        </h3>
+<div class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
+<p class="text-brown-dark font-medium mb-1">Eleanor Vance</p>
+<p>1284 Artisanal Way, Suite 3B</p>
+<p>New York, NY 10012</p>
+<p>United States</p>
+</div>
+</div>
+<!-- Item 4 (Small): Estimated Arrival -->
+<div class="md:col-span-1 bento-cell bg-surface-container">
+<p class="font-eyebrow text-eyebrow text-primary uppercase mb-1">Estimated Arrival</p>
+<p class="font-body-lg text-body-lg text-brown-dark">3 - 5 Business Days</p>
+</div>
+<!-- Item 3 (Small/Accent): Artisanal Care -->
+<div class="md:col-span-3 bento-cell bg-brown-dark text-gold-pale border-none relative overflow-hidden flex items-center">
+<div class="absolute inset-0 opacity-5" style="background-image: radial-gradient(circle at center, #E9C989 1px, transparent 1px); background-size: 20px 20px;"></div>
+<div class="relative z-10 flex items-center gap-6">
+<span class="material-symbols-outlined text-primary text-3xl" style="font-variation-settings: 'FILL' 1;">favorite</span>
+<div>
+<h3 class="font-sub-heading-serif text-sub-heading-serif mb-1">Artisanal Care</h3>
+<p class="font-body-md text-body-md text-surface-container-highest/80">
+                    Each piece is carefully inspected, hand-polished, and elegantly packaged in our studio.
+                </p>
+</div>
+</div>
+</div>
+</div>
+<!-- CTA Section -->
+<div class="mt-16 text-center animate-rise animate-rise-delay-2">
+<button class="inline-flex items-center justify-center gap-2 bg-primary-container text-on-primary-container font-cta-label text-cta-label uppercase px-padding-pill py-4 rounded-full gold-shadow hover:-translate-y-1 transition-all duration-300">
+                Continue Browsing
+                <span class="material-symbols-outlined text-lg">arrow_forward</span>
+</button>
+</div>
+</main>
+<!-- Footer -->
+<footer class="w-full py-16 bg-brown-dark border-t border-line">
+<div class="max-w-[1180px] mx-auto px-gutter grid grid-cols-1 md:grid-cols-4 gap-12">
+<!-- Brand Column -->
+<div class="md:col-span-1">
+<a class="font-brand-logo text-brand-logo text-gold-pale block mb-4" href="#">
+                    Ruhvi Jewels
+                </a>
+<p class="font-body-md text-body-md text-surface-container-highest/60">
+                    © 2024 Ruhvi Jewels. Artisanal Radiance in Every Detail.
+                </p>
+</div>
+<!-- Links -->
+<div class="md:col-span-3 flex flex-wrap gap-x-12 gap-y-4 md:justify-end">
+<a class="font-body-md text-body-md text-surface-container-highest/60 hover:text-gold-pale transition-colors duration-300" href="#">Privacy Policy</a>
+<a class="font-body-md text-body-md text-surface-container-highest/60 hover:text-gold-pale transition-colors duration-300" href="#">Terms of Service</a>
+<a class="font-body-md text-body-md text-surface-container-highest/60 hover:text-gold-pale transition-colors duration-300" href="#">Shipping &amp; Returns</a>
+<a class="font-body-md text-body-md text-surface-container-highest/60 hover:text-gold-pale transition-colors duration-300" href="#">Care Guide</a>
+<a class="font-body-md text-body-md text-surface-container-highest/60 hover:text-gold-pale transition-colors duration-300" href="#">Contact Us</a>
+</div>
+</div>
+</footer>
+</body></html>

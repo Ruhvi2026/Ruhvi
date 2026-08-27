@@ -1,5 +1,11 @@
 import type { Metadata, Viewport } from 'next';
-import { Inter, Playfair_Display } from 'next/font/google';
+import {
+  Inter,
+  Playfair_Display,
+  Jost,
+  Marcellus,
+  Cormorant_Garamond,
+} from 'next/font/google';
 import './globals.css';
 import '@/lib/env'; // Validate env variables on boot
 import { Navbar } from '@/components/layout/Navbar';
@@ -30,6 +36,25 @@ const inter = Inter({
 const playfair = Playfair_Display({
   subsets: ['latin'],
   variable: '--font-playfair',
+});
+
+const jost = Jost({
+  subsets: ['latin'],
+  weight: ['400', '500', '600'],
+  variable: '--font-jost',
+});
+
+const marcellus = Marcellus({
+  subsets: ['latin'],
+  weight: ['400'],
+  variable: '--font-marcellus',
+});
+
+const cormorant = Cormorant_Garamond({
+  subsets: ['latin'],
+  weight: ['400', '500', '600'],
+  style: ['normal', 'italic'],
+  variable: '--font-cormorant',
 });
 
 export const metadata: Metadata = {
@@ -164,10 +189,10 @@ export default async function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${playfair.variable}`}
+      className={`${inter.variable} ${playfair.variable} ${jost.variable} ${marcellus.variable} ${cormorant.variable}`}
       suppressHydrationWarning
     >
-      <body className="flex min-h-screen flex-col bg-cream-100 text-charcoal-900 antialiased">
+      <body className="bg-cream text-ink font-jost flex min-h-screen flex-col antialiased">
         <a
           href="#main-content"
           className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-charcoal-900 focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-white focus:shadow-lg focus:outline-2 focus:outline-offset-2 focus:outline-charcoal-900"

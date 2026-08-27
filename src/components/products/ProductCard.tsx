@@ -47,9 +47,9 @@ export function ProductCard({ product }: ProductCardProps) {
   };
 
   return (
-    <div className="group flex h-full flex-col bg-white">
+    <div className="group flex h-full flex-col gap-4">
       {/* Image container */}
-      <div className="relative aspect-[4/5] w-full overflow-hidden bg-champagne-50">
+      <div className="card-lift relative aspect-[3/4] w-full overflow-hidden rounded-[4px] bg-[var(--cream-deep)]">
         <Link
           href={`/products/${product.slug || product.id}`}
           onClick={() => {
@@ -77,15 +77,15 @@ export function ProductCard({ product }: ProductCardProps) {
 
         {/* New Arrival / Best Seller badges */}
         {(product.is_new_arrival || product.is_best_seller) && (
-          <div className="absolute left-2 top-2 flex flex-col items-start gap-1.5">
+          <div className="absolute left-2 top-2 z-10 flex flex-col items-start gap-1.5">
             {product.is_new_arrival && (
-              <span className="bg-gold-600 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.15em] text-white shadow-sm">
-                New Arrival
+              <span className="bg-[var(--gold)] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.15em] text-[var(--ink)] shadow-sm">
+                New
               </span>
             )}
             {product.is_best_seller && (
-              <span className="bg-gradient-to-br from-gold-400 via-gold-500 to-gold-700 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.15em] text-white shadow-sm">
-                Best Seller
+              <span className="bg-[var(--ink)] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.15em] text-white shadow-sm">
+                Best
               </span>
             )}
           </div>
@@ -93,8 +93,8 @@ export function ProductCard({ product }: ProductCardProps) {
 
         {/* Out of Stock overlay */}
         {product.status === 'out_of_stock' && (
-          <div className="absolute inset-0 flex items-center justify-center bg-white/40 backdrop-blur-[2px]">
-            <span className="bg-charcoal-900 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-white">
+          <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center bg-white/40 backdrop-blur-[2px]">
+            <span className="bg-[var(--ink)] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-white">
               Sold Out
             </span>
           </div>
@@ -103,45 +103,33 @@ export function ProductCard({ product }: ProductCardProps) {
         {/* Wishlist Heart Button */}
         <button
           onClick={handleToggleWishlist}
-          className="absolute right-2 top-2 z-10 rounded-full p-2.5 text-slate-400 transition-colors hover:text-charcoal-900"
+          className="absolute right-3 top-3 z-10 rounded-full bg-white/30 p-2 text-slate-400 backdrop-blur-sm transition-colors hover:text-[var(--ink)]"
           title={isLiked ? 'Remove from Wishlist' : 'Add to Wishlist'}
         >
           <Heart
-            className={`h-5 w-5 ${isLiked ? 'fill-charcoal-900 text-charcoal-900' : ''}`}
+            className={`h-4 w-4 ${isLiked ? 'fill-[var(--ink)] text-[var(--ink)]' : ''}`}
             strokeWidth={1.5}
           />
         </button>
 
-        {/* Quick Add to Cart button */}
+        {/* Add to Cart button */}
         {product.status !== 'out_of_stock' && (
-          <div className="absolute inset-x-0 bottom-0 translate-y-0 p-4 opacity-100 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100 sm:translate-y-full sm:opacity-0 sm:group-hover:translate-y-0 sm:group-hover:opacity-100">
-            <button
-              onClick={handleAddToCart}
-              className="flex w-full items-center justify-center space-x-2 bg-charcoal-900/95 py-3 text-white backdrop-blur-sm transition-colors hover:bg-charcoal-900"
-              title="Add to Cart"
-            >
-              {isInCart ? (
-                <>
-                  <Check className="h-4 w-4" />
-                  <span className="text-[10px] font-bold uppercase tracking-[0.15em]">
-                    Added
-                  </span>
-                </>
-              ) : (
-                <>
-                  <ShoppingBag className="h-4 w-4" />
-                  <span className="text-[10px] font-bold uppercase tracking-[0.15em]">
-                    Add to Cart
-                  </span>
-                </>
-              )}
-            </button>
-          </div>
+          <button
+            onClick={handleAddToCart}
+            className="bg-[var(--cream-deep)]/90 absolute bottom-4 right-4 z-10 flex h-10 w-10 items-center justify-center rounded-full text-[var(--ink)] shadow-sm backdrop-blur-sm transition-colors hover:bg-[var(--gold)] hover:text-white"
+            title="Add to Cart"
+          >
+            {isInCart ? (
+              <Check className="h-4 w-4" />
+            ) : (
+              <ShoppingBag className="h-4 w-4" />
+            )}
+          </button>
         )}
       </div>
 
       {/* Card Info */}
-      <div className="flex flex-col pt-4">
+      <div className="flex flex-col items-center text-center">
         <Link
           href={`/products/${product.slug || product.id}`}
           onClick={() => {
@@ -157,17 +145,17 @@ export function ProductCard({ product }: ProductCardProps) {
             });
           }}
         >
-          <h3 className="line-clamp-1 text-sm font-medium tracking-wide text-charcoal-900 transition-colors group-hover:text-gold-600">
+          <h3 className="line-clamp-1 font-sans text-[15px] font-medium tracking-wide text-[var(--ink)] transition-colors hover:text-[var(--gold)]">
             {product.name}
           </h3>
         </Link>
 
-        <div className="mt-1.5 flex items-baseline space-x-2">
-          <span className="text-sm font-semibold text-charcoal-900">
+        <div className="mt-1 flex items-baseline space-x-2">
+          <span className="text-[14.5px] text-[var(--ink-soft)]">
             ₹{(product.price ?? 0).toLocaleString('en-IN')}
           </span>
           {product.mrp && product.mrp > product.price && (
-            <span className="text-xs text-slate-400 line-through">
+            <span className="text-[var(--ink-soft)]/50 text-xs line-through">
               ₹{product.mrp.toLocaleString('en-IN')}
             </span>
           )}

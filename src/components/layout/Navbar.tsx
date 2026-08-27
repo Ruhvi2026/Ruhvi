@@ -102,53 +102,56 @@ export function Navbar() {
         </div>
       )}
 
-      {/* Main Navbar */}
-      <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
-        <div className="flex h-16 items-center justify-between gap-1 sm:h-20 sm:gap-4">
-          {/* Brand Logo & Left Account Menu Trigger */}
-          <div className="flex items-center space-x-2 sm:space-x-4">
+      <header
+        className="sticky top-0 z-50 w-full border-b border-[var(--line)] transition-shadow duration-300"
+        style={{ background: 'var(--cream)' }}
+      >
+        <div className="nav-inner">
+          {/* Left Navigation Actions & Mobile Menu */}
+          <div className="nav-left">
             <button
               onClick={() => setMobileMenuOpen(true)}
-              className="rounded-lg p-1 text-slate-700 transition hover:bg-gold-50/50 hover:text-gold-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-gold-500 lg:hidden"
-              title="Browse categories"
-              aria-label="Browse categories"
-              aria-expanded={mobileMenuOpen}
-              aria-haspopup="dialog"
+              className="icon-btn burger-btn lg:hidden"
+              aria-label="Menu"
             >
-              <Menu className="h-5 w-5 sm:h-6 sm:w-6" />
+              <div className="burger">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
             </button>
-            <Link href="/" className="flex items-center space-x-2 sm:space-x-3">
-              <div className="relative h-9 w-9 flex-shrink-0 overflow-hidden rounded-full border border-gold-300/40 bg-gold-50/50 shadow-sm sm:h-10 sm:w-10">
-                <Image
-                  src="/logo.png"
-                  alt="Ruhvi Jewels"
-                  fill
-                  className="object-cover"
-                  priority
-                />
-              </div>
-              <div className="flex flex-col">
-                <span className="font-serif text-lg font-bold leading-none tracking-widest text-gold-500 sm:text-xl">
-                  RUHVI JEWELS
-                </span>
-                <span className="font-sans text-[9px] font-medium uppercase tracking-[0.2em] text-gold-700/80">
-                  Fine Jewellery
-                </span>
-              </div>
-            </Link>
+            <div className="hidden items-center space-x-1 lg:flex">
+              <button
+                onClick={() => setMobileMenuOpen(true)}
+                className="icon-btn burger-btn"
+                aria-label="Menu"
+              >
+                <div className="burger">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </div>
+              </button>
+            </div>
+            {/* Search Bar - hidden on mobile, part of nav-left on desktop */}
+            <div className="ml-4 hidden lg:block">
+              <SearchBar />
+            </div>
           </div>
 
-          {/* Desktop Search Bar */}
-          <div className="mx-8 hidden max-w-md flex-1 lg:flex">
-            <SearchBar />
-          </div>
+          {/* Center Brand */}
+          <Link href="/" className="brand">
+            <span className="spark">✦</span>
+            <div className="word">RUHVI</div>
+            <div className="sub">FINE JEWELS</div>
+          </Link>
 
           {/* Navigation Actions */}
-          <div className="flex items-center space-x-2 sm:space-x-4">
+          <div className="nav-right">
             {/* Wallet Integration */}
             <Link
               href="/account/wallet"
-              className="flex items-center gap-1.5 rounded-full border border-gold-300/40 bg-gold-50/50 px-2.5 py-1 text-slate-700 shadow-sm transition-all hover:bg-gold-100/40 hover:text-gold-700 sm:gap-2 sm:px-3.5 sm:py-1.5"
+              className="flex items-center gap-1.5 rounded-full border border-[var(--gold-pale)] bg-white/50 px-2.5 py-1 text-[var(--ink)] shadow-sm transition-all hover:bg-[var(--cream-deep)] sm:gap-2 sm:px-3.5 sm:py-1.5"
               title="Wallet Balance"
             >
               <Wallet className="sm:h-4.5 sm:w-4.5 h-4 w-4 text-gold-600" />
@@ -324,7 +327,7 @@ export function Navbar() {
             </div>
           </div>
         </nav>
-      </div>
+      </header>
 
       {/* Mobile Category Menu Drawer */}
       <div

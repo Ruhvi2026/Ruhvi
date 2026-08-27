@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta name="width=device-width, initial-scale=1.0"/>
+<title>Celestial Drop Earrings - Ruhvi Jewels</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&amp;family=Marcellus&amp;family=Jost:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<style>
+  :root{
+    --cream: #F7F1E7;
+    --cream-deep: #EFE6D5;
+    --ink: #2A2118;
+    --ink-soft: #4A3F33;
+    --gold: #C79A4B;
+    --gold-deep: #A87C2E;
+    --gold-pale: #E9C989;
+    --brown-dark: #1C140D;
+    --brown-mid: #2E2115;
+    --line: rgba(42,33,24,0.12);
+    --maxw: 1180px;
+  }
+
+  *{ margin:0; padding:0; box-sizing:border-box; }
+
+  html{ scroll-behavior:smooth; }
+
+  body{
+    background: var(--cream);
+    color: var(--ink);
+    font-family: 'Jost', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  a{ color:inherit; text-decoration:none; }
+  button{ font-family:inherit; border:none; background:none; cursor:pointer; }
+  img{ display:block; width:100%; height:100%; object-fit:cover; }
+
+  .display{ font-family:'Marcellus', serif; }
+  .serif{ font-family:'Cormorant Garamond', serif; }
+
+  ::selection{ background: var(--gold-pale); color: var(--brown-dark); }
+
+  :focus-visible{
+    outline: 2px solid var(--gold-deep);
+    outline-offset: 3px;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; scroll-behavior:auto !important; }
+  }
+
+  .wrap{
+    max-width: var(--maxw);
+    margin: 0 auto;
+    padding: 0 clamp(20px, 4vw, 40px);
+  }
+
+  /* ---------- Header ---------- */
+  header{
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(247,241,231,0.92);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .nav-inner{
+    max-width: var(--maxw);
+    margin: 0 auto;
+    padding: 18px clamp(20px, 4vw, 40px);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap: 16px;
+  }
+
+  .icon-btn{
+    width: 40px; height: 40px;
+    display:flex; align-items:center; justify-content:center;
+    color: var(--ink);
+    border-radius: 50%;
+    transition: background .2s ease, transform .2s ease;
+    position: relative;
+  }
+  .icon-btn:hover{ background: var(--cream-deep); transform: translateY(-1px); }
+  .icon-btn svg{ width:20px; height:20px; }
+
+  .nav-left, .nav-right{ display:flex; align-items:center; gap:4px; flex:1; }
+  .nav-right{ justify-content:flex-end; gap:6px; }
+
+  .nav-left a {
+      font-size: 13px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+      transition: color .2s;
+      margin-right: 24px;
+      display: none;
+  }
+  @media (min-width: 880px) {
+      .nav-left a { display: block; }
+      .burger-btn { display: none; }
+  }
+  .nav-left a:hover { color: var(--gold-deep); }
+
+  .brand{ text-align:center; flex-shrink:0; }
+  .brand .word{
+    font-family:'Marcellus', serif;
+    font-size: clamp(22px, 3.4vw, 30px);
+    letter-spacing: 0.28em;
+    color: var(--gold-deep);
+    line-height:1;
+  }
+  .brand .sub{
+    font-size: 9px;
+    letter-spacing: 0.42em;
+    color: var(--ink-soft);
+    margin-top: 5px;
+    display: none; /* Hidden on detail page based on source */
+  }
+  .brand .spark{
+    color: var(--gold);
+    font-size: 12px;
+    display:block;
+    margin-bottom: 2px;
+    display: none; /* Hidden on detail page based on source */
+  }
+
+  .cart-dot{
+    position:absolute;
+    top: 2px; right: 2px;
+    background: var(--gold-deep);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 600;
+    width: 16px; height:16px;
+    border-radius: 50%;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Jost',sans-serif;
+  }
+
+  .burger{ display:flex; flex-direction:column; gap:5px; width:20px; }
+  .burger span{ display:block; height:1.6px; background:var(--ink); width:100%; transition: transform .25s ease, opacity .25s ease; }
+  .icon-btn.burger-btn:hover .burger span:nth-child(1){ transform: translateX(2px); }
+  .icon-btn.burger-btn:hover .burger span:nth-child(3){ transform: translateX(-2px); }
+
+  /* ---------- Section label ---------- */
+  .eyebrow{
+    display:flex; align-items:center; gap:8px;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    font-weight: 500;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  .eyebrow.dark{ color: var(--gold-pale); }
+
+  .shop-now{
+    display:inline-flex;
+    align-items:center;
+    gap: 7px;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    font-weight: 600;
+    color: var(--gold-deep);
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--gold-deep);
+    padding-bottom: 3px;
+    width: fit-content;
+    transition: gap .2s ease, color .2s ease, border-color .2s ease;
+  }
+  .shop-now svg{ width:13px; height:13px; transition: transform .2s ease; }
+  .shop-now:hover{ gap: 11px; color: var(--brown-dark); border-color: var(--brown-dark); }
+  .shop-now.on-dark{ color: var(--gold-pale); border-color: var(--gold-pale); }
+  .shop-now.on-dark:hover{ color: #fff; border-color:#fff; }
+
+  .pill-btn{
+    display:inline-flex;
+    align-items:center;
+    justify-content: center;
+    gap: 10px;
+    background: linear-gradient(180deg, var(--gold-pale), var(--gold));
+    color: var(--brown-dark);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 15px 26px;
+    border-radius: 999px;
+    box-shadow: 0 8px 20px -8px rgba(167,124,46,0.6);
+    transition: transform .25s ease, box-shadow .25s ease, letter-spacing .25s ease;
+    width: 100%;
+  }
+  .pill-btn svg{ width:14px; height:14px; }
+  .pill-btn:hover{ transform: translateY(-2px); box-shadow: 0 12px 26px -8px rgba(167,124,46,0.75); letter-spacing:0.16em; }
+  .pill-btn:active{ transform: translateY(0); }
+
+  @keyframes rise{
+    from{ opacity:0; transform: translateY(16px); }
+    to{ opacity:1; transform: translateY(0); }
+  }
+  .rise { animation: rise .8s cubic-bezier(.16,.84,.44,1) both; }
+  .rise-delay-1 { animation-delay: 0.1s; }
+  .rise-delay-2 { animation-delay: 0.2s; }
+  .rise-delay-3 { animation-delay: 0.3s; }
+  .rise-delay-4 { animation-delay: 0.4s; }
+
+  /* ---------- Product Detail ---------- */
+  main{ padding-top: 32px; padding-bottom: 80px; }
+
+  .product-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 32px;
+  }
+  @media (min-width: 880px) {
+      .product-grid {
+          grid-template-columns: 7fr 5fr;
+          gap: 64px;
+          align-items: start;
+      }
+  }
+
+  .gallery {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+  }
+  .main-img {
+      border-radius: 18px;
+      overflow: hidden;
+      aspect-ratio: 4/5;
+      background: var(--cream-deep);
+  }
+  .main-img img {
+      transition: transform 0.7s ease-out;
+  }
+  .main-img:hover img {
+      transform: scale(1.05);
+  }
+  .thumbs {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+  }
+  .thumb {
+      border-radius: 12px;
+      overflow: hidden;
+      aspect-ratio: 1;
+      opacity: 0.7;
+      cursor: pointer;
+      transition: opacity 0.3s;
+      background: var(--cream-deep);
+  }
+  .thumb:hover { opacity: 1; }
+
+  .product-info {
+      padding-top: 16px;
+  }
+  @media (min-width: 880px) {
+      .product-info { padding-top: 48px; }
+  }
+
+  .breadcrumbs {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+      margin-bottom: 24px;
+  }
+  .breadcrumbs a:hover { color: var(--gold-deep); }
+
+  .product-title {
+      font-size: clamp(28px, 4vw, 36px);
+      line-height: 1.14;
+      margin-bottom: 8px;
+  }
+  .product-price {
+      font-size: 15px;
+      color: var(--gold-deep);
+      letter-spacing: 0.05em;
+      margin-bottom: 32px;
+  }
+
+  .product-desc {
+      margin-bottom: 40px;
+  }
+  .product-desc h3 {
+      font-size: 25px;
+      font-weight: 500;
+      font-style: italic;
+      color: var(--ink-soft);
+      margin-bottom: 16px;
+  }
+  .product-desc p {
+      font-size: 14.5px;
+      line-height: 1.7;
+      color: var(--ink-soft);
+  }
+
+  .product-details {
+      border-top: 1px solid var(--line);
+      padding-top: 32px;
+      margin-bottom: 48px;
+  }
+  .product-details h4 {
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--ink);
+      margin-bottom: 16px;
+  }
+  .product-details ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+  }
+  .product-details li {
+      font-size: 14.5px;
+      color: var(--ink-soft);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+  }
+  .product-details li span { color: var(--gold); font-size: 18px; }
+
+  .product-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+  }
+  .secondary-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 16px;
+  }
+  .wishlist-add {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      color: var(--gold-deep);
+      transition: opacity 0.2s;
+  }
+  .wishlist-add:hover { opacity: 0.8; }
+  .wishlist-add svg { width: 18px; height: 18px; }
+  .share-btn {
+      color: var(--ink-soft);
+      transition: color 0.2s;
+  }
+  .share-btn:hover { color: var(--gold-deep); }
+  .share-btn svg { width: 20px; height: 20px; }
+
+  /* ---------- Product Story Section ---------- */
+  .story-section {
+      background: var(--cream-deep);
+      padding: 96px 0;
+      margin: 80px 0;
+  }
+  .split {
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 48px;
+      align-items: center;
+  }
+  @media (min-width: 880px) {
+      .split { grid-template-columns: 1fr 1fr; }
+  }
+  .split-img {
+      border-radius: 18px;
+      overflow: hidden;
+      aspect-ratio: 4/3;
+      box-shadow: 0 16px 30px -18px rgba(42,33,24,0.2);
+  }
+  .split-body {
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+  }
+  .split-body h2 {
+      font-size: clamp(26px, 3.4vw, 36px);
+      font-weight: 400;
+      line-height: 1.14;
+      margin-bottom: 24px;
+  }
+  .split-body p {
+      font-size: 15px;
+      line-height: 1.65;
+      color: var(--ink-soft);
+      max-width: 440px;
+      margin-bottom: 24px;
+  }
+
+  /* ---------- Complete the Look ---------- */
+  .related-section {
+      padding: 40px 0;
+  }
+  .section-header {
+      text-align: center;
+      margin-bottom: 64px;
+  }
+  .section-header h2 {
+      font-size: clamp(28px, 4vw, 36px);
+      margin-bottom: 16px;
+  }
+  .section-header p {
+      font-size: 25px;
+      font-weight: 500;
+      font-style: italic;
+      color: var(--ink-soft);
+  }
+
+  .cat-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+  }
+  @media (min-width: 680px) {
+      .cat-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (min-width: 1024px) {
+      .cat-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+
+  .cat-card {
+      position: relative;
+      border-radius: 16px;
+      overflow: hidden;
+      background: var(--cream);
+      display: flex;
+      flex-direction: column;
+      transition: transform .3s ease, box-shadow .3s ease;
+  }
+  .cat-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 30px -18px rgba(42,33,24,0.4);
+  }
+  .cat-img-wrap {
+      aspect-ratio: 1;
+      position: relative;
+      overflow: hidden;
+      background: var(--cream-deep);
+  }
+  .cat-img-wrap img {
+      transition: transform .5s ease;
+      mix-blend-mode: multiply;
+  }
+  .cat-card:hover .cat-img-wrap img { transform: scale(1.05); }
+  
+  .quick-add {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(247,241,231,0.8);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--gold-deep);
+      opacity: 0;
+      transition: opacity 0.3s;
+  }
+  .cat-card:hover .quick-add { opacity: 1; }
+  .quick-add svg { width: 20px; height: 20px; }
+
+  .cat-info {
+      padding: 24px;
+      text-align: center;
+  }
+  .cat-info h3 {
+      font-size: 15px;
+      font-weight: 400;
+      margin-bottom: 8px;
+  }
+  .cat-info p {
+      font-size: 14.5px;
+      color: var(--gold-deep);
+  }
+
+  .editorial-card {
+      position: relative;
+      border-radius: 16px;
+      overflow: hidden;
+      aspect-ratio: 1;
+      display: none;
+  }
+  @media (min-width: 1024px) {
+      .editorial-card { display: block; }
+  }
+  .editorial-card::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(0deg, rgba(28,20,13,0.8) 0%, rgba(28,20,13,0.2) 50%, transparent 100%);
+  }
+  .editorial-content {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      padding: 32px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      color: #fff;
+  }
+  .editorial-content h3 {
+      font-size: 25px;
+      font-weight: 500;
+      font-style: italic;
+      margin-bottom: 8px;
+  }
+  .editorial-content p {
+      font-size: 14.5px;
+      color: rgba(255,255,255,0.8);
+      margin-bottom: 16px;
+  }
+  .editorial-card .shop-now {
+      color: var(--gold-pale);
+      border-color: var(--gold-pale);
+  }
+  .editorial-card:hover .shop-now {
+      color: #fff;
+      border-color: #fff;
+  }
+
+  /* ---------- Footer ---------- */
+  footer{
+    background: var(--brown-dark);
+    color: #F7F1E7;
+    padding: 64px 0 32px;
+  }
+  .footer-inner{
+    max-width: var(--maxw);
+    margin: 0 auto;
+    padding: 0 clamp(20px, 4vw, 40px);
+  }
+  .footer-grid{
+    display:grid;
+    grid-template-columns: 1fr;
+    gap: 40px;
+    margin-bottom: 64px;
+  }
+  @media (min-width: 768px){
+    .footer-grid{ grid-template-columns: 2fr 1fr 1fr; gap: 32px; }
+  }
+  
+  .footer-brand .word{
+    font-family:'Marcellus', serif;
+    font-size: 30px;
+    letter-spacing: 0.28em;
+    color: var(--gold-pale);
+    line-height:1;
+    margin-bottom: 24px;
+  }
+  .footer-brand p{
+    font-family:'Cormorant Garamond', serif;
+    font-size: 25px;
+    font-weight: 500;
+    font-style: italic;
+    color: rgba(247,241,231,0.8);
+    max-width: 280px;
+  }
+
+  .footer-links h4{
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--gold-pale);
+    margin-bottom: 16px;
+  }
+  .footer-links ul{
+    list-style: none;
+    display:flex;
+    flex-direction:column;
+    gap: 16px;
+  }
+  .footer-links a{
+    font-size: 14.5px;
+    color: rgba(247,241,231,0.7);
+    transition: color .2s, transform .2s;
+    display: inline-block;
+  }
+  .footer-links a:hover{
+    color: var(--gold-pale);
+    transform: translateX(4px);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    text-decoration-color: var(--gold-pale);
+  }
+
+  .footer-bottom{
+    border-top: 1px solid rgba(247,241,231,0.1);
+    padding-top: 32px;
+    display:flex;
+    flex-direction:column;
+    gap: 16px;
+    align-items:center;
+    text-align:center;
+  }
+  @media (min-width: 768px){
+    .footer-bottom{
+      flex-direction:row;
+      justify-content:space-between;
+      text-align:left;
+    }
+  }
+  .footer-bottom p{
+    font-size: 14.5px;
+    color: rgba(247,241,231,0.6);
+  }
+  .social-links{
+    display:flex;
+    gap: 16px;
+  }
+  .social-links a{
+    font-size: 14.5px;
+    color: rgba(247,241,231,0.6);
+    transition: color .2s;
+  }
+  .social-links a:hover{
+    color: var(--gold-pale);
+  }
+</style>
+</head>
+<body>
+<header>
+<div class="nav-inner">
+<div class="nav-left">
+<button aria-label="Open menu" class="icon-btn burger-btn" id="menuBtn">
+<div class="burger"><span></span><span></span><span></span></div>
+</button>
+<a class="" href="#">Collections</a>
+<a class="" href="#">Bespoke</a>
+<a class="" href="#">High Jewelry</a>
+<a class="" href="#">Our Story</a>
+</div>
+<a aria-label="Ruhvi Jewels home" class="brand" href="#">
+<div class="word">RUHVI</div>
+</a>
+<div class="nav-right">
+<button aria-label="Search" class="icon-btn" id="searchBtn">
+<svg fill="none" stroke="currentColor" stroke-width="1.6" viewbox="0 0 24 24"><circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4.3-4.3" stroke-linecap="round"></path></svg>
+</button>
+<button aria-label="Wishlist" class="icon-btn" id="wishBtn">
+<svg fill="none" stroke="currentColor" stroke-width="1.6" viewbox="0 0 24 24"><path d="M12 20.5s-7.5-4.6-10-9.3C.5 7.8 2.4 4.5 6 4.2c2.2-.2 4 1 6 3.3 2-2.3 3.8-3.5 6-3.3 3.6.3 5.5 3.6 4 7-2.5 4.7-10 9.3-10 9.3z" stroke-linejoin="round"></path></svg>
+</button>
+<button aria-label="Cart, 2 items" class="icon-btn" id="cartBtn">
+<svg fill="none" stroke="currentColor" stroke-width="1.6" viewbox="0 0 24 24"><path d="M6 8h12l-1 12H7L6 8z" stroke-linejoin="round"></path><path d="M9 8V6a3 3 0 016 0v2"></path></svg>
+<span class="cart-dot">2</span>
+</button>
+</div>
+</div>
+</header>
+<main>
+<div class="wrap">
+<!-- PRODUCT GRID -->
+<section class="product-grid">
+<!-- Gallery -->
+<div class="gallery rise">
+<div class="main-img">
+<img alt="Editorial shot of Indian model wearing Celestial Drop Earrings" src="https://lh3.googleusercontent.com/aida/AEtjO1UhjZGX8StegTRguHXkh3lcqlSVbWBlXtBPGheRDRXwUly2TrdUUKGNit3UlAuZ05-gjap_Pn59oz6WKkgYxCdGEyItWnKv606ebCA3Eyq4JwTBJyX_5XuKxO9jX4qLdbq3nMlS-6wbjV8BqiUE3vFZDJF8VLWFvAKA5jeLQuT4wXMDq52pDa9Z4ukENv7PevU5WHe5oJuHNsofC23AD7BT9dtOJw9QllYP8V5vL2oeIUQAHzXZQk7uG7k_"/>
+</div>
+<div class="thumbs">
+<div class="thumb">
+<img alt="Product thumbnail 1" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAtut7AerbFmrTfeSybSryXteWctc1c2a-8ab0u91VPQ-VscJXIQolkk1bazJPwB481q9NgJcXq2n26w_5UD1lvqJLJVyyqzAE_-ZyUGpJ9YwdHQIJzrBQ7zSw9PcOrcJaAhzPYV_487I-L4E_Rfc3-imMlRbVruFDge6fChQ6dup6L23QLaLA397AMn42jAJsX5HSgDcxgyGU_5L9Pgj2THDos-Ni0p3dBznPdEWo73rxWdd8s7uYEKg"/>
+</div>
+<div class="thumb">
+<img alt="Product thumbnail 2" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBlhDAb1iQ_QlHBXyvixqWSrJK-WHdAOo7Q92CiBPljCj3DN6_7WuNEGKHnYYpL4rh9L9r3ZxIaYstjicXyZ4-NSxmetYIMe49XWcRTqcGFzbbhivBmlGQUrYexk-UrI3uHq8dWJOkZ0qwDtZJplAA98UH0T0XiTYKQIhOtxerwJgJe6Ws1c6VZdjjOdUdN9wTaSR10-FuBNgg0YYVKSli0UOx_43VLobPAgHmfrGZGMJRW1nrL6hH9yQ"/>
+</div>
+<div class="thumb">
+<img alt="Product thumbnail 3" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAWTh-lH7BKN2ff7s6F0i13FwMF_U2EhSWQXTeuV86-nNvg6i9DWrYH1pvYFv_YR8E-lzU5OHTcUsYC-Bz_aBfFN1DkIP0kAbujO0TKoqNLMRis_SwvAJZ26c1xGQwJ6tASfhXk5U5qgRXF_hAAjl0ZeONL0XyK_91C7UEUu3jn7VyU-s35-I5dnk2J7vgH0Se2XlcYoD9u0DLq8grd4hjdNYrIcCRDDh2VRglWpN8RQORn2Hz4jXKWTQ"/>
+</div>
+</div>
+</div>
+<!-- Info -->
+<div class="product-info rise rise-delay-1">
+<div class="breadcrumbs">
+<a class="" href="#">Collections</a>
+<svg fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px;" viewbox="0 0 24 24"><path d="M9 18l6-6-6-6" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+<a class="" href="#">High Jewelry</a>
+</div>
+<h1 class="display product-title">Celestial Drop Earrings</h1>
+<div class="product-price">$1,200</div>
+<div class="product-desc">
+<h3 class="serif">Artisanal Radiance captured in gleaming gold.</h3>
+<p class="">Inspired by the luminous beauty of the night sky, the Celestial Drop Earrings embody our dedication to Heritage Craftsmanship and premium 18k gold-plated artistry. Each delicate facet is meticulously shaped and finished in rich gold to catch the light, creating an aura of effortless elegance that transitions flawlessly from day to evening.</p>
+</div>
+<div class="product-details">
+<h4 class="">Details</h4>
+<ul><li class=""><span class="">✦</span> Premium 18k Gold Plated Brass</li><li class=""><span class="">✦</span> Intricate Hand-set Crystals</li><li class=""><span class="">✦</span> Lightweight for everyday comfort</li><li class=""><span class="">✦</span> Artisanal gold-plating for lasting radiance</li></ul>
+</div>
+<div class="product-actions">
+<button class="pill-btn">ADD TO BAG
+                    <svg fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+</button>
+<div class="secondary-actions">
+<button class="wishlist-add">
+<svg fill="none" stroke="currentColor" stroke-width="1.6" viewbox="0 0 24 24"><path d="M12 20.5s-7.5-4.6-10-9.3C.5 7.8 2.4 4.5 6 4.2c2.2-.2 4 1 6 3.3 2-2.3 3.8-3.5 6-3.3 3.6.3 5.5 3.6 4 7-2.5 4.7-10 9.3-10 9.3z" stroke-linejoin="round"></path></svg>
+                        Add to Wishlist
+                    </button>
+<button aria-label="Share" class="share-btn">
+<svg fill="none" stroke="currentColor" stroke-width="1.6" viewbox="0 0 24 24"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8M16 6l-4-4-4 4M12 2v13" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+</button>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- STORY SECTION -->
+<section class="story-section">
+<div class="wrap">
+<div class="split rise">
+<div class="split-img">
+<img alt="A master artisan's hands meticulously working on a piece of delicate gold jewelry" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCagKYKyMy2Wk_EiV2qLOypj3QaRIkIeG4kuZ58doiKl2GEVetEnV8M4JX5WaZyZqQf66mqSEssn3bIbMMIvvBoK6Y6EWaXi3A0ATn7Iv8pO_Wr-kv5INPzvQ0V7a8LCAioe7vkWQxtigoSW7CuNDx1pUZ-HJcDpHJZO7Oy5judr3sCQpHr7eoG74IO-1vwYNRT0Tgk_5-hlvm6Xg2A4thP0nQnNXAh3pplbJgo4H_WTOhO1NjPOyIYxQ"/>
+</div>
+<div class="split-body">
+<div class="eyebrow">HERITAGE CRAFTSMANSHIP</div>
+<h2 class="display">The Artisan's Touch</h2>
+<p class="">Every curve and crystal placement is executed entirely by hand in our atelier. We honor generations of jewelry-making tradition, ensuring that each piece not only looks beautiful but carries the soul of true artisanal dedication.</p>
+<a class="shop-now" href="#">DISCOVER OUR STORY
+                        <svg fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+</a>
+</div>
+</div>
+</div>
+</section>
+<div class="wrap">
+<!-- COMPLETE THE LOOK -->
+<section class="related-section">
+<div class="section-header rise">
+<h2 class="display">Complete the Look</h2>
+<p class="serif">Curated pairings for a harmonious aesthetic.</p>
+</div>
+<div class="cat-grid">
+<a class="cat-card rise rise-delay-1" href="#">
+<div class="cat-img-wrap">
+<img alt="Aura Gold Hoops" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBIxloBa8gH-jgrwpdQ3AQQY2UX9hCRpxX6uuCIPyj8JkqKih7TO72uRX2Khh75WYROx3WP1Pa_6f3Bwo20JDt8MxdpnDv2rT4TkUFnp2KWshDJQhEAA0LI0CIBWBTg_nZrSY82cgbmaSA9Ru9RJ0nGGOGdDjDSo7gP0zp7WjPeyEbdI-rMTzV0I4sqpzTLXNnQzBI_2Y0RAyH4sh5rnaQhD8MsDbfxpt76IcdbLr8qsF1eipOUIjcAAQ"/>
+<div class="quick-add">
+<svg fill="none" stroke="currentColor" stroke-width="1.6" viewbox="0 0 24 24"><path d="M6 8h12l-1 12H7L6 8z" stroke-linejoin="round"></path><path d="M9 8V6a3 3 0 016 0v2"></path></svg>
+</div>
+</div>
+<div class="cat-info">
+<h3 class="">Aura Gold Hoops</h3>
+<p class="">$850</p>
+</div>
+</a>
+<a class="cat-card rise rise-delay-2" href="#">
+<div class="cat-img-wrap">
+<img alt="Luna Moonstone Ring" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCJDIqq_-NTkyoGQe1CP5LZsMuQWWIsfBs_nlz_I_0NCJLi0HF3_oG88JZWb21zx3AYYcfcxZe3XjzbbYDFMo94Amkhrsls8xzu4yiUpdMc8Brut-YDVHf9GVVB5UZW-6fjxqeKDktcwGSOt-qSdpJ14_M80AA1jI-Mp5W2ZW2w8ZXhF7zvSlAuBuUVCRDxGVdIEcSoKp_F0LhIshAJnwXhfpv4T4oOKgFdlhW-FP0nIvEZAFri-Rx1iw"/>
+<div class="quick-add">
+<svg fill="none" stroke="currentColor" stroke-width="1.6" viewbox="0 0 24 24"><path d="M6 8h12l-1 12H7L6 8z" stroke-linejoin="round"></path><path d="M9 8V6a3 3 0 016 0v2"></path></svg>
+</div>
+</div>
+<div class="cat-info">
+<h3 class="">Luna Moonstone Ring</h3>
+<p class="">$1,100</p>
+</div>
+</a>
+<div class="editorial-card rise rise-delay-3">
+<img alt="The Art of Layering" src="https://lh3.googleusercontent.com/aida/AEtjO1UhjZGX8StegTRguHXkh3lcqlSVbWBlXtBPGheRDRXwUly2TrdUUKGNit3UlAuZ05-gjap_Pn59oz6WKkgYxCdGEyItWnKv606ebCA3Eyq4JwTBJyX_5XuKxO9jX4qLdbq3nMlS-6wbjV8BqiUE3vFZDJF8VLWFvAKA5jeLQuT4wXMDq52pDa9Z4ukENv7PevU5WHe5oJuHNsofC23AD7BT9dtOJw9QllYP8V5vL2oeIUQAHzXZQk7uG7k_"/>
+<div class="editorial-content">
+<h3 class="serif">The Art of Layering</h3>
+<p class="">Discover how to style our artisanal pieces for maximum impact.</p>
+<a class="shop-now on-dark" href="#">EXPLORE GUIDE
+                        <svg fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+</a>
+</div>
+</div>
+</div>
+</section>
+</div>
+</main>
+<footer>
+<div class="footer-inner">
+<div class="footer-grid">
+<div class="footer-brand">
+<div class="word">RUHVI</div>
+<p class="">Effortless elegance, crafted for the discerning eye.</p>
+</div>
+<div class="footer-links">
+<h4 class="">Client Services</h4>
+<ul>
+<li class=""><a class="" href="#">Complimentary Shipping</a></li>
+<li class=""><a class="" href="#">Returns &amp; Exchanges</a></li>
+<li class=""><a class="" href="#">Size Guide</a></li>
+<li class=""><a class="" href="#">Care Instructions</a></li>
+</ul>
+</div>
+<div class="footer-links">
+<h4 class="">The Maison</h4>
+<ul>
+<li class=""><a class="" href="#">Contact Us</a></li>
+<li class=""><a class="" href="#">Privacy Policy</a></li>
+</ul>
+</div>
+</div>
+<div class="footer-bottom">
+<p class="">© 2024 RUHVI JEWELS. ARTISANAL LUXURY.</p>
+<div class="social-links">
+<a class="" href="#">IN</a>
+<a class="" href="#">FB</a>
+<a class="" href="#">PT</a>
+</div>
+</div>
+</div>
+</footer>
+<script>
+  // Menu button subtle feedback
+  const menuBtn = document.getElementById('menuBtn');
+  menuBtn.addEventListener('click', () => {
+    menuBtn.classList.toggle('open');
+  });
+
+  // Reveal-on-scroll for sections
+  const revealTargets = document.querySelectorAll('.rise');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting){
+        entry.target.style.animationPlayState = 'running';
+        io.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  
+  revealTargets.forEach(el => {
+      el.style.animationPlayState = 'paused';
+      io.observe(el);
+  });
+</script>
+</body></html>
