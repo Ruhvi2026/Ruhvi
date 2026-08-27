@@ -79,29 +79,6 @@ export function Navbar() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-gold-200/80 bg-champagne-50 shadow-sm transition-all">
-      {/* Top Banner */}
-      {(!bannerSettings || bannerSettings.banner_enabled) && (
-        <div
-          className={`${bannerSettings?.banner_color || 'bg-gradient-to-r from-gold-500 via-gold-600 to-gold-700'} flex items-center justify-center space-x-2 px-4 py-1.5 text-center text-xs font-medium tracking-wide text-white`}
-        >
-          <Sparkles className="h-3.5 w-3.5 animate-pulse text-gold-100" />
-          {bannerSettings?.banner_link ? (
-            <Link href={bannerSettings.banner_link} className="hover:underline">
-              <span>
-                {bannerSettings?.banner_text ||
-                  'Complimentary Insured Shipping Across India on Orders Above ₹500'}
-              </span>
-            </Link>
-          ) : (
-            <span>
-              {bannerSettings?.banner_text ||
-                'Complimentary Insured Shipping Across India on Orders Above ₹500'}
-            </span>
-          )}
-          <Sparkles className="h-3.5 w-3.5 animate-pulse text-gold-100" />
-        </div>
-      )}
-
       <header
         className="sticky top-0 z-50 w-full border-b border-[var(--line)] transition-shadow duration-300"
         style={{ background: 'var(--cream)' }}

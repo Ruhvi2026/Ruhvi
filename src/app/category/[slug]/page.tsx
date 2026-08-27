@@ -29,7 +29,7 @@ export async function generateMetadata({
     category = INITIAL_CATEGORIES.find((c) => c.slug === slug) as any;
   }
 
-  if (!category) {
+  if (!category || category.is_hidden) {
     return { title: 'Category Not Found | Ruhvi' };
   }
 
@@ -69,7 +69,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
     category = INITIAL_CATEGORIES.find((c) => c.slug === slug) as any;
   }
 
-  if (!category) {
+  if (!category || category.is_hidden) {
     notFound();
   }
 

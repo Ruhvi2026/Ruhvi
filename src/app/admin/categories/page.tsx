@@ -11,6 +11,8 @@ import {
   Image as ImageIcon,
   X,
   Check,
+  Eye,
+  EyeOff,
 } from 'lucide-react';
 import Image from 'next/image';
 import { ImagePicker } from '@/components/admin/ImagePicker';
@@ -159,6 +161,31 @@ export default function CategoryManagerPage() {
     setCategories((prev) => prev.filter((c) => c.id !== id));
   };
 
+  const toggleVisibility = async (
+    id: string,
+    currentHidden: boolean | undefined
+  ) => {
+    const nextHidden = !currentHidden;
+    // Optimistic update
+    setCategories((prev) =>
+      prev.map((c) => (c.id === id ? { ...c, is_hidden: nextHidden } : c))
+    );
+
+    try {
+      const { error } = await supabase
+        .from('categories')
+        .update({ is_hidden: nextHidden })
+        .eq('id', id);
+      if (error) throw error;
+    } catch (err) {
+      // Revert optimistic update
+      setCategories((prev) =>
+        prev.map((c) => (c.id === id ? { ...c, is_hidden: currentHidden } : c))
+      );
+      alert('Failed to update visibility');
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -229,12 +256,43 @@ export default function CategoryManagerPage() {
                       )}
                     </td>
                     <td className="px-6 py-4 font-medium text-stone-900">
-                      {cat.name}
+                      <div className="flex items-center gap-2">
+                        <span
+                          className={
+                            cat.is_hidden ? 'text-stone-400 line-through' : ''
+                          }
+                        >
+                          {cat.name}
+                        </span>
+                        {cat.is_hidden && (
+                          <span className="rounded-full bg-stone-100 px-2 py-0.5 text-[10px] font-medium text-stone-500">
+                            Hidden
+                          </span>
+                        )}
+                      </div>
                     </td>
                     <td className="px-6 py-4 font-mono text-xs text-stone-500">
                       {cat.slug}
                     </td>
                     <td className="space-x-3 px-6 py-4 text-right">
+                      <button
+                        onClick={() => toggleVisibility(cat.id, cat.is_hidden)}
+                        className={`inline-flex items-center gap-1 text-xs font-medium ${
+                          cat.is_hidden
+                            ? 'text-stone-500 hover:text-stone-700'
+                            : 'text-stone-600 hover:text-stone-800'
+                        }`}
+                      >
+                        {cat.is_hidden ? (
+                          <>
+                            <Eye className="h-3.5 w-3.5" /> Show
+                          </>
+                        ) : (
+                          <>
+                            <EyeOff className="h-3.5 w-3.5" /> Hide
+                          </>
+                        )}
+                      </button>
                       <button
                         onClick={() => handleOpenEditModal(cat)}
                         className="inline-flex items-center gap-1 text-xs font-medium text-amber-700 hover:text-amber-800"

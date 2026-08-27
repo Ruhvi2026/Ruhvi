@@ -11,13 +11,14 @@ export function useTaxonomy() {
   useEffect(() => {
     const fetchTaxonomy = async () => {
       const supabase = createClient();
-      
+
       // Fetch categories
       const { data: cats, error: catErr } = await supabase
         .from('categories')
         .select('*')
+        .neq('is_hidden', true)
         .order('name');
-        
+
       if (!catErr && cats && cats.length > 0) {
         setCategories(cats);
       }
@@ -27,11 +28,11 @@ export function useTaxonomy() {
         .from('collections')
         .select('*')
         .order('title');
-        
+
       if (!colErr && cols) {
         setCollections(cols);
       }
-      
+
       setLoading(false);
     };
 

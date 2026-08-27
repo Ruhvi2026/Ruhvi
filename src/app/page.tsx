@@ -55,6 +55,7 @@ export default async function HomePage() {
   const { data: catData } = await supabase
     .from('categories')
     .select('*')
+    .neq('is_hidden', true)
     .order('name');
   const categories: Category[] = catData || [];
 

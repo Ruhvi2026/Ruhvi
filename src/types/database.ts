@@ -29,6 +29,7 @@ export interface Category {
   slug: string;
   parent_id?: string | null;
   image_url?: string | null;
+  is_hidden?: boolean;
   created_at?: string;
 }
 
