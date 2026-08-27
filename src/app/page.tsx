@@ -83,7 +83,7 @@ export default async function HomePage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
       />
-      <main className="pt-4">
+      <main className="pt-6 lg:pt-10">
         <div className="wrap">
           {/* HERO */}
           <section className="hero">
@@ -162,7 +162,10 @@ export default async function HomePage() {
                   <br />
                   just for you
                 </h3>
-                <Link href="/collections/new-arrivals" className="shop-now">
+                <Link
+                  href="/collections/new-arrivals"
+                  className="shop-now before:absolute before:inset-0 before:z-10"
+                >
                   SHOP NOW
                   <svg
                     viewBox="0 0 24 24"
@@ -196,7 +199,10 @@ export default async function HomePage() {
                   <br />
                   thousands
                 </h3>
-                <Link href="/collections/best-sellers" className="shop-now">
+                <Link
+                  href="/collections/best-sellers"
+                  className="shop-now before:absolute before:inset-0 before:z-10"
+                >
                   SHOP NOW
                   <svg
                     viewBox="0 0 24 24"
@@ -235,7 +241,7 @@ export default async function HomePage() {
                   <h4>{'Elegant & Timeless'}</h4>
                   <Link
                     href={`/category/${cat.slug}`}
-                    className="shop-now on-dark"
+                    className="shop-now on-dark before:absolute before:inset-0 before:z-10"
                   >
                     SHOP NOW
                     <svg

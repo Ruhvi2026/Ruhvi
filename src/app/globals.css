@@ -23,7 +23,7 @@
     --brown-dark: #1c140d;
     --brown-mid: #2e2115;
     --line: rgba(42, 33, 24, 0.12);
-    --maxw: 1180px;
+    --maxw: 1340px;
   }
 
   * {
@@ -964,7 +964,7 @@ html.dark .glow-card-focus {
     position: relative;
     border-radius: 22px;
     overflow: hidden;
-    min-height: 480px;
+    min-height: 700px;
     display: flex;
     align-items: center;
     background: var(--brown-dark);
@@ -998,7 +998,7 @@ html.dark .glow-card-focus {
     color: #f7f1e7;
   }
   .hero-content h1 {
-    font-size: clamp(34px, 5.4vw, 54px);
+    font-size: clamp(34px, 5vw, 64px);
     line-height: 1.06;
     font-weight: 400;
     letter-spacing: -0.01em;
@@ -1018,7 +1018,7 @@ html.dark .glow-card-focus {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 18px;
-    margin-top: 18px;
+    margin-top: 32px;
   }
   .promo-card {
     position: relative;
@@ -1072,9 +1072,9 @@ html.dark .glow-card-focus {
   /* ---------- Category grid ---------- */
   .cat-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 16px;
-    margin-top: 18px;
+    margin-top: 32px;
   }
   .cat-card {
     position: relative;
@@ -1365,6 +1365,9 @@ html.dark .glow-card-focus {
     .split-img {
       min-height: 260px;
       order: -1;
+    }
+    .cat-grid {
+      grid-template-columns: repeat(2, 1fr);
     }
   }
 
