@@ -151,7 +151,7 @@ export function SearchBar() {
   };
 
   return (
-    <div className="relative w-full max-w-md mx-auto" ref={dropdownRef}>
+    <div className="relative mx-auto w-full max-w-md" ref={dropdownRef}>
       <form onSubmit={handleSearchSubmit} className="relative">
         <input
           type="text"
@@ -174,7 +174,10 @@ export function SearchBar() {
           placeholder="Search ring, necklace, SKU (e.g. RNG-000101)..."
           className="w-full rounded-full border border-stone-200/70 bg-stone-50/50 py-2.5 pl-11 pr-4 text-sm text-stone-800 placeholder-stone-400 shadow-[inset_0_1px_4px_rgba(0,0,0,0.02)] transition-all duration-300 hover:bg-white focus:border-gold-300 focus:bg-white focus:outline-none focus:ring-4 focus:ring-gold-500/10"
         />
-        <Search className="absolute left-4 top-3 h-4.5 w-4.5 text-stone-400" strokeWidth={1.5} />
+        <Search
+          className="h-4.5 w-4.5 absolute left-4 top-3 text-stone-400"
+          strokeWidth={1.5}
+        />
         <button type="submit" className="sr-only" aria-label="Search">
           Search
         </button>

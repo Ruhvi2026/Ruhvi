@@ -3,14 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import {
-  ShoppingBag,
-  Heart,
-  User,
-  X,
-  Wallet,
-  Search,
-} from 'lucide-react';
+import { ShoppingBag, Heart, User, X, Wallet, Search } from 'lucide-react';
 import { SearchBar } from '@/components/search/SearchBar';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { useTaxonomy } from '@/hooks/useTaxonomy';
@@ -87,8 +80,12 @@ export function Navbar() {
 
   return (
     <>
-      <header className={`sticky top-0 z-50 w-full bg-[var(--cream)]/90 backdrop-blur-md shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)] transition-all duration-300 ${isScrolled && !isSearchExpanded ? 'border-b border-gold-200/40 py-0' : 'border-b border-gold-200/40'}`}>
-        <div className={`nav-inner transition-all duration-300 ${isScrolled && !isSearchExpanded ? 'py-0 min-h-[32px]' : 'py-2'}`}>
+      <header
+        className={`bg-[var(--cream)]/90 sticky top-0 z-50 w-full shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)] backdrop-blur-md transition-all duration-300 ${isScrolled && !isSearchExpanded ? 'border-b border-gold-200/40 py-0' : 'border-b border-gold-200/40'}`}
+      >
+        <div
+          className={`nav-inner transition-all duration-300 ${isScrolled && !isSearchExpanded ? 'min-h-[32px] py-0' : 'py-2'}`}
+        >
           {/* Left Navigation Actions & Mobile Menu */}
           <div className="nav-left">
             <button
@@ -116,7 +113,10 @@ export function Navbar() {
               </button>
             </div>
             {/* Brand Logo - Left Aligned */}
-            <Link href="/" className="group ml-1 flex items-center justify-center transition-transform duration-500 hover:scale-[1.02] sm:ml-4">
+            <Link
+              href="/"
+              className="group ml-1 flex items-center justify-center transition-transform duration-500 hover:scale-[1.02] sm:ml-4"
+            >
               <Image
                 src="/logo.png"
                 alt="Ruhvi Logo"
@@ -131,34 +131,49 @@ export function Navbar() {
             {isScrolled && (
               <button
                 onClick={() => setIsSearchExpanded(!isSearchExpanded)}
-                className="relative ml-1 p-1 text-ink-soft transition-colors duration-300 hover:text-gold-600 sm:ml-3 sm:p-2"
+                className="text-ink-soft relative ml-1 p-1 transition-colors duration-300 hover:text-gold-600 sm:ml-3 sm:p-2"
                 title="Search"
               >
-                <Search className="h-5 w-5 transition-transform duration-300 hover:scale-105" strokeWidth={1.25} />
+                <Search
+                  className="h-5 w-5 transition-transform duration-300 hover:scale-105"
+                  strokeWidth={1.25}
+                />
               </button>
             )}
           </div>
 
           {/* Center Brand Text */}
-          <Link href="/" className="brand group flex flex-col items-center justify-center transition-transform duration-500 hover:scale-[1.02]">
-            <div className={`word text-gold-deep font-light tracking-[0.28em] transition-all duration-300 group-hover:text-gold-600 ${isScrolled && !isSearchExpanded ? 'text-base sm:text-xl' : 'text-lg sm:text-2xl'}`}>RUHVI</div>
-            <div className={`sub hidden text-ink-soft tracking-[0.45em] transition-all duration-300 sm:block ${isScrolled && !isSearchExpanded ? 'mt-0 text-[6px] sm:text-[7px]' : 'mt-1 text-[7px] sm:text-[8px]'}`}>FINE JEWELS</div>
+          <Link
+            href="/"
+            className="brand group flex flex-col items-center justify-center transition-transform duration-500 hover:scale-[1.02]"
+          >
+            <div
+              className={`word text-gold-deep font-light tracking-[0.28em] transition-all duration-300 group-hover:text-gold-600 ${isScrolled && !isSearchExpanded ? 'text-base sm:text-xl' : 'text-lg sm:text-2xl'}`}
+            >
+              RUHVI
+            </div>
+            <div
+              className={`sub text-ink-soft hidden tracking-[0.45em] transition-all duration-300 sm:block ${isScrolled && !isSearchExpanded ? 'mt-0 text-[6px] sm:text-[7px]' : 'mt-1 text-[7px] sm:text-[8px]'}`}
+            >
+              FINE JEWELS
+            </div>
           </Link>
 
           {/* Navigation Actions */}
           <div className="nav-right">
-
             {/* Wallet Integration — only for logged-in users */}
             {user && (
               <Link
                 href="/account/wallet"
-                className="group flex items-center gap-1.5 rounded-full border border-gold-200/60 bg-gradient-to-r from-gold-50/60 to-transparent px-2 py-1 text-ink shadow-sm transition-all duration-300 hover:border-gold-300/80 hover:shadow-[0_2px_12px_-3px_rgba(214,179,106,0.25)] sm:gap-2 sm:px-4 sm:py-1.5"
+                className="text-ink group flex items-center gap-1.5 rounded-full border border-gold-200/60 bg-gradient-to-r from-gold-50/60 to-transparent px-2 py-1 shadow-sm transition-all duration-300 hover:border-gold-300/80 hover:shadow-[0_2px_12px_-3px_rgba(214,179,106,0.25)] sm:gap-2 sm:px-4 sm:py-1.5"
                 title="Wallet Balance"
               >
-                <Wallet className="h-4 w-4 text-gold-600 transition-transform duration-300 group-hover:scale-110" strokeWidth={1.5} />
+                <Wallet
+                  className="h-4 w-4 text-gold-600 transition-transform duration-300 group-hover:scale-110"
+                  strokeWidth={1.5}
+                />
                 <span className="hidden font-mono text-[10.5px] font-medium tracking-wide text-gold-800 sm:inline-block sm:text-xs">
-                  ₹
-                  {(profile?.wallet_balance ?? 0).toLocaleString('en-IN')}
+                  ₹{(profile?.wallet_balance ?? 0).toLocaleString('en-IN')}
                 </span>
               </Link>
             )}
@@ -166,13 +181,19 @@ export function Navbar() {
             {/* Wishlist Link */}
             <Link
               href="/wishlist"
-              className="relative p-1 text-ink-soft transition-colors duration-300 hover:text-gold-600 sm:p-2"
+              className="text-ink-soft relative p-1 transition-colors duration-300 hover:text-gold-600 sm:p-2"
               aria-label={`Wishlist${wishlistCount > 0 ? `, ${wishlistCount} items` : ''}`}
               title="Wishlist"
             >
-              <Heart className="h-5 w-5 transition-transform duration-300 hover:scale-105" strokeWidth={1.25} />
+              <Heart
+                className="h-5 w-5 transition-transform duration-300 hover:scale-105"
+                strokeWidth={1.25}
+              />
               {wishlistCount > 0 && (
-                <span className="absolute right-0 top-0 flex h-[15px] w-[15px] items-center justify-center rounded-full bg-gold-600 font-mono text-[9px] font-medium text-white shadow-sm sm:right-0.5 sm:top-0.5" aria-hidden="true">
+                <span
+                  className="absolute right-0 top-0 flex h-[15px] w-[15px] items-center justify-center rounded-full bg-gold-600 font-mono text-[9px] font-medium text-white shadow-sm sm:right-0.5 sm:top-0.5"
+                  aria-hidden="true"
+                >
                   {wishlistCount}
                 </span>
               )}
@@ -181,13 +202,19 @@ export function Navbar() {
             {/* Cart Link */}
             <Link
               href="/cart"
-              className="relative p-1 text-ink-soft transition-colors duration-300 hover:text-gold-600 sm:p-2"
+              className="text-ink-soft relative p-1 transition-colors duration-300 hover:text-gold-600 sm:p-2"
               aria-label={`Shopping cart${cartCount > 0 ? `, ${cartCount} items` : ''}`}
               title="Cart"
             >
-              <ShoppingBag className="h-5 w-5 transition-transform duration-300 hover:scale-105" strokeWidth={1.25} />
+              <ShoppingBag
+                className="h-5 w-5 transition-transform duration-300 hover:scale-105"
+                strokeWidth={1.25}
+              />
               {cartCount > 0 && (
-                <span className="absolute right-0 top-0 flex h-[15px] w-[15px] items-center justify-center rounded-full bg-gold-600 font-mono text-[9px] font-medium text-white shadow-sm sm:right-0.5 sm:top-0.5" aria-hidden="true">
+                <span
+                  className="absolute right-0 top-0 flex h-[15px] w-[15px] items-center justify-center rounded-full bg-gold-600 font-mono text-[9px] font-medium text-white shadow-sm sm:right-0.5 sm:top-0.5"
+                  aria-hidden="true"
+                >
                   {cartCount}
                 </span>
               )}
@@ -201,17 +228,20 @@ export function Navbar() {
                   className="group flex items-center focus:outline-none"
                   title="My Profile"
                 >
-                  <div className="flex h-7 w-7 sm:h-[34px] sm:w-[34px] items-center justify-center rounded-full border border-gold-200 bg-gold-50/60 font-serif text-[10px] sm:text-[11px] font-semibold text-gold-700 shadow-sm transition-all duration-300 group-hover:border-gold-300 group-hover:bg-gold-100/50 group-hover:shadow-md">
+                  <div className="flex h-7 w-7 items-center justify-center rounded-full border border-gold-200 bg-gold-50/60 font-serif text-[10px] font-semibold text-gold-700 shadow-sm transition-all duration-300 group-hover:border-gold-300 group-hover:bg-gold-100/50 group-hover:shadow-md sm:h-[34px] sm:w-[34px] sm:text-[11px]">
                     {userInitials}
                   </div>
                 </Link>
               ) : (
                 <Link
                   href="/login"
-                  className="p-1 text-ink-soft transition-colors duration-300 hover:text-gold-600 sm:p-2"
+                  className="text-ink-soft p-1 transition-colors duration-300 hover:text-gold-600 sm:p-2"
                   title="Login"
                 >
-                  <User className="h-5 w-5 transition-transform duration-300 hover:scale-105" strokeWidth={1.25} />
+                  <User
+                    className="h-5 w-5 transition-transform duration-300 hover:scale-105"
+                    strokeWidth={1.25}
+                  />
                 </Link>
               )}
             </div>
@@ -228,7 +258,9 @@ export function Navbar() {
         />
 
         {/* Unified Search Bar Row */}
-        <div className={`flex justify-center border-t border-gold-200/30 bg-white/40 px-4 backdrop-blur-md dark:border-stone-800/50 dark:bg-[#1c1a19]/40 overflow-hidden transition-all duration-300 ${isScrolled && !isSearchExpanded ? 'h-0 opacity-0 py-0 border-transparent' : 'h-auto opacity-100 py-2.5'}`}>
+        <div
+          className={`flex justify-center overflow-hidden border-t border-gold-200/30 bg-white/40 px-4 backdrop-blur-md transition-all duration-300 dark:border-stone-800/50 dark:bg-[#1c1a19]/40 ${isScrolled && !isSearchExpanded ? 'h-0 border-transparent py-0 opacity-0' : 'h-auto py-2.5 opacity-100'}`}
+        >
           <div className="w-full max-w-2xl">
             <SearchBar />
           </div>
