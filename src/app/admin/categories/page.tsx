@@ -11,8 +11,6 @@ import {
   Image as ImageIcon,
   X,
   Check,
-  Eye,
-  EyeOff,
 } from 'lucide-react';
 import Image from 'next/image';
 import { ImagePicker } from '@/components/admin/ImagePicker';
@@ -29,6 +27,7 @@ export default function CategoryManagerPage() {
   const [imageUrl, setImageUrl] = useState('');
   const [saving, setSaving] = useState(false);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [isHidden, setIsHidden] = useState(false);
   const [message, setMessage] = useState<{
     type: 'success' | 'error';
     text: string;
@@ -66,6 +65,7 @@ export default function CategoryManagerPage() {
     setName('');
     setSlug('');
     setImageUrl('');
+    setIsHidden(false);
     setMessage(null);
     setIsModalOpen(true);
   };
@@ -75,6 +75,7 @@ export default function CategoryManagerPage() {
     setName(cat.name);
     setSlug(cat.slug);
     setImageUrl(cat.image_url || '');
+    setIsHidden(cat.is_hidden || false);
     setMessage(null);
     setIsModalOpen(true);
   };
@@ -101,6 +102,7 @@ export default function CategoryManagerPage() {
       name: name.trim(),
       slug: slug.trim(),
       image_url: imageUrl.trim() || null,
+      is_hidden: isHidden,
     };
 
     try {
@@ -159,31 +161,6 @@ export default function CategoryManagerPage() {
       // ignore
     }
     setCategories((prev) => prev.filter((c) => c.id !== id));
-  };
-
-  const toggleVisibility = async (
-    id: string,
-    currentHidden: boolean | undefined
-  ) => {
-    const nextHidden = !currentHidden;
-    // Optimistic update
-    setCategories((prev) =>
-      prev.map((c) => (c.id === id ? { ...c, is_hidden: nextHidden } : c))
-    );
-
-    try {
-      const { error } = await supabase
-        .from('categories')
-        .update({ is_hidden: nextHidden })
-        .eq('id', id);
-      if (error) throw error;
-    } catch (err) {
-      // Revert optimistic update
-      setCategories((prev) =>
-        prev.map((c) => (c.id === id ? { ...c, is_hidden: currentHidden } : c))
-      );
-      alert('Failed to update visibility');
-    }
   };
 
   return (
@@ -275,24 +252,6 @@ export default function CategoryManagerPage() {
                       {cat.slug}
                     </td>
                     <td className="space-x-3 px-6 py-4 text-right">
-                      <button
-                        onClick={() => toggleVisibility(cat.id, cat.is_hidden)}
-                        className={`inline-flex items-center gap-1 text-xs font-medium ${
-                          cat.is_hidden
-                            ? 'text-stone-500 hover:text-stone-700'
-                            : 'text-stone-600 hover:text-stone-800'
-                        }`}
-                      >
-                        {cat.is_hidden ? (
-                          <>
-                            <Eye className="h-3.5 w-3.5" /> Show
-                          </>
-                        ) : (
-                          <>
-                            <EyeOff className="h-3.5 w-3.5" /> Hide
-                          </>
-                        )}
-                      </button>
                       <button
                         onClick={() => handleOpenEditModal(cat)}
                         className="inline-flex items-center gap-1 text-xs font-medium text-amber-700 hover:text-amber-800"
@@ -400,6 +359,22 @@ export default function CategoryManagerPage() {
                     />
                   </div>
                 )}
+              </div>
+
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="hide-category"
+                  checked={isHidden}
+                  onChange={(e) => setIsHidden(e.target.checked)}
+                  className="h-4 w-4 rounded border-stone-300 text-stone-900 focus:ring-stone-900"
+                />
+                <label
+                  htmlFor="hide-category"
+                  className="text-xs font-medium text-stone-700"
+                >
+                  Hide Category (Will not be visible to customers)
+                </label>
               </div>
 
               <div className="flex justify-end gap-3 border-t border-stone-100 pt-4">
