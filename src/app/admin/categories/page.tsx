@@ -5,7 +5,10 @@ import React, { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { Category } from '@/types/database';
 import { INITIAL_CATEGORIES } from '@/lib/products';
-import { revalidateStorefront } from '@/app/admin/actions/cache';
+import {
+  saveCategory,
+  deleteCategoryAction,
+} from '@/app/admin/actions/categories';
 import {
   Plus,
   Edit2,
@@ -108,40 +111,15 @@ export default function CategoryManagerPage() {
     };
 
     try {
-      if (editingCategory) {
-        const { error } = await supabase
-          .from('categories')
-          .update(payload)
-          .eq('id', editingCategory.id);
-        if (error) {
-          setMessage({
-            type: 'error',
-            text: error.message || 'Failed to update category',
-          });
-          setSaving(false);
-          return;
-        }
-      } else {
-        const { data, error } = await supabase
-          .from('categories')
-          .insert([{ ...payload }])
-          .select();
-        if (error || !data) {
-          setMessage({
-            type: 'error',
-            text: error?.message || 'Failed to create category',
-          });
-          setSaving(false);
-          return;
-        }
-      }
+      await saveCategory(payload, editingCategory?.id);
+
       setMessage({
         type: 'success',
         text: editingCategory
           ? 'Category updated successfully!'
           : 'Category created successfully!',
       });
-      await revalidateStorefront();
+
       setTimeout(() => {
         setIsModalOpen(false);
         fetchCategories();
@@ -159,12 +137,11 @@ export default function CategoryManagerPage() {
   const deleteCategory = async (id: string) => {
     if (!confirm('Are you sure you want to delete this category?')) return;
     try {
-      await supabase.from('categories').delete().eq('id', id);
-      await revalidateStorefront();
-    } catch {
-      // ignore
+      await deleteCategoryAction(id);
+      setCategories((prev) => prev.filter((c) => c.id !== id));
+    } catch (err: any) {
+      alert(err.message || 'Failed to delete category');
     }
-    setCategories((prev) => prev.filter((c) => c.id !== id));
   };
 
   return (
