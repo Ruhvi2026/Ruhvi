@@ -8,6 +8,7 @@ import { INITIAL_CATEGORIES } from '@/lib/products';
 import {
   saveCategory,
   deleteCategoryAction,
+  seedCategories,
 } from '@/app/admin/actions/categories';
 import {
   Plus,
@@ -16,6 +17,7 @@ import {
   Image as ImageIcon,
   X,
   Check,
+  AlertCircle,
 } from 'lucide-react';
 import Image from 'next/image';
 import { ImagePicker } from '@/components/admin/ImagePicker';
@@ -54,8 +56,18 @@ export default function CategoryManagerPage() {
       if (!error && data && data.length > 0) {
         setCategories(data);
       } else if (!error && data && data.length === 0) {
-        await supabase.from('categories').insert(INITIAL_CATEGORIES);
-        setCategories(INITIAL_CATEGORIES);
+        try {
+          await seedCategories();
+        } catch {
+          // Ignore seeding errors; fall back to the initial list below.
+        }
+        const { data: seeded } = await supabase
+          .from('categories')
+          .select('*')
+          .order('name');
+        setCategories(
+          seeded && seeded.length > 0 ? seeded : INITIAL_CATEGORIES
+        );
       } else {
         setCategories(INITIAL_CATEGORIES);
       }
@@ -279,7 +291,11 @@ export default function CategoryManagerPage() {
                     : 'border border-rose-200 bg-rose-50 text-rose-800'
                 }`}
               >
-                <Check className="h-4 w-4" />
+                {message.type === 'success' ? (
+                  <Check className="h-4 w-4" />
+                ) : (
+                  <AlertCircle className="h-4 w-4" />
+                )}
                 <span>{message.text}</span>
               </div>
             )}

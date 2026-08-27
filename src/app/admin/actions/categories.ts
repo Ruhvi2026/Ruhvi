@@ -4,6 +4,7 @@ import { createClient } from '@supabase/supabase-js';
 import { requireAdmin } from '@/lib/auth/require-admin';
 import { revalidatePath } from 'next/cache';
 import { Category } from '@/types/database';
+import { INITIAL_CATEGORIES } from '@/lib/products';
 
 export async function saveCategory(
   payload: Partial<Category>,
@@ -75,4 +76,40 @@ export async function deleteCategoryAction(id: string) {
   revalidatePath('/admin/categories');
 
   return { success: true };
+}
+
+export async function seedCategories() {
+  const auth = await requireAdmin();
+  if (!auth.ok) {
+    throw new Error(auth.error || 'Unauthorized');
+  }
+
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!supabaseUrl || !serviceRoleKey) {
+    throw new Error('Supabase environment variables missing');
+  }
+
+  const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey);
+
+  const { data: existing } = await supabaseAdmin
+    .from('categories')
+    .select('id')
+    .limit(1);
+
+  if (existing && existing.length > 0) {
+    return { success: true, seeded: 0 };
+  }
+
+  const { count, error } = await supabaseAdmin
+    .from('categories')
+    .insert(INITIAL_CATEGORIES);
+
+  if (error) throw new Error(error.message);
+
+  revalidatePath('/', 'layout');
+  revalidatePath('/admin/categories');
+
+  return { success: true, seeded: count ?? INITIAL_CATEGORIES.length };
 }
