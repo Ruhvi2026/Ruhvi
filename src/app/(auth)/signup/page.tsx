@@ -14,6 +14,7 @@ import {
   GoogleAuthProvider,
   FacebookAuthProvider,
   ConfirmationResult,
+  sendEmailVerification,
 } from 'firebase/auth';
 import { Sparkles, ArrowRight, Mail, Phone } from 'lucide-react';
 
@@ -72,6 +73,13 @@ export default function SignUpPage() {
 
       if (fullName) {
         await updateProfile(fbUser, { displayName: fullName });
+      }
+
+      // Send verification email
+      try {
+        await sendEmailVerification(fbUser);
+      } catch (emailErr) {
+        console.error('Failed to send verification email:', emailErr);
       }
 
       // Upsert user into Supabase database

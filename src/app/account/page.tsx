@@ -78,23 +78,15 @@ export default function AccountOverviewPage() {
         await import('firebase/auth');
       const { auth } = await import('@/lib/firebase');
       if (auth.currentUser) {
-        const actionCodeSettings = {
-          url: `${window.location.origin}/account`,
-          handleCodeInApp: true,
-        };
         if (auth.currentUser.email !== emailInput) {
-          await verifyBeforeUpdateEmail(
-            auth.currentUser,
-            emailInput,
-            actionCodeSettings
-          );
+          await verifyBeforeUpdateEmail(auth.currentUser, emailInput);
           setVerificationSent(true);
           localStorage.setItem('emailVerificationSent', 'true');
           toast.success(
             'A verification link has been sent to the new email address. Please click it to verify the change.'
           );
         } else {
-          await sendEmailVerification(auth.currentUser, actionCodeSettings);
+          await sendEmailVerification(auth.currentUser);
           setVerificationSent(true);
           localStorage.setItem('emailVerificationSent', 'true');
           toast.success('Verification link sent to your email address!');

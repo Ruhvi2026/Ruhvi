@@ -15,6 +15,7 @@ import {
   ConfirmationResult,
   PhoneAuthProvider,
   linkWithPhoneNumber,
+  sendEmailVerification,
 } from 'firebase/auth';
 
 /**
@@ -76,6 +77,11 @@ export function handleAuthCollision(error: any): never {
 export async function signUpWithEmail(email: string, pass: string) {
   try {
     const res = await createUserWithEmailAndPassword(auth, email, pass);
+    try {
+      await sendEmailVerification(res.user);
+    } catch (e) {
+      console.error('Failed to send verification email:', e);
+    }
     await upsertUserProfile(res.user);
     return res;
   } catch (error) {
