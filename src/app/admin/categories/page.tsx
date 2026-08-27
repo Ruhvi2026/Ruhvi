@@ -1,9 +1,11 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+
 import { createClient } from '@/lib/supabase/client';
 import { Category } from '@/types/database';
 import { INITIAL_CATEGORIES } from '@/lib/products';
+import { revalidateStorefront } from '@/app/admin/actions/cache';
 import {
   Plus,
   Edit2,
@@ -139,6 +141,7 @@ export default function CategoryManagerPage() {
           ? 'Category updated successfully!'
           : 'Category created successfully!',
       });
+      await revalidateStorefront();
       setTimeout(() => {
         setIsModalOpen(false);
         fetchCategories();
@@ -157,6 +160,7 @@ export default function CategoryManagerPage() {
     if (!confirm('Are you sure you want to delete this category?')) return;
     try {
       await supabase.from('categories').delete().eq('id', id);
+      await revalidateStorefront();
     } catch {
       // ignore
     }
@@ -191,6 +195,7 @@ export default function CategoryManagerPage() {
                 <th className="px-6 py-4 font-medium">Image</th>
                 <th className="px-6 py-4 font-medium">Name</th>
                 <th className="px-6 py-4 font-medium">Slug</th>
+                <th className="px-6 py-4 font-medium">Status</th>
                 <th className="px-6 py-4 text-right font-medium">Actions</th>
               </tr>
             </thead>
@@ -198,7 +203,7 @@ export default function CategoryManagerPage() {
               {loading ? (
                 <tr>
                   <td
-                    colSpan={4}
+                    colSpan={5}
                     className="px-6 py-8 text-center text-stone-500"
                   >
                     Loading categories...
@@ -207,7 +212,7 @@ export default function CategoryManagerPage() {
               ) : categories.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={4}
+                    colSpan={5}
                     className="px-6 py-8 text-center text-stone-500"
                   >
                     No categories found. Click "Add Category" to create one.
@@ -233,23 +238,23 @@ export default function CategoryManagerPage() {
                       )}
                     </td>
                     <td className="px-6 py-4 font-medium text-stone-900">
-                      <div className="flex items-center gap-2">
-                        <span
-                          className={
-                            cat.is_hidden ? 'text-stone-400 line-through' : ''
-                          }
-                        >
-                          {cat.name}
-                        </span>
-                        {cat.is_hidden && (
-                          <span className="rounded-full bg-stone-100 px-2 py-0.5 text-[10px] font-medium text-stone-500">
-                            Hidden
-                          </span>
-                        )}
-                      </div>
+                      {cat.name}
                     </td>
                     <td className="px-6 py-4 font-mono text-xs text-stone-500">
                       {cat.slug}
+                    </td>
+                    <td className="px-6 py-4">
+                      {cat.is_hidden ? (
+                        <span className="inline-flex items-center gap-1.5 rounded-full bg-stone-100 px-2.5 py-1 text-xs font-medium text-stone-600">
+                          <span className="h-1.5 w-1.5 rounded-full bg-stone-400"></span>
+                          Hidden
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700">
+                          <span className="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                          Live
+                        </span>
+                      )}
                     </td>
                     <td className="space-x-3 px-6 py-4 text-right">
                       <button
