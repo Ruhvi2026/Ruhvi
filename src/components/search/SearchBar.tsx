@@ -151,7 +151,7 @@ export function SearchBar() {
   };
 
   return (
-    <div className="relative w-full max-w-md" ref={dropdownRef}>
+    <div className="relative w-full max-w-md mx-auto" ref={dropdownRef}>
       <form onSubmit={handleSearchSubmit} className="relative">
         <input
           type="text"
@@ -172,9 +172,9 @@ export function SearchBar() {
           }}
           onKeyDown={handleKeyDown}
           placeholder="Search ring, necklace, SKU (e.g. RNG-000101)..."
-          className="w-full rounded-full border border-stone-200 bg-stone-100 py-2 pl-10 pr-4 text-sm text-stone-800 placeholder-stone-400 transition-all focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+          className="w-full rounded-full border border-stone-200/70 bg-stone-50/50 py-2.5 pl-11 pr-4 text-sm text-stone-800 placeholder-stone-400 shadow-[inset_0_1px_4px_rgba(0,0,0,0.02)] transition-all duration-300 hover:bg-white focus:border-gold-300 focus:bg-white focus:outline-none focus:ring-4 focus:ring-gold-500/10"
         />
-        <Search className="absolute left-3.5 top-2.5 h-4 w-4 text-stone-400" />
+        <Search className="absolute left-4 top-3 h-4.5 w-4.5 text-stone-400" strokeWidth={1.5} />
         <button type="submit" className="sr-only" aria-label="Search">
           Search
         </button>
@@ -206,7 +206,7 @@ export function SearchBar() {
                     setQuery('');
                   }}
                   className={`group flex items-center justify-between rounded-lg p-2.5 transition-colors hover:bg-stone-50 ${
-                    index === activeIndex ? 'bg-amber-50' : ''
+                    index === activeIndex ? 'bg-gold-50' : ''
                   }`}
                 >
                   <div className="flex items-center space-x-3">
@@ -220,7 +220,7 @@ export function SearchBar() {
                       />
                     )}
                     <div>
-                      <div className="text-sm font-medium text-stone-800 group-hover:text-amber-700">
+                      <div className="text-sm font-medium text-stone-800 group-hover:text-gold-700">
                         {product.name}
                       </div>
                       <div className="flex items-center space-x-2 text-xs text-stone-500">
@@ -232,7 +232,7 @@ export function SearchBar() {
                       </div>
                     </div>
                   </div>
-                  <ArrowRight className="h-4 w-4 text-stone-400 transition-transform group-hover:translate-x-1 group-hover:text-amber-600" />
+                  <ArrowRight className="h-4 w-4 text-stone-400 transition-transform group-hover:translate-x-1 group-hover:text-gold-600" />
                 </Link>
               ))}
             </div>

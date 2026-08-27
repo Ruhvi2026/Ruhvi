@@ -48,6 +48,18 @@ export const metadata: Metadata = {
   },
 };
 
+/** Per-category taglines displayed on the homepage category cards */
+const CATEGORY_TAGLINES: Record<string, string> = {
+  rings: 'Solitaires & Stacking Rings',
+  necklaces: 'Pendants & Statement Chains',
+  earrings: 'Studs, Hoops & Drops',
+  bangles: 'Kadas, Bangles & Bracelets',
+  bracelets: 'Charm & Tennis Bracelets',
+  pendants: 'Everyday Gold Pendants',
+  anklets: 'Delicate & Bold Anklets',
+  'nose-pins': 'Pins, Rings & Studs',
+};
+
 export default async function HomePage() {
   const supabase = await createClient();
   const hp = await getHomepageSettings();
@@ -234,12 +246,13 @@ export default async function HomePage() {
                     }
                     alt={cat.name}
                     fill
+                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 340px"
                     className="object-cover"
                   />
                 </div>
                 <div className="cat-body">
                   <div className="cat-label">{cat.name}</div>
-                  <h4>{'Elegant & Timeless'}</h4>
+                  <h4>{CATEGORY_TAGLINES[cat.slug] || 'Elegant & Timeless'}</h4>
                   <Link
                     href={`/category/${cat.slug}`}
                     className="shop-now on-dark before:absolute before:inset-0 before:z-10"

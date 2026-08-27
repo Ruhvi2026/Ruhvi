@@ -79,13 +79,13 @@ export function ProductCard({ product }: ProductCardProps) {
         {(product.is_new_arrival || product.is_best_seller) && (
           <div className="absolute left-2 top-2 z-10 flex flex-col items-start gap-1.5">
             {product.is_new_arrival && (
-              <span className="bg-[var(--gold)] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.15em] text-[var(--ink)] shadow-sm">
+              <span className="rounded bg-[var(--gold)] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.15em] text-[var(--ink)] shadow-sm">
                 New
               </span>
             )}
             {product.is_best_seller && (
-              <span className="bg-[var(--ink)] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.15em] text-white shadow-sm">
-                Best
+              <span className="rounded bg-[var(--ink)] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.15em] text-white shadow-sm">
+                Best Seller
               </span>
             )}
           </div>
@@ -103,6 +103,8 @@ export function ProductCard({ product }: ProductCardProps) {
         {/* Wishlist Heart Button */}
         <button
           onClick={handleToggleWishlist}
+          aria-label={isLiked ? 'Remove from wishlist' : 'Add to wishlist'}
+          aria-pressed={isLiked}
           className="absolute right-3 top-3 z-10 rounded-full bg-white/30 p-2 text-slate-400 backdrop-blur-sm transition-colors hover:text-[var(--ink)]"
           title={isLiked ? 'Remove from Wishlist' : 'Add to Wishlist'}
         >

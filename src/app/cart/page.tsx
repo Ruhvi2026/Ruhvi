@@ -61,7 +61,7 @@ export default function CartPage() {
   }, [items]);
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+    <div className="mx-auto max-w-7xl px-4 pb-32 pt-10 sm:px-6 sm:pb-10 lg:px-8">
       {/* Header */}
       <div className="mb-8 flex items-center justify-between border-b border-stone-200 pb-6">
         <div>
@@ -297,6 +297,28 @@ export default function CartPage() {
           actionLabel="Browse Collection"
           actionHref="/products"
         />
+      )}
+
+      {/* ── Mobile Sticky Bottom Bar ── */}
+      {items.length > 0 && (
+        <div className="fixed inset-x-0 bottom-0 z-40 border-t border-stone-200 bg-white/95 px-4 py-3 shadow-[0_-4px_20px_-4px_rgba(0,0,0,0.1)] backdrop-blur-sm lg:hidden">
+          <div className="mx-auto flex max-w-lg items-center justify-between gap-4">
+            <div>
+              <p className="text-xs text-stone-500">
+                {cartCount} {cartCount === 1 ? 'item' : 'items'}
+              </p>
+              <p className="font-serif text-lg font-bold text-amber-950">
+                ₹{grandTotal.toLocaleString('en-IN')}
+              </p>
+            </div>
+            <Link
+              href="/checkout"
+              className="flex-1 rounded-xl bg-amber-950 py-3.5 text-center text-xs font-bold uppercase tracking-widest text-amber-100 shadow-lg transition-all hover:bg-amber-900 active:scale-[0.98]"
+            >
+              Proceed to Checkout
+            </Link>
+          </div>
+        </div>
       )}
     </div>
   );

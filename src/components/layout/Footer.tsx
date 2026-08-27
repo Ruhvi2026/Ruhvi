@@ -262,7 +262,7 @@ export function Footer() {
             </li>
             <li>
               <Link
-                href="/collections/bestsellers"
+                href="/collections/best-sellers"
                 className="transition-colors hover:text-gold-400"
               >
                 Best Sellers
@@ -404,7 +404,7 @@ export function Footer() {
             </li>
             <li>
               <Link
-                href="/wallet"
+                href="/account/wallet"
                 className="transition-colors hover:text-gold-400"
               >
                 Wallet Balance
