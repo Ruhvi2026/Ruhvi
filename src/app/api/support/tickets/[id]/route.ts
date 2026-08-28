@@ -3,6 +3,7 @@ import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { verifySessionToken } from '@/lib/auth/verify-session';
 import { sendTicketResolvedEmail } from '@/lib/resend';
+import { pushTicketUpdateToEspo } from '@/lib/espo/sync';
 
 /**
  * Single Ticket Operations
@@ -417,6 +418,12 @@ export async function PATCH(
         console.error('Failed to send Ticket Resolved email:', emailErr);
       }
     }
+
+    // Fire-and-forget sync to EspoCRM (non-blocking, never breaks the flow).
+    void pushTicketUpdateToEspo(id, {
+      status: updates.status,
+      priority: updates.priority,
+    });
 
     return NextResponse.json({ ticket: updated });
   } catch (err: any) {

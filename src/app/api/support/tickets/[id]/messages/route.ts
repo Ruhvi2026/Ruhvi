@@ -3,6 +3,7 @@ import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { verifySessionToken } from '@/lib/auth/verify-session';
 import { sendTicketUpdateEmail } from '@/lib/resend';
+import { pushMessageToEspo } from '@/lib/espo/sync';
 
 /**
  * Ticket Messages API
@@ -230,6 +231,14 @@ export async function POST(
         console.error('Failed to send Ticket Update email:', emailErr);
       }
     }
+
+    // Fire-and-forget sync to EspoCRM (adds note to the Case).
+    void pushMessageToEspo(ticketId, {
+      sender_type: senderType,
+      message: message.trim(),
+      visibility: messageVisibility,
+      created_at: newMessage.created_at,
+    });
 
     return NextResponse.json({ message: newMessage }, { status: 201 });
   } catch (err: any) {

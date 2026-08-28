@@ -49,6 +49,14 @@ const envSchema = z.object({
   BREVO_API_KEY: z.string().optional(),
   BREVO_SENDER_NAME: z.string().optional(),
   BREVO_SENDER_EMAIL: z.string().optional(),
+
+  // EspoCRM (agent console at crm.support.ruhvi.in)
+  ESPO_ENABLED: z.string().optional(),
+  ESPO_BASE_URL: z.string().url().optional(),
+  ESPO_API_KEY: z.string().optional(),
+  ESPO_WEBHOOK_SECRET: z.string().optional(),
+  RUHVI_BASE_URL: z.string().url().optional(),
+  ESPO_DEFAULT_ASSIGNEE_EMAIL: z.string().optional(),
 });
 
 const _env = envSchema.safeParse({
@@ -85,6 +93,14 @@ const _env = envSchema.safeParse({
   BREVO_API_KEY: process.env.BREVO_API_KEY,
   BREVO_SENDER_NAME: process.env.BREVO_SENDER_NAME,
   BREVO_SENDER_EMAIL: process.env.BREVO_SENDER_EMAIL,
+
+  // EspoCRM
+  ESPO_ENABLED: process.env.ESPO_ENABLED,
+  ESPO_BASE_URL: process.env.ESPO_BASE_URL,
+  ESPO_API_KEY: process.env.ESPO_API_KEY,
+  ESPO_WEBHOOK_SECRET: process.env.ESPO_WEBHOOK_SECRET,
+  RUHVI_BASE_URL: process.env.RUHVI_BASE_URL,
+  ESPO_DEFAULT_ASSIGNEE_EMAIL: process.env.ESPO_DEFAULT_ASSIGNEE_EMAIL,
 });
 
 if (!_env.success) {

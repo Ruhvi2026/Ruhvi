@@ -1,0 +1,69 @@
+version: '3.8'
+
+services:
+  # ── MariaDB ──────────────────────────────────────────────────────────────
+  db:
+    image: mariadb:11
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-esporcrm}
+      MYSQL_USER: ${MYSQL_USER:-esporcrm}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ['CMD', 'healthcheck.sh', '--connect', '--innodb_initialized']
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  # ── EspoCRM (Apache + PHP) ───────────────────────────────────────────────
+  app:
+    image: esporcrm/esporcrm:latest
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      ESPOCRM_DATABASE_HOST: db
+      ESPOCRM_DATABASE_NAME: ${MYSQL_DATABASE:-esporcrm}
+      ESPOCRM_DATABASE_USER: ${MYSQL_USER:-esporcrm}
+      ESPOCRM_DATABASE_PASSWORD: ${MYSQL_PASSWORD}
+      ESPOCRM_SITE_URL: https://${ESPO_DOMAIN:-crm.support.ruhvi.in}
+      # Secret for EspoCRM internal use (cookie encryption, etc.)
+      ESPOCRM_SECRET: ${ESPO_SECRET}
+    volumes:
+      - app_data:/var/www/html
+      # Mount custom backend extension
+      - ./extension/Espo:/var/www/html/custom/Espo
+      # Mount custom frontend extension
+      - ./client-custom:/var/www/html/client/custom
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost/api/v1/HealthCheck']
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  # ── Caddy (TLS reverse proxy) ────────────────────────────────────────────
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - '80:80'
+      - '443:443'
+    depends_on:
+      app:
+        condition: service_started
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    environment:
+      ESPO_DOMAIN: ${ESPO_DOMAIN:-crm.support.ruhvi.in}
+
+volumes:
+  db_data:
+  app_data:
+  caddy_data:
+  caddy_config:

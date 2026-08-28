@@ -40,9 +40,14 @@ The same app serves multiple portals, switched on the `Host` header (see `src/ap
 | `admin.ruhvi.in` | Admin & dashboard |
 | `operations.ruhvi.in` | Operations (products, inventory) |
 | `support.ruhvi.in` | Customer support console |
+| `crm.support.ruhvi.in` | Self-hosted EspoCRM agent console (VPS, not this app) |
 | `auth.ruhvi.in` | Authentication flows |
 | `marketing.ruhvi.in` | Marketing campaigns & ad tracking |
 | `orders.ruhvi.in` | Orders portal / logistics |
+
+> **Support CRM:** Agents manage support tickets in EspoCRM at
+> `crm.support.ruhvi.in` (deployed via `deploy/esporcrm/`). Supabase remains the
+> source of truth; see [ESPOCRM_INTEGRATION.md](ESPOCRM_INTEGRATION.md).
 
 ## Environment Variables
 

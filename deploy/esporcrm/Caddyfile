@@ -1,0 +1,37 @@
+# Caddyfile — Reverse proxy for EspoCRM at crm.support.ruhvi.in
+# Auto-TLS via Let's Encrypt (requires DNS A/AAAA record pointing to this VPS).
+
+{$ESPO_DOMAIN} {
+    # Auto-TLS with Let's Encrypt
+    tls {
+        # DNS challenge if port 80 is not exposed; otherwise default HTTP-01
+    }
+
+    # Security headers
+    header {
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "SAMEORIGIN"
+        X-XSS-Protection "1; mode=block"
+        Referrer-Policy "strict-origin-when-cross-origin"
+        -Server
+    }
+
+    # Reverse proxy to EspoCRM (Apache on port 80 inside the container)
+    reverse_proxy app:80 {
+        # Pass the original Host header so EspoCRM generates correct URLs
+        header_up Host {host}
+        header_up X-Forwarded-Proto https
+        header_up X-Forwarded-For {remote_host}
+    }
+
+    # Static files caching
+    @static {
+        path *.ico *.css *.js *.gif *.jpg *.jpeg *.png *.svg *.woff *.woff2 *.ttf *.eot
+    }
+    header @static Cache-Control "public, max-age=31536000, immutable"
+
+    # Logs
+    log {
+        output file /data/caddy/crm.support.ruhvi.in.log
+    }
+}

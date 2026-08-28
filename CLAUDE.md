@@ -36,6 +36,7 @@ Project memory so a fresh session doesn't need to re-analyze the whole tree. Kee
 - **Email:** Resend (transactional) + Brevo (marketing, incl. Brevo MCP for AI tool-calling).
 - **AI:** multi-provider failover engine in `src/lib/ai/` (credentials, error-classifier, model-health, diagnostics). Keys for multi-credential mode live in the `ai_provider_credentials` **DB table**, not env.
 - **Push/analytics:** OneSignal (marketing push) + FCM (transactional push); PostHog, GA4, Meta Pixel/CAPI, Sentry, Vercel Speed Insights.
+- **Support CRM (agents):** EspoCRM is self-hosted on a VPS at `crm.support.ruhvi.in` (`deploy/esporcrm/`), agents-only ticket console. Supabase stays the source of truth; bidirectional sync via HMAC-signed APIs/webhooks (`src/lib/espo/`, `/api/integrations/espo/{context,webhook,health}`). Gated by `ESPO_ENABLED`; the customer-facing `support.ruhvi.in` portal is unchanged. See `ESPOCRM_INTEGRATION.md`.
 
 ## Subdomain / portal routing
 Routing is host-based in `src/middleware.ts`. Portal hosts (prod → `*.localhost` in dev):
@@ -43,6 +44,7 @@ Routing is host-based in `src/middleware.ts`. Portal hosts (prod → `*.localhos
 - `operation.ruhvi.in` → `/operations/*` (root redirects to `/operations/dashboard`)
 - `orders.ruhvi.in` → orders portal
 - `support.ruhvi.in` → `/support/*` (root redirects to `/support/dashboard`)
+- `crm.support.ruhvi.in` → **not** part of this app; points to the self-hosted EspoCRM VPS (agent console). EspoCRM syncs with this app via `src/lib/espo/` + `/api/integrations/espo/*`.
 - `marketing.ruhvi.in` → `/marketing/*`
 - `auth.ruhvi.in` → auth pages
 - Root host (`ruhvi.in`) → customer storefront. Portal hosts get `X-Robots-Tag: noindex` and signup is blocked.
@@ -64,5 +66,6 @@ A full remediation plan with exact diffs is in **`fix.md`**. Summary:
 ## Source-of-truth docs (project root)
 - `PROJECT_INTEGRATIONS_AUDIT.md` — **the integration register** (well-maintained; update when adding/removing services). Note: it lists a few vars as "unused" that are actually still referenced in code — verify against source before acting.
 - `fix.md` — health-fix implementation plan.
+- `ESPOCRM_INTEGRATION.md` — EspoCRM agent console integration (architecture, flows, setup).
 - `SCHEMA.md` — DB schema. `Operations and Orders.md` — ops/orders flows. `ticket.md`, `issues.md`, `phase 17 implementation_plan.md`, UI/UX docs.
 - DB migrations: `supabase/migrations/` (sequentially numbered, e.g. `0030_unified_customer_identity.sql`).

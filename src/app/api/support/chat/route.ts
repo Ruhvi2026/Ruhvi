@@ -4,6 +4,7 @@ import { cookies } from 'next/headers';
 import { verifySessionToken } from '@/lib/auth/verify-session';
 import { generateAIContent } from '@/lib/ai';
 import { buildKnowledgeContext } from '@/lib/ai/knowledge';
+import { syncTicketToEspo } from '@/lib/espo/sync';
 
 /**
  * AI-First Support Chat Endpoint
@@ -1111,6 +1112,9 @@ Rules for action field:
                 body: JSON.stringify({ type: 'ticket_created' }),
               }
             ).catch(() => {});
+
+            // Fire-and-forget sync to EspoCRM (non-blocking).
+            void syncTicketToEspo(ticket.id, supabase);
           } else {
             console.error('Database insertion error:', ticketError);
           }

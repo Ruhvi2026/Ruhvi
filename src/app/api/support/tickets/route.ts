@@ -3,6 +3,7 @@ import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { verifySessionToken } from '@/lib/auth/verify-session';
 import { sendTicketCreatedEmail } from '@/lib/resend';
+import { syncTicketToEspo } from '@/lib/espo/sync';
 
 /**
  * Support Tickets API
@@ -390,6 +391,9 @@ export async function POST(req: NextRequest) {
     } catch (emailErr) {
       console.error('Failed to send Ticket Created email:', emailErr);
     }
+
+    // Fire-and-forget sync to EspoCRM (agent console) — non-blocking.
+    void syncTicketToEspo(ticket.id, supabase);
 
     return NextResponse.json({ ticket }, { status: 201 });
   } catch (err: any) {

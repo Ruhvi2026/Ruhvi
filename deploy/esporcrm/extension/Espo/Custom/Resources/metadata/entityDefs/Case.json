@@ -1,0 +1,39 @@
+{
+  "Case": {
+    "fields": {
+      "ruhviTicketId_c": {
+        "type": "varchar",
+        "maxLength": 64,
+        "required": false,
+        "readOnly": false,
+        "audited": true,
+        "label": "Ruhvi Ticket ID"
+      },
+      "ruhviStatus_c": {
+        "type": "varchar",
+        "maxLength": 40,
+        "required": false,
+        "readOnly": true,
+        "label": "Ruhvi Status"
+      },
+      "ruhviCustomerEmail_c": {
+        "type": "varchar",
+        "maxLength": 128,
+        "required": false,
+        "label": "Customer Email"
+      },
+      "ruhviCustomerName_c": {
+        "type": "varchar",
+        "maxLength": 128,
+        "required": false,
+        "label": "Customer Name"
+      },
+      "ruhviCustomerPhone_c": {
+        "type": "varchar",
+        "maxLength": 32,
+        "required": false,
+        "label": "Customer Phone"
+      }
+    }
+  }
+}

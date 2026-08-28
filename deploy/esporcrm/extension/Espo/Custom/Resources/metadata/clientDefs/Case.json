@@ -1,0 +1,16 @@
+{
+  "Case": {
+    "detail": {
+      "side": {
+        "right": [
+          {
+            "name": "ruhviContext",
+            "view": "custom:views/case/ruhvi-context",
+            "label": "Ruhvi Customer Context",
+            "style": "default"
+          }
+        ]
+      }
+    }
+  }
+}
