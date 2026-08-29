@@ -41,10 +41,17 @@ export function Navbar() {
   }, []);
 
   React.useEffect(() => {
+    let ticking = false;
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
-      if (window.scrollY <= 20) {
-        setIsSearchExpanded(false);
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          setIsScrolled(window.scrollY > 20);
+          if (window.scrollY <= 20) {
+            setIsSearchExpanded(false);
+          }
+          ticking = false;
+        });
+        ticking = true;
       }
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
@@ -81,10 +88,10 @@ export function Navbar() {
   return (
     <>
       <header
-        className={`bg-[var(--cream)]/90 sticky top-0 z-50 w-full shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)] backdrop-blur-md transition-all duration-300 ${isScrolled && !isSearchExpanded ? 'border-b border-gold-200/40 py-0' : 'border-b border-gold-200/40'}`}
+        className={`bg-[var(--cream)]/90 sticky top-0 z-50 w-full shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)] backdrop-blur-md transition-[border-color,background-color,box-shadow] duration-300 ${isScrolled && !isSearchExpanded ? 'border-b border-gold-200/40 py-0' : 'border-b border-gold-200/40'}`}
       >
         <div
-          className={`nav-inner transition-all duration-300 ${isScrolled && !isSearchExpanded ? 'min-h-[32px] py-0' : 'py-2'}`}
+          className={`nav-inner transition-[padding,min-height] duration-300 ${isScrolled && !isSearchExpanded ? 'min-h-[32px] py-0' : 'py-2'}`}
         >
           {/* Left Navigation Actions & Mobile Menu */}
           <div className="nav-left">
@@ -122,7 +129,7 @@ export function Navbar() {
                 alt="Ruhvi Logo"
                 width={72}
                 height={72}
-                className={`w-auto object-contain transition-all duration-300 group-hover:opacity-90 ${isScrolled && !isSearchExpanded ? 'h-10 sm:h-12' : 'h-16 sm:h-20'}`}
+                className={`h-16 w-auto origin-left object-contain transition-transform duration-300 group-hover:opacity-90 sm:h-20 ${isScrolled && !isSearchExpanded ? 'scale-[0.625]' : 'scale-100'}`}
                 priority
               />
             </Link>
@@ -145,16 +152,12 @@ export function Navbar() {
           {/* Center Brand Text */}
           <Link
             href="/"
-            className="brand group flex flex-col items-center justify-center transition-transform duration-500 hover:scale-[1.02]"
+            className={`brand group flex origin-center flex-col items-center justify-center transition-transform duration-300 ${isScrolled && !isSearchExpanded ? 'scale-90' : 'scale-100'} hover:scale-[1.02]`}
           >
-            <div
-              className={`word text-gold-deep font-light tracking-[0.28em] transition-all duration-300 group-hover:text-gold-600 ${isScrolled && !isSearchExpanded ? 'text-base sm:text-xl' : 'text-lg sm:text-2xl'}`}
-            >
+            <div className="word text-gold-deep text-lg font-light tracking-[0.28em] transition-colors duration-300 group-hover:text-gold-600 sm:text-2xl">
               RUHVI
             </div>
-            <div
-              className={`sub text-ink-soft hidden tracking-[0.45em] transition-all duration-300 sm:block ${isScrolled && !isSearchExpanded ? 'mt-0 text-[6px] sm:text-[7px]' : 'mt-1 text-[7px] sm:text-[8px]'}`}
-            >
+            <div className="sub text-ink-soft mt-1 hidden text-[7px] tracking-[0.45em] transition-colors duration-300 sm:block sm:text-[8px]">
               FINE JEWELS
             </div>
           </Link>

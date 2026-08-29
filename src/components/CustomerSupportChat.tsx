@@ -89,10 +89,13 @@ export default function CustomerSupportChat() {
 
   useEffect(() => {
     const handleResize = () => {
-      setPosition((prev) => ({
-        x: Math.max(10, Math.min(window.innerWidth - 85, prev.x)),
-        y: Math.max(10, Math.min(window.innerHeight - 95, prev.y)),
-      }));
+      setPosition((prev) => {
+        if (prev.x === -1000) return prev;
+        return {
+          x: Math.max(10, Math.min(window.innerWidth - 85, prev.x)),
+          y: Math.max(10, Math.min(window.innerHeight - 95, prev.y)),
+        };
+      });
     };
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
