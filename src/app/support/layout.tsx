@@ -159,30 +159,7 @@ function SupportSidebarContent({
         )}
       </div>
 
-      {/* Auto-Assign Quick Action for Managers in Sidebar */}
-      {!collapsed && unassignedCount !== null && unassignedCount > 0 && (
-        <div className="relative mx-4 mt-5 overflow-hidden rounded-xl border border-indigo-500/20 bg-indigo-500/10 p-3 text-xs shadow-[0_0_20px_rgba(99,102,241,0.05)]">
-          <div className="absolute right-0 top-0 p-2 opacity-20">
-            <Sparkles className="h-12 w-12 text-indigo-400" />
-          </div>
-          <div className="relative z-10">
-            <div className="flex items-center justify-between text-indigo-300">
-              <span className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide">
-                <Sparkles className="h-3.5 w-3.5" />
-                {unassignedCount} Unassigned
-              </span>
-            </div>
-            <button
-              onClick={onAutoAssign}
-              disabled={isAutoAssigning}
-              className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r from-indigo-500 to-cyan-500 px-2 py-1.5 text-[11px] font-bold text-white shadow-lg shadow-indigo-500/25 transition-all hover:shadow-indigo-500/40 hover:brightness-110 disabled:opacity-50"
-            >
-              <Zap className="h-3.5 w-3.5" />
-              {isAutoAssigning ? 'Distributing...' : 'Auto-Distribute Load'}
-            </button>
-          </div>
-        </div>
-      )}
+
 
       {/* Navigation Groups */}
       <nav className="custom-scrollbar flex-1 space-y-6 overflow-y-auto px-3 py-6">
@@ -480,8 +457,24 @@ export default function SupportLayout({
           <Menu className="h-5 w-5" />
         </button>
 
-        {/* Top Header (Desktop) - Optional Global Search */}
-        <header className="hidden h-16 w-full items-center justify-end px-8 lg:flex">
+        {/* Top Header (Desktop) - Optional Global Search & Auto-Assign */}
+        <header className="hidden h-16 w-full flex-shrink-0 items-center justify-between border-b border-white/5 bg-[#080B14]/80 px-8 backdrop-blur-md lg:flex">
+          <div className="flex flex-1 items-center gap-4">
+            {unassignedCount !== null && unassignedCount > 0 && (
+              <button
+                onClick={handleQuickAutoAssign}
+                disabled={isAutoAssigning}
+                className="flex items-center gap-2 rounded-full border border-indigo-500/30 bg-indigo-500/10 px-4 py-1.5 text-xs font-semibold text-indigo-300 transition-all hover:bg-indigo-500/20 hover:text-indigo-200 disabled:opacity-50"
+              >
+                <Sparkles className="h-3.5 w-3.5" />
+                {unassignedCount} Unassigned
+                <span className="ml-2 flex items-center gap-1 rounded-full bg-gradient-to-r from-indigo-500 to-cyan-500 px-2 py-0.5 text-[10px] font-bold text-white">
+                  <Zap className="h-3 w-3" />
+                  {isAutoAssigning ? 'Distributing...' : 'Auto-Distribute'}
+                </span>
+              </button>
+            )}
+          </div>
           <form onSubmit={handleGlobalSearch} className="relative w-64">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
             <input

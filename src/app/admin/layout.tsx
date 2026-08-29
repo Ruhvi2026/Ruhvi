@@ -29,6 +29,7 @@ import {
   Star,
   AlertCircle,
   Wand2,
+  Ticket,
 } from 'lucide-react';
 
 interface NavChild {
@@ -128,6 +129,11 @@ const NAV_GROUPS: NavGroup[] = [
   {
     section: 'SUPPORT',
     items: [
+      {
+        label: 'Ticket Queue',
+        href: '/support/tickets',
+        icon: Ticket,
+      },
       {
         label: 'Support Analytics',
         href: '/admin/support-analytics',

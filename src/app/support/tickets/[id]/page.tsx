@@ -785,7 +785,7 @@ export default function SupportTicketDetail() {
           </div>
 
           {/* Reply Composer Box */}
-          <div className="rounded-2xl border border-white/10 bg-[#131726] p-4 shadow-xl">
+          <div className="sticky bottom-4 z-20 mt-4 rounded-2xl border border-white/10 bg-[#131726] p-4 shadow-2xl ring-1 ring-black/50">
             {/* Mode Switch Tabs & Canned Dropdown */}
             <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/5 pb-3">
               <div className="flex items-center gap-2">
