@@ -82,7 +82,7 @@ export async function GET(
         subcategory:subcategory_id(id, name, slug),
         order:order_id(
           id, order_number, status, total, payment_status, payment_method,
-          created_at, shipping_charge, shiprocket_order_id, awb_code, courier_name,
+          created_at, shipping_charge,
           shipping_address_id
         ),
         product:product_id(id, name, slug, price, sku)

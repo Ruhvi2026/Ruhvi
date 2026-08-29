@@ -693,8 +693,7 @@ async function getCustomerContext(supabase: any, userId: string) {
     .select(
       `
       id, order_number, status, total, payment_status, payment_method,
-      created_at, updated_at, shipping_charge,
-      shiprocket_order_id, awb_code, courier_name
+      created_at, updated_at, shipping_charge
     `
     )
     .eq('user_id', userId)
