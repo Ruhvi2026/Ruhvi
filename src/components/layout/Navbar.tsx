@@ -331,6 +331,12 @@ export function Navbar() {
                   >
                     Wallet
                   </Link>
+                  <Link
+                    href="/account/support"
+                    className="block rounded-lg px-4 py-2.5 text-sm text-slate-700 transition hover:bg-gold-50 hover:text-gold-800"
+                  >
+                    Support Tickets
+                  </Link>
                 </>
               ) : (
                 <>
@@ -395,6 +401,12 @@ export function Navbar() {
                 className="block rounded-lg px-4 py-2.5 text-sm text-slate-700 transition hover:bg-gold-50 hover:text-gold-800"
               >
                 Contact Us
+              </Link>
+              <Link
+                href={user ? '/account/support' : '/support-status'}
+                className="block rounded-lg px-4 py-2.5 text-sm text-slate-700 transition hover:bg-gold-50 hover:text-gold-800"
+              >
+                Track Support Ticket
               </Link>
             </div>
 
