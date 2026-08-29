@@ -151,8 +151,8 @@ export async function POST(req: NextRequest) {
     // Upload to Cloudinary via server-side API (signed).
     const cloudName =
       process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || 'tfelmupe';
-    const apiKey = process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY || '';
-    const apiSecret = process.env.NEXT_PUBLIC_CLOUDINARY_API_SECRET || '';
+    const apiKey = process.env.CLOUDINARY_API_KEY || '';
+    const apiSecret = process.env.CLOUDINARY_API_SECRET || '';
 
     if (!apiKey || !apiSecret) {
       return NextResponse.json(

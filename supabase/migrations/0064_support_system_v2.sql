@@ -72,18 +72,18 @@ CREATE POLICY "Staff can view SLA config"
   ON public.support_sla_config FOR SELECT
   USING (EXISTS (
     SELECT 1 FROM public.users
-    WHERE users.id = auth.uid() AND users.role IN ('admin', 'manager', 'staff', 'super_admin', 'SUPER_ADMIN')
+    WHERE users.id = auth.uid() AND users.role IN ('admin', 'manager', 'staff', 'super_admin')
   ));
 
 CREATE POLICY "Admins can manage SLA config"
   ON public.support_sla_config FOR ALL
   USING (EXISTS (
     SELECT 1 FROM public.users
-    WHERE users.id = auth.uid() AND users.role IN ('admin', 'super_admin', 'SUPER_ADMIN')
+    WHERE users.id = auth.uid() AND users.role IN ('admin', 'super_admin')
   ))
   WITH CHECK (EXISTS (
     SELECT 1 FROM public.users
-    WHERE users.id = auth.uid() AND users.role IN ('admin', 'super_admin', 'SUPER_ADMIN')
+    WHERE users.id = auth.uid() AND users.role IN ('admin', 'super_admin')
   ));
 
 -- Helper: resolve the SLA deadline for a priority at a given time.
@@ -126,18 +126,18 @@ CREATE POLICY "Staff can view tags"
   ON public.support_ticket_tags FOR SELECT
   USING (EXISTS (
     SELECT 1 FROM public.users
-    WHERE users.id = auth.uid() AND users.role IN ('admin', 'manager', 'staff', 'super_admin', 'SUPER_ADMIN')
+    WHERE users.id = auth.uid() AND users.role IN ('admin', 'manager', 'staff', 'super_admin')
   ));
 
 CREATE POLICY "Staff can manage tags"
   ON public.support_ticket_tags FOR ALL
   USING (EXISTS (
     SELECT 1 FROM public.users
-    WHERE users.id = auth.uid() AND users.role IN ('admin', 'manager', 'staff', 'super_admin', 'SUPER_ADMIN')
+    WHERE users.id = auth.uid() AND users.role IN ('admin', 'manager', 'staff', 'super_admin')
   ))
   WITH CHECK (EXISTS (
     SELECT 1 FROM public.users
-    WHERE users.id = auth.uid() AND users.role IN ('admin', 'manager', 'staff', 'super_admin', 'SUPER_ADMIN')
+    WHERE users.id = auth.uid() AND users.role IN ('admin', 'manager', 'staff', 'super_admin')
   ));
 
 -- ============================================================================
@@ -391,7 +391,7 @@ CREATE POLICY "Customers can view own tickets"
     customer_id = auth.uid()
     OR EXISTS (
       SELECT 1 FROM public.users
-      WHERE users.id = auth.uid() AND users.role IN ('admin', 'manager', 'staff', 'super_admin', 'SUPER_ADMIN')
+      WHERE users.id = auth.uid() AND users.role IN ('admin', 'manager', 'staff', 'super_admin')
     )
   );
 
@@ -406,7 +406,7 @@ CREATE POLICY "Customers can view visible messages on own tickets"
     ))
     OR EXISTS (
       SELECT 1 FROM public.users
-      WHERE users.id = auth.uid() AND users.role IN ('admin', 'manager', 'staff', 'super_admin', 'SUPER_ADMIN')
+      WHERE users.id = auth.uid() AND users.role IN ('admin', 'manager', 'staff', 'super_admin')
     )
   );
 
@@ -421,7 +421,7 @@ CREATE POLICY "Customers can add messages to own tickets"
     ))
     OR EXISTS (
       SELECT 1 FROM public.users
-      WHERE users.id = auth.uid() AND users.role IN ('admin', 'manager', 'staff', 'super_admin', 'SUPER_ADMIN')
+      WHERE users.id = auth.uid() AND users.role IN ('admin', 'manager', 'staff', 'super_admin')
     )
   );
 
@@ -436,7 +436,7 @@ CREATE POLICY "Users can view attachments on accessible tickets"
       AND (support_tickets.customer_id = auth.uid()
         OR EXISTS (
           SELECT 1 FROM public.users
-          WHERE users.id = auth.uid() AND users.role IN ('admin', 'manager', 'staff', 'super_admin', 'SUPER_ADMIN')
+          WHERE users.id = auth.uid() AND users.role IN ('admin', 'manager', 'staff', 'super_admin')
         ))
     )
   );
@@ -451,7 +451,7 @@ CREATE POLICY "Users can add attachments to accessible tickets"
       AND (support_tickets.customer_id = auth.uid()
         OR EXISTS (
           SELECT 1 FROM public.users
-          WHERE users.id = auth.uid() AND users.role IN ('admin', 'manager', 'staff', 'super_admin', 'SUPER_ADMIN')
+          WHERE users.id = auth.uid() AND users.role IN ('admin', 'manager', 'staff', 'super_admin')
         ))
     )
   );
