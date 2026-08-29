@@ -816,6 +816,9 @@ export default function SupportTicketQueue() {
                   <th className="px-4 py-3 text-right font-semibold">
                     Created
                   </th>
+                  <th className="px-4 py-3 text-center font-semibold">
+                    Action
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5 text-slate-300">
@@ -1009,6 +1012,16 @@ export default function SupportTicketQueue() {
                             minute: '2-digit',
                           }
                         )}
+                      </td>
+
+                      {/* View Action */}
+                      <td className="px-4 py-3.5 text-center">
+                        <Link
+                          href={`/support/tickets/${ticket.id}`}
+                          className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-semibold text-slate-300 transition hover:bg-white/10 hover:text-white"
+                        >
+                          View
+                        </Link>
                       </td>
                     </tr>
                   );
