@@ -29,6 +29,10 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# local test scripts (may contain secrets)
+test_ticket.mjs
+test_*.mjs
+
 # deployment
 vercel.env
 .ai.env
