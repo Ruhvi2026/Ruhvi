@@ -16,7 +16,7 @@ import { espoStatusToRuhvi, espoPriorityToRuhvi } from '@/lib/espo/mapping';
  *
  * Payloads:
  *   - Case event  → sync status / priority / assignment back to support_tickets.
- *   - Note event  → append an internal note to support_messages.
+ *   - Note event  → append an internal note to support_ticket_messages.
  *
  * Supabase remains the source of truth; this only applies changes the agent
  * made inside EspoCRM.
@@ -115,7 +115,7 @@ export async function POST(req: NextRequest) {
 
       // Record the note as an internal (staff-only) message.
       const { error: insertErr } = await supabase
-        .from('support_messages')
+        .from('support_ticket_messages')
         .insert({
           ticket_id: ticket.id,
           sender_type: 'staff',
@@ -182,7 +182,7 @@ export async function POST(req: NextRequest) {
         );
       }
 
-      await supabase.from('support_audit_logs').insert({
+      await supabase.from('support_ticket_audit_log').insert({
         ticket_id: ticket.id,
         actor_id: null,
         actor_type: 'system',

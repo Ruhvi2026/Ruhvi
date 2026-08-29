@@ -168,7 +168,7 @@ export async function POST(req: NextRequest) {
       await supabase.from('support_assignments').insert(assignmentRecords);
     }
     if (auditEntries.length > 0) {
-      await supabase.from('support_audit_logs').insert(auditEntries);
+      await supabase.from('support_ticket_audit_log').insert(auditEntries);
     }
 
     return NextResponse.json({

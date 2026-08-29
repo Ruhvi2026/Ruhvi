@@ -49,6 +49,21 @@ async function getCurrentUser(cookieStore: any) {
   }
 }
 
+/** Resolve the SLA deadline for a priority from support_sla_config (spec 4.4). */
+async function getSlaDeadline(
+  supabase: any,
+  priority: string,
+  from: Date = new Date()
+): Promise<string> {
+  const { data } = await supabase
+    .from('support_sla_config')
+    .select('target_hours')
+    .eq('priority', priority)
+    .maybeSingle();
+  const hours = data?.target_hours ?? 24;
+  return new Date(from.getTime() + hours * 60 * 60 * 1000).toISOString();
+}
+
 export async function GET(req: NextRequest) {
   try {
     const cookieStore = await cookies();
@@ -312,22 +327,40 @@ export async function POST(req: NextRequest) {
     }
 
     const initialStatus = finalAssignedTo ? 'open' : 'new';
+    const priorityValue = priority || 'normal';
+    const slaDueAt = await getSlaDeadline(supabase, priorityValue);
+
+    // Resolve customer email for the direct-on-ticket email column
+    let customerEmail = customer_email?.trim().toLowerCase() || null;
+    if (!customerEmail && !isStaff) {
+      customerEmail = user.email?.toLowerCase() || null;
+    }
+    if (!customerEmail && targetCustomerId) {
+      const { data: owner } = await supabase
+        .from('users')
+        .select('email')
+        .eq('id', targetCustomerId)
+        .maybeSingle();
+      customerEmail = owner?.email?.toLowerCase() || null;
+    }
 
     const { data: ticket, error } = await supabase
       .from('support_tickets')
       .insert({
         customer_id: targetCustomerId,
+        customer_email: customerEmail,
         order_id: order_id || null,
         product_id: product_id || null,
         category_id: categoryId,
         subcategory_id: subcategoryId,
         title,
         description,
-        priority: priority || 'normal',
+        priority: priorityValue,
         status: initialStatus,
         source: isStaff ? 'manual' : 'manual',
         assigned_to: finalAssignedTo,
         ai_created: false,
+        sla_due_at: slaDueAt,
       })
       .select('id, ticket_number, assigned_to, status')
       .single();
@@ -341,7 +374,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Add the initial message
-    await supabase.from('support_messages').insert({
+    await supabase.from('support_ticket_messages').insert({
       ticket_id: ticket.id,
       sender_type: isStaff ? 'staff' : 'customer',
       sender_id: user.id,
@@ -360,7 +393,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Audit log
-    await supabase.from('support_audit_logs').insert({
+    await supabase.from('support_ticket_audit_log').insert({
       ticket_id: ticket.id,
       actor_id: user.id,
       actor_type: isStaff ? 'staff' : 'customer',

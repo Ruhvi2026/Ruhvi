@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/client';
 
 /**
  * Custom hook for real-time support ticket updates via Supabase Realtime.
- * Subscribes to support_tickets and support_messages tables.
+ * Subscribes to support_tickets and support_ticket_messages tables.
  */
 
 interface RealtimeEvent {
@@ -69,7 +69,7 @@ export function useSupportRealtime(options?: {
         {
           event: 'INSERT',
           schema: 'public',
-          table: 'support_messages',
+          table: 'support_ticket_messages',
         },
         (payload: any) => {
           const event: RealtimeEvent = {

@@ -49,14 +49,16 @@ async function main() {
   console.log('Ticket created successfully:', ticket);
 
   console.log('Adding initial message...');
-  const { error: msgError } = await supabase.from('support_messages').insert({
-    ticket_id: ticket.id,
-    sender_type: 'customer',
-    sender_id: userId,
-    message:
-      'This is a test ticket generated via script to verify the support ticket queue functionality.',
-    visibility: 'customer',
-  });
+  const { error: msgError } = await supabase
+    .from('support_ticket_messages')
+    .insert({
+      ticket_id: ticket.id,
+      sender_type: 'customer',
+      sender_id: userId,
+      message:
+        'This is a test ticket generated via script to verify the support ticket queue functionality.',
+      visibility: 'customer',
+    });
 
   if (msgError) {
     console.error('Error adding message:', msgError);
@@ -64,7 +66,7 @@ async function main() {
   }
 
   console.log('Adding audit log...');
-  await supabase.from('support_audit_logs').insert({
+  await supabase.from('support_ticket_audit_log').insert({
     ticket_id: ticket.id,
     actor_id: userId,
     actor_type: 'customer',

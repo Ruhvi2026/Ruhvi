@@ -112,7 +112,7 @@ export async function GET(
 
     // Fetch messages (customers only see customer-visible, staff see all)
     let messagesQuery = supabase
-      .from('support_messages')
+      .from('support_ticket_messages')
       .select(
         `
         id, sender_type, sender_id, message, visibility, created_at,
@@ -130,7 +130,7 @@ export async function GET(
 
     // Fetch attachments
     const { data: attachments } = await supabase
-      .from('support_attachments')
+      .from('support_ticket_attachments')
       .select(
         'id, file_name, file_type, file_size, storage_url, created_at, uploaded_by'
       )
@@ -141,7 +141,7 @@ export async function GET(
     let auditLogs: any[] = [];
     if (isStaff) {
       const { data: logs } = await supabase
-        .from('support_audit_logs')
+        .from('support_ticket_audit_log')
         .select(
           `
           id, action, old_value, new_value, actor_type, created_at,
@@ -255,163 +255,76 @@ export async function PATCH(
     const supabase = await getSupabaseAdmin(cookieStore);
     const body = await req.json();
 
-    // Get current ticket state for audit
-    const { data: currentTicket, error: fetchError } = await supabase
-      .from('support_tickets')
-      .select('status, priority, assigned_to, customer_id')
-      .eq('id', id)
-      .single();
+    const validStatuses = [
+      'new',
+      'open',
+      'in_progress',
+      'waiting_for_customer',
+      'waiting_for_team',
+      'resolved',
+      'closed',
+      'reopened',
+      'rejected',
+      'duplicate',
+    ];
+    const validPriorities = ['low', 'normal', 'high', 'urgent'];
 
-    if (!currentTicket) {
-      return NextResponse.json({ error: 'Ticket not found' }, { status: 404 });
+    if (body.status && !validStatuses.includes(body.status)) {
+      return NextResponse.json({ error: 'Invalid status' }, { status: 400 });
+    }
+    if (body.priority && !validPriorities.includes(body.priority)) {
+      return NextResponse.json({ error: 'Invalid priority' }, { status: 400 });
     }
 
-    const updates: any = {};
-    const auditEntries: any[] = [];
-
-    // Status change
-    if (body.status && body.status !== currentTicket.status) {
-      const validStatuses = [
-        'new',
-        'open',
-        'in_progress',
-        'waiting_for_customer',
-        'waiting_for_team',
-        'resolved',
-        'closed',
-        'reopened',
-      ];
-      if (!validStatuses.includes(body.status)) {
-        return NextResponse.json({ error: 'Invalid status' }, { status: 400 });
+    // Single transactional call: state change + audit trail + assignment
+    // history are written in the same database operation (spec Section 9).
+    const { data: result, error } = await supabase.rpc(
+      'support_update_ticket_state',
+      {
+        p_ticket_id: id,
+        p_status: body.status ?? null,
+        p_priority: body.priority ?? null,
+        p_assigned_to: body.assigned_to ?? null,
+        p_actor_id: user.id,
+        p_actor_type: 'staff',
       }
-      updates.status = body.status;
-
-      // Track first response
-      if (!currentTicket.status || currentTicket.status === 'new') {
-        updates.first_response_at = new Date().toISOString();
-      }
-
-      // Track resolution
-      if (body.status === 'resolved') {
-        updates.resolved_at = new Date().toISOString();
-      }
-      if (body.status === 'closed') {
-        updates.closed_at = new Date().toISOString();
-      }
-
-      auditEntries.push({
-        ticket_id: id,
-        actor_id: user.id,
-        actor_type: 'staff',
-        action: 'status_changed',
-        old_value: { status: currentTicket.status },
-        new_value: { status: body.status },
-      });
-    }
-
-    // Priority change
-    if (body.priority && body.priority !== currentTicket.priority) {
-      const validPriorities = ['low', 'normal', 'high', 'urgent'];
-      if (!validPriorities.includes(body.priority)) {
-        return NextResponse.json(
-          { error: 'Invalid priority' },
-          { status: 400 }
-        );
-      }
-      updates.priority = body.priority;
-
-      auditEntries.push({
-        ticket_id: id,
-        actor_id: user.id,
-        actor_type: 'staff',
-        action: 'priority_changed',
-        old_value: { priority: currentTicket.priority },
-        new_value: { priority: body.priority },
-      });
-    }
-
-    // Assignment change
-    if (
-      body.assigned_to !== undefined &&
-      body.assigned_to !== currentTicket.assigned_to
-    ) {
-      updates.assigned_to = body.assigned_to || null;
-
-      // Unassign previous
-      if (currentTicket.assigned_to) {
-        await supabase
-          .from('support_assignments')
-          .update({ unassigned_at: new Date().toISOString() })
-          .eq('ticket_id', id)
-          .eq('assigned_to', currentTicket.assigned_to)
-          .is('unassigned_at', null);
-      }
-
-      // Create new assignment
-      if (body.assigned_to) {
-        await supabase.from('support_assignments').insert({
-          ticket_id: id,
-          assigned_to: body.assigned_to,
-          assigned_by: user.id,
-        });
-
-        // Auto-set to open if new
-        if (currentTicket.status === 'new') {
-          updates.status = 'open';
-        }
-      }
-
-      auditEntries.push({
-        ticket_id: id,
-        actor_id: user.id,
-        actor_type: 'staff',
-        action: 'assignment_changed',
-        old_value: { assigned_to: currentTicket.assigned_to },
-        new_value: { assigned_to: body.assigned_to },
-      });
-    }
-
-    if (Object.keys(updates).length === 0) {
-      return NextResponse.json(
-        { error: 'No valid updates provided' },
-        { status: 400 }
-      );
-    }
-
-    const { data: updated, error } = await supabase
-      .from('support_tickets')
-      .update(updates)
-      .eq('id', id)
-      .select('id, ticket_number, status, priority, assigned_to')
-      .single();
+    );
 
     if (error) {
-      console.error('Ticket update error:', error);
+      console.error('Ticket state RPC error:', error);
+      const msg = (error as any)?.message || '';
+      if (msg.includes('ticket_not_found')) {
+        return NextResponse.json(
+          { error: 'Ticket not found' },
+          { status: 404 }
+        );
+      }
       return NextResponse.json(
         { error: 'Failed to update ticket' },
         { status: 500 }
       );
     }
 
-    // Insert audit entries
-    if (auditEntries.length > 0) {
-      await supabase.from('support_audit_logs').insert(auditEntries);
-    }
-
     // Send email notification to customer if ticket was resolved or closed
-    if (body.status === 'resolved' || body.status === 'closed') {
+    const nextStatus = body.status;
+    if (nextStatus === 'resolved' || nextStatus === 'closed') {
       try {
-        const { data: customerData } = await supabase
-          .from('users')
-          .select('email, full_name')
-          .eq('id', currentTicket.customer_id)
-          .single();
+        const { data: ticketForEmail } = await supabase
+          .from('support_tickets')
+          .select(
+            'ticket_number, customer_id, customer:customer_id(email, full_name)'
+          )
+          .eq('id', id)
+          .maybeSingle();
+        const cust = Array.isArray(ticketForEmail?.customer)
+          ? ticketForEmail.customer[0]
+          : ticketForEmail?.customer;
 
-        if (customerData?.email) {
+        if (cust?.email) {
           await sendTicketResolvedEmail(
-            updated.ticket_number || updated.id,
-            customerData.email,
-            customerData.full_name || 'Customer'
+            ticketForEmail?.ticket_number || id,
+            cust.email,
+            cust.full_name || 'Customer'
           );
         }
       } catch (emailErr) {
@@ -421,11 +334,11 @@ export async function PATCH(
 
     // Fire-and-forget sync to EspoCRM (non-blocking, never breaks the flow).
     void pushTicketUpdateToEspo(id, {
-      status: updates.status,
-      priority: updates.priority,
+      status: body.status,
+      priority: body.priority,
     });
 
-    return NextResponse.json({ ticket: updated });
+    return NextResponse.json({ ticket: result });
   } catch (err: any) {
     console.error('Ticket PATCH Error:', err);
     return NextResponse.json(

@@ -132,83 +132,49 @@ export async function POST(
       senderId = null;
     }
 
-    // Insert message
-    const { data: newMessage, error } = await supabase
-      .from('support_messages')
-      .insert({
-        ticket_id: ticketId,
-        sender_type: senderType,
-        sender_id: senderId,
-        message: message.trim(),
-        visibility: messageVisibility,
-      })
-      .select('id, sender_type, sender_id, message, visibility, created_at')
-      .single();
+    // Insert message + attachments + audit log in a single transactional RPC
+    // (spec Section 9 — the audit entry is a side effect of the write itself).
+    const attachmentsPayload =
+      body.attachments && Array.isArray(body.attachments)
+        ? body.attachments.map((att: any) => ({
+            file_name: att.file_name,
+            file_type: att.file_type,
+            file_size: att.file_size || 0,
+            storage_url: att.storage_url,
+            cloudinary_public_id: att.cloudinary_public_id || null,
+          }))
+        : [];
+
+    const { data: rpcResult, error } = await supabase.rpc(
+      'support_add_ticket_message',
+      {
+        p_ticket_id: ticketId,
+        p_sender_type: senderType,
+        p_sender_id: senderId,
+        p_message: message.trim(),
+        p_visibility: messageVisibility,
+        p_attachments: attachmentsPayload,
+        p_actor_id: senderId,
+        p_actor_type: senderType,
+      }
+    );
 
     if (error) {
-      console.error('Message insert error:', error);
+      console.error('Message insert RPC error:', error);
       return NextResponse.json(
         { error: 'Failed to add message' },
         { status: 500 }
       );
     }
 
-    // Insert attachments if provided
-    if (body.attachments && Array.isArray(body.attachments)) {
-      const attachmentsToInsert = body.attachments.map((att: any) => ({
-        ticket_id: ticketId,
-        message_id: newMessage.id,
-        uploaded_by: senderId || null,
-        file_name: att.file_name,
-        file_type: att.file_type,
-        file_size: att.file_size || 0,
-        storage_url: att.storage_url,
-      }));
-
-      const { error: attachError } = await supabase
-        .from('support_attachments')
-        .insert(attachmentsToInsert);
-
-      if (attachError) {
-        console.error('Failed to insert message attachments:', attachError);
-      }
-    }
-
-    // Audit log
-    await supabase.from('support_audit_logs').insert({
-      ticket_id: ticketId,
-      actor_id: senderId,
-      actor_type: senderType,
-      action:
-        messageVisibility === 'internal'
-          ? 'internal_note_added'
-          : `${senderType}_reply`,
-      new_value: { message_id: newMessage.id, visibility: messageVisibility },
-    });
-
-    // Update ticket status based on who replied
-    const statusUpdates: any = {};
-
-    if (isStaff && messageVisibility === 'customer') {
-      // Staff replied to customer
-      if (ticket.status === 'new') {
-        statusUpdates.status = 'open';
-        statusUpdates.first_response_at = new Date().toISOString();
-      }
-      // If was waiting for customer and staff responds, could mean follow-up
-    } else if (!isStaff) {
-      // Customer replied
-      if (ticket.status === 'waiting_for_customer') {
-        statusUpdates.status = 'open';
-      }
-    }
-
-    if (Object.keys(statusUpdates).length > 0) {
-      await supabase
-        .from('support_tickets')
-        .update(statusUpdates)
-        .eq('id', ticketId);
-    }
+    const newMessage = {
+      id: rpcResult?.id,
+      sender_type: senderType,
+      sender_id: senderId,
+      message: message.trim(),
+      visibility: messageVisibility,
+      created_at: new Date().toISOString(),
+    };
 
     // Send email notification to customer if staff replied
     if (isStaff && messageVisibility === 'customer') {

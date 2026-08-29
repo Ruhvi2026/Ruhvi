@@ -53,6 +53,8 @@ const STATUS_OPTIONS = [
   { value: 'resolved', label: 'Resolved', color: 'bg-green-500' },
   { value: 'closed', label: 'Closed', color: 'bg-slate-500' },
   { value: 'reopened', label: 'Reopened', color: 'bg-orange-500' },
+  { value: 'rejected', label: 'Rejected', color: 'bg-rose-500' },
+  { value: 'duplicate', label: 'Duplicate', color: 'bg-cyan-500' },
 ];
 
 const PRIORITY_OPTIONS = [
@@ -107,13 +109,81 @@ export default function SupportTicketDetail() {
   const [isAutoAssigning, setIsAutoAssigning] = useState(false);
   const [copiedNum, setCopiedNum] = useState(false);
   const [showCannedMenu, setShowCannedMenu] = useState(false);
+  const [tags, setTags] = useState<any[]>([]);
+  const [showTagMenu, setShowTagMenu] = useState(false);
+  const [tagQuery, setTagQuery] = useState('');
+  const [addingTag, setAddingTag] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetchTicket();
     fetchMeta();
+    fetchTags();
   }, [ticketId]);
+
+  async function fetchTags() {
+    try {
+      const res = await fetch(`/api/support/tickets/${ticketId}/tags`);
+      if (res.ok) {
+        const data = await res.json();
+        setTags(data.tags || []);
+      }
+    } catch {
+      // ignore
+    }
+  }
+
+  async function handleAddTag(tag: {
+    tag_type: 'person' | 'team';
+    tagged_staff_id?: string;
+    tagged_team?: string;
+  }) {
+    if (addingTag) return;
+    setAddingTag(true);
+    try {
+      const res = await fetch(`/api/support/tickets/${ticketId}/tags`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(tag),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        toast.error(data.error || 'Failed to add tag');
+      } else {
+        toast.success(
+          tag.tag_type === 'team'
+            ? `Tagged team ${tag.tagged_team}`
+            : 'Mentioned team member'
+        );
+        setShowTagMenu(false);
+        setTagQuery('');
+        fetchTags();
+      }
+    } catch {
+      toast.error('Failed to add tag');
+    } finally {
+      setAddingTag(false);
+    }
+  }
+
+  async function handleResolveTag(tagId: string) {
+    try {
+      const res = await fetch(`/api/support/tickets/${ticketId}/tags`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ resolve_tag_id: tagId }),
+      });
+      if (!res.ok) {
+        toast.error('Failed to resolve tag');
+        return;
+      }
+      toast.success('Tag resolved');
+      fetchTags();
+    } catch {
+      toast.error('Failed to resolve tag');
+    }
+  }
 
   async function fetchMeta() {
     try {
@@ -258,33 +328,32 @@ export default function SupportTicketDetail() {
     );
 
     try {
-      const { uploadAttachment } = await import('@/services/cloudinaryService');
       const uploaded: typeof attachmentsList = [];
 
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
+        const fd = new FormData();
+        fd.append('file', file);
 
-        // Size limits: 2MB for images, 5MB for videos/files
-        const isImage = file.type.startsWith('image/');
-        const isVideo = file.type.startsWith('video/');
-        const maxSize = isImage ? 2 * 1024 * 1024 : 5 * 1024 * 1024;
+        // Server-side validated upload (spec §8): MIME + size + rate-limit.
+        const res = await fetch('/api/support/upload', {
+          method: 'POST',
+          body: fd,
+        });
 
-        if (file.size > maxSize) {
-          toast.error(
-            `File "${file.name}" exceeds size limit (${isImage ? '2MB for images' : '5MB for videos/files'})`
-          );
+        if (!res.ok) {
+          const err = await res.json();
+          toast.error(err.error || `Failed to upload "${file.name}"`);
           continue;
         }
 
-        const res = await uploadAttachment(file);
-        if (res?.secure_url) {
-          uploaded.push({
-            file_name: file.name,
-            file_type: file.type,
-            file_size: file.size,
-            storage_url: res.secure_url,
-          });
-        }
+        const up = await res.json();
+        uploaded.push({
+          file_name: up.file_name,
+          file_type: up.file_type,
+          file_size: up.file_size,
+          storage_url: up.secure_url,
+        });
       }
 
       setAttachmentsList((prev) => [...prev, ...uploaded]);
@@ -337,6 +406,19 @@ export default function SupportTicketDetail() {
     !['resolved', 'closed'].includes(ticket.status) &&
     (ticket.sla_breached ||
       (ticket.sla_due_at && new Date(ticket.sla_due_at) < new Date()));
+
+  // Auto-close warning for agents (spec §3.2): waiting on customer, > 20h elapsed.
+  const autoCloseWarning =
+    ticket.status === 'waiting_for_customer' &&
+    ticket.pending_customer_reply_since
+      ? (() => {
+          const elapsed =
+            (Date.now() -
+              new Date(ticket.pending_customer_reply_since).getTime()) /
+            3600000;
+          return elapsed >= 20;
+        })()
+      : false;
 
   const renderMessageAttachments = (msg: any) => {
     const msgAttachments = attachments.filter(
@@ -433,6 +515,13 @@ export default function SupportTicketDetail() {
                 <span className="inline-flex items-center gap-1 rounded-full border border-rose-500/30 bg-rose-500/15 px-2 py-0.5 text-[9px] font-bold text-rose-400">
                   <Clock className="h-3 w-3" />
                   SLA OVERDUE
+                </span>
+              )}
+
+              {autoCloseWarning && (
+                <span className="inline-flex items-center gap-1 rounded-full border border-amber-500/40 bg-amber-500/15 px-2 py-0.5 text-[9px] font-bold text-amber-400">
+                  <Clock className="h-3 w-3" />
+                  AUTO-CLOSE INCOMING (no reply from customer)
                 </span>
               )}
             </div>
@@ -536,6 +625,21 @@ export default function SupportTicketDetail() {
           </div>
           <p className="mt-1.5 leading-relaxed text-slate-300">
             {ticket.ai_summary}
+          </p>
+        </div>
+      )}
+
+      {/* Auto-close warning banner for agents (spec §3.2) */}
+      {autoCloseWarning && (
+        <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4 text-xs">
+          <div className="flex items-center gap-2 font-bold text-amber-400">
+            <Clock className="h-4 w-4" />
+            <span>Auto-close warning</span>
+          </div>
+          <p className="mt-1.5 leading-relaxed text-slate-300">
+            This ticket is waiting on the customer and has not received a reply
+            in over 20 hours. It will auto-close within 4 hours if the customer
+            does not respond.
           </p>
         </div>
       )}
@@ -1199,6 +1303,140 @@ export default function SupportTicketDetail() {
               </div>
             </div>
           )}
+
+          {/* Tags / Mentions (spec §4.3) */}
+          <div className="rounded-2xl border border-white/5 bg-[#131726] p-5 shadow-lg">
+            <div className="flex items-center justify-between border-b border-white/5 pb-3">
+              <div className="flex items-center gap-2">
+                <Users className="h-4 w-4 text-emerald-400" />
+                <h3 className="text-xs font-bold uppercase tracking-wider text-white">
+                  Tags & Mentions
+                </h3>
+              </div>
+              <button
+                onClick={() => setShowTagMenu(!showTagMenu)}
+                className="flex items-center gap-1 rounded-lg border border-white/10 bg-white/5 px-2 py-1 text-[10px] font-semibold text-slate-300 transition hover:bg-white/10 hover:text-white"
+              >
+                + Tag
+              </button>
+            </div>
+
+            {showTagMenu && (
+              <div className="mt-3 rounded-xl border border-white/10 bg-[#1a1f33] p-2">
+                <p className="mb-2 px-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                  Tag a person or team
+                </p>
+                <input
+                  type="text"
+                  value={tagQuery}
+                  onChange={(e) => setTagQuery(e.target.value)}
+                  placeholder="Search team members by name..."
+                  className="mb-2 w-full rounded-lg border border-white/10 bg-white/5 px-2.5 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                />
+                <div className="mb-2 max-h-32 space-y-1 overflow-y-auto">
+                  {teamMembers
+                    .filter(
+                      (m) =>
+                        !tagQuery ||
+                        m.full_name
+                          ?.toLowerCase()
+                          .includes(tagQuery.toLowerCase()) ||
+                        m.email?.toLowerCase().includes(tagQuery.toLowerCase())
+                    )
+                    .map((m) => (
+                      <button
+                        key={m.id}
+                        onClick={() =>
+                          handleAddTag({
+                            tag_type: 'person',
+                            tagged_staff_id: m.id,
+                          })
+                        }
+                        disabled={addingTag}
+                        className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-xs text-slate-300 transition hover:bg-white/10"
+                      >
+                        <User className="h-3 w-3 text-slate-500" />
+                        {m.full_name} ({m.email})
+                      </button>
+                    ))}
+                </div>
+                <div className="flex flex-wrap gap-1.5 border-t border-white/5 pt-2">
+                  {['operations', 'marketing', 'orders', 'admin'].map(
+                    (team) => (
+                      <button
+                        key={team}
+                        onClick={() =>
+                          handleAddTag({
+                            tag_type: 'team',
+                            tagged_team: team,
+                          })
+                        }
+                        disabled={addingTag}
+                        className="rounded-lg border border-white/10 bg-white/5 px-2 py-1 text-[10px] text-slate-300 transition hover:bg-white/10"
+                      >
+                        @{team}
+                      </button>
+                    )
+                  )}
+                </div>
+              </div>
+            )}
+
+            <div className="mt-3 space-y-2">
+              {tags.length === 0 && !showTagMenu && (
+                <p className="text-xs text-slate-500">
+                  No tags yet. Add a team or person tag to loop them in.
+                </p>
+              )}
+              {tags.map((tag: any) => {
+                const isOpen = !tag.resolved_at;
+                return (
+                  <div
+                    key={tag.id}
+                    className={`flex items-center justify-between rounded-xl border p-2.5 text-xs ${
+                      isOpen
+                        ? 'border-amber-500/30 bg-amber-500/5'
+                        : 'border-white/5 bg-white/[0.02]'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      {tag.tag_type === 'person' ? (
+                        <User className="h-3.5 w-3.5 text-slate-400" />
+                      ) : (
+                        <Users className="h-3.5 w-3.5 text-slate-400" />
+                      )}
+                      <div>
+                        <p className="font-semibold text-slate-200">
+                          {tag.tag_type === 'person'
+                            ? tag.tagged_staff?.full_name ||
+                              tag.tagged_staff?.email
+                            : `@${tag.tagged_team}`}
+                        </p>
+                        <p className="text-[10px] text-slate-500">
+                          {tag.tag_type === 'person' ? 'Person' : 'Team'}{' '}
+                          {isOpen ? (
+                            <span className="text-amber-400">
+                              · Awaiting response
+                            </span>
+                          ) : (
+                            <span className="text-emerald-400">· Resolved</span>
+                          )}
+                        </p>
+                      </div>
+                    </div>
+                    {isOpen && (
+                      <button
+                        onClick={() => handleResolveTag(tag.id)}
+                        className="rounded-lg border border-white/10 bg-white/5 px-2 py-1 text-[10px] text-slate-400 transition hover:bg-emerald-500/20 hover:text-emerald-400"
+                      >
+                        Mark Resolved
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         </div>
       </div>
     </div>

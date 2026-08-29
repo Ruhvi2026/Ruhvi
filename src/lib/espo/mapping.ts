@@ -20,6 +20,8 @@ export const STATUS_MAP: StatusMappingEntry[] = [
   { ruhvi: 'resolved', espo: 'Closed' },
   { ruhvi: 'closed', espo: 'Closed' },
   { ruhvi: 'reopened', espo: 'Reopened' },
+  { ruhvi: 'rejected', espo: 'Rejected' },
+  { ruhvi: 'duplicate', espo: 'Duplicate' },
 ];
 
 /** Reverse mapping: EspoCRM → Ruhvi. */

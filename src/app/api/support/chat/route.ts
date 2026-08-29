@@ -1044,12 +1044,25 @@ Rules for action field:
 
           if (currentUser) {
             ticketPayload.customer_id = currentUser.id;
+            ticketPayload.customer_email = currentUser.email || null;
           } else {
             ticketPayload.customer_id = null;
             ticketPayload.guest_email = guestEmail;
             ticketPayload.guest_name =
               aiResponse.ticket_data.guest_name || 'Guest';
           }
+
+          // Compute SLA deadline from support_sla_config (spec 4.4)
+          const slaPriority = ticketPayload.priority || 'normal';
+          const { data: slaCfg } = await supabase
+            .from('support_sla_config')
+            .select('target_hours')
+            .eq('priority', slaPriority)
+            .maybeSingle();
+          const slaHours = slaCfg?.target_hours ?? 24;
+          ticketPayload.sla_due_at = new Date(
+            Date.now() + slaHours * 60 * 60 * 1000
+          ).toISOString();
 
           const { data: ticket, error: ticketError } = await supabase
             .from('support_tickets')
@@ -1066,7 +1079,7 @@ Rules for action field:
               )
               .join('\n\n');
 
-            await supabase.from('support_messages').insert({
+            await supabase.from('support_ticket_messages').insert({
               ticket_id: ticket.id,
               sender_type: 'ai',
               message: `**AI Conversation Summary**\n\n${conversationSummary}`,
@@ -1074,7 +1087,7 @@ Rules for action field:
             });
 
             // Add the customer's original issue as a customer-visible message
-            await supabase.from('support_messages').insert({
+            await supabase.from('support_ticket_messages').insert({
               ticket_id: ticket.id,
               sender_type: 'customer',
               sender_id: currentUser ? currentUser.id : null,
@@ -1083,7 +1096,7 @@ Rules for action field:
             });
 
             // Create audit log entry
-            await supabase.from('support_audit_logs').insert({
+            await supabase.from('support_ticket_audit_log').insert({
               ticket_id: ticket.id,
               actor_type: isGuest ? 'customer' : 'ai',
               action: 'ticket_created',

@@ -43,11 +43,64 @@ export default function CustomerTicketDetail() {
   const [loading, setLoading] = useState(true);
   const [replyText, setReplyText] = useState('');
   const [sending, setSending] = useState(false);
+  const [isUploadingAttachment, setIsUploadingAttachment] = useState(false);
+  const [attachmentsList, setAttachmentsList] = useState<
+    {
+      file_name: string;
+      file_type: string;
+      file_size: number;
+      storage_url: string;
+      cloudinary_public_id: string | null;
+    }[]
+  >([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (user) fetchTicket();
   }, [user, ticketId]);
+
+  async function handleAttachmentUpload(
+    e: React.ChangeEvent<HTMLInputElement>
+  ) {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    setIsUploadingAttachment(true);
+    try {
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const fd = new FormData();
+        fd.append('file', file);
+
+        const res = await fetch('/api/support/upload', {
+          method: 'POST',
+          body: fd,
+        });
+        if (!res.ok) {
+          const err = await res.json();
+          toast.error(err.error || `Failed to upload ${file.name}`);
+          continue;
+        }
+        const up = await res.json();
+        setAttachmentsList((prev) => [
+          ...prev,
+          {
+            file_name: up.file_name,
+            file_type: up.file_type,
+            file_size: up.file_size,
+            storage_url: up.secure_url,
+            cloudinary_public_id: up.public_id,
+          },
+        ]);
+      }
+      toast.success('Attachment(s) uploaded');
+    } catch (err: any) {
+      toast.error(`Upload failed: ${err.message}`);
+    } finally {
+      setIsUploadingAttachment(false);
+      e.target.value = '';
+    }
+  }
 
   async function fetchTicket() {
     try {
@@ -70,16 +123,39 @@ export default function CustomerTicketDetail() {
       const res = await fetch(`/api/support/tickets/${ticketId}/messages`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: replyText, visibility: 'customer' }),
+        body: JSON.stringify({
+          message: replyText,
+          visibility: 'customer',
+          attachments: attachmentsList,
+        }),
       });
       if (!res.ok) throw new Error('Failed');
       setReplyText('');
+      setAttachmentsList([]);
       toast.success('Reply sent');
       fetchTicket();
     } catch {
       toast.error('Failed to send reply');
     } finally {
       setSending(false);
+    }
+  }
+
+  async function handleReopen() {
+    try {
+      const res = await fetch(`/api/support/tickets/${ticketId}/reopen`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({}),
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || 'Failed to reopen');
+      }
+      toast.success('Ticket reopened');
+      fetchTicket();
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to reopen ticket');
     }
   }
 
@@ -95,6 +171,25 @@ export default function CustomerTicketDetail() {
 
   const { ticket, messages, attachments } = data;
   const isClosed = ticket.status === 'closed' || ticket.status === 'resolved';
+
+  // Auto-close warning (spec §3.2): show when waiting_on_customer and > 20h elapsed.
+  const autoCloseWarning =
+    ticket.status === 'waiting_for_customer' &&
+    ticket.pending_customer_reply_since
+      ? (() => {
+          const elapsed =
+            (Date.now() -
+              new Date(ticket.pending_customer_reply_since).getTime()) /
+            3600000;
+          return elapsed >= 20;
+        })()
+      : false;
+
+  const canReopen =
+    ticket.status === 'closed' &&
+    ticket.close_reason === 'auto_closed_no_reply' &&
+    ticket.auto_close_eligible_until &&
+    new Date(ticket.auto_close_eligible_until) >= new Date();
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
@@ -164,6 +259,35 @@ export default function CustomerTicketDetail() {
           <p className="mt-0.5 text-xs text-purple-600">
             Our support team is waiting for your response. Please reply below.
           </p>
+        </div>
+      )}
+
+      {autoCloseWarning && (
+        <div className="mb-6 rounded-xl border border-amber-300 bg-amber-50 px-5 py-3">
+          <p className="text-sm font-semibold text-amber-700">
+            We haven't heard back from you
+          </p>
+          <p className="mt-0.5 text-xs text-amber-600">
+            This ticket will auto-close soon if we don't get a reply. Respond
+            below to keep it open.
+          </p>
+        </div>
+      )}
+
+      {canReopen && (
+        <div className="mb-6 rounded-xl border border-charcoal-200 bg-charcoal-50 px-5 py-3">
+          <p className="text-sm font-semibold text-charcoal-700">
+            This ticket was auto-closed
+          </p>
+          <p className="mt-0.5 text-xs text-charcoal-500">
+            You can reopen it within 30 days of closing.
+          </p>
+          <button
+            onClick={handleReopen}
+            className="mt-3 rounded-xl bg-charcoal-900 px-4 py-2 text-xs font-semibold text-cream-50 transition-colors hover:bg-charcoal-800"
+          >
+            Reopen Ticket
+          </button>
         </div>
       )}
 
@@ -256,6 +380,29 @@ export default function CustomerTicketDetail() {
         {/* Reply Box */}
         {!isClosed && (
           <div className="border-t border-charcoal-100 p-4">
+            {attachmentsList.length > 0 && (
+              <div className="mb-2 flex flex-wrap gap-2">
+                {attachmentsList.map((att, idx) => (
+                  <span
+                    key={idx}
+                    className="flex items-center gap-1 rounded-lg border border-charcoal-100 bg-charcoal-50 px-2 py-1 text-[11px] text-charcoal-500"
+                  >
+                    {att.file_name}
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setAttachmentsList((prev) =>
+                          prev.filter((_, i) => i !== idx)
+                        )
+                      }
+                      className="font-bold text-charcoal-400 hover:text-rose-500"
+                    >
+                      ×
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
             <div className="flex gap-2">
               <label htmlFor="ticket-reply" className="sr-only">
                 Type your reply
@@ -268,17 +415,35 @@ export default function CustomerTicketDetail() {
                 rows={2}
                 className="flex-1 resize-none rounded-xl border border-charcoal-200 bg-white p-3 text-sm text-charcoal-800 placeholder-charcoal-300 focus:outline-none focus:ring-2 focus:ring-gold-400/50"
               />
-              <button
-                onClick={handleReply}
-                disabled={sending || !replyText.trim()}
-                className="self-end rounded-xl bg-charcoal-900 px-4 py-2.5 text-sm font-semibold text-cream-50 transition-colors hover:bg-charcoal-800 disabled:opacity-40"
-              >
-                {sending ? (
-                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-cream-200 border-t-transparent" />
-                ) : (
-                  <Send className="h-4 w-4" />
-                )}
-              </button>
+              <div className="flex flex-col gap-2">
+                <label
+                  htmlFor="ticket-reply-attach"
+                  className={`flex cursor-pointer items-center justify-center self-end rounded-xl border border-charcoal-200 p-2.5 text-charcoal-400 transition-colors hover:bg-charcoal-50 ${isUploadingAttachment ? 'opacity-40' : ''}`}
+                  title="Attach image or PDF (max 10MB)"
+                >
+                  <Paperclip className="h-4 w-4" />
+                  <input
+                    id="ticket-reply-attach"
+                    type="file"
+                    multiple
+                    accept="image/*,application/pdf"
+                    className="hidden"
+                    onChange={handleAttachmentUpload}
+                    disabled={isUploadingAttachment}
+                  />
+                </label>
+                <button
+                  onClick={handleReply}
+                  disabled={sending || !replyText.trim()}
+                  className="self-end rounded-xl bg-charcoal-900 px-4 py-2.5 text-sm font-semibold text-cream-50 transition-colors hover:bg-charcoal-800 disabled:opacity-40"
+                >
+                  {sending ? (
+                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-cream-200 border-t-transparent" />
+                  ) : (
+                    <Send className="h-4 w-4" />
+                  )}
+                </button>
+              </div>
             </div>
           </div>
         )}

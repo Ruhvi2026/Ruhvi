@@ -79,7 +79,7 @@ export async function GET(req: NextRequest) {
 
     // 3. Fetch public customer-visible messages
     const { data: messages, error: messagesError } = await supabase
-      .from('support_messages')
+      .from('support_ticket_messages')
       .select('id, sender_type, message, created_at')
       .eq('ticket_id', ticket.id)
       .eq('visibility', 'customer')
@@ -91,7 +91,7 @@ export async function GET(req: NextRequest) {
 
     // 4. Fetch attachments
     const { data: attachments } = await supabase
-      .from('support_attachments')
+      .from('support_ticket_attachments')
       .select(
         'id, file_name, file_type, file_size, storage_url, created_at, message_id'
       )
