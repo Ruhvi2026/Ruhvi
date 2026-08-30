@@ -23,6 +23,7 @@ import {
   MoreHorizontal,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { createClient } from '@/lib/supabase/client';
 
 interface TeamMember {
   id: string;
@@ -275,6 +276,68 @@ export default function SupportTicketQueue() {
     fetchTickets();
   }, [fetchTickets]);
 
+  // Real-time subscription for live updates of tickets
+  useEffect(() => {
+    if (!teamMembers.length) return; // Wait until team members are loaded to map assignees
+
+    const supabase = createClient();
+    const channel = supabase
+      .channel('public:support_tickets')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'support_tickets',
+        },
+        (payload) => {
+          setTickets((prev) => {
+            const index = prev.findIndex((t) => t.id === payload.new.id);
+            if (index === -1) return prev;
+
+            const oldTicket = prev[index];
+            const isAssignedChanged =
+              oldTicket.assigned_to !== payload.new.assigned_to;
+            const isStatusChanged = oldTicket.status !== payload.new.status;
+            const isPriorityChanged =
+              oldTicket.priority !== payload.new.priority;
+
+            if (!isAssignedChanged && !isStatusChanged && !isPriorityChanged) {
+              return prev;
+            }
+
+            const updatedTickets = [...prev];
+            const updatedTicket = { ...oldTicket, ...payload.new };
+
+            if (isAssignedChanged) {
+              if (payload.new.assigned_to) {
+                const staff = teamMembers.find(
+                  (m) => m.id === payload.new.assigned_to
+                );
+                if (staff) {
+                  updatedTicket.assigned = {
+                    id: staff.id,
+                    full_name: staff.full_name,
+                    email: staff.email,
+                  };
+                }
+              } else {
+                updatedTicket.assigned = null;
+              }
+            }
+
+            updatedTickets[index] = updatedTicket;
+            return updatedTickets;
+          });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [teamMembers]);
+
   const handleTabChange = (tab: typeof activeTab) => {
     setActiveTab(tab);
     setPage(1);
@@ -298,10 +361,16 @@ export default function SupportTicketQueue() {
   const handleInlineAssign = async (ticketId: string, staffId: string) => {
     setInlineUpdatingId(ticketId);
     try {
+      const ticket = tickets.find((t) => t.id === ticketId);
+      const payload: any = { assigned_to: staffId || null };
+      if (staffId && ticket?.status === 'new') {
+        payload.status = 'open';
+      }
+
       const res = await fetch(`/api/support/tickets/${ticketId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ assigned_to: staffId || null }),
+        body: JSON.stringify(payload),
       });
       if (res.ok) {
         toast.success(staffId ? 'Ticket assigned' : 'Ticket unassigned');
