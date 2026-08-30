@@ -290,7 +290,7 @@ export default function SupportTicketQueue() {
           schema: 'public',
           table: 'support_tickets',
         },
-        (payload) => {
+        (payload: any) => {
           setTickets((prev) => {
             const index = prev.findIndex((t) => t.id === payload.new.id);
             if (index === -1) return prev;
