@@ -8,6 +8,7 @@ export class OrderError extends Error {
 
   constructor(message: string, status = 500) {
     super(message);
+    this.name = 'OrderError';
     this.status = status;
   }
 }
@@ -289,6 +290,12 @@ export async function createOrder(
       console.error(
         `Failed to redeem wallet for order ${orderNumber}:`,
         debitErr
+      );
+      // Fail closed: an order that was supposed to use wallet funds must not
+      // be silently confirmed without the wallet being debited.
+      throw new OrderError(
+        'Failed to redeem wallet balance. Please try again.',
+        500
       );
     }
   }

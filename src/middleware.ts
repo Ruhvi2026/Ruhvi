@@ -149,6 +149,15 @@ export async function middleware(request: NextRequest) {
     'https://igrkrkxdantrolbldapj.supabase.co';
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
+  const isInternalRoute =
+    path.startsWith('/admin') ||
+    path.startsWith('/manager') ||
+    path.startsWith('/staff') ||
+    path.startsWith('/operations') ||
+    path.startsWith('/portal-orders') ||
+    path.startsWith('/support') ||
+    path.startsWith('/marketing');
+
   try {
     const supabase = createServerClient(
       url,
@@ -186,15 +195,6 @@ export async function middleware(request: NextRequest) {
     );
 
     // RBAC for internal routes
-    const isInternalRoute =
-      path.startsWith('/admin') ||
-      path.startsWith('/manager') ||
-      path.startsWith('/staff') ||
-      path.startsWith('/operations') ||
-      path.startsWith('/portal-orders') ||
-      path.startsWith('/support') ||
-      path.startsWith('/marketing');
-
     if (isInternalRoute) {
       const sessionCookie = request.cookies.get('__session')?.value;
 
@@ -323,7 +323,18 @@ export async function middleware(request: NextRequest) {
     }
   } catch (error) {
     console.error('[Middleware Error]', error);
-    // Return standard response on error to avoid 500 MIDDLEWARE_INVOCATION_FAILED
+    // Fail closed: if RBAC/session verification fails on an internal route,
+    // redirect to login instead of passing the request through unauthenticated.
+    if (isInternalRoute) {
+      const loginUrl = new URL('/login', request.url);
+      loginUrl.searchParams.set('redirectTo', path);
+      const redirectResponse = NextResponse.redirect(loginUrl);
+      if (isAnyPortalHost) {
+        redirectResponse.headers.set('X-Robots-Tag', 'noindex, nofollow');
+      }
+      return redirectResponse;
+    }
+    // For public routes, return the standard response to avoid 500 MIDDLEWARE_INVOCATION_FAILED
   }
 
   return supabaseResponse;

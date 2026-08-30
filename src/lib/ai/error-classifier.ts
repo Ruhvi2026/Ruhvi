@@ -43,9 +43,6 @@ const RATE_LIMIT_PATTERNS = [
   /quota.*exhausted/i,
   /tokens.*per.*minute/i,
   /tpm.*exceeded/i,
-  /overloaded/i,
-  /temporarily.*unavailable/i,
-  /service.*temporarily/i,
   /try again.*later/i,
   /backoff/i,
   /RESOURCE_EXHAUSTED/,
@@ -159,6 +156,22 @@ export function classifyError(
   const status = httpStatus ?? extractHttpStatus(error);
   const providerErrorCode = extractProviderErrorCode(error);
 
+  // ── Server errors (5xx) — check first so "temporarily unavailable" or
+  // ── "try again later" on a 503/500 isn't mistaken for a rate limit ───────
+  if (status && status >= 500 && status < 600) {
+    return {
+      category: 'SERVER_ERROR',
+      shouldRotateCredential: true,
+      shouldRotateProvider: false,
+      shouldMarkInvalid: false,
+      shouldCooldown: false,
+      shouldRetry: true,
+      maxRetries: 1,
+      httpStatus: status,
+      providerErrorCode,
+    };
+  }
+
   // ── HTTP 429 or rate-limit patterns ──────────────────────────────────────
   if (status === 429 || RATE_LIMIT_PATTERNS.some((p) => p.test(message))) {
     // Check if it's a daily/quota exhaustion (longer cooldown needed)
@@ -260,21 +273,6 @@ export function classifyError(
   ) {
     return {
       category: 'TIMEOUT',
-      shouldRotateCredential: true,
-      shouldRotateProvider: false,
-      shouldMarkInvalid: false,
-      shouldCooldown: false,
-      shouldRetry: true,
-      maxRetries: 1,
-      httpStatus: status,
-      providerErrorCode,
-    };
-  }
-
-  // ── Server errors (5xx) ───────────────────────────────────────────────────
-  if (status && status >= 500 && status < 600) {
-    return {
-      category: 'SERVER_ERROR',
       shouldRotateCredential: true,
       shouldRotateProvider: false,
       shouldMarkInvalid: false,

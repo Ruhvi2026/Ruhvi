@@ -17,6 +17,13 @@
 import { classifyError, type ErrorCategory } from '../error-classifier';
 import { getNextCooldownSeconds } from '../credentials';
 
+jest.mock('next/headers', () => ({
+  cookies: jest.fn(() => new Map()),
+}));
+jest.mock('@supabase/ssr', () => ({
+  createServerClient: jest.fn(),
+}));
+
 // ─── Mock Supabase ─────────────────────────────────────────────────────────
 
 const mockDb: Record<string, any[]> = {};
@@ -123,8 +130,10 @@ describe('Error Classifier', () => {
     );
   });
 
-  test('Scenario 1c: Gemini RESOURCE_EXHAUSTED → RATE_LIMIT', () => {
-    expect(classify('RESOURCE_EXHAUSTED: quota exceeded')).toBe('RATE_LIMIT');
+  test('Scenario 1c: Gemini RESOURCE_EXHAUSTED → QUOTA_EXHAUSTED', () => {
+    expect(classify('RESOURCE_EXHAUSTED: quota exceeded')).toBe(
+      'QUOTA_EXHAUSTED'
+    );
   });
 
   test('Scenario 1d: Daily quota → QUOTA_EXHAUSTED', () => {
