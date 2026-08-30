@@ -118,13 +118,14 @@ export async function GET(req: NextRequest) {
       console.error('Messages query error:', messagesError);
     }
 
-    // 4. Fetch attachments
+    // 4. Fetch attachments (customer-visible only)
     const { data: attachments } = await supabase
       .from('support_ticket_attachments')
       .select(
         'id, file_name, file_type, file_size, storage_url, created_at, message_id'
       )
       .eq('ticket_id', ticket.id)
+      .eq('visibility', 'customer')
       .order('created_at', { ascending: true });
 
     const categoryObj = Array.isArray(ticket.category)

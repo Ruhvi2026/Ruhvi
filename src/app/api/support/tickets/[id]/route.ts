@@ -109,7 +109,10 @@ export async function GET(
       }
     }
 
-    // Fetch messages (customers only see customer-visible, staff see all)
+    // Fetch messages. Customers only see customer-visible messages. Staff see
+    // everything in the staff console, but when a staff member opens their own
+    // ticket from the customer account area (?mine=true) they are in customer
+    // context, so internal notes must still be hidden there.
     let messagesQuery = supabase
       .from('support_ticket_messages')
       .select(
@@ -121,20 +124,26 @@ export async function GET(
       .eq('ticket_id', id)
       .order('created_at', { ascending: true });
 
-    if (!isStaff) {
+    if (!isStaff || mine) {
       messagesQuery = messagesQuery.eq('visibility', 'customer');
     }
 
     const { data: messages } = await messagesQuery;
 
-    // Fetch attachments
-    const { data: attachments } = await supabase
+    // Fetch attachments (same visibility rules as messages)
+    let attachmentsQuery = supabase
       .from('support_ticket_attachments')
       .select(
         'id, file_name, file_type, file_size, storage_url, created_at, uploaded_by'
       )
       .eq('ticket_id', id)
       .order('created_at', { ascending: true });
+
+    if (!isStaff || mine) {
+      attachmentsQuery = attachmentsQuery.eq('visibility', 'customer');
+    }
+
+    const { data: attachments } = await attachmentsQuery;
 
     // Fetch audit logs (staff only)
     let auditLogs: any[] = [];
