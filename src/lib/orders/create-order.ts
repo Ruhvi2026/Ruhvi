@@ -149,32 +149,35 @@ export async function createOrder(
       throw new OrderError('Failed to initiate guest checkout.', 500);
     }
 
-    // We still need to sync this user to our public.users table in Supabase
-    // Using Service Role to bypass RLS for user creation
+    // Sync guest to public.users + customer_identities via canonical RPC
     const adminSupabase = createJSClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     );
 
-    const { data: newUser, error: dbError } = await adminSupabase
-      .from('users')
-      .upsert(
-        {
-          firebase_uid: fbUser.uid,
-          email: fbUser.email,
-          full_name: fbUser.displayName,
-        },
-        { onConflict: 'firebase_uid' }
-      )
-      .select()
-      .single();
+    const { data: resolvedId, error: resolveErr } = await adminSupabase.rpc(
+      'resolve_customer_identity',
+      {
+        p_firebase_uid: fbUser.uid,
+        p_provider: 'password',
+        p_provider_identifier: fbUser.email,
+        p_email: fbUser.email,
+        p_email_verified: false,
+        p_phone: null,
+        p_phone_verified: false,
+        p_name: fbUser.displayName,
+      }
+    );
 
-    if (dbError || !newUser) {
-      console.error('Failed to create guest user in DB:', dbError);
+    if (resolveErr || !resolvedId) {
+      console.error(
+        'Failed to resolve guest identity:',
+        resolveErr || 'No ID returned'
+      );
       throw new OrderError('Failed to initiate guest checkout.', 500);
     }
 
-    user = { id: newUser.id, email: newUser.email } as any;
+    user = { id: resolvedId, email: fbUser.email } as any;
   }
 
   // Generate unique order number (e.g. RHV-2026-XXXX)
