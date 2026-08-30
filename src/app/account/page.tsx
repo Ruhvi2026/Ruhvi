@@ -243,13 +243,14 @@ export default function AccountOverviewPage() {
       const supabase = createClient();
 
       // 1. Update public.users table
-      const { error: dbError } = await supabase.from('users').upsert({
-        id: user.id,
-        email: user.email,
-        full_name: fullName,
-        phone: phone,
-        updated_at: new Date().toISOString(),
-      });
+      const { error: dbError } = await supabase
+        .from('users')
+        .update({
+          full_name: fullName,
+          phone: phone,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', user.id);
 
       if (dbError) throw dbError;
 
