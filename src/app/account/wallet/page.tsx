@@ -231,13 +231,7 @@ export default function WalletPage() {
 
   const isGuest = !user && !authLoading;
 
-  const profileBalance = Number(profile?.wallet_balance) || 0;
-  const displayBalance =
-    ledgerBalance !== null ? ledgerBalance : profileBalance;
-  const reconciliationNote =
-    ledgerBalance !== null && Math.abs(ledgerBalance - profileBalance) > 0.009
-      ? `Balance: ₹${profileBalance.toLocaleString('en-IN')} (Ledger: ₹${ledgerBalance.toLocaleString('en-IN')})`
-      : null;
+  const displayBalance = Number(profile?.wallet_balance) || 0;
 
   return (
     <div className="mx-auto max-w-5xl space-y-8 px-4 py-10 sm:px-6 lg:px-8">
@@ -270,12 +264,7 @@ export default function WalletPage() {
                 maximumFractionDigits: 2,
               })}
             </h1>
-            {reconciliationNote && (
-              <p className="mt-1 flex items-center gap-1 font-mono text-xs font-medium text-amber-200">
-                <AlertCircle className="h-3 w-3 shrink-0" />
-                <span>{reconciliationNote}</span>
-              </p>
-            )}
+
             <div className="mt-1.5 space-y-1">
               <p className="flex items-center gap-1 text-xs font-medium text-emerald-300/90">
                 <Sparkles className="h-3 w-3 shrink-0 text-amber-300" /> 100%

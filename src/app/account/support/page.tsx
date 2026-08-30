@@ -90,13 +90,20 @@ export default function CustomerSupportPage() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
-      <div className="mb-8 flex items-center justify-between">
+      <div className="mb-8 flex items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-charcoal-900">Support</h1>
           <p className="mt-1 text-sm text-charcoal-500">
             Track your support requests and get help
           </p>
         </div>
+        <Link
+          href="/account/support/chat"
+          className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-charcoal-900 px-4 py-2.5 text-sm font-semibold text-cream-50 transition-colors hover:bg-charcoal-800"
+        >
+          <Plus className="h-4 w-4" />
+          Create Ticket
+        </Link>
       </div>
 
       {/* Waiting for Customer - highlight */}
@@ -122,9 +129,13 @@ export default function CustomerSupportPage() {
           <p className="mt-2 text-sm text-charcoal-400">
             Need help? Start a conversation with our support assistant.
           </p>
-          <p className="mt-1 text-xs text-charcoal-400">
-            Click the chat bubble in the bottom-right corner to get started.
-          </p>
+          <Link
+            href="/account/support/chat"
+            className="mt-4 inline-flex items-center gap-2 rounded-xl bg-charcoal-900 px-5 py-2.5 text-sm font-semibold text-cream-50 transition-colors hover:bg-charcoal-800"
+          >
+            <Plus className="h-4 w-4" />
+            Create Ticket
+          </Link>
         </div>
       ) : (
         <div className="space-y-3">

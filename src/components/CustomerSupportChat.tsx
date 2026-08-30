@@ -5,6 +5,7 @@ import { X, Send, Paperclip, Ticket, ExternalLink } from 'lucide-react';
 import BotMascot from '@/components/design-system/BotMascot';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
+import { usePathname } from 'next/navigation';
 
 const THINKING_STEPS = [
   'Reading your words…',
@@ -59,13 +60,19 @@ interface ChatMessage {
   };
 }
 
-export default function CustomerSupportChat() {
+export default function CustomerSupportChat({
+  embedded = false,
+}: {
+  embedded?: boolean;
+}) {
   const { user } = useAuth();
-  const [isOpen, setIsOpen] = useState(false);
+  const pathname = usePathname();
+  const isChatPage = pathname === '/account/support/chat';
+  const [isOpen, setIsOpen] = useState(embedded);
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       sender: 'bot',
-      text: 'Namaste! I am Gia, Ruhvi\u2019s Golden Concierge. I grew up among goldsmiths in Jaipur, so pieces, materials, and orders are my world. How may I help you today?\n\nI can help with order tracking, returns, warranty questions, payment issues, and more. Just tell me what\u2019s on your mind!',
+      text: 'Tell me, what is your issue?',
     },
   ]);
   const [input, setInput] = useState('');
@@ -295,26 +302,36 @@ export default function CustomerSupportChat() {
     }
   };
 
+  if (!embedded && isChatPage) return null;
+
   return (
     <>
       {/* Chat Window */}
-      {isOpen && (
+      {(embedded || isOpen) && (
         <div
-          className="fixed bottom-24 right-5 z-[100] flex flex-col overflow-hidden rounded-2xl border border-white/30 shadow-2xl shadow-black/30 backdrop-blur-md"
+          className={`flex flex-col overflow-hidden rounded-2xl border border-white/30 shadow-2xl shadow-black/30 backdrop-blur-md ${
+            embedded ? 'h-full w-full' : 'fixed bottom-24 right-5 z-[100]'
+          }`}
           style={{
-            width: `${winSize.width}px`,
-            maxWidth: 'calc(100vw - 40px)',
-            height: `${winSize.height}px`,
-            maxHeight: 'calc(100dvh - 140px)',
+            ...(embedded
+              ? {}
+              : {
+                  width: `${winSize.width}px`,
+                  maxWidth: 'calc(100vw - 40px)',
+                  height: `${winSize.height}px`,
+                  maxHeight: 'calc(100dvh - 140px)',
+                }),
             background:
               'linear-gradient(145deg, #FDFAF3 0%, #F5F0E6 60%, #EDE6D5 100%)',
           }}
         >
           {/* Resize Handle */}
-          <div
-            className="absolute -left-0.5 -top-0.5 z-10 h-5 w-5 cursor-nw-resize"
-            onPointerDown={onResizeStart}
-          />
+          {!embedded && (
+            <div
+              className="absolute -left-0.5 -top-0.5 z-10 h-5 w-5 cursor-nw-resize"
+              onPointerDown={onResizeStart}
+            />
+          )}
 
           {/* Header */}
           <div className="flex items-center justify-between border-b border-charcoal-100/60 bg-gradient-to-r from-charcoal-900 to-charcoal-800 px-4 py-3">
@@ -330,12 +347,14 @@ export default function CustomerSupportChat() {
                 </p>
               </div>
             </div>
-            <button
-              onClick={() => setIsOpen(false)}
-              className="rounded-full p-1 text-cream-200/60 transition-colors hover:bg-white/10 hover:text-white"
-            >
-              <X className="h-4 w-4" />
-            </button>
+            {!embedded && (
+              <button
+                onClick={() => setIsOpen(false)}
+                className="rounded-full p-1 text-cream-200/60 transition-colors hover:bg-white/10 hover:text-white"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
           </div>
 
           {/* Messages */}
@@ -552,7 +571,7 @@ export default function CustomerSupportChat() {
       )}
 
       {/* Draggable Floating Mascot */}
-      {!isClosed && (
+      {!embedded && !isClosed && (
         <div
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
@@ -582,7 +601,7 @@ export default function CustomerSupportChat() {
       )}
 
       {/* Drop Target Zone to Close/Hide Mascot */}
-      {isDragging && !isClosed && (
+      {!embedded && isDragging && !isClosed && (
         <div className="pointer-events-none fixed bottom-6 left-1/2 z-[99] flex -translate-x-1/2 flex-col items-center gap-1.5">
           <div
             className={`flex h-16 w-16 items-center justify-center rounded-full border-2 transition-all duration-300 ${
