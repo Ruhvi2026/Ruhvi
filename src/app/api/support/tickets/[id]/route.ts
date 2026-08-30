@@ -96,16 +96,10 @@ export async function GET(
       return NextResponse.json({ error: 'Ticket not found' }, { status: 404 });
     }
 
-    // Access control check: staff can see anything, customers see their own, guests see if email matches
+    // Access control: staff see everything; authenticated non-staff only see own tickets
+    // (email-based guest lookup is handled by the /status endpoint)
     if (!isStaff) {
-      const isOwner = ticket.customer_id === user.id;
-      const isEmailMatch =
-        (ticket.customer?.email &&
-          ticket.customer.email.toLowerCase() === user.email?.toLowerCase()) ||
-        (ticket.guest_email &&
-          ticket.guest_email.toLowerCase() === user.email?.toLowerCase());
-
-      if (!isOwner && !isEmailMatch) {
+      if (ticket.customer_id !== user.id) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
       }
     }

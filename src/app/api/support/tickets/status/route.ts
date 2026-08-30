@@ -4,7 +4,17 @@ import { cookies } from 'next/headers';
 
 /**
  * Public Ticket Status API
- * GET — Check status of a ticket by ticket number + email (case insensitive)
+ * GET — Check status of a ticket by ticket number (or UUID id) + email (case insensitive)
+ *
+ * Guest users can view a ticket only when they provide the correct
+ * ticket identifier (ticketNumber or UUID id) AND the email address
+ * associated with that ticket.
+ *
+ * Accepted query params:
+ *   - ticket      : either a ticket_number (e.g. RUV-2026-000001) or a UUID id
+ *   - ticketNumber: alias for ticket (legacy, superseded by `ticket`)
+ *   - id          : explicit UUID lookup
+ *   - email       : email address associated with the ticket
  */
 
 async function getSupabaseAdmin(cookieStore: any) {
@@ -26,12 +36,15 @@ async function getSupabaseAdmin(cookieStore: any) {
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
-    const ticketNumber = searchParams.get('ticketNumber')?.trim();
+    const ticketIdentifier =
+      searchParams.get('ticket')?.trim() ||
+      searchParams.get('ticketNumber')?.trim() ||
+      searchParams.get('id')?.trim();
     const email = searchParams.get('email')?.trim().toLowerCase();
 
-    if (!ticketNumber || !email) {
+    if (!ticketIdentifier || !email) {
       return NextResponse.json(
-        { error: 'Ticket number and email are required.' },
+        { error: 'Ticket number (or ID) and email are required.' },
         { status: 400 }
       );
     }
@@ -39,20 +52,30 @@ export async function GET(req: NextRequest) {
     const cookieStore = await cookies();
     const supabase = await getSupabaseAdmin(cookieStore);
 
-    // 1. Fetch ticket matching number
-    const { data: ticket, error: ticketError } = await supabase
-      .from('support_tickets')
-      .select(
-        `
+    // Detect whether the identifier is a UUID or a ticket_number
+    const isUuid =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+        ticketIdentifier
+      );
+
+    // 1. Fetch ticket matching either ticket_number or UUID id
+    let query = supabase.from('support_tickets').select(
+      `
         id, ticket_number, title, description, status, priority, created_at, updated_at,
         guest_email, guest_name,
         customer:customer_id(id, full_name, email),
         category:category_id(name),
         subcategory:subcategory_id(name)
       `
-      )
-      .eq('ticket_number', ticketNumber)
-      .maybeSingle();
+    );
+
+    if (isUuid) {
+      query = query.eq('id', ticketIdentifier);
+    } else {
+      query = query.eq('ticket_number', ticketIdentifier);
+    }
+
+    const { data: ticket, error: ticketError } = await query.maybeSingle();
 
     if (ticketError || !ticket) {
       return NextResponse.json(
