@@ -665,8 +665,8 @@ async function getAuthenticatedUser(cookieStore: any) {
 
   try {
     const decoded = await verifySessionToken(sessionCookie);
-    const uid = decoded?.firebase_uid || decoded?.sub;
-    if (!uid) return null;
+    const supabaseUserId = decoded?.sub;
+    if (!supabaseUserId) return null;
 
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL ||
@@ -682,23 +682,32 @@ async function getAuthenticatedUser(cookieStore: any) {
       }
     );
 
-    const { data: user } = await supabase
+    const { data: user, error } = await supabase
       .from('users')
       .select(
         'id, full_name, email, phone, role, wallet_balance, reward_coins, created_at'
       )
-      .eq('id', uid)
+      .eq('id', supabaseUserId)
       .maybeSingle();
 
+    if (error) {
+      console.error(
+        '[Support Chat] getAuthenticatedUser DB error:',
+        error.message
+      );
+      return null;
+    }
+
     return user;
-  } catch {
+  } catch (err) {
+    console.error('[Support Chat] getAuthenticatedUser error:', err);
     return null;
   }
 }
 
 async function getCustomerContext(supabase: any, userId: string) {
   // Fetch recent orders
-  const { data: orders } = await supabase
+  const { data: orders, error: ordersError } = await supabase
     .from('orders')
     .select(
       `
@@ -711,11 +720,15 @@ async function getCustomerContext(supabase: any, userId: string) {
     .order('created_at', { ascending: false })
     .limit(8);
 
+  if (ordersError) {
+    console.warn('[Support Chat] orders query error:', ordersError.message);
+  }
+
   // Fetch order items for recent orders
   let orderItems: any[] = [];
   if (orders && orders.length > 0) {
     const orderIds = orders.map((o: any) => o.id);
-    const { data: items } = await supabase
+    const { data: items, error: itemsError } = await supabase
       .from('order_items')
       .select(
         `
@@ -724,6 +737,12 @@ async function getCustomerContext(supabase: any, userId: string) {
       `
       )
       .in('order_id', orderIds);
+    if (itemsError) {
+      console.warn(
+        '[Support Chat] order_items query error:',
+        itemsError.message
+      );
+    }
     orderItems = items || [];
   }
 
@@ -736,33 +755,53 @@ async function getCustomerContext(supabase: any, userId: string) {
   );
   if (inTransitOrders.length > 0) {
     const inTransitIds = inTransitOrders.map((o: any) => o.id);
-    const { data: tracking } = await supabase
+    const { data: tracking, error: trackingError } = await supabase
       .from('tracking_updates')
       .select('id, order_id, status, location, activity, timestamp')
       .in('order_id', inTransitIds)
       .order('timestamp', { ascending: false })
       .limit(15);
+    if (trackingError) {
+      console.warn(
+        '[Support Chat] tracking_updates query error:',
+        trackingError.message
+      );
+    }
     trackingUpdates = tracking || [];
   }
 
   // Fetch recent wallet ledger transactions (transaction records)
-  const { data: walletTxns } = await supabase
+  const { data: walletTxns, error: walletError } = await supabase
     .from('wallet_ledger')
     .select('id, amount, type, order_id, created_at')
     .eq('user_id', userId)
     .order('created_at', { ascending: false })
     .limit(8);
 
+  if (walletError) {
+    console.warn(
+      '[Support Chat] wallet_ledger query error:',
+      walletError.message
+    );
+  }
+
   // Fetch recent reward coin ledger entries (reward points history)
-  const { data: rewardTxns } = await supabase
+  const { data: rewardTxns, error: rewardError } = await supabase
     .from('reward_coin_ledger')
     .select('id, amount, type, order_id, expiry_date, created_at')
     .eq('user_id', userId)
     .order('created_at', { ascending: false })
     .limit(8);
 
+  if (rewardError) {
+    console.warn(
+      '[Support Chat] reward_coin_ledger query error:',
+      rewardError.message
+    );
+  }
+
   // Fetch returns / refund requests for recent orders
-  const { data: returns } = await supabase
+  const { data: returns, error: returnsError } = await supabase
     .from('returns')
     .select(
       'id, order_id, reason, status, refund_method, requested_at, resolved_at, order:orders!inner(order_number)'
@@ -771,8 +810,12 @@ async function getCustomerContext(supabase: any, userId: string) {
     .order('requested_at', { ascending: false })
     .limit(5);
 
+  if (returnsError) {
+    console.warn('[Support Chat] returns query error:', returnsError.message);
+  }
+
   // Fetch recent support tickets across all statuses (to answer status queries)
-  const { data: tickets } = await supabase
+  const { data: tickets, error: ticketsError } = await supabase
     .from('support_tickets')
     .select(
       'id, ticket_number, title, status, priority, order_id, created_at, updated_at'
@@ -780,6 +823,13 @@ async function getCustomerContext(supabase: any, userId: string) {
     .eq('customer_id', userId)
     .order('created_at', { ascending: false })
     .limit(10);
+
+  if (ticketsError) {
+    console.warn(
+      '[Support Chat] support_tickets query error:',
+      ticketsError.message
+    );
+  }
 
   return {
     orders: orders || [],
