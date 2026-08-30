@@ -62,7 +62,7 @@ export async function GET(req: NextRequest) {
     let query = supabase.from('support_tickets').select(
       `
         id, ticket_number, title, description, status, priority, created_at, updated_at,
-        guest_email, guest_name,
+        guest_email, guest_name, customer_email,
         customer:customer_id(id, full_name, email),
         category:category_id(name),
         subcategory:subcategory_id(name)
@@ -84,14 +84,20 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    // 2. Validate email matches either guest_email or customer email
+    // 2. Validate email matches guest_email, customer_email, or linked customer email
     const customer = Array.isArray(ticket.customer)
       ? ticket.customer[0]
       : ticket.customer;
     const customerEmail = customer?.email?.toLowerCase();
     const guestEmail = ticket.guest_email?.toLowerCase();
+    const ticketCustomerEmail = ticket.customer_email?.toLowerCase();
 
-    if (customerEmail !== email && guestEmail !== email) {
+    const emailMatches =
+      (customerEmail && customerEmail === email) ||
+      (guestEmail && guestEmail === email) ||
+      (ticketCustomerEmail && ticketCustomerEmail === email);
+
+    if (!emailMatches) {
       return NextResponse.json(
         {
           error: 'Unauthorized. The email provided does not match this ticket.',

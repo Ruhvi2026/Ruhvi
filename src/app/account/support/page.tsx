@@ -62,12 +62,20 @@ export default function CustomerSupportPage() {
         <p className="mt-2 text-sm text-charcoal-500">
           Please sign in to view your support tickets and get help.
         </p>
-        <Link
-          href="/login"
-          className="mt-6 inline-block rounded-lg bg-charcoal-900 px-6 py-2.5 text-sm font-semibold text-cream-50 transition-colors hover:bg-charcoal-800"
-        >
-          Sign In
-        </Link>
+        <div className="mt-6 flex flex-col items-center gap-3">
+          <Link
+            href="/login"
+            className="inline-block rounded-lg bg-charcoal-900 px-6 py-2.5 text-sm font-semibold text-cream-50 transition-colors hover:bg-charcoal-800"
+          >
+            Sign In
+          </Link>
+          <Link
+            href="/support-status"
+            className="inline-block rounded-lg border border-gold-300 px-6 py-2.5 text-sm font-semibold text-gold-700 transition-colors hover:bg-gold-50"
+          >
+            Track a Ticket Without Signing In
+          </Link>
+        </div>
       </div>
     );
   }

@@ -267,6 +267,25 @@ export default function SupportLayout({
   const userEmail = profile?.email || user?.email || '';
   const userRole = profile?.role || 'staff';
 
+  const isStaffRole = [
+    'super_admin',
+    'SUPER_ADMIN',
+    'admin',
+    'manager',
+    'staff',
+  ].includes(userRole);
+
+  // Redirect non-staff users away from the staff support console
+  useEffect(() => {
+    if (!user) {
+      router.replace('/login');
+      return;
+    }
+    if (!isStaffRole) {
+      router.replace('/account/support');
+    }
+  }, [user, isStaffRole, router]);
+
   const roleDisplayLabel =
     userRole === 'admin'
       ? 'Administrator'

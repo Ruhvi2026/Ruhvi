@@ -72,7 +72,7 @@ export async function POST(
       .from('support_tickets')
       .select(
         `
-        id, ticket_number, customer_id, status, guest_email,
+        id, ticket_number, customer_id, status, guest_email, customer_email,
         customer:customer_id(email)
       `
       )
@@ -122,8 +122,14 @@ export async function POST(
         : ticket.customer;
       const customerEmail = customerObj?.email?.toLowerCase();
       const guestEmail = ticket.guest_email?.toLowerCase();
+      const ticketCustomerEmail = ticket.customer_email?.toLowerCase();
 
-      if (cleanEmail !== customerEmail && cleanEmail !== guestEmail) {
+      const emailMatches =
+        (customerEmail && customerEmail === cleanEmail) ||
+        (guestEmail && guestEmail === cleanEmail) ||
+        (ticketCustomerEmail && ticketCustomerEmail === cleanEmail);
+
+      if (!emailMatches) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
       }
 
