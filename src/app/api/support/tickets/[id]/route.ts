@@ -61,6 +61,9 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const { searchParams } = new URL(req.url);
+    const mine = searchParams.get('mine') === 'true';
+
     const supabase = await getSupabaseAdmin(cookieStore);
     const isStaff = [
       'super_admin',
@@ -96,9 +99,11 @@ export async function GET(
       return NextResponse.json({ error: 'Ticket not found' }, { status: 404 });
     }
 
-    // Access control: staff see everything; authenticated non-staff only see own tickets
-    // (email-based guest lookup is handled by the /status endpoint)
-    if (!isStaff) {
+    // Access control: staff see everything; authenticated non-staff only see own
+    // tickets (email-based guest lookup is handled by the /status endpoint).
+    // When requested from the customer account area (`?mine=true`), even staff
+    // are restricted to their own tickets so the account tab stays scoped.
+    if (!isStaff || mine) {
       if (ticket.customer_id !== user.id) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
       }

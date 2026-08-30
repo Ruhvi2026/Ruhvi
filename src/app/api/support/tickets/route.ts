@@ -81,6 +81,7 @@ export async function GET(req: NextRequest) {
     const assignee = searchParams.get('assignee');
     const slaStatus = searchParams.get('sla_status');
     const search = searchParams.get('search');
+    const mine = searchParams.get('mine') === 'true';
     const page = parseInt(searchParams.get('page') || '1');
     const limit = Math.min(parseInt(searchParams.get('limit') || '20'), 50);
     const offset = (page - 1) * limit;
@@ -111,7 +112,7 @@ export async function GET(req: NextRequest) {
       'manager',
       'staff',
     ].includes(user.role);
-    if (!isStaff) {
+    if (!isStaff || mine) {
       query = query.eq('customer_id', user.id);
     }
 

@@ -104,7 +104,7 @@ export default function CustomerTicketDetail() {
 
   async function fetchTicket() {
     try {
-      const res = await fetch(`/api/support/tickets/${ticketId}`);
+      const res = await fetch(`/api/support/tickets/${ticketId}?mine=true`);
       if (!res.ok) throw new Error('Not found');
       const json = await res.json();
       setData(json);

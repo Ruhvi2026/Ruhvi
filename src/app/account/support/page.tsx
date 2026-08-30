@@ -42,7 +42,7 @@ export default function CustomerSupportPage() {
 
   async function fetchTickets() {
     try {
-      const res = await fetch('/api/support/tickets?limit=50');
+      const res = await fetch('/api/support/tickets?limit=50&mine=true');
       const data = await res.json();
       setTickets(data.tickets || []);
     } catch (err) {
