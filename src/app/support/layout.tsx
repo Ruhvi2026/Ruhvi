@@ -159,8 +159,6 @@ function SupportSidebarContent({
         )}
       </div>
 
-
-
       {/* Navigation Groups */}
       <nav className="custom-scrollbar flex-1 space-y-6 overflow-y-auto px-3 py-6">
         {navGroups.map((group) => (
@@ -251,7 +249,7 @@ export default function SupportLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
-  const { user, profile, signOut } = useAuth();
+  const { user, profile, signOut, loading } = useAuth();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -277,6 +275,7 @@ export default function SupportLayout({
 
   // Redirect non-staff users away from the staff support console
   useEffect(() => {
+    if (loading) return;
     if (!user) {
       router.replace('/login');
       return;
@@ -284,7 +283,7 @@ export default function SupportLayout({
     if (!isStaffRole) {
       router.replace('/account/support');
     }
-  }, [user, isStaffRole, router]);
+  }, [user, isStaffRole, router, loading]);
 
   const roleDisplayLabel =
     userRole === 'admin'
