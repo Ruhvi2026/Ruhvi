@@ -2,6 +2,7 @@ import { createClient as createJSClient } from '@supabase/supabase-js';
 import { sendOrderConfirmation } from '@/lib/whatsapp';
 import { sendOrderConfirmationEmail } from '@/lib/resend';
 import { debitWalletForOrder } from '@/lib/wallet/debit';
+import { PostHogClient } from '@/lib/posthog';
 
 export interface FinalizePhonePeResult {
   status: 'paid' | 'failed' | 'pending' | 'not_found';
@@ -85,6 +86,32 @@ export async function finalizePhonePeOrder(
     if (updateError) {
       console.error('Failed to mark PhonePe order as paid:', updateError);
       return { status: 'pending', error: 'Failed to update order' };
+    }
+
+    // PostHog purchase_completed (server-side, gateway-agnostic). Fires in the
+    // same path that marks the order paid in Supabase, so it captures exactly
+    // once per real order regardless of the payment gateway underneath.
+    try {
+      const { data: orderItems } = await supabase
+        .from('order_items')
+        .select('product:products(name)')
+        .eq('order_id', order.id);
+      PostHogClient()?.capture({
+        distinctId: order.user_id || order.id,
+        event: 'purchase_completed',
+        properties: {
+          revenue: Number(order.total) || 0,
+          currency: 'INR',
+          order_id: order.order_number,
+          product: (orderItems || [])
+            .map((item: any) => item.product?.name)
+            .filter(Boolean)
+            .join(', '),
+          coupon: Number(order.coupon_discount) > 0 ? 'APPLIED' : undefined,
+        },
+      });
+    } catch (phErr) {
+      console.error('Failed to capture purchase_completed:', phErr);
     }
 
     // Redeem wallet balance used on this order (PhonePe & partial-COD orders

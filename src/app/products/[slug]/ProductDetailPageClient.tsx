@@ -25,6 +25,7 @@ import { Product360Button } from '@/components/products/Product360Button';
 import { Product360Modal } from '@/components/products/Product360Modal';
 import { trackEvent } from '@/lib/analytics';
 import { ecommerceEvent } from '@/lib/gtag';
+import posthog from 'posthog-js';
 import { useCart } from '@/context/CartContext';
 import { useWishlist } from '@/context/WishlistContext';
 import { useAuth } from '@/context/AuthContext';
@@ -97,6 +98,14 @@ export function ProductDetailPageClient({
           item_category: product.category?.name || undefined,
         },
       ],
+    });
+
+    // Track product_viewed event for PostHog
+    posthog.capture('product_viewed', {
+      product_id: product.id,
+      name: product.name,
+      category: product.category?.name || undefined,
+      price: product.price || 0,
     });
   }, [product]);
 

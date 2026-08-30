@@ -278,7 +278,7 @@ export default function AdminOrdersPage() {
                           #{order.order_number}
                         </Link>
                       </td>
-                      <td className="px-4 py-3">
+                      <td className="ph-no-capture px-4 py-3">
                         <div className="font-medium text-slate-200">
                           {(order.shipping_address as any)?.full_name ||
                             'Guest'}
@@ -303,15 +303,15 @@ export default function AdminOrdersPage() {
                             order.payment_method === 'cod'
                               ? 'border-amber-500/20 bg-amber-500/10 text-amber-400'
                               : order.payment_method === 'phonepe'
-                              ? 'border-purple-500/20 bg-purple-500/10 text-purple-400'
-                              : 'border-slate-500/20 bg-slate-500/10 text-slate-400'
+                                ? 'border-purple-500/20 bg-purple-500/10 text-purple-400'
+                                : 'border-slate-500/20 bg-slate-500/10 text-slate-400'
                           }`}
                         >
                           {order.payment_method === 'cod'
                             ? 'COD'
                             : order.payment_method === 'phonepe'
-                            ? 'PhonePe'
-                            : order.payment_method || 'Unknown'}
+                              ? 'PhonePe'
+                              : order.payment_method || 'Unknown'}
                         </span>
                       </td>
                       <td className="px-4 py-3">

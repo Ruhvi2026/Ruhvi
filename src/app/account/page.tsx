@@ -443,7 +443,7 @@ export default function AccountOverviewPage() {
                   {userEmail}
                 </span>
                 {(profile?.phone || user.phone) && (
-                  <span className="flex items-center gap-1">
+                  <span className="ph-no-capture flex items-center gap-1">
                     <Phone className="h-3.5 w-3.5 text-gold-100" />
                     {profile?.phone || user.phone}
                   </span>

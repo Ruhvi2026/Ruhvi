@@ -33,6 +33,7 @@ import {
 } from 'firebase/auth';
 import toast from 'react-hot-toast';
 import { ecommerceEvent } from '@/lib/gtag';
+import posthog from 'posthog-js';
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -128,9 +129,13 @@ export default function CheckoutPage() {
         items: items.map((item) => ({
           item_id: item.product_id,
           item_name: item.product?.name,
-          price: item.product?.price || item.price_at_add,
-          quantity: item.quantity,
         })),
+      });
+
+      // PostHog checkout_started event
+      posthog.capture('checkout_started', {
+        cart_value: subtotal,
+        item_count: items.reduce((sum, item) => sum + item.quantity, 0),
       });
     }
   }, [items, subtotal]);
@@ -887,7 +892,7 @@ export default function CheckoutPage() {
                           nextRadio.click();
                         }
                       }}
-                      className={`w-full cursor-pointer rounded-xl border p-4 text-left transition-all ${
+                      className={`ph-no-capture w-full cursor-pointer rounded-xl border p-4 text-left transition-all ${
                         isAddressSelected
                           ? 'border-amber-900 bg-amber-950/5 ring-1 ring-amber-900'
                           : 'border-stone-200 bg-stone-50/50 hover:border-stone-300'
@@ -1714,8 +1719,10 @@ export default function CheckoutPage() {
             </h3>
             <p className="mb-6 text-xs text-stone-600">
               We've sent a 6-digit verification code to{' '}
-              <span className="font-bold">{selectedAddress?.phone}</span>.
-              Please enter it below to confirm your Cash on Delivery order.
+              <span className="ph-no-capture font-bold">
+                {selectedAddress?.phone}
+              </span>
+              . Please enter it below to confirm your Cash on Delivery order.
             </p>
 
             <input

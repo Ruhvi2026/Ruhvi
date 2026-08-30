@@ -28,6 +28,7 @@ export default function NotificationsAdminPage() {
   const [url, setUrl] = useState('');
   const [imageUrl, setImageUrl] = useState('');
   const [audience, setAudience] = useState('Subscribed Users');
+  const [provider, setProvider] = useState('onesignal');
   const [isSending, setIsSending] = useState(false);
   const [history, setHistory] = useState<Campaign[]>([]);
   const supabase = createClient();
@@ -67,7 +68,14 @@ export default function NotificationsAdminPage() {
       const res = await fetch('/api/admin/notifications', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, message, url, imageUrl, audience }),
+        body: JSON.stringify({
+          title,
+          message,
+          url,
+          imageUrl,
+          audience,
+          provider,
+        }),
       });
 
       const data = await res.json();
@@ -135,22 +143,54 @@ export default function NotificationsAdminPage() {
                 </div>
                 <div>
                   <label className="mb-1 block text-sm font-medium text-slate-700">
-                    Target Audience *
+                    Notification Provider *
                   </label>
                   <select
-                    value={audience}
-                    onChange={(e) => setAudience(e.target.value)}
+                    value={provider}
+                    onChange={(e) => setProvider(e.target.value)}
                     className="focus:ring-primary-500/20 focus:border-primary-500 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 transition-colors focus:outline-none focus:ring-2"
                   >
-                    <option value="Subscribed Users">
-                      All Active Subscribers
+                    <option value="onesignal">
+                      OneSignal (Marketing Broadcast)
                     </option>
-                    <option value="Active Users">Highly Active Users</option>
-                    <option value="Inactive Users">
-                      Inactive Users (Re-engagement)
+                    <option value="fcm">
+                      Firebase Cloud Messaging (System/Transactional)
                     </option>
                   </select>
                 </div>
+              </div>
+
+              <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+                {provider === 'onesignal' ? (
+                  <div>
+                    <label className="mb-1 block text-sm font-medium text-slate-700">
+                      Target Audience *
+                    </label>
+                    <select
+                      value={audience}
+                      onChange={(e) => setAudience(e.target.value)}
+                      className="focus:ring-primary-500/20 focus:border-primary-500 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 transition-colors focus:outline-none focus:ring-2"
+                    >
+                      <option value="Subscribed Users">
+                        All Active Subscribers
+                      </option>
+                      <option value="Active Users">Highly Active Users</option>
+                      <option value="Inactive Users">
+                        Inactive Users (Re-engagement)
+                      </option>
+                    </select>
+                  </div>
+                ) : (
+                  <div>
+                    <label className="mb-1 block text-sm font-medium text-slate-700">
+                      Target Audience
+                    </label>
+                    <div className="w-full rounded-lg border border-slate-200 bg-slate-100 px-4 py-2 text-sm text-slate-500">
+                      All FCM Registered Devices
+                    </div>
+                  </div>
+                )}
+                <div></div>
               </div>
 
               <div>
@@ -200,9 +240,11 @@ export default function NotificationsAdminPage() {
               </div>
 
               <div className="flex items-center justify-between border-t border-slate-100 pt-4">
-                <div className="flex items-center rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-700 text-slate-500">
+                <div className="flex items-center rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-700">
                   <AlertCircle className="mr-2 h-4 w-4 text-amber-500" />
-                  This will instantly reach the selected audience ({audience}).
+                  This will instantly reach the selected audience (
+                  {provider === 'fcm' ? 'All FCM Registered Devices' : audience}
+                  ).
                 </div>
                 <button
                   type="submit"

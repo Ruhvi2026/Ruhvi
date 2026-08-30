@@ -199,7 +199,7 @@ export default function InvoicePage({
               Billed To & Shipped To
             </h4>
             {order.shipping_address && (
-              <div className="space-y-0.5 text-stone-700">
+              <div className="ph-no-capture space-y-0.5 text-stone-700">
                 <p className="text-sm font-bold text-stone-900">
                   {order.shipping_address.full_name}
                 </p>

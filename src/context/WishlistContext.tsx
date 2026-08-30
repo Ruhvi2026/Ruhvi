@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Product } from '@/types/database';
 import toast from 'react-hot-toast';
+import posthog from 'posthog-js';
 
 interface WishlistContextType {
   items: Product[];
@@ -12,7 +13,9 @@ interface WishlistContextType {
   wishlistCount: number;
 }
 
-const WishlistContext = createContext<WishlistContextType | undefined>(undefined);
+const WishlistContext = createContext<WishlistContextType | undefined>(
+  undefined
+);
 
 const LOCAL_STORAGE_KEY = 'ruhvi_wishlist_v1';
 
@@ -44,15 +47,18 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
 
   const toggleWishlist = (product: Product) => {
     try {
-      setItems((prev) => {
-        const exists = prev.some((item) => item.id === product.id);
-        if (exists) {
-          toast.success('Removed from wishlist');
-          return prev.filter((item) => item.id !== product.id);
-        }
+      const exists = items.some((item) => item.id === product.id);
+      if (exists) {
+        setItems((prev) => prev.filter((item) => item.id !== product.id));
+        toast.success('Removed from wishlist');
+      } else {
+        setItems((prev) => [...prev, product]);
         toast.success('Added to wishlist');
-        return [...prev, product];
-      });
+        posthog.capture('product_added_to_wishlist', {
+          product_id: product.id,
+          name: product.name,
+        });
+      }
     } catch (error) {
       toast.error('Failed to update wishlist');
     }

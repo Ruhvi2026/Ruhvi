@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Ruhvi Technology Inventory</title>
+<style>
+  * { box-sizing: border-box; }
+  :root {
+    --ink: #2a2118; --gold: #c6a14f; --gold-deep: #a87c2e;
+    --cream: #faf6ed; --cream-deep: #f1ecdf; --muted: #57534e;
+  }
+  html, body {
+    margin: 0; padding: 0; background: #fff;
+    color: var(--ink); font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    font-size: 10.5pt; line-height: 1.5;
+  }
+  .page { max-width: 820px; margin: 0 auto; padding: 40px 50px; }
+  .cover {
+    text-align: center; padding: 110px 40px 60px;
+    background: linear-gradient(160deg, #fdfbf7 0%, #f6efdd 55%, #eadcb5 100%);
+    border-bottom: 5px solid var(--gold);
+  }
+  .cover .kicker { letter-spacing: 0.28em; text-transform: uppercase; color: var(--gold-deep); font-weight: 600; font-size: 10pt; }
+  .cover h1 { font-family: Georgia, "Times New Roman", serif; font-size: 30pt; font-weight: 600; margin: 16px 0 6px; }
+  .cover .sub { color: var(--muted); font-size: 11.5pt; max-width: 540px; margin: 10px auto 0; }
+  .cover .meta { margin-top: 40px; font-size: 9.5pt; color: var(--muted); line-height: 1.8; }
+  h2 { font-family: Georgia, serif; font-size: 16pt; color: var(--ink); border-bottom: 2px solid var(--gold); padding-bottom: 5px; margin: 38px 0 16px; page-break-after: avoid; }
+  h3 { font-family: Georgia, serif; font-size: 12pt; color: var(--gold-deep); margin: 24px 0 10px; page-break-after: avoid; }
+  p { margin: 8px 0; }
+  ul { margin: 6px 0 12px; padding-left: 22px; }
+  li { margin: 4px 0; }
+  code { background: var(--cream-deep); border-radius: 3px; padding: 1px 5px; font-family: Consolas, "Courier New", monospace; font-size: 9pt; }
+  table { width: 100%; border-collapse: collapse; font-size: 9.5pt; margin: 12px 0; }
+  th, td { border: 1px solid #ddd5c0; padding: 7px 9px; text-align: left; vertical-align: top; }
+  th { background: var(--cream); font-weight: 600; color: var(--gold-deep); }
+  tr:nth-child(even) td { background: #fcfaf4; }
+  .tag { display: inline-block; background: var(--cream); border: 1px solid #ddd5c0; border-radius: 999px; padding: 1px 8px; font-size: 8pt; font-weight: 600; color: var(--gold-deep); white-space: nowrap; }
+  .footer { margin-top: 50px; padding-top: 12px; border-top: 1px solid #e7e0cd; font-size: 8pt; color: var(--muted); text-align: center; }
+  @media print { body { font-size: 10pt; } .page { max-width: none; padding: 0 6mm; } .cover { padding: 50mm 30mm 25mm; } }
+  @page { size: A4; margin: 14mm 12mm 16mm 12mm; }
+</style>
+</head>
+<body>
+<div class="cover">
+  <div class="kicker">Technology &amp; Platform Inventory</div>
+  <h1>Ruhvi Technology Stack</h1>
+  <p class="sub">Comprehensive inventory of all tools, platforms, APIs, and technologies currently integrated into the Ruhvi e-commerce platform, with detailed descriptions of each component's purpose within the workflow.</p>
+  <div class="meta">
+    <strong>Project:</strong> Ruhvi E-Commerce (Next.js 15, App Router)<br>
+    <strong>Total Technologies:</strong> 70+ &nbsp;•&nbsp; <strong>Revision:</strong> 30 August 2026 (reflects current codebase)
+  </div>
+</div>
+<div class="page">
+
+<h2>Table of Contents</h2>
+<ol style="font-size:10pt; line-height:1.7;">
+  <li><a href="#s1">Frontend Framework &amp; Rendering</a></li>
+  <li><a href="#s2">Hosting &amp; Infrastructure</a></li>
+  <li><a href="#s3">Database &amp; Storage</a></li>
+  <li><a href="#s4">Authentication &amp; Authorization</a></li>
+  <li><a href="#s5">AI &amp; Machine Learning</a></li>
+  <li><a href="#s6">Analytics, Monitoring &amp; Error Tracking</a></li>
+  <li><a href="#s7">Push Notifications</a></li>
+  <li><a href="#s8">Email Services</a></li>
+  <li><a href="#s9">Payments</a></li>
+  <li><a href="#s10">Image, Media &amp; 3D</a></li>
+  <li><a href="#s11">Shipping &amp; Logistics</a></li>
+  <li><a href="#s12">CRM &amp; Customer Support</a></li>
+  <li><a href="#s13">Messaging &amp; Communication</a></li>
+  <li><a href="#s14">Forms, Validation &amp; Security</a></li>
+  <li><a href="#s15">UI Components &amp; Design System</a></li>
+  <li><a href="#s16">Development Tooling &amp; CI/CD</a></li>
+  <li><a href="#s17">Mobile &amp; Cross-Platform</a></li>
+  <li><a href="#s18">Other Integrations</a></li>
+</ol>
+
+<!-- ==================== 1 ==================== -->
+<h2 id="s1">1. Frontend Framework &amp; Rendering</h2>
+
+<table>
+  <thead><tr><th style="width:22%">Technology</th><th>Category</th><th>Purpose &amp; Workflow Role</th></tr></thead>
+  <tbody>
+    <tr><td>Next.js 15</td><td><span class="tag">Framework</span></td><td>React-based full-stack framework with App Router. Provides server-side rendering, static generation, incremental static regeneration (ISR), API routes, middleware, and streaming. The core application shell that handles routing, data fetching, and page rendering for all customer-facing and admin pages.</td></tr>
+    <tr><td>React 19</td><td><span class="tag">Library</span></td><td>UI component library. Powers all interactive elements — context providers (Auth, Cart, Wishlist), client components (Navbar, Footer, ProductCard, SearchBar, Chat), and hooks for state management and side effects.</td></tr>
+    <tr><td>TypeScript</td><td><span class="tag">Language</span></td><td>Statically-typed superset of JavaScript. Used throughout the codebase for type safety, interface definitions (<code>Product</code>, <code>Category</code>, <code>UserProfile</code>, API request/response shapes), and improved developer experience with autocompletion and compile-time error detection.</td></tr>
+    <tr><td>Tailwind CSS 3</td><td><span class="tag">Framework</span></td><td>Utility-first CSS framework. Provides the design system with custom color tokens (gold, cream, charcoal, midnight, rasa, champagne, taupe) and responsive utilities. Used for all component styling via inline utility classes, with dark mode via <code>class</code> strategy.</td></tr>
+    <tr><td>PostCSS</td><td><span class="tag">Tool</span></td><td>CSS transformation pipeline. Compiles Tailwind CSS directives and applies Autoprefixer during the build step. Configured via <code>postcss.config.js</code>.</td></tr>
+    <tr><td>Autoprefixer</td><td><span class="tag">Plugin</span></td><td>PostCSS plugin that automatically adds vendor prefixes to CSS rules for cross-browser compatibility. Runs as part of the build pipeline.</td></tr>
+  </tbody>
+</table>
+
+<!-- ==================== 2 ==================== -->
+<h2 id="s2">2. Hosting &amp; Infrastructure</h2>
+
+<table>
+  <thead><tr><th>Technology</th><th>Category</th><th>Purpose &amp; Workflow Role</th></tr></thead>
+  <tbody>
+    <tr><td>Vercel</td><td><span class="tag">Hosting</span></td><td>Deployment and hosting platform for the Next.js application. Provides global edge network, serverless functions for API routes, automatic HTTPS/SSL, and CI/CD integration via Git. The primary production environment for all customer-facing and admin interfaces.</td></tr>
+    <tr><td>Vercel SpeedInsights</td><td><span class="tag">Monitoring</span></td><td>Real-user performance monitoring integrated into the Vercel dashboard. Tracks Core Web Vitals (LCP, CLS, INP) for every page and provides trend analysis. Rendered globally via <code>@vercel/speed-insights/next</code> in the root layout.</td></tr>
+    <tr><td>Vercel Cron Jobs</td><td><span class="tag">Scheduler</span></td><td>Scheduled serverless function invocations. Configured via <code>vercel.json</code> to trigger <code>/api/cron/automations</code> daily at 10:00 IST for automated background tasks.</td></tr>
+    <tr><td>Docker</td><td><span class="tag">Containerization</span></td><td>Used to deploy the self-hosted EspoCRM instance on a VPS. The <code>deploy/esporcrm/</code> directory contains a <code>docker-compose.yml</code> and <code>Caddyfile</code> for orchestrating the EspoCRM service, database, and reverse proxy.</td></tr>
+  </tbody>
+</table>
+
+<!-- ==================== 3 ==================== -->
+<h2 id="s3">3. Database &amp; Storage</h2>
+
+<table>
+  <thead><tr><th>Technology</th><th>Category</th><th>Purpose &amp; Workflow Role</th></tr></thead>
+  <tbody>
+    <tr><td>Supabase (PostgreSQL)</td><td><span class="tag">Database</span></td><td>Primary relational database. Stores all application data — users, products, categories, collections, orders, support tickets, wallet transactions, audit logs, AI provider credentials, model health, and settings. Accessed via the Supabase JS client on both server and client, with Row-Level Security (RLS) policies for data access control.</td></tr>
+    <tr><td>Supabase Storage</td><td><span class="tag">File Storage</span></td><td>Cloud object storage for user-uploaded files (product images, support attachments). Configured in <code>next.config.js</code> as a remote image pattern (<code>igrkrkxdantrolbldapj.supabase.co</code>).</td></tr>
+    <tr><td>Upstash Redis</td><td><span class="tag">Cache</span></td><td>Serverless Redis instance for caching and rate limiting. Provides <code>cacheGet</code>/<code>cacheSet</code>/<code>cacheWrap</code> helpers for data caching, <code>rateLimit</code>/<code>rateLimitSliding</code> for API rate limiting via Redis scripts, and a read-only replica for scaling. Used to reduce database load and protect API endpoints from abuse.</td></tr>
+    <tr><td>Supabase Realtime</td><td><span class="tag">Real-time</span></td><td>WebSocket-based real-time subscriptions. Used in <code>AuthContext</code> to subscribe to <code>postgres_changes</code> on the <code>users</code> table, enabling live wallet balance and profile updates without polling.</td></tr>
+  </tbody>
+</table>
+
+<!-- ==================== 4 ==================== -->
+<h2 id="s4">4. Authentication &amp; Authorization</h2>
+
+<table>
+  <thead><tr><th>Technology</th><th>Category</th><th>Purpose &amp; Workflow Role</th></tr></thead>
+  <tbody>
+    <tr><td>Firebase Authentication</td><td><span class="tag">Auth</span></td><td>Primary authentication provider for customer-facing accounts. Handles email/password, phone (OTP), and Google SSO logins. The <code>onAuthStateChanged</code> listener in <code>AuthContext</code> manages the session lifecycle. Firebase ID tokens are exchanged for custom Supabase JWTs to enable database access.</td></tr>
+    <tr><td>Supabase Auth (Custom Token)</td><td><span class="tag">Auth</span></td><td>Secondary auth layer. The Supabase client uses an <code>accessToken</code> callback that fetches a custom JWT minted server-side from the Firebase ID token. This bridges Firebase authentication with Supabase's RLS policies, allowing the <code>anon</code> key to be used with user-scoped permissions.</td></tr>
+    <tr><td>jose</td><td><span class="tag">Library</span></td><td>JWT signing and verification library. Used for: (a) signing session cookies (<code>__session</code>) for portal/admin auth, (b) verifying session tokens in middleware for RBAC, (c) signing Google service account JWTs for Firebase Admin REST API calls, (d) decoding custom Supabase tokens in the client.</td></tr>
+    <tr><td>Supabase SSR (<code>@supabase/ssr</code>)</td><td><span class="tag">Library</span></td><td>Server-side rendering helpers for Supabase. Provides <code>createServerClient</code> used in middleware, server components, and route handlers to create authenticated Supabase clients with cookie-based session management.</td></tr>
+  </tbody>
+</table>
+
+<!-- ==================== 5 ==================== -->
+<h2 id="s5">5. AI &amp; Machine Learning</h2>
+
+<table>
+  <thead><tr><th>Technology</th><th>Category</th><th>Purpose &amp; Workflow Role</th></tr></thead>
+  <tbody>
+    <tr><td>Google Generative AI (Gemini)</td><td><span class="tag">AI Provider</span></td><td>AI model provider for the Ruhvi AI orchestration engine. Powers the customer support chatbot ("Gia"), product description generation, AI playground, and admin AI features. Accessed via <code>@google/generative-ai</code> SDK through the unified provider abstraction in <code>src/lib/ai/providers/gemini.ts</code>.</td></tr>
+    <tr><td>OpenAI</td><td><span class="tag">AI Provider</span></td><td>AI model provider integrated into the multi-provider routing engine. Supports GPT models for AI generation tasks. Credentials are managed via the <code>ai_provider_credentials</code> database table with health tracking and failover.</td></tr>
+    <tr><td>Anthropic (Claude)</td><td><span class="tag">AI Provider</span></td><td>AI model provider for Claude models. Integrated through the same unified provider interface, with support for credential rotation, error classification, and automatic failover across providers.</td></tr>
+    <tr><td>DeepSeek</td><td><span class="tag">AI Provider</span></td><td>AI model provider for DeepSeek models. Part of the multi-provider routing strategy, enabling cost optimization and redundancy by distributing requests across providers based on priority and health status.</td></tr>
+    <tr><td>OpenRouter</td><td><span class="tag">AI Gateway</span></td><td>AI model aggregation gateway. Provides a unified API endpoint to access multiple models from different providers with a single integration point. Used as an alternative routing path within the AI orchestration engine.</td></tr>
+    <tr><td>Custom AI Provider Framework</td><td><span class="tag">Framework</span></td><td>Extensible provider abstraction (<code>src/lib/ai/providers/custom.ts</code>) that allows arbitrary API-compatible AI providers to be added via admin configuration. Supports OpenAI-compatible API schemas, enabling future provider additions without code changes.</td></tr>
+    <tr><td>AI Orchestration Engine</td><td><span class="tag">System</span></td><td>Centralized AI request handler (<code>src/lib/ai/index.ts</code>, ~1100 lines) implementing two-level routing: provider selection (priority/round-robin/best-responsiveness) and credential selection within a provider. Features include error classification, atomic health state transitions, model-level fallback, infinite-loop prevention, structured observability, and rate-limit/quota-exhaustion handling. Recent refinement: 5xx server errors are classified before rate-limit patterns, and Gemini <code>RESOURCE_EXHAUSTED</code> maps to <code>QUOTA_EXHAUSTED</code>.</td></tr>
+  </tbody>
+</table>
+
+<!-- ==================== 6 ==================== -->
+<h2 id="s6">6. Analytics, Monitoring &amp; Error Tracking</h2>
+
+<table>
+  <thead><tr><th>Technology</th><th>Category</th><th>Purpose &amp; Workflow Role</th></tr></thead>
+  <tbody>
+    <tr><td>PostHog</td><td><span class="tag">Analytics</span></td><td>Product analytics, session recording, and feature flags. Captures page views, custom events, and user sessions. The client-side SDK (<code>posthog-js</code>) is initialized in the root layout with session recording enabled (masking sensitive inputs). The server-side client (<code>posthog-node</code>) is used in API routes and for admin analytics queries. Includes a custom PII redaction layer to sanitize sensitive data before ingestion.</td></tr>
+    <tr><td>Google Analytics (GA4)</td><td><span class="tag">Analytics</span></td><td>Web analytics via the <code>gtag.js</code> library. Tracks page views, e-commerce events (add_to_cart, remove_from_cart, view_item, view_item_list, purchase, search), and custom events. The <code>GoogleAnalytics</code> component fires on every route change with path-based tracking.</td></tr>
+    <tr><td>Meta Pixel (Facebook)</td><td><span class="tag">Analytics</span></td><td>Conversion tracking and ad optimization pixel. Tracks PageView, AddToCart, Purchase, and other e-commerce events. Includes a server-side Conversions API (CAPI) via <code>/api/capi</code> for server-to-server event deduplication, improving ad attribution accuracy.</td></tr>
+    <tr><td>Microsoft Clarity</td><td><span class="tag">Analytics</span></td><td>Session recording and heatmap tool. Records user sessions (scroll, click, navigation) to identify usability issues and conversion friction. Loaded via <code>afterInteractive</code> script strategy in the root layout.</td></tr>
+    <tr><td>Sentry</td><td><span class="tag">Error Tracking</span></td><td>Error tracking and performance monitoring. Configured for server (<code>sentry.server.config.ts</code>), client (<code>sentry.client.config.ts</code>), and edge (<code>sentry.edge.config.ts</code>) runtimes with 100% traces sampling. Integrates with the Next.js build pipeline via <code>@sentry/nextjs</code> to upload source maps and enable automatic instrumentation of Vercel Cron Monitors.</td></tr>
+  </tbody>
+</table>
+
+<!-- ==================== 7 ==================== -->
+<h2 id="s7">7. Push Notifications</h2>
+
+<table>
+  <thead><tr><th>Technology</th><th>Category</th><th>Purpose &amp; Workflow Role</th></tr></thead>
+  <tbody>
+    <tr><td>Firebase Cloud Messaging (FCM)</td><td><span class="tag">Push</span></td><td>Push notification service for web and mobile. Implemented via <code>firebase/messaging</code> SDK. The <code>FcmInit</code> component requests permission and obtains FCM tokens for authenticated users, displays foreground notifications via toast, and integrates with a service worker (<code>public/firebase-messaging-sw.js</code>) for background notifications.</td></tr>
+    <tr><td>OneSignal</td><td><span class="tag">Push</span></td><td>Push notification service with cross-platform support. Initialized via <code>react-onesignal</code> SDK in the <code>OneSignalInit</code> component with a configurable notification button. Includes a service worker (<code>public/OneSignalSDKWorker.js</code>) for handling background push events.</td></tr>
+  </tbody>
+</table>
+
+<!-- ==================== 8 ==================== -->
+<h2 id="s8">8. Email Services</h2>
+
+<table>
+  <thead><tr><th>Technology</th><th>Category</th><th>Purpose &amp; Workflow Role</th></tr></thead>
+  <tbody>
+    <tr><td>Resend</td><td><span class="tag">Email</span></td><td>Transactional email service. Sends all customer-facing emails: welcome emails, order confirmations, shipping updates (shipped/out-for-delivery/delivered), order cancellations, payment received/failed notifications, password reset links, and support ticket updates (created/replied/resolved). Uses Handlebars-compiled templates from the <code>Resend_Templates/</code> directory.</td></tr>
+    <tr><td>Brevo (Sendinblue)</td><td><span class="tag">Email</span></td><td>Marketing email service. Sends promotional campaigns, newsletters, and marketing communications. Configured via API key with sender name/email. The <code>src/lib/brevo.ts</code> module provides SMTP email sending, and a separate MCP integration (<code>src/lib/brevo/mcp.ts</code>) enables AI-driven campaign management through the Model Context Protocol.</td></tr>
+    <tr><td>Handlebars</td><td><span class="tag">Template Engine</span></td><td>Server-side HTML template engine. Compiles email templates from <code>Resend_Templates/</code> with dynamic data (order details, customer info, ticket status) for transactional email rendering. Templates are loaded from <code>process.cwd()/Resend_Templates/</code>.</td></tr>
+  </tbody>
+</table>
+
+<!-- ==================== 9 ==================== -->
+<h2 id="s9">9. Payments</h2>
+
+<table>
+  <thead><tr><th>Technology</th><th>Category</th><th>Purpose &amp; Workflow Role</th></tr></thead>
+  <tbody>
+    <tr><td>PhonePe</td><td><span class="tag">Payment Gateway</span></td><td>Indian payment gateway handling UPI, credit/debit cards, and wallet payments. The <code>/api/checkout/phonepe</code> endpoint initiates payment requests, creates orders in the database, and returns a redirect URL. Webhooks at <code>/api/webhooks/phonepe</code> and <code>/api/webhooks/phonepe-wallet</code> handle payment status callbacks to update order status and wallet top-ups.</td></tr>
+  </tbody>
+</table>
+
+<!-- ==================== 10 ==================== -->
+<h2 id="s10">10. Image, Media &amp; 3D</h2>
+
+<table>
+  <thead><tr><th>Technology</th><th>Category</th><th>Purpose &amp; Workflow Role</th></tr></thead>
+  <tbody>
+    <tr><td>Cloudinary</td><td><span class="tag">Image CDN</span></td><td>Cloud-based image management and CDN. Handles image uploads (via unsigned presets), transformations (resize, crop, format conversion), and optimized delivery. The <code>cloudinaryService.ts</code> provides helper functions for upload, delete, and optimized URL generation with <code>f_auto,q_auto</code> and width transformations. Used for product images, gallery images, and homepage hero/banner imagery.</td></tr>
+    <tr><td>Next.js Image Component (<code>next/image</code>)</td><td><span class="tag">Optimization</span></td><td>Built-in image optimization component. Provides automatic lazy loading, responsive image <code>sizes</code>, format negotiation (WebP/AVIF), and placeholder support. Used throughout the app for product images, category thumbnails, hero images, logo, and UI icons. Configured with remote patterns for Supabase Storage, Cloudinary, and Unsplash.</td></tr>
+    <tr><td>PhotoSwipe + react-photoswipe-gallery</td><td><span class="tag">Lightbox</span></td><td>Touch-friendly image gallery lightbox. Used in <code>ProductImageGallery</code> for full-screen product image viewing with zoom, swipe navigation, and thumbnail previews. The gallery supports multiple images with hidden items for fullscreen swipe-through navigation.</td></tr>
+    <tr><td>Three.js</td><td><span class="tag">3D Engine</span></td><td>WebGL 3D rendering library. Used with <code>@react-three/fiber</code> (React renderer) and <code>@react-three/drei</code> (helpers) for 3D jewellery rendering. Components include <code>HeroRingScene</code> and <code>Hero3D</code> for the homepage hero, and <code>Product360Viewer</code> for interactive product viewing. The 360° viewer is a planned feature with placeholder UI.</td></tr>
+  </tbody>
+</table>
+
+<!-- ==================== 11 ==================== -->
+<h2 id="s11">11. Shipping &amp; Logistics</h2>
+
+<table>
+  <thead><tr><th>Technology</th><th>Category</th><th>Purpose &amp; Workflow Role</th></tr></thead>
+  <tbody>
+    <tr><td>Shiprocket</td><td><span class="tag">Logistics</span></td><td>Indian shipping and fulfillment platform. The <code>src/lib/shiprocket.ts</code> module handles authentication (JWT token generation via email/password or API key), order creation, AWB (airway bill) assignment, and tracking. Webhooks at <code>/api/webhooks/shiprocket</code> process shipping status updates. The admin panel includes <code>/api/admin/shiprocket/create-order</code> for manual order creation.</td></tr>
+  </tbody>
+</table>
+
+<!-- ==================== 12 ==================== -->
+<h2 id="s12">12. CRM &amp; Customer Support</h2>
+
+<table>
+  <thead><tr><th>Technology</th><th>Category</th><th>Purpose &amp; Workflow Role</th></tr></thead>
+  <tbody>
+    <tr><td>EspoCRM</td><td><span class="tag">CRM</span></td><td>Self-hosted CRM platform deployed via Docker Compose on a VPS at <code>crm.support.ruhvi.in</code>. Acts as the agent console for customer support, holding Cases (tickets) and Notes. Syncs bi-directionally with Supabase via the <code>src/lib/espo/</code> integration layer. Pulls customer context on demand via the Ruhvi Context API (<code>/api/integrations/espo/context</code>). Configured with custom entity definitions, hooks, and Ruhvi-specific UI templates.</td></tr>
+    <tr><td>EspoCRM Docker Deployment</td><td><span class="tag">Infrastructure</span></td><td>Docker Compose-based deployment of EspoCRM with Caddy reverse proxy. Includes installation scripts (<code>setup.sh</code>, <code>install-native.sh</code>), cron jobs for auto-closing stale tickets and purging old attachments, and a custom extension for Ruhvi-specific fields and automation hooks.</td></tr>
+    <tr><td>In-App AI Chatbot ("Gia")</td><td><span class="tag">Support</span></td><td>AI-powered customer support chatbot rendered globally. The <code>CustomerSupportChat</code> component provides a draggable, resizable chat window with a mascot ("Gia"), typewriter-style message rendering, quick-action buttons, and AI-powered responses via <code>/api/support/chat</code>. Can create support tickets automatically based on conversation context.</td></tr>
+  </tbody>
+</table>
+
+<!-- ==================== 13 ==================== -->
+<h2 id="s13">13. Messaging &amp; Communication</h2>
+
+<table>
+  <thead><tr><th>Technology</th><th>Category</th><th>Purpose &amp; Workflow Role</th></tr></thead>
+  <tbody>
+    <tr><td>WhatsApp Business API (Meta)</td><td><span class="tag">Messaging</span></td><td>Customer messaging via WhatsApp. The <code>src/lib/whatsapp.ts</code> module sends template-based WhatsApp messages using the Meta Graph API (<code>graph.facebook.com/v19.0</code>). Supports order updates, shipping notifications, and promotional campaigns. The admin panel includes a WhatsApp campaign builder at <code>/api/admin/whatsapp/campaign</code>.</td></tr>
+  </tbody>
+</table>
+
+<!-- ==================== 14 ==================== -->
+<h2 id="s14">14. Forms, Validation &amp; Security</h2>
+
+<table>
+  <thead><tr><th>Technology</th><th>Category</th><th>Purpose &amp; Workflow Role</th></tr></thead>
+  <tbody>
+    <tr><td>React Hook Form</td><td><span class="tag">Forms</span></td><td>Performant form library with uncontrolled inputs and reduced re-renders. Used for checkout forms, auth forms (login/signup), contact forms, newsletter signup, and admin data-entry forms. Integrated with Zod validation via <code>@hookform/resolvers</code>.</td></tr>
+    <tr><td>Zod</td><td><span class="tag">Validation</span></td><td>TypeScript-first schema validation library. Defines environment variable schemas (<code>src/lib/env.ts</code>), API request/response shapes, form validation rules, and database entity schemas. Provides type inference for end-to-end type safety.</td></tr>
+    <tr><td>Cloudflare Turnstile</td><td><span class="tag">Security</span></td><td>Privacy-preserving CAPTCHA alternative. Integrated via <code>@marsidev/react-turnstile</code> React component. Used on login, signup, and contact forms to prevent bot submissions without user friction. Verified server-side at <code>/api/checkout/verify-turnstile</code>.</td></tr>
+    <tr><td>SSRF Protection</td><td><span class="tag">Security</span></td><td>Server-Side Request Forgery protection module (<code>src/lib/security/ssrf.ts</code>). Validates and sanitizes outbound URLs to prevent internal network probing from server-side requests, particularly in AI tool calls and webhook handlers.</td></tr>
+    <tr><td>Content Security &amp; Security Headers</td><td><span class="tag">Security</span></td><td>Security headers applied via middleware: <code>X-Content-Type-Options: nosniff</code>, <code>X-Frame-Options: DENY</code>, <code>Strict-Transport-Security: max-age=31536000; includeSubDomains</code> (HSTS). <code>X-Robots-Tag: noindex, nofollow</code> applied to portal subdomains to prevent indexing of internal admin interfaces. Middleware now fails closed — internal-route auth failures redirect to login.</td></tr>
+  </tbody>
+</table>
+
+<!-- ==================== 15 ==================== -->
+<h2 id="s15">15. UI Components &amp; Design System</h2>
+
+<table>
+  <thead><tr><th>Technology</th><th>Category</th><th>Purpose &amp; Workflow Role</th></tr></thead>
+  <tbody>
+    <tr><td>Lucide React</td><td><span class="tag">Icons</span></td><td>Tree-shakeable SVG icon library. Provides 40+ icon components used throughout the UI: navigation (ShoppingBag, Heart, User, Search, Wallet, Headphones), controls (X, Send, Filter, ArrowUpDown, RefreshCw, ZoomIn), and decorative elements (Sparkles, Gem, Award, Truck, ShieldCheck, Instagram, Facebook).</td></tr>
+    <tr><td>React Hot Toast</td><td><span class="tag">Notifications</span></td><td>Toast notification library. Used for user feedback across the app: cart additions/removals, wishlist toggles, auth errors, and FCM foreground notifications. Configured as a global <code>ToastProvider</code> in the root layout.</td></tr>
+    <tr><td>Recharts</td><td><span class="tag">Charts</span></td><td>Charting library for admin analytics dashboards. Used for sales reports, revenue trends, and support analytics visualizations. Provides bar, line, area, and pie chart components composable with React.</td></tr>
+    <tr><td>clsx</td><td><span class="tag">Utility</span></td><td>Conditional className construction utility. Used throughout components to dynamically combine Tailwind classes based on state, props, and conditions.</td></tr>
+    <tr><td>tailwind-merge</td><td><span class="tag">Utility</span></td><td>Tailwind class conflict resolution utility. Merges Tailwind classes intelligently, resolving conflicts between base and variant classes (e.g., merging <code>bg-white</code> with <code>bg-black</code>).</td></tr>
+    <tr><td>@tailwindcss/typography</td><td><span class="tag">Plugin</span></td><td>Tailwind plugin providing prose classes for rich text content. Used in blog posts, policy pages, and product descriptions for consistent typography styling of HTML/Markdown content.</td></tr>
+    <tr><td>Custom Design System Components</td><td><span class="tag">Design System</span></td><td>Proprietary component library in <code>src/components/design-system/</code>: <code>GlassPanel</code>, <code>DepthCard</code>, <code>DepthButton</code>, <code>SpatialPage</code>, <code>FloatingParticles</code>, <code>GoldOrb</code>, <code>Carousel3D</code>, <code>BotMascot</code>. Provides the premium jewellery brand aesthetic with glassmorphism, depth effects, and spatial UI elements.</td></tr>
+  </tbody>
+</table>
+
+<!-- ==================== 16 ==================== -->
+<h2 id="s16">16. Development Tooling &amp; CI/CD</h2>
+
+<table>
+  <thead><tr><th>Technology</th><th>Category</th><th>Purpose &amp; Workflow Role</th></tr></thead>
+  <tbody>
+    <tr><td>ESLint + eslint-config-next</td><td><span class="tag">Linting</span></td><td>Code linting configured with Next.js recommended rules. Enforces React best practices, accessibility, and import conventions. Runs via <code>npm run lint</code> and as a pre-commit hook via lint-staged.</td></tr>
+    <tr><td>Prettier + prettier-plugin-tailwindcss</td><td><span class="tag">Formatting</span></td><td>Code formatter with Tailwind class sorting plugin. Ensures consistent code style and Tailwind utility class ordering across the codebase. Configured in <code>.prettierrc</code>.</td></tr>
+    <tr><td>Jest + ts-jest</td><td><span class="tag">Testing</span></td><td>Unit test runner for TypeScript. Configured via <code>jest.config.js</code> with path aliasing (<code>@/</code> → <code>src/</code>), <code>ts-jest</code> transform for TypeScript compilation, and <code>node</code> test environment. Test files are discovered via <code>**/__tests__/**/*.test.ts</code>. Currently used for AI routing unit tests (with <code>next/headers</code> and <code>@supabase/ssr</code> mocked). Run via <code>npm test</code> or <code>npm run test:watch</code>.</td></tr>
+    <tr><td>Husky</td><td><span class="tag">Git Hooks</span></td><td>Git hooks manager. Triggers lint-staged on pre-commit to ensure code quality before commits are made. Configured via <code>prepare</code> script in package.json.</td></tr>
+    <tr><td>lint-staged</td><td><span class="tag">Git Hooks</span></td><td>Staged file linter. Runs ESLint and Prettier only on staged files during pre-commit, preventing full-codebase linting overhead. Configured in <code>.lintstagedrc.js</code>.</td></tr>
+    <tr><td>Sentry Webpack Plugin</td><td><span class="tag">Build</span></td><td>Webpack plugin that uploads source maps to Sentry during build. Configured in <code>next.config.js</code> via <code>withSentryConfig</code>, enabling precise error stack traces in production. Includes tree-shaking for Sentry debug logs and automatic Vercel Cron Monitor instrumentation.</td></tr>
+    <tr><td>Favicon Generator Script</td><td><span class="tag">Tooling</span></td><td>Custom Node.js script (<code>scripts/generate_favicons.js</code>) for generating favicon assets in various sizes and formats from a source image.</td></tr>
+  </tbody>
+</table>
+
+<!-- ==================== 17 ==================== -->
+<h2 id="s17">17. Mobile &amp; Cross-Platform</h2>
+
+<table>
+  <thead><tr><th>Technology</th><th>Category</th><th>Purpose &amp; Workflow Role</th></tr></thead>
+  <tbody>
+    <tr><td>Capacitor</td><td><span class="tag">Mobile</span></td><td>Cross-platform mobile app framework from the Ionic team. Configured in <code>capacitor.config.json</code> with app ID <code>in.ruhvi.app</code> and name "Ruhvi Jewels". Wraps the Next.js web app as a native Android/iOS application with a SplashScreen plugin. The <code>webDir</code> is set to <code>out</code> for static export.</td></tr>
+  </tbody>
+</table>
+
+<!-- ==================== 18 ==================== -->
+<h2 id="s18">18. Other Integrations</h2>
+
+<table>
+  <thead><tr><th>Technology</th><th>Category</th><th>Purpose &amp; Workflow Role</th></tr></thead>
+  <tbody>
+    <tr><td>Model Context Protocol (MCP) SDK</td><td><span class="tag">Integration</span></td><td>Standardized protocol for AI-model-to-tool communication. The <code>@modelcontextprotocol/sdk</code> enables AI agents to interact with external tools and data sources. Integrated with Brevo for AI-driven email campaign management (<code>src/lib/brevo/mcp.ts</code>).</td></tr>
+    <tr><td>Supabase Supabase-js</td><td><span class="tag">Client</span></td><td>Official Supabase JavaScript client library. Used on both client (<code>createClient</code> with singleton pattern and custom <code>accessToken</code> callback) and server (<code>createServerClient</code> with cookie-based session). Provides database queries, real-time subscriptions, and storage access.</td></tr>
+    <tr><td>Firebase Admin REST API</td><td><span class="tag">Auth</span></td><td>Server-side Firebase user management via Google Identity Toolkit REST APIs. Implements user creation, password reset link generation, and user lookup using <code>jose</code>-signed service account JWTs. Avoids the <code>firebase-admin</code> npm package's ESM bundler conflicts on Vercel Serverless.</td></tr>
+    <tr><td>Service Workers</td><td><span class="tag">PWA</span></td><td>Two service workers in <code>public/</code>: <code>firebase-messaging-sw.js</code> for handling FCM background push notifications, and <code>OneSignalSDKWorker.js</code> for OneSignal push notification handling.</td></tr>
+    <tr><td>Web Manifest</td><td><span class="tag">PWA</span></td><td><code>public/site.webmanifest</code> provides Progressive Web App metadata including app name, icons, theme color, and display mode for mobile home-screen installation.</td></tr>
+  </tbody>
+</table>
+
+<h3>Summary</h3>
+<p>The Ruhvi technology stack comprises <strong>70+ distinct technologies</strong> organized into 18 categories. The architecture follows a <strong>Next.js 15 + Supabase</strong> core with a <strong>multi-provider AI orchestration engine</strong>, <strong>Firebase-first authentication</strong> bridged to Supabase via custom JWT, <strong>dual analytics and push notification systems</strong> (each with overlapping functionality), and <strong>self-hosted EspoCRM</strong> for agent support workflows. The stack is deployed on <strong>Vercel</strong> with a <strong>Docker-based EspoCRM</strong> instance on a separate VPS. Unit testing is provided via <strong>Jest + ts-jest</strong>, added alongside the existing linting/formatting pipeline.</p>
+
+<div class="footer">
+  Ruhvi Technology &amp; Platform Inventory — Internal engineering document &nbsp;•&nbsp; Revised 30 August 2026 to reflect current codebase
+</div>
+
+</div>
+</body>
+</html>

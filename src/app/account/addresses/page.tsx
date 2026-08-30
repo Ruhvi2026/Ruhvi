@@ -614,7 +614,7 @@ export default function AddressBookPage() {
           {addresses.map((addr) => (
             <div
               key={addr.id}
-              className={`relative flex flex-col justify-between space-y-4 rounded-2xl border bg-white p-6 shadow-sm ${
+              className={`ph-no-capture relative flex flex-col justify-between space-y-4 rounded-2xl border bg-white p-6 shadow-sm ${
                 addr.is_default
                   ? 'border-amber-900 bg-amber-950/5 ring-1 ring-amber-900'
                   : 'border-stone-200'

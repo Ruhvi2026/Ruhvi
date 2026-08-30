@@ -26,7 +26,6 @@ import { AuthProvider } from '@/context/AuthContext';
 import { ToastProvider } from '@/components/layout/ToastProvider';
 import { OfflineDetector } from '@/components/layout/OfflineDetector';
 import PostHogProvider from '@/components/PostHogProvider';
-import PostHogPageView from '@/components/PostHogPageView';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -244,9 +243,6 @@ export default async function RootLayout({
               <WishlistProvider>
                 <NotificationProvider>
                   {!isSystemSubdomain && <FcmInit />}
-                  <Suspense fallback={null}>
-                    <PostHogPageView />
-                  </Suspense>
                   {!isSystemSubdomain && <Navbar />}
                   <main id="main-content" className="flex-1">
                     {children}

@@ -20,7 +20,17 @@ import OperationsDashboard from './OperationsDashboard';
 import OrdersDashboard from './OrdersDashboard';
 import SupportDashboard from './SupportDashboard';
 import MarketingDashboard from './MarketingDashboard';
-import { getDailyPageviews } from '@/services/posthog-analytics.service';
+import {
+  getDailyTraffic,
+  getPurchaseFunnel,
+  getTopPages,
+  getEventCounts,
+} from '@/services/posthog-analytics.service';
+import TrafficOverview from '@/components/dashboard/posthog/TrafficOverview';
+import FunnelStrip from '@/components/dashboard/posthog/FunnelStrip';
+import TopPagesTable from '@/components/dashboard/posthog/TopPagesTable';
+import EventCountsBar from '@/components/dashboard/posthog/EventCountsBar';
+import PostHogHealthBadge from '@/components/dashboard/posthog/PostHogHealthBadge';
 function KpiCard({
   label,
   value,
@@ -149,7 +159,10 @@ export default async function AdminDashboardPage({
     { data: recentReviews },
     { data: stockProducts },
     { count: openRefundsCount },
-    posthogPageviewsData,
+    posthogTrafficData,
+    posthogFunnelData,
+    posthogTopPagesData,
+    posthogEventCountsData,
   ] = await Promise.all([
     supabase
       .from('orders')
@@ -185,7 +198,10 @@ export default async function AdminDashboardPage({
       .from('returns')
       .select('*', { count: 'exact', head: true })
       .eq('status', 'requested'),
-    getDailyPageviews(),
+    getDailyTraffic(),
+    getPurchaseFunnel(),
+    getTopPages(8),
+    getEventCounts(),
   ]);
 
   // Process KPIs (shared aggregation with SalesDashboard)
@@ -366,6 +382,43 @@ export default async function AdminDashboardPage({
             />
           </div>
 
+          {/* PostHog Analytics */}
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-semibold text-slate-400">
+              PostHog Behavioral Analytics
+            </h2>
+            <PostHogHealthBadge
+              configured={!!process.env.POSTHOG_PERSONAL_API_KEY}
+              hasData={
+                (posthogTrafficData?.length ?? 0) > 0 ||
+                (posthogEventCountsData?.length ?? 0) > 0
+              }
+            />
+          </div>
+
+          {/* PostHog Charts */}
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+            <div className="lg:col-span-2">
+              <TrafficOverview
+                data={posthogTrafficData ?? []}
+                totalPageviews={(posthogTrafficData ?? []).reduce(
+                  (sum, p) => sum + p.views,
+                  0
+                )}
+                totalUniqueVisitors={(posthogTrafficData ?? []).reduce(
+                  (sum, p) => sum + p.visitors,
+                  0
+                )}
+              />
+            </div>
+            <FunnelStrip funnel={posthogFunnelData ?? []} />
+          </div>
+
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            <TopPagesTable pages={posthogTopPagesData ?? []} />
+            <EventCountsBar events={posthogEventCountsData ?? []} />
+          </div>
+
           {/* Charts */}
           <DashboardCharts
             salesChartData={salesChartData}
@@ -377,7 +430,6 @@ export default async function AdminDashboardPage({
             todayRevenue={todayRevenue}
             cancelledOrders={cancelledOrders}
             cancelledRevenue={cancelledRevenue}
-            posthogPageviewsData={posthogPageviewsData}
           />
 
           {/* Recent Orders */}

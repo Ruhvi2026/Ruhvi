@@ -4,6 +4,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Product, CartItem } from '@/types/database';
 import toast from 'react-hot-toast';
 import { ecommerceEvent } from '@/lib/gtag';
+import posthog from 'posthog-js';
 
 interface CartContextType {
   items: CartItem[];
@@ -50,7 +51,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const addToCart = (product: Product, quantity = 1) => {
     try {
       setItems((prev) => {
-        const existingIndex = prev.findIndex((item) => item.product_id === product.id);
+        const existingIndex = prev.findIndex(
+          (item) => item.product_id === product.id
+        );
         if (existingIndex > -1) {
           const updated = [...prev];
           updated[existingIndex] = {
@@ -72,7 +75,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           },
         ];
       });
-      
+
       // GA4 add_to_cart event
       ecommerceEvent('add_to_cart', {
         currency: 'INR',
@@ -82,9 +85,17 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             item_id: product.id,
             item_name: product.name,
             price: product.price,
-            quantity: quantity
-          }
-        ]
+            quantity: quantity,
+          },
+        ],
+      });
+
+      // PostHog product_added_to_cart event
+      posthog.capture('product_added_to_cart', {
+        product_id: product.id,
+        name: product.name,
+        price: product.price || 0,
+        quantity,
       });
 
       toast.success(`${product.name} added to bag`);
@@ -96,10 +107,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const removeFromCart = (productId: string) => {
     try {
       // Find item first to send correct GA4 data
-      const itemToRemove = items.find(item => item.product_id === productId);
-      
+      const itemToRemove = items.find((item) => item.product_id === productId);
+
       setItems((prev) => prev.filter((item) => item.product_id !== productId));
-      
+
       if (itemToRemove && itemToRemove.product) {
         // GA4 remove_from_cart event
         ecommerceEvent('remove_from_cart', {
@@ -110,9 +121,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
               item_id: itemToRemove.product.id,
               item_name: itemToRemove.product.name,
               price: itemToRemove.product.price,
-              quantity: itemToRemove.quantity
-            }
-          ]
+              quantity: itemToRemove.quantity,
+            },
+          ],
         });
       }
 
@@ -146,7 +157,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const cartCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
   const subtotal = items.reduce(
-    (sum, item) => sum + (item.product?.price || item.price_at_add) * item.quantity,
+    (sum, item) =>
+      sum + (item.product?.price || item.price_at_add) * item.quantity,
     0
   );
 

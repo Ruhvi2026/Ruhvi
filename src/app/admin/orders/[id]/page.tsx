@@ -156,7 +156,7 @@ export default function AdminOrderDetailsPage({
               Shipping Destination
             </h2>
             {order.shipping_address && (
-              <div className="space-y-1 text-sm text-stone-700">
+              <div className="ph-no-capture space-y-1 text-sm text-stone-700">
                 <p className="font-semibold text-stone-900">
                   {order.shipping_address.full_name}
                 </p>

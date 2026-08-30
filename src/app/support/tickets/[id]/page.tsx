@@ -1026,7 +1026,7 @@ export default function SupportTicketDetail() {
                     Phone Number
                   </p>
                   <div className="mt-0.5 flex items-center justify-between">
-                    <p className="font-mono text-slate-300">
+                    <p className="ph-no-capture font-mono text-slate-300">
                       {ticket.customer?.phone}
                     </p>
                     <a

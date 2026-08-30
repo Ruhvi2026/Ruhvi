@@ -12,6 +12,22 @@ import {
 import { getCampaignStats } from '@/lib/brevo';
 import { getMarketingSettings } from '@/app/admin/actions/settings';
 import Link from 'next/link';
+import PostHogHealthBadge from '@/components/dashboard/posthog/PostHogHealthBadge';
+import EventCountsBar from '@/components/dashboard/posthog/EventCountsBar';
+import SignupMethodDonut from '@/components/dashboard/posthog/SignupMethodDonut';
+import ProductPerformanceTable from '@/components/dashboard/posthog/ProductPerformanceTable';
+import SessionReplayList from '@/components/dashboard/posthog/SessionReplayList';
+import TrafficSourcesPanel from '@/components/dashboard/posthog/TrafficSourcesPanel';
+import {
+  getEventCounts,
+  getMarketingKpis,
+  getProductPerformance,
+  getRecentSessionRecordings,
+  getSignupBreakdown,
+  getTrafficSources,
+} from '@/services/posthog-analytics.service';
+
+const POSTHOG_CONFIGURED = !!process.env.POSTHOG_PERSONAL_API_KEY;
 
 export default async function MarketingDashboard() {
   const settings = (await getMarketingSettings().catch(() => ({}))) as any;
@@ -27,6 +43,22 @@ export default async function MarketingDashboard() {
     console.error('Failed to load campaigns from Brevo:', err);
     errorMsg = 'Brevo API credentials missing or invalid';
   }
+
+  const [
+    posthogKpis,
+    posthogEventCounts,
+    posthogSignups,
+    posthogProducts,
+    posthogSessions,
+    posthogSources,
+  ] = await Promise.all([
+    getMarketingKpis().catch(() => null),
+    getEventCounts().catch(() => []),
+    getSignupBreakdown().catch(() => []),
+    getProductPerformance().catch(() => []),
+    getRecentSessionRecordings().catch(() => []),
+    getTrafficSources().catch(() => []),
+  ]);
 
   // Count active integrations
   const isMetaConfigured = !!settings.meta_pixel_id;
@@ -234,6 +266,68 @@ export default async function MarketingDashboard() {
               Configure Pixels
             </a>
           </div>
+        </div>
+      </div>
+
+      {/* PostHog Behavioral Analytics */}
+      <div className="rounded-xl border border-white/5 bg-[#131726] p-5">
+        <div className="mb-4 flex items-center justify-between border-b border-white/5 pb-3">
+          <h2 className="text-sm font-semibold text-white">
+            PostHog Behavioral Analytics
+          </h2>
+          <PostHogHealthBadge
+            configured={POSTHOG_CONFIGURED}
+            hasData={(posthogEventCounts?.length ?? 0) > 0}
+          />
+        </div>
+
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+          <div className="rounded-xl border border-white/5 bg-white/[0.01] p-4">
+            <p className="text-[10px] uppercase tracking-wider text-slate-500">
+              View → Purchase
+            </p>
+            <p className="mt-1 text-2xl font-bold text-white">
+              {posthogKpis?.conversionRate ?? 0}%
+            </p>
+            <p className="mt-0.5 text-[10px] text-slate-500">
+              purchase_completed ÷ product_viewed
+            </p>
+          </div>
+          <div className="rounded-xl border border-white/5 bg-white/[0.01] p-4">
+            <p className="text-[10px] uppercase tracking-wider text-slate-500">
+              View → Cart
+            </p>
+            <p className="mt-1 text-2xl font-bold text-white">
+              {posthogKpis?.addToCartRate ?? 0}%
+            </p>
+            <p className="mt-0.5 text-[10px] text-slate-500">
+              product_added_to_cart ÷ product_viewed
+            </p>
+          </div>
+          <div className="rounded-xl border border-white/5 bg-white/[0.01] p-4">
+            <p className="text-[10px] uppercase tracking-wider text-slate-500">
+              Cart → Checkout
+            </p>
+            <p className="mt-1 text-2xl font-bold text-white">
+              {posthogKpis?.checkoutRate ?? 0}%
+            </p>
+            <p className="mt-0.5 text-[10px] text-slate-500">
+              checkout_started ÷ product_added_to_cart
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-3">
+          <div className="lg:col-span-2">
+            <ProductPerformanceTable products={posthogProducts ?? []} />
+          </div>
+          <SignupMethodDonut data={posthogSignups ?? []} />
+        </div>
+
+        <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-3">
+          <EventCountsBar events={posthogEventCounts ?? []} />
+          <TrafficSourcesPanel sources={posthogSources ?? []} />
+          <SessionReplayList recordings={posthogSessions ?? []} />
         </div>
       </div>
     </div>

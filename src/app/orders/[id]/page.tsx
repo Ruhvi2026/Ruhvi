@@ -301,7 +301,7 @@ export default function OrderDetailsPage({
               <span>Shipping Address</span>
             </h3>
             {order.shipping_address && (
-              <div className="space-y-1 text-xs text-stone-700">
+              <div className="ph-no-capture space-y-1 text-xs text-stone-700">
                 <div className="font-bold text-stone-900">
                   {order.shipping_address.full_name}
                 </div>

@@ -17,6 +17,7 @@ import {
   sendEmailVerification,
 } from 'firebase/auth';
 import { Sparkles, ArrowRight, Mail, Phone } from 'lucide-react';
+import posthog from 'posthog-js';
 
 export default function SignUpPage() {
   const router = useRouter();
@@ -146,6 +147,8 @@ export default function SignUpPage() {
         }).catch((err) =>
           console.error('Failed to trigger welcome email:', err)
         );
+
+        posthog.capture('signup_completed', { method: 'email' });
       }
 
       setMessage('Account created successfully! Redirecting...');
@@ -293,6 +296,8 @@ export default function SignUpPage() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ idToken }),
         });
+
+        posthog.capture('signup_completed', { method: 'phone' });
       }
 
       setMessage(
@@ -367,6 +372,8 @@ export default function SignUpPage() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ idToken }),
         });
+
+        posthog.capture('signup_completed', { method: 'google' });
       }
 
       setMessage(
@@ -441,6 +448,8 @@ export default function SignUpPage() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ idToken }),
         });
+
+        posthog.capture('signup_completed', { method: 'facebook' });
       }
 
       setMessage(

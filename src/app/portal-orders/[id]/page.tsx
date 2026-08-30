@@ -446,7 +446,7 @@ export default function OrderDetailsPage({
               Shipping Destination
             </h2>
             {order.shipping_address && (
-              <div className="space-y-1 text-sm text-slate-300">
+              <div className="ph-no-capture space-y-1 text-sm text-slate-300">
                 <p className="font-semibold text-white">
                   {order.shipping_address.full_name}
                 </p>

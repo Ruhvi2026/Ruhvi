@@ -342,7 +342,7 @@ export default function AdminOrdersPage() {
                           #{order.order_number}
                         </Link>
                       </td>
-                      <td className="px-4 py-3">
+                      <td className="ph-no-capture px-4 py-3">
                         <div className="font-medium text-slate-200">
                           {(order.shipping_address as any)?.full_name ||
                             'Guest'}
