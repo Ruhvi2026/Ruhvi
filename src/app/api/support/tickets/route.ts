@@ -92,7 +92,7 @@ export async function GET(req: NextRequest) {
       `
         id, ticket_number, title, description, ai_summary,
         priority, status, source, created_at, updated_at,
-        sla_due_at, sla_breached, ai_created,
+        sla_due_at, sla_breached, ai_created, assigned_to,
         first_response_at, resolved_at,
         customer:customer_id(id, full_name, email, phone),
         assigned:assigned_to(id, full_name, email),
