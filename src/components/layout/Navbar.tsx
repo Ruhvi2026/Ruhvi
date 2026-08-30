@@ -3,7 +3,15 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ShoppingBag, Heart, User, X, Wallet, Search, Headphones } from 'lucide-react';
+import {
+  ShoppingBag,
+  Heart,
+  User,
+  X,
+  Wallet,
+  Search,
+  Headphones,
+} from 'lucide-react';
 import { SearchBar } from '@/components/search/SearchBar';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { useTaxonomy } from '@/hooks/useTaxonomy';
@@ -284,7 +292,7 @@ export function Navbar() {
 
       {/* Mobile Category Menu Drawer */}
       <div
-        className={`fixed inset-0 z-50 lg:hidden ${mobileMenuOpen ? 'pointer-events-auto' : 'pointer-events-none'}`}
+        className={`fixed inset-0 z-50 ${mobileMenuOpen ? 'pointer-events-auto' : 'pointer-events-none'}`}
         aria-hidden={!mobileMenuOpen}
       >
         <div

@@ -24,7 +24,13 @@ export default async function LoginPage() {
     isSupportHost;
 
   if (isSystemSubdomain) {
-    return <AdminLogin />;
+    let defaultRedirect = '/admin/dashboard';
+    if (isOperationsHost) defaultRedirect = '/operations/dashboard';
+    else if (isMarketingHost) defaultRedirect = '/marketing/dashboard';
+    else if (isOrdersHost) defaultRedirect = '/portal-orders/dashboard';
+    else if (isSupportHost) defaultRedirect = '/support/dashboard';
+
+    return <AdminLogin defaultRedirect={defaultRedirect} />;
   }
 
   return <CustomerLogin />;

@@ -6,10 +6,14 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { User, Eye, EyeOff } from 'lucide-react';
 
-export default function AdminLogin() {
+export default function AdminLogin({
+  defaultRedirect = '/admin/dashboard',
+}: {
+  defaultRedirect?: string;
+}) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectTo = searchParams.get('redirectTo') || '/admin/dashboard';
+  const redirectTo = searchParams.get('redirectTo') || defaultRedirect;
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
