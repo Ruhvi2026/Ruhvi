@@ -52,6 +52,14 @@ export default function CustomerSupportPage() {
     }
   }
 
+  function handleCreateTicket() {
+    window.dispatchEvent(
+      new CustomEvent('ruhvi:open-support-chat', {
+        detail: { intent: 'create_ticket' },
+      })
+    );
+  }
+
   if (!user) {
     return (
       <div className="mx-auto max-w-2xl py-16 text-center">
@@ -97,13 +105,13 @@ export default function CustomerSupportPage() {
             Track your support requests and get help
           </p>
         </div>
-        <Link
-          href="/account/support/chat"
+        <button
+          onClick={handleCreateTicket}
           className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-charcoal-900 px-4 py-2.5 text-sm font-semibold text-cream-50 transition-colors hover:bg-charcoal-800"
         >
           <Plus className="h-4 w-4" />
           Create Ticket
-        </Link>
+        </button>
       </div>
 
       {/* Waiting for Customer - highlight */}
@@ -129,13 +137,13 @@ export default function CustomerSupportPage() {
           <p className="mt-2 text-sm text-charcoal-400">
             Need help? Start a conversation with our support assistant.
           </p>
-          <Link
-            href="/account/support/chat"
+          <button
+            onClick={handleCreateTicket}
             className="mt-4 inline-flex items-center gap-2 rounded-xl bg-charcoal-900 px-5 py-2.5 text-sm font-semibold text-cream-50 transition-colors hover:bg-charcoal-800"
           >
             <Plus className="h-4 w-4" />
             Create Ticket
-          </Link>
+          </button>
         </div>
       ) : (
         <div className="space-y-3">

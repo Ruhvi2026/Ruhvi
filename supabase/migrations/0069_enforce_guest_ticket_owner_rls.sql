@@ -1,4 +1,4 @@
--- Migration 0068: Enforce guest-ticket owner-only visibility (idempotent)
+-- Migration 0069: Enforce guest-ticket owner-only visibility (idempotent)
 -- -----------------------------------------------------------------------------
 -- Closes the privacy hole where ANY authenticated user could see guest tickets
 -- (introduced by migration 0033's `guest_email IS NOT NULL` clause), and links
