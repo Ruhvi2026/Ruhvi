@@ -35,6 +35,7 @@ Project memory so a fresh session doesn't need to re-analyze the whole tree. Kee
 - **Images:** Cloudinary (`src/services/cloudinaryService.ts`), unsigned upload preset from the client.
 - **Email:** Resend (transactional) + Brevo (marketing, incl. Brevo MCP for AI tool-calling).
 - **AI:** multi-provider failover engine in `src/lib/ai/` (credentials, error-classifier, model-health, diagnostics). Keys for multi-credential mode live in the `ai_provider_credentials` **DB table**, not env.
+  - Support chat (`/api/support/chat`) injects a verified **CUSTOMER CONTEXT** (profile, orders+tracking, wallet ledger, reward ledger, returns, ticket statuses) and follows a **resolve-first escalation protocol**: answer from data first, only create a ticket when no definitive resolution is possible. It calls `generateAIContent(..., { skipPiiRedaction: true })` so the customer's own email/phone reach the model (global PII redaction otherwise strips them).
 - **Push/analytics:** OneSignal (marketing push) + FCM (transactional push); PostHog, GA4, Meta Pixel/CAPI, Sentry, Vercel Speed Insights.
 - **Support CRM (agents):** EspoCRM is self-hosted on a VPS at `crm.support.ruhvi.in` (`deploy/esporcrm/`), agents-only ticket console. Supabase stays the source of truth; bidirectional sync via HMAC-signed APIs/webhooks (`src/lib/espo/`, `/api/integrations/espo/{context,webhook,health}`). Gated by `ESPO_ENABLED`; the customer-facing `support.ruhvi.in` portal is unchanged. See `ESPOCRM_INTEGRATION.md`.
 

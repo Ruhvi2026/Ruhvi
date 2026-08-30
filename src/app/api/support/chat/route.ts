@@ -272,10 +272,12 @@ Do not provide a long explanation before the customer asks for it.
 ==================================================
 6. NEVER INVENT INFORMATION & USE CUSTOMER CONTEXT
 
-For logged-in users, you will receive CUSTOMER CONTEXT containing their recent orders, open tickets, and profile details (like Email and Name).
+For logged-in users, you will receive CUSTOMER CONTEXT containing their verified profile, recent orders with tracking, wallet transactions, reward points activity, returns/refunds, and support ticket statuses (like Email and Name).
 ALWAYS check the CUSTOMER CONTEXT before asking the user for information like an Order Number or Email ID.
-- If they ask for order status, check their recent orders in context.
-- If they ask for ticket status, check their open tickets in context.
+- If they ask for order status or tracking, check their recent orders and tracking in context.
+- If they ask for wallet or transaction details, check their wallet balance and transactions in context.
+- If they ask about reward points, check their coins and reward activity in context.
+- If they ask for ticket status, check their tickets in context.
 - NEVER ask a logged-in user for their Email ID—you already have it!
 - Do not ask for an order number if they only have one recent order or if it is clear from context which order they mean.
 
@@ -424,20 +426,21 @@ Never make unsupported promises such as:
 "I guarantee this will be fixed today."
 
 ==================================================
-13. HUMAN ESCALATION
+13. HUMAN ESCALATION (RESOLVE-FIRST)
 
-Recommend or trigger human support when:
+Resolve every request using the CUSTOMER CONTEXT and KNOWLEDGE data BEFORE escalating. Only escalate by creating a ticket when you cannot provide a definitive resolution from the available data.
 
-- Manual investigation is required.
-- A policy exception is requested.
-- A payment dispute requires investigation.
-- A legal complaint is raised.
-- A serious delivery issue requires intervention.
-- The customer requests a human.
-- Required information cannot be verified.
-- The required action is unavailable to the AI.
-- The issue remains unresolved.
+Default to "none" — resolve routine inquiries directly:
+- Order status / tracking / delivery → from RECENT ORDERS + tracking
+- Wallet balance / transaction records → from WALLET TRANSACTIONS
+- Reward points / activity → from REWARD POINTS ACTIVITY
+- Return / refund status → from RETURNS & REFUNDS
+- Existing ticket status → from SUPPORT TICKETS
+- Product / policy / care questions → from KNOWLEDGE
 
+Create a ticket ONLY when a definitive resolution is impossible with the data (e.g., manual investigation required, policy exception requested, payment dispute, damaged/missing item inspection, legal complaint, serious delivery issue, customer requests a human, required information cannot be verified, or the required action is unavailable to the AI) AND no existing open ticket covers the same issue.
+
+Never create a ticket for a routine query you already answered from context.
 Never claim that a human has been contacted unless the system confirms the escalation was actually created.
 
 ==================================================
@@ -699,13 +702,14 @@ async function getCustomerContext(supabase: any, userId: string) {
     .from('orders')
     .select(
       `
-      id, order_number, status, total, payment_status, payment_method,
-      created_at, updated_at, shipping_charge
+      id, order_number, status, total, subtotal, shipping_charge, wallet_used, coins_redeemed,
+      payment_status, payment_method, awb_code, courier_name,
+      created_at, updated_at
     `
     )
     .eq('user_id', userId)
     .order('created_at', { ascending: false })
-    .limit(5);
+    .limit(8);
 
   // Fetch order items for recent orders
   let orderItems: any[] = [];
@@ -723,19 +727,68 @@ async function getCustomerContext(supabase: any, userId: string) {
     orderItems = items || [];
   }
 
-  // Fetch existing open support tickets to detect duplicates
-  const { data: openTickets } = await supabase
+  // Fetch tracking updates for in-transit orders (shipped / out for delivery)
+  let trackingUpdates: any[] = [];
+  const inTransitOrders = (orders || []).filter(
+    (o: any) =>
+      o.awb_code &&
+      ['shipped', 'out_for_delivery'].includes(String(o.status).toLowerCase())
+  );
+  if (inTransitOrders.length > 0) {
+    const inTransitIds = inTransitOrders.map((o: any) => o.id);
+    const { data: tracking } = await supabase
+      .from('tracking_updates')
+      .select('id, order_id, status, location, activity, timestamp')
+      .in('order_id', inTransitIds)
+      .order('timestamp', { ascending: false })
+      .limit(15);
+    trackingUpdates = tracking || [];
+  }
+
+  // Fetch recent wallet ledger transactions (transaction records)
+  const { data: walletTxns } = await supabase
+    .from('wallet_ledger')
+    .select('id, amount, type, order_id, created_at')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false })
+    .limit(8);
+
+  // Fetch recent reward coin ledger entries (reward points history)
+  const { data: rewardTxns } = await supabase
+    .from('reward_coin_ledger')
+    .select('id, amount, type, order_id, expiry_date, created_at')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false })
+    .limit(8);
+
+  // Fetch returns / refund requests for recent orders
+  const { data: returns } = await supabase
+    .from('returns')
+    .select(
+      'id, order_id, reason, status, refund_method, requested_at, resolved_at, order:orders!inner(order_number)'
+    )
+    .eq('order.user_id', userId)
+    .order('requested_at', { ascending: false })
+    .limit(5);
+
+  // Fetch recent support tickets across all statuses (to answer status queries)
+  const { data: tickets } = await supabase
     .from('support_tickets')
-    .select('id, ticket_number, title, status, order_id, created_at')
+    .select(
+      'id, ticket_number, title, status, priority, order_id, created_at, updated_at'
+    )
     .eq('customer_id', userId)
-    .not('status', 'in', '("resolved","closed")')
     .order('created_at', { ascending: false })
     .limit(10);
 
   return {
     orders: orders || [],
     orderItems: orderItems || [],
-    openTickets: openTickets || [],
+    trackingUpdates: trackingUpdates || [],
+    walletTxns: walletTxns || [],
+    rewardTxns: rewardTxns || [],
+    returns: returns || [],
+    tickets: tickets || [],
   };
 }
 
@@ -818,19 +871,7 @@ export async function POST(req: NextRequest) {
     if (currentUser) {
       contextData = await getCustomerContext(supabase, currentUser.id);
 
-      customerContext = `
-CUSTOMER CONTEXT (authenticated user — use this data to help them):
-- Name: ${currentUser.full_name || 'Not provided'}
-- Email: ${currentUser.email || 'Not provided'}
-- Phone: ${currentUser.phone || 'Not provided'}
-- Wallet Balance: ₹${currentUser.wallet_balance || 0}
-- Reward Coins: ${currentUser.reward_coins || 0}
-- Member Since: ${new Date(currentUser.created_at).toLocaleDateString('en-IN')}
-
-RECENT ORDERS:
-${
-  contextData.orders.length > 0
-    ? contextData.orders
+      const orderLines = contextData.orders
         .map((o: any) => {
           const items = contextData.orderItems
             .filter((i: any) => i.order_id === o.id)
@@ -839,23 +880,81 @@ ${
                 `  - ${i.products?.name || i.sku} (Qty: ${i.quantity}, ₹${i.price_at_purchase})`
             )
             .join('\n');
-          return `Order #${o.order_number} | Status: ${o.status} | Payment: ${o.payment_status} | Total: ₹${o.total} | Date: ${new Date(o.created_at).toLocaleDateString('en-IN')}${o.awb_code ? ` | Tracking: ${o.awb_code} (${o.courier_name || 'N/A'})` : ''}\n  Items:\n${items || '  (items not found)'}`;
+          const tracking = contextData.trackingUpdates
+            .filter((t: any) => t.order_id === o.id)
+            .slice(0, 3)
+            .map(
+              (t: any) =>
+                `    • ${new Date(t.timestamp).toLocaleString('en-IN')} — ${t.activity || t.status}${t.location ? ` (${t.location})` : ''}`
+            )
+            .join('\n');
+          return `Order #${o.order_number} | Status: ${o.status} | Payment: ${o.payment_status} | Total: ₹${o.total} | Date: ${new Date(o.created_at).toLocaleDateString('en-IN')}${o.awb_code ? ` | Tracking: ${o.awb_code} (${o.courier_name || 'N/A'})` : ''}\n  Items:\n${items || '  (items not found)'}${tracking ? `\n  Recent tracking:\n${tracking}` : ''}`;
         })
-        .join('\n\n')
-    : 'No recent orders found.'
-}
+        .join('\n\n');
 
-OPEN SUPPORT TICKETS:
-${
-  contextData.openTickets.length > 0
-    ? contextData.openTickets
-        .map(
-          (t: any) =>
-            `Ticket ${t.ticket_number}: "${t.title}" — Status: ${t.status}`
-        )
-        .join('\n')
-    : 'No open tickets.'
-}`;
+      const walletLines =
+        contextData.walletTxns.length > 0
+          ? contextData.walletTxns
+              .map(
+                (t: any) =>
+                  `- ${t.type === 'debit' ? '-' : '+'}₹${t.amount} (${t.type}) on ${new Date(t.created_at).toLocaleDateString('en-IN')}`
+              )
+              .join('\n')
+          : 'No wallet transactions yet.';
+
+      const rewardLines =
+        contextData.rewardTxns.length > 0
+          ? contextData.rewardTxns
+              .map(
+                (t: any) =>
+                  `- ${t.type === 'redeemed' || t.type === 'expired' ? '-' : '+'}${t.amount} coins (${t.type}) on ${new Date(t.created_at).toLocaleDateString('en-IN')}`
+              )
+              .join('\n')
+          : 'No reward activity yet.';
+
+      const returnLines =
+        contextData.returns.length > 0
+          ? contextData.returns
+              .map(
+                (r: any) =>
+                  `- Order #${r.order?.order_number || r.order_id}: ${r.status}${r.reason ? ` (${r.reason})` : ''}${r.resolved_at ? `, resolved ${new Date(r.resolved_at).toLocaleDateString('en-IN')}` : ''}`
+              )
+              .join('\n')
+          : 'No return/refund requests.';
+
+      const ticketLines =
+        contextData.tickets.length > 0
+          ? contextData.tickets
+              .map(
+                (t: any) =>
+                  `- Ticket ${t.ticket_number}: "${t.title}" — Status: ${t.status}${t.priority && t.priority !== 'normal' ? ` (priority: ${t.priority})` : ''}`
+              )
+              .join('\n')
+          : 'No support tickets.';
+
+      customerContext = `
+CUSTOMER CONTEXT (authenticated user — this is verified data; use it to resolve their queries directly):
+- Name: ${currentUser.full_name || 'Not provided'}
+- Email: ${currentUser.email || 'Not provided'}
+- Phone: ${currentUser.phone || 'Not provided'}
+- Wallet Balance: ₹${currentUser.wallet_balance || 0}
+- Reward Coins: ${currentUser.reward_coins || 0}
+- Member Since: ${new Date(currentUser.created_at).toLocaleDateString('en-IN')}
+
+RECENT ORDERS:
+${contextData.orders.length > 0 ? orderLines : 'No orders found.'}
+
+WALLET TRANSACTIONS (recent):
+${walletLines}
+
+REWARD POINTS ACTIVITY (recent):
+${rewardLines}
+
+RETURNS & REFUNDS:
+${returnLines}
+
+SUPPORT TICKETS (all recent statuses):
+${ticketLines}`;
     } else {
       customerContext =
         '\nCUSTOMER CONTEXT: Guest user (not logged in). If they have an order-specific issue or need to raise a ticket, you MUST first ask them to provide their email address. Do NOT attempt to raise a ticket until they have provided a valid email address.';
@@ -914,19 +1013,25 @@ RESPONSE FORMAT — You MUST respond in valid JSON with this structure:
   }
 }
 
-Rules for action field:
-- DO NOT default to creating a ticket. Always attempt to answer the customer's query using the CUSTOMER CONTEXT provided (e.g., order status, tracking, open ticket status).
-- If the user is authenticated (CUSTOMER CONTEXT has their Name and Email), DO NOT ask for their email address. You already have it.
-- If the user asks about an order or ticket, check the CUSTOMER CONTEXT first. Do not ask for an order number if they only have one recent order or if they are referencing an order already in the context.
-- Use "none" for normal conversation, resolution, answering queries from context, or information responses.
-- Use "create_ticket" ONLY when you CANNOT solve the issue using the provided data AND the issue strictly requires manual human intervention (e.g., complaints, complex refunds, damaged items).
-- If you are interacting with a guest (no email in context) and TRULY need to raise a ticket, you MUST first ask for their email address and set action to "none". Do NOT create a ticket without an email.
-- When creating a ticket, your response should inform the customer that a ticket is being created and what to expect.
-- If you need more information before creating a ticket, use "none" and ask the customer in your response.
-- Always try to identify the relevant order_number from context if the issue is order-related.
+Rules for action field (RESOLVE-FIRST ESCALATION PROTOCOL — follow in order):
+1. ALWAYS attempt to resolve the customer's request using the provided data before considering a ticket. Check, in order: RECENT ORDERS, WALLET TRANSACTIONS, REWARD POINTS ACTIVITY, RETURNS & REFUNDS, SUPPORT TICKETS, and the static KNOWLEDGE. Most routine inquiries (order status, tracking, wallet balance, reward points, refund status, existing ticket status, policy questions) can and MUST be answered directly with action "none".
+2. If you can provide a definitive resolution from the data, set action to "none" and answer directly. Do NOT create a ticket.
+3. Use "create_ticket" ONLY when ALL of the following are true:
+   a. You CANNOT provide a definitive resolution using the available data (e.g., data is missing, ambiguous, or the request requires a manual action the AI cannot perform — refund approval, damaged-item inspection, policy exception, payment dispute investigation, escalation of an existing ticket), AND
+   b. The issue genuinely requires manual human intervention, AND
+   c. There is no existing open ticket for the same issue (duplicates will be blocked).
+4. If the user is authenticated (CUSTOMER CONTEXT has their Name and Email), DO NOT ask for their email address. You already have it.
+5. If the user asks about an order or ticket, check the CUSTOMER CONTEXT first. Do not ask for an order number if they only have one recent order or if they are referencing an order already in the context.
+6. Use "none" for normal conversation, resolution, answering queries from context, or information responses.
+7. If you are interacting with a guest (no email in context) and TRULY need to raise a ticket, you MUST first ask for their email address and set action to "none". Do NOT create a ticket without an email.
+8. When creating a ticket, your response should inform the customer that a ticket is being created and what to expect.
+9. If you need more information before creating a ticket, use "none" and ask the customer in your response.
+10. Always try to identify the relevant order_number from context if the issue is order-related.
 `;
 
-    const content = await generateAIContent('chatbot', prompt);
+    const content = await generateAIContent('chatbot', prompt, {
+      skipPiiRedaction: true,
+    });
 
     // Parse the AI response
     const aiResponse = {
@@ -1051,9 +1156,27 @@ Rules for action field:
             ai_conversation_id: conversationId,
           };
 
-          if (currentUser) {
-            ticketPayload.customer_id = currentUser.id;
-            ticketPayload.customer_email = currentUser.email || null;
+          let finalCustomerId = currentUser ? currentUser.id : null;
+          let finalCustomerEmail = currentUser
+            ? currentUser.email || null
+            : null;
+
+          if (!currentUser && guestEmail) {
+            const { data: matchedUser } = await supabase
+              .from('users')
+              .select('id, email')
+              .eq('email', guestEmail.trim().toLowerCase())
+              .maybeSingle();
+
+            if (matchedUser) {
+              finalCustomerId = matchedUser.id;
+              finalCustomerEmail = matchedUser.email;
+            }
+          }
+
+          if (finalCustomerId) {
+            ticketPayload.customer_id = finalCustomerId;
+            ticketPayload.customer_email = finalCustomerEmail;
           } else {
             ticketPayload.customer_id = null;
             ticketPayload.guest_email = guestEmail;
@@ -1099,7 +1222,7 @@ Rules for action field:
             await supabase.from('support_ticket_messages').insert({
               ticket_id: ticket.id,
               sender_type: 'customer',
-              sender_id: currentUser ? currentUser.id : null,
+              sender_id: finalCustomerId,
               message: aiResponse.ticket_data.description || latestMessage.text,
               visibility: 'customer',
             });

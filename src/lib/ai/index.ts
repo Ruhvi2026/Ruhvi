@@ -289,7 +289,8 @@ async function enforceRateLimit(
  */
 export async function generateAIContent(
   featureKey: string,
-  prompt: string
+  prompt: string,
+  options?: { skipPiiRedaction?: boolean }
 ): Promise<Record<string, any>> {
   if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
     throw new Error(
@@ -358,7 +359,9 @@ export async function generateAIContent(
   };
 
   // ── 2. PII Redaction ─────────────────────────────────────────────────────
-  if (globalConfig.enablePiiRedaction) {
+  // The support chatbot intentionally receives the authenticated customer's own
+  // contact data (email/phone) to resolve queries, so it opts out of redaction.
+  if (globalConfig.enablePiiRedaction && !options?.skipPiiRedaction) {
     prompt = prompt.replace(
       /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/gi,
       '[EMAIL]'
