@@ -59,15 +59,25 @@ interface ChatMessage {
   };
 }
 
-export default function CustomerSupportChat() {
+export default function CustomerSupportChat({
+  initialOpen = false,
+  initialIntent,
+}: {
+  initialOpen?: boolean;
+  initialIntent?: string;
+}) {
   const { user } = useAuth();
-  const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      sender: 'bot',
-      text: 'Namaste! I am Gia, Ruhvi\u2019s Golden Concierge. I grew up among goldsmiths in Jaipur, so pieces, materials, and orders are my world. How may I help you today?\n\nI can help with order tracking, returns, warranty questions, payment issues, and more. Just tell me what\u2019s on your mind!',
-    },
-  ]);
+  const [isOpen, setIsOpen] = useState(initialOpen);
+  const [messages, setMessages] = useState<ChatMessage[]>(() =>
+    initialIntent === 'create_ticket'
+      ? [{ sender: 'bot', text: 'Tell me, what is your issue?' }]
+      : [
+          {
+            sender: 'bot',
+            text: 'Namaste! I am Gia, Ruhvi\u2019s Golden Concierge. I grew up among goldsmiths in Jaipur, so pieces, materials, and orders are my world. How may I help you today?\n\nI can help with order tracking, returns, warranty questions, payment issues, and more. Just tell me what\u2019s on your mind!',
+          },
+        ]
+  );
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [thinkingStep, setThinkingStep] = useState(0);
