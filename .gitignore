@@ -40,3 +40,6 @@ vercel.env
 
 # Sentry Config File
 .env.sentry-build-plugin
+
+# Reports
+PERFORMANCE_OPTIMIZATION_REPORT.pdf

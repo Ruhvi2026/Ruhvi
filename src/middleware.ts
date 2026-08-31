@@ -156,9 +156,12 @@ export async function middleware(request: NextRequest) {
 
   if (isInternalRoute) {
     try {
-      const url =
-        process.env.NEXT_PUBLIC_SUPABASE_URL ||
-        'https://igrkrkxdantrolbldapj.supabase.co';
+      const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+      if (!url) {
+        throw new Error(
+          'Missing Supabase env var: NEXT_PUBLIC_SUPABASE_URL must be set in middleware.'
+        );
+      }
       const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
       const supabase = createServerClient(

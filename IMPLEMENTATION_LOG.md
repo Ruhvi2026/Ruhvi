@@ -210,10 +210,19 @@ The plan said "wrap these queries in `unstable_cache` or set `export const reval
 
 ---
 
-## Fix 5: Remove Hardcoded Supabase Fallback Credentials — SKIPPED
+## Fix 5: Remove Hardcoded Supabase Fallback Credentials — DONE
 
-**Reason:** Per the plan's explicit warning, Fix 5 must only proceed if `NEXT_PUBLIC_SUPABASE_URL` + anon key can be programmatically confirmed in all three Vercel environments. This execution environment has **no Vercel CLI, no `VERCEL_*` env vars, and no `.vercel` auth config**, so the env vars cannot be verified programmatically. Marked `Skipped — needs manual Vercel env verification` in the tracker. The hardcoded fallbacks in `src/lib/supabase/server.ts` and `src/lib/supabase/client.ts` are left untouched to avoid any risk of a production crash.
+**Reason:** The user manually verified that Vercel environments have the necessary env vars.
 
+### What was changed
+
+1. **`src/lib/supabase/server.ts`**: Removed fallback credentials and replaced with an explicit check throwing an Error if `NEXT_PUBLIC_SUPABASE_URL` or `NEXT_PUBLIC_SUPABASE_ANON_KEY` are not set.
+2. **`src/lib/supabase/client.ts`**: Removed fallback credentials and replaced with an explicit check throwing an Error if `NEXT_PUBLIC_SUPABASE_URL` or `NEXT_PUBLIC_SUPABASE_ANON_KEY` are not set.
+3. **`src/middleware.ts`**: Removed fallback credential for `NEXT_PUBLIC_SUPABASE_URL` and replaced with an explicit check throwing an Error if it is not set.
+
+### Verification
+
+- The app will now fail fast during build/deployment or startup if the required environment variables are absent.
 ---
 
 ## Fix 6: Wire Up Upstash Redis Cache — DONE
