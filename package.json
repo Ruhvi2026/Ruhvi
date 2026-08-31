@@ -17,12 +17,9 @@
     "@hookform/resolvers": "^5.7.1",
     "@marsidev/react-turnstile": "^1.5.4",
     "@modelcontextprotocol/sdk": "^1.30.0",
-    "@react-three/drei": "^10.7.8",
-    "@react-three/fiber": "^9.7.0",
     "@sentry/nextjs": "^10.70.0",
     "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.49.1",
-    "@types/three": "^0.185.4",
     "@upstash/redis": "^1.38.2",
     "@vercel/speed-insights": "^2.0.0",
     "cloudinary": "^2.10.1",
@@ -45,7 +42,6 @@
     "resend": "^6.18.1",
     "server-only": "^0.0.1",
     "tailwind-merge": "^3.0.1",
-    "three": "^0.185.1",
     "zod": "^4.4.3"
   },
   "devDependencies": {
