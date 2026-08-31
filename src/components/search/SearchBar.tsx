@@ -77,12 +77,33 @@ export function SearchBar() {
         const { createClient } = await import('@/lib/supabase/client');
         const supabase = createClient();
 
-        const { data } = await supabase
+        // Full-text search (Fix 9): websearch + prefix matching to preserve
+        // substring-like behaviour for name/sku. If the search_vector column
+        // is not deployed yet (migration 0072 pending), fall back to the
+        // legacy ilike query so results are identical either way.
+        let data: any[] | null = null;
+        const ftsQuery = `${trimmed}:*`;
+        const { data: ftsData, error: ftsError } = await supabase
           .from('products')
           .select('*, images:product_images(*), category:categories(*)')
           .eq('status', 'active')
-          .or(`name.ilike.%${trimmed}%,sku.ilike.%${trimmed}%`)
+          .textSearch('search_vector', ftsQuery, {
+            type: 'websearch',
+            config: 'english',
+          })
           .limit(5);
+
+        if (ftsError || !ftsData || ftsData.length === 0) {
+          const { data: ilikeData } = await supabase
+            .from('products')
+            .select('*, images:product_images(*), category:categories(*)')
+            .eq('status', 'active')
+            .or(`name.ilike.%${trimmed}%,sku.ilike.%${trimmed}%`)
+            .limit(5);
+          data = ilikeData;
+        } else {
+          data = ftsData;
+        }
 
         if (data && data.length > 0) {
           setSuggestions(data);
