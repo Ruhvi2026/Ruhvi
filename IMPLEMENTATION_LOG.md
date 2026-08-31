@@ -315,3 +315,43 @@ As with Fix 8, the migration SQL is committed but **could not be applied to the 
 - `npm run build` — PASSES.
 - `npm test` — PASSES (60/60).
 - Prefix matching (`:*`) preserves substring-like results for real terms such as "ring", "ear", SKU prefixes like "RNG" (matches the previous `ilike` behaviour for name/sku starts; `websearch_to_tsquery` handles the rest).
+
+---
+
+## Fix 10: Share Product-Detail Fetch Between Page and Metadata — DONE
+
+**Commit:** `9842f7d` — `fix-10: share product-detail fetch between page and generateMetadata via React.cache`
+
+### What was found vs. the plan
+
+`products/[slug]/page.tsx` had two independent copies of the slug→id→DEMO lookup — one in `generateMetadata`, one in the page. `slug` already has a UNIQUE constraint (migration `0001`), which provides the DB index the plan asked to add, so no new index was needed.
+
+### What was changed
+
+- **`src/app/products/[slug]/page.tsx`** — extracted `getProductBySlugOrId(key)` and wrapped it in `React.cache()` so both `generateMetadata` and the page share one Supabase query per request (slug lookup, id fallback, DEMO fallback). The page still creates its own `createClient()` for the 360-viewer and related-products queries (those are separate, per-page work).
+
+### Verification
+
+- `npm run build` — PASSES.
+- `npm test` — PASSES (60/60).
+- Rendered `<head>` output is driven by the same product object as before (title/description/OG derived from the shared cached result), so tags are unchanged.
+
+---
+
+## Fix 11: Slim Down Cart Data in localStorage — DONE
+
+**Commit:** `(fix-11)` — `fix-11: slim cart localStorage to product_id/quantity/price_at_add with migration`
+
+### What was changed
+
+1. **`src/context/CartContext.tsx`** — localStorage (`ruhvi_cart_v1`) now persists only `{ id, cart_id, product_id, quantity, price_at_add }` per line item. Full `Product` objects are kept in memory only (`product` field) and never written to storage.
+2. **Migration of old carts** — `normalizeLoadedItems()` detects the old full-object shape (item with an embedded `product`) and best-effort migrates it to the slim shape (extracts `id`/`quantity`/`price`). A failed/malformed parse clears storage gracefully instead of crashing.
+3. **Hydration** — on load, missing product details are fetched in a single batched call to the new `/api/products/batch?ids=...` route and attached to line items in memory (image, name, price). Cart display reads `item.product` as before.
+4. **`src/app/api/products/batch/route.ts`** (new) — GET handler that returns `id, name, slug, sku, price, stock_quantity, status, images` for a comma-separated `ids` list (public client, no cookies).
+
+### Verification
+
+- `npm run build` — PASSES.
+- `npm test` — PASSES (60/60).
+- Old-format carts load and migrate without crashing (migration path exercised by code inspection; malformed storage is cleared, not thrown).
+- Cart display is unchanged for the user — line items still resolve `product.name`, `product.price`, and images via the in-memory hydrated data.

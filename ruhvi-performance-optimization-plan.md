@@ -339,8 +339,8 @@ Included for completeness so nothing from the audit is silently dropped. Review 
 | 7 | Server-side catalog fetching | 2 | Done |
 | 8 | Consolidate AuthContext queries | 2 | Done |
 | 9 | Full-text search | 2 | Done |
-| 10 | Share product-detail fetch | 2 | Not started |
-| 11 | Slim cart localStorage | 2 | Not started |
+| 10 | Share product-detail fetch | 2 | Done |
+| 11 | Slim cart localStorage | 2 | Done |
 | 12 | Remove OneSignal | 3 | Not started |
 | 13 | Consolidate analytics to PostHog | 3 | Not started |
 | 14 | Lazy-load Gia chat widget | 3 | Not started |
