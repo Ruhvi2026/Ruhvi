@@ -14,8 +14,6 @@ import { CartProvider } from '@/context/CartContext';
 import { WishlistProvider } from '@/context/WishlistContext';
 import { Suspense } from 'react';
 import { NotificationProvider } from '@/context/NotificationContext';
-import MetaPixel from '@/components/MetaPixel';
-import MicrosoftClarity from '@/components/MicrosoftClarity';
 import CustomerSupportChat from '@/components/CustomerSupportChat';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { FcmInit } from '@/components/FcmInit';
@@ -203,9 +201,6 @@ export default function RootLayout({
         />
         <Suspense fallback={null}>
           <AnalyticsScripts />
-          <StorefrontChrome>
-            <MicrosoftClarity />
-          </StorefrontChrome>
         </Suspense>
         <AuthProvider>
           <PostHogProvider>

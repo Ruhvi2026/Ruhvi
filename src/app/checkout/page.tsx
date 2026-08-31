@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Script from 'next/script';
@@ -34,6 +34,7 @@ import {
 import toast from 'react-hot-toast';
 import { ecommerceEvent } from '@/lib/gtag';
 import posthog from 'posthog-js';
+import MetaPixel from '@/components/MetaPixel';
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -757,6 +758,9 @@ export default function CheckoutPage() {
 
   return (
     <>
+      <Suspense fallback={null}>
+        <MetaPixel />
+      </Suspense>
       <div className="mx-auto max-w-7xl px-4 pb-28 pt-10 sm:px-6 lg:px-8 lg:pb-10">
         <div className="mb-8 flex items-center space-x-3 border-b border-stone-200 pb-6">
           <button

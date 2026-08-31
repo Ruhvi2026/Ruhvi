@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
@@ -32,6 +32,7 @@ import { useAuth } from '@/context/AuthContext';
 import { SpatialPage } from '@/components/design-system/SpatialPage';
 import { Carousel3D } from '@/components/design-system/Carousel3D';
 import ProductAttributes from '@/components/ProductAttributes';
+import MetaPixel from '@/components/MetaPixel';
 
 interface ProductDetailPageClientProps {
   product: Product;
@@ -180,6 +181,9 @@ export function ProductDetailPageClient({
 
   return (
     <main className="min-h-screen bg-cream-50 pb-20">
+      <Suspense fallback={null}>
+        <MetaPixel />
+      </Suspense>
       <div className="mx-auto max-w-7xl space-y-12 px-4 py-8 sm:px-6 lg:px-8">
         {/* Main Product Layout */}
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-2">
