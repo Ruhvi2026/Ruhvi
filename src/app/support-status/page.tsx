@@ -260,20 +260,20 @@ function StatusCheckContent() {
     : 0;
 
   return (
-    <div className="mx-auto min-h-[80vh] max-w-4xl px-4 py-12 text-cream-100">
+    <div className="mx-auto min-h-[80vh] max-w-4xl px-4 py-12 text-stone-800">
       {/* Page Title */}
       <div className="mb-10 space-y-3 text-center">
-        <h1 className="bg-gradient-to-r from-amber-200 via-yellow-400 to-amber-200 bg-clip-text text-3xl font-extrabold tracking-tight text-transparent text-white sm:text-4xl">
+        <h1 className="text-3xl font-extrabold tracking-tight text-stone-900 sm:text-4xl">
           Track Support Ticket
         </h1>
-        <p className="mx-auto max-w-lg text-sm text-stone-400">
+        <p className="mx-auto max-w-lg text-base text-stone-600">
           Check status, view updates, and converse directly with our support
           concierge for any registered ticket.
         </p>
       </div>
 
       {/* Search Card */}
-      <div className="rounded-2xl border border-white/5 bg-[#121520]/80 p-6 shadow-xl backdrop-blur-md">
+      <div className="rounded-2xl border border-stone-200 bg-white/90 p-6 shadow-xl backdrop-blur-md">
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -282,25 +282,25 @@ function StatusCheckContent() {
           className="grid gap-4 sm:grid-cols-7"
         >
           <div className="relative sm:col-span-3">
-            <Ticket className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gold-400/60" />
+            <Ticket className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-amber-500" />
             <input
               type="text"
               placeholder="Ticket Number (e.g. RUV-2026-000001)"
               value={ticketNumber}
               onChange={(e) => setTicketNumber(e.target.value)}
-              className="w-full rounded-xl border border-white/10 bg-white/5 py-3 pl-10 pr-4 text-sm text-white placeholder-stone-500 focus:border-gold-500 focus:outline-none focus:ring-1 focus:ring-gold-500"
+              className="w-full rounded-xl border border-stone-200 bg-stone-50 py-3.5 pl-12 pr-4 text-sm text-stone-900 placeholder-stone-400 transition focus:border-amber-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-amber-500"
               required
             />
           </div>
           {!user && (
             <div className="relative sm:col-span-3">
-              <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gold-400/60" />
+              <Mail className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-amber-500" />
               <input
                 type="email"
                 placeholder="Associated Email Address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full rounded-xl border border-white/10 bg-white/5 py-3 pl-10 pr-4 text-sm text-white placeholder-stone-500 focus:border-gold-500 focus:outline-none focus:ring-1 focus:ring-gold-500"
+                className="w-full rounded-xl border border-stone-200 bg-stone-50 py-3.5 pl-12 pr-4 text-sm text-stone-900 placeholder-stone-400 transition focus:border-amber-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-amber-500"
                 required
               />
             </div>
@@ -308,9 +308,9 @@ function StatusCheckContent() {
           <button
             type="submit"
             disabled={loading}
-            className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 px-5 py-3 text-sm font-bold text-stone-900 transition-all hover:brightness-110 active:scale-95 disabled:opacity-50 sm:col-span-1"
+            className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 px-5 py-3.5 text-sm font-bold text-white shadow-md transition-all hover:brightness-110 active:scale-95 disabled:opacity-50 sm:col-span-1"
           >
-            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Check'}
+            {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : 'Check'}
           </button>
         </form>
 
@@ -324,10 +324,10 @@ function StatusCheckContent() {
 
       {/* Ticket Details Display */}
       {ticket && (
-        <div className="animate-fadeIn mt-8 space-y-6">
+        <div className="animate-fadeIn mt-10 space-y-8">
           {/* Status Stepper */}
-          <div className="rounded-2xl border border-white/5 bg-[#121520]/60 p-6">
-            <h3 className="mb-6 text-xs font-bold uppercase tracking-wider text-stone-500">
+          <div className="rounded-2xl border border-stone-200 bg-white p-6 shadow-sm md:p-8">
+            <h3 className="mb-6 text-sm font-bold uppercase tracking-wider text-stone-500">
               Ticket Progress
             </h3>
             <div className="relative flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
@@ -338,22 +338,22 @@ function StatusCheckContent() {
                 return (
                   <div
                     key={step.key}
-                    className="relative z-10 flex w-full flex-1 items-center gap-3 md:flex-col md:gap-2"
+                    className="relative z-10 flex w-full flex-1 items-center gap-4 md:flex-col md:gap-3"
                   >
                     <div
-                      className={`flex h-8 w-8 items-center justify-center rounded-full border text-xs font-bold transition-colors ${
+                      className={`flex h-10 w-10 items-center justify-center rounded-full border text-sm font-bold transition-colors ${
                         isCurrent
-                          ? 'border-gold-400 bg-gold-400 text-stone-950 shadow-lg shadow-gold-500/20'
+                          ? 'border-amber-500 bg-amber-500 text-white shadow-lg shadow-amber-500/30'
                           : isCompleted
-                            ? 'border-emerald-500 bg-emerald-500/10 text-emerald-400'
-                            : 'border-white/10 bg-white/5 text-stone-600'
+                            ? 'border-emerald-500 bg-emerald-50 text-emerald-600'
+                            : 'border-stone-200 bg-stone-50 text-stone-400'
                       }`}
                     >
                       {idx + 1}
                     </div>
                     <div className="text-left md:text-center">
                       <p
-                        className={`text-xs font-semibold ${isCurrent ? 'font-bold text-gold-400' : isCompleted ? 'text-emerald-400/80' : 'text-stone-500'}`}
+                        className={`text-sm font-semibold ${isCurrent ? 'font-bold text-amber-600' : isCompleted ? 'text-emerald-600' : 'text-stone-400'}`}
                       >
                         {step.label}
                       </p>
@@ -366,65 +366,65 @@ function StatusCheckContent() {
 
           {/* Details Overview */}
           <div className="grid gap-6 md:grid-cols-3">
-            <div className="space-y-4 rounded-2xl border border-white/5 bg-[#121520]/60 p-6 md:col-span-2">
+            <div className="space-y-5 rounded-2xl border border-stone-200 bg-white p-6 shadow-sm md:col-span-2 md:p-8">
               <div className="flex items-start justify-between">
-                <div className="space-y-1">
-                  <span className="rounded border border-gold-400/20 bg-gold-400/5 px-2 py-0.5 font-mono text-[10px] text-gold-400/70">
+                <div className="space-y-1.5">
+                  <span className="rounded-md border border-amber-200 bg-amber-50 px-2.5 py-1 font-mono text-xs font-semibold text-amber-700">
                     {ticket.ticket_number}
                   </span>
-                  <h2 className="mt-1.5 text-lg font-bold text-white">
+                  <h2 className="mt-2 text-xl font-bold text-stone-900 md:text-2xl">
                     {ticket.title}
                   </h2>
                 </div>
                 <span
-                  className={`rounded-full px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-wider ${
+                  className={`rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider ${
                     ticket.priority === 'urgent'
-                      ? 'border border-red-500/20 bg-red-500/10 text-red-400'
+                      ? 'border border-red-200 bg-red-50 text-red-700'
                       : ticket.priority === 'high'
-                        ? 'border border-orange-500/20 bg-orange-500/10 text-orange-400'
-                        : 'border border-blue-500/20 bg-blue-500/10 text-blue-400'
+                        ? 'border border-orange-200 bg-orange-50 text-orange-700'
+                        : 'border border-blue-200 bg-blue-50 text-blue-700'
                   }`}
                 >
                   {ticket.priority}
                 </span>
               </div>
 
-              <div className="border-t border-white/5 pt-4">
-                <p className="mb-2 text-xs font-bold uppercase tracking-wider text-stone-500">
+              <div className="border-t border-stone-100 pt-5">
+                <p className="mb-2.5 text-sm font-bold uppercase tracking-wider text-stone-500">
                   Description
                 </p>
-                <p className="whitespace-pre-wrap text-sm leading-relaxed text-stone-300">
+                <p className="whitespace-pre-wrap text-base leading-relaxed text-stone-700">
                   {ticket.description}
                 </p>
               </div>
             </div>
 
-            <div className="space-y-4 rounded-2xl border border-white/5 bg-[#121520]/60 p-6">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-stone-500">
+            <div className="space-y-5 rounded-2xl border border-stone-200 bg-stone-50/80 p-6 shadow-sm">
+              <h3 className="text-sm font-bold uppercase tracking-wider text-stone-500">
                 Ticket Information
               </h3>
-              <div className="space-y-3 text-xs">
+              <div className="space-y-4 text-sm">
                 <div className="flex justify-between">
-                  <span className="flex items-center gap-1.5 text-stone-500">
-                    <User className="h-3.5 w-3.5" /> Customer
+                  <span className="flex items-center gap-2 text-stone-500">
+                    <User className="h-4 w-4" /> Customer
                   </span>
-                  <span className="font-medium text-stone-300">
+                  <span className="font-semibold text-stone-900">
                     {ticket.customer_name}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="flex items-center gap-1.5 text-stone-500">
-                    <Tag className="h-3.5 w-3.5" /> Category
+                  <span className="flex items-center gap-2 text-stone-500">
+                    <Tag className="h-4 w-4" /> Category
                   </span>
-                  <span className="font-medium text-stone-300">
+                  <span className="font-semibold text-stone-900">
                     {ticket.category}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="flex items-center gap-1.5 text-stone-500">
-                    <Calendar className="h-3.5 w-3.5" /> Registered
+                  <span className="flex items-center gap-2 text-stone-500">
+                    <Calendar className="h-4 w-4" /> Registered
                   </span>
-                  <span className="font-medium text-stone-300">
+                  <span className="font-semibold text-stone-900">
                     {new Date(ticket.created_at).toLocaleDateString('en-IN', {
                       day: 'numeric',
                       month: 'short',
@@ -433,10 +433,10 @@ function StatusCheckContent() {
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="flex items-center gap-1.5 text-stone-500">
-                    <Clock className="h-3.5 w-3.5" /> Last Activity
+                  <span className="flex items-center gap-2 text-stone-500">
+                    <Clock className="h-4 w-4" /> Last Activity
                   </span>
-                  <span className="font-medium text-stone-300">
+                  <span className="font-semibold text-stone-900">
                     {new Date(ticket.updated_at).toLocaleDateString('en-IN', {
                       hour: '2-digit',
                       minute: '2-digit',
@@ -448,18 +448,18 @@ function StatusCheckContent() {
           </div>
 
           {/* Conversation History */}
-          <div className="space-y-6 rounded-2xl border border-white/5 bg-[#121520]/60 p-6">
-            <h3 className="flex items-center gap-2 border-b border-white/5 pb-3 text-sm font-bold text-white">
-              <MessageSquare className="h-4 w-4 text-gold-400" />
+          <div className="space-y-6 rounded-2xl border border-stone-200 bg-white p-6 shadow-sm md:p-8">
+            <h3 className="flex items-center gap-2.5 border-b border-stone-100 pb-4 text-lg font-bold text-stone-900">
+              <MessageSquare className="h-5 w-5 text-amber-500" />
               Conversation Updates
             </h3>
 
             {messages.length === 0 ? (
-              <p className="py-6 text-center text-xs text-stone-500">
+              <p className="py-8 text-center text-sm text-stone-500">
                 No updates or replies posted yet.
               </p>
             ) : (
-              <div className="max-h-96 space-y-4 overflow-y-auto pr-2">
+              <div className="max-h-96 space-y-5 overflow-y-auto pr-3">
                 {messages.map((msg) => {
                   const isStaff = msg.sender_type === 'staff';
                   const isAI = msg.sender_type === 'ai';
@@ -470,15 +470,15 @@ function StatusCheckContent() {
                       className={`flex ${isStaff || isAI ? 'justify-start' : 'justify-end'}`}
                     >
                       <div
-                        className={`max-w-[85%] rounded-2xl p-4 text-xs ${
+                        className={`max-w-[85%] rounded-2xl p-5 text-sm ${
                           isStaff
-                            ? 'border border-amber-500/20 bg-amber-500/10 text-stone-200'
+                            ? 'border border-amber-200 bg-amber-50 text-stone-900'
                             : isAI
-                              ? 'border border-purple-500/20 bg-purple-500/10 text-stone-200'
-                              : 'border border-white/10 bg-white/5 text-stone-300'
+                              ? 'border border-purple-200 bg-purple-50 text-stone-900'
+                              : 'border border-stone-200 bg-stone-50 text-stone-900'
                         }`}
                       >
-                        <div className="mb-1 flex justify-between gap-6 text-[10px] font-semibold text-stone-500">
+                        <div className="mb-2 flex justify-between gap-6 text-xs font-semibold text-stone-500">
                           <span>
                             {isStaff
                               ? 'Staff Support'
@@ -493,7 +493,7 @@ function StatusCheckContent() {
                             )}
                           </span>
                         </div>
-                        <p className="whitespace-pre-wrap leading-relaxed">
+                        <p className="whitespace-pre-wrap text-base leading-relaxed">
                           {msg.message}
                         </p>
                         {renderMessageAttachments(msg)}
@@ -508,26 +508,26 @@ function StatusCheckContent() {
             {ticket.status !== 'closed' && ticket.status !== 'resolved' && (
               <form
                 onSubmit={(e) => handleReplySubmit(e, ticket.id)}
-                className="space-y-3 border-t border-white/5 pt-4"
+                className="space-y-4 border-t border-stone-100 pt-5"
               >
                 <textarea
-                  rows={3}
+                  rows={4}
                   placeholder="Post an update or reply to support..."
                   value={replyText}
                   onChange={(e) => setReplyText(e.target.value)}
-                  className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-xs text-white placeholder-stone-500 focus:border-gold-500 focus:outline-none focus:ring-1 focus:ring-gold-500"
+                  className="w-full rounded-xl border border-stone-200 bg-stone-50 px-5 py-4 text-sm text-stone-900 placeholder-stone-400 transition focus:border-amber-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-amber-500"
                   required
                 />
 
                 {/* Attachments List */}
                 {attachmentsList.length > 0 && (
-                  <div className="mt-2 flex flex-wrap gap-2">
+                  <div className="mt-3 flex flex-wrap gap-2">
                     {attachmentsList.map((att, idx) => (
                       <div
                         key={idx}
-                        className="animate-fade-in flex items-center gap-1.5 rounded-lg border border-white/5 bg-white/5 px-2.5 py-1 text-xs text-slate-300"
+                        className="animate-fade-in flex items-center gap-2 rounded-lg border border-stone-200 bg-white px-3 py-1.5 text-sm text-stone-600 shadow-sm"
                       >
-                        <span className="max-w-[120px] truncate">
+                        <span className="max-w-[150px] truncate">
                           {att.file_name}
                         </span>
                         <button
@@ -537,7 +537,7 @@ function StatusCheckContent() {
                               prev.filter((_, i) => i !== idx)
                             )
                           }
-                          className="font-bold text-rose-400 hover:text-rose-300"
+                          className="font-bold text-red-500 hover:text-red-600"
                         >
                           ✕
                         </button>
@@ -547,9 +547,9 @@ function StatusCheckContent() {
                 )}
 
                 {/* Actions Bar */}
-                <div className="mt-2 flex items-center justify-between">
-                  <label className="flex cursor-pointer items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-slate-300 transition hover:bg-white/10 hover:text-white disabled:opacity-40">
-                    <Paperclip className="h-3.5 w-3.5" />
+                <div className="mt-4 flex items-center justify-between">
+                  <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-stone-200 bg-white px-4 py-2 text-sm font-medium text-stone-600 shadow-sm transition hover:bg-stone-50 hover:text-stone-900 disabled:opacity-40">
+                    <Paperclip className="h-4 w-4" />
                     <span>
                       {isUploadingAttachment ? 'Uploading...' : 'Attach Files'}
                     </span>
@@ -565,20 +565,20 @@ function StatusCheckContent() {
                 </div>
 
                 {replyError && (
-                  <p className="text-xs text-red-400">{replyError}</p>
+                  <p className="text-sm text-red-500">{replyError}</p>
                 )}
 
                 <div className="flex justify-end">
                   <button
                     type="submit"
                     disabled={sendingReply}
-                    className="flex items-center gap-1.5 rounded-lg bg-gold-400 px-4 py-2 text-xs font-bold text-stone-950 transition-all hover:bg-gold-500 active:scale-95 disabled:opacity-50"
+                    className="flex items-center gap-2 rounded-xl bg-amber-500 px-6 py-3 text-sm font-bold text-white shadow-md transition-all hover:bg-amber-600 active:scale-95 disabled:opacity-50"
                   >
                     {sendingReply ? (
-                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      <Loader2 className="h-4 w-4 animate-spin" />
                     ) : (
                       <>
-                        Send Message <CornerDownLeft className="h-3 w-3" />
+                        Send Message <CornerDownLeft className="h-4 w-4" />
                       </>
                     )}
                   </button>
