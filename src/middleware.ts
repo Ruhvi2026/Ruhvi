@@ -127,15 +127,19 @@ export async function middleware(request: NextRequest) {
     }
   } else {
     // Block internal routes on the main customer-facing domain
-    if (
-      path.startsWith('/admin') ||
-      path.startsWith('/manager') ||
-      path.startsWith('/staff') ||
-      path.startsWith('/operations') ||
-      path.startsWith('/portal-orders') ||
-      path.startsWith('/support') ||
-      path.startsWith('/marketing')
-    ) {
+    const internalBases = [
+      '/admin',
+      '/manager',
+      '/staff',
+      '/operations',
+      '/portal-orders',
+      '/support',
+      '/marketing',
+    ];
+    const isBlocked = internalBases.some(
+      (b) => path === b || path.startsWith(b + '/')
+    );
+    if (isBlocked) {
       return NextResponse.rewrite(new URL('/404', request.url));
     }
   }
@@ -145,14 +149,18 @@ export async function middleware(request: NextRequest) {
     supabaseResponse.headers.set('X-Robots-Tag', 'noindex, nofollow');
   }
 
-  const isInternalRoute =
-    path.startsWith('/admin') ||
-    path.startsWith('/manager') ||
-    path.startsWith('/staff') ||
-    path.startsWith('/operations') ||
-    path.startsWith('/portal-orders') ||
-    path.startsWith('/support') ||
-    path.startsWith('/marketing');
+  const internalBases = [
+    '/admin',
+    '/manager',
+    '/staff',
+    '/operations',
+    '/portal-orders',
+    '/support',
+    '/marketing',
+  ];
+  const isInternalRoute = internalBases.some(
+    (b) => path === b || path.startsWith(b + '/')
+  );
 
   if (isInternalRoute) {
     try {
