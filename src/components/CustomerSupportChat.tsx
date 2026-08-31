@@ -333,7 +333,8 @@ export default function CustomerSupportChat({
             width: `${winSize.width}px`,
             maxWidth: 'calc(100vw - 40px)',
             height: `${winSize.height}px`,
-            maxHeight: 'calc(100dvh - 140px)',
+            maxHeight: 'calc(100vh - 140px)',
+            transition: 'all 0.3s ease',
             background:
               'linear-gradient(145deg, #FDFAF3 0%, #F5F0E6 60%, #EDE6D5 100%)',
           }}
@@ -552,7 +553,7 @@ export default function CustomerSupportChat({
                 placeholder="Describe your issue or ask a question…"
                 aria-label="Message"
                 rows={1}
-                className="flex-1 resize-none rounded-xl border border-charcoal-200/60 bg-white/70 px-3 py-2 text-[13px] text-charcoal-800 placeholder-stone-400/60 transition-all focus:border-gold-400 focus:outline-none focus:ring-1 focus:ring-gold-300"
+                className="flex-1 resize-none rounded-xl border border-charcoal-200/60 bg-white/70 px-3 py-2 text-[13px] text-charcoal-800 placeholder-stone-400/60 transition-all focus:border-gold-400 focus:outline-none focus:ring-1 focus:ring-gold-300 dark:!bg-white/70 dark:!text-charcoal-800 dark:!placeholder-stone-400/60"
                 style={{ maxHeight: '80px' }}
               />
               <button
@@ -580,7 +581,7 @@ export default function CustomerSupportChat({
       )}
 
       {/* Draggable Floating Mascot */}
-      {!isClosed && (
+      {!isClosed && !isOpen && (
         <div
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}

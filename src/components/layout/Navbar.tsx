@@ -27,6 +27,7 @@ export function Navbar() {
   const [accountDrawerOpen, setAccountDrawerOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isScrollingDown, setIsScrollingDown] = useState(false);
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
   const pathname = usePathname();
 
@@ -50,13 +51,25 @@ export function Navbar() {
 
   React.useEffect(() => {
     let ticking = false;
+    let lastScrollY = typeof window !== 'undefined' ? window.scrollY : 0;
+
     const handleScroll = () => {
       if (!ticking) {
         window.requestAnimationFrame(() => {
-          setIsScrolled(window.scrollY > 20);
-          if (window.scrollY <= 20) {
+          const currentScrollY = window.scrollY;
+          setIsScrolled(currentScrollY > 20);
+
+          if (currentScrollY > lastScrollY && currentScrollY > 80) {
+            setIsScrollingDown(true);
+          } else if (currentScrollY < lastScrollY) {
+            setIsScrollingDown(false);
+          }
+
+          if (currentScrollY <= 20) {
             setIsSearchExpanded(false);
           }
+
+          lastScrollY = currentScrollY;
           ticking = false;
         });
         ticking = true;
@@ -96,11 +109,11 @@ export function Navbar() {
   return (
     <>
       <header
-        className={`bg-[var(--cream)]/90 sticky top-0 z-50 w-full shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)] backdrop-blur-md transition-[border-color,background-color,box-shadow] duration-300 ${isScrolled && !isSearchExpanded ? 'border-b border-gold-200/40 py-0' : 'border-b border-gold-200/40'}`}
+        className={`bg-[var(--cream)]/90 fixed left-0 right-0 top-0 z-50 w-full border-b border-gold-200/40 shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)] backdrop-blur-md transition-all duration-300 ${
+          isScrollingDown ? '-translate-y-full' : 'translate-y-0'
+        }`}
       >
-        <div
-          className={`nav-inner transition-[padding,min-height] duration-300 ${isScrolled && !isSearchExpanded ? 'min-h-[32px] py-0' : 'py-2'}`}
-        >
+        <div className="nav-inner py-2 transition-all duration-300">
           {/* Left Navigation Actions & Mobile Menu */}
           <div className="nav-left">
             <button
@@ -137,7 +150,7 @@ export function Navbar() {
                 alt="Ruhvi Logo"
                 width={72}
                 height={72}
-                className={`h-16 w-auto origin-left object-contain transition-transform duration-300 group-hover:opacity-90 sm:h-20 ${isScrolled && !isSearchExpanded ? 'scale-[0.625]' : 'scale-100'}`}
+                className={`h-16 w-auto origin-left object-contain transition-transform duration-300 group-hover:opacity-90 sm:h-20 ${isScrolled && !isSearchExpanded ? 'scale-75' : 'scale-100'}`}
                 priority
               />
             </Link>
