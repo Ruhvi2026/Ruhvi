@@ -337,7 +337,7 @@ Included for completeness so nothing from the audit is silently dropped. Review 
 | 5 | Remove hardcoded Supabase fallback | 1 | Skipped — needs manual Vercel env verification |
 | 6 | Wire up Upstash Redis caching | 2 | Done |
 | 7 | Server-side catalog fetching | 2 | Done |
-| 8 | Consolidate AuthContext queries | 2 | Not started |
+| 8 | Consolidate AuthContext queries | 2 | Done |
 | 9 | Full-text search | 2 | Not started |
 | 10 | Share product-detail fetch | 2 | Not started |
 | 11 | Slim cart localStorage | 2 | Not started |

@@ -264,3 +264,29 @@ One schema/tooling discovery: Supabase's `.or()` cannot reference the embedded `
 - `npm test` — PASSES (60/60).
 - Every filter/sort option (keyword/SKU, category, stock, max price, newest/price-low/price-high) has an exact server-side equivalent; each was exercised against the live Supabase DB in the throwaway script (category.slug, categories.slug, price lte, stock neq/eq, or() search, combined query, order by price/created_at, range, exact count).
 - Demo fallback preserved: when the DB returns nothing, `DEMO_PRODUCTS` client-side filtering still renders (unchanged logic).
+
+---
+
+## Fix 8: Consolidate AuthContext's 4 Sequential Queries into 1 RPC — DONE
+
+**Commit:** `b9d3770` — `fix-08: consolidate AuthContext 4-step profile lookup into single RPC (+ migration)`
+
+### What was found vs. the plan
+
+The plan's `firebase_uid` column no longer lives on `users` — migration `0030` moved it to `customer_identities`. The existing `get_user_profile(p_user_id text)` RPC (migration `0031`) resolves by `users.id::text` OR `customer_identities.firebase_uid`. `AuthContext.fetchProfile` ran four sequential lookups: id (RLS-gated), firebase_uid (SECURITY DEFINER RPC), phone (RLS-gated `ilike`), email (RLS-gated `eq`).
+
+### What was changed
+
+1. **`supabase/migrations/0071_consolidated_user_profile_rpc.sql`** (new) — `get_user_profile_consolidated(p_id, p_firebase_uid, p_phone, p_email)`: one SECURITY DEFINER RPC returning the first match in the exact old precedence order (`id` → `firebase_uid` via `customer_identities` → `phone` → `email`). Access model preserved: id/phone/email are restricted to `auth.uid()` (mirroring the old RLS-gated client queries); firebase_uid resolves across users (mirroring the old SECURITY DEFINER RPC). Adds single-column indexes `idx_users_email_lookup`, `idx_users_phone_lookup` (firebase_uid already indexed via `customer_identities.firebase_uid UNIQUE`).
+2. **`src/context/AuthContext.tsx`** — replaced the four sequential lookups with one `.rpc('get_user_profile_consolidated', { p_id, p_firebase_uid, p_phone, p_email })` call. **Graceful fallback:** if the RPC is not yet deployed (migration pending), `rpcError` is set and the code falls back to the exact legacy four-step logic — so behaviour is byte-for-byte identical whether or not the migration has been applied. Phone cleaning (`replace(/\D/g,'').slice(-10)`) is preserved.
+
+### Important deployment note (logged for review)
+
+The migration SQL is written and committed, but **it could NOT be applied to the remote Supabase DB from this environment**: the `SUPABASE_SERVICE_ROLE_KEY` in `.env.local` is 41 chars and returns 401 on the REST API (invalid/stale), and the Supabase CLI has no access token (`SUPABASE_ACCESS_TOKEN` unset). The code change is safe without the migration because of the fallback. **Someone with DB access must run `supabase/migrations/0071_consolidated_user_profile_rpc.sql` (SQL editor or `supabase db push`) for the single-query path to take effect.** After applying, the fallback simply stops being triggered.
+
+### Verification
+
+- `npm run build` — PASSES.
+- `npm test` — PASSES (60/60).
+- Precedence order `id → firebase_uid → phone → email` matches the old four-step logic exactly (code-inspected and mirrored in SQL).
+- RLS-equivalent access preserved (id/phone/email scoped to `auth.uid()`), so no new user-enumeration surface versus the old RLS-gated client queries.
