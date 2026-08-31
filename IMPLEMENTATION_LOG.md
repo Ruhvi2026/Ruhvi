@@ -238,3 +238,29 @@ The plan's Fix 6 also names the catalog query (Fix 7) and search query (Fix 9). 
 - `npm run build` — PASSES (homepage still `○ (Static)` 1h ISR).
 - `npm test` — PASSES (60/60).
 - Data is never stale longer than the 300s Redis TTL (or instantly on admin write via `cacheDelete`).
+
+---
+
+## Fix 7: Server-Side Catalog Fetching with Streaming — DONE
+
+**Commit:** `cab6ee0` — `fix-07: server-side catalog fetching with Suspense streaming + /api/products pagination`
+
+### What was found vs. the plan
+
+`ProductsCatalogClient.tsx` was fully client-rendered: spinner → client Supabase query with `count: 'exact'` + heavy joins on every pagination page, filtering/sorting in the browser. Confirmed as described.
+
+One schema/tooling discovery: Supabase's `.or()` cannot reference the embedded `categories.name` relation. Verified against the live DB (queries 1-5 in a throwaway script): `or(name.ilike,sku.ilike)` works, and category-name matching must be done by resolving matching category ids first then `category_id.in.(...)`. All other filters (category slug via `categories.slug`, stock via status, price via `.lte`, sort, range pagination, exact count) work server-side.
+
+### What was changed
+
+1. **`src/lib/catalog.ts`** (new, server-only) — `queryCatalogPage(filters)` pushes all filtering/sorting/pagination into the Supabase query (`category`, `stock`, `maxPrice`, `search` incl. category-name, `sortBy`, page/range). Result (rows + exact count) cached via `cacheWrap` (300s, Redis, Fix 6). No more `count: 'exact'` full-scan per pagination click in the browser.
+2. **`src/app/products/page.tsx`** — now a server component that awaits `searchParams`, runs the initial query server-side, and streams the result into the client via `<Suspense>`.
+3. **`src/app/api/products/route.ts`** (new) — GET handler that parses the same filter params and returns the server-side query result for subsequent pages and filter changes.
+4. **`ProductsCatalogClient.tsx`** — receives `initialProducts`/`initialCount`/`initialSearch`/`initialCategory` from the server; keeps the exact same filter UI and options; any filter/sort change refetches page 1 from `/api/products` (300ms debounce); "Load More" fetches the next page server-side. Client-side `filteredProducts` useMemo retained only as the DEMO_PRODUCTS fallback path.
+
+### Verification
+
+- `npm run build` — PASSES.
+- `npm test` — PASSES (60/60).
+- Every filter/sort option (keyword/SKU, category, stock, max price, newest/price-low/price-high) has an exact server-side equivalent; each was exercised against the live Supabase DB in the throwaway script (category.slug, categories.slug, price lte, stock neq/eq, or() search, combined query, order by price/created_at, range, exact count).
+- Demo fallback preserved: when the DB returns nothing, `DEMO_PRODUCTS` client-side filtering still renders (unchanged logic).
