@@ -382,3 +382,33 @@ OneSignal was fully redundant with FCM: `OneSignalInit` in the root layout, `rea
 - `npm run build` — PASSES.
 - `npm test` — PASSES (60/60).
 - FCM path confirmed intact end-to-end by code inspection: service worker registers background messages, `/api/firebase-config` serves the config, `FcmInit` requests token + saves to `user_push_tokens`, foreground listener shows toasts, `sendFcmToTokens` broadcasts. No OneSignal SDK references remain in `src/` (only a Fix-12 comment and the legacy `onesignal_id` DB column name).
+
+---
+
+## Fix 13: Consolidate Analytics — PostHog Primary — DONE
+
+**Commit:** `c7f0962` — `fix-13: consolidate analytics - PostHog primary, remove GA4/Clarity, scope Meta Pixel to checkout+product pages`
+
+### What was found vs. the plan
+
+The Fix 13 changes were **already implemented on disk but uncommitted** when this session started (the user's summary assumed Fix 13 was committed — it wasn't; the last commit was Fix 12's docs). The work matched the plan's required change exactly: GA4 (`GoogleAnalytics`), Microsoft Clarity (`MicrosoftClarity`), and the global Meta Pixel were removed from the root layout, with Meta Pixel scoped down to checkout + product-detail pages.
+
+### What was changed
+
+1. **Deleted `src/components/GoogleAnalytics.tsx` and `src/components/MicrosoftClarity.tsx`** (no dangling references remain).
+2. **`src/app/layout.tsx`** — removed the `MetaPixel` + `MicrosoftClarity` imports and the `<StorefrontChrome><MicrosoftClarity/></StorefrontChrome>` wrapper from the root layout.
+3. **`src/components/AnalyticsScripts.tsx`** — now loads only `PostHogPageView` (GA4 + global Meta Pixel removed). Comment marks the Fix 13 intent.
+4. **`src/lib/gtag.ts`** — GA4 gtag helpers rewritten to proxy to PostHog (`posthog.capture`) so all 8 call sites (`CartContext`, cart page, order-success, `ProductDetailPageClient`, `OffersClient`, `ProductsCatalogClient`, `ProductCard`, `SearchBar`) keep firing e-commerce events into PostHog — consolidation, not data loss.
+5. **`src/app/checkout/page.tsx` + `src/app/products/[slug]/ProductDetailPageClient.tsx`** — Meta Pixel now loaded here only, via `<Suspense fallback={null}><MetaPixel/></Suspense>` (fires `PageView`/`ViewContent` for ad attribution on those pages).
+6. **`/api/capi` (Meta Conversions API) confirmed intact** — the server-side conversion path still fires from the scoped-down pages.
+
+### Debugging detour (build-blocking type error found on validation)
+
+The first `npm run build` **failed to compile**: removing `<MicrosoftClarity/>` from inside `<StorefrontChrome>` left `<StorefrontChrome />` with no children, but `StorefrontChrome` requires a `children: ReactNode` prop. Fix: removed the now-empty `<StorefrontChrome />` wrapper entirely (it existed solely to portal-gate Clarity) so `AnalyticsScripts` sits alone in the `<Suspense>`. `npm run build` then **PASSED** (153 static pages, homepage `/` still `○ (Static)` 1h ISR).
+
+### Verification
+
+- `npm run build` — PASSES (exit 0).
+- `npm test` — PASSES (60/60, 2 suites).
+- GA4/Clarity fully removed; e-commerce funnel preserved via `gtag.ts` → PostHog proxy.
+- Meta Pixel + CAPI still functional on checkout and product-detail pages.
