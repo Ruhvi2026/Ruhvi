@@ -145,11 +145,6 @@ export async function middleware(request: NextRequest) {
     supabaseResponse.headers.set('X-Robots-Tag', 'noindex, nofollow');
   }
 
-  const url =
-    process.env.NEXT_PUBLIC_SUPABASE_URL ||
-    'https://igrkrkxdantrolbldapj.supabase.co';
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
   const isInternalRoute =
     path.startsWith('/admin') ||
     path.startsWith('/manager') ||
@@ -159,44 +154,52 @@ export async function middleware(request: NextRequest) {
     path.startsWith('/support') ||
     path.startsWith('/marketing');
 
-  try {
-    const supabase = createServerClient(
-      url,
-      serviceKey!, // Using Service Role Key to bypass RLS for role fetching since we don't have a Supabase session
-      {
-        cookies: {
-          getAll() {
-            return request.cookies.getAll();
-          },
-          setAll(
-            cookiesToSet: {
-              name: string;
-              value: string;
-              options: CookieOptions;
-            }[]
-          ) {
-            cookiesToSet.forEach(({ name, value }) =>
-              request.cookies.set(name, value)
-            );
-            supabaseResponse = NextResponse.next({
-              request,
-            });
-            if (isAnyPortalHost) {
-              supabaseResponse.headers.set('X-Robots-Tag', 'noindex, nofollow');
-            }
-            cookiesToSet.forEach(({ name, value, options }) =>
-              supabaseResponse.cookies.set(name, value, {
-                ...options,
-                secure: false,
-              })
-            );
-          },
-        },
-      }
-    );
+  if (isInternalRoute) {
+    try {
+      const url =
+        process.env.NEXT_PUBLIC_SUPABASE_URL ||
+        'https://igrkrkxdantrolbldapj.supabase.co';
+      const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-    // RBAC for internal routes
-    if (isInternalRoute) {
+      const supabase = createServerClient(
+        url,
+        serviceKey!, // Using Service Role Key to bypass RLS for role fetching since we don't have a Supabase session
+        {
+          cookies: {
+            getAll() {
+              return request.cookies.getAll();
+            },
+            setAll(
+              cookiesToSet: {
+                name: string;
+                value: string;
+                options: CookieOptions;
+              }[]
+            ) {
+              cookiesToSet.forEach(({ name, value }) =>
+                request.cookies.set(name, value)
+              );
+              supabaseResponse = NextResponse.next({
+                request,
+              });
+              if (isAnyPortalHost) {
+                supabaseResponse.headers.set(
+                  'X-Robots-Tag',
+                  'noindex, nofollow'
+                );
+              }
+              cookiesToSet.forEach(({ name, value, options }) =>
+                supabaseResponse.cookies.set(name, value, {
+                  ...options,
+                  secure: false,
+                })
+              );
+            },
+          },
+        }
+      );
+
+      // RBAC for internal routes
       const sessionCookie = request.cookies.get('__session')?.value;
 
       if (!sessionCookie) {
@@ -321,21 +324,21 @@ export async function middleware(request: NextRequest) {
         });
         return redirectResponse;
       }
-    }
-  } catch (error) {
-    console.error('[Middleware Error]', error);
-    // Fail closed: if RBAC/session verification fails on an internal route,
-    // redirect to login instead of passing the request through unauthenticated.
-    if (isInternalRoute) {
-      const loginUrl = new URL('/login', request.url);
-      loginUrl.searchParams.set('redirectTo', path);
-      const redirectResponse = NextResponse.redirect(loginUrl);
-      if (isAnyPortalHost) {
-        redirectResponse.headers.set('X-Robots-Tag', 'noindex, nofollow');
+    } catch (error) {
+      console.error('[Middleware Error]', error);
+      // Fail closed: if RBAC/session verification fails on an internal route,
+      // redirect to login instead of passing the request through unauthenticated.
+      if (isInternalRoute) {
+        const loginUrl = new URL('/login', request.url);
+        loginUrl.searchParams.set('redirectTo', path);
+        const redirectResponse = NextResponse.redirect(loginUrl);
+        if (isAnyPortalHost) {
+          redirectResponse.headers.set('X-Robots-Tag', 'noindex, nofollow');
+        }
+        return redirectResponse;
       }
-      return redirectResponse;
+      // For public routes, return the standard response to avoid 500 MIDDLEWARE_INVOCATION_FAILED
     }
-    // For public routes, return the standard response to avoid 500 MIDDLEWARE_INVOCATION_FAILED
   }
 
   return supabaseResponse;
