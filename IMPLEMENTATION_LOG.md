@@ -412,3 +412,32 @@ The first `npm run build` **failed to compile**: removing `<MicrosoftClarity/>` 
 - `npm test` — PASSES (60/60, 2 suites).
 - GA4/Clarity fully removed; e-commerce funnel preserved via `gtag.ts` → PostHog proxy.
 - Meta Pixel + CAPI still functional on checkout and product-detail pages.
+
+---
+
+## Fix 14: Lazy-Load the Gia Support Chat Widget — DONE
+
+**Commit:** `2cf7beb` — `fix-14: lazy-load Gia support chat widget behind a lightweight mascot trigger`
+
+### What was changed
+
+1. **`src/components/CustomerSupportChatTrigger.tsx`** (new) — lightweight client component that always renders the floating BotMascot button (a small SVG icon). On click, it dynamically imports the full `CustomerSupportChat` via `next/dynamic` with `ssr: false`. Also listens for the `ruhvi:open-support-chat` custom event (used by the `/account/support` page "Create Ticket" button) to load the chat programmatically.
+2. **`src/components/CustomerSupportChat.tsx`** — now accepts optional `initialOpen?: boolean` and `initialIntent?: string` props. When `initialOpen` is true, the chat window opens immediately on mount (single-click UX). When `initialIntent` is `'create_ticket'`, the greeting message is replaced with "Tell me, what is your issue?" — matching the existing "Create Ticket" event behavior.
+3. **`src/app/layout.tsx`** — replaced `import CustomerSupportChat from '@/components/CustomerSupportChat'` with `import CustomerSupportChatTrigger from '@/components/CustomerSupportChatTrigger'`; rendered `<CustomerSupportChatTrigger />` in place of `<CustomerSupportChat />`.
+
+### How it works
+
+- **Initial load:** Only the 54-line trigger component (with BotMascot SVG, ~253 lines) is in the critical path instead of the full 629-line chat widget.
+- **Click mascot:** `chatProps` is set → `LazyCustomerSupportChat` renders → dynamic import loads the module → component mounts with `isOpen=true` → chat opens immediately. Single-click.
+- **"Create Ticket" from support page:** The `ruhvi:open-support-chat` event fires → trigger catches it → loads chat with `initialOpen: true, initialIntent: 'create_ticket'` → chat opens with the create-ticket message.
+- **After first load:** The module is cached, so subsequent clicks are instant. The full component (with its own mascot, drag-to-close, unread indicator) takes over entirely.
+
+### Typewriter interval verification (plan point 4)
+
+The `BotMessage` component's `setInterval` for the typewriter effect is cleaned up via `return () => clearInterval(interval)` when the component unmounts. `BotMessage` is only rendered inside the chat window (`{isOpen && ...}`), so the interval does **not** run while the chat is closed. No bug to flag.
+
+### Verification
+
+- `npm run build` — PASSES (153 static pages).
+- `npm test` — PASSES (60/60, 2 suites).
+- Chat opens on single click; auto-ticket-creation still works (uses `useAuth` from `AuthProvider`, which is a parent of the dynamically-loaded component).
