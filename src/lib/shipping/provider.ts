@@ -1,4 +1,4 @@
-import { getServiceClient } from '@/lib/supabase/service';
+import { getServiceClient as getSupabaseClient } from '@/lib/supabase/service';
 
 // ---------------------------------------------------------------------------
 // Courier / shipping provider abstraction (Phase 3).
@@ -64,20 +64,13 @@ export interface ShippingProvider {
   cancelShipment(awbNumber: string): Promise<{ ok: boolean; error?: string }>;
 }
 
-function getServiceClient() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://igrkrkxdantrolbldapj.supabase.co';
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!key) throw new Error('SUPABASE_SERVICE_ROLE_KEY is not set');
-  return createJSClient(url, key);
-}
-
 /**
  * Return the active courier provider name (from courier_providers.is_active),
  * falling back to 'shiprocket' if the table is not reachable (pre-migration).
  */
 export async function getActiveCourierProvider(): Promise<string> {
   try {
-    const supabase = getServiceClient();
+    const supabase = getSupabaseClient();
     const { data } = await supabase
       .from('courier_providers')
       .select('name')
@@ -93,12 +86,17 @@ export async function getActiveCourierProvider(): Promise<string> {
 
 const providerRegistry: Record<string, () => Promise<ShippingProvider>> = {};
 
-export function registerProvider(name: string, factory: () => Promise<ShippingProvider>) {
+export function registerProvider(
+  name: string,
+  factory: () => Promise<ShippingProvider>
+) {
   providerRegistry[name.toLowerCase()] = factory;
 }
 
 /** Get the provider instance for the given (or active) provider name. */
-export async function getShippingProvider(provider?: string): Promise<ShippingProvider> {
+export async function getShippingProvider(
+  provider?: string
+): Promise<ShippingProvider> {
   const name = (provider || (await getActiveCourierProvider())).toLowerCase();
   const factory = providerRegistry[name];
   if (!factory) {
