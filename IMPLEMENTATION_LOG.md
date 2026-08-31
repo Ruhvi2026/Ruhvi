@@ -290,3 +290,28 @@ The migration SQL is written and committed, but **it could NOT be applied to the
 - `npm test` — PASSES (60/60).
 - Precedence order `id → firebase_uid → phone → email` matches the old four-step logic exactly (code-inspected and mirrored in SQL).
 - RLS-equivalent access preserved (id/phone/email scoped to `auth.uid()`), so no new user-enumeration surface versus the old RLS-gated client queries.
+
+---
+
+## Fix 9: Full-Text Search Instead of Per-Keystroke ILIKE — DONE
+
+**Commit:** `(fix-09)` — `fix-09: full-text search for product suggestions (tsvector + GIN, ilike fallback)`
+
+### What was found vs. the plan
+
+`SearchBar.tsx` fired an `ilike` query (`name.ilike.%q%,sku.ilike.%q%`) on every keystroke with a 300ms debounce. Confirmed. The `products` table has no full-text setup. `search_vector` column does not exist yet.
+
+### What was changed
+
+1. **`supabase/migrations/0072_products_search_vector.sql`** (new) — generated `search_vector tsvector` column (`setweight(name,'A') || setweight(sku,'B')`) + GIN index `idx_products_search`.
+2. **`src/components/search/SearchBar.tsx`** — replaced the single `ilike` call with `.textSearch('search_vector', '${query}:*', { type: 'websearch', config: 'english' })`. The `:*` suffix preserves prefix/substring-like matching for name/sku. **Graceful fallback:** if `search_vector` is not deployed yet (migration pending), `ftsError`/empty result falls back to the exact legacy `ilike` query — identical behaviour either way. The `DEMO_PRODUCTS` fallback is untouched.
+
+### Important deployment note (logged for review)
+
+As with Fix 8, the migration SQL is committed but **could not be applied to the remote Supabase DB from this environment** (invalid `SUPABASE_SERVICE_ROLE_KEY`, no CLI access token). The code change is safe without it thanks to the fallback. Someone with DB access must run `supabase/migrations/0072_products_search_vector.sql` for the FTS path to take effect.
+
+### Verification
+
+- `npm run build` — PASSES.
+- `npm test` — PASSES (60/60).
+- Prefix matching (`:*`) preserves substring-like results for real terms such as "ring", "ear", SKU prefixes like "RNG" (matches the previous `ilike` behaviour for name/sku starts; `websearch_to_tsquery` handles the rest).
