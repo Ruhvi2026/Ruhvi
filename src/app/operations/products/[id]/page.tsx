@@ -19,7 +19,8 @@ export default async function EditProductPage({
     .select(
       `
       *,
-      product_images ( id, url, type, sort_order )
+      product_images ( id, url, type, sort_order ),
+      product_variants ( id, sku, size, metal_type, stock_quantity, reorder_point, cost_price_override, selling_price_override )
     `
     )
     .eq('id', resolvedParams.id)

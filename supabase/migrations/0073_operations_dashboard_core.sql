@@ -239,13 +239,15 @@ CREATE POLICY "Staff can manage production batches"
   USING (public.is_admin_or_staff());
 
 -- ============================================================================
--- 13. SEED packaging_variants — starter rows
+-- 13. SEED packaging_variants — starter rows (idempotent)
 -- ============================================================================
+CREATE UNIQUE INDEX IF NOT EXISTS idx_packaging_variants_name ON public.packaging_variants(name);
+
 INSERT INTO public.packaging_variants (name, cost, description) VALUES
   ('Standard', 25, 'Standard velvet pouch with brand card'),
   ('Premium', 75, 'Premium rigid box with magnetic closure, satin lining, and care card'),
   ('Gift Wrap', 50, 'Gift-wrapped box with ribbon and personalized message card')
-ON CONFLICT DO NOTHING;
+ON CONFLICT (name) DO NOTHING;
 
 -- ============================================================================
 -- 14. SEED operations config thresholds in settings table
@@ -338,9 +340,9 @@ BEGIN
   VALUES
     (v_etr_id, 'ETR-GLD-6', '6', 'Gold', 8, 3, 2999.00),
     (v_etr_id, 'ETR-GLD-7', '7', 'Gold', 12, 5, 2999.00),
-    (v_etr_id, 'ETR-GLD-8', '8', 'Gold', 5, 3, 2999.00)
-  RETURNING id INTO v_etr_v6_id;
-  -- Capture remaining variant IDs
+    (v_etr_id, 'ETR-GLD-8', '8', 'Gold', 5, 3, 2999.00);
+
+  SELECT id INTO v_etr_v6_id FROM public.product_variants WHERE sku = 'ETR-GLD-6';
   SELECT id INTO v_etr_v7_id FROM public.product_variants WHERE sku = 'ETR-GLD-7';
   SELECT id INTO v_etr_v8_id FROM public.product_variants WHERE sku = 'ETR-GLD-8';
 

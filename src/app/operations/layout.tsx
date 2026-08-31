@@ -22,6 +22,14 @@ import {
   LogOut,
   Home,
   Monitor,
+  Calculator,
+  TrendingUp,
+  Truck,
+  Activity,
+  ShieldCheck,
+  BarChart3,
+  Factory,
+  AlertTriangle,
 } from 'lucide-react';
 
 interface NavChild {
@@ -100,6 +108,102 @@ const getOperationsNavGroups = (): NavGroup[] => [
         href: '/operations/inventory/adjustment',
         icon: AlertCircle,
         requiredPermission: 'inventory.adjust',
+      },
+      {
+        label: 'Inventory Reports',
+        icon: AlertCircle,
+        requiredPermission: 'inventory.view',
+        children: [
+          { label: 'Valuation', href: '/operations/inventory/valuation' },
+          { label: 'Aging', href: '/operations/inventory/aging' },
+          {
+            label: 'Movement History',
+            href: '/operations/inventory/movements',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    section: 'FINANCE',
+    items: [
+      {
+        label: 'Profit Calculator',
+        href: '/operations/calculator',
+        icon: Calculator,
+        requiredPermission: 'inventory.view',
+      },
+    ],
+  },
+  {
+    section: 'PERFORMANCE',
+    items: [
+      {
+        label: 'Product Performance',
+        icon: TrendingUp,
+        requiredPermission: 'inventory.view',
+        children: [
+          { label: 'Rankings & RTO', href: '/operations/performance' },
+          { label: 'Trend Analysis', href: '/operations/performance/trends' },
+        ],
+      },
+    ],
+  },
+  {
+    section: 'SUPPLIERS',
+    items: [
+      {
+        label: 'Suppliers',
+        href: '/operations/suppliers',
+        icon: Truck,
+        requiredPermission: 'inventory.view',
+      },
+      {
+        label: 'Cost Variance',
+        href: '/operations/cost-variance',
+        icon: Activity,
+        requiredPermission: 'inventory.view',
+      },
+      {
+        label: 'Quality Control',
+        href: '/operations/quality-control',
+        icon: ShieldCheck,
+        requiredPermission: 'inventory.view',
+      },
+      {
+        label: 'Packaging',
+        href: '/operations/packaging',
+        icon: Package,
+        requiredPermission: 'inventory.view',
+      },
+      {
+        label: 'Competitor Prices',
+        href: '/operations/competitor-prices',
+        icon: BarChart3,
+        requiredPermission: 'inventory.view',
+      },
+      {
+        label: 'Vendor Scorecard',
+        href: '/operations/vendor-scorecard',
+        icon: Star,
+        requiredPermission: 'inventory.view',
+      },
+      {
+        label: 'Batch Production',
+        href: '/operations/batches',
+        icon: Factory,
+        requiredPermission: 'inventory.view',
+      },
+    ],
+  },
+  {
+    section: 'SUPPORT',
+    items: [
+      {
+        label: 'Product Complaints',
+        href: '/operations/product-complaints',
+        icon: AlertTriangle,
+        requiredPermission: 'inventory.view',
       },
     ],
   },

@@ -16,6 +16,7 @@ import {
   ShieldCheck,
   Upload,
   Trash,
+  Plus,
 } from 'lucide-react';
 import { generateSKU } from '@/lib/sku';
 import Link from 'next/link';
@@ -83,6 +84,82 @@ export default function ProductForm({ initialData, isEdit }: ProductFormProps) {
     initialData?.is_best_seller ?? false
   );
 
+  // Phase 2: Extended fields
+  const [collection, setCollection] = useState(initialData?.collection || '');
+  const [skuPrefix, setSkuPrefix] = useState(initialData?.sku_prefix || '');
+  const [costPrice, setCostPrice] = useState(initialData?.cost_price || '');
+  const [baseSellingPrice, setBaseSellingPrice] = useState(
+    initialData?.base_selling_price || ''
+  );
+  const [packagingCost, setPackagingCost] = useState(
+    initialData?.packaging_cost || ''
+  );
+  const [baseMetal, setBaseMetal] = useState(initialData?.base_metal || '');
+  const [platingType, setPlatingType] = useState(
+    initialData?.plating_type || ''
+  );
+  const [platingThickness, setPlatingThickness] = useState(
+    initialData?.plating_thickness_microns || ''
+  );
+  const [metalWeight, setMetalWeight] = useState(
+    initialData?.metal_weight_grams || ''
+  );
+  const [durabilityClaim, setDurabilityClaim] = useState(
+    initialData?.durability_claim || ''
+  );
+  const [careInstructions, setCareInstructions] = useState(
+    initialData?.care_instructions || ''
+  );
+  const [stoneType, setStoneType] = useState(initialData?.stone_type || '');
+  const [stoneWeightCarats, setStoneWeightCarats] = useState(
+    initialData?.stone_weight_carats || ''
+  );
+  const [stoneCount, setStoneCount] = useState(initialData?.stone_count || '');
+  const [designPattern, setDesignPattern] = useState(
+    initialData?.design_pattern || ''
+  );
+  const [finishType, setFinishType] = useState(initialData?.finish_type || '');
+  const [color, setColor] = useState(initialData?.color || '');
+  const [weightGrams, setWeightGrams] = useState(
+    initialData?.weight_grams || ''
+  );
+  const [lengthCm, setLengthCm] = useState(initialData?.length_cm || '');
+  const [widthCm, setWidthCm] = useState(initialData?.width_cm || '');
+  const [heightCm, setHeightCm] = useState(initialData?.height_cm || '');
+  const [metaTitle, setMetaTitle] = useState(initialData?.meta_title || '');
+  const [metaDescription2, setMetaDescription2] = useState(
+    initialData?.meta_description || ''
+  );
+  const [seoKeywords, setSeoKeywords] = useState(
+    initialData?.seo_keywords?.join(', ') || ''
+  );
+  const [imageAltText, setImageAltText] = useState(
+    initialData?.image_alt_text || ''
+  );
+  const [warrantyInfo, setWarrantyInfo] = useState(
+    initialData?.warranty_info || ''
+  );
+  const [returnWindowDays, setReturnWindowDays] = useState(
+    initialData?.return_window_days ?? '7'
+  );
+  const [giftWrapAvailable, setGiftWrapAvailable] = useState(
+    initialData?.gift_wrap_available ?? false
+  );
+
+  // Variants state
+  const [variants, setVariants] = useState<any[]>(
+    (initialData?.product_variants || []).map((v: any) => ({
+      id: v.id,
+      size: v.size || '',
+      metal_type: v.metal_type || '',
+      sku: v.sku || '',
+      stock_quantity: v.stock_quantity ?? 0,
+      reorder_point: v.reorder_point ?? 5,
+      cost_price_override: v.cost_price_override ?? '',
+      selling_price_override: v.selling_price_override ?? '',
+    }))
+  );
+
   // SKU generation state
   const [isSkuEdited, setIsSkuEdited] = useState(isEdit ? true : false);
 
@@ -141,6 +218,119 @@ export default function ProductForm({ initialData, isEdit }: ProductFormProps) {
     const generated = generateSKU(selectedCat.slug, randomSeq);
     setSku(generated);
     toast.success('New SKU generated!');
+  };
+
+  // ---- Variant management ----
+  const generateVariantSku = (size: string, metalType: string) => {
+    const prefix = (skuPrefix || sku || 'JWL').toUpperCase();
+    const sizePart = size ? size.replace(/\s+/g, '-').toUpperCase() : 'OS';
+    const metalPart = metalType
+      ? metalType.replace(/\s+/g, '-').toUpperCase()
+      : 'GEN';
+    return `${prefix}-${metalPart}-${sizePart}`;
+  };
+
+  const addVariant = () => {
+    const newVariant = {
+      size: '',
+      metal_type: '',
+      sku: '',
+      stock_quantity: 0,
+      reorder_point: 5,
+      cost_price_override: '',
+      selling_price_override: '',
+    };
+    setVariants((prev) => [...prev, newVariant]);
+  };
+
+  const updateVariant = (index: number, field: string, value: any) => {
+    setVariants((prev) => {
+      const updated = prev.map((v, i) => {
+        if (i !== index) return v;
+        const next = { ...v, [field]: value };
+        if (
+          (field === 'size' ||
+            field === 'metal_type' ||
+            field === 'sku_prefix') &&
+          !v.sku
+        ) {
+          next.sku = generateVariantSku(
+            field === 'size' ? value : v.size,
+            field === 'metal_type' ? value : v.metal_type
+          );
+        }
+        return next;
+      });
+      return updated;
+    });
+  };
+
+  const removeVariant = (index: number) => {
+    setVariants((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const regenerateVariantSku = (index: number) => {
+    setVariants((prev) => {
+      const updated = prev.map((v, i) => {
+        if (i !== index) return v;
+        return { ...v, sku: generateVariantSku(v.size, v.metal_type) };
+      });
+      return updated;
+    });
+  };
+
+  // ---- AI content generation (operations route) ----
+  const [isGeneratingContent, setIsGeneratingContent] = useState(false);
+
+  const handleGenerateContent = async () => {
+    setIsGeneratingContent(true);
+    try {
+      const categoryName =
+        categories.find((c) => c.id === categoryId)?.name || '';
+      const specs = {
+        category: categoryName,
+        base_metal: baseMetal,
+        plating_type: platingType,
+        stone_type: stoneType,
+        design_pattern: designPattern,
+        finish_type: finishType,
+        color: color,
+        weight_grams: weightGrams || weight,
+      };
+
+      const res = await fetch('/api/operations/generate-product-content', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ specs }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to generate content');
+      }
+
+      const gen = data.data || {};
+      if (gen.product_name) setName(gen.product_name);
+      if (gen.description) setDescription(gen.description);
+      if (gen.meta_title) {
+        setMetaTitle(gen.meta_title);
+        setSeoTitle(gen.meta_title);
+      }
+      if (gen.meta_description) {
+        setMetaDescription2(gen.meta_description);
+        setMetaDescription(gen.meta_description);
+      }
+      if (gen.seo_keywords && Array.isArray(gen.seo_keywords)) {
+        setSeoKeywords(gen.seo_keywords.join(', '));
+        setTags(gen.seo_keywords.join(', '));
+      }
+
+      toast.success('AI content generated — review before saving.');
+    } catch (err: any) {
+      toast.error(err.message || 'AI Generation failed');
+    } finally {
+      setIsGeneratingContent(false);
+    }
   };
 
   const handleGenerateDescription = async () => {
@@ -347,6 +537,50 @@ export default function ProductForm({ initialData, isEdit }: ProductFormProps) {
     formData.append('is_new_arrival', isNewArrival ? 'true' : 'false');
     formData.append('is_best_seller', isBestSeller ? 'true' : 'false');
 
+    // Phase 2 extended fields
+    formData.append('collection', collection);
+    formData.append('sku_prefix', skuPrefix);
+    formData.append('cost_price', costPrice.toString());
+    formData.append('base_selling_price', baseSellingPrice.toString());
+    formData.append('packaging_cost', packagingCost.toString());
+    formData.append('base_metal', baseMetal);
+    formData.append('plating_type', platingType);
+    formData.append('plating_thickness_microns', platingThickness.toString());
+    formData.append('metal_weight_grams', metalWeight.toString());
+    formData.append('durability_claim', durabilityClaim);
+    formData.append('care_instructions', careInstructions);
+    formData.append('stone_type', stoneType);
+    formData.append('stone_weight_carats', stoneWeightCarats.toString());
+    formData.append('stone_count', stoneCount.toString());
+    formData.append('design_pattern', designPattern);
+    formData.append('finish_type', finishType);
+    formData.append('color', color);
+    formData.append('weight_grams', weightGrams.toString());
+    formData.append('length_cm', lengthCm.toString());
+    formData.append('width_cm', widthCm.toString());
+    formData.append('height_cm', heightCm.toString());
+    formData.append('meta_title', metaTitle);
+    formData.append('meta_description', metaDescription2);
+    formData.append('seo_keywords', seoKeywords);
+    formData.append('image_alt_text', imageAltText);
+    formData.append('warranty_info', warrantyInfo);
+    formData.append('return_window_days', returnWindowDays.toString());
+    formData.append(
+      'gift_wrap_available',
+      giftWrapAvailable ? 'true' : 'false'
+    );
+
+    const cleanedVariants = variants.map((v: any) => ({
+      sku: v.sku,
+      size: v.size || null,
+      metal_type: v.metal_type || null,
+      stock_quantity: parseInt(v.stock_quantity, 10) || 0,
+      reorder_point: parseInt(v.reorder_point, 10) || 5,
+      cost_price_override: v.cost_price_override || null,
+      selling_price_override: v.selling_price_override || null,
+    }));
+    formData.append('variants', JSON.stringify(cleanedVariants));
+
     startTransition(async () => {
       try {
         let result;
@@ -393,6 +627,19 @@ export default function ProductForm({ initialData, isEdit }: ProductFormProps) {
           </div>
         </div>
         <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={handleGenerateContent}
+            disabled={isGeneratingContent}
+            className="flex items-center justify-center gap-2 rounded-lg border border-emerald-500/20 bg-emerald-500/10 px-4 py-2.5 text-sm font-semibold text-emerald-400 transition-all hover:bg-emerald-500/20 disabled:opacity-50"
+          >
+            {isGeneratingContent ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Sparkles className="h-4 w-4" />
+            )}
+            Generate Content
+          </button>
           <button
             type="button"
             onClick={handleAuditSEO}
@@ -553,6 +800,37 @@ export default function ProductForm({ initialData, isEdit }: ProductFormProps) {
                   placeholder="Enter detailed product description..."
                 />
               </div>
+
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium text-slate-300">
+                    Collection
+                  </label>
+                  <input
+                    type="text"
+                    value={collection}
+                    onChange={(e) => setCollection(e.target.value)}
+                    className="w-full rounded-lg border border-white/10 bg-black/20 px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                    placeholder="e.g., Signature Collection"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium text-slate-300">
+                    SKU Prefix
+                  </label>
+                  <input
+                    type="text"
+                    value={skuPrefix}
+                    onChange={(e) => setSkuPrefix(e.target.value.toUpperCase())}
+                    className="w-full rounded-lg border border-white/10 bg-black/20 px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                    placeholder="e.g., RNG (used for variant SKUs)"
+                  />
+                  <p className="mt-1 text-xs text-slate-500">
+                    Used to auto-generate variant SKUs as{' '}
+                    <code>{skuPrefix || 'PREFIX'}-METAL-SIZE</code>
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -599,6 +877,281 @@ export default function ProductForm({ initialData, isEdit }: ProductFormProps) {
                   value={stockQuantity}
                   onChange={(e) => setStockQuantity(e.target.value)}
                   className="w-full rounded-lg border border-white/10 bg-black/20 px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                />
+              </div>
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-slate-300">
+                  Cost Price (₹)
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={costPrice}
+                  onChange={(e) => setCostPrice(e.target.value)}
+                  className="w-full rounded-lg border border-white/10 bg-black/20 px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                />
+              </div>
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-slate-300">
+                  Base Selling Price (₹)
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={baseSellingPrice}
+                  onChange={(e) => setBaseSellingPrice(e.target.value)}
+                  className="w-full rounded-lg border border-white/10 bg-black/20 px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                />
+              </div>
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-slate-300">
+                  Packaging Cost (₹)
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={packagingCost}
+                  onChange={(e) => setPackagingCost(e.target.value)}
+                  className="w-full rounded-lg border border-white/10 bg-black/20 px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Gold-Plated Details */}
+          <div className="space-y-6 rounded-xl border border-white/5 bg-[#151520] p-6 shadow-xl">
+            <h2 className="border-b border-white/10 pb-4 text-lg font-bold text-white">
+              Gold-Plated Details
+            </h2>
+
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-slate-300">
+                  Base Metal
+                </label>
+                <select
+                  value={baseMetal}
+                  onChange={(e) => setBaseMetal(e.target.value)}
+                  className="w-full rounded-lg border border-white/10 bg-black/20 px-4 py-2.5 text-sm text-white focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                >
+                  <option value="">Select...</option>
+                  <option value="Brass">Brass</option>
+                  <option value="Copper">Copper</option>
+                  <option value="Alloy">Alloy</option>
+                </select>
+              </div>
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-slate-300">
+                  Plating Type
+                </label>
+                <select
+                  value={platingType}
+                  onChange={(e) => setPlatingType(e.target.value)}
+                  className="w-full rounded-lg border border-white/10 bg-black/20 px-4 py-2.5 text-sm text-white focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                >
+                  <option value="">Select...</option>
+                  <option value="24K Gold Plated">24K Gold Plated</option>
+                  <option value="18K Gold Plated">18K Gold Plated</option>
+                  <option value="Rose Gold Plated">Rose Gold Plated</option>
+                  <option value="Rhodium Plated">Rhodium Plated</option>
+                </select>
+              </div>
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-slate-300">
+                  Plating Thickness (microns)
+                </label>
+                <input
+                  type="number"
+                  step="0.1"
+                  value={platingThickness}
+                  onChange={(e) => setPlatingThickness(e.target.value)}
+                  className="w-full rounded-lg border border-white/10 bg-black/20 px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  placeholder="e.g., 2.5"
+                />
+              </div>
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-slate-300">
+                  Metal Weight (g)
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={metalWeight}
+                  onChange={(e) => setMetalWeight(e.target.value)}
+                  className="w-full rounded-lg border border-white/10 bg-black/20 px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  placeholder="e.g., 1.8"
+                />
+              </div>
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-slate-300">
+                  Durability Claim
+                </label>
+                <input
+                  type="text"
+                  value={durabilityClaim}
+                  onChange={(e) => setDurabilityClaim(e.target.value)}
+                  className="w-full rounded-lg border border-white/10 bg-black/20 px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  placeholder="e.g., 12 months with proper care"
+                />
+              </div>
+              <div className="sm:col-span-2">
+                <label className="mb-1.5 block text-sm font-medium text-slate-300">
+                  Care Instructions
+                </label>
+                <textarea
+                  rows={2}
+                  value={careInstructions}
+                  onChange={(e) => setCareInstructions(e.target.value)}
+                  className="w-full rounded-lg border border-white/10 bg-black/20 px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  placeholder="Avoid contact with water, perfumes, and chemicals..."
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Physical Specs */}
+          <div className="space-y-6 rounded-xl border border-white/5 bg-[#151520] p-6 shadow-xl">
+            <h2 className="border-b border-white/10 pb-4 text-lg font-bold text-white">
+              Physical Specs
+            </h2>
+
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+              <div>
+                <label className="mb-1.5 block text-xs font-medium text-slate-400">
+                  Weight (g)
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={weightGrams}
+                  onChange={(e) => setWeightGrams(e.target.value)}
+                  className="w-full rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  placeholder="e.g., 4.5"
+                />
+              </div>
+              <div>
+                <label className="mb-1.5 block text-xs font-medium text-slate-400">
+                  Length (cm)
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={lengthCm}
+                  onChange={(e) => setLengthCm(e.target.value)}
+                  className="w-full rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  placeholder="e.g., 2.0"
+                />
+              </div>
+              <div>
+                <label className="mb-1.5 block text-xs font-medium text-slate-400">
+                  Width (cm)
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={widthCm}
+                  onChange={(e) => setWidthCm(e.target.value)}
+                  className="w-full rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  placeholder="e.g., 2.0"
+                />
+              </div>
+              <div>
+                <label className="mb-1.5 block text-xs font-medium text-slate-400">
+                  Height (cm)
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={heightCm}
+                  onChange={(e) => setHeightCm(e.target.value)}
+                  className="w-full rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  placeholder="e.g., 0.5"
+                />
+              </div>
+              <div>
+                <label className="mb-1.5 block text-xs font-medium text-slate-400">
+                  Finish Type
+                </label>
+                <select
+                  value={finishType}
+                  onChange={(e) => setFinishType(e.target.value)}
+                  className="w-full rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm text-white focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                >
+                  <option value="">Select...</option>
+                  <option value="Matte">Matte</option>
+                  <option value="Shiny">Shiny</option>
+                  <option value="Antique">Antique</option>
+                </select>
+              </div>
+              <div>
+                <label className="mb-1.5 block text-xs font-medium text-slate-400">
+                  Color
+                </label>
+                <input
+                  type="text"
+                  value={color}
+                  onChange={(e) => setColor(e.target.value)}
+                  className="w-full rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  placeholder="e.g., Gold, Rose Gold"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Stone / Design */}
+          <div className="space-y-6 rounded-xl border border-white/5 bg-[#151520] p-6 shadow-xl">
+            <h2 className="border-b border-white/10 pb-4 text-lg font-bold text-white">
+              Stone / Design
+            </h2>
+
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-slate-300">
+                  Stone Type
+                </label>
+                <input
+                  type="text"
+                  value={stoneType}
+                  onChange={(e) => setStoneType(e.target.value)}
+                  className="w-full rounded-lg border border-white/10 bg-black/20 px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  placeholder="e.g., Cubic Zirconia, Freshwater Pearl"
+                />
+              </div>
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-slate-300">
+                  Stone Weight (carats)
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={stoneWeightCarats}
+                  onChange={(e) => setStoneWeightCarats(e.target.value)}
+                  className="w-full rounded-lg border border-white/10 bg-black/20 px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  placeholder="e.g., 0.5"
+                />
+              </div>
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-slate-300">
+                  Stone Count
+                </label>
+                <input
+                  type="number"
+                  value={stoneCount}
+                  onChange={(e) => setStoneCount(e.target.value)}
+                  className="w-full rounded-lg border border-white/10 bg-black/20 px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  placeholder="e.g., 1"
+                />
+              </div>
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-slate-300">
+                  Design Pattern
+                </label>
+                <input
+                  type="text"
+                  value={designPattern}
+                  onChange={(e) => setDesignPattern(e.target.value)}
+                  className="w-full rounded-lg border border-white/10 bg-black/20 px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  placeholder="e.g., Solitaire, Floral drop, Cable chain"
                 />
               </div>
             </div>
@@ -691,7 +1244,10 @@ export default function ProductForm({ initialData, isEdit }: ProductFormProps) {
                   <input
                     type="text"
                     value={seoTitle}
-                    onChange={(e) => setSeoTitle(e.target.value)}
+                    onChange={(e) => {
+                      setSeoTitle(e.target.value);
+                      setMetaTitle(e.target.value);
+                    }}
                     className="w-full rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                     placeholder="Engagement Solitaire Ring - Ruhvi"
                   />
@@ -708,6 +1264,18 @@ export default function ProductForm({ initialData, isEdit }: ProductFormProps) {
                     placeholder="solitaire diamond ring"
                   />
                 </div>
+                <div>
+                  <label className="mb-1.5 block text-xs font-medium text-slate-400">
+                    SEO Keywords (Comma separated)
+                  </label>
+                  <input
+                    type="text"
+                    value={seoKeywords}
+                    onChange={(e) => setSeoKeywords(e.target.value)}
+                    className="w-full rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                    placeholder="gold ring, solitaire, cubic zirconia"
+                  />
+                </div>
               </div>
 
               <div>
@@ -717,7 +1285,10 @@ export default function ProductForm({ initialData, isEdit }: ProductFormProps) {
                 <textarea
                   rows={2}
                   value={metaDescription}
-                  onChange={(e) => setMetaDescription(e.target.value)}
+                  onChange={(e) => {
+                    setMetaDescription(e.target.value);
+                    setMetaDescription2(e.target.value);
+                  }}
                   className="w-full rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                   placeholder="Crafted in premium 22k gold-plated finish, our diamond solitaire ring is the epitome of elegance. Shop premium gold plated jewellery at Ruhvi today."
                 />
@@ -842,7 +1413,226 @@ export default function ProductForm({ initialData, isEdit }: ProductFormProps) {
             </div>
           </div>
 
-          {/* Media */}
+          {/* Variants */}
+          <div className="space-y-6 rounded-xl border border-white/5 bg-[#151520] p-6 shadow-xl">
+            <div className="flex items-center justify-between border-b border-white/10 pb-4">
+              <h2 className="text-lg font-bold text-white">Variants</h2>
+              <button
+                type="button"
+                onClick={addVariant}
+                className="flex items-center gap-1 rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-indigo-500"
+              >
+                <Plus className="h-3.5 w-3.5" /> Add Variant
+              </button>
+            </div>
+
+            {variants.length === 0 ? (
+              <div className="rounded-lg border border-dashed border-white/10 p-6 text-center text-xs text-slate-500">
+                No variants defined. Add size/metal combinations for this
+                product.
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {variants.map((v: any, i: number) => (
+                  <div
+                    key={i}
+                    className="rounded-lg border border-white/10 bg-black/20 p-4"
+                  >
+                    <div className="mb-3 flex items-center justify-between">
+                      <span className="text-xs font-semibold text-slate-400">
+                        Variant #{i + 1}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => removeVariant(i)}
+                        className="text-rose-400 transition-colors hover:text-rose-300"
+                      >
+                        <Trash className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="mb-1 block text-[10px] font-medium text-slate-400">
+                          Size
+                        </label>
+                        <input
+                          type="text"
+                          value={v.size}
+                          onChange={(e) =>
+                            updateVariant(i, 'size', e.target.value)
+                          }
+                          className="w-full rounded border border-white/10 bg-black/30 px-2 py-1.5 text-xs text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none"
+                          placeholder="e.g., 7, 40cm"
+                        />
+                      </div>
+                      <div>
+                        <label className="mb-1 block text-[10px] font-medium text-slate-400">
+                          Metal Type
+                        </label>
+                        <input
+                          type="text"
+                          value={v.metal_type}
+                          onChange={(e) =>
+                            updateVariant(i, 'metal_type', e.target.value)
+                          }
+                          className="w-full rounded border border-white/10 bg-black/30 px-2 py-1.5 text-xs text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none"
+                          placeholder="e.g., Gold, Rose Gold"
+                        />
+                      </div>
+                      <div className="col-span-2">
+                        <div className="flex items-center gap-2">
+                          <div className="flex-1">
+                            <label className="mb-1 block text-[10px] font-medium text-slate-400">
+                              Variant SKU
+                            </label>
+                            <input
+                              type="text"
+                              value={v.sku}
+                              onChange={(e) =>
+                                updateVariant(i, 'sku', e.target.value)
+                              }
+                              className="w-full rounded border border-white/10 bg-black/30 px-2 py-1.5 text-xs text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none"
+                              placeholder="auto-generated"
+                            />
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => regenerateVariantSku(i)}
+                            className="mt-4 flex items-center gap-1 rounded bg-white/5 px-2 py-1.5 text-[10px] text-slate-400 transition-colors hover:bg-white/10"
+                          >
+                            <RefreshCw className="h-3 w-3" /> Regenerate
+                          </button>
+                        </div>
+                      </div>
+                      <div>
+                        <label className="mb-1 block text-[10px] font-medium text-slate-400">
+                          Stock
+                        </label>
+                        <input
+                          type="number"
+                          value={v.stock_quantity}
+                          onChange={(e) =>
+                            updateVariant(i, 'stock_quantity', e.target.value)
+                          }
+                          className="w-full rounded border border-white/10 bg-black/30 px-2 py-1.5 text-xs text-white focus:border-indigo-500 focus:outline-none"
+                        />
+                      </div>
+                      <div>
+                        <label className="mb-1 block text-[10px] font-medium text-slate-400">
+                          Reorder Point
+                        </label>
+                        <input
+                          type="number"
+                          value={v.reorder_point}
+                          onChange={(e) =>
+                            updateVariant(i, 'reorder_point', e.target.value)
+                          }
+                          className="w-full rounded border border-white/10 bg-black/30 px-2 py-1.5 text-xs text-white focus:border-indigo-500 focus:outline-none"
+                        />
+                      </div>
+                      <div>
+                        <label className="mb-1 block text-[10px] font-medium text-slate-400">
+                          Cost Override (₹)
+                        </label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          value={v.cost_price_override}
+                          onChange={(e) =>
+                            updateVariant(
+                              i,
+                              'cost_price_override',
+                              e.target.value
+                            )
+                          }
+                          className="w-full rounded border border-white/10 bg-black/30 px-2 py-1.5 text-xs text-white focus:border-indigo-500 focus:outline-none"
+                        />
+                      </div>
+                      <div>
+                        <label className="mb-1 block text-[10px] font-medium text-slate-400">
+                          Price Override (₹)
+                        </label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          value={v.selling_price_override}
+                          onChange={(e) =>
+                            updateVariant(
+                              i,
+                              'selling_price_override',
+                              e.target.value
+                            )
+                          }
+                          className="w-full rounded border border-white/10 bg-black/30 px-2 py-1.5 text-xs text-white focus:border-indigo-500 focus:outline-none"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Additional Settings */}
+          <div className="space-y-6 rounded-xl border border-white/5 bg-[#151520] p-6 shadow-xl">
+            <h2 className="border-b border-white/10 pb-4 text-lg font-bold text-white">
+              Additional Settings
+            </h2>
+
+            <div className="space-y-4">
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-slate-300">
+                  Warranty Info
+                </label>
+                <input
+                  type="text"
+                  value={warrantyInfo}
+                  onChange={(e) => setWarrantyInfo(e.target.value)}
+                  className="w-full rounded-lg border border-white/10 bg-black/20 px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  placeholder="e.g., 6 months warranty against plating wear"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium text-slate-300">
+                    Return Window (days)
+                  </label>
+                  <input
+                    type="number"
+                    value={returnWindowDays}
+                    onChange={(e) => setReturnWindowDays(e.target.value)}
+                    className="w-full rounded-lg border border-white/10 bg-black/20 px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                    placeholder="7"
+                  />
+                </div>
+                <div className="flex items-end pb-2.5">
+                  <label className="flex cursor-pointer select-none items-center gap-3">
+                    <input
+                      type="checkbox"
+                      checked={giftWrapAvailable}
+                      onChange={(e) => setGiftWrapAvailable(e.target.checked)}
+                      className="rounded border-white/10 bg-black/40 text-indigo-600 focus:ring-0 focus:ring-offset-0"
+                    />
+                    <span className="text-sm text-slate-300">
+                      Gift Wrap Available
+                    </span>
+                  </label>
+                </div>
+              </div>
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-slate-300">
+                  Image Alt Text
+                </label>
+                <input
+                  type="text"
+                  value={imageAltText}
+                  onChange={(e) => setImageAltText(e.target.value)}
+                  className="w-full rounded-lg border border-white/10 bg-black/20 px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  placeholder="Descriptive text for product images"
+                />
+              </div>
+            </div>
+          </div>
           <div className="space-y-6 rounded-xl border border-white/5 bg-[#151520] p-6 shadow-xl">
             <div className="flex items-center gap-2 border-b border-white/10 pb-4">
               <ImageIcon className="h-5 w-5 text-indigo-400" />
