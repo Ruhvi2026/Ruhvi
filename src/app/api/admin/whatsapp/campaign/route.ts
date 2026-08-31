@@ -119,7 +119,7 @@ export async function POST(req: Request) {
     if (!body) {
       return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
     }
-    const { templateName, phoneNumbers, components = [] } = body;
+    const { templateName, phoneNumbers, components = [], audience } = body;
 
     if (
       !templateName ||
@@ -131,13 +131,28 @@ export async function POST(req: Request) {
         { status: 400 }
       );
     }
-    if (!Array.isArray(phoneNumbers) || phoneNumbers.length === 0) {
+    let finalPhones = Array.isArray(phoneNumbers) ? phoneNumbers : [];
+
+    if (finalPhones.length === 0 && audience && audience !== 'Specific Users') {
+      // Fetch phone numbers based on audience
+      const { data } = await supabase
+        .from('users')
+        .select('phone')
+        .not('phone', 'is', null)
+        .limit(MAX_RECIPIENTS);
+      if (data) {
+        finalPhones = data.map((u: any) => u.phone).filter(Boolean);
+      }
+    }
+
+    if (finalPhones.length === 0) {
       return NextResponse.json(
-        { error: 'phoneNumbers array is required' },
+        { error: 'No phone numbers provided or found for this audience' },
         { status: 400 }
       );
     }
-    if (phoneNumbers.length > MAX_RECIPIENTS) {
+
+    if (finalPhones.length > MAX_RECIPIENTS) {
       return NextResponse.json(
         {
           error: `Too many recipients. Maximum allowed is ${MAX_RECIPIENTS} per request.`,
@@ -155,7 +170,7 @@ export async function POST(req: Request) {
     // 5. Normalize + validate phone numbers
     const invalidPhones: string[] = [];
     const validPhones: string[] = [];
-    for (const phone of phoneNumbers) {
+    for (const phone of finalPhones) {
       if (typeof phone !== 'string') {
         invalidPhones.push(String(phone));
         continue;
