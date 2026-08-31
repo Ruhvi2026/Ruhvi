@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import { ImagePicker } from '@/components/admin/ImagePicker';
+import { revalidateStorefront } from '@/app/admin/actions/cache';
 
 const INITIAL_FALLBACK_COLLECTIONS: Collection[] = [
   {
@@ -163,6 +164,7 @@ export default function CollectionManagerPage() {
           ? 'Collection updated successfully!'
           : 'Collection created successfully!',
       });
+      revalidateStorefront();
       setTimeout(() => {
         setIsModalOpen(false);
         fetchCollections();
@@ -195,6 +197,7 @@ export default function CollectionManagerPage() {
       // ignore
     }
     setCollections((prev) => prev.filter((c) => c.id !== id));
+    revalidateStorefront();
   };
 
   return (

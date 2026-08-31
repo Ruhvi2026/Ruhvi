@@ -2,9 +2,14 @@ import React from 'react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
-import { createClient } from '@/lib/supabase/server';
 import { Category, Collection, Product } from '@/types/database';
-import { getHomepageSettings } from '@/app/admin/actions/settings';
+import {
+  getHomepageSettings,
+  getHomepageCategories,
+  getHomepageCollections,
+} from '@/lib/storefront';
+
+export const revalidate = 3600;
 
 const FALLBACK_HOME_COLLECTIONS: Collection[] = [
   {
@@ -61,20 +66,10 @@ const CATEGORY_TAGLINES: Record<string, string> = {
 };
 
 export default async function HomePage() {
-  const supabase = await createClient();
   const hp = await getHomepageSettings();
+  const categories: Category[] = await getHomepageCategories();
 
-  const { data: catData } = await supabase
-    .from('categories')
-    .select('*')
-    .neq('is_hidden', true)
-    .order('name');
-  const categories: Category[] = catData || [];
-
-  const { data: colData } = await supabase
-    .from('collections')
-    .select('*')
-    .order('title');
+  const colData = await getHomepageCollections();
   const collections: Collection[] =
     colData && colData.length > 0 ? colData : FALLBACK_HOME_COLLECTIONS;
 

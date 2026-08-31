@@ -1,6 +1,6 @@
 'use server';
 
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import { requireAdmin } from '@/lib/auth/require-admin';
 
 export async function revalidateStorefront() {
@@ -8,4 +8,7 @@ export async function revalidateStorefront() {
   if (!auth.ok) return;
 
   revalidatePath('/', 'layout');
+  revalidateTag('categories');
+  revalidateTag('collections');
+  revalidateTag('settings');
 }

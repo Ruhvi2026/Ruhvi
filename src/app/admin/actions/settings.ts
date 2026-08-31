@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { requireAdmin } from '@/lib/auth/require-admin';
+import { revalidateTag } from 'next/cache';
 
 // All mutating settings actions and admin-only getters must verify the
 // __session JWT + role. The customer-facing storefront reads
@@ -150,6 +151,7 @@ export async function updateHomepageSettings(settings: HomepageSettings) {
   if (error) {
     throw new Error(error.message);
   }
+  revalidateTag('settings');
   return { success: true };
 }
 
