@@ -1,5 +1,6 @@
 import React from 'react';
 import type { Metadata } from 'next';
+import { cache } from 'react';
 import { notFound } from 'next/navigation';
 import { DEMO_PRODUCTS } from '@/lib/products';
 import { ProductDetailPageClient } from './ProductDetailPageClient';
@@ -13,23 +14,22 @@ interface PageProps {
   }>;
 }
 
-export async function generateMetadata({
-  params,
-}: PageProps): Promise<Metadata> {
-  const { slug } = await params;
+// Fix 10: share the product lookup between generateMetadata and the page via
+// React.cache(), so the slug/ID query runs once per request instead of twice.
+const getProductBySlugOrId = cache(async (key: string): Promise<any | null> => {
   const supabase = await createClient();
 
   let { data: product } = await supabase
     .from('products')
     .select('*, images:product_images(*), category:categories(*)')
-    .eq('slug', slug)
+    .eq('slug', key)
     .single();
 
   if (!product) {
     const { data: productById } = await supabase
       .from('products')
       .select('*, images:product_images(*), category:categories(*)')
-      .eq('id', slug)
+      .eq('id', key)
       .single();
     if (productById) {
       product = productById;
@@ -37,10 +37,17 @@ export async function generateMetadata({
   }
 
   if (!product) {
-    product = DEMO_PRODUCTS.find(
-      (p) => p.slug === slug || p.id === slug
-    ) as any;
+    product = DEMO_PRODUCTS.find((p) => p.slug === key || p.id === key) as any;
   }
+
+  return product;
+});
+
+export async function generateMetadata({
+  params,
+}: PageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const product = await getProductBySlugOrId(slug);
 
   if (!product) {
     return {
@@ -83,30 +90,8 @@ export async function generateMetadata({
 
 export default async function ProductDetailPage({ params }: PageProps) {
   const { slug } = await params;
+  const product = await getProductBySlugOrId(slug);
   const supabase = await createClient();
-
-  let { data: product } = await supabase
-    .from('products')
-    .select('*, images:product_images(*), category:categories(*)')
-    .eq('slug', slug)
-    .single();
-
-  if (!product) {
-    const { data: productById } = await supabase
-      .from('products')
-      .select('*, images:product_images(*), category:categories(*)')
-      .eq('id', slug)
-      .single();
-    if (productById) {
-      product = productById;
-    }
-  }
-
-  if (!product) {
-    product = DEMO_PRODUCTS.find(
-      (p) => p.slug === slug || p.id === slug
-    ) as any;
-  }
 
   if (!product) {
     notFound();
