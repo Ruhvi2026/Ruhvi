@@ -18,14 +18,15 @@ import MetaPixel from '@/components/MetaPixel';
 import MicrosoftClarity from '@/components/MicrosoftClarity';
 import CustomerSupportChat from '@/components/CustomerSupportChat';
 import { SpeedInsights } from '@vercel/speed-insights/next';
-import GoogleAnalytics from '@/components/GoogleAnalytics';
 import { OneSignalInit } from '@/components/OneSignalInit';
 import { FcmInit } from '@/components/FcmInit';
 
 import { AuthProvider } from '@/context/AuthContext';
 import { ToastProvider } from '@/components/layout/ToastProvider';
 import { OfflineDetector } from '@/components/layout/OfflineDetector';
+import { StorefrontChrome } from '@/components/layout/StorefrontChrome';
 import PostHogProvider from '@/components/PostHogProvider';
+import AnalyticsScripts from '@/components/AnalyticsScripts';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -135,37 +136,11 @@ export const viewport: Viewport = {
   colorScheme: 'light dark',
 };
 
-import Script from 'next/script';
-import { headers } from 'next/headers';
-
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const headersList = await headers();
-  const host = headersList.get('host') || '';
-  const isAdminHost =
-    host === 'admin.ruhvi.in' || host.startsWith('admin.localhost');
-  const isSupportHost =
-    host === 'support.ruhvi.in' || host.startsWith('support.localhost');
-  const isAuthHost =
-    host === 'auth.ruhvi.in' || host.startsWith('auth.localhost');
-  const isOperationsHost =
-    host === 'operation.ruhvi.in' || host.startsWith('operation.localhost');
-  const isMarketingHost =
-    host === 'marketing.ruhvi.in' || host.startsWith('marketing.localhost');
-  const isOrdersHost =
-    host === 'orders.ruhvi.in' || host.startsWith('orders.localhost');
-
-  const isSystemSubdomain =
-    isAdminHost ||
-    isSupportHost ||
-    isAuthHost ||
-    isOperationsHost ||
-    isMarketingHost ||
-    isOrdersHost;
-
   const organizationSchema = {
     '@context': 'https://schema.org',
     '@type': 'Organization',
@@ -228,28 +203,31 @@ export default async function RootLayout({
           }}
         />
         <Suspense fallback={null}>
-          <GoogleAnalytics />
-          {!isSystemSubdomain && (
-            <>
-              <MetaPixel />
-              <MicrosoftClarity />
-              <OneSignalInit />
-            </>
-          )}
+          <AnalyticsScripts />
+          <StorefrontChrome>
+            <MicrosoftClarity />
+            <OneSignalInit />
+          </StorefrontChrome>
         </Suspense>
         <AuthProvider>
           <PostHogProvider>
             <CartProvider>
               <WishlistProvider>
                 <NotificationProvider>
-                  {!isSystemSubdomain && <FcmInit />}
-                  {!isSystemSubdomain && <Navbar />}
+                  <StorefrontChrome>
+                    <FcmInit />
+                    <Navbar />
+                  </StorefrontChrome>
                   <main id="main-content" className="flex-1">
                     {children}
                   </main>
-                  {!isSystemSubdomain && <Footer />}
-                  {!isSystemSubdomain && <CustomerSupportChat />}
-                  <SpeedInsights />
+                  <StorefrontChrome>
+                    <Footer />
+                    <CustomerSupportChat />
+                  </StorefrontChrome>
+                  <Suspense fallback={null}>
+                    <SpeedInsights />
+                  </Suspense>
                   <ToastProvider />
                   <OfflineDetector />
                 </NotificationProvider>

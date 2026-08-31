@@ -16,6 +16,7 @@ export async function middleware(request: NextRequest) {
   );
 
   const hostname = request.headers.get('host') || '';
+  supabaseResponse.headers.set('x-ruhvi-host', hostname);
   const isAdminHost =
     hostname === 'admin.ruhvi.in' || hostname.startsWith('admin.localhost');
   const isOperationsHost =
