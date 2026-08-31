@@ -340,7 +340,7 @@ As with Fix 8, the migration SQL is committed but **could not be applied to the 
 
 ## Fix 11: Slim Down Cart Data in localStorage — DONE
 
-**Commit:** `(fix-11)` — `fix-11: slim cart localStorage to product_id/quantity/price_at_add with migration`
+**Commit:** `546a005` — `fix-11: slim cart localStorage to product_id/quantity/price_at_add with migration`
 
 ### What was changed
 
