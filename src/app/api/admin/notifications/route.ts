@@ -50,14 +50,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const {
-      title,
-      message,
-      url,
-      imageUrl,
-      audience,
-      provider = 'onesignal',
-    } = body;
+    const { title, message, url, imageUrl, audience } = body;
 
     if (!title || !message) {
       return NextResponse.json(
@@ -66,92 +59,40 @@ export async function POST(request: Request) {
       );
     }
 
-    let externalId = '';
+    // Fix 12: OneSignal removed — FCM is the only push provider.
+    const { sendFcmToTokens } = await import('@/lib/fcm-admin');
 
-    if (provider === 'fcm') {
-      const { sendFcmToTokens } = await import('@/lib/fcm-admin');
+    const { data: tokenRows, error: tokenError } = await supabase
+      .from('user_push_tokens')
+      .select('token');
 
-      const { data: tokenRows, error: tokenError } = await supabase
-        .from('user_push_tokens')
-        .select('token');
-
-      if (tokenError) {
-        console.error('Failed to fetch FCM tokens:', tokenError);
-        return NextResponse.json(
-          { error: 'Failed to fetch FCM device tokens' },
-          { status: 500 }
-        );
-      }
-
-      const tokens = (tokenRows || []).map((row: any) => row.token);
-      if (tokens.length === 0) {
-        return NextResponse.json(
-          { error: 'No registered devices found for FCM notifications.' },
-          { status: 400 }
-        );
-      }
-
-      const fcmResult = await sendFcmToTokens(tokens, {
-        title,
-        body: message,
-        url: url || undefined,
-        imageUrl: imageUrl || undefined,
-      });
-
-      console.log(
-        `[FCM] Broadcast complete. Sent: ${fcmResult.sent}, Failed: ${fcmResult.failed}`
+    if (tokenError) {
+      console.error('Failed to fetch FCM tokens:', tokenError);
+      return NextResponse.json(
+        { error: 'Failed to fetch FCM device tokens' },
+        { status: 500 }
       );
-      externalId = `fcm_sent_${fcmResult.sent}_failed_${fcmResult.failed}_at_${Date.now()}`;
-    } else {
-      const appId = process.env.NEXT_PUBLIC_ONESIGNAL_APP_ID;
-      const restApiKey = process.env.ONESIGNAL_REST_API_KEY;
-
-      if (!appId || !restApiKey) {
-        return NextResponse.json(
-          { error: 'OneSignal credentials are not configured on the server.' },
-          { status: 500 }
-        );
-      }
-
-      // Prepare OneSignal Payload
-      const payload: any = {
-        app_id: appId,
-        included_segments: [audience || 'All Users'],
-        headings: { en: title },
-        contents: { en: message },
-      };
-
-      if (url) payload.url = url;
-      if (imageUrl) {
-        payload.big_picture = imageUrl; // For Android
-        payload.chrome_web_image = imageUrl; // For Web
-      }
-
-      // Call OneSignal API
-      const response = await fetch(
-        'https://onesignal.com/api/v1/notifications',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Basic ${restApiKey}`,
-          },
-          body: JSON.stringify(payload),
-        }
-      );
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        console.error('OneSignal API Error:', result);
-        return NextResponse.json(
-          { error: 'Failed to send notification via OneSignal' },
-          { status: 500 }
-        );
-      }
-
-      externalId = result.id;
     }
+
+    const tokens = (tokenRows || []).map((row: any) => row.token);
+    if (tokens.length === 0) {
+      return NextResponse.json(
+        { error: 'No registered devices found for FCM notifications.' },
+        { status: 400 }
+      );
+    }
+
+    const fcmResult = await sendFcmToTokens(tokens, {
+      title,
+      body: message,
+      url: url || undefined,
+      imageUrl: imageUrl || undefined,
+    });
+
+    console.log(
+      `[FCM] Broadcast complete. Sent: ${fcmResult.sent}, Failed: ${fcmResult.failed}`
+    );
+    const externalId = `fcm_sent_${fcmResult.sent}_failed_${fcmResult.failed}_at_${Date.now()}`;
 
     // Insert into history
     const { error: dbError } = await supabase.from('push_campaigns').insert({
@@ -162,7 +103,7 @@ export async function POST(request: Request) {
       audience: audience || 'All Users',
       sent_by: userId,
       onesignal_id: externalId,
-      status: provider === 'fcm' ? 'Sent (FCM)' : 'Sent (OneSignal)',
+      status: 'Sent (FCM)',
     });
 
     if (dbError) {

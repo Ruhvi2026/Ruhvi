@@ -137,8 +137,8 @@ export default function PrivacyPolicyPage() {
             </li>
             <li>
               <strong>Marketing Platforms:</strong> Such as Brevo (for emails),
-              OneSignal/FCM (for push notifications), and Meta (for targeted
-              advertising).
+              Firebase Cloud Messaging (for push notifications), and Meta (for
+              targeted advertising).
             </li>
             <li>
               <strong>Analytics Providers:</strong> Such as Google Analytics to

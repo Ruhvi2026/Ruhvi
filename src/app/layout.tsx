@@ -18,7 +18,6 @@ import MetaPixel from '@/components/MetaPixel';
 import MicrosoftClarity from '@/components/MicrosoftClarity';
 import CustomerSupportChat from '@/components/CustomerSupportChat';
 import { SpeedInsights } from '@vercel/speed-insights/next';
-import { OneSignalInit } from '@/components/OneSignalInit';
 import { FcmInit } from '@/components/FcmInit';
 
 import { AuthProvider } from '@/context/AuthContext';
@@ -206,7 +205,6 @@ export default function RootLayout({
           <AnalyticsScripts />
           <StorefrontChrome>
             <MicrosoftClarity />
-            <OneSignalInit />
           </StorefrontChrome>
         </Suspense>
         <AuthProvider>
