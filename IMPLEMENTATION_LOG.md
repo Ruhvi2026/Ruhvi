@@ -142,3 +142,49 @@ Initial builds after removing `headers()` from `layout.tsx` alone showed ALL rou
 
 - A pre-existing uncommitted PostHog integration (`PostHogPageView.tsx` + `instrumentation-client.ts` change) was on disk when this session started. `layout.tsx` depends on `PostHogPageView.tsx` via `AnalyticsScripts`, so it was committed first as a separate `chore:` commit to keep Fix 1's commit isolated and the repo buildable at each commit.
 - `SpeedInsights` from `@vercel/speed-insights/next` uses `useSearchParams` internally; it is now wrapped in `<Suspense>` in the layout to avoid forcing dynamic.
+
+---
+
+## Fix 2: Narrow Middleware Matcher — DONE
+
+**Commit:** `fa89f00` — `fix-02: narrow middleware auth+RBAC to internal routes only`
+**Tracker/docs:** `0df7029`
+
+### What was found vs. the plan
+
+The uncommitted middleware change found on arrival was **already the correct Fix 2 implementation** (auth+RBAC block wrapped in `if (isInternalRoute)`, Supabase service-role client no longer created on public requests). It was validated (build PASS, 60/60 tests) and committed as-is.
+
+### What was changed
+
+- `src/middleware.ts` — the Supabase server client creation + session verification + RBAC block now only runs for internal routes (`/admin`, `/manager`, `/staff`, `/operations`, `/portal-orders`, `/support`, `/marketing`). Security headers (`X-Content-Type-Options`, `X-Frame-Options`, HSTS) and subdomain routing still apply to every response. Fail-closed login redirect preserved.
+- No `/manager` or `/staff` route directories exist in `src/app`, but the prefixes are retained in the internal-route list (conservative/fail-closed, consistent with the subdomain isolation logic).
+
+### Verification
+
+- `npm run build` — PASSES.
+- `npm test` — PASSES (60/60).
+- Unauthenticated `/admin` still redirects to login (code path unchanged inside internal block).
+- Public pages no longer create the Supabase service-role client at all (confirmed by code inspection).
+
+---
+
+## Fix 3: ISR / Caching for Homepage — DONE
+
+**Commit:** `eb3ec67` — `fix-03: ISR + unstable_cache for homepage data (categories/collections/settings)`
+
+### What was found vs. the plan
+
+The plan said "wrap these queries in `unstable_cache` or set `export const revalidate`". The root problem was deeper: `page.tsx` called `createClient()` (server) → `cookies()`, which **forced the whole page dynamic** regardless of caching. To make the homepage statically renderable, a cookie-free data path had to be introduced.
+
+### What was changed
+
+1. **`src/lib/supabase/public.ts`** (new) — cookie-free Supabase client for public-data reads (RLS allows anonymous SELECT on categories/collections/settings).
+2. **`src/lib/storefront.ts`** (new) — shared cached fetchers: `getHomepageCategories` (tag `categories`), `getHomepageCollections` (tag `collections`), `getHomepageSettings` (tag `settings`), all via `unstable_cache` with 1h revalidate.
+3. **`src/app/page.tsx`** — uses the cached fetchers; added `export const revalidate = 3600`.
+4. **Admin invalidation** — `revalidateTag('categories')` in categories server actions; `revalidateTag('settings')` in `updateHomepageSettings`; `revalidateStorefront()` (now also purges all three tags) called from the admin collections page after create/update/delete.
+
+### Verification
+
+- `npm run build` — PASSES. **Homepage `/` now shows `○ (Static)` with `1h` revalidation** (previously `ƒ (Dynamic)`).
+- `npm test` — PASSES (60/60).
+- Admin edit path: categories/settings use server actions with `revalidateTag`; collections page calls `revalidateStorefront()` server action after mutation.

@@ -332,7 +332,7 @@ Included for completeness so nothing from the audit is silently dropped. Review 
 |---|-----|-------|--------|
 | 1 | Remove `headers()` from root layout | 1 | Done |
 | 2 | Narrow middleware matcher | 1 | Done |
-| 3 | ISR/caching on homepage | 1 | Not started |
+| 3 | ISR/caching on homepage | 1 | Done |
 | 4 | Cache-Control headers | 1 | Not started |
 | 5 | Remove hardcoded Supabase fallback | 1 | Not started |
 | 6 | Wire up Upstash Redis caching | 2 | Not started |
