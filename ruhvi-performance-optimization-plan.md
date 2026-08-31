@@ -333,9 +333,9 @@ Included for completeness so nothing from the audit is silently dropped. Review 
 | 1 | Remove `headers()` from root layout | 1 | Done |
 | 2 | Narrow middleware matcher | 1 | Done |
 | 3 | ISR/caching on homepage | 1 | Done |
-| 4 | Cache-Control headers | 1 | Not started |
-| 5 | Remove hardcoded Supabase fallback | 1 | Not started |
-| 6 | Wire up Upstash Redis caching | 2 | Not started |
+| 4 | Cache-Control headers | 1 | Done |
+| 5 | Remove hardcoded Supabase fallback | 1 | Skipped — needs manual Vercel env verification |
+| 6 | Wire up Upstash Redis caching | 2 | Done |
 | 7 | Server-side catalog fetching | 2 | Not started |
 | 8 | Consolidate AuthContext queries | 2 | Not started |
 | 9 | Full-text search | 2 | Not started |
