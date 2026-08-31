@@ -4,24 +4,24 @@ import DashboardCharts from './DashboardCharts';
 import { computeSalesMetrics } from '@/lib/sales-metrics';
 import { ShoppingBag, TrendingUp, CreditCard, Star } from 'lucide-react';
 
-export default async function SalesDashboard() {
+interface SalesDashboardProps {
+  from: string;
+  to: string;
+}
+
+export default async function SalesDashboard({ from, to }: SalesDashboardProps) {
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
     { auth: { autoRefreshToken: false, persistSession: false } }
   );
 
-  const today = new Date();
-  const startOfMonth = new Date(
-    today.getFullYear(),
-    today.getMonth(),
-    1
-  ).toISOString();
-  const startOfToday = new Date(
-    today.getFullYear(),
-    today.getMonth(),
-    today.getDate()
-  ).toISOString();
+  const fromISO = `${from}T00:00:00.000Z`;
+  const toISO = `${to}T23:59:59.999Z`;
+  // "Today" sub-range: same-day if 'to' is today, else last day in range
+  const todayStr = new Date().toISOString().split('T')[0];
+  const todayFrom = `${to}T00:00:00.000Z`;
+  const todayTo = `${to}T23:59:59.999Z`;
 
   // Parallel fetches for Sales Data
   const [
@@ -32,14 +32,20 @@ export default async function SalesDashboard() {
     supabase
       .from('orders')
       .select('id, total, status, created_at')
-      .gte('created_at', startOfMonth),
-    supabase.from('orders').select('id, total').gte('created_at', startOfToday),
+      .gte('created_at', fromISO)
+      .lte('created_at', toISO),
+    supabase
+      .from('orders')
+      .select('id, total')
+      .gte('created_at', todayFrom)
+      .lte('created_at', todayTo),
     supabase
       .from('order_items')
       .select(
         'quantity, price_at_purchase, product:products(name, category_id)'
       )
-      .gte('created_at', startOfMonth),
+      .gte('created_at', fromISO)
+      .lte('created_at', toISO),
   ]);
 
   const {

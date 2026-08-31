@@ -2,7 +2,9 @@ export type UserRole = 'customer' | 'staff' | 'manager' | 'admin';
 export type ProductStatus = 'active' | 'hidden' | 'out_of_stock';
 export type ImageType = 'model' | 'still' | 'zoom' | '360';
 export type OrderStatus =
-  'pending' | 'confirmed' | 'shipped' | 'delivered' | 'cancelled' | 'returned';
+  'pending' | 'confirmed' | 'processing' | 'shipped' | 'out_for_delivery' |
+  'delivered' | 'delivery_failed' | 'rto_initiated' | 'rto_received' |
+  'cancelled' | 'return_requested' | 'return_approved' | 'return_rejected' | 'returned' | 'refunded';
 export type PaymentMethod = 'phonepe' | 'cod';
 export type PaymentStatus = 'pending' | 'paid' | 'failed' | 'refunded';
 export type CoinLedgerType = 'earned' | 'redeemed' | 'expired' | 'cashback';
@@ -152,15 +154,30 @@ export interface Order {
   shiprocket_shipment_id?: string | null;
   awb_code?: string | null;
   courier_name?: string | null;
+  confirmed_at?: string | null;
+  processing_at?: string | null;
+  shipped_at?: string | null;
+  out_for_delivery_at?: string | null;
+  delivered_at?: string | null;
+  cancelled_at?: string | null;
+  returned_at?: string | null;
+  rto_received_at?: string | null;
+  refunded_at?: string | null;
+  delivery_attempts?: number;
+  last_attempt_at?: string | null;
+  last_attempt_result?: string | null;
 }
 
 export interface OrderItem {
   id: string;
   order_id: string;
   product_id?: string | null;
+  variant_id?: string | null;
   sku: string;
   quantity: number;
   price_at_purchase: number;
+  unit_cost_price?: number;
+  line_total?: number;
   created_at?: string;
   product?: Product;
 }

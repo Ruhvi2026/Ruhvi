@@ -89,6 +89,18 @@ export async function createOrder(
     );
   }
 
+  // Server-side COD eligibility check (idempotent, fails open when no record).
+  if (paymentMethod === 'cod' && user) {
+    const { getCodEligibility } = await import('@/lib/orders/cod');
+    const eligibility = await getCodEligibility(user.id as string);
+    if (eligibility.cod_disabled) {
+      throw new OrderError(
+        'Cash on Delivery is currently unavailable for your account. Please use an online payment method.',
+        403
+      );
+    }
+  }
+
   // Server-side enforcement of checkout verification (Section 17)
   if (user) {
     const { data: userProfile, error: profileError } = await supabase

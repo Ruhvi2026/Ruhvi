@@ -51,10 +51,18 @@ export default function OrderHistoryPage() {
 
   const getStatusBadge = (status: string) => {
     switch (status) {
+      case 'pending':
+      case 'pending_payment':
+        return (
+          <span className="rounded bg-stone-100 px-2.5 py-0.5 text-xs font-bold uppercase tracking-wider text-stone-700">
+            Pending
+          </span>
+        );
       case 'confirmed':
+      case 'processing':
         return (
           <span className="rounded bg-emerald-100 px-2.5 py-0.5 text-xs font-bold uppercase tracking-wider text-emerald-800">
-            Confirmed
+            {status === 'processing' ? 'Processing' : 'Confirmed'}
           </span>
         );
       case 'shipped':
@@ -63,10 +71,39 @@ export default function OrderHistoryPage() {
             Shipped
           </span>
         );
+      case 'out_for_delivery':
+        return (
+          <span className="rounded bg-sky-100 px-2.5 py-0.5 text-xs font-bold uppercase tracking-wider text-sky-800">
+            Out for Delivery
+          </span>
+        );
       case 'delivered':
         return (
           <span className="rounded bg-amber-100 px-2.5 py-0.5 text-xs font-bold uppercase tracking-wider text-amber-900">
             Delivered
+          </span>
+        );
+      case 'delivery_failed':
+      case 'rto_initiated':
+      case 'rto_received':
+        return (
+          <span className="rounded bg-rose-100 px-2.5 py-0.5 text-xs font-bold uppercase tracking-wider text-rose-800">
+            Delivery Issue
+          </span>
+        );
+      case 'return_requested':
+      case 'return_approved':
+      case 'return_rejected':
+      case 'returned':
+        return (
+          <span className="rounded bg-orange-100 px-2.5 py-0.5 text-xs font-bold uppercase tracking-wider text-orange-800">
+            Return
+          </span>
+        );
+      case 'refunded':
+        return (
+          <span className="rounded bg-purple-100 px-2.5 py-0.5 text-xs font-bold uppercase tracking-wider text-purple-800">
+            Refunded
           </span>
         );
       case 'cancelled':
@@ -78,7 +115,7 @@ export default function OrderHistoryPage() {
       default:
         return (
           <span className="rounded bg-stone-100 px-2.5 py-0.5 text-xs font-bold uppercase tracking-wider text-stone-700">
-            Pending
+            {status.replace(/_/g, ' ')}
           </span>
         );
     }

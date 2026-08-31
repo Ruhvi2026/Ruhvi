@@ -29,10 +29,23 @@ import {
 
 const POSTHOG_CONFIGURED = !!process.env.POSTHOG_PERSONAL_API_KEY;
 
-export default async function MarketingDashboard() {
+interface MarketingDashboardProps {
+  from: string;
+  to: string;
+}
+
+export default async function MarketingDashboard({ from, to }: MarketingDashboardProps) {
   const settings = (await getMarketingSettings().catch(() => ({}))) as any;
   let campaigns: any[] = [];
   let errorMsg = '';
+
+  // Compute days for PostHog date-range queries
+  const fromDate = new Date(from);
+  const toDate = new Date(to);
+  const days = Math.max(
+    1,
+    Math.round((toDate.getTime() - fromDate.getTime()) / (1000 * 60 * 60 * 24)) + 1
+  );
 
   try {
     const data = await getCampaignStats();
@@ -52,12 +65,12 @@ export default async function MarketingDashboard() {
     posthogSessions,
     posthogSources,
   ] = await Promise.all([
-    getMarketingKpis().catch(() => null),
-    getEventCounts().catch(() => []),
-    getSignupBreakdown().catch(() => []),
-    getProductPerformance().catch(() => []),
+    getMarketingKpis(days).catch(() => null),
+    getEventCounts(days).catch(() => []),
+    getSignupBreakdown(days).catch(() => []),
+    getProductPerformance(10, days).catch(() => []),
     getRecentSessionRecordings().catch(() => []),
-    getTrafficSources().catch(() => []),
+    getTrafficSources(8, days).catch(() => []),
   ]);
 
   // Count active integrations

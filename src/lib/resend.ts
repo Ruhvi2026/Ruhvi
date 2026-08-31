@@ -230,6 +230,48 @@ export async function sendPaymentFailedEmail(email: string, data: any) {
   }
 }
 
+// 9. Refund Processed
+export async function sendRefundProcessedEmail(email: string, data: any) {
+  const resend = getResendClient();
+  if (!resend) return null;
+
+  const htmlContent = `
+    <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #121110; background: #FDFAF3; border-radius: 12px; overflow: hidden; border: 1px solid #E8DFC6;">
+      <div style="background: #1C1B1A; padding: 24px 32px; text-align: center;">
+        <h1 style="color: #C29831; font-size: 20px; margin: 0; letter-spacing: 2px;">RUHVI</h1>
+        <p style="color: #A09080; font-size: 11px; margin: 4px 0 0; letter-spacing: 1px;">FINE JEWELLERY</p>
+      </div>
+      <div style="padding: 32px;">
+        <h2 style="color: #1C1B1A; font-size: 18px; margin: 0 0 8px;">Hello ${data.customer?.name || 'Valued Customer'},</h2>
+        <p style="color: #4A4540; line-height: 1.6;">Your refund for order <strong>#${data.order?.number}</strong> has been processed.</p>
+        <div style="background: #F5F0E6; border-radius: 8px; padding: 20px; margin: 20px 0;">
+          <table style="width: 100%; border-collapse: collapse;">
+            <tr><td style="padding: 6px 0; color: #8A7E6C; font-size: 13px;">Refund Amount</td><td style="padding: 6px 0; color: #1C1B1A; font-size: 13px; font-weight: 600;">${data.refund?.amount || '₹0'}</td></tr>
+            <tr><td style="padding: 6px 0; color: #8A7E6C; font-size: 13px;">Refund Method</td><td style="padding: 6px 0; color: #1C1B1A; font-size: 13px; text-transform: capitalize;">${data.refund?.method || 'Original Payment'}</td></tr>
+          </table>
+        </div>
+        <p style="color: #4A4540; line-height: 1.6;">The refunded amount should reflect in your account within 5-7 business days depending on your payment provider.</p>
+        <div style="margin-top: 32px; padding-top: 20px; border-top: 1px solid #E8DFC6;">
+          <p style="font-size: 12px; color: #8A7E6C; margin: 0;">If you have any questions, reach out to our support team.</p>
+          <p style="font-size: 12px; color: #8A7E6C; margin: 8px 0 0;">With care,<br/>The Ruhvi Team</p>
+        </div>
+      </div>
+    </div>`;
+
+  try {
+    const response = await resend.emails.send({
+      from: getSender(),
+      to: [email],
+      subject: `Refund Processed for Order #${data.order?.number}`,
+      html: htmlContent,
+    });
+    return response;
+  } catch (error) {
+    console.error('Error sending refund email:', error);
+    return null;
+  }
+}
+
 // (Optional fallback for legacy compatibility or direct usage)
 export async function sendShippingUpdateEmail(
   email: string,

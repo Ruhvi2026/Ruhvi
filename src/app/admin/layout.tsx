@@ -30,6 +30,11 @@ import {
   AlertCircle,
   Wand2,
   Ticket,
+  UserCheck,
+  Boxes,
+  Headphones,
+  Megaphone,
+  PackageCheck,
 } from 'lucide-react';
 
 interface NavChild {
@@ -138,6 +143,48 @@ const NAV_GROUPS: NavGroup[] = [
         label: 'Support Analytics',
         href: '/admin/support-analytics',
         icon: AlertCircle,
+      },
+      {
+        label: 'SLA Config',
+        href: '/admin/support-sla-config',
+        icon: Settings,
+      },
+    ],
+  },
+  {
+    section: 'PEOPLE',
+    items: [
+      {
+        label: 'Staff Productivity',
+        href: '/admin/staff-productivity',
+        icon: UserCheck,
+        badge: 'New',
+        badgeColor: 'emerald',
+      },
+    ],
+  },
+  {
+    section: 'PORTAL ACCESS',
+    items: [
+      {
+        label: 'Operations Portal',
+        href: '/operations/dashboard',
+        icon: Boxes,
+      },
+      {
+        label: 'Orders Portal',
+        href: '/portal-orders/dashboard',
+        icon: PackageCheck,
+      },
+      {
+        label: 'Support Portal',
+        href: '/support/tickets',
+        icon: Headphones,
+      },
+      {
+        label: 'Marketing Portal',
+        href: '/marketing/dashboard',
+        icon: Megaphone,
       },
     ],
   },

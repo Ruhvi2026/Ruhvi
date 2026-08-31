@@ -43,6 +43,35 @@ export default function CheckoutPage() {
 
   const isLoggedIn = Boolean(user || profile);
 
+  // COD eligibility guard — preserves existing UI/behaviour; only hides COD when
+  // the account is explicitly marked ineligible (repeated refusals). Fails open.
+  const [codDisabled, setCodDisabled] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function checkCodEligibility() {
+      // The server resolves the caller from the signed __session cookie; no
+      // customer id is sent to the endpoint.
+      if (!isLoggedIn) return;
+      try {
+        const res = await fetch('/api/checkout/cod-eligibility');
+        const data = await res.json();
+        if (!cancelled) {
+          setCodDisabled(Boolean(data.cod_disabled));
+          // If COD was previously selected but is now ineligible, fall back to
+          // the online payment method without touching the rest of checkout.
+          if (data.cod_disabled) {
+            setPaymentMethod('phonepe');
+          }
+        }
+      } catch (err) {
+        console.error('Failed to check COD eligibility:', err);
+      }
+    }
+    checkCodEligibility();
+    return () => { cancelled = true; };
+  }, [isLoggedIn]);
+
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [selectedAddressId, setSelectedAddressId] = useState<string>('');
   const [showNewAddressForm, setShowNewAddressForm] = useState<boolean>(true);
@@ -1320,6 +1349,12 @@ export default function CheckoutPage() {
                     if (!isLoggedIn) {
                       toast.error(
                         'Login is required to place a Cash on Delivery order.'
+                      );
+                      return;
+                    }
+                    if (codDisabled) {
+                      toast.error(
+                        'Cash on Delivery is currently unavailable for your account. Please use an online payment method.'
                       );
                       return;
                     }

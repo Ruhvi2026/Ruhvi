@@ -16,11 +16,24 @@ import {
   XCircle,
   Clock,
   AlertCircle,
+  RotateCcw,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 
 type OrderStatus =
-  'all' | 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+  | 'all'
+  | 'pending'
+  | 'processing'
+  | 'shipped'
+  | 'out_for_delivery'
+  | 'delivered'
+  | 'delivery_failed'
+  | 'rto_initiated'
+  | 'rto_received'
+  | 'cancelled'
+  | 'return_requested'
+  | 'returned'
+  | 'refunded';
 
 interface Order {
   id: string;
@@ -41,6 +54,11 @@ const STATUS_CONFIG: Record<
     icon: Clock,
     cls: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
   },
+  confirmed: {
+    label: 'Confirmed',
+    icon: CheckCircle,
+    cls: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
+  },
   processing: {
     label: 'Processing',
     icon: AlertCircle,
@@ -51,15 +69,50 @@ const STATUS_CONFIG: Record<
     icon: Truck,
     cls: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
   },
+  out_for_delivery: {
+    label: 'Out for Delivery',
+    icon: Truck,
+    cls: 'bg-sky-500/10 text-sky-400 border-sky-500/20',
+  },
   delivered: {
     label: 'Delivered',
     icon: CheckCircle,
     cls: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
   },
+  delivery_failed: {
+    label: 'Delivery Failed',
+    icon: AlertCircle,
+    cls: 'bg-rose-500/10 text-rose-400 border-rose-500/20',
+  },
+  rto_initiated: {
+    label: 'RTO Initiated',
+    icon: AlertCircle,
+    cls: 'bg-red-500/10 text-red-400 border-red-500/20',
+  },
+  rto_received: {
+    label: 'RTO Received',
+    icon: Clock,
+    cls: 'bg-red-500/10 text-red-400 border-red-500/20',
+  },
   cancelled: {
     label: 'Cancelled',
     icon: XCircle,
     cls: 'bg-rose-500/10 text-rose-400 border-rose-500/20',
+  },
+  return_requested: {
+    label: 'Return Requested',
+    icon: AlertCircle,
+    cls: 'bg-orange-500/10 text-orange-400 border-orange-500/20',
+  },
+  returned: {
+    label: 'Returned',
+    icon: RotateCcw,
+    cls: 'bg-orange-500/10 text-orange-400 border-orange-500/20',
+  },
+  refunded: {
+    label: 'Refunded',
+    icon: CheckCircle,
+    cls: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
   },
 };
 
@@ -68,8 +121,15 @@ const ALL_STATUSES: OrderStatus[] = [
   'pending',
   'processing',
   'shipped',
+  'out_for_delivery',
   'delivered',
+  'delivery_failed',
+  'rto_initiated',
+  'rto_received',
   'cancelled',
+  'return_requested',
+  'returned',
+  'refunded',
 ];
 
 export default function AdminOrdersPage() {
@@ -108,12 +168,16 @@ export default function AdminOrdersPage() {
   const handleStatusUpdate = async (orderId: string, newStatus: string) => {
     setUpdatingId(orderId);
     try {
-      const res = await fetch('/api/admin/orders/status', {
+      const res = await fetch('/api/admin/orders/transition', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ orderId, newStatus }),
       });
-      if (!res.ok) throw new Error('Failed to update');
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        alert(data?.error || 'Failed to update status');
+        return;
+      }
 
       setOrders((prev) =>
         prev.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o))

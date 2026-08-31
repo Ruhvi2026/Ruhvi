@@ -286,6 +286,10 @@ export default function OrderDetailsPage({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [isPushing, setIsPushing] = useState(false);
+  const [transitionStatus, setTransitionStatus] = useState('');
+  const [transitioning, setTransitioning] = useState(false);
+  const [refunding, setRefunding] = useState(false);
+  const [refundMethod, setRefundMethod] = useState<'original_payment' | 'wallet'>('original_payment');
 
   React.useEffect(() => {
     fetchOrder();
@@ -379,6 +383,55 @@ export default function OrderDetailsPage({
       alert('Network error occurred while pushing to Shiprocket.');
     } finally {
       setIsPushing(false);
+    }
+  };
+
+  const handleTransition = async () => {
+    if (!order || !transitionStatus) return;
+    setTransitioning(true);
+    try {
+      const res = await fetch('/api/admin/orders/transition', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderId: order.id, newStatus: transitionStatus }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setOrder({ ...order, status: transitionStatus as Order['status'] });
+        fetchEvents();
+        setTransitionStatus('');
+      } else {
+        alert(data.error || 'Failed to update status');
+      }
+    } catch (e) {
+      console.error(e);
+      alert('Network error while updating status.');
+    } finally {
+      setTransitioning(false);
+    }
+  };
+
+  const handleRefund = async () => {
+    if (!order) return;
+    setRefunding(true);
+    try {
+      const res = await fetch('/api/admin/orders/refund', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderId: order.id, method: refundMethod }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setOrder({ ...order, status: 'refunded', payment_status: 'refunded' });
+        fetchEvents();
+      } else {
+        alert(data.error || 'Refund failed');
+      }
+    } catch (e) {
+      console.error(e);
+      alert('Network error while processing refund.');
+    } finally {
+      setRefunding(false);
     }
   };
 
@@ -575,6 +628,59 @@ export default function OrderDetailsPage({
                 </div>
               )}
             </div>
+
+            {/* Status Transition */}
+            <div className="space-y-3 border-t border-white/10 pt-4">
+              <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Update Status</p>
+              <div className="flex items-center gap-2">
+                <select
+                  value={transitionStatus}
+                  onChange={(e) => setTransitionStatus(e.target.value)}
+                  className="flex-1 rounded-lg border border-white/10 bg-white/5 px-2 py-2 text-xs text-slate-300"
+                >
+                  <option value="">Select next status...</option>
+                  <option value="confirmed">Confirmed</option>
+                  <option value="processing">Processing</option>
+                  <option value="shipped">Shipped</option>
+                  <option value="out_for_delivery">Out for Delivery</option>
+                  <option value="delivered">Delivered</option>
+                  <option value="delivery_failed">Delivery Failed</option>
+                  <option value="rto_initiated">RTO Initiated</option>
+                  <option value="cancelled">Cancel</option>
+                </select>
+                <button
+                  onClick={handleTransition}
+                  disabled={!transitionStatus || transitioning}
+                  className="rounded-lg bg-amber-600 px-3 py-2 text-xs font-bold text-white hover:bg-amber-500 disabled:opacity-50"
+                >
+                  {transitioning ? '...' : 'Apply'}
+                </button>
+              </div>
+            </div>
+
+            {/* Refund Action */}
+            {['rto_received', 'returned', 'return_requested', 'return_approved'].includes(order.status) && order.payment_status !== 'refunded' && (
+              <div className="space-y-3 border-t border-white/10 pt-4">
+                <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Process Refund</p>
+                <div className="flex items-center gap-2">
+                  <select
+                    value={refundMethod}
+                    onChange={(e) => setRefundMethod(e.target.value as any)}
+                    className="flex-1 rounded-lg border border-white/10 bg-white/5 px-2 py-2 text-xs text-slate-300"
+                  >
+                    <option value="original_payment">Original Payment</option>
+                    <option value="wallet">Ruhvi Wallet</option>
+                  </select>
+                  <button
+                    onClick={handleRefund}
+                    disabled={refunding}
+                    className="rounded-lg bg-purple-600 px-3 py-2 text-xs font-bold text-white hover:bg-purple-500 disabled:opacity-50"
+                  >
+                    {refunding ? '...' : 'Refund'}
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

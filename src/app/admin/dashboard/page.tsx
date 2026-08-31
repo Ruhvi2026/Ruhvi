@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import DashboardCharts from './DashboardCharts';
 import {
@@ -11,6 +11,8 @@ import {
   RotateCcw,
   ArrowUpRight,
   ArrowDownRight,
+  Wallet,
+  BarChart3,
 } from 'lucide-react';
 import Link from 'next/link';
 import { getServerUser } from '@/lib/auth/server';
@@ -31,6 +33,27 @@ import FunnelStrip from '@/components/dashboard/posthog/FunnelStrip';
 import TopPagesTable from '@/components/dashboard/posthog/TopPagesTable';
 import EventCountsBar from '@/components/dashboard/posthog/EventCountsBar';
 import PostHogHealthBadge from '@/components/dashboard/posthog/PostHogHealthBadge';
+import DateRangePicker from './DateRangePicker';
+
+// ─── Helper: default date range (last 30 days) ───────────────────────────────
+function getDefaultRange() {
+  const now = new Date();
+  const to = now.toISOString().split('T')[0];
+  const from = new Date(now.getTime() - 29 * 24 * 60 * 60 * 1000)
+    .toISOString()
+    .split('T')[0];
+  return { from, to };
+}
+
+function validateDate(d: string | undefined): string | null {
+  if (!d) return null;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(d)) return null;
+  const parsed = new Date(d);
+  if (isNaN(parsed.getTime())) return null;
+  return d;
+}
+
+// ─── KPI Card ────────────────────────────────────────────────────────────────
 function KpiCard({
   label,
   value,
@@ -117,13 +140,35 @@ function AlertCard({
   );
 }
 
+// ─── Page ────────────────────────────────────────────────────────────────────
 export default async function AdminDashboardPage({
   searchParams,
 }: {
-  searchParams: Promise<{ tab?: string }>;
+  searchParams: Promise<{ tab?: string; from?: string; to?: string }>;
 }) {
   const resolvedSearchParams = await searchParams;
   const activeTab = resolvedSearchParams.tab || 'overview';
+
+  // Parse and validate date range from URL (falls back to last 30 days)
+  const defaults = getDefaultRange();
+  const from = validateDate(resolvedSearchParams.from) ?? defaults.from;
+  const to = validateDate(resolvedSearchParams.to) ?? defaults.to;
+
+  // Enforce from <= to
+  const safeFrom = from <= to ? from : to;
+  const safeTo = to;
+
+  const fromISO = `${safeFrom}T00:00:00.000Z`;
+  const toISO = `${safeTo}T23:59:59.999Z`;
+
+  // Compute days for PostHog
+  const days = Math.max(
+    1,
+    Math.round(
+      (new Date(safeTo).getTime() - new Date(safeFrom).getTime()) /
+        (1000 * 60 * 60 * 24)
+    ) + 1
+  );
 
   // Use service role client — bypasses RLS so admin can see all data
   const supabase = createClient(
@@ -135,21 +180,9 @@ export default async function AdminDashboardPage({
   // Get current admin user from our signed session cookie
   const { user: adminUser } = await getServerUser();
 
-  const today = new Date();
-  const startOfMonth = new Date(
-    today.getFullYear(),
-    today.getMonth(),
-    1
-  ).toISOString();
-  const startOfToday = new Date(
-    today.getFullYear(),
-    today.getMonth(),
-    today.getDate()
-  ).toISOString();
-
-  // Parallel fetches
+  // ── Overview tab: parallel data fetches ──────────────────────────────────
   const [
-    { data: allOrdersMonth },
+    { data: allOrdersInRange },
     { data: todayOrders },
     { data: pendingOrders },
     { count: productCount },
@@ -159,20 +192,36 @@ export default async function AdminDashboardPage({
     { data: recentReviews },
     { data: stockProducts },
     { count: openRefundsCount },
+    // New KPI sources
+    { data: walletData },
+    { data: rtoOrders },
+    { data: returnOrders },
+    { data: refundOrders },
+    // PostHog
     posthogTrafficData,
     posthogFunnelData,
     posthogTopPagesData,
     posthogEventCountsData,
   ] = await Promise.all([
+    // Orders in selected date range
     supabase
       .from('orders')
       .select('id, total, status, created_at')
-      .gte('created_at', startOfMonth),
-    supabase.from('orders').select('id, total').gte('created_at', startOfToday),
+      .gte('created_at', fromISO)
+      .lte('created_at', toISO),
+    // Today's orders (always "today" regardless of range, for the "today revenue" KPI)
+    supabase
+      .from('orders')
+      .select('id, total')
+      .gte(
+        'created_at',
+        `${new Date().toISOString().split('T')[0]}T00:00:00.000Z`
+      ),
+    // Pending orders (real-time count, not date filtered)
     supabase
       .from('orders')
       .select('id, status')
-      .in('status', ['pending', 'processing']),
+      .in('status', ['pending', 'confirmed', 'processing']),
     supabase.from('products').select('*', { count: 'exact', head: true }),
     supabase.from('users').select('*', { count: 'exact', head: true }),
     supabase
@@ -180,7 +229,8 @@ export default async function AdminDashboardPage({
       .select(
         'quantity, price_at_purchase, product:products(name, category_id)'
       )
-      .gte('created_at', startOfMonth),
+      .gte('created_at', fromISO)
+      .lte('created_at', toISO),
     supabase
       .from('orders')
       .select(
@@ -198,13 +248,37 @@ export default async function AdminDashboardPage({
       .from('returns')
       .select('*', { count: 'exact', head: true })
       .eq('status', 'requested'),
-    getDailyTraffic(),
-    getPurchaseFunnel(),
-    getTopPages(8),
-    getEventCounts(),
+    // Wallet liability (sum of all positive wallet balances — total outstanding liability)
+    supabase.from('users').select('wallet_balance').gt('wallet_balance', 0),
+    // RTO orders in range
+    supabase
+      .from('orders')
+      .select('id', { count: 'exact', head: true })
+      .in('status', ['rto_initiated', 'rto_received'])
+      .gte('created_at', fromISO)
+      .lte('created_at', toISO),
+    // Return orders in range
+    supabase
+      .from('orders')
+      .select('id', { count: 'exact', head: true })
+      .in('status', ['return_requested', 'return_approved', 'returned'])
+      .gte('created_at', fromISO)
+      .lte('created_at', toISO),
+    // Refunded orders in range
+    supabase
+      .from('orders')
+      .select('id', { count: 'exact', head: true })
+      .eq('status', 'refunded')
+      .gte('created_at', fromISO)
+      .lte('created_at', toISO),
+    // PostHog (days-based)
+    getDailyTraffic(days),
+    getPurchaseFunnel(days),
+    getTopPages(8, days),
+    getEventCounts(days),
   ]);
 
-  // Process KPIs (shared aggregation with SalesDashboard)
+  // ── Computed metrics ──────────────────────────────────────────────────────
   const pendingCount = (pendingOrders || []).length;
   const {
     totalRevenue,
@@ -216,13 +290,41 @@ export default async function AdminDashboardPage({
     salesChartData,
     topProductsData,
     earningsByCategoryData,
-  } = computeSalesMetrics({ allOrdersMonth, todayOrders, orderItems });
+  } = computeSalesMetrics({
+    allOrdersMonth: allOrdersInRange,
+    todayOrders,
+    orderItems,
+  });
 
   const lowStockCount = (stockProducts || []).filter(
     (p) =>
       (p.stock_quantity || 0) <= (p.low_stock_threshold || 5) &&
       (p.stock_quantity || 0) > 0
   ).length;
+
+  // New: Wallet liability
+  const walletLiability = (walletData || []).reduce(
+    (sum, u) => sum + Number(u.wallet_balance || 0),
+    0
+  );
+
+  // New: Rate calculations in selected range
+  const totalRangeOrders = (allOrdersInRange || []).length;
+  const rtoCount = rtoOrders?.length ?? 0;
+  const returnCount = returnOrders?.length ?? 0;
+  const refundCount = refundOrders?.length ?? 0;
+  const rtoRate =
+    totalRangeOrders > 0
+      ? ((rtoCount / totalRangeOrders) * 100).toFixed(1)
+      : '0.0';
+  const returnRate =
+    totalRangeOrders > 0
+      ? ((returnCount / totalRangeOrders) * 100).toFixed(1)
+      : '0.0';
+  const refundRate =
+    totalRangeOrders > 0
+      ? ((refundCount / totalRangeOrders) * 100).toFixed(1)
+      : '0.0';
 
   const statusBadgeClass: Record<string, string> = {
     pending: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
@@ -246,14 +348,14 @@ export default async function AdminDashboardPage({
   return (
     <div className="mx-auto max-w-7xl space-y-6">
       {/* Page Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <p className="mb-0.5 text-xs font-semibold text-emerald-400">
             Welcome back, {adminUser?.email?.split('@')[0] ?? 'Admin'} 👋
           </p>
           <h1 className="text-xl font-bold text-white">Dashboard</h1>
           <p className="mt-0.5 text-xs text-slate-500">
-            {today.toLocaleDateString('en-IN', {
+            {new Date().toLocaleDateString('en-IN', {
               weekday: 'long',
               day: 'numeric',
               month: 'long',
@@ -261,12 +363,14 @@ export default async function AdminDashboardPage({
             })}
           </p>
         </div>
-        <Link
-          href="/admin/orders"
-          className="rounded-lg bg-emerald-600 px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-emerald-500"
+        {/* Date Range Picker — Suspense so it doesn't block server render */}
+        <Suspense
+          fallback={
+            <div className="h-9 w-64 animate-pulse rounded-xl bg-white/5" />
+          }
         >
-          View All Orders
-        </Link>
+          <DateRangePicker from={safeFrom} to={safeTo} />
+        </Suspense>
       </div>
 
       {/* Tabs Selector */}
@@ -276,8 +380,8 @@ export default async function AdminDashboardPage({
           return (
             <Link
               key={t.id}
-              href={`/admin/dashboard?tab=${t.id}`}
-              className={`rounded-lg border px-4 py-2 text-xs font-semibold transition-all ${
+              href={`/admin/dashboard?tab=${t.id}&from=${safeFrom}&to=${safeTo}`}
+              className={`whitespace-nowrap rounded-lg border px-4 py-2 text-xs font-semibold transition-all ${
                 isActive
                   ? 'border-emerald-500/25 bg-emerald-500/10 text-emerald-400 shadow-lg shadow-emerald-500/10'
                   : 'border-transparent text-slate-400 hover:bg-white/5 hover:text-slate-200'
@@ -310,76 +414,132 @@ export default async function AdminDashboardPage({
             </div>
           )}
 
-          {/* KPI Cards */}
-          <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-            <KpiCard
-              label="Today's Revenue"
-              value={`₹${todayRevenue.toLocaleString('en-IN')}`}
-              icon={TrendingUp}
-              iconColor="text-emerald-400"
-              iconBg="bg-emerald-500/10"
-              href="/admin/reports/sales"
-            />
-            <KpiCard
-              label="This Month Revenue"
-              value={`₹${totalRevenue.toLocaleString('en-IN')}`}
-              sub={`${totalOrders} orders`}
-              icon={CreditCard}
-              iconColor="text-blue-400"
-              iconBg="bg-blue-500/10"
-              href="/admin/reports/sales"
-            />
-            <KpiCard
-              label="Avg Order Value"
-              value={`₹${Math.round(aov).toLocaleString('en-IN')}`}
-              sub="This month"
-              icon={ShoppingBag}
-              iconColor="text-purple-400"
-              iconBg="bg-purple-500/10"
-            />
-            <KpiCard
-              label="Total Customers"
-              value={(usersCount ?? 0).toLocaleString('en-IN')}
-              icon={Users}
-              iconColor="text-amber-400"
-              iconBg="bg-amber-500/10"
-              href="/admin/users"
-            />
+          {/* Revenue KPI Cards */}
+          <div>
+            <p className="mb-3 text-[10px] font-semibold uppercase tracking-wider text-slate-600">
+              Revenue &amp; Orders
+            </p>
+            <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+              <KpiCard
+                label="Today's Revenue"
+                value={`₹${todayRevenue.toLocaleString('en-IN')}`}
+                icon={TrendingUp}
+                iconColor="text-emerald-400"
+                iconBg="bg-emerald-500/10"
+                href="/admin/reports/sales"
+              />
+              <KpiCard
+                label="Period Revenue"
+                value={`₹${totalRevenue.toLocaleString('en-IN')}`}
+                sub={`${totalOrders} orders`}
+                icon={CreditCard}
+                iconColor="text-blue-400"
+                iconBg="bg-blue-500/10"
+                href="/admin/reports/sales"
+              />
+              <KpiCard
+                label="Avg Order Value"
+                value={`₹${Math.round(aov).toLocaleString('en-IN')}`}
+                sub="In selected period"
+                icon={ShoppingBag}
+                iconColor="text-purple-400"
+                iconBg="bg-purple-500/10"
+              />
+              <KpiCard
+                label="Total Customers"
+                value={(usersCount ?? 0).toLocaleString('en-IN')}
+                icon={Users}
+                iconColor="text-amber-400"
+                iconBg="bg-amber-500/10"
+                href="/admin/users"
+              />
+            </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-            <KpiCard
-              label="Pending Orders"
-              value={pendingCount.toString()}
-              icon={Package}
-              iconColor="text-amber-400"
-              iconBg="bg-amber-500/10"
-              href="/admin/orders"
-            />
-            <KpiCard
-              label="Total Products"
-              value={(productCount ?? 0).toLocaleString('en-IN')}
-              icon={Package}
-              iconColor="text-indigo-400"
-              iconBg="bg-indigo-500/10"
-              href="/admin/products"
-            />
-            <KpiCard
-              label="Open Refunds"
-              value={(openRefundsCount ?? 0).toString()}
-              icon={RotateCcw}
-              iconColor="text-rose-400"
-              iconBg="bg-rose-500/10"
-              href="/admin/refunds"
-            />
-            <KpiCard
-              label="Low Stock Alerts"
-              value={lowStockCount.toString()}
-              icon={AlertCircle}
-              iconColor="text-orange-400"
-              iconBg="bg-orange-500/10"
-              href="/admin/reports/inventory"
-            />
+          {/* Operations KPI Cards */}
+          <div>
+            <p className="mb-3 text-[10px] font-semibold uppercase tracking-wider text-slate-600">
+              Operations &amp; Inventory
+            </p>
+            <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+              <KpiCard
+                label="Pending Orders"
+                value={pendingCount.toString()}
+                icon={Package}
+                iconColor="text-amber-400"
+                iconBg="bg-amber-500/10"
+                href="/admin/orders"
+              />
+              <KpiCard
+                label="Total Products"
+                value={(productCount ?? 0).toLocaleString('en-IN')}
+                icon={Package}
+                iconColor="text-indigo-400"
+                iconBg="bg-indigo-500/10"
+                href="/admin/products"
+              />
+              <KpiCard
+                label="Open Refunds"
+                value={(openRefundsCount ?? 0).toString()}
+                icon={RotateCcw}
+                iconColor="text-rose-400"
+                iconBg="bg-rose-500/10"
+                href="/admin/refunds"
+              />
+              <KpiCard
+                label="Low Stock Alerts"
+                value={lowStockCount.toString()}
+                icon={AlertCircle}
+                iconColor="text-orange-400"
+                iconBg="bg-orange-500/10"
+                href="/admin/reports/inventory"
+              />
+            </div>
+          </div>
+
+          {/* Financial Health KPI Cards (new) */}
+          <div>
+            <p className="mb-3 text-[10px] font-semibold uppercase tracking-wider text-slate-600">
+              Financial Health &amp; Fulfilment Risk
+            </p>
+            <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+              <KpiCard
+                label="Wallet Liability"
+                value={`₹${walletLiability.toLocaleString('en-IN')}`}
+                sub="Outstanding balance (non-withdrawable)"
+                icon={Wallet}
+                iconColor="text-cyan-400"
+                iconBg="bg-cyan-500/10"
+                href="/admin/wallet"
+              />
+              <KpiCard
+                label="RTO Rate"
+                value={`${rtoRate}%`}
+                sub={`${rtoCount} orders in period`}
+                icon={RotateCcw}
+                iconColor={Number(rtoRate) > 10 ? 'text-rose-400' : 'text-amber-400'}
+                iconBg={Number(rtoRate) > 10 ? 'bg-rose-500/10' : 'bg-amber-500/10'}
+                trend={Number(rtoRate) > 10 ? 'down' : 'neutral'}
+                trendLabel={Number(rtoRate) > 10 ? 'High' : 'Normal'}
+              />
+              <KpiCard
+                label="Return Rate"
+                value={`${returnRate}%`}
+                sub={`${returnCount} returns in period`}
+                icon={ArrowDownRight}
+                iconColor="text-orange-400"
+                iconBg="bg-orange-500/10"
+                href="/admin/refunds"
+              />
+              <KpiCard
+                label="Refund Rate"
+                value={`${refundRate}%`}
+                sub={`${refundCount} refunds in period`}
+                icon={BarChart3}
+                iconColor={Number(refundRate) > 5 ? 'text-rose-400' : 'text-slate-400'}
+                iconBg={Number(refundRate) > 5 ? 'bg-rose-500/10' : 'bg-slate-500/10'}
+              />
+            </div>
           </div>
 
           {/* PostHog Analytics */}
@@ -521,11 +681,17 @@ export default async function AdminDashboardPage({
         </div>
       )}
 
-      {activeTab === 'sales' && <SalesDashboard />}
-      {activeTab === 'operations' && <OperationsDashboard />}
-      {activeTab === 'orders' && <OrdersDashboard />}
-      {activeTab === 'support' && <SupportDashboard />}
-      {activeTab === 'marketing' && <MarketingDashboard />}
+      {activeTab === 'sales' && <SalesDashboard from={safeFrom} to={safeTo} />}
+      {activeTab === 'operations' && (
+        <OperationsDashboard from={safeFrom} to={safeTo} />
+      )}
+      {activeTab === 'orders' && <OrdersDashboard from={safeFrom} to={safeTo} />}
+      {activeTab === 'support' && (
+        <SupportDashboard from={safeFrom} to={safeTo} />
+      )}
+      {activeTab === 'marketing' && (
+        <MarketingDashboard from={safeFrom} to={safeTo} />
+      )}
     </div>
   );
 }

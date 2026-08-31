@@ -45,26 +45,42 @@ const STATUS_NAMES: Record<string, string> = {
   duplicate: 'Duplicate',
 };
 
-export default async function SupportDashboard() {
+interface SupportDashboardProps {
+  from: string;
+  to: string;
+}
+
+export default async function SupportDashboard({ from, to }: SupportDashboardProps) {
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
     { auth: { autoRefreshToken: false, persistSession: false } }
   );
 
-  const { data: tickets } = await supabase.from('support_tickets').select(`
+  const fromISO = `${from}T00:00:00.000Z`;
+  const toISO = `${to}T23:59:59.999Z`;
+
+  const { data: tickets } = await supabase
+    .from('support_tickets')
+    .select(`
       id,
       ticket_number,
       title,
       description,
       priority,
       status,
+      sla_due_at,
+      sla_breached,
+      ai_created,
       created_at,
       first_response_at,
+      resolved_at,
       assigned_to,
       assignee:users!support_tickets_assigned_to_fkey(full_name, email),
       customer:users!support_tickets_customer_id_fkey(full_name, email)
-    `);
+    `)
+    .gte('created_at', fromISO)
+    .lte('created_at', toISO);
 
   const totalTickets = (tickets || []).length;
   const activeTickets = (tickets || []).filter(
