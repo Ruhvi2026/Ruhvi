@@ -20,6 +20,7 @@ import {
   ChevronRight,
   LogOut,
   Globe,
+  Bell,
 } from 'lucide-react';
 
 interface NavChild {
@@ -112,6 +113,12 @@ const getMarketingNavGroups = (): NavGroup[] => [
         href: '/marketing/channels/whatsapp',
         icon: MessageCircle,
         requiredPermission: 'whatsapp.manage',
+      },
+      {
+        label: 'Push Notifications',
+        href: '/marketing/channels/push',
+        icon: Bell,
+        requiredPermission: 'push.manage',
       },
     ],
   },
