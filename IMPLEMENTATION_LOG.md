@@ -441,3 +441,31 @@ The `BotMessage` component's `setInterval` for the typewriter effect is cleaned 
 - `npm run build` — PASSES (153 static pages).
 - `npm test` — PASSES (60/60, 2 suites).
 - Chat opens on single click; auto-ticket-creation still works (uses `useAuth` from `AuthProvider`, which is a parent of the dynamically-loaded component).
+
+---
+
+## Fix 15: Scope Three.js to Specific Product Pages Only — DONE
+
+**Commit:** `cc2b300` — `fix-15: remove dead Three.js components and unused @react-three/three dependencies`
+
+### What was found vs. the plan (important — the audit premise was stale)
+
+The plan's "Current behavior" said Three.js (~500kB+ gzipped) was leaking into shared bundles — `/account` (361kB) and `/admin/ai-settings` (345kB). **This did not match the actual codebase.**
+
+1. **`HeroRingScene.tsx`** was the only file importing `three`, `@react-three/fiber`, `@react-three/drei`.
+2. **`Hero3D.tsx`** wrapped `HeroRingScene` in `next/dynamic` with `ssr: false` — already lazy-loaded.
+3. **`Hero3D`/`HeroRingScene` were imported by NOTHING** in the source code — dead code since the homepage hero was rebuilt as a plain `<Image>` (confirmed in `src/app/page.tsx`, lines 97-110).
+4. **`Product360Viewer.tsx` does NOT use three.js** — it's a plain image-based 360° viewer (confirmed by grep).
+5. **Chunk-level proof:** searching `.next/static/chunks/*.js` before any change for `@react-three`, `torusGeometry`, `meshPhysicalMaterial`, `useFrame` returned **zero hits** — Three.js was already tree-shaken out of every bundle, including `/account` (356 kB) and `/admin/ai-settings` (428 kB) First Load JS.
+
+### What was changed
+
+1. **Deleted `src/components/three/Hero3D.tsx` and `src/components/three/HeroRingScene.tsx`** (dead code — the only import path for the 3D libraries).
+2. **`npm uninstall @react-three/drei @react-three/fiber three @types/three`** — removed from `package.json` + lockfile (52 packages removed). Nothing imports them, so this is safe.
+3. `Product360Viewer` left untouched (never used three.js).
+
+### Verification
+
+- `npm run build` — PASSES (153 static pages). `/account` (356 kB) and `/admin/ai-settings` (428 kB) First Load JS unchanged by the removal — confirming Three.js was not in those bundles.
+- `npm test` — PASSES (60/60, 2 suites).
+- **Bundle analysis:** `Select-String` over `.next/static/chunks/*.js` after the change → **"CLEAN: no three.js code in any chunk"**. Three.js can no longer leak into any bundle because the packages no longer exist in the dependency tree.

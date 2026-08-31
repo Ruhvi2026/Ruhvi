@@ -344,6 +344,6 @@ Included for completeness so nothing from the audit is silently dropped. Review 
 | 12 | Remove OneSignal | 3 | Done |
 | 13 | Consolidate analytics to PostHog | 3 | Done |
 | 14 | Lazy-load Gia chat widget | 3 | Done |
-| 15 | Scope Three.js to specific pages | 3 | Not started |
+| 15 | Scope Three.js to specific pages | 3 | Done |
 
 Don't mark a row "Done" until its full "Must still work" checklist has passed — not just when the code change is made.
