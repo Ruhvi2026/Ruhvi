@@ -54,7 +54,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const fetchProfile = async (authUser: any) => {
     try {
       const supabase = createClient();
-      let data: any = null;
 
       const isUuid =
         authUser.id &&
@@ -62,31 +61,50 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           authUser.id
         );
 
-      // 1. Try fetching by ID (if valid UUID)
-      if (isUuid) {
-        const { data: userById } = await supabase
-          .from('users')
-          .select('*')
-          .eq('id', authUser.id)
-          .limit(1)
-          .maybeSingle();
-        data = userById;
-      }
+      const rawPhone = authUser.phone || authUser.user_metadata?.phone || '';
+      const cleanedPhone = rawPhone.replace(/\D/g, '').slice(-10);
 
-      // 2. Try fetching by firebase_uid using the secure RPC (bypasses RLS)
-      if (!data && authUser.id) {
-        const { data: userByFb } = await supabase
-          .rpc('get_user_profile', { p_user_id: authUser.id })
-          .limit(1)
-          .maybeSingle();
-        data = userByFb;
-      }
+      // Fix 8: consolidated single lookup. The new get_user_profile_consolidated
+      // RPC resolves by id → firebase_uid → phone → email with the exact same
+      // precedence order as the legacy four-step logic below. If the RPC is not
+      // yet deployed in the database (migration 0071 pending), fall back to the
+      // legacy sequential lookups so behaviour is identical either way.
+      const { data: consolidated, error: rpcError } = await supabase
+        .rpc('get_user_profile_consolidated', {
+          p_id: isUuid ? authUser.id : null,
+          p_firebase_uid: authUser.id || null,
+          p_phone: cleanedPhone || null,
+          p_email: authUser.email || null,
+        })
+        .limit(1)
+        .maybeSingle();
 
-      // 3. Try fetching by phone
-      if (!data && (authUser.phone || authUser.user_metadata?.phone)) {
-        const rawPhone = authUser.phone || authUser.user_metadata?.phone || '';
-        const cleanedPhone = rawPhone.replace(/\D/g, '').slice(-10);
-        if (cleanedPhone) {
+      let data: any = rpcError ? null : consolidated;
+
+      if (rpcError && !data) {
+        // Legacy fallback — 1. Try fetching by ID (if valid UUID)
+        if (isUuid) {
+          const { data: userById } = await supabase
+            .from('users')
+            .select('*')
+            .eq('id', authUser.id)
+            .limit(1)
+            .maybeSingle();
+          data = userById;
+        }
+
+        // Legacy fallback — 2. Try fetching by firebase_uid using the secure
+        // RPC (bypasses RLS)
+        if (!data && authUser.id) {
+          const { data: userByFb } = await supabase
+            .rpc('get_user_profile', { p_user_id: authUser.id })
+            .limit(1)
+            .maybeSingle();
+          data = userByFb;
+        }
+
+        // Legacy fallback — 3. Try fetching by phone
+        if (!data && cleanedPhone) {
           const { data: userByPhone } = await supabase
             .from('users')
             .select('*')
@@ -95,17 +113,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             .maybeSingle();
           data = userByPhone;
         }
-      }
 
-      // 4. Try fetching by email
-      if (!data && authUser.email) {
-        const { data: userByEmail } = await supabase
-          .from('users')
-          .select('*')
-          .eq('email', authUser.email)
-          .limit(1)
-          .maybeSingle();
-        data = userByEmail;
+        // Legacy fallback — 4. Try fetching by email
+        if (!data && authUser.email) {
+          const { data: userByEmail } = await supabase
+            .from('users')
+            .select('*')
+            .eq('email', authUser.email)
+            .limit(1)
+            .maybeSingle();
+          data = userByEmail;
+        }
       }
 
       const profileData = Array.isArray(data) ? data[0] : data;
