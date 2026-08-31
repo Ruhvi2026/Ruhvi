@@ -5,9 +5,9 @@ import React, {
   useEffect,
   useMemo,
   useCallback,
+  useRef,
   Suspense,
 } from 'react';
-import { useSearchParams } from 'next/navigation';
 import {
   Filter,
   SlidersHorizontal,
@@ -26,16 +26,28 @@ import { ecommerceEvent } from '@/lib/gtag';
 
 const PAGE_SIZE = 12;
 
-function ProductsCatalogContent() {
-  const searchParams = useSearchParams();
-  const initialSearch = searchParams.get('search') || '';
-  const initialCategory = searchParams.get('category') || 'all';
+interface ProductsCatalogContentProps {
+  initialProducts?: any[];
+  initialCount?: number;
+  initialSearch?: string;
+  initialCategory?: string;
+}
+
+function ProductsCatalogContent({
+  initialProducts = [],
+  initialCount = 0,
+  initialSearch = '',
+  initialCategory = 'all',
+}: ProductsCatalogContentProps) {
   const { categories } = useTaxonomy();
 
-  const [dbProducts, setDbProducts] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [dbProducts, setDbProducts] = useState<any[]>(initialProducts);
+  const [totalCount, setTotalCount] = useState<number>(initialCount);
+  const [isLoading, setIsLoading] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [hasMoreDb, setHasMoreDb] = useState(false);
+  const [hasMoreDb, setHasMoreDb] = useState(
+    initialProducts.length < initialCount
+  );
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
@@ -49,45 +61,78 @@ function ProductsCatalogContent() {
     'newest'
   );
 
-  const fetchProducts = useCallback(async () => {
-    try {
-      const { createClient } = await import('@/lib/supabase/client');
-      const supabase = createClient();
-      const { data, count } = await supabase
-        .from('products')
-        .select('*, images:product_images(*), category:categories(*)', {
-          count: 'exact',
-        })
-        .range(0, PAGE_SIZE - 1);
+  const firstRender = useRef(true);
 
-      setDbProducts(data ?? []);
-      setHasMoreDb(count != null && (data?.length ?? 0) < count);
-    } catch (err) {
-      console.error('Failed to fetch products', err);
-    } finally {
-      setIsLoading(false);
+  const buildQuery = useCallback(
+    (page: number, pageSize = PAGE_SIZE) => {
+      const params = new URLSearchParams();
+      if (searchQuery.trim()) params.set('search', searchQuery.trim());
+      if (selectedCategory !== 'all') params.set('category', selectedCategory);
+      params.set('stock', stockFilter);
+      params.set('maxPrice', String(priceRange));
+      params.set('sortBy', sortBy);
+      params.set('page', String(page));
+      params.set('pageSize', String(pageSize));
+      return `/api/products?${params.toString()}`;
+    },
+    [searchQuery, selectedCategory, stockFilter, priceRange, sortBy]
+  );
+
+  const fetchPage = useCallback(
+    async (page: number, signal?: AbortSignal) => {
+      const res = await fetch(buildQuery(page), { signal });
+      if (!res.ok) throw new Error('Failed to fetch products');
+      return res.json();
+    },
+    [buildQuery]
+  );
+
+  // Server-side filtering: any filter/sort change refetches page 1 from
+  // /api/products (which pushes the filters into the Supabase query). The
+  // initial server-rendered page is used as-is on first render.
+  useEffect(() => {
+    if (firstRender.current) {
+      firstRender.current = false;
+      return;
     }
-  }, []);
+    let ignore = false;
+    const controller = new AbortController();
+    const timeout = setTimeout(async () => {
+      setIsLoading(true);
+      try {
+        const data = await fetchPage(1, controller.signal);
+        if (ignore) return;
+        setDbProducts(data.products ?? []);
+        setTotalCount(data.count ?? 0);
+        setHasMoreDb((data.products?.length ?? 0) < (data.count ?? 0));
+        setVisibleCount(PAGE_SIZE);
+      } catch (err) {
+        if ((err as any)?.name !== 'AbortError') {
+          console.error('Failed to fetch products', err);
+        }
+      } finally {
+        if (!ignore) setIsLoading(false);
+      }
+    }, 300);
+    return () => {
+      ignore = true;
+      controller.abort();
+      clearTimeout(timeout);
+    };
+  }, [fetchPage]);
 
   const loadMoreDb = async () => {
     if (isLoadingMore || !hasMoreDb) return;
     setIsLoadingMore(true);
     try {
-      const { createClient } = await import('@/lib/supabase/client');
-      const supabase = createClient();
-      const { data, count } = await supabase
-        .from('products')
-        .select('*, images:product_images(*), category:categories(*)', {
-          count: 'exact',
-        })
-        .range(dbProducts.length, dbProducts.length + PAGE_SIZE - 1);
-
-      if (data && data.length > 0) {
-        setDbProducts((prev) => [...prev, ...data]);
-      }
-      setHasMoreDb(
-        count != null && dbProducts.length + (data?.length ?? 0) < count
-      );
+      const nextPage = Math.floor(dbProducts.length / PAGE_SIZE) + 1;
+      const data = await fetchPage(nextPage);
+      const more = (data.products ?? []) as any[];
+      const existingIds = new Set(dbProducts.map((p) => p.id));
+      const unique = more.filter((p) => !existingIds.has(p.id));
+      setDbProducts((prev) => [...prev, ...unique]);
+      setTotalCount(data.count ?? 0);
+      setHasMoreDb(dbProducts.length + unique.length < (data.count ?? 0));
     } catch (err) {
       console.error('Failed to load more products', err);
     } finally {
@@ -95,15 +140,9 @@ function ProductsCatalogContent() {
     }
   };
 
-  useEffect(() => {
-    fetchProducts();
-  }, [fetchProducts]);
-
-  useEffect(() => {
-    setVisibleCount(PAGE_SIZE);
-  }, [searchQuery, selectedCategory, stockFilter, priceRange, sortBy]);
-
   const filteredProducts = useMemo(() => {
+    // The server query already filters/sorts dbProducts; this useMemo keeps
+    // the DEMO_PRODUCTS fallback behaviour for when the DB returns nothing.
     const sourceProducts =
       dbProducts.length > 0 || !isLoading
         ? dbProducts.length > 0
@@ -208,7 +247,7 @@ function ProductsCatalogContent() {
             <p className="mt-2 text-xs text-slate-500 sm:text-sm">
               Showing{' '}
               <span className="font-bold text-gold-700">
-                {filteredProducts.length}
+                {isDbSource ? totalCount : filteredProducts.length}
               </span>{' '}
               certified handcrafted pieces
             </p>
@@ -430,7 +469,12 @@ function ProductsCatalogContent() {
   );
 }
 
-export default function ProductsCatalogPage() {
+export default function ProductsCatalogPage({
+  initialProducts,
+  initialCount,
+  initialSearch,
+  initialCategory,
+}: ProductsCatalogContentProps) {
   return (
     <Suspense
       fallback={
@@ -442,7 +486,12 @@ export default function ProductsCatalogPage() {
         </SpatialPage>
       }
     >
-      <ProductsCatalogContent />
+      <ProductsCatalogContent
+        initialProducts={initialProducts}
+        initialCount={initialCount}
+        initialSearch={initialSearch}
+        initialCategory={initialCategory}
+      />
     </Suspense>
   );
 }
