@@ -10,21 +10,7 @@ import { pushMessageToEspo } from '@/lib/espo/sync';
  * POST — Add a message (customer reply, staff reply, or internal note)
  */
 
-async function getSupabaseAdmin(cookieStore: any) {
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL ||
-      'https://igrkrkxdantrolbldapj.supabase.co',
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll();
-        },
-        setAll() {},
-      },
-    }
-  );
-}
+import { getServiceClient } from '@/lib/supabase/service';
 
 async function getCurrentUser(cookieStore: any) {
   const sessionCookie = cookieStore.get('__session')?.value;
@@ -35,7 +21,7 @@ async function getCurrentUser(cookieStore: any) {
     const uid = decoded?.sub;
     if (!uid) return null;
 
-    const supabase = await getSupabaseAdmin(cookieStore);
+    const supabase = getServiceClient();
     const { data: user } = await supabase
       .from('users')
       .select('id, full_name, email, phone, role')
@@ -56,7 +42,7 @@ export async function POST(
     const { id: ticketId } = await params;
     const cookieStore = await cookies();
     const user = await getCurrentUser(cookieStore);
-    const supabase = await getSupabaseAdmin(cookieStore);
+    const supabase = getServiceClient();
     const body = await req.json();
     const { message, visibility, email } = body;
 

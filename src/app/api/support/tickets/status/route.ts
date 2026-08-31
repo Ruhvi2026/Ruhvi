@@ -17,21 +17,7 @@ import { cookies } from 'next/headers';
  *   - email       : email address associated with the ticket
  */
 
-async function getSupabaseAdmin(cookieStore: any) {
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL ||
-      'https://igrkrkxdantrolbldapj.supabase.co',
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll();
-        },
-        setAll() {},
-      },
-    }
-  );
-}
+import { getServiceClient } from '@/lib/supabase/service';
 
 export async function GET(req: NextRequest) {
   try {
@@ -49,8 +35,7 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    const cookieStore = await cookies();
-    const supabase = await getSupabaseAdmin(cookieStore);
+    const supabase = getServiceClient();
 
     // Detect whether the identifier is a UUID or a ticket_number
     const isUuid =
