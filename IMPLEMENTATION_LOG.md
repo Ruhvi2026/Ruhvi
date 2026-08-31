@@ -355,3 +355,30 @@ As with Fix 8, the migration SQL is committed but **could not be applied to the 
 - `npm test` — PASSES (60/60).
 - Old-format carts load and migrate without crashing (migration path exercised by code inspection; malformed storage is cleared, not thrown).
 - Cart display is unchanged for the user — line items still resolve `product.name`, `product.price`, and images via the in-memory hydrated data.
+
+---
+
+## Fix 12: Remove OneSignal, Keep Firebase Auth + FCM — DONE
+
+**Commit:** `(fix-12)` — `fix-12: remove OneSignal entirely, keep Firebase Auth + FCM push`
+
+### What was found vs. the plan
+
+OneSignal was fully redundant with FCM: `OneSignalInit` in the root layout, `react-onesignal` in package.json, `public/OneSignalSDKWorker.js`, a provider dropdown in the admin notifications UI, a OneSignal branch in the notifications API route, plus env vars and a policy mention. FCM (`FcmInit`, `public/firebase-messaging-sw.js`, `/api/firebase-config`, `lib/fcm.ts`, `lib/fcm-admin.ts`) is fully self-contained.
+
+### What was changed
+
+1. Deleted `src/components/OneSignalInit.tsx`, removed its import/usage from `src/app/layout.tsx`.
+2. Removed `react-onesignal` from package.json + lockfile (`npm uninstall`).
+3. Deleted `public/OneSignalSDKWorker.js`.
+4. `src/app/admin/notifications/page.tsx` — removed the provider dropdown; FCM is now the only provider ("All FCM Registered Devices").
+5. `src/app/api/admin/notifications/route.ts` — removed the OneSignal API branch; always sends via FCM (`sendFcmToTokens`).
+6. `src/lib/env.ts` — removed `NEXT_PUBLIC_ONESIGNAL_APP_ID` / `ONESIGNAL_REST_API_KEY`.
+7. `src/app/(policies)/privacy-policy/page.tsx` — text updated to "Firebase Cloud Messaging (for push notifications)".
+8. The `push_campaigns.onesignal_id` column is kept as-is (data-only storage for the external send ID, now the FCM result id).
+
+### Verification
+
+- `npm run build` — PASSES.
+- `npm test` — PASSES (60/60).
+- FCM path confirmed intact end-to-end by code inspection: service worker registers background messages, `/api/firebase-config` serves the config, `FcmInit` requests token + saves to `user_push_tokens`, foreground listener shows toasts, `sendFcmToTokens` broadcasts. No OneSignal SDK references remain in `src/` (only a Fix-12 comment and the legacy `onesignal_id` DB column name).

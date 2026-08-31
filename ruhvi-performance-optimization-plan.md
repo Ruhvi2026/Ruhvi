@@ -341,7 +341,7 @@ Included for completeness so nothing from the audit is silently dropped. Review 
 | 9 | Full-text search | 2 | Done |
 | 10 | Share product-detail fetch | 2 | Done |
 | 11 | Slim cart localStorage | 2 | Done |
-| 12 | Remove OneSignal | 3 | Not started |
+| 12 | Remove OneSignal | 3 | Done |
 | 13 | Consolidate analytics to PostHog | 3 | Not started |
 | 14 | Lazy-load Gia chat widget | 3 | Not started |
 | 15 | Scope Three.js to specific pages | 3 | Not started |
