@@ -210,8 +210,10 @@ export default function RootLayout({
                   <StorefrontChrome>
                     <FcmInit />
                     <Navbar />
+                    {/* Add spacing here so it only applies to the storefront, not portals */}
+                    <div className="h-[104px] w-full flex-shrink-0" />
                   </StorefrontChrome>
-                  <main id="main-content" className="flex-1 pt-[104px]">
+                  <main id="main-content" className="flex-1">
                     {children}
                   </main>
                   <StorefrontChrome>
