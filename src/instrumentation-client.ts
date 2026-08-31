@@ -87,6 +87,7 @@ if (typeof window !== 'undefined' && POSTHOG_KEY) {
     // navigations automatically.
     defaults: '2026-01-30',
     person_profiles: 'identified_only',
+    capture_pageview: false, // We handle it manually in PostHogPageView
     capture_pageleave: true,
     disable_session_recording: false,
     session_recording: {
