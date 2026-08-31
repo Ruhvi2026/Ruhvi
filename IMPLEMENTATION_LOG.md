@@ -360,7 +360,7 @@ As with Fix 8, the migration SQL is committed but **could not be applied to the 
 
 ## Fix 12: Remove OneSignal, Keep Firebase Auth + FCM — DONE
 
-**Commit:** `(fix-12)` — `fix-12: remove OneSignal entirely, keep Firebase Auth + FCM push`
+**Commit:** `b3bf66a` — `fix-12: remove OneSignal entirely, keep Firebase Auth + FCM push`
 
 ### What was found vs. the plan
 
