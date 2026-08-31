@@ -295,7 +295,7 @@ The migration SQL is written and committed, but **it could NOT be applied to the
 
 ## Fix 9: Full-Text Search Instead of Per-Keystroke ILIKE — DONE
 
-**Commit:** `(fix-09)` — `fix-09: full-text search for product suggestions (tsvector + GIN, ilike fallback)`
+**Commit:** `b2a0031` — `fix-09: full-text search for product suggestions (tsvector + GIN, ilike fallback)`
 
 ### What was found vs. the plan
 
