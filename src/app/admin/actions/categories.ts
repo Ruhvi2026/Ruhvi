@@ -3,6 +3,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { requireAdmin } from '@/lib/auth/require-admin';
 import { revalidatePath, revalidateTag } from 'next/cache';
+import { cacheDelete } from '@/lib/redis';
 import { Category } from '@/types/database';
 import { INITIAL_CATEGORIES } from '@/lib/products';
 
@@ -48,6 +49,7 @@ export async function saveCategory(
   revalidatePath('/', 'layout');
   revalidatePath('/admin/categories');
   revalidateTag('categories');
+  await cacheDelete('storefront:categories');
 
   return { success: true };
 }
@@ -76,6 +78,7 @@ export async function deleteCategoryAction(id: string) {
   revalidatePath('/', 'layout');
   revalidatePath('/admin/categories');
   revalidateTag('categories');
+  await cacheDelete('storefront:categories');
 
   return { success: true };
 }
@@ -113,6 +116,7 @@ export async function seedCategories() {
   revalidatePath('/', 'layout');
   revalidatePath('/admin/categories');
   revalidateTag('categories');
+  await cacheDelete('storefront:categories');
 
   return { success: true, seeded: count ?? INITIAL_CATEGORIES.length };
 }
