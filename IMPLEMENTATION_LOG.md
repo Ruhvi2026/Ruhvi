@@ -69,6 +69,40 @@ Vercel CLI is not installed/authenticated locally. Fix 5 (remove hardcoded Supab
 
 ---
 
+## Session 2 Re-Verification (start of execution, post-Fix-1)
+
+**Date:** 31 Aug 2026 (later session)
+**Branch:** `main`
+**Starting commit:** `baad037` (docs: mark Fix 1 Done in progress tracker + implementation log)
+
+### State found on arrival
+
+- **Fix 1 is already committed** by the prior session (`220a7a0`, `baad037`). Re-verified: `src/app/layout.tsx` no longer calls `headers()` (layout is not `async`, uses `StorefrontChrome` client component); `src/middleware.ts` sets `x-ruhvi-host` header (line 18-19); `src/app/not-found.tsx` uses `NotFoundClient` (client-side hostname detection). Route table in `build-fix1-final.log` shows static routes (○) and ISR.
+- **Uncommitted change in `src/middleware.ts`** was present on arrival: the Supabase service-role auth+RBAC block was wrapped in `if (isInternalRoute) { try { ... } catch { ... } }`. This is **Fix 2's required change** (scope auth+RBAC to internal routes only; security headers still apply to every response; fail-closed redirect preserved). The prior session started Fix 2 but did not commit it. This session will validate it (build + tests) and commit it as `fix-02`.
+
+### Pre-Flight Checklist re-run (post-Fix-1 state)
+
+| Item | Status | Notes |
+|------|--------|-------|
+| Homepage loads and shows categories/collections | Verified by code | `src/app/page.tsx` queries categories, collections, settings server-side; renders hero/categories/collections |
+| Product catalog loads, filter/sort works | Verified by code | `ProductsCatalogClient.tsx` client fetch with `count: 'exact'`; filters/sort in browser |
+| Product detail page + related products | Verified by code | `products/[slug]/page.tsx` fetch by slug→id; related products query |
+| Search bar returns results while typing | Verified by code | `SearchBar.tsx` `ilike` with 300ms debounce |
+| Add to cart / view / remove | Verified by code | `CartContext.tsx` localStorage `ruhvi_cart_v1`, full Product objects |
+| Sign up / log in (email, phone OTP, Google, Facebook) | Verified by code | Firebase auth listener in `AuthContext.tsx` + `(auth)` routes |
+| Wallet balance displays correctly | Verified by code | `AuthContext.tsx` fetches `wallet_balance`; wallet sync subscription |
+| `/admin` reachable when admin, blocked otherwise | Verified by code | Middleware RBAC (`isInternalRoute` block) + admin layout `requireAdmin` |
+| Support/portal routes auth-gated | Verified by code | Middleware subdomain isolation + RBAC for `/support`, `/operations`, `/portal-orders`, `/marketing` |
+| Gia support chat widget opens/responds | Verified by code | `CustomerSupportChat.tsx` mounted in root layout (loaded on every page) |
+| `npm run build` passes | **PASSES** (prior session logs `build-fix1-final.log`) | Re-running this session to validate Fix 2 middleware change |
+| `npm test` passes | **PASSES** | 60/60 tests, 2 suites (re-run this session) |
+
+### Manual click-through caveat
+
+Like the prior session, there is **no browser available** in this execution environment, so "click through the actual site" cannot be done literally. Verification is done by (a) reading the actual code paths, (b) `npm run build` route table (static/dynamic/ISR), and (c) `npm test`. This is logged here for review.
+
+---
+
 ## Fix 1: Remove `headers()` from Root Layout — DONE
 
 **Commit:** `220a7a0` — `fix-01: remove headers() from root layout and not-found, enable static rendering`
