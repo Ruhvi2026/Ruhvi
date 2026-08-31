@@ -113,6 +113,8 @@ export default function SupportTicketDetail() {
   const [showTagMenu, setShowTagMenu] = useState(false);
   const [tagQuery, setTagQuery] = useState('');
   const [addingTag, setAddingTag] = useState(false);
+  // Support Reply Enhancer
+  const [isEnhancing, setIsEnhancing] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -380,6 +382,64 @@ export default function SupportTicketDetail() {
       setTimeout(() => setCopiedNum(false), 2000);
     }
   };
+
+  /**
+   * Support Reply Enhancer — calls /api/support/ai/enhance which routes through
+   * the shared AI Control Center (support_reply feature key). The feature must be
+   * toggled ON in Admin > AI Control Center > Routing & Fallback before this works.
+   * If it's OFF the API returns a clear 503 that surfaces as a toast error.
+   */
+  async function handleEnhanceReply() {
+    if (!replyText.trim()) {
+      toast.error('Write a draft reply first, then click Enhance.');
+      return;
+    }
+    setIsEnhancing(true);
+    const loadingToast = toast.loading('Enhancing your reply...');
+    try {
+      // Pull the customer's first message as context (if available)
+      const customerMsg =
+        data?.messages?.find(
+          (m: any) =>
+            m.sender_type === 'customer' || m.author_role === 'customer'
+        )?.content ||
+        data?.ticket?.description ||
+        '';
+
+      const res = await fetch('/api/support/ai/enhance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          draftReply: replyText.trim(),
+          customerMessage: customerMsg?.substring(0, 2000) || undefined,
+        }),
+      });
+
+      const resData = await res.json();
+
+      if (!res.ok) {
+        toast.error(resData.error || 'Enhancement failed. Please try again.', {
+          id: loadingToast,
+        });
+        return;
+      }
+
+      if (resData.enhanced_reply) {
+        setReplyText(resData.enhanced_reply);
+        toast.success('Reply enhanced! Review before sending.', {
+          id: loadingToast,
+        });
+      } else {
+        toast.error('No enhanced reply returned. Please try again.', {
+          id: loadingToast,
+        });
+      }
+    } catch {
+      toast.error('Network error during enhancement.', { id: loadingToast });
+    } finally {
+      setIsEnhancing(false);
+    }
+  }
 
   if (loading) {
     return (
@@ -909,6 +969,41 @@ export default function SupportTicketDetail() {
                   disabled={isUploadingAttachment}
                 />
               </label>
+
+              {/* Support Reply Enhancer button — wired to AI Control Center (support_reply feature).
+                  Toggle the feature ON in Admin › AI Control Center › Routing & Fallback first. */}
+              <button
+                type="button"
+                onClick={handleEnhanceReply}
+                disabled={isEnhancing || !replyText.trim()}
+                title="Enhance this draft with AI (grammar, tone & clarity) — review before sending"
+                className="flex items-center gap-1.5 rounded-lg border border-violet-500/30 bg-violet-500/10 px-3 py-1.5 text-xs font-semibold text-violet-300 transition hover:bg-violet-500/20 hover:text-violet-200 disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                {isEnhancing ? (
+                  <svg
+                    className="h-3.5 w-3.5 animate-spin"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8v8H4z"
+                    />
+                  </svg>
+                ) : (
+                  <Sparkles className="h-3.5 w-3.5" />
+                )}
+                <span>{isEnhancing ? 'Enhancing...' : 'Enhance ✨'}</span>
+              </button>
             </div>
 
             {/* Send Actions Bar */}

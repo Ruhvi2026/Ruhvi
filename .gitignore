@@ -43,3 +43,6 @@ vercel.env
 
 # Reports
 PERFORMANCE_OPTIMIZATION_REPORT.pdf
+
+# Agent Manager worktrees / local state
+.kilo/

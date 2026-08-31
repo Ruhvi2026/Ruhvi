@@ -62,8 +62,34 @@ export class OpenRouterProvider implements AIProvider {
     const cost = tokens * 0.000005;
 
     return {
-      content: JSON.parse(contentText),
+      content: this.extractJson(contentText),
       usage: { tokens, cost },
     };
+  }
+
+  private extractJson(text: string): Record<string, any> {
+    if (!text) throw new Error('OpenRouter returned an empty response.');
+    let jsonStr = text.trim();
+    if (jsonStr.startsWith('```json')) {
+      jsonStr = jsonStr.replace(/^```json\n?/, '').replace(/\n?```$/, '');
+    } else if (jsonStr.startsWith('```')) {
+      jsonStr = jsonStr.replace(/^```\n?/, '').replace(/\n?```$/, '');
+    }
+    try {
+      return JSON.parse(jsonStr);
+    } catch {
+      const braceIdx = jsonStr.indexOf('{');
+      const bracketIdx = jsonStr.indexOf('[');
+      const startIdx =
+        braceIdx !== -1 && (bracketIdx === -1 || braceIdx < bracketIdx)
+          ? braceIdx
+          : bracketIdx;
+      if (startIdx !== -1) {
+        try {
+          return JSON.parse(jsonStr.slice(startIdx));
+        } catch {}
+      }
+      return { response: text.trim() };
+    }
   }
 }

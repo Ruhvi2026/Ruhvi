@@ -258,7 +258,21 @@ export async function GET(req: Request) {
         model: 'gemini-3.6-flash',
         enabled: true,
       },
+      support_reply: {
+        provider: 'gemini',
+        model: 'gemini-3.6-flash',
+        enabled: true,
+      },
     };
+
+    // Ensure support_reply exists even when ai_features was already seeded without it
+    if (result.ai_features && !result.ai_features.support_reply) {
+      result.ai_features.support_reply = {
+        provider: 'gemini',
+        model: 'gemini-3.6-flash',
+        enabled: true,
+      };
+    }
 
     // Upgrade any legacy/deprecated Gemini model references in ai_features
     if (result.ai_features) {
@@ -285,7 +299,15 @@ export async function GET(req: Request) {
       seo_metadata: 'Focus on generating high-converting keywords...',
       chatbot:
         "CRITICAL SYSTEM INSTRUCTION: You are an AI assistant EXCLUSIVELY for the 'Ruhvi' jewelry store.",
+      support_reply:
+        'You are a professional customer support writing assistant for Ruhvi, an exquisite fine jewellery brand.\n\nYour job is to rewrite the agent\'s draft reply to improve its grammar, tone, and clarity while keeping the brand voice — warm, elegant, helpful, and trustworthy.\n\nRules:\n1. Keep ALL factual content from the agent\'s draft. Do NOT add any facts, claims, promises, or order details that are not already present in the draft or the customer\'s message.\n2. Fix grammar, spelling, and punctuation silently.\n3. Make the tone professional and warm — consistent with a premium jewellery brand.\n4. Keep the response concise. Do not pad or add unnecessary sentences.\n5. Do NOT change the meaning or intent of the reply.\n6. Output ONLY the enhanced reply text — no preamble, no explanation, no quotation marks wrapping the output.\n\nRespond with a valid JSON object with a single key "enhanced_reply" containing the rewritten text.\nExample: { "enhanced_reply": "Dear valued customer, ..." }',
     };
+
+    // Ensure support_reply prompt exists even when ai_prompts was already seeded without it
+    if (result.ai_prompts && !result.ai_prompts.support_reply) {
+      result.ai_prompts.support_reply =
+        'You are a professional customer support writing assistant for Ruhvi, an exquisite fine jewellery brand.\n\nYour job is to rewrite the agent\'s draft reply to improve its grammar, tone, and clarity while keeping the brand voice — warm, elegant, helpful, and trustworthy.\n\nRules:\n1. Keep ALL factual content from the agent\'s draft. Do NOT add any facts, claims, promises, or order details that are not already present in the draft or the customer\'s message.\n2. Fix grammar, spelling, and punctuation silently.\n3. Make the tone professional and warm — consistent with a premium jewellery brand.\n4. Keep the response concise. Do not pad or add unnecessary sentences.\n5. Do NOT change the meaning or intent of the reply.\n6. Output ONLY the enhanced reply text — no preamble, no explanation, no quotation marks wrapping the output.\n\nRespond with a valid JSON object with a single key "enhanced_reply" containing the rewritten text.\nExample: { "enhanced_reply": "Dear valued customer, ..." }';
+    }
 
     return NextResponse.json(result);
   } catch (err: any) {

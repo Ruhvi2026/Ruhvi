@@ -31,13 +31,16 @@ export async function middleware(request: NextRequest) {
     hostname.startsWith('marketing.localhost');
   const isAuthHost =
     hostname === 'auth.ruhvi.in' || hostname.startsWith('auth.localhost');
+  const isTechHost =
+    hostname === 'tech.ruhvi.in' || hostname.startsWith('tech.localhost');
 
   const isAnyPortalHost =
     isAdminHost ||
     isOperationsHost ||
     isOrdersHost ||
     isSupportHost ||
-    isMarketingHost;
+    isMarketingHost ||
+    isTechHost;
   const path = request.nextUrl.pathname;
 
   // Save referral code from URL to cookie
@@ -67,6 +70,8 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(
         new URL('/marketing/dashboard', request.url)
       );
+    if (isTechHost)
+      return NextResponse.redirect(new URL('/tech/dashboard', request.url));
     if (isAuthHost)
       return NextResponse.redirect(new URL('/login', request.url));
   }
@@ -115,6 +120,10 @@ export async function middleware(request: NextRequest) {
     if (!isCommonAllowed && !path.startsWith('/marketing')) {
       return NextResponse.rewrite(new URL('/404', request.url));
     }
+  } else if (isTechHost) {
+    if (!isCommonAllowed && !path.startsWith('/tech')) {
+      return NextResponse.rewrite(new URL('/404', request.url));
+    }
   } else if (isAuthHost) {
     const isAuthAllowed =
       isCommonAllowed ||
@@ -135,6 +144,7 @@ export async function middleware(request: NextRequest) {
       '/portal-orders',
       '/support',
       '/marketing',
+      '/tech',
     ];
     const isBlocked = internalBases.some(
       (b) => path === b || path.startsWith(b + '/')
@@ -157,6 +167,7 @@ export async function middleware(request: NextRequest) {
     '/portal-orders',
     '/support',
     '/marketing',
+    '/tech',
   ];
   const isInternalRoute = internalBases.some(
     (b) => path === b || path.startsWith(b + '/')
@@ -320,6 +331,8 @@ export async function middleware(request: NextRequest) {
           isMarketingHost &&
           (allowedPortals.includes('marketing') || role === 'admin')
         )
+          isPortalAllowed = true;
+        if (isTechHost && (allowedPortals.includes('tech') || role === 'admin'))
           isPortalAllowed = true;
       }
 

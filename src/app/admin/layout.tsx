@@ -109,7 +109,6 @@ const NAV_GROUPS: NavGroup[] = [
     section: 'MARKETING & SEO',
     items: [
       { label: 'Coupons & Offers', href: '/admin/coupons', icon: Tag },
-      { label: 'SEO Control Suite', href: '/admin/seo', icon: Globe },
       { label: 'Notifications', href: '/admin/notifications', icon: Bell },
     ],
   },
@@ -190,15 +189,7 @@ const NAV_GROUPS: NavGroup[] = [
   },
   {
     section: 'ADMIN',
-    items: [
-      {
-        label: 'Audit Logs',
-        href: '/admin/security/audit-logs',
-        icon: FileText,
-      },
-      { label: 'AI Control Center', href: '/admin/ai-settings', icon: Wand2 },
-      { label: 'Settings', href: '/admin/settings', icon: Settings },
-    ],
+    items: [{ label: 'Settings', href: '/admin/settings', icon: Settings }],
   },
 ];
 

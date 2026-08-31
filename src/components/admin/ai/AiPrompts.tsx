@@ -14,6 +14,7 @@ export default function AiPrompts({
     { id: 'global_system', name: 'Global System Prompt' },
     { id: 'product_description', name: 'Product SEO & Description' },
     { id: 'chatbot', name: 'Customer Support Chatbot' },
+    { id: 'support_reply', name: 'Support Reply Enhancer' },
     { id: 'recommendations', name: 'Product Recommendations' },
     { id: 'faq', name: 'FAQ Generator' },
   ];

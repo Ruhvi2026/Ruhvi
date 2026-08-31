@@ -13,14 +13,14 @@ export async function saveCategory(
 ) {
   const auth = await requireAdmin();
   if (!auth.ok) {
-    throw new Error(auth.error || 'Unauthorized');
+    return { success: false, error: auth.error || 'Unauthorized' };
   }
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
   if (!supabaseUrl || !serviceRoleKey) {
-    throw new Error('Supabase environment variables missing');
+    return { success: false, error: 'Supabase environment variables missing' };
   }
 
   const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey);
@@ -32,17 +32,18 @@ export async function saveCategory(
       .eq('id', editingCategoryId)
       .select();
 
-    if (error) throw new Error(error.message);
+    if (error) return { success: false, error: error.message };
     if (!data || data.length === 0)
-      throw new Error('Category not found or update failed');
+      return { success: false, error: 'Category not found or update failed' };
   } else {
     const { data, error } = await supabaseAdmin
       .from('categories')
       .insert([payload])
       .select();
 
-    if (error) throw new Error(error.message);
-    if (!data || data.length === 0) throw new Error('Insert failed');
+    if (error) return { success: false, error: error.message };
+    if (!data || data.length === 0)
+      return { success: false, error: 'Insert failed' };
   }
 
   // Force revalidate
@@ -57,14 +58,14 @@ export async function saveCategory(
 export async function deleteCategoryAction(id: string) {
   const auth = await requireAdmin();
   if (!auth.ok) {
-    throw new Error(auth.error || 'Unauthorized');
+    return { success: false, error: auth.error || 'Unauthorized' };
   }
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
   if (!supabaseUrl || !serviceRoleKey) {
-    throw new Error('Supabase environment variables missing');
+    return { success: false, error: 'Supabase environment variables missing' };
   }
 
   const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey);
@@ -73,7 +74,7 @@ export async function deleteCategoryAction(id: string) {
     .from('categories')
     .delete()
     .eq('id', id);
-  if (error) throw new Error(error.message);
+  if (error) return { success: false, error: error.message };
 
   revalidatePath('/', 'layout');
   revalidatePath('/admin/categories');
@@ -86,14 +87,14 @@ export async function deleteCategoryAction(id: string) {
 export async function seedCategories() {
   const auth = await requireAdmin();
   if (!auth.ok) {
-    throw new Error(auth.error || 'Unauthorized');
+    return { success: false, error: auth.error || 'Unauthorized' };
   }
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
   if (!supabaseUrl || !serviceRoleKey) {
-    throw new Error('Supabase environment variables missing');
+    return { success: false, error: 'Supabase environment variables missing' };
   }
 
   const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey);
@@ -111,7 +112,7 @@ export async function seedCategories() {
     .from('categories')
     .insert(INITIAL_CATEGORIES);
 
-  if (error) throw new Error(error.message);
+  if (error) return { success: false, error: error.message };
 
   revalidatePath('/', 'layout');
   revalidatePath('/admin/categories');

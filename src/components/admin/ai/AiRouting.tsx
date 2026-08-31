@@ -429,145 +429,148 @@ export default function AiRouting({
             </p>
 
             <div className="space-y-4">
-              {['chatbot', 'product_description', 'seo_metadata'].map(
-                (featureKey) => {
-                  const f = features[featureKey] || {
-                    enabled: false,
-                    provider: '',
-                    model: '',
-                  };
-                  const selectedProvider = providers.find(
-                    (p) => p.id === f.provider
-                  );
+              {[
+                'chatbot',
+                'product_description',
+                'seo_metadata',
+                'support_reply',
+              ].map((featureKey) => {
+                const f = features[featureKey] || {
+                  enabled: false,
+                  provider: '',
+                  model: '',
+                };
+                const selectedProvider = providers.find(
+                  (p) => p.id === f.provider
+                );
 
-                  return (
-                    <div
-                      key={featureKey}
-                      className="rounded-lg border border-gray-700 bg-gray-900 p-3.5"
-                    >
-                      <div className="mb-3 flex items-center justify-between">
-                        <div className="text-sm font-semibold capitalize text-white">
-                          {featureKey.replace(/_/g, ' ')}
+                return (
+                  <div
+                    key={featureKey}
+                    className="rounded-lg border border-gray-700 bg-gray-900 p-3.5"
+                  >
+                    <div className="mb-3 flex items-center justify-between">
+                      <div className="text-sm font-semibold capitalize text-white">
+                        {featureKey.replace(/_/g, ' ')}
+                      </div>
+                      <label className="flex cursor-pointer items-center">
+                        <div className="relative">
+                          <input
+                            type="checkbox"
+                            className="sr-only"
+                            checked={!!f.enabled}
+                            onChange={(e) =>
+                              updateFeature(
+                                featureKey,
+                                'enabled',
+                                e.target.checked
+                              )
+                            }
+                          />
+                          <div
+                            className={`block h-5 w-9 rounded-full transition-colors ${f.enabled ? 'bg-emerald-500' : 'bg-gray-700'}`}
+                          ></div>
+                          <div
+                            className={`dot absolute left-0.5 top-0.5 h-4 w-4 rounded-full bg-white transition-transform ${f.enabled ? 'translate-x-4 transform' : ''}`}
+                          ></div>
                         </div>
-                        <label className="flex cursor-pointer items-center">
-                          <div className="relative">
-                            <input
-                              type="checkbox"
-                              className="sr-only"
-                              checked={!!f.enabled}
-                              onChange={(e) =>
-                                updateFeature(
-                                  featureKey,
-                                  'enabled',
-                                  e.target.checked
-                                )
-                              }
-                            />
-                            <div
-                              className={`block h-5 w-9 rounded-full transition-colors ${f.enabled ? 'bg-emerald-500' : 'bg-gray-700'}`}
-                            ></div>
-                            <div
-                              className={`dot absolute left-0.5 top-0.5 h-4 w-4 rounded-full bg-white transition-transform ${f.enabled ? 'translate-x-4 transform' : ''}`}
-                            ></div>
-                          </div>
+                      </label>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="mb-1 block text-[11px] font-medium text-gray-400">
+                          Provider
                         </label>
+                        <select
+                          className="w-full rounded-lg border border-gray-700 bg-gray-800 px-2.5 py-1.5 text-xs font-medium text-white focus:ring-1 focus:ring-emerald-500"
+                          value={f.provider || ''}
+                          onChange={(e) =>
+                            updateFeature(
+                              featureKey,
+                              'provider',
+                              e.target.value
+                            )
+                          }
+                        >
+                          <option value="">Select Provider...</option>
+                          {providers.map((p) => (
+                            <option key={p.id} value={p.id}>
+                              {p.name}
+                            </option>
+                          ))}
+                        </select>
                       </div>
-
-                      <div className="grid grid-cols-2 gap-3">
-                        <div>
-                          <label className="mb-1 block text-[11px] font-medium text-gray-400">
-                            Provider
-                          </label>
-                          <select
-                            className="w-full rounded-lg border border-gray-700 bg-gray-800 px-2.5 py-1.5 text-xs font-medium text-white focus:ring-1 focus:ring-emerald-500"
-                            value={f.provider || ''}
-                            onChange={(e) =>
-                              updateFeature(
-                                featureKey,
-                                'provider',
-                                e.target.value
-                              )
-                            }
-                          >
-                            <option value="">Select Provider...</option>
-                            {providers.map((p) => (
-                              <option key={p.id} value={p.id}>
-                                {p.name}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-                        <div>
-                          <label className="mb-1 block text-[11px] font-medium text-gray-400">
-                            Model
-                          </label>
-                          <select
-                            className="w-full rounded-lg border border-gray-700 bg-gray-800 px-2.5 py-1.5 text-xs font-medium text-white focus:ring-1 focus:ring-emerald-500"
-                            value={f.model || ''}
-                            onChange={(e) =>
-                              updateFeature(featureKey, 'model', e.target.value)
-                            }
-                            disabled={!f.provider}
-                          >
-                            <option value="">Select Model...</option>
-                            {selectedProvider?.models?.map((m: string) => (
-                              <option key={m} value={m}>
-                                {m}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-                      </div>
-
-                      <div className="mt-3 grid grid-cols-2 gap-3 border-t border-gray-800 pt-3">
-                        <div>
-                          <label className="mb-1 block text-[11px] font-medium text-gray-400">
-                            Temperature
-                          </label>
-                          <input
-                            type="number"
-                            step="0.1"
-                            min="0"
-                            max="2"
-                            placeholder="Global Default"
-                            className="w-full rounded-lg border border-gray-700 bg-gray-800 px-2.5 py-1.5 text-xs font-medium text-white placeholder-gray-500 focus:ring-1 focus:ring-emerald-500"
-                            value={f.temperature ?? ''}
-                            onChange={(e) =>
-                              updateFeature(
-                                featureKey,
-                                'temperature',
-                                e.target.value !== ''
-                                  ? parseFloat(e.target.value)
-                                  : undefined
-                              )
-                            }
-                          />
-                        </div>
-                        <div>
-                          <label className="mb-1 block text-[11px] font-medium text-gray-400">
-                            Max Tokens
-                          </label>
-                          <input
-                            type="number"
-                            placeholder="Global Default"
-                            className="w-full rounded-lg border border-gray-700 bg-gray-800 px-2.5 py-1.5 text-xs font-medium text-white placeholder-gray-500 focus:ring-1 focus:ring-emerald-500"
-                            value={f.maxTokens ?? ''}
-                            onChange={(e) =>
-                              updateFeature(
-                                featureKey,
-                                'maxTokens',
-                                e.target.value !== ''
-                                  ? parseInt(e.target.value)
-                                  : undefined
-                              )
-                            }
-                          />
-                        </div>
+                      <div>
+                        <label className="mb-1 block text-[11px] font-medium text-gray-400">
+                          Model
+                        </label>
+                        <select
+                          className="w-full rounded-lg border border-gray-700 bg-gray-800 px-2.5 py-1.5 text-xs font-medium text-white focus:ring-1 focus:ring-emerald-500"
+                          value={f.model || ''}
+                          onChange={(e) =>
+                            updateFeature(featureKey, 'model', e.target.value)
+                          }
+                          disabled={!f.provider}
+                        >
+                          <option value="">Select Model...</option>
+                          {selectedProvider?.models?.map((m: string) => (
+                            <option key={m} value={m}>
+                              {m}
+                            </option>
+                          ))}
+                        </select>
                       </div>
                     </div>
-                  );
-                }
-              )}
+
+                    <div className="mt-3 grid grid-cols-2 gap-3 border-t border-gray-800 pt-3">
+                      <div>
+                        <label className="mb-1 block text-[11px] font-medium text-gray-400">
+                          Temperature
+                        </label>
+                        <input
+                          type="number"
+                          step="0.1"
+                          min="0"
+                          max="2"
+                          placeholder="Global Default"
+                          className="w-full rounded-lg border border-gray-700 bg-gray-800 px-2.5 py-1.5 text-xs font-medium text-white placeholder-gray-500 focus:ring-1 focus:ring-emerald-500"
+                          value={f.temperature ?? ''}
+                          onChange={(e) =>
+                            updateFeature(
+                              featureKey,
+                              'temperature',
+                              e.target.value !== ''
+                                ? parseFloat(e.target.value)
+                                : undefined
+                            )
+                          }
+                        />
+                      </div>
+                      <div>
+                        <label className="mb-1 block text-[11px] font-medium text-gray-400">
+                          Max Tokens
+                        </label>
+                        <input
+                          type="number"
+                          placeholder="Global Default"
+                          className="w-full rounded-lg border border-gray-700 bg-gray-800 px-2.5 py-1.5 text-xs font-medium text-white placeholder-gray-500 focus:ring-1 focus:ring-emerald-500"
+                          value={f.maxTokens ?? ''}
+                          onChange={(e) =>
+                            updateFeature(
+                              featureKey,
+                              'maxTokens',
+                              e.target.value !== ''
+                                ? parseInt(e.target.value)
+                                : undefined
+                            )
+                          }
+                        />
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>

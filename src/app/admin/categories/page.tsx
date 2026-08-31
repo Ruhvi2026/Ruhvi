@@ -57,7 +57,8 @@ export default function CategoryManagerPage() {
         setCategories(data);
       } else if (!error && data && data.length === 0) {
         try {
-          await seedCategories();
+          const res = await seedCategories();
+          if (res.error) throw new Error(res.error);
         } catch {
           // Ignore seeding errors; fall back to the initial list below.
         }
@@ -123,7 +124,8 @@ export default function CategoryManagerPage() {
     };
 
     try {
-      await saveCategory(payload, editingCategory?.id);
+      const res = await saveCategory(payload, editingCategory?.id);
+      if (res.error) throw new Error(res.error);
 
       setMessage({
         type: 'success',
@@ -149,7 +151,8 @@ export default function CategoryManagerPage() {
   const deleteCategory = async (id: string) => {
     if (!confirm('Are you sure you want to delete this category?')) return;
     try {
-      await deleteCategoryAction(id);
+      const res = await deleteCategoryAction(id);
+      if (res.error) throw new Error(res.error);
       setCategories((prev) => prev.filter((c) => c.id !== id));
     } catch (err: any) {
       alert(err.message || 'Failed to delete category');
