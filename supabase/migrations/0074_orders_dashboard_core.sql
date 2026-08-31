@@ -244,6 +244,7 @@ CREATE INDEX IF NOT EXISTS idx_shipments_awb ON public.shipments(awb_number);
 ALTER TABLE public.shipments ENABLE ROW LEVEL SECURITY;
 
 -- Customers can view shipments for their own orders
+DROP POLICY IF EXISTS "Users can view own shipments" ON public.shipments;
 CREATE POLICY "Users can view own shipments"
   ON public.shipments FOR SELECT
   USING (
@@ -254,15 +255,18 @@ CREATE POLICY "Users can view own shipments"
   );
 
 -- Staff/admin/manager can view all shipments
+DROP POLICY IF EXISTS "Staff can view all shipments" ON public.shipments;
 CREATE POLICY "Staff can view all shipments"
   ON public.shipments FOR SELECT
   USING (public.is_admin_or_staff());
 
 -- Staff can create/update shipments (server routes use service role)
+DROP POLICY IF EXISTS "Staff can insert shipments" ON public.shipments;
 CREATE POLICY "Staff can insert shipments"
   ON public.shipments FOR INSERT
   WITH CHECK (public.is_admin_or_staff());
 
+DROP POLICY IF EXISTS "Staff can update shipments" ON public.shipments;
 CREATE POLICY "Staff can update shipments"
   ON public.shipments FOR UPDATE
   USING (public.is_admin_or_staff());
@@ -296,10 +300,12 @@ CREATE TABLE IF NOT EXISTS public.cod_eligibility_events (
 
 ALTER TABLE public.cod_eligibility_events ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Staff can view cod eligibility events" ON public.cod_eligibility_events;
 CREATE POLICY "Staff can view cod eligibility events"
   ON public.cod_eligibility_events FOR SELECT
   USING (public.is_admin_or_staff());
 
+DROP POLICY IF EXISTS "Staff can insert cod eligibility events" ON public.cod_eligibility_events;
 CREATE POLICY "Staff can insert cod eligibility events"
   ON public.cod_eligibility_events FOR INSERT
   WITH CHECK (public.is_admin_or_staff());
@@ -308,14 +314,17 @@ ALTER TABLE public.cod_eligibility ENABLE ROW LEVEL SECURITY;
 
 -- Staff-only read/write. Customers must NOT see their own internal refusal
 -- counters (staff-internal data).
+DROP POLICY IF EXISTS "Staff can view cod eligibility" ON public.cod_eligibility;
 CREATE POLICY "Staff can view cod eligibility"
   ON public.cod_eligibility FOR SELECT
   USING (public.is_admin_or_staff());
 
+DROP POLICY IF EXISTS "Staff can insert cod eligibility" ON public.cod_eligibility;
 CREATE POLICY "Staff can insert cod eligibility"
   ON public.cod_eligibility FOR INSERT
   WITH CHECK (public.is_admin_or_staff());
 
+DROP POLICY IF EXISTS "Staff can update cod eligibility" ON public.cod_eligibility;
 CREATE POLICY "Staff can update cod eligibility"
   ON public.cod_eligibility FOR UPDATE
   USING (public.is_admin_or_staff());
@@ -336,10 +345,12 @@ CREATE TABLE IF NOT EXISTS public.courier_providers (
 ALTER TABLE public.courier_providers ENABLE ROW LEVEL SECURITY;
 
 -- Everyone can read provider names; only staff can manage
+DROP POLICY IF EXISTS "Courier providers are viewable by everyone" ON public.courier_providers;
 CREATE POLICY "Courier providers are viewable by everyone"
   ON public.courier_providers FOR SELECT
   USING (true);
 
+DROP POLICY IF EXISTS "Staff can manage courier providers" ON public.courier_providers;
 CREATE POLICY "Staff can manage courier providers"
   ON public.courier_providers FOR ALL
   USING (public.is_admin_or_staff());
@@ -375,11 +386,9 @@ SECURITY DEFINER
 SET search_path = public
 AS $$
 BEGIN
-  -- Guard: only staff/admin may mutate inventory directly.
-  IF NOT public.is_admin_or_staff() THEN
-    RAISE EXCEPTION 'Forbidden: only staff can adjust inventory';
-  END IF;
-
+  -- Access is controlled by the GRANT below (service_role only). No
+  -- is_admin_or_staff() check here because server routes call this with the
+  -- service-role key, which has no auth.uid() and would fail such a guard.
   UPDATE public.product_variants
   SET stock_quantity = stock_quantity + p_quantity,
       updated_at = now()

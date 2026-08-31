@@ -2,10 +2,23 @@
 
 import React, { use } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Truck, Package, ShieldCheck, MapPin, CheckCircle2, Clock, AlertCircle } from 'lucide-react';
+import {
+  ArrowLeft,
+  Truck,
+  Package,
+  ShieldCheck,
+  MapPin,
+  CheckCircle2,
+  Clock,
+  AlertCircle,
+} from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 
-export default function OrderTrackingPage({ params }: { params: Promise<{ orderId: string }> }) {
+export default function OrderTrackingPage({
+  params,
+}: {
+  params: Promise<{ orderId: string }>;
+}) {
   const resolvedParams = use(params);
   const orderId = resolvedParams.orderId;
 
@@ -24,7 +37,9 @@ export default function OrderTrackingPage({ params }: { params: Promise<{ orderI
       // Order + AWB info
       const { data: order, error: orderError } = await supabase
         .from('orders')
-        .select('id, order_number, status, awb_code, courier_name, shipped_at, estimated_delivery_date')
+        .select(
+          'id, order_number, status, awb_code, courier_name, created_at, shipped_at, out_for_delivery_at, delivered_at, estimated_delivery_date'
+        )
         .eq('id', orderId)
         .maybeSingle();
 
@@ -80,7 +95,10 @@ export default function OrderTrackingPage({ params }: { params: Promise<{ orderI
       <div className="flex flex-col items-center justify-center py-20 text-stone-500">
         <AlertCircle className="h-8 w-8 text-rose-500" />
         <p className="mt-3 text-sm">{error || 'Unable to load tracking.'}</p>
-        <Link href="/orders" className="mt-4 rounded-lg bg-amber-950 px-4 py-2 text-xs font-bold text-amber-100">
+        <Link
+          href="/orders"
+          className="mt-4 rounded-lg bg-amber-950 px-4 py-2 text-xs font-bold text-amber-100"
+        >
           Back to Orders
         </Link>
       </div>
@@ -102,7 +120,9 @@ export default function OrderTrackingPage({ params }: { params: Promise<{ orderI
   if (order.shipped_at || order.awb_code) {
     timelineSteps.push({
       title: `Shipped via ${trackingData.courier}`,
-      description: trackingData.awb ? `AWB: ${trackingData.awb}` : 'Shipment created',
+      description: trackingData.awb
+        ? `AWB: ${trackingData.awb}`
+        : 'Shipment created',
       time: order.shipped_at ? new Date(order.shipped_at).toLocaleString() : '',
       status: order.status === 'shipped' ? 'current' : 'completed',
     });
@@ -123,7 +143,9 @@ export default function OrderTrackingPage({ params }: { params: Promise<{ orderI
     timelineSteps.push({
       title: 'Out for Delivery',
       description: 'Your order is out for delivery',
-      time: order.out_for_delivery_at ? new Date(order.out_for_delivery_at).toLocaleString() : '',
+      time: order.out_for_delivery_at
+        ? new Date(order.out_for_delivery_at).toLocaleString()
+        : '',
       status: 'current',
     });
   }
@@ -132,15 +154,20 @@ export default function OrderTrackingPage({ params }: { params: Promise<{ orderI
     timelineSteps.push({
       title: 'Delivered',
       description: 'Your order has been delivered',
-      time: order.delivered_at ? new Date(order.delivered_at).toLocaleString() : '',
+      time: order.delivered_at
+        ? new Date(order.delivered_at).toLocaleString()
+        : '',
       status: 'current',
     });
   }
 
-  if (['delivery_failed', 'rto_initiated', 'rto_received'].includes(order.status)) {
+  if (
+    ['delivery_failed', 'rto_initiated', 'rto_received'].includes(order.status)
+  ) {
     timelineSteps.push({
       title: 'Delivery Issue',
-      description: 'There was an issue with delivery. Our team will contact you.',
+      description:
+        'There was an issue with delivery. Our team will contact you.',
       time: '',
       status: 'current',
     });
@@ -151,11 +178,14 @@ export default function OrderTrackingPage({ params }: { params: Promise<{ orderI
       {/* Header */}
       <div className="flex items-center justify-between border-b border-stone-200 pb-6">
         <div className="flex items-center space-x-3">
-          <Link href="/orders" className="rounded-lg p-2 text-stone-500 hover:bg-stone-100 hover:text-stone-900">
+          <Link
+            href="/orders"
+            className="rounded-lg p-2 text-stone-500 hover:bg-stone-100 hover:text-stone-900"
+          >
             <ArrowLeft className="h-5 w-5" />
           </Link>
           <div>
-            <span className="block text-[10px] font-mono uppercase tracking-wider text-stone-400">
+            <span className="block font-mono text-[10px] uppercase tracking-wider text-stone-400">
               Shipment Tracking
             </span>
             <h1 className="font-serif text-2xl font-bold text-stone-900 sm:text-3xl">
@@ -168,17 +198,29 @@ export default function OrderTrackingPage({ params }: { params: Promise<{ orderI
       {/* Courier Info Card */}
       <div className="grid grid-cols-1 gap-6 rounded-2xl border border-stone-200 bg-white p-6 text-xs shadow-sm sm:grid-cols-3">
         <div className="space-y-1">
-          <span className="text-[10px] font-semibold uppercase text-stone-400">Courier Partner</span>
-          <div className="text-sm font-bold text-stone-900">{trackingData.courier}</div>
-          <div className="font-mono text-stone-500">AWB: {trackingData.awb || '—'}</div>
+          <span className="text-[10px] font-semibold uppercase text-stone-400">
+            Courier Partner
+          </span>
+          <div className="text-sm font-bold text-stone-900">
+            {trackingData.courier}
+          </div>
+          <div className="font-mono text-stone-500">
+            AWB: {trackingData.awb || '—'}
+          </div>
         </div>
         <div className="space-y-1">
-          <span className="text-[10px] font-semibold uppercase text-stone-400">Order Status</span>
-          <div className="text-sm font-bold capitalize text-amber-950">{order.status.replace(/_/g, ' ')}</div>
+          <span className="text-[10px] font-semibold uppercase text-stone-400">
+            Order Status
+          </span>
+          <div className="text-sm font-bold capitalize text-amber-950">
+            {order.status.replace(/_/g, ' ')}
+          </div>
           <div className="text-stone-500">100% Insured Transit</div>
         </div>
         <div className="space-y-1">
-          <span className="text-[10px] font-semibold uppercase text-stone-400">Tracking</span>
+          <span className="text-[10px] font-semibold uppercase text-stone-400">
+            Tracking
+          </span>
           {trackingData.trackingUrl ? (
             <a
               href={trackingData.trackingUrl}
@@ -189,7 +231,9 @@ export default function OrderTrackingPage({ params }: { params: Promise<{ orderI
               Open Courier Tracking →
             </a>
           ) : (
-            <div className="text-sm font-bold text-stone-900">Awaiting shipment</div>
+            <div className="text-sm font-bold text-stone-900">
+              Awaiting shipment
+            </div>
           )}
         </div>
       </div>
@@ -203,7 +247,8 @@ export default function OrderTrackingPage({ params }: { params: Promise<{ orderI
         {timelineSteps.length === 1 ? (
           <div className="py-8 text-center text-sm text-stone-500">
             <Truck className="mx-auto mb-3 h-8 w-8 text-stone-300" />
-            Your order is being processed. Tracking updates will appear once your order ships.
+            Your order is being processed. Tracking updates will appear once
+            your order ships.
           </div>
         ) : (
           <div className="relative space-y-8 pl-6 before:absolute before:bottom-3 before:left-3 before:top-3 before:w-0.5 before:bg-stone-200 sm:pl-8">
@@ -231,10 +276,16 @@ export default function OrderTrackingPage({ params }: { params: Promise<{ orderI
                   </div>
                   <div className="space-y-1 pl-2">
                     <div className="flex items-center space-x-3">
-                      <h4 className={`text-sm font-bold ${isCurrent ? 'text-amber-950' : 'text-stone-900'}`}>
+                      <h4
+                        className={`text-sm font-bold ${isCurrent ? 'text-amber-950' : 'text-stone-900'}`}
+                      >
                         {step.title}
                       </h4>
-                      {step.time && <span className="font-mono text-[10px] text-stone-400">{step.time}</span>}
+                      {step.time && (
+                        <span className="font-mono text-[10px] text-stone-400">
+                          {step.time}
+                        </span>
+                      )}
                     </div>
                     <p className="text-xs text-stone-500">{step.description}</p>
                   </div>
