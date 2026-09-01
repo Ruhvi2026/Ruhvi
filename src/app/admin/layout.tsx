@@ -46,6 +46,7 @@ interface NavChild {
 interface NavItem {
   label: string;
   href?: string;
+  external?: boolean;
   icon: React.ComponentType<any>;
   badge?: string;
   badgeColor?: string;
@@ -136,7 +137,8 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       {
         label: 'Ticket Queue',
-        href: '/support/tickets',
+        href: 'https://support.ruhvi.in/support/tickets',
+        external: true,
         icon: Ticket,
       },
       {
@@ -168,22 +170,26 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       {
         label: 'Operations Portal',
-        href: '/operations/dashboard',
+        href: 'https://operation.ruhvi.in/operations/dashboard',
+        external: true,
         icon: Boxes,
       },
       {
         label: 'Orders Portal',
-        href: '/portal-orders/dashboard',
+        href: 'https://orders.ruhvi.in/portal-orders/dashboard',
+        external: true,
         icon: PackageCheck,
       },
       {
         label: 'Support Portal',
-        href: '/support/tickets',
+        href: 'https://support.ruhvi.in/support/tickets',
+        external: true,
         icon: Headphones,
       },
       {
         label: 'Marketing Portal',
-        href: '/marketing/dashboard',
+        href: 'https://marketing.ruhvi.in/marketing/dashboard',
+        external: true,
         icon: Megaphone,
       },
     ],
@@ -253,6 +259,30 @@ function NavLink({ item, collapsed }: { item: NavItem; collapsed: boolean }) {
           </div>
         )}
       </div>
+    );
+  }
+
+  if (item.external) {
+    return (
+      <a
+        href={item.href!}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={`flex items-center gap-3 rounded-lg px-3 py-2 text-xs font-medium transition-all ${'text-slate-400 hover:bg-white/5 hover:text-white'}`}
+        title={collapsed ? item.label : undefined}
+      >
+        <item.icon className="h-4 w-4 flex-shrink-0" />
+        {!collapsed && <span className="flex-1">{item.label}</span>}
+        {!collapsed && item.badge && (
+          <span
+            className={`rounded-full px-1.5 py-0.5 text-[9px] font-bold text-white ${
+              item.badgeColor || 'bg-emerald-500'
+            }`}
+          >
+            {item.badge}
+          </span>
+        )}
+      </a>
     );
   }
 
