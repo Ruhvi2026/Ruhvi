@@ -16,15 +16,104 @@ import { getServiceClient } from '@/lib/supabase/service';
 //  - last_used_at update is fire-and-forget — it must never block the response.
 // ---------------------------------------------------------------------------
 
+// ---------------------------------------------------------------------------
+// Resources and Permission Levels
+// ---------------------------------------------------------------------------
+
+export const RESOURCES = [
+  { key: 'blog', label: 'Blog' },
+  { key: 'orders', label: 'Orders' },
+  { key: 'inventory', label: 'Inventory' },
+  { key: 'support_ticket', label: 'Support Ticket' },
+  { key: 'payment', label: 'Payment' },
+  { key: 'products', label: 'Products' },
+  { key: 'category', label: 'Category' },
+  { key: 'customer', label: 'Customer' },
+  { key: 'wallet', label: 'Wallet' },
+  { key: 'rewards_coin', label: 'Rewards Coin' },
+  { key: 'coupons', label: 'Coupons' },
+  { key: 'offers', label: 'Offers' },
+  { key: 'push_notifications', label: 'Push Notifications' },
+  { key: 'whatsapp', label: 'WhatsApp' },
+  { key: 'analytics', label: 'Report & Analytics' },
+  { key: 'user_management', label: 'User Management' },
+  { key: 'team_management', label: 'Team Management' },
+  { key: 'role_management', label: 'Role Management' },
+  { key: 'website_management', label: 'Website Management' },
+  { key: 'marketing_campaign', label: 'Marketing Campaign' },
+] as const;
+
+export type ResourceKey = (typeof RESOURCES)[number]['key'];
+
+export const PERMISSION_LEVELS = [
+  {
+    value: 'none',
+    label: 'No Access',
+    description: 'No access to this resource',
+  },
+  { value: 'read', label: 'Read Only', description: 'GET access only' },
+  {
+    value: 'write',
+    label: 'Write Only',
+    description: 'POST/PUT access without read',
+  },
+  {
+    value: 'read_write',
+    label: 'Read & Write',
+    description: 'Full read and write access',
+  },
+  {
+    value: 'admin',
+    label: 'Admin',
+    description: 'Full CRUD including delete & admin actions',
+  },
+] as const;
+
+export type PermissionLevel = (typeof PERMISSION_LEVELS)[number]['value'];
+
+// All valid scopes that can be stored (none is never persisted)
 export type ApiKeyScope =
-  | 'blog:write'
-  | 'blog:read'
-  | 'orders:read'
-  | 'orders:write'
-  | 'inventory:read'
-  | 'inventory:write'
-  | 'support:read'
-  | 'support:write';
+  `${ResourceKey}:${'read' | 'write' | 'read_write' | 'admin'}`;
+
+// Build the full valid scope set at runtime for fast O(1) validation
+export const VALID_SCOPE_SET: ReadonlySet<string> = new Set<string>(
+  RESOURCES.flatMap((r) =>
+    (['read', 'write', 'read_write', 'admin'] as const).map(
+      (level) => `${r.key}:${level}`
+    )
+  )
+);
+
+/**
+ * Permission level hierarchy (higher index = more permissive).
+ * Used by hasPermission() to check if a key satisfies a minimum level.
+ */
+const LEVEL_RANK: Record<string, number> = {
+  none: 0,
+  read: 1,
+  write: 2,
+  read_write: 3,
+  admin: 4,
+};
+
+/**
+ * Check whether a set of scopes satisfies a minimum permission level for a resource.
+ *
+ * Examples:
+ *   hasPermission(['blog:admin'], 'blog', 'read')       → true
+ *   hasPermission(['blog:read'],  'blog', 'read_write')  → false
+ */
+export function hasPermission(
+  scopes: string[],
+  resource: ResourceKey,
+  minLevel: Exclude<PermissionLevel, 'none'>
+): boolean {
+  const minRank = LEVEL_RANK[minLevel] ?? 0;
+  return scopes.some((s) => {
+    const [res, lvl] = s.split(':');
+    return res === resource && (LEVEL_RANK[lvl] ?? 0) >= minRank;
+  });
+}
 
 export interface ApiKeyAuthResult {
   ok: true;

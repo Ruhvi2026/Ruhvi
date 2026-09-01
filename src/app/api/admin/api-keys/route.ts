@@ -5,6 +5,7 @@ import {
   createApiKey,
   revokeApiKey,
   ApiKeyScope,
+  VALID_SCOPE_SET,
 } from '@/lib/api-keys';
 import { logAuditEvent } from '@/lib/audit';
 
@@ -59,19 +60,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const VALID_SCOPES: ApiKeyScope[] = [
-    'blog:write',
-    'blog:read',
-    'orders:read',
-    'orders:write',
-    'inventory:read',
-    'inventory:write',
-    'support:read',
-    'support:write',
-  ];
-  const invalid = scopes.filter(
-    (s) => !VALID_SCOPES.includes(s as ApiKeyScope)
-  );
+  const invalid = scopes.filter((s) => !VALID_SCOPE_SET.has(s));
   if (invalid.length > 0) {
     return NextResponse.json(
       { error: `Unknown scope(s): ${invalid.join(', ')}` },

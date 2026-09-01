@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { authenticateApiKey } from '@/lib/api-keys';
+import { extractBearerToken, hashApiKey, hasPermission } from '@/lib/api-keys';
 import { getServiceClient } from '@/lib/supabase/service';
 
 // ---------------------------------------------------------------------------
@@ -22,13 +22,30 @@ import { getServiceClient } from '@/lib/supabase/service';
 
 export async function POST(req: NextRequest) {
   // 1. Authenticate
-  const auth = await authenticateApiKey(
-    req.headers.get('authorization'),
-    'blog:write'
-  );
-  if (!auth.ok) {
-    return NextResponse.json({ error: auth.message }, { status: auth.status });
+  const rawKey = extractBearerToken(req.headers.get('authorization'));
+  if (!rawKey) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
+
+  const keyHash = hashApiKey(rawKey);
+  const supabaseAuth = getServiceClient();
+  const { data: keyRow } = await supabaseAuth
+    .from('api_keys')
+    .select('id, scopes, revoked_at')
+    .eq('key_hash', keyHash)
+    .maybeSingle();
+
+  if (!keyRow || keyRow.revoked_at !== null) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const scopes: string[] = Array.isArray(keyRow.scopes) ? keyRow.scopes : [];
+  // blog:write, blog:read_write, and blog:admin all satisfy this requirement
+  if (!hasPermission(scopes, 'blog', 'write')) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  }
+
+  const keyId: string = keyRow.id;
 
   // 2. Parse body
   let body: Record<string, unknown>;
@@ -84,7 +101,7 @@ export async function POST(req: NextRequest) {
     is_published:
       typeof body.is_published === 'boolean' ? body.is_published : true,
     // Track which API key created this post
-    created_by_api_key: auth.keyId,
+    created_by_api_key: keyId,
   };
 
   // 5. Insert

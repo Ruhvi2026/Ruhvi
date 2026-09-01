@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
 import {
@@ -13,8 +13,11 @@ import {
   Loader2,
   Eye,
   EyeOff,
+  ChevronDown,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { RESOURCES, PERMISSION_LEVELS } from '@/lib/api-keys';
+import type { ResourceKey, PermissionLevel } from '@/lib/api-keys';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -30,50 +33,13 @@ interface ApiKeyRecord {
   last_used_at: string | null;
 }
 
-const ALL_SCOPES = [
-  {
-    value: 'blog:write',
-    label: 'Blog → Write',
-    description: 'Create blog posts',
-  },
-  { value: 'blog:read', label: 'Blog → Read', description: 'Read blog posts' },
-  {
-    value: 'orders:read',
-    label: 'Orders → Read',
-    description: 'Read order data',
-  },
-  {
-    value: 'orders:write',
-    label: 'Orders → Write',
-    description: 'Create / update orders',
-  },
-  {
-    value: 'inventory:read',
-    label: 'Inventory → Read',
-    description: 'Read stock levels',
-  },
-  {
-    value: 'inventory:write',
-    label: 'Inventory → Write',
-    description: 'Adjust inventory',
-  },
-  {
-    value: 'support:read',
-    label: 'Support → Read',
-    description: 'Read support tickets',
-  },
-  {
-    value: 'support:write',
-    label: 'Support → Write',
-    description: 'Create support tickets',
-  },
-] as const;
+type ScopeMap = Partial<Record<ResourceKey, PermissionLevel>>;
 
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 function fmtDate(iso: string | null): string {
-  if (!iso) return '—';
+  if (!iso) return 'â€”';
   return new Date(iso).toLocaleDateString('en-IN', {
     day: 'numeric',
     month: 'short',
@@ -83,10 +49,31 @@ function fmtDate(iso: string | null): string {
   });
 }
 
-// ---------------------------------------------------------------------------
-// Sub-components
-// ---------------------------------------------------------------------------
+function scopeMapToList(map: ScopeMap): string[] {
+  return Object.entries(map)
+    .filter(([, level]) => level && level !== 'none')
+    .map(([resource, level]) => `${resource}:${level}`);
+}
 
+function scopeListToMap(scopes: string[]): ScopeMap {
+  const map: ScopeMap = {};
+  scopes.forEach((s) => {
+    const [res, lvl] = s.split(':');
+    if (res && lvl) map[res as ResourceKey] = lvl as PermissionLevel;
+  });
+  return map;
+}
+
+const LEVEL_COLORS: Record<string, string> = {
+  read: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
+  write: 'bg-orange-500/10 text-orange-400 border-orange-500/20',
+  read_write: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
+  admin: 'bg-rose-500/10 text-rose-400 border-rose-500/20',
+};
+
+// ---------------------------------------------------------------------------
+// StatusBadge
+// ---------------------------------------------------------------------------
 function StatusBadge({ revokedAt }: { revokedAt: string | null }) {
   if (revokedAt) {
     return (
@@ -104,17 +91,19 @@ function StatusBadge({ revokedAt }: { revokedAt: string | null }) {
   );
 }
 
+// ---------------------------------------------------------------------------
+// CopyButton
+// ---------------------------------------------------------------------------
 function CopyButton({ text }: { text: string }) {
   const [copied, setCopied] = useState(false);
-  const copy = () => {
-    navigator.clipboard.writeText(text).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    });
-  };
   return (
     <button
-      onClick={copy}
+      onClick={() =>
+        navigator.clipboard.writeText(text).then(() => {
+          setCopied(true);
+          setTimeout(() => setCopied(false), 2000);
+        })
+      }
       title="Copy"
       className="ml-2 rounded p-1 text-slate-500 transition-colors hover:text-emerald-400"
     >
@@ -128,7 +117,49 @@ function CopyButton({ text }: { text: string }) {
 }
 
 // ---------------------------------------------------------------------------
-// One-Time Key Reveal Modal
+// Permission Dropdown (per-resource)
+// ---------------------------------------------------------------------------
+function PermissionDropdown({
+  resource,
+  value,
+  onChange,
+}: {
+  resource: ResourceKey;
+  value: PermissionLevel;
+  onChange: (resource: ResourceKey, level: PermissionLevel) => void;
+}) {
+  const colorMap: Record<string, string> = {
+    none: 'text-slate-500',
+    read: 'text-blue-400',
+    write: 'text-orange-400',
+    read_write: 'text-emerald-400',
+    admin: 'text-rose-400',
+  };
+
+  return (
+    <div className="relative">
+      <select
+        value={value}
+        onChange={(e) => onChange(resource, e.target.value as PermissionLevel)}
+        className={`w-full appearance-none rounded-lg border border-white/10 bg-white/5 py-1.5 pl-3 pr-7 text-xs font-medium transition-colors focus:outline-none focus:ring-1 focus:ring-emerald-500/30 ${colorMap[value] ?? 'text-slate-500'}`}
+      >
+        {PERMISSION_LEVELS.map((level) => (
+          <option
+            key={level.value}
+            value={level.value}
+            className="bg-[#0d1117] text-white"
+          >
+            {level.label}
+          </option>
+        ))}
+      </select>
+      <ChevronDown className="pointer-events-none absolute right-2 top-1/2 h-3 w-3 -translate-y-1/2 text-slate-500" />
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Key Reveal Modal
 // ---------------------------------------------------------------------------
 function KeyRevealModal({
   rawKey,
@@ -140,13 +171,6 @@ function KeyRevealModal({
   const [visible, setVisible] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  const copy = () => {
-    navigator.clipboard.writeText(rawKey).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    });
-  };
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
       <div className="mx-4 w-full max-w-lg rounded-xl border border-amber-500/30 bg-[#131726] p-6 shadow-2xl">
@@ -156,8 +180,8 @@ function KeyRevealModal({
             <h3 className="font-semibold text-white">Copy your API key now</h3>
             <p className="mt-1 text-xs text-slate-400">
               This is the <strong className="text-amber-300">only time</strong>{' '}
-              this key will be shown. After closing this dialog, it cannot be
-              retrieved. Store it in a secure secrets manager.
+              this key will be shown. After closing, store it in a secure secret
+              manager.
             </p>
           </div>
           <button
@@ -171,7 +195,7 @@ function KeyRevealModal({
         <div className="mt-3 rounded-lg border border-white/10 bg-[#0d0f1a] p-3">
           <div className="flex items-center justify-between gap-2">
             <code className="flex-1 break-all font-mono text-xs text-emerald-300">
-              {visible ? rawKey : rawKey.slice(0, 12) + '•'.repeat(40)}
+              {visible ? rawKey : rawKey.slice(0, 12) + 'â€¢'.repeat(40)}
             </code>
             <button
               onClick={() => setVisible((v) => !v)}
@@ -189,24 +213,27 @@ function KeyRevealModal({
 
         <div className="mt-4 flex items-center gap-3">
           <button
-            onClick={copy}
+            onClick={() =>
+              navigator.clipboard.writeText(rawKey).then(() => {
+                setCopied(true);
+                setTimeout(() => setCopied(false), 2000);
+              })
+            }
             className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-emerald-600 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-emerald-500"
           >
             {copied ? (
               <>
-                <Check className="h-4 w-4" />
-                Copied!
+                <Check className="h-4 w-4" /> Copied!
               </>
             ) : (
               <>
-                <Copy className="h-4 w-4" />
-                Copy Key
+                <Copy className="h-4 w-4" /> Copy Key
               </>
             )}
           </button>
           <button
             onClick={onClose}
-            className="rounded-lg border border-white/10 px-4 py-2.5 text-sm text-slate-400 transition-colors hover:border-white/20 hover:text-white"
+            className="rounded-lg border border-white/10 px-4 py-2.5 text-sm text-slate-400 hover:text-white"
           >
             Done
           </button>
@@ -217,7 +244,7 @@ function KeyRevealModal({
 }
 
 // ---------------------------------------------------------------------------
-// Create Key Modal
+// Create Key Modal â€” Grouped Resources + Permission Dropdowns
 // ---------------------------------------------------------------------------
 function CreateKeyModal({
   onCreated,
@@ -227,51 +254,72 @@ function CreateKeyModal({
   onClose: () => void;
 }) {
   const [name, setName] = useState('');
-  const [selectedScopes, setSelectedScopes] = useState<string[]>([]);
+  const [scopeMap, setScopeMap] = useState<ScopeMap>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const toggleScope = (scope: string) => {
-    setSelectedScopes((prev) =>
-      prev.includes(scope) ? prev.filter((s) => s !== scope) : [...prev, scope]
-    );
+  const handlePermissionChange = (
+    resource: ResourceKey,
+    level: PermissionLevel
+  ) => {
+    setScopeMap((prev) => {
+      const next = { ...prev };
+      if (level === 'none') {
+        delete next[resource];
+      } else {
+        next[resource] = level;
+      }
+      return next;
+    });
   };
+
+  const activeCount = Object.keys(scopeMap).length;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     if (!name.trim()) return setError('Name is required');
-    if (selectedScopes.length === 0)
-      return setError('Select at least one scope');
+    const scopes = scopeMapToList(scopeMap);
+    if (scopes.length === 0)
+      return setError('Grant at least one resource permission');
 
     setLoading(true);
     try {
       const res = await fetch('/api/admin/api-keys', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: name.trim(), scopes: selectedScopes }),
+        body: JSON.stringify({ name: name.trim(), scopes }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed');
       onCreated(data.rawKey);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
-      <div className="mx-4 w-full max-w-lg rounded-xl border border-white/10 bg-[#131726] p-6 shadow-2xl">
-        <div className="mb-5 flex items-center justify-between">
-          <h3 className="font-semibold text-white">Generate New API Key</h3>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
+      <div className="flex max-h-[90vh] w-full max-w-2xl flex-col rounded-xl border border-white/10 bg-[#0d1117] shadow-2xl">
+        {/* Header */}
+        <div className="flex items-center justify-between border-b border-white/5 px-5 py-4">
+          <div>
+            <h3 className="font-semibold text-white">Generate New API Key</h3>
+            <p className="mt-0.5 text-xs text-slate-500">
+              Set a permission level for each resource. Scopes are immutable
+              after creation.
+            </p>
+          </div>
           <button onClick={onClose} className="text-slate-500 hover:text-white">
             <X className="h-4 w-4" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
+        {/* Scrollable body */}
+        <div className="flex-1 space-y-5 overflow-y-auto px-5 py-4">
+          {/* Name */}
           <div>
             <label className="mb-1.5 block text-xs font-medium text-slate-400">
               Key Name / Label
@@ -279,41 +327,67 @@ function CreateKeyModal({
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="e.g. n8n — blog publishing"
+              placeholder="e.g. n8n â€” blog publishing"
               className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder-slate-600 focus:border-emerald-500/50 focus:outline-none focus:ring-1 focus:ring-emerald-500/30"
             />
           </div>
 
+          {/* Resource permission table */}
           <div>
-            <label className="mb-2 block text-xs font-medium text-slate-400">
-              Scopes (immutable after creation)
-            </label>
-            <div className="space-y-2">
-              {ALL_SCOPES.map((scope) => (
-                <label
-                  key={scope.value}
-                  className={`flex cursor-pointer items-start gap-3 rounded-lg border px-3 py-2.5 transition-colors ${
-                    selectedScopes.includes(scope.value)
-                      ? 'border-emerald-500/40 bg-emerald-500/5'
-                      : 'border-white/5 hover:border-white/10'
-                  }`}
-                >
-                  <input
-                    type="checkbox"
-                    checked={selectedScopes.includes(scope.value)}
-                    onChange={() => toggleScope(scope.value)}
-                    className="mt-0.5 accent-emerald-500"
-                  />
-                  <div>
-                    <p className="text-xs font-semibold text-white">
-                      {scope.label}
-                    </p>
-                    <p className="text-[10px] text-slate-500">
-                      {scope.description}
-                    </p>
-                  </div>
-                </label>
-              ))}
+            <div className="mb-2 flex items-center justify-between">
+              <label className="text-xs font-medium text-slate-400">
+                Resource Permissions
+              </label>
+              {activeCount > 0 && (
+                <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-400">
+                  {activeCount} resource{activeCount !== 1 ? 's' : ''} granted
+                </span>
+              )}
+            </div>
+
+            <div className="overflow-hidden rounded-lg border border-white/5">
+              <table className="w-full text-xs">
+                <thead>
+                  <tr className="border-b border-white/5 bg-white/[0.02]">
+                    <th className="px-4 py-2.5 text-left font-medium text-slate-500">
+                      Resource
+                    </th>
+                    <th className="w-44 px-4 py-2.5 text-left font-medium text-slate-500">
+                      Permission Level
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/[0.03]">
+                  {RESOURCES.map((resource) => {
+                    const level = scopeMap[resource.key] ?? 'none';
+                    return (
+                      <tr
+                        key={resource.key}
+                        className={`transition-colors ${
+                          level !== 'none'
+                            ? 'bg-emerald-500/[0.03]'
+                            : 'hover:bg-white/[0.02]'
+                        }`}
+                      >
+                        <td className="px-4 py-2.5">
+                          <span
+                            className={`font-medium ${level !== 'none' ? 'text-white' : 'text-slate-400'}`}
+                          >
+                            {resource.label}
+                          </span>
+                        </td>
+                        <td className="w-44 px-4 py-2.5">
+                          <PermissionDropdown
+                            resource={resource.key}
+                            value={level as PermissionLevel}
+                            onChange={handlePermissionChange}
+                          />
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
             </div>
           </div>
 
@@ -322,30 +396,67 @@ function CreateKeyModal({
               {error}
             </p>
           )}
+        </div>
 
-          <div className="flex gap-3 pt-1">
-            <button
-              type="submit"
-              disabled={loading}
-              className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-emerald-600 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-emerald-500 disabled:opacity-50"
-            >
-              {loading ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <KeyRound className="h-4 w-4" />
-              )}
-              {loading ? 'Generating…' : 'Generate Key'}
-            </button>
-            <button
-              type="button"
-              onClick={onClose}
-              className="rounded-lg border border-white/10 px-4 py-2.5 text-sm text-slate-400 hover:text-white"
-            >
-              Cancel
-            </button>
-          </div>
-        </form>
+        {/* Footer */}
+        <div className="flex gap-3 border-t border-white/5 px-5 py-4">
+          <button
+            type="button"
+            onClick={handleSubmit}
+            disabled={loading}
+            className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-emerald-600 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-emerald-500 disabled:opacity-50"
+          >
+            {loading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <KeyRound className="h-4 w-4" />
+            )}
+            {loading
+              ? 'Generatingâ€¦'
+              : `Generate Key${activeCount > 0 ? ` (${activeCount} resources)` : ''}`}
+          </button>
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-lg border border-white/10 px-4 py-2.5 text-sm text-slate-400 hover:text-white"
+          >
+            Cancel
+          </button>
+        </div>
       </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// ScopePills â€” compact display of a key's granted permissions
+// ---------------------------------------------------------------------------
+function ScopePills({ scopes }: { scopes: string[] }) {
+  const map = scopeListToMap(scopes);
+  const entries = Object.entries(map);
+  if (entries.length === 0)
+    return <span className="text-[10px] text-slate-600">â€”</span>;
+
+  return (
+    <div className="flex flex-wrap gap-1">
+      {entries.map(([res, lvl]) => {
+        const label = RESOURCES.find((r) => r.key === res)?.label ?? res;
+        const levelLabel =
+          PERMISSION_LEVELS.find((p) => p.value === lvl)?.label ?? lvl;
+        return (
+          <span
+            key={res}
+            className={`inline-flex items-center gap-1 rounded border px-1.5 py-0.5 text-[10px] font-semibold ${
+              LEVEL_COLORS[lvl] ??
+              'border-slate-500/20 bg-slate-500/10 text-slate-400'
+            }`}
+          >
+            {label}
+            <span className="opacity-50">Â·</span>
+            {levelLabel}
+          </span>
+        );
+      })}
     </div>
   );
 }
@@ -367,8 +478,10 @@ export default function ApiKeysPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       setKeys(data.keys);
-    } catch (err: any) {
-      toast.error(`Failed to load keys: ${err.message}`);
+    } catch (err: unknown) {
+      toast.error(
+        `Failed to load keys: ${err instanceof Error ? err.message : String(err)}`
+      );
     } finally {
       setLoading(false);
     }
@@ -395,8 +508,10 @@ export default function ApiKeysPage() {
       if (!res.ok) throw new Error(data.error);
       toast.success(`Key "${keyName}" revoked`);
       fetchKeys();
-    } catch (err: any) {
-      toast.error(`Revoke failed: ${err.message}`);
+    } catch (err: unknown) {
+      toast.error(
+        `Revoke failed: ${err instanceof Error ? err.message : String(err)}`
+      );
     } finally {
       setRevoking(null);
     }
@@ -410,7 +525,7 @@ export default function ApiKeysPage() {
           <h1 className="text-lg font-bold text-white">API Keys</h1>
           <p className="mt-0.5 text-xs text-slate-500">
             Machine-to-machine keys for external tools (e.g. n8n). Scopes are
-            immutable.
+            immutable after creation.
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -431,7 +546,7 @@ export default function ApiKeysPage() {
         </div>
       </div>
 
-      {/* API Base URL info card */}
+      {/* Endpoint info */}
       <div className="rounded-lg border border-cyan-500/20 bg-cyan-500/5 p-4">
         <p className="text-xs font-semibold text-cyan-400">External Endpoint</p>
         <div className="mt-1 flex items-center gap-1">
@@ -448,7 +563,20 @@ export default function ApiKeysPage() {
         </p>
       </div>
 
-      {/* Keys Table */}
+      {/* Permission level legend */}
+      <div className="flex flex-wrap gap-2">
+        {PERMISSION_LEVELS.filter((p) => p.value !== 'none').map((p) => (
+          <span
+            key={p.value}
+            className={`inline-flex items-center gap-1 rounded border px-2 py-1 text-[10px] font-semibold ${LEVEL_COLORS[p.value] ?? ''}`}
+          >
+            {p.label}
+            <span className="font-normal opacity-60">â€” {p.description}</span>
+          </span>
+        ))}
+      </div>
+
+      {/* Keys table */}
       <div className="overflow-hidden rounded-xl border border-white/5 bg-[#131726]">
         {loading ? (
           <div className="flex items-center justify-center py-16">
@@ -475,7 +603,9 @@ export default function ApiKeysPage() {
                   <th className="px-4 py-3 text-left font-medium">
                     Key Prefix
                   </th>
-                  <th className="px-4 py-3 text-left font-medium">Scopes</th>
+                  <th className="px-4 py-3 text-left font-medium">
+                    Permissions
+                  </th>
                   <th className="px-4 py-3 text-left font-medium">Status</th>
                   <th className="px-4 py-3 text-left font-medium">Created</th>
                   <th className="px-4 py-3 text-left font-medium">Last Used</th>
@@ -492,23 +622,12 @@ export default function ApiKeysPage() {
                       {key.name}
                     </td>
                     <td className="px-4 py-3">
-                      <div className="flex items-center">
-                        <code className="rounded bg-white/5 px-1.5 py-0.5 font-mono text-slate-400">
-                          {key.key_prefix}
-                        </code>
-                      </div>
+                      <code className="rounded bg-white/5 px-1.5 py-0.5 font-mono text-slate-400">
+                        {key.key_prefix}
+                      </code>
                     </td>
-                    <td className="px-4 py-3">
-                      <div className="flex flex-wrap gap-1">
-                        {key.scopes.map((s) => (
-                          <span
-                            key={s}
-                            className="rounded-full bg-indigo-500/10 px-2 py-0.5 text-[10px] font-semibold text-indigo-400"
-                          >
-                            {s}
-                          </span>
-                        ))}
-                      </div>
+                    <td className="max-w-xs px-4 py-3">
+                      <ScopePills scopes={key.scopes} />
                     </td>
                     <td className="px-4 py-3">
                       <StatusBadge revokedAt={key.revoked_at} />
@@ -544,7 +663,6 @@ export default function ApiKeysPage() {
         )}
       </div>
 
-      {/* Modals */}
       {showCreate && (
         <CreateKeyModal
           onCreated={handleCreated}
