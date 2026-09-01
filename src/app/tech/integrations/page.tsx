@@ -120,10 +120,7 @@ export default function IntegrationsPage() {
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Activity
-                    className="h-4 w-4 text-emerald-400"
-                    title="Healthy"
-                  />
+                  <Activity className="h-4 w-4 text-emerald-400" />
                 </div>
               </div>
               <div className="mt-3 flex gap-2">
@@ -147,10 +144,7 @@ export default function IntegrationsPage() {
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Activity
-                    className="h-4 w-4 text-emerald-400"
-                    title="Healthy"
-                  />
+                  <Activity className="h-4 w-4 text-emerald-400" />
                 </div>
               </div>
               <div className="mt-3 flex gap-2">
@@ -175,10 +169,7 @@ export default function IntegrationsPage() {
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <ShieldAlert
-                    className="h-4 w-4 text-amber-500"
-                    title="Failing Responses"
-                  />
+                  <ShieldAlert className="h-4 w-4 text-amber-500" />
                 </div>
               </div>
               <p className="mt-2 text-xs text-amber-500">
