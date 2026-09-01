@@ -9,6 +9,21 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        tech: {
+          bg: '#0F0E17',
+          surface: '#13121D',
+          card: '#1C1B29',
+          border: '#2D2B42',
+          primary: '#7C3AED',
+          cyan: '#06B6D4',
+          rose: '#EC4899',
+          success: '#10B981',
+          warning: '#F59E0B',
+          neutral: '#6366F1',
+          alert: '#EF4444',
+          text: '#F9FAFB',
+          textSecondary: '#9CA3AF',
+        },
         midnight: {
           bg: '#0B0B0F',
           surface: '#111116',

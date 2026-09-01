@@ -106,10 +106,10 @@ function CopyBtn({ text }: { text: string }) {
           setTimeout(() => setCopied(false), 2000);
         })
       }
-      className="ml-1 text-slate-500 hover:text-cyan-400"
+      className="ml-1 text-slate-500 hover:text-tech-primary dark:text-slate-500"
     >
       {copied ? (
-        <Check className="h-3.5 w-3.5 text-cyan-400" />
+        <Check className="h-3.5 w-3.5 text-tech-primary" />
       ) : (
         <Copy className="h-3.5 w-3.5" />
       )}
@@ -141,13 +141,13 @@ function PermissionDropdown({
       <select
         value={value}
         onChange={(e) => onChange(resource, e.target.value as PermissionLevel)}
-        className={`w-full appearance-none rounded-lg border border-white/10 bg-white/5 py-1.5 pl-3 pr-7 font-mono text-xs transition-colors focus:border-cyan-500 focus:outline-none ${colorMap[value] ?? 'text-slate-600'}`}
+        className={`w-full appearance-none rounded-lg border border-gray-200 bg-gray-50 py-1.5 pl-3 pr-7 font-mono text-xs transition-colors focus:border-cyan-500 focus:outline-none dark:border-white/10 dark:bg-white/5 ${colorMap[value] ?? 'text-slate-600'}`}
       >
         {PERMISSION_LEVELS.map((level) => (
           <option
             key={level.value}
             value={level.value}
-            className="bg-[#0f0f17] text-white"
+            className="bg-[#0f0f17] text-slate-900 dark:text-white"
           >
             {level.label}
           </option>
@@ -172,12 +172,14 @@ function KeyRevealModal({
   const [copied, setCopied] = useState(false);
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
-      <div className="mx-4 w-full max-w-lg rounded-xl border border-white/10 bg-[#131726] p-6 shadow-2xl">
+      <div className="mx-4 w-full max-w-lg rounded-xl border border-gray-200 bg-white p-6 shadow-2xl dark:border-white/10 dark:bg-tech-card">
         <div className="mb-4 flex items-start gap-3">
           <AlertTriangle className="mt-0.5 h-5 w-5 flex-shrink-0 text-amber-400" />
           <div>
-            <p className="font-semibold text-white">Store this key now</p>
-            <p className="mt-1 text-xs text-slate-400">
+            <p className="font-semibold text-slate-900 dark:text-white">
+              Store this key now
+            </p>
+            <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">
               This is the <span className="text-amber-300">only time</span> the
               raw key is shown. Save it in a secret manager (e.g. n8n
               credentials, Vault).
@@ -185,19 +187,19 @@ function KeyRevealModal({
           </div>
           <button
             onClick={onClose}
-            className="ml-auto text-slate-500 hover:text-white"
+            className="ml-auto text-slate-500 hover:text-slate-900 dark:text-slate-500 dark:text-white"
           >
             <X className="h-4 w-4" />
           </button>
         </div>
-        <div className="mt-3 rounded-lg border border-white/10 bg-white/5 p-3">
+        <div className="mt-3 rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-white/10 dark:bg-white/5">
           <div className="flex items-center gap-2">
             <code className="flex-1 break-all font-mono text-xs text-cyan-300">
               {visible ? rawKey : rawKey.slice(0, 14) + '•'.repeat(38)}
             </code>
             <button
               onClick={() => setVisible((v) => !v)}
-              className="text-slate-500 hover:text-cyan-400"
+              className="text-slate-500 hover:text-tech-primary dark:text-slate-500"
             >
               {visible ? (
                 <EyeOff className="h-4 w-4" />
@@ -215,7 +217,7 @@ function KeyRevealModal({
                 setTimeout(() => setCopied(false), 2000);
               })
             }
-            className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-cyan-600 py-2.5 text-sm font-semibold text-white hover:bg-cyan-500"
+            className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-cyan-600 py-2.5 text-sm font-semibold text-slate-900 hover:bg-cyan-500 dark:text-white"
           >
             {copied ? (
               <>
@@ -229,7 +231,7 @@ function KeyRevealModal({
           </button>
           <button
             onClick={onClose}
-            className="rounded-lg border border-white/10 px-4 py-2.5 text-sm text-slate-400 hover:text-white"
+            className="rounded-lg border border-gray-200 px-4 py-2.5 text-sm text-slate-600 hover:text-slate-900 dark:border-white/10 dark:text-slate-400 dark:text-white"
           >
             Done
           </button>
@@ -297,49 +299,52 @@ function CreateKeyModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
-      <div className="flex max-h-[90vh] w-full max-w-2xl flex-col rounded-xl border border-white/10 bg-[#131726] shadow-2xl">
-        <div className="flex items-center justify-between border-b border-white/5 px-5 py-4">
-          <div className="flex items-center gap-2 text-white">
-            <Terminal className="h-4 w-4 text-cyan-400" />
+      <div className="flex max-h-[90vh] w-full max-w-2xl flex-col rounded-xl border border-gray-200 bg-white shadow-2xl dark:border-white/10 dark:bg-tech-card">
+        <div className="flex items-center justify-between border-b border-gray-200 px-5 py-4 dark:border-tech-border">
+          <div className="flex items-center gap-2 text-slate-900 dark:text-white">
+            <Terminal className="h-4 w-4 text-tech-primary" />
             <span className="text-sm font-semibold">Generate API Key</span>
           </div>
-          <button onClick={onClose} className="text-slate-500 hover:text-white">
+          <button
+            onClick={onClose}
+            className="text-slate-500 hover:text-slate-900 dark:text-slate-500 dark:text-white"
+          >
             <X className="h-4 w-4" />
           </button>
         </div>
 
         <div className="flex-1 space-y-4 overflow-y-auto px-5 py-4">
           <div>
-            <label className="mb-1.5 block text-[10px] font-semibold uppercase tracking-widest text-slate-400">
+            <label className="mb-1.5 block text-[10px] font-semibold uppercase tracking-widest text-slate-600 dark:text-slate-400">
               Label
             </label>
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="n8n — blog publishing"
-              className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder-slate-500 focus:border-cyan-500 focus:outline-none"
+              className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-slate-900 placeholder-slate-500 focus:border-cyan-500 focus:outline-none dark:border-white/10 dark:bg-white/5 dark:text-white"
             />
           </div>
 
           <div>
             <div className="mb-2 flex items-center justify-between">
-              <label className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">
+              <label className="text-[10px] font-semibold uppercase tracking-widest text-slate-600 dark:text-slate-400">
                 Resource Permissions
               </label>
               {activeCount > 0 && (
-                <span className="rounded bg-cyan-500/10 px-2 py-0.5 text-[10px] text-cyan-400">
+                <span className="rounded bg-tech-primary/10 px-2 py-0.5 text-[10px] text-tech-primary">
                   {activeCount} granted
                 </span>
               )}
             </div>
-            <div className="overflow-hidden rounded-lg border border-white/10">
+            <div className="overflow-hidden rounded-lg border border-gray-200 dark:border-white/10">
               <table className="w-full text-xs">
                 <thead>
-                  <tr className="border-b border-white/10 bg-white/5">
-                    <th className="px-4 py-2 text-left text-[10px] font-semibold uppercase tracking-widest text-slate-400">
+                  <tr className="border-b border-gray-200 bg-gray-50 dark:border-white/10 dark:bg-white/5">
+                    <th className="px-4 py-2 text-left text-[10px] font-semibold uppercase tracking-widest text-slate-600 dark:text-slate-400">
                       Resource
                     </th>
-                    <th className="w-40 px-4 py-2 text-left text-[10px] font-semibold uppercase tracking-widest text-slate-400">
+                    <th className="w-40 px-4 py-2 text-left text-[10px] font-semibold uppercase tracking-widest text-slate-600 dark:text-slate-400">
                       Permission
                     </th>
                   </tr>
@@ -350,14 +355,14 @@ function CreateKeyModal({
                     return (
                       <tr
                         key={resource.key}
-                        className={`transition-colors ${level !== 'none' ? 'bg-cyan-500/5' : 'hover:bg-white/5'}`}
+                        className={`transition-colors ${level !== 'none' ? 'bg-cyan-500/5' : 'hover:bg-gray-50 dark:bg-white/5'}`}
                       >
                         <td className="px-4 py-2">
                           <span
                             className={
                               level !== 'none'
                                 ? 'text-cyan-300'
-                                : 'text-slate-500'
+                                : 'text-slate-500 dark:text-slate-500'
                             }
                           >
                             {resource.label}
@@ -385,12 +390,12 @@ function CreateKeyModal({
           )}
         </div>
 
-        <div className="flex gap-3 border-t border-white/5 px-5 py-4">
+        <div className="flex gap-3 border-t border-gray-200 px-5 py-4 dark:border-tech-border">
           <button
             type="button"
             onClick={submit}
             disabled={loading}
-            className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-cyan-600 py-2.5 text-sm font-semibold text-white hover:bg-cyan-500 disabled:opacity-50"
+            className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-cyan-600 py-2.5 text-sm font-semibold text-slate-900 hover:bg-cyan-500 disabled:opacity-50 dark:text-white"
           >
             {loading ? (
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -404,7 +409,7 @@ function CreateKeyModal({
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg border border-white/10 px-4 py-2.5 text-sm text-slate-400 hover:text-white"
+            className="rounded-lg border border-gray-200 px-4 py-2.5 text-sm text-slate-600 hover:text-slate-900 dark:border-white/10 dark:text-slate-400 dark:text-white"
           >
             Cancel
           </button>
@@ -433,7 +438,7 @@ function ScopePills({ scopes }: { scopes: string[] }) {
             key={res}
             className={`inline-flex items-center gap-1 rounded border px-1.5 py-0.5 text-[10px] font-semibold ${
               LEVEL_COLORS[lvl] ??
-              'border-slate-700 bg-slate-800 text-slate-400'
+              'border-slate-700 bg-slate-800 text-slate-600 dark:text-slate-400'
             }`}
           >
             {label}
@@ -523,11 +528,11 @@ export default function TechApiKeysPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="flex items-center gap-2 text-2xl font-bold text-white">
-            <KeyRound className="h-6 w-6 text-cyan-400" />
+          <h1 className="flex items-center gap-2 text-2xl font-bold text-slate-900 dark:text-white">
+            <KeyRound className="h-6 w-6 text-tech-primary" />
             API Keys
           </h1>
-          <p className="mt-1 text-xs text-slate-400">
+          <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">
             Machine-to-machine authentication. Scopes are immutable after
             creation.
           </p>
@@ -535,29 +540,29 @@ export default function TechApiKeysPage() {
         <div className="flex gap-2">
           <button
             onClick={fetchKeys}
-            className="rounded-lg border border-white/10 bg-white/5 p-2 text-slate-400 transition-colors hover:bg-white/10 hover:text-white"
+            className="rounded-lg border border-gray-200 bg-gray-50 p-2 text-slate-600 transition-colors hover:bg-white hover:text-slate-900 dark:border-white/10 dark:bg-white/10 dark:bg-white/5 dark:text-slate-400 dark:text-white"
             title="Refresh"
           >
             <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
           </button>
           <button
             onClick={() => setShowCreate(true)}
-            className="flex items-center gap-2 rounded-lg bg-cyan-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-cyan-500"
+            className="flex items-center gap-2 rounded-lg bg-cyan-600 px-3 py-2 text-sm font-medium text-slate-900 transition-colors hover:bg-cyan-500 dark:text-white"
           >
             <Plus className="h-4 w-4" /> New Key
           </button>
         </div>
       </div>
 
-      <div className="rounded-xl border border-white/5 bg-[#131726] p-4 text-xs">
+      <div className="rounded-xl border border-gray-200 bg-white p-4 text-xs dark:border-tech-border dark:bg-tech-card">
         <div className="flex items-center justify-between">
-          <span className="font-semibold uppercase tracking-wider text-slate-500">
+          <span className="font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-500">
             External Endpoint
           </span>
           <select
             value={selectedEndpoint}
             onChange={(e) => setSelectedEndpoint(e.target.value)}
-            className="rounded-lg border border-white/10 bg-white/5 px-2 py-1 text-xs text-white focus:border-cyan-500 focus:outline-none"
+            className="rounded-lg border border-gray-200 bg-gray-50 px-2 py-1 text-xs text-slate-900 focus:border-cyan-500 focus:outline-none dark:border-white/10 dark:bg-white/5 dark:text-white"
           >
             {RESOURCES.map((r) => (
               <option key={r.key} value={r.key}>
@@ -567,13 +572,13 @@ export default function TechApiKeysPage() {
           </select>
         </div>
         <div className="mt-2 flex items-center">
-          <span className="text-slate-500">POST</span>
-          <code className="ml-2 font-mono text-cyan-400">
+          <span className="text-slate-500 dark:text-slate-500">POST</span>
+          <code className="ml-2 font-mono text-tech-primary">
             https://ruhvi.in/api/external/{selectedEndpoint}
           </code>
           <CopyBtn text={`https://ruhvi.in/api/external/${selectedEndpoint}`} />
         </div>
-        <div className="mt-1 text-slate-500">
+        <div className="mt-1 text-slate-500 dark:text-slate-500">
           Authorization: Bearer {'<key>'}
         </div>
       </div>
@@ -598,14 +603,14 @@ export default function TechApiKeysPage() {
             placeholder="Search keys..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-48 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white placeholder-slate-500 focus:border-cyan-500 focus:outline-none"
+            className="w-48 rounded-lg border border-gray-200 bg-gray-50 px-3 py-1.5 text-xs text-slate-900 placeholder-slate-500 focus:border-cyan-500 focus:outline-none dark:border-white/10 dark:bg-white/5 dark:text-white"
           />
           <select
             value={statusFilter}
             onChange={(e) =>
               setStatusFilter(e.target.value as 'all' | 'active' | 'revoked')
             }
-            className="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white focus:border-cyan-500 focus:outline-none"
+            className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-1.5 text-xs text-slate-900 focus:border-cyan-500 focus:outline-none dark:border-white/10 dark:bg-white/5 dark:text-white"
           >
             <option value="all">All Statuses</option>
             <option value="active">Active Only</option>
@@ -614,17 +619,17 @@ export default function TechApiKeysPage() {
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-xl border border-white/5 bg-[#131726]">
+      <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-tech-border dark:bg-tech-card">
         {loading ? (
           <div className="flex justify-center py-12">
             <Loader2 className="h-6 w-6 animate-spin text-cyan-500" />
           </div>
         ) : keys.length === 0 ? (
-          <div className="py-12 text-center text-sm text-slate-400">
+          <div className="py-12 text-center text-sm text-slate-600 dark:text-slate-400">
             <p>No API keys found.</p>
             <button
               onClick={() => setShowCreate(true)}
-              className="mt-4 inline-flex items-center gap-2 rounded-lg bg-cyan-600 px-3 py-2 text-xs font-medium text-white hover:bg-cyan-500"
+              className="mt-4 inline-flex items-center gap-2 rounded-lg bg-cyan-600 px-3 py-2 text-xs font-medium text-slate-900 hover:bg-cyan-500 dark:text-white"
             >
               <Plus className="h-3.5 w-3.5" /> Generate First Key
             </button>
@@ -633,7 +638,7 @@ export default function TechApiKeysPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
               <thead>
-                <tr className="border-b border-white/5 bg-white/5 text-[10px] uppercase tracking-wider text-slate-400">
+                <tr className="border-b border-gray-200 bg-gray-50 text-[10px] uppercase tracking-wider text-slate-600 dark:border-tech-border dark:bg-white/5 dark:text-slate-400">
                   <th className="px-4 py-3 text-left font-semibold">Name</th>
                   <th className="px-4 py-3 text-left font-semibold">Prefix</th>
                   <th className="px-4 py-3 text-left font-semibold">
@@ -663,10 +668,15 @@ export default function TechApiKeysPage() {
                     return true;
                   })
                   .map((key) => (
-                    <tr key={key.id} className="group hover:bg-white/5">
-                      <td className="px-4 py-3 text-slate-200">{key.name}</td>
+                    <tr
+                      key={key.id}
+                      className="group hover:bg-gray-50 dark:bg-white/5"
+                    >
+                      <td className="px-4 py-3 text-slate-900 dark:text-slate-200">
+                        {key.name}
+                      </td>
                       <td className="px-4 py-3">
-                        <code className="rounded bg-white/10 px-1.5 py-0.5 font-mono text-cyan-400">
+                        <code className="rounded bg-white px-1.5 py-0.5 font-mono text-tech-primary dark:bg-white/10">
                           {key.key_prefix}
                         </code>
                       </td>
@@ -676,10 +686,10 @@ export default function TechApiKeysPage() {
                       <td className="px-4 py-3">
                         <StatusBadge revokedAt={key.revoked_at} />
                       </td>
-                      <td className="px-4 py-3 text-slate-500">
+                      <td className="px-4 py-3 text-slate-500 dark:text-slate-500">
                         {fmtDate(key.created_at)}
                       </td>
-                      <td className="px-4 py-3 text-slate-500">
+                      <td className="px-4 py-3 text-slate-500 dark:text-slate-500">
                         {fmtDate(key.last_used_at)}
                       </td>
                       <td className="px-4 py-3 text-right">

@@ -227,16 +227,16 @@ export default function AdminSEOPage() {
   return (
     <div className="mx-auto max-w-7xl space-y-6">
       {/* Header */}
-      <div className="flex flex-col gap-4 rounded-2xl border border-white/5 bg-[#131726] p-6 shadow-xl sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-4 rounded-2xl border border-gray-200 bg-white p-6 shadow-xl dark:border-tech-border dark:bg-tech-card sm:flex-row sm:items-center sm:justify-between">
         <div>
           <div className="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-emerald-400">
             <Globe className="h-4 w-4" />
             <span>Search Engine Optimization</span>
           </div>
-          <h1 className="text-2xl font-bold tracking-tight text-white">
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
             SEO Control Suite
           </h1>
-          <p className="mt-1 text-xs text-slate-400">
+          <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">
             Manage meta tags, dynamic sitemaps, image alt text, and product
             search engine health.
           </p>
@@ -247,7 +247,7 @@ export default function AdminSEOPage() {
             href="/sitemap.xml"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3.5 py-2 text-xs font-semibold text-slate-300 transition-colors hover:bg-white/10"
+            className="flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-3.5 py-2 text-xs font-semibold text-slate-300 transition-colors hover:bg-white dark:border-white/10 dark:bg-white/10 dark:bg-white/5"
           >
             <ExternalLink className="h-3.5 w-3.5" />
             <span>View sitemap.xml</span>
@@ -256,7 +256,7 @@ export default function AdminSEOPage() {
             href="/robots.txt"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3.5 py-2 text-xs font-semibold text-slate-300 transition-colors hover:bg-white/10"
+            className="flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-3.5 py-2 text-xs font-semibold text-slate-300 transition-colors hover:bg-white dark:border-white/10 dark:bg-white/10 dark:bg-white/5"
           >
             <FileText className="h-3.5 w-3.5" />
             <span>View robots.txt</span>
@@ -298,13 +298,13 @@ export default function AdminSEOPage() {
       )}
 
       {/* Tabs */}
-      <div className="flex space-x-2 border-b border-white/10">
+      <div className="flex space-x-2 border-b border-gray-200 dark:border-white/10">
         <button
           onClick={() => setActiveTab('health')}
           className={`flex items-center gap-2 border-b-2 px-4 py-3 text-xs font-semibold transition-colors ${
             activeTab === 'health'
               ? 'border-emerald-500 text-emerald-400'
-              : 'border-transparent text-slate-400 hover:text-slate-200'
+              : 'border-transparent text-slate-600 hover:text-slate-900 dark:text-slate-200 dark:text-slate-400'
           }`}
         >
           <BarChart2 className="h-4 w-4" />
@@ -316,7 +316,7 @@ export default function AdminSEOPage() {
           className={`flex items-center gap-2 border-b-2 px-4 py-3 text-xs font-semibold transition-colors ${
             activeTab === 'meta'
               ? 'border-emerald-500 text-emerald-400'
-              : 'border-transparent text-slate-400 hover:text-slate-200'
+              : 'border-transparent text-slate-600 hover:text-slate-900 dark:text-slate-200 dark:text-slate-400'
           }`}
         >
           <Search className="h-4 w-4" />
@@ -328,7 +328,7 @@ export default function AdminSEOPage() {
           className={`flex items-center gap-2 border-b-2 px-4 py-3 text-xs font-semibold transition-colors ${
             activeTab === 'alts'
               ? 'border-emerald-500 text-emerald-400'
-              : 'border-transparent text-slate-400 hover:text-slate-200'
+              : 'border-transparent text-slate-600 hover:text-slate-900 dark:text-slate-200 dark:text-slate-400'
           }`}
         >
           <ImageIcon className="h-4 w-4" />
@@ -340,7 +340,7 @@ export default function AdminSEOPage() {
           className={`flex items-center gap-2 border-b-2 px-4 py-3 text-xs font-semibold transition-colors ${
             activeTab === 'sitemap'
               ? 'border-emerald-500 text-emerald-400'
-              : 'border-transparent text-slate-400 hover:text-slate-200'
+              : 'border-transparent text-slate-600 hover:text-slate-900 dark:text-slate-200 dark:text-slate-400'
           }`}
         >
           <ShieldCheck className="h-4 w-4" />
@@ -353,8 +353,8 @@ export default function AdminSEOPage() {
         <div className="space-y-6">
           {/* Health Stats */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <div className="rounded-xl border border-white/5 bg-[#131726] p-5">
-              <p className="text-xs font-medium text-slate-400">
+            <div className="rounded-xl border border-gray-200 bg-white p-5 dark:border-tech-border dark:bg-tech-card">
+              <p className="text-xs font-medium text-slate-600 dark:text-slate-400">
                 Catalog SEO Health Score
               </p>
               <div className="mt-2 flex items-baseline gap-2">
@@ -367,20 +367,22 @@ export default function AdminSEOPage() {
               </div>
             </div>
 
-            <div className="rounded-xl border border-white/5 bg-[#131726] p-5">
-              <p className="text-xs font-medium text-slate-400">
+            <div className="rounded-xl border border-gray-200 bg-white p-5 dark:border-tech-border dark:bg-tech-card">
+              <p className="text-xs font-medium text-slate-600 dark:text-slate-400">
                 Total Audited Products
               </p>
               <div className="mt-2 flex items-baseline gap-2">
-                <span className="text-3xl font-bold text-white">
+                <span className="text-3xl font-bold text-slate-900 dark:text-white">
                   {loadingProducts ? '…' : productAudits.length}
                 </span>
-                <span className="text-xs text-slate-400">Products</span>
+                <span className="text-xs text-slate-600 dark:text-slate-400">
+                  Products
+                </span>
               </div>
             </div>
 
-            <div className="rounded-xl border border-white/5 bg-[#131726] p-5">
-              <p className="text-xs font-medium text-slate-400">
+            <div className="rounded-xl border border-gray-200 bg-white p-5 dark:border-tech-border dark:bg-tech-card">
+              <p className="text-xs font-medium text-slate-600 dark:text-slate-400">
                 Items Needing Optimization
               </p>
               <div className="mt-2 flex items-baseline gap-2">
@@ -395,12 +397,12 @@ export default function AdminSEOPage() {
           </div>
 
           {/* Product Audit Table */}
-          <div className="overflow-hidden rounded-xl border border-white/5 bg-[#131726]">
-            <div className="flex items-center justify-between border-b border-white/5 p-4">
-              <h3 className="text-sm font-semibold text-white">
+          <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-tech-border dark:bg-tech-card">
+            <div className="flex items-center justify-between border-b border-gray-200 p-4 dark:border-tech-border">
+              <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
                 Product Technical SEO Breakdown
               </h3>
-              <span className="text-xs text-slate-400">
+              <span className="text-xs text-slate-600 dark:text-slate-400">
                 {loadingProducts
                   ? 'Loading live catalog…'
                   : `Showing ${productAudits.length} items`}
@@ -409,7 +411,7 @@ export default function AdminSEOPage() {
 
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs text-slate-300">
-                <thead className="bg-white/5 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                <thead className="bg-gray-50 text-[10px] font-semibold uppercase tracking-wider text-slate-600 dark:bg-white/5 dark:text-slate-400">
                   <tr>
                     <th className="px-4 py-3">Product Name</th>
                     <th className="px-4 py-3">SKU</th>
@@ -422,21 +424,21 @@ export default function AdminSEOPage() {
                   {productAudits.map((p) => (
                     <tr
                       key={p.id}
-                      className="transition-colors hover:bg-white/5"
+                      className="transition-colors hover:bg-gray-50 dark:bg-white/5"
                     >
-                      <td className="flex items-center gap-3 px-4 py-3 font-medium text-white">
+                      <td className="flex items-center gap-3 px-4 py-3 font-medium text-slate-900 dark:text-white">
                         {p.images?.[0]?.url ? (
                           <img
                             src={p.images?.[0]?.url}
                             alt={p.name}
-                            className="h-8 w-8 rounded border border-white/10 object-cover"
+                            className="h-8 w-8 rounded border border-gray-200 object-cover dark:border-white/10"
                           />
                         ) : (
-                          <div className="h-8 w-8 rounded border border-white/10 bg-slate-800" />
+                          <div className="h-8 w-8 rounded border border-gray-200 bg-slate-800 dark:border-white/10" />
                         )}
                         <span>{p.name}</span>
                       </td>
-                      <td className="px-4 py-3 font-mono text-slate-400">
+                      <td className="px-4 py-3 font-mono text-slate-600 dark:text-slate-400">
                         {p.sku}
                       </td>
                       <td className="px-4 py-3">
@@ -444,7 +446,7 @@ export default function AdminSEOPage() {
                           className={`inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px] font-bold ${
                             p.score >= 90
                               ? 'border border-emerald-500/20 bg-emerald-500/10 text-emerald-400'
-                              : 'border border-amber-500/20 bg-amber-500/10 text-amber-400'
+                              : 'dark:bg-tech-bgmber-500/10 border border-amber-500/20 bg-gray-50 text-amber-400'
                           }`}
                         >
                           {p.score >= 90 ? (
@@ -465,7 +467,7 @@ export default function AdminSEOPage() {
                             {p.issues.map((iss) => (
                               <span
                                 key={iss}
-                                className="rounded bg-amber-500/10 px-2 py-0.5 text-[10px] text-amber-300"
+                                className="dark:bg-tech-bgmber-500/10 rounded bg-gray-50 px-2 py-0.5 text-[10px] text-amber-300"
                               >
                                 {iss}
                               </span>
@@ -494,7 +496,7 @@ export default function AdminSEOPage() {
       {activeTab === 'meta' && (
         <form
           onSubmit={handleSaveMeta}
-          className="space-y-5 rounded-xl border border-white/5 bg-[#131726] p-6"
+          className="space-y-5 rounded-xl border border-gray-200 bg-white p-6 dark:border-tech-border dark:bg-tech-card"
         >
           <div>
             <label className="mb-1.5 block text-xs font-semibold text-slate-300">
@@ -506,9 +508,9 @@ export default function AdminSEOPage() {
               onChange={(e) =>
                 setMetaSettings({ ...metaSettings, siteTitle: e.target.value })
               }
-              className="w-full rounded-lg border border-white/10 bg-white/5 px-3.5 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-emerald-500"
+              className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3.5 py-2 text-xs text-slate-900 focus:outline-none focus:ring-1 focus:ring-emerald-500 dark:border-white/10 dark:bg-white/5 dark:text-white"
             />
-            <p className="mt-1 text-[11px] text-slate-500">
+            <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-500">
               Recommended length: 50-60 characters.
             </p>
           </div>
@@ -526,9 +528,9 @@ export default function AdminSEOPage() {
                   titleTemplate: e.target.value,
                 })
               }
-              className="w-full rounded-lg border border-white/10 bg-white/5 px-3.5 py-2 font-mono text-xs text-white focus:outline-none focus:ring-1 focus:ring-emerald-500"
+              className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3.5 py-2 font-mono text-xs text-slate-900 focus:outline-none focus:ring-1 focus:ring-emerald-500 dark:border-white/10 dark:bg-white/5 dark:text-white"
             />
-            <p className="mt-1 text-[11px] text-slate-500">
+            <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-500">
               Used across inner pages (e.g. %s | Ruhvi Fine Jewellery).
             </p>
           </div>
@@ -546,9 +548,9 @@ export default function AdminSEOPage() {
                   metaDescription: e.target.value,
                 })
               }
-              className="w-full rounded-lg border border-white/10 bg-white/5 px-3.5 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-emerald-500"
+              className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3.5 py-2 text-xs text-slate-900 focus:outline-none focus:ring-1 focus:ring-emerald-500 dark:border-white/10 dark:bg-white/5 dark:text-white"
             />
-            <p className="mt-1 text-[11px] text-slate-500">
+            <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-500">
               Recommended length: 140-160 characters.
             </p>
           </div>
@@ -563,7 +565,7 @@ export default function AdminSEOPage() {
               onChange={(e) =>
                 setMetaSettings({ ...metaSettings, ogImageUrl: e.target.value })
               }
-              className="w-full rounded-lg border border-white/10 bg-white/5 px-3.5 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-emerald-500"
+              className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3.5 py-2 text-xs text-slate-900 focus:outline-none focus:ring-1 focus:ring-emerald-500 dark:border-white/10 dark:bg-white/5 dark:text-white"
             />
           </div>
 
@@ -571,7 +573,7 @@ export default function AdminSEOPage() {
             <button
               type="submit"
               disabled={saving}
-              className="flex items-center gap-2 rounded-lg bg-emerald-600 px-5 py-2.5 text-xs font-semibold text-white shadow-lg shadow-emerald-600/20 transition-colors hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-60"
+              className="flex items-center gap-2 rounded-lg bg-emerald-600 px-5 py-2.5 text-xs font-semibold text-slate-900 shadow-lg shadow-emerald-600/20 transition-colors hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-60 dark:text-white"
             >
               <Save className="h-4 w-4" />
               <span>{saving ? 'Saving…' : 'Save Meta Settings'}</span>
@@ -582,13 +584,13 @@ export default function AdminSEOPage() {
 
       {/* TAB CONTENT: IMAGE ALTS */}
       {activeTab === 'alts' && (
-        <div className="space-y-4 rounded-xl border border-white/5 bg-[#131726] p-6">
+        <div className="space-y-4 rounded-xl border border-gray-200 bg-white p-6 dark:border-tech-border dark:bg-tech-card">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-sm font-semibold text-white">
+              <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
                 Product Image Alt Text Manager
               </h3>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-slate-600 dark:text-slate-400">
                 Ensure every product image has descriptive accessibility alt
                 text for Google Image Search.
               </p>
@@ -597,7 +599,7 @@ export default function AdminSEOPage() {
               <button
                 onClick={handleSaveAllAlts}
                 disabled={saving}
-                className="flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-60"
+                className="flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-xs font-semibold text-slate-900 transition-colors hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-60 dark:text-white"
               >
                 <Save className="h-3.5 w-3.5" />
                 <span>{saving ? 'Saving…' : `Save All (${totalImages})`}</span>
@@ -606,12 +608,12 @@ export default function AdminSEOPage() {
           </div>
 
           {loadingProducts ? (
-            <div className="flex items-center justify-center gap-2 py-8 text-xs text-slate-400">
+            <div className="flex items-center justify-center gap-2 py-8 text-xs text-slate-600 dark:text-slate-400">
               <RefreshCw className="h-4 w-4 animate-spin" />
               <span>Loading product images…</span>
             </div>
           ) : productsWithImages.length === 0 ? (
-            <div className="py-8 text-center text-xs text-slate-400">
+            <div className="py-8 text-center text-xs text-slate-600 dark:text-slate-400">
               No products with images found in the catalog.
             </div>
           ) : (
@@ -619,7 +621,7 @@ export default function AdminSEOPage() {
               {productsWithImages.map((p) => (
                 <div
                   key={p.id}
-                  className="rounded-lg border border-white/5 bg-white/5 p-3"
+                  className="rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-tech-border dark:bg-white/5"
                 >
                   <div className="flex items-center justify-between gap-4">
                     <div className="flex items-center gap-3">
@@ -627,21 +629,21 @@ export default function AdminSEOPage() {
                         <img
                           src={p.images?.[0]?.url}
                           alt={p.name}
-                          className="h-10 w-10 rounded border border-white/10 object-cover"
+                          className="h-10 w-10 rounded border border-gray-200 object-cover dark:border-white/10"
                         />
                       ) : (
-                        <div className="h-10 w-10 rounded border border-white/10 bg-slate-800" />
+                        <div className="h-10 w-10 rounded border border-gray-200 bg-slate-800 dark:border-white/10" />
                       )}
                       <div>
-                        <p className="text-xs font-semibold text-white">
+                        <p className="text-xs font-semibold text-slate-900 dark:text-white">
                           {p.name}
                         </p>
-                        <p className="text-[10px] text-slate-400">
+                        <p className="text-[10px] text-slate-600 dark:text-slate-400">
                           SKU: {p.sku}
                         </p>
                       </div>
                     </div>
-                    <span className="text-[10px] text-slate-500">
+                    <span className="text-[10px] text-slate-500 dark:text-slate-500">
                       {p.images?.length ?? 0} image
                       {(p.images?.length ?? 0) === 1 ? '' : 's'}
                     </span>
@@ -654,10 +656,10 @@ export default function AdminSEOPage() {
                           <img
                             src={img.url}
                             alt={img.alt || p.name}
-                            className="h-12 w-12 flex-shrink-0 rounded border border-white/10 object-cover"
+                            className="h-12 w-12 flex-shrink-0 rounded border border-gray-200 object-cover dark:border-white/10"
                           />
                         ) : (
-                          <div className="h-12 w-12 flex-shrink-0 rounded border border-white/10 bg-slate-800" />
+                          <div className="h-12 w-12 flex-shrink-0 rounded border border-gray-200 bg-slate-800 dark:border-white/10" />
                         )}
                         <input
                           type="text"
@@ -669,12 +671,12 @@ export default function AdminSEOPage() {
                             }))
                           }
                           placeholder="Descriptive alt text for this image…"
-                          className="w-full min-w-0 flex-1 rounded border border-white/10 bg-black/20 px-3 py-1.5 text-xs text-slate-300 focus:border-emerald-500 focus:outline-none"
+                          className="w-full min-w-0 flex-1 rounded border border-gray-200 bg-black/20 px-3 py-1.5 text-xs text-slate-300 focus:border-emerald-500 focus:outline-none dark:border-white/10"
                         />
                         <button
                           onClick={() => handleSaveAlt(img)}
                           disabled={saving}
-                          className="flex flex-shrink-0 items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] font-semibold text-slate-300 transition-colors hover:bg-emerald-600 hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
+                          className="flex flex-shrink-0 items-center gap-1.5 rounded-lg border border-gray-200 bg-gray-50 px-3 py-1.5 text-[11px] font-semibold text-slate-300 transition-colors hover:bg-emerald-600 hover:text-slate-900 disabled:cursor-not-allowed disabled:opacity-60 dark:border-white/10 dark:bg-white/5 dark:text-white"
                         >
                           <Save className="h-3 w-3" />
                           Save
@@ -691,17 +693,17 @@ export default function AdminSEOPage() {
 
       {/* TAB CONTENT: SITEMAP */}
       {activeTab === 'sitemap' && (
-        <div className="space-y-4 rounded-xl border border-white/5 bg-[#131726] p-6">
-          <h3 className="text-sm font-semibold text-white">
+        <div className="space-y-4 rounded-xl border border-gray-200 bg-white p-6 dark:border-tech-border dark:bg-tech-card">
+          <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
             Sitemap & Indexing Engine
           </h3>
-          <p className="text-xs text-slate-400">
+          <p className="text-xs text-slate-600 dark:text-slate-400">
             Your website sitemap is dynamically generated at{' '}
             <code className="font-mono text-emerald-400">/sitemap.xml</code> and
             includes all live product pages, categories, and static policies.
           </p>
 
-          <div className="space-y-2 rounded-lg border border-white/10 bg-white/5 p-4">
+          <div className="space-y-2 rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-white/10 dark:bg-white/5">
             <div className="flex items-center justify-between text-xs">
               <span className="font-semibold text-slate-300">Sitemap URL:</span>
               <a

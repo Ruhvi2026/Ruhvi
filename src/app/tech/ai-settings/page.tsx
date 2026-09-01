@@ -154,7 +154,7 @@ export default function AISettingsPage() {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-[60vh] flex-col items-center justify-center space-y-4 text-white">
+      <div className="flex min-h-[60vh] flex-col items-center justify-center space-y-4 text-slate-900 dark:text-white">
         <div className="relative flex h-16 w-16 items-center justify-center">
           <div className="absolute h-full w-full animate-ping rounded-full border-2 border-emerald-500/30"></div>
           <div className="absolute h-12 w-12 animate-spin rounded-full border-4 border-emerald-500 border-t-transparent"></div>
@@ -237,11 +237,11 @@ export default function AISettingsPage() {
     <div className="mx-auto max-w-7xl space-y-6">
       {/* Header */}
       <div>
-        <h1 className="mb-1 flex items-center gap-2 text-2xl font-bold text-white">
-          <Wand2 className="h-6 w-6 text-cyan-400" />
+        <h1 className="mb-1 flex items-center gap-2 text-2xl font-bold text-slate-900 dark:text-white">
+          <Wand2 className="h-6 w-6 text-tech-primary" />
           AI Control Center
         </h1>
-        <p className="text-xs text-slate-400">
+        <p className="text-xs text-slate-600 dark:text-slate-400">
           Enterprise operations console for managing AI providers, security,
           rate limiting, and 24h fallback diagnostics.
         </p>
@@ -268,15 +268,15 @@ export default function AISettingsPage() {
       )}
 
       {/* Navigation */}
-      <div className="flex flex-wrap gap-2 rounded-xl border border-white/10 bg-[#131726] p-2">
+      <div className="flex flex-wrap gap-2 rounded-xl border border-gray-200 bg-white p-2 dark:border-white/10 dark:bg-tech-card">
         {navItems.map((item) => (
           <button
             key={item.id}
             onClick={() => setActiveTab(item.id as any)}
             className={`flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors ${
               activeTab === item.id
-                ? 'bg-cyan-600 text-white shadow-lg'
-                : 'text-slate-400 hover:bg-white/5 hover:text-white'
+                ? 'bg-cyan-600 text-slate-900 shadow-lg dark:text-white'
+                : 'text-slate-600 hover:bg-gray-50 hover:text-slate-900 dark:bg-white/5 dark:text-slate-400 dark:text-white'
             }`}
           >
             {item.icon}
