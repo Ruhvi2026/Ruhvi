@@ -313,12 +313,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     };
 
-    initAuth();
+    // Defer initialization slightly to improve initial page load performance
+    // since Firebase Auth dynamically loads a heavy iframe.js
+    const timer = setTimeout(() => {
+      initAuth();
+    }, 2000);
 
     // Supabase Auth listener removed, we only listen to Firebase now.
 
     return () => {
       isMounted = false;
+      clearTimeout(timer);
       if (unsubFirebase) unsubFirebase();
     };
   }, []);
