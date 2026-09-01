@@ -29,6 +29,7 @@ interface BlogPostRow {
   slug: string;
   excerpt: string | null;
   cover_image: string | null;
+  cover_image_alt: string | null;
   published_at: string | null;
 }
 
@@ -38,6 +39,7 @@ interface BlogPost {
   slug: string;
   excerpt: string;
   cover_image: string;
+  cover_image_alt: string;
   published_at: string;
   category: string;
 }
@@ -49,7 +51,9 @@ export default async function BlogIndexPage() {
     const supabase = await createClient();
     const { data } = await supabase
       .from('blog_posts')
-      .select('title, slug, excerpt, cover_image, published_at')
+      .select(
+        'title, slug, excerpt, cover_image, cover_image_alt, published_at'
+      )
       .eq('is_published', true)
       .order('published_at', { ascending: false })
       .limit(9);
@@ -59,6 +63,7 @@ export default async function BlogIndexPage() {
         ...p,
         excerpt: p.excerpt || '',
         cover_image: p.cover_image || '',
+        cover_image_alt: p.cover_image_alt || '',
         published_at: p.published_at || new Date().toISOString(),
         category: 'Journal',
       }));
@@ -95,7 +100,7 @@ export default async function BlogIndexPage() {
                 >
                   <Image
                     src={post.cover_image}
-                    alt={post.title}
+                    alt={post.cover_image_alt || post.title}
                     fill
                     className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                   />

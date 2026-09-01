@@ -3,15 +3,9 @@ import Link from 'next/link';
 import Image from 'next/image';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import {
-  ArrowLeft,
-  Calendar,
-  Facebook,
-  Twitter,
-  Linkedin,
-  Share2,
-} from 'lucide-react';
+import { ArrowLeft, Calendar } from 'lucide-react';
 import { createClient } from '@/lib/supabase/server';
+import BlogEngagement from './BlogEngagement';
 
 interface BlogPost {
   title: string;
@@ -19,6 +13,12 @@ interface BlogPost {
   excerpt: string;
   content: string;
   cover_image: string;
+  cover_image_alt: string;
+  meta_title: string;
+  meta_description: string;
+  h1_tag: string;
+  seo_keywords: string[];
+  canonical_url: string;
   published_at: string;
   category: string;
   author: string;
@@ -37,12 +37,13 @@ export async function generateMetadata({
   }
 
   return {
-    title: `${post.title} | Ruhvi Journal`,
-    description: post.excerpt,
-    alternates: { canonical: `/blog/${slug}` },
+    title: post.meta_title || `${post.title} | Ruhvi Journal`,
+    description: post.meta_description || post.excerpt,
+    keywords: post.seo_keywords,
+    alternates: { canonical: post.canonical_url || `/blog/${slug}` },
     openGraph: {
-      title: post.title,
-      description: post.excerpt,
+      title: post.meta_title || post.title,
+      description: post.meta_description || post.excerpt,
       url: `/blog/${slug}`,
       images: post.cover_image ? [post.cover_image] : [],
       type: 'article',
@@ -68,9 +69,15 @@ async function fetchPost(slug: string): Promise<BlogPost | null> {
         excerpt: data.excerpt || '',
         content: data.content,
         cover_image: data.cover_image || '',
+        cover_image_alt: data.cover_image_alt || '',
+        meta_title: data.meta_title || '',
+        meta_description: data.meta_description || '',
+        h1_tag: data.h1_tag || '',
+        seo_keywords: data.seo_keywords || [],
+        canonical_url: data.canonical_url || '',
         published_at: data.published_at || new Date().toISOString(),
-        category: 'Journal',
-        author: 'Ruhvi Editorial Team',
+        category: data.category || 'Journal',
+        author: data.author_name || 'Ruhvi Editorial Team',
       };
     }
   } catch (err) {
@@ -94,8 +101,6 @@ export default async function BlogPostPage({
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://ruhvi.in';
   const shareUrl = `${siteUrl}/blog/${slug}`;
-  const encodedUrl = encodeURIComponent(shareUrl);
-  const encodedTitle = encodeURIComponent(post.title);
 
   const articleSchema = {
     '@context': 'https://schema.org',
@@ -132,7 +137,7 @@ export default async function BlogPostPage({
         </div>
 
         <h1 className="mb-6 font-serif text-4xl font-bold leading-tight text-charcoal-900 sm:text-5xl md:text-6xl">
-          {post.title}
+          {post.h1_tag || post.title}
         </h1>
 
         <p className="mx-auto mb-8 max-w-2xl text-xl text-charcoal-600">
@@ -160,7 +165,7 @@ export default async function BlogPostPage({
         <div className="relative aspect-[21/9] overflow-hidden rounded-3xl bg-taupe-100 shadow-xl">
           <Image
             src={post.cover_image}
-            alt={post.title}
+            alt={post.cover_image_alt || post.title}
             fill
             className="object-cover"
             priority
@@ -172,38 +177,12 @@ export default async function BlogPostPage({
       <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-12 md:flex-row">
           {/* Social Share Sidebar */}
-          <div className="flex flex-shrink-0 space-x-4 pt-2 md:w-16 md:flex-col md:space-x-0 md:space-y-4">
-            <span className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-charcoal-400 md:mb-4 md:flex-col">
-              <Share2 className="h-4 w-4" />
-              <span className="hidden md:inline">Share</span>
-            </span>
-            <a
-              href={`https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Share on Facebook"
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-taupe-200 text-charcoal-500 transition-colors hover:border-blue-600 hover:text-blue-600"
-            >
-              <Facebook className="h-4 w-4" />
-            </a>
-            <a
-              href={`https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Share on Twitter"
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-taupe-200 text-charcoal-500 transition-colors hover:border-sky-500 hover:text-sky-500"
-            >
-              <Twitter className="h-4 w-4" />
-            </a>
-            <a
-              href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Share on LinkedIn"
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-taupe-200 text-charcoal-500 transition-colors hover:border-blue-700 hover:text-blue-700"
-            >
-              <Linkedin className="h-4 w-4" />
-            </a>
+          <div className="flex flex-shrink-0 pt-2 md:w-16 md:flex-col md:items-center">
+            <BlogEngagement
+              slug={post.slug}
+              title={post.title}
+              siteUrl={siteUrl}
+            />
           </div>
 
           {/* Prose Content */}

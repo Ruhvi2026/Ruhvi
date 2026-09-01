@@ -30,6 +30,8 @@ import {
   BarChart3,
   Factory,
   AlertTriangle,
+  BookOpen,
+  Eye,
 } from 'lucide-react';
 
 interface NavChild {
@@ -210,6 +212,18 @@ const getOperationsNavGroups = (): NavGroup[] => [
   {
     section: 'WEBSITE CMS',
     items: [
+      {
+        label: 'Blog Posts',
+        href: '/operations/cms/blog',
+        icon: BookOpen,
+        requiredPermission: 'cms.blog',
+      },
+      {
+        label: 'Review Queue',
+        href: '/operations/cms/blog/review',
+        icon: Eye,
+        requiredPermission: 'cms.blog.review',
+      },
       {
         label: 'Homepage Structure',
         href: '/operations/cms/homepage',

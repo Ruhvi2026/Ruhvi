@@ -3,6 +3,10 @@
     {
       "path": "/api/cron/automations",
       "schedule": "0 10 * * *"
+    },
+    {
+      "path": "/api/cron/publish-blog",
+      "schedule": "*/15 * * * *"
     }
   ]
 }
