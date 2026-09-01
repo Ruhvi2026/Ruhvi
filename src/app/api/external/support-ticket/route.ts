@@ -28,7 +28,7 @@ async function getAuthenticatedKey(
   }
 
   const scopes: string[] = Array.isArray(keyRow.scopes) ? keyRow.scopes : [];
-  if (!hasPermission(scopes, 'support', minLevel)) {
+  if (!hasPermission(scopes, 'support_ticket', minLevel)) {
     return { error: 'Forbidden', status: 403 };
   }
 
@@ -215,7 +215,7 @@ export async function PUT(req: NextRequest) {
 
   // 3. Assign Staff Action (Admin Only)
   if (body.assigned_to !== undefined || action === 'assign') {
-    if (!hasPermission(auth.scopes, 'support', 'admin')) {
+    if (!hasPermission(auth.scopes, 'support_ticket', 'admin')) {
       return NextResponse.json(
         { error: 'Forbidden: `assign` action requires Admin scope' },
         { status: 403 }

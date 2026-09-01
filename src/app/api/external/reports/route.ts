@@ -28,7 +28,7 @@ async function getAuthenticatedKey(
   }
 
   const scopes: string[] = Array.isArray(keyRow.scopes) ? keyRow.scopes : [];
-  if (!hasPermission(scopes, 'reports', minLevel)) {
+  if (!hasPermission(scopes, 'analytics', minLevel)) {
     return { error: 'Forbidden', status: 403 };
   }
 

@@ -28,7 +28,7 @@ async function getAuthenticatedKey(
   }
 
   const scopes: string[] = Array.isArray(keyRow.scopes) ? keyRow.scopes : [];
-  if (!hasPermission(scopes, 'website', minLevel)) {
+  if (!hasPermission(scopes, 'website_management', minLevel)) {
     return { error: 'Forbidden', status: 403 };
   }
 
@@ -46,7 +46,7 @@ export async function GET(req: NextRequest) {
   }
 
   const supabase = getServiceClient();
-  const isAdmin = hasPermission(auth.scopes, 'website', 'admin');
+  const isAdmin = hasPermission(auth.scopes, 'website_management', 'admin');
 
   // Fetch from both configuration tables
   const [

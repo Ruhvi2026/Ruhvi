@@ -41,7 +41,7 @@ async function getAuthenticatedKey(
   }
 
   const scopes: string[] = Array.isArray(keyRow.scopes) ? keyRow.scopes : [];
-  if (!hasPermission(scopes, 'users', minLevel)) {
+  if (!hasPermission(scopes, 'user_management', minLevel)) {
     return { error: 'Forbidden', status: 403 };
   }
 
@@ -142,7 +142,7 @@ export async function PUT(req: NextRequest) {
     );
   }
 
-  const isAdmin = hasPermission(auth.scopes, 'users', 'admin');
+  const isAdmin = hasPermission(auth.scopes, 'user_management', 'admin');
   const supabase = getServiceClient();
 
   // Protect SUPER_ADMIN elevation
