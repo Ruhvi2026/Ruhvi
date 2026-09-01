@@ -31,6 +31,7 @@ export async function updateStoreBanner(formData: FormData) {
 
     revalidatePath('/'); // Revalidate main storefront
     revalidatePath('/operations/cms');
+    revalidatePath('/operations/cms/banners');
     return { success: true };
   } catch (err: any) {
     return { success: false, error: err.message };
@@ -73,6 +74,7 @@ export async function createHeroSlide(formData: FormData) {
 
     revalidatePath('/');
     revalidatePath('/operations/cms');
+    revalidatePath('/operations/cms/homepage');
     return { success: true };
   } catch (err: any) {
     return { success: false, error: err.message };
@@ -113,6 +115,7 @@ export async function updateHeroSlide(id: string, formData: FormData) {
 
     revalidatePath('/');
     revalidatePath('/operations/cms');
+    revalidatePath('/operations/cms/homepage');
     return { success: true };
   } catch (err: any) {
     return { success: false, error: err.message };
@@ -129,6 +132,7 @@ export async function deleteHeroSlide(id: string) {
 
     revalidatePath('/');
     revalidatePath('/operations/cms');
+    revalidatePath('/operations/cms/homepage');
     return { success: true };
   } catch (err: any) {
     return { success: false, error: err.message };

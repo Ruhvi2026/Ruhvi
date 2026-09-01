@@ -42,27 +42,20 @@ export default function AbandonedCartsPage() {
     try {
       setRefreshing(true);
       setLoadError(null);
-      const supabase = createClient();
 
-      const { data, error } = await supabase
-        .from('cart_items')
-        .select(
-          'id, user_id, quantity, created_at, product:products(name, price), user:profiles(full_name, email, phone)'
-        )
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        console.error('Failed to fetch abandoned carts:', error);
-        setLoadError(error.message || 'Failed to load abandoned carts.');
-        setCarts([]);
-        return;
+      const res = await fetch('/api/admin/reports/abandoned-carts');
+      if (!res.ok) {
+        const errBody = await res.json().catch(() => ({}));
+        throw new Error(errBody.error || `Request failed (${res.status})`);
       }
+
+      const { data } = await res.json();
 
       // Group cart items by user
       const userMap: Record<string, AbandonedCart> = {};
 
       (data ?? []).forEach((row: any) => {
-        const uid = row.user_id;
+        const uid = row.cart?.user?.id ?? row.cart_id;
         const pName = row.product?.name || 'Fine Jewellery Piece';
         const pPrice = Number(row.product?.price) || 0;
         const qty = Number(row.quantity) || 1;
@@ -71,9 +64,9 @@ export default function AbandonedCartsPage() {
           userMap[uid] = {
             id: row.id,
             userId: uid,
-            customerName: row.user?.full_name || 'Guest / Buyer',
-            customerEmail: row.user?.email || 'N/A',
-            customerPhone: row.user?.phone || 'N/A',
+            customerName: row.cart?.user?.full_name || 'Guest / Buyer',
+            customerEmail: row.cart?.user?.email || 'N/A',
+            customerPhone: row.cart?.user?.phone || 'N/A',
             items: [],
             totalValue: 0,
             itemCount: 0,
