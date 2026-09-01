@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Category } from '@/types/database';
 import { getHomepageSettings, getHomepageCategories } from '@/lib/storefront';
+import { getOptimizedImageUrl } from '@/services/cloudinaryService';
 
 export const revalidate = 3600;
 
@@ -56,12 +57,13 @@ export default async function HomePage() {
           <section className="hero">
             <div className="hero-img">
               <Image
-                src={
+                src={getOptimizedImageUrl(
                   hp.hero_image_url ||
-                  'https://res.cloudinary.com/tfelmupe/image/upload/v1787781771/timeless_elegance_efj5j3.jpg'
-                }
+                    'https://res.cloudinary.com/tfelmupe/image/upload/v1787781771/timeless_elegance_efj5j3.jpg'
+                )}
                 alt={hp.hero_title || 'Woman wearing gold-plated jewellery'}
                 fill
+                sizes="100vw"
                 className="object-cover"
                 style={{ objectPosition: '78% 30%' }}
                 priority
@@ -117,9 +119,12 @@ export default async function HomePage() {
             <div className="promo-card card-lift">
               <div className="promo-img">
                 <Image
-                  src="https://res.cloudinary.com/tfelmupe/image/upload/v1787781631/earings_h9z62v.jpg"
+                  src={getOptimizedImageUrl(
+                    'https://res.cloudinary.com/tfelmupe/image/upload/v1787781631/earings_h9z62v.jpg'
+                  )}
                   alt="New Arrivals"
                   fill
+                  sizes="(max-width: 768px) 100vw, 50vw"
                   className="object-cover"
                 />
               </div>
@@ -154,9 +159,12 @@ export default async function HomePage() {
             <div className="promo-card card-lift">
               <div className="promo-img">
                 <Image
-                  src="https://res.cloudinary.com/tfelmupe/image/upload/v1787776431/oomy99pe62ani5lne1g8.jpg"
+                  src={getOptimizedImageUrl(
+                    'https://res.cloudinary.com/tfelmupe/image/upload/v1787776431/oomy99pe62ani5lne1g8.jpg'
+                  )}
                   alt="Best Sellers"
                   fill
+                  sizes="(max-width: 768px) 100vw, 50vw"
                   className="object-cover"
                 />
               </div>
@@ -195,10 +203,10 @@ export default async function HomePage() {
               <div className="cat-card" key={cat.slug}>
                 <div className="cat-img">
                   <Image
-                    src={
+                    src={getOptimizedImageUrl(
                       cat.image_url ||
-                      'https://res.cloudinary.com/tfelmupe/image/upload/vuz7w55c3jyu5u4hljk3.jpg'
-                    }
+                        'https://res.cloudinary.com/tfelmupe/image/upload/vuz7w55c3jyu5u4hljk3.jpg'
+                    )}
                     alt={cat.name}
                     fill
                     sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 340px"
@@ -275,12 +283,13 @@ export default async function HomePage() {
             </div>
             <div className="split-img">
               <Image
-                src={
+                src={getOptimizedImageUrl(
                   hp.lifestyle_image_url ||
-                  'https://res.cloudinary.com/tfelmupe/image/upload/v1787781770/explor_collections_etp3bp.jpg'
-                }
+                    'https://res.cloudinary.com/tfelmupe/image/upload/v1787781770/explor_collections_etp3bp.jpg'
+                )}
                 alt="Occasion Split"
                 fill
+                sizes="(max-width: 768px) 100vw, 50vw"
                 className="object-cover"
                 style={{ objectPosition: '50% 22%' }}
               />
@@ -291,9 +300,12 @@ export default async function HomePage() {
           <section className="limited">
             <div className="limited-img">
               <Image
-                src="https://res.cloudinary.com/tfelmupe/image/upload/v1787781769/exclusive_dropslimited_times_vsstgx.jpg"
+                src={getOptimizedImageUrl(
+                  'https://res.cloudinary.com/tfelmupe/image/upload/v1787781769/exclusive_dropslimited_times_vsstgx.jpg'
+                )}
                 alt="Limited Collection"
                 fill
+                sizes="(max-width: 768px) 100vw, 50vw"
                 className="object-cover"
               />
             </div>
@@ -327,9 +339,12 @@ export default async function HomePage() {
           <section className="cta-strip">
             <div className="cta-img">
               <Image
-                src="https://res.cloudinary.com/tfelmupe/image/upload/v1787781771/full_model_yfat2m.jpg"
+                src={getOptimizedImageUrl(
+                  'https://res.cloudinary.com/tfelmupe/image/upload/v1787781771/full_model_yfat2m.jpg'
+                )}
                 alt="Explore Collection"
                 fill
+                sizes="100vw"
                 className="object-cover"
                 style={{ objectPosition: '50% 18%' }}
               />

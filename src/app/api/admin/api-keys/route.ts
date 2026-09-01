@@ -11,8 +11,23 @@ import {
 import { logAuditEvent } from '@/lib/audit';
 
 // ---------------------------------------------------------------------------
+// Admin-host guard — key creation/revocation is admin-panel-only.
+// The Tech portal may list keys (GET) but must not mutate them.
+// ---------------------------------------------------------------------------
+function isAdminHost(req: NextRequest): boolean {
+  const host = req.headers.get('host') || '';
+  return (
+    host === 'admin.ruhvi.in' ||
+    host === 'localhost' ||
+    host.startsWith('admin.localhost') ||
+    host.startsWith('localhost:')
+  );
+}
+
+// ---------------------------------------------------------------------------
 // GET /api/admin/api-keys
-// List all API keys (no hash returned, ever).
+// List all API keys (no hash returned, ever). Available to all admin roles
+// across internal portals for viewing/tracking.
 // ---------------------------------------------------------------------------
 export async function GET() {
   const auth = await requireAdmin();
@@ -36,11 +51,21 @@ export async function GET() {
 // POST /api/admin/api-keys
 // Create a new API key. Returns the raw key ONCE — never retrievable again.
 // Body: { name: string; scopes: ApiKeyScope[] }
+// Restricted to the Admin panel host.
 // ---------------------------------------------------------------------------
 export async function POST(req: NextRequest) {
   const auth = await requireAdmin();
   if (!auth.ok) {
     return NextResponse.json({ error: auth.error }, { status: auth.status });
+  }
+  if (!isAdminHost(req)) {
+    return NextResponse.json(
+      {
+        error:
+          'API key generation is only available from the Admin panel. The Tech portal is read-only for API keys.',
+      },
+      { status: 403 }
+    );
   }
 
   let body: { name?: string; scopes?: string[] };
@@ -104,6 +129,15 @@ export async function DELETE(req: NextRequest) {
   const auth = await requireAdmin();
   if (!auth.ok) {
     return NextResponse.json({ error: auth.error }, { status: auth.status });
+  }
+  if (!isAdminHost(req)) {
+    return NextResponse.json(
+      {
+        error:
+          'API key management is only available from the Admin panel. The Tech portal is read-only for API keys.',
+      },
+      { status: 403 }
+    );
   }
 
   const keyId = req.nextUrl.searchParams.get('id');

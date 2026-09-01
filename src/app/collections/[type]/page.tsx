@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { ArrowLeft, Sparkles, Filter } from 'lucide-react';
 import { createClient } from '@/lib/supabase/server';
+import { getOptimizedImageUrl } from '@/services/cloudinaryService';
 
 export async function generateMetadata({
   params,
@@ -100,9 +101,10 @@ export default async function CollectionPage({
       {/* Dynamic Hero */}
       <div className="relative flex h-[40vh] min-h-[400px] items-center overflow-hidden">
         <Image
-          src={collection.cover}
+          src={getOptimizedImageUrl(collection.cover)}
           alt={collection.title}
           fill
+          sizes="100vw"
           className="object-cover"
           priority
         />
@@ -156,9 +158,10 @@ export default async function CollectionPage({
             >
               <div className="relative mb-4 aspect-[4/5] overflow-hidden rounded-2xl bg-stone-100">
                 <Image
-                  src={product.image}
+                  src={getOptimizedImageUrl(product.image)}
                   alt={product.name}
                   fill
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                   className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                 />
               </div>

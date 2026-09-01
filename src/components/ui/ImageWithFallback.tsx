@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Image, { ImageProps } from 'next/image';
 import { ImageOff } from 'lucide-react';
+import { getOptimizedImageUrl } from '@/services/cloudinaryService';
 
 interface ImageWithFallbackProps extends Omit<ImageProps, 'src'> {
   src: string | null | undefined;
@@ -23,8 +24,10 @@ export function ImageWithFallback({
   // If no source is provided at all, show fallback immediately
   if (!src) {
     return (
-      <div className={`bg-stone-100 flex items-center justify-center text-stone-300 ${className}`}>
-        {fallbackComponent || <ImageOff className="w-8 h-8 opacity-50" />}
+      <div
+        className={`flex items-center justify-center bg-stone-100 text-stone-300 ${className}`}
+      >
+        {fallbackComponent || <ImageOff className="h-8 w-8 opacity-50" />}
       </div>
     );
   }
@@ -40,10 +43,12 @@ export function ImageWithFallback({
         />
       );
     }
-    
+
     return (
-      <div className={`bg-stone-100 flex items-center justify-center text-stone-300 ${className}`}>
-        {fallbackComponent || <ImageOff className="w-8 h-8 opacity-50" />}
+      <div
+        className={`flex items-center justify-center bg-stone-100 text-stone-300 ${className}`}
+      >
+        {fallbackComponent || <ImageOff className="h-8 w-8 opacity-50" />}
       </div>
     );
   }
@@ -52,7 +57,7 @@ export function ImageWithFallback({
     <Image
       {...rest}
       alt={alt || 'Image'}
-      src={src}
+      src={getOptimizedImageUrl(src)}
       className={className}
       onError={() => setError(true)}
     />

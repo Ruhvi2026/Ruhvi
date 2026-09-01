@@ -93,9 +93,19 @@ export function getOptimizedImageUrl(
   transformations: string = 'f_auto,q_auto'
 ): string {
   if (!sourceUrl) return '';
+  if (!sourceUrl.startsWith('http')) return sourceUrl;
 
-  // If the image is already a Cloudinary URL, we can inject transformations directly
-  // However, using the Fetch API is robust and handles all external URLs cleanly.
+  // Ensure transformations contain standard optimization if not overridden completely
+  const hasFAuto = transformations.includes('f_auto');
+  const hasQAuto = transformations.includes('q_auto');
+  let finalTransformations = transformations;
+
+  if (!hasFAuto) finalTransformations += ',f_auto';
+  if (!hasQAuto) finalTransformations += ',q_auto';
+
+  // Clean up any leading commas
+  finalTransformations = finalTransformations.replace(/^,+/, '');
+
   if (
     sourceUrl.includes('res.cloudinary.com') &&
     !sourceUrl.includes('/image/fetch/')
@@ -103,19 +113,17 @@ export function getOptimizedImageUrl(
     // A native cloudinary URL usually looks like:
     // https://res.cloudinary.com/cloud_name/image/upload/v1234/public_id.jpg
     // We can inject transformations right after /upload/
-    return sourceUrl.replace(
-      '/upload/',
-      `/upload/${transformations},f_auto,q_auto/`
-    );
+    // Avoid double injecting if it already has upload/transformations/v1234
+    if (sourceUrl.match(/\/upload\/[a-zA-Z0-9_,]+\/v\d+\//)) {
+      // It already has some transformations
+      return sourceUrl.replace(
+        /\/upload\/([a-zA-Z0-9_,]+)\//,
+        `/upload/$1,${finalTransformations}/`
+      );
+    } else {
+      return sourceUrl.replace('/upload/', `/upload/${finalTransformations}/`);
+    }
   }
-
-  // Ensure transformations contain standard optimization
-  const baseTransformations = 'f_auto,q_auto';
-  const finalTransformations = transformations
-    ? transformations.includes('f_auto')
-      ? transformations
-      : `${baseTransformations},${transformations}`
-    : baseTransformations;
 
   return `${CLOUDINARY_FETCH_BASE}/${finalTransformations}/${sourceUrl}`;
 }

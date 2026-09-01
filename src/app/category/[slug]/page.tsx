@@ -4,6 +4,7 @@ import Image from 'next/image';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
+import { getOptimizedImageUrl } from '@/services/cloudinaryService';
 import { Breadcrumbs } from '@/components/seo/Breadcrumbs';
 
 interface CategoryPageProps {
@@ -110,7 +111,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
               <div className="relative aspect-square overflow-hidden bg-stone-100">
                 {product.images && product.images[0] && (
                   <Image
-                    src={product.images[0].url}
+                    src={getOptimizedImageUrl(product.images[0].url)}
                     alt={product.name}
                     fill
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
