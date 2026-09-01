@@ -24,6 +24,7 @@ import {
   PenTool,
   ToggleLeft,
   Webhook,
+  KeyRound,
 } from 'lucide-react';
 
 interface NavChild {
@@ -77,6 +78,7 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { label: 'Feature Flags', href: '/tech/feature-flags', icon: ToggleLeft },
       { label: 'Webhooks & APIs', href: '/tech/integrations', icon: Webhook },
+      { label: 'API Keys', href: '/tech/api-keys', icon: KeyRound },
       { label: 'AI Control Center', href: '/tech/ai-settings', icon: Wand2 },
     ],
   },

@@ -35,6 +35,7 @@ import {
   Headphones,
   Megaphone,
   PackageCheck,
+  KeyRound,
 } from 'lucide-react';
 
 interface NavChild {
@@ -189,7 +190,10 @@ const NAV_GROUPS: NavGroup[] = [
   },
   {
     section: 'ADMIN',
-    items: [{ label: 'Settings', href: '/admin/settings', icon: Settings }],
+    items: [
+      { label: 'Settings', href: '/admin/settings', icon: Settings },
+      { label: 'API Keys', href: '/admin/api-keys', icon: KeyRound },
+    ],
   },
 ];
 
