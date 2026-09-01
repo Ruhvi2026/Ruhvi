@@ -201,10 +201,7 @@ export default function OrderHistoryPage() {
                   <div key={item.id} className="flex items-center space-x-4">
                     <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-xl border border-stone-100 bg-stone-100">
                       <ImageWithFallback
-                        src={
-                          item.product?.images?.[0]?.url ||
-                          'https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=800&q=80'
-                        }
+                        src={item.product?.images?.[0]?.url}
                         alt={item.product?.name || item.sku}
                         fill
                         sizes="64px"

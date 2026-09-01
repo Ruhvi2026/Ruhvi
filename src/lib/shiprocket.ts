@@ -14,7 +14,8 @@ let tokenExpiry: number | null = null;
  */
 export async function getShiprocketToken(): Promise<string> {
   // 1. Direct API Key / Token override if provided
-  const directToken = process.env.SHIPROCKET_API_KEY || process.env.SHIPROCKET_TOKEN;
+  const directToken =
+    process.env.SHIPROCKET_API_KEY || process.env.SHIPROCKET_TOKEN;
   if (directToken) {
     return directToken;
   }
@@ -24,8 +25,7 @@ export async function getShiprocketToken(): Promise<string> {
   const password = process.env.SHIPROCKET_PASSWORD;
 
   if (!email || !password) {
-    console.warn('Shiprocket credentials (API Key or Email/Password) missing. Using mock token.');
-    return 'mock_token_123';
+    throw new Error('Shiprocket credentials are not configured');
   }
 
   // Check if we have a valid cached token
@@ -48,7 +48,7 @@ export async function getShiprocketToken(): Promise<string> {
     cachedToken = data.token;
     // Cache for 9 days (milliseconds)
     tokenExpiry = Date.now() + 9 * 24 * 60 * 60 * 1000;
-    
+
     return data.token;
   } catch (error) {
     console.error('Error getting Shiprocket token:', error);
@@ -61,21 +61,6 @@ export async function getShiprocketToken(): Promise<string> {
  */
 export async function createCustomOrder(orderData: any) {
   const token = await getShiprocketToken();
-  
-  // Return a mock response if we are using a mock token
-  if (token === 'mock_token_123') {
-    console.log('Mocking Shiprocket create order with data:', orderData);
-    return {
-      order_id: `SR-MOCK-${Date.now()}`,
-      shipment_id: `SHP-MOCK-${Date.now()}`,
-      status: 'NEW',
-      status_code: 1,
-      onboarding_completed_now: 0,
-      awb_code: '',
-      courier_company_id: '',
-      courier_name: '',
-    };
-  }
 
   try {
     const response = await fetch(`${BASE_URL}/orders/create/adhoc`, {
@@ -91,7 +76,7 @@ export async function createCustomOrder(orderData: any) {
     if (!response.ok) {
       throw new Error(data.message || 'Failed to create Shiprocket order');
     }
-    
+
     return data;
   } catch (error) {
     console.error('Shiprocket Create Order Error:', error);
@@ -104,19 +89,6 @@ export async function createCustomOrder(orderData: any) {
  */
 export async function generateAWB(shipmentId: string, courierId?: string) {
   const token = await getShiprocketToken();
-
-  if (token === 'mock_token_123') {
-    return {
-      awb_assign_status: 1,
-      response: {
-        data: {
-          awb_code: `AWB-MOCK-${Date.now()}`,
-          courier_company_id: courierId || '1',
-          courier_name: 'Mock Courier Delivery',
-        }
-      }
-    };
-  }
 
   try {
     const response = await fetch(`${BASE_URL}/courier/assign/awb`, {

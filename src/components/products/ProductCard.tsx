@@ -21,9 +21,7 @@ export function ProductCard({ product }: ProductCardProps) {
   const isLiked = isInWishlist(product.id);
   const isInCart = cartItems.some((item) => item.product_id === product.id);
 
-  const mainImage =
-    product.images?.[0]?.url ||
-    'https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=800&q=80';
+  const mainImage = product.images?.[0]?.url;
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();

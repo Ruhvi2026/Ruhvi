@@ -84,7 +84,7 @@ export const metadata: Metadata = {
     siteName: 'Ruhvi Fine Jewellery',
     images: [
       {
-        url: 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?q=80&w=1200&auto=format&fit=crop',
+        url: '/logo.png',
         width: 1200,
         height: 630,
         alt: 'Ruhvi Fine Jewellery Collection',
@@ -97,9 +97,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Ruhvi — Exquisite Fine Jewellery & Gold-Plated Luxury',
     description: 'Discover handcrafted premium gold-plated jewellery at Ruhvi.',
-    images: [
-      'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?q=80&w=1200&auto=format&fit=crop',
-    ],
+    images: ['/logo.png'],
   },
   icons: {
     icon: [
@@ -123,9 +121,6 @@ export const metadata: Metadata = {
       'max-image-preview': 'large',
       'max-snippet': -1,
     },
-  },
-  verification: {
-    google: 'GSC_VERIFICATION_PLACEHOLDER',
   },
 };
 

@@ -25,36 +25,7 @@ export default function RewardCoinsPage() {
   useEffect(() => {
     async function fetchLedger() {
       if (!user) {
-        // Fallback demo ledger for unauthenticated/guest preview
-        setLedger([
-          {
-            id: 'txn-1',
-            created_at: new Date(Date.now() - 3600000 * 2).toISOString(),
-            type: 'earned',
-            amount: 450,
-            description: '10% Reward on Order #R-837492',
-            isCredit: true,
-            expiresAt: '08 Nov 2026',
-          },
-          {
-            id: 'txn-2',
-            created_at: new Date(Date.now() - 86400000 * 2).toISOString(),
-            type: 'earned',
-            amount: 3000,
-            description: 'Referral Bonus: Invited Rahul Verma',
-            isCredit: true,
-            expiresAt: '01 Nov 2026',
-          },
-          {
-            id: 'txn-3',
-            created_at: new Date(Date.now() - 86400000 * 10).toISOString(),
-            type: 'redeemed',
-            amount: 1500,
-            description: 'Redeemed on Order #R-102938',
-            isCredit: false,
-            expiresAt: null,
-          },
-        ]);
+        setLedger([]);
         setLoading(false);
         return;
       }
@@ -183,7 +154,9 @@ export default function RewardCoinsPage() {
               </div>
             ) : ledger.length === 0 ? (
               <div className="p-10 text-center text-xs text-stone-500">
-                No coin transactions found.
+                {user
+                  ? 'No coin transactions found.'
+                  : 'Sign in to view your coins activity.'}
               </div>
             ) : (
               ledger.map((txn) => (

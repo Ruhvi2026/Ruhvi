@@ -15,7 +15,7 @@ export default function SharedWishlistPage({ userId }: { userId: string }) {
   useEffect(() => {
     let isMounted = true;
 
-    if (!userId || userId === 'demo-user-ruhvi') {
+    if (!userId) {
       setIsLoading(false);
       return () => {
         isMounted = false;

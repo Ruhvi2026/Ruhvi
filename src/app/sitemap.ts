@@ -1,6 +1,5 @@
 import { MetadataRoute } from 'next';
 import { createClient } from '@/lib/supabase/server';
-import { DEMO_PRODUCTS } from '@/lib/products';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://ruhvi.in';
@@ -40,8 +39,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .select('slug, updated_at')
       .neq('status', 'hidden');
 
-    const products =
-      dbProducts && dbProducts.length > 0 ? dbProducts : DEMO_PRODUCTS;
+    const products = dbProducts && dbProducts.length > 0 ? dbProducts : [];
 
     productEntries = products.map((p: any) => ({
       url: `${baseUrl}/products/${p.slug}`,
@@ -50,12 +48,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.9,
     }));
   } catch (error) {
-    productEntries = DEMO_PRODUCTS.map((p) => ({
-      url: `${baseUrl}/products/${p.slug}`,
-      lastModified: new Date(),
-      changeFrequency: 'daily' as const,
-      priority: 0.9,
-    }));
+    productEntries = [];
   }
 
   // Categories

@@ -3,7 +3,6 @@ import Link from 'next/link';
 import Image from 'next/image';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { INITIAL_CATEGORIES, DEMO_PRODUCTS } from '@/lib/products';
 import { createClient } from '@/lib/supabase/server';
 import { Breadcrumbs } from '@/components/seo/Breadcrumbs';
 
@@ -19,15 +18,11 @@ export async function generateMetadata({
   const { slug } = await params;
   const supabase = await createClient();
 
-  let { data: category } = await supabase
+  const { data: category } = await supabase
     .from('categories')
     .select('*')
     .eq('slug', slug)
     .single();
-
-  if (!category) {
-    category = INITIAL_CATEGORIES.find((c) => c.slug === slug) as any;
-  }
 
   if (!category || category.is_hidden) {
     return { title: 'Category Not Found | Ruhvi' };
@@ -59,17 +54,13 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
   const { slug } = await params;
   const supabase = await createClient();
 
-  let { data: category } = await supabase
+  const { data: category } = await supabase
     .from('categories')
     .select('*')
     .eq('slug', slug)
     .single();
 
   if (!category) {
-    category = INITIAL_CATEGORIES.find((c) => c.slug === slug) as any;
-  }
-
-  if (!category || category.is_hidden) {
     notFound();
   }
 
@@ -79,10 +70,8 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
     .eq('category_id', category.id)
     .neq('status', 'hidden');
 
-  if (!categoryProducts || categoryProducts.length === 0) {
-    categoryProducts = DEMO_PRODUCTS.filter(
-      (p) => p.category?.slug === slug && p.status !== 'hidden'
-    ) as any[];
+  if (!categoryProducts) {
+    categoryProducts = [];
   }
 
   return (

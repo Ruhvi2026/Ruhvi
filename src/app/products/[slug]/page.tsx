@@ -2,7 +2,6 @@ import React from 'react';
 import type { Metadata } from 'next';
 import { cache } from 'react';
 import { notFound } from 'next/navigation';
-import { DEMO_PRODUCTS } from '@/lib/products';
 import { ProductDetailPageClient } from './ProductDetailPageClient';
 import { createClient } from '@/lib/supabase/server';
 import { Breadcrumbs } from '@/components/seo/Breadcrumbs';
@@ -37,7 +36,7 @@ const getProductBySlugOrId = cache(async (key: string): Promise<any | null> => {
   }
 
   if (!product) {
-    product = DEMO_PRODUCTS.find((p) => p.slug === key || p.id === key) as any;
+    return null;
   }
 
   return product;
@@ -55,9 +54,7 @@ export async function generateMetadata({
     };
   }
 
-  const mainImage =
-    product.images?.[0]?.url ||
-    'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?q=80&w=1200&auto=format&fit=crop';
+  const mainImage = product.images?.[0]?.url || '';
   const description =
     product.description ||
     `Buy ${product.name} at Ruhvi. Premium gold-plated & diamond-set fine jewellery with a 6-month color guarantee and free insured shipping.`;
@@ -113,17 +110,8 @@ export default async function ProductDetailPage({ params }: PageProps) {
     }
   }
 
-  // Ensure images array has at least one valid image
   if (!product.images || product.images.length === 0) {
-    product.images = [
-      {
-        id: `img-default-${product.id}`,
-        product_id: product.id,
-        url: 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=800&q=80',
-        type: 'still',
-        sort_order: 0,
-      },
-    ];
+    product.images = [];
   }
 
   let relatedProducts: any[] = [];
@@ -150,10 +138,6 @@ export default async function ProductDetailPage({ params }: PageProps) {
 
     if (anyDbProducts && anyDbProducts.length > 0) {
       relatedProducts = anyDbProducts;
-    } else {
-      relatedProducts = DEMO_PRODUCTS.filter(
-        (p) => p.id !== product.id && p.status !== 'hidden'
-      ).slice(0, 4) as any[];
     }
   }
 

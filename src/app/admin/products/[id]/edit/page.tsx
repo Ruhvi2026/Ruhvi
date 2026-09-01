@@ -4,7 +4,6 @@ import React, { useState, useEffect, use } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Plus, Trash2, Loader2 } from 'lucide-react';
-import { DEMO_PRODUCTS } from '@/lib/products';
 import { ImageType, Product } from '@/types/database';
 import { createClient } from '@/lib/supabase/client';
 import { AIProductAssistant } from '@/components/admin/AIProductAssistant';
@@ -23,9 +22,7 @@ export default function EditProductPage({ params }: EditProductPageProps) {
 
   const [isLoading, setIsLoading] = useState(true);
   const [sku, setSku] = useState('');
-  const [tags, setTags] = useState(
-    '22K Gold Plated, Anti-Tarnish, Best Seller'
-  );
+  const [tags, setTags] = useState('');
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
@@ -39,12 +36,27 @@ export default function EditProductPage({ params }: EditProductPageProps) {
     { id?: string; url: string; type: ImageType }[]
   >([]);
 
-  const availableCollections = [
-    { slug: 'for-her', title: 'Gifts For Her' },
-    { slug: 'under-15000', title: 'Gifts Under ₹15,000' },
-    { slug: 'anniversary', title: 'Anniversary Specials' },
-    { slug: 'bridal', title: 'Bridal Collection' },
-  ];
+  const [availableCollections, setAvailableCollections] = useState<
+    { slug: string; title: string }[]
+  >([]);
+
+  useEffect(() => {
+    const fetchOptions = async () => {
+      try {
+        const supabase = createClient();
+        const { data: cols } = await supabase
+          .from('collections')
+          .select('slug, title')
+          .order('title');
+        if (cols) {
+          setAvailableCollections(cols);
+        }
+      } catch {
+        // ignore
+      }
+    };
+    fetchOptions();
+  }, []);
 
   useEffect(() => {
     const fetchProduct = async () => {

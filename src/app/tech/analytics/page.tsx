@@ -51,8 +51,8 @@ export default function AnalyticsPage() {
               <Zap className="h-5 w-5 text-yellow-400" />
               Core Web Vitals
             </h2>
-            <span className="rounded border border-emerald-500/30 bg-emerald-500/20 px-2 py-1 text-xs text-emerald-400">
-              Score: 98
+            <span className="rounded border border-slate-500/30 bg-slate-500/20 px-2 py-1 text-xs text-slate-400">
+              No data available
             </span>
           </div>
 
@@ -62,26 +62,20 @@ export default function AnalyticsPage() {
                 <span className="text-slate-400">
                   Largest Contentful Paint (LCP)
                 </span>
-                <span className="font-medium text-emerald-400">1.2s</span>
+                <span className="font-medium text-slate-500">—</span>
               </div>
               <div className="h-2 w-full overflow-hidden rounded-full bg-slate-800">
-                <div
-                  className="h-full rounded-full bg-emerald-500"
-                  style={{ width: '85%' }}
-                ></div>
+                <div className="h-full w-0 rounded-full bg-emerald-500"></div>
               </div>
             </div>
 
             <div>
               <div className="mb-1 flex justify-between text-sm">
                 <span className="text-slate-400">First Input Delay (FID)</span>
-                <span className="font-medium text-emerald-400">12ms</span>
+                <span className="font-medium text-slate-500">—</span>
               </div>
               <div className="h-2 w-full overflow-hidden rounded-full bg-slate-800">
-                <div
-                  className="h-full rounded-full bg-emerald-500"
-                  style={{ width: '95%' }}
-                ></div>
+                <div className="h-full w-0 rounded-full bg-emerald-500"></div>
               </div>
             </div>
 
@@ -90,13 +84,10 @@ export default function AnalyticsPage() {
                 <span className="text-slate-400">
                   Cumulative Layout Shift (CLS)
                 </span>
-                <span className="font-medium text-emerald-400">0.01</span>
+                <span className="font-medium text-slate-500">—</span>
               </div>
               <div className="h-2 w-full overflow-hidden rounded-full bg-slate-800">
-                <div
-                  className="h-full rounded-full bg-emerald-500"
-                  style={{ width: '98%' }}
-                ></div>
+                <div className="h-full w-0 rounded-full bg-emerald-500"></div>
               </div>
             </div>
           </div>
@@ -120,32 +111,32 @@ export default function AnalyticsPage() {
                 <Users className="h-4 w-4" />
                 Unique Users
               </div>
-              <p className="text-2xl font-bold text-slate-200">12.4k</p>
-              <p className="mt-1 text-xs text-emerald-400">+14.2%</p>
+              <p className="text-2xl font-bold text-slate-200">—</p>
+              <p className="mt-1 text-xs text-slate-500">No data available</p>
             </div>
             <div className="rounded-lg border border-white/10 bg-white/5 p-4">
               <div className="mb-2 flex items-center gap-2 text-sm text-slate-400">
                 <Globe className="h-4 w-4" />
                 Pageviews
               </div>
-              <p className="text-2xl font-bold text-slate-200">48.2k</p>
-              <p className="mt-1 text-xs text-emerald-400">+8.1%</p>
+              <p className="text-2xl font-bold text-slate-200">—</p>
+              <p className="mt-1 text-xs text-slate-500">No data available</p>
             </div>
             <div className="rounded-lg border border-white/10 bg-white/5 p-4">
               <div className="mb-2 flex items-center gap-2 text-sm text-slate-400">
                 <Activity className="h-4 w-4" />
                 Bounce Rate
               </div>
-              <p className="text-2xl font-bold text-slate-200">42.3%</p>
-              <p className="mt-1 text-xs text-rose-400">+2.1%</p>
+              <p className="text-2xl font-bold text-slate-200">—</p>
+              <p className="mt-1 text-xs text-slate-500">No data available</p>
             </div>
             <div className="rounded-lg border border-white/10 bg-white/5 p-4">
               <div className="mb-2 flex items-center gap-2 text-sm text-slate-400">
                 <MousePointer className="h-4 w-4" />
                 Conversion
               </div>
-              <p className="text-2xl font-bold text-slate-200">3.8%</p>
-              <p className="mt-1 text-xs text-emerald-400">+0.4%</p>
+              <p className="text-2xl font-bold text-slate-200">—</p>
+              <p className="mt-1 text-xs text-slate-500">No data available</p>
             </div>
           </div>
         </div>

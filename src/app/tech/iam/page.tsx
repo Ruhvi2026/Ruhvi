@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Users,
   Shield,
@@ -10,49 +10,68 @@ import {
   MoreVertical,
   Edit2,
   Key,
+  Loader2,
 } from 'lucide-react';
+import { createClient } from '@/lib/supabase/client';
 
-const MOCK_STAFF = [
-  {
-    id: '1',
-    name: 'Admin User',
-    email: 'admin@ruhvi.in',
-    role: 'super_admin',
-    portals: ['all'],
-    status: 'active',
-    lastActive: '2 mins ago',
-  },
-  {
-    id: '2',
-    name: 'Operations Lead',
-    email: 'ops@ruhvi.in',
-    role: 'admin',
-    portals: ['operations', 'orders'],
-    status: 'active',
-    lastActive: '1 hr ago',
-  },
-  {
-    id: '3',
-    name: 'Support Agent',
-    email: 'support@ruhvi.in',
-    role: 'staff',
-    portals: ['support'],
-    status: 'active',
-    lastActive: '3 hrs ago',
-  },
-  {
-    id: '4',
-    name: 'Marketing Manager',
-    email: 'marketing@ruhvi.in',
-    role: 'manager',
-    portals: ['marketing'],
-    status: 'active',
-    lastActive: '5 hrs ago',
-  },
-];
+type StaffMember = {
+  id: string;
+  full_name: string | null;
+  email: string | null;
+  role: string;
+  created_at: string | null;
+  updated_at: string | null;
+};
+
+function formatDate(iso: string | null): string {
+  if (!iso) return '—';
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return '—';
+  return date.toLocaleDateString('en-IN', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  });
+}
 
 export default function IamPage() {
   const [searchQuery, setSearchQuery] = useState('');
+  const [staff, setStaff] = useState<StaffMember[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const loadStaff = async () => {
+      try {
+        const supabase = createClient();
+        const { data, error } = await supabase
+          .from('users')
+          .select('id, full_name, email, role, created_at, updated_at')
+          .in('role', ['admin', 'manager', 'staff'])
+          .order('created_at', { ascending: true });
+
+        if (error) throw error;
+        setStaff(data ?? []);
+      } catch (err: any) {
+        console.error('Failed to load staff members', err);
+        setLoadError(err?.message || 'Failed to load staff members.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadStaff();
+  }, []);
+
+  const filteredStaff = staff.filter((member) => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return true;
+    return (
+      (member.full_name ?? '').toLowerCase().includes(q) ||
+      (member.email ?? '').toLowerCase().includes(q) ||
+      member.role.toLowerCase().includes(q)
+    );
+  });
 
   return (
     <div className="space-y-6">
@@ -98,87 +117,105 @@ export default function IamPage() {
                 <th className="px-6 py-4">Role</th>
                 <th className="px-6 py-4">Allowed Portals</th>
                 <th className="px-6 py-4">Status</th>
-                <th className="px-6 py-4">Last Active</th>
+                <th className="px-6 py-4">Last Updated</th>
                 <th className="px-6 py-4 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
-              {MOCK_STAFF.map((staff) => (
-                <tr
-                  key={staff.id}
-                  className="transition-colors hover:bg-white/5"
-                >
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-500/20 font-bold text-indigo-400">
-                        {staff.name.charAt(0)}
-                      </div>
-                      <div>
-                        <p className="font-medium text-slate-200">
-                          {staff.name}
-                        </p>
-                        <p className="text-xs text-slate-500">{staff.email}</p>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span
-                      className={`inline-flex items-center gap-1.5 rounded-md border px-2 py-1 text-xs font-medium ${
-                        staff.role === 'super_admin'
-                          ? 'border-purple-500/20 bg-purple-500/10 text-purple-400'
-                          : staff.role === 'admin'
-                            ? 'border-indigo-500/20 bg-indigo-500/10 text-indigo-400'
-                            : staff.role === 'manager'
-                              ? 'border-blue-500/20 bg-blue-500/10 text-blue-400'
-                              : 'border-slate-500/20 bg-slate-500/10 text-slate-400'
-                      }`}
-                    >
-                      <Shield className="h-3 w-3" />
-                      {staff.role}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex flex-wrap gap-1">
-                      {staff.portals.map((portal) => (
-                        <span
-                          key={portal}
-                          className="rounded bg-white/5 px-2 py-0.5 text-xs text-slate-300"
-                        >
-                          {portal}
-                        </span>
-                      ))}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className="inline-flex items-center gap-1.5 text-xs text-emerald-400">
-                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
-                      Active
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-xs text-slate-400">
-                    {staff.lastActive}
-                  </td>
-                  <td className="px-6 py-4 text-right">
-                    <div className="flex items-center justify-end gap-2">
-                      <button
-                        className="rounded p-1.5 text-slate-400 transition-colors hover:bg-white/5 hover:text-indigo-400"
-                        title="Edit Permissions"
-                      >
-                        <Key className="h-4 w-4" />
-                      </button>
-                      <button
-                        className="rounded p-1.5 text-slate-400 transition-colors hover:bg-white/5 hover:text-slate-200"
-                        title="Edit User"
-                      >
-                        <Edit2 className="h-4 w-4" />
-                      </button>
-                      <button className="rounded p-1.5 text-slate-400 transition-colors hover:bg-slate-800 hover:text-slate-200">
-                        <MoreVertical className="h-4 w-4" />
-                      </button>
-                    </div>
+              {loading ? (
+                <tr>
+                  <td
+                    colSpan={6}
+                    className="px-6 py-12 text-center text-sm text-slate-400"
+                  >
+                    <Loader2 className="mx-auto mb-2 h-5 w-5 animate-spin text-indigo-400" />
+                    Loading staff members…
                   </td>
                 </tr>
-              ))}
+              ) : loadError ? (
+                <tr>
+                  <td
+                    colSpan={6}
+                    className="px-6 py-12 text-center text-sm text-rose-400"
+                  >
+                    Failed to load staff members. {loadError}
+                  </td>
+                </tr>
+              ) : filteredStaff.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan={6}
+                    className="px-6 py-12 text-center text-sm text-slate-400"
+                  >
+                    {staff.length === 0
+                      ? 'No staff members found.'
+                      : 'No staff members match your search.'}
+                  </td>
+                </tr>
+              ) : (
+                filteredStaff.map((member) => (
+                  <tr
+                    key={member.id}
+                    className="transition-colors hover:bg-white/5"
+                  >
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-500/20 font-bold text-indigo-400">
+                          {(member.full_name ?? '?').charAt(0).toUpperCase()}
+                        </div>
+                        <div>
+                          <p className="font-medium text-slate-200">
+                            {member.full_name ?? 'Unnamed user'}
+                          </p>
+                          <p className="text-xs text-slate-500">
+                            {member.email ?? '—'}
+                          </p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span
+                        className={`inline-flex items-center gap-1.5 rounded-md border px-2 py-1 text-xs font-medium ${
+                          member.role === 'super_admin'
+                            ? 'border-purple-500/20 bg-purple-500/10 text-purple-400'
+                            : member.role === 'admin'
+                              ? 'border-indigo-500/20 bg-indigo-500/10 text-indigo-400'
+                              : member.role === 'manager'
+                                ? 'border-blue-500/20 bg-blue-500/10 text-blue-400'
+                                : 'border-slate-500/20 bg-slate-500/10 text-slate-400'
+                        }`}
+                      >
+                        <Shield className="h-3 w-3" />
+                        {member.role}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-xs text-slate-500">—</td>
+                    <td className="px-6 py-4 text-xs text-slate-500">—</td>
+                    <td className="px-6 py-4 text-xs text-slate-400">
+                      {formatDate(member.updated_at)}
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <button
+                          className="rounded p-1.5 text-slate-400 transition-colors hover:bg-white/5 hover:text-indigo-400"
+                          title="Edit Permissions"
+                        >
+                          <Key className="h-4 w-4" />
+                        </button>
+                        <button
+                          className="rounded p-1.5 text-slate-400 transition-colors hover:bg-white/5 hover:text-slate-200"
+                          title="Edit User"
+                        >
+                          <Edit2 className="h-4 w-4" />
+                        </button>
+                        <button className="rounded p-1.5 text-slate-400 transition-colors hover:bg-slate-800 hover:text-slate-200">
+                          <MoreVertical className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

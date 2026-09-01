@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { Order } from '@/types/database';
 import { createClient } from '@/lib/supabase/client';
+import toast from 'react-hot-toast';
 
 export default function AdminOrderDetailsPage({
   params,
@@ -57,39 +58,35 @@ export default function AdminOrderDetailsPage({
   const handlePushToShiprocket = async () => {
     if (!order) return;
     setIsPushing(true);
-    // In a real app, this calls POST /api/admin/shiprocket/create-order
-    // For now, we mock the successful response delay
-    setTimeout(async () => {
-      try {
-        const trackingLink = `https://track.ruhvi.in/AWB${Date.now()}`;
-        const res = await fetch('/api/admin/orders/status', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            orderId: order.id,
-            newStatus: 'shipped',
-            trackingLink,
-          }),
-        });
+    try {
+      const res = await fetch('/api/admin/shiprocket/create-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderId: order.id }),
+      });
 
-        if (res.ok) {
-          setOrder({
-            ...order,
-            shiprocket_order_id: `SR-${Date.now()}`,
-            shiprocket_shipment_id: `SHP-${Date.now()}`,
-            awb_code: `AWB${Date.now()}`,
-            courier_name: 'Blue Dart Express',
-            status: 'shipped',
-          });
-        } else {
-          alert('Failed to update status to shipped.');
-        }
-      } catch (e) {
-        console.error(e);
-      } finally {
-        setIsPushing(false);
+      const data = await res.json();
+
+      if (!res.ok) {
+        const isCredsMissing =
+          /credentials/i.test(data.error || '') ||
+          /not configured/i.test(data.error || '');
+        toast.error(
+          isCredsMissing
+            ? 'Shipping provider not configured'
+            : data.error || 'Failed to create shipment'
+        );
+        return;
       }
-    }, 1500);
+
+      toast.success('Shipment created successfully');
+      fetchOrder();
+    } catch (e) {
+      console.error(e);
+      toast.error('Shipping provider not configured');
+    } finally {
+      setIsPushing(false);
+    }
   };
 
   if (loading)

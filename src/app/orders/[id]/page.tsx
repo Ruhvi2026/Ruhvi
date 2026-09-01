@@ -267,10 +267,7 @@ export default function OrderDetailsPage({
                 >
                   <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-xl border border-stone-100 bg-stone-100">
                     <ImageWithFallback
-                      src={
-                        item.product?.images?.[0]?.url ||
-                        'https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=800&q=80'
-                      }
+                      src={item.product?.images?.[0]?.url}
                       alt={item.sku}
                       fill
                       sizes="80px"

@@ -3,30 +3,6 @@ import { cookies } from 'next/headers';
 import { getServerUser } from '@/lib/auth/server';
 import { getSupabaseAdminClient } from '@/lib/support/serverAuth';
 
-const mockSegments = [
-  {
-    id: '1',
-    name: 'High Value Customers',
-    description: 'Customers with LTV > ₹10,000',
-    size: 1240,
-    lastUpdated: '2026-08-30',
-  },
-  {
-    id: '2',
-    name: 'Abandoned Cart',
-    description: 'Users who left items in cart within last 24h',
-    size: 342,
-    lastUpdated: '2026-08-31',
-  },
-  {
-    id: '3',
-    name: 'Inactive (>6 months)',
-    description: 'Customers who have not purchased in 6 months',
-    size: 5430,
-    lastUpdated: '2026-08-25',
-  },
-];
-
 export async function GET(request: Request) {
   try {
     const cookieStore = await cookies();
@@ -50,7 +26,7 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    return NextResponse.json({ segments: mockSegments });
+    return NextResponse.json({ segments: [] });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
@@ -79,27 +55,10 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const body = await request.json();
-    const { name, description } = body;
-
-    if (!name) {
-      return NextResponse.json(
-        { error: 'Segment name is required' },
-        { status: 400 }
-      );
-    }
-
-    const newSegment = {
-      id: Math.random().toString(36).substr(2, 9),
-      name,
-      description: description || '',
-      size: 0,
-      lastUpdated: new Date().toISOString().split('T')[0],
-    };
-
-    mockSegments.push(newSegment);
-
-    return NextResponse.json({ success: true, segment: newSegment });
+    return NextResponse.json(
+      { error: 'Segments storage not configured' },
+      { status: 501 }
+    );
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

@@ -4,11 +4,9 @@ import React, { useState, useEffect } from 'react';
 
 import { createClient } from '@/lib/supabase/client';
 import { Category } from '@/types/database';
-import { INITIAL_CATEGORIES } from '@/lib/products';
 import {
   saveCategory,
   deleteCategoryAction,
-  seedCategories,
 } from '@/app/admin/actions/categories';
 import {
   Plus,
@@ -53,27 +51,13 @@ export default function CategoryManagerPage() {
         .from('categories')
         .select('*')
         .order('name');
-      if (!error && data && data.length > 0) {
+      if (!error && data) {
         setCategories(data);
-      } else if (!error && data && data.length === 0) {
-        try {
-          const res = await seedCategories();
-          if (res.error) throw new Error(res.error);
-        } catch {
-          // Ignore seeding errors; fall back to the initial list below.
-        }
-        const { data: seeded } = await supabase
-          .from('categories')
-          .select('*')
-          .order('name');
-        setCategories(
-          seeded && seeded.length > 0 ? seeded : INITIAL_CATEGORIES
-        );
       } else {
-        setCategories(INITIAL_CATEGORIES);
+        setCategories([]);
       }
     } catch {
-      setCategories(INITIAL_CATEGORIES);
+      setCategories([]);
     }
     setLoading(false);
   };

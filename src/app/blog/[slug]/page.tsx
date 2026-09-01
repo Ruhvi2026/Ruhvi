@@ -13,44 +13,6 @@ import {
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/server';
 
-const FALLBACK_POSTS: Record<
-  string,
-  {
-    title: string;
-    excerpt: string;
-    content: string;
-    cover_image: string;
-    published_at: string;
-    category: string;
-    author: string;
-  }
-> = {
-  'how-to-care-for-22k-gold-jewellery': {
-    title: 'How to Care for Your 22K Gold Jewellery at Home',
-    excerpt:
-      'Keep your Ruhvi pieces shining forever with these simple, expert-approved home cleaning techniques.',
-    content: `
-      <p>Fine jewellery is an investment meant to last a lifetime, but even the highest quality 22K gold needs a little tender loving care to maintain its radiant shine. In this guide, we will walk you through the safest and most effective ways to clean your Ruhvi pieces at home.</p>
-
-      <h2>1. The Gentle Soap Method</h2>
-      <p>The best way to clean your gold jewellery is often the simplest. Mix a few drops of mild dish soap into a bowl of warm (not hot) water. Let your jewellery soak for about 15-20 minutes to loosen any accumulated oils or dirt.</p>
-
-      <h2>2. Use a Soft Brush</h2>
-      <p>After soaking, use a soft-bristled toothbrush to gently scrub the pieces. Pay special attention to the areas around diamond or gemstone settings, as this is where lotion and dirt tend to build up. <strong>Never use toothpaste or baking soda</strong>, as these are abrasive and can scratch the gold.</p>
-
-      <h2>3. Rinse and Dry Safely</h2>
-      <p>Rinse the jewellery under warm running water. Always make sure the drain is plugged first! Pat the pieces dry with a soft, lint-free cloth. Avoid paper towels, which can leave tiny scratches on the metal's surface.</p>
-
-      <h2>When to Seek Professional Cleaning</h2>
-      <p>While home cleaning is great for regular maintenance, we recommend bringing your everyday pieces to a professional jeweller once a year for an ultrasonic cleaning and prong inspection to ensure your diamonds are secure.</p>
-    `,
-    cover_image: '/images/categories/necklaces.jpg',
-    published_at: '2026-07-28T10:00:00Z',
-    category: 'Care Guide',
-    author: 'Ruhvi Editorial Team',
-  },
-};
-
 interface BlogPost {
   title: string;
   slug: string;
@@ -90,8 +52,6 @@ export async function generateMetadata({
 }
 
 async function fetchPost(slug: string): Promise<BlogPost | null> {
-  const fallback = FALLBACK_POSTS[slug];
-
   try {
     const supabase = await createClient();
     const { data } = await supabase
@@ -107,7 +67,7 @@ async function fetchPost(slug: string): Promise<BlogPost | null> {
         slug: data.slug,
         excerpt: data.excerpt || '',
         content: data.content,
-        cover_image: data.cover_image || '/images/categories/necklaces.jpg',
+        cover_image: data.cover_image || '',
         published_at: data.published_at || new Date().toISOString(),
         category: 'Journal',
         author: 'Ruhvi Editorial Team',
@@ -117,14 +77,7 @@ async function fetchPost(slug: string): Promise<BlogPost | null> {
     console.error('Failed to load blog post:', err);
   }
 
-  return fallback
-    ? {
-        ...fallback,
-        slug,
-        excerpt: fallback.excerpt,
-        content: fallback.content,
-      }
-    : null;
+  return null;
 }
 
 export default async function BlogPostPage({

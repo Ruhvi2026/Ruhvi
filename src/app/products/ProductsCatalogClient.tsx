@@ -15,7 +15,6 @@ import {
   RefreshCw,
   Sparkles,
 } from 'lucide-react';
-import { DEMO_PRODUCTS } from '@/lib/products';
 import { useTaxonomy } from '@/hooks/useTaxonomy';
 import { ProductCard } from '@/components/products/ProductCard';
 import { SpatialPage } from '@/components/design-system/SpatialPage';
@@ -141,14 +140,7 @@ function ProductsCatalogContent({
   };
 
   const filteredProducts = useMemo(() => {
-    // The server query already filters/sorts dbProducts; this useMemo keeps
-    // the DEMO_PRODUCTS fallback behaviour for when the DB returns nothing.
-    const sourceProducts =
-      dbProducts.length > 0 || !isLoading
-        ? dbProducts.length > 0
-          ? dbProducts
-          : DEMO_PRODUCTS
-        : [];
+    const sourceProducts = dbProducts.length > 0 ? dbProducts : [];
 
     return sourceProducts
       .filter((product) => {
@@ -185,7 +177,6 @@ function ProductsCatalogContent({
       });
   }, [
     dbProducts,
-    isLoading,
     selectedCategory,
     stockFilter,
     priceRange,

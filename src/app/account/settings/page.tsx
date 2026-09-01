@@ -18,7 +18,6 @@ import {
   Info,
   Trash2,
   Lock,
-  Smartphone,
   Check,
   ChevronRight,
   AlertTriangle,
@@ -300,26 +299,6 @@ export default function SettingsPage() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [changingPass, setChangingPass] = useState(false);
   const [deletingAccount, setDeletingAccount] = useState(false);
-
-  // Active sessions mock for luxury feel
-  const [activeSessions] = useState([
-    {
-      id: 'session-1',
-      device: 'Chrome on Windows 11 (Current)',
-      ip: '103.212.**.**',
-      location: 'Kolkata, India',
-      isCurrent: true,
-      lastActive: 'Just now',
-    },
-    {
-      id: 'session-2',
-      device: 'Safari on iPhone 15 Pro',
-      ip: '103.212.**.**',
-      location: 'Kolkata, India',
-      isCurrent: false,
-      lastActive: '2 days ago',
-    },
-  ]);
 
   // Load preferences from localStorage on mount
   useEffect(() => {
@@ -894,36 +873,8 @@ export default function SettingsPage() {
               <p className="mb-3 font-serif text-sm font-bold text-stone-900 dark:text-white sm:text-base">
                 {t.activeDevices}
               </p>
-              <div className="space-y-3.5">
-                {activeSessions.map((sess) => (
-                  <div
-                    key={sess.id}
-                    className="flex items-center justify-between text-sm"
-                  >
-                    <div>
-                      <p className="flex items-center gap-2 font-medium text-stone-900 dark:text-stone-200">
-                        {sess.device}
-                        {sess.isCurrent && (
-                          <span className="rounded-md bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300">
-                            {t.currentSession}
-                          </span>
-                        )}
-                      </p>
-                      <p className="mt-0.5 text-xs font-medium text-stone-500 dark:text-stone-300">
-                        {sess.location} • {sess.lastActive}
-                      </p>
-                    </div>
-                    {!sess.isCurrent && (
-                      <button
-                        type="button"
-                        onClick={() => toast.success('Signed out from device')}
-                        className="text-xs font-bold text-rose-600 hover:underline dark:text-rose-400"
-                      >
-                        {t.signOut}
-                      </button>
-                    )}
-                  </div>
-                ))}
+              <div className="flex items-center justify-center py-4 text-xs text-stone-500">
+                No active sessions
               </div>
             </div>
 

@@ -32,30 +32,24 @@ export default function SentryLogsPage() {
             <p className="text-sm text-slate-400">Total Issues (24h)</p>
             <Activity className="h-4 w-4 text-slate-500" />
           </div>
-          <p className="text-2xl font-bold text-slate-200">24</p>
-          <p className="mt-1 flex items-center gap-1 text-xs text-rose-400">
-            <AlertTriangle className="h-3 w-3" /> +12% from yesterday
-          </p>
+          <p className="text-2xl font-bold text-slate-200">—</p>
+          <p className="mt-1 text-xs text-slate-500">No data available</p>
         </div>
         <div className="rounded-xl border border-white/5 bg-[#131726] p-5">
           <div className="mb-2 flex items-start justify-between">
             <p className="text-sm text-slate-400">Crash-Free Users</p>
             <Activity className="h-4 w-4 text-slate-500" />
           </div>
-          <p className="text-2xl font-bold text-slate-200">99.8%</p>
-          <p className="mt-1 flex items-center gap-1 text-xs text-emerald-400">
-            Above 99.5% target
-          </p>
+          <p className="text-2xl font-bold text-slate-200">—</p>
+          <p className="mt-1 text-xs text-slate-500">No data available</p>
         </div>
         <div className="rounded-xl border border-white/5 bg-[#131726] p-5">
           <div className="mb-2 flex items-start justify-between">
             <p className="text-sm text-slate-400">Unresolved Critical</p>
             <AlertTriangle className="h-4 w-4 text-rose-500" />
           </div>
-          <p className="text-2xl font-bold text-rose-500">3</p>
-          <p className="mt-1 text-xs text-slate-400">
-            Requires immediate attention
-          </p>
+          <p className="text-2xl font-bold text-rose-500">—</p>
+          <p className="mt-1 text-xs text-slate-500">No data available</p>
         </div>
       </div>
 
@@ -63,56 +57,12 @@ export default function SentryLogsPage() {
         <div className="flex items-center justify-between border-b border-white/5 bg-white/5 px-6 py-4">
           <h2 className="text-lg font-medium text-slate-200">Recent Issues</h2>
         </div>
-        <div className="divide-y divide-white/5">
-          {[
-            {
-              id: '1',
-              error:
-                'TypeError: Cannot read properties of undefined (reading map)',
-              file: 'app/products/page.tsx',
-              time: '10 mins ago',
-              level: 'error',
-            },
-            {
-              id: '2',
-              error: 'NetworkError: Failed to fetch API',
-              file: 'lib/api/client.ts',
-              time: '1 hour ago',
-              level: 'warning',
-            },
-            {
-              id: '3',
-              error: 'Unhandled Rejection: Supabase connection timeout',
-              file: 'middleware.ts',
-              time: '2 hours ago',
-              level: 'error',
-            },
-          ].map((issue, idx) => (
-            <div
-              key={idx}
-              className="flex items-start gap-4 p-4 transition-colors hover:bg-white/5"
-            >
-              <div
-                className={`mt-1 rounded-full p-1.5 ${issue.level === 'error' ? 'bg-rose-500/20 text-rose-500' : 'bg-amber-500/20 text-amber-500'}`}
-              >
-                <AlertTriangle className="h-4 w-4" />
-              </div>
-              <div className="flex-1">
-                <p className="mb-1 text-sm font-medium text-slate-200">
-                  {issue.error}
-                </p>
-                <div className="flex items-center gap-4 text-xs text-slate-500">
-                  <span className="rounded bg-white/5 px-2 py-0.5 font-mono">
-                    {issue.file}
-                  </span>
-                  <span>{issue.time}</span>
-                </div>
-              </div>
-              <button className="rounded bg-cyan-500/10 px-3 py-1.5 text-sm text-cyan-400 transition-colors hover:bg-cyan-500/20 hover:text-cyan-300">
-                View Details
-              </button>
-            </div>
-          ))}
+        <div className="flex flex-col items-center justify-center py-16 text-center">
+          <AlertTriangle className="mb-3 h-8 w-8 opacity-40" />
+          <p className="text-sm font-medium text-slate-400">No recent issues</p>
+          <p className="mt-1 text-xs text-slate-500">
+            No error events recorded.
+          </p>
         </div>
       </div>
     </div>

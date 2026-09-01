@@ -22,8 +22,7 @@ const DEFAULT_META = {
   titleTemplate: '%s | Ruhvi Fine Jewellery',
   metaDescription:
     'Discover handcrafted premium gold-plated jewellery at Ruhvi. Anti-tarnish 22K gold plating with a 6-month color guarantee, and free insured shipping across India.',
-  ogImageUrl:
-    'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?q=80&w=1200&auto=format&fit=crop',
+  ogImageUrl: '',
   robotsIndex: true,
   robotsFollow: true,
 };
@@ -426,14 +425,15 @@ export default function AdminSEOPage() {
                       className="transition-colors hover:bg-white/5"
                     >
                       <td className="flex items-center gap-3 px-4 py-3 font-medium text-white">
-                        <img
-                          src={
-                            p.images?.[0]?.url ||
-                            'https://via.placeholder.com/40'
-                          }
-                          alt={p.name}
-                          className="h-8 w-8 rounded border border-white/10 object-cover"
-                        />
+                        {p.images?.[0]?.url ? (
+                          <img
+                            src={p.images?.[0]?.url}
+                            alt={p.name}
+                            className="h-8 w-8 rounded border border-white/10 object-cover"
+                          />
+                        ) : (
+                          <div className="h-8 w-8 rounded border border-white/10 bg-slate-800" />
+                        )}
                         <span>{p.name}</span>
                       </td>
                       <td className="px-4 py-3 font-mono text-slate-400">
@@ -623,13 +623,15 @@ export default function AdminSEOPage() {
                 >
                   <div className="flex items-center justify-between gap-4">
                     <div className="flex items-center gap-3">
-                      <img
-                        src={
-                          p.images?.[0]?.url || 'https://via.placeholder.com/50'
-                        }
-                        alt={p.name}
-                        className="h-10 w-10 rounded border border-white/10 object-cover"
-                      />
+                      {p.images?.[0]?.url ? (
+                        <img
+                          src={p.images?.[0]?.url}
+                          alt={p.name}
+                          className="h-10 w-10 rounded border border-white/10 object-cover"
+                        />
+                      ) : (
+                        <div className="h-10 w-10 rounded border border-white/10 bg-slate-800" />
+                      )}
                       <div>
                         <p className="text-xs font-semibold text-white">
                           {p.name}
@@ -648,11 +650,15 @@ export default function AdminSEOPage() {
                   <div className="mt-3 space-y-2">
                     {(p.images || []).map((img) => (
                       <div key={img.id} className="flex items-center gap-3">
-                        <img
-                          src={img.url || 'https://via.placeholder.com/50'}
-                          alt={img.alt || p.name}
-                          className="h-12 w-12 flex-shrink-0 rounded border border-white/10 object-cover"
-                        />
+                        {img.url ? (
+                          <img
+                            src={img.url}
+                            alt={img.alt || p.name}
+                            className="h-12 w-12 flex-shrink-0 rounded border border-white/10 object-cover"
+                          />
+                        ) : (
+                          <div className="h-12 w-12 flex-shrink-0 rounded border border-white/10 bg-slate-800" />
+                        )}
                         <input
                           type="text"
                           value={altDrafts[img.id] ?? ''}

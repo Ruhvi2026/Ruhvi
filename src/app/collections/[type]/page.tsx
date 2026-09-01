@@ -12,21 +12,15 @@ export async function generateMetadata({
   params: Promise<{ type: string }>;
 }): Promise<Metadata> {
   const { type } = await params;
-  const fallback = COLLECTIONS_DATA[type];
 
-  let title = fallback?.title;
-  let description = fallback?.subtitle;
-
-  if (!fallback) {
-    const supabase = await createClient();
-    const { data } = await supabase
-      .from('collections')
-      .select('title, subtitle')
-      .eq('slug', type)
-      .single();
-    title = data?.title;
-    description = data?.subtitle;
-  }
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from('collections')
+    .select('title, subtitle')
+    .eq('slug', type)
+    .single();
+  const title = data?.title;
+  const description = data?.subtitle;
 
   return {
     title: title ? `${title} | Ruhvi Fine Jewellery` : 'Collections | Ruhvi',
@@ -41,112 +35,6 @@ export async function generateMetadata({
     },
   };
 }
-
-const COLLECTIONS_DATA: Record<string, any> = {
-  'for-her': {
-    title: 'Gifts For Her',
-    subtitle: 'Timeless pieces designed to make her feel extraordinary.',
-    cover: '/images/categories/necklaces.jpg',
-    products: [
-      {
-        id: 'prod-1',
-        name: 'Aurelia Diamond Ring',
-        price: 15500,
-        image: '/images/categories/rings.jpg',
-      },
-      {
-        id: 'prod-2',
-        name: 'Celestial Pearl Drop',
-        price: 8900,
-        image:
-          'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&q=80',
-      },
-    ],
-  },
-  'under-15000': {
-    title: 'Gifts Under ₹15,000',
-    subtitle: 'Beautiful 22K Gold jewellery that fits perfectly within budget.',
-    cover:
-      'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&q=80',
-    products: [
-      {
-        id: 'prod-3',
-        name: 'Minimalist Gold Chain',
-        price: 12000,
-        image: '/images/categories/necklaces.jpg',
-      },
-      {
-        id: 'prod-4',
-        name: 'Rose Gold Studs',
-        price: 7500,
-        image: '/images/categories/rings.jpg',
-      },
-    ],
-  },
-  anniversary: {
-    title: 'Anniversary Specials',
-    subtitle:
-      'Celebrate your beautiful journey with the timeless elegance of gold and diamonds.',
-    cover: '/images/categories/rings.jpg',
-    products: [
-      {
-        id: 'prod-5',
-        slug: 'modern-minimalist-diamond-mangalsutra',
-        name: 'Eternity Diamond Band',
-        price: 45000,
-        image:
-          'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&q=80',
-      },
-      {
-        id: 'prod-6',
-        slug: 'lotus-blossom-ruby-pendant',
-        name: 'Heritage Gold Necklace',
-        price: 85000,
-        image:
-          'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&q=80',
-      },
-    ],
-  },
-  bestsellers: {
-    title: 'Bestsellers',
-    subtitle: 'Our most loved and sought-after jewellery pieces.',
-    cover:
-      'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&q=80',
-    products: [
-      {
-        id: 'prod-1',
-        slug: 'aurelia-solitaire-diamond-ring',
-        name: 'Aurelia Diamond Ring',
-        price: 15500,
-        image: '/images/categories/rings.jpg',
-      },
-      {
-        id: 'prod-2',
-        slug: 'royal-heritage-emerald-choker-necklace',
-        name: 'Royal Heritage Emerald Choker',
-        price: 189999,
-        image:
-          'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&q=80',
-      },
-    ],
-  },
-  bridal: {
-    title: 'Bridal Collection',
-    subtitle: 'Exquisite jewelry for your special day.',
-    cover:
-      'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&q=80',
-    products: [
-      {
-        id: 'prod-2',
-        slug: 'royal-heritage-emerald-choker-necklace',
-        name: 'Royal Heritage Emerald Choker',
-        price: 189999,
-        image:
-          'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&q=80',
-      },
-    ],
-  },
-};
 
 export default async function CollectionPage({
   params,
@@ -201,9 +89,6 @@ export default async function CollectionPage({
       cover: dbCollection.image_url || '/images/categories/necklaces.jpg',
       products: products,
     };
-  } else {
-    // Fallback to static data if not in DB yet
-    collection = COLLECTIONS_DATA[type];
   }
 
   if (!collection) {

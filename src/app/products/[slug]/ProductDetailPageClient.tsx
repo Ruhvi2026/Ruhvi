@@ -516,9 +516,7 @@ export function ProductDetailPageClient({
           <section className="pt-12">
             <Carousel3D title="You May Also Like" viewAllHref="/products">
               {relatedProducts.map((p) => {
-                const pImg =
-                  p.images?.[0]?.url ||
-                  'https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=800&q=80';
+                const pImg = p.images?.[0]?.url;
                 return (
                   <Link
                     key={p.id}
@@ -558,9 +556,7 @@ export function ProductDetailPageClient({
             </h2>
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
               {recentlyViewed.map((p) => {
-                const pImg =
-                  p.images?.[0]?.url ||
-                  'https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=800&q=80';
+                const pImg = p.images?.[0]?.url;
                 return (
                   <Link
                     key={p.id}

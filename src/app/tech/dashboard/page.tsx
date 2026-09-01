@@ -29,7 +29,7 @@ export default function TechDashboard() {
         </div>
         <div className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-400">
           <Clock className="h-4 w-4" />
-          <span>Last updated: Just now</span>
+          <span>Last updated: —</span>
         </div>
       </div>
 
@@ -43,9 +43,9 @@ export default function TechDashboard() {
             </h3>
             <CheckCircle className="h-5 w-5 text-emerald-400" />
           </div>
-          <p className="text-3xl font-bold text-slate-100">Optimal</p>
-          <div className="mt-2 inline-flex rounded-full bg-emerald-400/10 px-2 py-0.5 text-xs font-medium text-emerald-400">
-            All systems operational
+          <p className="text-3xl font-bold text-slate-100">—</p>
+          <div className="mt-2 inline-flex rounded-full bg-white/5 px-2 py-0.5 text-xs font-medium text-slate-400">
+            No data available
           </div>
         </div>
 
@@ -55,7 +55,7 @@ export default function TechDashboard() {
             <h3 className="text-sm font-medium text-slate-400">API Latency</h3>
             <Activity className="h-5 w-5 text-cyan-400" />
           </div>
-          <p className="text-3xl font-bold text-slate-100">42ms</p>
+          <p className="text-3xl font-bold text-slate-100">—</p>
           <div className="mt-2 text-xs font-medium text-slate-500">
             Average response time
           </div>
@@ -69,9 +69,9 @@ export default function TechDashboard() {
             </h3>
             <AlertTriangle className="h-5 w-5 text-amber-400" />
           </div>
-          <p className="text-3xl font-bold text-slate-100">3</p>
-          <div className="mt-2 inline-flex rounded-full bg-amber-400/10 px-2 py-0.5 text-xs font-medium text-amber-400">
-            Via Sentry
+          <p className="text-3xl font-bold text-slate-100">—</p>
+          <div className="mt-2 inline-flex rounded-full bg-white/5 px-2 py-0.5 text-xs font-medium text-slate-400">
+            No data available
           </div>
         </div>
 
@@ -81,7 +81,7 @@ export default function TechDashboard() {
             <h3 className="text-sm font-medium text-slate-400">AI Requests</h3>
             <Cpu className="h-5 w-5 text-purple-400" />
           </div>
-          <p className="text-3xl font-bold text-slate-100">1.2k</p>
+          <p className="text-3xl font-bold text-slate-100">—</p>
           <div className="mt-2 inline-flex rounded-full bg-purple-400/10 px-2 py-0.5 text-xs font-medium text-purple-400">
             Past 24 hours
           </div>
@@ -131,7 +131,7 @@ export default function TechDashboard() {
                 </div>
               </div>
               <div className="text-right">
-                <p className="font-semibold text-emerald-400">98</p>
+                <p className="font-semibold text-slate-500">—</p>
                 <p className="text-xs text-slate-500">Performance Score</p>
               </div>
             </div>
@@ -149,10 +149,8 @@ export default function TechDashboard() {
                 </div>
               </div>
               <div className="text-right">
-                <p className="font-semibold text-slate-200">42</p>
-                <p className="flex items-center justify-end gap-1 text-xs text-emerald-500">
-                  <ArrowUpRight className="h-3 w-3" /> 12%
-                </p>
+                <p className="font-semibold text-slate-500">—</p>
+                <p className="text-xs text-slate-500">No data available</p>
               </div>
             </div>
           </div>
@@ -209,9 +207,9 @@ export default function TechDashboard() {
               <div className="text-right">
                 <Link
                   href="/tech/sentry"
-                  className="text-sm font-medium text-amber-400 hover:text-amber-300"
+                  className="text-sm font-medium text-slate-500 hover:text-slate-300"
                 >
-                  3 Issues
+                  No data available
                 </Link>
               </div>
             </div>

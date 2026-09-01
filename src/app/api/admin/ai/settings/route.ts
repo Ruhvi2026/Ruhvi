@@ -13,79 +13,6 @@ import { assertSafeOutboundUrl, UnsafeUrlError } from '@/lib/security/ssrf';
 import fs from 'fs';
 import path from 'path';
 
-const DEFAULT_PROVIDERS = [
-  {
-    id: 'gemini',
-    type: 'gemini',
-    name: 'Google Gemini',
-    apiKey: '',
-    isEnabled: true,
-    models: [
-      'gemini-3.6-flash',
-      'gemini-2.0-flash',
-      'gemini-1.5-flash',
-      'gemini-1.5-pro',
-    ],
-    priority: 1,
-    status: 'online',
-  },
-  {
-    id: 'openai',
-    type: 'openai',
-    name: 'OpenAI',
-    apiKey: '',
-    isEnabled: false,
-    models: ['gpt-3.5-turbo', 'gpt-4o', 'gpt-4o-mini'],
-    priority: 2,
-    status: 'offline',
-  },
-  {
-    id: 'anthropic',
-    type: 'anthropic',
-    name: 'Anthropic Claude',
-    apiKey: '',
-    isEnabled: false,
-    models: [
-      'claude-3-haiku-20240307',
-      'claude-3-sonnet-20240229',
-      'claude-3-opus-20240229',
-    ],
-    priority: 3,
-    status: 'offline',
-  },
-  {
-    id: 'openrouter',
-    type: 'openrouter',
-    name: 'OpenRouter',
-    apiKey: '',
-    isEnabled: false,
-    models: [],
-    priority: 4,
-    status: 'offline',
-  },
-  {
-    id: 'deepseek',
-    type: 'deepseek',
-    name: 'DeepSeek AI',
-    apiKey: '',
-    isEnabled: false,
-    models: ['deepseek-chat', 'deepseek-reasoner'],
-    priority: 5,
-    status: 'offline',
-  },
-  {
-    id: 'custom',
-    type: 'custom',
-    name: 'Custom Gateway (OpenAI Compatible)',
-    apiKey: '',
-    isEnabled: false,
-    models: [],
-    priority: 6,
-    status: 'offline',
-    isCustom: true,
-  },
-];
-
 export async function GET(req: Request) {
   const auth = await requireAdmin();
   if (!auth.ok) {
@@ -120,21 +47,10 @@ export async function GET(req: Request) {
       });
     }
 
-    // Ensure ai_providers array exists and merge with default providers if needed
-    let rawProviders: any[] = Array.isArray(result.ai_providers)
+    // Ensure ai_providers array exists
+    const rawProviders: any[] = Array.isArray(result.ai_providers)
       ? result.ai_providers
       : [];
-
-    if (rawProviders.length === 0) {
-      rawProviders = DEFAULT_PROVIDERS;
-    } else {
-      // Make sure all default providers exist
-      DEFAULT_PROVIDERS.forEach((def) => {
-        if (!rawProviders.some((p) => p.id === def.id || p.type === def.type)) {
-          rawProviders.push(def);
-        }
-      });
-    }
 
     // Query active credentials from ai_provider_credentials table to support multi-credential engine
     const { data: dbCredentials } = await supabaseAdmin
@@ -231,83 +147,9 @@ export async function GET(req: Request) {
     });
 
     result.ai_providers = sanitizedProviders;
-    result.ai_global = result.ai_global || {
-      ai_enabled: true,
-      default_language: 'English',
-      brand_tone: 'Luxurious and Premium',
-      creativity_level: 0.7,
-      enableRateLimiting: true,
-      enableInjectionFilter: true,
-      enablePiiRedaction: true,
-      routingStrategy: 'priority',
-    };
-
-    result.ai_features = result.ai_features || {
-      product_description: {
-        provider: 'gemini',
-        model: 'gemini-3.6-flash',
-        enabled: true,
-      },
-      seo_metadata: {
-        provider: 'gemini',
-        model: 'gemini-3.6-flash',
-        enabled: true,
-      },
-      chatbot: {
-        provider: 'gemini',
-        model: 'gemini-3.6-flash',
-        enabled: true,
-      },
-      support_reply: {
-        provider: 'gemini',
-        model: 'gemini-3.6-flash',
-        enabled: true,
-      },
-    };
-
-    // Ensure support_reply exists even when ai_features was already seeded without it
-    if (result.ai_features && !result.ai_features.support_reply) {
-      result.ai_features.support_reply = {
-        provider: 'gemini',
-        model: 'gemini-3.6-flash',
-        enabled: true,
-      };
-    }
-
-    // Upgrade any legacy/deprecated Gemini model references in ai_features
-    if (result.ai_features) {
-      // Upgrade any deprecated model references
-      const DEPRECATED_GEMINI = [
-        'gemini-2.5-flash',
-        'gemini-3.5-flash',
-        'gemini-3.5-flash-lite',
-        'gemini-3.7-flash',
-        'gemini-2.0-flash',
-      ];
-      Object.keys(result.ai_features).forEach((key) => {
-        if (
-          result.ai_features[key]?.provider === 'gemini' &&
-          (!result.ai_features[key]?.model ||
-            DEPRECATED_GEMINI.includes(result.ai_features[key]?.model))
-        ) {
-          result.ai_features[key].model = 'gemini-3.6-flash';
-        }
-      });
-    }
-    result.ai_prompts = result.ai_prompts || {
-      product_description: 'You are a world-class E-commerce SEO Expert...',
-      seo_metadata: 'Focus on generating high-converting keywords...',
-      chatbot:
-        "CRITICAL SYSTEM INSTRUCTION: You are an AI assistant EXCLUSIVELY for the 'Ruhvi' jewelry store.",
-      support_reply:
-        'You are a professional customer support writing assistant for Ruhvi, an exquisite fine jewellery brand.\n\nYour job is to rewrite the agent\'s draft reply to improve its grammar, tone, and clarity while keeping the brand voice — warm, elegant, helpful, and trustworthy.\n\nRules:\n1. Keep ALL factual content from the agent\'s draft. Do NOT add any facts, claims, promises, or order details that are not already present in the draft or the customer\'s message.\n2. Fix grammar, spelling, and punctuation silently.\n3. Make the tone professional and warm — consistent with a premium jewellery brand.\n4. Keep the response concise. Do not pad or add unnecessary sentences.\n5. Do NOT change the meaning or intent of the reply.\n6. Output ONLY the enhanced reply text — no preamble, no explanation, no quotation marks wrapping the output.\n\nRespond with a valid JSON object with a single key "enhanced_reply" containing the rewritten text.\nExample: { "enhanced_reply": "Dear valued customer, ..." }',
-    };
-
-    // Ensure support_reply prompt exists even when ai_prompts was already seeded without it
-    if (result.ai_prompts && !result.ai_prompts.support_reply) {
-      result.ai_prompts.support_reply =
-        'You are a professional customer support writing assistant for Ruhvi, an exquisite fine jewellery brand.\n\nYour job is to rewrite the agent\'s draft reply to improve its grammar, tone, and clarity while keeping the brand voice — warm, elegant, helpful, and trustworthy.\n\nRules:\n1. Keep ALL factual content from the agent\'s draft. Do NOT add any facts, claims, promises, or order details that are not already present in the draft or the customer\'s message.\n2. Fix grammar, spelling, and punctuation silently.\n3. Make the tone professional and warm — consistent with a premium jewellery brand.\n4. Keep the response concise. Do not pad or add unnecessary sentences.\n5. Do NOT change the meaning or intent of the reply.\n6. Output ONLY the enhanced reply text — no preamble, no explanation, no quotation marks wrapping the output.\n\nRespond with a valid JSON object with a single key "enhanced_reply" containing the rewritten text.\nExample: { "enhanced_reply": "Dear valued customer, ..." }';
-    }
+    result.ai_global = result.ai_global || {};
+    result.ai_features = result.ai_features || {};
+    result.ai_prompts = result.ai_prompts || {};
 
     return NextResponse.json(result);
   } catch (err: any) {

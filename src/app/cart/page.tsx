@@ -114,9 +114,7 @@ export default function CartPage() {
                 const product = item.product;
                 if (!product) return null;
 
-                const image =
-                  product.images?.[0]?.url ||
-                  'https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=800&q=80';
+                const image = product.images?.[0]?.url;
                 const itemTotal =
                   (product.price || item.price_at_add) * item.quantity;
 

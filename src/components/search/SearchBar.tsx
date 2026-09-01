@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Search, Tag, ArrowRight, PackageCheck } from 'lucide-react';
-import { DEMO_PRODUCTS } from '@/lib/products';
 import { Product } from '@/types/database';
 import { ecommerceEvent } from '@/lib/gtag';
 
@@ -108,15 +107,7 @@ export function SearchBar() {
         if (data && data.length > 0) {
           setSuggestions(data);
         } else {
-          const matches = DEMO_PRODUCTS.filter(
-            (p) =>
-              p.status === 'active' &&
-              (p.name.toLowerCase().includes(trimmed) ||
-                p.sku.toLowerCase().includes(trimmed) ||
-                p.category?.name?.toLowerCase().includes(trimmed) ||
-                p.description?.toLowerCase().includes(trimmed))
-          ).slice(0, 5);
-          setSuggestions(matches as any);
+          setSuggestions([]);
         }
         setIsOpen(true);
       } catch (err) {
@@ -158,16 +149,7 @@ export function SearchBar() {
       // Ignore and fallback
     }
 
-    // Direct SKU match check fallback
-    const directSkuMatch = DEMO_PRODUCTS.find(
-      (p) => p.sku.toLowerCase() === trimmed.toLowerCase()
-    );
-
-    if (directSkuMatch) {
-      router.push(`/products/${directSkuMatch.slug}`);
-    } else {
-      router.push(`/products?search=${encodeURIComponent(trimmed)}`);
-    }
+    router.push(`/products?search=${encodeURIComponent(trimmed)}`);
     setIsOpen(false);
   };
 

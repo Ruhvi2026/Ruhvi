@@ -16,32 +16,6 @@ import Image from 'next/image';
 import { ImagePicker } from '@/components/admin/ImagePicker';
 import { revalidateStorefront } from '@/app/admin/actions/cache';
 
-const INITIAL_FALLBACK_COLLECTIONS: Collection[] = [
-  {
-    id: 'col-1',
-    title: 'Gifts For Her',
-    slug: 'for-her',
-    subtitle: 'Timeless pieces designed to make her feel extraordinary.',
-    image_url: '/images/categories/necklaces.jpg',
-  },
-  {
-    id: 'col-2',
-    title: 'Gifts Under ₹15,000',
-    slug: 'under-15000',
-    subtitle: 'Beautiful 22K Gold jewellery that fits perfectly within budget.',
-    image_url:
-      'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&q=80',
-  },
-  {
-    id: 'col-3',
-    title: 'Anniversary Specials',
-    slug: 'anniversary',
-    subtitle:
-      'Celebrate your beautiful journey with the timeless elegance of gold and diamonds.',
-    image_url: '/images/categories/rings.jpg',
-  },
-];
-
 export default function CollectionManagerPage() {
   const [collections, setCollections] = useState<Collection[]>([]);
   const [loading, setLoading] = useState(true);
@@ -75,16 +49,13 @@ export default function CollectionManagerPage() {
         .from('collections')
         .select('*')
         .order('title');
-      if (!error && data && data.length > 0) {
+      if (!error && data) {
         setCollections(data);
-      } else if (!error && data && data.length === 0) {
-        await supabase.from('collections').insert(INITIAL_FALLBACK_COLLECTIONS);
-        setCollections(INITIAL_FALLBACK_COLLECTIONS);
       } else {
-        setCollections(INITIAL_FALLBACK_COLLECTIONS);
+        setCollections([]);
       }
     } catch {
-      setCollections(INITIAL_FALLBACK_COLLECTIONS);
+      setCollections([]);
     }
     setLoading(false);
   };

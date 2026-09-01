@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
 import { ArrowLeft, Sparkles, Plus, Trash2 } from 'lucide-react';
-import { INITIAL_CATEGORIES } from '@/lib/products';
 import { generateSKU } from '@/lib/sku';
 import { ImageType } from '@/types/database';
 import { createClient } from '@/lib/supabase/client';
@@ -17,7 +16,7 @@ export default function AddProductPage() {
 
   const [name, setName] = useState('');
   const [slug, setSlug] = useState('');
-  const [categorySlug, setCategorySlug] = useState(INITIAL_CATEGORIES[0].slug);
+  const [categorySlug, setCategorySlug] = useState('');
   const [collectionSlug, setCollectionSlug] = useState('');
   const [sku, setSku] = useState('');
   const [price, setPrice] = useState('');
@@ -30,39 +29,39 @@ export default function AddProductPage() {
   const [seoMetadata, setSeoMetadata] = useState<any>(null);
   const [aiContent, setAiContent] = useState<any>(null);
 
-  const [images, setImages] = useState<{ url: string; type: ImageType }[]>([
-    {
-      url: 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=800&q=80',
-      type: 'still',
-    },
-  ]);
+  const [images, setImages] = useState<{ url: string; type: ImageType }[]>([]);
 
-  const [tags, setTags] = useState('22K Gold Plated, Anti-Tarnish, Diamond');
+  const [tags, setTags] = useState('');
   const [availableCollections, setAvailableCollections] = useState<
     { slug: string; title: string }[]
-  >([
-    { slug: 'for-her', title: 'Gifts For Her' },
-    { slug: 'under-15000', title: 'Gifts Under ₹15,000' },
-    { slug: 'anniversary', title: 'Anniversary Specials' },
-    { slug: 'bridal', title: 'Bridal Collection' },
-  ]);
+  >([]);
+  const [availableCategories, setAvailableCategories] = useState<
+    { id: string; slug: string; name: string }[]
+  >([]);
 
   useEffect(() => {
-    const fetchCols = async () => {
+    const fetchOptions = async () => {
       try {
         const supabase = createClient();
-        const { data } = await supabase
+        const { data: cols } = await supabase
           .from('collections')
           .select('slug, title')
           .order('title');
-        if (data && data.length > 0) {
-          setAvailableCollections(data);
+        if (cols && cols.length > 0) {
+          setAvailableCollections(cols);
+        }
+        const { data: cats } = await supabase
+          .from('categories')
+          .select('id, slug, name')
+          .order('name');
+        if (cats && cats.length > 0) {
+          setAvailableCategories(cats);
         }
       } catch {
         // ignore
       }
     };
-    fetchCols();
+    fetchOptions();
   }, []);
 
   // Auto-generate slug and SKU when name or category changes
@@ -243,7 +242,8 @@ export default function AddProductPage() {
               onChange={(e) => setCategorySlug(e.target.value)}
               className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-amber-500"
             >
-              {INITIAL_CATEGORIES.map((cat) => (
+              <option value="">Select a category</option>
+              {availableCategories.map((cat) => (
                 <option key={cat.id} value={cat.slug}>
                   {cat.name}
                 </option>

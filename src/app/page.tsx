@@ -2,47 +2,10 @@ import React from 'react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Category, Collection, Product } from '@/types/database';
-import {
-  getHomepageSettings,
-  getHomepageCategories,
-  getHomepageCollections,
-} from '@/lib/storefront';
+import { Category } from '@/types/database';
+import { getHomepageSettings, getHomepageCategories } from '@/lib/storefront';
 
 export const revalidate = 3600;
-
-const FALLBACK_HOME_COLLECTIONS: Collection[] = [
-  {
-    id: 'col-1',
-    title: 'Gifts For Her',
-    slug: 'for-her',
-    subtitle: 'Timeless pieces designed to make her feel extraordinary.',
-    image_url: '/images/categories/necklaces.jpg',
-  },
-  {
-    id: 'col-2',
-    title: 'Gifts Under ₹15,000',
-    slug: 'under-15000',
-    subtitle: 'Beautiful 22K Gold jewellery that fits perfectly within budget.',
-    image_url:
-      'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&q=80',
-  },
-  {
-    id: 'col-3',
-    title: 'Anniversary Specials',
-    slug: 'anniversary',
-    subtitle: 'Celebrate your journey with gold and solitaire diamonds.',
-    image_url: '/images/categories/rings.jpg',
-  },
-  {
-    id: 'col-4',
-    title: 'Royal Bridal Collection',
-    slug: 'bridal',
-    subtitle: 'Handcrafted Kundan and Emerald sets for grand celebrations.',
-    image_url:
-      'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&q=80',
-  },
-];
 
 export const metadata: Metadata = {
   title: 'Ruhvi Fine Jewellery: Everyday Elegance, Crafted for You',
@@ -68,10 +31,6 @@ const CATEGORY_TAGLINES: Record<string, string> = {
 export default async function HomePage() {
   const hp = await getHomepageSettings();
   const categories: Category[] = await getHomepageCategories();
-
-  const colData = await getHomepageCollections();
-  const collections: Collection[] =
-    colData && colData.length > 0 ? colData : FALLBACK_HOME_COLLECTIONS;
 
   const websiteSchema = {
     '@context': 'https://schema.org',
