@@ -36,6 +36,7 @@ import {
   Megaphone,
   PackageCheck,
   KeyRound,
+  BookOpen,
 } from 'lucide-react';
 
 interface NavChild {
@@ -112,6 +113,15 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { label: 'Coupons & Offers', href: '/admin/coupons', icon: Tag },
       { label: 'Notifications', href: '/admin/notifications', icon: Bell },
+      {
+        label: 'Blog Posts',
+        icon: BookOpen,
+        children: [
+          { label: 'All Posts', href: '/admin/cms/blog' },
+          { label: 'New Post', href: '/admin/cms/blog/new' },
+          { label: 'Review Queue', href: '/admin/cms/blog/review' },
+        ],
+      },
     ],
   },
   {
