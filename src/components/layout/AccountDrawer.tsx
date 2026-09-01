@@ -241,7 +241,7 @@ export function AccountDrawer({ isOpen, onClose }: AccountDrawerProps) {
       />
 
       {/* Slide-in Left Drawer */}
-      <aside
+      <div
         ref={drawerRef}
         role="dialog"
         aria-modal="true"
@@ -454,7 +454,7 @@ export function AccountDrawer({ isOpen, onClose }: AccountDrawerProps) {
             </button>
           </div>
         )}
-      </aside>
+      </div>
 
       {/* Logout Confirmation Modal */}
       {showLogoutModal && (
