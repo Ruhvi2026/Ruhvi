@@ -444,7 +444,7 @@ export function Footer() {
         </div>
       </div>
 
-      <div className="mx-auto mt-6 max-w-7xl px-4 text-center text-xs text-cream-200/40 sm:px-6 lg:px-8">
+      <div className="mx-auto mt-6 max-w-7xl px-4 text-center text-xs text-cream-200/60 sm:px-6 lg:px-8">
         © {new Date().getFullYear()} Ruhvi Jewels. All rights reserved.
       </div>
     </footer>

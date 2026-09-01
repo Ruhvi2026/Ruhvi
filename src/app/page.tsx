@@ -65,6 +65,7 @@ export default async function HomePage() {
                 className="object-cover"
                 style={{ objectPosition: '78% 30%' }}
                 priority
+                fetchPriority="high"
               />
             </div>
             <div className="hero-content">
@@ -124,11 +125,11 @@ export default async function HomePage() {
               </div>
               <div className="promo-body">
                 <div className="eyebrow">NEW ARRIVALS</div>
-                <h3 className="serif">
+                <h2 className="serif">
                   Fresh designs,
                   <br />
                   just for you
-                </h3>
+                </h2>
                 <Link
                   href="/collections/new-arrivals"
                   className="shop-now before:absolute before:inset-0 before:z-10"
@@ -161,11 +162,11 @@ export default async function HomePage() {
               </div>
               <div className="promo-body">
                 <div className="eyebrow">BEST SELLERS</div>
-                <h3 className="serif">
+                <h2 className="serif">
                   Loved by
                   <br />
                   thousands
-                </h3>
+                </h2>
                 <Link
                   href="/collections/best-sellers"
                   className="shop-now before:absolute before:inset-0 before:z-10"
@@ -373,7 +374,7 @@ export default async function HomePage() {
                 </svg>
               </div>
               <div>
-                <h5>FREE SHIPPING</h5>
+                <h3>FREE SHIPPING</h3>
                 <p>On orders above ₹999</p>
               </div>
             </div>
@@ -389,7 +390,7 @@ export default async function HomePage() {
                 </svg>
               </div>
               <div>
-                <h5>SECURE PAYMENT</h5>
+                <h3>SECURE PAYMENT</h3>
                 <p>100% safe &amp; secure</p>
               </div>
             </div>
@@ -406,7 +407,7 @@ export default async function HomePage() {
                 </svg>
               </div>
               <div>
-                <h5>PREMIUM QUALITY</h5>
+                <h3>PREMIUM QUALITY</h3>
                 <p>Crafted with care</p>
               </div>
             </div>
@@ -426,7 +427,7 @@ export default async function HomePage() {
                 </svg>
               </div>
               <div>
-                <h5>EASY RETURNS</h5>
+                <h3>EASY RETURNS</h3>
                 <p>Hassle-free returns</p>
               </div>
             </div>

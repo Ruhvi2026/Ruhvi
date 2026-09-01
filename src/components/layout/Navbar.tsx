@@ -159,7 +159,7 @@ export function Navbar() {
             {isScrolled && (
               <button
                 onClick={() => setIsSearchExpanded(!isSearchExpanded)}
-                className="text-ink-soft relative ml-1 p-1 transition-colors duration-300 hover:text-gold-600 sm:ml-3 sm:p-2"
+                className="text-ink-soft relative ml-1 p-2 transition-colors duration-300 hover:text-gold-600 sm:ml-3 sm:p-2"
                 title="Search"
               >
                 <Search
@@ -175,7 +175,7 @@ export function Navbar() {
             href="/"
             className={`brand group flex origin-center flex-col items-center justify-center transition-transform duration-300 ${isScrolled && !isSearchExpanded ? 'scale-90' : 'scale-100'} hover:scale-[1.02]`}
           >
-            <div className="word text-gold-deep text-lg font-light tracking-[0.28em] transition-colors duration-300 group-hover:text-gold-600 sm:text-2xl">
+            <div className="word text-lg font-light tracking-[0.28em] text-gold-700 transition-colors duration-300 group-hover:text-gold-800 dark:text-gold-400 dark:group-hover:text-gold-300 sm:text-2xl">
               RUHVI
             </div>
             <div className="sub text-ink-soft mt-1 hidden text-[7px] tracking-[0.45em] transition-colors duration-300 sm:block sm:text-[8px]">
@@ -205,7 +205,7 @@ export function Navbar() {
             {/* Wishlist Link */}
             <Link
               href="/wishlist"
-              className="text-ink-soft relative p-1 transition-colors duration-300 hover:text-gold-600 sm:p-2"
+              className="text-ink-soft relative p-2 transition-colors duration-300 hover:text-gold-600 sm:p-2"
               aria-label={`Wishlist${wishlistCount > 0 ? `, ${wishlistCount} items` : ''}`}
               title="Wishlist"
             >
@@ -226,7 +226,7 @@ export function Navbar() {
             {/* Cart Link */}
             <Link
               href="/cart"
-              className="text-ink-soft relative p-1 transition-colors duration-300 hover:text-gold-600 sm:p-2"
+              className="text-ink-soft relative p-2 transition-colors duration-300 hover:text-gold-600 sm:p-2"
               aria-label={`Shopping cart${cartCount > 0 ? `, ${cartCount} items` : ''}`}
               title="Cart"
             >
@@ -247,7 +247,7 @@ export function Navbar() {
             {/* Support Link — visible on all screen sizes */}
             <Link
               href={user ? '/account/support' : '/support-status'}
-              className="text-ink-soft p-1 transition-colors duration-300 hover:text-gold-600 sm:p-2"
+              className="text-ink-soft p-2 transition-colors duration-300 hover:text-gold-600 sm:p-2"
               title="Support"
             >
               <Headphones
@@ -271,7 +271,7 @@ export function Navbar() {
               ) : (
                 <Link
                   href="/login"
-                  className="text-ink-soft p-1 transition-colors duration-300 hover:text-gold-600 sm:p-2"
+                  className="text-ink-soft p-2 transition-colors duration-300 hover:text-gold-600 sm:p-2"
                   title="Login"
                 >
                   <User
@@ -305,8 +305,9 @@ export function Navbar() {
 
       {/* Mobile Category Menu Drawer */}
       <div
-        className={`fixed inset-0 z-50 ${mobileMenuOpen ? 'pointer-events-auto' : 'pointer-events-none'}`}
+        className={`fixed inset-0 z-50 transition-all duration-300 ${mobileMenuOpen ? 'pointer-events-auto visible' : 'pointer-events-none invisible delay-300'}`}
         aria-hidden={!mobileMenuOpen}
+        inert={!mobileMenuOpen ? '' : undefined}
       >
         <div
           className={`absolute inset-0 bg-stone-950/60 transition-opacity duration-300 ${mobileMenuOpen ? 'opacity-100' : 'opacity-0'}`}

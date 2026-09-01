@@ -201,6 +201,22 @@ const NAV_GROUPS: NavGroup[] = [
         external: true,
         icon: Megaphone,
       },
+      {
+        label: 'Tech Portal',
+        href: 'https://tech.ruhvi.in/tech/dashboard',
+        external: true,
+        icon: Globe,
+      },
+    ],
+  },
+  {
+    section: 'DEVELOPER TOOLS',
+    items: [
+      {
+        label: 'AI Control Center',
+        href: '/admin/ai',
+        icon: Wand2,
+      },
     ],
   },
   {

@@ -274,9 +274,12 @@ export async function POST(req: Request) {
         }
       }
 
-      // Reject internal/private gateway base URLs before persisting them
+      // Reject internal/private gateway base URLs before persisting them.
+      // A disabled provider is never executed, so a stale or unreachable base
+      // URL on it must not block unrelated config saves. The runtime path
+      // (custom.ts) re-validates the URL on every request once enabled.
       for (const p of body.ai_providers) {
-        if (p.type === 'custom' && p.baseUrl) {
+        if (p.type === 'custom' && p.baseUrl && p.isEnabled !== false) {
           try {
             await assertSafeOutboundUrl(p.baseUrl);
           } catch (e: any) {
