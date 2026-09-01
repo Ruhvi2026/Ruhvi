@@ -32,8 +32,18 @@ interface BlogPostRow {
   published_at: string | null;
 }
 
+interface BlogPost {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string;
+  cover_image: string;
+  published_at: string;
+  category: string;
+}
+
 export default async function BlogIndexPage() {
-  let posts: BlogPostRow[] = [];
+  let posts: BlogPost[] = [];
 
   try {
     const supabase = await createClient();
