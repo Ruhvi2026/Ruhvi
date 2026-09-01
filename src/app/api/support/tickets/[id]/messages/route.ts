@@ -168,7 +168,7 @@ export async function POST(
       created_at: new Date().toISOString(),
     };
 
-    // Send email notification to customer if staff replied
+    // Send email and push notification to customer if staff replied
     if (isStaff && messageVisibility === 'customer') {
       try {
         const { data: customerData } = await supabase
@@ -185,8 +185,26 @@ export async function POST(
             customerData.full_name || 'Customer'
           );
         }
-      } catch (emailErr) {
-        console.error('Failed to send Ticket Update email:', emailErr);
+
+        // Send Push Notification
+        if (ticket.customer_id) {
+          const { getTokensForUsers, sendFcmToTokens } =
+            await import('@/lib/fcm-admin');
+          const tokens = await getTokensForUsers([ticket.customer_id]);
+
+          if (tokens.length > 0) {
+            await sendFcmToTokens(tokens, {
+              title: `Support Ticket Update: ${ticket.ticket_number || ticket.id}`,
+              body:
+                message.trim().length > 100
+                  ? `${message.trim().substring(0, 97)}...`
+                  : message.trim(),
+              url: `/support/tickets/${ticket.id}`,
+            });
+          }
+        }
+      } catch (notifyErr) {
+        console.error('Failed to send Ticket Update notifications:', notifyErr);
       }
     }
 
