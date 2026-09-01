@@ -330,3 +330,13 @@ export async function revokeApiKey(keyId: string): Promise<void> {
 
   if (error) throw new Error(error.message);
 }
+
+/**
+ * Permanently delete an API key row from the database.
+ */
+export async function deleteApiKey(keyId: string): Promise<void> {
+  const supabase = getServiceClient();
+  const { error } = await supabase.from('api_keys').delete().eq('id', keyId);
+
+  if (error) throw new Error(error.message);
+}

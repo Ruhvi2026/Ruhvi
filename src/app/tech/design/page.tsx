@@ -5,7 +5,6 @@ import {
   PenTool,
   Image as ImageIcon,
   LayoutTemplate,
-  Smartphone,
   Monitor,
   Save,
   Plus,
@@ -18,7 +17,7 @@ export default function DesignManagerPage() {
     <div className="space-y-6">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <h1 className="flex items-center gap-2 font-mono text-2xl font-bold text-slate-100">
+          <h1 className="flex items-center gap-2 text-2xl font-bold text-white">
             <PenTool className="h-6 w-6 text-pink-400" />
             Website Design Manager
           </h1>
@@ -31,7 +30,7 @@ export default function DesignManagerPage() {
         </button>
       </div>
 
-      <div className="flex gap-4 border-b border-slate-800">
+      <div className="flex gap-4 border-b border-white/5">
         <button
           onClick={() => setActiveTab('hero')}
           className={`border-b-2 px-1 pb-3 text-sm font-medium transition-colors ${activeTab === 'hero' ? 'border-pink-500 text-pink-400' : 'border-transparent text-slate-400 hover:text-slate-300'}`}
@@ -65,7 +64,7 @@ export default function DesignManagerPage() {
 
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             {/* Slide 1 */}
-            <div className="rounded-xl border border-slate-800 bg-slate-900 p-5">
+            <div className="rounded-xl border border-white/5 bg-[#131726] p-5">
               <div className="mb-4 flex items-center justify-between text-sm">
                 <span className="flex items-center gap-2 font-medium text-slate-400">
                   <Monitor className="h-4 w-4" /> Slide 1 (Active)
@@ -75,7 +74,7 @@ export default function DesignManagerPage() {
                 </span>
               </div>
 
-              <div className="group relative mb-4 flex aspect-video items-center justify-center overflow-hidden rounded-lg border border-slate-800 bg-slate-950">
+              <div className="group relative mb-4 flex aspect-video items-center justify-center overflow-hidden rounded-lg border border-white/10 bg-white/5">
                 <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1599643478514-4a720230ed5a?auto=format&fit=crop&q=80')] bg-cover bg-center opacity-50"></div>
                 <div className="absolute relative inset-0 z-10 flex flex-col items-center justify-center gap-2 bg-black/50 opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100">
                   <button className="flex items-center gap-2 rounded-md bg-white/10 px-3 py-1.5 text-sm text-white backdrop-blur-md hover:bg-white/20">
@@ -92,7 +91,7 @@ export default function DesignManagerPage() {
                   <input
                     type="text"
                     defaultValue="The Summer Collection"
-                    className="w-full rounded-md border border-slate-800 bg-slate-950 px-3 py-1.5 text-sm text-slate-300"
+                    className="w-full rounded-md border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-slate-300"
                   />
                 </div>
                 <div>
@@ -102,7 +101,7 @@ export default function DesignManagerPage() {
                   <input
                     type="text"
                     defaultValue="Discover our new handcrafted pieces."
-                    className="w-full rounded-md border border-slate-800 bg-slate-950 px-3 py-1.5 text-sm text-slate-300"
+                    className="w-full rounded-md border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-slate-300"
                   />
                 </div>
                 <div className="flex gap-3">
@@ -113,7 +112,7 @@ export default function DesignManagerPage() {
                     <input
                       type="text"
                       defaultValue="Shop Now"
-                      className="w-full rounded-md border border-slate-800 bg-slate-950 px-3 py-1.5 text-sm text-slate-300"
+                      className="w-full rounded-md border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-slate-300"
                     />
                   </div>
                   <div className="flex-1">
@@ -123,7 +122,7 @@ export default function DesignManagerPage() {
                     <input
                       type="text"
                       defaultValue="/collections/summer"
-                      className="w-full rounded-md border border-slate-800 bg-slate-950 px-3 py-1.5 text-sm text-slate-300"
+                      className="w-full rounded-md border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-slate-300"
                     />
                   </div>
                 </div>
@@ -131,7 +130,7 @@ export default function DesignManagerPage() {
             </div>
 
             {/* Slide 2 */}
-            <div className="flex min-h-[300px] cursor-pointer flex-col items-center justify-center rounded-xl border border-2 border-dashed border-slate-800 bg-slate-900 p-5 text-slate-500 transition-all hover:border-pink-500/30 hover:bg-pink-500/5 hover:text-pink-400">
+            <div className="flex min-h-[300px] cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-white/10 bg-[#131726] p-5 text-slate-500 transition-all hover:border-pink-500/30 hover:bg-pink-500/5 hover:text-pink-400">
               <Plus className="mb-2 h-8 w-8" />
               <p className="text-sm font-medium">Add New Slide</p>
             </div>
@@ -140,14 +139,14 @@ export default function DesignManagerPage() {
       )}
 
       {activeTab === 'banners' && (
-        <div className="rounded-xl border border-dashed border-slate-800 bg-slate-900/50 py-12 text-center text-slate-400">
+        <div className="rounded-xl border border-dashed border-white/10 bg-[#131726]/50 py-12 text-center text-slate-400">
           <LayoutTemplate className="mx-auto mb-3 h-8 w-8 opacity-50" />
           <p>Promo Banners manager coming soon.</p>
         </div>
       )}
 
       {activeTab === 'thumbnails' && (
-        <div className="rounded-xl border border-dashed border-slate-800 bg-slate-900/50 py-12 text-center text-slate-400">
+        <div className="rounded-xl border border-dashed border-white/10 bg-[#131726]/50 py-12 text-center text-slate-400">
           <ImageIcon className="mx-auto mb-3 h-8 w-8 opacity-50" />
           <p>Category Thumbnails manager coming soon.</p>
         </div>

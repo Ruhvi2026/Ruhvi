@@ -4,6 +4,7 @@ import {
   listApiKeys,
   createApiKey,
   revokeApiKey,
+  deleteApiKey,
   ApiKeyScope,
   VALID_SCOPE_SET,
 } from '@/lib/api-keys';
@@ -96,8 +97,8 @@ export async function POST(req: NextRequest) {
 }
 
 // ---------------------------------------------------------------------------
-// DELETE /api/admin/api-keys?id=<keyId>
-// Revoke an API key (sets revoked_at, does not delete the row).
+// DELETE /api/admin/api-keys?id=<keyId>[&force=true]
+// Revoke an API key (sets revoked_at) OR permanently delete it (if force=true).
 // ---------------------------------------------------------------------------
 export async function DELETE(req: NextRequest) {
   const auth = await requireAdmin();
@@ -106,6 +107,8 @@ export async function DELETE(req: NextRequest) {
   }
 
   const keyId = req.nextUrl.searchParams.get('id');
+  const force = req.nextUrl.searchParams.get('force') === 'true';
+
   if (!keyId) {
     return NextResponse.json(
       { error: 'id query param is required' },
@@ -114,21 +117,31 @@ export async function DELETE(req: NextRequest) {
   }
 
   try {
-    await revokeApiKey(keyId);
-
-    logAuditEvent({
-      actorId: auth.uid,
-      portal: 'admin',
-      action: 'api_key.revoked',
-      entityType: 'api_key',
-      entityId: keyId,
-    });
+    if (force) {
+      await deleteApiKey(keyId);
+      logAuditEvent({
+        actorId: auth.uid,
+        portal: 'admin',
+        action: 'api_key.deleted',
+        entityType: 'api_key',
+        entityId: keyId,
+      });
+    } else {
+      await revokeApiKey(keyId);
+      logAuditEvent({
+        actorId: auth.uid,
+        portal: 'admin',
+        action: 'api_key.revoked',
+        entityType: 'api_key',
+        entityId: keyId,
+      });
+    }
 
     return NextResponse.json({ success: true });
   } catch (err: any) {
-    console.error('[api-keys DELETE]', err);
+    console.error(`[api-keys DELETE force=${force}]`, err);
     return NextResponse.json(
-      { error: 'Failed to revoke API key' },
+      { error: `Failed to ${force ? 'delete' : 'revoke'} API key` },
       { status: 500 }
     );
   }

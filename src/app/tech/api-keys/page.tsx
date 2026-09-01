@@ -1,8 +1,8 @@
 'use client';
 
 /**
- * /tech/api-keys â€” API Key Management for the Tech portal.
- * Terminal/monospace aesthetic. Shares the same backend as admin.
+ * /tech/api-keys — API Key Management for the Tech portal.
+ * Shares the same backend as admin.
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
@@ -45,7 +45,7 @@ type ScopeMap = Partial<Record<ResourceKey, PermissionLevel>>;
 // Helpers
 // ---------------------------------------------------------------------------
 function fmtDate(iso: string | null): string {
-  if (!iso) return 'â€”';
+  if (!iso) return '—';
   return new Date(iso).toLocaleDateString('en-IN', {
     day: 'numeric',
     month: 'short',
@@ -78,7 +78,7 @@ const LEVEL_COLORS: Record<string, string> = {
 };
 
 // ---------------------------------------------------------------------------
-// StatusBadge â€” tech portal colours
+// StatusBadge — tech portal colours
 // ---------------------------------------------------------------------------
 function StatusBadge({ revokedAt }: { revokedAt: string | null }) {
   if (revokedAt) {
@@ -106,7 +106,7 @@ function CopyBtn({ text }: { text: string }) {
           setTimeout(() => setCopied(false), 2000);
         })
       }
-      className="ml-1 text-slate-600 hover:text-cyan-400"
+      className="ml-1 text-slate-500 hover:text-cyan-400"
     >
       {copied ? (
         <Check className="h-3.5 w-3.5 text-cyan-400" />
@@ -141,13 +141,13 @@ function PermissionDropdown({
       <select
         value={value}
         onChange={(e) => onChange(resource, e.target.value as PermissionLevel)}
-        className={`w-full appearance-none rounded border border-slate-700 bg-slate-950 py-1.5 pl-3 pr-7 font-mono text-xs transition-colors focus:border-cyan-700 focus:outline-none ${colorMap[value] ?? 'text-slate-600'}`}
+        className={`w-full appearance-none rounded-lg border border-white/10 bg-white/5 py-1.5 pl-3 pr-7 font-mono text-xs transition-colors focus:border-cyan-500 focus:outline-none ${colorMap[value] ?? 'text-slate-600'}`}
       >
         {PERMISSION_LEVELS.map((level) => (
           <option
             key={level.value}
             value={level.value}
-            className="bg-slate-900 text-white"
+            className="bg-[#0f0f17] text-white"
           >
             {level.label}
           </option>
@@ -172,7 +172,7 @@ function KeyRevealModal({
   const [copied, setCopied] = useState(false);
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
-      <div className="mx-4 w-full max-w-lg rounded-xl border border-amber-700/40 bg-slate-900 p-6 font-mono shadow-2xl">
+      <div className="mx-4 w-full max-w-lg rounded-xl border border-white/10 bg-[#131726] p-6 shadow-2xl">
         <div className="mb-4 flex items-start gap-3">
           <AlertTriangle className="mt-0.5 h-5 w-5 flex-shrink-0 text-amber-400" />
           <div>
@@ -185,19 +185,19 @@ function KeyRevealModal({
           </div>
           <button
             onClick={onClose}
-            className="ml-auto text-slate-600 hover:text-white"
+            className="ml-auto text-slate-500 hover:text-white"
           >
             <X className="h-4 w-4" />
           </button>
         </div>
-        <div className="mt-3 rounded border border-cyan-900/50 bg-slate-950 p-3">
+        <div className="mt-3 rounded-lg border border-white/10 bg-white/5 p-3">
           <div className="flex items-center gap-2">
-            <code className="flex-1 break-all text-xs text-cyan-300">
-              {visible ? rawKey : rawKey.slice(0, 14) + 'â€¢'.repeat(38)}
+            <code className="flex-1 break-all font-mono text-xs text-cyan-300">
+              {visible ? rawKey : rawKey.slice(0, 14) + '•'.repeat(38)}
             </code>
             <button
               onClick={() => setVisible((v) => !v)}
-              className="text-slate-600 hover:text-cyan-400"
+              className="text-slate-500 hover:text-cyan-400"
             >
               {visible ? (
                 <EyeOff className="h-4 w-4" />
@@ -215,7 +215,7 @@ function KeyRevealModal({
                 setTimeout(() => setCopied(false), 2000);
               })
             }
-            className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-cyan-700 py-2.5 text-sm font-semibold text-white hover:bg-cyan-600"
+            className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-cyan-600 py-2.5 text-sm font-semibold text-white hover:bg-cyan-500"
           >
             {copied ? (
               <>
@@ -229,7 +229,7 @@ function KeyRevealModal({
           </button>
           <button
             onClick={onClose}
-            className="rounded-lg border border-slate-700 px-4 py-2.5 text-sm text-slate-400 hover:text-white"
+            className="rounded-lg border border-white/10 px-4 py-2.5 text-sm text-slate-400 hover:text-white"
           >
             Done
           </button>
@@ -240,7 +240,7 @@ function KeyRevealModal({
 }
 
 // ---------------------------------------------------------------------------
-// Create Key Modal â€” Grouped Resources + Permission Dropdowns
+// Create Key Modal — Grouped Resources + Permission Dropdowns
 // ---------------------------------------------------------------------------
 function CreateKeyModal({
   onCreated,
@@ -297,60 +297,60 @@ function CreateKeyModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
-      <div className="flex max-h-[90vh] w-full max-w-2xl flex-col rounded-xl border border-cyan-900/50 bg-slate-900 font-mono shadow-2xl">
-        <div className="flex items-center justify-between border-b border-slate-800 px-5 py-4">
-          <div className="flex items-center gap-2 text-cyan-400">
-            <Terminal className="h-4 w-4" />
-            <span className="text-sm font-semibold">generate_api_key</span>
+      <div className="flex max-h-[90vh] w-full max-w-2xl flex-col rounded-xl border border-white/10 bg-[#131726] shadow-2xl">
+        <div className="flex items-center justify-between border-b border-white/5 px-5 py-4">
+          <div className="flex items-center gap-2 text-white">
+            <Terminal className="h-4 w-4 text-cyan-400" />
+            <span className="text-sm font-semibold">Generate API Key</span>
           </div>
-          <button onClick={onClose} className="text-slate-600 hover:text-white">
+          <button onClick={onClose} className="text-slate-500 hover:text-white">
             <X className="h-4 w-4" />
           </button>
         </div>
 
         <div className="flex-1 space-y-4 overflow-y-auto px-5 py-4">
           <div>
-            <label className="mb-1.5 block text-[10px] uppercase tracking-widest text-cyan-700">
+            <label className="mb-1.5 block text-[10px] font-semibold uppercase tracking-widest text-slate-400">
               Label
             </label>
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="n8n â€” blog publishing"
-              className="w-full rounded border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white placeholder-slate-600 focus:border-cyan-700 focus:outline-none"
+              placeholder="n8n — blog publishing"
+              className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder-slate-500 focus:border-cyan-500 focus:outline-none"
             />
           </div>
 
           <div>
             <div className="mb-2 flex items-center justify-between">
-              <label className="text-[10px] uppercase tracking-widest text-cyan-700">
+              <label className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">
                 Resource Permissions
               </label>
               {activeCount > 0 && (
-                <span className="rounded bg-cyan-900/30 px-2 py-0.5 text-[10px] text-cyan-400">
+                <span className="rounded bg-cyan-500/10 px-2 py-0.5 text-[10px] text-cyan-400">
                   {activeCount} granted
                 </span>
               )}
             </div>
-            <div className="overflow-hidden rounded border border-slate-800">
+            <div className="overflow-hidden rounded-lg border border-white/10">
               <table className="w-full text-xs">
                 <thead>
-                  <tr className="border-b border-slate-800 bg-slate-800/30">
-                    <th className="px-4 py-2 text-left text-[10px] uppercase tracking-widest text-slate-600">
-                      resource
+                  <tr className="border-b border-white/10 bg-white/5">
+                    <th className="px-4 py-2 text-left text-[10px] font-semibold uppercase tracking-widest text-slate-400">
+                      Resource
                     </th>
-                    <th className="w-40 px-4 py-2 text-left text-[10px] uppercase tracking-widest text-slate-600">
-                      permission
+                    <th className="w-40 px-4 py-2 text-left text-[10px] font-semibold uppercase tracking-widest text-slate-400">
+                      Permission
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-800/50">
+                <tbody className="divide-y divide-white/5">
                   {RESOURCES.map((resource) => {
                     const level = scopeMap[resource.key] ?? 'none';
                     return (
                       <tr
                         key={resource.key}
-                        className={`transition-colors ${level !== 'none' ? 'bg-cyan-950/20' : 'hover:bg-slate-800/20'}`}
+                        className={`transition-colors ${level !== 'none' ? 'bg-cyan-500/5' : 'hover:bg-white/5'}`}
                       >
                         <td className="px-4 py-2">
                           <span
@@ -379,18 +379,18 @@ function CreateKeyModal({
           </div>
 
           {error && (
-            <p className="rounded border border-red-800/50 bg-red-900/20 px-3 py-2 text-xs text-red-400">
-              error: {error}
+            <p className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs text-red-400">
+              Error: {error}
             </p>
           )}
         </div>
 
-        <div className="flex gap-3 border-t border-slate-800 px-5 py-4">
+        <div className="flex gap-3 border-t border-white/5 px-5 py-4">
           <button
             type="button"
             onClick={submit}
             disabled={loading}
-            className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-cyan-700 py-2.5 text-sm font-semibold text-white hover:bg-cyan-600 disabled:opacity-50"
+            className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-cyan-600 py-2.5 text-sm font-semibold text-white hover:bg-cyan-500 disabled:opacity-50"
           >
             {loading ? (
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -398,15 +398,15 @@ function CreateKeyModal({
               <KeyRound className="h-4 w-4" />
             )}
             {loading
-              ? 'Generatingâ€¦'
+              ? 'Generating…'
               : `Generate${activeCount > 0 ? ` (${activeCount} resources)` : ''}`}
           </button>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg border border-slate-700 px-4 py-2.5 text-sm text-slate-500 hover:text-white"
+            className="rounded-lg border border-white/10 px-4 py-2.5 text-sm text-slate-400 hover:text-white"
           >
-            cancel
+            Cancel
           </button>
         </div>
       </div>
@@ -421,7 +421,7 @@ function ScopePills({ scopes }: { scopes: string[] }) {
   const map = scopeListToMap(scopes);
   const entries = Object.entries(map);
   if (entries.length === 0)
-    return <span className="text-[10px] text-slate-600">â€”</span>;
+    return <span className="text-[10px] text-slate-600">—</span>;
   return (
     <div className="flex flex-wrap gap-1">
       {entries.map(([res, lvl]) => {
@@ -456,6 +456,15 @@ export default function TechApiKeysPage() {
   const [newRawKey, setNewRawKey] = useState<string | null>(null);
   const [revoking, setRevoking] = useState<string | null>(null);
 
+  // New Filters
+  const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState<
+    'all' | 'active' | 'revoked'
+  >('all');
+  const [selectedEndpoint, setSelectedEndpoint] = useState<string>(
+    RESOURCES[0]?.key || 'blog'
+  );
+
   const fetchKeys = useCallback(async () => {
     setLoading(true);
     try {
@@ -480,16 +489,28 @@ export default function TechApiKeysPage() {
     fetchKeys();
   };
 
-  const handleRevoke = async (keyId: string, keyName: string) => {
-    if (!confirm(`Revoke "${keyName}"? This cannot be undone.`)) return;
+  const handleRevoke = async (
+    keyId: string,
+    keyName: string,
+    force = false
+  ) => {
+    if (
+      !confirm(
+        `${force ? 'Permanently delete' : 'Revoke'} "${keyName}"? This cannot be undone.`
+      )
+    )
+      return;
     setRevoking(keyId);
     try {
-      const res = await fetch(`/api/admin/api-keys?id=${keyId}`, {
-        method: 'DELETE',
-      });
+      const res = await fetch(
+        `/api/admin/api-keys?id=${keyId}${force ? '&force=true' : ''}`,
+        {
+          method: 'DELETE',
+        }
+      );
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
-      toast.success(`"${keyName}" revoked`);
+      toast.success(`"${keyName}" ${force ? 'deleted' : 'revoked'}`);
       fetchKeys();
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : String(err));
@@ -499,128 +520,199 @@ export default function TechApiKeysPage() {
   };
 
   return (
-    <div className="space-y-6 font-mono">
+    <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="flex items-center gap-2 text-lg font-bold text-cyan-400">
-            <KeyRound className="h-5 w-5" />
-            api_keys
+          <h1 className="flex items-center gap-2 text-2xl font-bold text-white">
+            <KeyRound className="h-6 w-6 text-cyan-400" />
+            API Keys
           </h1>
-          <p className="mt-0.5 text-xs text-slate-500">
-            Machine-to-machine auth. Scopes immutable after creation.
+          <p className="mt-1 text-xs text-slate-400">
+            Machine-to-machine authentication. Scopes are immutable after
+            creation.
           </p>
         </div>
         <div className="flex gap-2">
           <button
             onClick={fetchKeys}
-            className="rounded border border-slate-700 p-2 text-slate-500 hover:border-cyan-700 hover:text-cyan-400"
+            className="rounded-lg border border-white/10 bg-white/5 p-2 text-slate-400 transition-colors hover:bg-white/10 hover:text-white"
+            title="Refresh"
           >
             <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
           </button>
           <button
             onClick={() => setShowCreate(true)}
-            className="flex items-center gap-2 rounded border border-cyan-700/50 bg-cyan-950/30 px-3 py-2 text-sm text-cyan-400 hover:bg-cyan-900/40"
+            className="flex items-center gap-2 rounded-lg bg-cyan-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-cyan-500"
           >
-            <Plus className="h-4 w-4" /> new key
+            <Plus className="h-4 w-4" /> New Key
           </button>
         </div>
       </div>
 
-      <div className="rounded border border-cyan-900/50 bg-slate-900/50 p-4 text-xs">
-        <span className="text-cyan-700">{'//'} external endpoint</span>
-        <div className="mt-1 flex items-center">
-          <span className="text-slate-500">POST </span>
-          <code className="ml-2 text-cyan-300">
-            https://ruhvi.in/api/external/blog
-          </code>
-          <CopyBtn text="https://ruhvi.in/api/external/blog" />
+      <div className="rounded-xl border border-white/5 bg-[#131726] p-4 text-xs">
+        <div className="flex items-center justify-between">
+          <span className="font-semibold uppercase tracking-wider text-slate-500">
+            External Endpoint
+          </span>
+          <select
+            value={selectedEndpoint}
+            onChange={(e) => setSelectedEndpoint(e.target.value)}
+            className="rounded-lg border border-white/10 bg-white/5 px-2 py-1 text-xs text-white focus:border-cyan-500 focus:outline-none"
+          >
+            {RESOURCES.map((r) => (
+              <option key={r.key} value={r.key}>
+                {r.label}
+              </option>
+            ))}
+          </select>
         </div>
-        <div className="mt-1 text-slate-600">
+        <div className="mt-2 flex items-center">
+          <span className="text-slate-500">POST</span>
+          <code className="ml-2 font-mono text-cyan-400">
+            https://ruhvi.in/api/external/{selectedEndpoint}
+          </code>
+          <CopyBtn text={`https://ruhvi.in/api/external/${selectedEndpoint}`} />
+        </div>
+        <div className="mt-1 text-slate-500">
           Authorization: Bearer {'<key>'}
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-2">
-        {PERMISSION_LEVELS.filter((p) => p.value !== 'none').map((p) => (
-          <span
-            key={p.value}
-            className={`inline-flex items-center gap-1 rounded border px-2 py-1 text-[10px] ${LEVEL_COLORS[p.value] ?? ''}`}
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div className="flex flex-wrap gap-2">
+          {PERMISSION_LEVELS.filter((p) => p.value !== 'none').map((p) => (
+            <span
+              key={p.value}
+              className={`inline-flex items-center gap-1 rounded border px-2 py-1 text-[10px] ${LEVEL_COLORS[p.value] ?? ''}`}
+            >
+              {p.label}
+              <span className="opacity-50">·</span>
+              <span className="opacity-60">{p.description}</span>
+            </span>
+          ))}
+        </div>
+
+        <div className="flex gap-3">
+          <input
+            type="text"
+            placeholder="Search keys..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-48 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white placeholder-slate-500 focus:border-cyan-500 focus:outline-none"
+          />
+          <select
+            value={statusFilter}
+            onChange={(e) =>
+              setStatusFilter(e.target.value as 'all' | 'active' | 'revoked')
+            }
+            className="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white focus:border-cyan-500 focus:outline-none"
           >
-            {p.label}
-            <span className="opacity-50">â€”</span>
-            <span className="opacity-60">{p.description}</span>
-          </span>
-        ))}
+            <option value="all">All Statuses</option>
+            <option value="active">Active Only</option>
+            <option value="revoked">Revoked Only</option>
+          </select>
+        </div>
       </div>
 
-      <div className="overflow-hidden rounded border border-slate-800 bg-slate-900">
+      <div className="overflow-hidden rounded-xl border border-white/5 bg-[#131726]">
         {loading ? (
           <div className="flex justify-center py-12">
             <Loader2 className="h-6 w-6 animate-spin text-cyan-500" />
           </div>
         ) : keys.length === 0 ? (
-          <div className="py-12 text-center text-sm text-slate-600">
-            <p>{'//'} no keys found</p>
+          <div className="py-12 text-center text-sm text-slate-400">
+            <p>No API keys found.</p>
             <button
               onClick={() => setShowCreate(true)}
-              className="mt-4 inline-flex items-center gap-2 rounded border border-cyan-700/50 px-3 py-2 text-xs text-cyan-400 hover:bg-cyan-950/30"
+              className="mt-4 inline-flex items-center gap-2 rounded-lg bg-cyan-600 px-3 py-2 text-xs font-medium text-white hover:bg-cyan-500"
             >
-              <Plus className="h-3.5 w-3.5" /> generate first key
+              <Plus className="h-3.5 w-3.5" /> Generate First Key
             </button>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
               <thead>
-                <tr className="border-b border-slate-800 text-[10px] uppercase tracking-widest text-slate-600">
-                  <th className="px-4 py-3 text-left">name</th>
-                  <th className="px-4 py-3 text-left">prefix</th>
-                  <th className="px-4 py-3 text-left">permissions</th>
-                  <th className="px-4 py-3 text-left">status</th>
-                  <th className="px-4 py-3 text-left">created</th>
-                  <th className="px-4 py-3 text-left">last_used</th>
-                  <th className="px-4 py-3 text-right">_</th>
+                <tr className="border-b border-white/5 bg-white/5 text-[10px] uppercase tracking-wider text-slate-400">
+                  <th className="px-4 py-3 text-left font-semibold">Name</th>
+                  <th className="px-4 py-3 text-left font-semibold">Prefix</th>
+                  <th className="px-4 py-3 text-left font-semibold">
+                    Permissions
+                  </th>
+                  <th className="px-4 py-3 text-left font-semibold">Status</th>
+                  <th className="px-4 py-3 text-left font-semibold">Created</th>
+                  <th className="px-4 py-3 text-left font-semibold">
+                    Last Used
+                  </th>
+                  <th className="px-4 py-3 text-right font-semibold"></th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800/50">
-                {keys.map((key) => (
-                  <tr key={key.id} className="group hover:bg-slate-800/30">
-                    <td className="px-4 py-3 text-slate-300">{key.name}</td>
-                    <td className="px-4 py-3">
-                      <code className="rounded bg-slate-800 px-1.5 py-0.5 text-cyan-400">
-                        {key.key_prefix}
-                      </code>
-                    </td>
-                    <td className="max-w-xs px-4 py-3">
-                      <ScopePills scopes={key.scopes} />
-                    </td>
-                    <td className="px-4 py-3">
-                      <StatusBadge revokedAt={key.revoked_at} />
-                    </td>
-                    <td className="px-4 py-3 text-slate-600">
-                      {fmtDate(key.created_at)}
-                    </td>
-                    <td className="px-4 py-3 text-slate-600">
-                      {fmtDate(key.last_used_at)}
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      {!key.revoked_at && (
-                        <button
-                          onClick={() => handleRevoke(key.id, key.name)}
-                          disabled={revoking === key.id}
-                          className="inline-flex items-center gap-1 rounded border border-red-900/40 px-2 py-1 text-[10px] text-red-500 opacity-0 transition-opacity hover:bg-red-900/20 disabled:opacity-40 group-hover:opacity-100"
-                        >
-                          {revoking === key.id ? (
-                            <Loader2 className="h-3 w-3 animate-spin" />
-                          ) : (
-                            <ShieldOff className="h-3 w-3" />
-                          )}
-                          revoke
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-                ))}
+              <tbody className="divide-y divide-white/5">
+                {keys
+                  .filter((k) => {
+                    if (statusFilter === 'active' && k.revoked_at) return false;
+                    if (statusFilter === 'revoked' && !k.revoked_at)
+                      return false;
+                    if (search) {
+                      const q = search.toLowerCase();
+                      return (
+                        k.name.toLowerCase().includes(q) ||
+                        k.key_prefix.toLowerCase().includes(q)
+                      );
+                    }
+                    return true;
+                  })
+                  .map((key) => (
+                    <tr key={key.id} className="group hover:bg-white/5">
+                      <td className="px-4 py-3 text-slate-200">{key.name}</td>
+                      <td className="px-4 py-3">
+                        <code className="rounded bg-white/10 px-1.5 py-0.5 font-mono text-cyan-400">
+                          {key.key_prefix}
+                        </code>
+                      </td>
+                      <td className="max-w-xs px-4 py-3">
+                        <ScopePills scopes={key.scopes} />
+                      </td>
+                      <td className="px-4 py-3">
+                        <StatusBadge revokedAt={key.revoked_at} />
+                      </td>
+                      <td className="px-4 py-3 text-slate-500">
+                        {fmtDate(key.created_at)}
+                      </td>
+                      <td className="px-4 py-3 text-slate-500">
+                        {fmtDate(key.last_used_at)}
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        {!key.revoked_at ? (
+                          <button
+                            onClick={() => handleRevoke(key.id, key.name)}
+                            disabled={revoking === key.id}
+                            className="inline-flex items-center gap-1 rounded border border-orange-900/40 px-2 py-1 text-[10px] text-orange-400 opacity-0 transition-opacity hover:bg-orange-500/10 disabled:opacity-40 group-hover:opacity-100"
+                          >
+                            {revoking === key.id ? (
+                              <Loader2 className="h-3 w-3 animate-spin" />
+                            ) : (
+                              <ShieldOff className="h-3 w-3" />
+                            )}
+                            Revoke
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => handleRevoke(key.id, key.name, true)}
+                            disabled={revoking === key.id}
+                            className="inline-flex items-center gap-1 rounded border border-red-900/40 px-2 py-1 text-[10px] text-red-400 opacity-0 transition-opacity hover:bg-red-500/10 disabled:opacity-40 group-hover:opacity-100"
+                          >
+                            {revoking === key.id ? (
+                              <Loader2 className="h-3 w-3 animate-spin" />
+                            ) : (
+                              <X className="h-3 w-3" />
+                            )}
+                            Delete
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
               </tbody>
             </table>
           </div>

@@ -19,7 +19,7 @@ export default function TechDashboard() {
     <div className="space-y-6">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <h1 className="flex items-center gap-2 font-mono text-2xl font-bold tracking-tight text-slate-100">
+          <h1 className="flex items-center gap-2 text-2xl font-bold tracking-tight text-white">
             <Activity className="h-6 w-6 text-cyan-400" />
             System Control Center
           </h1>
@@ -27,7 +27,7 @@ export default function TechDashboard() {
             Overview of infrastructure health and active services.
           </p>
         </div>
-        <div className="flex items-center gap-2 rounded-lg border border-cyan-900/30 bg-slate-900 px-4 py-2 text-sm text-slate-400">
+        <div className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-400">
           <Clock className="h-4 w-4" />
           <span>Last updated: Just now</span>
         </div>
@@ -35,7 +35,7 @@ export default function TechDashboard() {
 
       {/* Primary Metrics */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <div className="group relative overflow-hidden rounded-xl border border-slate-800 bg-slate-900 p-5 shadow-sm">
+        <div className="group relative overflow-hidden rounded-xl border border-white/5 bg-[#131726] p-5 shadow-sm">
           <div className="absolute right-0 top-0 -mr-8 -mt-8 h-32 w-32 rounded-bl-full bg-emerald-500/5 transition-transform group-hover:scale-110"></div>
           <div className="mb-4 flex items-center justify-between">
             <h3 className="text-sm font-medium text-slate-400">
@@ -49,7 +49,7 @@ export default function TechDashboard() {
           </div>
         </div>
 
-        <div className="group relative overflow-hidden rounded-xl border border-slate-800 bg-slate-900 p-5 shadow-sm">
+        <div className="group relative overflow-hidden rounded-xl border border-white/5 bg-[#131726] p-5 shadow-sm">
           <div className="absolute right-0 top-0 -mr-8 -mt-8 h-32 w-32 rounded-bl-full bg-cyan-500/5 transition-transform group-hover:scale-110"></div>
           <div className="mb-4 flex items-center justify-between">
             <h3 className="text-sm font-medium text-slate-400">API Latency</h3>
@@ -61,7 +61,7 @@ export default function TechDashboard() {
           </div>
         </div>
 
-        <div className="group relative overflow-hidden rounded-xl border border-slate-800 bg-slate-900 p-5 shadow-sm">
+        <div className="group relative overflow-hidden rounded-xl border border-white/5 bg-[#131726] p-5 shadow-sm">
           <div className="absolute right-0 top-0 -mr-8 -mt-8 h-32 w-32 rounded-bl-full bg-amber-500/5 transition-transform group-hover:scale-110"></div>
           <div className="mb-4 flex items-center justify-between">
             <h3 className="text-sm font-medium text-slate-400">
@@ -75,7 +75,7 @@ export default function TechDashboard() {
           </div>
         </div>
 
-        <div className="group relative overflow-hidden rounded-xl border border-slate-800 bg-slate-900 p-5 shadow-sm">
+        <div className="group relative overflow-hidden rounded-xl border border-white/5 bg-[#131726] p-5 shadow-sm">
           <div className="absolute right-0 top-0 -mr-8 -mt-8 h-32 w-32 rounded-bl-full bg-purple-500/5 transition-transform group-hover:scale-110"></div>
           <div className="mb-4 flex items-center justify-between">
             <h3 className="text-sm font-medium text-slate-400">AI Requests</h3>
@@ -91,7 +91,7 @@ export default function TechDashboard() {
       {/* Secondary Service Modules */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Vercel & Posthog Quick Glance */}
-        <div className="rounded-xl border border-slate-800 bg-slate-900 p-6">
+        <div className="rounded-xl border border-white/5 bg-[#131726] p-6">
           <div className="mb-6 flex items-center justify-between">
             <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-200">
               <Globe className="h-5 w-5 text-blue-400" />
@@ -106,9 +106,9 @@ export default function TechDashboard() {
           </div>
 
           <div className="space-y-4">
-            <div className="flex items-center justify-between rounded-lg border border-slate-800/50 bg-slate-950 p-4">
+            <div className="flex items-center justify-between rounded-lg border border-white/10 bg-white/5 p-4">
               <div className="flex items-center gap-3">
-                <div className="rounded-lg border border-slate-700 bg-slate-900 p-2">
+                <div className="rounded-lg border border-white/10 bg-white/5 p-2">
                   <svg
                     viewBox="0 0 76 65"
                     fill="none"
@@ -136,9 +136,9 @@ export default function TechDashboard() {
               </div>
             </div>
 
-            <div className="flex items-center justify-between rounded-lg border border-slate-800/50 bg-slate-950 p-4">
+            <div className="flex items-center justify-between rounded-lg border border-white/10 bg-white/5 p-4">
               <div className="flex items-center gap-3">
-                <div className="rounded-lg border border-slate-700 bg-slate-900 p-2">
+                <div className="rounded-lg border border-white/10 bg-white/5 p-2">
                   <Activity className="h-5 w-5 text-orange-400" />
                 </div>
                 <div>
@@ -159,7 +159,7 @@ export default function TechDashboard() {
         </div>
 
         {/* Database & Security Quick Glance */}
-        <div className="rounded-xl border border-slate-800 bg-slate-900 p-6">
+        <div className="rounded-xl border border-white/5 bg-[#131726] p-6">
           <div className="mb-6 flex items-center justify-between">
             <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-200">
               <Database className="h-5 w-5 text-emerald-400" />
@@ -174,9 +174,9 @@ export default function TechDashboard() {
           </div>
 
           <div className="space-y-4">
-            <div className="flex items-center justify-between rounded-lg border border-slate-800/50 bg-slate-950 p-4">
+            <div className="flex items-center justify-between rounded-lg border border-white/10 bg-white/5 p-4">
               <div className="flex items-center gap-3">
-                <div className="rounded-lg border border-slate-700 bg-slate-900 p-2">
+                <div className="rounded-lg border border-white/10 bg-white/5 p-2">
                   <Database className="h-5 w-5 text-emerald-500" />
                 </div>
                 <div>
@@ -194,9 +194,9 @@ export default function TechDashboard() {
               </div>
             </div>
 
-            <div className="flex items-center justify-between rounded-lg border border-slate-800/50 bg-slate-950 p-4">
+            <div className="flex items-center justify-between rounded-lg border border-white/10 bg-white/5 p-4">
               <div className="flex items-center gap-3">
-                <div className="rounded-lg border border-slate-700 bg-slate-900 p-2">
+                <div className="rounded-lg border border-white/10 bg-white/5 p-2">
                   <Server className="h-5 w-5 text-rose-500" />
                 </div>
                 <div>

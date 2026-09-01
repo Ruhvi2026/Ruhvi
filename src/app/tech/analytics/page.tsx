@@ -15,7 +15,7 @@ export default function AnalyticsPage() {
     <div className="space-y-6">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <h1 className="flex items-center gap-2 font-mono text-2xl font-bold text-slate-100">
+          <h1 className="flex items-center gap-2 text-2xl font-bold text-white">
             <Activity className="h-6 w-6 text-blue-400" />
             Analytics & Performance
           </h1>
@@ -45,7 +45,7 @@ export default function AnalyticsPage() {
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Vercel Speed Insights */}
-        <div className="rounded-xl border border-slate-800 bg-slate-900 p-6">
+        <div className="rounded-xl border border-white/5 bg-[#131726] p-6">
           <div className="mb-6 flex items-center justify-between">
             <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-200">
               <Zap className="h-5 w-5 text-yellow-400" />
@@ -103,7 +103,7 @@ export default function AnalyticsPage() {
         </div>
 
         {/* PostHog Analytics */}
-        <div className="rounded-xl border border-slate-800 bg-slate-900 p-6">
+        <div className="rounded-xl border border-white/5 bg-[#131726] p-6">
           <div className="mb-6 flex items-center justify-between">
             <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-200">
               <Users className="h-5 w-5 text-orange-400" />
@@ -115,7 +115,7 @@ export default function AnalyticsPage() {
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <div className="rounded-lg border border-slate-800/50 bg-slate-950 p-4">
+            <div className="rounded-lg border border-white/10 bg-white/5 p-4">
               <div className="mb-2 flex items-center gap-2 text-sm text-slate-400">
                 <Users className="h-4 w-4" />
                 Unique Users
@@ -123,7 +123,7 @@ export default function AnalyticsPage() {
               <p className="text-2xl font-bold text-slate-200">12.4k</p>
               <p className="mt-1 text-xs text-emerald-400">+14.2%</p>
             </div>
-            <div className="rounded-lg border border-slate-800/50 bg-slate-950 p-4">
+            <div className="rounded-lg border border-white/10 bg-white/5 p-4">
               <div className="mb-2 flex items-center gap-2 text-sm text-slate-400">
                 <Globe className="h-4 w-4" />
                 Pageviews
@@ -131,7 +131,7 @@ export default function AnalyticsPage() {
               <p className="text-2xl font-bold text-slate-200">48.2k</p>
               <p className="mt-1 text-xs text-emerald-400">+8.1%</p>
             </div>
-            <div className="rounded-lg border border-slate-800/50 bg-slate-950 p-4">
+            <div className="rounded-lg border border-white/10 bg-white/5 p-4">
               <div className="mb-2 flex items-center gap-2 text-sm text-slate-400">
                 <Activity className="h-4 w-4" />
                 Bounce Rate
@@ -139,7 +139,7 @@ export default function AnalyticsPage() {
               <p className="text-2xl font-bold text-slate-200">42.3%</p>
               <p className="mt-1 text-xs text-rose-400">+2.1%</p>
             </div>
-            <div className="rounded-lg border border-slate-800/50 bg-slate-950 p-4">
+            <div className="rounded-lg border border-white/10 bg-white/5 p-4">
               <div className="mb-2 flex items-center gap-2 text-sm text-slate-400">
                 <MousePointer className="h-4 w-4" />
                 Conversion

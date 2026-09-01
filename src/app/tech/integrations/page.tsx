@@ -8,7 +8,6 @@ import {
   Activity,
   ShieldAlert,
   Plus,
-  ExternalLink,
 } from 'lucide-react';
 
 export default function IntegrationsPage() {
@@ -16,7 +15,7 @@ export default function IntegrationsPage() {
     <div className="space-y-6">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <h1 className="flex items-center gap-2 font-mono text-2xl font-bold text-slate-100">
+          <h1 className="flex items-center gap-2 text-2xl font-bold text-white">
             <Webhook className="h-6 w-6 text-purple-400" />
             Webhooks & APIs
           </h1>
@@ -28,7 +27,7 @@ export default function IntegrationsPage() {
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* API Keys */}
-        <div className="rounded-xl border border-slate-800 bg-slate-900 p-6">
+        <div className="rounded-xl border border-white/5 bg-[#131726] p-6">
           <div className="mb-6 flex items-center justify-between">
             <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-200">
               <Key className="h-5 w-5 text-amber-400" />
@@ -40,7 +39,7 @@ export default function IntegrationsPage() {
           </div>
 
           <div className="space-y-4">
-            <div className="flex items-center justify-between rounded-lg border border-slate-800/50 bg-slate-950 p-4">
+            <div className="flex items-center justify-between rounded-lg border border-white/10 bg-white/5 p-4">
               <div>
                 <p className="text-sm font-medium text-slate-200">
                   Shiprocket Sync Key
@@ -59,7 +58,7 @@ export default function IntegrationsPage() {
               </div>
             </div>
 
-            <div className="flex items-center justify-between rounded-lg border border-slate-800/50 bg-slate-950 p-4">
+            <div className="flex items-center justify-between rounded-lg border border-white/10 bg-white/5 p-4">
               <div>
                 <p className="text-sm font-medium text-slate-200">
                   EspoCRM Integration
@@ -78,7 +77,7 @@ export default function IntegrationsPage() {
               </div>
             </div>
 
-            <div className="flex items-center justify-between rounded-lg border border-slate-800/50 bg-slate-950 p-4 opacity-60">
+            <div className="flex items-center justify-between rounded-lg border border-white/10 bg-white/5 p-4 opacity-60">
               <div>
                 <p className="text-sm font-medium text-slate-200 line-through">
                   Legacy Payment Webhook
@@ -97,7 +96,7 @@ export default function IntegrationsPage() {
         </div>
 
         {/* Webhook Endpoints */}
-        <div className="rounded-xl border border-slate-800 bg-slate-900 p-6">
+        <div className="rounded-xl border border-white/5 bg-[#131726] p-6">
           <div className="mb-6 flex items-center justify-between">
             <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-200">
               <ArrowRightLeft className="h-5 w-5 text-blue-400" />
@@ -109,7 +108,7 @@ export default function IntegrationsPage() {
           </div>
 
           <div className="space-y-4">
-            <div className="rounded-lg border border-slate-800/50 bg-slate-950 p-4">
+            <div className="rounded-lg border border-white/10 bg-white/5 p-4">
               <div className="mb-2 flex items-start justify-between">
                 <div>
                   <p className="text-sm font-medium text-slate-200">
@@ -124,16 +123,16 @@ export default function IntegrationsPage() {
                 </div>
               </div>
               <div className="mt-3 flex gap-2">
-                <span className="rounded bg-slate-800 px-2 py-0.5 text-xs text-slate-300">
+                <span className="rounded bg-white/5 px-2 py-0.5 text-xs text-slate-300">
                   order.shipped
                 </span>
-                <span className="rounded bg-slate-800 px-2 py-0.5 text-xs text-slate-300">
+                <span className="rounded bg-white/5 px-2 py-0.5 text-xs text-slate-300">
                   order.delivered
                 </span>
               </div>
             </div>
 
-            <div className="rounded-lg border border-slate-800/50 bg-slate-950 p-4">
+            <div className="rounded-lg border border-white/10 bg-white/5 p-4">
               <div className="mb-2 flex items-start justify-between">
                 <div>
                   <p className="text-sm font-medium text-slate-200">
@@ -148,16 +147,16 @@ export default function IntegrationsPage() {
                 </div>
               </div>
               <div className="mt-3 flex gap-2">
-                <span className="rounded bg-slate-800 px-2 py-0.5 text-xs text-slate-300">
+                <span className="rounded bg-white/5 px-2 py-0.5 text-xs text-slate-300">
                   payment.captured
                 </span>
-                <span className="rounded bg-slate-800 px-2 py-0.5 text-xs text-slate-300">
+                <span className="rounded bg-white/5 px-2 py-0.5 text-xs text-slate-300">
                   payment.failed
                 </span>
               </div>
             </div>
 
-            <div className="relative overflow-hidden rounded-lg border border-amber-500/30 border-slate-800/50 bg-slate-950 p-4">
+            <div className="relative overflow-hidden rounded-lg border border-amber-500/30 bg-white/5 p-4">
               <div className="absolute left-0 top-0 h-full w-1 bg-amber-500"></div>
               <div className="mb-2 flex items-start justify-between">
                 <div>

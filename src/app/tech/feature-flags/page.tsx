@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { ToggleLeft, Zap, Users, Filter, Plus, Save } from 'lucide-react';
+import { ToggleLeft, Users, Filter, Plus } from 'lucide-react';
 
 export default function FeatureFlagsPage() {
   const [flags, setFlags] = useState([
@@ -41,7 +41,7 @@ export default function FeatureFlagsPage() {
     <div className="space-y-6">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <h1 className="flex items-center gap-2 font-mono text-2xl font-bold text-slate-100">
+          <h1 className="flex items-center gap-2 text-2xl font-bold text-white">
             <ToggleLeft className="h-6 w-6 text-emerald-400" />
             Feature Flags
           </h1>
@@ -54,10 +54,10 @@ export default function FeatureFlagsPage() {
         </button>
       </div>
 
-      <div className="overflow-hidden rounded-xl border border-slate-800 bg-slate-900">
-        <div className="flex items-center justify-between border-b border-slate-800 bg-slate-950/50 p-4">
+      <div className="overflow-hidden rounded-xl border border-white/5 bg-[#131726]">
+        <div className="flex items-center justify-between border-b border-white/5 bg-white/5 p-4">
           <div className="flex gap-2">
-            <button className="rounded-md bg-slate-800 px-3 py-1.5 text-sm text-slate-200">
+            <button className="rounded-md bg-white/10 px-3 py-1.5 text-sm text-slate-200">
               All Flags
             </button>
             <button className="px-3 py-1.5 text-sm text-slate-400 hover:text-slate-300">
@@ -72,11 +72,11 @@ export default function FeatureFlagsPage() {
           </button>
         </div>
 
-        <div className="divide-y divide-slate-800">
+        <div className="divide-y divide-white/5">
           {flags.map((flag) => (
             <div
               key={flag.id}
-              className="flex flex-col justify-between gap-4 p-5 transition-colors hover:bg-slate-800/30 sm:flex-row sm:items-center"
+              className="flex flex-col justify-between gap-4 p-5 transition-colors hover:bg-white/5 sm:flex-row sm:items-center"
             >
               <div className="flex-1">
                 <div className="mb-1 flex items-center gap-3">
@@ -109,7 +109,7 @@ export default function FeatureFlagsPage() {
                 <div className="flex flex-col items-end">
                   <button
                     onClick={() => toggleFlag(flag.id)}
-                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${flag.enabled ? 'bg-emerald-500' : 'bg-slate-700'}`}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${flag.enabled ? 'bg-cyan-500' : 'bg-white/10'}`}
                   >
                     <span
                       className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${flag.enabled ? 'translate-x-6' : 'translate-x-1'}`}

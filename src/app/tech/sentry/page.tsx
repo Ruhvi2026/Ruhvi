@@ -8,7 +8,7 @@ export default function SentryLogsPage() {
     <div className="space-y-6">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <h1 className="flex items-center gap-2 font-mono text-2xl font-bold text-slate-100">
+          <h1 className="flex items-center gap-2 text-2xl font-bold text-white">
             <Server className="h-6 w-6 text-rose-500" />
             Sentry Error Logs
           </h1>
@@ -27,7 +27,7 @@ export default function SentryLogsPage() {
       </div>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-        <div className="rounded-xl border border-slate-800 bg-slate-900 p-5">
+        <div className="rounded-xl border border-white/5 bg-[#131726] p-5">
           <div className="mb-2 flex items-start justify-between">
             <p className="text-sm text-slate-400">Total Issues (24h)</p>
             <Activity className="h-4 w-4 text-slate-500" />
@@ -37,7 +37,7 @@ export default function SentryLogsPage() {
             <AlertTriangle className="h-3 w-3" /> +12% from yesterday
           </p>
         </div>
-        <div className="rounded-xl border border-slate-800 bg-slate-900 p-5">
+        <div className="rounded-xl border border-white/5 bg-[#131726] p-5">
           <div className="mb-2 flex items-start justify-between">
             <p className="text-sm text-slate-400">Crash-Free Users</p>
             <Activity className="h-4 w-4 text-slate-500" />
@@ -47,7 +47,7 @@ export default function SentryLogsPage() {
             Above 99.5% target
           </p>
         </div>
-        <div className="rounded-xl border border-slate-800 bg-slate-900 p-5">
+        <div className="rounded-xl border border-white/5 bg-[#131726] p-5">
           <div className="mb-2 flex items-start justify-between">
             <p className="text-sm text-slate-400">Unresolved Critical</p>
             <AlertTriangle className="h-4 w-4 text-rose-500" />
@@ -59,11 +59,11 @@ export default function SentryLogsPage() {
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-xl border border-slate-800 bg-slate-900">
-        <div className="flex items-center justify-between border-b border-slate-800 bg-slate-950/50 px-6 py-4">
+      <div className="overflow-hidden rounded-xl border border-white/5 bg-[#131726]">
+        <div className="flex items-center justify-between border-b border-white/5 bg-white/5 px-6 py-4">
           <h2 className="text-lg font-medium text-slate-200">Recent Issues</h2>
         </div>
-        <div className="divide-y divide-slate-800">
+        <div className="divide-y divide-white/5">
           {[
             {
               id: '1',
@@ -90,7 +90,7 @@ export default function SentryLogsPage() {
           ].map((issue, idx) => (
             <div
               key={idx}
-              className="flex items-start gap-4 p-4 transition-colors hover:bg-slate-800/50"
+              className="flex items-start gap-4 p-4 transition-colors hover:bg-white/5"
             >
               <div
                 className={`mt-1 rounded-full p-1.5 ${issue.level === 'error' ? 'bg-rose-500/20 text-rose-500' : 'bg-amber-500/20 text-amber-500'}`}
@@ -102,13 +102,13 @@ export default function SentryLogsPage() {
                   {issue.error}
                 </p>
                 <div className="flex items-center gap-4 text-xs text-slate-500">
-                  <span className="rounded bg-slate-800 px-2 py-0.5 font-mono">
+                  <span className="rounded bg-white/5 px-2 py-0.5 font-mono">
                     {issue.file}
                   </span>
                   <span>{issue.time}</span>
                 </div>
               </div>
-              <button className="rounded bg-cyan-950/30 px-3 py-1.5 text-sm text-cyan-400 transition-colors hover:bg-cyan-900/50 hover:text-cyan-300">
+              <button className="rounded bg-cyan-500/10 px-3 py-1.5 text-sm text-cyan-400 transition-colors hover:bg-cyan-500/20 hover:text-cyan-300">
                 View Details
               </button>
             </div>

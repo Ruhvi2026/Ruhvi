@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
 import {
@@ -471,6 +471,15 @@ export default function ApiKeysPage() {
   const [newRawKey, setNewRawKey] = useState<string | null>(null);
   const [revoking, setRevoking] = useState<string | null>(null);
 
+  // Filters
+  const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState<
+    'all' | 'active' | 'revoked'
+  >('all');
+  const [selectedEndpoint, setSelectedEndpoint] = useState<string>(
+    RESOURCES[0]?.key || 'blog'
+  );
+
   const fetchKeys = useCallback(async () => {
     setLoading(true);
     try {
@@ -497,16 +506,28 @@ export default function ApiKeysPage() {
     fetchKeys();
   };
 
-  const handleRevoke = async (keyId: string, keyName: string) => {
-    if (!confirm(`Revoke key "${keyName}"? This cannot be undone.`)) return;
+  const handleRevoke = async (
+    keyId: string,
+    keyName: string,
+    force = false
+  ) => {
+    if (
+      !confirm(
+        `${force ? 'Permanently delete' : 'Revoke key'} "${keyName}"? This cannot be undone.`
+      )
+    )
+      return;
     setRevoking(keyId);
     try {
-      const res = await fetch(`/api/admin/api-keys?id=${keyId}`, {
-        method: 'DELETE',
-      });
+      const res = await fetch(
+        `/api/admin/api-keys?id=${keyId}${force ? '&force=true' : ''}`,
+        {
+          method: 'DELETE',
+        }
+      );
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
-      toast.success(`Key "${keyName}" revoked`);
+      toast.success(`Key "${keyName}" ${force ? 'deleted' : 'revoked'}`);
       fetchKeys();
     } catch (err: unknown) {
       toast.error(
@@ -548,12 +569,29 @@ export default function ApiKeysPage() {
 
       {/* Endpoint info */}
       <div className="rounded-lg border border-cyan-500/20 bg-cyan-500/5 p-4">
-        <p className="text-xs font-semibold text-cyan-400">External Endpoint</p>
-        <div className="mt-1 flex items-center gap-1">
+        <div className="flex items-center justify-between">
+          <p className="text-xs font-semibold text-cyan-400">
+            External Endpoint
+          </p>
+          <select
+            value={selectedEndpoint}
+            onChange={(e) => setSelectedEndpoint(e.target.value)}
+            className="rounded-lg border border-white/10 bg-[#131726] px-2 py-1 text-xs text-white focus:border-emerald-500 focus:outline-none"
+          >
+            {RESOURCES.map((r) => (
+              <option key={r.key} value={r.key}>
+                {r.label}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="mt-2 flex items-center gap-1">
           <code className="text-xs text-slate-300">
-            POST https://ruhvi.in/api/external/blog
+            POST https://ruhvi.in/api/external/{selectedEndpoint}
           </code>
-          <CopyButton text="https://ruhvi.in/api/external/blog" />
+          <CopyButton
+            text={`https://ruhvi.in/api/external/${selectedEndpoint}`}
+          />
         </div>
         <p className="mt-1.5 text-[10px] text-slate-500">
           Pass the key as{' '}
@@ -563,17 +601,38 @@ export default function ApiKeysPage() {
         </p>
       </div>
 
-      {/* Permission level legend */}
-      <div className="flex flex-wrap gap-2">
-        {PERMISSION_LEVELS.filter((p) => p.value !== 'none').map((p) => (
-          <span
-            key={p.value}
-            className={`inline-flex items-center gap-1 rounded border px-2 py-1 text-[10px] font-semibold ${LEVEL_COLORS[p.value] ?? ''}`}
+      {/* Filters and Permission Legend */}
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex flex-wrap gap-2">
+          {PERMISSION_LEVELS.filter((p) => p.value !== 'none').map((p) => (
+            <span
+              key={p.value}
+              className={`inline-flex items-center gap-1 rounded border px-2 py-1 text-[10px] font-semibold ${LEVEL_COLORS[p.value] ?? ''}`}
+            >
+              {p.label}
+              <span className="font-normal opacity-60">· {p.description}</span>
+            </span>
+          ))}
+        </div>
+
+        <div className="flex gap-3">
+          <input
+            type="text"
+            placeholder="Search keys..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-48 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white placeholder-slate-500 focus:border-emerald-500 focus:outline-none"
+          />
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value as any)}
+            className="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white focus:border-emerald-500 focus:outline-none [&>option]:bg-slate-900"
           >
-            {p.label}
-            <span className="font-normal opacity-60">â€” {p.description}</span>
-          </span>
-        ))}
+            <option value="all">All Statuses</option>
+            <option value="active">Active Only</option>
+            <option value="revoked">Revoked Only</option>
+          </select>
+        </div>
       </div>
 
       {/* Keys table */}
@@ -613,50 +672,78 @@ export default function ApiKeysPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/[0.03]">
-                {keys.map((key) => (
-                  <tr
-                    key={key.id}
-                    className="group transition-colors hover:bg-white/[0.02]"
-                  >
-                    <td className="px-4 py-3 font-medium text-white">
-                      {key.name}
-                    </td>
-                    <td className="px-4 py-3">
-                      <code className="rounded bg-white/5 px-1.5 py-0.5 font-mono text-slate-400">
-                        {key.key_prefix}
-                      </code>
-                    </td>
-                    <td className="max-w-xs px-4 py-3">
-                      <ScopePills scopes={key.scopes} />
-                    </td>
-                    <td className="px-4 py-3">
-                      <StatusBadge revokedAt={key.revoked_at} />
-                    </td>
-                    <td className="px-4 py-3 text-slate-500">
-                      {fmtDate(key.created_at)}
-                    </td>
-                    <td className="px-4 py-3 text-slate-500">
-                      {fmtDate(key.last_used_at)}
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      {!key.revoked_at && (
-                        <button
-                          onClick={() => handleRevoke(key.id, key.name)}
-                          disabled={revoking === key.id}
-                          title="Revoke key"
-                          className="inline-flex items-center gap-1.5 rounded-lg border border-rose-500/20 px-2.5 py-1.5 text-[10px] font-semibold text-rose-400 opacity-0 transition-all hover:bg-rose-500/10 disabled:opacity-50 group-hover:opacity-100"
-                        >
-                          {revoking === key.id ? (
-                            <Loader2 className="h-3 w-3 animate-spin" />
-                          ) : (
-                            <ShieldOff className="h-3 w-3" />
-                          )}
-                          Revoke
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-                ))}
+                {keys
+                  .filter((k) => {
+                    if (statusFilter === 'active' && k.revoked_at) return false;
+                    if (statusFilter === 'revoked' && !k.revoked_at)
+                      return false;
+                    if (search) {
+                      const q = search.toLowerCase();
+                      return (
+                        k.name.toLowerCase().includes(q) ||
+                        k.key_prefix.toLowerCase().includes(q)
+                      );
+                    }
+                    return true;
+                  })
+                  .map((key) => (
+                    <tr
+                      key={key.id}
+                      className="group border-b border-white/5 transition-colors last:border-0 hover:bg-white/5"
+                    >
+                      <td className="px-6 py-4">
+                        <div className="font-semibold text-white">
+                          {key.name}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <code className="rounded bg-white/5 px-2 py-1 text-slate-300">
+                          {key.key_prefix}
+                        </code>
+                      </td>
+                      <td className="px-6 py-4 text-slate-400">
+                        <ScopePills scopes={key.scopes} />
+                      </td>
+                      <td className="px-6 py-4">
+                        <StatusBadge revokedAt={key.revoked_at} />
+                      </td>
+                      <td className="px-6 py-4 text-slate-500">
+                        {fmtDate(key.created_at)}
+                      </td>
+                      <td className="px-6 py-4 text-slate-500">
+                        {fmtDate(key.last_used_at)}
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        {!key.revoked_at ? (
+                          <button
+                            onClick={() => handleRevoke(key.id, key.name)}
+                            disabled={revoking === key.id}
+                            className="inline-flex items-center gap-1 rounded-lg border border-orange-500/20 px-3 py-1.5 text-xs font-semibold text-orange-400 opacity-0 transition-all hover:bg-orange-500/10 hover:text-orange-300 disabled:opacity-50 group-hover:opacity-100"
+                          >
+                            {revoking === key.id ? (
+                              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                            ) : (
+                              <ShieldOff className="h-3.5 w-3.5" />
+                            )}
+                            Revoke
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => handleRevoke(key.id, key.name, true)}
+                            disabled={revoking === key.id}
+                            className="inline-flex items-center gap-1 rounded-lg border border-red-500/20 px-3 py-1.5 text-xs font-semibold text-red-400 opacity-0 transition-all hover:bg-red-500/10 hover:text-red-300 disabled:opacity-50 group-hover:opacity-100"
+                          >
+                            {revoking === key.id ? (
+                              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                            ) : (
+                              <X className="h-3.5 w-3.5" />
+                            )}
+                            Delete
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
               </tbody>
             </table>
           </div>

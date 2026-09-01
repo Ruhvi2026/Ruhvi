@@ -16,7 +16,9 @@ function isPortalHostname(hostname: string): boolean {
     h === 'marketing.ruhvi.in' ||
     h.startsWith('marketing.localhost') ||
     h === 'orders.ruhvi.in' ||
-    h.startsWith('orders.localhost')
+    h.startsWith('orders.localhost') ||
+    h === 'tech.ruhvi.in' ||
+    h.startsWith('tech.localhost')
   );
 }
 
