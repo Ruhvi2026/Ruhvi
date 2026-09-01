@@ -1,6 +1,7 @@
 'use client';
 
 import { ReactNode, useLayoutEffect, useState } from 'react';
+import { usePathname } from 'next/navigation';
 
 function isPortalHostname(hostname: string): boolean {
   const h = hostname.toLowerCase();
@@ -22,15 +23,33 @@ function isPortalHostname(hostname: string): boolean {
   );
 }
 
+const PORTAL_PATHS = [
+  '/admin',
+  '/manager',
+  '/staff',
+  '/operations',
+  '/portal-orders',
+  '/support',
+  '/marketing',
+  '/tech',
+];
+
 export function StorefrontChrome({ children }: { children: ReactNode }) {
-  const [isPortal, setIsPortal] = useState(false);
+  const pathname = usePathname();
+
+  // Predict if it's a portal based on pathname for SSR
+  const isPortalPath = PORTAL_PATHS.some(
+    (p) => pathname === p || (pathname && pathname.startsWith(p + '/'))
+  );
+
+  const [isPortal, setIsPortal] = useState(isPortalPath);
 
   useLayoutEffect(() => {
-    setIsPortal(
-      typeof window !== 'undefined' &&
-        isPortalHostname(window.location.hostname)
-    );
-  }, []);
+    if (typeof window !== 'undefined') {
+      const isPortalHost = isPortalHostname(window.location.hostname);
+      setIsPortal(isPortalHost || isPortalPath);
+    }
+  }, [isPortalPath]);
 
   if (isPortal) return null;
 
