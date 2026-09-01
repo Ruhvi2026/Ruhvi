@@ -307,7 +307,7 @@ export function Navbar() {
       <div
         className={`fixed inset-0 z-50 transition-all duration-300 ${mobileMenuOpen ? 'pointer-events-auto visible' : 'pointer-events-none invisible delay-300'}`}
         aria-hidden={!mobileMenuOpen}
-        inert={!mobileMenuOpen ? '' : undefined}
+        inert={!mobileMenuOpen ? true : undefined}
       >
         <div
           className={`absolute inset-0 bg-stone-950/60 transition-opacity duration-300 ${mobileMenuOpen ? 'opacity-100' : 'opacity-0'}`}

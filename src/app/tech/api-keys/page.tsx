@@ -6,6 +6,7 @@
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
+import Link from 'next/link';
 import {
   KeyRound,
   Plus,
@@ -20,6 +21,7 @@ import {
   EyeOff,
   ChevronDown,
   Terminal,
+  Shield,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { RESOURCES, PERMISSION_LEVELS } from '@/lib/api-keys';
@@ -457,8 +459,6 @@ function ScopePills({ scopes }: { scopes: string[] }) {
 export default function TechApiKeysPage() {
   const [keys, setKeys] = useState<ApiKeyRecord[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showCreate, setShowCreate] = useState(false);
-  const [newRawKey, setNewRawKey] = useState<string | null>(null);
   const [revoking, setRevoking] = useState<string | null>(null);
 
   // New Filters
@@ -487,12 +487,6 @@ export default function TechApiKeysPage() {
   useEffect(() => {
     fetchKeys();
   }, [fetchKeys]);
-
-  const handleCreated = (rawKey: string) => {
-    setShowCreate(false);
-    setNewRawKey(rawKey);
-    fetchKeys();
-  };
 
   const handleRevoke = async (
     keyId: string,
@@ -545,13 +539,25 @@ export default function TechApiKeysPage() {
           >
             <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
           </button>
-          <button
-            onClick={() => setShowCreate(true)}
-            className="flex items-center gap-2 rounded-lg bg-cyan-600 px-3 py-2 text-sm font-medium text-slate-900 transition-colors hover:bg-cyan-500 dark:text-white"
-          >
-            <Plus className="h-4 w-4" /> New Key
-          </button>
         </div>
+      </div>
+
+      {/* Read-only notice — key creation & permission management is admin-only */}
+      <div className="flex items-center gap-3 rounded-xl border border-cyan-500/20 bg-cyan-500/5 p-3.5">
+        <Shield className="h-4 w-4 flex-shrink-0 text-cyan-400" />
+        <p className="text-xs text-slate-400 dark:text-slate-400">
+          This portal is <strong className="text-cyan-300">read-only</strong>.
+          API key generation and permission management are handled in the{' '}
+          <Link
+            href="https://admin.ruhvi.in/admin/api-keys"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-semibold text-cyan-300 underline underline-offset-2 hover:text-cyan-200"
+          >
+            Admin Panel
+          </Link>
+          .
+        </p>
       </div>
 
       <div className="rounded-xl border border-gray-200 bg-white p-4 text-xs dark:border-tech-border dark:bg-tech-card">
@@ -627,12 +633,18 @@ export default function TechApiKeysPage() {
         ) : keys.length === 0 ? (
           <div className="py-12 text-center text-sm text-slate-600 dark:text-slate-400">
             <p>No API keys found.</p>
-            <button
-              onClick={() => setShowCreate(true)}
-              className="mt-4 inline-flex items-center gap-2 rounded-lg bg-cyan-600 px-3 py-2 text-xs font-medium text-slate-900 hover:bg-cyan-500 dark:text-white"
-            >
-              <Plus className="h-3.5 w-3.5" /> Generate First Key
-            </button>
+            <p className="mt-2 text-xs text-slate-500 dark:text-slate-500">
+              Key management is available in{' '}
+              <Link
+                href="https://admin.ruhvi.in/admin/api-keys"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-semibold text-cyan-300 underline underline-offset-2 hover:text-cyan-200"
+              >
+                Admin Panel
+              </Link>
+              .
+            </p>
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -728,16 +740,6 @@ export default function TechApiKeysPage() {
           </div>
         )}
       </div>
-
-      {showCreate && (
-        <CreateKeyModal
-          onCreated={handleCreated}
-          onClose={() => setShowCreate(false)}
-        />
-      )}
-      {newRawKey && (
-        <KeyRevealModal rawKey={newRawKey} onClose={() => setNewRawKey(null)} />
-      )}
     </div>
   );
 }
