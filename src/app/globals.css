@@ -630,6 +630,18 @@ html.dark textarea:focus {
   outline: none !important;
 }
 
+/* Native select dropdown popups must stay readable on any background */
+select option {
+  background-color: #1c1c2a !important;
+  color: #f6f5f4 !important;
+}
+select option:disabled {
+  color: #8b8b99 !important;
+}
+select option:checked {
+  background-color: #2a2a3d !important;
+}
+
 /* Primary buttons overriding bg-charcoal-900 */
 html.dark button.bg-charcoal-900,
 html.dark a.bg-charcoal-900,

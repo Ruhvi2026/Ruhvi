@@ -137,8 +137,7 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       {
         label: 'Ticket Queue',
-        href: 'https://support.ruhvi.in/support/tickets',
-        external: true,
+        href: '/support/tickets',
         icon: Ticket,
       },
       {
