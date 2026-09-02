@@ -784,7 +784,7 @@ html.dark .glow-card-focus {
   .nav-inner {
     max-width: var(--maxw);
     margin: 0 auto;
-    padding: 10px clamp(20px, 4vw, 40px);
+    padding: 4px clamp(20px, 4vw, 40px);
     display: flex;
     align-items: center;
     justify-content: space-between;

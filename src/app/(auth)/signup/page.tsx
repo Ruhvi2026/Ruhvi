@@ -90,6 +90,17 @@ export default function SignUpPage() {
           console.error('Failed to trigger welcome email:', err)
         );
 
+        // Trigger Email Verification Link
+        fetch('/api/auth/send-verification', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: data.user.email,
+          }),
+        }).catch((err) =>
+          console.error('Failed to trigger verification email:', err)
+        );
+
         posthog.capture('signup_completed', { method: 'email' });
       }
 

@@ -175,10 +175,10 @@ export function SearchBar() {
           }}
           onKeyDown={handleKeyDown}
           placeholder="Search ring, necklace, SKU (e.g. RNG-000101)..."
-          className="w-full rounded-full border border-stone-200/70 bg-stone-50/50 py-2.5 pl-11 pr-4 text-sm text-stone-800 placeholder-stone-400 shadow-[inset_0_1px_4px_rgba(0,0,0,0.02)] transition-all duration-300 hover:bg-white focus:border-gold-300 focus:bg-white focus:outline-none focus:ring-4 focus:ring-gold-500/10"
+          className="w-full rounded-full border border-stone-200/70 bg-stone-50/50 py-1.5 pl-10 pr-4 text-sm text-stone-800 placeholder-stone-400 shadow-[inset_0_1px_4px_rgba(0,0,0,0.02)] transition-all duration-300 hover:bg-white focus:border-gold-300 focus:bg-white focus:outline-none focus:ring-4 focus:ring-gold-500/10"
         />
         <Search
-          className="h-4.5 w-4.5 absolute left-4 top-3 text-stone-400"
+          className="absolute left-3.5 top-2 h-4 w-4 text-stone-400"
           strokeWidth={1.5}
         />
         <button type="submit" className="sr-only" aria-label="Search">

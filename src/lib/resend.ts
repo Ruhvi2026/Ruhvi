@@ -423,6 +423,56 @@ export async function sendPasswordResetEmail(
   }
 }
 
+// Email Verification Email (Custom Luxury Ruhvi Template)
+export async function sendVerificationEmail(
+  email: string,
+  verifyLink: string,
+  name: string = 'Customer'
+) {
+  const resend = getResendClient();
+  if (!resend) return null;
+
+  const subject = 'Verify Your Ruhvi Email ✔️';
+  const htmlContent = `
+    <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #121110; background: #FDFAF3; border-radius: 12px; overflow: hidden; border: 1px solid #E8DFC6;">
+      <div style="background: #1C1B1A; padding: 24px 32px; text-align: center;">
+        <h1 style="color: #C29831; font-size: 20px; margin: 0; letter-spacing: 2px;">RUHVI</h1>
+        <p style="color: #A09080; font-size: 11px; margin: 4px 0 0; letter-spacing: 1px;">FINE JEWELLERY</p>
+      </div>
+      <div style="padding: 32px;">
+        <h2 style="color: #1C1B1A; font-size: 18px; margin: 0 0 12px;">Hello ${name},</h2>
+        <p style="color: #4A4540; line-height: 1.6; font-size: 14px; margin: 0 0 20px;">
+          Please confirm your email address to secure your Ruhvi account, unlock faster checkout and get your ₹50 welcome wallet credit once your phone is verified too. Click the button below to verify:
+        </p>
+        
+        <div style="text-align: center; margin: 32px 0;">
+          <a href="${verifyLink}" style="display: inline-block; background-color: #1C1B1A; color: #FAF6ED; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 14px; letter-spacing: 0.5px;">Verify My Email</a>
+        </div>
+        
+        <p style="color: #8A7E6C; font-size: 12px; line-height: 1.5; margin: 24px 0 0;">
+          This link will expire in 24 hours for your security. If you didn't create a Ruhvi account, you can safely ignore this email.
+        </p>
+        
+        <div style="margin-top: 32px; padding-top: 20px; border-top: 1px solid #E8DFC6;">
+          <p style="font-size: 12px; color: #8A7E6C; margin: 0;">Need assistance? Reply directly to this email or reach us on WhatsApp.</p>
+          <p style="font-size: 12px; color: #8A7E6C; margin: 8px 0 0;">With care,<br/>The Ruhvi Team</p>
+        </div>
+      </div>
+    </div>
+  `;
+  try {
+    return await resend.emails.send({
+      from: getSender(),
+      to: [email],
+      subject,
+      html: htmlContent,
+    });
+  } catch (err) {
+    console.error('Error sending Resend Verification email:', err);
+    return null;
+  }
+}
+
 // -----------------------------------------------------------------------------
 // Support Ticket Emails
 // -----------------------------------------------------------------------------

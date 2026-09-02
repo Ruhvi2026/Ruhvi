@@ -74,26 +74,18 @@ export default function AccountOverviewPage() {
     }
     try {
       setSendingVerification(true);
-      const { sendEmailVerification, verifyBeforeUpdateEmail } =
-        await import('firebase/auth');
-      const { auth } = await import('@/lib/firebase');
-      if (auth.currentUser) {
-        if (auth.currentUser.email !== emailInput) {
-          await verifyBeforeUpdateEmail(auth.currentUser, emailInput);
-          setVerificationSent(true);
-          localStorage.setItem('emailVerificationSent', 'true');
-          toast.success(
-            'A verification link has been sent to the new email address. Please click it to verify the change.'
-          );
-        } else {
-          await sendEmailVerification(auth.currentUser);
-          setVerificationSent(true);
-          localStorage.setItem('emailVerificationSent', 'true');
-          toast.success('Verification link sent to your email address!');
-        }
-      } else {
-        toast.error('Could not find active user session.');
+      const res = await fetch('/api/auth/send-verification', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: emailInput }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Failed to send verification email.');
       }
+      setVerificationSent(true);
+      localStorage.setItem('emailVerificationSent', 'true');
+      toast.success('Verification link sent to your email address!');
     } catch (err: any) {
       console.error('Error sending verification email:', err);
       toast.error(err.message || 'Failed to send verification email.');
@@ -105,33 +97,20 @@ export default function AccountOverviewPage() {
   const handleCheckVerification = async () => {
     try {
       setCheckingVerification(true);
-      const { auth } = await import('@/lib/firebase');
-      if (auth.currentUser) {
-        await auth.currentUser.reload();
-        if (auth.currentUser.emailVerified) {
-          const supabase = createClient();
-          const hasPhoneProvider = auth.currentUser.providerData.some(
-            (p: any) => p.providerId === 'phone'
-          );
-          await supabase.rpc('resolve_customer_identity', {
-            p_firebase_uid: auth.currentUser.uid,
-            p_provider: 'password',
-            p_provider_identifier: auth.currentUser.email || '',
-            p_email: auth.currentUser.email || null,
-            p_email_verified: true,
-            p_phone: auth.currentUser.phoneNumber || null,
-            p_phone_verified:
-              profile?.phone_verified || hasPhoneProvider || false,
-            p_name: profile?.full_name || null,
-          });
-          localStorage.removeItem('emailVerificationSent');
-          setVerificationSent(false);
-          toast.success(
-            'Email successfully verified! Bonus credited if both verified.'
-          );
-        } else {
-          toast.error('Email is not verified yet. Please check your inbox.');
-        }
+      const supabase = createClient();
+      const { data: profileRow } = await supabase
+        .from('users')
+        .select('email_verified')
+        .eq('id', user?.id)
+        .maybeSingle();
+      if (profileRow?.email_verified) {
+        localStorage.removeItem('emailVerificationSent');
+        setVerificationSent(false);
+        toast.success(
+          'Email successfully verified! Bonus credited if both verified.'
+        );
+      } else {
+        toast.error('Email is not verified yet. Please check your inbox.');
       }
     } catch (err: any) {
       console.error('Error checking verification:', err);
@@ -151,45 +130,21 @@ export default function AccountOverviewPage() {
             (p: any) => p.providerId
           );
           setLinkedProviders(providers);
-
-          // Check if verification email sent state is stored in localStorage
-          const wasSent =
-            localStorage.getItem('emailVerificationSent') === 'true';
-          if (wasSent) {
-            setVerificationSent(true);
-          }
-
-          // Sync email verification status from Firebase to Supabase if it changed
-          if (
-            auth.currentUser!.emailVerified &&
-            profile &&
-            !profile.email_verified
-          ) {
-            const supabase = createClient();
-            const hasPhoneProvider = providers.includes('phone');
-            supabase
-              .rpc('resolve_customer_identity', {
-                p_firebase_uid: auth.currentUser!.uid,
-                p_provider: 'password',
-                p_provider_identifier: auth.currentUser!.email || '',
-                p_email: auth.currentUser!.email || null,
-                p_email_verified: true,
-                p_phone: auth.currentUser!.phoneNumber || null,
-                p_phone_verified:
-                  profile.phone_verified || hasPhoneProvider || false,
-                p_name: profile.full_name || null,
-              })
-              .then(() => {
-                localStorage.removeItem('emailVerificationSent');
-                setVerificationSent(false);
-              })
-              .catch((err: any) => {
-                console.error('Failed to sync email verification status:', err);
-              });
-          }
         });
       }
     });
+
+    // Track verification-link state and clear it once the email is verified
+    if (profile?.email_verified) {
+      localStorage.removeItem('emailVerificationSent');
+      setVerificationSent(false);
+    } else {
+      const wasSent = localStorage.getItem('emailVerificationSent') === 'true';
+      if (wasSent) {
+        setVerificationSent(true);
+      }
+    }
+
     return () => {
       mounted = false;
     };
@@ -504,142 +459,6 @@ export default function AccountOverviewPage() {
           </div>
         )}
 
-        {/* Quick Navigation Cards Grid */}
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          <Link
-            href="/orders"
-            className="group rounded-2xl border border-gold-200/60 bg-white/70 p-6 shadow-sm backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:border-gold-400 hover:shadow-xl hover:shadow-gold-500/15"
-          >
-            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gold-100 text-gold-700 transition-colors group-hover:bg-gold-600 group-hover:text-white">
-              <Package className="h-6 w-6" />
-            </div>
-            <h2 className="text-sm font-bold text-stone-900 group-hover:text-gold-700">
-              My Orders
-            </h2>
-            <p className="mt-1 text-xs text-stone-500">
-              Track purchases & view GST invoices
-            </p>
-            <div className="mt-4 flex items-center space-x-1 text-xs font-semibold text-gold-700">
-              <span>View Purchases</span>
-              <ArrowRight className="h-3.5 w-3.5" />
-            </div>
-          </Link>
-
-          <Link
-            href="/account/addresses"
-            className="group rounded-2xl border border-gold-200/60 bg-white/70 p-6 shadow-sm backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:border-gold-400 hover:shadow-xl hover:shadow-gold-500/15"
-          >
-            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gold-100 text-gold-700 transition-colors group-hover:bg-gold-600 group-hover:text-white">
-              <MapPin className="h-6 w-6" />
-            </div>
-            <h2 className="text-sm font-bold text-stone-900 group-hover:text-gold-700">
-              Saved Addresses
-            </h2>
-            <p className="mt-1 text-xs text-stone-500">
-              Manage shipping locations & defaults
-            </p>
-            <div className="mt-4 flex items-center space-x-1 text-xs font-semibold text-gold-700">
-              <span>Manage Address Book</span>
-              <ArrowRight className="h-3.5 w-3.5" />
-            </div>
-          </Link>
-
-          <Link
-            href="/account/wallet"
-            className="glow-card-focus group rounded-2xl border border-stone-200 bg-white p-6 shadow-sm transition-all hover:border-emerald-500 hover:shadow-md"
-          >
-            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700 transition-colors group-hover:bg-emerald-700 group-hover:text-emerald-50">
-              <Wallet className="h-6 w-6" />
-            </div>
-            <h2 className="text-sm font-bold text-stone-900 group-hover:text-emerald-700">
-              Ruhvi Wallet
-            </h2>
-            <p className="mt-1 text-xs text-stone-500">
-              Balance: ₹{(profile?.wallet_balance || 0).toLocaleString('en-IN')}
-            </p>
-            <div className="mt-4 flex items-center space-x-1 text-xs font-semibold text-emerald-700">
-              <span>View Wallet</span>
-              <ArrowRight className="h-3.5 w-3.5" />
-            </div>
-          </Link>
-
-          <Link
-            href="/account/coins"
-            className="glow-card-focus group rounded-2xl border border-stone-200 bg-white p-6 shadow-sm transition-all hover:border-yellow-500 hover:shadow-md"
-          >
-            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-yellow-50 text-yellow-600 transition-colors group-hover:bg-yellow-600 group-hover:text-yellow-50">
-              <Coins className="h-6 w-6" />
-            </div>
-            <h2 className="text-sm font-bold text-stone-900 group-hover:text-yellow-600">
-              Reward Coins
-            </h2>
-            <p className="mt-1 text-xs text-stone-500">
-              Available: {profile?.reward_coins || 0} Coins
-            </p>
-            <div className="mt-4 flex items-center space-x-1 text-xs font-semibold text-yellow-600">
-              <span>Redeem Coins</span>
-              <ArrowRight className="h-3.5 w-3.5" />
-            </div>
-          </Link>
-
-          <Link
-            href="/account/referrals"
-            className="group rounded-2xl border border-gold-200/70 bg-white p-6 shadow-sm transition-all hover:border-gold-400 hover:shadow-md"
-          >
-            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gold-100 text-gold-700 transition-colors group-hover:bg-gold-600 group-hover:text-white">
-              <Gift className="h-6 w-6" />
-            </div>
-            <h2 className="text-sm font-bold text-stone-900 group-hover:text-gold-700">
-              Refer a Friend
-            </h2>
-            <p className="mt-1 text-xs text-stone-500">
-              Earn 500 coins per referral
-            </p>
-            <div className="mt-4 flex items-center space-x-1 text-xs font-semibold text-gold-700">
-              <span>Get Link</span>
-              <ArrowRight className="h-3.5 w-3.5" />
-            </div>
-          </Link>
-
-          <Link
-            href="/account/returns"
-            className="group rounded-2xl border border-gold-200/60 bg-white/70 p-6 shadow-sm backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:border-gold-400 hover:shadow-xl hover:shadow-gold-500/15"
-          >
-            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gold-100 text-gold-700 transition-colors group-hover:bg-gold-600 group-hover:text-white">
-              <RefreshCw className="h-6 w-6" />
-            </div>
-            <h2 className="text-sm font-bold text-stone-900 group-hover:text-gold-700">
-              7-Day Returns
-            </h2>
-            <p className="mt-1 text-xs text-stone-500">
-              Submit & track return requests
-            </p>
-            <div className="mt-4 flex items-center space-x-1 text-xs font-semibold text-gold-700">
-              <span>Return Portal</span>
-              <ArrowRight className="h-3.5 w-3.5" />
-            </div>
-          </Link>
-
-          <Link
-            href="/account/notifications"
-            className="group rounded-2xl border border-gold-200/60 bg-white/70 p-6 shadow-sm backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:border-gold-400 hover:shadow-xl hover:shadow-gold-500/15"
-          >
-            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gold-100 text-gold-700 transition-colors group-hover:bg-gold-600 group-hover:text-white">
-              <Bell className="h-6 w-6" />
-            </div>
-            <h2 className="text-sm font-bold text-stone-900 group-hover:text-gold-700">
-              Notifications
-            </h2>
-            <p className="mt-1 text-xs text-stone-500">
-              Order alerts & exclusive offers
-            </p>
-            <div className="mt-4 flex items-center space-x-1 text-xs font-semibold text-gold-700">
-              <span>View Inbox</span>
-              <ArrowRight className="h-3.5 w-3.5" />
-            </div>
-          </Link>
-        </div>
-
         {/* Edit Profile / Security Section */}
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
           {/* Profile Details Card */}
@@ -938,6 +757,142 @@ export default function AccountOverviewPage() {
               </button>
             </div>
           </div>
+        </div>
+
+        {/* Quick Navigation Cards Grid */}
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <Link
+            href="/orders"
+            className="group rounded-2xl border border-gold-200/60 bg-white/70 p-6 shadow-sm backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:border-gold-400 hover:shadow-xl hover:shadow-gold-500/15"
+          >
+            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gold-100 text-gold-700 transition-colors group-hover:bg-gold-600 group-hover:text-white">
+              <Package className="h-6 w-6" />
+            </div>
+            <h2 className="text-sm font-bold text-stone-900 group-hover:text-gold-700">
+              My Orders
+            </h2>
+            <p className="mt-1 text-xs text-stone-500">
+              Track purchases & view GST invoices
+            </p>
+            <div className="mt-4 flex items-center space-x-1 text-xs font-semibold text-gold-700">
+              <span>View Purchases</span>
+              <ArrowRight className="h-3.5 w-3.5" />
+            </div>
+          </Link>
+
+          <Link
+            href="/account/addresses"
+            className="group rounded-2xl border border-gold-200/60 bg-white/70 p-6 shadow-sm backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:border-gold-400 hover:shadow-xl hover:shadow-gold-500/15"
+          >
+            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gold-100 text-gold-700 transition-colors group-hover:bg-gold-600 group-hover:text-white">
+              <MapPin className="h-6 w-6" />
+            </div>
+            <h2 className="text-sm font-bold text-stone-900 group-hover:text-gold-700">
+              Saved Addresses
+            </h2>
+            <p className="mt-1 text-xs text-stone-500">
+              Manage shipping locations & defaults
+            </p>
+            <div className="mt-4 flex items-center space-x-1 text-xs font-semibold text-gold-700">
+              <span>Manage Address Book</span>
+              <ArrowRight className="h-3.5 w-3.5" />
+            </div>
+          </Link>
+
+          <Link
+            href="/account/wallet"
+            className="glow-card-focus group rounded-2xl border border-stone-200 bg-white p-6 shadow-sm transition-all hover:border-emerald-500 hover:shadow-md"
+          >
+            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700 transition-colors group-hover:bg-emerald-700 group-hover:text-emerald-50">
+              <Wallet className="h-6 w-6" />
+            </div>
+            <h2 className="text-sm font-bold text-stone-900 group-hover:text-emerald-700">
+              Ruhvi Wallet
+            </h2>
+            <p className="mt-1 text-xs text-stone-500">
+              Balance: ₹{(profile?.wallet_balance || 0).toLocaleString('en-IN')}
+            </p>
+            <div className="mt-4 flex items-center space-x-1 text-xs font-semibold text-emerald-700">
+              <span>View Wallet</span>
+              <ArrowRight className="h-3.5 w-3.5" />
+            </div>
+          </Link>
+
+          <Link
+            href="/account/coins"
+            className="glow-card-focus group rounded-2xl border border-stone-200 bg-white p-6 shadow-sm transition-all hover:border-yellow-500 hover:shadow-md"
+          >
+            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-yellow-50 text-yellow-600 transition-colors group-hover:bg-yellow-600 group-hover:text-yellow-50">
+              <Coins className="h-6 w-6" />
+            </div>
+            <h2 className="text-sm font-bold text-stone-900 group-hover:text-yellow-600">
+              Reward Coins
+            </h2>
+            <p className="mt-1 text-xs text-stone-500">
+              Available: {profile?.reward_coins || 0} Coins
+            </p>
+            <div className="mt-4 flex items-center space-x-1 text-xs font-semibold text-yellow-600">
+              <span>Redeem Coins</span>
+              <ArrowRight className="h-3.5 w-3.5" />
+            </div>
+          </Link>
+
+          <Link
+            href="/account/referrals"
+            className="group rounded-2xl border border-gold-200/70 bg-white p-6 shadow-sm transition-all hover:border-gold-400 hover:shadow-md"
+          >
+            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gold-100 text-gold-700 transition-colors group-hover:bg-gold-600 group-hover:text-white">
+              <Gift className="h-6 w-6" />
+            </div>
+            <h2 className="text-sm font-bold text-stone-900 group-hover:text-gold-700">
+              Refer a Friend
+            </h2>
+            <p className="mt-1 text-xs text-stone-500">
+              Earn 500 coins per referral
+            </p>
+            <div className="mt-4 flex items-center space-x-1 text-xs font-semibold text-gold-700">
+              <span>Get Link</span>
+              <ArrowRight className="h-3.5 w-3.5" />
+            </div>
+          </Link>
+
+          <Link
+            href="/account/returns"
+            className="group rounded-2xl border border-gold-200/60 bg-white/70 p-6 shadow-sm backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:border-gold-400 hover:shadow-xl hover:shadow-gold-500/15"
+          >
+            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gold-100 text-gold-700 transition-colors group-hover:bg-gold-600 group-hover:text-white">
+              <RefreshCw className="h-6 w-6" />
+            </div>
+            <h2 className="text-sm font-bold text-stone-900 group-hover:text-gold-700">
+              7-Day Returns
+            </h2>
+            <p className="mt-1 text-xs text-stone-500">
+              Submit & track return requests
+            </p>
+            <div className="mt-4 flex items-center space-x-1 text-xs font-semibold text-gold-700">
+              <span>Return Portal</span>
+              <ArrowRight className="h-3.5 w-3.5" />
+            </div>
+          </Link>
+
+          <Link
+            href="/account/notifications"
+            className="group rounded-2xl border border-gold-200/60 bg-white/70 p-6 shadow-sm backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:border-gold-400 hover:shadow-xl hover:shadow-gold-500/15"
+          >
+            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gold-100 text-gold-700 transition-colors group-hover:bg-gold-600 group-hover:text-white">
+              <Bell className="h-6 w-6" />
+            </div>
+            <h2 className="text-sm font-bold text-stone-900 group-hover:text-gold-700">
+              Notifications
+            </h2>
+            <p className="mt-1 text-xs text-stone-500">
+              Order alerts & exclusive offers
+            </p>
+            <div className="mt-4 flex items-center space-x-1 text-xs font-semibold text-gold-700">
+              <span>View Inbox</span>
+              <ArrowRight className="h-3.5 w-3.5" />
+            </div>
+          </Link>
         </div>
 
         {/* Change Password Modal */}

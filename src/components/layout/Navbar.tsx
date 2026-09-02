@@ -113,7 +113,7 @@ export function Navbar() {
           isScrollingDown ? '-translate-y-full' : 'translate-y-0'
         }`}
       >
-        <div className="nav-inner py-2 transition-all duration-300">
+        <div className="nav-inner py-0.5 transition-all duration-300">
           {/* Left Navigation Actions & Mobile Menu */}
           <div className="nav-left">
             <button
@@ -148,9 +148,9 @@ export function Navbar() {
               <Image
                 src="/logo.png"
                 alt="Ruhvi Logo"
-                width={72}
-                height={72}
-                className={`h-16 w-auto origin-left object-contain transition-transform duration-300 group-hover:opacity-90 sm:h-20 ${isScrolled && !isSearchExpanded ? 'scale-75' : 'scale-100'}`}
+                width={48}
+                height={48}
+                className={`h-10 w-auto origin-left object-contain transition-transform duration-300 group-hover:opacity-90 sm:h-12 ${isScrolled && !isSearchExpanded ? 'scale-75' : 'scale-100'}`}
                 priority
               />
             </Link>
@@ -295,7 +295,7 @@ export function Navbar() {
 
         {/* Unified Search Bar Row */}
         <div
-          className={`flex justify-center overflow-hidden border-t border-gold-200/30 bg-white/40 px-4 backdrop-blur-md transition-all duration-300 dark:border-stone-800/50 dark:bg-[#1c1a19]/40 ${isScrolled && !isSearchExpanded ? 'h-0 border-transparent py-0 opacity-0' : 'h-auto py-2.5 opacity-100'}`}
+          className={`flex justify-center overflow-hidden border-t border-gold-200/30 bg-white/40 px-4 backdrop-blur-md transition-all duration-300 dark:border-stone-800/50 dark:bg-[#1c1a19]/40 ${isScrolled && !isSearchExpanded ? 'h-0 border-transparent pb-0 pt-0 opacity-0' : 'h-auto pb-1.5 pt-0 opacity-100'}`}
         >
           <div className="w-full max-w-2xl">
             <SearchBar />

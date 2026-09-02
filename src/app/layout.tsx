@@ -218,7 +218,7 @@ export default function RootLayout({
                     <LazyFcmInit />
                     <Navbar />
                     {/* Add spacing here so it only applies to the storefront, not portals */}
-                    <div className="h-[104px] w-full flex-shrink-0" />
+                    <div className="h-[104px] w-full flex-shrink-0 sm:h-[116px]" />
                   </StorefrontChrome>
                   <main id="main-content" className="flex-1">
                     {children}
