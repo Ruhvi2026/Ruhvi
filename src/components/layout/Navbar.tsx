@@ -3,15 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import {
-  ShoppingBag,
-  Heart,
-  User,
-  X,
-  Wallet,
-  Search,
-  Headphones,
-} from 'lucide-react';
+import { ShoppingBag, Heart, User, X, Wallet, Search } from 'lucide-react';
 import { SearchBar } from '@/components/search/SearchBar';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { useTaxonomy } from '@/hooks/useTaxonomy';
@@ -242,18 +234,6 @@ export function Navbar() {
                   {cartCount}
                 </span>
               )}
-            </Link>
-
-            {/* Support Link */}
-            <Link
-              href={user ? '/account/support' : '/support-status'}
-              className="text-ink-soft hidden p-2 transition-colors duration-300 hover:text-gold-600 sm:block"
-              title="Support"
-            >
-              <Headphones
-                className="h-5 w-5 transition-transform duration-300 hover:scale-105"
-                strokeWidth={1.25}
-              />
             </Link>
 
             {/* User Profile Direct Link */}
