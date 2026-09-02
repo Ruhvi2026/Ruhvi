@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
+import { auth } from '@/lib/firebase';
+import { signInWithEmail, upsertUserProfile } from '@/services/authService';
 import { User, Eye, EyeOff } from 'lucide-react';
 
 export default function AdminLogin({
@@ -27,25 +28,28 @@ export default function AdminLogin({
     setError(null);
 
     try {
-      const supabase = createClient();
+      // 1. Sign in with Firebase
+      const userCred = await signInWithEmail(email, password);
+      const fbUser = userCred.user;
 
-      const { data, error: signInError } =
-        await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
+      // 2. Sync profile (mints __session cookie + Supabase session)
+      await upsertUserProfile(fbUser);
 
-      if (signInError) throw signInError;
-      if (!data.user) throw new Error('Login failed. No user returned.');
-
-      // Check role using Supabase
+      // 3. Check role via Supabase service-role call
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+      const { createClient } = await import('@supabase/supabase-js');
+      const supabase = createClient(
+        supabaseUrl || '',
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
+        {
+          auth: { autoRefreshToken: false, persistSession: false },
+        }
+      );
       const { data: profileData } = await supabase
-        .from('users')
-        .select('role')
-        .eq('id', data.user.id)
-        .single();
+        .rpc('get_user_profile', { p_user_id: fbUser.uid })
+        .maybeSingle();
 
-      const role = profileData?.role;
+      const role = (profileData as any)?.role;
       const isAdmin = [
         'admin',
         'manager',
@@ -55,7 +59,8 @@ export default function AdminLogin({
       ].includes(role);
 
       if (!isAdmin) {
-        await supabase.auth.signOut();
+        const { signOut: firebaseSignOut } = await import('firebase/auth');
+        await firebaseSignOut(auth);
         throw new Error('Access denied. You do not have admin privileges.');
       }
 

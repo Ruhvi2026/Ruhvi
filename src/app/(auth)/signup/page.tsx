@@ -3,7 +3,15 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
+import { updateProfile } from 'firebase/auth';
+import {
+  signUpWithEmail,
+  signInWithGoogle,
+  signInWithFacebook,
+  sendPhoneVerification,
+  verifyPhoneCode,
+  upsertUserProfile,
+} from '@/services/authService';
 import { Sparkles, ArrowRight, Mail, Phone } from 'lucide-react';
 import posthog from 'posthog-js/dist/module.slim';
 
@@ -22,6 +30,7 @@ export default function SignUpPage() {
   const [phone, setPhone] = useState('');
   const [otp, setOtp] = useState('');
   const [showOtpInput, setShowOtpInput] = useState(false);
+  const [confirmationResult, setConfirmationResult] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
@@ -37,75 +46,73 @@ export default function SignUpPage() {
     setMessage(null);
 
     try {
-      const supabase = createClient();
+      const res = await signUpWithEmail(email, password);
+      if (!res) throw new Error('An error occurred during sign up.');
+      const fbUser = res.user;
 
-      const { data, error: signUpError } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            full_name: fullName,
-          },
-        },
-      });
-
-      if (signUpError) throw signUpError;
-
-      if (data.user) {
-        const refMatch = document.cookie.match(
-          /(^| )ruhvi_referral_code=([^;]+)/
-        );
-        if (refMatch) {
-          try {
-            await fetch('/api/auth/track-referral', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                referralCode: refMatch[2],
-                referredUserId: data.user.id,
-              }),
-            });
-          } catch (err) {
-            console.error('Referral tracking error:', err);
-          } finally {
-            document.cookie =
-              'ruhvi_referral_code=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-          }
+      // Set display name in Firebase
+      if (fullName) {
+        try {
+          await updateProfile(fbUser, { displayName: fullName });
+        } catch (e) {
+          console.error('Failed to set display name:', e);
         }
-
-        // Trigger Welcome Email
-        fetch('/api/emails/welcome', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            email: data.user.email,
-            name: fullName,
-          }),
-        }).catch((err) =>
-          console.error('Failed to trigger welcome email:', err)
-        );
-
-        // Trigger Email Verification Link
-        fetch('/api/auth/send-verification', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            email: data.user.email,
-          }),
-        }).catch((err) =>
-          console.error('Failed to trigger verification email:', err)
-        );
-
-        posthog.capture('signup_completed', { method: 'email' });
       }
 
+      // Resolve Supabase identity and get the internal user id
+      const supabaseUserId = await upsertUserProfile(fbUser);
+
+      // Track referral if a cookie exists
+      const refCookie = document.cookie
+        .split('; ')
+        .find((c) => c.startsWith('ruhvi_referral_code='));
+      if (refCookie && supabaseUserId) {
+        try {
+          await fetch('/api/auth/track-referral', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              referralCode: refCookie.split('=')[1],
+              referredUserId: supabaseUserId,
+            }),
+          });
+        } catch (err) {
+          console.error('Referral tracking error:', err);
+        } finally {
+          document.cookie =
+            'ruhvi_referral_code=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+        }
+      }
+
+      // Trigger Welcome Email
+      fetch('/api/emails/welcome', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: fbUser.email,
+          name: fullName,
+        }),
+      }).catch((err) => console.error('Failed to trigger welcome email:', err));
+
+      // Trigger Email Verification Link
+      fetch('/api/auth/send-verification', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: fbUser.email,
+        }),
+      }).catch((err) =>
+        console.error('Failed to trigger verification email:', err)
+      );
+
+      posthog.capture('signup_completed', { method: 'email' });
       setMessage('Account created successfully! Redirecting...');
       setTimeout(() => {
         router.push('/complete-profile');
         router.refresh();
       }, 1000);
     } catch (err: any) {
-      console.error('Supabase Email Signup error:', err);
+      console.error('Firebase Email Signup error:', err);
       let msg = 'An error occurred during sign up.';
       if (err?.message) {
         msg = err.message;
@@ -127,18 +134,13 @@ export default function SignUpPage() {
         ? phone
         : `+91${phone.replace(/\D/g, '').slice(-10)}`;
 
-      const supabase = createClient();
-      const { error } = await supabase.auth.signInWithOtp({
-        phone: formattedPhone,
-        options: {
-          data: {
-            full_name: fullName,
-          },
-        },
-      });
+      const confirmation = await sendPhoneVerification(
+        formattedPhone,
+        'recaptcha-container'
+      );
+      if (!confirmation) throw new Error('Failed to send OTP.');
 
-      if (error) throw error;
-
+      setConfirmationResult(confirmation);
       setShowOtpInput(true);
       setMessage('OTP sent to your phone number.');
     } catch (err: any) {
@@ -155,50 +157,48 @@ export default function SignUpPage() {
     setError(null);
 
     try {
-      const formattedPhone = phone.startsWith('+')
-        ? phone
-        : `+91${phone.replace(/\D/g, '').slice(-10)}`;
+      if (!confirmationResult) throw new Error('No OTP request found.');
 
-      const supabase = createClient();
-      const { data, error } = await supabase.auth.verifyOtp({
-        phone: formattedPhone,
-        token: otp,
-        type: 'sms',
-      });
+      const res = await verifyPhoneCode(confirmationResult, otp);
+      if (!res) throw new Error('Verification failed.');
 
-      if (error) throw error;
+      const fbUser = res.user;
 
-      if (data.user) {
-        // Update user profile just in case it wasn't set during OTP send
-        if (fullName) {
-          await supabase.auth.updateUser({
-            data: { full_name: fullName },
-          });
+      // Set display name in Firebase
+      if (fullName) {
+        try {
+          await updateProfile(fbUser, { displayName: fullName });
+        } catch (e) {
+          console.error('Failed to set display name:', e);
         }
-
-        const refMatch = document.cookie.match(
-          /(^| )ruhvi_referral_code=([^;]+)/
-        );
-        if (refMatch) {
-          try {
-            await fetch('/api/auth/track-referral', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                referralCode: refMatch[2],
-                referredUserId: data.user.id,
-              }),
-            });
-          } catch (err) {
-            console.error('Referral tracking error:', err);
-          } finally {
-            document.cookie =
-              'ruhvi_referral_code=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-          }
-        }
-
-        posthog.capture('signup_completed', { method: 'phone' });
       }
+
+      // Sync profile with Supabase
+      const supabaseUserId = await upsertUserProfile(fbUser);
+
+      // Track referral if a cookie exists
+      const refCookie = document.cookie
+        .split('; ')
+        .find((c) => c.startsWith('ruhvi_referral_code='));
+      if (refCookie && supabaseUserId) {
+        try {
+          await fetch('/api/auth/track-referral', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              referralCode: refCookie.split('=')[1],
+              referredUserId: supabaseUserId,
+            }),
+          });
+        } catch (err) {
+          console.error('Referral tracking error:', err);
+        } finally {
+          document.cookie =
+            'ruhvi_referral_code=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+        }
+      }
+
+      posthog.capture('signup_completed', { method: 'phone' });
 
       setMessage(
         'Account verified successfully! Redirecting to complete your profile...'
@@ -218,17 +218,12 @@ export default function SignUpPage() {
     setLoading(true);
     setError(null);
     try {
-      const supabase = createClient();
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: `${window.location.origin}/complete-profile`,
-        },
-      });
-      if (error) throw error;
+      const res = await signInWithGoogle();
+      if (!res) throw new Error('Failed to sign in with Google.');
       posthog.capture('signup_completed', { method: 'google' });
+      window.location.href = '/complete-profile';
     } catch (err: any) {
-      console.error('Supabase Google sign in error:', err);
+      console.error('Firebase Google sign in error:', err);
       setError(err?.message || 'Failed to sign in with Google.');
       setLoading(false);
     }
@@ -238,17 +233,12 @@ export default function SignUpPage() {
     setLoading(true);
     setError(null);
     try {
-      const supabase = createClient();
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'facebook',
-        options: {
-          redirectTo: `${window.location.origin}/complete-profile`,
-        },
-      });
-      if (error) throw error;
+      const res = await signInWithFacebook();
+      if (!res) throw new Error('Failed to sign in with Facebook.');
       posthog.capture('signup_completed', { method: 'facebook' });
+      window.location.href = '/complete-profile';
     } catch (err: any) {
-      console.error('Supabase Facebook sign in error:', err);
+      console.error('Firebase Facebook sign in error:', err);
       setError(err?.message || 'Failed to sign in with Facebook.');
       setLoading(false);
     }
@@ -436,6 +426,7 @@ export default function SignUpPage() {
             onSubmit={showOtpInput ? handleVerifyOtp : handleSendOtp}
             className="space-y-4"
           >
+            <div id="recaptcha-container"></div>
             <div>
               <label
                 htmlFor="signup-phone-full-name"

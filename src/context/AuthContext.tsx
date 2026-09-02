@@ -1,8 +1,9 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { User, Session, AuthChangeEvent } from '@supabase/supabase-js';
 import { createClient } from '@/lib/supabase/client';
+import { auth } from '@/lib/firebase';
+import { onAuthStateChanged, signOut as firebaseSignOut } from 'firebase/auth';
 import toast from 'react-hot-toast';
 import { parseApiError } from '@/lib/api-errors';
 import { useRouter } from 'next/navigation';
@@ -24,8 +25,8 @@ export interface UserProfile {
 }
 
 interface AuthContextType {
-  user: User | null;
-  session: Session | null;
+  user: any | null;
+  session: any | null;
   profile: UserProfile | null;
   loading: boolean;
   signOut: () => Promise<void>;
@@ -41,22 +42,37 @@ const AuthContext = createContext<AuthContextType>({
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
+  const [user, setUser] = useState<any | null>(null);
+  const [session, setSession] = useState<any | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchProfile = async (authUser: User) => {
+  const fetchProfile = async (authUser: any) => {
     try {
       const supabase = createClient();
+      let profileData = null;
 
-      const { data: profileData, error } = await supabase
+      // Try direct id lookup (works when supabaseToken is applied)
+      const { data: byId } = await supabase
         .from('users')
         .select('*')
         .eq('id', authUser.id)
         .maybeSingle();
+      if (byId) {
+        profileData = byId;
+      }
 
-      if (profileData && !error) {
+      // Fallback: use the SECURITY DEFINER RPC (handles Firebase UID)
+      if (!profileData && authUser.id) {
+        const { data: byRpc } = await supabase
+          .rpc('get_user_profile', { p_user_id: authUser.id })
+          .maybeSingle();
+        if (byRpc) {
+          profileData = byRpc;
+        }
+      }
+
+      if (profileData) {
         let permissions: string[] = [];
         if (profileData.role_id) {
           const { data: perms } = await supabase
@@ -121,8 +137,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signOut = async () => {
     try {
-      const supabase = createClient();
-      await supabase.auth.signOut();
+      try {
+        await firebaseSignOut(auth);
+      } catch (e) {
+        console.error('Firebase signout error:', e);
+      }
+
+      try {
+        const supabase = createClient();
+        await supabase.auth.signOut();
+      } catch (e) {
+        console.error('Supabase signout error:', e);
+      }
+
+      try {
+        await fetch('/api/auth/logout', { method: 'POST' });
+      } catch (e) {
+        console.error('Logout cookie clear error:', e);
+      }
 
       setUser(null);
       setSession(null);
@@ -138,90 +170,91 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   useEffect(() => {
-    const supabase = createClient();
     let isMounted = true;
+    let unsubscribe: (() => void) | null = null;
 
-    const initAuth = async () => {
-      const {
-        data: { session: activeSession },
-      } = await supabase.auth.getSession();
+    const handleFirebaseUser = async (fbUser: any) => {
+      if (!isMounted) return;
 
-      if (isMounted) {
-        if (activeSession) {
-          setSession(activeSession);
-          setUser(activeSession.user);
-          await fetchProfile(activeSession.user);
-        }
-        setLoading(false);
-      }
+      if (fbUser) {
+        try {
+          // Mint __session cookie for middleware
+          const idToken = await fbUser.getIdToken(true);
+          await fetch('/api/auth/session', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ idToken }),
+          }).catch(() => {});
 
-      const {
-        data: { subscription },
-      } = supabase.auth.onAuthStateChange(
-        async (event: AuthChangeEvent, newSession: Session | null) => {
+          // Resolve Supabase identity and apply custom JWT for RLS reads
+          const syncRes = await fetch('/api/auth/sync-token', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ idToken }),
+          });
+          if (syncRes.ok) {
+            const data = await syncRes.json();
+            if (data.supabaseToken) {
+              try {
+                const supabase = createClient();
+                await supabase.auth.setSession({
+                  access_token: data.supabaseToken,
+                  refresh_token: 'firebase-bridge',
+                  expires_in: 432000,
+                  token_type: 'bearer',
+                });
+              } catch (e) {
+                console.error('Failed to apply Supabase session:', e);
+              }
+            }
+          }
+
           if (!isMounted) return;
 
-          if (newSession) {
-            setSession(newSession);
-            setUser(newSession.user);
-            await fetchProfile(newSession.user);
-          } else {
-            setSession(null);
-            setUser(null);
-            setProfile(null);
-          }
-        }
-      );
+          const formattedUser = {
+            id: fbUser.uid,
+            email: fbUser.email || null,
+            phone: fbUser.phoneNumber || null,
+            user_metadata: {
+              full_name: fbUser.displayName || null,
+              phone: fbUser.phoneNumber || null,
+            },
+            app_metadata: { provider: 'firebase' },
+            created_at:
+              fbUser.metadata?.creationTime || new Date().toISOString(),
+          };
 
-      return () => {
-        subscription.unsubscribe();
-      };
+          setUser(formattedUser);
+          setSession(null);
+          await fetchProfile(formattedUser);
+        } catch (e) {
+          console.error('Firebase session setup error:', e);
+        }
+      } else {
+        try {
+          const supabase = createClient();
+          await supabase.auth.signOut().catch(() => {});
+        } catch {}
+
+        if (isMounted) {
+          setUser(null);
+          setSession(null);
+          setProfile(null);
+        }
+      }
+
+      if (isMounted) {
+        setLoading(false);
+      }
     };
 
-    const cleanup = initAuth();
+    unsubscribe = onAuthStateChanged(auth, handleFirebaseUser);
 
     return () => {
       isMounted = false;
-      cleanup.then((fn) => fn && fn());
+      if (unsubscribe) unsubscribe();
     };
   }, []);
-
-  useEffect(() => {
-    if (!profile?.id) return;
-
-    const supabase = createClient();
-    const channel = supabase
-      .channel(`profile-sync-${profile.id}`)
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'users',
-          filter: `id=eq.${profile.id}`,
-        },
-        (payload: any) => {
-          if (payload.new) {
-            const updated = payload.new as any;
-            setProfile((prev) =>
-              prev
-                ? {
-                    ...prev,
-                    ...updated,
-                    wallet_balance: Number(updated.wallet_balance) || 0,
-                    reward_coins: Number(updated.reward_coins) || 0,
-                  }
-                : updated
-            );
-          }
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [profile?.id]);
 
   return (
     <AuthContext.Provider

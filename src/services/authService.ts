@@ -13,25 +13,54 @@ import {
   EmailAuthProvider,
   User,
   ConfirmationResult,
-  PhoneAuthProvider,
   linkWithPhoneNumber,
   sendEmailVerification,
 } from 'firebase/auth';
 
 /**
  * Sync user profile to Supabase after successful login/linking.
- * This explicitly calls the sync-token route to resolve identities via Path B.
+ * Mints the __session cookie for middleware and applies the Supabase JWT
+ * so the browser client can read RLS-protected data.
  */
-export async function upsertUserProfile(user: User) {
+export async function upsertUserProfile(user: User): Promise<string | null> {
   try {
     const idToken = await user.getIdToken(true);
+
+    // 1. Mint the signed __session cookie for middleware/server-side auth
+    try {
+      await fetch('/api/auth/session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idToken }),
+      });
+    } catch (e) {
+      console.error('Failed to mint session cookie:', e);
+    }
+
+    // 2. Resolve Supabase identity and apply the custom JWT to the browser client
     const response = await fetch('/api/auth/sync-token', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ idToken }),
     });
 
-    if (!response.ok) {
+    if (response.ok) {
+      const data = await response.json();
+      if (data.supabaseToken) {
+        try {
+          const supabase = createClient();
+          await supabase.auth.setSession({
+            access_token: data.supabaseToken,
+            refresh_token: 'firebase-bridge',
+            expires_in: 432000,
+            token_type: 'bearer',
+          });
+        } catch (setErr) {
+          console.error('Failed to apply Supabase session:', setErr);
+        }
+      }
+      return data.supabaseUserId || null;
+    } else {
       console.error(
         'Failed to sync profile via sync-token',
         await response.text()
@@ -40,6 +69,7 @@ export async function upsertUserProfile(user: User) {
   } catch (error) {
     console.error('Profile sync error:', error);
   }
+  return null;
 }
 
 /**

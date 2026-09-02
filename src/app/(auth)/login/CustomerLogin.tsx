@@ -4,7 +4,13 @@ import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
+import {
+  signInWithEmail,
+  signInWithGoogle,
+  signInWithFacebook,
+  sendPhoneVerification,
+  verifyPhoneCode,
+} from '@/services/authService';
 import { Sparkles, ArrowRight, Eye, EyeOff, Mail, Phone } from 'lucide-react';
 
 function LoginForm() {
@@ -23,6 +29,7 @@ function LoginForm() {
   const [phone, setPhone] = useState('');
   const [otp, setOtp] = useState('');
   const [showOtpInput, setShowOtpInput] = useState(false);
+  const [confirmationResult, setConfirmationResult] = useState<any>(null);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -47,13 +54,8 @@ function LoginForm() {
       redirectTo === '/admin' ? '/admin/dashboard' : redirectTo;
 
     try {
-      const supabase = createClient();
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (signInError) throw signInError;
+      const res = await signInWithEmail(email, password);
+      if (!res) throw new Error('Invalid email or password.');
 
       setMessage('Login successful! Redirecting...');
       router.refresh();
@@ -81,13 +83,13 @@ function LoginForm() {
         ? phone
         : `+91${phone.replace(/\D/g, '').slice(-10)}`;
 
-      const supabase = createClient();
-      const { error } = await supabase.auth.signInWithOtp({
-        phone: formattedPhone,
-      });
+      const confirmation = await sendPhoneVerification(
+        formattedPhone,
+        'recaptcha-container'
+      );
+      if (!confirmation) throw new Error('Failed to send OTP.');
 
-      if (error) throw error;
-
+      setConfirmationResult(confirmation);
       setShowOtpInput(true);
       setMessage('OTP sent to your phone number.');
     } catch (err: any) {
@@ -107,18 +109,11 @@ function LoginForm() {
       redirectTo === '/admin' ? '/admin/dashboard' : redirectTo;
 
     try {
-      const formattedPhone = phone.startsWith('+')
-        ? phone
-        : `+91${phone.replace(/\D/g, '').slice(-10)}`;
+      if (!confirmationResult) throw new Error('No OTP request found.');
 
-      const supabase = createClient();
-      const { data, error } = await supabase.auth.verifyOtp({
-        phone: formattedPhone,
-        token: otp,
-        type: 'sms',
-      });
-
-      if (error) throw error;
+      const res = await verifyPhoneCode(confirmationResult, otp);
+      if (!res)
+        throw new Error('Invalid OTP. Please check the code and try again.');
 
       setMessage('Login successful! Redirecting...');
       router.refresh();
@@ -138,14 +133,9 @@ function LoginForm() {
     setError(null);
     const targetUrl = redirectTo === '/admin' ? '/admin/dashboard' : redirectTo;
     try {
-      const supabase = createClient();
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: `${window.location.origin}${targetUrl}`,
-        },
-      });
-      if (error) throw error;
+      const res = await signInWithGoogle();
+      if (!res) throw new Error('Failed to sign in with Google.');
+      window.location.href = targetUrl;
     } catch (err: any) {
       console.error('Google sign in error:', err);
       setError(err?.message || 'Failed to sign in with Google.');
@@ -158,14 +148,9 @@ function LoginForm() {
     setError(null);
     const targetUrl = redirectTo === '/admin' ? '/admin/dashboard' : redirectTo;
     try {
-      const supabase = createClient();
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'facebook',
-        options: {
-          redirectTo: `${window.location.origin}${targetUrl}`,
-        },
-      });
-      if (error) throw error;
+      const res = await signInWithFacebook();
+      if (!res) throw new Error('Failed to sign in with Facebook.');
+      window.location.href = targetUrl;
     } catch (err: any) {
       console.error('Facebook sign in error:', err);
       setError(err?.message || 'Failed to sign in with Facebook.');
@@ -360,6 +345,7 @@ function LoginForm() {
           role="tabpanel"
           aria-labelledby="tab-phone"
         >
+          <div id="recaptcha-container"></div>
           <div>
             <label
               htmlFor="login-phone"

@@ -100,10 +100,13 @@ export async function POST(request: NextRequest) {
     })
       .setProtectedHeader({ alg: 'HS256', typ: 'JWT' })
       .setIssuedAt(now)
-      .setExpirationTime(now + 3600)
+      .setExpirationTime(now + 432000) // 5 days
       .sign(encodedSecret);
 
-    return NextResponse.json({ supabaseToken }, { status: 200 });
+    return NextResponse.json(
+      { supabaseToken, supabaseUserId },
+      { status: 200 }
+    );
   } catch (error) {
     console.error('[sync-token] Token sync error:', error);
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
