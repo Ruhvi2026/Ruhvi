@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { updateProfile } from 'firebase/auth';
 import {
   signUpWithEmail,
@@ -34,6 +34,31 @@ export default function SignUpPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams?.get('redirectTo') || '/complete-profile';
+
+  const trackReferralIfCookieExists = async (supabaseUserId: string | null) => {
+    const refCookie = document.cookie
+      .split('; ')
+      .find((c) => c.startsWith('ruhvi_referral_code='));
+    if (refCookie && supabaseUserId) {
+      try {
+        await fetch('/api/auth/track-referral', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            referralCode: refCookie.split('=')[1],
+            referredUserId: supabaseUserId,
+          }),
+        });
+      } catch (err) {
+        console.error('Referral tracking error:', err);
+      } finally {
+        document.cookie =
+          'ruhvi_referral_code=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+      }
+    }
+  };
 
   const handleEmailSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -63,26 +88,7 @@ export default function SignUpPage() {
       const supabaseUserId = await upsertUserProfile(fbUser);
 
       // Track referral if a cookie exists
-      const refCookie = document.cookie
-        .split('; ')
-        .find((c) => c.startsWith('ruhvi_referral_code='));
-      if (refCookie && supabaseUserId) {
-        try {
-          await fetch('/api/auth/track-referral', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              referralCode: refCookie.split('=')[1],
-              referredUserId: supabaseUserId,
-            }),
-          });
-        } catch (err) {
-          console.error('Referral tracking error:', err);
-        } finally {
-          document.cookie =
-            'ruhvi_referral_code=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-        }
-      }
+      await trackReferralIfCookieExists(supabaseUserId);
 
       // Trigger Welcome Email
       fetch('/api/emails/welcome', {
@@ -177,26 +183,7 @@ export default function SignUpPage() {
       const supabaseUserId = await upsertUserProfile(fbUser);
 
       // Track referral if a cookie exists
-      const refCookie = document.cookie
-        .split('; ')
-        .find((c) => c.startsWith('ruhvi_referral_code='));
-      if (refCookie && supabaseUserId) {
-        try {
-          await fetch('/api/auth/track-referral', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              referralCode: refCookie.split('=')[1],
-              referredUserId: supabaseUserId,
-            }),
-          });
-        } catch (err) {
-          console.error('Referral tracking error:', err);
-        } finally {
-          document.cookie =
-            'ruhvi_referral_code=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-        }
-      }
+      await trackReferralIfCookieExists(supabaseUserId);
 
       posthog.capture('signup_completed', { method: 'phone' });
 
@@ -220,6 +207,8 @@ export default function SignUpPage() {
     try {
       const res = await signInWithGoogle();
       if (!res) throw new Error('Failed to sign in with Google.');
+      const supabaseUserId = await upsertUserProfile(res.user);
+      await trackReferralIfCookieExists(supabaseUserId);
       posthog.capture('signup_completed', { method: 'google' });
       window.location.href = '/complete-profile';
     } catch (err: any) {
@@ -235,6 +224,8 @@ export default function SignUpPage() {
     try {
       const res = await signInWithFacebook();
       if (!res) throw new Error('Failed to sign in with Facebook.');
+      const supabaseUserId = await upsertUserProfile(res.user);
+      await trackReferralIfCookieExists(supabaseUserId);
       posthog.capture('signup_completed', { method: 'facebook' });
       window.location.href = '/complete-profile';
     } catch (err: any) {

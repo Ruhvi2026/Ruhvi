@@ -3,7 +3,7 @@ import { cookies } from 'next/headers';
 import { getServerUser } from '@/lib/auth/server';
 import { getSupabaseAdminClient } from '@/lib/support/serverAuth';
 import { createCustomOrder, generateAWB } from '@/lib/shiprocket';
-import { sendOrderShippedEmail } from '@/lib/brevo';
+import { sendOrderShippedEmail } from '@/lib/resend';
 import { logOrderEvent } from '@/lib/order-events';
 
 export async function POST(request: Request) {

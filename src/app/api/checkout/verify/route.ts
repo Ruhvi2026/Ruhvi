@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import crypto from 'crypto';
 import { sendOrderConfirmation } from '@/lib/whatsapp';
-import { sendOrderConfirmationEmail } from '@/lib/brevo';
+import { sendOrderConfirmationEmail } from '@/lib/resend';
 import { createClient as createJSClient } from '@supabase/supabase-js';
 import { createOrder, OrderError } from '@/lib/orders/create-order';
 import {

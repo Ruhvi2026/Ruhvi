@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { sendWelcomeEmail } from '@/lib/brevo';
+import { sendWelcomeEmail } from '@/lib/resend';
 import { createClient } from '@/lib/supabase/server';
 
 export async function POST(request: Request) {

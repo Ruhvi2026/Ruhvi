@@ -1,6 +1,6 @@
 import { createClient as createJSClient } from '@supabase/supabase-js';
 import { sendOrderConfirmation } from '@/lib/whatsapp';
-import { sendOrderConfirmationEmail } from '@/lib/brevo';
+import { sendOrderConfirmationEmail } from '@/lib/resend';
 import { debitWalletForOrder } from '@/lib/wallet/debit';
 import { PostHogClient } from '@/lib/posthog';
 

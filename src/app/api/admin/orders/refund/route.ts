@@ -3,7 +3,7 @@ import { getServerUser } from '@/lib/auth/server';
 import { getSupabaseAdminClient } from '@/lib/support/serverAuth';
 import { cookies } from 'next/headers';
 import { executeRefund } from '@/lib/orders/refund';
-import { sendRefundProcessedEmail } from '@/lib/brevo';
+import { sendRefundProcessedEmail } from '@/lib/resend';
 
 export async function POST(request: Request) {
   try {

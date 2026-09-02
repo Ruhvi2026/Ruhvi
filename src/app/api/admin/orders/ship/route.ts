@@ -4,7 +4,7 @@ import { getSupabaseAdminClient } from '@/lib/support/serverAuth';
 import { cookies } from 'next/headers';
 import { getShippingProvider } from '@/lib/shipping';
 import { logOrderEvent } from '@/lib/order-events';
-import { sendOrderShippedEmail } from '@/lib/brevo';
+import { sendOrderShippedEmail } from '@/lib/resend';
 import { sendShippingUpdate } from '@/lib/whatsapp';
 
 export async function POST(request: Request) {
