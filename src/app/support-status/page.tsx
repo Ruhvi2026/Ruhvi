@@ -59,7 +59,7 @@ function StatusCheckContent() {
     setIsUploadingAttachment(true);
     // Dynamic import to avoid SSR issues if any
     try {
-      const { uploadAttachment } = await import('@/services/cloudinaryService');
+      const { uploadAttachment } = await import('@/lib/imageService');
       const uploaded: typeof attachmentsList = [];
 
       for (let i = 0; i < files.length; i++) {

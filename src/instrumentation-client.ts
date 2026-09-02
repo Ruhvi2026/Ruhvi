@@ -4,7 +4,7 @@
 
 import * as Sentry from '@sentry/nextjs';
 import { beforeSendSentry } from '@/lib/sentry-ignore';
-import posthog from 'posthog-js';
+import posthog from 'posthog-js/dist/module.slim';
 
 Sentry.init({
   dsn: 'https://eecdeac600c80b3f7838f9f38c5d3192@o4511965411606528.ingest.de.sentry.io/4511965422288976',

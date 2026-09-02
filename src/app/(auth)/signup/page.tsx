@@ -17,7 +17,7 @@ import {
   sendEmailVerification,
 } from 'firebase/auth';
 import { Sparkles, ArrowRight, Mail, Phone } from 'lucide-react';
-import posthog from 'posthog-js';
+import posthog from 'posthog-js/dist/module.slim';
 
 export default function SignUpPage() {
   const router = useRouter();

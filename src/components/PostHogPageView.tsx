@@ -2,7 +2,7 @@
 
 import { usePathname, useSearchParams } from 'next/navigation';
 import { useEffect } from 'react';
-import { usePostHog } from 'posthog-js/react';
+import { usePostHog } from 'posthog-js/react/slim';
 
 export default function PostHogPageView() {
   const pathname = usePathname();

@@ -33,7 +33,7 @@ import {
 } from 'firebase/auth';
 import toast from 'react-hot-toast';
 import { ecommerceEvent } from '@/lib/gtag';
-import posthog from 'posthog-js';
+import posthog from 'posthog-js/dist/module.slim';
 import MetaPixel from '@/components/MetaPixel';
 
 export default function CheckoutPage() {
@@ -69,7 +69,9 @@ export default function CheckoutPage() {
       }
     }
     checkCodEligibility();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [isLoggedIn]);
 
   const [addresses, setAddresses] = useState<Address[]>([]);

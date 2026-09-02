@@ -159,6 +159,18 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="bg-cream text-ink font-jost flex min-h-screen flex-col antialiased">
+        {/* Preconnect to critical third-party origins to cut connection setup off the LCP critical path */}
+        <link rel="preconnect" href="https://ruhvi-f707c.firebaseapp.com" />
+        <link rel="preconnect" href="https://eu-assets.i.posthog.com" />
+        <link
+          rel="preconnect"
+          href="https://igrkrkxdantrolbldapj.supabase.co"
+        />
+        <link
+          rel="preconnect"
+          href="https://o4511965411606528.ingest.de.sentry.io"
+          crossOrigin="anonymous"
+        />
         <a
           href="#main-content"
           className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-charcoal-900 focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-white focus:shadow-lg focus:outline-2 focus:outline-offset-2 focus:outline-charcoal-900"

@@ -4,7 +4,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Product, CartItem } from '@/types/database';
 import toast from 'react-hot-toast';
 import { ecommerceEvent } from '@/lib/gtag';
-import posthog from 'posthog-js';
+import posthog from 'posthog-js/dist/module.slim';
 
 interface CartContextType {
   items: CartItem[];

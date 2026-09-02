@@ -2,7 +2,7 @@ import { NextResponse, NextRequest } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { verifySessionToken } from '@/lib/auth/verify-session';
-import { sendTicketCreatedEmail } from '@/lib/resend';
+import { sendTicketCreatedEmail } from '@/lib/brevo';
 import { syncTicketToEspo } from '@/lib/espo/sync';
 
 /**

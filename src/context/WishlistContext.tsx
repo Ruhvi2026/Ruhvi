@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Product } from '@/types/database';
 import toast from 'react-hot-toast';
-import posthog from 'posthog-js';
+import posthog from 'posthog-js/dist/module.slim';
 
 interface WishlistContextType {
   items: Product[];

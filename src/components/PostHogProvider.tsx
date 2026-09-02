@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useRef, type ReactNode } from 'react';
-import posthog from 'posthog-js';
-import { PostHogProvider as PostHogProviderRaw } from 'posthog-js/react';
+import posthog from 'posthog-js/dist/module.slim';
+import { PostHogProvider as PostHogProviderRaw } from 'posthog-js/react/slim';
 import { useAuth } from '@/context/AuthContext';
 
 const POSTHOG_KEY = process.env.NEXT_PUBLIC_POSTHOG_KEY;
@@ -28,5 +28,7 @@ export default function PostHogProvider({ children }: { children: ReactNode }) {
 
   if (!POSTHOG_KEY) return <>{children}</>;
 
-  return <PostHogProviderRaw client={posthog}>{children}</PostHogProviderRaw>;
+  return (
+    <PostHogProviderRaw client={posthog as any}>{children}</PostHogProviderRaw>
+  );
 }

@@ -58,7 +58,7 @@ import {
   unpublishPost,
 } from './actions';
 import type { BlogPostRow, BlogMediaRow } from './actions';
-import { uploadAttachment } from '@/services/cloudinaryService';
+import { uploadAttachment } from '@/lib/imageService';
 
 // -----------------------------------------------------------------------------
 // Constants

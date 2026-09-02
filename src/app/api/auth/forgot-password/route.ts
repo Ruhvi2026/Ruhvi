@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { SignJWT } from 'jose';
-import { sendPasswordResetEmail } from '@/lib/resend';
+import { sendPasswordResetEmail } from '@/lib/brevo';
 
 // Initialize service-role Supabase client
 const getSupabaseAdmin = async () => {

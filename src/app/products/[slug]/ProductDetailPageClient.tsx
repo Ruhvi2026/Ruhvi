@@ -25,7 +25,7 @@ import { Product360Button } from '@/components/products/Product360Button';
 import { Product360Modal } from '@/components/products/Product360Modal';
 import { trackEvent } from '@/lib/analytics';
 import { ecommerceEvent } from '@/lib/gtag';
-import posthog from 'posthog-js';
+import posthog from 'posthog-js/dist/module.slim';
 import { useCart } from '@/context/CartContext';
 import { useWishlist } from '@/context/WishlistContext';
 import { useAuth } from '@/context/AuthContext';

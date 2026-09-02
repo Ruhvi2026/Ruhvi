@@ -7,6 +7,15 @@ const nextConfig = {
         ? { exclude: ['error', 'warn'] }
         : false,
   },
+  experimental: {
+    optimizePackageImports: [
+      'lucide-react',
+      'firebase/auth',
+      'firebase/app',
+      '@tiptap/react',
+      'recharts',
+    ],
+  },
   async headers() {
     const publicPageCache = {
       key: 'Cache-Control',
