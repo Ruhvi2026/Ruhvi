@@ -6,19 +6,19 @@ import { usePathname } from 'next/navigation';
 function isPortalHostname(hostname: string): boolean {
   const h = hostname.toLowerCase();
   return (
-    h === 'admin.ruhvi.vercel.app' ||
+    h === 'admin.ruhvi.in' ||
     h.startsWith('admin.localhost') ||
-    h === 'support.ruhvi.vercel.app' ||
+    h === 'support.ruhvi.in' ||
     h.startsWith('support.localhost') ||
-    h === 'auth.ruhvi.vercel.app' ||
+    h === 'auth.ruhvi.in' ||
     h.startsWith('auth.localhost') ||
-    h === 'operation.ruhvi.vercel.app' ||
+    h === 'operation.ruhvi.in' ||
     h.startsWith('operation.localhost') ||
-    h === 'marketing.ruhvi.vercel.app' ||
+    h === 'marketing.ruhvi.in' ||
     h.startsWith('marketing.localhost') ||
-    h === 'orders.ruhvi.vercel.app' ||
+    h === 'orders.ruhvi.in' ||
     h.startsWith('orders.localhost') ||
-    h === 'tech.ruhvi.vercel.app' ||
+    h === 'tech.ruhvi.in' ||
     h.startsWith('tech.localhost')
   );
 }

@@ -18,26 +18,21 @@ export async function middleware(request: NextRequest) {
   const hostname = request.headers.get('host') || '';
   supabaseResponse.headers.set('x-ruhvi-host', hostname);
   const isAdminHost =
-    hostname === 'admin.ruhvi.vercel.app' ||
-    hostname.startsWith('admin.localhost');
+    hostname === 'admin.ruhvi.in' || hostname.startsWith('admin.localhost');
   const isOperationsHost =
-    hostname === 'operation.ruhvi.vercel.app' ||
+    hostname === 'operation.ruhvi.in' ||
     hostname.startsWith('operation.localhost');
   const isOrdersHost =
-    hostname === 'orders.ruhvi.vercel.app' ||
-    hostname.startsWith('orders.localhost');
+    hostname === 'orders.ruhvi.in' || hostname.startsWith('orders.localhost');
   const isSupportHost =
-    hostname === 'support.ruhvi.vercel.app' ||
-    hostname.startsWith('support.localhost');
+    hostname === 'support.ruhvi.in' || hostname.startsWith('support.localhost');
   const isMarketingHost =
-    hostname === 'marketing.ruhvi.vercel.app' ||
+    hostname === 'marketing.ruhvi.in' ||
     hostname.startsWith('marketing.localhost');
   const isAuthHost =
-    hostname === 'auth.ruhvi.vercel.app' ||
-    hostname.startsWith('auth.localhost');
+    hostname === 'auth.ruhvi.in' || hostname.startsWith('auth.localhost');
   const isTechHost =
-    hostname === 'tech.ruhvi.vercel.app' ||
-    hostname.startsWith('tech.localhost');
+    hostname === 'tech.ruhvi.in' || hostname.startsWith('tech.localhost');
 
   const isAnyPortalHost =
     isAdminHost ||

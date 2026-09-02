@@ -7,42 +7,36 @@ import { useLayoutEffect, useState } from 'react';
 function isPortalHostname(hostname: string): boolean {
   const h = hostname.toLowerCase();
   return (
-    h === 'admin.ruhvi.vercel.app' ||
+    h === 'admin.ruhvi.in' ||
     h.startsWith('admin.localhost') ||
-    h === 'support.ruhvi.vercel.app' ||
+    h === 'support.ruhvi.in' ||
     h.startsWith('support.localhost') ||
-    h === 'auth.ruhvi.vercel.app' ||
+    h === 'auth.ruhvi.in' ||
     h.startsWith('auth.localhost') ||
-    h === 'operation.ruhvi.vercel.app' ||
+    h === 'operation.ruhvi.in' ||
     h.startsWith('operation.localhost') ||
-    h === 'marketing.ruhvi.vercel.app' ||
+    h === 'marketing.ruhvi.in' ||
     h.startsWith('marketing.localhost') ||
-    h === 'orders.ruhvi.vercel.app' ||
+    h === 'orders.ruhvi.in' ||
     h.startsWith('orders.localhost')
   );
 }
 
 function portalDashboardHref(hostname: string): string {
   const h = hostname.toLowerCase();
-  if (h === 'admin.ruhvi.vercel.app' || h.startsWith('admin.localhost')) {
+  if (h === 'admin.ruhvi.in' || h.startsWith('admin.localhost')) {
     return '/admin/dashboard';
   }
-  if (h === 'support.ruhvi.vercel.app' || h.startsWith('support.localhost')) {
+  if (h === 'support.ruhvi.in' || h.startsWith('support.localhost')) {
     return '/support/dashboard';
   }
-  if (
-    h === 'operation.ruhvi.vercel.app' ||
-    h.startsWith('operation.localhost')
-  ) {
+  if (h === 'operation.ruhvi.in' || h.startsWith('operation.localhost')) {
     return '/operations/dashboard';
   }
-  if (
-    h === 'marketing.ruhvi.vercel.app' ||
-    h.startsWith('marketing.localhost')
-  ) {
+  if (h === 'marketing.ruhvi.in' || h.startsWith('marketing.localhost')) {
     return '/marketing/dashboard';
   }
-  if (h === 'orders.ruhvi.vercel.app' || h.startsWith('orders.localhost')) {
+  if (h === 'orders.ruhvi.in' || h.startsWith('orders.localhost')) {
     return '/portal-orders/dashboard';
   }
   return '/';
