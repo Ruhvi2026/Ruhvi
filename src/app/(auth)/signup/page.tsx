@@ -52,30 +52,25 @@ export default function SignUpPage() {
       if (signUpError) throw signUpError;
 
       if (data.user) {
-        try {
-          const match = document.cookie.match(
-            /(^| )ruhvi_referral_code=([^;]+)/
-          );
-          if (match) {
-            const refCode = match[2];
-            const { data: referrer } = await supabase
-              .from('users')
-              .select('id')
-              .eq('referral_code', refCode)
-              .single();
-            if (referrer && referrer.id !== data.user.id) {
-              await supabase.from('referrals').insert({
-                referrer_user_id: referrer.id,
-                referred_user_id: data.user.id,
-                status: 'pending',
-                coins_awarded: 0,
-              });
-            }
+        const refMatch = document.cookie.match(
+          /(^| )ruhvi_referral_code=([^;]+)/
+        );
+        if (refMatch) {
+          try {
+            await fetch('/api/auth/track-referral', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                referralCode: refMatch[2],
+                referredUserId: data.user.id,
+              }),
+            });
+          } catch (err) {
+            console.error('Referral tracking error:', err);
+          } finally {
             document.cookie =
               'ruhvi_referral_code=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
           }
-        } catch (err) {
-          console.error('Referral tracking error:', err);
         }
 
         // Trigger Welcome Email
@@ -181,30 +176,25 @@ export default function SignUpPage() {
           });
         }
 
-        try {
-          const match = document.cookie.match(
-            /(^| )ruhvi_referral_code=([^;]+)/
-          );
-          if (match) {
-            const refCode = match[2];
-            const { data: referrer } = await supabase
-              .from('users')
-              .select('id')
-              .eq('referral_code', refCode)
-              .single();
-            if (referrer && referrer.id !== data.user.id) {
-              await supabase.from('referrals').insert({
-                referrer_user_id: referrer.id,
-                referred_user_id: data.user.id,
-                status: 'pending',
-                coins_awarded: 0,
-              });
-            }
+        const refMatch = document.cookie.match(
+          /(^| )ruhvi_referral_code=([^;]+)/
+        );
+        if (refMatch) {
+          try {
+            await fetch('/api/auth/track-referral', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                referralCode: refMatch[2],
+                referredUserId: data.user.id,
+              }),
+            });
+          } catch (err) {
+            console.error('Referral tracking error:', err);
+          } finally {
             document.cookie =
               'ruhvi_referral_code=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
           }
-        } catch (err) {
-          console.error('Referral tracking error:', err);
         }
 
         posthog.capture('signup_completed', { method: 'phone' });
