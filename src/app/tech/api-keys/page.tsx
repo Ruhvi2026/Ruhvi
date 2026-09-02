@@ -233,9 +233,11 @@ export default function TechApiKeysPage() {
         <div className="mt-2 flex items-center">
           <span className="text-slate-500 dark:text-slate-500">POST</span>
           <code className="ml-2 font-mono text-tech-primary">
-            https://ruhvi.in/api/external/{selectedEndpoint}
+            https://ruhvi.vercel.app/api/external/{selectedEndpoint}
           </code>
-          <CopyBtn text={`https://ruhvi.in/api/external/${selectedEndpoint}`} />
+          <CopyBtn
+            text={`https://ruhvi.vercel.app/api/external/${selectedEndpoint}`}
+          />
         </div>
         <div className="mt-1 text-slate-500 dark:text-slate-500">
           Authorization: Bearer {'<key>'}

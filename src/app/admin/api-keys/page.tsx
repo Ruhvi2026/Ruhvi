@@ -587,10 +587,10 @@ export default function ApiKeysPage() {
         </div>
         <div className="mt-2 flex items-center gap-1">
           <code className="text-xs text-slate-300">
-            POST https://ruhvi.in/api/external/{selectedEndpoint}
+            POST https://ruhvi.vercel.app/api/external/{selectedEndpoint}
           </code>
           <CopyButton
-            text={`https://ruhvi.in/api/external/${selectedEndpoint}`}
+            text={`https://ruhvi.vercel.app/api/external/${selectedEndpoint}`}
           />
         </div>
         <p className="mt-1.5 text-[10px] text-slate-500">
