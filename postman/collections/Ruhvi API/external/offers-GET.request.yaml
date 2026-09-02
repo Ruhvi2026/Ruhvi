@@ -1,0 +1,5 @@
+$kind: http-request
+name: 'GET offers'
+method: GET
+url: '{{base_url}}/external/offers'
+order: 24000

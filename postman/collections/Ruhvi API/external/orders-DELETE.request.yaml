@@ -1,0 +1,5 @@
+$kind: http-request
+name: 'DELETE orders'
+method: DELETE
+url: '{{base_url}}/external/orders'
+order: 31000

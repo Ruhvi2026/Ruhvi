@@ -1,0 +1,12 @@
+$kind: http-request
+name: 'POST orders/refund'
+method: POST
+url: '{{base_url}}/admin/orders/refund'
+order: 47000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {}

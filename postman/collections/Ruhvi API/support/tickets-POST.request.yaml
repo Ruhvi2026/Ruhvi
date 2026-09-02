@@ -1,0 +1,12 @@
+$kind: http-request
+name: 'POST tickets'
+method: POST
+url: '{{base_url}}/support/tickets'
+order: 12000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {}

@@ -1,0 +1,5 @@
+$kind: http-request
+name: 'GET marketing/analytics'
+method: GET
+url: '{{base_url}}/admin/marketing/analytics'
+order: 27000

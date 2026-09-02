@@ -1,0 +1,5 @@
+$kind: http-request
+name: 'GET payment'
+method: GET
+url: '{{base_url}}/external/payment'
+order: 32000

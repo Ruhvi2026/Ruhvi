@@ -1,0 +1,12 @@
+$kind: http-request
+name: 'PUT support-ticket'
+method: PUT
+url: '{{base_url}}/external/support-ticket'
+order: 57000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {}

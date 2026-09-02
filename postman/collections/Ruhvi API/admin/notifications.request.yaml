@@ -1,0 +1,12 @@
+$kind: http-request
+name: 'POST notifications'
+method: POST
+url: '{{base_url}}/admin/notifications'
+order: 43000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {}

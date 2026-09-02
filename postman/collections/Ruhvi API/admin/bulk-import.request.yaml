@@ -1,0 +1,12 @@
+$kind: http-request
+name: 'POST bulk/import'
+method: POST
+url: '{{base_url}}/admin/bulk/import'
+order: 23000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {}

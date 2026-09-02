@@ -1,0 +1,5 @@
+$kind: http-request
+name: 'DELETE ai/models'
+method: DELETE
+url: '{{base_url}}/admin/ai/models'
+order: 14000

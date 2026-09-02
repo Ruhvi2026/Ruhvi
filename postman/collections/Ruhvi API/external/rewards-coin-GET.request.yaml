@@ -1,0 +1,5 @@
+$kind: http-request
+name: 'GET rewards-coin'
+method: GET
+url: '{{base_url}}/external/rewards-coin'
+order: 48000

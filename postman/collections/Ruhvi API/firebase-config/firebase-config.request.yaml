@@ -1,0 +1,5 @@
+$kind: http-request
+name: 'GET firebase-config'
+method: GET
+url: '{{base_url}}/firebase-config'
+order: 1000

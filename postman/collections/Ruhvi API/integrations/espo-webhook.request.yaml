@@ -1,0 +1,12 @@
+$kind: http-request
+name: 'POST espo/webhook'
+method: POST
+url: '{{base_url}}/integrations/espo/webhook'
+order: 3000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {}

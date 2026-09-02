@@ -1,0 +1,5 @@
+$kind: http-request
+name: 'GET espo/health'
+method: GET
+url: '{{base_url}}/integrations/espo/health'
+order: 2000

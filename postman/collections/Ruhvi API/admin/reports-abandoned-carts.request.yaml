@@ -1,0 +1,5 @@
+$kind: http-request
+name: 'GET reports/abandoned-carts'
+method: GET
+url: '{{base_url}}/admin/reports/abandoned-carts'
+order: 55000

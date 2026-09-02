@@ -1,0 +1,5 @@
+$kind: http-request
+name: 'GET category'
+method: GET
+url: '{{base_url}}/external/category'
+order: 9000

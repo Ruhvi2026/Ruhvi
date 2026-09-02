@@ -1,0 +1,12 @@
+$kind: http-request
+name: 'PUT website'
+method: PUT
+url: '{{base_url}}/external/website'
+order: 73000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {}

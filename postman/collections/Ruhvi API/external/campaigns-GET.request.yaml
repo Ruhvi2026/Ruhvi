@@ -1,0 +1,5 @@
+$kind: http-request
+name: 'GET campaigns'
+method: GET
+url: '{{base_url}}/external/campaigns'
+order: 5000

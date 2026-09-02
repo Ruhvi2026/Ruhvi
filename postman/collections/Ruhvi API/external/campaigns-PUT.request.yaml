@@ -1,0 +1,12 @@
+$kind: http-request
+name: 'PUT campaigns'
+method: PUT
+url: '{{base_url}}/external/campaigns'
+order: 7000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {}

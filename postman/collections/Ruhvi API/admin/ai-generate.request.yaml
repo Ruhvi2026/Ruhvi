@@ -1,0 +1,12 @@
+$kind: http-request
+name: 'POST ai/generate'
+method: POST
+url: '{{base_url}}/admin/ai/generate'
+order: 10000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {}

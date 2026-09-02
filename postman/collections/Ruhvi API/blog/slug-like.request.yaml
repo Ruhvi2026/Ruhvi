@@ -1,0 +1,15 @@
+$kind: http-request
+name: 'POST [slug]/like'
+method: POST
+url: '{{base_url}}/blog/:slug/like'
+order: 1000
+pathVariables:
+  - key: slug
+    value: ''
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {}

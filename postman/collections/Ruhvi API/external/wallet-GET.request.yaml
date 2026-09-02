@@ -1,0 +1,5 @@
+$kind: http-request
+name: 'GET wallet'
+method: GET
+url: '{{base_url}}/external/wallet'
+order: 67000

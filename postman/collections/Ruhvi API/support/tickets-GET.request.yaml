@@ -1,0 +1,5 @@
+$kind: http-request
+name: 'GET tickets'
+method: GET
+url: '{{base_url}}/support/tickets'
+order: 11000

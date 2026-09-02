@@ -1,0 +1,15 @@
+$kind: http-request
+name: 'POST marketing/settings/:channel'
+method: POST
+url: '{{base_url}}/admin/marketing/settings/:channel'
+order: 41000
+pathVariables:
+  - key: channel
+    value: ''
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {}

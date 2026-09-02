@@ -1,0 +1,5 @@
+$kind: http-request
+name: 'DELETE website'
+method: DELETE
+url: '{{base_url}}/external/website'
+order: 74000

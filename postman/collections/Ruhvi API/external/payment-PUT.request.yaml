@@ -1,0 +1,12 @@
+$kind: http-request
+name: 'PUT payment'
+method: PUT
+url: '{{base_url}}/external/payment'
+order: 34000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {}

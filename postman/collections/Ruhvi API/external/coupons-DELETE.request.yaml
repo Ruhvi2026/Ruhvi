@@ -1,0 +1,5 @@
+$kind: http-request
+name: 'DELETE coupons'
+method: DELETE
+url: '{{base_url}}/external/coupons'
+order: 16000

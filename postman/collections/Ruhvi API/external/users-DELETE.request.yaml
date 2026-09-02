@@ -1,0 +1,5 @@
+$kind: http-request
+name: 'DELETE users'
+method: DELETE
+url: '{{base_url}}/external/users'
+order: 66000

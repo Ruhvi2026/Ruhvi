@@ -1,0 +1,12 @@
+$kind: http-request
+name: 'POST reports'
+method: POST
+url: '{{base_url}}/external/reports'
+order: 45000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {}

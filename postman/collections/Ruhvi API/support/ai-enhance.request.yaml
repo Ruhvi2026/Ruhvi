@@ -1,0 +1,12 @@
+$kind: http-request
+name: 'POST ai/enhance'
+method: POST
+url: '{{base_url}}/support/ai/enhance'
+order: 1000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {}

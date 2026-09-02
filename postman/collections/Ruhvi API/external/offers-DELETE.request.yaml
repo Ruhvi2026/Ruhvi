@@ -1,0 +1,5 @@
+$kind: http-request
+name: 'DELETE offers'
+method: DELETE
+url: '{{base_url}}/external/offers'
+order: 27000

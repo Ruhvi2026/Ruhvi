@@ -1,7 +1,11 @@
 {
   "mcpServers": {
     "sentry": {
-      "serverUrl": "https://mcp.sentry.dev/mcp/ruhvi-jewels/javascript-nextjs"
+      "command": "npx",
+      "args": ["-y", "@sentry/mcp-server"],
+      "env": {
+        "SENTRY_AUTH_TOKEN": ""
+      }
     }
   }
 }

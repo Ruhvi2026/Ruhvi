@@ -1,0 +1,12 @@
+$kind: http-request
+name: 'POST auto-assign'
+method: POST
+url: '{{base_url}}/support/auto-assign'
+order: 3000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {}

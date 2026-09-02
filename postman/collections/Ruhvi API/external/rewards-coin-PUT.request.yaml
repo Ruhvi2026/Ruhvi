@@ -1,0 +1,12 @@
+$kind: http-request
+name: 'PUT rewards-coin'
+method: PUT
+url: '{{base_url}}/external/rewards-coin'
+order: 50000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {}

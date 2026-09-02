@@ -1,0 +1,5 @@
+$kind: http-request
+name: 'GET automations'
+method: GET
+url: '{{base_url}}/cron/automations'
+order: 2000

@@ -1,0 +1,12 @@
+$kind: http-request
+name: 'POST ai/settings'
+method: POST
+url: '{{base_url}}/admin/ai/settings'
+order: 17000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {}

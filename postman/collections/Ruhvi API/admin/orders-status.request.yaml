@@ -1,0 +1,12 @@
+$kind: http-request
+name: 'POST orders/status'
+method: POST
+url: '{{base_url}}/admin/orders/status'
+order: 51000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {}

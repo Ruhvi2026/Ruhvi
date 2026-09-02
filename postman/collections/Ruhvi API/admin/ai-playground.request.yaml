@@ -1,0 +1,12 @@
+$kind: http-request
+name: 'POST ai/playground'
+method: POST
+url: '{{base_url}}/admin/ai/playground'
+order: 15000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {}

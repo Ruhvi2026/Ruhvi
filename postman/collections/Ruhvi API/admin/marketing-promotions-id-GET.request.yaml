@@ -1,0 +1,8 @@
+$kind: http-request
+name: 'GET marketing/promotions/:id'
+method: GET
+url: '{{base_url}}/admin/marketing/promotions/:id'
+order: 36000
+pathVariables:
+  - key: id
+    value: ''

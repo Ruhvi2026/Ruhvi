@@ -1,0 +1,12 @@
+$kind: http-request
+name: 'POST phonepe-wallet'
+method: POST
+url: '{{base_url}}/webhooks/phonepe-wallet'
+order: 2000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {}

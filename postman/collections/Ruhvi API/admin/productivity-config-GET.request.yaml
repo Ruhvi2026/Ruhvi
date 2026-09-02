@@ -1,0 +1,5 @@
+$kind: http-request
+name: 'GET productivity-config'
+method: GET
+url: '{{base_url}}/admin/productivity-config'
+order: 53000

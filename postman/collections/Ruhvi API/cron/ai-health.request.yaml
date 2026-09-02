@@ -1,0 +1,5 @@
+$kind: http-request
+name: 'GET ai-health'
+method: GET
+url: '{{base_url}}/cron/ai-health'
+order: 1000

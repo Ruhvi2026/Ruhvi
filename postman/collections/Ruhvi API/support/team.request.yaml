@@ -1,0 +1,5 @@
+$kind: http-request
+name: 'GET team'
+method: GET
+url: '{{base_url}}/support/team'
+order: 10000

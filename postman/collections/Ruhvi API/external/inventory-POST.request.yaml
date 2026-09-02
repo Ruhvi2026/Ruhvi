@@ -1,0 +1,12 @@
+$kind: http-request
+name: 'POST inventory'
+method: POST
+url: '{{base_url}}/external/inventory'
+order: 21000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {}

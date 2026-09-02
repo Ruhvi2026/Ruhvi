@@ -1,0 +1,5 @@
+$kind: http-request
+name: 'DELETE wallet'
+method: DELETE
+url: '{{base_url}}/external/wallet'
+order: 70000

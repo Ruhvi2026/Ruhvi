@@ -1,0 +1,12 @@
+$kind: http-request
+name: 'PUT sla-config'
+method: PUT
+url: '{{base_url}}/support/sla-config'
+order: 9000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {}

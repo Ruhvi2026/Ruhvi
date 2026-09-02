@@ -1,0 +1,5 @@
+$kind: http-request
+name: 'DELETE reports'
+method: DELETE
+url: '{{base_url}}/external/reports'
+order: 47000

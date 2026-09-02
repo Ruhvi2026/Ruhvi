@@ -1,0 +1,5 @@
+$kind: http-request
+name: 'DELETE campaigns'
+method: DELETE
+url: '{{base_url}}/external/campaigns'
+order: 8000

@@ -1,0 +1,15 @@
+$kind: http-request
+name: 'POST marketing/promotions/:id'
+method: POST
+url: '{{base_url}}/admin/marketing/promotions/:id'
+order: 37000
+pathVariables:
+  - key: id
+    value: ''
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {}

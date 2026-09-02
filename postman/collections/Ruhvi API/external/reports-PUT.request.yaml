@@ -1,0 +1,12 @@
+$kind: http-request
+name: 'PUT reports'
+method: PUT
+url: '{{base_url}}/external/reports'
+order: 46000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {}

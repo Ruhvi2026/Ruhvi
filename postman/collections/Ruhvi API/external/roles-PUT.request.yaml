@@ -1,0 +1,12 @@
+$kind: http-request
+name: 'PUT roles'
+method: PUT
+url: '{{base_url}}/external/roles'
+order: 54000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {}

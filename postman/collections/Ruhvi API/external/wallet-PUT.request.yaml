@@ -1,0 +1,12 @@
+$kind: http-request
+name: 'PUT wallet'
+method: PUT
+url: '{{base_url}}/external/wallet'
+order: 69000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {}

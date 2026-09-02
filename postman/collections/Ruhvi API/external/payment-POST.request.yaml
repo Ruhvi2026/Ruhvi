@@ -1,0 +1,12 @@
+$kind: http-request
+name: 'POST payment'
+method: POST
+url: '{{base_url}}/external/payment'
+order: 33000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {}

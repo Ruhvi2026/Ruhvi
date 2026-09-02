@@ -1,0 +1,12 @@
+$kind: http-request
+name: 'POST validate-coupon'
+method: POST
+url: '{{base_url}}/checkout/validate-coupon'
+order: 3000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {}

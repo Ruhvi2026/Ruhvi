@@ -1,0 +1,12 @@
+$kind: http-request
+name: 'POST chat'
+method: POST
+url: '{{base_url}}/support/chat'
+order: 7000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {}

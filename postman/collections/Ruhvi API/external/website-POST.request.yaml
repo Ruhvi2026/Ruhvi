@@ -1,0 +1,12 @@
+$kind: http-request
+name: 'POST website'
+method: POST
+url: '{{base_url}}/external/website'
+order: 72000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {}

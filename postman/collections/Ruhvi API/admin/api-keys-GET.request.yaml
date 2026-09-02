@@ -1,0 +1,5 @@
+$kind: http-request
+name: 'GET api-keys'
+method: GET
+url: '{{base_url}}/admin/api-keys'
+order: 20000

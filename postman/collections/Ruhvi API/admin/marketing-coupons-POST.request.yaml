@@ -1,0 +1,12 @@
+$kind: http-request
+name: 'POST marketing/coupons'
+method: POST
+url: '{{base_url}}/admin/marketing/coupons'
+order: 31000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {}

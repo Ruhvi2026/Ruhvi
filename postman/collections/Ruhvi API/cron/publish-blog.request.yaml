@@ -1,0 +1,5 @@
+$kind: http-request
+name: 'GET publish-blog'
+method: GET
+url: '{{base_url}}/cron/publish-blog'
+order: 3000

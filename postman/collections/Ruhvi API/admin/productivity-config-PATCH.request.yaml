@@ -1,0 +1,12 @@
+$kind: http-request
+name: 'PATCH productivity-config'
+method: PATCH
+url: '{{base_url}}/admin/productivity-config'
+order: 54000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {}

@@ -1,0 +1,8 @@
+$kind: http-request
+name: 'GET tickets/:id'
+method: GET
+url: '{{base_url}}/support/tickets/:id'
+order: 15000
+pathVariables:
+  - key: id
+    value: ''

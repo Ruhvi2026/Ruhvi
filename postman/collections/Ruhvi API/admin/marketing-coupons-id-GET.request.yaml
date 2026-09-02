@@ -1,0 +1,8 @@
+$kind: http-request
+name: 'GET marketing/coupons/:id'
+method: GET
+url: '{{base_url}}/admin/marketing/coupons/:id'
+order: 32000
+pathVariables:
+  - key: id
+    value: ''

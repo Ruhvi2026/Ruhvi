@@ -1,0 +1,12 @@
+$kind: http-request
+name: 'POST push'
+method: POST
+url: '{{base_url}}/external/push'
+order: 41000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {}

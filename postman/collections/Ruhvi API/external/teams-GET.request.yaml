@@ -1,0 +1,5 @@
+$kind: http-request
+name: 'GET teams'
+method: GET
+url: '{{base_url}}/external/teams'
+order: 59000

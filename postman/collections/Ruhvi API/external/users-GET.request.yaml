@@ -1,0 +1,5 @@
+$kind: http-request
+name: 'GET users'
+method: GET
+url: '{{base_url}}/external/users'
+order: 63000

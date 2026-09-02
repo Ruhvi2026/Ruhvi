@@ -1,0 +1,5 @@
+$kind: http-request
+name: 'GET marketing/segments'
+method: GET
+url: '{{base_url}}/admin/marketing/segments'
+order: 38000

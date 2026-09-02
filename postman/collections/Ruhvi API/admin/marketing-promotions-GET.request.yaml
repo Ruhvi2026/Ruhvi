@@ -1,0 +1,5 @@
+$kind: http-request
+name: 'GET marketing/promotions'
+method: GET
+url: '{{base_url}}/admin/marketing/promotions'
+order: 34000

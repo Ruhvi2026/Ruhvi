@@ -1,0 +1,12 @@
+$kind: http-request
+name: 'POST shiprocket'
+method: POST
+url: '{{base_url}}/webhooks/shiprocket'
+order: 3000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {}

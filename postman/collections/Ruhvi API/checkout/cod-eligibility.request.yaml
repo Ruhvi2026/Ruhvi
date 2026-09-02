@@ -1,0 +1,5 @@
+$kind: http-request
+name: 'GET cod-eligibility'
+method: GET
+url: '{{base_url}}/checkout/cod-eligibility'
+order: 1000

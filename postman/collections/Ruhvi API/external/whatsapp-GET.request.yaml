@@ -1,0 +1,5 @@
+$kind: http-request
+name: 'GET whatsapp'
+method: GET
+url: '{{base_url}}/external/whatsapp'
+order: 75000

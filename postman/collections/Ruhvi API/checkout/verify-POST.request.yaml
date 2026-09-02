@@ -1,0 +1,12 @@
+$kind: http-request
+name: 'POST verify'
+method: POST
+url: '{{base_url}}/checkout/verify'
+order: 5000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {}

@@ -1,0 +1,12 @@
+$kind: http-request
+name: 'POST whatsapp/campaign'
+method: POST
+url: '{{base_url}}/admin/whatsapp/campaign'
+order: 58000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {}

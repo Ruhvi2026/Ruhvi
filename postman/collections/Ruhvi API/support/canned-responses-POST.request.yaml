@@ -1,0 +1,12 @@
+$kind: http-request
+name: 'POST canned-responses'
+method: POST
+url: '{{base_url}}/support/canned-responses'
+order: 5000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {}

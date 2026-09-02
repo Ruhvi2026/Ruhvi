@@ -1,0 +1,12 @@
+$kind: http-request
+name: 'POST whatsapp'
+method: POST
+url: '{{base_url}}/external/whatsapp'
+order: 76000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {}

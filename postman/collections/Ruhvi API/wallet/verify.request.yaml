@@ -1,0 +1,5 @@
+$kind: http-request
+name: 'GET verify'
+method: GET
+url: '{{base_url}}/wallet/verify'
+order: 2000

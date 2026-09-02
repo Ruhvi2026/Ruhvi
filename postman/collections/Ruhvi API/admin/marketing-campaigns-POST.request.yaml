@@ -1,0 +1,12 @@
+$kind: http-request
+name: 'POST marketing/campaigns'
+method: POST
+url: '{{base_url}}/admin/marketing/campaigns'
+order: 29000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {}

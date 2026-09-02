@@ -1,0 +1,5 @@
+$kind: http-request
+name: 'GET cloudinary/gallery'
+method: GET
+url: '{{base_url}}/admin/cloudinary/gallery'
+order: 24000

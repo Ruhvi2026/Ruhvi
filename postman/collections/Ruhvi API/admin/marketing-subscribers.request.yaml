@@ -1,0 +1,5 @@
+$kind: http-request
+name: 'GET marketing/subscribers'
+method: GET
+url: '{{base_url}}/admin/marketing/subscribers'
+order: 42000

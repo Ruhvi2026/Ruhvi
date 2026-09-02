@@ -1,0 +1,5 @@
+$kind: http-request
+name: 'DELETE support-ticket'
+method: DELETE
+url: '{{base_url}}/external/support-ticket'
+order: 58000

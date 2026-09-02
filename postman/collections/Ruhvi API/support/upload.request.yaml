@@ -1,0 +1,12 @@
+$kind: http-request
+name: 'POST upload'
+method: POST
+url: '{{base_url}}/support/upload'
+order: 20000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {}

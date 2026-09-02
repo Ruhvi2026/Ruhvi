@@ -1,0 +1,12 @@
+$kind: http-request
+name: 'POST welcome'
+method: POST
+url: '{{base_url}}/emails/welcome'
+order: 1000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {}

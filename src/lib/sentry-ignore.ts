@@ -5,6 +5,8 @@ const IGNORE_PATTERNS = [
   /An unexpected response was received from the server/,
   /^Failed to fetch$/,
   /Cannot read properties of null \(reading 'parentNode'\)/,
+  /^aborted$/,
+  /Supabase Client is configured with the accessToken option/,
 ];
 
 export function beforeSendSentry(event: ErrorEvent) {

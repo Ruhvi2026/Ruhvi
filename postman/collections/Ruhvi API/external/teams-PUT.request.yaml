@@ -1,0 +1,12 @@
+$kind: http-request
+name: 'PUT teams'
+method: PUT
+url: '{{base_url}}/external/teams'
+order: 61000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {}
