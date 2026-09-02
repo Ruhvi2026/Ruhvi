@@ -71,7 +71,7 @@ export async function POST(
     }
 
     // Dynamic import to avoid loading resend in non-email contexts
-    const { sendSupportTicketEmail } = await import('@/lib/brevo');
+    const { sendSupportTicketEmail } = await import('@/lib/resend');
 
     switch (type) {
       case 'ticket_created':

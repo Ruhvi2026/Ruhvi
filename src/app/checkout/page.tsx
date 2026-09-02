@@ -450,7 +450,7 @@ export default function CheckoutPage() {
       return;
     }
 
-    const userId = user?.id || profile?.id || auth?.currentUser?.uid;
+    const userId = user?.id || profile?.id;
     const addressData = {
       ...newAddress,
       label: newAddress.label.trim() || 'Home',

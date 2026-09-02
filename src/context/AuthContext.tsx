@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { User, Session } from '@supabase/supabase-js';
+import { User, Session, AuthChangeEvent } from '@supabase/supabase-js';
 import { createClient } from '@/lib/supabase/client';
 import toast from 'react-hot-toast';
 import { parseApiError } from '@/lib/api-errors';
@@ -157,19 +157,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       const {
         data: { subscription },
-      } = supabase.auth.onAuthStateChange(async (event, newSession) => {
-        if (!isMounted) return;
+      } = supabase.auth.onAuthStateChange(
+        async (event: AuthChangeEvent, newSession: Session | null) => {
+          if (!isMounted) return;
 
-        if (newSession) {
-          setSession(newSession);
-          setUser(newSession.user);
-          await fetchProfile(newSession.user);
-        } else {
-          setSession(null);
-          setUser(null);
-          setProfile(null);
+          if (newSession) {
+            setSession(newSession);
+            setUser(newSession.user);
+            await fetchProfile(newSession.user);
+          } else {
+            setSession(null);
+            setUser(null);
+            setProfile(null);
+          }
         }
-      });
+      );
 
       return () => {
         subscription.unsubscribe();

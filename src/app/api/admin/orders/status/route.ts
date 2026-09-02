@@ -120,7 +120,7 @@ export async function POST(request: Request) {
           sendOrderOutForDeliveryEmail,
           sendOrderDeliveredEmail,
           sendOrderCancelledEmail,
-        } = await import('@/lib/brevo');
+        } = await import('@/lib/resend');
 
         switch (newStatus) {
           case 'shipped':
