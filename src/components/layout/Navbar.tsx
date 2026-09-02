@@ -244,10 +244,10 @@ export function Navbar() {
               )}
             </Link>
 
-            {/* Support Link — visible on all screen sizes */}
+            {/* Support Link */}
             <Link
               href={user ? '/account/support' : '/support-status'}
-              className="text-ink-soft p-2 transition-colors duration-300 hover:text-gold-600 sm:p-2"
+              className="text-ink-soft hidden p-2 transition-colors duration-300 hover:text-gold-600 sm:block"
               title="Support"
             >
               <Headphones
