@@ -61,6 +61,8 @@ The application is a modern, headless e-commerce storefront. It utilizes Next.js
 | Tool / Service | Category | Reason for Flagging | Safe to Remove? |
 |----------------|----------|---------------------|-----------------|
 | **Firebase Storage** | Storage | `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET` is configured in environment variables, but Firebase is currently only used for OTP. | Yes (Remove from `.env`) |
+| **Firebase Email Verification** | Authentication | The built-in Firebase verification email is redundant and conflicts with the custom Resend verification link flow. | Yes (Removed from authService.ts) |
+| **OneSignal Web Push** | Marketing/Push | Duplicate functionality. Firebase Cloud Messaging (FCM) is already installed and handles both system and marketing push notifications. | Yes (Remove OneSignalSDKWorker and component) |
 
 ---
 
@@ -160,3 +162,4 @@ The application is a modern, headless e-commerce storefront. It utilizes Next.js
 - `ESPO_DEFAULT_ASSIGNEE_EMAIL`
 
 | External API Key System (n8n Integration) | Machine-to-Machine Auth | 2026-09-01 | Active | `src/lib/api-keys/index.ts`, `src/app/api/admin/api-keys/route.ts`, `src/app/api/external/blog/route.ts`, `src/app/admin/api-keys/page.tsx`, `src/app/tech/api-keys/page.tsx`, `supabase/migrations/0076_api_keys.sql`, `supabase/migrations/0077_blog_posts_api_key_ref.sql` | Scoped Bearer-token API keys (SHA-256 hashed, never stored raw). First endpoint: POST /api/external/blog (requires blog:write scope). Admin UI in admin.ruhvi.in and tech.ruhvi.in for key list, create (one-time reveal), and revoke. No new env vars required. |
+| Service Restoration & Optimization Cleanup | Email, Auth & Integrations | 2026-09-02 | Active | `src/lib/resend.ts`, `src/app/(auth)/signup/page.tsx`, `src/services/authService.ts`, etc. | Restored Resend for all transactional emails (Brevo remains strictly for marketing). Removed redundant Firebase `sendEmailVerification` to fix broken verification links. Restored referral tracking across all 4 signup methods. |
