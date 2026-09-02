@@ -4,7 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Category } from '@/types/database';
 import { getHomepageSettings, getHomepageCategories } from '@/lib/storefront';
-import { getOptimizedImageUrl } from '@/services/cloudinaryService';
+import { getOptimizedImageUrl } from '@/lib/imageService';
 
 export const revalidate = 3600;
 

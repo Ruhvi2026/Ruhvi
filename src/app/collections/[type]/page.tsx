@@ -5,7 +5,7 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { ArrowLeft, Sparkles, Filter } from 'lucide-react';
 import { createClient } from '@/lib/supabase/server';
-import { getOptimizedImageUrl } from '@/services/cloudinaryService';
+import { getOptimizedImageUrl } from '@/lib/imageService';
 
 export async function generateMetadata({
   params,

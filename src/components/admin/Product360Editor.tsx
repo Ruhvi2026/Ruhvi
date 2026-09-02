@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Product360Set, Product360Frame } from '@/types/database';
 import { createClient } from '@/lib/supabase/client';
-import { uploadProductImage } from '@/services/cloudinaryService';
+import { uploadProductImage } from '@/lib/imageService';
 
 interface Product360EditorProps {
   productId: string;

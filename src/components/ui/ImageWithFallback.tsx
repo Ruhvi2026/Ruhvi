@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Image, { ImageProps } from 'next/image';
 import { ImageOff } from 'lucide-react';
-import { getOptimizedImageUrl } from '@/services/cloudinaryService';
+import { getOptimizedImageUrl } from '@/lib/imageService';
 
 interface ImageWithFallbackProps extends Omit<ImageProps, 'src'> {
   src: string | null | undefined;

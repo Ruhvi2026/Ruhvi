@@ -28,23 +28,60 @@ export function getThumbnailImage(sourceUrl: string): string {
 }
 
 /**
+ * Returns an optimized image URL by appending Cloudinary auto-format/quality
+ * transformations. Non-Cloudinary URLs (e.g. Supabase Storage) are returned
+ * unchanged since Next.js handles optimization for them.
+ * @param sourceUrl The original image URL
+ * @param transformations Cloudinary transformations (defaults to f_auto,q_auto)
+ * @returns Optimized URL
+ */
+export function getOptimizedImageUrl(
+  sourceUrl: string,
+  transformations: string = 'f_auto,q_auto'
+): string {
+  if (!sourceUrl) return '';
+  if (!sourceUrl.includes('res.cloudinary.com')) return sourceUrl;
+
+  const hasFAuto = transformations.includes('f_auto');
+  const hasQAuto = transformations.includes('q_auto');
+  let finalTransformations = transformations;
+  if (!hasFAuto) finalTransformations += ',f_auto';
+  if (!hasQAuto) finalTransformations += ',q_auto';
+  finalTransformations = finalTransformations.replace(/^,+/, '');
+
+  if (sourceUrl.match(/\/upload\/[a-zA-Z0-9_,]+\/v\d+\//)) {
+    return sourceUrl.replace(
+      /\/upload\/([a-zA-Z0-9_,]+)\//,
+      `/upload/$1,${finalTransformations}/`
+    );
+  }
+  return sourceUrl.replace('/upload/', `/upload/${finalTransformations}/`);
+}
+
+/**
  * Uploads an attachment to Supabase Storage.
  * @param file The file to upload
  * @returns The secure URL
  */
-export async function uploadAttachment(file: File): Promise<{ secure_url: string }> {
+export async function uploadAttachment(
+  file: File
+): Promise<{ secure_url: string }> {
   const supabase = createClient();
   const fileExt = file.name.split('.').pop();
   const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
   const filePath = `attachments/${fileName}`;
 
-  const { data, error } = await supabase.storage.from('assets').upload(filePath, file);
+  const { data, error } = await supabase.storage
+    .from('assets')
+    .upload(filePath, file);
 
   if (error) {
     throw new Error(error.message || 'Failed to upload attachment to Supabase');
   }
 
-  const { data: { publicUrl } } = supabase.storage.from('assets').getPublicUrl(filePath);
+  const {
+    data: { publicUrl },
+  } = supabase.storage.from('assets').getPublicUrl(filePath);
   return { secure_url: publicUrl };
 }
 
@@ -53,19 +90,32 @@ export async function uploadAttachment(file: File): Promise<{ secure_url: string
  * @param file The file to upload
  * @returns The secure URL and public ID
  */
-export async function uploadProductImage(file: File): Promise<{ secure_url: string; public_id: string; format: string; width: number; height: number; bytes: number }> {
+export async function uploadProductImage(
+  file: File
+): Promise<{
+  secure_url: string;
+  public_id: string;
+  format: string;
+  width: number;
+  height: number;
+  bytes: number;
+}> {
   const supabase = createClient();
   const fileExt = file.name.split('.').pop();
   const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
   const filePath = `products/${fileName}`;
 
-  const { data, error } = await supabase.storage.from('assets').upload(filePath, file);
+  const { data, error } = await supabase.storage
+    .from('assets')
+    .upload(filePath, file);
 
   if (error) {
     throw new Error(error.message || 'Failed to upload image to Supabase');
   }
 
-  const { data: { publicUrl } } = supabase.storage.from('assets').getPublicUrl(filePath);
+  const {
+    data: { publicUrl },
+  } = supabase.storage.from('assets').getPublicUrl(filePath);
 
   return {
     secure_url: publicUrl,
@@ -84,7 +134,7 @@ export async function uploadProductImage(file: File): Promise<{ secure_url: stri
 export async function deleteProductImage(publicId: string): Promise<boolean> {
   const supabase = createClient();
   const { error } = await supabase.storage.from('assets').remove([publicId]);
-  
+
   if (error) {
     console.error('Failed to delete image', error);
     return false;

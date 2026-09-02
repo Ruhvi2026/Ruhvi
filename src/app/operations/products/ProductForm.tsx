@@ -469,8 +469,7 @@ export default function ProductForm({ initialData, isEdit }: ProductFormProps) {
     const loadingToast = toast.loading(`Uploading ${files.length} image(s)...`);
 
     try {
-      const { uploadProductImage } =
-        await import('@/services/cloudinaryService');
+      const { uploadProductImage } = await import('@/lib/imageService');
       const uploadedUrls: string[] = [];
 
       for (let i = 0; i < files.length; i++) {

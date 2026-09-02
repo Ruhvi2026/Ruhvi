@@ -8,7 +8,7 @@ import {
   Loader2,
   RefreshCw,
 } from 'lucide-react';
-import { uploadProductImage } from '@/services/cloudinaryService';
+import { uploadProductImage } from '@/lib/imageService';
 import { toast } from 'react-hot-toast';
 
 interface ImagePickerProps {

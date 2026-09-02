@@ -16,11 +16,7 @@ import { Suspense } from 'react';
 import { NotificationProvider } from '@/context/NotificationContext';
 import CustomerSupportChatTrigger from '@/components/CustomerSupportChatTrigger';
 import { SpeedInsights } from '@vercel/speed-insights/next';
-import dynamic from 'next/dynamic';
-const FcmInit = dynamic(
-  () => import('@/components/FcmInit').then((mod) => mod.FcmInit),
-  { ssr: false }
-);
+import { LazyFcmInit } from '@/components/LazyFcmInit';
 
 import { AuthProvider } from '@/context/AuthContext';
 import { ToastProvider } from '@/components/layout/ToastProvider';
@@ -219,7 +215,7 @@ export default function RootLayout({
               <WishlistProvider>
                 <NotificationProvider>
                   <StorefrontChrome>
-                    <FcmInit />
+                    <LazyFcmInit />
                     <Navbar />
                     {/* Add spacing here so it only applies to the storefront, not portals */}
                     <div className="h-[104px] w-full flex-shrink-0" />

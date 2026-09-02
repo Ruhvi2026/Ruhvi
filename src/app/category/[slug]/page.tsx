@@ -4,7 +4,7 @@ import Image from 'next/image';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
-import { getOptimizedImageUrl } from '@/services/cloudinaryService';
+import { getOptimizedImageUrl } from '@/lib/imageService';
 import { Breadcrumbs } from '@/components/seo/Breadcrumbs';
 
 interface CategoryPageProps {
