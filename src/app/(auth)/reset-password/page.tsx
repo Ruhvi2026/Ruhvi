@@ -1,45 +1,21 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, Suspense } from 'react';
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { Sparkles, KeyRound } from 'lucide-react';
-import { auth } from '@/lib/firebase';
-import { confirmPasswordReset, verifyPasswordResetCode } from 'firebase/auth';
+import { createClient } from '@/lib/supabase/client';
 
 function ResetPasswordForm() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
 
-  // Support both custom signed 'token' and Firebase 'oobCode'
-  const token = searchParams.get('token');
-  const oobCode = searchParams.get('oobCode');
-
-  useEffect(() => {
-    if (!token && !oobCode) {
-      setError(
-        'Invalid or expired password reset link. Please request a new link.'
-      );
-    } else if (oobCode && !token) {
-      // Legacy Firebase oobCode check
-      verifyPasswordResetCode(auth, oobCode).catch((err) => {
-        console.error(err);
-        setError('The password reset link is invalid or has expired.');
-      });
-    }
-  }, [token, oobCode]);
-
   const handleUpdatePassword = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!token && !oobCode) {
-      setError('Missing reset authorization token.');
-      return;
-    }
     if (password !== confirmPassword) {
       setError('Passwords do not match.');
       return;
@@ -50,22 +26,13 @@ function ResetPasswordForm() {
     setMessage(null);
 
     try {
-      if (token) {
-        // 1. Call our custom secure API endpoint
-        const res = await fetch('/api/auth/reset-password', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ token, password }),
-        });
+      const supabase = createClient();
 
-        const data = await res.json();
-        if (!res.ok) {
-          throw new Error(data.error || 'Failed to update password.');
-        }
-      } else if (oobCode) {
-        // 2. Legacy Firebase confirmation fallback
-        await confirmPasswordReset(auth, oobCode, password);
-      }
+      const { error: updateError } = await supabase.auth.updateUser({
+        password: password,
+      });
+
+      if (updateError) throw updateError;
 
       setMessage(
         'Your password has been successfully updated! Redirecting to login...'

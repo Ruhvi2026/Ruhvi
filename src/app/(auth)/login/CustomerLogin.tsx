@@ -5,17 +5,6 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
-import { auth } from '@/lib/firebase';
-import {
-  RecaptchaVerifier,
-  signInWithPhoneNumber,
-  signInWithEmailAndPassword,
-  signInWithCustomToken,
-  signInWithPopup,
-  GoogleAuthProvider,
-  FacebookAuthProvider,
-  ConfirmationResult,
-} from 'firebase/auth';
 import { Sparkles, ArrowRight, Eye, EyeOff, Mail, Phone } from 'lucide-react';
 
 function LoginForm() {
@@ -34,8 +23,7 @@ function LoginForm() {
   const [phone, setPhone] = useState('');
   const [otp, setOtp] = useState('');
   const [showOtpInput, setShowOtpInput] = useState(false);
-  const [confirmationResult, setConfirmationResult] =
-    useState<ConfirmationResult | null>(null);
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
@@ -47,17 +35,6 @@ function LoginForm() {
           window.location.hostname.startsWith('admin.localhost')
       );
     }
-
-    return () => {
-      if (typeof window !== 'undefined' && (window as any).recaptchaVerifier) {
-        try {
-          (window as any).recaptchaVerifier.clear();
-        } catch (e) {
-          // ignore cleanup error
-        }
-        (window as any).recaptchaVerifier = null;
-      }
-    };
   }, []);
 
   const handleEmailLogin = async (e: React.FormEvent) => {
@@ -70,88 +47,13 @@ function LoginForm() {
       redirectTo === '/admin' ? '/admin/dashboard' : redirectTo;
 
     try {
-      let fbUser = null;
-
-      // 1. Attempt direct Firebase login
-      try {
-        const userCredential = await signInWithEmailAndPassword(
-          auth,
-          email,
-          password
-        );
-        fbUser = userCredential.user;
-      } catch (fbLoginErr: any) {
-        // If Firebase says user not found or invalid credential, try Supabase hybrid bridge
-        if (
-          fbLoginErr?.code === 'auth/user-not-found' ||
-          fbLoginErr?.code === 'auth/invalid-credential' ||
-          fbLoginErr?.code === 'auth/wrong-password'
-        ) {
-          const hybridRes = await fetch('/api/auth/hybrid-login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password }),
-          });
-
-          if (hybridRes.ok) {
-            const hybridData = await hybridRes.json();
-            if (hybridData.customToken) {
-              const customUserCred = await signInWithCustomToken(
-                auth,
-                hybridData.customToken
-              );
-              fbUser = customUserCred.user;
-            } else if (hybridData.idToken) {
-              // Try signing in again with newly created Firebase user
-              try {
-                const userCredential = await signInWithEmailAndPassword(
-                  auth,
-                  email,
-                  password
-                );
-                fbUser = userCredential.user;
-              } catch {
-                // If direct signin fails, proceed with session creation using returned token
-                await fetch('/api/auth/session', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ idToken: hybridData.idToken }),
-                });
-                setMessage('Login successful! Redirecting...');
-                router.refresh();
-                await new Promise((resolve) => setTimeout(resolve, 50));
-                window.location.href = destination;
-                return;
-              }
-            }
-          }
-        }
-
-        if (!fbUser) {
-          throw fbLoginErr;
-        }
-      }
-
-      // 2. Upsert user into Supabase database securely via RPC
       const supabase = createClient();
-      await supabase.rpc('resolve_customer_identity', {
-        p_firebase_uid: fbUser.uid,
-        p_provider: 'password',
-        p_provider_identifier: fbUser.email || '',
-        p_email: fbUser.email || null,
-        p_email_verified: fbUser.emailVerified || false,
-        p_phone: fbUser.phoneNumber || null,
-        p_phone_verified: false,
-        p_name: fbUser.displayName || null,
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
       });
 
-      // 3. Create session cookie for SSR
-      const idToken = await fbUser.getIdToken();
-      await fetch('/api/auth/session', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ idToken }),
-      });
+      if (signInError) throw signInError;
 
       setMessage('Login successful! Redirecting...');
       router.refresh();
@@ -159,21 +61,8 @@ function LoginForm() {
       window.location.href = destination;
     } catch (err: any) {
       console.error('Email login error:', err);
-      try {
-        const { signOut } = await import('firebase/auth');
-        await signOut(auth);
-      } catch (signOutErr) {
-        console.error('Failed to clean up Firebase session:', signOutErr);
-      }
       let msg = 'Invalid email or password. Please check your credentials.';
-      if (
-        err?.code === 'auth/user-not-found' ||
-        err?.code === 'auth/invalid-credential'
-      ) {
-        msg = 'No account found with this email or invalid password.';
-      } else if (err?.code === 'auth/wrong-password') {
-        msg = 'Incorrect password. Please try again.';
-      } else if (err?.message) {
+      if (err?.message) {
         msg = err.message;
       }
       setError(msg);
@@ -191,44 +80,18 @@ function LoginForm() {
       const formattedPhone = phone.startsWith('+')
         ? phone
         : `+91${phone.replace(/\D/g, '').slice(-10)}`;
-      if (typeof window !== 'undefined') {
-        if ((window as any).recaptchaVerifier) {
-          try {
-            (window as any).recaptchaVerifier.clear();
-          } catch (e) {}
-          (window as any).recaptchaVerifier = null;
-        }
-        const containerNode = document.getElementById('recaptcha-container');
-        if (containerNode) {
-          containerNode.innerHTML = '';
-        }
-        (window as any).recaptchaVerifier = new RecaptchaVerifier(
-          auth,
-          'recaptcha-container',
-          {
-            size: 'invisible',
-          }
-        );
-      }
-      const appVerifier = (window as any).recaptchaVerifier;
 
-      const confirmation = await signInWithPhoneNumber(
-        auth,
-        formattedPhone,
-        appVerifier
-      );
-      setConfirmationResult(confirmation);
+      const supabase = createClient();
+      const { error } = await supabase.auth.signInWithOtp({
+        phone: formattedPhone,
+      });
+
+      if (error) throw error;
 
       setShowOtpInput(true);
       setMessage('OTP sent to your phone number.');
     } catch (err: any) {
       console.error('OTP send error:', err);
-      if (typeof window !== 'undefined' && (window as any).recaptchaVerifier) {
-        try {
-          (window as any).recaptchaVerifier.clear();
-        } catch (e) {}
-        (window as any).recaptchaVerifier = null;
-      }
       setError(err?.message || 'Failed to send OTP. Please try again.');
     } finally {
       setLoading(false);
@@ -237,7 +100,6 @@ function LoginForm() {
 
   const handleVerifyOtp = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!confirmationResult) return;
     setLoading(true);
     setError(null);
 
@@ -245,48 +107,25 @@ function LoginForm() {
       redirectTo === '/admin' ? '/admin/dashboard' : redirectTo;
 
     try {
-      const userCredential = await confirmationResult.confirm(otp);
-      const user = userCredential.user;
+      const formattedPhone = phone.startsWith('+')
+        ? phone
+        : `+91${phone.replace(/\D/g, '').slice(-10)}`;
 
       const supabase = createClient();
-      await supabase.rpc('resolve_customer_identity', {
-        p_firebase_uid: user.uid,
-        p_provider: 'phone',
-        p_provider_identifier: user.phoneNumber || '',
-        p_email: user.email || null,
-        p_email_verified: false,
-        p_phone: user.phoneNumber || null,
-        p_phone_verified: true,
-        p_name: user.displayName || null,
+      const { data, error } = await supabase.auth.verifyOtp({
+        phone: formattedPhone,
+        token: otp,
+        type: 'sms',
       });
 
-      // Create session cookie for SSR
-      const idToken = await user.getIdToken();
-      await fetch('/api/auth/session', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ idToken }),
-      });
-
-      const hasPassword = user.providerData.some(
-        (p) => p.providerId === 'password'
-      );
-      const targetPath = hasPassword
-        ? destination
-        : `/set-password?redirectTo=${encodeURIComponent(destination)}`;
+      if (error) throw error;
 
       setMessage('Login successful! Redirecting...');
       router.refresh();
       await new Promise((resolve) => setTimeout(resolve, 50));
-      window.location.href = targetPath;
+      window.location.href = destination;
     } catch (err: any) {
       console.error('OTP verify error:', err);
-      try {
-        const { signOut } = await import('firebase/auth');
-        await signOut(auth);
-      } catch (signOutErr) {
-        console.error('Failed to clean up Firebase session:', signOutErr);
-      }
       setError(
         err?.message || 'Invalid OTP. Please check the code and try again.'
       );
@@ -299,48 +138,16 @@ function LoginForm() {
     setError(null);
     const targetUrl = redirectTo === '/admin' ? '/admin/dashboard' : redirectTo;
     try {
-      const provider = new GoogleAuthProvider();
-      const userCredential = await signInWithPopup(auth, provider);
-      const fbUser = userCredential.user;
-
       const supabase = createClient();
-      await supabase.rpc('resolve_customer_identity', {
-        p_firebase_uid: fbUser.uid,
-        p_provider: 'google',
-        p_provider_identifier: fbUser.email || fbUser.uid,
-        p_email: fbUser.email || null,
-        p_email_verified: fbUser.emailVerified || true,
-        p_phone: fbUser.phoneNumber || null,
-        p_phone_verified: !!fbUser.phoneNumber,
-        p_name: fbUser.displayName || null,
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}${targetUrl}`,
+        },
       });
-
-      const idToken = await fbUser.getIdToken();
-      await fetch('/api/auth/session', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ idToken }),
-      });
-
-      const hasPassword = fbUser.providerData.some(
-        (p) => p.providerId === 'password'
-      );
-      const targetPath = hasPassword
-        ? targetUrl
-        : `/set-password?redirectTo=${encodeURIComponent(targetUrl)}`;
-
-      setMessage('Login successful! Redirecting...');
-      router.refresh();
-      await new Promise((resolve) => setTimeout(resolve, 50));
-      window.location.href = targetPath;
+      if (error) throw error;
     } catch (err: any) {
-      console.error('Firebase Google sign in error:', err);
-      try {
-        const { signOut } = await import('firebase/auth');
-        await signOut(auth);
-      } catch (signOutErr) {
-        console.error('Failed to clean up Firebase session:', signOutErr);
-      }
+      console.error('Google sign in error:', err);
       setError(err?.message || 'Failed to sign in with Google.');
       setLoading(false);
     }
@@ -351,48 +158,16 @@ function LoginForm() {
     setError(null);
     const targetUrl = redirectTo === '/admin' ? '/admin/dashboard' : redirectTo;
     try {
-      const provider = new FacebookAuthProvider();
-      const userCredential = await signInWithPopup(auth, provider);
-      const fbUser = userCredential.user;
-
       const supabase = createClient();
-      await supabase.rpc('resolve_customer_identity', {
-        p_firebase_uid: fbUser.uid,
-        p_provider: 'facebook',
-        p_provider_identifier: fbUser.email || fbUser.uid,
-        p_email: fbUser.email || null,
-        p_email_verified: fbUser.emailVerified || true,
-        p_phone: fbUser.phoneNumber || null,
-        p_phone_verified: !!fbUser.phoneNumber,
-        p_name: fbUser.displayName || null,
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'facebook',
+        options: {
+          redirectTo: `${window.location.origin}${targetUrl}`,
+        },
       });
-
-      const idToken = await fbUser.getIdToken();
-      await fetch('/api/auth/session', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ idToken }),
-      });
-
-      const hasPassword = fbUser.providerData.some(
-        (p) => p.providerId === 'password'
-      );
-      const targetPath = hasPassword
-        ? targetUrl
-        : `/set-password?redirectTo=${encodeURIComponent(targetUrl)}`;
-
-      setMessage('Login successful! Redirecting...');
-      router.refresh();
-      await new Promise((resolve) => setTimeout(resolve, 50));
-      window.location.href = targetPath;
+      if (error) throw error;
     } catch (err: any) {
-      console.error('Firebase Facebook sign in error:', err);
-      try {
-        const { signOut } = await import('firebase/auth');
-        await signOut(auth);
-      } catch (signOutErr) {
-        console.error('Failed to clean up Firebase session:', signOutErr);
-      }
+      console.error('Facebook sign in error:', err);
       setError(err?.message || 'Failed to sign in with Facebook.');
       setLoading(false);
     }
@@ -412,7 +187,6 @@ function LoginForm() {
           </p>
         </div>
       )}
-      <div id="recaptcha-container"></div>
       <div className="mb-8 text-center">
         <Link
           href="/"

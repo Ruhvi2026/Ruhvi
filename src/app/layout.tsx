@@ -16,7 +16,11 @@ import { Suspense } from 'react';
 import { NotificationProvider } from '@/context/NotificationContext';
 import CustomerSupportChatTrigger from '@/components/CustomerSupportChatTrigger';
 import { SpeedInsights } from '@vercel/speed-insights/next';
-import { FcmInit } from '@/components/FcmInit';
+import dynamic from 'next/dynamic';
+const FcmInit = dynamic(
+  () => import('@/components/FcmInit').then((mod) => mod.FcmInit),
+  { ssr: false }
+);
 
 import { AuthProvider } from '@/context/AuthContext';
 import { ToastProvider } from '@/components/layout/ToastProvider';

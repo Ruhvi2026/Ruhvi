@@ -38,9 +38,9 @@ The application is a modern, headless e-commerce storefront. It utilizes Next.js
 | **Photoswipe** | UI | Image gallery for product detail pages. | `src/app/products/[slug]/ProductDetailPageClient.tsx` | None | Active |
 | **OneSignal Web Push** | Marketing/Push | Marketing and engagement push notifications (abandoned cart, flash sales). | `src/components/OneSignalInit.tsx`, `public/OneSignalSDKWorker.js` | `NEXT_PUBLIC_ONESIGNAL_APP_ID` | Active |
 | **Firebase Cloud Messaging (FCM)** | System/Push | Transactional and system notifications (orders, shipping, OTP). | `src/lib/fcm.ts`, `src/components/FcmInit.tsx`, `public/firebase-messaging-sw.js` | `NEXT_PUBLIC_FIREBASE_VAPID_KEY` | Active |
-| **Brevo** | Email & AI Tools | Marketing emails, automated cron email campaigns, and AI model tool calling via Brevo MCP SDK / REST API. | `src/lib/brevo.ts`, `src/lib/brevo/mcp.ts`, `src/lib/ai/tools/brevo.ts`, `src/app/admin/actions/marketing.ts` | `BREVO_API_KEY`, `BREVO_MCP_API_KEY`, `BREVO_SENDER_NAME`, `BREVO_SENDER_EMAIL` | Active |
+| **Brevo** | Email & AI Tools | All transactional and marketing emails, automated cron email campaigns, and AI model tool calling via Brevo MCP SDK / REST API. | `src/lib/brevo.ts`, `src/lib/brevo/mcp.ts`, `src/lib/ai/tools/brevo.ts`, `src/app/admin/actions/marketing.ts`, API routes | `BREVO_API_KEY`, `BREVO_MCP_API_KEY`, `BREVO_SENDER_NAME`, `BREVO_SENDER_EMAIL` | Active |
 | **Model Context Protocol (MCP)** | AI Tooling / Protocol | `@modelcontextprotocol/sdk` client for AI tool invocation and MCP server integration. | `src/lib/brevo/mcp.ts`, `src/lib/ai/tools/*` | `BREVO_MCP_API_KEY` | Active |
-| **Resend** | Email | Transactional emails (Welcome, Order Confirmation, Shipping). | `src/lib/resend.ts`, API routes | `RESEND_API_KEY`, `RESEND_SENDER_EMAIL` | Active |
+
 | **Sentry** | Observability | Application performance monitoring, error tracking, and MCP integration. | `sentry.*.config.ts`, `next.config.js` | `SENTRY_AUTH_TOKEN` | Active |
 | **EspoCRM** | CRM / Support | Agent console at `crm.support.ruhvi.in` (VPS). Dashboard reads from Supabase; writes go to EspoCRM REST API. Bidirectional sync via PHP AfterSave hooks (live) + VM cron script every 5 min (retry + contact creation). EspoCRM is API-only — its own UI is never shown to staff. | `src/lib/espo/*`, `src/app/api/integrations/espo/*`, `supabase/migrations/0062_espo_integration.sql`, `deploy/esporcrm/` | `ESPO_ENABLED`, `ESPO_BASE_URL`, `ESPO_API_KEY`, `ESPO_WEBHOOK_SECRET`, `RUHVI_BASE_URL` | Active |
 
@@ -61,6 +61,7 @@ The application is a modern, headless e-commerce storefront. It utilizes Next.js
 | Tool / Service | Category | Reason for Flagging | Safe to Remove? |
 |----------------|----------|---------------------|-----------------|
 | **Razorpay** | Payment | An API route existed (`src/app/api/checkout/razorpay/route.ts`) but it was just a stub redirecting to PhonePe. | **Deleted during audit** |
+| **Resend** | Email | Consolidated into Brevo for all transactional and marketing emails. | **Deleted during audit** |
 | **Firebase Storage** | Storage | `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET` is configured in environment variables, but Firebase is currently only used for OTP. | Yes (Remove from `.env`) |
 
 ---
@@ -94,8 +95,8 @@ The application is a modern, headless e-commerce storefront. It utilizes Next.js
 | Turnstile | Bot Protection | 2024 | Active | `src/app/checkout/page.tsx` | |
 | Vercel Insights | Performance Analytics | 2024 | Active | `src/app/layout.tsx` | |
 | Google Analytics 4 | General Analytics/SEO | 2026 | Active | `src/app/layout.tsx`, `src/lib/gtag.ts` | E-commerce tracking fully instrumented |
-| Resend | Transactional Emails | 2026 | Active | `src/lib/resend.ts` | Welcome, Order Confirmation, Shipping Updates, Password Reset Emails |
-| Brevo | Marketing Emails | 2026 | Active | `src/lib/brevo.ts` | Abandoned Cart, Win-back, etc. |
+| Resend | Transactional Emails | 2026 | Deleted | `src/lib/resend.ts` | Consolidated into Brevo during audit |
+| Brevo | Transactional & Marketing Emails | 2026 | Active | `src/lib/brevo.ts`, API routes | Welcome, Order Confirmation, Shipping Updates, Abandoned Cart, Win-back, etc. |
 | UID Sync Migration | Data consistency | 2026-08-06 | Added | `supabase/migrations/0021_firebase_uid_sync.sql` | Bulk sync and trigger for firebase_uid |
 | Permanent UID Sync | Auth reliability  | 2026-08-06 | Active | `supabase/migrations/0024_permanent_uid_sync.sql`, `src/app/api/auth/sync-token/route.ts`, `src/app/api/auth/session/route.ts` | upsert_firebase_user() RPC auto-creates/repairs user profiles on login. Eliminates all 404 auth errors. |
 | Multi-Provider Auth & Linking | Authentication | 2026-08-07 | Active | `src/services/authService.ts`, `src/lib/supabase/client.ts` | Unified auth service with collision handler and direct Supabase JWT propagation via `getIdToken()`. |
@@ -126,8 +127,8 @@ The application is a modern, headless e-commerce storefront. It utilizes Next.js
 | Turnstile | Bot Protection | 2024 | Active | `src/app/checkout/page.tsx` | |
 | Vercel Insights | Performance Analytics | 2024 | Active | `src/app/layout.tsx` | |
 | Google Analytics 4 | General Analytics/SEO | 2026 | Active | `src/app/layout.tsx`, `src/lib/gtag.ts` | E-commerce tracking fully instrumented |
-| Resend | Transactional Emails | 2026 | Active | `src/lib/resend.ts` | Welcome, Order Confirmation, Shipping Updates, Password Reset Emails |
-| Brevo | Marketing Emails | 2026 | Active | `src/lib/brevo.ts` | Abandoned Cart, Win-back, etc. |
+| Resend | Transactional Emails | 2026 | Deleted | `src/lib/resend.ts` | Consolidated into Brevo during audit |
+| Brevo | Transactional & Marketing Emails | 2026 | Active | `src/lib/brevo.ts`, API routes | Welcome, Order Confirmation, Shipping Updates, Abandoned Cart, Win-back, etc. |
 | UID Sync Migration | Data consistency | 2026-08-06 | Added | `supabase/migrations/0021_firebase_uid_sync.sql` | Bulk sync and trigger for firebase_uid |
 | Permanent UID Sync | Auth reliability  | 2026-08-06 | Active | `supabase/migrations/0024_permanent_uid_sync.sql`, `src/app/api/auth/sync-token/route.ts`, `src/app/api/auth/session/route.ts` | upsert_firebase_user() RPC auto-creates/repairs user profiles on login. Eliminates all 404 auth errors. |
 | Multi-Provider Auth & Linking | Authentication | 2026-08-07 | Active | `src/services/authService.ts`, `src/lib/supabase/client.ts` | Unified auth service with collision handler and direct Supabase JWT propagation via `getIdToken()`. |

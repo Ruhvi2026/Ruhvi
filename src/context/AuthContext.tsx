@@ -2,12 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
-import {
-  createClient,
-  clearSupabaseTokenCache,
-  getCustomToken,
-} from '@/lib/supabase/client';
-import { decodeJwt } from 'jose';
+import { createClient } from '@/lib/supabase/client';
 import toast from 'react-hot-toast';
 import { parseApiError } from '@/lib/api-errors';
 import { useRouter } from 'next/navigation';
@@ -51,85 +46,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchProfile = async (authUser: any) => {
+  const fetchProfile = async (authUser: User) => {
     try {
       const supabase = createClient();
 
-      const isUuid =
-        authUser.id &&
-        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
-          authUser.id
-        );
-
-      const rawPhone = authUser.phone || authUser.user_metadata?.phone || '';
-      const cleanedPhone = rawPhone.replace(/\D/g, '').slice(-10);
-
-      // Fix 8: consolidated single lookup. The new get_user_profile_consolidated
-      // RPC resolves by id → firebase_uid → phone → email with the exact same
-      // precedence order as the legacy four-step logic below. If the RPC is not
-      // yet deployed in the database (migration 0071 pending), fall back to the
-      // legacy sequential lookups so behaviour is identical either way.
-      const { data: consolidated, error: rpcError } = await supabase
-        .rpc('get_user_profile_consolidated', {
-          p_id: isUuid ? authUser.id : null,
-          p_firebase_uid: authUser.id || null,
-          p_phone: cleanedPhone || null,
-          p_email: authUser.email || null,
-        })
-        .limit(1)
+      const { data: profileData, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', authUser.id)
         .maybeSingle();
 
-      let data: any = rpcError ? null : consolidated;
-
-      if (rpcError && !data) {
-        // Legacy fallback — 1. Try fetching by ID (if valid UUID)
-        if (isUuid) {
-          const { data: userById } = await supabase
-            .from('users')
-            .select('*')
-            .eq('id', authUser.id)
-            .limit(1)
-            .maybeSingle();
-          data = userById;
-        }
-
-        // Legacy fallback — 2. Try fetching by firebase_uid using the secure
-        // RPC (bypasses RLS)
-        if (!data && authUser.id) {
-          const { data: userByFb } = await supabase
-            .rpc('get_user_profile', { p_user_id: authUser.id })
-            .limit(1)
-            .maybeSingle();
-          data = userByFb;
-        }
-
-        // Legacy fallback — 3. Try fetching by phone
-        if (!data && cleanedPhone) {
-          const { data: userByPhone } = await supabase
-            .from('users')
-            .select('*')
-            .ilike('phone', `%${cleanedPhone}%`)
-            .limit(1)
-            .maybeSingle();
-          data = userByPhone;
-        }
-
-        // Legacy fallback — 4. Try fetching by email
-        if (!data && authUser.email) {
-          const { data: userByEmail } = await supabase
-            .from('users')
-            .select('*')
-            .eq('email', authUser.email)
-            .limit(1)
-            .maybeSingle();
-          data = userByEmail;
-        }
-      }
-
-      const profileData = Array.isArray(data) ? data[0] : data;
-
-      if (profileData) {
-        // Fetch permissions if role_id is present
+      if (profileData && !error) {
         let permissions: string[] = [];
         if (profileData.role_id) {
           const { data: perms } = await supabase
@@ -146,7 +73,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         ) {
           permissions = ['*'];
         } else if (profileData.role) {
-          // Fall back to the base role (ADMIN/MANAGER/STAFF) permissions
           const { data: roleRow } = await supabase
             .from('roles')
             .select('id')
@@ -169,34 +95,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           ...profileData,
           wallet_balance: Number(profileData.wallet_balance) || 0,
           reward_coins: Number(profileData.reward_coins) || 0,
-          email_verified:
-            !!profileData.email_verified ||
-            !!authUser.email_verified ||
-            !!authUser.emailVerified,
-          phone_verified:
-            !!profileData.phone_verified || !!authUser.phoneNumber,
+          email_verified: !!profileData.email_verified,
+          phone_verified: !!profileData.phone_verified,
           permissions,
         });
       } else {
-        // Fallback profile using auth metadata
         setProfile({
           id: authUser.id,
           email: authUser.email || '',
-          full_name:
-            authUser.user_metadata?.full_name ||
-            authUser.displayName ||
-            authUser.email?.split('@')[0] ||
-            'User',
-          phone:
-            authUser.user_metadata?.phone ||
-            authUser.phone ||
-            authUser.phoneNumber ||
-            '',
+          full_name: authUser.user_metadata?.full_name || 'User',
+          phone: authUser.phone || '',
           role: 'customer',
           wallet_balance: 0,
           reward_coins: 0,
-          email_verified: !!authUser.email_verified || !!authUser.emailVerified,
-          phone_verified: !!authUser.phoneNumber,
+          email_verified: false,
+          phone_verified: false,
           created_at: authUser.created_at || new Date().toISOString(),
           permissions: [],
         });
@@ -208,22 +121,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signOut = async () => {
     try {
-      // 1. Sign out of Firebase (client-side)
-      try {
-        const { signOut: firebaseSignOut } = await import('firebase/auth');
-        const { auth } = await import('@/lib/firebase');
-        await firebaseSignOut(auth);
-      } catch (e) {
-        console.error('Firebase signout error:', e);
-      }
-
-      // 2. Clear the __session cookie on the server
-      await fetch('/api/auth/logout', { method: 'POST' }).catch(() => {});
-
-      // 3. Clear Supabase token cache & sign out
-      // Note: supabase.auth is unavailable when the client uses a custom accessToken,
-      // so Firebase sign-out + cache clear is the complete teardown.
-      clearSupabaseTokenCache();
+      const supabase = createClient();
+      await supabase.auth.signOut();
 
       setUser(null);
       setSession(null);
@@ -233,13 +132,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       router.push('/login');
     } catch (err: any) {
       console.error('Logout error:', err);
-      // Next.js might throw a NEXT_REDIRECT error which should not be caught as an API error
-      if (
-        err?.message?.includes('NEXT_REDIRECT') ||
-        err?.digest?.includes('NEXT_REDIRECT')
-      ) {
-        throw err;
-      }
       const apiError = parseApiError(err);
       toast.error(apiError.userMessage);
     }
@@ -248,94 +140,52 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const supabase = createClient();
     let isMounted = true;
-    let unsubFirebase: (() => void) | null = null;
-
-    const handleFirebaseUser = async (fbUser: any) => {
-      if (!isMounted) return false;
-      if (fbUser) {
-        try {
-          // Fetch custom JWT to get real Supabase UUID
-          const token = await getCustomToken();
-          if (!token) throw new Error('No custom token available');
-
-          const decoded = decodeJwt(token);
-
-          const formattedUser: any = {
-            id: decoded.sub, // Use real Supabase UUID
-            email: decoded.email || fbUser.email || null,
-            phone: decoded.phone || fbUser.phoneNumber || null,
-            user_metadata: decoded.user_metadata || {
-              full_name: fbUser.displayName || null,
-              phone: fbUser.phoneNumber || null,
-            },
-            created_at:
-              fbUser.metadata?.creationTime || new Date().toISOString(),
-          };
-          setUser(formattedUser);
-          setSession(null);
-          await fetchProfile(formattedUser);
-          if (isMounted) setLoading(false);
-          return true;
-        } catch (e) {
-          console.error('Firebase user JWT resolution error:', e);
-        }
-      }
-      return false;
-    };
 
     const initAuth = async () => {
-      // Note: supabase.auth is unavailable when the client uses a custom accessToken,
-      // so Firebase is the only source of truth for the session.
-      // 1. Setup Firebase listener
-      try {
-        const { onAuthStateChanged } = await import('firebase/auth');
-        const { auth } = await import('@/lib/firebase');
+      const {
+        data: { session: activeSession },
+      } = await supabase.auth.getSession();
 
-        unsubFirebase = onAuthStateChanged(auth, async (fbUser) => {
-          if (fbUser) {
-            await handleFirebaseUser(fbUser);
-          } else {
-            if (isMounted) {
-              // Since Supabase uses the accessToken option, we don't manage its session directly.
-              // Firebase is the source of truth. If Firebase has no user, we clear the state.
-              setUser(null);
-              setSession(null);
-              setProfile(null);
-              setLoading(false);
-            }
-          }
-        });
-      } catch (err) {
-        console.error('Firebase auth listener error:', err);
-        if (isMounted) {
-          setLoading(false);
+      if (isMounted) {
+        if (activeSession) {
+          setSession(activeSession);
+          setUser(activeSession.user);
+          await fetchProfile(activeSession.user);
         }
+        setLoading(false);
       }
+
+      const {
+        data: { subscription },
+      } = supabase.auth.onAuthStateChange(async (event, newSession) => {
+        if (!isMounted) return;
+
+        if (newSession) {
+          setSession(newSession);
+          setUser(newSession.user);
+          await fetchProfile(newSession.user);
+        } else {
+          setSession(null);
+          setUser(null);
+          setProfile(null);
+        }
+      });
+
+      return () => {
+        subscription.unsubscribe();
+      };
     };
 
-    // Defer initialization slightly to improve initial page load performance
-    // since Firebase Auth dynamically loads a heavy iframe.js
-    const timer = setTimeout(() => {
-      initAuth();
-    }, 2000);
-
-    // Supabase Auth listener removed, we only listen to Firebase now.
+    const cleanup = initAuth();
 
     return () => {
       isMounted = false;
-      clearTimeout(timer);
-      if (unsubFirebase) unsubFirebase();
+      cleanup.then((fn) => fn && fn());
     };
   }, []);
 
-  // Real-time synchronization for profile and wallet balance changes
   useEffect(() => {
     if (!profile?.id) return;
-    const isUuid =
-      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
-        profile.id
-      );
-    if (!isUuid) return;
 
     const supabase = createClient();
     const channel = supabase

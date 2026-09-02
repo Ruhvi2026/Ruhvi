@@ -21,19 +21,13 @@ import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
 import { Address } from '@/types/database';
 import { createClient } from '@/lib/supabase/client';
-import { auth } from '@/lib/firebase';
 import {
   AddressTagSelector,
   MAX_ADDRESSES,
 } from '@/components/AddressTagSelector';
-import {
-  RecaptchaVerifier,
-  signInWithPhoneNumber,
-  ConfirmationResult,
-} from 'firebase/auth';
+import type { ConfirmationResult } from 'firebase/auth';
 import toast from 'react-hot-toast';
 import { ecommerceEvent } from '@/lib/gtag';
-import posthog from 'posthog-js/dist/module.slim';
 import MetaPixel from '@/components/MetaPixel';
 
 export default function CheckoutPage() {
@@ -99,11 +93,18 @@ export default function CheckoutPage() {
       const fetchAddressesAndProfile = async () => {
         try {
           const supabase = createClient();
-          const userIdFilter = [
-            user?.id,
-            profile?.id,
-            auth?.currentUser?.uid,
-          ].filter(Boolean);
+          const userIdFilter = [user?.id, profile?.id].filter(
+            Boolean
+          ) as string[];
+
+          if (userIdFilter.length === 0) {
+            try {
+              const { auth } = await import('@/lib/firebase');
+              if (auth?.currentUser?.uid) {
+                userIdFilter.push(auth.currentUser.uid);
+              }
+            } catch (e) {}
+          }
 
           if (userIdFilter.length > 0) {
             // Fetch addresses
@@ -165,9 +166,11 @@ export default function CheckoutPage() {
       });
 
       // PostHog checkout_started event
-      posthog.capture('checkout_started', {
-        cart_value: subtotal,
-        item_count: items.reduce((sum, item) => sum + item.quantity, 0),
+      import('posthog-js/dist/module.slim').then(({ default: ph }) => {
+        ph.capture('checkout_started', {
+          cart_value: subtotal,
+          item_count: items.reduce((sum, item) => sum + item.quantity, 0),
+        });
       });
     }
   }, [items, subtotal]);
@@ -650,6 +653,10 @@ export default function CheckoutPage() {
         }
 
         // Initialize Firebase reCAPTCHA
+        const { auth } = await import('@/lib/firebase');
+        const { RecaptchaVerifier, signInWithPhoneNumber } =
+          await import('firebase/auth');
+
         if (!(window as any).recaptchaVerifier) {
           const recaptchaContainer = document.getElementById(
             'recaptcha-container'

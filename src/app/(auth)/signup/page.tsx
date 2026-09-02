@@ -1,21 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
-import { auth } from '@/lib/firebase';
-import {
-  RecaptchaVerifier,
-  signInWithPhoneNumber,
-  createUserWithEmailAndPassword,
-  updateProfile,
-  signInWithPopup,
-  GoogleAuthProvider,
-  FacebookAuthProvider,
-  ConfirmationResult,
-  sendEmailVerification,
-} from 'firebase/auth';
 import { Sparkles, ArrowRight, Mail, Phone } from 'lucide-react';
 import posthog from 'posthog-js/dist/module.slim';
 
@@ -34,24 +22,9 @@ export default function SignUpPage() {
   const [phone, setPhone] = useState('');
   const [otp, setOtp] = useState('');
   const [showOtpInput, setShowOtpInput] = useState(false);
-  const [confirmationResult, setConfirmationResult] =
-    useState<ConfirmationResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
-
-  useEffect(() => {
-    return () => {
-      if (typeof window !== 'undefined' && (window as any).recaptchaVerifier) {
-        try {
-          (window as any).recaptchaVerifier.clear();
-        } catch (e) {
-          // ignore cleanup error
-        }
-        (window as any).recaptchaVerifier = null;
-      }
-    };
-  }, []);
 
   const handleEmailSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -64,44 +37,21 @@ export default function SignUpPage() {
     setMessage(null);
 
     try {
-      // Create user in Firebase Auth
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-      const fbUser = userCredential.user;
-
-      if (fullName) {
-        await updateProfile(fbUser, { displayName: fullName });
-      }
-
-      // Send verification email
-      try {
-        await sendEmailVerification(fbUser);
-      } catch (emailErr) {
-        console.error('Failed to send verification email:', emailErr);
-      }
-
-      // Upsert user into Supabase database
       const supabase = createClient();
-      const { data: newUserId, error: rpcError } = await supabase.rpc(
-        'resolve_customer_identity',
-        {
-          p_firebase_uid: fbUser.uid,
-          p_provider: 'password',
-          p_provider_identifier: fbUser.email || '',
-          p_email: fbUser.email || null,
-          p_email_verified: fbUser.emailVerified || false,
-          p_phone: phone || fbUser.phoneNumber || null,
-          p_phone_verified: false,
-          p_name: fullName || fbUser.displayName || null,
-        }
-      );
-      const newUser = newUserId ? { id: newUserId } : null;
-      if (rpcError) console.error('RPC Error:', rpcError);
 
-      if (newUser) {
+      const { data, error: signUpError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: fullName,
+          },
+        },
+      });
+
+      if (signUpError) throw signUpError;
+
+      if (data.user) {
         try {
           const match = document.cookie.match(
             /(^| )ruhvi_referral_code=([^;]+)/
@@ -113,10 +63,10 @@ export default function SignUpPage() {
               .select('id')
               .eq('referral_code', refCode)
               .single();
-            if (referrer && referrer.id !== newUser.id) {
+            if (referrer && referrer.id !== data.user.id) {
               await supabase.from('referrals').insert({
                 referrer_user_id: referrer.id,
-                referred_user_id: newUser.id,
+                referred_user_id: data.user.id,
                 status: 'pending',
                 coins_awarded: 0,
               });
@@ -128,21 +78,13 @@ export default function SignUpPage() {
           console.error('Referral tracking error:', err);
         }
 
-        // Create session cookie for SSR
-        const idToken = await fbUser.getIdToken();
-        await fetch('/api/auth/session', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ idToken }),
-        });
-
         // Trigger Welcome Email
         fetch('/api/emails/welcome', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            email: fbUser.email,
-            name: fullName || fbUser.displayName,
+            email: data.user.email,
+            name: fullName,
           }),
         }).catch((err) =>
           console.error('Failed to trigger welcome email:', err)
@@ -157,19 +99,9 @@ export default function SignUpPage() {
         router.refresh();
       }, 1000);
     } catch (err: any) {
-      console.error('Firebase Email Signup error:', err);
-      try {
-        const { signOut } = await import('firebase/auth');
-        await signOut(auth);
-      } catch (signOutErr) {
-        console.error('Failed to clean up Firebase session:', signOutErr);
-      }
+      console.error('Supabase Email Signup error:', err);
       let msg = 'An error occurred during sign up.';
-      if (err?.code === 'auth/email-already-in-use') {
-        msg = 'An account with this email address already exists.';
-      } else if (err?.code === 'auth/weak-password') {
-        msg = 'Password should be at least 6 characters.';
-      } else if (err?.message) {
+      if (err?.message) {
         msg = err.message;
       }
       setError(msg);
@@ -188,44 +120,23 @@ export default function SignUpPage() {
       const formattedPhone = phone.startsWith('+')
         ? phone
         : `+91${phone.replace(/\D/g, '').slice(-10)}`;
-      if (typeof window !== 'undefined') {
-        if ((window as any).recaptchaVerifier) {
-          try {
-            (window as any).recaptchaVerifier.clear();
-          } catch (e) {}
-          (window as any).recaptchaVerifier = null;
-        }
-        const containerNode = document.getElementById('recaptcha-container');
-        if (containerNode) {
-          containerNode.innerHTML = '';
-        }
-        (window as any).recaptchaVerifier = new RecaptchaVerifier(
-          auth,
-          'recaptcha-container',
-          {
-            size: 'invisible',
-          }
-        );
-      }
-      const appVerifier = (window as any).recaptchaVerifier;
 
-      const confirmation = await signInWithPhoneNumber(
-        auth,
-        formattedPhone,
-        appVerifier
-      );
-      setConfirmationResult(confirmation);
+      const supabase = createClient();
+      const { error } = await supabase.auth.signInWithOtp({
+        phone: formattedPhone,
+        options: {
+          data: {
+            full_name: fullName,
+          },
+        },
+      });
+
+      if (error) throw error;
 
       setShowOtpInput(true);
       setMessage('OTP sent to your phone number.');
     } catch (err: any) {
       console.error('OTP send error:', err);
-      if (typeof window !== 'undefined' && (window as any).recaptchaVerifier) {
-        try {
-          (window as any).recaptchaVerifier.clear();
-        } catch (e) {}
-        (window as any).recaptchaVerifier = null;
-      }
       setError(err?.message || 'Failed to send OTP. Please try again.');
     } finally {
       setLoading(false);
@@ -234,35 +145,31 @@ export default function SignUpPage() {
 
   const handleVerifyOtp = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!confirmationResult) return;
     setLoading(true);
     setError(null);
 
     try {
-      const userCredential = await confirmationResult.confirm(otp);
-      if (fullName && !userCredential.user.displayName) {
-        await updateProfile(userCredential.user, { displayName: fullName });
-      }
-      const user = userCredential.user;
+      const formattedPhone = phone.startsWith('+')
+        ? phone
+        : `+91${phone.replace(/\D/g, '').slice(-10)}`;
 
       const supabase = createClient();
-      const { data: newUserId, error: rpcError } = await supabase.rpc(
-        'resolve_customer_identity',
-        {
-          p_firebase_uid: user.uid,
-          p_provider: 'phone',
-          p_provider_identifier: user.phoneNumber || '',
-          p_email: user.email || null,
-          p_email_verified: false,
-          p_phone: user.phoneNumber || null,
-          p_phone_verified: true,
-          p_name: fullName || user.displayName || null,
-        }
-      );
-      const newUser = newUserId ? { id: newUserId } : null;
-      if (rpcError) console.error('RPC Error:', rpcError);
+      const { data, error } = await supabase.auth.verifyOtp({
+        phone: formattedPhone,
+        token: otp,
+        type: 'sms',
+      });
 
-      if (newUser) {
+      if (error) throw error;
+
+      if (data.user) {
+        // Update user profile just in case it wasn't set during OTP send
+        if (fullName) {
+          await supabase.auth.updateUser({
+            data: { full_name: fullName },
+          });
+        }
+
         try {
           const match = document.cookie.match(
             /(^| )ruhvi_referral_code=([^;]+)/
@@ -274,10 +181,10 @@ export default function SignUpPage() {
               .select('id')
               .eq('referral_code', refCode)
               .single();
-            if (referrer && referrer.id !== newUser.id) {
+            if (referrer && referrer.id !== data.user.id) {
               await supabase.from('referrals').insert({
                 referrer_user_id: referrer.id,
-                referred_user_id: newUser.id,
+                referred_user_id: data.user.id,
                 status: 'pending',
                 coins_awarded: 0,
               });
@@ -288,14 +195,6 @@ export default function SignUpPage() {
         } catch (err) {
           console.error('Referral tracking error:', err);
         }
-
-        // Create session cookie for SSR
-        const idToken = await user.getIdToken();
-        await fetch('/api/auth/session', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ idToken }),
-        });
 
         posthog.capture('signup_completed', { method: 'phone' });
       }
@@ -318,73 +217,17 @@ export default function SignUpPage() {
     setLoading(true);
     setError(null);
     try {
-      const provider = new GoogleAuthProvider();
-      const userCredential = await signInWithPopup(auth, provider);
-      const fbUser = userCredential.user;
-
       const supabase = createClient();
-      const { data: newUserId, error: rpcError } = await supabase.rpc(
-        'resolve_customer_identity',
-        {
-          p_firebase_uid: fbUser.uid,
-          p_provider: 'google',
-          p_provider_identifier: fbUser.email || fbUser.uid,
-          p_email: fbUser.email || null,
-          p_email_verified: fbUser.emailVerified || true,
-          p_phone: fbUser.phoneNumber || null,
-          p_phone_verified: !!fbUser.phoneNumber,
-          p_name: fbUser.displayName || null,
-        }
-      );
-      const newUser = newUserId ? { id: newUserId } : null;
-      if (rpcError) console.error('RPC Error:', rpcError);
-
-      if (newUser) {
-        try {
-          const match = document.cookie.match(
-            /(^| )ruhvi_referral_code=([^;]+)/
-          );
-          if (match) {
-            const refCode = match[2];
-            const { data: referrer } = await supabase
-              .from('users')
-              .select('id')
-              .eq('referral_code', refCode)
-              .single();
-            if (referrer && referrer.id !== newUser.id) {
-              await supabase.from('referrals').insert({
-                referrer_user_id: referrer.id,
-                referred_user_id: newUser.id,
-                status: 'pending',
-                coins_awarded: 0,
-              });
-            }
-            document.cookie =
-              'ruhvi_referral_code=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-          }
-        } catch (err) {
-          console.error('Referral tracking error:', err);
-        }
-
-        const idToken = await fbUser.getIdToken();
-        await fetch('/api/auth/session', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ idToken }),
-        });
-
-        posthog.capture('signup_completed', { method: 'google' });
-      }
-
-      setMessage(
-        'Account created successfully! Redirecting to complete your profile...'
-      );
-      setTimeout(() => {
-        router.push('/complete-profile');
-        router.refresh();
-      }, 1000);
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/complete-profile`,
+        },
+      });
+      if (error) throw error;
+      posthog.capture('signup_completed', { method: 'google' });
     } catch (err: any) {
-      console.error('Firebase Google sign in error:', err);
+      console.error('Supabase Google sign in error:', err);
       setError(err?.message || 'Failed to sign in with Google.');
       setLoading(false);
     }
@@ -394,73 +237,17 @@ export default function SignUpPage() {
     setLoading(true);
     setError(null);
     try {
-      const provider = new FacebookAuthProvider();
-      const userCredential = await signInWithPopup(auth, provider);
-      const fbUser = userCredential.user;
-
       const supabase = createClient();
-      const { data: newUserId, error: rpcError } = await supabase.rpc(
-        'resolve_customer_identity',
-        {
-          p_firebase_uid: fbUser.uid,
-          p_provider: 'facebook',
-          p_provider_identifier: fbUser.email || fbUser.uid,
-          p_email: fbUser.email || null,
-          p_email_verified: fbUser.emailVerified || true,
-          p_phone: fbUser.phoneNumber || null,
-          p_phone_verified: !!fbUser.phoneNumber,
-          p_name: fbUser.displayName || null,
-        }
-      );
-      const newUser = newUserId ? { id: newUserId } : null;
-      if (rpcError) console.error('RPC Error:', rpcError);
-
-      if (newUser) {
-        try {
-          const match = document.cookie.match(
-            /(^| )ruhvi_referral_code=([^;]+)/
-          );
-          if (match) {
-            const refCode = match[2];
-            const { data: referrer } = await supabase
-              .from('users')
-              .select('id')
-              .eq('referral_code', refCode)
-              .single();
-            if (referrer && referrer.id !== newUser.id) {
-              await supabase.from('referrals').insert({
-                referrer_user_id: referrer.id,
-                referred_user_id: newUser.id,
-                status: 'pending',
-                coins_awarded: 0,
-              });
-            }
-            document.cookie =
-              'ruhvi_referral_code=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-          }
-        } catch (err) {
-          console.error('Referral tracking error:', err);
-        }
-
-        const idToken = await fbUser.getIdToken();
-        await fetch('/api/auth/session', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ idToken }),
-        });
-
-        posthog.capture('signup_completed', { method: 'facebook' });
-      }
-
-      setMessage(
-        'Account created successfully! Redirecting to complete your profile...'
-      );
-      setTimeout(() => {
-        router.push('/complete-profile');
-        router.refresh();
-      }, 1000);
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'facebook',
+        options: {
+          redirectTo: `${window.location.origin}/complete-profile`,
+        },
+      });
+      if (error) throw error;
+      posthog.capture('signup_completed', { method: 'facebook' });
     } catch (err: any) {
-      console.error('Firebase Facebook sign in error:', err);
+      console.error('Supabase Facebook sign in error:', err);
       setError(err?.message || 'Failed to sign in with Facebook.');
       setLoading(false);
     }
@@ -481,7 +268,6 @@ export default function SignUpPage() {
             </p>
           </div>
         )}
-        <div id="recaptcha-container"></div>
         <div className="mb-8 text-center">
           <Link href="/" className="mb-4 inline-flex items-center gap-2">
             <Sparkles className="h-6 w-6 text-[#C29831]" />

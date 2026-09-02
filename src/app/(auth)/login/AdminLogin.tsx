@@ -27,101 +27,25 @@ export default function AdminLogin({
     setError(null);
 
     try {
-      // Authenticate via Firebase Auth with hybrid bridge fallback
-      const { signInWithEmailAndPassword, signInWithCustomToken } =
-        await import('firebase/auth');
-      const { auth } = await import('@/lib/firebase');
+      const supabase = createClient();
 
-      let fbUser = null;
-
-      try {
-        const userCredential = await signInWithEmailAndPassword(
-          auth,
+      const { data, error: signInError } =
+        await supabase.auth.signInWithPassword({
           email,
-          password
-        );
-        fbUser = userCredential.user;
-      } catch (fbLoginErr: any) {
-        if (
-          fbLoginErr?.code === 'auth/user-not-found' ||
-          fbLoginErr?.code === 'auth/invalid-credential' ||
-          fbLoginErr?.code === 'auth/wrong-password' ||
-          fbLoginErr?.code === 'auth/invalid-login-credentials'
-        ) {
-          const hybridRes = await fetch('/api/auth/hybrid-login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password }),
-          });
+          password,
+        });
 
-          if (hybridRes.ok) {
-            const hybridData = await hybridRes.json();
-            if (hybridData.customToken) {
-              const customUserCred = await signInWithCustomToken(
-                auth,
-                hybridData.customToken
-              );
-              fbUser = customUserCred.user;
-            } else if (hybridData.idToken) {
-              try {
-                const userCredential = await signInWithEmailAndPassword(
-                  auth,
-                  email,
-                  password
-                );
-                fbUser = userCredential.user;
-              } catch {
-                // proceed with direct session
-              }
-            }
-          }
-        }
-
-        if (!fbUser) {
-          throw fbLoginErr;
-        }
-      }
-
-      // Create session cookie
-      const idToken = await fbUser.getIdToken();
-      const sessionRes = await fetch('/api/auth/session', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ idToken }),
-      });
-
-      if (!sessionRes.ok) {
-        const text = await sessionRes.text().catch(() => '');
-        let errMsg = 'Failed to create secure session';
-        try {
-          const parsed = JSON.parse(text);
-          if (parsed.error) errMsg = parsed.error;
-        } catch {
-          if (text)
-            errMsg = `Session Error (${sessionRes.status}): ${text.slice(0, 150)}`;
-        }
-        throw new Error(errMsg);
-      }
+      if (signInError) throw signInError;
+      if (!data.user) throw new Error('Login failed. No user returned.');
 
       // Check role using Supabase
-      const supabase = createClient();
-      const { data: identity } = await supabase
-        .from('customer_identities')
-        .select('customer_id')
-        .eq('firebase_uid', fbUser.uid)
+      const { data: profileData } = await supabase
+        .from('users')
+        .select('role')
+        .eq('id', data.user.id)
         .single();
 
-      let userProfile = null;
-      if (identity?.customer_id) {
-        const { data: profileData } = await supabase
-          .from('users')
-          .select('role')
-          .eq('id', identity.customer_id)
-          .single();
-        userProfile = profileData;
-      }
-
-      const role = userProfile?.role;
+      const role = profileData?.role;
       const isAdmin = [
         'admin',
         'manager',
@@ -131,9 +55,7 @@ export default function AdminLogin({
       ].includes(role);
 
       if (!isAdmin) {
-        await fetch('/api/auth/logout', { method: 'POST' });
-        const { signOut } = await import('firebase/auth');
-        await signOut(auth);
+        await supabase.auth.signOut();
         throw new Error('Access denied. You do not have admin privileges.');
       }
 
@@ -142,21 +64,8 @@ export default function AdminLogin({
       window.location.href = redirectTo;
     } catch (err: any) {
       console.error('Admin login error:', err);
-      try {
-        const { signOut } = await import('firebase/auth');
-        const { auth } = await import('@/lib/firebase');
-        await signOut(auth);
-      } catch (signOutErr) {
-        console.error('Failed to clean up Firebase session:', signOutErr);
-      }
       let msg = 'Invalid email or password.';
-      if (
-        err?.code === 'auth/user-not-found' ||
-        err?.code === 'auth/invalid-credential' ||
-        err?.code === 'auth/invalid-login-credentials'
-      ) {
-        msg = 'Invalid credentials.';
-      } else if (err?.message) {
+      if (err?.message) {
         msg = err.message;
       }
       setError(msg);

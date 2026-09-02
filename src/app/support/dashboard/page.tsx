@@ -20,17 +20,14 @@ import {
   RefreshCw,
   UserPlus,
 } from 'lucide-react';
-import {
-  PieChart,
-  Pie,
-  Cell,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-} from 'recharts';
+import dynamic from 'next/dynamic';
+
+const SupportQueueChart = dynamic(() => import('./SupportQueueChart'), {
+  ssr: false,
+  loading: () => (
+    <div className="mt-4 h-48 w-full animate-pulse rounded-lg bg-white/5" />
+  ),
+});
 import { useSupportRealtime } from '@/hooks/useSupportRealtime';
 import toast from 'react-hot-toast';
 
@@ -741,37 +738,7 @@ export default function SupportDashboard() {
                 Breakdown of tickets currently in progress
               </p>
 
-              <div className="mt-4 h-48 w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart
-                    data={chartData}
-                    layout="vertical"
-                    margin={{ left: 10, right: 20 }}
-                  >
-                    <XAxis type="number" stroke="#64748b" fontSize={10} />
-                    <YAxis
-                      dataKey="name"
-                      type="category"
-                      stroke="#94a3b8"
-                      fontSize={11}
-                      width={80}
-                    />
-                    <Tooltip
-                      contentStyle={{
-                        backgroundColor: '#131726',
-                        borderColor: 'rgba(255,255,255,0.1)',
-                        borderRadius: '8px',
-                        fontSize: '12px',
-                      }}
-                    />
-                    <Bar dataKey="value" radius={[0, 4, 4, 0]}>
-                      {chartData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
+              <SupportQueueChart chartData={chartData} />
             </div>
           )}
         </div>

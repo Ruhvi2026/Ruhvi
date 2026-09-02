@@ -226,29 +226,10 @@ export async function getCampaignStats(startDate?: string, endDate?: string) {
   }
 }
 
-import { Brevo } from 'resend';
-import fs from 'fs';
-import path from 'path';
-import Handlebars from 'handlebars/dist/handlebars.js';
-
-const getBrevoClient = () => {
-  const apiKey = process.env.RESEND_API_KEY;
-  if (!apiKey) {
-    console.warn('RESEND_API_KEY is not configured. Email will not be sent.');
-    return null;
-  }
-  return new Brevo(apiKey);
-};
-
-const senderEmail = process.env.RESEND_SENDER_EMAIL || 'notifications@ruhvi.in';
-const senderName = 'Ruhvi';
-
-export const getSender = () => `${senderName} <${senderEmail}>`;
-
 // Helper to load and compile Handlebars templates
 const compileTemplate = (fileName: string) => {
   try {
-    const filePath = path.join(process.cwd(), 'Brevo_Templates', fileName);
+    const filePath = path.join(process.cwd(), 'Resend_Templates', fileName);
     if (!fs.existsSync(filePath)) {
       console.warn(`Template file not found: ${filePath}`);
       return () => '';
@@ -266,203 +247,158 @@ export async function sendWelcomeEmail(
   email: string,
   name: string = 'Beautiful'
 ) {
-  const resend = getBrevoClient();
-  if (!resend) return null;
-
   const template = compileTemplate(
     'Welcome to Ruhvi, {{customer.name}} ✨.html'
   );
   const htmlContent = template({ customer: { name } });
 
   try {
-    const data = await sendEmail({
-      from: getSender(),
+    return await sendEmail({
       to: [{ email }],
       subject: 'Welcome to Ruhvi! ✨',
-      html: htmlContent,
+      htmlContent: htmlContent,
     });
-    return data;
   } catch (error) {
-    console.error('Error sending Brevo Welcome email:', error);
+    console.error('Error sending Welcome email:', error);
     return null;
   }
 }
 
 // 2. Order Confirmation
 export async function sendOrderConfirmationEmail(email: string, data: any) {
-  const resend = getBrevoClient();
-  if (!resend) return null;
-
   const template = compileTemplate(
     'Your Ruhvi Order #{{order.number}} is Confirmed.html'
   );
-  // Expected data structure for Handlebars:
-  // { order: { number, date, items: [...] }, subtotal, discount, shipping, tax, total, shipping: { name, address, city, state, postal_code, country, phone }, payment: { method, status, transaction_id }, order_url, support_url }
   const htmlContent = template(data);
 
   try {
-    const response = await sendEmail({
-      from: getSender(),
+    return await sendEmail({
       to: [{ email }],
       subject: `Order Confirmed! (#${data.order?.number})`,
-      html: htmlContent,
+      htmlContent: htmlContent,
     });
-    return response;
   } catch (error) {
-    console.error('Error sending Brevo Order Confirmation email:', error);
+    console.error('Error sending Order Confirmation email:', error);
     return null;
   }
 }
 
 // 3. Shipping Updates (Shipped)
 export async function sendOrderShippedEmail(email: string, data: any) {
-  const resend = getBrevoClient();
-  if (!resend) return null;
-
   const template = compileTemplate(
     'Your Ruhvi Order #{{order.number}} Has Shipped.html'
   );
   const htmlContent = template(data);
 
   try {
-    const response = await sendEmail({
-      from: getSender(),
+    return await sendEmail({
       to: [{ email }],
       subject: `Your Order #${data.order?.number} has Shipped! 🚚`,
-      html: htmlContent,
+      htmlContent: htmlContent,
     });
-    return response;
   } catch (error) {
-    console.error('Error sending Brevo Order Shipped email:', error);
+    console.error('Error sending Order Shipped email:', error);
     return null;
   }
 }
 
 // 4. Shipping Updates (Out for Delivery)
 export async function sendOrderOutForDeliveryEmail(email: string, data: any) {
-  const resend = getBrevoClient();
-  if (!resend) return null;
-
   const template = compileTemplate(
     'Your Ruhvi Order #{{order.number}} Is Out for Delivery.html'
   );
   const htmlContent = template(data);
 
   try {
-    const response = await sendEmail({
-      from: getSender(),
+    return await sendEmail({
       to: [{ email }],
       subject: `Your Order #${data.order?.number} is Out for Delivery! 📦`,
-      html: htmlContent,
+      htmlContent: htmlContent,
     });
-    return response;
   } catch (error) {
-    console.error('Error sending Brevo Out for Delivery email:', error);
+    console.error('Error sending Out for Delivery email:', error);
     return null;
   }
 }
 
 // 5. Shipping Updates (Delivered)
 export async function sendOrderDeliveredEmail(email: string, data: any) {
-  const resend = getBrevoClient();
-  if (!resend) return null;
-
   const template = compileTemplate(
     'Your Ruhvi Order #{{order.number}} Has Been Delivered.html'
   );
   const htmlContent = template(data);
 
   try {
-    const response = await sendEmail({
-      from: getSender(),
+    return await sendEmail({
       to: [{ email }],
       subject: `Your Order #${data.order?.number} has been Delivered! ✨`,
-      html: htmlContent,
+      htmlContent: htmlContent,
     });
-    return response;
   } catch (error) {
-    console.error('Error sending Brevo Delivered email:', error);
+    console.error('Error sending Delivered email:', error);
     return null;
   }
 }
 
 // 6. Order Cancelled
 export async function sendOrderCancelledEmail(email: string, data: any) {
-  const resend = getBrevoClient();
-  if (!resend) return null;
-
   const template = compileTemplate(
     'Your Ruhvi Order #{{order.number}} Has Been Cancelled.html'
   );
   const htmlContent = template(data);
 
   try {
-    const response = await sendEmail({
-      from: getSender(),
+    return await sendEmail({
       to: [{ email }],
       subject: `Update regarding Order #${data.order?.number}`,
-      html: htmlContent,
+      htmlContent: htmlContent,
     });
-    return response;
   } catch (error) {
-    console.error('Error sending Brevo Cancelled email:', error);
+    console.error('Error sending Cancelled email:', error);
     return null;
   }
 }
 
 // 7. Payment Received
 export async function sendPaymentReceivedEmail(email: string, data: any) {
-  const resend = getBrevoClient();
-  if (!resend) return null;
-
   const template = compileTemplate(
     'Payment Received — Ruhvi Order #{{order.number}}.html'
   );
   const htmlContent = template(data);
 
   try {
-    const response = await sendEmail({
-      from: getSender(),
+    return await sendEmail({
       to: [{ email }],
       subject: `Payment Received for Order #${data.order?.number}`,
-      html: htmlContent,
+      htmlContent: htmlContent,
     });
-    return response;
   } catch (error) {
-    console.error('Error sending Brevo Payment Received email:', error);
+    console.error('Error sending Payment Received email:', error);
     return null;
   }
 }
 
 // 8. Payment Failed
 export async function sendPaymentFailedEmail(email: string, data: any) {
-  const resend = getBrevoClient();
-  if (!resend) return null;
-
   const template = compileTemplate(
     'Payment Failed — Action Needed for Ruhvi Order #{{order.number}}.html'
   );
   const htmlContent = template(data);
 
   try {
-    const response = await sendEmail({
-      from: getSender(),
+    return await sendEmail({
       to: [{ email }],
       subject: `Action Needed: Payment Failed for Order #${data.order?.number}`,
-      html: htmlContent,
+      htmlContent: htmlContent,
     });
-    return response;
   } catch (error) {
-    console.error('Error sending Brevo Payment Failed email:', error);
+    console.error('Error sending Payment Failed email:', error);
     return null;
   }
 }
 
 // 9. Refund Processed
 export async function sendRefundProcessedEmail(email: string, data: any) {
-  const resend = getBrevoClient();
-  if (!resend) return null;
-
   const htmlContent = `
     <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #121110; background: #FDFAF3; border-radius: 12px; overflow: hidden; border: 1px solid #E8DFC6;">
       <div style="background: #1C1B1A; padding: 24px 32px; text-align: center;">
@@ -487,13 +423,11 @@ export async function sendRefundProcessedEmail(email: string, data: any) {
     </div>`;
 
   try {
-    const response = await sendEmail({
-      from: getSender(),
+    return await sendEmail({
       to: [{ email }],
       subject: `Refund Processed for Order #${data.order?.number}`,
-      html: htmlContent,
+      htmlContent: htmlContent,
     });
-    return response;
   } catch (error) {
     console.error('Error sending refund email:', error);
     return null;
@@ -517,9 +451,6 @@ export async function sendShippingUpdateEmail(
 
 // Support Ticket Email Notifications
 export async function sendSupportTicketEmail(email: string, data: any) {
-  const resend = getBrevoClient();
-  if (!resend) return null;
-
   let subject = '';
   let htmlContent = '';
   const ticket = data.ticket || {};
@@ -588,13 +519,11 @@ export async function sendSupportTicketEmail(email: string, data: any) {
   if (!subject) return null;
 
   try {
-    const response = await sendEmail({
-      from: getSender(),
+    return await sendEmail({
       to: [{ email }],
       subject,
-      html: htmlContent,
+      htmlContent: htmlContent,
     });
-    return response;
   } catch (error) {
     console.error('Error sending support ticket email:', error);
     return null;
@@ -607,9 +536,6 @@ export async function sendPasswordResetEmail(
   resetLink: string,
   name: string = 'Customer'
 ) {
-  const resend = getBrevoClient();
-  if (!resend) return null;
-
   const subject = 'Reset Your Ruhvi Password 🔑';
   const htmlContent = `
     <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #121110; background: #FDFAF3; border-radius: 12px; overflow: hidden; border: 1px solid #E8DFC6;">
@@ -640,13 +566,12 @@ export async function sendPasswordResetEmail(
   `;
   try {
     return await sendEmail({
-      from: getSender(),
       to: [{ email }],
       subject,
-      html: htmlContent,
+      htmlContent: htmlContent,
     });
   } catch (err) {
-    console.error('Error sending Brevo Password Reset email:', err);
+    console.error('Error sending Password Reset email:', err);
     return null;
   }
 }
@@ -661,9 +586,6 @@ export async function sendTicketCreatedEmail(
   email: string,
   name: string
 ) {
-  const resend = getBrevoClient();
-  if (!resend) return null;
-
   const htmlContent = `
     <div style="font-family: Arial, sans-serif; background-color: #FAF6ED; margin: 0; padding: 40px 20px; min-height: 100vh;">
       <div style="max-width: 600px; margin: 0 auto; background-color: #FFFFFF; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.03);">
@@ -688,10 +610,9 @@ export async function sendTicketCreatedEmail(
   `;
   try {
     return await sendEmail({
-      from: getSender(),
       to: [{ email }],
       subject: `Ticket Created: #${ticketId} - ${subject}`,
-      html: htmlContent,
+      htmlContent: htmlContent,
     });
   } catch (err) {
     console.error('Error sending Ticket Created email:', err);
@@ -704,9 +625,6 @@ export async function sendTicketResolvedEmail(
   email: string,
   name: string
 ) {
-  const resend = getBrevoClient();
-  if (!resend) return null;
-
   const htmlContent = `
     <div style="font-family: Arial, sans-serif; background-color: #FAF6ED; margin: 0; padding: 40px 20px; min-height: 100vh;">
       <div style="max-width: 600px; margin: 0 auto; background-color: #FFFFFF; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.03);">
@@ -731,10 +649,9 @@ export async function sendTicketResolvedEmail(
   `;
   try {
     return await sendEmail({
-      from: getSender(),
       to: [{ email }],
       subject: `Ticket Resolved: #${ticketId}`,
-      html: htmlContent,
+      htmlContent: htmlContent,
     });
   } catch (err) {
     console.error('Error sending Ticket Resolved email:', err);
@@ -748,9 +665,6 @@ export async function sendTicketUpdateEmail(
   email: string,
   name: string
 ) {
-  const resend = getBrevoClient();
-  if (!resend) return null;
-
   const htmlContent = `
     <div style="font-family: Arial, sans-serif; background-color: #FAF6ED; margin: 0; padding: 40px 20px; min-height: 100vh;">
       <div style="max-width: 600px; margin: 0 auto; background-color: #FFFFFF; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.03);">
@@ -775,10 +689,9 @@ export async function sendTicketUpdateEmail(
   `;
   try {
     return await sendEmail({
-      from: getSender(),
       to: [{ email }],
       subject: `Update on Ticket #${ticketId}`,
-      html: htmlContent,
+      htmlContent: htmlContent,
     });
   } catch (err) {
     console.error('Error sending Ticket Update email:', err);
