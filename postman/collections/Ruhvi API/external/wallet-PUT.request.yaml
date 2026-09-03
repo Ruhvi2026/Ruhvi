@@ -1,7 +1,7 @@
 $kind: http-request
 name: 'PUT wallet'
 method: PUT
-url: '{{base_url}}/external/wallet'
+url: 'ruhvi.vercel.app/external/wallet'
 order: 69000
 headers:
   - key: Content-Type

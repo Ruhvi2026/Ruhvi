@@ -1,7 +1,7 @@
 $kind: http-request
 name: 'POST orders/rto'
 method: POST
-url: '{{base_url}}/admin/orders/rto'
+url: 'ruhvi.vercel.app/admin/orders/rto'
 order: 49000
 headers:
   - key: Content-Type

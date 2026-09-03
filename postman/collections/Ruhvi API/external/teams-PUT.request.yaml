@@ -1,7 +1,7 @@
 $kind: http-request
 name: 'PUT teams'
 method: PUT
-url: '{{base_url}}/external/teams'
+url: 'ruhvi.vercel.app/external/teams'
 order: 61000
 headers:
   - key: Content-Type

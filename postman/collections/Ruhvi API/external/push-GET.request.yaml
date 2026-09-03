@@ -1,5 +1,5 @@
 $kind: http-request
 name: 'GET push'
 method: GET
-url: '{{base_url}}/external/push'
+url: 'ruhvi.vercel.app/external/push'
 order: 40000

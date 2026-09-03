@@ -1,7 +1,7 @@
 $kind: http-request
 name: 'PUT support-ticket'
 method: PUT
-url: '{{base_url}}/external/support-ticket'
+url: 'ruhvi.vercel.app/external/support-ticket'
 order: 57000
 headers:
   - key: Content-Type

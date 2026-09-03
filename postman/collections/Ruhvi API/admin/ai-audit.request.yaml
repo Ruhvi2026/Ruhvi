@@ -1,7 +1,7 @@
 $kind: http-request
 name: 'POST ai/audit'
 method: POST
-url: '{{base_url}}/admin/ai/audit'
+url: 'ruhvi.vercel.app/admin/ai/audit'
 order: 1000
 headers:
   - key: Content-Type

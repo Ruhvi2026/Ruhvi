@@ -1,7 +1,7 @@
 $kind: http-request
 name: 'POST verify-email'
 method: POST
-url: '{{base_url}}/auth/verify-email'
+url: 'ruhvi.vercel.app/auth/verify-email'
 order: 10000
 headers:
   - key: Content-Type

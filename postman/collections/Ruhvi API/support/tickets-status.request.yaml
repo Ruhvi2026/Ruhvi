@@ -1,5 +1,5 @@
 $kind: http-request
 name: 'GET tickets/status'
 method: GET
-url: '{{base_url}}/support/tickets/status'
+url: 'ruhvi.vercel.app/support/tickets/status'
 order: 14000

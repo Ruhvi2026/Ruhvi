@@ -1,5 +1,5 @@
 $kind: http-request
 name: 'GET marketing/campaigns'
 method: GET
-url: '{{base_url}}/admin/marketing/campaigns'
+url: 'ruhvi.vercel.app/admin/marketing/campaigns'
 order: 28000

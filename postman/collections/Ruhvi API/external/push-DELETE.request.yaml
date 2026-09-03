@@ -1,5 +1,5 @@
 $kind: http-request
 name: 'DELETE push'
 method: DELETE
-url: '{{base_url}}/external/push'
+url: 'ruhvi.vercel.app/external/push'
 order: 43000

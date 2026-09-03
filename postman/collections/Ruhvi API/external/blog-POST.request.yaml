@@ -1,7 +1,7 @@
 $kind: http-request
 name: 'POST blog'
 method: POST
-url: '{{base_url}}/external/blog'
+url: 'ruhvi.vercel.app/external/blog'
 order: 2000
 headers:
   - key: Content-Type

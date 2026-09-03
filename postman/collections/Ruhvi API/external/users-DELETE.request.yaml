@@ -1,5 +1,5 @@
 $kind: http-request
 name: 'DELETE users'
 method: DELETE
-url: '{{base_url}}/external/users'
+url: 'ruhvi.vercel.app/external/users'
 order: 66000

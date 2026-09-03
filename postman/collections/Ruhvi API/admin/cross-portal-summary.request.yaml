@@ -1,5 +1,5 @@
 $kind: http-request
 name: 'GET cross-portal/summary'
 method: GET
-url: '{{base_url}}/admin/cross-portal/summary'
+url: 'ruhvi.vercel.app/admin/cross-portal/summary'
 order: 25000

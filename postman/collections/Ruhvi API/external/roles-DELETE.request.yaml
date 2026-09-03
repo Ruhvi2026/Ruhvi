@@ -1,5 +1,5 @@
 $kind: http-request
 name: 'DELETE roles'
 method: DELETE
-url: '{{base_url}}/external/roles'
+url: 'ruhvi.vercel.app/external/roles'
 order: 55000

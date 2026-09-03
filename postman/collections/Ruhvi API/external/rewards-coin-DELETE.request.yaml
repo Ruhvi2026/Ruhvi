@@ -1,5 +1,5 @@
 $kind: http-request
 name: 'DELETE rewards-coin'
 method: DELETE
-url: '{{base_url}}/external/rewards-coin'
+url: 'ruhvi.vercel.app/external/rewards-coin'
 order: 51000

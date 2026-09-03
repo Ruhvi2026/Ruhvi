@@ -1,7 +1,7 @@
 $kind: http-request
 name: 'POST register'
 method: POST
-url: '{{base_url}}/push/register'
+url: 'ruhvi.vercel.app/push/register'
 order: 1000
 headers:
   - key: Content-Type

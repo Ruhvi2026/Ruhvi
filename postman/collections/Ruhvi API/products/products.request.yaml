@@ -1,5 +1,5 @@
 $kind: http-request
 name: 'GET products'
 method: GET
-url: '{{base_url}}/products'
+url: 'ruhvi.vercel.app/products'
 order: 1000

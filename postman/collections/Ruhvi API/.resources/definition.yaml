@@ -1,5 +1,12 @@
 $kind: collection
-name: Ruhvi API
 variables:
-  - key: base_url
-    value: 'http://localhost:3000/api'
+  base_url: http://localhost:3000/api
+auth:
+  - id: 80a7cac7-71dc-4919-ae2d-1f966929a48b
+    type: apikey
+    name: API Key
+    credentials:
+      value: ruhvi_b49f8672a5900fba7f96ed6708e05d4af817828ac4c4edd62112def70126881a
+      key: master read
+    rules:
+      url: https://ruhvi.vercel.app/api

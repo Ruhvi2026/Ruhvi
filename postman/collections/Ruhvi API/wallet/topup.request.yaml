@@ -1,7 +1,7 @@
 $kind: http-request
 name: 'POST topup'
 method: POST
-url: '{{base_url}}/wallet/topup'
+url: 'ruhvi.vercel.app/wallet/topup'
 order: 1000
 headers:
   - key: Content-Type

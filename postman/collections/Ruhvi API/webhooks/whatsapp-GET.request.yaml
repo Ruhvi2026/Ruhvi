@@ -1,5 +1,5 @@
 $kind: http-request
 name: 'GET whatsapp'
 method: GET
-url: '{{base_url}}/webhooks/whatsapp'
+url: 'ruhvi.vercel.app/webhooks/whatsapp'
 order: 4000

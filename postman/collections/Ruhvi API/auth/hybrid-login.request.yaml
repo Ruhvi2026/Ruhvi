@@ -1,7 +1,7 @@
 $kind: http-request
 name: 'POST hybrid-login'
 method: POST
-url: '{{base_url}}/auth/hybrid-login'
+url: 'ruhvi.vercel.app/auth/hybrid-login'
 order: 3000
 headers:
   - key: Content-Type

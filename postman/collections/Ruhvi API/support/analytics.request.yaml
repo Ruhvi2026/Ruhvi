@@ -1,5 +1,5 @@
 $kind: http-request
 name: 'GET analytics'
 method: GET
-url: '{{base_url}}/support/analytics'
+url: 'ruhvi.vercel.app/support/analytics'
 order: 2000

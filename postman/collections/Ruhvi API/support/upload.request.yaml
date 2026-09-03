@@ -1,7 +1,7 @@
 $kind: http-request
 name: 'POST upload'
 method: POST
-url: '{{base_url}}/support/upload'
+url: 'ruhvi.vercel.app/support/upload'
 order: 20000
 headers:
   - key: Content-Type

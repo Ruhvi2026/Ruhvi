@@ -1,7 +1,7 @@
 $kind: http-request
 name: 'GET marketing/settings/:channel'
 method: GET
-url: '{{base_url}}/admin/marketing/settings/:channel'
+url: 'ruhvi.vercel.app/admin/marketing/settings/:channel'
 order: 40000
 pathVariables:
   - key: channel

@@ -1,7 +1,7 @@
 $kind: http-request
 name: 'POST newsletter'
 method: POST
-url: '{{base_url}}/newsletter'
+url: 'ruhvi.vercel.app/newsletter'
 order: 1000
 headers:
   - key: Content-Type

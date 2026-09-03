@@ -1,5 +1,5 @@
 $kind: http-request
 name: 'GET sla-config'
 method: GET
-url: '{{base_url}}/support/sla-config'
+url: 'ruhvi.vercel.app/support/sla-config'
 order: 8000

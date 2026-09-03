@@ -1,7 +1,7 @@
 $kind: http-request
 name: 'POST sync-token'
 method: POST
-url: '{{base_url}}/auth/sync-token'
+url: 'ruhvi.vercel.app/auth/sync-token'
 order: 8000
 headers:
   - key: Content-Type

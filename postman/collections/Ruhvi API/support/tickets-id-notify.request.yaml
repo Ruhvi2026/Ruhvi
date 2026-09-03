@@ -1,7 +1,7 @@
 $kind: http-request
 name: 'GET tickets/:id/notify'
 method: GET
-url: '{{base_url}}/support/tickets/:id/notify'
+url: 'ruhvi.vercel.app/support/tickets/:id/notify'
 order: 17000
 pathVariables:
   - key: id

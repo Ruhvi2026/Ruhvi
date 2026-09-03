@@ -1,5 +1,5 @@
 $kind: http-request
 name: 'GET automations'
 method: GET
-url: '{{base_url}}/cron/automations'
+url: 'ruhvi.vercel.app/cron/automations'
 order: 2000

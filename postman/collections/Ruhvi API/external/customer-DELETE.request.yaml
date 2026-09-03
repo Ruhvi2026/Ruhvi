@@ -1,5 +1,5 @@
 $kind: http-request
 name: 'DELETE customer'
 method: DELETE
-url: '{{base_url}}/external/customer'
+url: 'ruhvi.vercel.app/external/customer'
 order: 19000

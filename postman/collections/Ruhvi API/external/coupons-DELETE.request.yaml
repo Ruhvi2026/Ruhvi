@@ -1,5 +1,5 @@
 $kind: http-request
 name: 'DELETE coupons'
 method: DELETE
-url: '{{base_url}}/external/coupons'
+url: 'ruhvi.vercel.app/external/coupons'
 order: 16000

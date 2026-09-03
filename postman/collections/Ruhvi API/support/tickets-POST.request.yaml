@@ -1,7 +1,7 @@
 $kind: http-request
 name: 'POST tickets'
 method: POST
-url: '{{base_url}}/support/tickets'
+url: 'ruhvi.vercel.app/support/tickets'
 order: 12000
 headers:
   - key: Content-Type

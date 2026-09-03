@@ -1,7 +1,7 @@
 $kind: http-request
 name: 'POST phonepe'
 method: POST
-url: '{{base_url}}/webhooks/phonepe'
+url: 'ruhvi.vercel.app/webhooks/phonepe'
 order: 1000
 headers:
   - key: Content-Type

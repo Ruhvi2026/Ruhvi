@@ -1,7 +1,7 @@
 $kind: http-request
 name: 'POST ai/playground'
 method: POST
-url: '{{base_url}}/admin/ai/playground'
+url: 'ruhvi.vercel.app/admin/ai/playground'
 order: 15000
 headers:
   - key: Content-Type

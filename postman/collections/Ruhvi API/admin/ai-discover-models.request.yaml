@@ -1,7 +1,7 @@
 $kind: http-request
 name: 'POST ai/discover-models'
 method: POST
-url: '{{base_url}}/admin/ai/discover-models'
+url: 'ruhvi.vercel.app/admin/ai/discover-models'
 order: 9000
 headers:
   - key: Content-Type

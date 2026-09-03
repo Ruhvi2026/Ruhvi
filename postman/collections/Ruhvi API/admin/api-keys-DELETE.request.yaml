@@ -1,5 +1,5 @@
 $kind: http-request
 name: 'DELETE api-keys'
 method: DELETE
-url: '{{base_url}}/admin/api-keys'
+url: 'ruhvi.vercel.app/admin/api-keys'
 order: 22000

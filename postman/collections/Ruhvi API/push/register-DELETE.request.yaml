@@ -1,5 +1,5 @@
 $kind: http-request
 name: 'DELETE register'
 method: DELETE
-url: '{{base_url}}/push/register'
+url: 'ruhvi.vercel.app/push/register'
 order: 2000

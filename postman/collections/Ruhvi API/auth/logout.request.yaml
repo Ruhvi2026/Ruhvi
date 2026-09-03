@@ -1,7 +1,7 @@
 $kind: http-request
 name: 'POST logout'
 method: POST
-url: '{{base_url}}/auth/logout'
+url: 'ruhvi.vercel.app/auth/logout'
 order: 4000
 headers:
   - key: Content-Type

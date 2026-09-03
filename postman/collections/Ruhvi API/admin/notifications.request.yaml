@@ -1,7 +1,7 @@
 $kind: http-request
 name: 'POST notifications'
 method: POST
-url: '{{base_url}}/admin/notifications'
+url: 'ruhvi.vercel.app/admin/notifications'
 order: 43000
 headers:
   - key: Content-Type

@@ -1,5 +1,5 @@
 $kind: http-request
 name: 'GET canned-responses'
 method: GET
-url: '{{base_url}}/support/canned-responses'
+url: 'ruhvi.vercel.app/support/canned-responses'
 order: 4000

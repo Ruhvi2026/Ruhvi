@@ -1,7 +1,7 @@
 $kind: http-request
 name: 'POST shiprocket/create-order'
 method: POST
-url: '{{base_url}}/admin/shiprocket/create-order'
+url: 'ruhvi.vercel.app/admin/shiprocket/create-order'
 order: 56000
 headers:
   - key: Content-Type

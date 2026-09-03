@@ -1,5 +1,5 @@
 $kind: http-request
 name: 'GET verify'
 method: GET
-url: '{{base_url}}/checkout/verify'
+url: 'ruhvi.vercel.app/checkout/verify'
 order: 4000

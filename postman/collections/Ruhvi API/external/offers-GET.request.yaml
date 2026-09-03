@@ -1,5 +1,5 @@
 $kind: http-request
 name: 'GET offers'
 method: GET
-url: '{{base_url}}/external/offers'
+url: 'ruhvi.vercel.app/external/offers'
 order: 24000

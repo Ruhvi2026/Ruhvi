@@ -1,7 +1,7 @@
 $kind: http-request
 name: 'POST category'
 method: POST
-url: '{{base_url}}/external/category'
+url: 'ruhvi.vercel.app/external/category'
 order: 10000
 headers:
   - key: Content-Type

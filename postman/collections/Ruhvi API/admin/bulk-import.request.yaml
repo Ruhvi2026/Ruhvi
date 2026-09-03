@@ -1,7 +1,7 @@
 $kind: http-request
 name: 'POST bulk/import'
 method: POST
-url: '{{base_url}}/admin/bulk/import'
+url: 'ruhvi.vercel.app/admin/bulk/import'
 order: 23000
 headers:
   - key: Content-Type

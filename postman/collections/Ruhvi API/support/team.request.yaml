@@ -1,5 +1,5 @@
 $kind: http-request
 name: 'GET team'
 method: GET
-url: '{{base_url}}/support/team'
+url: 'ruhvi.vercel.app/support/team'
 order: 10000

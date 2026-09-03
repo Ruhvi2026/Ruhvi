@@ -1,7 +1,7 @@
 $kind: http-request
 name: 'PUT category'
 method: PUT
-url: '{{base_url}}/external/category'
+url: 'ruhvi.vercel.app/external/category'
 order: 11000
 headers:
   - key: Content-Type

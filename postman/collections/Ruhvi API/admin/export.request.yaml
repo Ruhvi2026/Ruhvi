@@ -1,5 +1,5 @@
 $kind: http-request
 name: 'GET export'
 method: GET
-url: '{{base_url}}/admin/export'
+url: 'ruhvi.vercel.app/admin/export'
 order: 26000

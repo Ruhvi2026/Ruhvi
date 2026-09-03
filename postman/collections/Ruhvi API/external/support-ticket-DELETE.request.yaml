@@ -1,5 +1,5 @@
 $kind: http-request
 name: 'DELETE support-ticket'
 method: DELETE
-url: '{{base_url}}/external/support-ticket'
+url: 'ruhvi.vercel.app/external/support-ticket'
 order: 58000

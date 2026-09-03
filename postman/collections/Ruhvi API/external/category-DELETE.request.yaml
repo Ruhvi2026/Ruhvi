@@ -1,5 +1,5 @@
 $kind: http-request
 name: 'DELETE category'
 method: DELETE
-url: '{{base_url}}/external/category'
+url: 'ruhvi.vercel.app/external/category'
 order: 12000

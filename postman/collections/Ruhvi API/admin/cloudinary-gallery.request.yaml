@@ -1,5 +1,5 @@
 $kind: http-request
 name: 'GET cloudinary/gallery'
 method: GET
-url: '{{base_url}}/admin/cloudinary/gallery'
+url: 'ruhvi.vercel.app/admin/cloudinary/gallery'
 order: 24000

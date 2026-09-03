@@ -1,7 +1,7 @@
 $kind: http-request
 name: 'PUT whatsapp'
 method: PUT
-url: '{{base_url}}/external/whatsapp'
+url: 'ruhvi.vercel.app/external/whatsapp'
 order: 77000
 headers:
   - key: Content-Type

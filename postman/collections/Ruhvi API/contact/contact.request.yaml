@@ -1,7 +1,7 @@
 $kind: http-request
 name: 'POST contact'
 method: POST
-url: '{{base_url}}/contact'
+url: 'ruhvi.vercel.app/contact'
 order: 1000
 headers:
   - key: Content-Type

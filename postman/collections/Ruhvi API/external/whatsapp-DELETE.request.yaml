@@ -1,5 +1,5 @@
 $kind: http-request
 name: 'DELETE whatsapp'
 method: DELETE
-url: '{{base_url}}/external/whatsapp'
+url: 'ruhvi.vercel.app/external/whatsapp'
 order: 78000

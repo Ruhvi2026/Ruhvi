@@ -462,10 +462,188 @@ function ScopePills({ scopes }: { scopes: string[] }) {
 }
 
 // ---------------------------------------------------------------------------
+// API Docs Tab
+// ---------------------------------------------------------------------------
+function ApiDocsTab() {
+  return (
+    <div className="space-y-8 rounded-xl border border-white/5 bg-[#131726] p-6 text-sm text-slate-300">
+      <section className="space-y-3">
+        <h2 className="text-lg font-bold text-white">Overview</h2>
+        <p>
+          The Ruhvi External API lets authorized third-party applications read
+          data from Ruhvi. Every request requires an API key, generated from the{' '}
+          <strong className="text-white">Manage Keys</strong> tab. Each key has
+          fixed, per-resource permissions (Read Only / Write Only / Read &amp;
+          Write / Admin) that cannot be changed after creation &mdash; to change
+          permissions, generate a new key and revoke the old one.
+        </p>
+      </section>
+
+      <section className="space-y-3">
+        <h2 className="text-lg font-bold text-white">Base URL</h2>
+        <div className="flex items-center justify-between rounded-lg border border-white/5 bg-[#0d1117] p-3 font-mono text-xs text-emerald-400">
+          <span>https://ruhvi.vercel.app/api/external</span>
+          <CopyButton text="https://ruhvi.vercel.app/api/external" />
+        </div>
+        <p className="text-xs text-slate-500">
+          Every resource is accessed by appending its name to this base URL,
+          e.g. <code className="text-slate-400">/orders</code>,{' '}
+          <code className="text-slate-400">/products</code>.
+        </p>
+      </section>
+
+      <section className="space-y-3">
+        <h2 className="text-lg font-bold text-white">Authentication</h2>
+        <p>
+          Include your API key in the Authorization header as a Bearer token:
+        </p>
+        <div className="flex items-center justify-between rounded-lg border border-white/5 bg-[#0d1117] p-3 font-mono text-xs text-emerald-400">
+          <span>Authorization: Bearer YOUR_API_KEY</span>
+          <CopyButton text="Authorization: Bearer YOUR_API_KEY" />
+        </div>
+        <p className="text-xs text-slate-500">
+          Replace <code className="text-slate-400">YOUR_API_KEY</code> with the
+          key generated for you. Keep this key secret &mdash; anyone with it can
+          access the data scoped to it.
+        </p>
+      </section>
+
+      <section className="space-y-3">
+        <h2 className="text-lg font-bold text-white">Available Resources</h2>
+        <div className="overflow-hidden rounded-lg border border-white/5">
+          <table className="w-full text-xs">
+            <thead>
+              <tr className="border-b border-white/5 bg-white/[0.02]">
+                <th className="px-4 py-2.5 text-left font-medium text-slate-500">
+                  Resource
+                </th>
+                <th className="px-4 py-2.5 text-left font-medium text-slate-500">
+                  Endpoint Path
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-white/[0.03]">
+              {RESOURCES.map((r) => {
+                let slug = r.key.replace(/_/g, '-');
+                if (r.key === 'marketing_campaign') slug = 'campaigns';
+                if (r.key === 'push_notifications') slug = 'push';
+                if (r.key === 'analytics') slug = 'reports';
+                if (r.key === 'role_management') slug = 'roles';
+                if (r.key === 'team_management') slug = 'teams';
+                if (r.key === 'user_management') slug = 'users';
+                if (r.key === 'website_management') slug = 'website';
+                if (r.key === 'support_ticket') slug = 'support-ticket';
+
+                return (
+                  <tr
+                    key={r.key}
+                    className="transition-colors hover:bg-white/[0.02]"
+                  >
+                    <td className="px-4 py-2.5 text-white">{r.label}</td>
+                    <td className="px-4 py-2.5 font-mono text-emerald-400">
+                      /{slug}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section className="space-y-3">
+        <h2 className="text-lg font-bold text-white">Permission Levels</h2>
+        <div className="flex flex-col gap-3">
+          {PERMISSION_LEVELS.filter((p) => p.value !== 'none').map((p) => (
+            <div key={p.value} className="flex items-center gap-2">
+              <span
+                className={`inline-flex w-24 items-center justify-center rounded border px-2 py-1 text-[10px] font-semibold ${LEVEL_COLORS[p.value] ?? ''}`}
+              >
+                {p.label}
+              </span>
+              <span className="text-sm text-slate-400">{p.description}</span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="space-y-3">
+        <h2 className="text-lg font-bold text-white">Example Request</h2>
+        <div className="relative overflow-hidden rounded-lg border border-white/5 bg-[#0d1117] p-4">
+          <div className="absolute right-2 top-2">
+            <CopyButton
+              text={`curl -X GET "https://ruhvi.vercel.app/api/external/orders" \\\n  -H "Authorization: Bearer YOUR_API_KEY"`}
+            />
+          </div>
+          <pre className="overflow-x-auto whitespace-pre font-mono text-xs leading-relaxed text-emerald-400">
+            <code>
+              {`curl -X GET "https://ruhvi.vercel.app/api/external/orders" \\
+  -H "Authorization: Bearer YOUR_API_KEY"`}
+            </code>
+          </pre>
+        </div>
+        <p className="text-xs leading-relaxed text-slate-500">
+          This is a generic example. If you&apos;re integrating with Node.js,
+          PHP, Python, or any other stack, convert this curl command into your
+          language&apos;s HTTP client (e.g.{' '}
+          <code className="text-slate-400">fetch</code> in Node.js,{' '}
+          <code className="text-slate-400">curl_init</code> in PHP,{' '}
+          <code className="text-slate-400">requests</code> in Python). The URL,
+          method, and header stay the same regardless of language.
+        </p>
+      </section>
+
+      <section className="space-y-3">
+        <h2 className="text-lg font-bold text-white">Response Format</h2>
+        <ul className="ml-1 list-inside list-disc space-y-1.5 text-slate-400">
+          <li>All responses are JSON</li>
+          <li>
+            Success response shape (List):{' '}
+            <code className="rounded bg-white/5 px-1 font-mono text-xs text-emerald-300">{`{ success: true, orders: [...], pagination: { ... } }`}</code>
+          </li>
+          <li>
+            Success response shape (Detail):{' '}
+            <code className="rounded bg-white/5 px-1 font-mono text-xs text-emerald-300">{`{ success: true, order: { ... } }`}</code>
+          </li>
+          <li>
+            Error response shape:{' '}
+            <code className="rounded bg-white/5 px-1 font-mono text-xs text-rose-300">{`{ error: "Error message" }`}</code>
+          </li>
+        </ul>
+      </section>
+
+      <section className="space-y-3">
+        <h2 className="text-lg font-bold text-white">Rate Limits</h2>
+        <p>
+          Rate limit: [TO BE FILLED &mdash; per-key rate limit will be added and
+          documented here].
+        </p>
+      </section>
+
+      <section className="space-y-3">
+        <h2 className="text-lg font-bold text-white">Support</h2>
+        <p>
+          For questions about API access or to request a new key with different
+          permissions, contact{' '}
+          <a
+            href="mailto:ruhvi_main@gmail.com"
+            className="text-emerald-400 hover:underline"
+          >
+            ruhvi_main@gmail.com
+          </a>
+          .
+        </p>
+      </section>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Main Page
 // ---------------------------------------------------------------------------
 export default function ApiKeysPage() {
   const [keys, setKeys] = useState<ApiKeyRecord[]>([]);
+  const [activeTab, setActiveTab] = useState<'manage' | 'docs'>('manage');
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
   const [newRawKey, setNewRawKey] = useState<string | null>(null);
@@ -541,214 +719,263 @@ export default function ApiKeysPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-lg font-bold text-white">API Keys</h1>
-          <p className="mt-0.5 text-xs text-slate-500">
-            Machine-to-machine keys for external tools (e.g. n8n). Scopes are
-            immutable after creation.
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={fetchKeys}
-            title="Refresh"
-            className="rounded-lg border border-white/10 p-2 text-slate-400 transition-colors hover:bg-white/5 hover:text-white"
-          >
-            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-          </button>
-          <button
-            onClick={() => setShowCreate(true)}
-            className="flex items-center gap-2 rounded-lg bg-emerald-600 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-emerald-500"
-          >
-            <Plus className="h-4 w-4" />
-            New Key
-          </button>
-        </div>
-      </div>
-
-      {/* Endpoint info */}
-      <div className="rounded-lg border border-cyan-500/20 bg-cyan-500/5 p-4">
+      <div className="flex flex-col gap-4">
         <div className="flex items-center justify-between">
-          <p className="text-xs font-semibold text-cyan-400">
-            External Endpoint
-          </p>
-          <select
-            value={selectedEndpoint}
-            onChange={(e) => setSelectedEndpoint(e.target.value)}
-            className="rounded-lg border border-white/10 bg-[#131726] px-2 py-1 text-xs text-white focus:border-emerald-500 focus:outline-none"
-          >
-            {RESOURCES.map((r) => (
-              <option key={r.key} value={r.key}>
-                {r.label}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="mt-2 flex items-center gap-1">
-          <code className="text-xs text-slate-300">
-            POST https://ruhvi.vercel.app/api/external/{selectedEndpoint}
-          </code>
-          <CopyButton
-            text={`https://ruhvi.vercel.app/api/external/${selectedEndpoint}`}
-          />
-        </div>
-        <p className="mt-1.5 text-[10px] text-slate-500">
-          Pass the key as{' '}
-          <code className="rounded bg-white/5 px-1">
-            Authorization: Bearer {'<key>'}
-          </code>
-        </p>
-      </div>
-
-      {/* Filters and Permission Legend */}
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-        <div className="flex flex-wrap gap-2">
-          {PERMISSION_LEVELS.filter((p) => p.value !== 'none').map((p) => (
-            <span
-              key={p.value}
-              className={`inline-flex items-center gap-1 rounded border px-2 py-1 text-[10px] font-semibold ${LEVEL_COLORS[p.value] ?? ''}`}
-            >
-              {p.label}
-              <span className="font-normal opacity-60">· {p.description}</span>
-            </span>
-          ))}
+          <div>
+            <h1 className="text-lg font-bold text-white">API Keys</h1>
+            <p className="mt-0.5 text-xs text-slate-500">
+              Machine-to-machine keys for external tools (e.g. n8n). Scopes are
+              immutable after creation.
+            </p>
+          </div>
+          {activeTab === 'manage' && (
+            <div className="flex items-center gap-2">
+              <button
+                onClick={fetchKeys}
+                title="Refresh"
+                className="rounded-lg border border-white/10 p-2 text-slate-400 transition-colors hover:bg-white/5 hover:text-white"
+              >
+                <RefreshCw
+                  className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`}
+                />
+              </button>
+              <button
+                onClick={() => setShowCreate(true)}
+                className="flex items-center gap-2 rounded-lg bg-emerald-600 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-emerald-500"
+              >
+                <Plus className="h-4 w-4" />
+                New Key
+              </button>
+            </div>
+          )}
         </div>
 
-        <div className="flex gap-3">
-          <input
-            type="text"
-            placeholder="Search keys..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-48 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white placeholder-slate-500 focus:border-emerald-500 focus:outline-none"
-          />
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value as any)}
-            className="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white focus:border-emerald-500 focus:outline-none [&>option]:bg-slate-900"
+        {/* Tabs */}
+        <div className="flex gap-2 border-b border-white/10">
+          <button
+            onClick={() => setActiveTab('manage')}
+            className={`border-b-2 px-4 py-2 text-sm font-medium transition-colors ${
+              activeTab === 'manage'
+                ? 'border-emerald-500 text-emerald-400'
+                : 'border-transparent text-slate-400 hover:border-white/20 hover:text-white'
+            }`}
           >
-            <option value="all">All Statuses</option>
-            <option value="active">Active Only</option>
-            <option value="revoked">Revoked Only</option>
-          </select>
+            Manage Keys
+          </button>
+          <button
+            onClick={() => setActiveTab('docs')}
+            className={`border-b-2 px-4 py-2 text-sm font-medium transition-colors ${
+              activeTab === 'docs'
+                ? 'border-emerald-500 text-emerald-400'
+                : 'border-transparent text-slate-400 hover:border-white/20 hover:text-white'
+            }`}
+          >
+            API Documentation
+          </button>
         </div>
       </div>
 
-      {/* Keys table */}
-      <div className="overflow-hidden rounded-xl border border-white/5 bg-[#131726]">
-        {loading ? (
-          <div className="flex items-center justify-center py-16">
-            <Loader2 className="h-6 w-6 animate-spin text-emerald-500" />
+      {activeTab === 'docs' ? (
+        <ApiDocsTab />
+      ) : (
+        <div className="space-y-6">
+          {/* Endpoint info */}
+          <div className="rounded-lg border border-cyan-500/20 bg-cyan-500/5 p-4">
+            <div className="flex items-center justify-between">
+              <p className="text-xs font-semibold text-cyan-400">
+                External Endpoint
+              </p>
+              <select
+                value={selectedEndpoint}
+                onChange={(e) => setSelectedEndpoint(e.target.value)}
+                className="rounded-lg border border-white/10 bg-[#131726] px-2 py-1 text-xs text-white focus:border-emerald-500 focus:outline-none"
+              >
+                {RESOURCES.map((r) => (
+                  <option key={r.key} value={r.key}>
+                    {r.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="mt-2 flex items-center gap-1">
+              <code className="text-xs text-slate-300">
+                POST https://ruhvi.vercel.app/api/external/{selectedEndpoint}
+              </code>
+              <CopyButton
+                text={`https://ruhvi.vercel.app/api/external/${selectedEndpoint}`}
+              />
+            </div>
+            <p className="mt-1.5 text-[10px] text-slate-500">
+              Pass the key as{' '}
+              <code className="rounded bg-white/5 px-1">
+                Authorization: Bearer {'<key>'}
+              </code>
+            </p>
           </div>
-        ) : keys.length === 0 ? (
-          <div className="py-16 text-center">
-            <KeyRound className="mx-auto h-8 w-8 text-slate-700" />
-            <p className="mt-3 text-sm text-slate-500">No API keys yet</p>
-            <button
-              onClick={() => setShowCreate(true)}
-              className="mt-4 inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-500"
-            >
-              <Plus className="h-4 w-4" />
-              Generate your first key
-            </button>
+
+          {/* Filters and Permission Legend */}
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex flex-wrap gap-2">
+              {PERMISSION_LEVELS.filter((p) => p.value !== 'none').map((p) => (
+                <span
+                  key={p.value}
+                  className={`inline-flex items-center gap-1 rounded border px-2 py-1 text-[10px] font-semibold ${LEVEL_COLORS[p.value] ?? ''}`}
+                >
+                  {p.label}
+                  <span className="font-normal opacity-60">
+                    · {p.description}
+                  </span>
+                </span>
+              ))}
+            </div>
+
+            <div className="flex gap-3">
+              <input
+                type="text"
+                placeholder="Search keys..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-48 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white placeholder-slate-500 focus:border-emerald-500 focus:outline-none"
+              />
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value as any)}
+                className="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white focus:border-emerald-500 focus:outline-none [&>option]:bg-slate-900"
+              >
+                <option value="all">All Statuses</option>
+                <option value="active">Active Only</option>
+                <option value="revoked">Revoked Only</option>
+              </select>
+            </div>
           </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-xs">
-              <thead>
-                <tr className="border-b border-white/5 text-slate-500">
-                  <th className="px-4 py-3 text-left font-medium">Name</th>
-                  <th className="px-4 py-3 text-left font-medium">
-                    Key Prefix
-                  </th>
-                  <th className="px-4 py-3 text-left font-medium">
-                    Permissions
-                  </th>
-                  <th className="px-4 py-3 text-left font-medium">Status</th>
-                  <th className="px-4 py-3 text-left font-medium">Created</th>
-                  <th className="px-4 py-3 text-left font-medium">Last Used</th>
-                  <th className="px-4 py-3 text-right font-medium">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-white/[0.03]">
-                {keys
-                  .filter((k) => {
-                    if (statusFilter === 'active' && k.revoked_at) return false;
-                    if (statusFilter === 'revoked' && !k.revoked_at)
-                      return false;
-                    if (search) {
-                      const q = search.toLowerCase();
-                      return (
-                        k.name.toLowerCase().includes(q) ||
-                        k.key_prefix.toLowerCase().includes(q)
-                      );
-                    }
-                    return true;
-                  })
-                  .map((key) => (
-                    <tr
-                      key={key.id}
-                      className="group border-b border-white/5 transition-colors last:border-0 hover:bg-white/5"
-                    >
-                      <td className="px-6 py-4">
-                        <div className="font-semibold text-white">
-                          {key.name}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <code className="rounded bg-white/5 px-2 py-1 text-slate-300">
-                          {key.key_prefix}
-                        </code>
-                      </td>
-                      <td className="px-6 py-4 text-slate-400">
-                        <ScopePills scopes={key.scopes} />
-                      </td>
-                      <td className="px-6 py-4">
-                        <StatusBadge revokedAt={key.revoked_at} />
-                      </td>
-                      <td className="px-6 py-4 text-slate-500">
-                        {fmtDate(key.created_at)}
-                      </td>
-                      <td className="px-6 py-4 text-slate-500">
-                        {fmtDate(key.last_used_at)}
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        {!key.revoked_at ? (
-                          <button
-                            onClick={() => handleRevoke(key.id, key.name)}
-                            disabled={revoking === key.id}
-                            className="inline-flex items-center gap-1 rounded-lg border border-orange-500/20 px-3 py-1.5 text-xs font-semibold text-orange-400 opacity-0 transition-all hover:bg-orange-500/10 hover:text-orange-300 disabled:opacity-50 group-hover:opacity-100"
-                          >
-                            {revoking === key.id ? (
-                              <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                            ) : (
-                              <ShieldOff className="h-3.5 w-3.5" />
-                            )}
-                            Revoke
-                          </button>
-                        ) : (
-                          <button
-                            onClick={() => handleRevoke(key.id, key.name, true)}
-                            disabled={revoking === key.id}
-                            className="inline-flex items-center gap-1 rounded-lg border border-red-500/20 px-3 py-1.5 text-xs font-semibold text-red-400 opacity-0 transition-all hover:bg-red-500/10 hover:text-red-300 disabled:opacity-50 group-hover:opacity-100"
-                          >
-                            {revoking === key.id ? (
-                              <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                            ) : (
-                              <X className="h-3.5 w-3.5" />
-                            )}
-                            Delete
-                          </button>
-                        )}
-                      </td>
+
+          {/* Keys table */}
+          <div className="overflow-hidden rounded-xl border border-white/5 bg-[#131726]">
+            {loading ? (
+              <div className="flex items-center justify-center py-16">
+                <Loader2 className="h-6 w-6 animate-spin text-emerald-500" />
+              </div>
+            ) : keys.length === 0 ? (
+              <div className="py-16 text-center">
+                <KeyRound className="mx-auto h-8 w-8 text-slate-700" />
+                <p className="mt-3 text-sm text-slate-500">No API keys yet</p>
+                <button
+                  onClick={() => setShowCreate(true)}
+                  className="mt-4 inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-500"
+                >
+                  <Plus className="h-4 w-4" />
+                  Generate your first key
+                </button>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-xs">
+                  <thead>
+                    <tr className="border-b border-white/5 text-slate-500">
+                      <th className="px-4 py-3 text-left font-medium">Name</th>
+                      <th className="px-4 py-3 text-left font-medium">
+                        Key Prefix
+                      </th>
+                      <th className="px-4 py-3 text-left font-medium">
+                        Permissions
+                      </th>
+                      <th className="px-4 py-3 text-left font-medium">
+                        Status
+                      </th>
+                      <th className="px-4 py-3 text-left font-medium">
+                        Created
+                      </th>
+                      <th className="px-4 py-3 text-left font-medium">
+                        Last Used
+                      </th>
+                      <th className="px-4 py-3 text-right font-medium">
+                        Actions
+                      </th>
                     </tr>
-                  ))}
-              </tbody>
-            </table>
+                  </thead>
+                  <tbody className="divide-y divide-white/[0.03]">
+                    {keys
+                      .filter((k) => {
+                        if (statusFilter === 'active' && k.revoked_at)
+                          return false;
+                        if (statusFilter === 'revoked' && !k.revoked_at)
+                          return false;
+                        if (search) {
+                          const q = search.toLowerCase();
+                          return (
+                            k.name.toLowerCase().includes(q) ||
+                            k.key_prefix.toLowerCase().includes(q)
+                          );
+                        }
+                        return true;
+                      })
+                      .map((key) => (
+                        <tr
+                          key={key.id}
+                          className="group border-b border-white/5 transition-colors last:border-0 hover:bg-white/5"
+                        >
+                          <td className="px-6 py-4">
+                            <div className="font-semibold text-white">
+                              {key.name}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <code className="rounded bg-white/5 px-2 py-1 text-slate-300">
+                              {key.key_prefix}
+                            </code>
+                          </td>
+                          <td className="px-6 py-4 text-slate-400">
+                            <ScopePills scopes={key.scopes} />
+                          </td>
+                          <td className="px-6 py-4">
+                            <StatusBadge revokedAt={key.revoked_at} />
+                          </td>
+                          <td className="px-6 py-4 text-slate-500">
+                            {fmtDate(key.created_at)}
+                          </td>
+                          <td className="px-6 py-4 text-slate-500">
+                            {fmtDate(key.last_used_at)}
+                          </td>
+                          <td className="px-6 py-4 text-right">
+                            {!key.revoked_at ? (
+                              <button
+                                onClick={() => handleRevoke(key.id, key.name)}
+                                disabled={revoking === key.id}
+                                className="inline-flex items-center gap-1 rounded-lg border border-orange-500/20 px-3 py-1.5 text-xs font-semibold text-orange-400 opacity-0 transition-all hover:bg-orange-500/10 hover:text-orange-300 disabled:opacity-50 group-hover:opacity-100"
+                              >
+                                {revoking === key.id ? (
+                                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                ) : (
+                                  <ShieldOff className="h-3.5 w-3.5" />
+                                )}
+                                Revoke
+                              </button>
+                            ) : (
+                              <button
+                                onClick={() =>
+                                  handleRevoke(key.id, key.name, true)
+                                }
+                                disabled={revoking === key.id}
+                                className="inline-flex items-center gap-1 rounded-lg border border-red-500/20 px-3 py-1.5 text-xs font-semibold text-red-400 opacity-0 transition-all hover:bg-red-500/10 hover:text-red-300 disabled:opacity-50 group-hover:opacity-100"
+                              >
+                                {revoking === key.id ? (
+                                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                ) : (
+                                  <X className="h-3.5 w-3.5" />
+                                )}
+                                Delete
+                              </button>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {showCreate && (
         <CreateKeyModal

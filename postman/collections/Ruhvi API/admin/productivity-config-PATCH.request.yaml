@@ -1,7 +1,7 @@
 $kind: http-request
 name: 'PATCH productivity-config'
 method: PATCH
-url: '{{base_url}}/admin/productivity-config'
+url: 'ruhvi.vercel.app/admin/productivity-config'
 order: 54000
 headers:
   - key: Content-Type

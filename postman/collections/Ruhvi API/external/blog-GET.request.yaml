@@ -1,5 +1,5 @@
 $kind: http-request
 name: 'GET blog'
 method: GET
-url: '{{base_url}}/external/blog'
+url: 'ruhvi.vercel.app/external/blog'
 order: 1000

@@ -1,7 +1,7 @@
 $kind: http-request
 name: 'POST roles'
 method: POST
-url: '{{base_url}}/external/roles'
+url: 'ruhvi.vercel.app/external/roles'
 order: 53000
 headers:
   - key: Content-Type

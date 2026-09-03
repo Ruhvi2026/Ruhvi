@@ -1,7 +1,7 @@
 $kind: http-request
 name: 'POST phonepe'
 method: POST
-url: '{{base_url}}/checkout/phonepe'
+url: 'ruhvi.vercel.app/checkout/phonepe'
 order: 2000
 headers:
   - key: Content-Type

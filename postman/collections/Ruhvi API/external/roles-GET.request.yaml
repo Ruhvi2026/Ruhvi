@@ -1,5 +1,5 @@
 $kind: http-request
 name: 'GET roles'
 method: GET
-url: '{{base_url}}/external/roles'
+url: 'ruhvi.vercel.app/external/roles'
 order: 52000

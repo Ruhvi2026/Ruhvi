@@ -1,5 +1,5 @@
 $kind: http-request
 name: 'DELETE payment'
 method: DELETE
-url: '{{base_url}}/external/payment'
+url: 'ruhvi.vercel.app/external/payment'
 order: 35000

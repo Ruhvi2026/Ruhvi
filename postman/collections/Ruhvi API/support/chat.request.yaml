@@ -1,7 +1,7 @@
 $kind: http-request
 name: 'POST chat'
 method: POST
-url: '{{base_url}}/support/chat'
+url: 'ruhvi.vercel.app/support/chat'
 order: 7000
 headers:
   - key: Content-Type

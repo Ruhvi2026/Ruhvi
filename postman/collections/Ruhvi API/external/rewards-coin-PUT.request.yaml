@@ -1,7 +1,7 @@
 $kind: http-request
 name: 'PUT rewards-coin'
 method: PUT
-url: '{{base_url}}/external/rewards-coin'
+url: 'ruhvi.vercel.app/external/rewards-coin'
 order: 50000
 headers:
   - key: Content-Type

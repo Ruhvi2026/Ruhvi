@@ -1,5 +1,5 @@
 $kind: http-request
 name: 'DELETE teams'
 method: DELETE
-url: '{{base_url}}/external/teams'
+url: 'ruhvi.vercel.app/external/teams'
 order: 62000

@@ -1,5 +1,5 @@
 $kind: http-request
 name: 'GET ai/logs'
 method: GET
-url: '{{base_url}}/admin/ai/logs'
+url: 'ruhvi.vercel.app/admin/ai/logs'
 order: 11000

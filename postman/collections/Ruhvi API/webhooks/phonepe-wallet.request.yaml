@@ -1,7 +1,7 @@
 $kind: http-request
 name: 'POST phonepe-wallet'
 method: POST
-url: '{{base_url}}/webhooks/phonepe-wallet'
+url: 'ruhvi.vercel.app/webhooks/phonepe-wallet'
 order: 2000
 headers:
   - key: Content-Type

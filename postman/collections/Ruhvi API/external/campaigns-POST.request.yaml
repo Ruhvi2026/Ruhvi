@@ -1,7 +1,7 @@
 $kind: http-request
 name: 'POST campaigns'
 method: POST
-url: '{{base_url}}/external/campaigns'
+url: 'ruhvi.vercel.app/external/campaigns'
 order: 6000
 headers:
   - key: Content-Type

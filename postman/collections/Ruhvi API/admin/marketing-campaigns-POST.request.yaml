@@ -1,7 +1,7 @@
 $kind: http-request
 name: 'POST marketing/campaigns'
 method: POST
-url: '{{base_url}}/admin/marketing/campaigns'
+url: 'ruhvi.vercel.app/admin/marketing/campaigns'
 order: 29000
 headers:
   - key: Content-Type

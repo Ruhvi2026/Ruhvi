@@ -1,7 +1,7 @@
 $kind: http-request
 name: 'POST verify-turnstile'
 method: POST
-url: '{{base_url}}/checkout/verify-turnstile'
+url: 'ruhvi.vercel.app/checkout/verify-turnstile'
 order: 6000
 headers:
   - key: Content-Type
