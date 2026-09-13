@@ -17,6 +17,7 @@ import {
 import toast from 'react-hot-toast';
 import { listBlogPosts, deleteBlogPost, unpublishPost } from './actions';
 import type { BlogPostRow } from './actions';
+import GetTopicsModal from './GetTopicsModal';
 
 const STATUS_STYLES: Record<string, { label: string; className: string }> = {
   draft: {
@@ -43,6 +44,7 @@ export default function BlogPostsListingPage() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [isPending, startTransition] = useTransition();
+  const [topicsOpen, setTopicsOpen] = useState(false);
 
   const fetchPosts = async (status: string, term: string) => {
     const rows = await listBlogPosts({ status, search: term });
@@ -98,14 +100,12 @@ export default function BlogPostsListingPage() {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <a
-            href="http://localhost:5678/webhook/8d8396c3-0fb3-4951-aadb-4ef8490b32d1"
-            target="_blank"
-            rel="noopener noreferrer"
+          <button
+            onClick={() => setTopicsOpen(true)}
             className="flex items-center justify-center gap-2 rounded-lg border border-white/10 bg-[#151520] px-4 py-2 text-sm font-semibold text-white transition-colors hover:border-indigo-500"
           >
             Get Topics
-          </a>
+          </button>
           <Link
             href="/operations/cms/blog/new"
             className="flex items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-indigo-500"
@@ -307,6 +307,8 @@ export default function BlogPostsListingPage() {
           </table>
         </div>
       </div>
+
+      <GetTopicsModal open={topicsOpen} onClose={() => setTopicsOpen(false)} />
     </div>
   );
 }
