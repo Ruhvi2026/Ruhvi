@@ -4,8 +4,7 @@ import React, { useState } from 'react';
 import { X, Loader2, Zap } from 'lucide-react';
 import toast from 'react-hot-toast';
 
-const WEBHOOK_URL =
-  'http://localhost:5678/webhook/8d8396c3-0fb3-4951-aadb-4ef8490b32d1';
+const TOPICS_ENDPOINT = '/api/operations/blog/topics';
 
 interface GetTopicsModalProps {
   open: boolean;
@@ -41,14 +40,21 @@ export default function GetTopicsModal({ open, onClose }: GetTopicsModalProps) {
 
     setSubmitting(true);
     try {
-      const res = await fetch(WEBHOOK_URL, {
+      const res = await fetch(TOPICS_ENDPOINT, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
 
       if (!res.ok) {
-        throw new Error(`Webhook responded with ${res.status}`);
+        let message = `Request failed with ${res.status}`;
+        try {
+          const data = await res.json();
+          if (data && typeof data.error === 'string') message = data.error;
+        } catch {
+          // keep default message when body is not JSON
+        }
+        throw new Error(message);
       }
 
       toast.success('Topics request sent');
