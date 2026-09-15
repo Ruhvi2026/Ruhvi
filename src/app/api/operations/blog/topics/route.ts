@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 
 const DEFAULT_WEBHOOK_URL =
-  'https://heave-placidly-rebirth.ngrok-free.dev/webhook/eabfa347-d54a-4b71-87ca-c61fe5a8265b';
+  'https://n8n.ruhvi.in/webhook/eabfa347-d54a-4b71-87ca-c61fe5a8265b';
 
 export async function POST(request: Request) {
   let payload: unknown;
@@ -35,7 +35,6 @@ export async function POST(request: Request) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'ngrok-skip-browser-warning': 'true',
       },
       body: JSON.stringify({ niche, seed_queries: seedQueries }),
       cache: 'no-store',
