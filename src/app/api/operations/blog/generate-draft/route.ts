@@ -20,13 +20,6 @@ export async function POST(request: Request) {
         .filter(Boolean)
     : [];
 
-  if (!topic) {
-    return NextResponse.json(
-      { error: 'topic is required' },
-      { status: 400 }
-    );
-  }
-
   const webhookUrl =
     process.env.N8N_GENERATE_BLOG_DRAFT_WEBHOOK_URL || DEFAULT_WEBHOOK_URL;
 
