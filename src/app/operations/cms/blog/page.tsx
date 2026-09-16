@@ -13,11 +13,13 @@ import {
   EyeOff,
   CalendarClock,
   FileText,
+  Sparkles,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { listBlogPosts, deleteBlogPost, unpublishPost } from './actions';
 import type { BlogPostRow } from './actions';
 import GetTopicsModal from './GetTopicsModal';
+import GenerateWithAIModal from './GenerateWithAIModal';
 
 const STATUS_STYLES: Record<string, { label: string; className: string }> = {
   draft: {
@@ -45,6 +47,7 @@ export default function BlogPostsListingPage() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [isPending, startTransition] = useTransition();
   const [topicsOpen, setTopicsOpen] = useState(false);
+  const [generateOpen, setGenerateOpen] = useState(false);
 
   const fetchPosts = async (status: string, term: string) => {
     const rows = await listBlogPosts({ status, search: term });
@@ -105,6 +108,13 @@ export default function BlogPostsListingPage() {
             className="flex items-center justify-center gap-2 rounded-lg border border-white/10 bg-[#151520] px-4 py-2 text-sm font-semibold text-white transition-colors hover:border-indigo-500"
           >
             Get Topics
+          </button>
+          <button
+            onClick={() => setGenerateOpen(true)}
+            className="flex items-center justify-center gap-2 rounded-lg border border-white/10 bg-[#151520] px-4 py-2 text-sm font-semibold text-white transition-colors hover:border-indigo-500"
+          >
+            <Sparkles className="h-4 w-4" />
+            Generate with AI
           </button>
           <Link
             href="/operations/cms/blog/new"
@@ -309,6 +319,10 @@ export default function BlogPostsListingPage() {
       </div>
 
       <GetTopicsModal open={topicsOpen} onClose={() => setTopicsOpen(false)} />
+      <GenerateWithAIModal
+        open={generateOpen}
+        onClose={() => setGenerateOpen(false)}
+      />
     </div>
   );
 }
