@@ -41,6 +41,9 @@ import {
   Trash2,
   ChevronDown,
   ChevronRight,
+  Copy,
+  Check,
+  Wand2,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import {
@@ -89,6 +92,10 @@ export default function PostEditor({ initialData }: PostEditorProps) {
   const [coverImageAlt, setCoverImageAlt] = useState(
     initialData?.cover_image_alt || ''
   );
+  const [imageGenPrompt, setImageGenPrompt] = useState(
+    initialData?.image_generation_prompt || ''
+  );
+  const [copiedPrompt, setCopiedPrompt] = useState(false);
 
   // SEO fields
   const [metaTitle, setMetaTitle] = useState(initialData?.meta_title || '');
@@ -176,6 +183,7 @@ export default function PostEditor({ initialData }: PostEditorProps) {
     fd.set('category', category);
     fd.set('cover_image', coverImage);
     fd.set('cover_image_alt', coverImageAlt);
+    fd.set('image_generation_prompt', imageGenPrompt);
     fd.set('meta_title', metaTitle);
     fd.set('meta_description', metaDescription);
     fd.set('h1_tag', h1Tag);
@@ -190,6 +198,7 @@ export default function PostEditor({ initialData }: PostEditorProps) {
     category,
     coverImage,
     coverImageAlt,
+    imageGenPrompt,
     metaTitle,
     metaDescription,
     h1Tag,
@@ -1239,6 +1248,52 @@ export default function PostEditor({ initialData }: PostEditorProps) {
                     placeholder="Describe the cover image for accessibility"
                     className="w-full rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm text-white focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                   />
+                </div>
+
+                <div>
+                  <div className="mb-1 flex items-center justify-between">
+                    <label className="flex items-center gap-1.5 text-xs font-medium text-slate-400">
+                      <Wand2 className="h-3.5 w-3.5 text-indigo-400" />
+                      Image Generation Prompt
+                    </label>
+                    {imageGenPrompt && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          navigator.clipboard.writeText(imageGenPrompt);
+                          setCopiedPrompt(true);
+                          toast.success('Prompt copied to clipboard!');
+                          setTimeout(() => setCopiedPrompt(false), 2000);
+                        }}
+                        className="flex items-center gap-1 rounded bg-indigo-500/20 px-2 py-0.5 text-[10px] font-medium text-indigo-300 transition-colors hover:bg-indigo-500/30 hover:text-indigo-200"
+                      >
+                        {copiedPrompt ? (
+                          <>
+                            <Check className="h-3 w-3 text-emerald-400" />
+                            Copied
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="h-3 w-3" />
+                            Copy Prompt
+                          </>
+                        )}
+                      </button>
+                    )}
+                  </div>
+                  <textarea
+                    value={imageGenPrompt}
+                    onChange={(e) => {
+                      setImageGenPrompt(e.target.value);
+                      dirtyRef.current = true;
+                    }}
+                    rows={3}
+                    placeholder="AI image prompt (received via webhook / API endpoint or enter manually)..."
+                    className="w-full resize-y rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm text-white placeholder-slate-600 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  />
+                  <p className="mt-1 text-xs text-slate-500">
+                    Prompt used for generating AI image assets (from webhook or custom).
+                  </p>
                 </div>
               </div>
             )}

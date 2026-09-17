@@ -57,6 +57,7 @@ export interface BlogPostRow {
   h1_tag: string | null;
   seo_keywords: string[] | null;
   canonical_url: string | null;
+  image_generation_prompt: string | null;
   category: string | null;
   tags: string[] | null;
   content_images: any;
@@ -157,6 +158,7 @@ export async function createBlogPost(formData: FormData) {
         canonical_url: (formData.get('canonical_url') as string) || null,
         cover_image: (formData.get('cover_image') as string) || null,
         cover_image_alt: (formData.get('cover_image_alt') as string) || null,
+        image_generation_prompt: (formData.get('image_generation_prompt') as string) || null,
         author_id: userId,
         author_name: author_name || userRow?.full_name || null,
         status: 'draft',
@@ -224,6 +226,7 @@ export async function updateBlogPost(id: string, formData: FormData) {
         canonical_url: (formData.get('canonical_url') as string) || null,
         cover_image: (formData.get('cover_image') as string) || null,
         cover_image_alt: (formData.get('cover_image_alt') as string) || null,
+        image_generation_prompt: (formData.get('image_generation_prompt') as string) || null,
         updated_at: new Date().toISOString(),
       })
       .eq('id', id);

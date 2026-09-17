@@ -182,6 +182,12 @@ export async function POST(req: NextRequest) {
       typeof body.author === 'string' && body.author.trim().length > 0
         ? body.author.trim()
         : 'Ruhvi Editorial',
+    image_generation_prompt:
+      typeof body.image_generation_prompt === 'string' && body.image_generation_prompt.trim().length > 0
+        ? body.image_generation_prompt.trim()
+        : typeof body.image_prompt === 'string' && body.image_prompt.trim().length > 0
+        ? body.image_prompt.trim()
+        : null,
     published_at:
       typeof body.published_at === 'string'
         ? body.published_at
@@ -275,6 +281,14 @@ export async function PUT(req: NextRequest) {
   }
   if (typeof body.is_published === 'boolean') {
     updates.is_published = body.is_published;
+  }
+  const rawImageGenPrompt = typeof body.image_generation_prompt === 'string'
+    ? body.image_generation_prompt.trim()
+    : typeof body.image_prompt === 'string'
+    ? body.image_prompt.trim()
+    : undefined;
+  if (rawImageGenPrompt !== undefined) {
+    updates.image_generation_prompt = rawImageGenPrompt || null;
   }
 
   if (Object.keys(updates).length === 0) {
