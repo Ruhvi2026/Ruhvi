@@ -44,6 +44,58 @@ function slugify(text: string): string {
     .slice(0, 200); // max length guard
 }
 
+type BlogStatus = 'draft' | 'review' | 'published' | 'scheduled';
+
+function firstString(...values: unknown[]): string | undefined {
+  for (const value of values) {
+    if (typeof value === 'string' && value.trim().length > 0) {
+      return value.trim();
+    }
+  }
+  return undefined;
+}
+
+function optionalString(...values: unknown[]): string | null {
+  for (const value of values) {
+    if (typeof value === 'string') {
+      return value.trim() || null;
+    }
+  }
+  return null;
+}
+
+function hasValue(...values: unknown[]): boolean {
+  return values.some((value) => value !== undefined);
+}
+
+function toStringArray(value: unknown): string[] {
+  const values = Array.isArray(value)
+    ? value
+    : typeof value === 'string'
+      ? value.split(',')
+      : [];
+
+  return values
+    .filter((item): item is string => typeof item === 'string')
+    .map((item) => item.trim())
+    .filter((item) => item.length > 0);
+}
+
+function normalizeStatus(value: unknown): BlogStatus {
+  const status = typeof value === 'string' ? value.trim().toLowerCase() : '';
+
+  if (
+    status === 'draft' ||
+    status === 'review' ||
+    status === 'published' ||
+    status === 'scheduled'
+  ) {
+    return status;
+  }
+
+  return 'draft';
+}
+
 // ---------------------------------------------------------------------------
 // GET /api/external/blog
 // Read list of blog posts or single post
@@ -159,41 +211,49 @@ export async function POST(req: NextRequest) {
   }
 
   const finalSlug =
-    typeof body.slug === 'string' && body.slug.trim().length > 0
-      ? body.slug.trim()
-      : slugify(title.trim());
+    firstString(body.slug, body.urlSlug) || slugify(title.trim());
+  const status = normalizeStatus(
+    body.status ?? (body.is_published === false ? 'draft' : 'published')
+  );
+  const isPublished =
+    typeof body.is_published === 'boolean'
+      ? body.is_published
+      : status === 'published';
 
   const row = {
     title: title.trim(),
     slug: finalSlug,
     content: content.trim(),
-    excerpt:
-      typeof body.excerpt === 'string' && body.excerpt.trim().length > 0
-        ? body.excerpt.trim()
-        : null,
-    cover_image:
-      typeof body.cover_image === 'string' && body.cover_image.trim().length > 0
-        ? body.cover_image.trim()
-        : null,
-    tags: Array.isArray(body.tags)
-      ? body.tags.filter((t) => typeof t === 'string')
-      : [],
-    author:
-      typeof body.author === 'string' && body.author.trim().length > 0
-        ? body.author.trim()
-        : 'Ruhvi Editorial',
-    image_generation_prompt:
-      typeof body.image_generation_prompt === 'string' && body.image_generation_prompt.trim().length > 0
-        ? body.image_generation_prompt.trim()
-        : typeof body.image_prompt === 'string' && body.image_prompt.trim().length > 0
-        ? body.image_prompt.trim()
-        : null,
+    excerpt: optionalString(body.excerpt),
+    meta_title: optionalString(body.meta_title, body.seoTitleTag),
+    meta_description: optionalString(
+      body.meta_description,
+      body.metaDescription
+    ),
+    h1_tag: optionalString(body.h1_tag, body.h1Tag),
+    seo_keywords: toStringArray(body.seo_keywords ?? body.keywords),
+    canonical_url: optionalString(body.canonical_url, body.canonicalUrl),
+    cover_image: optionalString(body.cover_image, body.coverImageUrl),
+    cover_image_alt: optionalString(
+      body.cover_image_alt,
+      body.coverImageAltText
+    ),
+    category: optionalString(body.category),
+    tags: toStringArray(body.tags),
+    image_generation_prompt: optionalString(
+      body.image_generation_prompt,
+      body.image_prompt,
+      body.imagePrompt,
+      body.image_Prompt
+    ),
+    author: firstString(body.author, body.authorName) || 'Ruhvi Editorial',
+    author_name: firstString(body.author_name, body.authorName),
+    status,
+    is_published: isPublished,
     published_at:
-      typeof body.published_at === 'string'
-        ? body.published_at
-        : new Date().toISOString(),
-    is_published:
-      typeof body.is_published === 'boolean' ? body.is_published : true,
+      firstString(body.published_at, body.publishedAt) ||
+      (isPublished ? new Date().toISOString() : null),
+    created_by_api_key: auth.keyId,
   };
 
   const supabase = getServiceClient();
@@ -253,43 +313,92 @@ export async function PUT(req: NextRequest) {
     );
   }
 
-  const updates: Record<string, any> = {};
+  const updates: Record<string, unknown> = {};
 
-  if (typeof body.title === 'string' && body.title.trim().length > 0) {
-    updates.title = body.title.trim();
+  const title = firstString(body.title);
+  if (title) updates.title = title;
+
+  const slug = firstString(body.slug, body.urlSlug);
+  if (slug) updates.slug = slug;
+
+  const content = firstString(body.content);
+  if (content) updates.content = content;
+
+  if (hasValue(body.excerpt)) {
+    updates.excerpt = optionalString(body.excerpt);
   }
-  if (typeof body.slug === 'string' && body.slug.trim().length > 0) {
-    updates.slug = body.slug.trim();
+  if (hasValue(body.meta_title, body.seoTitleTag)) {
+    updates.meta_title = optionalString(body.meta_title, body.seoTitleTag);
   }
-  if (typeof body.content === 'string' && body.content.trim().length > 0) {
-    updates.content = body.content.trim();
+  if (hasValue(body.meta_description, body.metaDescription)) {
+    updates.meta_description = optionalString(
+      body.meta_description,
+      body.metaDescription
+    );
   }
-  if (typeof body.excerpt === 'string') {
-    updates.excerpt = body.excerpt.trim() || null;
+  if (hasValue(body.h1_tag, body.h1Tag)) {
+    updates.h1_tag = optionalString(body.h1_tag, body.h1Tag);
   }
-  if (typeof body.cover_image === 'string') {
-    updates.cover_image = body.cover_image.trim() || null;
+  if (hasValue(body.seo_keywords, body.keywords)) {
+    updates.seo_keywords = toStringArray(body.seo_keywords ?? body.keywords);
   }
-  if (Array.isArray(body.tags)) {
-    updates.tags = body.tags.filter((t) => typeof t === 'string');
+  if (hasValue(body.canonical_url, body.canonicalUrl)) {
+    updates.canonical_url = optionalString(
+      body.canonical_url,
+      body.canonicalUrl
+    );
   }
-  if (typeof body.author === 'string' && body.author.trim().length > 0) {
-    updates.author = body.author.trim();
+  if (hasValue(body.cover_image, body.coverImageUrl)) {
+    updates.cover_image = optionalString(body.cover_image, body.coverImageUrl);
   }
-  if (typeof body.published_at === 'string') {
-    updates.published_at = body.published_at;
+  if (hasValue(body.cover_image_alt, body.coverImageAltText)) {
+    updates.cover_image_alt = optionalString(
+      body.cover_image_alt,
+      body.coverImageAltText
+    );
+  }
+  if (hasValue(body.category)) {
+    updates.category = optionalString(body.category);
+  }
+  if (hasValue(body.tags)) {
+    updates.tags = toStringArray(body.tags);
+  }
+  if (
+    hasValue(
+      body.image_generation_prompt,
+      body.image_prompt,
+      body.imagePrompt,
+      body.image_Prompt
+    )
+  ) {
+    updates.image_generation_prompt = optionalString(
+      body.image_generation_prompt,
+      body.image_prompt,
+      body.imagePrompt,
+      body.image_Prompt
+    );
+  }
+  if (hasValue(body.author, body.authorName, body.author_name)) {
+    const author = firstString(body.author, body.authorName, body.author_name);
+    if (author) {
+      updates.author = author;
+      updates.author_name = author;
+    }
+  }
+  if (hasValue(body.status)) {
+    const status = normalizeStatus(body.status);
+    updates.status = status;
+    if (typeof body.is_published !== 'boolean') {
+      updates.is_published = status === 'published';
+    }
   }
   if (typeof body.is_published === 'boolean') {
     updates.is_published = body.is_published;
   }
-  const rawImageGenPrompt = typeof body.image_generation_prompt === 'string'
-    ? body.image_generation_prompt.trim()
-    : typeof body.image_prompt === 'string'
-    ? body.image_prompt.trim()
-    : undefined;
-  if (rawImageGenPrompt !== undefined) {
-    updates.image_generation_prompt = rawImageGenPrompt || null;
+  if (hasValue(body.published_at, body.publishedAt)) {
+    updates.published_at = optionalString(body.published_at, body.publishedAt);
   }
+  updates.updated_at = new Date().toISOString();
 
   if (Object.keys(updates).length === 0) {
     return NextResponse.json(

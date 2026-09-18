@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 
-const DEFAULT_WEBHOOK_URL = 'http://n8n.ruhvi.in/webhook/generate-blog-draft';
+const DEFAULT_WEBHOOK_URL = 'https://n8n.ruhvi.in/webhook/generate-blog-draft';
 
 export async function POST(request: Request) {
   let payload: unknown;

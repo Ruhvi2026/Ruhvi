@@ -132,6 +132,7 @@ export default function PostEditor({ initialData }: PostEditorProps) {
   const [openPanels, setOpenPanels] = useState<Record<string, boolean>>({
     seo: Boolean(initialData),
     media: true,
+    imagePrompt: Boolean(initialData?.image_generation_prompt),
     details: false,
     publish: true,
   });
@@ -1134,6 +1135,89 @@ export default function PostEditor({ initialData }: PostEditorProps) {
             )}
           </div>
 
+          {/* Image Prompt panel */}
+          <div className="overflow-hidden rounded-xl border border-violet-500/20 bg-[#151520] shadow-xl">
+            <button
+              onClick={() => togglePanel('imagePrompt')}
+              className="flex w-full items-center gap-2 border-b border-violet-500/20 px-4 py-3 text-left"
+            >
+              <Wand2 className="h-4 w-4 text-violet-400" />
+              <span className="flex-1 text-sm font-semibold text-slate-200">
+                Image Prompt
+              </span>
+              {imageGenPrompt && (
+                <span className="mr-1 rounded-full bg-violet-500/20 px-2 py-0.5 text-[10px] font-medium text-violet-300">
+                  Received
+                </span>
+              )}
+              {openPanels.imagePrompt ? (
+                <ChevronDown className="h-4 w-4 text-slate-500" />
+              ) : (
+                <ChevronRight className="h-4 w-4 text-slate-500" />
+              )}
+            </button>
+            {openPanels.imagePrompt && (
+              <div className="space-y-3 p-4">
+                {/* Info banner shown when prompt came in via API */}
+                {initialData?.image_generation_prompt && (
+                  <div className="flex items-start gap-2 rounded-lg border border-violet-500/20 bg-violet-500/10 px-3 py-2">
+                    <Sparkles className="mt-0.5 h-3.5 w-3.5 shrink-0 text-violet-400" />
+                    <p className="text-xs text-violet-300">
+                      This prompt was received from the API. Use it to generate
+                      the cover image in your preferred AI image tool.
+                    </p>
+                  </div>
+                )}
+
+                <div>
+                  <div className="mb-1.5 flex items-center justify-between">
+                    <label className="text-xs font-medium text-slate-400">
+                      AI Image Generation Prompt
+                    </label>
+                    {imageGenPrompt && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          navigator.clipboard.writeText(imageGenPrompt);
+                          setCopiedPrompt(true);
+                          toast.success('Prompt copied to clipboard!');
+                          setTimeout(() => setCopiedPrompt(false), 2000);
+                        }}
+                        className="flex items-center gap-1 rounded bg-violet-500/20 px-2 py-0.5 text-[10px] font-medium text-violet-300 transition-colors hover:bg-violet-500/30 hover:text-violet-200"
+                      >
+                        {copiedPrompt ? (
+                          <>
+                            <Check className="h-3 w-3 text-emerald-400" />
+                            Copied!
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="h-3 w-3" />
+                            Copy Prompt
+                          </>
+                        )}
+                      </button>
+                    )}
+                  </div>
+                  <textarea
+                    value={imageGenPrompt}
+                    onChange={(e) => {
+                      setImageGenPrompt(e.target.value);
+                      dirtyRef.current = true;
+                    }}
+                    rows={4}
+                    placeholder="AI image prompt will appear here when received via API, or enter one manually..."
+                    className="w-full resize-y rounded-lg border border-violet-500/20 bg-black/20 px-3 py-2 text-sm text-white placeholder-slate-600 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500"
+                  />
+                  <p className="mt-1 text-xs text-slate-500">
+                    Use this prompt in an AI image tool (Midjourney, DALL·E,
+                    etc.) to generate the cover image.
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+
           {/* Details panel */}
           <div className="overflow-hidden rounded-xl border border-white/5 bg-[#151520] shadow-xl">
             {renderPanelHeader(
@@ -1248,52 +1332,6 @@ export default function PostEditor({ initialData }: PostEditorProps) {
                     placeholder="Describe the cover image for accessibility"
                     className="w-full rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm text-white focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                   />
-                </div>
-
-                <div>
-                  <div className="mb-1 flex items-center justify-between">
-                    <label className="flex items-center gap-1.5 text-xs font-medium text-slate-400">
-                      <Wand2 className="h-3.5 w-3.5 text-indigo-400" />
-                      Image Generation Prompt
-                    </label>
-                    {imageGenPrompt && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          navigator.clipboard.writeText(imageGenPrompt);
-                          setCopiedPrompt(true);
-                          toast.success('Prompt copied to clipboard!');
-                          setTimeout(() => setCopiedPrompt(false), 2000);
-                        }}
-                        className="flex items-center gap-1 rounded bg-indigo-500/20 px-2 py-0.5 text-[10px] font-medium text-indigo-300 transition-colors hover:bg-indigo-500/30 hover:text-indigo-200"
-                      >
-                        {copiedPrompt ? (
-                          <>
-                            <Check className="h-3 w-3 text-emerald-400" />
-                            Copied
-                          </>
-                        ) : (
-                          <>
-                            <Copy className="h-3 w-3" />
-                            Copy Prompt
-                          </>
-                        )}
-                      </button>
-                    )}
-                  </div>
-                  <textarea
-                    value={imageGenPrompt}
-                    onChange={(e) => {
-                      setImageGenPrompt(e.target.value);
-                      dirtyRef.current = true;
-                    }}
-                    rows={3}
-                    placeholder="AI image prompt (received via webhook / API endpoint or enter manually)..."
-                    className="w-full resize-y rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm text-white placeholder-slate-600 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                  />
-                  <p className="mt-1 text-xs text-slate-500">
-                    Prompt used for generating AI image assets (from webhook or custom).
-                  </p>
                 </div>
               </div>
             )}

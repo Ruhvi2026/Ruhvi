@@ -2,9 +2,21 @@ export type UserRole = 'customer' | 'staff' | 'manager' | 'admin';
 export type ProductStatus = 'active' | 'hidden' | 'out_of_stock';
 export type ImageType = 'model' | 'still' | 'zoom' | '360';
 export type OrderStatus =
-  'pending' | 'confirmed' | 'processing' | 'shipped' | 'out_for_delivery' |
-  'delivered' | 'delivery_failed' | 'rto_initiated' | 'rto_received' |
-  'cancelled' | 'return_requested' | 'return_approved' | 'return_rejected' | 'returned' | 'refunded';
+  | 'pending'
+  | 'confirmed'
+  | 'processing'
+  | 'shipped'
+  | 'out_for_delivery'
+  | 'delivered'
+  | 'delivery_failed'
+  | 'rto_initiated'
+  | 'rto_received'
+  | 'cancelled'
+  | 'return_requested'
+  | 'return_approved'
+  | 'return_rejected'
+  | 'returned'
+  | 'refunded';
 export type PaymentMethod = 'phonepe' | 'cod';
 export type PaymentStatus = 'pending' | 'paid' | 'failed' | 'refunded';
 export type CoinLedgerType = 'earned' | 'redeemed' | 'expired' | 'cashback';
@@ -257,8 +269,22 @@ export interface BlogPost {
   excerpt?: string | null;
   content: string;
   cover_image?: string | null;
+  cover_image_alt?: string | null;
+  meta_title?: string | null;
+  meta_description?: string | null;
+  h1_tag?: string | null;
+  seo_keywords?: string[] | null;
+  canonical_url?: string | null;
+  image_generation_prompt?: string | null;
+  category?: string | null;
+  tags?: string[] | null;
+  author?: string | null;
+  author_id?: string | null;
+  author_name?: string | null;
+  status?: string;
   is_published: boolean;
   published_at?: string | null;
+  scheduled_publish_at?: string | null;
   created_at: string;
   updated_at: string;
 }
