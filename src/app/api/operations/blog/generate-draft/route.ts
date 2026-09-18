@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 
-const DEFAULT_WEBHOOK_URL = 'https://n8n.ruhvi.in/webhook/generate-blog-draft';
+const DEFAULT_WEBHOOK_URL = 'http://n8n.ruhvi.in/webhook/generate-blog-draft';
 
 export async function POST(request: Request) {
   let payload: unknown;
@@ -24,7 +24,7 @@ export async function POST(request: Request) {
     process.env.N8N_GENERATE_BLOG_DRAFT_WEBHOOK_URL || DEFAULT_WEBHOOK_URL;
 
   try {
-    const res = await fetch(webhookUrl, {
+    let res = await fetch(webhookUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -33,7 +33,45 @@ export async function POST(request: Request) {
       cache: 'no-store',
     });
 
-    const text = await res.text();
+    let text = await res.text();
+
+    // Fallback if https returns 404 but http is accessible
+    if (!res.ok && res.status === 404 && webhookUrl.startsWith('https://')) {
+      const httpUrl = webhookUrl.replace(/^https:\/\//, 'http://');
+      const httpRes = await fetch(httpUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ topic, keywords }),
+        cache: 'no-store',
+      });
+      if (httpRes.ok) {
+        res = httpRes;
+        text = await httpRes.text();
+      }
+    }
+
+    // Fallback to GET if webhook returned 404/405 because n8n is configured for GET
+    if (
+      !res.ok &&
+      (res.status === 404 || res.status === 405 || text.includes('GET request'))
+    ) {
+      const url = new URL(webhookUrl);
+      if (topic) url.searchParams.set('topic', topic);
+      if (keywords.length > 0)
+        url.searchParams.set('keywords', keywords.join(','));
+
+      const getRes = await fetch(url.toString(), {
+        method: 'GET',
+        cache: 'no-store',
+      });
+      if (getRes.ok) {
+        res = getRes;
+        text = await getRes.text();
+      }
+    }
+
     let data: unknown = text;
     try {
       data = JSON.parse(text);
