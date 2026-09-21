@@ -41,6 +41,7 @@ export const RESOURCES = [
   { key: 'role_management', label: 'Role Management' },
   { key: 'website_management', label: 'Website Management' },
   { key: 'marketing_campaign', label: 'Marketing Campaign' },
+  { key: 'mcp_tools', label: 'MCP Tools (AI Assistant)' },
 ] as const;
 
 export type ResourceKey = (typeof RESOURCES)[number]['key'];
