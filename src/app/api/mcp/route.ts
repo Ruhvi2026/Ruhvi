@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { WebStandardStreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js';
-import { authenticateMcpRequest } from '@/lib/ai/mcp-auth';
+import {
+  authenticateMcpRequest,
+  assertToolPermission,
+} from '@/lib/ai/mcp-auth';
 import { createRuhviMcpServer } from '@/lib/ai/mcp-tools';
 
 // ---------------------------------------------------------------------------
@@ -44,11 +47,47 @@ async function handleMcpRequest(req: NextRequest): Promise<Response> {
     });
   }
 
+  // 1.5 JSON-RPC Execution Guard
+  if (req.method === 'POST') {
+    try {
+      const cloned = req.clone();
+      const bodyText = await cloned.text();
+      if (bodyText) {
+        const payload = JSON.parse(bodyText);
+        if (payload?.method === 'tools/call' && payload.params?.name) {
+          const err = assertToolPermission(auth.scopes, payload.params.name);
+          if (err) {
+            return new Response(
+              JSON.stringify({
+                jsonrpc: '2.0',
+                id: payload.id,
+                error: {
+                  code: -32000,
+                  message: err.error,
+                },
+              }),
+              {
+                status: 403,
+                headers: {
+                  'Content-Type': 'application/json',
+                  ...SECURITY_HEADERS,
+                },
+              }
+            );
+          }
+        }
+      }
+    } catch {
+      // Ignore parse errors here, let transport handle malformed JSON
+    }
+  }
+
   // 2. Create a fresh MCP server instance per request (stateless model)
   const mcpServer = createRuhviMcpServer({
     keyId: auth.keyId,
     keyName: auth.keyName,
     scopeLevel: auth.scopeLevel,
+    scopes: auth.scopes,
   });
 
   // 3. Create the Web-Standard transport (compatible with Next.js App Router)

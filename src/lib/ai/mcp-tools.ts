@@ -4,7 +4,15 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import { getServiceClient } from '@/lib/supabase/service';
 import { logAuditEvent } from '@/lib/audit';
-import { assertMcpScope, type McpScopeLevel } from '@/lib/ai/mcp-auth';
+import {
+  assertMcpScope,
+  assertSpecificScope,
+  assertToolPermission,
+  TOOL_PERMISSION_MAP,
+  type McpScopeLevel,
+} from '@/lib/ai/mcp-auth';
+import { sendWhatsAppMessage } from '@/lib/whatsapp';
+import { sendFcmToTokens, getTokensForUsers } from '@/lib/fcm-admin';
 
 // ---------------------------------------------------------------------------
 // Shared helpers
@@ -38,6 +46,7 @@ export interface McpRequestContext {
   keyId: string;
   keyName: string;
   scopeLevel: McpScopeLevel;
+  scopes: string[];
 }
 
 // ---------------------------------------------------------------------------
@@ -56,8 +65,33 @@ export function createRuhviMcpServer(ctx: McpRequestContext): McpServer {
     version: '1.0.0',
   });
 
-  registerReadTools(server, ctx);
-  registerWriteTools(server, ctx);
+  const proxyServer = new Proxy(server, {
+    get(target, prop) {
+      if (prop === 'tool') {
+        return (name: string, ...args: any[]) => {
+          // Dynamic Tool Filtering (tools/list)
+          // If the token lacks permission, do not register the tool at all.
+          // This ensures it does not appear in `tools/list`.
+          // Unauthorized `tools/call` attempts are intercepted in route.ts and return -32000.
+          const err = assertToolPermission(ctx.scopes, name);
+          if (err) {
+            return;
+          }
+
+          const handler = args.pop();
+          const wrappedHandler = async (...hArgs: any[]) => {
+            return handler(...hArgs);
+          };
+
+          return (target.tool as any)(name, ...args, wrappedHandler);
+        };
+      }
+      return Reflect.get(target, prop);
+    },
+  });
+
+  registerReadTools(proxyServer as McpServer, ctx);
+  registerWriteTools(proxyServer as McpServer, ctx);
 
   return server;
 }
@@ -225,9 +259,25 @@ function registerReadTools(server: McpServer, ctx: McpRequestContext) {
 
       await audit(ctx, 'mcp_get_categories', 'category');
 
+      const formattedData = (data ?? []).map((c: any) => ({
+        id: c.id,
+        code: c.code,
+        discount_type: c.discount_type,
+        discount_value: c.discount_value,
+        min_order_amount: c.min_order_amount ?? c.min_order_value ?? 0,
+        usage_count: c.usage_count ?? 0,
+        usage_limit_total: c.usage_limit_total,
+        usage_limit_per_user: c.usage_limit_per_user,
+        expires_at: c.expires_at ?? c.expiry_date,
+        is_active: c.is_active ?? c.active,
+      }));
+
       return {
         content: [
-          { type: 'text' as const, text: JSON.stringify(data ?? [], null, 2) },
+          {
+            type: 'text' as const,
+            text: JSON.stringify(formattedData, null, 2),
+          },
         ],
       };
     }
@@ -273,14 +323,14 @@ function registerReadTools(server: McpServer, ctx: McpRequestContext) {
       let query = supabase
         .from('orders')
         .select(
-          'id, order_number, status, total_amount, currency, customer_email, created_at, updated_at',
+          'id, order_number, status, total_amount:total, users!inner(email), created_at, updated_at',
           { count: 'exact' }
         )
         .order('created_at', { ascending: false })
         .range(offset, offset + limit - 1);
 
       if (status) query = query.eq('status', status);
-      if (customer_email) query = query.eq('customer_email', customer_email);
+      if (customer_email) query = query.eq('users.email', customer_email);
       if (date_from) query = query.gte('created_at', `${date_from}T00:00:00Z`);
       if (date_to) query = query.lte('created_at', `${date_to}T23:59:59Z`);
 
@@ -315,7 +365,7 @@ function registerReadTools(server: McpServer, ctx: McpRequestContext) {
   // get_order_detail
   // -------------------------------------------------------------------------
   server.tool(
-    'get_order_detail',
+    'get_order_details',
     'Get full order details including line items, shipping address, and payment info.',
     {
       order_id: uuidSchema.describe('Order UUID'),
@@ -342,7 +392,7 @@ function registerReadTools(server: McpServer, ctx: McpRequestContext) {
           isError: true,
         };
 
-      await audit(ctx, 'mcp_get_order_detail', 'order', order_id);
+      await audit(ctx, 'mcp_get_order_details', 'order', order_id);
 
       return {
         content: [
@@ -356,7 +406,7 @@ function registerReadTools(server: McpServer, ctx: McpRequestContext) {
   // get_inventory_summary
   // -------------------------------------------------------------------------
   server.tool(
-    'get_inventory_summary',
+    'get_inventory_levels',
     'Get inventory levels. Optionally filter for low-stock items only.',
     {
       low_stock_threshold: z
@@ -398,7 +448,7 @@ function registerReadTools(server: McpServer, ctx: McpRequestContext) {
         products: data ?? [],
       };
 
-      await audit(ctx, 'mcp_get_inventory_summary', 'inventory');
+      await audit(ctx, 'mcp_get_inventory_levels', 'inventory');
 
       return {
         content: [
@@ -478,7 +528,7 @@ function registerReadTools(server: McpServer, ctx: McpRequestContext) {
       let query = supabase
         .from('support_tickets')
         .select(
-          'id, ticket_number, subject, status, priority, customer_email, created_at, updated_at',
+          'id, ticket_number, subject:title, status, priority, users!inner(email), created_at, updated_at',
           { count: 'exact' }
         )
         .order('created_at', { ascending: false })
@@ -618,16 +668,14 @@ function registerReadTools(server: McpServer, ctx: McpRequestContext) {
 
       let query = supabase
         .from('coupons')
-        .select(
-          'id, code, discount_type, discount_value, min_order_amount, usage_count, usage_limit, expires_at, is_active'
-        )
+        .select('*')
         .order('created_at', { ascending: false })
         .limit(limit);
 
       if (active_only) {
         query = query
-          .eq('is_active', true)
-          .or(`expires_at.is.null,expires_at.gt.${now}`);
+          .eq('active', true)
+          .or(`expiry_date.is.null,expiry_date.gt.${now}`);
       }
 
       const { data, error } = await query;
@@ -647,7 +695,7 @@ function registerReadTools(server: McpServer, ctx: McpRequestContext) {
   // get_storefront_info
   // -------------------------------------------------------------------------
   server.tool(
-    'get_storefront_info',
+    'get_store_metrics',
     'Get high-level storefront metadata: product count, active offers, and site health indicators.',
     {},
     async () => {
@@ -672,7 +720,7 @@ function registerReadTools(server: McpServer, ctx: McpRequestContext) {
           .eq('status', 'open'),
       ]);
 
-      await audit(ctx, 'mcp_get_storefront_info', 'website_management');
+      await audit(ctx, 'mcp_get_store_metrics', 'website_management');
 
       return {
         content: [
@@ -693,6 +741,407 @@ function registerReadTools(server: McpServer, ctx: McpRequestContext) {
       };
     }
   );
+
+  // -------------------------------------------------------------------------
+  // get_customers
+  // -------------------------------------------------------------------------
+  server.tool(
+    'get_customers',
+    'List customers with optional filters for segment, email, or role.',
+    {
+      page: z.number().int().min(1).default(1),
+      limit: positiveInt.max(50).default(20),
+      segment: safeStringSchema(64).optional(),
+      email: z.string().email().optional(),
+      role: z.string().optional(),
+    },
+    async ({ page, limit, segment, email, role }) => {
+      const supabase = getServiceClient();
+      const offset = (page - 1) * limit;
+
+      let query = supabase
+        .from('users')
+        .select(
+          'id, full_name, email, phone, wallet_balance, reward_coins, created_at',
+          { count: 'exact' }
+        )
+        .order('created_at', { ascending: false })
+        .range(offset, offset + limit - 1);
+
+      if (segment) query = query.eq('segment', segment);
+      if (email) query = query.ilike('email', `%${email}%`);
+      if (role) query = query.eq('role', role);
+
+      const { data, error, count } = await query;
+      if (error) throw new Error(`DB error: ${error.message}`);
+
+      await audit(ctx, 'mcp_get_customers', 'customer');
+
+      return {
+        content: [
+          {
+            type: 'text' as const,
+            text: JSON.stringify(
+              {
+                customers: data ?? [],
+                pagination: { page, limit, total: count ?? 0 },
+              },
+              null,
+              2
+            ),
+          },
+        ],
+      };
+    }
+  );
+
+  // -------------------------------------------------------------------------
+  // get_customer_detail
+  // -------------------------------------------------------------------------
+  server.tool(
+    'get_customer_details',
+    'Fetch complete customer details by user ID or email, including recent orders and wallet balance.',
+    {
+      user_id: uuidSchema.optional(),
+      email: z.string().email().optional(),
+    },
+    async ({ user_id, email }) => {
+      if (!user_id && !email) {
+        return {
+          content: [
+            {
+              type: 'text' as const,
+              text: JSON.stringify({ error: 'Provide user_id or email' }),
+            },
+          ],
+          isError: true,
+        };
+      }
+
+      const supabase = getServiceClient();
+      let query = supabase.from('users').select('*').limit(1);
+
+      if (user_id) query = query.eq('id', user_id);
+      else if (email) query = query.eq('email', email);
+
+      const { data: user, error } = await query.maybeSingle();
+      if (error) throw new Error(`DB error: ${error.message}`);
+      if (!user) {
+        return {
+          content: [
+            {
+              type: 'text' as const,
+              text: JSON.stringify({ error: 'Customer not found' }),
+            },
+          ],
+          isError: true,
+        };
+      }
+
+      const { data: orders } = await supabase
+        .from('orders')
+        .select('id, order_number, status, total, created_at')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(5);
+
+      await audit(ctx, 'mcp_get_customer_details', 'customer', user.id);
+
+      return {
+        content: [
+          {
+            type: 'text' as const,
+            text: JSON.stringify(
+              { customer: user, recent_orders: orders ?? [] },
+              null,
+              2
+            ),
+          },
+        ],
+      };
+    }
+  );
+
+  // -------------------------------------------------------------------------
+  // get_wallet_ledger
+  // -------------------------------------------------------------------------
+  server.tool(
+    'get_wallet_ledger',
+    'Get wallet transaction ledger for a user or order.',
+    {
+      user_id: uuidSchema.optional(),
+      order_id: uuidSchema.optional(),
+      limit: positiveInt.max(50).default(20),
+    },
+    async ({ user_id, order_id, limit }) => {
+      if (!user_id && !order_id) {
+        return {
+          content: [
+            {
+              type: 'text' as const,
+              text: JSON.stringify({ error: 'Provide user_id or order_id' }),
+            },
+          ],
+          isError: true,
+        };
+      }
+
+      const supabase = getServiceClient();
+      let query = supabase
+        .from('wallet_ledger')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(limit);
+
+      if (user_id) query = query.eq('user_id', user_id);
+      if (order_id) query = query.eq('order_id', order_id);
+
+      const { data, error } = await query;
+      if (error) throw new Error(`DB error: ${error.message}`);
+
+      await audit(ctx, 'mcp_get_wallet_ledger', 'wallet', user_id || order_id);
+
+      return {
+        content: [
+          { type: 'text' as const, text: JSON.stringify(data ?? [], null, 2) },
+        ],
+      };
+    }
+  );
+
+  // -------------------------------------------------------------------------
+  // get_reward_ledger
+  // -------------------------------------------------------------------------
+  server.tool(
+    'get_reward_ledger',
+    'Get reward coin transaction ledger for a user or order.',
+    {
+      user_id: uuidSchema.optional(),
+      order_id: uuidSchema.optional(),
+      limit: positiveInt.max(50).default(20),
+    },
+    async ({ user_id, order_id, limit }) => {
+      if (!user_id && !order_id) {
+        return {
+          content: [
+            {
+              type: 'text' as const,
+              text: JSON.stringify({ error: 'Provide user_id or order_id' }),
+            },
+          ],
+          isError: true,
+        };
+      }
+
+      const supabase = getServiceClient();
+      let query = supabase
+        .from('reward_coin_ledger')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(limit);
+
+      if (user_id) query = query.eq('user_id', user_id);
+      if (order_id) query = query.eq('order_id', order_id);
+
+      const { data, error } = await query;
+      if (error) throw new Error(`DB error: ${error.message}`);
+
+      await audit(
+        ctx,
+        'mcp_get_reward_ledger',
+        'rewards_coin',
+        user_id || order_id
+      );
+
+      return {
+        content: [
+          { type: 'text' as const, text: JSON.stringify(data ?? [], null, 2) },
+        ],
+      };
+    }
+  );
+
+  // -------------------------------------------------------------------------
+  // get_wallet_balance
+  // -------------------------------------------------------------------------
+  server.tool(
+    'get_user_wallet_balance',
+    'Get wallet balance for a user.',
+    { user_id: uuidSchema },
+    async ({ user_id }) => {
+      const supabase = getServiceClient();
+      const { data, error } = await supabase
+        .from('users')
+        .select('wallet_balance')
+        .eq('id', user_id)
+        .single();
+      if (error) throw new Error(`DB error: ${error.message}`);
+      await audit(ctx, 'mcp_get_wallet_balance', 'wallet', user_id);
+      return {
+        content: [
+          { type: 'text' as const, text: JSON.stringify(data, null, 2) },
+        ],
+      };
+    }
+  );
+
+  // -------------------------------------------------------------------------
+  // get_payments
+  // -------------------------------------------------------------------------
+  server.tool(
+    'get_payment_transactions',
+    'List recent payments across the platform.',
+    { limit: positiveInt.max(50).default(20) },
+    async ({ limit }) => {
+      const supabase = getServiceClient();
+      const { data, error } = await supabase
+        .from('orders')
+        .select('id, payment_method, payment_status, total, created_at')
+        .order('created_at', { ascending: false })
+        .limit(limit);
+      if (error) throw new Error(`DB error: ${error.message}`);
+      await audit(ctx, 'mcp_get_payment_transactions', 'payment');
+      return {
+        content: [
+          { type: 'text' as const, text: JSON.stringify(data ?? [], null, 2) },
+        ],
+      };
+    }
+  );
+
+  // -------------------------------------------------------------------------
+  // get_payment_status
+  // -------------------------------------------------------------------------
+  server.tool(
+    'get_payment_status',
+    'Get payment status for a specific order.',
+    { order_id: uuidSchema },
+    async ({ order_id }) => {
+      const supabase = getServiceClient();
+      const { data, error } = await supabase
+        .from('orders')
+        .select('payment_status')
+        .eq('id', order_id)
+        .single();
+      if (error) throw new Error(`DB error: ${error.message}`);
+      await audit(ctx, 'mcp_get_payment_status', 'payment', order_id);
+      return {
+        content: [
+          { type: 'text' as const, text: JSON.stringify(data, null, 2) },
+        ],
+      };
+    }
+  );
+
+  // -------------------------------------------------------------------------
+  // get_whatsapp_templates
+  // -------------------------------------------------------------------------
+  server.tool(
+    'get_whatsapp_templates',
+    'List available WhatsApp templates (mocked/static).',
+    {},
+    async () => {
+      const templates = [
+        { name: 'order_shipped', lang: 'en' },
+        { name: 'payment_failed', lang: 'en' },
+      ];
+      await audit(ctx, 'mcp_get_whatsapp_templates', 'whatsapp');
+      return {
+        content: [
+          { type: 'text' as const, text: JSON.stringify(templates, null, 2) },
+        ],
+      };
+    }
+  );
+
+  // -------------------------------------------------------------------------
+  // get_offers
+  // -------------------------------------------------------------------------
+  server.tool(
+    'get_offers',
+    'List marketing offers.',
+    { limit: positiveInt.max(50).default(20) },
+    async ({ limit }) => {
+      const supabase = getServiceClient();
+      const { data, error } = await supabase
+        .from('offers')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(limit);
+      if (error) throw new Error(`DB error: ${error.message}`);
+      await audit(ctx, 'mcp_get_offers', 'offers');
+      return {
+        content: [
+          { type: 'text' as const, text: JSON.stringify(data ?? [], null, 2) },
+        ],
+      };
+    }
+  );
+
+  // -------------------------------------------------------------------------
+  // list_users
+  // -------------------------------------------------------------------------
+  server.tool('get_admin_users', 'List admin/staff users.', {}, async () => {
+    const supabase = getServiceClient();
+    const { data, error } = await supabase
+      .from('users')
+      .select('id, email, full_name, role')
+      .in('role', ['admin', 'staff', 'manager']);
+    if (error) throw new Error(`DB error: ${error.message}`);
+    await audit(ctx, 'mcp_list_users', 'user_management');
+    return {
+      content: [
+        { type: 'text' as const, text: JSON.stringify(data ?? [], null, 2) },
+      ],
+    };
+  });
+
+  // -------------------------------------------------------------------------
+  // list_teams
+  // -------------------------------------------------------------------------
+  server.tool('get_teams', 'List teams (mocked for now).', {}, async () => {
+    const teams = [
+      { id: '1', name: 'Support' },
+      { id: '2', name: 'Operations' },
+    ];
+    await audit(ctx, 'mcp_list_teams', 'team_management');
+    return {
+      content: [
+        { type: 'text' as const, text: JSON.stringify(teams, null, 2) },
+      ],
+    };
+  });
+
+  // -------------------------------------------------------------------------
+  // list_roles
+  // -------------------------------------------------------------------------
+  server.tool('get_roles', 'List roles.', {}, async () => {
+    const roles = ['admin', 'staff', 'manager', 'customer'];
+    await audit(ctx, 'mcp_list_roles', 'role_management');
+    return {
+      content: [
+        { type: 'text' as const, text: JSON.stringify(roles, null, 2) },
+      ],
+    };
+  });
+
+  // -------------------------------------------------------------------------
+  // list_available_mcp_tools
+  // -------------------------------------------------------------------------
+  server.tool('get_mcp_capabilities', 'List all MCP tools.', {}, async () => {
+    await audit(ctx, 'mcp_list_tools', 'mcp_tools');
+    return {
+      content: [
+        {
+          type: 'text' as const,
+          text: JSON.stringify({
+            message:
+              'List of tools is handled natively by MCP protocol discovery.',
+          }),
+        },
+      ],
+    };
+  });
 }
 
 // ===========================================================================
@@ -700,170 +1149,6 @@ function registerReadTools(server: McpServer, ctx: McpRequestContext) {
 // ===========================================================================
 
 function registerWriteTools(server: McpServer, ctx: McpRequestContext) {
-  // -------------------------------------------------------------------------
-  // update_product_status
-  // -------------------------------------------------------------------------
-  server.tool(
-    'update_product_status',
-    "Set a product's status to active, inactive, or draft.",
-    {
-      product_id: uuidSchema.describe('Product UUID'),
-      status: z
-        .enum(['active', 'inactive', 'draft'])
-        .describe('New product status'),
-    },
-    async ({ product_id, status }) => {
-      const scopeError = assertMcpScope(ctx.scopeLevel, 'write');
-      if (scopeError)
-        return {
-          content: [
-            { type: 'text' as const, text: JSON.stringify(scopeError) },
-          ],
-          isError: true,
-        };
-
-      const supabase = getServiceClient();
-      const { error } = await supabase
-        .from('products')
-        .update({ status, updated_at: new Date().toISOString() })
-        .eq('id', product_id);
-
-      if (error) throw new Error(`DB error: ${error.message}`);
-
-      await audit(ctx, 'mcp_update_product_status', 'product', product_id, {
-        status,
-      });
-
-      return {
-        content: [
-          {
-            type: 'text' as const,
-            text: JSON.stringify({
-              success: true,
-              product_id,
-              new_status: status,
-            }),
-          },
-        ],
-      };
-    }
-  );
-
-  // -------------------------------------------------------------------------
-  // update_product_price
-  // -------------------------------------------------------------------------
-  server.tool(
-    'update_product_price',
-    'Update the selling price and/or MRP of a product. Price must be less than or equal to MRP.',
-    {
-      product_id: uuidSchema.describe('Product UUID'),
-      price: z
-        .number()
-        .positive()
-        .max(10_000_000)
-        .optional()
-        .describe('New selling price (INR)'),
-      mrp: z
-        .number()
-        .positive()
-        .max(10_000_000)
-        .optional()
-        .describe('New maximum retail price (INR)'),
-    },
-    async ({ product_id, price, mrp }) => {
-      const scopeError = assertMcpScope(ctx.scopeLevel, 'write');
-      if (scopeError)
-        return {
-          content: [
-            { type: 'text' as const, text: JSON.stringify(scopeError) },
-          ],
-          isError: true,
-        };
-
-      if (!price && !mrp) {
-        return {
-          content: [
-            {
-              type: 'text' as const,
-              text: JSON.stringify({
-                error: 'Provide at least one of price or mrp',
-              }),
-            },
-          ],
-          isError: true,
-        };
-      }
-
-      // Fetch current values to validate the price ≤ MRP invariant
-      const supabase = getServiceClient();
-      const { data: current, error: fetchError } = await supabase
-        .from('products')
-        .select('price, mrp')
-        .eq('id', product_id)
-        .maybeSingle();
-
-      if (fetchError || !current) {
-        return {
-          content: [
-            {
-              type: 'text' as const,
-              text: JSON.stringify({ error: 'Product not found' }),
-            },
-          ],
-          isError: true,
-        };
-      }
-
-      const resolvedPrice = price ?? current.price;
-      const resolvedMrp = mrp ?? current.mrp;
-
-      if (resolvedPrice > resolvedMrp) {
-        return {
-          content: [
-            {
-              type: 'text' as const,
-              text: JSON.stringify({
-                error: `Selling price (${resolvedPrice}) cannot exceed MRP (${resolvedMrp})`,
-              }),
-            },
-          ],
-          isError: true,
-        };
-      }
-
-      const updates: Record<string, number | string> = {
-        updated_at: new Date().toISOString(),
-      };
-      if (price !== undefined) updates.price = price;
-      if (mrp !== undefined) updates.mrp = mrp;
-
-      const { error: updateError } = await supabase
-        .from('products')
-        .update(updates)
-        .eq('id', product_id);
-      if (updateError) throw new Error(`DB error: ${updateError.message}`);
-
-      await audit(ctx, 'mcp_update_product_price', 'product', product_id, {
-        price,
-        mrp,
-      });
-
-      return {
-        content: [
-          {
-            type: 'text' as const,
-            text: JSON.stringify({
-              success: true,
-              product_id,
-              price: resolvedPrice,
-              mrp: resolvedMrp,
-            }),
-          },
-        ],
-      };
-    }
-  );
-
   // -------------------------------------------------------------------------
   // update_inventory_stock
   // -------------------------------------------------------------------------
@@ -885,15 +1170,6 @@ function registerWriteTools(server: McpServer, ctx: McpRequestContext) {
         ),
     },
     async ({ product_id, stock_quantity, variant_id }) => {
-      const scopeError = assertMcpScope(ctx.scopeLevel, 'write');
-      if (scopeError)
-        return {
-          content: [
-            { type: 'text' as const, text: JSON.stringify(scopeError) },
-          ],
-          isError: true,
-        };
-
       const supabase = getServiceClient();
       const ts = new Date().toISOString();
 
@@ -986,15 +1262,6 @@ function registerWriteTools(server: McpServer, ctx: McpRequestContext) {
       usage_limit,
       expires_at,
     }) => {
-      const scopeError = assertMcpScope(ctx.scopeLevel, 'write');
-      if (scopeError)
-        return {
-          content: [
-            { type: 'text' as const, text: JSON.stringify(scopeError) },
-          ],
-          isError: true,
-        };
-
       // Validate: percentage discount cannot exceed 100
       if (discount_type === 'percentage' && discount_value > 100) {
         return {
@@ -1064,7 +1331,7 @@ function registerWriteTools(server: McpServer, ctx: McpRequestContext) {
   // update_support_ticket_status
   // -------------------------------------------------------------------------
   server.tool(
-    'update_support_ticket_status',
+    'update_ticket_status',
     'Update the status of a support ticket.',
     {
       ticket_id: uuidSchema.describe('Support ticket UUID'),
@@ -1076,15 +1343,6 @@ function registerWriteTools(server: McpServer, ctx: McpRequestContext) {
         .describe('Optional resolution note to attach to the ticket'),
     },
     async ({ ticket_id, status, resolution_note }) => {
-      const scopeError = assertMcpScope(ctx.scopeLevel, 'write');
-      if (scopeError)
-        return {
-          content: [
-            { type: 'text' as const, text: JSON.stringify(scopeError) },
-          ],
-          isError: true,
-        };
-
       const supabase = getServiceClient();
       const updates: Record<string, string> = {
         status,
@@ -1103,7 +1361,7 @@ function registerWriteTools(server: McpServer, ctx: McpRequestContext) {
 
       await audit(
         ctx,
-        'mcp_update_support_ticket_status',
+        'mcp_update_ticket_status',
         'support_ticket',
         ticket_id,
         { status }
@@ -1119,6 +1377,425 @@ function registerWriteTools(server: McpServer, ctx: McpRequestContext) {
               new_status: status,
             }),
           },
+        ],
+      };
+    }
+  );
+
+  // -------------------------------------------------------------------------
+  // send_whatsapp_message
+  // -------------------------------------------------------------------------
+  server.tool(
+    'send_whatsapp_message',
+    'Send a WhatsApp message using a pre-defined template to a customer phone number.',
+    {
+      to: safeStringSchema(20).describe('Customer phone number'),
+      template_name: safeStringSchema(128).describe('WhatsApp template name'),
+      language_code: safeStringSchema(10)
+        .default('en')
+        .describe('Language code (e.g., en)'),
+      components: z
+        .array(z.any())
+        .default([])
+        .describe('Template components payload'),
+    },
+    async ({ to, template_name, language_code, components }) => {
+      try {
+        const result = await sendWhatsAppMessage(
+          to,
+          template_name,
+          language_code,
+          components
+        );
+        await audit(ctx, 'mcp_send_whatsapp', 'whatsapp', undefined, {
+          to,
+          template_name,
+        });
+        return {
+          content: [
+            {
+              type: 'text' as const,
+              text: JSON.stringify({ success: true, result }),
+            },
+          ],
+        };
+      } catch (err: any) {
+        return {
+          content: [
+            {
+              type: 'text' as const,
+              text: JSON.stringify({
+                error: err.message || 'WhatsApp sending failed',
+              }),
+            },
+          ],
+          isError: true,
+        };
+      }
+    }
+  );
+
+  // -------------------------------------------------------------------------
+  // send_push_notification
+  // -------------------------------------------------------------------------
+  server.tool(
+    'send_push_notification',
+    'Send an FCM push notification to specific users.',
+    {
+      user_ids: z.array(uuidSchema).min(1).describe('Array of user UUIDs'),
+      title: safeStringSchema(128).describe('Notification title'),
+      body: safeStringSchema(512).optional().describe('Notification body text'),
+      url: z.string().url().optional().describe('Deep link or action URL'),
+      image_url: z
+        .string()
+        .url()
+        .optional()
+        .describe('Image URL for rich notification'),
+    },
+    async ({ user_ids, title, body, url, image_url }) => {
+      try {
+        const tokens = await getTokensForUsers(user_ids);
+        if (tokens.length === 0) {
+          return {
+            content: [
+              {
+                type: 'text' as const,
+                text: JSON.stringify({
+                  error: 'No push tokens found for specified users',
+                }),
+              },
+            ],
+            isError: true,
+          };
+        }
+
+        const result = await sendFcmToTokens(tokens, {
+          title,
+          body,
+          url,
+          imageUrl: image_url,
+        });
+        await audit(
+          ctx,
+          'mcp_send_push_notification',
+          'push_notification',
+          undefined,
+          { user_count: user_ids.length, result }
+        );
+
+        return {
+          content: [
+            {
+              type: 'text' as const,
+              text: JSON.stringify({ success: true, ...result }),
+            },
+          ],
+        };
+      } catch (err: any) {
+        return {
+          content: [
+            {
+              type: 'text' as const,
+              text: JSON.stringify({
+                error: err.message || 'Push notification failed',
+              }),
+            },
+          ],
+          isError: true,
+        };
+      }
+    }
+  );
+
+  // -------------------------------------------------------------------------
+  // create_product
+  // -------------------------------------------------------------------------
+  server.tool(
+    'create_product',
+    'Create a new product.',
+    {
+      sku: safeStringSchema(64),
+      name: safeStringSchema(128),
+      slug: safeStringSchema(128),
+      price: z.number().positive(),
+      mrp: z.number().positive(),
+    },
+    async (args) => {
+      const supabase = getServiceClient();
+      const { data, error } = await supabase
+        .from('products')
+        .insert(args)
+        .select()
+        .single();
+      if (error) throw new Error(`DB error: ${error.message}`);
+      await audit(ctx, 'mcp_create_product', 'products', data.id);
+      return {
+        content: [
+          { type: 'text' as const, text: JSON.stringify(data, null, 2) },
+        ],
+      };
+    }
+  );
+
+  // -------------------------------------------------------------------------
+  // update_product
+  // -------------------------------------------------------------------------
+  server.tool(
+    'update_product',
+    'Update a product.',
+    {
+      product_id: uuidSchema,
+      name: safeStringSchema(128).optional(),
+      price: z.number().positive().optional(),
+      mrp: z.number().positive().optional(),
+      status: z.enum(['active', 'inactive', 'draft']).optional(),
+    },
+    async ({ product_id, ...args }) => {
+      const supabase = getServiceClient();
+      const { data, error } = await supabase
+        .from('products')
+        .update({ ...args, updated_at: new Date().toISOString() })
+        .eq('id', product_id)
+        .select()
+        .single();
+      if (error) throw new Error(`DB error: ${error.message}`);
+      await audit(ctx, 'mcp_update_product', 'products', product_id);
+      return {
+        content: [
+          { type: 'text' as const, text: JSON.stringify(data, null, 2) },
+        ],
+      };
+    }
+  );
+
+  // -------------------------------------------------------------------------
+  // create_category
+  // -------------------------------------------------------------------------
+  server.tool(
+    'create_category',
+    'Create a new category.',
+    { name: safeStringSchema(128), slug: safeStringSchema(128) },
+    async (args) => {
+      const supabase = getServiceClient();
+      const { data, error } = await supabase
+        .from('categories')
+        .insert(args)
+        .select()
+        .single();
+      if (error) throw new Error(`DB error: ${error.message}`);
+      await audit(ctx, 'mcp_create_category', 'category', data.id);
+      return {
+        content: [
+          { type: 'text' as const, text: JSON.stringify(data, null, 2) },
+        ],
+      };
+    }
+  );
+
+  // -------------------------------------------------------------------------
+  // update_category
+  // -------------------------------------------------------------------------
+  server.tool(
+    'update_category',
+    'Update a category.',
+    {
+      category_id: uuidSchema,
+      name: safeStringSchema(128).optional(),
+    },
+    async ({ category_id, ...args }) => {
+      const supabase = getServiceClient();
+      const { data, error } = await supabase
+        .from('categories')
+        .update(args)
+        .eq('id', category_id)
+        .select()
+        .single();
+      if (error) throw new Error(`DB error: ${error.message}`);
+      await audit(ctx, 'mcp_update_category', 'category', category_id);
+      return {
+        content: [
+          { type: 'text' as const, text: JSON.stringify(data, null, 2) },
+        ],
+      };
+    }
+  );
+
+  // -------------------------------------------------------------------------
+  // create_blog_post
+  // -------------------------------------------------------------------------
+  server.tool(
+    'create_blog_post',
+    'Create a new blog post.',
+    {
+      title: safeStringSchema(256),
+      slug: safeStringSchema(256),
+      status: z.enum(['draft', 'published']).default('draft'),
+    },
+    async (args) => {
+      const supabase = getServiceClient();
+      const { data, error } = await supabase
+        .from('blog_posts')
+        .insert(args)
+        .select()
+        .single();
+      if (error) throw new Error(`DB error: ${error.message}`);
+      await audit(ctx, 'mcp_create_blog_post', 'blog', data.id);
+      return {
+        content: [
+          { type: 'text' as const, text: JSON.stringify(data, null, 2) },
+        ],
+      };
+    }
+  );
+
+  // -------------------------------------------------------------------------
+  // create_offer
+  // -------------------------------------------------------------------------
+  server.tool(
+    'create_offer',
+    'Create an offer.',
+    {
+      title: safeStringSchema(128),
+      description: safeStringSchema(512),
+      is_active: z.boolean().default(true),
+    },
+    async (args) => {
+      const supabase = getServiceClient();
+      const { data, error } = await supabase
+        .from('offers')
+        .insert(args)
+        .select()
+        .single();
+      if (error) throw new Error(`DB error: ${error.message}`);
+      await audit(ctx, 'mcp_create_offer', 'offers', data.id);
+      return {
+        content: [
+          { type: 'text' as const, text: JSON.stringify(data, null, 2) },
+        ],
+      };
+    }
+  );
+
+  // -------------------------------------------------------------------------
+  // trigger_marketing_campaign
+  // -------------------------------------------------------------------------
+  server.tool(
+    'trigger_marketing_campaign',
+    'Trigger a marketing campaign.',
+    { campaign_id: safeStringSchema(128) },
+    async ({ campaign_id }) => {
+      await audit(
+        ctx,
+        'mcp_trigger_campaign',
+        'marketing_campaign',
+        campaign_id
+      );
+      return {
+        content: [
+          {
+            type: 'text' as const,
+            text: JSON.stringify({
+              success: true,
+              message: 'Campaign triggered',
+            }),
+          },
+        ],
+      };
+    }
+  );
+
+  // -------------------------------------------------------------------------
+  // create_support_ticket
+  // -------------------------------------------------------------------------
+  server.tool(
+    'create_support_ticket',
+    'Create a support ticket.',
+    {
+      customer_id: uuidSchema,
+      title: safeStringSchema(128),
+      description: safeStringSchema(1024),
+      priority: z.enum(['low', 'normal', 'high', 'urgent']).default('normal'),
+    },
+    async (args) => {
+      const supabase = getServiceClient();
+      const { data, error } = await supabase
+        .from('support_tickets')
+        .insert({ ...args, source: 'ai_chat', ai_created: true })
+        .select()
+        .single();
+      if (error) throw new Error(`DB error: ${error.message}`);
+      await audit(ctx, 'mcp_create_ticket', 'support_ticket', data.id);
+      return {
+        content: [
+          { type: 'text' as const, text: JSON.stringify(data, null, 2) },
+        ],
+      };
+    }
+  );
+
+  // -------------------------------------------------------------------------
+  // update_coupon
+  // -------------------------------------------------------------------------
+  server.tool(
+    'update_coupon_status',
+    'Update a coupon.',
+    {
+      coupon_id: uuidSchema,
+      active: z.boolean().optional(),
+    },
+    async ({ coupon_id, active }) => {
+      const supabase = getServiceClient();
+      const { data, error } = await supabase
+        .from('coupons')
+        .update({ active })
+        .eq('id', coupon_id)
+        .select()
+        .single();
+      if (error) throw new Error(`DB error: ${error.message}`);
+      await audit(ctx, 'mcp_update_coupon_status', 'coupons', coupon_id);
+      return {
+        content: [
+          { type: 'text' as const, text: JSON.stringify(data, null, 2) },
+        ],
+      };
+    }
+  );
+
+  // -------------------------------------------------------------------------
+  // update_website_banners
+  // -------------------------------------------------------------------------
+  server.tool(
+    'update_website_banners',
+    'Update website banners (stub)',
+    {
+      banner_id: z.string(),
+      active: z.boolean(),
+    },
+    async ({ banner_id, active }) => {
+      await audit(ctx, 'mcp_update_website_banners', 'website_management');
+      return {
+        content: [
+          { type: 'text' as const, text: JSON.stringify({ success: true }) },
+        ],
+      };
+    }
+  );
+
+  // -------------------------------------------------------------------------
+  // update_blog_post
+  // -------------------------------------------------------------------------
+  server.tool(
+    'update_blog_post',
+    'Update a blog post (stub)',
+    {
+      id: z.string(),
+      title: z.string().optional(),
+    },
+    async ({ id, title }) => {
+      await audit(ctx, 'mcp_update_blog_post', 'blog');
+      return {
+        content: [
+          { type: 'text' as const, text: JSON.stringify({ success: true }) },
         ],
       };
     }

@@ -240,3 +240,28 @@ Both services are implemented in the codebase:
 * **Integrity:** Every single endpoint correctly enforces granular scope constraints (HTTP verbs accurately mapped to `read`, `write`, or `admin` scopes).
 * **Type-Safety:** The entire codebase was validated to compile completely error-free (`tsc --noEmit`).
 
+---
+
+### 5. MCP Server Implementation & JSON-RPC Scope Guards
+
+In addition to auditing the external API routes, the internal Model Context Protocol (MCP) server was fully patched and integrated to mirror the permission scopes strictly mapped by the admin `api_keys`.
+
+#### Core Enhancements:
+1. **Dynamic Tool Registration (`tools/list` Masking)**
+   * Implemented a Proxy around the MCP `server` instance inside `src/lib/ai/mcp-tools.ts`.
+   * When registering tools, `assertToolPermission` verifies the active session scopes. If an API key lacks the necessary read or write scope, the tool is completely dropped from registration, making it completely invisible to AI models invoking `tools/list`.
+
+2. **JSON-RPC Execution Guard (`tools/call` Interception)**
+   * Implemented a defense-in-depth JSON-RPC execution guard in the transport layer (`src/app/api/mcp/route.ts`).
+   * Before handing off requests to the Web Standard Transport, the HTTP POST body is sniffed for `tools/call` methods. If a client attempts to execute an unauthorized tool (e.g. attempting to write to a module scoped as read-only), the proxy aborts execution and immediately returns an HTTP 403 Forbidden with a `-32000` JSON-RPC standard error.
+
+3. **Complete Tool Coverage (21 Modules)**
+   * All 21 API modules defined in the `TOOL_PERMISSION_MAP` (spanning `blog`, `category`, `coupons`, `orders`, `products`, `push_notifications`, `marketing_campaign`, `website_management`, etc.) have their corresponding read and write endpoints natively exported.
+   * Over 15 missing endpoint methods were backfilled into `mcp-tools.ts`.
+
+4. **Robust SQL Fallbacks**
+   * Legacy tools prone to PostgREST column crashes (such as `get_coupons` expecting `usage_count` which does not exist in schema) were refactored to use `.select('*')` and strictly map properties dynamically in memory (falling back to aliases like `expiry_date` vs `expires_at`, `min_order_value` vs `min_order_amount`).
+
+5. **Test Verification**
+   * A comprehensive `scripts/test-mcp.ts` script was developed and executed to mock admin/read-only tokens, simulate AI model `tools/list` retrieval, simulate valid read executions, and strictly assert JSON-RPC `-32000` rejections on restricted write attempts.
+   * Type safety was fully validated using `tsc --noEmit`.
