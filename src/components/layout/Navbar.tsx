@@ -346,6 +346,17 @@ export function Navbar() {
                     Wallet
                   </Link>
                   <Link
+                    href="/account/notifications"
+                    className="flex items-center justify-between rounded-lg px-4 py-2.5 text-sm text-slate-700 transition hover:bg-gold-50 hover:text-gold-800"
+                  >
+                    <span>Notifications</span>
+                    {unreadCount > 0 && (
+                      <span className="rounded-full bg-rose-100 px-2 py-0.5 text-xs font-bold text-rose-700">
+                        {unreadCount}
+                      </span>
+                    )}
+                  </Link>
+                  <Link
                     href="/account/support"
                     className="block rounded-lg px-4 py-2.5 text-sm text-slate-700 transition hover:bg-gold-50 hover:text-gold-800"
                   >
