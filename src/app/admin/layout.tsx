@@ -38,7 +38,7 @@ import {
   KeyRound,
   BookOpen,
 } from 'lucide-react';
-import { OrderNotificationCenter } from '@/components/portal-orders/OrderNotificationCenter';
+import { AdminNotificationCenter } from '@/components/admin/AdminNotificationCenter';
 
 interface NavChild {
   label: string;
@@ -547,7 +547,7 @@ export default function AdminLayout({
             >
               <Settings className="h-4 w-4" />
             </Link>
-            <OrderNotificationCenter />
+            <AdminNotificationCenter />
             <div className="mx-1 h-5 w-px bg-white/10" />
             <div className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-full bg-emerald-700 text-xs font-bold text-white">
               {userInitial}

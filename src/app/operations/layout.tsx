@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
+import { useDepartmentNotifications } from '@/hooks/useDepartmentNotifications';
 import {
   LayoutDashboard,
   Package,
@@ -63,6 +64,11 @@ const getOperationsNavGroups = (): NavGroup[] => [
         label: 'Dashboard',
         href: '/operations/dashboard',
         icon: LayoutDashboard,
+      },
+      {
+        label: 'Notifications',
+        href: '/operations/notifications',
+        icon: Bell,
       },
     ],
   },
@@ -263,10 +269,22 @@ function NavLink({ item, collapsed }: { item: NavItem; collapsed: boolean }) {
           }`}
           title={collapsed ? item.label : undefined}
         >
-          <item.icon className="h-4 w-4 flex-shrink-0" />
+          <div className="relative">
+            <item.icon className="h-4 w-4 flex-shrink-0" />
+            {item.badge && collapsed && (
+              <span className="absolute -right-1 -top-1 flex h-3 w-3 items-center justify-center rounded-full bg-indigo-500 text-[8px] font-bold text-white">
+                {parseInt(item.badge) > 9 ? '9+' : item.badge}
+              </span>
+            )}
+          </div>
           {!collapsed && (
             <>
               <span className="flex-1">{item.label}</span>
+              {item.badge && (
+                <span className="flex h-4 items-center justify-center rounded-full bg-indigo-500 px-1.5 text-[10px] font-bold text-white">
+                  {item.badge}
+                </span>
+              )}
               {open ? (
                 <ChevronDown className="h-3 w-3 opacity-60" />
               ) : (
@@ -307,8 +325,24 @@ function NavLink({ item, collapsed }: { item: NavItem; collapsed: boolean }) {
       }`}
       title={collapsed ? item.label : undefined}
     >
-      <item.icon className="h-4 w-4 flex-shrink-0" />
-      {!collapsed && <span className="flex-1">{item.label}</span>}
+      <div className="relative">
+        <item.icon className="h-4 w-4 flex-shrink-0" />
+        {item.badge && collapsed && (
+          <span className="absolute -right-1 -top-1 flex h-3 w-3 items-center justify-center rounded-full bg-indigo-500 text-[8px] font-bold text-white">
+            {parseInt(item.badge) > 9 ? '9+' : item.badge}
+          </span>
+        )}
+      </div>
+      {!collapsed && (
+        <>
+          <span className="flex-1">{item.label}</span>
+          {item.badge && (
+            <span className="flex h-4 items-center justify-center rounded-full bg-indigo-500 px-1.5 text-[10px] font-bold text-white">
+              {item.badge}
+            </span>
+          )}
+        </>
+      )}
     </Link>
   );
 }
@@ -412,6 +446,7 @@ export default function OperationsLayout({
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const { user, profile, signOut } = useAuth();
+  const { unreadCount } = useDepartmentNotifications('operations');
 
   const permissions = profile?.permissions || [];
   const userRole = profile?.role || 'customer';
@@ -436,15 +471,16 @@ export default function OperationsLayout({
       const filteredItems = group.items
         .filter((item) => hasPermission(item.requiredPermission))
         .map((item) => {
-          if (item.children) {
-            return {
-              ...item,
-              children: item.children.filter((child) =>
-                hasPermission(child.requiredPermission)
-              ),
-            };
+          const newItem = { ...item };
+          if (newItem.label === 'Notifications' && unreadCount > 0) {
+            newItem.badge = unreadCount.toString();
           }
-          return item;
+          if (newItem.children) {
+            newItem.children = newItem.children.filter((child) =>
+              hasPermission(child.requiredPermission)
+            );
+          }
+          return newItem;
         });
       return { ...group, items: filteredItems };
     })

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
+import { useDepartmentNotifications } from '@/hooks/useDepartmentNotifications';
 import {
   LayoutDashboard,
   Ticket,
@@ -348,6 +349,9 @@ export default function SupportLayout({
     }
   };
 
+  const { unreadCount: supportUnreadCount } =
+    useDepartmentNotifications('support');
+
   const NAV_GROUPS: NavGroup[] = [
     {
       section: 'OVERVIEW',
@@ -356,6 +360,15 @@ export default function SupportLayout({
           label: 'Dashboard',
           href: '/support/dashboard',
           icon: LayoutDashboard,
+        },
+        {
+          label: 'Notifications',
+          href: '/support/notifications',
+          icon: Bell,
+          badge:
+            supportUnreadCount > 0 ? supportUnreadCount.toString() : undefined,
+          badgeColor:
+            'bg-indigo-500 text-white shadow-[0_0_10px_rgba(99,102,241,0.5)]',
         },
         { label: 'Ticket Queue', href: '/support/tickets', icon: Ticket },
       ],

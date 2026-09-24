@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
+import { useDepartmentNotifications } from '@/hooks/useDepartmentNotifications';
 import {
   LayoutDashboard,
   Activity,
@@ -52,6 +53,7 @@ const NAV_GROUPS: NavGroup[] = [
     section: 'CONTROL CENTER',
     items: [
       { label: 'Dashboard', href: '/tech/dashboard', icon: LayoutDashboard },
+      { label: 'Notifications', href: '/tech/notifications', icon: Bell },
       { label: 'Analytics', href: '/tech/analytics', icon: Activity },
       { label: 'Sentry Logs', href: '/tech/sentry', icon: Server },
     ],
@@ -106,7 +108,14 @@ function NavLink({ item, collapsed }: { item: NavItem; collapsed: boolean }) {
           }`}
           title={collapsed ? item.label : undefined}
         >
-          <item.icon className="h-4 w-4 flex-shrink-0" />
+          <div className="relative">
+            <item.icon className="h-4 w-4 flex-shrink-0" />
+            {item.badge && collapsed && (
+              <span className="absolute -right-1 -top-1 flex h-3 w-3 items-center justify-center rounded-full bg-tech-primary text-[8px] font-bold text-slate-900">
+                {parseInt(item.badge) > 9 ? '9+' : item.badge}
+              </span>
+            )}
+          </div>
           {!collapsed && (
             <>
               <span className="flex-1">{item.label}</span>
@@ -150,7 +159,14 @@ function NavLink({ item, collapsed }: { item: NavItem; collapsed: boolean }) {
       }`}
       title={collapsed ? item.label : undefined}
     >
-      <item.icon className="h-4 w-4 flex-shrink-0" />
+      <div className="relative">
+        <item.icon className="h-4 w-4 flex-shrink-0" />
+        {item.badge && collapsed && (
+          <span className="absolute -right-1 -top-1 flex h-3 w-3 items-center justify-center rounded-full bg-tech-primary text-[8px] font-bold text-slate-900">
+            {parseInt(item.badge) > 9 ? '9+' : item.badge}
+          </span>
+        )}
+      </div>
       {!collapsed && <span className="flex-1">{item.label}</span>}
       {!collapsed && item.badge && (
         <span className="rounded-full bg-tech-primary px-1.5 py-0.5 text-[9px] font-bold text-slate-900 dark:text-white">
@@ -279,14 +295,27 @@ export default function TechLayout({
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const { user, signOut } = useAuth();
+  const { unreadCount } = useDepartmentNotifications('tech');
 
   const userInitial = user?.email?.charAt(0).toUpperCase() || 'T';
   const userEmail = user?.email || '';
 
+  const dynamicNavGroups = NAV_GROUPS.map((group) => {
+    return {
+      ...group,
+      items: group.items.map((item) => {
+        if (item.label === 'Notifications' && unreadCount > 0) {
+          return { ...item, badge: unreadCount.toString() };
+        }
+        return item;
+      }),
+    };
+  });
+
   const sidebarProps = {
     collapsed,
     onToggleCollapsed: () => setCollapsed(!collapsed),
-    navGroups: NAV_GROUPS,
+    navGroups: dynamicNavGroups,
     userInitial,
     userEmail,
     signOut,
