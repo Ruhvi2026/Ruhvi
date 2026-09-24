@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "ruhvi-mobile",
-    "slug": "ruhvi-mobile",
+    "name": "RuhChat",
+    "slug": "ruhchat",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -10,13 +10,15 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "in.ruhvi.chat",
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#0A2F25",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "softwareKeyboardLayoutMode": "resize"
     },
     "web": {
       "favicon": "./assets/favicon.png"

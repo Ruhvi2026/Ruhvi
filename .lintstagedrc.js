@@ -1,10 +1,14 @@
 const path = require('path');
 
 const batchCommands = (filenames, cmd) => {
+  const validFiles = filenames.filter(
+    (f) => !f.includes('ruhvi-mobile_DO_NOT_DELETE')
+  );
+  if (validFiles.length === 0) return [];
   const batchSize = 40;
   const batches = [];
-  for (let i = 0; i < filenames.length; i += batchSize) {
-    const batch = filenames
+  for (let i = 0; i < validFiles.length; i += batchSize) {
+    const batch = validFiles
       .slice(i, i + batchSize)
       .map((f) => `"${path.relative(process.cwd(), f)}"`)
       .join(' ');

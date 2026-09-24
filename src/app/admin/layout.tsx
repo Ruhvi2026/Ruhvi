@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
+import { useUnreadChatCount } from '@/hooks/useUnreadChatCount';
 import {
   LayoutDashboard,
   ShoppingBag,
@@ -37,8 +38,10 @@ import {
   PackageCheck,
   KeyRound,
   BookOpen,
+  MessageCircle,
 } from 'lucide-react';
 import { AdminNotificationCenter } from '@/components/admin/AdminNotificationCenter';
+import FloatingStaffMessenger from '@/components/chat/FloatingStaffMessenger';
 
 interface NavChild {
   label: string;
@@ -237,6 +240,23 @@ const NAV_GROUPS: NavGroup[] = [
     ],
   },
   {
+    section: 'COMMUNICATION',
+    items: [
+      {
+        label: 'Staff Chat',
+        href: '/admin/chat',
+        icon: MessageCircle,
+      },
+      {
+        label: 'Chat & Broadcast',
+        href: '/admin/chat/settings',
+        icon: Megaphone,
+        badge: 'Admin',
+        badgeColor: 'violet',
+      },
+    ],
+  },
+  {
     section: 'ADMIN',
     items: [
       { label: 'Settings', href: '/admin/settings', icon: Settings },
@@ -350,6 +370,29 @@ function NavLink({ item, collapsed }: { item: NavItem; collapsed: boolean }) {
         </span>
       )}
     </Link>
+  );
+}
+
+// Chat icon with live unread count badge & floating messenger toggle
+function ChatIconWithBadge() {
+  const { user } = useAuth();
+  const unread = useUnreadChatCount(user?.uid);
+  return (
+    <button
+      type="button"
+      onClick={() => {
+        window.dispatchEvent(new CustomEvent('toggle-staff-messenger'));
+      }}
+      className="relative rounded-lg p-2 text-slate-500 transition-colors hover:bg-white/5 hover:text-white"
+      title="Staff Messenger (Click to open floating chat window)"
+    >
+      <MessageCircle className="h-4 w-4" />
+      {unread > 0 && (
+        <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-emerald-500 text-[9px] font-bold leading-none text-white">
+          {unread > 9 ? '9+' : unread}
+        </span>
+      )}
+    </button>
   );
 }
 
@@ -548,6 +591,7 @@ export default function AdminLayout({
               <Settings className="h-4 w-4" />
             </Link>
             <AdminNotificationCenter />
+            <ChatIconWithBadge />
             <div className="mx-1 h-5 w-px bg-white/10" />
             <div className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-full bg-emerald-700 text-xs font-bold text-white">
               {userInitial}
@@ -560,6 +604,9 @@ export default function AdminLayout({
           <div className="min-h-full p-4 sm:p-6">{children}</div>
         </main>
       </div>
+
+      {/* Floating Staff Messenger Drawer / Popup Window */}
+      <FloatingStaffMessenger />
     </div>
   );
 }
