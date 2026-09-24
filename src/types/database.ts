@@ -201,6 +201,10 @@ export interface AppNotification {
   message: string;
   read: boolean;
   type?: string;
+  category?: string;
+  reference_type?: string | null;
+  reference_id?: string | null;
+  image_url?: string | null;
   link?: string;
   created_at: string;
 }

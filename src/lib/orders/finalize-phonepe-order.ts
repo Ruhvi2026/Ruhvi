@@ -3,6 +3,7 @@ import { sendOrderConfirmation } from '@/lib/whatsapp';
 import { sendOrderConfirmationEmail } from '@/lib/resend';
 import { debitWalletForOrder } from '@/lib/wallet/debit';
 import { PostHogClient } from '@/lib/posthog';
+import { createAndSendNotification } from '@/lib/notifications/service';
 
 export interface FinalizePhonePeResult {
   status: 'paid' | 'failed' | 'pending' | 'not_found';
@@ -128,7 +129,7 @@ export async function finalizePhonePeOrder(
       }
     }
 
-    // Fire confirmation notifications (WhatsApp + email) asynchronously
+    // Fire confirmation notifications (WhatsApp + email + push) asynchronously
     sendOrderNotifications(supabase, { ...order, ...update }).catch((err) =>
       console.error('Failed to send order notifications:', err)
     );
@@ -259,6 +260,20 @@ async function sendOrderNotifications(supabase: any, order: any) {
 
     sendOrderConfirmationEmail(user.email, emailData).catch((err) =>
       console.error('Failed to send Email confirmation:', err)
+    );
+  }
+
+  if (order.user_id) {
+    createAndSendNotification({
+      userId: order.user_id,
+      title: 'Order Confirmed 🎉',
+      message: `Your order ${orderNumber} has been successfully placed. Thank you for shopping with us!`,
+      category: 'ORDERS',
+      referenceType: 'order',
+      referenceId: order.id,
+      idempotencyKey: `order_confirmed_${order.id}`,
+    }).catch((err) =>
+      console.error('Failed to send in-app notification:', err)
     );
   }
 }

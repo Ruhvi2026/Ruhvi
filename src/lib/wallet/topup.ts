@@ -116,6 +116,20 @@ export async function creditWalletTopUp(
 
   await supabase.from('wallet_topups').update(update).eq('id', topup.id);
 
+  import('@/lib/notifications/service').then(
+    ({ createAndSendNotification }) => {
+      createAndSendNotification({
+        userId: topup.user_id,
+        title: 'Wallet Recharged! 💰',
+        message: `Your wallet has been credited with ₹${topup.amount}${topup.bonus_amount > 0 ? ` plus a ₹${topup.bonus_amount} bonus!` : '.'}`,
+        category: 'WALLET',
+        referenceType: 'wallet_topup',
+        referenceId: topup.id,
+        idempotencyKey: `wallet_topup_success_${topup.id}`,
+      }).catch((err) => console.error('Failed to notify wallet topup:', err));
+    }
+  );
+
   return { status: 'paid', topup };
 }
 

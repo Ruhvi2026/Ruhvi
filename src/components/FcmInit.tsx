@@ -2,9 +2,11 @@
 
 import { useEffect, useRef } from 'react';
 import { useAuth } from '@/context/AuthContext';
+import { useNotifications } from '@/context/NotificationContext';
 import { requestFcmToken, onForegroundMessage } from '@/lib/fcm';
 import { createClient } from '@/lib/supabase/client';
 import toast from 'react-hot-toast';
+import { useRouter } from 'next/navigation';
 
 async function removeFcmTokenFromBackend(token: string) {
   try {
@@ -17,6 +19,8 @@ async function removeFcmTokenFromBackend(token: string) {
 
 export function FcmInit() {
   const { user } = useAuth();
+  const { fetchNotifications } = useNotifications();
+  const router = useRouter();
   const initAttemptedFor = useRef<string | null>(null);
   const currentToken = useRef<string | null>(null);
 
@@ -63,9 +67,51 @@ export function FcmInit() {
 
         onForegroundMessage((payload) => {
           console.log('[FCM] Received foreground message:', payload);
-          toast.success(payload.notification?.title || 'New Notification', {
-            icon: '🔔',
-          });
+          // Refresh the global unread count and notifications context
+          fetchNotifications();
+
+          // Show clickable toast
+          toast.success(
+            (t) => (
+              <div
+                className="cursor-pointer"
+                onClick={() => {
+                  toast.dismiss(t.id);
+                  const data = payload.data || {};
+                  let targetUrl = '/account/notifications';
+                  if (data.url) {
+                    targetUrl = data.url;
+                  } else if (data.category) {
+                    switch (data.category) {
+                      case 'ORDERS':
+                        targetUrl = data.reference_id
+                          ? `/account/orders/${data.reference_id}`
+                          : '/account/orders';
+                        break;
+                      case 'WALLET':
+                        targetUrl = '/account/wallet';
+                        break;
+                      case 'REWARDS':
+                        targetUrl = '/account/coins';
+                        break;
+                      case 'OFFERS':
+                      case 'UPDATES':
+                      default:
+                        targetUrl = '/account/notifications';
+                        break;
+                    }
+                  }
+                  router.push(targetUrl);
+                }}
+              >
+                <div className="font-bold">
+                  {payload.notification?.title || 'New Notification'}
+                </div>
+                <div className="text-sm">{payload.notification?.body}</div>
+              </div>
+            ),
+            { icon: '🔔', duration: 5000 }
+          );
         });
       } catch (error) {
         console.error('[FCM] Setup failed:', error);
@@ -73,7 +119,7 @@ export function FcmInit() {
     };
 
     setupFcm();
-  }, [user]);
+  }, [user, fetchNotifications, router]);
 
   return null;
 }

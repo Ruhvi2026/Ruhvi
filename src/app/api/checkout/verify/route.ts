@@ -10,6 +10,7 @@ import {
   FAILED_STATES,
 } from '@/lib/orders/finalize-phonepe-order';
 import { getSiteUrl } from '@/lib/utils/url';
+import { createAndSendNotification } from '@/lib/notifications/service';
 
 // ---------------------------------------------------------------------------
 // POST — finalize an order placed directly by the client
@@ -89,6 +90,21 @@ export async function POST(req: Request) {
 
       sendOrderConfirmationEmail(user.email, emailData).catch((err) =>
         console.error('Failed to send Email confirmation:', err)
+      );
+    }
+
+    // Send In-App Push Notification
+    if (user?.id) {
+      createAndSendNotification({
+        userId: user.id,
+        title: 'Order Confirmed 🎉',
+        message: `Your order ${orderNumber} has been successfully placed. Thank you for shopping with us!`,
+        category: 'ORDERS',
+        referenceType: 'order',
+        referenceId: newOrder.id,
+        idempotencyKey: `order_confirmed_${newOrder.id}`,
+      }).catch((err) =>
+        console.error('Failed to send in-app notification:', err)
       );
     }
 

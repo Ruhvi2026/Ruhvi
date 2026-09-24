@@ -50,7 +50,14 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { title, message, url, imageUrl, audience } = body;
+    const {
+      title,
+      message,
+      url,
+      imageUrl,
+      audience,
+      category = 'UPDATES',
+    } = body;
 
     if (!title || !message) {
       return NextResponse.json(
@@ -64,7 +71,7 @@ export async function POST(request: Request) {
 
     const { data: tokenRows, error: tokenError } = await supabase
       .from('user_push_tokens')
-      .select('token');
+      .select('token, user_id');
 
     if (tokenError) {
       console.error('Failed to fetch FCM tokens:', tokenError);
@@ -87,7 +94,37 @@ export async function POST(request: Request) {
       body: message,
       url: url || undefined,
       imageUrl: imageUrl || undefined,
+      data: {
+        category,
+      },
     });
+
+    // Bulk insert into notifications table for all unique users
+    const userIds = Array.from(
+      new Set(tokenRows.map((r: any) => r.user_id).filter(Boolean))
+    );
+    if (userIds.length > 0) {
+      const notificationsToInsert = userIds.map((uid) => ({
+        user_id: uid,
+        title,
+        message,
+        category,
+        link: url || null,
+        image_url: imageUrl || null,
+        type: 'broadcast',
+      }));
+
+      const { error: bulkInsertError } = await supabase
+        .from('notifications')
+        .insert(notificationsToInsert);
+
+      if (bulkInsertError) {
+        console.error(
+          '[Admin Notifications] Bulk insert failed:',
+          bulkInsertError
+        );
+      }
+    }
 
     console.log(
       `[FCM] Broadcast complete. Sent: ${fcmResult.sent}, Failed: ${fcmResult.failed}`

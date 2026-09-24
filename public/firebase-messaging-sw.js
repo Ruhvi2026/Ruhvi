@@ -10,6 +10,52 @@ self.addEventListener('activate', (event) => {
   event.waitUntil(self.clients.claim());
 });
 
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  
+  const data = event.notification.data || {};
+  let targetUrl = '/account/notifications';
+  
+  if (data.url) {
+    targetUrl = data.url;
+  } else if (data.category) {
+    switch(data.category) {
+      case 'ORDERS':
+        targetUrl = data.reference_id ? `/account/orders/${data.reference_id}` : '/account/orders';
+        break;
+      case 'WALLET':
+        targetUrl = '/account/wallet';
+        break;
+      case 'REWARDS':
+        targetUrl = '/account/coins';
+        break;
+      case 'OFFERS':
+      case 'UPDATES':
+      case 'PERSONAL':
+      default:
+        targetUrl = '/account/notifications';
+        break;
+    }
+  }
+
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windowClients) => {
+      // Check if there is already a window/tab open
+      for (let i = 0; i < windowClients.length; i++) {
+        const client = windowClients[i];
+        if (client.url && 'focus' in client) {
+          client.focus();
+          return client.navigate(targetUrl);
+        }
+      }
+      // If no window/tab is open, open a new one
+      if (clients.openWindow) {
+        return clients.openWindow(targetUrl);
+      }
+    })
+  );
+});
+
 // Initialize Firebase app asynchronously
 async function initFirebase() {
   try {
@@ -25,6 +71,8 @@ async function initFirebase() {
       const notificationOptions = {
         body: payload.notification?.body,
         icon: '/logo.png',
+        image: payload.notification?.image || payload.data?.imageUrl,
+        data: payload.data || {},
       };
       
       return self.registration.showNotification(notificationTitle, notificationOptions);

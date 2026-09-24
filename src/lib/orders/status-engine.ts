@@ -107,7 +107,7 @@ export async function transitionOrder(
 
   const { data: order, error: fetchError } = await supabase
     .from('orders')
-    .select('id, status, payment_method, payment_status')
+    .select('id, user_id, status, payment_method, payment_status')
     .eq('id', input.orderId)
     .maybeSingle();
 
@@ -193,6 +193,62 @@ export async function transitionOrder(
           from_status: order.status,
         },
       });
+    }
+  }
+
+  if (
+    [
+      'shipped',
+      'out_for_delivery',
+      'delivered',
+      'cancelled',
+      'return_approved',
+      'return_rejected',
+      'refunded',
+    ].includes(input.newStatus)
+  ) {
+    let title = '';
+    let message = '';
+
+    if (input.newStatus === 'shipped') {
+      title = 'Order Shipped 🚚';
+      message = `Your order ${order.id.split('-')[0].toUpperCase()} is on its way!`;
+    } else if (input.newStatus === 'out_for_delivery') {
+      title = 'Out for Delivery 📦';
+      message = `Your order ${order.id.split('-')[0].toUpperCase()} is arriving today!`;
+    } else if (input.newStatus === 'delivered') {
+      title = 'Order Delivered 🎉';
+      message = `Your order ${order.id.split('-')[0].toUpperCase()} has been delivered successfully.`;
+    } else if (input.newStatus === 'cancelled') {
+      title = 'Order Cancelled 🚫';
+      message = `Your order ${order.id.split('-')[0].toUpperCase()} has been cancelled.`;
+    } else if (input.newStatus === 'return_approved') {
+      title = 'Return Approved ✅';
+      message = `Your return request for order ${order.id.split('-')[0].toUpperCase()} has been approved.`;
+    } else if (input.newStatus === 'return_rejected') {
+      title = 'Return Rejected ❌';
+      message = `Your return request for order ${order.id.split('-')[0].toUpperCase()} was not approved.`;
+    } else if (input.newStatus === 'refunded') {
+      title = 'Refund Processed 💸';
+      message = `A refund has been processed for your order ${order.id.split('-')[0].toUpperCase()}.`;
+    }
+
+    if (order.user_id && title) {
+      import('@/lib/notifications/service').then(
+        ({ createAndSendNotification }) => {
+          createAndSendNotification({
+            userId: order.user_id,
+            title,
+            message,
+            category: 'ORDERS',
+            referenceType: 'order',
+            referenceId: order.id,
+            idempotencyKey: `order_${input.newStatus}_${order.id}`,
+          }).catch((err) =>
+            console.error('Failed to send order transition notification', err)
+          );
+        }
+      );
     }
   }
 
