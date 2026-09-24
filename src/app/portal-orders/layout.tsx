@@ -17,7 +17,10 @@ import {
   ChevronRight,
   LogOut,
   Globe,
+  Search,
+  Bell,
 } from 'lucide-react';
+import { OrderNotificationCenter } from '@/components/portal-orders/OrderNotificationCenter';
 
 interface NavChild {
   label: string;
@@ -304,6 +307,7 @@ export default function OrdersPortalLayout({
   const userRoleDisplay = profile?.role
     ? profile.role.replace('_', ' ').toUpperCase()
     : 'USER';
+  const userEmail = profile?.email || user?.email || '';
 
   const sidebarProps = {
     collapsed,
@@ -353,6 +357,32 @@ export default function OrdersPortalLayout({
             >
               <Menu className="h-5 w-5" />
             </button>
+            <div className="relative hidden sm:block">
+              <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-500" />
+              <input
+                type="text"
+                placeholder="Search order #, customer, AWB..."
+                className="w-72 rounded-lg border border-white/10 bg-white/5 py-1.5 pl-9 pr-4 text-xs text-slate-300 placeholder-slate-600 transition-all focus:outline-none focus:ring-1 focus:ring-amber-500"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    const val = (e.target as HTMLInputElement).value;
+                    if (val) {
+                      window.location.href = `/portal-orders/all?search=${encodeURIComponent(val)}`;
+                    }
+                  }
+                }}
+              />
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <OrderNotificationCenter />
+            <div className="mx-1 h-5 w-px bg-white/10" />
+            <div
+              className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-full bg-amber-700 text-xs font-bold text-white"
+              title={userEmail}
+            >
+              {userInitial}
+            </div>
           </div>
         </header>
 

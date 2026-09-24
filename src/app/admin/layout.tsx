@@ -38,6 +38,7 @@ import {
   KeyRound,
   BookOpen,
 } from 'lucide-react';
+import { OrderNotificationCenter } from '@/components/portal-orders/OrderNotificationCenter';
 
 interface NavChild {
   label: string;
@@ -112,7 +113,11 @@ const NAV_GROUPS: NavGroup[] = [
     section: 'MARKETING & SEO',
     items: [
       { label: 'Coupons & Offers', href: '/admin/coupons', icon: Tag },
-      { label: 'Notifications', href: '/admin/notifications', icon: Bell },
+      {
+        label: 'Push Campaigns',
+        href: '/admin/notifications',
+        icon: Megaphone,
+      },
       {
         label: 'Blog Posts',
         icon: BookOpen,
@@ -121,6 +126,18 @@ const NAV_GROUPS: NavGroup[] = [
           { label: 'New Post', href: '/admin/cms/blog/new' },
           { label: 'Review Queue', href: '/admin/cms/blog/review' },
         ],
+      },
+    ],
+  },
+  {
+    section: 'SYSTEM ACTIVITY',
+    items: [
+      {
+        label: 'System Alerts',
+        href: '/admin/system-alerts',
+        icon: Bell,
+        badge: 'New',
+        badgeColor: 'bg-rose-500',
       },
     ],
   },
@@ -530,10 +547,7 @@ export default function AdminLayout({
             >
               <Settings className="h-4 w-4" />
             </Link>
-            <button className="relative rounded-lg p-2 text-slate-500 transition-colors hover:bg-white/5 hover:text-white">
-              <Bell className="h-4 w-4" />
-              <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-emerald-500" />
-            </button>
+            <OrderNotificationCenter />
             <div className="mx-1 h-5 w-px bg-white/10" />
             <div className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-full bg-emerald-700 text-xs font-bold text-white">
               {userInitial}
