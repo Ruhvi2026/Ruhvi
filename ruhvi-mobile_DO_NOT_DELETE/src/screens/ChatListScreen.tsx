@@ -414,15 +414,10 @@ export default function ChatListScreen({ navigation }: any) {
   };
 
   const handleSaveProfile = async () => {
-    if (!editFullName.trim()) {
-      Alert.alert('Error', 'Full name cannot be empty');
-      return;
-    }
     setSavingProfile(true);
     try {
       const { data: updated, error } = await supabase.rpc('update_staff_profile', {
         p_user_id: currentUserId,
-        p_full_name: editFullName.trim(),
         p_bio: editBio.trim(),
       });
       if (error) throw error;
@@ -1039,15 +1034,20 @@ export default function ChatListScreen({ navigation }: any) {
               <View style={styles.profileInputGroup}>
                 <View style={styles.profileInputLabelRow}>
                   <MaterialIcons name="person" size={18} color="#075E54" style={{ marginRight: 6 }} />
-                  <Text style={styles.profileInputLabel}>Full Name</Text>
+                  <Text style={styles.profileInputLabel}>Official Name</Text>
+                  <View style={styles.lockBadge}>
+                    <MaterialIcons name="lock" size={11} color="#718096" style={{ marginRight: 2 }} />
+                    <Text style={styles.lockBadgeText}>Read-Only</Text>
+                  </View>
                 </View>
-                <TextInput
-                  style={styles.profileTextInput}
-                  value={editFullName}
-                  onChangeText={setEditFullName}
-                  placeholder="Enter your full name"
-                  placeholderTextColor="#999"
-                />
+                <View style={styles.readOnlyNameBox}>
+                  <Text style={styles.readOnlyNameText}>
+                    {currentUserProfile?.full_name || currentUserProfile?.email || 'Staff Member'}
+                  </Text>
+                </View>
+                <Text style={styles.readOnlyHint}>
+                  Official name is managed in Supabase and cannot be changed here.
+                </Text>
               </View>
 
               <View style={styles.profileInputGroup}>
@@ -1702,6 +1702,39 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     fontSize: 14,
     color: '#1E293B',
+  },
+  lockBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#EDF2F7',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 6,
+    marginLeft: 6,
+  },
+  lockBadgeText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#718096',
+  },
+  readOnlyNameBox: {
+    backgroundColor: '#F8FAFC',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 11,
+  },
+  readOnlyNameText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#334155',
+  },
+  readOnlyHint: {
+    fontSize: 11,
+    color: '#94A3B8',
+    marginTop: 4,
+    fontStyle: 'italic',
   },
   profileSaveBtn: {
     backgroundColor: '#075E54',
