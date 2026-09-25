@@ -52,6 +52,29 @@ export default function ChatListScreen({ navigation }: any) {
       fetchChats(uid);
     };
     init();
+
+    // Subscribe to live realtime messages & conversations
+    const channel = supabase
+      .channel('chat_list_global_feed')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'chat_messages' },
+        () => {
+          fetchChats();
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'chat_conversations' },
+        () => {
+          fetchChats();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   // Automatically refresh conversations whenever the screen gains focus

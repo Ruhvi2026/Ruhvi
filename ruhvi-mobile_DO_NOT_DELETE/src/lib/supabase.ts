@@ -48,6 +48,9 @@ export const getSupabaseClient = (): SupabaseClient => {
         detectSessionInUrl: false
       }
     });
+    if (currentToken && activeClient.realtime) {
+      activeClient.realtime.setAuth(currentToken);
+    }
   }
   return activeClient;
 };

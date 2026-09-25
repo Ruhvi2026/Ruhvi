@@ -267,6 +267,7 @@ export default function FloatingStaffMessenger() {
   }, [activeConv, loadMessages]);
 
   // Real-time subscription to active conversation messages
+  // Real-time subscription to active conversation messages and read status
   useEffect(() => {
     if (!activeConv || !isOpen || isMinimized) return;
 
@@ -280,7 +281,30 @@ export default function FloatingStaffMessenger() {
           table: 'chat_messages',
           filter: `conversation_id=eq.${activeConv.id}`,
         },
-        async (payload: any) => {
+        async () => {
+          loadMessages(activeConv.id);
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'chat_messages',
+          filter: `conversation_id=eq.${activeConv.id}`,
+        },
+        async () => {
+          loadMessages(activeConv.id);
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'chat_message_reads',
+        },
+        async () => {
           loadMessages(activeConv.id);
         }
       )

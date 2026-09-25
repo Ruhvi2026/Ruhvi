@@ -16,7 +16,7 @@ import {
 import { createClient } from '@/lib/supabase/client';
 import { sendPasswordResetLink, setAuthPassword } from '../actions/auth';
 
-export interface UserRecord {
+interface UserRecord {
   id: string;
   full_name: string | null;
   email: string;
@@ -30,7 +30,7 @@ export interface UserRecord {
   created_at: string;
 }
 
-export interface DepartmentOption {
+interface DepartmentOption {
   key: string;
   name: string;
   subdomain: string;
@@ -39,7 +39,7 @@ export interface DepartmentOption {
   badgeClass: string;
 }
 
-export const DEPARTMENTS_LIST: DepartmentOption[] = [
+const DEPARTMENTS_LIST: DepartmentOption[] = [
   {
     key: 'Operations',
     name: 'Operations',

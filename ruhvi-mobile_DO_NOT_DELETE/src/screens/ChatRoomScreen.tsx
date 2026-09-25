@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { 
   View, 
   Text, 
@@ -46,6 +46,25 @@ export default function ChatRoomScreen({ route, navigation }: any) {
   // In-Chat Search State (WhatsApp style)
   const [isSearchingInChat, setIsSearchingInChat] = useState<boolean>(!!route.params?.initialSearchQuery);
   const [inChatSearchQuery, setInChatSearchQuery] = useState<string>(route.params?.initialSearchQuery || '');
+
+  // Reply State (WhatsApp style)
+  const [replyingTo, setReplyingTo] = useState<ChatMessage | null>(null);
+  const flatListRef = useRef<FlatList>(null);
+  const [actionMenuMessage, setActionMenuMessage] = useState<ChatMessage | null>(null);
+
+  // Order Search (#) & Order Details Modal State
+  const [orderQuery, setOrderQuery] = useState<string | null>(null);
+  const [orderSuggestions, setOrderSuggestions] = useState<any[]>([]);
+  const [loadingOrders, setLoadingOrders] = useState<boolean>(false);
+  const [selectedOrder, setSelectedOrder] = useState<any | null>(null);
+  const [showOrderDetailsModal, setShowOrderDetailsModal] = useState<boolean>(false);
+  const [orderDetailsLoading, setOrderDetailsLoading] = useState<boolean>(false);
+
+  // Mention (@) Modals (User profile & Department)
+  const [selectedStaffUser, setSelectedStaffUser] = useState<any | null>(null);
+  const [showStaffProfileModal, setShowStaffProfileModal] = useState<boolean>(false);
+  const [selectedDept, setSelectedDept] = useState<string | null>(null);
+  const [showDeptModal, setShowDeptModal] = useState<boolean>(false);
 
   // Mentions & Entity References State
   const [staffList, setStaffList] = useState<any[]>([]);
@@ -216,6 +235,16 @@ export default function ChatRoomScreen({ route, navigation }: any) {
             email,
             department
           ),
+          reply_to:reply_to_id (
+            id,
+            text_content,
+            message_type,
+            sender:sender_id (
+              id,
+              full_name,
+              email
+            )
+          ),
           chat_attachments (*),
           chat_entity_references (*),
           chat_message_reads (
@@ -248,7 +277,7 @@ export default function ChatRoomScreen({ route, navigation }: any) {
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'chat_messages', filter: `conversation_id=eq.${id}` },
         async (payload) => {
-          // Fetch full message with attachments & read receipts
+          // Fetch full message with attachments, reply_to & read receipts
           const { data } = await supabase
             .from('chat_messages')
             .select(`
@@ -259,7 +288,18 @@ export default function ChatRoomScreen({ route, navigation }: any) {
                 email,
                 department
               ),
+              reply_to:reply_to_id (
+                id,
+                text_content,
+                message_type,
+                sender:sender_id (
+                  id,
+                  full_name,
+                  email
+                )
+              ),
               chat_attachments (*),
+              chat_entity_references (*),
               chat_message_reads (
                 user_id,
                 read_at
@@ -275,6 +315,13 @@ export default function ChatRoomScreen({ route, navigation }: any) {
             });
             markAsRead();
           }
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'chat_messages', filter: `conversation_id=eq.${id}` },
+        () => {
+          fetchMessages(false);
         }
       )
       .on(
@@ -299,10 +346,35 @@ export default function ChatRoomScreen({ route, navigation }: any) {
     markAsRead();
   }, [fetchMessages, markAsRead]);
 
-  const handleTextChange = (val: string) => {
+  const handleTextChange = async (val: string) => {
     setText(val);
-    const match = val.match(/@([\w.]*)$/);
-    setMentionQuery(match ? match[1] : null);
+
+    // Check for @mention
+    const mentionMatch = val.match(/@([\w.]*)$/);
+    setMentionQuery(mentionMatch ? mentionMatch[1] : null);
+
+    // Check for #order
+    const orderMatch = val.match(/#([\w-]*)$/);
+    if (orderMatch) {
+      const q = orderMatch[1];
+      setOrderQuery(q);
+      setLoadingOrders(true);
+      try {
+        const { data } = await supabase.rpc('search_chat_orders', { p_query: q });
+        if (data && Array.isArray(data)) {
+          setOrderSuggestions(data);
+        } else {
+          setOrderSuggestions([]);
+        }
+      } catch (e) {
+        console.warn('Order search error:', e);
+      } finally {
+        setLoadingOrders(false);
+      }
+    } else {
+      setOrderQuery(null);
+      setOrderSuggestions([]);
+    }
   };
 
   const insertMention = (staffUser: any) => {
@@ -313,6 +385,95 @@ export default function ChatRoomScreen({ route, navigation }: any) {
       setPendingMentions((prev) => (prev.includes(staffUser.id) ? prev : [...prev, staffUser.id]));
     }
     setMentionQuery(null);
+  };
+
+  const insertOrder = (ord: any) => {
+    const orderNum = ord.order_number || ord.id;
+    const newText = text.replace(/#[\w-]*$/, `#${orderNum} `);
+    setText(newText);
+    setPendingEntityRefs((prev) => [
+      ...prev.filter(r => r.entity_id !== orderNum),
+      {
+        entity_type: 'order',
+        entity_id: orderNum,
+        display_label: `Order #${orderNum}`,
+      }
+    ]);
+    setOrderQuery(null);
+    setOrderSuggestions([]);
+  };
+
+  const handleOrderPress = async (orderNumOrId: string) => {
+    const cleanId = orderNumOrId.replace(/^#/, '').trim();
+    setShowOrderDetailsModal(true);
+    setOrderDetailsLoading(true);
+    setSelectedOrder(null);
+    try {
+      const { data, error } = await supabase.rpc('get_chat_order_details', { p_order_id_or_number: cleanId });
+      if (data && !data.error) {
+        setSelectedOrder(data);
+      } else {
+        setSelectedOrder({ order_number: cleanId, not_found: true });
+      }
+    } catch (e: any) {
+      setSelectedOrder({ order_number: cleanId, error: e.message });
+    } finally {
+      setOrderDetailsLoading(false);
+    }
+  };
+
+  const handleMentionPress = async (mentionText: string) => {
+    const clean = mentionText.replace(/^@/, '').trim().toLowerCase();
+    const deptList = ['all', 'operations', 'tech', 'support', 'marketing', 'management', 'orders'];
+    if (deptList.includes(clean)) {
+      setSelectedDept(clean);
+      setShowDeptModal(true);
+    } else {
+      const matched = staffList.find((s) => {
+        const name = (s.full_name || s.email || '').replace(/\s+/g, '').toLowerCase();
+        const emailPrefix = (s.email || '').split('@')[0].toLowerCase();
+        return name.includes(clean) || emailPrefix.includes(clean);
+      });
+      if (matched) {
+        setSelectedStaffUser(matched);
+        setShowStaffProfileModal(true);
+      } else {
+        const { data } = await supabase
+          .from('users')
+          .select('id, full_name, email, role, department, phone_number')
+          .ilike('full_name', `%${clean}%`)
+          .limit(1)
+          .maybeSingle();
+        if (data) {
+          setSelectedStaffUser(data);
+          setShowStaffProfileModal(true);
+        } else {
+          Alert.alert('Mention', `@${mentionText.replace(/^@/, '')}`);
+        }
+      }
+    }
+  };
+
+  const startDirectMessage = async (targetUser: any) => {
+    setShowStaffProfileModal(false);
+    setShowDeptModal(false);
+    let uid = currentUserId || getCurrentUserId();
+    if (!uid) uid = await AsyncStorage.getItem('ruhvi_user_id');
+    if (!uid) return;
+
+    try {
+      const { data: convId, error } = await supabase.rpc('get_or_create_direct_conversation', {
+        p_user_a: uid,
+        p_user_b: targetUser.id,
+      });
+      if (convId) {
+        navigation.push('ChatRoom', { id: convId, isGroup: false });
+      } else if (error) {
+        Alert.alert('Error', error.message || 'Could not start chat');
+      }
+    } catch (err: any) {
+      Alert.alert('Error', err.message);
+    }
   };
 
   const handleAddEntityRef = () => {
@@ -342,6 +503,7 @@ export default function ChatRoomScreen({ route, navigation }: any) {
     }
 
     setSending(true);
+    const replyTargetId = replyingTo ? replyingTo.id : null;
     try {
       const { data, error } = await supabase
         .from('chat_messages')
@@ -350,6 +512,7 @@ export default function ChatRoomScreen({ route, navigation }: any) {
           sender_id: uid,
           message_type: 'text',
           text_content: trimmed || (pendingEntityRefs.length > 0 ? pendingEntityRefs[0].display_label : ''),
+          reply_to_id: replyTargetId,
         })
         .select(`
           *,
@@ -357,6 +520,16 @@ export default function ChatRoomScreen({ route, navigation }: any) {
             id,
             full_name,
             email
+          ),
+          reply_to:reply_to_id (
+            id,
+            text_content,
+            message_type,
+            sender:sender_id (
+              id,
+              full_name,
+              email
+            )
           ),
           chat_attachments (*)
         `)
@@ -387,6 +560,7 @@ export default function ChatRoomScreen({ route, navigation }: any) {
         }
 
         setText('');
+        setReplyingTo(null);
         setPendingEntityRefs([]);
         setPendingMentions([]);
         setMessages((prev) => [data as ChatMessage, ...prev.filter((m) => m.id !== data.id)]);
@@ -614,10 +788,41 @@ export default function ChatRoomScreen({ route, navigation }: any) {
 
     return (
       <View style={[styles.bubbleWrapper, isMe ? styles.myWrapper : styles.otherWrapper]}>
-        <View style={[styles.messageBubble, isMe ? styles.myBubble : styles.otherBubble]}>
+        <TouchableOpacity 
+          activeOpacity={0.92}
+          onLongPress={() => setActionMenuMessage(item)}
+          style={[styles.messageBubble, isMe ? styles.myBubble : styles.otherBubble]}
+        >
           {/* Group sender name */}
           {senderName && (
             <Text style={styles.senderHeader}>{senderName}</Text>
+          )}
+
+          {/* Quoted Reply Message Preview */}
+          {item.reply_to && (
+            <TouchableOpacity 
+              activeOpacity={0.8}
+              onPress={() => {
+                const idx = filteredMessages.findIndex(m => m.id === item.reply_to?.id);
+                if (idx >= 0 && flatListRef.current) {
+                  flatListRef.current.scrollToIndex({ index: idx, animated: true });
+                }
+              }}
+              style={[
+                styles.quotedBubblePreview,
+                isMe ? styles.quotedBubblePreviewMe : styles.quotedBubblePreviewThem
+              ]}
+            >
+              <View style={[styles.quotedAccentBar, isMe ? { backgroundColor: '#128C7E' } : { backgroundColor: '#075E54' }]} />
+              <View style={styles.quotedTextContainer}>
+                <Text style={styles.quotedSenderName} numberOfLines={1}>
+                  {item.reply_to.sender?.full_name || item.reply_to.sender?.email || 'Staff'}
+                </Text>
+                <Text style={styles.quotedContentText} numberOfLines={2}>
+                  {item.reply_to.text_content || (item.reply_to.message_type === 'attachment' ? '📎 Attachment' : 'Message')}
+                </Text>
+              </View>
+            </TouchableOpacity>
           )}
 
           {/* Attachment Render */}
@@ -664,9 +869,15 @@ export default function ChatRoomScreen({ route, navigation }: any) {
             )
           )}
 
-          {/* Text content if text message or caption with clickable links/phone/email */}
+          {/* Text content if text message or caption with clickable links/phone/email/mentions/orders */}
           {(!firstAttach || (item.text_content && item.text_content !== firstAttach.file_name)) && (
-            <AutoLinkText text={item.text_content || ''} style={styles.messageText} isMe={isMe} />
+            <AutoLinkText 
+              text={item.text_content || ''} 
+              style={styles.messageText} 
+              isMe={isMe} 
+              onPressMention={handleMentionPress}
+              onPressOrder={handleOrderPress}
+            />
           )}
 
           {/* Attached Entity References (#Order, #Ticket, #Product) */}
@@ -676,12 +887,21 @@ export default function ChatRoomScreen({ route, navigation }: any) {
                 const iconName = ref.entity_type === 'order' ? 'shopping-bag' : ref.entity_type === 'support_ticket' ? 'confirmation-number' : 'inventory-2';
                 const typeLabel = ref.entity_type === 'order' ? 'Order' : ref.entity_type === 'support_ticket' ? 'Ticket' : 'Product';
                 return (
-                  <View key={idx} style={[styles.entityBadge, isMe ? styles.entityBadgeMe : styles.entityBadgeThem]}>
+                  <TouchableOpacity 
+                    key={idx} 
+                    activeOpacity={0.7}
+                    onPress={() => {
+                      if (ref.entity_type === 'order') {
+                        handleOrderPress(ref.entity_id);
+                      }
+                    }}
+                    style={[styles.entityBadge, isMe ? styles.entityBadgeMe : styles.entityBadgeThem]}
+                  >
                     <MaterialIcons name={iconName} size={12} color={isMe ? '#075E54' : '#128C7E'} style={{ marginRight: 3 }} />
                     <Text style={[styles.entityBadgeText, isMe ? styles.entityBadgeTextMe : styles.entityBadgeTextThem]}>
                       #{typeLabel} {ref.entity_id}
                     </Text>
-                  </View>
+                  </TouchableOpacity>
                 );
               })}
             </View>
@@ -709,7 +929,7 @@ export default function ChatRoomScreen({ route, navigation }: any) {
               )
             )}
           </View>
-        </View>
+        </TouchableOpacity>
       </View>
     );
   };
@@ -766,6 +986,7 @@ export default function ChatRoomScreen({ route, navigation }: any) {
         </View>
       ) : (
         <FlatList
+          ref={flatListRef}
           data={filteredMessages}
           inverted
           keyExtractor={item => item.id}
@@ -802,13 +1023,56 @@ export default function ChatRoomScreen({ route, navigation }: any) {
         </View>
       ) : (
         <View>
-          {/* Mention Suggestions Overlay */}
+          {/* Order Suggestions Overlay (#) */}
+          {orderQuery !== null && (
+            <View style={styles.orderOverlay}>
+              <View style={styles.orderOverlayHeaderRow}>
+                <Text style={styles.mentionHeader}>Recent & Matching Orders</Text>
+                {loadingOrders && <ActivityIndicator size="small" color="#128C7E" />}
+              </View>
+              <ScrollView horizontal={false} style={{ maxHeight: 180 }} keyboardShouldPersistTaps="handled">
+                {orderSuggestions.length === 0 && !loadingOrders ? (
+                  <View style={{ paddingVertical: 12, alignItems: 'center' }}>
+                    <Text style={styles.noOrdersText}>No orders matching "#{orderQuery}"</Text>
+                  </View>
+                ) : (
+                  orderSuggestions.map((ord: any) => (
+                    <TouchableOpacity 
+                      key={ord.id}
+                      style={styles.orderRow}
+                      onPress={() => insertOrder(ord)}
+                    >
+                      <View style={styles.orderIconBox}>
+                        <MaterialIcons name="shopping-bag" size={16} color="#128C7E" />
+                      </View>
+                      <View style={{ flex: 1, marginRight: 8 }}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                          <Text style={styles.orderNumberText}>#{ord.order_number}</Text>
+                          <View style={[styles.orderStatusBadge, { backgroundColor: ord.status === 'delivered' ? '#E8F5E9' : '#FFF3E0' }]}>
+                            <Text style={[styles.orderStatusText, { color: ord.status === 'delivered' ? '#2E7D32' : '#E65100' }]}>
+                              {ord.status || 'processing'}
+                            </Text>
+                          </View>
+                        </View>
+                        <Text style={styles.orderCustomerText} numberOfLines={1}>
+                          {ord.customer_name || 'Customer'}
+                        </Text>
+                      </View>
+                      <Text style={styles.orderAmountText}>₹{ord.total_amount?.toLocaleString?.('en-IN') || ord.total_amount}</Text>
+                    </TouchableOpacity>
+                  ))
+                )}
+              </ScrollView>
+            </View>
+          )}
+
+          {/* Mention Suggestions Overlay (@) */}
           {mentionQuery !== null && (
             <View style={styles.mentionOverlay}>
               <Text style={styles.mentionHeader}>Mention Staff or Department</Text>
               <ScrollView horizontal={false} style={{ maxHeight: 180 }} keyboardShouldPersistTaps="handled">
                 {/* Department presets */}
-                {['All', 'Operations', 'Tech', 'Support', 'Marketing', 'Management']
+                {['All', 'Operations', 'Tech', 'Support', 'Orders', 'Marketing', 'Management']
                   .filter(dept => dept.toLowerCase().includes((mentionQuery || '').toLowerCase()))
                   .map(dept => (
                     <TouchableOpacity 
@@ -852,6 +1116,27 @@ export default function ChatRoomScreen({ route, navigation }: any) {
             </View>
           )}
 
+          {/* WhatsApp-Style Quoted Reply Bar */}
+          {replyingTo && (
+            <View style={styles.replyPreviewBar}>
+              <View style={styles.replyBarAccent} />
+              <View style={styles.replyBarContent}>
+                <Text style={styles.replyBarSender} numberOfLines={1}>
+                  Replying to {replyingTo.sender?.full_name || replyingTo.sender?.email || 'Staff'}
+                </Text>
+                <Text style={styles.replyBarText} numberOfLines={1}>
+                  {replyingTo.text_content || (replyingTo.message_type === 'attachment' ? '📎 Attachment' : 'Message')}
+                </Text>
+              </View>
+              <TouchableOpacity 
+                onPress={() => setReplyingTo(null)}
+                style={styles.replyBarCloseBtn}
+              >
+                <MaterialIcons name="close" size={20} color="#666" />
+              </TouchableOpacity>
+            </View>
+          )}
+
           {/* Pending Attached Entity References Bar */}
           {pendingEntityRefs.length > 0 && (
             <View style={styles.pendingRefsBar}>
@@ -883,7 +1168,7 @@ export default function ChatRoomScreen({ route, navigation }: any) {
                 style={styles.input}
                 value={text}
                 onChangeText={handleTextChange}
-                placeholder="Type a message... (@ for staff, # for refs)"
+                placeholder="Type a message... (@ for staff, # for orders)"
                 placeholderTextColor="#888"
                 multiline
               />
@@ -911,9 +1196,9 @@ export default function ChatRoomScreen({ route, navigation }: any) {
             </View>
 
             <TouchableOpacity 
-              style={[styles.sendButton, (!text.trim() || sending) && styles.sendButtonDisabled]}
+              style={[styles.sendButton, (!text.trim() && pendingEntityRefs.length === 0 || sending) && styles.sendButtonDisabled]}
               onPress={sendMessage}
-              disabled={!text.trim() || sending}
+              disabled={(!text.trim() && pendingEntityRefs.length === 0) || sending}
             >
               {sending ? (
                 <ActivityIndicator size="small" color="#fff" />
@@ -1059,6 +1344,337 @@ export default function ChatRoomScreen({ route, navigation }: any) {
                 <Text style={styles.entityConfirmBtnText}>Attach</Text>
               </TouchableOpacity>
             </View>
+          </View>
+        </TouchableOpacity>
+      </Modal>
+
+      {/* Order Details Modal (#RUH-...) */}
+      <Modal
+        visible={showOrderDetailsModal}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowOrderDetailsModal(false)}
+      >
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPress={() => setShowOrderDetailsModal(false)}
+        >
+          <View style={styles.sheetContainer} onStartShouldSetResponder={() => true}>
+            <View style={styles.sheetHeader}>
+              <View style={styles.sheetHeaderLeft}>
+                <MaterialIcons name="shopping-bag" size={24} color="#128C7E" />
+                <View style={{ marginLeft: 8 }}>
+                  <Text style={styles.sheetTitle}>
+                    {selectedOrder?.order_number ? `#${selectedOrder.order_number}` : 'Order Details'}
+                  </Text>
+                  <Text style={styles.sheetSubtitle}>Staff Order Inspector</Text>
+                </View>
+              </View>
+              <TouchableOpacity onPress={() => setShowOrderDetailsModal(false)} style={styles.sheetCloseBtn}>
+                <MaterialIcons name="close" size={22} color="#666" />
+              </TouchableOpacity>
+            </View>
+
+            {orderDetailsLoading ? (
+              <View style={{ paddingVertical: 40, alignItems: 'center' }}>
+                <ActivityIndicator size="large" color="#128C7E" />
+                <Text style={{ marginTop: 12, color: '#666', fontSize: 13 }}>Loading order information...</Text>
+              </View>
+            ) : selectedOrder?.not_found ? (
+              <View style={{ paddingVertical: 30, alignItems: 'center' }}>
+                <MaterialIcons name="error-outline" size={40} color="#E53E3E" />
+                <Text style={{ marginTop: 8, fontSize: 16, fontWeight: '700', color: '#2D3748' }}>Order Not Found</Text>
+                <Text style={{ marginTop: 4, color: '#718096', fontSize: 13, textAlign: 'center' }}>
+                  No order record matched #{selectedOrder.order_number} in the database.
+                </Text>
+              </View>
+            ) : selectedOrder ? (
+              <ScrollView style={{ maxHeight: 420 }} showsVerticalScrollIndicator={false}>
+                {/* Status & Total pill */}
+                <View style={styles.orderSummaryCard}>
+                  <View>
+                    <Text style={styles.summaryLabel}>Total Amount</Text>
+                    <Text style={styles.summaryAmount}>
+                      ₹{selectedOrder.total_amount?.toLocaleString?.('en-IN') || selectedOrder.total_amount || 0}
+                    </Text>
+                  </View>
+                  <View style={[styles.statusPill, {
+                    backgroundColor: selectedOrder.status === 'delivered' ? '#E8F5E9' : selectedOrder.status === 'shipped' ? '#E3F2FD' : '#FFF3E0'
+                  }]}>
+                    <Text style={[styles.statusPillText, {
+                      color: selectedOrder.status === 'delivered' ? '#2E7D32' : selectedOrder.status === 'shipped' ? '#1565C0' : '#E65100'
+                    }]}>
+                      {(selectedOrder.status || 'processing').toUpperCase()}
+                    </Text>
+                  </View>
+                </View>
+
+                {/* Customer Details */}
+                <View style={styles.sheetInfoSection}>
+                  <Text style={styles.sectionHeaderTitle}>Customer Information</Text>
+                  <View style={styles.infoRow}>
+                    <MaterialIcons name="person" size={18} color="#718096" />
+                    <Text style={styles.infoText}>{selectedOrder.customer_name || 'Guest Customer'}</Text>
+                  </View>
+                  {selectedOrder.customer_email && (
+                    <View style={styles.infoRow}>
+                      <MaterialIcons name="email" size={18} color="#718096" />
+                      <Text style={styles.infoText}>{selectedOrder.customer_email}</Text>
+                    </View>
+                  )}
+                  {selectedOrder.customer_phone && (
+                    <TouchableOpacity 
+                      style={styles.infoRow}
+                      onPress={() => Linking.openURL(`tel:${selectedOrder.customer_phone}`)}
+                    >
+                      <MaterialIcons name="phone" size={18} color="#128C7E" />
+                      <Text style={[styles.infoText, { color: '#128C7E', fontWeight: '600' }]}>
+                        {selectedOrder.customer_phone} (Tap to Call)
+                      </Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
+
+                {/* Payment & Shipping */}
+                <View style={styles.sheetInfoSection}>
+                  <Text style={styles.sectionHeaderTitle}>Payment & Logistics</Text>
+                  <View style={styles.infoRow}>
+                    <MaterialIcons name="payment" size={18} color="#718096" />
+                    <Text style={styles.infoText}>
+                      Payment: {selectedOrder.payment_status ? selectedOrder.payment_status.toUpperCase() : 'PENDING'} 
+                      {selectedOrder.payment_method ? ` (${selectedOrder.payment_method})` : ''}
+                    </Text>
+                  </View>
+                  {selectedOrder.shipping_address && (
+                    <View style={styles.infoRow}>
+                      <MaterialIcons name="location-on" size={18} color="#718096" />
+                      <Text style={styles.infoText} numberOfLines={3}>
+                        {typeof selectedOrder.shipping_address === 'string' 
+                          ? selectedOrder.shipping_address 
+                          : `${selectedOrder.shipping_address.address_line_1 || ''}, ${selectedOrder.shipping_address.city || ''} ${selectedOrder.shipping_address.postal_code || ''}`}
+                      </Text>
+                    </View>
+                  )}
+                  {selectedOrder.created_at && (
+                    <View style={styles.infoRow}>
+                      <MaterialIcons name="access-time" size={18} color="#718096" />
+                      <Text style={styles.infoText}>
+                        Placed on {new Date(selectedOrder.created_at).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}
+                      </Text>
+                    </View>
+                  )}
+                </View>
+
+                {/* Dashboard Action */}
+                <TouchableOpacity
+                  style={styles.primaryActionButton}
+                  onPress={() => {
+                    setShowOrderDetailsModal(false);
+                    Linking.openURL(`https://ruhvi.in/admin/orders?q=${selectedOrder.order_number}`);
+                  }}
+                >
+                  <MaterialIcons name="open-in-new" size={18} color="#fff" style={{ marginRight: 6 }} />
+                  <Text style={styles.primaryActionButtonText}>Open Order in Dashboard</Text>
+                </TouchableOpacity>
+              </ScrollView>
+            ) : null}
+          </View>
+        </TouchableOpacity>
+      </Modal>
+
+      {/* Staff User Profile Modal (@User) */}
+      <Modal
+        visible={showStaffProfileModal}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowStaffProfileModal(false)}
+      >
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPress={() => setShowStaffProfileModal(false)}
+        >
+          <View style={styles.sheetContainer} onStartShouldSetResponder={() => true}>
+            <View style={styles.sheetHeader}>
+              <View style={styles.sheetHeaderLeft}>
+                <View style={styles.profileAvatarLarge}>
+                  <Text style={styles.profileAvatarLargeText}>
+                    {((selectedStaffUser?.full_name || selectedStaffUser?.email || '?')[0]).toUpperCase()}
+                  </Text>
+                </View>
+                <View style={{ marginLeft: 10 }}>
+                  <Text style={styles.sheetTitle}>
+                    {selectedStaffUser?.full_name || selectedStaffUser?.email?.split('@')[0] || 'Staff Member'}
+                  </Text>
+                  <Text style={styles.sheetSubtitle}>{selectedStaffUser?.email}</Text>
+                </View>
+              </View>
+              <TouchableOpacity onPress={() => setShowStaffProfileModal(false)} style={styles.sheetCloseBtn}>
+                <MaterialIcons name="close" size={22} color="#666" />
+              </TouchableOpacity>
+            </View>
+
+            <View style={{ paddingVertical: 14 }}>
+              <View style={{ flexDirection: 'row', gap: 8, marginBottom: 16 }}>
+                <View style={styles.roleChip}>
+                  <Text style={styles.roleChipText}>
+                    {(selectedStaffUser?.role || 'staff').replace('_', ' ').toUpperCase()}
+                  </Text>
+                </View>
+                {selectedStaffUser?.department && (
+                  <View style={[styles.roleChip, { backgroundColor: '#E0F2F1' }]}>
+                    <Text style={[styles.roleChipText, { color: '#004D40' }]}>
+                      {selectedStaffUser.department.toUpperCase()} DEPT
+                    </Text>
+                  </View>
+                )}
+              </View>
+
+              {selectedStaffUser?.phone_number && (
+                <View style={[styles.infoRow, { marginBottom: 12 }]}>
+                  <MaterialIcons name="phone" size={18} color="#128C7E" />
+                  <Text style={styles.infoText}>{selectedStaffUser.phone_number}</Text>
+                </View>
+              )}
+
+              {selectedStaffUser?.id !== currentUserId && (
+                <TouchableOpacity
+                  style={styles.primaryActionButton}
+                  onPress={() => startDirectMessage(selectedStaffUser)}
+                >
+                  <MaterialIcons name="chat" size={18} color="#fff" style={{ marginRight: 6 }} />
+                  <Text style={styles.primaryActionButtonText}>Send Direct Message</Text>
+                </TouchableOpacity>
+              )}
+            </View>
+          </View>
+        </TouchableOpacity>
+      </Modal>
+
+      {/* Department Broadcast & Details Modal (@Department) */}
+      <Modal
+        visible={showDeptModal}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowDeptModal(false)}
+      >
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPress={() => setShowDeptModal(false)}
+        >
+          <View style={styles.sheetContainer} onStartShouldSetResponder={() => true}>
+            <View style={styles.sheetHeader}>
+              <View style={styles.sheetHeaderLeft}>
+                <View style={[styles.profileAvatarLarge, { backgroundColor: '#128C7E' }]}>
+                  <MaterialIcons name="corporate-fare" size={24} color="#fff" />
+                </View>
+                <View style={{ marginLeft: 10 }}>
+                  <Text style={styles.sheetTitle}>
+                    @{selectedDept ? selectedDept.toUpperCase() : 'DEPARTMENT'}
+                  </Text>
+                  <Text style={styles.sheetSubtitle}>Internal Department Channel</Text>
+                </View>
+              </View>
+              <TouchableOpacity onPress={() => setShowDeptModal(false)} style={styles.sheetCloseBtn}>
+                <MaterialIcons name="close" size={22} color="#666" />
+              </TouchableOpacity>
+            </View>
+
+            <View style={{ paddingVertical: 12 }}>
+              <Text style={styles.sectionHeaderTitle}>Department Members</Text>
+              <ScrollView style={{ maxHeight: 240 }} showsVerticalScrollIndicator={false}>
+                {staffList
+                  .filter(s => selectedDept === 'all' || (s.department && s.department.toLowerCase() === selectedDept))
+                  .length === 0 ? (
+                    <Text style={{ color: '#888', fontStyle: 'italic', paddingVertical: 8 }}>
+                      No members assigned to {selectedDept} yet.
+                    </Text>
+                  ) : (
+                    staffList
+                      .filter(s => selectedDept === 'all' || (s.department && s.department.toLowerCase() === selectedDept))
+                      .map(member => (
+                        <TouchableOpacity
+                          key={member.id}
+                          style={styles.deptMemberRow}
+                          onPress={() => {
+                            setShowDeptModal(false);
+                            startDirectMessage(member);
+                          }}
+                        >
+                          <View style={styles.mentionAvatar}>
+                            <Text style={styles.mentionAvatarText}>
+                              {(member.full_name || member.email)[0].toUpperCase()}
+                            </Text>
+                          </View>
+                          <View style={{ flex: 1 }}>
+                            <Text style={styles.mentionNameText}>{member.full_name || member.email}</Text>
+                            <Text style={styles.mentionRoleText}>{member.role || 'Staff'}</Text>
+                          </View>
+                          <MaterialIcons name="chat-bubble-outline" size={18} color="#128C7E" />
+                        </TouchableOpacity>
+                      ))
+                  )}
+              </ScrollView>
+            </View>
+          </View>
+        </TouchableOpacity>
+      </Modal>
+
+      {/* WhatsApp-Style Message Quick Actions Sheet */}
+      <Modal
+        visible={!!actionMenuMessage}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setActionMenuMessage(null)}
+      >
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPress={() => setActionMenuMessage(null)}
+        >
+          <View style={styles.sheetContainer} onStartShouldSetResponder={() => true}>
+            <View style={styles.actionMenuHeader}>
+              <Text style={styles.actionMenuTitle} numberOfLines={1}>
+                {actionMenuMessage?.text_content || 'Message Options'}
+              </Text>
+            </View>
+
+            <TouchableOpacity
+              style={styles.actionMenuItem}
+              onPress={() => {
+                if (actionMenuMessage) {
+                  setReplyingTo(actionMenuMessage);
+                }
+                setActionMenuMessage(null);
+              }}
+            >
+              <MaterialIcons name="reply" size={22} color="#128C7E" style={{ marginRight: 12 }} />
+              <Text style={styles.actionMenuItemText}>Reply to message</Text>
+            </TouchableOpacity>
+
+            {actionMenuMessage?.sender_id !== currentUserId && actionMenuMessage?.sender && (
+              <TouchableOpacity
+                style={styles.actionMenuItem}
+                onPress={() => {
+                  const targetSender = actionMenuMessage.sender;
+                  setActionMenuMessage(null);
+                  startDirectMessage(targetSender);
+                }}
+              >
+                <MaterialIcons name="person" size={22} color="#128C7E" style={{ marginRight: 12 }} />
+                <Text style={styles.actionMenuItemText}>Message sender directly</Text>
+              </TouchableOpacity>
+            )}
+
+            <TouchableOpacity
+              style={[styles.actionMenuItem, { borderTopWidth: 1, borderTopColor: '#f0f0f0', marginTop: 4 }]}
+              onPress={() => setActionMenuMessage(null)}
+            >
+              <MaterialIcons name="close" size={20} color="#888" style={{ marginRight: 12 }} />
+              <Text style={[styles.actionMenuItemText, { color: '#888' }]}>Cancel</Text>
+            </TouchableOpacity>
           </View>
         </TouchableOpacity>
       </Modal>
@@ -1588,5 +2204,315 @@ const styles = StyleSheet.create({
     color: '#718096',
     marginTop: 8,
     textAlign: 'center',
+  },
+  // Quoted Reply Preview inside Chat Bubble
+  quotedBubblePreview: {
+    flexDirection: 'row',
+    borderRadius: 6,
+    overflow: 'hidden',
+    marginBottom: 6,
+    borderLeftWidth: 4,
+  },
+  quotedBubblePreviewMe: {
+    backgroundColor: 'rgba(0, 0, 0, 0.06)',
+    borderLeftColor: '#128C7E',
+  },
+  quotedBubblePreviewThem: {
+    backgroundColor: '#F0F4F4',
+    borderLeftColor: '#075E54',
+  },
+  quotedAccentBar: {
+    width: 0,
+  },
+  quotedTextContainer: {
+    paddingHorizontal: 8,
+    paddingVertical: 5,
+    flex: 1,
+  },
+  quotedSenderName: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#075E54',
+    marginBottom: 2,
+  },
+  quotedContentText: {
+    fontSize: 12,
+    color: '#4A5568',
+  },
+  // Reply Bar above Input (WhatsApp Style)
+  replyPreviewBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderTopLeftRadius: 12,
+    borderTopRightRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderLeftWidth: 4,
+    borderLeftColor: '#128C7E',
+    borderTopWidth: 1,
+    borderTopColor: '#E2E8F0',
+    elevation: 3,
+  },
+  replyBarAccent: {
+    width: 0,
+  },
+  replyBarContent: {
+    flex: 1,
+    paddingRight: 8,
+  },
+  replyBarSender: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#128C7E',
+    marginBottom: 2,
+  },
+  replyBarText: {
+    fontSize: 12,
+    color: '#4A5568',
+  },
+  replyBarCloseBtn: {
+    padding: 6,
+  },
+  // Order Suggestions Overlay (#)
+  orderOverlay: {
+    backgroundColor: '#FFFFFF',
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    elevation: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -3 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    maxHeight: 220,
+    paddingHorizontal: 12,
+    paddingTop: 10,
+    paddingBottom: 6,
+  },
+  orderOverlayHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  noOrdersText: {
+    fontSize: 12,
+    color: '#718096',
+    fontStyle: 'italic',
+  },
+  orderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+    borderBottomWidth: 0.5,
+    borderBottomColor: '#EDF2F7',
+  },
+  orderIconBox: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: '#E6FFFA',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 10,
+  },
+  orderNumberText: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#1A202C',
+    marginRight: 6,
+  },
+  orderStatusBadge: {
+    paddingHorizontal: 6,
+    paddingVertical: 1,
+    borderRadius: 8,
+  },
+  orderStatusText: {
+    fontSize: 10,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+  },
+  orderCustomerText: {
+    fontSize: 11,
+    color: '#718096',
+    marginTop: 1,
+  },
+  orderAmountText: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#2D3748',
+  },
+  // Common Bottom Sheet Styles for Order Details & Profile
+  sheetContainer: {
+    backgroundColor: '#FFFFFF',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    paddingHorizontal: 18,
+    paddingTop: 16,
+    paddingBottom: Platform.OS === 'ios' ? 36 : 24,
+    elevation: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    maxHeight: '85%',
+  },
+  sheetHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    borderBottomWidth: 1,
+    borderBottomColor: '#EDF2F7',
+    paddingBottom: 12,
+    marginBottom: 12,
+  },
+  sheetHeaderLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  sheetTitle: {
+    fontSize: 17,
+    fontWeight: '700',
+    color: '#1A202C',
+  },
+  sheetSubtitle: {
+    fontSize: 12,
+    color: '#718096',
+    marginTop: 1,
+  },
+  sheetCloseBtn: {
+    padding: 6,
+  },
+  orderSummaryCard: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#F7FAFC',
+    borderRadius: 12,
+    padding: 14,
+    marginBottom: 14,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  summaryLabel: {
+    fontSize: 11,
+    color: '#718096',
+    fontWeight: '600',
+    textTransform: 'uppercase',
+  },
+  summaryAmount: {
+    fontSize: 22,
+    fontWeight: '800',
+    color: '#1A202C',
+    marginTop: 2,
+  },
+  statusPill: {
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+    borderRadius: 14,
+  },
+  statusPillText: {
+    fontSize: 11,
+    fontWeight: '700',
+    letterSpacing: 0.5,
+  },
+  sheetInfoSection: {
+    backgroundColor: '#F8FAFC',
+    borderRadius: 10,
+    padding: 12,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#EDF2F7',
+  },
+  sectionHeaderTitle: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#4A5568',
+    textTransform: 'uppercase',
+    marginBottom: 8,
+    letterSpacing: 0.5,
+  },
+  infoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 4,
+  },
+  infoText: {
+    fontSize: 13,
+    color: '#2D3748',
+    marginLeft: 10,
+    flex: 1,
+  },
+  primaryActionButton: {
+    backgroundColor: '#128C7E',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    borderRadius: 10,
+    marginTop: 6,
+    elevation: 2,
+  },
+  primaryActionButtonText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  profileAvatarLarge: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#319795',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  profileAvatarLargeText: {
+    color: '#FFFFFF',
+    fontSize: 18,
+    fontWeight: '700',
+  },
+  roleChip: {
+    backgroundColor: '#EDF2F7',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 8,
+  },
+  roleChipText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#4A5568',
+  },
+  deptMemberRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 10,
+    borderBottomWidth: 0.5,
+    borderBottomColor: '#EDF2F7',
+  },
+  // WhatsApp Action Menu Sheet
+  actionMenuHeader: {
+    paddingBottom: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#EDF2F7',
+    marginBottom: 8,
+  },
+  actionMenuTitle: {
+    fontSize: 13,
+    color: '#718096',
+    fontStyle: 'italic',
+  },
+  actionMenuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 6,
+  },
+  actionMenuItemText: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#2D3748',
   },
 });
