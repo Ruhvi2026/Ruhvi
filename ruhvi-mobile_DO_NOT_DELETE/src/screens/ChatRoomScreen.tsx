@@ -26,7 +26,10 @@ import { supabase, getCurrentUserId } from '../lib/supabase';
 import { uploadToCloudinary } from '../lib/cloudinary';
 import { ChatMessage, ChatAttachment } from '../types/chat';
 import AutoLinkText from '../components/AutoLinkText';
+import EmojiPickerModal from '../components/EmojiPickerModal';
 import { triggerLocalNotification, dispatchChatPushNotification } from '../lib/notifications';
+
+const QUICK_REACTIONS = ['👍', '❤️', '😂', '😮', '😢', '🙏'];
 
 export default function ChatRoomScreen({ route, navigation }: any) {
   const { id, isGroup } = route.params;
@@ -93,6 +96,11 @@ export default function ChatRoomScreen({ route, navigation }: any) {
   const [editingGroupTopic, setEditingGroupTopic] = useState<string>('');
   const [groupAvatarUrl, setGroupAvatarUrl] = useState<string | null>(null);
   const [updatingGroup, setUpdatingGroup] = useState<boolean>(false);
+
+  // Emoji Picker & Message Reactions State
+  const [showInputEmojiPicker, setShowInputEmojiPicker] = useState<boolean>(false);
+  const [reactionPickerMessage, setReactionPickerMessage] = useState<ChatMessage | null>(null);
+  const [reactionDetailsMessage, setReactionDetailsMessage] = useState<ChatMessage | null>(null);
 
   useEffect(() => {
     const initAuth = async () => {
@@ -463,6 +471,70 @@ export default function ChatRoomScreen({ route, navigation }: any) {
     });
   }, [conversation, navigation, currentUserId, isSearchingInChat, isGroup]);
 
+  // WhatsApp-Style Message Reaction Toggle
+  const handleToggleReaction = async (messageId: string, emoji: string) => {
+    if (!currentUserId) return;
+
+    const targetMsg = messages.find(m => m.id === messageId);
+    const existingReactions = (targetMsg as any)?.chat_message_reactions || targetMsg?.reactions || [];
+    const myExistingReaction = existingReactions.find(
+      (r: any) => r.user_id === currentUserId && r.emoji === emoji
+    );
+
+    // Optimistic UI update
+    setMessages(prev =>
+      prev.map(m => {
+        if (m.id !== messageId) return m;
+        const currentList = (m as any).chat_message_reactions || m.reactions || [];
+        let updatedList: any[];
+        if (myExistingReaction) {
+          updatedList = currentList.filter(
+            (r: any) => !(r.user_id === currentUserId && r.emoji === emoji)
+          );
+        } else {
+          updatedList = [
+            ...currentList,
+            {
+              id: `temp_${Date.now()}`,
+              message_id: messageId,
+              user_id: currentUserId,
+              emoji,
+              created_at: new Date().toISOString(),
+              user: { id: currentUserId, full_name: 'You' },
+            },
+          ];
+        }
+        return {
+          ...m,
+          reactions: updatedList,
+          chat_message_reactions: updatedList,
+        };
+      })
+    );
+
+    try {
+      if (myExistingReaction) {
+        await supabase
+          .from('chat_message_reactions')
+          .delete()
+          .eq('message_id', messageId)
+          .eq('user_id', currentUserId)
+          .eq('emoji', emoji);
+      } else {
+        await supabase
+          .from('chat_message_reactions')
+          .insert({
+            message_id: messageId,
+            user_id: currentUserId,
+            emoji,
+          });
+      }
+    } catch (err) {
+      console.error('Error toggling reaction:', err);
+      fetchMessages(false);
+    }
+  };
+
   const fetchMessages = useCallback(async (showLoading = true) => {
     if (showLoading) setLoading(true);
     try {
@@ -491,6 +563,18 @@ export default function ChatRoomScreen({ route, navigation }: any) {
           chat_message_reads (
             user_id,
             read_at
+          ),
+          chat_message_reactions (
+            id,
+            message_id,
+            user_id,
+            emoji,
+            created_at,
+            user:user_id (
+              id,
+              full_name,
+              email
+            )
           )
         `)
         .eq('conversation_id', id)
@@ -562,6 +646,18 @@ export default function ChatRoomScreen({ route, navigation }: any) {
               chat_message_reads (
                 user_id,
                 read_at
+              ),
+              chat_message_reactions (
+                id,
+                message_id,
+                user_id,
+                emoji,
+                created_at,
+                user:user_id (
+                  id,
+                  full_name,
+                  email
+                )
               )
             `)
             .eq('id', payload.new.id)
@@ -588,6 +684,14 @@ export default function ChatRoomScreen({ route, navigation }: any) {
         { event: 'INSERT', schema: 'public', table: 'chat_message_reads' },
         () => {
           // When someone reads a message, refresh read receipts live
+          fetchMessages(false);
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'chat_message_reactions' },
+        () => {
+          // Sync reactions live across all devices
           fetchMessages(false);
         }
       )
@@ -1273,6 +1377,44 @@ export default function ChatRoomScreen({ route, navigation }: any) {
               )
             )}
           </View>
+
+          {/* WhatsApp-Style Reactions Row on Message Bubble */}
+          {(() => {
+            const rawReactions = (item as any).chat_message_reactions || item.reactions || [];
+            if (!rawReactions || rawReactions.length === 0) return null;
+
+            const reactMap: Record<string, { count: number; hasMyReaction: boolean }> = {};
+            rawReactions.forEach((r: any) => {
+              if (!reactMap[r.emoji]) {
+                reactMap[r.emoji] = { count: 0, hasMyReaction: false };
+              }
+              reactMap[r.emoji].count += 1;
+              if (r.user_id === currentUserId) {
+                reactMap[r.emoji].hasMyReaction = true;
+              }
+            });
+
+            return (
+              <View style={[styles.reactionsRow, isMe ? styles.reactionsRowMe : styles.reactionsRowThem]}>
+                {Object.entries(reactMap).map(([emoji, val], rIdx) => (
+                  <TouchableOpacity
+                    key={rIdx}
+                    activeOpacity={0.7}
+                    onPress={() => handleToggleReaction(item.id, emoji)}
+                    onLongPress={() => setReactionDetailsMessage(item)}
+                    style={[styles.reactionBubblePill, val.hasMyReaction && styles.reactionBubblePillActive]}
+                  >
+                    <Text style={styles.reactionEmojiText}>{emoji}</Text>
+                    {val.count > 1 && (
+                      <Text style={[styles.reactionCountText, val.hasMyReaction && styles.reactionCountTextActive]}>
+                        {val.count}
+                      </Text>
+                    )}
+                  </TouchableOpacity>
+                ))}
+              </View>
+            );
+          })()}
         </TouchableOpacity>
       </View>
     );
@@ -1545,6 +1687,13 @@ export default function ChatRoomScreen({ route, navigation }: any) {
 
           <View style={styles.inputContainer}>
             <View style={styles.textInputWrapper}>
+              <TouchableOpacity 
+                style={[styles.iconInsideInput, { marginLeft: 2, marginRight: 2 }]}
+                onPress={() => setShowInputEmojiPicker(true)}
+                activeOpacity={0.7}
+              >
+                <MaterialIcons name="sentiment-satisfied-alt" size={24} color="#666" />
+              </TouchableOpacity>
               <TextInput
                 style={styles.input}
                 value={text}
@@ -2016,11 +2165,58 @@ export default function ChatRoomScreen({ route, navigation }: any) {
           onPress={() => setActionMenuMessage(null)}
         >
           <View style={styles.sheetContainer} onStartShouldSetResponder={() => true}>
+            {/* WhatsApp Floating Quick Reactions Bar */}
+            <View style={styles.quickReactionBar}>
+              {QUICK_REACTIONS.map((em, idx) => {
+                const existing = (
+                  (actionMenuMessage as any)?.chat_message_reactions ||
+                  actionMenuMessage?.reactions ||
+                  []
+                ).some((r: any) => r.user_id === currentUserId && r.emoji === em);
+                return (
+                  <TouchableOpacity
+                    key={idx}
+                    style={[styles.quickReactionBtn, existing && styles.quickReactionBtnActive]}
+                    onPress={() => {
+                      if (actionMenuMessage) {
+                        handleToggleReaction(actionMenuMessage.id, em);
+                      }
+                      setActionMenuMessage(null);
+                    }}
+                  >
+                    <Text style={styles.quickReactionEmoji}>{em}</Text>
+                  </TouchableOpacity>
+                );
+              })}
+              <TouchableOpacity
+                style={styles.quickReactionPlusBtn}
+                onPress={() => {
+                  const target = actionMenuMessage;
+                  setActionMenuMessage(null);
+                  setReactionPickerMessage(target);
+                }}
+              >
+                <MaterialIcons name="add" size={20} color="#555" />
+              </TouchableOpacity>
+            </View>
+
             <View style={styles.actionMenuHeader}>
               <Text style={styles.actionMenuTitle} numberOfLines={1}>
                 {actionMenuMessage?.text_content || 'Message Options'}
               </Text>
             </View>
+
+            <TouchableOpacity
+              style={styles.actionMenuItem}
+              onPress={() => {
+                const target = actionMenuMessage;
+                setActionMenuMessage(null);
+                setReactionPickerMessage(target);
+              }}
+            >
+              <MaterialIcons name="add-reaction" size={22} color="#128C7E" style={{ marginRight: 12 }} />
+              <Text style={styles.actionMenuItemText}>React with more emojis...</Text>
+            </TouchableOpacity>
 
             <TouchableOpacity
               style={styles.actionMenuItem}
@@ -2075,6 +2271,91 @@ export default function ChatRoomScreen({ route, navigation }: any) {
               <MaterialIcons name="close" size={20} color="#888" style={{ marginRight: 12 }} />
               <Text style={[styles.actionMenuItemText, { color: '#888' }]}>Cancel</Text>
             </TouchableOpacity>
+          </View>
+        </TouchableOpacity>
+      </Modal>
+
+      {/* Emoji Picker for Input Box */}
+      <EmojiPickerModal
+        visible={showInputEmojiPicker}
+        onClose={() => setShowInputEmojiPicker(false)}
+        onSelectEmoji={(emoji) => setText(prev => prev + emoji)}
+        title="Insert Emoji"
+      />
+
+      {/* Emoji Picker for Message Reactions */}
+      <EmojiPickerModal
+        visible={!!reactionPickerMessage}
+        onClose={() => setReactionPickerMessage(null)}
+        onSelectEmoji={(emoji) => {
+          if (reactionPickerMessage) {
+            handleToggleReaction(reactionPickerMessage.id, emoji);
+          }
+          setReactionPickerMessage(null);
+        }}
+        title="React to Message"
+      />
+
+      {/* WhatsApp Reaction Details Breakdown Modal */}
+      <Modal
+        visible={!!reactionDetailsMessage}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setReactionDetailsMessage(null)}
+      >
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPress={() => setReactionDetailsMessage(null)}
+        >
+          <View style={styles.sheetContainer} onStartShouldSetResponder={() => true}>
+            <View style={styles.sheetHeader}>
+              <View style={styles.sheetHeaderLeft}>
+                <MaterialIcons name="add-reaction" size={22} color="#075E54" style={{ marginRight: 8 }} />
+                <View>
+                  <Text style={styles.sheetTitle}>Reactions</Text>
+                  <Text style={styles.sheetSubtitle}>
+                    {((reactionDetailsMessage as any)?.chat_message_reactions || reactionDetailsMessage?.reactions || []).length} total
+                  </Text>
+                </View>
+              </View>
+              <TouchableOpacity onPress={() => setReactionDetailsMessage(null)} style={styles.sheetCloseBtn}>
+                <MaterialIcons name="close" size={20} color="#718096" />
+              </TouchableOpacity>
+            </View>
+
+            <ScrollView style={{ maxHeight: 300 }}>
+              {(((reactionDetailsMessage as any)?.chat_message_reactions || reactionDetailsMessage?.reactions || []) as any[]).map((r: any, idx: number) => {
+                const isMine = r.user_id === currentUserId;
+                const name = r.user?.full_name || r.user?.email || (isMine ? 'You' : 'Staff Member');
+                return (
+                  <View key={idx} style={styles.reactionDetailRow}>
+                    <Text style={styles.reactionDetailEmoji}>{r.emoji}</Text>
+                    <View style={{ flex: 1, marginLeft: 12 }}>
+                      <Text style={styles.reactionDetailName}>
+                        {name} {isMine && <Text style={{ color: '#075E54', fontWeight: 'bold' }}>(You)</Text>}
+                      </Text>
+                      {r.user?.department && (
+                        <Text style={styles.reactionDetailDept}>{r.user.department}</Text>
+                      )}
+                    </View>
+                    {isMine && (
+                      <TouchableOpacity
+                        onPress={() => {
+                          if (reactionDetailsMessage) {
+                            handleToggleReaction(reactionDetailsMessage.id, r.emoji);
+                          }
+                          setReactionDetailsMessage(null);
+                        }}
+                        style={styles.reactionRemoveBtn}
+                      >
+                        <Text style={styles.reactionRemoveText}>Remove</Text>
+                      </TouchableOpacity>
+                    )}
+                  </View>
+                );
+              })}
+            </ScrollView>
           </View>
         </TouchableOpacity>
       </Modal>
@@ -3202,6 +3483,119 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '600',
     color: '#2D3748',
+  },
+  // WhatsApp Floating Quick Reactions Bar
+  quickReactionBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#F7FAFC',
+    borderRadius: 24,
+    paddingHorizontal: 8,
+    paddingVertical: 6,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  quickReactionBtn: {
+    padding: 6,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  quickReactionBtnActive: {
+    backgroundColor: '#C6F6D5',
+    borderWidth: 1,
+    borderColor: '#38A169',
+  },
+  quickReactionEmoji: {
+    fontSize: 22,
+  },
+  quickReactionPlusBtn: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#EDF2F7',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: 4,
+  },
+  // In-Bubble Reaction Pills
+  reactionsRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 4,
+    marginTop: 4,
+    marginBottom: 2,
+  },
+  reactionsRowMe: {
+    justifyContent: 'flex-end',
+  },
+  reactionsRowThem: {
+    justifyContent: 'flex-start',
+  },
+  reactionBubblePill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    elevation: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.08,
+    shadowRadius: 2,
+  },
+  reactionBubblePillActive: {
+    backgroundColor: '#E7FCE8',
+    borderColor: '#25D366',
+  },
+  reactionEmojiText: {
+    fontSize: 13,
+  },
+  reactionCountText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#4A5568',
+    marginLeft: 3,
+  },
+  reactionCountTextActive: {
+    color: '#075E54',
+  },
+  // Reaction Breakdown Details
+  reactionDetailRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 10,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: '#EDF2F7',
+  },
+  reactionDetailEmoji: {
+    fontSize: 24,
+  },
+  reactionDetailName: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#1A202C',
+  },
+  reactionDetailDept: {
+    fontSize: 12,
+    color: '#718096',
+    marginTop: 1,
+  },
+  reactionRemoveBtn: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    backgroundColor: '#FED7D7',
+    borderRadius: 12,
+  },
+  reactionRemoveText: {
+    fontSize: 12,
+    color: '#C53030',
+    fontWeight: '600',
   },
   // Pinned Message Banner
   pinnedBanner: {

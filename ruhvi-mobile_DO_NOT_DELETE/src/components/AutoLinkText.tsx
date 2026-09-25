@@ -18,7 +18,8 @@ interface Token {
 }
 
 // Regex patterns
-const URL_REGEX = /(?:https?:\/\/|www\.)[^\s<>"'{}|\\^`[\]]+|(?:meet\.google\.com|zoom\.us\/j|teams\.microsoft\.com)\/[^\s<>"'{}|\\^`[\]]+/gi;
+// Matches http(s)://, www., or standard domain patterns (e.g. ruhvi.vercel.app, ruhvi.in, facebook.com)
+const URL_REGEX = /(?:https?:\/\/|www\.)[^\s<>"'{}|\\^`[\]]+|(?:meet\.google\.com|zoom\.us\/j|teams\.microsoft\.com)\/[^\s<>"'{}|\\^`[\]]+|\b(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+(?:com|in|org|net|app|io|co|dev|store|shop|me|site|live|ai|tech|online|xyz|info|biz|edu|gov|us|uk|ca|au|de|fr|ru|jp|cn|club|pro|vip|space|website|agency|world|top|guru|link|news|cloud|mobi|tv|cc|to|global|solutions|digital|today|works|company|community|services|studio|group|design|media|social|network|center|systems|academy|fashion|beauty|care|fit|health|cafe|bar|pub|rest|hotel|travel|page|click|review|express|zone|email|chat)\b(?::\d+)?(?:\/[^\s<>"'{}|\\^`[\]]*)?/gi;
 const EMAIL_REGEX = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
 // Indian & International phone regex
 const PHONE_REGEX = /(?:(?:\+?91[\s-]?)?[6789]\d{4}[\s-]?\d{5}|\b\+?[1-9]\d{0,2}[-.\s]?\(?\d{2,4}\)?[-.\s]?\d{3,4}[-.\s]?\d{3,4}\b)/g;
@@ -44,13 +45,26 @@ export function parseAutoLinks(text: string): Token[] {
   let match: RegExpExecArray | null;
   const urlRe = new RegExp(URL_REGEX.source, 'gi');
   while ((match = urlRe.exec(text)) !== null) {
-    const raw = match[0];
+    // If preceded by @ (e.g., inside an email or handle), skip URL matching
+    if (match.index > 0 && text[match.index - 1] === '@') {
+      continue;
+    }
+
+    let raw = match[0];
+    let startIndex = match.index;
+
+    // Strip trailing punctuation often typed at the end of sentences (e.g., "ruhvi.in.", "google.com?")
+    while (raw.length > 0 && /[.,!?:;)"'\]]$/.test(raw)) {
+      raw = raw.slice(0, -1);
+    }
+    if (!raw) continue;
+
     let href = raw;
     if (!href.startsWith('http://') && !href.startsWith('https://')) {
       href = 'https://' + href;
     }
     matches.push({
-      index: match.index,
+      index: startIndex,
       length: raw.length,
       type: 'url',
       value: raw,

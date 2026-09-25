@@ -19,7 +19,7 @@ interface Token {
 
 // Regex patterns
 const URL_REGEX =
-  /(?:https?:\/\/|www\.)[^\s<>"'{}|\\^`[\]]+|(?:meet\.google\.com|zoom\.us\/j|teams\.microsoft\.com)\/[^\s<>"'{}|\\^`[\]]+/gi;
+  /(?:https?:\/\/|www\.)[^\s<>"'{}|\\^`[\]]+|(?:meet\.google\.com|zoom\.us\/j|teams\.microsoft\.com)\/[^\s<>"'{}|\\^`[\]]+|\b(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+(?:com|in|org|net|app|io|co|dev|store|shop|me|site|live|ai|tech|online|xyz|info|biz|edu|gov|us|uk|ca|au|de|fr|ru|jp|cn|club|pro|vip|space|website|agency|world|top|guru|link|news|cloud|mobi|tv|cc|to|global|solutions|digital|today|works|company|community|services|studio|group|design|media|social|network|center|systems|academy|fashion|beauty|care|fit|health|cafe|bar|pub|rest|hotel|travel|page|click|review|express|zone|email|chat)\b(?::\d+)?(?:\/[^\s<>"'{}|\\^`[\]]*)?/gi;
 const EMAIL_REGEX = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
 // Indian & International phone regex (matches +91 9876543210, 9876543210, +1-800-555-0199, etc.)
 const PHONE_REGEX =
@@ -44,13 +44,24 @@ export function parseAutoLinks(text: string): Token[] {
   let match: RegExpExecArray | null;
   const urlRe = new RegExp(URL_REGEX.source, 'gi');
   while ((match = urlRe.exec(text)) !== null) {
-    const raw = match[0];
+    if (match.index > 0 && text[match.index - 1] === '@') {
+      continue;
+    }
+
+    let raw = match[0];
+    const startIndex = match.index;
+
+    while (raw.length > 0 && /[.,!?:;)"'\]]$/.test(raw)) {
+      raw = raw.slice(0, -1);
+    }
+    if (!raw) continue;
+
     let href = raw;
     if (!href.startsWith('http://') && !href.startsWith('https://')) {
       href = 'https://' + href;
     }
     matches.push({
-      index: match.index,
+      index: startIndex,
       length: raw.length,
       type: 'url',
       value: raw,

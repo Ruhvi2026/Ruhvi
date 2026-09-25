@@ -120,6 +120,7 @@ export interface ChatMessage {
   mentions?: ChatMention[];
   entity_refs?: ChatEntityRef[];
   reactions?: ChatReaction[];
+  chat_message_reactions?: ChatReaction[];
   reply_to?: Pick<ChatMessage, 'id' | 'text_content' | 'sender_id' | 'message_type' | 'sender'>;
   read_by?: string[]; // array of user_ids
   uploading?: boolean;
