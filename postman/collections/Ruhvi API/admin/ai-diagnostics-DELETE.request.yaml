@@ -1,5 +1,0 @@
-$kind: http-request
-name: 'DELETE ai/diagnostics'
-method: DELETE
-url: 'ruhvi.vercel.app/admin/ai/diagnostics'
-order: 8000

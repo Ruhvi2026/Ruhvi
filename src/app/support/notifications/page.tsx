@@ -12,7 +12,6 @@ import {
   Headphones,
   Info,
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 
@@ -88,7 +87,7 @@ export default function SupportNotifications() {
           table: 'notifications',
           filter: 'target_department=eq.support',
         },
-        (payload) => {
+        (payload: any) => {
           setNotifications((prev) => [payload.new as Notification, ...prev]);
         }
       )
@@ -100,7 +99,7 @@ export default function SupportNotifications() {
           table: 'notifications',
           filter: 'target_department=eq.support',
         },
-        (payload) => {
+        (payload: any) => {
           setNotifications((prev) =>
             prev.map((n) =>
               n.id === payload.new.id ? (payload.new as Notification) : n
@@ -200,88 +199,83 @@ export default function SupportNotifications() {
       {/* Notifications List */}
       <div className="overflow-hidden rounded-xl border border-white/10 bg-[#0d0f1a] shadow-sm">
         <div className="divide-y divide-white/5">
-          <AnimatePresence>
-            {filteredNotifications.length > 0 ? (
-              filteredNotifications.map((notif) => {
-                const {
-                  icon: Icon,
-                  color,
-                  bg,
-                } = getIconForCategory(notif.category);
-                return (
-                  <motion.div
-                    key={notif.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, height: 0 }}
-                    className={`flex gap-4 p-4 transition-colors hover:bg-white/5 ${
-                      !notif.read ? 'bg-indigo-500/5' : ''
-                    }`}
+          {filteredNotifications.length > 0 ? (
+            filteredNotifications.map((notif) => {
+              const {
+                icon: Icon,
+                color,
+                bg,
+              } = getIconForCategory(notif.category);
+              return (
+                <div
+                  key={notif.id}
+                  className={`animate-in fade-in flex gap-4 p-4 transition-colors duration-200 hover:bg-white/5 ${
+                    !notif.read ? 'bg-indigo-500/5' : ''
+                  }`}
+                >
+                  <div
+                    className={`mt-1 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full ${bg}`}
                   >
-                    <div
-                      className={`mt-1 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full ${bg}`}
-                    >
-                      <Icon className={`h-5 w-5 ${color}`} />
-                    </div>
+                    <Icon className={`h-5 w-5 ${color}`} />
+                  </div>
 
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-start justify-between gap-4">
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <h4 className="text-sm font-semibold text-slate-200">
-                              {notif.title}
-                            </h4>
-                            {!notif.read && (
-                              <span className="h-2 w-2 rounded-full bg-indigo-500"></span>
-                            )}
-                          </div>
-                          <p className="mt-1 text-sm leading-relaxed text-slate-400">
-                            {notif.message}
-                          </p>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <h4 className="text-sm font-semibold text-slate-200">
+                            {notif.title}
+                          </h4>
+                          {!notif.read && (
+                            <span className="h-2 w-2 rounded-full bg-indigo-500"></span>
+                          )}
                         </div>
-
-                        <div className="flex items-center gap-3">
-                          <span className="flex items-center gap-1 whitespace-nowrap text-xs text-slate-500">
-                            <Clock className="h-3 w-3" />{' '}
-                            {formatTime(notif.created_at)}
-                          </span>
-                        </div>
+                        <p className="mt-1 text-sm leading-relaxed text-slate-400">
+                          {notif.message}
+                        </p>
                       </div>
 
-                      <div className="mt-3 flex items-center gap-3">
-                        <Link
-                          href={getLinkForNotification(notif)}
-                          className="rounded-md border border-white/10 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-white/10"
+                      <div className="flex items-center gap-3">
+                        <span className="flex items-center gap-1 whitespace-nowrap text-xs text-slate-500">
+                          <Clock className="h-3 w-3" />{' '}
+                          {formatTime(notif.created_at)}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="mt-3 flex items-center gap-3">
+                      <Link
+                        href={getLinkForNotification(notif)}
+                        className="rounded-md border border-white/10 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-white/10"
+                      >
+                        View Details
+                      </Link>
+                      {!notif.read && (
+                        <button
+                          onClick={() => markAsRead(notif.id)}
+                          className="text-xs font-medium text-slate-500 transition-colors hover:text-slate-300"
                         >
-                          View Details
-                        </Link>
-                        {!notif.read && (
-                          <button
-                            onClick={() => markAsRead(notif.id)}
-                            className="text-xs font-medium text-slate-500 transition-colors hover:text-slate-300"
-                          >
-                            Mark as read
-                          </button>
-                        )}
-                      </div>
+                          Mark as read
+                        </button>
+                      )}
                     </div>
-                  </motion.div>
-                );
-              })
-            ) : (
-              <div className="flex flex-col items-center p-12 text-center">
-                <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-white/5">
-                  <CheckCircle2 className="h-8 w-8 text-slate-600" />
+                  </div>
                 </div>
-                <h3 className="text-lg font-medium text-slate-300">
-                  No Notifications
-                </h3>
-                <p className="mt-1 text-sm text-slate-500">
-                  You're all caught up in support.
-                </p>
+              );
+            })
+          ) : (
+            <div className="flex flex-col items-center p-12 text-center">
+              <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-white/5">
+                <CheckCircle2 className="h-8 w-8 text-slate-600" />
               </div>
-            )}
-          </AnimatePresence>
+              <h3 className="text-lg font-medium text-slate-300">
+                No Notifications
+              </h3>
+              <p className="mt-1 text-sm text-slate-500">
+                You're all caught up in support.
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </div>

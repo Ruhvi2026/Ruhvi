@@ -1,5 +1,0 @@
-$kind: http-request
-name: 'GET verify'
-method: GET
-url: 'ruhvi.vercel.app/checkout/verify'
-order: 4000

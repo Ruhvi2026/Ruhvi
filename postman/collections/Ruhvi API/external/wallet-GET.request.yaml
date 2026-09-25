@@ -1,5 +1,0 @@
-$kind: http-request
-name: 'GET wallet'
-method: GET
-url: 'ruhvi.vercel.app/external/wallet'
-order: 67000

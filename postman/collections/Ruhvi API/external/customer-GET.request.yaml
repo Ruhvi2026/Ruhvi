@@ -1,5 +1,0 @@
-$kind: http-request
-name: 'GET customer'
-method: GET
-url: 'ruhvi.vercel.app/external/customer'
-order: 17000

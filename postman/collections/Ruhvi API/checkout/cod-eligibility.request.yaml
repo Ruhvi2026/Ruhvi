@@ -1,5 +1,0 @@
-$kind: http-request
-name: 'GET cod-eligibility'
-method: GET
-url: 'ruhvi.vercel.app/checkout/cod-eligibility'
-order: 1000

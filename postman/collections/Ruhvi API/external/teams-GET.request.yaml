@@ -1,5 +1,0 @@
-$kind: http-request
-name: 'GET teams'
-method: GET
-url: 'ruhvi.vercel.app/external/teams'
-order: 59000

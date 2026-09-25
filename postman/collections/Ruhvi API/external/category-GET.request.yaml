@@ -1,5 +1,0 @@
-$kind: http-request
-name: 'GET category'
-method: GET
-url: 'ruhvi.vercel.app/external/category'
-order: 9000

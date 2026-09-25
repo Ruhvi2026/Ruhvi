@@ -1,5 +1,0 @@
-$kind: http-request
-name: 'GET coupons'
-method: GET
-url: 'ruhvi.vercel.app/external/coupons'
-order: 13000

@@ -1,5 +1,0 @@
-$kind: http-request
-name: 'GET publish-blog'
-method: GET
-url: 'ruhvi.vercel.app/cron/publish-blog'
-order: 3000

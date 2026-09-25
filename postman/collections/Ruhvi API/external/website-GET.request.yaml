@@ -1,5 +1,0 @@
-$kind: http-request
-name: 'GET website'
-method: GET
-url: 'ruhvi.vercel.app/external/website'
-order: 71000

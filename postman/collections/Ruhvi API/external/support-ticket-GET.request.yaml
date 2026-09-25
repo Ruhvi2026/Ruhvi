@@ -1,5 +1,0 @@
-$kind: http-request
-name: 'GET support-ticket'
-method: GET
-url: 'ruhvi.vercel.app/external/support-ticket'
-order: 56000

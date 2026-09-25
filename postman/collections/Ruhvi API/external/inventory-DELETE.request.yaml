@@ -1,5 +1,0 @@
-$kind: http-request
-name: 'DELETE inventory'
-method: DELETE
-url: 'ruhvi.vercel.app/external/inventory'
-order: 23000

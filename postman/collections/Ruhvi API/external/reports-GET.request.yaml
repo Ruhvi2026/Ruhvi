@@ -1,5 +1,0 @@
-$kind: http-request
-name: 'GET reports'
-method: GET
-url: 'ruhvi.vercel.app/external/reports'
-order: 44000

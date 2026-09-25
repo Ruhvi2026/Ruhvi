@@ -1,5 +1,0 @@
-$kind: http-request
-name: 'GET payment'
-method: GET
-url: 'ruhvi.vercel.app/external/payment'
-order: 32000

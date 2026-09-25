@@ -1,5 +1,0 @@
-$kind: http-request
-name: 'GET firebase-config'
-method: GET
-url: 'ruhvi.vercel.app/firebase-config'
-order: 1000

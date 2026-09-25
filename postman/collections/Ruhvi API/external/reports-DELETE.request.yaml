@@ -1,5 +1,0 @@
-$kind: http-request
-name: 'DELETE reports'
-method: DELETE
-url: 'ruhvi.vercel.app/external/reports'
-order: 47000

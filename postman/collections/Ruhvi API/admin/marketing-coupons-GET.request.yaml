@@ -1,5 +1,0 @@
-$kind: http-request
-name: 'GET marketing/coupons'
-method: GET
-url: 'ruhvi.vercel.app/admin/marketing/coupons'
-order: 30000

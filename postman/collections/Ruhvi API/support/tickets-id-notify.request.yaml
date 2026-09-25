@@ -1,8 +1,0 @@
-$kind: http-request
-name: 'GET tickets/:id/notify'
-method: GET
-url: 'ruhvi.vercel.app/support/tickets/:id/notify'
-order: 17000
-pathVariables:
-  - key: id
-    value: ''

@@ -1,5 +1,0 @@
-$kind: http-request
-name: 'DELETE campaigns'
-method: DELETE
-url: 'ruhvi.vercel.app/external/campaigns'
-order: 8000

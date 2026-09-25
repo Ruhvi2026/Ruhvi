@@ -1,5 +1,0 @@
-$kind: http-request
-name: 'GET products'
-method: GET
-url: 'ruhvi.vercel.app/products'
-order: 1000

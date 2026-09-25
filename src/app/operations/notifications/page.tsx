@@ -15,7 +15,6 @@ import {
   ShieldAlert,
   Info,
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 
@@ -89,7 +88,7 @@ export default function OperationsNotifications() {
           table: 'notifications',
           filter: 'target_department=eq.operations',
         },
-        (payload) => {
+        (payload: any) => {
           setNotifications((prev) => [payload.new as Notification, ...prev]);
         }
       )
@@ -101,7 +100,7 @@ export default function OperationsNotifications() {
           table: 'notifications',
           filter: 'target_department=eq.operations',
         },
-        (payload) => {
+        (payload: any) => {
           setNotifications((prev) =>
             prev.map((n) =>
               n.id === payload.new.id ? (payload.new as Notification) : n
@@ -201,89 +200,84 @@ export default function OperationsNotifications() {
       {/* Notifications List */}
       <div className="overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
         <div className="divide-y divide-neutral-100 dark:divide-neutral-800">
-          <AnimatePresence>
-            {filteredNotifications.length > 0 ? (
-              filteredNotifications.map((notif) => {
-                const {
-                  icon: Icon,
-                  color,
-                  bg,
-                } = getIconForCategory(notif.category);
-                return (
-                  <motion.div
-                    key={notif.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, height: 0 }}
-                    className={`flex gap-4 p-4 transition-colors hover:bg-neutral-50 dark:hover:bg-neutral-800/50 ${
-                      !notif.read ? 'bg-blue-50/30 dark:bg-blue-900/10' : ''
-                    }`}
+          {filteredNotifications.length > 0 ? (
+            filteredNotifications.map((notif) => {
+              const {
+                icon: Icon,
+                color,
+                bg,
+              } = getIconForCategory(notif.category);
+              return (
+                <div
+                  key={notif.id}
+                  className={`animate-in fade-in flex gap-4 p-4 transition-colors duration-200 hover:bg-neutral-50 dark:hover:bg-neutral-800/50 ${
+                    !notif.read ? 'bg-blue-50/30 dark:bg-blue-900/10' : ''
+                  }`}
+                >
+                  <div
+                    className={`mt-1 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full ${bg}`}
                   >
-                    <div
-                      className={`mt-1 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full ${bg}`}
-                    >
-                      <Icon className={`h-5 w-5 ${color}`} />
-                    </div>
+                    <Icon className={`h-5 w-5 ${color}`} />
+                  </div>
 
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-start justify-between gap-4">
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <h4 className="text-sm font-semibold text-neutral-900 dark:text-white">
-                              {notif.title}
-                            </h4>
-                            {!notif.read && (
-                              <span className="h-2 w-2 rounded-full bg-blue-500"></span>
-                            )}
-                          </div>
-                          <p className="mt-1 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
-                            {notif.message}
-                          </p>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <h4 className="text-sm font-semibold text-neutral-900 dark:text-white">
+                            {notif.title}
+                          </h4>
+                          {!notif.read && (
+                            <span className="h-2 w-2 rounded-full bg-blue-500"></span>
+                          )}
                         </div>
-
-                        <div className="flex items-center gap-3">
-                          <span className="flex items-center gap-1 whitespace-nowrap text-xs text-neutral-400">
-                            <Clock className="h-3 w-3" />{' '}
-                            {formatTime(notif.created_at)}
-                          </span>
-                        </div>
+                        <p className="mt-1 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
+                          {notif.message}
+                        </p>
                       </div>
 
-                      <div className="mt-3 flex items-center gap-3">
-                        <Link
-                          href={getLinkForNotification(notif)}
-                          className="rounded-md border border-neutral-200 px-3 py-1.5 text-xs font-medium text-black transition-colors hover:bg-neutral-50 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-800"
+                      <div className="flex items-center gap-3">
+                        <span className="flex items-center gap-1 whitespace-nowrap text-xs text-neutral-400">
+                          <Clock className="h-3 w-3" />{' '}
+                          {formatTime(notif.created_at)}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="mt-3 flex items-center gap-3">
+                      <Link
+                        href={getLinkForNotification(notif)}
+                        className="rounded-md border border-neutral-200 px-3 py-1.5 text-xs font-medium text-black transition-colors hover:bg-neutral-50 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-800"
+                      >
+                        View Details
+                      </Link>
+                      {!notif.read && (
+                        <button
+                          onClick={() => markAsRead(notif.id)}
+                          className="text-xs font-medium text-neutral-500 transition-colors hover:text-neutral-900 dark:hover:text-white"
                         >
-                          View Details
-                        </Link>
-                        {!notif.read && (
-                          <button
-                            onClick={() => markAsRead(notif.id)}
-                            className="text-xs font-medium text-neutral-500 transition-colors hover:text-neutral-900 dark:hover:text-white"
-                          >
-                            Mark as read
-                          </button>
-                        )}
-                      </div>
+                          Mark as read
+                        </button>
+                      )}
                     </div>
-                  </motion.div>
-                );
-              })
-            ) : (
-              <div className="flex flex-col items-center p-12 text-center">
-                <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-neutral-100 dark:bg-neutral-800">
-                  <CheckCircle2 className="h-8 w-8 text-neutral-400" />
+                  </div>
                 </div>
-                <h3 className="text-lg font-medium text-neutral-900 dark:text-white">
-                  All caught up!
-                </h3>
-                <p className="mt-1 text-sm text-neutral-500">
-                  You have no {activeTab !== 'all' ? activeTab : ''}{' '}
-                  notifications.
-                </p>
+              );
+            })
+          ) : (
+            <div className="flex flex-col items-center p-12 text-center">
+              <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-neutral-100 dark:bg-neutral-800">
+                <CheckCircle2 className="h-8 w-8 text-neutral-400" />
               </div>
-            )}
-          </AnimatePresence>
+              <h3 className="text-lg font-medium text-neutral-900 dark:text-white">
+                All caught up!
+              </h3>
+              <p className="mt-1 text-sm text-neutral-500">
+                You have no {activeTab !== 'all' ? activeTab : ''}{' '}
+                notifications.
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </div>

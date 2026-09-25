@@ -1,8 +1,0 @@
-$kind: http-request
-name: 'GET marketing/settings/:channel'
-method: GET
-url: 'ruhvi.vercel.app/admin/marketing/settings/:channel'
-order: 40000
-pathVariables:
-  - key: channel
-    value: ''

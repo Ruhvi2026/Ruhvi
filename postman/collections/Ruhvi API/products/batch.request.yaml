@@ -1,5 +1,0 @@
-$kind: http-request
-name: 'GET batch'
-method: GET
-url: 'ruhvi.vercel.app/products/batch'
-order: 2000

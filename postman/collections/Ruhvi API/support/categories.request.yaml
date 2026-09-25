@@ -1,5 +1,0 @@
-$kind: http-request
-name: 'GET categories'
-method: GET
-url: 'ruhvi.vercel.app/support/categories'
-order: 6000

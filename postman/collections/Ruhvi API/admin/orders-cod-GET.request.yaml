@@ -1,5 +1,0 @@
-$kind: http-request
-name: 'GET orders/cod'
-method: GET
-url: 'ruhvi.vercel.app/admin/orders/cod'
-order: 45000

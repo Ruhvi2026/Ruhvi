@@ -1,5 +1,0 @@
-$kind: http-request
-name: 'DELETE wallet'
-method: DELETE
-url: 'ruhvi.vercel.app/external/wallet'
-order: 70000

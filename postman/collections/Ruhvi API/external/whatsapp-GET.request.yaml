@@ -1,5 +1,0 @@
-$kind: http-request
-name: 'GET whatsapp'
-method: GET
-url: 'ruhvi.vercel.app/external/whatsapp'
-order: 75000

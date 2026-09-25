@@ -1,5 +1,0 @@
-$kind: http-request
-name: 'GET automations'
-method: GET
-url: 'ruhvi.vercel.app/cron/automations'
-order: 2000
