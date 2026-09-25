@@ -1,5 +1,12 @@
+-- ============================================================================
 -- Migration 0097: Chat Profile, Group Info, Pinned Messages & WhatsApp Unread Counts
--- Enables profile photo & bio for staff, group avatars & info, pinned messages, and unread counts
+-- Includes:
+-- 1. Staff Profile: Avatar URL & Bio (Full Name is strictly locked to database management only)
+-- 2. Group Customization: Group Avatar URL, Group Topic & Group Info RPC
+-- 3. Notification Trigger: Resolves real sender name with fallback to email username
+-- 4. Pinned Messages: pin_chat_message & unpin_chat_message RPCs
+-- 5. WhatsApp-Style Unread Badges: get_user_conversations_overview master RPC
+-- ============================================================================
 
 -- 1. Schema Extensions on public.users
 ALTER TABLE public.users 
@@ -14,6 +21,7 @@ WHERE (full_name IS NULL OR trim(full_name) = '') AND email IS NOT NULL;
 -- 2. Schema Extensions on public.chat_conversations
 ALTER TABLE public.chat_conversations
   ADD COLUMN IF NOT EXISTS group_avatar_url text,
+  ADD COLUMN IF NOT EXISTS group_topic text,
   ADD COLUMN IF NOT EXISTS pinned_message_id uuid REFERENCES public.chat_messages(id) ON DELETE SET NULL;
 
 -- 3. Update Notification Trigger to always show proper sender name (not generic 'Staff Member')
@@ -93,6 +101,8 @@ END;
 $$;
 
 -- 4. RPC: Update Staff Profile
+-- Strict Policy: Name cannot be changed by staff or anyone else via client RPC.
+-- Names can only be modified directly in the database (Supabase) by administrators.
 CREATE OR REPLACE FUNCTION public.update_staff_profile(
   p_user_id uuid,
   p_full_name text DEFAULT NULL,
@@ -107,9 +117,9 @@ AS $$
 DECLARE
   v_updated record;
 BEGIN
+  -- p_full_name is intentionally ignored to prevent modification outside of direct database edits.
   UPDATE public.users
   SET 
-    full_name = coalesce(nullif(trim(p_full_name), ''), full_name),
     avatar_url = coalesce(p_avatar_url, avatar_url),
     bio = coalesce(p_bio, bio),
     updated_at = now()
