@@ -10,6 +10,8 @@ import {
   X,
   Key,
   Mail,
+  Building2,
+  CheckCircle2,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { sendPasswordResetLink, setAuthPassword } from '../actions/auth';
@@ -20,10 +22,73 @@ export interface UserRecord {
   email: string;
   phone: string | null;
   role: 'customer' | 'staff' | 'manager' | 'admin' | 'super_admin';
+  department?: string | null;
+  department_id?: string | null;
+  allowed_portals?: string[] | null;
   wallet_balance: number;
   reward_coins: number;
   created_at: string;
 }
+
+export interface DepartmentOption {
+  key: string;
+  name: string;
+  subdomain: string;
+  portal: string;
+  description: string;
+  badgeClass: string;
+}
+
+export const DEPARTMENTS_LIST: DepartmentOption[] = [
+  {
+    key: 'Operations',
+    name: 'Operations',
+    subdomain: 'operations.ruhvi.in',
+    portal: 'operations',
+    description: 'Products, catalog, inventory & QC',
+    badgeClass: 'border-emerald-500/20 bg-emerald-500/10 text-emerald-400',
+  },
+  {
+    key: 'Orders',
+    name: 'Orders & Logistics',
+    subdomain: 'orders.ruhvi.in',
+    portal: 'orders',
+    description: 'Order fulfillment, Shiprocket & returns',
+    badgeClass: 'border-blue-500/20 bg-blue-500/10 text-blue-400',
+  },
+  {
+    key: 'Support',
+    name: 'Customer Support',
+    subdomain: 'support.ruhvi.in',
+    portal: 'support',
+    description: 'Helpdesk tickets & customer inquiries',
+    badgeClass: 'border-amber-500/20 bg-amber-500/10 text-amber-400',
+  },
+  {
+    key: 'Tech',
+    name: 'Tech & IT',
+    subdomain: 'tech.ruhvi.in',
+    portal: 'tech',
+    description: 'Engineering, infrastructure & IT',
+    badgeClass: 'border-cyan-500/20 bg-cyan-500/10 text-cyan-400',
+  },
+  {
+    key: 'Management',
+    name: 'Management / Admin',
+    subdomain: 'admin.ruhvi.in',
+    portal: 'admin',
+    description: 'Master platform administration & executives',
+    badgeClass: 'border-purple-500/20 bg-purple-500/10 text-purple-400',
+  },
+  {
+    key: 'Marketing',
+    name: 'Marketing & Growth',
+    subdomain: 'marketing.ruhvi.in',
+    portal: 'marketing',
+    description: 'Campaigns, ads, coupons & social reach',
+    badgeClass: 'border-pink-500/20 bg-pink-500/10 text-pink-400',
+  },
+];
 
 export default function AdminUsersPage() {
   const [users, setUsers] = useState<UserRecord[]>([]);
@@ -33,12 +98,15 @@ export default function AdminUsersPage() {
   const [roleFilter, setRoleFilter] = useState<
     'all' | 'customer' | 'staff' | 'admin'
   >('all');
+  const [deptFilter, setDeptFilter] = useState<string>('all');
 
-  // Role Edit Modal
+  // Role & Department Edit Modal
   const [editingUser, setEditingUser] = useState<UserRecord | null>(null);
   const [selectedRole, setSelectedRole] = useState<
     'customer' | 'staff' | 'manager' | 'admin' | 'super_admin'
   >('customer');
+  const [selectedDepartment, setSelectedDepartment] = useState<string>('');
+  const [selectedPortals, setSelectedPortals] = useState<string[]>([]);
   const [isUpdatingRole, setIsUpdatingRole] = useState(false);
 
   // Balance Adjust Modal
@@ -73,28 +141,69 @@ export default function AdminUsersPage() {
     }
   };
 
-  const handleSaveRole = async () => {
+  const handleDepartmentChange = (deptKey: string) => {
+    setSelectedDepartment(deptKey);
+    if (!deptKey) return;
+    const match = DEPARTMENTS_LIST.find((d) => d.key === deptKey);
+    if (match) {
+      if (deptKey === 'Management') {
+        setSelectedPortals([
+          'admin',
+          'operations',
+          'orders',
+          'support',
+          'tech',
+          'marketing',
+        ]);
+      } else {
+        setSelectedPortals([match.portal]);
+      }
+    }
+  };
+
+  const togglePortal = (portalKey: string) => {
+    setSelectedPortals((prev) =>
+      prev.includes(portalKey)
+        ? prev.filter((p) => p !== portalKey)
+        : [...prev, portalKey]
+    );
+  };
+
+  const handleSavePrivileges = async () => {
     if (!editingUser) return;
     setIsUpdatingRole(true);
     try {
       const supabase = createClient();
-      const { error } = await supabase.rpc('admin_update_user_role', {
+      const deptToSave =
+        selectedRole === 'customer' ? null : selectedDepartment || null;
+      const portalsToSave = selectedRole === 'customer' ? [] : selectedPortals;
+
+      const { error } = await supabase.rpc('admin_update_user_privileges', {
         target_user_id: editingUser.id,
         new_role: selectedRole,
+        new_department: deptToSave,
+        new_allowed_portals: portalsToSave,
       });
 
       if (error) throw error;
 
       setUsers((prev) =>
         prev.map((u) =>
-          u.id === editingUser.id ? { ...u, role: selectedRole } : u
+          u.id === editingUser.id
+            ? {
+                ...u,
+                role: selectedRole,
+                department: deptToSave,
+                allowed_portals: portalsToSave,
+              }
+            : u
         )
       );
       setEditingUser(null);
     } catch (err: any) {
-      console.error('Failed to update role:', err);
+      console.error('Failed to update privileges:', err);
       alert(
-        'Failed to update user role. Make sure you have admin permissions.'
+        'Failed to update user role and department. Make sure you have admin permissions.'
       );
     } finally {
       setIsUpdatingRole(false);
@@ -200,7 +309,14 @@ export default function AdminUsersPage() {
           user.role === 'staff' ||
           user.role === 'super_admin'));
 
-    return matchesSearch && matchesRole;
+    const matchesDept =
+      deptFilter === 'all' ||
+      (deptFilter === 'unassigned' &&
+        user.role !== 'customer' &&
+        (!user.department || user.department.trim() === '')) ||
+      user.department?.toLowerCase() === deptFilter.toLowerCase();
+
+    return matchesSearch && matchesRole && matchesDept;
   });
 
   const getRoleBadge = (role: string) => {
@@ -218,6 +334,11 @@ export default function AdminUsersPage() {
           </span>
         );
       case 'manager':
+        return (
+          <span className="rounded-full border border-amber-500/20 bg-amber-500/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-amber-400">
+            Manager
+          </span>
+        );
       case 'staff':
         return (
           <span className="rounded-full border border-purple-500/20 bg-purple-500/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-purple-400">
@@ -231,6 +352,30 @@ export default function AdminUsersPage() {
           </span>
         );
     }
+  };
+
+  const getDepartmentBadge = (dept?: string | null) => {
+    if (!dept) {
+      return <span className="font-mono text-[11px] text-slate-600">—</span>;
+    }
+    const match = DEPARTMENTS_LIST.find(
+      (d) => d.key.toLowerCase() === dept.toLowerCase()
+    );
+    if (match) {
+      return (
+        <span
+          className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${match.badgeClass}`}
+        >
+          <Building2 className="h-2.5 w-2.5" />
+          {match.name}
+        </span>
+      );
+    }
+    return (
+      <span className="inline-flex items-center gap-1 rounded-full border border-slate-500/20 bg-slate-500/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-slate-300">
+        {dept}
+      </span>
+    );
   };
 
   return (
@@ -301,10 +446,10 @@ export default function AdminUsersPage() {
         </div>
       </div>
 
-      {/* Controls: Search & Role Filters */}
-      <div className="flex flex-col items-center justify-between gap-4 rounded-2xl border border-white/5 bg-[#131726] p-4 md:flex-row">
+      {/* Controls: Search, Role & Department Filters */}
+      <div className="flex flex-col items-stretch justify-between gap-4 rounded-2xl border border-white/5 bg-[#131726] p-4 lg:flex-row lg:items-center">
         {/* Search Bar */}
-        <div className="relative w-full md:w-80">
+        <div className="relative w-full lg:w-80">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
           <input
             type="text"
@@ -315,38 +460,62 @@ export default function AdminUsersPage() {
           />
         </div>
 
-        {/* Filter Tabs */}
-        <div className="flex w-full items-center space-x-1 rounded-xl bg-white/5 p-1 text-xs font-semibold md:w-auto">
-          <button
-            onClick={() => setRoleFilter('all')}
-            className={`rounded-lg px-3 py-1.5 transition-colors ${
-              roleFilter === 'all'
-                ? 'bg-emerald-500/10 text-emerald-400'
-                : 'text-slate-500 hover:text-slate-300'
-            }`}
-          >
-            All Users ({users.length})
-          </button>
-          <button
-            onClick={() => setRoleFilter('customer')}
-            className={`rounded-lg px-3 py-1.5 transition-colors ${
-              roleFilter === 'customer'
-                ? 'bg-emerald-500/10 text-emerald-400'
-                : 'text-slate-500 hover:text-slate-300'
-            }`}
-          >
-            Customers ({users.filter((u) => u.role === 'customer').length})
-          </button>
-          <button
-            onClick={() => setRoleFilter('admin')}
-            className={`rounded-lg px-3 py-1.5 transition-colors ${
-              roleFilter === 'admin'
-                ? 'bg-emerald-500/10 text-emerald-400'
-                : 'text-slate-500 hover:text-slate-300'
-            }`}
-          >
-            Admins ({users.filter((u) => u.role !== 'customer').length})
-          </button>
+        {/* Filter Controls: Role Tabs + Department Dropdown */}
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Role Filter Tabs */}
+          <div className="flex items-center space-x-1 rounded-xl bg-white/5 p-1 text-xs font-semibold">
+            <button
+              onClick={() => setRoleFilter('all')}
+              className={`rounded-lg px-3 py-1.5 transition-colors ${
+                roleFilter === 'all'
+                  ? 'bg-emerald-500/10 text-emerald-400'
+                  : 'text-slate-500 hover:text-slate-300'
+              }`}
+            >
+              All Users ({users.length})
+            </button>
+            <button
+              onClick={() => setRoleFilter('customer')}
+              className={`rounded-lg px-3 py-1.5 transition-colors ${
+                roleFilter === 'customer'
+                  ? 'bg-emerald-500/10 text-emerald-400'
+                  : 'text-slate-500 hover:text-slate-300'
+              }`}
+            >
+              Customers ({users.filter((u) => u.role === 'customer').length})
+            </button>
+            <button
+              onClick={() => setRoleFilter('admin')}
+              className={`rounded-lg px-3 py-1.5 transition-colors ${
+                roleFilter === 'admin'
+                  ? 'bg-emerald-500/10 text-emerald-400'
+                  : 'text-slate-500 hover:text-slate-300'
+              }`}
+            >
+              Staff & Admins (
+              {users.filter((u) => u.role !== 'customer').length})
+            </button>
+          </div>
+
+          {/* Department Filter Dropdown */}
+          <div className="flex items-center space-x-2">
+            <div className="relative">
+              <select
+                value={deptFilter}
+                onChange={(e) => setDeptFilter(e.target.value)}
+                className="appearance-none rounded-xl border border-white/10 bg-[#1e2235] py-2 pl-8 pr-8 text-xs font-semibold text-slate-200 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+              >
+                <option value="all">All Departments</option>
+                {DEPARTMENTS_LIST.map((d) => (
+                  <option key={d.key} value={d.key}>
+                    {d.name} ({d.subdomain})
+                  </option>
+                ))}
+                <option value="unassigned">Staff (Unassigned)</option>
+              </select>
+              <Building2 className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
+            </div>
+          </div>
         </div>
       </div>
 
@@ -360,17 +529,18 @@ export default function AdminUsersPage() {
           <Users className="mx-auto mb-3 h-12 w-12 text-slate-700" />
           <p className="font-medium text-slate-400">No users found.</p>
           <p className="mt-1 text-xs text-slate-600">
-            Try adjusting your search query or role filter.
+            Try adjusting your search query, role filter, or department filter.
           </p>
         </div>
       ) : (
         <div className="overflow-x-auto rounded-2xl border border-white/5 bg-[#131726]">
-          <table className="w-full min-w-[700px] border-collapse text-left">
+          <table className="w-full min-w-[800px] border-collapse text-left">
             <thead>
               <tr className="border-b border-white/5 text-xs font-semibold uppercase tracking-wider text-slate-500">
                 <th className="p-4 pl-6">User</th>
                 <th className="p-4">Contact</th>
                 <th className="p-4">Role</th>
+                <th className="p-4">Department / Subdomain</th>
                 <th className="p-4 text-right">Wallet Balance</th>
                 <th className="p-4 text-right">Reward Coins</th>
                 <th className="p-4 pr-6 text-right">Actions</th>
@@ -394,6 +564,21 @@ export default function AdminUsersPage() {
                     {user.phone || 'N/A'}
                   </td>
                   <td className="p-4">{getRoleBadge(user.role)}</td>
+                  <td className="p-4">
+                    {user.role === 'customer' ? (
+                      <span className="font-mono text-slate-600">—</span>
+                    ) : (
+                      <div className="space-y-1">
+                        <div>{getDepartmentBadge(user.department)}</div>
+                        {user.allowed_portals &&
+                          user.allowed_portals.length > 0 && (
+                            <div className="font-mono text-[9px] text-slate-500">
+                              portals: {user.allowed_portals.join(', ')}
+                            </div>
+                          )}
+                      </div>
+                    )}
+                  </td>
                   <td className="p-4 text-right font-bold text-white">
                     ₹{Number(user.wallet_balance || 0).toLocaleString('en-IN')}
                   </td>
@@ -422,10 +607,13 @@ export default function AdminUsersPage() {
                       onClick={() => {
                         setEditingUser(user);
                         setSelectedRole(user.role);
+                        setSelectedDepartment(user.department || '');
+                        setSelectedPortals(user.allowed_portals || []);
                       }}
                       className="inline-flex items-center gap-1 rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 font-semibold text-slate-300 transition-colors hover:bg-white/10"
+                      title="Edit Role, Department & Subdomain Permissions"
                     >
-                      <Shield className="h-3 w-3 text-slate-500" /> Role
+                      <Shield className="h-3 w-3 text-emerald-400" /> Privileges
                     </button>
                     <button
                       onClick={() => {
@@ -445,12 +633,17 @@ export default function AdminUsersPage() {
         </div>
       )}
 
-      {/* Role Edit Modal */}
+      {/* Role & Department Edit Modal */}
       {editingUser && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-md space-y-6 rounded-2xl bg-[#1e2235] p-6 shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-lg space-y-5 rounded-2xl border border-white/10 bg-[#161a2b] p-6 shadow-2xl">
             <div className="flex items-center justify-between border-b border-white/5 pb-3">
-              <h3 className="text-lg font-bold text-white">Update User Role</h3>
+              <div className="flex items-center space-x-2">
+                <Shield className="h-5 w-5 text-emerald-400" />
+                <h3 className="text-base font-bold text-white">
+                  User Role & Department Assignment
+                </h3>
+              </div>
               <button
                 onClick={() => setEditingUser(null)}
                 className="text-slate-500 hover:text-slate-300"
@@ -459,40 +652,177 @@ export default function AdminUsersPage() {
               </button>
             </div>
 
-            <div className="space-y-1 text-xs text-slate-400">
+            <div className="rounded-xl border border-white/5 bg-white/5 p-3 text-xs text-slate-400">
               <p>
-                <strong className="text-slate-200">User:</strong>{' '}
-                {editingUser.full_name || 'Anonymous'}
+                <strong className="text-slate-200">Name:</strong>{' '}
+                {editingUser.full_name || 'Anonymous User'}
               </p>
               <p>
                 <strong className="text-slate-200">Email:</strong>{' '}
                 {editingUser.email}
               </p>
+              {editingUser.phone && (
+                <p>
+                  <strong className="text-slate-200">Phone:</strong>{' '}
+                  {editingUser.phone}
+                </p>
+              )}
             </div>
 
-            <div className="space-y-2">
-              <label className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                Select New Role
+            {/* Role Dropdown */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                1. System Role
               </label>
               <select
                 value={selectedRole}
-                onChange={(e) => setSelectedRole(e.target.value as any)}
-                className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-white focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                onChange={(e) => {
+                  const newRole = e.target.value as any;
+                  setSelectedRole(newRole);
+                  if (newRole === 'customer') {
+                    setSelectedDepartment('');
+                    setSelectedPortals([]);
+                  } else if (!selectedDepartment) {
+                    setSelectedDepartment('Operations');
+                    setSelectedPortals(['operations']);
+                  }
+                }}
+                className="w-full rounded-xl border border-white/10 bg-[#1e2235] px-3 py-2 text-xs font-semibold text-white focus:outline-none focus:ring-1 focus:ring-emerald-500"
               >
-                <option value="customer" className="bg-[#1e2235] text-white">
-                  Customer (Standard User)
+                <option value="customer">
+                  Customer (Storefront Access Only)
                 </option>
-                <option value="staff" className="bg-[#1e2235] text-white">
-                  Staff (Catalog & Fulfillment)
+                <option value="staff">
+                  Staff (Operational / Department Staff)
                 </option>
-                <option value="manager" className="bg-[#1e2235] text-white">
-                  Manager (Full Operations)
+                <option value="manager">
+                  Manager (Department Team Lead / Manager)
                 </option>
-                <option value="admin" className="bg-[#1e2235] text-white">
-                  Administrator (Full Control)
+                <option value="admin">
+                  Administrator (Operations & System Admin)
+                </option>
+                <option value="super_admin">
+                  Super Admin (Global Executive Control)
                 </option>
               </select>
             </div>
+
+            {/* Department Dropdown (only for staff, manager, admin, super_admin) */}
+            {selectedRole !== 'customer' ? (
+              <div className="space-y-3 rounded-xl border border-white/10 bg-white/[0.02] p-4">
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                      2. Assigned Department
+                    </label>
+                    <span className="text-[10px] text-slate-500">
+                      Routes alerts & staff messenger
+                    </span>
+                  </div>
+                  <select
+                    value={selectedDepartment}
+                    onChange={(e) => handleDepartmentChange(e.target.value)}
+                    className="w-full rounded-xl border border-white/10 bg-[#1e2235] px-3 py-2 text-xs font-semibold text-white focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                  >
+                    <option value="">-- Unassigned --</option>
+                    {DEPARTMENTS_LIST.map((dept) => (
+                      <option key={dept.key} value={dept.key}>
+                        {dept.name} ({dept.subdomain})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Selected Dept Details Banner */}
+                {selectedDepartment &&
+                  (() => {
+                    const activeDept = DEPARTMENTS_LIST.find(
+                      (d) => d.key === selectedDepartment
+                    );
+                    if (!activeDept) return null;
+                    return (
+                      <div className="rounded-lg border border-white/5 bg-[#131726] p-2.5 text-xs">
+                        <div className="flex items-center justify-between">
+                          <span className="font-semibold text-slate-200">
+                            {activeDept.name}
+                          </span>
+                          <span className="font-mono text-[10px] text-emerald-400">
+                            {activeDept.subdomain}
+                          </span>
+                        </div>
+                        <p className="mt-1 text-[11px] text-slate-400">
+                          {activeDept.description}
+                        </p>
+                      </div>
+                    );
+                  })()}
+
+                {/* Allowed Portals Checkboxes */}
+                <div className="space-y-1.5">
+                  <label className="text-[11px] font-semibold text-slate-400">
+                    Subdomain / Portal Permissions:
+                  </label>
+                  <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                    {[
+                      {
+                        key: 'operations',
+                        label: 'Operations',
+                        host: 'operations.ruhvi.in',
+                      },
+                      {
+                        key: 'orders',
+                        label: 'Orders',
+                        host: 'orders.ruhvi.in',
+                      },
+                      {
+                        key: 'support',
+                        label: 'Support',
+                        host: 'support.ruhvi.in',
+                      },
+                      {
+                        key: 'tech',
+                        label: 'Tech & IT',
+                        host: 'tech.ruhvi.in',
+                      },
+                      { key: 'admin', label: 'Admin', host: 'admin.ruhvi.in' },
+                      {
+                        key: 'marketing',
+                        label: 'Marketing',
+                        host: 'marketing.ruhvi.in',
+                      },
+                    ].map((p) => {
+                      const isChecked = selectedPortals.includes(p.key);
+                      return (
+                        <button
+                          type="button"
+                          key={p.key}
+                          onClick={() => togglePortal(p.key)}
+                          className={`flex items-center justify-between rounded-lg border p-2 text-left text-xs transition-colors ${
+                            isChecked
+                              ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-300'
+                              : 'border-white/5 bg-white/5 text-slate-400 hover:bg-white/10'
+                          }`}
+                        >
+                          <span className="truncate">{p.label}</span>
+                          {isChecked && (
+                            <CheckCircle2 className="ml-1 h-3.5 w-3.5 flex-shrink-0 text-emerald-400" />
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <p className="text-[10px] text-slate-500">
+                    Staff assigned to this department will receive
+                    department-routed notifications, orders, or support alerts.
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="rounded-xl border border-white/5 bg-white/5 p-3 text-xs text-slate-500">
+                Customer accounts do not have staff departments or portal
+                permissions.
+              </div>
+            )}
 
             <div className="flex justify-end space-x-3 pt-2">
               <button
@@ -502,11 +832,11 @@ export default function AdminUsersPage() {
                 Cancel
               </button>
               <button
-                onClick={handleSaveRole}
+                onClick={handleSavePrivileges}
                 disabled={isUpdatingRole}
-                className="rounded-xl bg-emerald-600 px-4 py-2 text-xs font-bold text-white hover:bg-emerald-500 disabled:opacity-50"
+                className="rounded-xl bg-emerald-600 px-5 py-2 text-xs font-bold text-white hover:bg-emerald-500 disabled:opacity-50"
               >
-                {isUpdatingRole ? 'Updating...' : 'Save Role'}
+                {isUpdatingRole ? 'Updating...' : 'Save Privileges'}
               </button>
             </div>
           </div>

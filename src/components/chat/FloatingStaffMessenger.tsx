@@ -92,6 +92,12 @@ const DEPARTMENTS: ChatUserProfile[] = [
     role: 'operations',
   },
   {
+    id: 'dept_orders',
+    full_name: 'Orders & Logistics (@orders)',
+    email: 'orders@ruhvi.in',
+    role: 'orders',
+  },
+  {
     id: 'dept_tech',
     full_name: 'Tech & IT Team (@tech)',
     email: 'tech@ruhvi.in',
