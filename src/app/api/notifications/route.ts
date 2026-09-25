@@ -17,6 +17,7 @@ export async function GET(request: Request) {
     const limit = parseInt(searchParams.get('limit') || '50');
     const offset = parseInt(searchParams.get('offset') || '0');
     const unreadOnly = searchParams.get('unreadOnly') === 'true';
+    const includeChat = searchParams.get('includeChat') === 'true';
 
     let query = supabase
       .from('notifications')
@@ -27,7 +28,11 @@ export async function GET(request: Request) {
 
     if (category !== 'ALL') {
       query = query.eq('category', category);
+    } else if (!includeChat) {
+      // In customer interface, 'ALL' means customer alerts: exclude internal staff chat
+      query = query.neq('category', 'CHAT');
     }
+
     if (unreadOnly) {
       query = query.eq('read', false);
     }
@@ -42,12 +47,20 @@ export async function GET(request: Request) {
       );
     }
 
-    // Get total unread count across ALL categories for the badge
-    const { count: unreadCount } = await supabase
+    // Get total unread count for customer badge (excludes internal staff chat)
+    let unreadCountQuery = supabase
       .from('notifications')
       .select('*', { count: 'exact', head: true })
       .eq('user_id', user.id)
       .eq('read', false);
+
+    if (!includeChat && category === 'ALL') {
+      unreadCountQuery = unreadCountQuery.neq('category', 'CHAT');
+    } else if (category !== 'ALL') {
+      unreadCountQuery = unreadCountQuery.eq('category', category);
+    }
+
+    const { count: unreadCount } = await unreadCountQuery;
 
     return NextResponse.json({
       notifications: data,

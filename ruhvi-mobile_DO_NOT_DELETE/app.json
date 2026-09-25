@@ -11,6 +11,13 @@
     },
     "android": {
       "package": "in.ruhvi.chat",
+      "googleServicesFile": "./google-services.json",
+      "permissions": [
+        "RECEIVE_BOOT_COMPLETED",
+        "VIBRATE",
+        "WAKE_LOCK",
+        "POST_NOTIFICATIONS"
+      ],
       "adaptiveIcon": {
         "backgroundColor": "#075E54",
         "foregroundImage": "./assets/icon.png",
@@ -34,7 +41,8 @@
         {
           "icon": "./assets/notification-icon.png",
           "color": "#075E54",
-          "sounds": []
+          "sounds": [],
+          "enableBackgroundRemoteNotifications": true
         }
       ]
     ]

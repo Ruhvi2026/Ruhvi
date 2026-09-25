@@ -105,20 +105,42 @@ export async function sendFcmToToken(
     process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'ruhvi-f707c';
   const accessToken = await getFcmAccessToken();
 
+  // Ensure all data values are strings for strict FCM v1 specification
+  const stringifiedData: Record<string, string> = {};
+  if (message.data) {
+    for (const [key, val] of Object.entries(message.data)) {
+      if (val !== undefined && val !== null) {
+        stringifiedData[key] = String(val);
+      }
+    }
+  }
+
   const fcmMessage: any = {
     token,
     notification: {
       title: message.title,
       body: message.body || '',
     },
-    data: message.data || {},
+    data: stringifiedData,
+    android: {
+      priority: 'HIGH',
+      notification: {
+        channel_id: 'chat_messages',
+        sound: 'default',
+        default_sound: true,
+        default_vibrate_timings: true,
+        notification_priority: 'PRIORITY_MAX',
+        visibility: 'PUBLIC',
+      },
+    },
   };
 
   if (message.imageUrl) {
     fcmMessage.notification.image = message.imageUrl;
+    fcmMessage.android.notification.image = message.imageUrl;
   }
   if (message.url) {
-    fcmMessage.data = { ...(message.data || {}), url: message.url };
+    fcmMessage.data = { ...(fcmMessage.data || {}), url: message.url };
     fcmMessage.webpush = {
       fcm_options: { link: message.url },
       headers: {},

@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { TouchableOpacity, Alert } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, createNavigationContainerRef } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import * as Notifications from 'expo-notifications';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { setSupabaseToken } from './src/lib/supabase';
 import { registerForPushNotificationsAsync } from './src/lib/notifications';
@@ -10,6 +11,8 @@ import { registerForPushNotificationsAsync } from './src/lib/notifications';
 import LoginScreen from './src/screens/LoginScreen';
 import ChatListScreen from './src/screens/ChatListScreen';
 import ChatRoomScreen from './src/screens/ChatRoomScreen';
+
+export const navigationRef = createNavigationContainerRef<any>();
 
 const Stack = createNativeStackNavigator();
 
@@ -32,17 +35,49 @@ export default function App() {
     checkAuth();
   }, []);
 
+  useEffect(() => {
+    // 1. Handle notification tap when app is running in background or foreground
+    const responseSub = Notifications.addNotificationResponseReceivedListener((response) => {
+      const data = response?.notification?.request?.content?.data;
+      const conversationId = data?.conversationId;
+      if (conversationId && navigationRef.isReady()) {
+        navigationRef.navigate('ChatRoom', {
+          id: conversationId,
+          title: response.notification.request.content.title || 'Chat',
+        });
+      }
+    });
+
+    // 2. Handle cold launch when app was closed/killed and opened by clicking notification
+    Notifications.getLastNotificationResponseAsync().then((response) => {
+      if (response) {
+        const data = response?.notification?.request?.content?.data;
+        const conversationId = data?.conversationId;
+        if (conversationId && navigationRef.isReady()) {
+          navigationRef.navigate('ChatRoom', {
+            id: conversationId,
+            title: response.notification.request.content.title || 'Chat',
+          });
+        }
+      }
+    });
+
+    return () => {
+      responseSub.remove();
+    };
+  }, []);
+
   const handleLoginSuccess = () => {
     setIsAuthenticated(true);
     registerForPushNotificationsAsync();
   };
 
   if (isAuthenticated === null) {
-    return null; // Loading screen could go here
+    return null; // Loading screen
   }
 
   return (
-    <NavigationContainer>
+    <NavigationContainer ref={navigationRef}>
       <Stack.Navigator 
         initialRouteName={isAuthenticated ? "ChatList" : "Login"}
         screenOptions={{
