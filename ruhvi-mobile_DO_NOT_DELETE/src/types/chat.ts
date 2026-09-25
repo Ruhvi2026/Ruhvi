@@ -14,6 +14,7 @@ export interface ChatUserProfile {
   email: string | null;
   role: string;
   avatar_url?: string | null;
+  bio?: string | null;
   department?: string | null;
   department_id?: string | null;
 }
@@ -31,6 +32,8 @@ export interface ChatConversation {
   deleted_at: string | null;
   group_avatar_url: string | null;
   allow_replies?: boolean;
+  pinned_message_id?: string | null;
+  pinned_message?: any;
   // Joined fields (not in DB directly, added by query)
   members?: ChatMember[];
   last_message?: ChatMessage | null;

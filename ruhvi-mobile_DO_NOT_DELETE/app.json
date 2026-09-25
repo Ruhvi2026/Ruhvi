@@ -12,8 +12,8 @@
     "android": {
       "package": "in.ruhvi.chat",
       "adaptiveIcon": {
-        "backgroundColor": "#0A2F25",
-        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundColor": "#075E54",
+        "foregroundImage": "./assets/icon.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
@@ -32,7 +32,7 @@
       [
         "expo-notifications",
         {
-          "icon": "./assets/icon.png",
+          "icon": "./assets/notification-icon.png",
           "color": "#075E54",
           "sounds": []
         }

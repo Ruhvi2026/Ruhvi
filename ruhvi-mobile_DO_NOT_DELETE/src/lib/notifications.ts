@@ -126,7 +126,36 @@ export async function dispatchChatPushNotification(
   previewText: string
 ) {
   try {
-    // 1. Get recipients (all other active members in this conversation)
+    // 1. Resolve sender name if generic or missing
+    let resolvedSender = senderName;
+    if (!resolvedSender || resolvedSender === 'Staff Member') {
+      try {
+        const { data: u } = await supabase
+          .from('users')
+          .select('full_name, email, department')
+          .eq('id', senderId)
+          .single();
+        if (u) {
+          resolvedSender = u.full_name || u.email?.split('@')[0] || 'Staff';
+          if (u.department) resolvedSender += ` (${u.department})`;
+        }
+      } catch (_) {}
+    }
+
+    // Check if conversation is group
+    let notificationTitle = resolvedSender || 'Staff Chat';
+    try {
+      const { data: conv } = await supabase
+        .from('chat_conversations')
+        .select('type, group_name')
+        .eq('id', conversationId)
+        .single();
+      if (conv?.type === 'group' && conv.group_name) {
+        notificationTitle = `${conv.group_name}: ${resolvedSender}`;
+      }
+    } catch (_) {}
+
+    // 2. Get recipients (all other active members in this conversation)
     const { data: members, error: memErr } = await supabase
       .from('chat_conversation_members')
       .select('user_id')
@@ -138,7 +167,7 @@ export async function dispatchChatPushNotification(
 
     const recipientIds = members.map((m: any) => m.user_id);
 
-    // 2. Fetch push tokens for those recipients
+    // 3. Fetch push tokens for those recipients
     const { data: tokenRows, error: tokErr } = await supabase
       .from('user_push_tokens')
       .select('token')
@@ -146,18 +175,19 @@ export async function dispatchChatPushNotification(
 
     if (tokErr || !tokenRows || tokenRows.length === 0) return;
 
-    // 3. Filter for valid Expo Push tokens
+    // 4. Filter for valid Expo Push tokens
     const expoTokens = tokenRows
       .map((r: any) => r.token)
       .filter((tok: string) => tok && (tok.startsWith('ExponentPushToken[') || tok.startsWith('ExpoPushToken[')));
 
     if (expoTokens.length === 0) return;
 
-    // 4. Send via Expo's free push notification API
+    // 5. Send via Expo's free push notification API with high priority (wakes up Android when app closed)
     const messages = expoTokens.map((token: string) => ({
       to: token,
       sound: 'default',
-      title: senderName || 'Staff Chat',
+      priority: 'high',
+      title: notificationTitle,
       body: previewText || 'Sent a message',
       channelId: 'chat_messages',
       data: {
@@ -179,4 +209,5 @@ export async function dispatchChatPushNotification(
     console.warn('[Notifications] Background push dispatch failed:', err);
   }
 }
+
 

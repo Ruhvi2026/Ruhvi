@@ -11,12 +11,15 @@ import {
   TextInput, 
   RefreshControl, 
   Alert,
-  ScrollView 
+  ScrollView,
+  Image
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MaterialIcons } from '@expo/vector-icons';
-import { supabase, getCurrentUserId } from '../lib/supabase';
+import * as ImagePicker from 'expo-image-picker';
+import { supabase, getCurrentUserId, setSupabaseToken } from '../lib/supabase';
 import { triggerLocalNotification } from '../lib/notifications';
+import { uploadToCloudinary } from '../lib/cloudinary';
 
 export default function ChatListScreen({ navigation }: any) {
   const [conversations, setConversations] = useState<any[]>([]);
@@ -43,6 +46,55 @@ export default function ChatListScreen({ navigation }: any) {
   const [groupName, setGroupName] = useState('');
   const [selectedMemberIds, setSelectedMemberIds] = useState<string[]>([]);
 
+  // Staff Profile Modal state
+  const [currentUserProfile, setCurrentUserProfile] = useState<any>(null);
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [editFullName, setEditFullName] = useState('');
+  const [editBio, setEditBio] = useState('');
+  const [savingProfile, setSavingProfile] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+
+  const fetchUserProfile = async (uid: string) => {
+    try {
+      const { data } = await supabase
+        .from('users')
+        .select('id, full_name, email, role, department, avatar_url, bio')
+        .eq('id', uid)
+        .single();
+      if (data) {
+        setCurrentUserProfile(data);
+        setEditFullName(data.full_name || '');
+        setEditBio(data.bio || 'Hey there! I am using RuhChat.');
+      }
+    } catch (_) {}
+  };
+
+  useEffect(() => {
+    navigation.setOptions({
+      headerTitle: 'RuhChat',
+      headerRight: () => (
+        <TouchableOpacity
+          onPress={() => setShowProfileModal(true)}
+          style={{ marginRight: 8, padding: 4 }}
+          activeOpacity={0.8}
+        >
+          {currentUserProfile?.avatar_url ? (
+            <Image
+              source={{ uri: currentUserProfile.avatar_url }}
+              style={styles.headerAvatar}
+            />
+          ) : (
+            <View style={styles.headerAvatarFallback}>
+              <Text style={styles.headerAvatarText}>
+                {(currentUserProfile?.full_name || 'S').substring(0, 1).toUpperCase()}
+              </Text>
+            </View>
+          )}
+        </TouchableOpacity>
+      ),
+    });
+  }, [navigation, currentUserProfile]);
+
   useEffect(() => {
     const init = async () => {
       let uid = getCurrentUserId();
@@ -51,6 +103,9 @@ export default function ChatListScreen({ navigation }: any) {
       }
       setCurrentUserIdState(uid);
       fetchChats(uid);
+      if (uid) {
+        fetchUserProfile(uid);
+      }
     };
     init();
 
@@ -132,31 +187,14 @@ export default function ChatListScreen({ navigation }: any) {
 
   const fetchChats = async (activeUid?: string | null) => {
     const uid = activeUid !== undefined ? activeUid : currentUserId;
+    if (!uid) return;
     try {
-      const { data, error } = await supabase
-        .from('chat_conversations')
-        .select(`
-          id,
-          type,
-          group_name,
-          archived_at,
-          created_at,
-          updated_at,
-          chat_conversation_members (
-            user_id,
-            users:user_id (
-              id,
-              full_name,
-              email,
-              role,
-              department
-            )
-          )
-        `)
-        .order('updated_at', { ascending: false });
+      const { data, error } = await supabase.rpc('get_user_conversations_overview', {
+        p_user_id: uid,
+      });
 
       if (error) {
-        console.error('Fetch chats error:', error);
+        console.error('get_user_conversations_overview error:', error);
       } else if (data) {
         setConversations(data);
       }
@@ -171,6 +209,7 @@ export default function ChatListScreen({ navigation }: any) {
   const onRefresh = useCallback(() => {
     setRefreshing(true);
     fetchChats();
+    if (currentUserId) fetchUserProfile(currentUserId);
   }, [currentUserId]);
 
   const handleGlobalSearchChange = (val: string) => {
@@ -340,35 +379,153 @@ export default function ChatListScreen({ navigation }: any) {
     }
   };
 
-  const getChatTitle = (item: any) => {
-    if (item.type === 'group') {
-      return item.group_name || 'Group Chat';
+  const handlePickAvatar = async () => {
+    try {
+      const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (!perm.granted) {
+        Alert.alert('Permission required', 'Need gallery permissions to change photo.');
+        return;
+      }
+      const res = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ['images'],
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+        base64: true,
+      });
+      if (!res.canceled && res.assets && res.assets.length > 0) {
+        setUploadingAvatar(true);
+        const asset = res.assets[0];
+        const payload = asset.base64 ? `data:image/jpeg;base64,${asset.base64}` : asset.uri;
+        const uploaded = await uploadToCloudinary(payload, `avatar_${currentUserId}.jpg`, 'image/jpeg', asset.fileSize);
+        const { data: updated } = await supabase.rpc('update_staff_profile', {
+          p_user_id: currentUserId,
+          p_avatar_url: uploaded.cloudinary_url,
+        });
+        if (updated) {
+          setCurrentUserProfile(updated);
+        }
+      }
+    } catch (e: any) {
+      Alert.alert('Upload Error', e.message || 'Failed to upload photo');
+    } finally {
+      setUploadingAvatar(false);
     }
-    const members = item.chat_conversation_members || [];
-    const other = members.find((m: any) => m.user_id !== currentUserId);
-    if (other && other.users) {
-      const name = other.users.full_name || other.users.email || 'Staff Member';
-      return other.users.department ? `${name} (${other.users.department})` : name;
+  };
+
+  const handleSaveProfile = async () => {
+    if (!editFullName.trim()) {
+      Alert.alert('Error', 'Full name cannot be empty');
+      return;
+    }
+    setSavingProfile(true);
+    try {
+      const { data: updated, error } = await supabase.rpc('update_staff_profile', {
+        p_user_id: currentUserId,
+        p_full_name: editFullName.trim(),
+        p_bio: editBio.trim(),
+      });
+      if (error) throw error;
+      if (updated) setCurrentUserProfile(updated);
+      Alert.alert('Success', 'Profile updated successfully.');
+      setShowProfileModal(false);
+      fetchChats();
+    } catch (e: any) {
+      Alert.alert('Error', e.message || 'Failed to update profile');
+    } finally {
+      setSavingProfile(false);
+    }
+  };
+
+  const handleLogout = () => {
+    Alert.alert('Log Out', 'Are you sure you want to log out of RuhChat?', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Log Out',
+        style: 'destructive',
+        onPress: async () => {
+          await AsyncStorage.removeItem('ruhvi_user_id');
+          await AsyncStorage.removeItem('ruhvi_auth_token');
+          setSupabaseToken(null);
+          navigation.reset({ index: 0, routes: [{ name: 'Login' }] });
+        },
+      },
+    ]);
+  };
+
+  const getChatTitle = (item: any) => {
+    if (item.type === 'broadcast') {
+      return item.group_name || '📢 Official Staff Broadcast';
+    }
+    if (item.type === 'group') {
+      return item.group_name || 'Group Discussion';
+    }
+    const members = item.members || item.chat_conversation_members || [];
+    const other = members.find((m: any) => (m.user_id || m.id) !== currentUserId);
+    if (other) {
+      const name = other.full_name || other.users?.full_name || other.email || 'Staff Member';
+      const dept = other.department || other.users?.department;
+      return dept ? `${name} (${dept})` : name;
     }
     return 'Staff Chat';
+  };
+
+  const getChatAvatar = (item: any) => {
+    if (item.type === 'group' && item.group_avatar_url) {
+      return item.group_avatar_url;
+    }
+    if (item.type === 'direct') {
+      const members = item.members || item.chat_conversation_members || [];
+      const other = members.find((m: any) => (m.user_id || m.id) !== currentUserId);
+      if (other?.avatar_url) return other.avatar_url;
+    }
+    return null;
   };
 
   const renderItem = ({ item }: { item: any }) => {
     const isBroadcast = item.type === 'broadcast';
     const isGroup = item.type === 'group';
     const chatTitle = isBroadcast ? (item.group_name || '📢 Official Broadcast') : getChatTitle(item);
+    const avatarUrl = getChatAvatar(item);
     const avatarColor = isBroadcast ? '#E65100' : isGroup ? '#075E54' : '#' + (item.id.replace(/[^0-9a-f]/gi, '').substring(0, 6) || '128c7e');
-    const date = new Date(item.updated_at || item.created_at);
-    const timeString = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const date = new Date(item.latest_activity_at || item.updated_at || item.created_at);
+    const isToday = new Date().toDateString() === date.toDateString();
+    const timeString = isToday 
+      ? date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      : date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+    const unreadCount = item.unread_count || 0;
+    const isUnread = unreadCount > 0;
+
+    let lastSnippet = 'Tap to open chat';
+    if (item.last_message) {
+      const isMyMsg = item.last_message.sender_id === currentUserId;
+      const prefix = isMyMsg ? 'You: ' : isGroup ? `${item.last_message.sender_name}: ` : '';
+      const textPreview = item.last_message.message_type === 'attachment'
+        ? `📎 ${item.last_message.text_content || 'Photo'}`
+        : item.last_message.text_content || 'New message';
+      lastSnippet = `${prefix}${textPreview}`;
+    } else if (isBroadcast) {
+      lastSnippet = 'Official Announcement Channel';
+    } else if (isGroup) {
+      lastSnippet = 'Group Discussion';
+    }
 
     return (
       <TouchableOpacity 
-        style={styles.chatItem}
+        style={[styles.chatItem, isUnread && styles.chatItemUnread]}
         activeOpacity={0.7}
-        onPress={() => navigation.navigate('ChatRoom', { id: item.id, title: chatTitle, isGroup: isGroup || isBroadcast, isBroadcast })}
+        onPress={() => navigation.navigate('ChatRoom', { 
+          id: item.id, 
+          title: chatTitle, 
+          isGroup: isGroup || isBroadcast, 
+          isBroadcast,
+          groupAvatarUrl: item.group_avatar_url,
+        })}
       >
         <View style={[styles.avatar, { backgroundColor: avatarColor }]}>
-          {isBroadcast ? (
+          {avatarUrl ? (
+            <Image source={{ uri: avatarUrl }} style={styles.avatarImage} />
+          ) : isBroadcast ? (
             <MaterialIcons name="campaign" size={24} color="#fff" />
           ) : isGroup ? (
             <MaterialIcons name="groups" size={24} color="#fff" />
@@ -376,10 +533,11 @@ export default function ChatListScreen({ navigation }: any) {
             <Text style={styles.avatarText}>{chatTitle.substring(0, 1).toUpperCase()}</Text>
           )}
         </View>
+
         <View style={styles.chatDetails}>
           <View style={styles.chatHeader}>
             <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, marginRight: 8 }}>
-              <Text style={styles.chatName} numberOfLines={1}>{chatTitle}</Text>
+              <Text style={[styles.chatName, isUnread && styles.chatNameUnread]} numberOfLines={1}>{chatTitle}</Text>
               {isBroadcast && (
                 <View style={[styles.resolvedBadge, { backgroundColor: '#FFF3E0', borderColor: '#FFE0B2' }]}>
                   <Text style={[styles.resolvedBadgeText, { color: '#E65100' }]}>Broadcast</Text>
@@ -391,17 +549,24 @@ export default function ChatListScreen({ navigation }: any) {
                 </View>
               )}
             </View>
-            <Text style={styles.chatTime}>{timeString}</Text>
+            <Text style={[styles.chatTime, isUnread && styles.chatTimeUnread]}>{timeString}</Text>
           </View>
-          <Text style={[styles.lastMessage, item.archived_at && { color: '#2E7D32' }]} numberOfLines={1}>
-            {item.archived_at 
-              ? 'Issue marked as resolved • Archived'
-              : isBroadcast
-                ? 'Official Announcement Channel'
-                : isGroup 
-                  ? 'Group Discussion' 
-                  : 'Tap to open chat'}
-          </Text>
+
+          <View style={styles.chatSubRow}>
+            <Text style={[styles.lastMessage, isUnread && styles.lastMessageUnread]} numberOfLines={1}>
+              {lastSnippet}
+            </Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 6 }}>
+              {item.pinned_message_id && (
+                <MaterialIcons name="push-pin" size={13} color="#999" style={{ marginRight: 4, transform: [{ rotate: '45deg' }] }} />
+              )}
+              {unreadCount > 0 && (
+                <View style={styles.unreadBadge}>
+                  <Text style={styles.unreadBadgeText}>{unreadCount}</Text>
+                </View>
+              )}
+            </View>
+          </View>
         </View>
       </TouchableOpacity>
     );
@@ -417,6 +582,7 @@ export default function ChatListScreen({ navigation }: any) {
   const activeConversations = conversations.filter(c => !c.archived_at);
   const archivedConversations = conversations.filter(c => !!c.archived_at);
   const baseConversations = chatTab === 'active' ? activeConversations : archivedConversations;
+  const totalUnreadCount = activeConversations.reduce((sum, c) => sum + (c.unread_count || 0), 0);
 
   const displayConversations = baseConversations.filter(c => {
     if (searchFilter === 'broadcast' && c.type !== 'broadcast') return false;
@@ -487,9 +653,16 @@ export default function ChatListScreen({ navigation }: any) {
           onPress={() => setChatTab('active')}
           activeOpacity={0.7}
         >
-          <Text style={[styles.tabText, chatTab === 'active' && styles.tabTextActive]}>
-            Active Chats ({activeConversations.length})
-          </Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <Text style={[styles.tabText, chatTab === 'active' && styles.tabTextActive]}>
+              Chats ({activeConversations.length})
+            </Text>
+            {totalUnreadCount > 0 && (
+              <View style={styles.tabUnreadBadge}>
+                <Text style={styles.tabUnreadBadgeText}>{totalUnreadCount}</Text>
+              </View>
+            )}
+          </View>
         </TouchableOpacity>
         <TouchableOpacity 
           style={[styles.tabButton, chatTab === 'archived' && styles.tabButtonActive]}
@@ -805,9 +978,127 @@ export default function ChatListScreen({ navigation }: any) {
           )}
         </View>
       </Modal>
+
+      {/* My Staff Profile Modal */}
+      <Modal
+        visible={showProfileModal}
+        animationType="slide"
+        onRequestClose={() => setShowProfileModal(false)}
+      >
+        <View style={styles.profileModalContainer}>
+          <View style={styles.profileHeader}>
+            <TouchableOpacity onPress={() => setShowProfileModal(false)} style={styles.backBtn}>
+              <MaterialIcons name="arrow-back" size={24} color="#fff" />
+            </TouchableOpacity>
+            <Text style={styles.profileHeaderTitle}>My Staff Profile</Text>
+          </View>
+
+          <ScrollView contentContainerStyle={styles.profileScrollContent}>
+            {/* Avatar Section */}
+            <View style={styles.profileAvatarSection}>
+              <View style={styles.profileAvatarWrapper}>
+                {currentUserProfile?.avatar_url ? (
+                  <Image source={{ uri: currentUserProfile.avatar_url }} style={styles.profileLargeAvatar} />
+                ) : (
+                  <View style={[styles.profileLargeAvatar, { backgroundColor: '#075E54' }]}>
+                    <Text style={styles.profileLargeAvatarText}>
+                      {(currentUserProfile?.full_name || currentUserProfile?.email || 'S').substring(0, 1).toUpperCase()}
+                    </Text>
+                  </View>
+                )}
+                <TouchableOpacity
+                  style={styles.profileCameraBadge}
+                  onPress={handlePickAvatar}
+                  disabled={uploadingAvatar}
+                  activeOpacity={0.8}
+                >
+                  {uploadingAvatar ? (
+                    <ActivityIndicator size="small" color="#fff" />
+                  ) : (
+                    <MaterialIcons name="camera-alt" size={20} color="#fff" />
+                  )}
+                </TouchableOpacity>
+              </View>
+              <Text style={styles.profileEmailSubtitle}>{currentUserProfile?.email}</Text>
+              
+              <View style={styles.profileBadgeRow}>
+                {currentUserProfile?.department && (
+                  <View style={styles.profileDeptBadge}>
+                    <MaterialIcons name="business" size={13} color="#075E54" style={{ marginRight: 4 }} />
+                    <Text style={styles.profileDeptText}>{currentUserProfile.department}</Text>
+                  </View>
+                )}
+                <View style={styles.profileRoleBadge}>
+                  <Text style={styles.profileRoleText}>{(currentUserProfile?.role || 'staff').toUpperCase()}</Text>
+                </View>
+              </View>
+            </View>
+
+            {/* Inputs Section */}
+            <View style={styles.profileForm}>
+              <View style={styles.profileInputGroup}>
+                <View style={styles.profileInputLabelRow}>
+                  <MaterialIcons name="person" size={18} color="#075E54" style={{ marginRight: 6 }} />
+                  <Text style={styles.profileInputLabel}>Full Name</Text>
+                </View>
+                <TextInput
+                  style={styles.profileTextInput}
+                  value={editFullName}
+                  onChangeText={setEditFullName}
+                  placeholder="Enter your full name"
+                  placeholderTextColor="#999"
+                />
+              </View>
+
+              <View style={styles.profileInputGroup}>
+                <View style={styles.profileInputLabelRow}>
+                  <MaterialIcons name="info-outline" size={18} color="#075E54" style={{ marginRight: 6 }} />
+                  <Text style={styles.profileInputLabel}>About / Info</Text>
+                </View>
+                <TextInput
+                  style={[styles.profileTextInput, { minHeight: 60, textAlignVertical: 'top' }]}
+                  value={editBio}
+                  onChangeText={setEditBio}
+                  placeholder="e.g. Operations Lead • Available"
+                  placeholderTextColor="#999"
+                  multiline
+                  numberOfLines={2}
+                />
+              </View>
+
+              <TouchableOpacity
+                style={[styles.profileSaveBtn, savingProfile && { opacity: 0.7 }]}
+                onPress={handleSaveProfile}
+                disabled={savingProfile}
+                activeOpacity={0.85}
+              >
+                {savingProfile ? (
+                  <ActivityIndicator size="small" color="#fff" />
+                ) : (
+                  <>
+                    <MaterialIcons name="check" size={20} color="#fff" style={{ marginRight: 6 }} />
+                    <Text style={styles.profileSaveBtnText}>Save Changes</Text>
+                  </>
+                )}
+              </TouchableOpacity>
+
+              {/* Logout Button */}
+              <TouchableOpacity
+                style={styles.profileLogoutBtn}
+                onPress={handleLogout}
+                activeOpacity={0.85}
+              >
+                <MaterialIcons name="logout" size={20} color="#D32F2F" style={{ marginRight: 6 }} />
+                <Text style={styles.profileLogoutBtnText}>Log Out from RuhChat</Text>
+              </TouchableOpacity>
+            </View>
+          </ScrollView>
+        </View>
+      </Modal>
     </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {
@@ -1217,4 +1508,230 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: '#718096',
   },
+  headerAvatar: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    borderWidth: 1.5,
+    borderColor: '#fff',
+  },
+  headerAvatarFallback: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: '#075E54',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1.5,
+    borderColor: '#fff',
+  },
+  headerAvatarText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 14,
+  },
+  avatarImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+  },
+  chatItemUnread: {
+    backgroundColor: '#F7FCF9',
+  },
+  chatNameUnread: {
+    fontWeight: '800',
+    color: '#0F172A',
+  },
+  chatTimeUnread: {
+    color: '#25D366',
+    fontWeight: '700',
+  },
+  lastMessageUnread: {
+    color: '#1E293B',
+    fontWeight: '600',
+  },
+  chatSubRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: 2,
+  },
+  unreadBadge: {
+    backgroundColor: '#25D366',
+    minWidth: 20,
+    height: 20,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 5,
+  },
+  unreadBadgeText: {
+    color: '#FFFFFF',
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  tabUnreadBadge: {
+    backgroundColor: '#25D366',
+    minWidth: 18,
+    height: 18,
+    borderRadius: 9,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 4,
+    marginLeft: 6,
+  },
+  tabUnreadBadgeText: {
+    color: '#FFFFFF',
+    fontSize: 10,
+    fontWeight: '700',
+  },
+  profileModalContainer: {
+    flex: 1,
+    backgroundColor: '#F8FAFC',
+  },
+  profileHeader: {
+    backgroundColor: '#075E54',
+    paddingHorizontal: 16,
+    paddingTop: 48,
+    paddingBottom: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  profileHeaderTitle: {
+    color: '#FFFFFF',
+    fontSize: 18,
+    fontWeight: '700',
+    marginLeft: 16,
+  },
+  profileScrollContent: {
+    padding: 20,
+    alignItems: 'center',
+  },
+  profileAvatarSection: {
+    alignItems: 'center',
+    marginVertical: 16,
+  },
+  profileAvatarWrapper: {
+    position: 'relative',
+    marginBottom: 12,
+  },
+  profileLargeAvatar: {
+    width: 110,
+    height: 110,
+    borderRadius: 55,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  profileLargeAvatarText: {
+    color: '#FFFFFF',
+    fontSize: 44,
+    fontWeight: 'bold',
+  },
+  profileCameraBadge: {
+    position: 'absolute',
+    bottom: 2,
+    right: 2,
+    backgroundColor: '#128C7E',
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 3,
+    borderColor: '#fff',
+  },
+  profileEmailSubtitle: {
+    fontSize: 13,
+    color: '#64748B',
+    marginBottom: 8,
+  },
+  profileBadgeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  profileDeptBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#DCFCE7',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#BBF7D0',
+  },
+  profileDeptText: {
+    color: '#166534',
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  profileRoleBadge: {
+    backgroundColor: '#E2E8F0',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  profileRoleText: {
+    color: '#475569',
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  profileForm: {
+    width: '100%',
+    marginTop: 12,
+  },
+  profileInputGroup: {
+    marginBottom: 16,
+  },
+  profileInputLabelRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  profileInputLabel: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#1E293B',
+  },
+  profileTextInput: {
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#CBD5E1',
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    fontSize: 14,
+    color: '#1E293B',
+  },
+  profileSaveBtn: {
+    backgroundColor: '#075E54',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 13,
+    borderRadius: 12,
+    marginTop: 8,
+  },
+  profileSaveBtnText: {
+    color: '#FFFFFF',
+    fontSize: 15,
+    fontWeight: '700',
+  },
+  profileLogoutBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    borderRadius: 12,
+    marginTop: 16,
+    borderWidth: 1,
+    borderColor: '#FCA5A5',
+    backgroundColor: '#FEF2F2',
+  },
+  profileLogoutBtnText: {
+    color: '#DC2626',
+    fontSize: 14,
+    fontWeight: '700',
+  },
 });
+

@@ -77,23 +77,22 @@ export default function ChatRoomScreen({ route, navigation }: any) {
   const [entityId, setEntityId] = useState('');
   const [pendingEntityRefs, setPendingEntityRefs] = useState<any[]>([]);
 
-  useEffect(() => {
-    navigation.setOptions({
-      headerRight: () => (
-        <TouchableOpacity
-          onPress={() => {
-            setIsSearchingInChat(prev => {
-              if (prev) setInChatSearchQuery('');
-              return !prev;
-            });
-          }}
-          style={{ paddingHorizontal: 10, paddingVertical: 4 }}
-        >
-          <MaterialIcons name={isSearchingInChat ? "close" : "search"} size={22} color="#fff" />
-        </TouchableOpacity>
-      ),
-    });
-  }, [navigation, isSearchingInChat]);
+  // Pinned Message State
+  const [pinnedMessage, setPinnedMessage] = useState<any | null>(null);
+
+  // In-Chat Media Library State
+  const [showMediaLibrary, setShowMediaLibrary] = useState<boolean>(false);
+  const [mediaTab, setMediaTab] = useState<'photos' | 'docs'>('photos');
+  const [mediaLibraryItems, setMediaLibraryItems] = useState<any[]>([]);
+  const [loadingMedia, setLoadingMedia] = useState<boolean>(false);
+
+  // Group Info & Avatar Customization State
+  const [showGroupInfoModal, setShowGroupInfoModal] = useState<boolean>(false);
+  const [groupMembers, setGroupMembers] = useState<any[]>([]);
+  const [editingGroupName, setEditingGroupName] = useState<string>('');
+  const [editingGroupTopic, setEditingGroupTopic] = useState<string>('');
+  const [groupAvatarUrl, setGroupAvatarUrl] = useState<string | null>(null);
+  const [updatingGroup, setUpdatingGroup] = useState<boolean>(false);
 
   useEffect(() => {
     const initAuth = async () => {
@@ -124,14 +123,217 @@ export default function ChatRoomScreen({ route, navigation }: any) {
     try {
       const { data } = await supabase
         .from('chat_conversations')
-        .select('id, type, group_name, archived_at, created_by, allow_replies')
+        .select(`
+          id, type, group_name, group_avatar_url, group_topic, archived_at, created_by, allow_replies, pinned_message_id,
+          pinned_message:pinned_message_id (
+            id,
+            text_content,
+            message_type,
+            created_at,
+            sender:sender_id (
+              id,
+              full_name,
+              email
+            )
+          )
+        `)
         .eq('id', id)
         .single();
       if (data) {
         setConversation(data);
+        if (data.pinned_message) {
+          setPinnedMessage(data.pinned_message);
+        } else if (!data.pinned_message_id) {
+          setPinnedMessage(null);
+        }
+        if (data.group_name) setEditingGroupName(data.group_name);
+        if (data.group_topic) setEditingGroupTopic(data.group_topic);
+        if (data.group_avatar_url) setGroupAvatarUrl(data.group_avatar_url);
       }
     } catch (e) {
       console.warn('Error fetching conversation:', e);
+    }
+  };
+
+  const fetchGroupMembers = async () => {
+    try {
+      const { data } = await supabase
+        .from('chat_conversation_members')
+        .select(`
+          role,
+          joined_at,
+          user:user_id (
+            id,
+            full_name,
+            email,
+            department,
+            role,
+            avatar_url,
+            bio
+          )
+        `)
+        .eq('conversation_id', id);
+      if (data) {
+        setGroupMembers(data.map((m: any) => ({ ...m.user, member_role: m.role })));
+      }
+    } catch (e) {
+      console.warn('Error fetching group members:', e);
+    }
+  };
+
+  const openMediaLibrary = async () => {
+    setShowMediaLibrary(true);
+    setLoadingMedia(true);
+    try {
+      const { data } = await supabase
+        .from('chat_attachments')
+        .select(`
+          id,
+          message_id,
+          cloudinary_url,
+          resource_type,
+          file_name,
+          file_size,
+          mime_type,
+          created_at,
+          message:message_id (
+            id,
+            conversation_id,
+            created_at,
+            sender:sender_id (
+              id,
+              full_name,
+              email
+            )
+          )
+        `)
+        .order('created_at', { ascending: false });
+
+      if (data) {
+        const roomMedia = data.filter((a: any) => a.message?.conversation_id === id);
+        setMediaLibraryItems(roomMedia);
+      }
+    } catch (e) {
+      console.warn('Error fetching media attachments:', e);
+    } finally {
+      setLoadingMedia(false);
+    }
+  };
+
+  const handleShowInChat = (targetMessageId: string) => {
+    setShowMediaLibrary(false);
+    setPreviewImageUrl(null);
+    const idx = filteredMessages.findIndex(m => m.id === targetMessageId);
+    if (idx >= 0 && flatListRef.current) {
+      setTimeout(() => {
+        flatListRef.current?.scrollToIndex({ index: idx, animated: true, viewPosition: 0.5 });
+      }, 300);
+    } else {
+      Alert.alert('In Chat', 'This media item belongs to earlier conversation history.');
+    }
+  };
+
+  const handlePinMessage = async (msg: ChatMessage) => {
+    setActionMenuMessage(null);
+    let uid = currentUserId || getCurrentUserId();
+    if (!uid) uid = await AsyncStorage.getItem('ruhvi_user_id');
+    if (!uid) return;
+
+    try {
+      const { error } = await supabase.rpc('pin_chat_message', {
+        p_conversation_id: id,
+        p_message_id: msg.id,
+        p_user_id: uid,
+      });
+      if (error) {
+        Alert.alert('Error', error.message || 'Could not pin message');
+      } else {
+        setPinnedMessage(msg);
+        setConversation((prev: any) => prev ? { ...prev, pinned_message_id: msg.id } : prev);
+      }
+    } catch (e: any) {
+      Alert.alert('Error', e.message);
+    }
+  };
+
+  const handleUnpinMessage = async () => {
+    try {
+      const { error } = await supabase.rpc('unpin_chat_message', {
+        p_conversation_id: id,
+      });
+      if (error) {
+        Alert.alert('Error', error.message || 'Could not unpin message');
+      } else {
+        setPinnedMessage(null);
+        setConversation((prev: any) => prev ? { ...prev, pinned_message_id: null } : prev);
+      }
+    } catch (e: any) {
+      Alert.alert('Error', e.message);
+    }
+  };
+
+  const handlePickGroupAvatar = async () => {
+    try {
+      const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (!permission.granted) {
+        Alert.alert('Permission Denied', 'Camera roll permission is required.');
+        return;
+      }
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ['images'],
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+        base64: true,
+      });
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        setUpdatingGroup(true);
+        const asset = result.assets[0];
+        const payload = asset.base64 ? `data:image/jpeg;base64,${asset.base64}` : asset.uri;
+        const uploaded = await uploadToCloudinary(payload, `group_${id}_${Date.now()}.jpg`, 'image/jpeg');
+        if (uploaded?.cloudinary_url) {
+          setGroupAvatarUrl(uploaded.cloudinary_url);
+          await supabase.rpc('update_group_info', {
+            p_conversation_id: id,
+            p_group_avatar_url: uploaded.cloudinary_url,
+          });
+          setConversation((prev: any) => prev ? { ...prev, group_avatar_url: uploaded.cloudinary_url } : prev);
+          Alert.alert('Updated', 'Group icon updated successfully.');
+        }
+      }
+    } catch (err: any) {
+      Alert.alert('Error', err.message || 'Failed to update group icon');
+    } finally {
+      setUpdatingGroup(false);
+    }
+  };
+
+  const handleSaveGroupInfo = async () => {
+    if (!editingGroupName.trim()) {
+      Alert.alert('Required', 'Group name cannot be empty.');
+      return;
+    }
+    setUpdatingGroup(true);
+    try {
+      const { error } = await supabase.rpc('update_group_info', {
+        p_conversation_id: id,
+        p_group_name: editingGroupName.trim(),
+        p_group_topic: editingGroupTopic.trim(),
+      });
+      if (error) {
+        Alert.alert('Error', error.message || 'Could not update group details');
+      } else {
+        setConversation((prev: any) => prev ? {
+          ...prev,
+          group_name: editingGroupName.trim(),
+          group_topic: editingGroupTopic.trim(),
+        } : prev);
+        Alert.alert('Saved', 'Group details updated successfully.');
+      }
+    } catch (e: any) {
+      Alert.alert('Error', e.message);
+    } finally {
+      setUpdatingGroup(false);
     }
   };
 
@@ -205,24 +407,61 @@ export default function ChatRoomScreen({ route, navigation }: any) {
     );
   };
 
-  // Configure navigation header with Archive / Unarchive action
+  // Configure navigation header with search, media library, group info, and archive actions
   useEffect(() => {
     navigation.setOptions({
+      headerTitle: conversation?.group_name || route.params?.title || 'Chat',
       headerRight: () => (
-        <TouchableOpacity
-          onPress={conversation?.archived_at ? handleUnarchiveChat : handleArchiveChat}
-          style={{ paddingHorizontal: 8, paddingVertical: 4 }}
-          activeOpacity={0.7}
-        >
-          <MaterialIcons 
-            name={conversation?.archived_at ? "unarchive" : "archive"} 
-            size={23} 
-            color="#fff" 
-          />
-        </TouchableOpacity>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <TouchableOpacity
+            onPress={() => {
+              setIsSearchingInChat((prev) => {
+                if (prev) setInChatSearchQuery('');
+                return !prev;
+              });
+            }}
+            style={{ paddingHorizontal: 6, paddingVertical: 4 }}
+          >
+            <MaterialIcons name={isSearchingInChat ? "close" : "search"} size={22} color="#fff" />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={openMediaLibrary}
+            style={{ paddingHorizontal: 6, paddingVertical: 4 }}
+          >
+            <MaterialIcons name="photo-library" size={22} color="#fff" />
+          </TouchableOpacity>
+
+          {isGroup && (
+            <TouchableOpacity
+              onPress={() => {
+                setEditingGroupName(conversation?.group_name || '');
+                setEditingGroupTopic(conversation?.group_topic || '');
+                setGroupAvatarUrl(conversation?.group_avatar_url || null);
+                fetchGroupMembers();
+                setShowGroupInfoModal(true);
+              }}
+              style={{ paddingHorizontal: 6, paddingVertical: 4 }}
+            >
+              <MaterialIcons name="info-outline" size={23} color="#fff" />
+            </TouchableOpacity>
+          )}
+
+          <TouchableOpacity
+            onPress={conversation?.archived_at ? handleUnarchiveChat : handleArchiveChat}
+            style={{ paddingHorizontal: 6, paddingVertical: 4 }}
+            activeOpacity={0.7}
+          >
+            <MaterialIcons 
+              name={conversation?.archived_at ? "unarchive" : "archive"} 
+              size={22} 
+              color="#fff" 
+            />
+          </TouchableOpacity>
+        </View>
       ),
     });
-  }, [conversation, navigation, currentUserId]);
+  }, [conversation, navigation, currentUserId, isSearchingInChat, isGroup]);
 
   const fetchMessages = useCallback(async (showLoading = true) => {
     if (showLoading) setLoading(true);
@@ -350,6 +589,14 @@ export default function ChatRoomScreen({ route, navigation }: any) {
         () => {
           // When someone reads a message, refresh read receipts live
           fetchMessages(false);
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'chat_conversations', filter: `id=eq.${id}` },
+        () => {
+          // Sync pinned message, group name, avatar & topic in real time
+          fetchConversation();
         }
       )
       .subscribe();
@@ -1077,6 +1324,43 @@ export default function ChatRoomScreen({ route, navigation }: any) {
         </View>
       )}
 
+      {/* WhatsApp-Style Pinned Message Banner */}
+      {pinnedMessage && (
+        <View style={styles.pinnedBanner}>
+          <TouchableOpacity
+            style={styles.pinnedBannerContent}
+            activeOpacity={0.8}
+            onPress={() => {
+              const idx = filteredMessages.findIndex(m => m.id === (pinnedMessage.id || conversation?.pinned_message_id));
+              if (idx >= 0 && flatListRef.current) {
+                flatListRef.current.scrollToIndex({ index: idx, animated: true, viewPosition: 0.5 });
+              } else {
+                Alert.alert('Pinned Message', pinnedMessage.text_content || 'Pinned Attachment');
+              }
+            }}
+          >
+            <View style={styles.pinnedIconCircle}>
+              <MaterialIcons name="push-pin" size={16} color="#075E54" />
+            </View>
+            <View style={{ flex: 1, marginHorizontal: 8 }}>
+              <Text style={styles.pinnedTitle} numberOfLines={1}>
+                📌 Pinned: {pinnedMessage.sender?.full_name || pinnedMessage.sender?.email || 'Message'}
+              </Text>
+              <Text style={styles.pinnedSnippet} numberOfLines={1}>
+                {pinnedMessage.text_content || (pinnedMessage.message_type === 'attachment' ? '📎 Attachment' : 'Pinned message')}
+              </Text>
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={handleUnpinMessage}
+            style={styles.pinnedCloseBtn}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          >
+            <MaterialIcons name="close" size={18} color="#666" />
+          </TouchableOpacity>
+        </View>
+      )}
+
       {loading ? (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#128C7E" />
@@ -1751,6 +2035,25 @@ export default function ChatRoomScreen({ route, navigation }: any) {
               <Text style={styles.actionMenuItemText}>Reply to message</Text>
             </TouchableOpacity>
 
+            <TouchableOpacity
+              style={styles.actionMenuItem}
+              onPress={() => {
+                if (actionMenuMessage) {
+                  if (conversation?.pinned_message_id === actionMenuMessage.id) {
+                    setActionMenuMessage(null);
+                    handleUnpinMessage();
+                  } else {
+                    handlePinMessage(actionMenuMessage);
+                  }
+                }
+              }}
+            >
+              <MaterialIcons name="push-pin" size={22} color="#075E54" style={{ marginRight: 12 }} />
+              <Text style={styles.actionMenuItemText}>
+                {conversation?.pinned_message_id === actionMenuMessage?.id ? 'Unpin message' : '📌 Pin message to top'}
+              </Text>
+            </TouchableOpacity>
+
             {actionMenuMessage?.sender_id !== currentUserId && actionMenuMessage?.sender && (
               <TouchableOpacity
                 style={styles.actionMenuItem}
@@ -1774,6 +2077,294 @@ export default function ChatRoomScreen({ route, navigation }: any) {
             </TouchableOpacity>
           </View>
         </TouchableOpacity>
+      </Modal>
+
+      {/* WhatsApp-Style In-Chatroom Media & Docs Library Modal */}
+      <Modal
+        visible={showMediaLibrary}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setShowMediaLibrary(false)}
+      >
+        <View style={styles.mediaModalOverlay}>
+          <View style={styles.mediaModalContent}>
+            {/* Header */}
+            <View style={styles.mediaModalHeader}>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <MaterialIcons name="perm-media" size={24} color="#075E54" />
+                <View style={{ marginLeft: 10 }}>
+                  <Text style={styles.mediaModalTitle}>Room Media Library</Text>
+                  <Text style={styles.mediaModalSubtitle}>
+                    {mediaLibraryItems.length} items shared in this chat
+                  </Text>
+                </View>
+              </View>
+              <TouchableOpacity
+                onPress={() => setShowMediaLibrary(false)}
+                style={styles.sheetCloseBtn}
+              >
+                <MaterialIcons name="close" size={22} color="#666" />
+              </TouchableOpacity>
+            </View>
+
+            {/* Tab Switcher */}
+            <View style={styles.mediaTabSwitcher}>
+              <TouchableOpacity
+                style={[styles.mediaTabBtn, mediaTab === 'photos' && styles.mediaTabBtnActive]}
+                onPress={() => setMediaTab('photos')}
+              >
+                <MaterialIcons
+                  name="image"
+                  size={18}
+                  color={mediaTab === 'photos' ? '#fff' : '#555'}
+                  style={{ marginRight: 6 }}
+                />
+                <Text style={[styles.mediaTabBtnText, mediaTab === 'photos' && styles.mediaTabBtnTextActive]}>
+                  Photos ({mediaLibraryItems.filter(m => m.resource_type === 'image' || m.mime_type?.startsWith('image/')).length})
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.mediaTabBtn, mediaTab === 'docs' && styles.mediaTabBtnActive]}
+                onPress={() => setMediaTab('docs')}
+              >
+                <MaterialIcons
+                  name="insert-drive-file"
+                  size={18}
+                  color={mediaTab === 'docs' ? '#fff' : '#555'}
+                  style={{ marginRight: 6 }}
+                />
+                <Text style={[styles.mediaTabBtnText, mediaTab === 'docs' && styles.mediaTabBtnTextActive]}>
+                  Documents ({mediaLibraryItems.filter(m => m.resource_type !== 'image' && !m.mime_type?.startsWith('image/')).length})
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            {loadingMedia ? (
+              <View style={{ paddingVertical: 50, alignItems: 'center' }}>
+                <ActivityIndicator size="large" color="#128C7E" />
+                <Text style={{ marginTop: 10, color: '#666' }}>Loading media files...</Text>
+              </View>
+            ) : mediaTab === 'photos' ? (
+              /* Photos Grid */
+              <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 24 }}>
+                {mediaLibraryItems.filter(m => m.resource_type === 'image' || m.mime_type?.startsWith('image/')).length === 0 ? (
+                  <View style={styles.mediaEmptyBox}>
+                    <MaterialIcons name="photo-size-select-actual" size={48} color="#CBD5E0" />
+                    <Text style={styles.mediaEmptyText}>No photos or images sent in this chat yet.</Text>
+                  </View>
+                ) : (
+                  <View style={styles.mediaGrid}>
+                    {mediaLibraryItems
+                      .filter(m => m.resource_type === 'image' || m.mime_type?.startsWith('image/'))
+                      .map((item) => (
+                        <View key={item.id} style={styles.mediaThumbCard}>
+                          <TouchableOpacity
+                            activeOpacity={0.88}
+                            onPress={() => setPreviewImageUrl(item.cloudinary_url)}
+                          >
+                            <Image
+                              source={{ uri: item.cloudinary_url }}
+                              style={styles.mediaThumbImage}
+                              resizeMode="cover"
+                            />
+                          </TouchableOpacity>
+                          <TouchableOpacity
+                            style={styles.mediaShowInChatSmallBtn}
+                            onPress={() => handleShowInChat(item.message_id)}
+                          >
+                            <MaterialIcons name="chat-bubble-outline" size={13} color="#128C7E" />
+                            <Text style={styles.mediaShowInChatSmallText}>Show in Chat</Text>
+                          </TouchableOpacity>
+                        </View>
+                      ))}
+                  </View>
+                )}
+              </ScrollView>
+            ) : (
+              /* Documents List */
+              <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 24 }}>
+                {mediaLibraryItems.filter(m => m.resource_type !== 'image' && !m.mime_type?.startsWith('image/')).length === 0 ? (
+                  <View style={styles.mediaEmptyBox}>
+                    <MaterialIcons name="folder-open" size={48} color="#CBD5E0" />
+                    <Text style={styles.mediaEmptyText}>No documents or files sent in this chat yet.</Text>
+                  </View>
+                ) : (
+                  mediaLibraryItems
+                    .filter(m => m.resource_type !== 'image' && !m.mime_type?.startsWith('image/'))
+                    .map((item) => {
+                      const isPdf = item.file_name?.toLowerCase?.().endsWith('.pdf') || item.mime_type === 'application/pdf';
+                      const sizeKb = item.file_size ? `${Math.round(item.file_size / 1024)} KB` : '';
+                      return (
+                        <View key={item.id} style={styles.mediaDocRow}>
+                          <View style={[styles.mediaDocIconBox, { backgroundColor: isPdf ? '#FFEBEE' : '#E8EAF6' }]}>
+                            <MaterialIcons
+                              name={isPdf ? 'picture-as-pdf' : 'description'}
+                              size={24}
+                              color={isPdf ? '#D32F2F' : '#3F51B5'}
+                            />
+                          </View>
+                          <View style={{ flex: 1, marginHorizontal: 10 }}>
+                            <Text style={styles.mediaDocName} numberOfLines={1}>{item.file_name || 'Document'}</Text>
+                            <Text style={styles.mediaDocMeta}>
+                              {sizeKb ? `${sizeKb} • ` : ''}
+                              {item.created_at ? new Date(item.created_at).toLocaleDateString([], { month: 'short', day: 'numeric' }) : ''}
+                            </Text>
+                          </View>
+                          <TouchableOpacity
+                            style={styles.mediaDocActionBtn}
+                            onPress={() => handleShowInChat(item.message_id)}
+                          >
+                            <MaterialIcons name="search" size={16} color="#128C7E" />
+                            <Text style={styles.mediaDocActionText}>Show</Text>
+                          </TouchableOpacity>
+                          <TouchableOpacity
+                            style={[styles.mediaDocActionBtn, { backgroundColor: '#F0FDF4', marginLeft: 6 }]}
+                            onPress={() => Linking.openURL(item.cloudinary_url)}
+                          >
+                            <MaterialIcons name="file-download" size={16} color="#166534" />
+                            <Text style={[styles.mediaDocActionText, { color: '#166534' }]}>Open</Text>
+                          </TouchableOpacity>
+                        </View>
+                      );
+                    })
+                )}
+              </ScrollView>
+            )}
+          </View>
+        </View>
+      </Modal>
+
+      {/* WhatsApp-Style Group Info & Customization Modal */}
+      <Modal
+        visible={showGroupInfoModal}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setShowGroupInfoModal(false)}
+      >
+        <View style={styles.mediaModalOverlay}>
+          <View style={styles.mediaModalContent}>
+            {/* Header */}
+            <View style={styles.mediaModalHeader}>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <MaterialIcons name="group" size={24} color="#075E54" />
+                <View style={{ marginLeft: 10 }}>
+                  <Text style={styles.mediaModalTitle}>Group Information</Text>
+                  <Text style={styles.mediaModalSubtitle}>{groupMembers.length} participants</Text>
+                </View>
+              </View>
+              <TouchableOpacity
+                onPress={() => setShowGroupInfoModal(false)}
+                style={styles.sheetCloseBtn}
+              >
+                <MaterialIcons name="close" size={22} color="#666" />
+              </TouchableOpacity>
+            </View>
+
+            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 30 }}>
+              {/* Group Avatar with Camera Edit Badge */}
+              <View style={styles.groupAvatarSection}>
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  onPress={handlePickGroupAvatar}
+                  style={styles.groupAvatarCircle}
+                >
+                  {groupAvatarUrl ? (
+                    <Image source={{ uri: groupAvatarUrl }} style={styles.groupAvatarBigImage} />
+                  ) : (
+                    <View style={styles.groupAvatarBigPlaceholder}>
+                      <MaterialIcons name="group" size={44} color="#fff" />
+                    </View>
+                  )}
+                  <View style={styles.groupAvatarCameraBadge}>
+                    {updatingGroup ? (
+                      <ActivityIndicator size="small" color="#fff" />
+                    ) : (
+                      <MaterialIcons name="camera-alt" size={16} color="#fff" />
+                    )}
+                  </View>
+                </TouchableOpacity>
+                <Text style={styles.groupAvatarChangeHint}>Tap avatar to change group icon</Text>
+              </View>
+
+              {/* Group Name & Topic Inputs */}
+              <View style={styles.groupFormGroup}>
+                <Text style={styles.groupFormLabel}>GROUP NAME / SUBJECT</Text>
+                <TextInput
+                  style={styles.groupFormInput}
+                  value={editingGroupName}
+                  onChangeText={setEditingGroupName}
+                  placeholder="Enter group subject"
+                  placeholderTextColor="#888"
+                />
+              </View>
+
+              <View style={styles.groupFormGroup}>
+                <Text style={styles.groupFormLabel}>GROUP TOPIC / DESCRIPTION</Text>
+                <TextInput
+                  style={[styles.groupFormInput, { minHeight: 64, textAlignVertical: 'top' }]}
+                  value={editingGroupTopic}
+                  onChangeText={setEditingGroupTopic}
+                  placeholder="What is this group about?"
+                  placeholderTextColor="#888"
+                  multiline
+                />
+              </View>
+
+              <TouchableOpacity
+                style={[styles.primaryActionButton, { marginTop: 4, marginBottom: 20 }]}
+                onPress={handleSaveGroupInfo}
+                disabled={updatingGroup}
+              >
+                {updatingGroup ? (
+                  <ActivityIndicator size="small" color="#fff" />
+                ) : (
+                  <>
+                    <MaterialIcons name="check" size={18} color="#fff" style={{ marginRight: 6 }} />
+                    <Text style={styles.primaryActionButtonText}>Save Group Details</Text>
+                  </>
+                )}
+              </TouchableOpacity>
+
+              {/* Participants List */}
+              <Text style={styles.sectionHeaderTitle}>Group Participants ({groupMembers.length})</Text>
+              {groupMembers.map((member) => (
+                <View key={member.id} style={styles.groupParticipantRow}>
+                  {member.avatar_url ? (
+                    <Image source={{ uri: member.avatar_url }} style={styles.participantAvatarImage} />
+                  ) : (
+                    <View style={styles.participantAvatarPlaceholder}>
+                      <Text style={styles.participantAvatarLetter}>
+                        {(member.full_name || member.email || '?')[0].toUpperCase()}
+                      </Text>
+                    </View>
+                  )}
+                  <View style={{ flex: 1, marginHorizontal: 10 }}>
+                    <Text style={styles.participantName} numberOfLines={1}>
+                      {member.full_name || member.email?.split('@')[0] || 'Staff Member'}
+                      {member.id === currentUserId ? ' (You)' : ''}
+                    </Text>
+                    <Text style={styles.participantRoleText}>
+                      {member.department ? `${member.department.toUpperCase()} • ` : ''}
+                      {member.member_role === 'admin' ? 'Group Admin' : 'Member'}
+                    </Text>
+                  </View>
+                  {member.id !== currentUserId && (
+                    <TouchableOpacity
+                      style={styles.participantDmBtn}
+                      onPress={() => {
+                        setShowGroupInfoModal(false);
+                        startDirectMessage(member);
+                      }}
+                    >
+                      <MaterialIcons name="chat" size={18} color="#128C7E" />
+                    </TouchableOpacity>
+                  )}
+                </View>
+              ))}
+            </ScrollView>
+          </View>
+        </View>
       </Modal>
     </KeyboardAvoidingView>
   );
@@ -2611,5 +3202,298 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '600',
     color: '#2D3748',
+  },
+  // Pinned Message Banner
+  pinnedBanner: {
+    backgroundColor: '#FFFFFF',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E2E8F0',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.08,
+    shadowRadius: 2,
+  },
+  pinnedBannerContent: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  pinnedIconCircle: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#E8F5E9',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  pinnedTitle: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#075E54',
+  },
+  pinnedSnippet: {
+    fontSize: 13,
+    color: '#4A5568',
+    marginTop: 1,
+  },
+  pinnedCloseBtn: {
+    padding: 6,
+  },
+  // Media Library Modal
+  mediaModalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'flex-end',
+  },
+  mediaModalContent: {
+    backgroundColor: '#FFFFFF',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    maxHeight: '85%',
+    minHeight: '50%',
+    paddingHorizontal: 16,
+    paddingTop: 16,
+  },
+  mediaModalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingBottom: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: '#EDF2F7',
+  },
+  mediaModalTitle: {
+    fontSize: 17,
+    fontWeight: '700',
+    color: '#1A202C',
+  },
+  mediaModalSubtitle: {
+    fontSize: 12,
+    color: '#718096',
+    marginTop: 1,
+  },
+  mediaTabSwitcher: {
+    flexDirection: 'row',
+    backgroundColor: '#F1F5F9',
+    borderRadius: 10,
+    padding: 4,
+    marginVertical: 12,
+  },
+  mediaTabBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 8,
+    borderRadius: 8,
+  },
+  mediaTabBtnActive: {
+    backgroundColor: '#075E54',
+  },
+  mediaTabBtnText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#64748B',
+  },
+  mediaTabBtnTextActive: {
+    color: '#FFFFFF',
+    fontWeight: '700',
+  },
+  mediaEmptyBox: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 50,
+  },
+  mediaEmptyText: {
+    fontSize: 14,
+    color: '#A0AEC0',
+    marginTop: 8,
+    textAlign: 'center',
+  },
+  mediaGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    paddingTop: 6,
+  },
+  mediaThumbCard: {
+    width: '31.3%',
+    backgroundColor: '#F8FAFC',
+    borderRadius: 8,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    marginBottom: 6,
+  },
+  mediaThumbImage: {
+    width: '100%',
+    height: 100,
+    backgroundColor: '#E2E8F0',
+  },
+  mediaShowInChatSmallBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 4,
+    backgroundColor: '#F0FDF4',
+    borderTopWidth: 1,
+    borderTopColor: '#DCFCE7',
+  },
+  mediaShowInChatSmallText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#128C7E',
+    marginLeft: 3,
+  },
+  mediaDocRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F8FAFC',
+    padding: 10,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    marginBottom: 8,
+  },
+  mediaDocIconBox: {
+    width: 42,
+    height: 42,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  mediaDocName: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#2D3748',
+  },
+  mediaDocMeta: {
+    fontSize: 11,
+    color: '#718096',
+    marginTop: 2,
+  },
+  mediaDocActionBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F0FDF4',
+    paddingHorizontal: 8,
+    paddingVertical: 6,
+    borderRadius: 6,
+  },
+  mediaDocActionText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#128C7E',
+    marginLeft: 2,
+  },
+  // Group Info Modal
+  groupAvatarSection: {
+    alignItems: 'center',
+    marginVertical: 16,
+  },
+  groupAvatarCircle: {
+    position: 'relative',
+    width: 88,
+    height: 88,
+    borderRadius: 44,
+  },
+  groupAvatarBigImage: {
+    width: 88,
+    height: 88,
+    borderRadius: 44,
+  },
+  groupAvatarBigPlaceholder: {
+    width: 88,
+    height: 88,
+    borderRadius: 44,
+    backgroundColor: '#128C7E',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  groupAvatarCameraBadge: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: '#075E54',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: '#FFFFFF',
+  },
+  groupAvatarChangeHint: {
+    fontSize: 12,
+    color: '#718096',
+    marginTop: 6,
+  },
+  groupFormGroup: {
+    marginBottom: 14,
+  },
+  groupFormLabel: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#718096',
+    marginBottom: 6,
+    letterSpacing: 0.5,
+  },
+  groupFormInput: {
+    backgroundColor: '#F8FAFC',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    fontSize: 14,
+    color: '#2D3748',
+  },
+  groupParticipantRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 10,
+    borderBottomWidth: 0.5,
+    borderBottomColor: '#EDF2F7',
+  },
+  participantAvatarImage: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+  },
+  participantAvatarPlaceholder: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#319795',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  participantAvatarLetter: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  participantName: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#2D3748',
+  },
+  participantRoleText: {
+    fontSize: 11,
+    color: '#718096',
+    marginTop: 1,
+  },
+  participantDmBtn: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: '#F0FDF4',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
