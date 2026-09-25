@@ -5,6 +5,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { setSupabaseToken } from './src/lib/supabase';
+import { registerForPushNotificationsAsync } from './src/lib/notifications';
 
 import LoginScreen from './src/screens/LoginScreen';
 import ChatListScreen from './src/screens/ChatListScreen';
@@ -23,12 +24,18 @@ export default function App() {
       if (token) {
         setSupabaseToken(token, userId);
         setIsAuthenticated(true);
+        registerForPushNotificationsAsync();
       } else {
         setIsAuthenticated(false);
       }
     };
     checkAuth();
   }, []);
+
+  const handleLoginSuccess = () => {
+    setIsAuthenticated(true);
+    registerForPushNotificationsAsync();
+  };
 
   if (isAuthenticated === null) {
     return null; // Loading screen could go here
@@ -52,7 +59,7 @@ export default function App() {
           name="Login" 
           options={{ headerShown: false }}
         >
-          {(props) => <LoginScreen {...props} onLoginSuccess={() => setIsAuthenticated(true)} />}
+          {(props) => <LoginScreen {...props} onLoginSuccess={handleLoginSuccess} />}
         </Stack.Screen>
         
         <Stack.Screen 

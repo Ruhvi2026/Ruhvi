@@ -16,6 +16,7 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MaterialIcons } from '@expo/vector-icons';
 import { supabase, getCurrentUserId } from '../lib/supabase';
+import { triggerLocalNotification } from '../lib/notifications';
 
 export default function ChatListScreen({ navigation }: any) {
   const [conversations, setConversations] = useState<any[]>([]);
@@ -53,14 +54,42 @@ export default function ChatListScreen({ navigation }: any) {
     };
     init();
 
-    // Subscribe to live realtime messages & conversations
+    // Subscribe to live realtime messages, broadcasts & notifications
     const channel = supabase
-      .channel('chat_list_global_feed')
+      .channel('chat_list_global_feed', {
+        config: {
+          broadcast: { ack: true, self: false },
+        },
+      })
+      .on('broadcast', { event: 'feed_update' }, (payload: any) => {
+        fetchChats();
+        const activeUid = getCurrentUserId() || currentUserId;
+        if (payload?.payload?.sender_id && payload.payload.sender_id !== activeUid) {
+          triggerLocalNotification(
+            payload.payload.sender_name || 'New Message',
+            payload.payload.text_content || 'You received a new message'
+          );
+        }
+      })
+      .on('broadcast', { event: 'new_message' }, (payload: any) => {
+        fetchChats();
+        const activeUid = getCurrentUserId() || currentUserId;
+        if (payload?.payload?.sender_id && payload.payload.sender_id !== activeUid) {
+          triggerLocalNotification(
+            payload.payload.sender_name || 'New Message',
+            payload.payload.text_content || 'You received a new message'
+          );
+        }
+      })
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'chat_messages' },
-        () => {
+        (payload: any) => {
           fetchChats();
+          const activeUid = getCurrentUserId() || currentUserId;
+          if (payload?.new && payload.new.sender_id !== activeUid) {
+            triggerLocalNotification('New Message', payload.new.text_content || 'You received a new message');
+          }
         }
       )
       .on(
@@ -70,12 +99,29 @@ export default function ChatListScreen({ navigation }: any) {
           fetchChats();
         }
       )
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'notifications' },
+        (payload: any) => {
+          const activeUid = getCurrentUserId() || currentUserId;
+          if (payload?.new && payload.new.user_id === activeUid) {
+            fetchChats();
+            triggerLocalNotification(payload.new.title || 'New Notification', payload.new.message || '');
+          }
+        }
+      )
       .subscribe();
+
+    // Background heartbeat poll (every 5 seconds) to ensure zero missed updates
+    const pollInterval = setInterval(() => {
+      fetchChats();
+    }, 5000);
 
     return () => {
       supabase.removeChannel(channel);
+      clearInterval(pollInterval);
     };
-  }, []);
+  }, [currentUserId]);
 
   // Automatically refresh conversations whenever the screen gains focus
   useFocusEffect(

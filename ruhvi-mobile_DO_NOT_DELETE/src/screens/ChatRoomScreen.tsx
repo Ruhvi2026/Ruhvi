@@ -26,6 +26,7 @@ import { supabase, getCurrentUserId } from '../lib/supabase';
 import { uploadToCloudinary } from '../lib/cloudinary';
 import { ChatMessage, ChatAttachment } from '../types/chat';
 import AutoLinkText from '../components/AutoLinkText';
+import { triggerLocalNotification, dispatchChatPushNotification } from '../lib/notifications';
 
 export default function ChatRoomScreen({ route, navigation }: any) {
   const { id, isGroup } = route.params;
@@ -50,6 +51,7 @@ export default function ChatRoomScreen({ route, navigation }: any) {
   // Reply State (WhatsApp style)
   const [replyingTo, setReplyingTo] = useState<ChatMessage | null>(null);
   const flatListRef = useRef<FlatList>(null);
+  const channelRef = useRef<any>(null);
   const [actionMenuMessage, setActionMenuMessage] = useState<ChatMessage | null>(null);
 
   // Order Search (#) & Order Details Modal State
@@ -272,7 +274,25 @@ export default function ChatRoomScreen({ route, navigation }: any) {
 
     // Subscribe to realtime messages & read receipts
     const channel = supabase
-      .channel(`chat_messages_${id}`)
+      .channel(`chat_messages_${id}`, {
+        config: {
+          broadcast: { ack: true, self: false },
+        },
+      })
+      .on(
+        'broadcast',
+        { event: 'new_message' },
+        (payload: any) => {
+          if (payload?.payload) {
+            const incoming = payload.payload as ChatMessage;
+            setMessages((prev) => {
+              if (prev.some((m) => m.id === incoming.id)) return prev;
+              return [incoming, ...prev];
+            });
+            markAsRead();
+          }
+        }
+      )
       .on(
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'chat_messages', filter: `conversation_id=eq.${id}` },
@@ -334,7 +354,16 @@ export default function ChatRoomScreen({ route, navigation }: any) {
       )
       .subscribe();
 
+    channelRef.current = channel;
+
+    // Heartbeat poll every 4 seconds to guarantee zero missed messages on mobile networks
+    const pollInterval = setInterval(() => {
+      fetchMessages(false);
+    }, 4000);
+
     return () => {
+      channelRef.current = null;
+      clearInterval(pollInterval);
       supabase.removeChannel(channel);
     };
   }, [id, fetchMessages, markAsRead]);
@@ -564,6 +593,40 @@ export default function ChatRoomScreen({ route, navigation }: any) {
         setPendingEntityRefs([]);
         setPendingMentions([]);
         setMessages((prev) => [data as ChatMessage, ...prev.filter((m) => m.id !== data.id)]);
+
+        // 1. Instant broadcast to room channel (<50ms peer-to-peer delivery)
+        try {
+          if (channelRef.current) {
+            channelRef.current.send({
+              type: 'broadcast',
+              event: 'new_message',
+              payload: data,
+            });
+          }
+        } catch (_) {}
+
+        // 2. Broadcast to global feed channel for real-time list previews
+        try {
+          const globalChan = supabase.channel('chat_list_global_feed');
+          globalChan.send({
+            type: 'broadcast',
+            event: 'feed_update',
+            payload: {
+              conversation_id: id,
+              sender_id: uid,
+              sender_name: data.sender?.full_name || 'Staff Member',
+              text_content: trimmed,
+            },
+          });
+        } catch (_) {}
+
+        // 3. Dispatch free push notification to recipients' mobile devices
+        dispatchChatPushNotification(
+          id,
+          uid,
+          data.sender?.full_name || 'Staff Member',
+          trimmed
+        );
       }
     } catch (err: any) {
       Alert.alert('Error', err.message || 'Failed to send message');
@@ -685,6 +748,40 @@ export default function ChatRoomScreen({ route, navigation }: any) {
       };
 
       setMessages((prev) => [completeMessage, ...prev.filter(m => m.id !== tempId && m.id !== completeMessage.id)]);
+
+      // 1. Instant broadcast to room channel
+      try {
+        if (channelRef.current) {
+          channelRef.current.send({
+            type: 'broadcast',
+            event: 'new_message',
+            payload: completeMessage,
+          });
+        }
+      } catch (_) {}
+
+      // 2. Broadcast to global feed channel
+      try {
+        const globalChan = supabase.channel('chat_list_global_feed');
+        globalChan.send({
+          type: 'broadcast',
+          event: 'feed_update',
+          payload: {
+            conversation_id: id,
+            sender_id: uid,
+            sender_name: completeMessage.sender?.full_name || 'Staff Member',
+            text_content: '📎 Sent an attachment',
+          },
+        });
+      } catch (_) {}
+
+      // 3. Dispatch free push notification for attachment
+      dispatchChatPushNotification(
+        id,
+        uid,
+        completeMessage.sender?.full_name || 'Staff Member',
+        '📎 Sent an attachment'
+      );
     } catch (err: any) {
       console.error('Upload error:', err);
       // Remove temporary optimistic message on failure

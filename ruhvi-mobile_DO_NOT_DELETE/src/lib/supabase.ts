@@ -42,6 +42,13 @@ export const getSupabaseClient = (): SupabaseClient => {
           ...(currentToken ? { Authorization: `Bearer ${currentToken}` } : {})
         }
       },
+      realtime: {
+        params: {
+          apikey: supabaseAnonKey,
+          ...(currentToken ? { token: currentToken } : {})
+        },
+        heartbeatIntervalMs: 15000
+      },
       auth: {
         persistSession: false,
         autoRefreshToken: false,
@@ -75,5 +82,10 @@ export const getCurrentToken = (): string | null => currentToken;
 export const setSupabaseToken = (token: string | null, userId?: string | null) => {
   currentToken = token;
   cachedUserId = userId || (token ? parseJwtSub(token) : null);
-  activeClient = null; // force recreation with new token headers
+  if (activeClient) {
+    if (activeClient.realtime && token) {
+      activeClient.realtime.setAuth(token);
+    }
+    activeClient = null; // force recreation with new token headers
+  }
 };

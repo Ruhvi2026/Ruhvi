@@ -254,6 +254,72 @@ export async function POST(
       await supabase.from('chat_entity_references').insert(refRows);
     }
 
+    // Dispatch push notifications to mobile devices (Expo + FCM)
+    try {
+      const { data: members } = await supabase
+        .from('chat_conversation_members')
+        .select('user_id')
+        .eq('conversation_id', conversationId)
+        .neq('user_id', staffUser.id)
+        .is('left_at', null);
+
+      if (members && members.length > 0) {
+        const recipientIds = members.map((m: any) => m.user_id);
+        const { getTokensForUsers, sendFcmToTokens } =
+          await import('@/lib/fcm-admin');
+        const tokens = await getTokensForUsers(recipientIds);
+        if (tokens.length > 0) {
+          const expoTokens = tokens.filter(
+            (t) =>
+              t.startsWith('ExponentPushToken[') ||
+              t.startsWith('ExpoPushToken[')
+          );
+          const fcmTokens = tokens.filter(
+            (t) =>
+              !t.startsWith('ExponentPushToken[') &&
+              !t.startsWith('ExpoPushToken[')
+          );
+          const senderName =
+            staffUser.full_name || staffUser.email || 'Staff Member';
+          const preview =
+            message_type === 'attachment'
+              ? '📎 Sent an attachment'
+              : text_content?.slice(0, 100) || 'Sent a message';
+
+          if (expoTokens.length > 0) {
+            fetch('https://exp.host/--/api/v2/push/send', {
+              method: 'POST',
+              headers: {
+                Accept: 'application/json',
+                'Accept-Encoding': 'gzip, deflate',
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(
+                expoTokens.map((token) => ({
+                  to: token,
+                  sound: 'default',
+                  title: senderName,
+                  body: preview,
+                  channelId: 'chat_messages',
+                  data: { conversationId, type: 'chat' },
+                }))
+              ),
+            }).catch(() => {});
+          }
+
+          if (fcmTokens.length > 0) {
+            sendFcmToTokens(fcmTokens, {
+              title: senderName,
+              body: preview,
+              data: { conversationId, category: 'CHAT' },
+            }).catch(() => {});
+          }
+        }
+      }
+    } catch (pushErr) {
+      console.error('[Chat POST /messages] Push dispatch error:', pushErr);
+    }
+
     return NextResponse.json({ message }, { status: 201 });
   } catch (err: any) {
     console.error('[Chat POST /messages]', err);
