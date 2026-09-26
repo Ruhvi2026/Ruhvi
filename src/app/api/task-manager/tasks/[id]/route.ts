@@ -183,13 +183,21 @@ export async function PUT(
     }
 
     // Sync group name if title changed
-    if (updates.title && existingTask.messenger_group_id && updates.title !== existingTask.title) {
-      const groupName = `Task: ${existingTask.task_id_text} - ${updates.title}`.substring(0, 100);
+    if (
+      updates.title &&
+      existingTask.messenger_group_id &&
+      updates.title !== existingTask.title
+    ) {
+      const groupName =
+        `Task: ${existingTask.task_id_text} - ${updates.title}`.substring(
+          0,
+          100
+        );
       await supabase
         .from('chat_conversations')
         .update({ group_name: groupName })
         .eq('id', existingTask.messenger_group_id);
-      
+
       // Optionally insert a system message in the chat about the rename
       await supabase.from('chat_messages').insert({
         conversation_id: existingTask.messenger_group_id,

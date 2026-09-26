@@ -156,9 +156,12 @@ export default function TaskDetail({ task, onBack, onEdit }: TaskDetailProps) {
     if (isCreatingGroup) return;
     setIsCreatingGroup(true);
     try {
-      const res = await fetch(`/api/task-manager/tasks/${task.id}/messenger-group`, {
-        method: 'POST',
-      });
+      const res = await fetch(
+        `/api/task-manager/tasks/${task.id}/messenger-group`,
+        {
+          method: 'POST',
+        }
+      );
       if (!res.ok) {
         const errorData = await res.json();
         throw new Error(errorData.error || 'Failed to create group');
@@ -216,7 +219,7 @@ export default function TaskDetail({ task, onBack, onEdit }: TaskDetailProps) {
           {task.messenger_group_id ? (
             <Link
               href={`/admin/chat?c=${task.messenger_group_id}`}
-              className="flex items-center gap-2 rounded-lg bg-indigo-600/20 px-3 py-2 text-sm font-medium text-indigo-400 transition-colors hover:bg-indigo-600/30 border border-indigo-500/30"
+              className="flex items-center gap-2 rounded-lg border border-indigo-500/30 bg-indigo-600/20 px-3 py-2 text-sm font-medium text-indigo-400 transition-colors hover:bg-indigo-600/30"
             >
               <MessageSquare className="h-4 w-4" /> Open Task Group
             </Link>

@@ -18,7 +18,9 @@ export async function POST(
     // 1. Fetch the task details to ensure it exists and get its title, and to check if a group already exists.
     const { data: task, error: taskErr } = await supabase
       .from('tasks')
-      .select('id, title, messenger_group_id, task_id_text, created_by, assignee_id')
+      .select(
+        'id, title, messenger_group_id, task_id_text, created_by, assignee_id'
+      )
       .eq('id', taskId)
       .eq('deleted_at', null)
       .single();
@@ -69,7 +71,10 @@ export async function POST(
     const validMemberIds = validUsers?.map((u: any) => u.id) || [];
 
     // 4. Create the group
-    const groupName = `Task: ${task.task_id_text} - ${task.title}`.substring(0, 100);
+    const groupName = `Task: ${task.task_id_text} - ${task.title}`.substring(
+      0,
+      100
+    );
     const { data: conv, error: convErr } = await supabase
       .from('chat_conversations')
       .insert({

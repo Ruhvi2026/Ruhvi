@@ -149,13 +149,15 @@ export async function GET() {
         if (conv.type === 'group') {
           const { data: task } = await supabase
             .from('tasks')
-            .select(`
+            .select(
+              `
               id,
               task_id_text,
               title,
               status:task_statuses(name, color),
               priority:task_priorities(name, color)
-            `)
+            `
+            )
             .eq('messenger_group_id', conv.id)
             .maybeSingle();
           linked_task = task || null;
