@@ -16,8 +16,7 @@ export async function POST(request: Request) {
       .from('notifications')
       .update({ read: true })
       .eq('user_id', user.id)
-      .eq('read', false)
-      .neq('category', 'CHAT');
+      .eq('read', false);
 
     if (error) {
       return NextResponse.json(

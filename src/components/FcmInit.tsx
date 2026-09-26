@@ -67,15 +67,6 @@ export function FcmInit() {
 
         onForegroundMessage((payload) => {
           console.log('[FCM] Received foreground message:', payload);
-          // Ignore internal staff chat notifications on customer storefront
-          if (
-            payload.data?.category === 'CHAT' ||
-            payload.data?.type === 'chat' ||
-            payload.data?.conversationId
-          ) {
-            return;
-          }
-
           // Refresh the global unread count and notifications context
           fetchNotifications();
 

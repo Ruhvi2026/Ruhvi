@@ -16,13 +16,12 @@ Notifications.setNotificationHandler({
 
 /**
  * Register device for Push Notifications & save token in Supabase user_push_tokens
- * Fetches both native FCM device token and Expo push token for maximum delivery reliability
  */
 export async function registerForPushNotificationsAsync(): Promise<string | null> {
   if (Platform.OS === 'web') return null;
 
   try {
-    // Android requires an explicit Notification Channel with MAX importance for heads-up alerts
+    // Android requires an explicit Notification Channel
     if (Platform.OS === 'android') {
       await Notifications.setNotificationChannelAsync('chat_messages', {
         name: 'Chat Messages',
@@ -33,8 +32,6 @@ export async function registerForPushNotificationsAsync(): Promise<string | null
         enableLights: true,
         enableVibrate: true,
         showBadge: true,
-        lockscreenVisibility: Notifications.AndroidNotificationVisibility.PUBLIC,
-        bypassDnd: false,
       });
     }
 
@@ -51,65 +48,44 @@ export async function registerForPushNotificationsAsync(): Promise<string | null
       return null;
     }
 
-    let nativeFcmToken: string | null = null;
-    let expoPushToken: string | null = null;
-
-    // 1. Get Native Android FCM Device Token
-    try {
-      const deviceData = await Notifications.getDevicePushTokenAsync();
-      if (deviceData?.data) {
-        nativeFcmToken = typeof deviceData.data === 'string' ? deviceData.data : JSON.stringify(deviceData.data);
-        console.log('[Notifications] Native Android FCM Token registered');
-      }
-    } catch (deviceErr) {
-      console.warn('[Notifications] Native FCM token registration note:', deviceErr);
-    }
-
-    // 2. Get Expo Push Token
+    // Get Expo Push Token
+    let token: string | null = null;
     try {
       const tokenData = await Notifications.getExpoPushTokenAsync({
         projectId: 'a57902f9-aeb4-49f6-89df-51c45a855236',
       });
-      if (tokenData?.data) {
-        expoPushToken = tokenData.data;
-        console.log('[Notifications] Expo Push Token registered');
-      }
+      token = tokenData.data;
     } catch (tokenErr) {
-      console.warn('[Notifications] Expo push token registration note:', tokenErr);
+      // Fallback to native device push token
+      try {
+        const deviceData = await Notifications.getDevicePushTokenAsync();
+        token = deviceData.data;
+      } catch (deviceErr) {
+        console.warn('[Notifications] Could not get push token:', deviceErr);
+      }
     }
 
-    const primaryToken = expoPushToken || nativeFcmToken;
-    if (!primaryToken) return null;
+    if (!token) return null;
 
-    // 3. Save tokens to Supabase user_push_tokens
+    // Save token to Supabase user_push_tokens
     let uid = getCurrentUserId();
     if (!uid) {
       uid = await AsyncStorage.getItem('ruhvi_user_id');
     }
 
-    if (uid) {
-      const tokensToSave = Array.from(
-        new Set([expoPushToken, nativeFcmToken].filter((t): t is string => !!t && t.length > 5))
+    if (uid && token) {
+      await supabase.from('user_push_tokens').upsert(
+        {
+          user_id: uid,
+          token: token,
+          platform: Platform.OS,
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: 'token' }
       );
-
-      for (const t of tokensToSave) {
-        const { error } = await supabase.from('user_push_tokens').upsert(
-          {
-            user_id: uid,
-            token: t,
-            platform: Platform.OS,
-            last_seen_at: new Date().toISOString(),
-          },
-          { onConflict: 'user_id,token' }
-        );
-
-        if (error) {
-          console.warn('[Notifications] Token upsert error:', error.message);
-        }
-      }
     }
 
-    return primaryToken;
+    return token;
   } catch (error) {
     console.warn('[Notifications] Registration error:', error);
     return null;
@@ -141,7 +117,7 @@ export async function triggerLocalNotification(
 }
 
 /**
- * Dispatch Push Notifications to conversation members across both Expo & native FCM services
+ * Dispatch free Expo Push Notifications to conversation members
  */
 export async function dispatchChatPushNotification(
   conversationId: string,
@@ -179,36 +155,7 @@ export async function dispatchChatPushNotification(
       }
     } catch (_) {}
 
-    const cleanBody = previewText || 'Sent a message';
-
-    // 2. Attempt delivery via the centralized backend endpoint (sends to BOTH Expo + FCM v1)
-    let backendDelivered = false;
-    try {
-      const res = await fetch('https://admin.ruhvi.in/api/internal-chat/push-notify', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          conversation_id: conversationId,
-          sender_id: senderId,
-          sender_name: notificationTitle,
-          text_content: cleanBody,
-        }),
-      });
-      if (res.ok) {
-        const data = await res.json();
-        if (data.success) {
-          backendDelivered = true;
-        }
-      }
-    } catch (backendErr) {
-      console.log('[Notifications] Centralized push-notify failed, using direct client dispatch fallback:', backendErr);
-    }
-
-    if (backendDelivered) return;
-
-    // 3. Fallback direct client dispatch for Expo Push tokens
+    // 2. Get recipients (all other active members in this conversation)
     const { data: members, error: memErr } = await supabase
       .from('chat_conversation_members')
       .select('user_id')
@@ -220,6 +167,7 @@ export async function dispatchChatPushNotification(
 
     const recipientIds = members.map((m: any) => m.user_id);
 
+    // 3. Fetch push tokens for those recipients
     const { data: tokenRows, error: tokErr } = await supabase
       .from('user_push_tokens')
       .select('token')
@@ -227,18 +175,20 @@ export async function dispatchChatPushNotification(
 
     if (tokErr || !tokenRows || tokenRows.length === 0) return;
 
+    // 4. Filter for valid Expo Push tokens
     const expoTokens = tokenRows
       .map((r: any) => r.token)
       .filter((tok: string) => tok && (tok.startsWith('ExponentPushToken[') || tok.startsWith('ExpoPushToken[')));
 
     if (expoTokens.length === 0) return;
 
+    // 5. Send via Expo's free push notification API with high priority (wakes up Android when app closed)
     const messages = expoTokens.map((token: string) => ({
       to: token,
       sound: 'default',
       priority: 'high',
       title: notificationTitle,
-      body: cleanBody,
+      body: previewText || 'Sent a message',
       channelId: 'chat_messages',
       data: {
         conversationId,
@@ -259,3 +209,5 @@ export async function dispatchChatPushNotification(
     console.warn('[Notifications] Background push dispatch failed:', err);
   }
 }
+
+

@@ -93,9 +93,7 @@ export default function NotificationsInboxPage() {
         </div>
       ) : notifications.length > 0 ? (
         <div className="space-y-4">
-          {notifications
-            .filter((n) => n.category !== 'CHAT')
-            .map((notif) => (
+          {notifications.map((notif) => (
             <div
               key={notif.id}
               onClick={() => markAsRead(notif.id)}
