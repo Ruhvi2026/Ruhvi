@@ -46,3 +46,10 @@ PERFORMANCE_OPTIMIZATION_REPORT.pdf
 
 # Agent Manager worktrees / local state
 .kilo/
+
+# Firebase / Google Services credentials — NEVER COMMIT
+google-services.json
+GoogleService-Info.plist
+firebase-adminsdk*.json
+service-account*.json
+*-firebase-adminsdk-*.json
