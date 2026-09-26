@@ -43,6 +43,7 @@ export default function TaskDetail({ task, onBack, onEdit }: TaskDetailProps) {
   const [newComment, setNewComment] = useState('');
   const [isProgressUpdate, setIsProgressUpdate] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [isCreatingGroup, setIsCreatingGroup] = useState(false);
 
   const priorityColors: Record<string, string> = {
     Low: 'bg-gray-500/20 text-gray-400 border-gray-500/30',
@@ -151,6 +152,27 @@ export default function TaskDetail({ task, onBack, onEdit }: TaskDetailProps) {
     }
   };
 
+  const handleCreateMessengerGroup = async () => {
+    if (isCreatingGroup) return;
+    setIsCreatingGroup(true);
+    try {
+      const res = await fetch(`/api/task-manager/tasks/${task.id}/messenger-group`, {
+        method: 'POST',
+      });
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || 'Failed to create group');
+      }
+      // Group created, refresh task to get the new messenger_group_id
+      onEdit();
+    } catch (err) {
+      console.error('Failed to create messenger group:', err);
+      alert('Error: ' + (err as Error).message);
+    } finally {
+      setIsCreatingGroup(false);
+    }
+  };
+
   const slaStatus = getSlaStatus();
 
   return (
@@ -191,6 +213,23 @@ export default function TaskDetail({ task, onBack, onEdit }: TaskDetailProps) {
           </div>
         </div>
         <div className="flex items-center gap-2">
+          {task.messenger_group_id ? (
+            <Link
+              href={`/admin/chat?c=${task.messenger_group_id}`}
+              className="flex items-center gap-2 rounded-lg bg-indigo-600/20 px-3 py-2 text-sm font-medium text-indigo-400 transition-colors hover:bg-indigo-600/30 border border-indigo-500/30"
+            >
+              <MessageSquare className="h-4 w-4" /> Open Task Group
+            </Link>
+          ) : (
+            <button
+              onClick={handleCreateMessengerGroup}
+              disabled={isCreatingGroup}
+              className="flex items-center gap-2 rounded-lg bg-indigo-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-700 disabled:opacity-50"
+            >
+              <MessageSquare className="h-4 w-4" />
+              {isCreatingGroup ? 'Creating...' : 'Create Task Group'}
+            </button>
+          )}
           <button
             onClick={onEdit}
             className="flex items-center gap-2 rounded-lg bg-white/10 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-white/15"

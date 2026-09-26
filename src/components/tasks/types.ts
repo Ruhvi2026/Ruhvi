@@ -180,6 +180,7 @@ export interface Task {
   completed_at: string | null;
   closed_at: string | null;
   deleted_at: string | null;
+  messenger_group_id: string | null;
 
   // Relations
   assignee?: TaskUser;

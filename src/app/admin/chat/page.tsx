@@ -917,6 +917,43 @@ function GroupInfoPanel({
           </p>
         </div>
 
+        {/* Linked Task Details */}
+        {conv.linked_task && (
+          <div className="rounded-lg border border-indigo-500/30 bg-indigo-500/10 p-3">
+            <div className="mb-2 flex items-center justify-between">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-indigo-400">
+                Linked Task
+              </p>
+              <Link
+                href={`/admin/task-manager/${conv.linked_task.id}`}
+                className="text-[10px] font-medium text-indigo-300 hover:text-indigo-200 hover:underline"
+              >
+                View
+              </Link>
+            </div>
+            <div className="flex flex-col gap-1">
+              <span className="text-xs font-medium text-slate-300">
+                {conv.linked_task.task_id_text}
+              </span>
+              <span className="text-sm font-bold text-white">
+                {conv.linked_task.title}
+              </span>
+              <div className="mt-1 flex items-center gap-2">
+                {conv.linked_task.priority && (
+                  <span className="rounded border border-white/20 bg-black/20 px-1.5 py-0.5 text-[10px] font-medium text-slate-300">
+                    {conv.linked_task.priority.name}
+                  </span>
+                )}
+                {conv.linked_task.status && (
+                  <span className="rounded border border-white/20 bg-black/20 px-1.5 py-0.5 text-[10px] font-medium text-slate-300">
+                    {conv.linked_task.status.name}
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Members list */}
         <div>
           <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-slate-500">

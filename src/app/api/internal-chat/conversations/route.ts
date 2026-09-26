@@ -144,12 +144,30 @@ export async function GET() {
           other_user = otherMember?.user || null;
         }
 
+        // Linked task (if this is a task group)
+        let linked_task = null;
+        if (conv.type === 'group') {
+          const { data: task } = await supabase
+            .from('tasks')
+            .select(`
+              id,
+              task_id_text,
+              title,
+              status:task_statuses(name, color),
+              priority:task_priorities(name, color)
+            `)
+            .eq('messenger_group_id', conv.id)
+            .maybeSingle();
+          linked_task = task || null;
+        }
+
         return {
           ...conv,
           members,
           last_message: lastMsg || null,
           unread_count: unread || 0,
           other_user,
+          linked_task,
         };
       })
     );

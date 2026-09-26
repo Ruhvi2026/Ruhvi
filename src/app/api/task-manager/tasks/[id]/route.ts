@@ -182,6 +182,24 @@ export async function PUT(
       );
     }
 
+    // Sync group name if title changed
+    if (updates.title && existingTask.messenger_group_id && updates.title !== existingTask.title) {
+      const groupName = `Task: ${existingTask.task_id_text} - ${updates.title}`.substring(0, 100);
+      await supabase
+        .from('chat_conversations')
+        .update({ group_name: groupName })
+        .eq('id', existingTask.messenger_group_id);
+      
+      // Optionally insert a system message in the chat about the rename
+      await supabase.from('chat_messages').insert({
+        conversation_id: existingTask.messenger_group_id,
+        sender_id: staffUser.id,
+        message_type: 'system',
+        system_action: 'group_renamed',
+        text_content: `Task renamed to "${updates.title}". Group name synced automatically.`,
+      });
+    }
+
     // If assignee changed, create assignment record
     if (body.assignee_id && body.assignee_id !== existingTask.assignee_id) {
       await supabase.from('task_assignments').insert({

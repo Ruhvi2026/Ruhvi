@@ -36,6 +36,7 @@ export interface ChatConversation {
   last_message?: ChatMessage | null;
   unread_count?: number;
   other_user?: ChatUserProfile; // for direct chats
+  linked_task?: any; // linked task manager details
 }
 
 /** chat_conversation_members row */
