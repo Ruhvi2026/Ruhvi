@@ -42,6 +42,7 @@ import {
   Pin,
   Smile,
   Lock,
+  ClipboardList,
 } from 'lucide-react';
 import Link from 'next/link';
 import AutoLinkText from '@/components/chat/AutoLinkText';
@@ -1591,6 +1592,14 @@ export default function InternalChatPage() {
             )}
           </div>
           <div className="flex items-center gap-1.5">
+            <Link
+              href="/admin/task-manager"
+              className="flex h-8 items-center justify-center gap-1.5 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-2.5 text-xs font-semibold text-emerald-300 transition-colors hover:bg-emerald-500/20"
+              title="Open Task Manager"
+            >
+              <ClipboardList className="h-3.5 w-3.5" />
+              <span>Tasks</span>
+            </Link>
             {user?.role === 'super_admin' && (
               <Link
                 href="/admin/chat/manage"

@@ -36,6 +36,7 @@ import {
   Download,
   AlertCircle,
   Hash,
+  ClipboardList,
 } from 'lucide-react';
 
 function formatTime(iso: string) {
@@ -620,6 +621,14 @@ export default function FloatingStaffMessenger() {
               <Search className="h-3.5 w-3.5" />
             </button>
           )}
+
+          <Link
+            href="/admin/task-manager"
+            className="rounded-lg p-1.5 text-slate-400 transition hover:bg-white/10 hover:text-emerald-400"
+            title="Open Task Manager (/admin/task-manager)"
+          >
+            <ClipboardList className="h-3.5 w-3.5" />
+          </Link>
 
           <Link
             href="/admin/chat"

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { TouchableOpacity, Alert } from 'react-native';
+import { TouchableOpacity, Alert, View, Linking } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -68,26 +68,36 @@ export default function App() {
           options={{ 
             title: 'RuhChat',
             headerRight: () => (
-              <TouchableOpacity
-                onPress={() => {
-                  Alert.alert('Log Out', 'Are you sure you want to log out?', [
-                    { text: 'Cancel', style: 'cancel' },
-                    {
-                      text: 'Log Out',
-                      style: 'destructive',
-                      onPress: async () => {
-                        await AsyncStorage.removeItem('ruhvi_mobile_jwt');
-                        await AsyncStorage.removeItem('ruhvi_user_id');
-                        setSupabaseToken(null);
-                        setIsAuthenticated(false);
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                <TouchableOpacity
+                  onPress={() => Linking.openURL('https://admin.ruhvi.in/admin/task-manager')}
+                  style={{ padding: 4 }}
+                  accessibilityLabel="Open Task Manager"
+                >
+                  <MaterialIcons name="assignment" size={22} color="#fff" />
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={() => {
+                    Alert.alert('Log Out', 'Are you sure you want to log out?', [
+                      { text: 'Cancel', style: 'cancel' },
+                      {
+                        text: 'Log Out',
+                        style: 'destructive',
+                        onPress: async () => {
+                          await AsyncStorage.removeItem('ruhvi_mobile_jwt');
+                          await AsyncStorage.removeItem('ruhvi_user_id');
+                          setSupabaseToken(null);
+                          setIsAuthenticated(false);
+                        },
                       },
-                    },
-                  ]);
-                }}
-                style={{ padding: 4 }}
-              >
-                <MaterialIcons name="logout" size={22} color="#fff" />
-              </TouchableOpacity>
+                    ]);
+                  }}
+                  style={{ padding: 4 }}
+                >
+                  <MaterialIcons name="logout" size={22} color="#fff" />
+                </TouchableOpacity>
+              </View>
             )
           }} 
         />
