@@ -63,6 +63,10 @@ export default function TaskForm({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [showRelated, setShowRelated] = useState(false);
+  const [staffList, setStaffList] = useState<TaskUser[]>([]);
+  const [departments, setDepartments] = useState<
+    { id: string; name: string }[]
+  >([]);
 
   useEffect(() => {
     if (task) {
@@ -85,6 +89,28 @@ export default function TaskForm({
       });
     }
   }, [task]);
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    Promise.all([
+      fetch('/api/task-manager/staff')
+        .then((r) => r.json())
+        .then((d) => {
+          if (!cancelled) setStaffList(d.staff || []);
+        }),
+      fetch('/api/task-manager/departments')
+        .then((r) => r.json())
+        .then((d) => {
+          if (!cancelled) setDepartments(d.departments || []);
+        }),
+    ]).finally(() => {
+      if (!cancelled) setLoading(false);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const validate = useCallback((): boolean => {
     const newErrors: Record<string, string> = {};
@@ -331,13 +357,18 @@ export default function TaskForm({
             <label className="mb-1 block text-sm font-medium text-slate-300">
               <Users className="mr-1 inline h-3 w-3" /> Assignee
             </label>
-            <input
-              type="text"
+            <select
               value={formData.assignee_id}
               onChange={(e) => handleChange('assignee_id', e.target.value)}
-              className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-              placeholder="Enter user ID or name..."
-            />
+              className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            >
+              <option value="">Unassigned</option>
+              {staffList.map((u) => (
+                <option key={u.id} value={u.id}>
+                  {u.full_name} {u.email ? `(${u.email})` : ''}
+                </option>
+              ))}
+            </select>
             <p className="mt-1 text-[11px] text-slate-500">
               Leave empty for department assignment
             </p>
@@ -348,13 +379,18 @@ export default function TaskForm({
             <label className="mb-1 block text-sm font-medium text-slate-300">
               Department
             </label>
-            <input
-              type="text"
+            <select
               value={formData.department_id}
               onChange={(e) => handleChange('department_id', e.target.value)}
-              className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-              placeholder="Enter department ID..."
-            />
+              className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            >
+              <option value="">No Department</option>
+              {departments.map((d) => (
+                <option key={d.id} value={d.id}>
+                  {d.name}
+                </option>
+              ))}
+            </select>
           </div>
 
           {/* Due Date */}

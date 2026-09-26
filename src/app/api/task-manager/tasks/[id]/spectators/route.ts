@@ -4,14 +4,14 @@ import { getAuthenticatedStaff } from '@/lib/auth/task-auth';
 
 export async function GET(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const staffUser = await getAuthenticatedStaff();
     if (!staffUser)
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const { id } = params;
+    const { id } = await params;
     const supabase = getServiceClient();
 
     // Verify access to task
@@ -82,14 +82,14 @@ export async function GET(
 
 export async function POST(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const staffUser = await getAuthenticatedStaff();
     if (!staffUser)
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const { id } = params;
+    const { id } = await params;
     const { user_id } = await req.json();
 
     if (!user_id) {
@@ -209,14 +209,14 @@ export async function POST(
 
 export async function DELETE(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const staffUser = await getAuthenticatedStaff();
     if (!staffUser)
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const { id } = params;
+    const { id } = await params;
     const { searchParams } = new URL(req.url);
     const userId = searchParams.get('user_id');
 

@@ -187,7 +187,6 @@ export interface Task {
   priority_name?: TaskPriority;
   status_name?: TaskStatus;
   type_name?: TaskType;
-  department_name?: TaskDepartment;
   order?: TaskOrder;
   product?: TaskProduct;
   ticket?: TaskTicket;

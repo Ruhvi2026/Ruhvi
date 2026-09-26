@@ -4,14 +4,14 @@ import { getAuthenticatedStaff } from '@/lib/auth/task-auth';
 
 export async function GET(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const staffUser = await getAuthenticatedStaff();
     if (!staffUser)
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const { id } = params;
+    const { id } = await params;
     const { searchParams } = new URL(req.url);
     const limit = parseInt(searchParams.get('limit') || '50');
     const offset = parseInt(searchParams.get('offset') || '0');
@@ -97,14 +97,14 @@ export async function GET(
 
 export async function POST(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const staffUser = await getAuthenticatedStaff();
     if (!staffUser)
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const { id } = params;
+    const { id } = await params;
     const { content, is_progress_update } = await req.json();
 
     if (!content) {

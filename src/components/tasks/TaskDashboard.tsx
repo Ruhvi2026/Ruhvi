@@ -24,7 +24,9 @@ interface TaskDashboardProps {
 }
 
 export default function TaskDashboard({ initialStats }: TaskDashboardProps) {
-  const [stats, setStats] = useState<DashboardStats | null>(initialStats);
+  const [stats, setStats] = useState<DashboardStats | null>(
+    initialStats || null
+  );
   const [loading, setLoading] = useState(!initialStats);
 
   useEffect(() => {

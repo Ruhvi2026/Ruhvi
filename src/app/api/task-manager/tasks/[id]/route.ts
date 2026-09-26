@@ -4,18 +4,18 @@ import { getAuthenticatedStaff } from '@/lib/auth/task-auth';
 
 export async function GET(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const staffUser = await getAuthenticatedStaff();
     if (!staffUser)
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const { id } = params;
+    const { id } = await params;
     const supabase = getServiceClient();
 
     // Get task with all relations
-    const { data: task, error } = await supabase
+    const { data: task, error } = (await supabase
       .from('tasks')
       .select(
         `
@@ -41,7 +41,7 @@ export async function GET(
       )
       .eq('id', id)
       .eq('deleted_at', null)
-      .single();
+      .single()) as { data: any; error: any };
 
     if (error) {
       console.error('[Task GET /:id] Error:', error);
@@ -79,14 +79,14 @@ export async function GET(
 
 export async function PUT(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const staffUser = await getAuthenticatedStaff();
     if (!staffUser)
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const { id } = params;
+    const { id } = await params;
     const body = await req.json();
     const updates: Record<string, unknown> = {};
 
@@ -233,14 +233,14 @@ export async function PUT(
 
 export async function DELETE(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const staffUser = await getAuthenticatedStaff();
     if (!staffUser)
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const { id } = params;
+    const { id } = await params;
     const supabase = getServiceClient();
 
     // Check if user has permission to delete (creator or admin)
