@@ -23,6 +23,8 @@ import {
   Bell,
   ClipboardList,
 } from 'lucide-react';
+import { PortalThemeProvider } from '@/context/PortalThemeContext';
+import { ThemeToggle } from '@/components/portal/ThemeToggle';
 
 interface NavChild {
   label: string;
@@ -153,8 +155,8 @@ function NavLink({ item, collapsed }: { item: NavItem; collapsed: boolean }) {
           onClick={() => setOpen(!open)}
           className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-xs font-medium transition-all ${
             isActive
-              ? 'bg-fuchsia-500/10 text-fuchsia-400'
-              : 'text-slate-400 hover:bg-white/5 hover:text-white'
+              ? 'bg-fuchsia-500/10 text-fuchsia-600 dark:text-fuchsia-400'
+              : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-white/5 dark:hover:text-white'
           }`}
           title={collapsed ? item.label : undefined}
         >
@@ -171,7 +173,7 @@ function NavLink({ item, collapsed }: { item: NavItem; collapsed: boolean }) {
           )}
         </button>
         {open && !collapsed && (
-          <div className="ml-7 mt-1 space-y-0.5 border-l border-white/10 pl-3">
+          <div className="ml-7 mt-1 space-y-0.5 border-l border-slate-200 pl-3 dark:border-white/10">
             {item.children.map((child) => (
               <Link
                 key={child.href}
@@ -179,8 +181,8 @@ function NavLink({ item, collapsed }: { item: NavItem; collapsed: boolean }) {
                 className={`block rounded px-2 py-1.5 text-[11px] transition-colors ${
                   pathname === child.href ||
                   pathname.startsWith(child.href + '/')
-                    ? 'font-semibold text-fuchsia-400'
-                    : 'text-slate-500 hover:text-slate-200'
+                    ? 'font-semibold text-fuchsia-600 dark:text-fuchsia-400'
+                    : 'text-slate-500 hover:text-slate-800 dark:text-slate-500 dark:hover:text-slate-200'
                 }`}
               >
                 {child.label}
@@ -197,8 +199,8 @@ function NavLink({ item, collapsed }: { item: NavItem; collapsed: boolean }) {
       href={item.href!}
       className={`flex items-center gap-3 rounded-lg px-3 py-2 text-xs font-medium transition-all ${
         isActive
-          ? 'bg-fuchsia-500/10 text-fuchsia-400'
-          : 'text-slate-400 hover:bg-white/5 hover:text-white'
+          ? 'bg-fuchsia-500/10 text-fuchsia-600 dark:text-fuchsia-400'
+          : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-white/5 dark:hover:text-white'
       }`}
       title={collapsed ? item.label : undefined}
     >
@@ -227,17 +229,17 @@ function MarketingSidebarContent({
 }) {
   return (
     <div className="flex h-full flex-col">
-      <div className="flex h-14 flex-shrink-0 items-center gap-3 border-b border-white/5 px-4">
+      <div className="flex h-14 flex-shrink-0 items-center gap-3 border-b border-slate-200 px-4 dark:border-white/5">
         <Link
           href="/marketing/dashboard"
           className="flex flex-1 items-center gap-3 overflow-hidden"
         >
-          <div className="relative h-7 w-7 flex-shrink-0 overflow-hidden rounded-lg border border-fuchsia-500/20 bg-[#2d112b] shadow-md">
-            <Globe className="h-full w-full p-1 text-fuchsia-400" />
+          <div className="relative h-7 w-7 flex-shrink-0 overflow-hidden rounded-lg border border-fuchsia-300 bg-fuchsia-50 shadow-md dark:border-fuchsia-500/20 dark:bg-[#2d112b]">
+            <Globe className="h-full w-full p-1 text-fuchsia-500 dark:text-fuchsia-400" />
           </div>
           {!collapsed && (
             <div className="overflow-hidden">
-              <p className="truncate text-sm font-bold leading-none text-fuchsia-400">
+              <p className="truncate text-sm font-bold leading-none text-fuchsia-600 dark:text-fuchsia-400">
                 Ruhvi Marketing
               </p>
               <p className="mt-0.5 truncate text-[10px] text-slate-500">
@@ -249,7 +251,7 @@ function MarketingSidebarContent({
         {!collapsed && (
           <button
             onClick={onToggleCollapsed}
-            className="ml-auto text-slate-600 transition-colors hover:text-slate-400"
+            className="ml-auto text-slate-500 transition-colors hover:text-slate-700 dark:text-slate-600 dark:hover:text-slate-400"
           >
             <ChevronRight className="h-4 w-4 rotate-180" />
           </button>
@@ -260,7 +262,7 @@ function MarketingSidebarContent({
         {navGroups.map((group) => (
           <div key={group.section}>
             {!collapsed && (
-              <p className="mb-2 px-3 text-[9px] font-bold uppercase tracking-widest text-slate-600">
+              <p className="mb-2 px-3 text-[9px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-600">
                 {group.section}
               </p>
             )}
@@ -273,10 +275,10 @@ function MarketingSidebarContent({
         ))}
       </nav>
 
-      <div className="flex-shrink-0 space-y-1 border-t border-white/5 p-2">
+      <div className="flex-shrink-0 space-y-1 border-t border-slate-200 p-2 dark:border-white/5">
         <button
           onClick={signOut}
-          className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-xs text-slate-500 transition-colors hover:bg-rose-500/5 hover:text-rose-400"
+          className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-xs text-slate-500 transition-colors hover:bg-rose-500/5 hover:text-rose-500 dark:hover:text-rose-400"
         >
           <LogOut className="h-4 w-4 flex-shrink-0" />
           {!collapsed && <span>Sign Out</span>}
@@ -287,10 +289,12 @@ function MarketingSidebarContent({
               {userInitial}
             </div>
             <div className="overflow-hidden">
-              <p className="truncate text-xs font-medium text-slate-300">
+              <p className="truncate text-xs font-medium text-slate-700 dark:text-slate-300">
                 {userRoleDisplay}
               </p>
-              <p className="truncate text-[10px] text-slate-600">{userEmail}</p>
+              <p className="truncate text-[10px] text-slate-400 dark:text-slate-600">
+                {userEmail}
+              </p>
             </div>
           </div>
         )}
@@ -350,66 +354,71 @@ export default function MarketingPortalLayout({
     : 'USER';
 
   return (
-    <div
-      className="flex h-screen overflow-hidden bg-[#0a0a0f]"
-      style={{ fontFamily: 'Inter, system-ui, sans-serif' }}
-    >
-      <aside
-        className={`hidden flex-shrink-0 flex-col border-r border-white/5 bg-[#0f0f17] transition-all duration-300 lg:flex ${collapsed ? 'w-16' : 'w-60'}`}
+    <PortalThemeProvider>
+      <div
+        className="flex h-screen overflow-hidden bg-slate-50 dark:bg-[#0a0a0f]"
+        style={{ fontFamily: 'Inter, system-ui, sans-serif' }}
       >
-        <MarketingSidebarContent
-          collapsed={collapsed}
-          onToggleCollapsed={() => setCollapsed(!collapsed)}
-          navGroups={filteredNavGroups}
-          userInitial={userInitial}
-          userRoleDisplay={userRoleDisplay}
-          userEmail={profile?.email || ''}
-          signOut={signOut}
-        />
-      </aside>
-
-      {mobileOpen && (
-        <div className="fixed inset-0 z-50 flex lg:hidden">
-          <div
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-            onClick={() => setMobileOpen(false)}
+        <aside
+          className={`hidden flex-shrink-0 flex-col border-r border-slate-200 bg-white transition-all duration-300 dark:border-white/5 dark:bg-[#0f0f17] lg:flex ${collapsed ? 'w-16' : 'w-60'}`}
+        >
+          <MarketingSidebarContent
+            collapsed={collapsed}
+            onToggleCollapsed={() => setCollapsed(!collapsed)}
+            navGroups={filteredNavGroups}
+            userInitial={userInitial}
+            userRoleDisplay={userRoleDisplay}
+            userEmail={profile?.email || ''}
+            signOut={signOut}
           />
-          <aside className="relative z-10 flex h-full w-60 flex-col border-r border-white/5 bg-[#0f0f17]">
-            <button
+        </aside>
+
+        {mobileOpen && (
+          <div className="fixed inset-0 z-50 flex lg:hidden">
+            <div
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
               onClick={() => setMobileOpen(false)}
-              className="absolute right-3 top-3 z-20 text-slate-400 hover:text-white"
-            >
-              <X className="h-5 w-5" />
-            </button>
-            <MarketingSidebarContent
-              collapsed={collapsed}
-              onToggleCollapsed={() => setCollapsed(!collapsed)}
-              navGroups={filteredNavGroups}
-              userInitial={userInitial}
-              userRoleDisplay={userRoleDisplay}
-              userEmail={profile?.email || ''}
-              signOut={signOut}
             />
-          </aside>
-        </div>
-      )}
-
-      <div className="flex h-full flex-1 flex-col overflow-hidden">
-        <header className="flex h-14 flex-shrink-0 items-center justify-between border-b border-white/5 bg-[#0f0f17] px-4">
-          <div className="flex items-center gap-3">
-            <button
-              className="text-slate-400 transition-colors hover:text-white lg:hidden"
-              onClick={() => setMobileOpen(true)}
-            >
-              <Menu className="h-5 w-5" />
-            </button>
+            <aside className="relative z-10 flex h-full w-60 flex-col border-r border-slate-200 bg-white dark:border-white/5 dark:bg-[#0f0f17]">
+              <button
+                onClick={() => setMobileOpen(false)}
+                className="absolute right-3 top-3 z-20 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+              >
+                <X className="h-5 w-5" />
+              </button>
+              <MarketingSidebarContent
+                collapsed={collapsed}
+                onToggleCollapsed={() => setCollapsed(!collapsed)}
+                navGroups={filteredNavGroups}
+                userInitial={userInitial}
+                userRoleDisplay={userRoleDisplay}
+                userEmail={profile?.email || ''}
+                signOut={signOut}
+              />
+            </aside>
           </div>
-        </header>
+        )}
 
-        <main className="flex-1 overflow-y-auto bg-[#0a0a0f]">
-          <div className="min-h-full p-4 sm:p-6">{children}</div>
-        </main>
+        <div className="flex h-full flex-1 flex-col overflow-hidden">
+          <header className="flex h-14 flex-shrink-0 items-center justify-between border-b border-slate-200 bg-white px-4 dark:border-white/5 dark:bg-[#0f0f17]">
+            <div className="flex items-center gap-3">
+              <button
+                className="text-slate-500 transition-colors hover:text-slate-900 dark:text-slate-400 dark:hover:text-white lg:hidden"
+                onClick={() => setMobileOpen(true)}
+              >
+                <Menu className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="flex items-center gap-2">
+              <ThemeToggle />
+            </div>
+          </header>
+
+          <main className="flex-1 overflow-y-auto bg-slate-50 dark:bg-[#0a0a0f]">
+            <div className="min-h-full p-4 sm:p-6">{children}</div>
+          </main>
+        </div>
       </div>
-    </div>
+    </PortalThemeProvider>
   );
 }

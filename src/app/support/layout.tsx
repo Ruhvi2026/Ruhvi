@@ -29,6 +29,8 @@ import {
   ClipboardList,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { PortalThemeProvider } from '@/context/PortalThemeContext';
+import { ThemeToggle } from '@/components/portal/ThemeToggle';
 
 interface NavChild {
   label: string;
@@ -66,21 +68,23 @@ function NavLinkItem({
     <Link
       href={item.href}
       className={`group relative flex items-center gap-3 overflow-hidden rounded-xl px-3 py-2.5 text-xs font-medium transition-all duration-300 ${
-        isActive ? 'text-white' : 'text-slate-400 hover:text-white'
+        isActive
+          ? 'text-slate-900 dark:text-white'
+          : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
       }`}
       title={collapsed ? item.label : undefined}
     >
       {isActive && (
-        <div className="absolute inset-0 rounded-xl border border-indigo-500/20 bg-gradient-to-r from-indigo-500/20 to-cyan-500/5 shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]" />
+        <div className="absolute inset-0 rounded-xl border border-indigo-300/40 bg-gradient-to-r from-indigo-100 to-cyan-50 shadow-sm dark:border-indigo-500/20 dark:from-indigo-500/20 dark:to-cyan-500/5 dark:shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]" />
       )}
       {!isActive && (
-        <div className="absolute inset-0 rounded-xl bg-white/0 transition-colors group-hover:bg-white/5" />
+        <div className="absolute inset-0 rounded-xl bg-transparent transition-colors group-hover:bg-slate-100 dark:group-hover:bg-white/5" />
       )}
       <item.icon
         className={`relative z-10 h-4 w-4 flex-shrink-0 transition-transform duration-300 group-hover:scale-110 ${
           isActive
-            ? 'text-indigo-400'
-            : 'text-slate-500 group-hover:text-slate-300'
+            ? 'text-indigo-600 dark:text-indigo-400'
+            : 'text-slate-400 group-hover:text-slate-600 dark:text-slate-500 dark:group-hover:text-slate-300'
         }`}
       />
       {!collapsed && (
@@ -127,24 +131,24 @@ function SupportSidebarContent({
   const pathname = usePathname();
 
   return (
-    <div className="flex h-full flex-col bg-[#080B14]">
+    <div className="flex h-full flex-col bg-white dark:bg-[#080B14]">
       {/* Brand Header */}
-      <div className="flex h-16 flex-shrink-0 items-center justify-between border-b border-white/5 bg-white/[0.01] px-4 backdrop-blur-md">
+      <div className="flex h-16 flex-shrink-0 items-center justify-between border-b border-slate-200 bg-slate-50/50 px-4 backdrop-blur-md dark:border-white/5 dark:bg-white/[0.01]">
         <Link
           href="/support/dashboard"
           className="flex flex-1 items-center gap-3 overflow-hidden"
         >
-          <div className="relative flex h-8 w-8 flex-shrink-0 items-center justify-center overflow-hidden rounded-xl border border-indigo-500/30 bg-gradient-to-br from-indigo-500/20 to-cyan-500/10 shadow-[0_0_15px_rgba(99,102,241,0.2)]">
-            <Headphones className="h-4 w-4 text-indigo-400" />
+          <div className="relative flex h-8 w-8 flex-shrink-0 items-center justify-center overflow-hidden rounded-xl border border-indigo-300/60 bg-gradient-to-br from-indigo-100 to-cyan-50 shadow-sm dark:border-indigo-500/30 dark:from-indigo-500/20 dark:to-cyan-500/10 dark:shadow-[0_0_15px_rgba(99,102,241,0.2)]">
+            <Headphones className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
           </div>
           {!collapsed && (
             <div className="overflow-hidden">
               <div className="flex items-center gap-2">
-                <p className="truncate text-sm font-bold tracking-wide text-white">
+                <p className="truncate text-sm font-bold tracking-wide text-slate-900 dark:text-white">
                   Ruhvi Support
                 </p>
               </div>
-              <p className="mt-0.5 truncate text-[10px] uppercase tracking-widest text-indigo-400/80">
+              <p className="mt-0.5 truncate text-[10px] uppercase tracking-widest text-indigo-500 dark:text-indigo-400/80">
                 Helpdesk Console
               </p>
             </div>
@@ -153,7 +157,7 @@ function SupportSidebarContent({
         {!collapsed && (
           <button
             onClick={onToggleCollapsed}
-            className="ml-auto flex h-6 w-6 items-center justify-center rounded-lg bg-white/5 text-slate-400 transition-colors hover:bg-white/10 hover:text-white"
+            className="ml-auto flex h-6 w-6 items-center justify-center rounded-lg bg-slate-100 text-slate-500 transition-colors hover:bg-slate-200 hover:text-slate-900 dark:bg-white/5 dark:text-slate-400 dark:hover:bg-white/10 dark:hover:text-white"
             title="Collapse sidebar"
           >
             <ChevronRight className="h-3.5 w-3.5 rotate-180" />
@@ -166,7 +170,7 @@ function SupportSidebarContent({
         {navGroups.map((group) => (
           <div key={group.section}>
             {!collapsed && (
-              <p className="mb-3 px-2 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500/80">
+              <p className="mb-3 px-2 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500/80">
                 {group.section}
               </p>
             )}
@@ -185,11 +189,11 @@ function SupportSidebarContent({
       </nav>
 
       {/* Footer / User Profile */}
-      <div className="flex-shrink-0 border-t border-white/5 bg-white/[0.02] p-3 backdrop-blur-md">
+      <div className="flex-shrink-0 border-t border-slate-200 bg-slate-50/30 p-3 backdrop-blur-md dark:border-white/5 dark:bg-white/[0.02]">
         <Link
           href="https://ruhvi.in"
           target="_blank"
-          className="flex items-center gap-3 rounded-xl px-3 py-2 text-xs font-medium text-slate-400 transition-colors hover:bg-white/5 hover:text-white"
+          className="flex items-center gap-3 rounded-xl px-3 py-2 text-xs font-medium text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-white/5 dark:hover:text-white"
           title="View storefront"
         >
           <Home className="h-4 w-4 flex-shrink-0" />
@@ -197,23 +201,23 @@ function SupportSidebarContent({
         </Link>
 
         {!collapsed && (
-          <div className="mt-3 flex items-center justify-between rounded-2xl border border-white/10 bg-[#0d0f1a] p-2 shadow-inner">
+          <div className="mt-3 flex items-center justify-between rounded-2xl border border-slate-200 bg-slate-50 p-2 shadow-inner dark:border-white/10 dark:bg-[#0d0f1a]">
             <div className="flex items-center gap-3 overflow-hidden">
               <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-indigo-600 to-cyan-600 text-xs font-bold text-white shadow-md">
                 {userInitial}
               </div>
               <div className="overflow-hidden">
-                <p className="truncate text-xs font-semibold text-slate-200">
+                <p className="truncate text-xs font-semibold text-slate-800 dark:text-slate-200">
                   {userName}
                 </p>
-                <p className="truncate text-[10px] font-medium uppercase tracking-wider text-indigo-400/80">
+                <p className="truncate text-[10px] font-medium uppercase tracking-wider text-indigo-500 dark:text-indigo-400/80">
                   {roleDisplayLabel}
                 </p>
               </div>
             </div>
             <button
               onClick={signOut}
-              className="flex h-8 w-8 items-center justify-center rounded-xl bg-white/5 text-slate-400 transition-colors hover:bg-rose-500/20 hover:text-rose-400"
+              className="flex h-8 w-8 items-center justify-center rounded-xl bg-slate-100 text-slate-500 transition-colors hover:bg-rose-100 hover:text-rose-500 dark:bg-white/5 dark:text-slate-400 dark:hover:bg-rose-500/20 dark:hover:text-rose-400"
               title="Sign out"
             >
               <LogOut className="h-4 w-4" />
@@ -224,7 +228,7 @@ function SupportSidebarContent({
         {collapsed && (
           <button
             onClick={signOut}
-            className="mt-2 flex w-full items-center justify-center rounded-xl p-2 text-slate-500 transition-colors hover:bg-rose-500/20 hover:text-rose-400"
+            className="mt-2 flex w-full items-center justify-center rounded-xl p-2 text-slate-500 transition-colors hover:bg-rose-100 hover:text-rose-500 dark:hover:bg-rose-500/20 dark:hover:text-rose-400"
             title="Sign out"
           >
             <LogOut className="h-4 w-4" />
@@ -234,7 +238,7 @@ function SupportSidebarContent({
         {collapsed && (
           <button
             onClick={onToggleCollapsed}
-            className="mt-2 flex w-full items-center justify-center rounded-xl p-2 text-slate-500 transition-colors hover:bg-white/5 hover:text-white"
+            className="mt-2 flex w-full items-center justify-center rounded-xl p-2 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-white/5 dark:hover:text-white"
             title="Expand sidebar"
           >
             <ChevronRight className="h-4 w-4" />
@@ -455,104 +459,115 @@ export default function SupportLayout({
   };
 
   return (
-    <div
-      className="flex h-screen overflow-hidden bg-[#0A0D16] text-slate-200 selection:bg-indigo-500/30"
-      style={{
-        fontFamily: 'Outfit, Inter, system-ui, -apple-system, sans-serif',
-      }}
-    >
-      {/* Desktop Sidebar */}
-      <aside
-        className={`hidden flex-shrink-0 flex-col border-r border-white/5 bg-[#080B14] shadow-2xl transition-all duration-300 lg:flex ${
-          collapsed ? 'w-20' : 'w-72'
-        }`}
+    <PortalThemeProvider>
+      <div
+        className="flex h-screen overflow-hidden bg-slate-50 text-slate-900 selection:bg-indigo-500/30 dark:bg-[#0A0D16] dark:text-slate-200"
+        style={{
+          fontFamily: 'Outfit, Inter, system-ui, -apple-system, sans-serif',
+        }}
       >
-        <SupportSidebarContent {...sidebarProps} />
-      </aside>
-
-      {/* Mobile Drawer */}
-      {mobileOpen && (
-        <div className="fixed inset-0 z-50 flex lg:hidden">
-          <div
-            className="absolute inset-0 bg-black/60 backdrop-blur-md"
-            onClick={() => setMobileOpen(false)}
-          />
-          <aside className="relative z-10 flex h-full w-72 flex-col border-r border-white/10 bg-[#080B14] shadow-2xl">
-            <button
-              onClick={() => setMobileOpen(false)}
-              className="absolute right-3 top-3 z-20 flex h-8 w-8 items-center justify-center rounded-xl bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white"
-            >
-              <X className="h-4 w-4" />
-            </button>
-            <SupportSidebarContent {...sidebarProps} />
-          </aside>
-        </div>
-      )}
-
-      {/* Main Container */}
-      <div className="relative flex h-full flex-1 flex-col overflow-hidden bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-indigo-900/10 via-[#0A0D16] to-[#0A0D16]">
-        {/* Mobile menu trigger */}
-        <button
-          className="absolute left-4 top-4 z-30 flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-[#080B14]/80 text-slate-400 shadow-xl backdrop-blur-md transition-all hover:text-white lg:hidden"
-          onClick={() => setMobileOpen(true)}
+        {/* Desktop Sidebar */}
+        <aside
+          className={`hidden flex-shrink-0 flex-col border-r border-slate-200 bg-white shadow-sm transition-all duration-300 dark:border-white/5 dark:bg-[#080B14] dark:shadow-2xl lg:flex ${
+            collapsed ? 'w-20' : 'w-72'
+          }`}
         >
-          <Menu className="h-5 w-5" />
-        </button>
+          <SupportSidebarContent {...sidebarProps} />
+        </aside>
 
-        {/* Top Header (Desktop) - Optional Global Search & Auto-Assign */}
-        <header className="hidden h-16 w-full flex-shrink-0 items-center justify-between border-b border-white/5 bg-[#080B14]/80 px-8 backdrop-blur-md lg:flex">
-          <div className="flex flex-1 items-center gap-4">
-            {unassignedCount !== null && unassignedCount > 0 && (
-              <button
-                onClick={handleQuickAutoAssign}
-                disabled={isAutoAssigning}
-                className="flex items-center gap-2 rounded-full border border-indigo-500/30 bg-indigo-500/10 px-4 py-1.5 text-xs font-semibold text-indigo-300 transition-all hover:bg-indigo-500/20 hover:text-indigo-200 disabled:opacity-50"
-              >
-                <Sparkles className="h-3.5 w-3.5" />
-                {unassignedCount} Unassigned
-                <span className="ml-2 flex items-center gap-1 rounded-full bg-gradient-to-r from-indigo-500 to-cyan-500 px-2 py-0.5 text-[10px] font-bold text-white">
-                  <Zap className="h-3 w-3" />
-                  {isAutoAssigning ? 'Distributing...' : 'Auto-Distribute'}
-                </span>
-              </button>
-            )}
-          </div>
-          <form onSubmit={handleGlobalSearch} className="relative w-64">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
-            <input
-              type="text"
-              placeholder="Search tickets (ID, email)..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full rounded-full border border-white/10 bg-white/5 py-1.5 pl-9 pr-4 text-xs text-white placeholder-slate-500 backdrop-blur-sm transition-all focus:border-indigo-500/50 focus:bg-white/10 focus:outline-none focus:ring-1 focus:ring-indigo-500/50"
+        {/* Mobile Drawer */}
+        {mobileOpen && (
+          <div className="fixed inset-0 z-50 flex lg:hidden">
+            <div
+              className="absolute inset-0 bg-black/60 backdrop-blur-md"
+              onClick={() => setMobileOpen(false)}
             />
-          </form>
-        </header>
-
-        {/* Page Body */}
-        <main className="custom-scrollbar flex-1 overflow-y-auto">
-          <div className="min-h-full p-4 pt-16 sm:p-6 lg:p-8 lg:pt-4">
-            {children}
+            <aside className="relative z-10 flex h-full w-72 flex-col border-r border-slate-200 bg-white shadow-2xl dark:border-white/10 dark:bg-[#080B14]">
+              <button
+                onClick={() => setMobileOpen(false)}
+                className="absolute right-3 top-3 z-20 flex h-8 w-8 items-center justify-center rounded-xl bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-900 dark:bg-white/5 dark:text-slate-400 dark:hover:bg-white/10 dark:hover:text-white"
+              >
+                <X className="h-4 w-4" />
+              </button>
+              <SupportSidebarContent {...sidebarProps} />
+            </aside>
           </div>
-        </main>
-      </div>
+        )}
 
-      <style>{`
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 6px;
-          height: 6px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: transparent;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: rgba(255, 255, 255, 0.1);
-          border-radius: 10px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: rgba(255, 255, 255, 0.2);
-        }
-      `}</style>
-    </div>
+        {/* Main Container */}
+        <div className="relative flex h-full flex-1 flex-col overflow-hidden bg-slate-50 dark:bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] dark:from-indigo-900/10 dark:via-[#0A0D16] dark:to-[#0A0D16]">
+          {/* Mobile menu trigger */}
+          <button
+            className="absolute left-4 top-4 z-30 flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 shadow-md backdrop-blur-md transition-all hover:text-slate-900 dark:border-white/10 dark:bg-[#080B14]/80 dark:text-slate-400 dark:shadow-xl dark:hover:text-white lg:hidden"
+            onClick={() => setMobileOpen(true)}
+          >
+            <Menu className="h-5 w-5" />
+          </button>
+
+          {/* Top Header (Desktop) - Optional Global Search & Auto-Assign */}
+          <header className="hidden h-16 w-full flex-shrink-0 items-center justify-between border-b border-slate-200 bg-white px-8 backdrop-blur-md dark:border-white/5 dark:bg-[#080B14]/80 lg:flex">
+            <div className="flex flex-1 items-center gap-4">
+              {unassignedCount !== null && unassignedCount > 0 && (
+                <button
+                  onClick={handleQuickAutoAssign}
+                  disabled={isAutoAssigning}
+                  className="flex items-center gap-2 rounded-full border border-indigo-300/60 bg-indigo-50 px-4 py-1.5 text-xs font-semibold text-indigo-600 transition-all hover:bg-indigo-100 hover:text-indigo-700 disabled:opacity-50 dark:border-indigo-500/30 dark:bg-indigo-500/10 dark:text-indigo-300 dark:hover:bg-indigo-500/20 dark:hover:text-indigo-200"
+                >
+                  <Sparkles className="h-3.5 w-3.5" />
+                  {unassignedCount} Unassigned
+                  <span className="ml-2 flex items-center gap-1 rounded-full bg-gradient-to-r from-indigo-500 to-cyan-500 px-2 py-0.5 text-[10px] font-bold text-white">
+                    <Zap className="h-3 w-3" />
+                    {isAutoAssigning ? 'Distributing...' : 'Auto-Distribute'}
+                  </span>
+                </button>
+              )}
+            </div>
+            <div className="flex items-center gap-3">
+              <ThemeToggle />
+              <form onSubmit={handleGlobalSearch} className="relative w-64">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 dark:text-slate-500" />
+                <input
+                  type="text"
+                  placeholder="Search tickets (ID, email)..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full rounded-full border border-slate-200 bg-slate-50 py-1.5 pl-9 pr-4 text-xs text-slate-700 placeholder-slate-400 backdrop-blur-sm transition-all focus:border-indigo-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-indigo-400/50 dark:border-white/10 dark:bg-white/5 dark:text-white dark:placeholder-slate-500 dark:focus:border-indigo-500/50 dark:focus:bg-white/10 dark:focus:ring-indigo-500/50"
+                />
+              </form>
+            </div>
+          </header>
+
+          {/* Page Body */}
+          <main className="custom-scrollbar flex-1 overflow-y-auto">
+            <div className="min-h-full p-4 pt-16 sm:p-6 lg:p-8 lg:pt-4">
+              {children}
+            </div>
+          </main>
+        </div>
+
+        <style>{`
+          .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+          }
+          .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+          }
+          .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(100, 116, 139, 0.2);
+            border-radius: 10px;
+          }
+          .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(100, 116, 139, 0.4);
+          }
+          .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+          }
+          .dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.2);
+          }
+        `}</style>
+      </div>
+    </PortalThemeProvider>
   );
 }

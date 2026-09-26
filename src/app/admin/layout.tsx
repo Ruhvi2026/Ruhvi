@@ -43,6 +43,8 @@ import {
 } from 'lucide-react';
 import { AdminNotificationCenter } from '@/components/admin/AdminNotificationCenter';
 import FloatingStaffMessenger from '@/components/chat/FloatingStaffMessenger';
+import { PortalThemeProvider } from '@/context/PortalThemeContext';
+import { ThemeToggle } from '@/components/portal/ThemeToggle';
 
 interface NavChild {
   label: string;
@@ -295,8 +297,8 @@ function NavLink({ item, collapsed }: { item: NavItem; collapsed: boolean }) {
           onClick={() => setOpen(!open)}
           className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-xs font-medium transition-all ${
             isActive
-              ? 'bg-emerald-500/10 text-emerald-400'
-              : 'text-slate-400 hover:bg-white/5 hover:text-white'
+              ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+              : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-white/5 dark:hover:text-white'
           }`}
           title={collapsed ? item.label : undefined}
         >
@@ -313,7 +315,7 @@ function NavLink({ item, collapsed }: { item: NavItem; collapsed: boolean }) {
           )}
         </button>
         {open && !collapsed && (
-          <div className="ml-7 mt-1 space-y-0.5 border-l border-white/10 pl-3">
+          <div className="ml-7 mt-1 space-y-0.5 border-l border-slate-200 pl-3 dark:border-white/10">
             {item.children.map((child) => (
               <Link
                 key={child.href}
@@ -321,8 +323,8 @@ function NavLink({ item, collapsed }: { item: NavItem; collapsed: boolean }) {
                 className={`block rounded px-2 py-1.5 text-[11px] transition-colors ${
                   pathname === child.href ||
                   pathname.startsWith(child.href + '/')
-                    ? 'font-semibold text-emerald-400'
-                    : 'text-slate-500 hover:text-slate-200'
+                    ? 'font-semibold text-emerald-600 dark:text-emerald-400'
+                    : 'text-slate-500 hover:text-slate-800 dark:text-slate-500 dark:hover:text-slate-200'
                 }`}
               >
                 {child.label}
@@ -340,7 +342,7 @@ function NavLink({ item, collapsed }: { item: NavItem; collapsed: boolean }) {
         href={item.href!}
         target="_blank"
         rel="noopener noreferrer"
-        className={`flex items-center gap-3 rounded-lg px-3 py-2 text-xs font-medium transition-all ${'text-slate-400 hover:bg-white/5 hover:text-white'}`}
+        className={`flex items-center gap-3 rounded-lg px-3 py-2 text-xs font-medium transition-all ${'text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-white/5 dark:hover:text-white'}`}
         title={collapsed ? item.label : undefined}
       >
         <item.icon className="h-4 w-4 flex-shrink-0" />
@@ -363,8 +365,8 @@ function NavLink({ item, collapsed }: { item: NavItem; collapsed: boolean }) {
       href={item.href!}
       className={`flex items-center gap-3 rounded-lg px-3 py-2 text-xs font-medium transition-all ${
         isActive
-          ? 'bg-emerald-500/10 text-emerald-400'
-          : 'text-slate-400 hover:bg-white/5 hover:text-white'
+          ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+          : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-white/5 dark:hover:text-white'
       }`}
       title={collapsed ? item.label : undefined}
     >
@@ -393,7 +395,7 @@ function ChatIconWithBadge() {
       onClick={() => {
         window.dispatchEvent(new CustomEvent('toggle-staff-messenger'));
       }}
-      className="relative rounded-lg p-2 text-slate-500 transition-colors hover:bg-white/5 hover:text-white"
+      className="relative rounded-lg p-2 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-white/5 dark:hover:text-white"
       title="Staff Messenger (Click to open floating chat window)"
     >
       <MessageCircle className="h-4 w-4" />
@@ -422,17 +424,17 @@ function AdminSidebarContent({
   return (
     <div className="flex h-full flex-col">
       {/* Logo */}
-      <div className="flex h-14 flex-shrink-0 items-center gap-3 border-b border-white/5 px-4">
+      <div className="flex h-14 flex-shrink-0 items-center gap-3 border-b border-slate-200 px-4 dark:border-white/5">
         <Link
           href="/admin/dashboard"
           className="flex flex-1 items-center gap-3 overflow-hidden"
         >
-          <div className="relative h-7 w-7 flex-shrink-0 overflow-hidden rounded-lg border border-white/20 bg-charcoal-800 shadow-md">
+          <div className="relative h-7 w-7 flex-shrink-0 overflow-hidden rounded-lg border border-slate-300 bg-white shadow-md dark:border-white/20 dark:bg-charcoal-800">
             <Image src="/logo.png" alt="Ruhvi" fill className="object-cover" />
           </div>
           {!collapsed && (
             <div className="overflow-hidden">
-              <p className="truncate text-sm font-bold leading-none text-white">
+              <p className="truncate text-sm font-bold leading-none text-slate-900 dark:text-white">
                 Ruhvi Admin
               </p>
               <p className="mt-0.5 truncate text-[10px] text-slate-500">
@@ -444,7 +446,7 @@ function AdminSidebarContent({
         {!collapsed && (
           <button
             onClick={onToggleCollapsed}
-            className="ml-auto text-slate-600 transition-colors hover:text-slate-400"
+            className="ml-auto text-slate-500 transition-colors hover:text-slate-700 dark:text-slate-600 dark:hover:text-slate-400"
             title="Collapse sidebar"
           >
             <ChevronRight className="h-4 w-4 rotate-180" />
@@ -457,7 +459,7 @@ function AdminSidebarContent({
         {NAV_GROUPS.map((group) => (
           <div key={group.section}>
             {!collapsed && (
-              <p className="mb-2 px-3 text-[9px] font-bold uppercase tracking-widest text-slate-600">
+              <p className="mb-2 px-3 text-[9px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-600">
                 {group.section}
               </p>
             )}
@@ -470,11 +472,11 @@ function AdminSidebarContent({
         ))}
       </nav>
 
-      <div className="flex-shrink-0 space-y-1 border-t border-white/5 p-2">
+      <div className="flex-shrink-0 space-y-1 border-t border-slate-200 p-2 dark:border-white/5">
         <Link
           href="https://ruhvi.in"
           target="_blank"
-          className="flex items-center gap-3 rounded-lg px-3 py-2 text-xs text-slate-500 transition-colors hover:bg-white/5 hover:text-white"
+          className="flex items-center gap-3 rounded-lg px-3 py-2 text-xs text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-white/5 dark:hover:text-white"
           title="View storefront"
         >
           <Home className="h-4 w-4 flex-shrink-0" />
@@ -482,7 +484,7 @@ function AdminSidebarContent({
         </Link>
         <button
           onClick={signOut}
-          className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-xs text-slate-500 transition-colors hover:bg-rose-500/5 hover:text-rose-400"
+          className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-xs text-slate-500 transition-colors hover:bg-rose-500/5 hover:text-rose-500 dark:hover:text-rose-400"
           title="Sign out"
         >
           <LogOut className="h-4 w-4 flex-shrink-0" />
@@ -494,17 +496,19 @@ function AdminSidebarContent({
               {userInitial}
             </div>
             <div className="overflow-hidden">
-              <p className="truncate text-xs font-medium text-slate-300">
+              <p className="truncate text-xs font-medium text-slate-700 dark:text-slate-300">
                 Administrator
               </p>
-              <p className="truncate text-[10px] text-slate-600">{userEmail}</p>
+              <p className="truncate text-[10px] text-slate-400 dark:text-slate-600">
+                {userEmail}
+              </p>
             </div>
           </div>
         )}
         {collapsed && (
           <button
             onClick={onToggleCollapsed}
-            className="flex w-full items-center justify-center rounded-lg p-2 text-slate-600 transition-colors hover:bg-white/5 hover:text-white"
+            className="flex w-full items-center justify-center rounded-lg p-2 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-white/5 dark:hover:text-white"
             title="Expand sidebar"
           >
             <ChevronRight className="h-4 w-4" />
@@ -528,95 +532,98 @@ export default function AdminLayout({
   const userEmail = user?.email || '';
 
   return (
-    <div
-      className="flex h-screen overflow-hidden bg-[#0d0f1a]"
-      style={{ fontFamily: 'Inter, system-ui, sans-serif' }}
-    >
-      {/* Desktop Sidebar */}
-      <aside
-        className={`hidden flex-shrink-0 flex-col border-r border-white/5 bg-[#131726] transition-all duration-300 lg:flex ${
-          collapsed ? 'w-16' : 'w-60'
-        }`}
+    <PortalThemeProvider>
+      <div
+        className="flex h-screen overflow-hidden bg-slate-50 dark:bg-[#0d0f1a]"
+        style={{ fontFamily: 'Inter, system-ui, sans-serif' }}
       >
-        <AdminSidebarContent
-          collapsed={collapsed}
-          onToggleCollapsed={() => setCollapsed(!collapsed)}
-          userInitial={userInitial}
-          userEmail={userEmail}
-          signOut={signOut}
-        />
-      </aside>
-
-      {/* Mobile Sidebar */}
-      {mobileOpen && (
-        <div className="fixed inset-0 z-50 flex lg:hidden">
-          <div
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-            onClick={() => setMobileOpen(false)}
+        {/* Desktop Sidebar */}
+        <aside
+          className={`hidden flex-shrink-0 flex-col border-r border-slate-200 bg-white transition-all duration-300 dark:border-white/5 dark:bg-[#131726] lg:flex ${
+            collapsed ? 'w-16' : 'w-60'
+          }`}
+        >
+          <AdminSidebarContent
+            collapsed={collapsed}
+            onToggleCollapsed={() => setCollapsed(!collapsed)}
+            userInitial={userInitial}
+            userEmail={userEmail}
+            signOut={signOut}
           />
-          <aside className="relative z-10 flex h-full w-60 flex-col border-r border-white/5 bg-[#131726]">
-            <button
+        </aside>
+
+        {/* Mobile Sidebar */}
+        {mobileOpen && (
+          <div className="fixed inset-0 z-50 flex lg:hidden">
+            <div
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
               onClick={() => setMobileOpen(false)}
-              className="absolute right-3 top-3 z-20 text-slate-400 hover:text-white"
-            >
-              <X className="h-5 w-5" />
-            </button>
-            <AdminSidebarContent
-              collapsed={collapsed}
-              onToggleCollapsed={() => setCollapsed(!collapsed)}
-              userInitial={userInitial}
-              userEmail={userEmail}
-              signOut={signOut}
             />
-          </aside>
-        </div>
-      )}
-
-      {/* Main Content */}
-      <div className="flex h-full flex-1 flex-col overflow-hidden">
-        {/* Header */}
-        <header className="flex h-14 flex-shrink-0 items-center justify-between border-b border-white/5 bg-[#131726] px-4">
-          <div className="flex items-center gap-3">
-            <button
-              className="text-slate-400 transition-colors hover:text-white lg:hidden"
-              onClick={() => setMobileOpen(true)}
-            >
-              <Menu className="h-5 w-5" />
-            </button>
-            <div className="relative hidden sm:block">
-              <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-500" />
-              <input
-                type="text"
-                placeholder="Search orders, products, customers..."
-                className="w-72 rounded-lg border border-white/10 bg-white/5 py-1.5 pl-9 pr-4 text-xs text-slate-300 placeholder-slate-600 transition-all focus:outline-none focus:ring-1 focus:ring-emerald-500"
+            <aside className="relative z-10 flex h-full w-60 flex-col border-r border-slate-200 bg-white dark:border-white/5 dark:bg-[#131726]">
+              <button
+                onClick={() => setMobileOpen(false)}
+                className="absolute right-3 top-3 z-20 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+              >
+                <X className="h-5 w-5" />
+              </button>
+              <AdminSidebarContent
+                collapsed={collapsed}
+                onToggleCollapsed={() => setCollapsed(!collapsed)}
+                userInitial={userInitial}
+                userEmail={userEmail}
+                signOut={signOut}
               />
-            </div>
+            </aside>
           </div>
-          <div className="flex items-center gap-2">
-            <Link
-              href="/admin/settings"
-              className="rounded-lg p-2 text-slate-500 transition-colors hover:bg-white/5 hover:text-white"
-              title="Settings"
-            >
-              <Settings className="h-4 w-4" />
-            </Link>
-            <AdminNotificationCenter />
-            <ChatIconWithBadge />
-            <div className="mx-1 h-5 w-px bg-white/10" />
-            <div className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-full bg-emerald-700 text-xs font-bold text-white">
-              {userInitial}
-            </div>
-          </div>
-        </header>
+        )}
 
-        {/* Page Content */}
-        <main className="flex-1 overflow-y-auto bg-[#0d0f1a]">
-          <div className="min-h-full p-4 sm:p-6">{children}</div>
-        </main>
+        {/* Main Content */}
+        <div className="flex h-full flex-1 flex-col overflow-hidden">
+          {/* Header */}
+          <header className="flex h-14 flex-shrink-0 items-center justify-between border-b border-slate-200 bg-white px-4 dark:border-white/5 dark:bg-[#131726]">
+            <div className="flex items-center gap-3">
+              <button
+                className="text-slate-500 transition-colors hover:text-slate-900 dark:text-slate-400 dark:hover:text-white lg:hidden"
+                onClick={() => setMobileOpen(true)}
+              >
+                <Menu className="h-5 w-5" />
+              </button>
+              <div className="relative hidden sm:block">
+                <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400 dark:text-slate-500" />
+                <input
+                  type="text"
+                  placeholder="Search orders, products, customers..."
+                  className="w-72 rounded-lg border border-slate-200 bg-slate-50 py-1.5 pl-9 pr-4 text-xs text-slate-700 placeholder-slate-400 transition-all focus:outline-none focus:ring-1 focus:ring-emerald-500 dark:border-white/10 dark:bg-white/5 dark:text-slate-300 dark:placeholder-slate-600"
+                />
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <ThemeToggle />
+              <Link
+                href="/admin/settings"
+                className="rounded-lg p-2 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-white/5 dark:hover:text-white"
+                title="Settings"
+              >
+                <Settings className="h-4 w-4" />
+              </Link>
+              <AdminNotificationCenter />
+              <ChatIconWithBadge />
+              <div className="mx-1 h-5 w-px bg-slate-200 dark:bg-white/10" />
+              <div className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-full bg-emerald-700 text-xs font-bold text-white">
+                {userInitial}
+              </div>
+            </div>
+          </header>
+
+          {/* Page Content */}
+          <main className="flex-1 overflow-y-auto bg-slate-50 dark:bg-[#0d0f1a]">
+            <div className="min-h-full p-4 sm:p-6">{children}</div>
+          </main>
+        </div>
+
+        {/* Floating Staff Messenger Drawer / Popup Window */}
+        <FloatingStaffMessenger />
       </div>
-
-      {/* Floating Staff Messenger Drawer / Popup Window */}
-      <FloatingStaffMessenger />
-    </div>
+    </PortalThemeProvider>
   );
 }
