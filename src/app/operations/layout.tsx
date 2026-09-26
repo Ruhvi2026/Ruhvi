@@ -33,6 +33,7 @@ import {
   AlertTriangle,
   BookOpen,
   Eye,
+  ClipboardList,
 } from 'lucide-react';
 
 interface NavChild {
@@ -241,6 +242,16 @@ const getOperationsNavGroups = (): NavGroup[] => [
         href: '/operations/cms/banners',
         icon: Globe,
         requiredPermission: 'banner.view',
+      },
+    ],
+  },
+  {
+    section: 'COLLABORATION',
+    items: [
+      {
+        label: 'Task Manager',
+        href: '/admin/task-manager',
+        icon: ClipboardList,
       },
     ],
   },

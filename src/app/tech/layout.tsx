@@ -27,6 +27,7 @@ import {
   Search,
   Code2,
   Settings,
+  ClipboardList,
 } from 'lucide-react';
 
 interface NavChild {
@@ -79,6 +80,16 @@ const NAV_GROUPS: NavGroup[] = [
       { label: 'Webhooks & APIs', href: '/tech/integrations', icon: Webhook },
       { label: 'API Keys', href: '/tech/api-keys', icon: KeyRound },
       { label: 'AI Control Center', href: '/tech/ai-settings', icon: Wand2 },
+    ],
+  },
+  {
+    section: 'COLLABORATION',
+    items: [
+      {
+        label: 'Task Manager',
+        href: '/admin/task-manager',
+        icon: ClipboardList,
+      },
     ],
   },
 ];

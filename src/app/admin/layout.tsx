@@ -39,6 +39,7 @@ import {
   KeyRound,
   BookOpen,
   MessageCircle,
+  ClipboardList,
 } from 'lucide-react';
 import { AdminNotificationCenter } from '@/components/admin/AdminNotificationCenter';
 import FloatingStaffMessenger from '@/components/chat/FloatingStaffMessenger';
@@ -240,8 +241,17 @@ const NAV_GROUPS: NavGroup[] = [
     ],
   },
   {
-    section: 'COMMUNICATION',
+    section: 'COLLABORATION & TASKS',
     items: [
+      {
+        label: 'Task Manager',
+        icon: ClipboardList,
+        children: [
+          { label: 'All Tasks', href: '/admin/task-manager' },
+          { label: 'Create New Task', href: '/admin/task-manager/new' },
+          { label: 'My Tasks', href: '/admin/task-manager?my_tasks=true' },
+        ],
+      },
       {
         label: 'Staff Chat',
         href: '/admin/chat',

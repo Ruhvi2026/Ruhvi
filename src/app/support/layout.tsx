@@ -26,6 +26,7 @@ import {
   Sparkles,
   Zap,
   Headphones,
+  ClipboardList,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -425,6 +426,16 @@ export default function SupportLayout({
           label: 'Create Ticket',
           href: '/support/tickets/new',
           icon: PlusCircle,
+        },
+      ],
+    },
+    {
+      section: 'COLLABORATION',
+      items: [
+        {
+          label: 'Task Manager',
+          href: '/admin/task-manager',
+          icon: ClipboardList,
         },
       ],
     },

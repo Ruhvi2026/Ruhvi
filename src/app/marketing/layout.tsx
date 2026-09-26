@@ -21,6 +21,7 @@ import {
   LogOut,
   Globe,
   Bell,
+  ClipboardList,
 } from 'lucide-react';
 
 interface NavChild {
@@ -119,6 +120,16 @@ const getMarketingNavGroups = (): NavGroup[] => [
         href: '/marketing/channels/push',
         icon: Bell,
         requiredPermission: 'push.manage',
+      },
+    ],
+  },
+  {
+    section: 'COLLABORATION',
+    items: [
+      {
+        label: 'Task Manager',
+        href: '/admin/task-manager',
+        icon: ClipboardList,
       },
     ],
   },

@@ -19,6 +19,7 @@ import {
   Globe,
   Search,
   Bell,
+  ClipboardList,
 } from 'lucide-react';
 import { OrderNotificationCenter } from '@/components/portal-orders/OrderNotificationCenter';
 
@@ -89,6 +90,16 @@ const getOrdersNavGroups = (): NavGroup[] => [
         href: '/portal-orders/refunds',
         icon: CreditCard,
         requiredPermission: 'refunds.view',
+      },
+    ],
+  },
+  {
+    section: 'COLLABORATION',
+    items: [
+      {
+        label: 'Task Manager',
+        href: '/admin/task-manager',
+        icon: ClipboardList,
       },
     ],
   },

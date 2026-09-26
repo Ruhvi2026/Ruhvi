@@ -89,6 +89,8 @@ export async function middleware(request: NextRequest) {
     '/404',
     '/_not-found',
     '/unauthorized',
+    '/admin/task-manager',
+    '/admin/chat',
   ];
   const isCommonAllowed =
     commonAllowedPaths.some((p) => path.startsWith(p)) ||
@@ -307,7 +309,7 @@ export async function middleware(request: NextRequest) {
         if (
           isAdminHost &&
           (allowedPortals.includes('admin') ||
-            ['admin', 'manager'].includes(role))
+            ['admin', 'manager', 'staff', 'super_admin'].includes(role))
         )
           isPortalAllowed = true;
         if (
