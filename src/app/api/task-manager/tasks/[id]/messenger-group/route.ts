@@ -22,7 +22,7 @@ export async function POST(
         'id, title, messenger_group_id, task_id_text, created_by, assignee_id'
       )
       .eq('id', taskId)
-      .is('deleted_at', null)
+      .eq('deleted_at', null)
       .single();
 
     if (taskErr || !task) {

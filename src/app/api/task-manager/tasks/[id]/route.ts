@@ -40,7 +40,7 @@ export async function GET(
       `
       )
       .eq('id', id)
-      .is('deleted_at', null)
+      .eq('deleted_at', null)
       .single()) as { data: any; error: any };
 
     if (error) {
@@ -120,7 +120,7 @@ export async function PUT(
       .from('tasks')
       .select('*, assignee_id, department_id, created_by, status_id')
       .eq('id', id)
-      .is('deleted_at', null)
+      .eq('deleted_at', null)
       .single();
 
     if (fetchErr) {
@@ -305,7 +305,7 @@ export async function DELETE(
       .from('tasks')
       .select('created_by, assignee_id, department_id')
       .eq('id', id)
-      .is('deleted_at', null)
+      .eq('deleted_at', null)
       .single();
 
     if (fetchErr) {

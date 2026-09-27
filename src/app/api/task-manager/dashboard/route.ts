@@ -28,21 +28,21 @@ export async function GET(req: Request) {
         supabase
           .from('tasks')
           .select('id', { count: 'exact', head: true })
-          .is('deleted_at', null),
+          .eq('deleted_at', null),
         supabase
           .from('tasks')
           .select('id', { count: 'exact', head: true })
-          .is('deleted_at', null)
+          .eq('deleted_at', null)
           .eq('status_id', (await getStatusId(supabase, 'Open')) || ''),
         supabase
           .from('tasks')
           .select('id', { count: 'exact', head: true })
-          .is('deleted_at', null)
+          .eq('deleted_at', null)
           .eq('status_id', (await getStatusId(supabase, 'In Progress')) || ''),
         supabase
           .from('tasks')
           .select('id', { count: 'exact', head: true })
-          .is('deleted_at', null)
+          .eq('deleted_at', null)
           .in(
             'status_id',
             await getStatusIds(supabase, ['Completed', 'Closed'])
@@ -50,7 +50,7 @@ export async function GET(req: Request) {
         supabase
           .from('tasks')
           .select('id', { count: 'exact', head: true })
-          .is('deleted_at', null)
+          .eq('deleted_at', null)
           .lt('due_date', today)
           .not(
             'status_id',
@@ -60,7 +60,7 @@ export async function GET(req: Request) {
         supabase
           .from('tasks')
           .select('id', { count: 'exact', head: true })
-          .is('deleted_at', null)
+          .eq('deleted_at', null)
           .eq('due_date', today)
           .in(
             'status_id',
@@ -69,7 +69,7 @@ export async function GET(req: Request) {
         supabase
           .from('tasks')
           .select('id', { count: 'exact', head: true })
-          .is('deleted_at', null)
+          .eq('deleted_at', null)
           .lt('due_date', today)
           .in(
             'status_id',
@@ -94,18 +94,18 @@ export async function GET(req: Request) {
         const { count } = await supabase
           .from('tasks')
           .select('id', { count: 'exact', head: true })
-          .is('deleted_at', null)
+          .eq('deleted_at', null)
           .eq('department_id', dept.id);
         const { count: openCount } = await supabase
           .from('tasks')
           .select('id', { count: 'exact', head: true })
-          .is('deleted_at', null)
+          .eq('deleted_at', null)
           .eq('department_id', dept.id)
           .eq('status_id', (await getStatusId(supabase, 'Open')) || '');
         const { count: overdueCount } = await supabase
           .from('tasks')
           .select('id', { count: 'exact', head: true })
-          .is('deleted_at', null)
+          .eq('deleted_at', null)
           .eq('department_id', dept.id)
           .lt('due_date', today)
           .in(
@@ -127,18 +127,18 @@ export async function GET(req: Request) {
         const { count } = await supabase
           .from('tasks')
           .select('id', { count: 'exact', head: true })
-          .is('deleted_at', null)
+          .eq('deleted_at', null)
           .or(`assignee_id.eq.${member.id},created_by.eq.${member.id}`);
         const { count: openCount } = await supabase
           .from('tasks')
           .select('id', { count: 'exact', head: true })
-          .is('deleted_at', null)
+          .eq('deleted_at', null)
           .eq('assignee_id', member.id)
           .eq('status_id', (await getStatusId(supabase, 'Open')) || '');
         const { count: overdueCount } = await supabase
           .from('tasks')
           .select('id', { count: 'exact', head: true })
-          .is('deleted_at', null)
+          .eq('deleted_at', null)
           .eq('assignee_id', member.id)
           .lt('due_date', today)
           .in(
@@ -183,24 +183,24 @@ export async function GET(req: Request) {
         supabase
           .from('tasks')
           .select('id', { count: 'exact', head: true })
-          .is('deleted_at', null)
+          .eq('deleted_at', null)
           .eq('department_id', deptId || ''),
         supabase
           .from('tasks')
           .select('id', { count: 'exact', head: true })
-          .is('deleted_at', null)
+          .eq('deleted_at', null)
           .eq('department_id', deptId || '')
           .is('assignee_id', null),
         supabase
           .from('tasks')
           .select('id', { count: 'exact', head: true })
-          .is('deleted_at', null)
+          .eq('deleted_at', null)
           .eq('department_id', deptId || '')
           .is('assignee_id', null),
         supabase
           .from('tasks')
           .select('id', { count: 'exact', head: true })
-          .is('deleted_at', null)
+          .eq('deleted_at', null)
           .eq('department_id', deptId || '')
           .in(
             'priority_id',
@@ -209,7 +209,7 @@ export async function GET(req: Request) {
         supabase
           .from('tasks')
           .select('id', { count: 'exact', head: true })
-          .is('deleted_at', null)
+          .eq('deleted_at', null)
           .eq('department_id', deptId || '')
           .lt('due_date', today)
           .in(
@@ -219,7 +219,7 @@ export async function GET(req: Request) {
         supabase
           .from('tasks')
           .select('id', { count: 'exact', head: true })
-          .is('deleted_at', null)
+          .eq('deleted_at', null)
           .eq('department_id', deptId || '')
           .eq('due_date', today)
           .in(
@@ -229,7 +229,7 @@ export async function GET(req: Request) {
         supabase
           .from('tasks')
           .select('id', { count: 'exact', head: true })
-          .is('deleted_at', null)
+          .eq('deleted_at', null)
           .eq('department_id', deptId || '')
           .lt('due_date', today)
           .in(
@@ -256,7 +256,7 @@ export async function GET(req: Request) {
     const myOpenRes = await supabase
       .from('tasks')
       .select('id', { count: 'exact', head: true })
-      .is('deleted_at', null)
+      .eq('deleted_at', null)
       .or(`assignee_id.eq.${staffUser.id},created_by.eq.${staffUser.id}`)
       .in(
         'status_id',
@@ -266,7 +266,7 @@ export async function GET(req: Request) {
     const dueTodayRes = await supabase
       .from('tasks')
       .select('id', { count: 'exact', head: true })
-      .is('deleted_at', null)
+      .eq('deleted_at', null)
       .or(`assignee_id.eq.${staffUser.id},created_by.eq.${staffUser.id}`)
       .eq('due_date', today)
       .in(
@@ -277,7 +277,7 @@ export async function GET(req: Request) {
     const dueSoonRes = await supabase
       .from('tasks')
       .select('id', { count: 'exact', head: true })
-      .is('deleted_at', null)
+      .eq('deleted_at', null)
       .or(`assignee_id.eq.${staffUser.id},created_by.eq.${staffUser.id}`)
       .gt('due_date', today)
       .in(
@@ -288,7 +288,7 @@ export async function GET(req: Request) {
     const overdueRes = await supabase
       .from('tasks')
       .select('id', { count: 'exact', head: true })
-      .is('deleted_at', null)
+      .eq('deleted_at', null)
       .or(`assignee_id.eq.${staffUser.id},created_by.eq.${staffUser.id}`)
       .lt('due_date', today)
       .in(

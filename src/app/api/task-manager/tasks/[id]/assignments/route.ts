@@ -19,7 +19,7 @@ export async function GET(
       .from('tasks')
       .select('id, created_by, assignee_id, department_id')
       .eq('id', id)
-      .is('deleted_at', null)
+      .eq('deleted_at', null)
       .single();
 
     if (fetchErr || !task) {
@@ -99,7 +99,7 @@ export async function POST(
       .from('tasks')
       .select('id, created_by, assignee_id, department_id, title')
       .eq('id', id)
-      .is('deleted_at', null)
+      .eq('deleted_at', null)
       .single();
 
     if (fetchErr || !task) {
@@ -302,7 +302,7 @@ export async function DELETE(
       .from('tasks')
       .select('id, created_by, assignee_id, department_id')
       .eq('id', id)
-      .is('deleted_at', null)
+      .eq('deleted_at', null)
       .single();
 
     if (fetchErr || !task) {
