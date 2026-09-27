@@ -52,16 +52,13 @@ export async function GET(req: Request) {
           .select('id', { count: 'exact', head: true })
           .eq('deleted_at', null)
           .lt('due_date', today)
-          .not(
-            'status_id',
-            'in',
-            `(${await getStatusIds(supabase, ['Completed', 'Closed']).then((ids) => ids.join(','))})`
-          ),
+          .not('status_id', 'in', await getStatusIds(supabase, ['Completed', 'Closed'])),
         supabase
           .from('tasks')
           .select('id', { count: 'exact', head: true })
           .eq('deleted_at', null)
-          .eq('due_date', today)
+          .gte('completed_at', today)
+          .lt('completed_at', new Date(Date.now() + 86400000).toISOString().split('T')[0])
           .in(
             'status_id',
             await getStatusIds(supabase, ['Completed', 'Closed'])
@@ -221,7 +218,8 @@ export async function GET(req: Request) {
           .select('id', { count: 'exact', head: true })
           .eq('deleted_at', null)
           .eq('department_id', deptId || '')
-          .eq('due_date', today)
+          .gte('completed_at', today)
+          .lt('completed_at', new Date(Date.now() + 86400000).toISOString().split('T')[0])
           .in(
             'status_id',
             await getStatusIds(supabase, ['Completed', 'Closed'])

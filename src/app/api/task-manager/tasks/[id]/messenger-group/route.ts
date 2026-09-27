@@ -122,8 +122,8 @@ export async function POST(
     await supabase.from('task_activity').insert({
       task_id: taskId,
       user_id: staffUser.id,
-      activity_type: 'custom',
-      content: `Created Messenger Group: ${groupName}`,
+      action: 'messenger_group_created',
+      metadata: { group_name: groupName, conversation_id: conv.id },
     });
 
     return NextResponse.json({ conversation: conv }, { status: 201 });
