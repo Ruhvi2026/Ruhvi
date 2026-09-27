@@ -22,7 +22,7 @@ import {
   Calendar,
   Download,
 } from 'lucide-react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import {
   Task,
   TaskFilters,
@@ -67,6 +67,7 @@ export default function TaskList({
 }: TaskListProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const pathname = usePathname();
 
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
   const [total, setTotal] = useState(initialTotal);
@@ -137,10 +138,10 @@ export default function TaskList({
     [buildApiUrl, limit]
   );
 
-  // Initial fetch
+  // Initial fetch and re-fetch on route change (pathname/searchParams updates)
   useEffect(() => {
     fetchTasks(1);
-  }, []);
+  }, [pathname, searchParams?.toString()]);
 
   const handleFilterChange = (key: keyof TaskFilters, value: any) => {
     const newFilters = { ...filters, [key]: value };
