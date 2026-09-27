@@ -99,7 +99,7 @@ export async function GET(req: Request) {
 
     if (!isAdmin && !myTasks && !assignedByMe && !supporting && !spectating) {
       const orParts = [
-        `created_by.eq.${staffUser.id}`,
+        `created_by.eq.${staffUser.id}`, // Always include creator's tasks
         `assignee_id.eq.${staffUser.id}`,
       ];
       if (staffUser.department_id) {
@@ -109,8 +109,10 @@ export async function GET(req: Request) {
       const { data: directTasks } = await supabase
         .from('tasks')
         .select('id')
-        .eq('deleted_at', null)
+        .is('deleted_at', null)
         .or(orParts.join(','));
+      console.log('[Tasks GET] orParts:', orParts);
+      console.log('[Tasks GET] directTasks:', directTasks);
 
       const [assignmentsRes, spectatorsRes] = await Promise.all([
         supabase
@@ -144,7 +146,7 @@ export async function GET(req: Request) {
     let query = supabase
       .from('tasks')
       .select(TASK_SELECT, { count: 'exact' })
-      .eq('deleted_at', null);
+      .is('deleted_at', null);
 
     if (accessibleIds !== null) {
       query = query.in('id', accessibleIds);
