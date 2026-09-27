@@ -1417,3 +1417,298 @@ html.dark .glow-card-focus {
     }
   }
 }
+
+/* ==========================================================================
+   Portal Light Theme Overrides
+   --------------------------------------------------------------------------
+   The staff portals (admin / orders / support / operations / marketing) are
+   authored dark-first, while the storefront is light-first. When the portal
+   theme resolves to light (`html.light`), the rules below flip the portal's
+   dark palette to a light one so text, borders, cards and logos stay visible.
+
+   Everything is scoped to `.portal-shell` — a wrapper class on each portal
+   layout root — so neither the storefront nor the dark portal theme is
+   affected. Theme only: no component logic depends on these rules.
+   ========================================================================== */
+
+html.light {
+  color-scheme: light;
+}
+
+/* ---- Surfaces: dark arbitrary-hex backgrounds -------------------------- */
+html.light .portal-shell [class*='bg-[#0'],
+html.light .portal-shell [class*='bg-[#1'] {
+  background-color: #ffffff !important;
+}
+
+/* Full-page canvases keep a soft slate instead of pure white */
+html.light .portal-shell [class*='bg-[#0d0f1a]'],
+html.light .portal-shell [class*='bg-[#0a0a0f]'],
+html.light .portal-shell [class*='bg-[#0A0D16]'] {
+  background-color: #f8fafc !important;
+}
+
+/* Translucent-white elevations become a subtle slate tint */
+html.light .portal-shell [class*='bg-white/'] {
+  background-color: rgba(15, 23, 42, 0.045) !important;
+}
+
+html.light .portal-shell [class*='hover:bg-white/']:hover {
+  background-color: rgba(15, 23, 42, 0.08) !important;
+}
+
+/* ---- Borders, dividers & rings ----------------------------------------- */
+html.light .portal-shell [class*='border-white/'] {
+  border-color: rgba(15, 23, 42, 0.12) !important;
+}
+
+html.light .portal-shell [class*='hover:border-white/']:hover {
+  border-color: rgba(15, 23, 42, 0.24) !important;
+}
+
+html.light
+  .portal-shell
+  [class*='divide-white/']
+  > :not([hidden])
+  ~ :not([hidden]) {
+  border-color: rgba(15, 23, 42, 0.1) !important;
+}
+
+html.light .portal-shell [class*='border-[#0'],
+html.light .portal-shell [class*='border-[#1'] {
+  border-color: rgba(15, 23, 42, 0.12) !important;
+}
+
+html.light .portal-shell [class*='ring-[#0'],
+html.light .portal-shell [class*='ring-[#1'] {
+  --tw-ring-color: #ffffff !important;
+}
+
+/* Gradient stops that pointed at dark hexes */
+html.light .portal-shell [class*='from-[#0'],
+html.light .portal-shell [class*='from-[#1'] {
+  --tw-gradient-from: #ffffff;
+}
+
+html.light .portal-shell [class*='via-[#0'],
+html.light .portal-shell [class*='via-[#1'] {
+  --tw-gradient-via: #ffffff;
+}
+
+html.light .portal-shell [class*='to-[#0'],
+html.light .portal-shell [class*='to-[#1'] {
+  --tw-gradient-to: #ffffff;
+}
+
+/* ---- Text -------------------------------------------------------------- */
+html.light .portal-shell [class*='text-white'] {
+  color: #0f172a !important;
+}
+
+html.light .portal-shell [class*='text-slate-100'],
+html.light .portal-shell [class*='text-slate-200'] {
+  color: #1e293b !important;
+}
+
+html.light .portal-shell [class*='text-slate-300'] {
+  color: #334155 !important;
+}
+
+html.light .portal-shell [class*='text-slate-400'],
+html.light .portal-shell [class*='text-slate-500'] {
+  color: #64748b !important;
+}
+
+html.light .portal-shell [class*='text-slate-600'] {
+  color: #475569 !important;
+}
+
+html.light .portal-shell [class*='placeholder-slate-400'],
+html.light .portal-shell [class*='placeholder-slate-500'],
+html.light .portal-shell [class*='placeholder-slate-600'] {
+  color: #94a3b8 !important;
+}
+
+/* Hover text states that assumed a dark canvas */
+html.light .portal-shell [class*='hover:text-white']:hover,
+html.light .portal-shell [class*='group-hover:text-white'] {
+  color: #0f172a !important;
+}
+
+html.light .portal-shell [class*='hover:text-slate-100']:hover,
+html.light .portal-shell [class*='hover:text-slate-200']:hover,
+html.light .portal-shell [class*='hover:text-slate-300']:hover {
+  color: #1e293b !important;
+}
+
+/* Accent text shades tuned for dark canvases -> deeper, readable tones */
+html.light .portal-shell [class*='text-emerald-300'],
+html.light .portal-shell [class*='text-emerald-400'] {
+  color: #059669 !important;
+}
+html.light .portal-shell [class*='text-green-300'],
+html.light .portal-shell [class*='text-green-400'] {
+  color: #16a34a !important;
+}
+html.light .portal-shell [class*='text-teal-300'],
+html.light .portal-shell [class*='text-teal-400'] {
+  color: #0d9488 !important;
+}
+html.light .portal-shell [class*='text-cyan-300'],
+html.light .portal-shell [class*='text-cyan-400'] {
+  color: #0891b2 !important;
+}
+html.light .portal-shell [class*='text-sky-300'],
+html.light .portal-shell [class*='text-sky-400'] {
+  color: #0284c7 !important;
+}
+html.light .portal-shell [class*='text-blue-300'],
+html.light .portal-shell [class*='text-blue-400'] {
+  color: #2563eb !important;
+}
+html.light .portal-shell [class*='text-indigo-300'],
+html.light .portal-shell [class*='text-indigo-400'] {
+  color: #4f46e5 !important;
+}
+html.light .portal-shell [class*='text-violet-300'],
+html.light .portal-shell [class*='text-violet-400'] {
+  color: #7c3aed !important;
+}
+html.light .portal-shell [class*='text-purple-300'],
+html.light .portal-shell [class*='text-purple-400'] {
+  color: #7c3aed !important;
+}
+html.light .portal-shell [class*='text-fuchsia-300'],
+html.light .portal-shell [class*='text-fuchsia-400'] {
+  color: #c026d3 !important;
+}
+html.light .portal-shell [class*='text-pink-300'],
+html.light .portal-shell [class*='text-pink-400'] {
+  color: #db2777 !important;
+}
+html.light .portal-shell [class*='text-rose-300'],
+html.light .portal-shell [class*='text-rose-400'] {
+  color: #e11d48 !important;
+}
+html.light .portal-shell [class*='text-red-300'],
+html.light .portal-shell [class*='text-red-400'] {
+  color: #dc2626 !important;
+}
+html.light .portal-shell [class*='text-orange-300'],
+html.light .portal-shell [class*='text-orange-400'] {
+  color: #ea580c !important;
+}
+html.light .portal-shell [class*='text-amber-300'],
+html.light .portal-shell [class*='text-amber-400'] {
+  color: #d97706 !important;
+}
+html.light .portal-shell [class*='text-yellow-300'],
+html.light .portal-shell [class*='text-yellow-400'] {
+  color: #ca8a04 !important;
+}
+html.light .portal-shell [class*='text-lime-300'],
+html.light .portal-shell [class*='text-lime-400'] {
+  color: #65a30d !important;
+}
+
+/* ---- Keep white text on solid, coloured fills -------------------------- */
+html.light .portal-shell [class~='bg-black'],
+html.light .portal-shell [class~='bg-slate-500'],
+html.light .portal-shell [class~='bg-slate-600'],
+html.light .portal-shell [class~='bg-slate-700'],
+html.light .portal-shell [class~='bg-slate-800'],
+html.light .portal-shell [class~='bg-slate-900'],
+html.light .portal-shell [class~='bg-gray-500'],
+html.light .portal-shell [class~='bg-gray-600'],
+html.light .portal-shell [class~='bg-gray-700'],
+html.light .portal-shell [class~='bg-gray-800'],
+html.light .portal-shell [class~='bg-gray-900'],
+html.light .portal-shell [class~='bg-neutral-600'],
+html.light .portal-shell [class~='bg-neutral-700'],
+html.light .portal-shell [class~='bg-neutral-800'],
+html.light .portal-shell [class~='bg-neutral-900'],
+html.light .portal-shell [class~='bg-zinc-600'],
+html.light .portal-shell [class~='bg-zinc-700'],
+html.light .portal-shell [class~='bg-zinc-800'],
+html.light .portal-shell [class~='bg-zinc-900'],
+html.light .portal-shell [class~='bg-charcoal-600'],
+html.light .portal-shell [class~='bg-charcoal-700'],
+html.light .portal-shell [class~='bg-charcoal-800'],
+html.light .portal-shell [class~='bg-charcoal-900'],
+html.light .portal-shell [class~='bg-emerald-500'],
+html.light .portal-shell [class~='bg-emerald-600'],
+html.light .portal-shell [class~='bg-emerald-700'],
+html.light .portal-shell [class~='bg-emerald-800'],
+html.light .portal-shell [class~='bg-emerald-800/80'],
+html.light .portal-shell [class~='bg-emerald-900'],
+html.light .portal-shell [class~='bg-green-500'],
+html.light .portal-shell [class~='bg-green-600'],
+html.light .portal-shell [class~='bg-green-700'],
+html.light .portal-shell [class~='bg-teal-500'],
+html.light .portal-shell [class~='bg-teal-600'],
+html.light .portal-shell [class~='bg-teal-700'],
+html.light .portal-shell [class~='bg-cyan-500'],
+html.light .portal-shell [class~='bg-cyan-600'],
+html.light .portal-shell [class~='bg-cyan-700'],
+html.light .portal-shell [class~='bg-sky-500'],
+html.light .portal-shell [class~='bg-sky-600'],
+html.light .portal-shell [class~='bg-sky-700'],
+html.light .portal-shell [class~='bg-blue-500'],
+html.light .portal-shell [class~='bg-blue-600'],
+html.light .portal-shell [class~='bg-blue-700'],
+html.light .portal-shell [class~='bg-indigo-500'],
+html.light .portal-shell [class~='bg-indigo-600'],
+html.light .portal-shell [class~='bg-indigo-700'],
+html.light .portal-shell [class~='bg-violet-500'],
+html.light .portal-shell [class~='bg-violet-600'],
+html.light .portal-shell [class~='bg-violet-700'],
+html.light .portal-shell [class~='bg-purple-500'],
+html.light .portal-shell [class~='bg-purple-600'],
+html.light .portal-shell [class~='bg-purple-700'],
+html.light .portal-shell [class~='bg-fuchsia-500'],
+html.light .portal-shell [class~='bg-fuchsia-600'],
+html.light .portal-shell [class~='bg-pink-500'],
+html.light .portal-shell [class~='bg-pink-600'],
+html.light .portal-shell [class~='bg-rose-500'],
+html.light .portal-shell [class~='bg-rose-600'],
+html.light .portal-shell [class~='bg-rose-700'],
+html.light .portal-shell [class~='bg-red-500'],
+html.light .portal-shell [class~='bg-red-600'],
+html.light .portal-shell [class~='bg-red-700'],
+html.light .portal-shell [class~='bg-orange-500'],
+html.light .portal-shell [class~='bg-orange-600'],
+html.light .portal-shell [class~='bg-orange-700'],
+html.light .portal-shell [class~='bg-amber-500'],
+html.light .portal-shell [class~='bg-amber-600'],
+html.light .portal-shell [class~='bg-amber-700'],
+html.light .portal-shell [class~='bg-yellow-500'],
+html.light .portal-shell [class~='bg-yellow-600'],
+html.light .portal-shell [class~='bg-lime-500'],
+html.light .portal-shell [class~='bg-lime-600'],
+html.light .portal-shell [class~='bg-gold-500'],
+html.light .portal-shell [class~='bg-gold-600'],
+html.light .portal-shell [class~='bg-gold-700'] {
+  color: #ffffff !important;
+}
+
+/* Native select dropdowns opened from a portal stay light */
+html.light .portal-shell select option {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+}
+
+/* ---- Tech portal accent fills ------------------------------------------
+   The tech portal is authored light-first (unlike the dark-first portals),
+   so the generic `text-white -> dark` rule above would make its solid accent
+   badges unreadable. Keep white text wherever a solid tech-accent fill is the
+   background. Translucent fills (e.g. `bg-tech-primary/10`) are intentionally
+   NOT matched here, so accent-coloured text on them is preserved. */
+html.light .portal-shell [class~='bg-tech-primary'],
+html.light .portal-shell [class~='bg-tech-success'],
+html.light .portal-shell [class~='bg-tech-warning'],
+html.light .portal-shell [class~='bg-tech-alert'],
+html.light .portal-shell [class~='bg-tech-rose'],
+html.light .portal-shell [class~='bg-tech-cyan'],
+html.light .portal-shell [class~='bg-tech-neutral'] {
+  color: #ffffff !important;
+}

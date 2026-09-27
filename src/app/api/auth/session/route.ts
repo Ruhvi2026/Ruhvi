@@ -103,14 +103,16 @@ export async function POST(request: NextRequest) {
       .sign(secret);
 
     const response = NextResponse.json({ status: 'success' }, { status: 200 });
+    const isProduction = process.env.NODE_ENV === 'production';
     response.cookies.set({
       name: '__session',
       value: sessionToken,
       maxAge: expiresInSeconds,
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: isProduction,
       path: '/',
       sameSite: 'lax',
+      ...(isProduction ? { domain: '.ruhvi.in' } : {}),
     });
 
     return response;

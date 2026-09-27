@@ -182,7 +182,15 @@ export default function RootLayout({
             __html: `
               (function() {
                 try {
-                  var theme = localStorage.getItem('theme') || 'system';
+                  // Staff portals keep their own theme under 'ruhvi-portal-theme'
+                  // and default to dark; the storefront uses 'theme' and defaults
+                  // to the system preference. Resolving the right key before first
+                  // paint avoids a flash of the wrong theme on portal load.
+                  var path = window.location.pathname || '';
+                  var isPortal = /^\\/(admin|operations|portal-orders|support|marketing|tech)(\\/|$)/.test(path);
+                  var theme = isPortal
+                    ? (localStorage.getItem('ruhvi-portal-theme') || 'dark')
+                    : (localStorage.getItem('theme') || 'system');
                   var root = document.documentElement;
                   root.classList.remove('dark', 'light');
                   var activeTheme = theme;

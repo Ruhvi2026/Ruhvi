@@ -24,6 +24,7 @@ import {
 import { OrderNotificationCenter } from '@/components/portal-orders/OrderNotificationCenter';
 import { PortalThemeProvider } from '@/context/PortalThemeContext';
 import { ThemeToggle } from '@/components/portal/ThemeToggle';
+import FloatingStaffMessenger from '@/components/chat/FloatingStaffMessenger';
 
 interface NavChild {
   label: string;
@@ -337,7 +338,7 @@ export default function OrdersPortalLayout({
   return (
     <PortalThemeProvider>
       <div
-        className="flex h-screen overflow-hidden bg-slate-50 dark:bg-[#0a0a0f]"
+        className="portal-shell flex h-screen overflow-hidden bg-slate-50 dark:bg-[#0a0a0f]"
         style={{ fontFamily: 'Inter, system-ui, sans-serif' }}
       >
         <aside
@@ -408,6 +409,9 @@ export default function OrdersPortalLayout({
           </main>
         </div>
       </div>
+
+      {/* Floating Staff Messenger Drawer / Popup Window */}
+      <FloatingStaffMessenger />
     </PortalThemeProvider>
   );
 }

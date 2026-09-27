@@ -11,6 +11,7 @@ import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import { createClient } from '@/lib/supabase/client';
 import { useUnreadChatCount } from '@/hooks/useUnreadChatCount';
+import { useSessionUserId } from '@/hooks/useSessionUserId';
 import type {
   ChatConversation,
   ChatMessage,
@@ -125,8 +126,9 @@ const DEPARTMENTS: ChatUserProfile[] = [
 ];
 
 export default function FloatingStaffMessenger() {
-  const { user } = useAuth();
-  const unreadTotal = useUnreadChatCount(user?.uid);
+  const { user, profile } = useAuth();
+  const supabaseUserId = useSessionUserId();
+  const unreadTotal = useUnreadChatCount(supabaseUserId ?? undefined);
   const supabase = createClient();
 
   const [isOpen, setIsOpen] = useState(false);
@@ -175,11 +177,11 @@ export default function FloatingStaffMessenger() {
 
   // Fetch current user's role & staff list
   useEffect(() => {
-    if (!user?.uid) return;
+    if (!supabaseUserId) return;
     supabase
       .from('users')
       .select('role')
-      .eq('id', user.uid)
+      .eq('id', supabaseUserId)
       .maybeSingle()
       .then(({ data }: { data: any }) => {
         if (data?.role) setUserRole(data.role);
@@ -191,7 +193,7 @@ export default function FloatingStaffMessenger() {
         if (d.staff) setStaffList(d.staff);
       })
       .catch(() => {});
-  }, [user?.uid, supabase]);
+  }, [supabaseUserId, supabase]);
 
   // Global event listener to toggle widget from header
   useEffect(() => {

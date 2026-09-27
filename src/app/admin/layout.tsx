@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { useUnreadChatCount } from '@/hooks/useUnreadChatCount';
+import { useSessionUserId } from '@/hooks/useSessionUserId';
 import {
   LayoutDashboard,
   ShoppingBag,
@@ -388,7 +389,8 @@ function NavLink({ item, collapsed }: { item: NavItem; collapsed: boolean }) {
 // Chat icon with live unread count badge & floating messenger toggle
 function ChatIconWithBadge() {
   const { user } = useAuth();
-  const unread = useUnreadChatCount(user?.uid);
+  const supabaseUserId = useSessionUserId();
+  const unread = useUnreadChatCount(supabaseUserId ?? undefined);
   return (
     <button
       type="button"
@@ -534,7 +536,7 @@ export default function AdminLayout({
   return (
     <PortalThemeProvider>
       <div
-        className="flex h-screen overflow-hidden bg-slate-50 dark:bg-[#0d0f1a]"
+        className="portal-shell flex h-screen overflow-hidden bg-slate-50 dark:bg-[#0d0f1a]"
         style={{ fontFamily: 'Inter, system-ui, sans-serif' }}
       >
         {/* Desktop Sidebar */}

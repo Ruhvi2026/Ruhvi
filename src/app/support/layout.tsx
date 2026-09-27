@@ -31,6 +31,7 @@ import {
 import toast from 'react-hot-toast';
 import { PortalThemeProvider } from '@/context/PortalThemeContext';
 import { ThemeToggle } from '@/components/portal/ThemeToggle';
+import FloatingStaffMessenger from '@/components/chat/FloatingStaffMessenger';
 
 interface NavChild {
   label: string;
@@ -461,7 +462,7 @@ export default function SupportLayout({
   return (
     <PortalThemeProvider>
       <div
-        className="flex h-screen overflow-hidden bg-slate-50 text-slate-900 selection:bg-indigo-500/30 dark:bg-[#0A0D16] dark:text-slate-200"
+        className="portal-shell flex h-screen overflow-hidden bg-slate-50 text-slate-900 selection:bg-indigo-500/30 dark:bg-[#0A0D16] dark:text-slate-200"
         style={{
           fontFamily: 'Outfit, Inter, system-ui, -apple-system, sans-serif',
         }}
@@ -544,6 +545,9 @@ export default function SupportLayout({
             </div>
           </main>
         </div>
+
+        {/* Floating Staff Messenger Drawer / Popup Window */}
+        <FloatingStaffMessenger />
 
         <style>{`
           .custom-scrollbar::-webkit-scrollbar {

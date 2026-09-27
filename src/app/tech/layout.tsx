@@ -31,6 +31,7 @@ import {
 } from 'lucide-react';
 import { PortalThemeProvider } from '@/context/PortalThemeContext';
 import { ThemeToggle } from '@/components/portal/ThemeToggle';
+import FloatingStaffMessenger from '@/components/chat/FloatingStaffMessenger';
 
 interface NavChild {
   label: string;
@@ -342,7 +343,7 @@ export default function TechLayout({
   return (
     <PortalThemeProvider>
       <div
-        className="flex h-screen overflow-hidden bg-slate-50 text-slate-900 dark:bg-tech-bg dark:text-tech-text"
+        className="portal-shell flex h-screen overflow-hidden bg-slate-50 text-slate-900 dark:bg-tech-bg dark:text-tech-text"
         style={{ fontFamily: 'Inter, system-ui, sans-serif' }}
       >
         {/* Desktop Sidebar */}
@@ -418,6 +419,9 @@ export default function TechLayout({
             <div className="min-h-full p-4 sm:p-6">{children}</div>
           </main>
         </div>
+
+        {/* Floating Staff Messenger Drawer / Popup Window */}
+        <FloatingStaffMessenger />
 
         <style>{`
           .custom-scrollbar::-webkit-scrollbar {
