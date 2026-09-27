@@ -39,6 +39,7 @@ interface TaskListProps {
   initialLimit?: number;
   initialHasMore?: boolean;
   onTaskClick?: (task: Task) => void;
+  refreshKey?: number;
 }
 
 const PRIORITY_COLORS: Record<string, string> = {
@@ -64,6 +65,7 @@ export default function TaskList({
   initialLimit = 20,
   initialHasMore = false,
   onTaskClick,
+  refreshKey,
 }: TaskListProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -138,10 +140,10 @@ export default function TaskList({
     [buildApiUrl, limit]
   );
 
-  // Initial fetch and re-fetch on route change (pathname/searchParams updates)
+  // Initial fetch and re-fetch on route change (pathname/searchParams updates) or refreshKey change
   useEffect(() => {
     fetchTasks(1);
-  }, [pathname, searchParams?.toString()]);
+  }, [pathname, searchParams?.toString(), fetchTasks, refreshKey]);
 
   const handleFilterChange = (key: keyof TaskFilters, value: any) => {
     const newFilters = { ...filters, [key]: value };

@@ -307,13 +307,15 @@ export default function TaskForm({
         body: JSON.stringify(body),
       });
 
+      const responseData = await response.json().catch(() => null);
+
       if (response.ok) {
+        console.log('[TaskForm] Task saved successfully:', responseData);
         // Persist optional Advanced Options (checklist) once the task exists
         if (checklistDraft.length > 0 || removedChecklistIds.length > 0) {
           let savedTaskId: string | undefined = task?.id;
           if (!isEdit) {
-            const saved = await response.json().catch(() => ({}));
-            savedTaskId = saved?.task?.id;
+            savedTaskId = responseData?.task?.id;
           }
           if (savedTaskId) {
             await syncChecklist(savedTaskId);
@@ -324,15 +326,19 @@ export default function TaskForm({
       } else {
         // A non-JSON body (e.g. a framework-level 404/405) must not be
         // reported as a network failure.
-        const data = await response.json().catch(() => null);
+        const errorMessage =
+          responseData?.error ||
+          `Failed to save task (request failed with status ${response.status})`;
+        console.error('[TaskForm] Save failed:', errorMessage, responseData);
         setErrors({
-          submit:
-            data?.error ||
-            `Failed to save task (request failed with status ${response.status})`,
+          submit: errorMessage,
         });
       }
     } catch (err) {
-      setErrors({ submit: 'Network error occurred' });
+      const errorMessage =
+        err instanceof Error ? err.message : 'Network error occurred';
+      console.error('[TaskForm] Network error:', err);
+      setErrors({ submit: errorMessage });
     } finally {
       setSubmitting(false);
     }

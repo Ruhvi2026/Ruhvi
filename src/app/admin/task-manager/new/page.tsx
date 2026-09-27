@@ -9,25 +9,65 @@ export default function NewTaskPage() {
   const [statuses, setStatuses] = useState<TaskStatus[]>([]);
   const [types, setTypes] = useState<TaskType[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    Promise.all([
-      fetch('/api/task-manager/priorities')
-        .then((r) => r.json())
-        .then((d) => setPriorities(d.priorities || [])),
-      fetch('/api/task-manager/statuses')
-        .then((r) => r.json())
-        .then((d) => setStatuses(d.statuses || [])),
-      fetch('/api/task-manager/types')
-        .then((r) => r.json())
-        .then((d) => setTypes(d.types || [])),
-    ]).finally(() => setLoading(false));
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+
+    fetch('/api/task-manager/reference')
+      .then((r) => {
+        if (!r.ok)
+          throw new Error(`Failed to load reference data: ${r.status}`);
+        return r.json();
+      })
+      .then((d) => {
+        if (cancelled) return;
+        setPriorities(d.priorities || []);
+        setStatuses(d.statuses || []);
+        setTypes(d.types || []);
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        console.error('[NewTaskPage] Failed to load reference data:', err);
+        setError(err.message);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center">
         <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-emerald-500" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex h-64 items-center justify-center">
+        <div className="rounded-lg border border-rose-500/30 bg-rose-500/10 p-6 text-center">
+          <p className="text-rose-400">
+            Failed to load reference data: {error}
+          </p>
+          <p className="mt-2 text-sm text-slate-500">
+            Ensure the database migration has been run (task_priorities,
+            task_statuses, task_types tables seeded).
+          </p>
+          <button
+            onClick={() => window.location.reload()}
+            className="mt-4 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-500"
+          >
+            Retry
+          </button>
+        </div>
       </div>
     );
   }
