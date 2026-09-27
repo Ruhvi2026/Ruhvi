@@ -142,6 +142,22 @@ export interface TaskDependency {
   created_at: string;
 }
 
+export interface TaskDependencyItem {
+  id: string;
+  task_id: string;
+  depends_on_task_id: string;
+  status: 'waiting' | 'blocked' | 'ready';
+  created_at: string;
+  updated_at: string;
+  task?: {
+    id: string;
+    task_id_text: string | null;
+    title: string;
+    is_done: boolean;
+    deleted: boolean;
+  } | null;
+}
+
 export interface TaskRecurrence {
   id: string;
   task_id: string;

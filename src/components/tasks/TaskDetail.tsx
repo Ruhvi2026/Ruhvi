@@ -20,6 +20,8 @@ import {
   Package,
   Ticket,
   Box,
+  Plus,
+  GitBranch,
 } from 'lucide-react';
 import {
   Task,
@@ -29,21 +31,35 @@ import {
   TaskChecklist,
   TaskSpectator,
   TaskAssignment,
+  TaskDependencyItem,
 } from './types';
 
 interface TaskDetailProps {
   task: Task;
   onBack: () => void;
   onEdit: () => void;
+  /** Re-fetch the task without leaving the detail view */
+  onRefresh?: () => void;
 }
 
-export default function TaskDetail({ task, onBack, onEdit }: TaskDetailProps) {
+export default function TaskDetail({
+  task,
+  onBack,
+  onEdit,
+  onRefresh,
+}: TaskDetailProps) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('details');
   const [newComment, setNewComment] = useState('');
   const [isProgressUpdate, setIsProgressUpdate] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [isCreatingGroup, setIsCreatingGroup] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [newChecklistTitle, setNewChecklistTitle] = useState('');
+  const [checklistBusy, setChecklistBusy] = useState(false);
+  const [dependencies, setDependencies] = useState<TaskDependencyItem[]>([]);
+  const [depVersion, setDepVersion] = useState(0);
+  const [depBusy, setDepBusy] = useState(false);
 
   const priorityColors: Record<string, string> = {
     Low: 'bg-gray-500/20 text-gray-400 border-gray-500/30',
@@ -131,7 +147,7 @@ export default function TaskDetail({ task, onBack, onEdit }: TaskDetailProps) {
       if (!res.ok) throw new Error('Failed to add comment');
       setNewComment('');
       setIsProgressUpdate(false);
-      onEdit();
+      onRefresh?.();
     } catch (err) {
       console.error('Failed to add comment:', err);
     } finally {
@@ -146,7 +162,7 @@ export default function TaskDetail({ task, onBack, onEdit }: TaskDetailProps) {
         { method: 'DELETE' }
       );
       if (!res.ok) throw new Error('Failed to delete attachment');
-      onEdit();
+      onRefresh?.();
     } catch (err) {
       console.error('Failed to delete attachment:', err);
     }
@@ -167,7 +183,7 @@ export default function TaskDetail({ task, onBack, onEdit }: TaskDetailProps) {
         throw new Error(errorData.error || 'Failed to create group');
       }
       // Group created, refresh task to get the new messenger_group_id
-      onEdit();
+      onRefresh?.();
     } catch (err) {
       console.error('Failed to create messenger group:', err);
       alert('Error: ' + (err as Error).message);
@@ -176,7 +192,126 @@ export default function TaskDetail({ task, onBack, onEdit }: TaskDetailProps) {
     }
   };
 
+  // Dependencies (loaded separately so a failure never breaks the detail view)
+  useEffect(() => {
+    let cancelled = false;
+    fetch(`/api/task-manager/tasks/${task.id}/dependencies`)
+      .then((r) => (r.ok ? r.json() : { dependencies: [] }))
+      .then((d) => {
+        if (!cancelled) setDependencies(d.dependencies || []);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [task.id, depVersion]);
+
+  const handleToggleChecklist = async (item: TaskChecklist) => {
+    if (checklistBusy) return;
+    setChecklistBusy(true);
+    try {
+      const res = await fetch(
+        `/api/task-manager/tasks/${task.id}/checklists?checklist_id=${item.id}`,
+        {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ completed: !item.completed }),
+        }
+      );
+      if (!res.ok) throw new Error('Failed to update checklist item');
+      onRefresh?.();
+    } catch (err) {
+      console.error('Failed to update checklist item:', err);
+    } finally {
+      setChecklistBusy(false);
+    }
+  };
+
+  const handleAddChecklist = async () => {
+    const title = newChecklistTitle.trim();
+    if (!title || checklistBusy) return;
+    setChecklistBusy(true);
+    try {
+      const res = await fetch(`/api/task-manager/tasks/${task.id}/checklists`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title }),
+      });
+      if (!res.ok) throw new Error('Failed to add checklist item');
+      setNewChecklistTitle('');
+      onRefresh?.();
+    } catch (err) {
+      console.error('Failed to add checklist item:', err);
+    } finally {
+      setChecklistBusy(false);
+    }
+  };
+
+  const handleDeleteChecklist = async (checklistId: string) => {
+    if (checklistBusy) return;
+    setChecklistBusy(true);
+    try {
+      const res = await fetch(
+        `/api/task-manager/tasks/${task.id}/checklists?checklist_id=${checklistId}`,
+        { method: 'DELETE' }
+      );
+      if (!res.ok) throw new Error('Failed to delete checklist item');
+      onRefresh?.();
+    } catch (err) {
+      console.error('Failed to delete checklist item:', err);
+    } finally {
+      setChecklistBusy(false);
+    }
+  };
+
+  const handleUploadAttachment = async (file: File) => {
+    if (uploading) return;
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('task_id', task.id);
+      const res = await fetch('/api/task-manager/upload', {
+        method: 'POST',
+        body: formData,
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || 'Failed to upload attachment');
+      }
+      onRefresh?.();
+    } catch (err) {
+      console.error('Failed to upload attachment:', err);
+      alert('Upload failed: ' + (err as Error).message);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleRemoveDependency = async (dependencyId: string) => {
+    if (depBusy) return;
+    setDepBusy(true);
+    try {
+      const res = await fetch(
+        `/api/task-manager/tasks/${task.id}/dependencies?dependency_id=${dependencyId}`,
+        { method: 'DELETE' }
+      );
+      if (!res.ok) throw new Error('Failed to remove dependency');
+      setDepVersion((v) => v + 1);
+      onRefresh?.();
+    } catch (err) {
+      console.error('Failed to remove dependency:', err);
+    } finally {
+      setDepBusy(false);
+    }
+  };
+
   const slaStatus = getSlaStatus();
+  const checklistItems = task.checklists || [];
+  const checklistDone = checklistItems.filter((c) => c.completed).length;
+  const checklistPct = checklistItems.length
+    ? Math.round((checklistDone / checklistItems.length) * 100)
+    : 0;
 
   return (
     <div className="flex h-full flex-col bg-[#0d0f1a]">
@@ -357,34 +492,137 @@ export default function TaskDetail({ task, onBack, onEdit }: TaskDetailProps) {
             )}
 
             {/* Checklist */}
-            {task.checklists && task.checklists.length > 0 && (
-              <div className="rounded-lg border border-white/10 bg-white/5 p-4">
-                <h3 className="mb-3 text-sm font-semibold text-white">
-                  Checklist
-                </h3>
-                <div className="space-y-2">
-                  {task.checklists.map((item: TaskChecklist) => (
-                    <div key={item.id} className="flex items-center gap-3">
-                      <div
-                        className={`flex h-5 w-5 items-center justify-center rounded border ${
-                          item.completed
-                            ? 'border-emerald-500 bg-emerald-500/20'
-                            : 'border-white/20'
-                        }`}
-                      >
-                        {item.completed && (
-                          <CheckCircle className="h-3 w-3 text-emerald-400" />
-                        )}
+            <div className="rounded-lg border border-white/10 bg-white/5 p-4">
+              <div className="mb-3 flex items-center justify-between">
+                <h3 className="text-sm font-semibold text-white">Checklist</h3>
+                {checklistItems.length > 0 && (
+                  <span className="text-xs font-medium text-emerald-400">
+                    {checklistDone}/{checklistItems.length} complete (
+                    {checklistPct}%)
+                  </span>
+                )}
+              </div>
+
+              {checklistItems.length > 0 && (
+                <>
+                  <div className="mb-3 h-1.5 overflow-hidden rounded-full bg-white/10">
+                    <div
+                      className="h-full rounded-full bg-emerald-500 transition-all"
+                      style={{ width: `${checklistPct}%` }}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    {checklistItems.map((item: TaskChecklist) => (
+                      <div key={item.id} className="flex items-center gap-3">
+                        <button
+                          type="button"
+                          onClick={() => handleToggleChecklist(item)}
+                          disabled={checklistBusy}
+                          aria-label="Toggle checklist item"
+                          className={`flex h-5 w-5 shrink-0 items-center justify-center rounded border transition-colors ${
+                            item.completed
+                              ? 'border-emerald-500 bg-emerald-500/20'
+                              : 'border-white/20 hover:border-white/40'
+                          }`}
+                        >
+                          {item.completed && (
+                            <CheckCircle className="h-3 w-3 text-emerald-400" />
+                          )}
+                        </button>
+                        <span
+                          className={`flex-1 text-sm ${
+                            item.completed
+                              ? 'text-slate-500 line-through'
+                              : 'text-slate-300'
+                          }`}
+                        >
+                          {item.title}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteChecklist(item.id)}
+                          disabled={checklistBusy}
+                          title="Remove subtask"
+                          className="rounded p-1 text-slate-500 transition-colors hover:text-rose-400"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
                       </div>
+                    ))}
+                  </div>
+                </>
+              )}
+
+              <div className="mt-3 flex gap-2">
+                <input
+                  type="text"
+                  value={newChecklistTitle}
+                  onChange={(e) => setNewChecklistTitle(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleAddChecklist();
+                    }
+                  }}
+                  className="flex-1 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  placeholder="Add a subtask..."
+                />
+                <button
+                  type="button"
+                  onClick={handleAddChecklist}
+                  disabled={!newChecklistTitle.trim() || checklistBusy}
+                  className="flex items-center gap-1 rounded-lg bg-white/10 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-white/15 disabled:opacity-50"
+                >
+                  <Plus className="h-4 w-4" /> Add
+                </button>
+              </div>
+            </div>
+
+            {/* Dependencies */}
+            {dependencies.length > 0 && (
+              <div className="rounded-lg border border-white/10 bg-white/5 p-4">
+                <div className="mb-3 flex items-center gap-2">
+                  <GitBranch className="h-4 w-4 text-amber-400" />
+                  <h3 className="text-sm font-semibold text-white">
+                    Dependencies
+                  </h3>
+                </div>
+                <div className="space-y-2">
+                  {dependencies.map((dep) => (
+                    <div
+                      key={dep.id}
+                      className="flex items-center gap-3 rounded-lg border border-white/10 bg-white/5 px-3 py-2"
+                    >
                       <span
-                        className={`text-sm ${
-                          item.completed
-                            ? 'text-slate-500 line-through'
-                            : 'text-slate-300'
+                        className={`rounded border px-2 py-0.5 text-[10px] font-medium ${
+                          dep.status === 'ready'
+                            ? 'border-emerald-500/30 bg-emerald-500/20 text-emerald-400'
+                            : dep.status === 'blocked'
+                              ? 'border-rose-500/30 bg-rose-500/20 text-rose-400'
+                              : 'border-amber-500/30 bg-amber-500/20 text-amber-400'
                         }`}
                       >
-                        {item.title}
+                        {dep.status === 'ready'
+                          ? 'Ready'
+                          : dep.status === 'blocked'
+                            ? 'Blocked'
+                            : 'Waiting'}
                       </span>
+                      <span className="text-xs text-slate-500">
+                        {dep.task?.task_id_text || 'TASK'}
+                      </span>
+                      <span className="min-w-0 flex-1 truncate text-sm text-slate-300">
+                        {dep.task?.title || 'Unknown task'}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveDependency(dep.id)}
+                        disabled={depBusy}
+                        title="Remove dependency"
+                        className="rounded p-1 text-slate-500 transition-colors hover:text-rose-400"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
                     </div>
                   ))}
                 </div>
@@ -489,6 +727,35 @@ export default function TaskDetail({ task, onBack, onEdit }: TaskDetailProps) {
 
         {activeTab === 'attachments' && (
           <div className="space-y-3">
+            {/* Upload (uses the existing Messenger Secondary Cloudinary route) */}
+            <div className="rounded-lg border border-dashed border-white/15 bg-white/5 p-4 text-center">
+              <input
+                type="file"
+                id="task-attachment-upload"
+                className="hidden"
+                accept="image/*,video/*,.pdf,.doc,.docx,.xls,.xlsx,.txt,.csv"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) handleUploadAttachment(file);
+                  e.target.value = '';
+                }}
+              />
+              <button
+                type="button"
+                onClick={() =>
+                  document.getElementById('task-attachment-upload')?.click()
+                }
+                disabled={uploading}
+                className="inline-flex items-center gap-2 rounded-lg bg-white/10 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-white/15 disabled:opacity-50"
+              >
+                <Paperclip className="h-4 w-4" />
+                {uploading ? 'Uploading...' : 'Upload Attachment'}
+              </button>
+              <p className="mt-2 text-[11px] text-slate-500">
+                Images, video, PDF and documents up to 20 MB
+              </p>
+            </div>
+
             {(task.attachments || []).map((attachment: TaskAttachment) => (
               <div
                 key={attachment.id}

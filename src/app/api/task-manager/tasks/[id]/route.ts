@@ -141,6 +141,7 @@ export async function PUT(
     }
 
     // Handle status change to completed/closed - set timestamps
+    let reachedFinalStatus = false;
     if (body.status_id) {
       const { data: newStatus } = await supabase
         .from('task_statuses')
@@ -153,6 +154,9 @@ export async function PUT(
       }
       if (newStatus?.name === 'Closed' && !existingTask.closed_at) {
         updates.closed_at = new Date().toISOString();
+      }
+      if (newStatus?.name === 'Completed' || newStatus?.name === 'Closed') {
+        reachedFinalStatus = true;
       }
     }
 
@@ -242,6 +246,33 @@ export async function PUT(
       old_value: existingTask,
       new_value: changes,
     });
+
+    // Task dependencies: mark waiting dependencies on this task as ready
+    // once this task reaches a final status (Completed / Closed).
+    if (reachedFinalStatus) {
+      const { data: pendingDeps } = await supabase
+        .from('task_dependencies')
+        .select('id, task_id')
+        .eq('depends_on_task_id', id)
+        .neq('status', 'ready');
+
+      if (pendingDeps && pendingDeps.length > 0) {
+        await supabase
+          .from('task_dependencies')
+          .update({ status: 'ready', updated_at: new Date().toISOString() })
+          .eq('depends_on_task_id', id)
+          .neq('status', 'ready');
+
+        for (const dep of pendingDeps) {
+          await supabase.from('task_activity').insert({
+            task_id: dep.task_id,
+            user_id: staffUser.id,
+            action: 'dependency_ready',
+            new_value: { depends_on_task_id: id },
+          });
+        }
+      }
+    }
 
     return NextResponse.json({
       task: updatedTask,

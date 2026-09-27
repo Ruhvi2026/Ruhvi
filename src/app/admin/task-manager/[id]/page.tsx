@@ -38,6 +38,13 @@ export default function TaskDetailPage() {
     ]).finally(() => setLoading(false));
   }, [id]);
 
+  const refreshTask = () => {
+    fetch(`/api/task-manager/tasks/${id}`)
+      .then((r) => r.json())
+      .then((d) => setTask(d.task || null))
+      .catch(() => {});
+  };
+
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center">
@@ -86,6 +93,7 @@ export default function TaskDetailPage() {
       task={task}
       onBack={() => router.push('/admin/task-manager')}
       onEdit={() => setEditing(true)}
+      onRefresh={refreshTask}
     />
   );
 }

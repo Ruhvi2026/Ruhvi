@@ -14,6 +14,8 @@ import {
   Package,
   Ticket,
   Box,
+  ListChecks,
+  GitBranch,
 } from 'lucide-react';
 import {
   Task,
@@ -22,6 +24,7 @@ import {
   TaskType,
   TaskUser,
   TaskListResponse,
+  TaskDependencyItem,
 } from './types';
 
 interface TaskFormProps {
@@ -63,6 +66,16 @@ export default function TaskForm({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [showRelated, setShowRelated] = useState(false);
+  const [checklistDraft, setChecklistDraft] = useState<
+    { id: string | null; title: string }[]
+  >([]);
+  const [removedChecklistIds, setRemovedChecklistIds] = useState<string[]>([]);
+  const [newChecklistTitle, setNewChecklistTitle] = useState('');
+  const [dependencies, setDependencies] = useState<TaskDependencyItem[]>([]);
+  const [depCandidates, setDepCandidates] = useState<Task[]>([]);
+  const [newDepId, setNewDepId] = useState('');
+  const [depError, setDepError] = useState('');
+  const [depSaving, setDepSaving] = useState(false);
   const [staffList, setStaffList] = useState<TaskUser[]>([]);
   const [departments, setDepartments] = useState<
     { id: string; name: string }[]
@@ -87,6 +100,10 @@ export default function TaskForm({
         related_ticket_id: task.related_ticket_id || '',
         tags: (task.tags || []).join(', '),
       });
+      setChecklistDraft(
+        (task.checklists || []).map((c) => ({ id: c.id, title: c.title }))
+      );
+      setRemovedChecklistIds([]);
     }
   }, [task]);
 
@@ -111,6 +128,135 @@ export default function TaskForm({
       cancelled = true;
     };
   }, []);
+
+  // Advanced Options (edit mode): load dependencies + candidate tasks
+  useEffect(() => {
+    if (!task) return;
+    let cancelled = false;
+
+    fetch(`/api/task-manager/tasks/${task.id}/dependencies`)
+      .then((r) => (r.ok ? r.json() : { dependencies: [] }))
+      .then((d) => {
+        if (!cancelled) setDependencies(d.dependencies || []);
+      })
+      .catch(() => {});
+
+    fetch('/api/task-manager/tasks?limit=100')
+      .then((r) => (r.ok ? r.json() : { tasks: [] }))
+      .then((d: TaskListResponse) => {
+        if (!cancelled) {
+          setDepCandidates(
+            (d.tasks || []).filter((t: Task) => t.id !== task.id)
+          );
+        }
+      })
+      .catch(() => {});
+
+    return () => {
+      cancelled = true;
+    };
+  }, [task]);
+
+  const addChecklistItem = () => {
+    const title = newChecklistTitle.trim();
+    if (!title) return;
+    setChecklistDraft((prev) => [...prev, { id: null, title }]);
+    setNewChecklistTitle('');
+  };
+
+  const removeChecklistItem = (index: number) => {
+    const item = checklistDraft[index];
+    if (item?.id) {
+      setRemovedChecklistIds((ids) =>
+        ids.includes(item.id as string) ? ids : [...ids, item.id as string]
+      );
+    }
+    setChecklistDraft((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const addDependency = async () => {
+    if (!task || !newDepId || depSaving) return;
+    setDepSaving(true);
+    setDepError('');
+    try {
+      const res = await fetch(
+        `/api/task-manager/tasks/${task.id}/dependencies`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ depends_on_task_id: newDepId }),
+        }
+      );
+      const data = await res.json();
+      if (!res.ok) {
+        setDepError(data.error || 'Failed to add dependency');
+        return;
+      }
+      setDependencies(data.dependencies || []);
+      setNewDepId('');
+    } catch {
+      setDepError('Network error occurred');
+    } finally {
+      setDepSaving(false);
+    }
+  };
+
+  const removeDependency = async (dependencyId: string) => {
+    if (!task || depSaving) return;
+    setDepSaving(true);
+    setDepError('');
+    try {
+      const res = await fetch(
+        `/api/task-manager/tasks/${task.id}/dependencies?dependency_id=${dependencyId}`,
+        { method: 'DELETE' }
+      );
+      const data = await res.json();
+      if (!res.ok) {
+        setDepError(data.error || 'Failed to remove dependency');
+        return;
+      }
+      setDependencies(data.dependencies || []);
+    } catch {
+      setDepError('Network error occurred');
+    } finally {
+      setDepSaving(false);
+    }
+  };
+
+  // Persist the Advanced Options checklist once the task itself exists
+  const syncChecklist = async (taskId: string) => {
+    try {
+      for (const item of checklistDraft) {
+        if (item.id || !item.title.trim()) continue;
+        const res = await fetch(
+          `/api/task-manager/tasks/${taskId}/checklists`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ title: item.title.trim() }),
+          }
+        );
+        if (!res.ok) {
+          console.error('[TaskForm] Failed to add checklist item:', item.title);
+        }
+      }
+      for (const checklistId of removedChecklistIds) {
+        const res = await fetch(
+          `/api/task-manager/tasks/${taskId}/checklists?checklist_id=${checklistId}`,
+          { method: 'DELETE' }
+        );
+        if (!res.ok) {
+          console.error(
+            '[TaskForm] Failed to delete checklist item:',
+            checklistId
+          );
+        }
+      }
+    } catch (err) {
+      // Task data is already saved; checklist items stay manageable on the detail page
+      console.error('[TaskForm] Checklist sync failed:', err);
+    }
+  };
 
   const validate = useCallback((): boolean => {
     const newErrors: Record<string, string> = {};
@@ -162,11 +308,28 @@ export default function TaskForm({
       });
 
       if (response.ok) {
+        // Persist optional Advanced Options (checklist) once the task exists
+        if (checklistDraft.length > 0 || removedChecklistIds.length > 0) {
+          let savedTaskId: string | undefined = task?.id;
+          if (!isEdit) {
+            const saved = await response.json().catch(() => ({}));
+            savedTaskId = saved?.task?.id;
+          }
+          if (savedTaskId) {
+            await syncChecklist(savedTaskId);
+          }
+        }
         router.push('/admin/task-manager');
         router.refresh();
       } else {
-        const data = await response.json();
-        setErrors({ submit: data.error || 'Failed to save task' });
+        // A non-JSON body (e.g. a framework-level 404/405) must not be
+        // reported as a network failure.
+        const data = await response.json().catch(() => null);
+        setErrors({
+          submit:
+            data?.error ||
+            `Failed to save task (request failed with status ${response.status})`,
+        });
       }
     } catch (err) {
       setErrors({ submit: 'Network error occurred' });
@@ -214,7 +377,7 @@ export default function TaskForm({
             }`}
           >
             <Clock className="h-4 w-4" />
-            Advanced
+            Advanced Options
           </button>
 
           <button
@@ -333,25 +496,6 @@ export default function TaskForm({
             </select>
           </div>
 
-          {/* Task Type */}
-          <div>
-            <label className="mb-1 block text-sm font-medium text-slate-300">
-              Task Type
-            </label>
-            <select
-              value={formData.type_id}
-              onChange={(e) => handleChange('type_id', e.target.value)}
-              className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
-            >
-              <option value="">Select Type</option>
-              {initialTypes.map((t) => (
-                <option key={t.id} value={t.id}>
-                  {t.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
           {/* Assignee */}
           <div>
             <label className="mb-1 block text-sm font-medium text-slate-300">
@@ -453,34 +597,220 @@ export default function TaskForm({
               Default: Normal=4h, Medium=24h, Large=48h
             </p>
           </div>
-
-          {/* Tags */}
-          <div className="lg:col-span-2">
-            <label className="mb-1 block text-sm font-medium text-slate-300">
-              Tags
-            </label>
-            <input
-              type="text"
-              value={formData.tags}
-              onChange={(e) => handleChange('tags', e.target.value)}
-              className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-              placeholder="tag1, tag2, tag3"
-            />
-            <p className="mt-1 text-[11px] text-slate-500">
-              Separate tags with commas
-            </p>
-          </div>
         </div>
 
-        {/* Advanced Options */}
+        {/* Advanced Options (collapsed by default — simple task creation stays simple) */}
         {showAdvanced && (
-          <div className="space-y-4 rounded-lg border border-white/10 bg-white/5 p-4">
-            <h3 className="text-sm font-semibold text-white">
-              Additional Details
-            </h3>
-            <p className="text-xs text-slate-400">
-              Specify additional metadata or attributes for this task.
-            </p>
+          <div className="space-y-6 rounded-lg border border-white/10 bg-white/5 p-4">
+            <div>
+              <h3 className="text-sm font-semibold text-white">
+                Advanced Options
+              </h3>
+              <p className="text-xs text-slate-400">
+                All optional — a task works perfectly without these. Add a type,
+                tags, subtasks or dependencies only when you need them.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+              {/* Task Type */}
+              <div>
+                <label className="mb-1 block text-sm font-medium text-slate-300">
+                  Task Type
+                </label>
+                <select
+                  value={formData.type_id}
+                  onChange={(e) => handleChange('type_id', e.target.value)}
+                  className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                >
+                  <option value="">Select Type</option>
+                  {initialTypes.map((t) => (
+                    <option key={t.id} value={t.id}>
+                      {t.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Tags */}
+              <div>
+                <label className="mb-1 block text-sm font-medium text-slate-300">
+                  Tags
+                </label>
+                <input
+                  type="text"
+                  value={formData.tags}
+                  onChange={(e) => handleChange('tags', e.target.value)}
+                  className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  placeholder="tag1, tag2, tag3"
+                />
+                <p className="mt-1 text-[11px] text-slate-500">
+                  Separate tags with commas
+                </p>
+              </div>
+            </div>
+
+            {/* Subtasks / Checklist */}
+            <div>
+              <div className="mb-2 flex items-center gap-2">
+                <ListChecks className="h-4 w-4 text-emerald-400" />
+                <h4 className="text-sm font-medium text-white">
+                  Subtasks / Checklist
+                </h4>
+              </div>
+              <p className="mb-3 text-xs text-slate-400">
+                Break this task into steps. Completion progress is shown on the
+                task detail page.
+              </p>
+
+              {checklistDraft.length > 0 && (
+                <div className="mb-3 space-y-2">
+                  {checklistDraft.map((item, index) => (
+                    <div
+                      key={`${item.id ?? 'new'}-${index}`}
+                      className="flex items-center gap-3 rounded-lg border border-white/10 bg-white/5 px-3 py-2"
+                    >
+                      <div className="flex h-4 w-4 shrink-0 items-center justify-center rounded border border-white/20" />
+                      <span className="flex-1 text-sm text-slate-300">
+                        {item.title}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => removeChecklistItem(index)}
+                        title="Remove subtask"
+                        className="rounded p-1 text-slate-500 transition-colors hover:text-rose-400"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={newChecklistTitle}
+                  onChange={(e) => setNewChecklistTitle(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      addChecklistItem();
+                    }
+                  }}
+                  className="flex-1 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  placeholder="e.g. Verify product information"
+                />
+                <button
+                  type="button"
+                  onClick={addChecklistItem}
+                  disabled={!newChecklistTitle.trim()}
+                  className="flex items-center gap-1 rounded-lg bg-white/10 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-white/15 disabled:opacity-50"
+                >
+                  <Plus className="h-4 w-4" /> Add
+                </button>
+              </div>
+            </div>
+
+            {/* Dependencies */}
+            {isEdit ? (
+              <div>
+                <div className="mb-2 flex items-center gap-2">
+                  <GitBranch className="h-4 w-4 text-amber-400" />
+                  <h4 className="text-sm font-medium text-white">
+                    Dependencies
+                  </h4>
+                </div>
+                <p className="mb-3 text-xs text-slate-400">
+                  This task waits on other tasks. When a dependency is completed
+                  it automatically becomes{' '}
+                  <span className="text-emerald-400">Ready</span>.
+                </p>
+
+                {depError && (
+                  <p className="mb-2 text-xs text-rose-400">{depError}</p>
+                )}
+
+                {dependencies.length > 0 && (
+                  <div className="mb-3 space-y-2">
+                    {dependencies.map((dep) => (
+                      <div
+                        key={dep.id}
+                        className="flex items-center gap-3 rounded-lg border border-white/10 bg-white/5 px-3 py-2"
+                      >
+                        <span
+                          className={`rounded border px-2 py-0.5 text-[10px] font-medium ${
+                            dep.status === 'ready'
+                              ? 'border-emerald-500/30 bg-emerald-500/20 text-emerald-400'
+                              : dep.status === 'blocked'
+                                ? 'border-rose-500/30 bg-rose-500/20 text-rose-400'
+                                : 'border-amber-500/30 bg-amber-500/20 text-amber-400'
+                          }`}
+                        >
+                          {dep.status === 'ready'
+                            ? 'Ready'
+                            : dep.status === 'blocked'
+                              ? 'Blocked'
+                              : 'Waiting'}
+                        </span>
+                        <span className="text-xs text-slate-500">
+                          {dep.task?.task_id_text || 'TASK'}
+                        </span>
+                        <span className="min-w-0 flex-1 truncate text-sm text-slate-300">
+                          {dep.task?.title || 'Unknown task'}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => removeDependency(dep.id)}
+                          title="Remove dependency"
+                          className="rounded p-1 text-slate-500 transition-colors hover:text-rose-400"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                <div className="flex gap-2">
+                  <select
+                    value={newDepId}
+                    onChange={(e) => setNewDepId(e.target.value)}
+                    className="min-w-0 flex-1 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  >
+                    <option value="">Select a task this depends on...</option>
+                    {depCandidates
+                      .filter(
+                        (t) =>
+                          t.id !== task?.id &&
+                          !dependencies.some(
+                            (d) => d.depends_on_task_id === t.id
+                          )
+                      )
+                      .map((t) => (
+                        <option key={t.id} value={t.id}>
+                          {t.task_id_text ? `${t.task_id_text} — ` : ''}
+                          {t.title}
+                        </option>
+                      ))}
+                  </select>
+                  <button
+                    type="button"
+                    onClick={addDependency}
+                    disabled={!newDepId || depSaving}
+                    className="flex items-center gap-1 rounded-lg bg-white/10 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-white/15 disabled:opacity-50"
+                  >
+                    <Plus className="h-4 w-4" />{' '}
+                    {depSaving ? 'Adding...' : 'Add'}
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <p className="text-xs text-slate-500">
+                Dependencies can be added after creation — open the task, click
+                Edit, then use Advanced Options.
+              </p>
+            )}
           </div>
         )}
 

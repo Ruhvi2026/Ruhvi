@@ -8,6 +8,52 @@ function generateTaskIdText() {
   return `TM-${ts}-${rand}`;
 }
 
+class ValidationError extends Error {}
+
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+function optionalUuid(value: unknown, label: string) {
+  if (value === undefined || value === null || value === '') return null;
+  if (typeof value !== 'string' || !UUID_RE.test(value)) {
+    throw new ValidationError(`${label} must be a valid UUID`);
+  }
+  return value;
+}
+
+const TASK_SELECT = `
+  *,
+  assignee:users!tasks_assignee_id_fkey(id, full_name, email, avatar_url),
+  creator:users!tasks_created_by_fkey(id, full_name, email),
+  priority_name:task_priorities(name, level, color),
+  status_name:task_statuses(name, display_order, color),
+  type_name:task_types(name, icon),
+  department_name:departments(name),
+  order:orders(order_number, id),
+  product:products(id, name, slug),
+  ticket:support_tickets(id, ticket_number)
+`;
+
+// priority_id / status_id are NOT NULL in the schema but the form lets staff
+// leave them blank, so fall back to the first configured row.
+async function resolveLookupId(
+  supabase: ReturnType<typeof getServiceClient>,
+  table: 'task_priorities' | 'task_statuses'
+): Promise<string | null> {
+  const { data, error } = await supabase
+    .from(table)
+    .select('id')
+    .order('id', { ascending: true })
+    .limit(1)
+    .maybeSingle();
+
+  if (error) {
+    console.error(`[Tasks POST] Error resolving ${table}:`, error);
+    return null;
+  }
+  return data?.id ?? null;
+}
+
 export async function GET(req: Request) {
   try {
     const staffUser = await getAuthenticatedStaff();
@@ -97,21 +143,7 @@ export async function GET(req: Request) {
 
     let query = supabase
       .from('tasks')
-      .select(
-        `
-        *,
-        assignee:users!tasks_assignee_id_fkey(id, full_name, email, avatar_url),
-        creator:users!tasks_created_by_fkey(id, full_name, email),
-        priority_name:task_priorities(name, level, color),
-        status_name:task_statuses(name, display_order, color),
-        type_name:task_types(name, icon),
-        department_name:departments(name),
-        order:orders(order_number, id),
-        product:products(id, name, slug),
-        ticket:support_tickets(id, ticket_number)
-      `,
-        { count: 'exact' }
-      )
+      .select(TASK_SELECT, { count: 'exact' })
       .eq('deleted_at', null);
 
     if (accessibleIds !== null) {
@@ -246,6 +278,237 @@ export async function GET(req: Request) {
     });
   } catch (err: any) {
     console.error('[Tasks GET] Error:', err);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function POST(req: Request) {
+  try {
+    const staffUser = await getAuthenticatedStaff();
+    if (!staffUser)
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+    let body: Record<string, any>;
+    try {
+      body = await req.json();
+    } catch {
+      return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
+    }
+
+    const title = typeof body.title === 'string' ? body.title.trim() : '';
+    const description =
+      typeof body.description === 'string' ? body.description.trim() : '';
+
+    if (!title)
+      return NextResponse.json({ error: 'Title is required' }, { status: 400 });
+    if (!description)
+      return NextResponse.json(
+        { error: 'Description is required' },
+        { status: 400 }
+      );
+
+    const supabase = getServiceClient();
+
+    let assigneeId: string | null;
+    let typeId: string | null;
+    let departmentId: string | null;
+    let relatedOrderId: string | null;
+    let relatedProductId: string | null;
+    let relatedTicketId: string | null;
+    let priorityId: string | null;
+    let statusId: string | null;
+    try {
+      assigneeId = optionalUuid(body.assignee_id, 'Assignee');
+      typeId = optionalUuid(body.type_id, 'Task type');
+      departmentId = optionalUuid(body.department_id, 'Department');
+      relatedOrderId = optionalUuid(body.related_order_id, 'Related order');
+      relatedProductId = optionalUuid(
+        body.related_product_id,
+        'Related product'
+      );
+      relatedTicketId = optionalUuid(
+        body.related_ticket_id,
+        'Related support ticket'
+      );
+      priorityId = optionalUuid(body.priority_id, 'Priority');
+      statusId = optionalUuid(body.status_id, 'Status');
+    } catch (err) {
+      if (err instanceof ValidationError)
+        return NextResponse.json({ error: err.message }, { status: 400 });
+      throw err;
+    }
+
+    const dueDate =
+      typeof body.due_date === 'string' && body.due_date
+        ? body.due_date.slice(0, 10)
+        : null;
+    if (dueDate && isNaN(Date.parse(dueDate))) {
+      return NextResponse.json(
+        { error: 'Due date is invalid' },
+        { status: 400 }
+      );
+    }
+
+    if (!priorityId)
+      priorityId = await resolveLookupId(supabase, 'task_priorities');
+    if (!priorityId) {
+      return NextResponse.json(
+        { error: 'No task priorities are configured' },
+        { status: 500 }
+      );
+    }
+
+    if (!statusId) statusId = await resolveLookupId(supabase, 'task_statuses');
+    if (!statusId) {
+      return NextResponse.json(
+        { error: 'No task statuses are configured' },
+        { status: 500 }
+      );
+    }
+
+    // An assignee must be an active staff member, never a customer.
+    if (assigneeId) {
+      const { data: assignee, error: assigneeErr } = await supabase
+        .from('users')
+        .select('id')
+        .eq('id', assigneeId)
+        .neq('role', 'customer')
+        .eq('account_status', 'active')
+        .maybeSingle();
+
+      if (assigneeErr) {
+        console.error('[Tasks POST] Error validating assignee:', assigneeErr);
+        return NextResponse.json(
+          { error: 'Failed to validate assignee' },
+          { status: 500 }
+        );
+      }
+      if (!assignee) {
+        return NextResponse.json(
+          { error: 'Assignee is not an active staff member' },
+          { status: 400 }
+        );
+      }
+    }
+
+    const payload: Record<string, unknown> = {
+      task_id_text: generateTaskIdText(),
+      title,
+      description,
+      created_by: staffUser.id,
+      priority_id: priorityId,
+      status_id: statusId,
+      department_id: departmentId ?? staffUser.department_id ?? null,
+      assignee_id: assigneeId,
+      type_id: typeId,
+      due_date: dueDate,
+      due_time:
+        typeof body.due_time === 'string' && body.due_time
+          ? body.due_time.slice(0, 5)
+          : null,
+      start_time:
+        typeof body.start_time === 'string' && body.start_time
+          ? body.start_time.slice(0, 10)
+          : null,
+      expected_duration:
+        typeof body.expected_duration === 'string' && body.expected_duration
+          ? body.expected_duration.trim()
+          : null,
+      related_order_id: relatedOrderId,
+      related_product_id: relatedProductId,
+      related_ticket_id: relatedTicketId,
+      tags: Array.isArray(body.tags)
+        ? body.tags.filter((t: unknown) => typeof t === 'string' && t.trim())
+        : [],
+    };
+
+    const { data: firstRow, error: insertError } = await supabase
+      .from('tasks')
+      .insert(payload)
+      .select(TASK_SELECT)
+      .single();
+
+    let createdTask: any = firstRow;
+
+    // task_id_text carries a unique constraint, so a collision gets one retry.
+    if (insertError?.code === '23505' && !createdTask) {
+      payload.task_id_text = generateTaskIdText();
+      const retry = await supabase
+        .from('tasks')
+        .insert(payload)
+        .select(TASK_SELECT)
+        .single();
+
+      if (retry.error) {
+        console.error('[Tasks POST] Error:', retry.error);
+        return NextResponse.json(
+          { error: 'Failed to create task' },
+          { status: 500 }
+        );
+      }
+      createdTask = retry.data;
+    } else if (insertError) {
+      console.error('[Tasks POST] Error:', insertError);
+      return NextResponse.json(
+        { error: 'Failed to create task' },
+        { status: 500 }
+      );
+    }
+
+    if (!createdTask) {
+      return NextResponse.json(
+        { error: 'Failed to create task' },
+        { status: 500 }
+      );
+    }
+
+    // Mirror the assignee onto the assignment history table.
+    if (assigneeId) {
+      await supabase.from('task_assignments').insert({
+        task_id: createdTask.id,
+        user_id: assigneeId,
+        assigned_by: staffUser.id,
+      });
+
+      if (assigneeId !== staffUser.id) {
+        await supabase.from('notifications').insert({
+          user_id: assigneeId,
+          title: 'New Task Assigned to You',
+          message: `Task "${title}" has been assigned to you`,
+          category: 'TASK_ASSIGNMENT',
+          reference_type: 'task',
+          reference_id: createdTask.id,
+          actor_id: staffUser.id,
+        });
+      }
+    }
+
+    await supabase.from('task_activity').insert({
+      task_id: createdTask.id,
+      user_id: staffUser.id,
+      action: 'created',
+      new_value: {
+        title,
+        status_id: statusId,
+        priority_id: priorityId,
+        assignee_id: assigneeId,
+        department_id: payload.department_id,
+      },
+    });
+
+    return NextResponse.json(
+      {
+        task: createdTask,
+        success: true,
+        message: 'Task created successfully',
+      },
+      { status: 201 }
+    );
+  } catch (err: any) {
+    console.error('[Tasks POST] Error:', err);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
