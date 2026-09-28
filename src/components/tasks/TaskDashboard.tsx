@@ -16,6 +16,7 @@ import {
   ArrowUpRight,
   ArrowDownRight,
   Minus,
+  Eye,
 } from 'lucide-react';
 import { DashboardStats } from './types';
 
@@ -146,7 +147,7 @@ export default function TaskDashboard({ initialStats }: TaskDashboardProps) {
               <StatCard
                 label="Spectating"
                 value={stats.spectating || 0}
-                icon={EyeIcon}
+                icon={Eye}
                 color="text-slate-400"
               />
             </div>

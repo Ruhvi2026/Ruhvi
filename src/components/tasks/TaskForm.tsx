@@ -7,13 +7,10 @@ import {
   Save,
   Plus,
   Trash2,
-  Paperclip,
   Clock,
   Flag,
   Users,
   Package,
-  Ticket,
-  Box,
   ListChecks,
   GitBranch,
 } from 'lucide-react';
