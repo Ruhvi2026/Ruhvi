@@ -66,7 +66,7 @@ export async function POST(req: Request) {
       .from('tasks')
       .select('id, created_by, assignee_id, department_id')
       .eq('id', taskId)
-      .eq('deleted_at', null)
+      .is('deleted_at', null)
       .single();
 
     if (taskError || !task) {
@@ -243,7 +243,7 @@ export async function DELETE(req: Request) {
       .from('tasks')
       .select('id, created_by, assignee_id, department_id')
       .eq('id', taskId)
-      .eq('deleted_at', null)
+      .is('deleted_at', null)
       .single();
 
     if (taskError || !task) {

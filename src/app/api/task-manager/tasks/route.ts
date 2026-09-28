@@ -109,7 +109,7 @@ export async function GET(req: Request) {
       const { data: directTasks } = await supabase
         .from('tasks')
         .select('id')
-        .eq('deleted_at', null)
+        .is('deleted_at', null)
         .or(orParts.join(','));
 
       const [assignmentsRes, spectatorsRes] = await Promise.all([
@@ -144,7 +144,7 @@ export async function GET(req: Request) {
     let query = supabase
       .from('tasks')
       .select(TASK_SELECT, { count: 'exact' })
-      .eq('deleted_at', null);
+      .is('deleted_at', null);
 
     if (accessibleIds !== null) {
       query = query.in('id', accessibleIds);
