@@ -331,23 +331,51 @@ export default function TaskDetail({
               </span>
               <span
                 className={`rounded border px-2 py-0.5 text-[10px] font-medium ${
-                  priorityColors[task.priority_name?.name || 'Normal'] ||
-                  priorityColors.Normal
+                  priorityColors[
+                    typeof task.priority_name?.name === 'string'
+                      ? task.priority_name.name
+                      : 'Normal'
+                  ] || priorityColors.Normal
                 }`}
               >
-                {typeof task.priority_name?.name === 'string'
-                  ? task.priority_name.name
-                  : 'Normal'}
+                {(() => {
+                  if (
+                    typeof task.priority_name?.name !== 'string' &&
+                    task.priority_name
+                  ) {
+                    console.error(
+                      'DEBUG: TaskDetail: Invalid priority_name.name:',
+                      task.priority_name
+                    );
+                  }
+                  return typeof task.priority_name?.name === 'string'
+                    ? task.priority_name.name
+                    : 'Normal';
+                })()}
               </span>
               <span
                 className={`rounded border px-2 py-0.5 text-[10px] font-medium ${
-                  statusColors[task.status_name?.name || 'Open'] ||
-                  statusColors.Open
+                  statusColors[
+                    typeof task.status_name?.name === 'string'
+                      ? task.status_name.name
+                      : 'Open'
+                  ] || statusColors.Open
                 }`}
               >
-                {typeof task.status_name?.name === 'string'
-                  ? task.status_name.name
-                  : 'Open'}
+                {(() => {
+                  if (
+                    typeof task.status_name?.name !== 'string' &&
+                    task.status_name
+                  ) {
+                    console.error(
+                      'DEBUG: TaskDetail: Invalid status_name.name:',
+                      task.status_name
+                    );
+                  }
+                  return typeof task.status_name?.name === 'string'
+                    ? task.status_name.name
+                    : 'Open';
+                })()}
               </span>
               {typeof task.type_name?.name === 'string' && (
                 <span className="rounded border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] text-slate-400">

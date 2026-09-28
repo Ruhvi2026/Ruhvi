@@ -209,8 +209,14 @@ export default function TaskList({
   };
 
   const priorityLabel = (task: Task) => {
-    const priority = task.priority_name?.name || 'Normal';
+    const priority = task.priority_name?.name;
     const priorityStr = typeof priority === 'string' ? priority : 'Normal';
+    if (priority && typeof priority !== 'string') {
+      console.error(
+        'DEBUG: TaskList: Invalid priority_name.name:',
+        task.priority_name
+      );
+    }
     return (
       <span
         className={`inline-flex items-center rounded border px-2 py-0.5 text-[10px] font-medium ${
@@ -223,8 +229,14 @@ export default function TaskList({
   };
 
   const statusLabel = (task: Task) => {
-    const status = task.status_name?.name || 'Open';
+    const status = task.status_name?.name;
     const statusStr = typeof status === 'string' ? status : 'Open';
+    if (status && typeof status !== 'string') {
+      console.error(
+        'DEBUG: TaskList: Invalid status_name.name:',
+        task.status_name
+      );
+    }
     return (
       <span
         className={`inline-flex items-center rounded border px-2 py-0.5 text-[10px] font-medium ${
