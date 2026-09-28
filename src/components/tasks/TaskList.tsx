@@ -210,22 +210,28 @@ export default function TaskList({
 
   const priorityLabel = (task: Task) => {
     const priority = task.priority_name?.name || 'Normal';
+    const priorityStr = typeof priority === 'string' ? priority : 'Normal';
     return (
       <span
-        className={`inline-flex items-center rounded border px-2 py-0.5 text-[10px] font-medium ${PRIORITY_COLORS[priority] || PRIORITY_COLORS.Normal}`}
+        className={`inline-flex items-center rounded border px-2 py-0.5 text-[10px] font-medium ${
+          PRIORITY_COLORS[priorityStr] || PRIORITY_COLORS.Normal
+        }`}
       >
-        {priority}
+        {priorityStr}
       </span>
     );
   };
 
   const statusLabel = (task: Task) => {
     const status = task.status_name?.name || 'Open';
+    const statusStr = typeof status === 'string' ? status : 'Open';
     return (
       <span
-        className={`inline-flex items-center rounded border px-2 py-0.5 text-[10px] font-medium ${STATUS_COLORS[status] || STATUS_COLORS.Open}`}
+        className={`inline-flex items-center rounded border px-2 py-0.5 text-[10px] font-medium ${
+          STATUS_COLORS[statusStr] || STATUS_COLORS.Open
+        }`}
       >
-        {status}
+        {statusStr}
       </span>
     );
   };

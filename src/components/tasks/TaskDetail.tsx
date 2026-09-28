@@ -330,16 +330,26 @@ export default function TaskDetail({
                 {task.task_id_text}
               </span>
               <span
-                className={`rounded border px-2 py-0.5 text-[10px] font-medium ${priorityColors[task.priority_name?.name || 'Normal'] || priorityColors.Normal}`}
+                className={`rounded border px-2 py-0.5 text-[10px] font-medium ${
+                  priorityColors[task.priority_name?.name || 'Normal'] ||
+                  priorityColors.Normal
+                }`}
               >
-                {task.priority_name?.name || 'Normal'}
+                {typeof task.priority_name?.name === 'string'
+                  ? task.priority_name.name
+                  : 'Normal'}
               </span>
               <span
-                className={`rounded border px-2 py-0.5 text-[10px] font-medium ${statusColors[task.status_name?.name || 'Open'] || statusColors.Open}`}
+                className={`rounded border px-2 py-0.5 text-[10px] font-medium ${
+                  statusColors[task.status_name?.name || 'Open'] ||
+                  statusColors.Open
+                }`}
               >
-                {task.status_name?.name || 'Open'}
+                {typeof task.status_name?.name === 'string'
+                  ? task.status_name.name
+                  : 'Open'}
               </span>
-              {task.type_name && (
+              {typeof task.type_name?.name === 'string' && (
                 <span className="rounded border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] text-slate-400">
                   {task.type_name.name}
                 </span>
