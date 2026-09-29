@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import {
   Search,
@@ -16,6 +16,7 @@ import {
   Ticket,
   ClipboardList,
 } from 'lucide-react';
+import { debounce } from '@/lib/debounce';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import {
   Task,
@@ -77,6 +78,11 @@ export default function TaskList({
   });
   const [showFilters, setShowFilters] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const debouncedFetch = useRef(
+    debounce((pageNum: number, additionalFilters: Partial<TaskFilters>) => {
+      fetchTasks(pageNum, additionalFilters);
+    }, 300)
+  );
 
   // Build URL for API calls
   const buildApiUrl = useCallback(
@@ -142,7 +148,12 @@ export default function TaskList({
   const handleFilterChange = (key: keyof TaskFilters, value: any) => {
     const newFilters = { ...filters, [key]: value };
     setFilters(newFilters);
-    fetchTasks(1, { [key]: value });
+    const shouldDebounce = key === 'search';
+    if (shouldDebounce) {
+      debouncedFetch.current(1, { [key]: value });
+    } else {
+      fetchTasks(1, { [key]: value });
+    }
   };
 
   const handleSearch = (search: string) => {

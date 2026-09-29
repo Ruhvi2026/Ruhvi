@@ -1,7 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { Suspense, useState, useEffect } from 'react';
 import TaskDashboard from '@/components/tasks/TaskDashboard';
 import TaskList from '@/components/tasks/TaskList';
 import {
@@ -13,8 +12,13 @@ import {
 import TaskDetail from '@/components/tasks/TaskDetail';
 import TaskForm from '@/components/tasks/TaskForm';
 
+const LoadingSpinner = () => (
+  <div className="flex h-64 items-center justify-center">
+    <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-emerald-500" />
+  </div>
+);
+
 export default function TaskManagerPage() {
-  const router = useRouter();
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [editing, setEditing] = useState(false);
   const [priorities, setPriorities] = useState<TaskPriority[]>([]);
@@ -125,10 +129,14 @@ export default function TaskManagerPage() {
   return (
     <div className="flex h-full flex-col bg-[#0d0f1a]">
       <div className="border-b border-white/5 p-4">
-        <TaskDashboard />
+        <Suspense fallback={<LoadingSpinner />}>
+          <TaskDashboard />
+        </Suspense>
       </div>
       <div className="flex-1">
-        <TaskList onTaskClick={setSelectedTask} />
+        <Suspense fallback={<LoadingSpinner />}>
+          <TaskList onTaskClick={setSelectedTask} />
+        </Suspense>
       </div>
     </div>
   );

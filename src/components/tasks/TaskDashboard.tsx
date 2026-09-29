@@ -11,7 +11,6 @@ import {
   Users,
   Package,
   TrendingUp,
-  BarChart3,
   Activity,
   ArrowUpRight,
   ArrowDownRight,
@@ -23,6 +22,34 @@ import { DashboardStats } from './types';
 interface TaskDashboardProps {
   initialStats?: DashboardStats;
 }
+
+interface StatCardProps {
+  label: string;
+  value: number;
+  icon: any;
+  color?: string;
+  bgColor?: string;
+}
+
+const StatCard = ({
+  label,
+  value,
+  icon: Icon,
+  color = 'text-white',
+  bgColor = 'bg-white/5',
+}: StatCardProps) => (
+  <div className={`rounded-lg border p-4 ${bgColor} border-white/10`}>
+    <div className="flex items-center justify-between">
+      <div>
+        <p className="text-[11px] font-medium uppercase tracking-wider text-slate-500">
+          {label}
+        </p>
+        <p className={`mt-1 text-2xl font-bold ${color}`}>{value}</p>
+      </div>
+      <Icon className="h-6 w-6 text-slate-500" />
+    </div>
+  </div>
+);
 
 export default function TaskDashboard({ initialStats }: TaskDashboardProps) {
   const [stats, setStats] = useState<DashboardStats | null>(
@@ -56,32 +83,6 @@ export default function TaskDashboard({ initialStats }: TaskDashboardProps) {
       </div>
     );
   }
-
-  const StatCard = ({
-    label,
-    value,
-    icon: Icon,
-    color = 'text-white',
-    bgColor = 'bg-white/5',
-  }: {
-    label: string;
-    value: number;
-    icon: any;
-    color?: string;
-    bgColor?: string;
-  }) => (
-    <div className={`rounded-lg border p-4 ${bgColor} border-white/10`}>
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-[11px] font-medium uppercase tracking-wider text-slate-500">
-            {label}
-          </p>
-          <p className={`mt-1 text-2xl font-bold ${color}`}>{value}</p>
-        </div>
-        <Icon className="h-6 w-6 text-slate-500" />
-      </div>
-    </div>
-  );
 
   return (
     <div className="flex h-full flex-col bg-[#0d0f1a]">
@@ -354,30 +355,5 @@ export default function TaskDashboard({ initialStats }: TaskDashboardProps) {
         </div>
       </div>
     </div>
-  );
-}
-
-// Missing icon component
-function EyeIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke="currentColor"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-      />
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-      />
-    </svg>
   );
 }
