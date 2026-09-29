@@ -2,9 +2,12 @@ import { NextResponse } from 'next/server';
 import { getServiceClient } from '@/lib/supabase/service';
 import { getAuthenticatedStaff } from '@/lib/auth/task-auth';
 
-// Simple in-memory cache for dashboard data
+// Simple in-memory cache for dashboard data (for manager role)
 const dashboardCache = new Map();
 const CACHE_TTL_SECONDS = 10;
+
+// Initialize Supabase client outside the handler for connection reuse
+const supabase = getServiceClient();
 
 function getFromCache(key: string) {
   const cached = dashboardCache.get(key);
@@ -28,12 +31,15 @@ export async function GET(req: Request) {
     if (!staffUser)
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const supabase = getServiceClient();
     const role = staffUser.role;
-
     const today = new Date().toISOString().split('T')[0];
 
+    // Set edge caching headers
+    const headers = new Headers();
+    headers.set('Cache-Control', 's-maxage=60, stale-while-revalidate');
+
     if (role === 'super_admin' || role === 'admin') {
+      // Fetch all initial counts in parallel
       const [
         totalRes,
         openRes,
@@ -103,76 +109,97 @@ export async function GET(req: Request) {
           .eq('account_status', 'active'),
       ]);
 
+      // Process department workload in parallel
       const departments = deptWorkloadRes.data || [];
+      const departmentWorkloadPromises = departments.map(async (dept) => {
+        const [
+          { count: totalCount },
+          { count: openCount },
+          { count: overdueCount },
+        ] = await Promise.all([
+          supabase
+            .from('tasks')
+            .select('id', { count: 'exact', head: true })
+            .is('deleted_at', null)
+            .eq('department_id', dept.id),
+          supabase
+            .from('tasks')
+            .select('id', { count: 'exact', head: true })
+            .is('deleted_at', null)
+            .eq('department_id', dept.id)
+            .eq('status_id', (await getStatusId(supabase, 'Open')) || ''),
+          supabase
+            .from('tasks')
+            .select('id', { count: 'exact', head: true })
+            .is('deleted_at', null)
+            .eq('department_id', dept.id)
+            .lt('due_date', today)
+            .in(
+              'status_id',
+              await getStatusIds(supabase, ['Open', 'In Progress', 'Blocked'])
+            ),
+        ]);
+
+        return [
+          dept.name,
+          {
+            total: totalCount || 0,
+            open: openCount || 0,
+            overdue: overdueCount || 0,
+          },
+        ];
+      });
+
+      const departmentWorkloadEntries = await Promise.all(
+        departmentWorkloadPromises
+      );
+      const departmentWorkload = Object.fromEntries(departmentWorkloadEntries);
+
+      // Process staff workload in parallel
       const staffMembers = staffWorkloadRes.data || [];
+      const staffWorkloadPromises = staffMembers.map(async (member) => {
+        const [
+          { count: totalCount },
+          { count: openCount },
+          { count: overdueCount },
+        ] = await Promise.all([
+          supabase
+            .from('tasks')
+            .select('id', { count: 'exact', head: true })
+            .is('deleted_at', null)
+            .or(`assignee_id.eq.${member.id},created_by.eq.${member.id}`),
+          supabase
+            .from('tasks')
+            .select('id', { count: 'exact', head: true })
+            .is('deleted_at', null)
+            .eq('assignee_id', member.id)
+            .eq('status_id', (await getStatusId(supabase, 'Open')) || ''),
+          supabase
+            .from('tasks')
+            .select('id', { count: 'exact', head: true })
+            .is('deleted_at', null)
+            .eq('assignee_id', member.id)
+            .lt('due_date', today)
+            .in(
+              'status_id',
+              await getStatusIds(supabase, ['Open', 'In Progress', 'Blocked'])
+            ),
+        ]);
 
-      const departmentWorkload: Record<
-        string,
-        { total: number; open: number; overdue: number }
-      > = {};
-      for (const dept of departments) {
-        const { count } = await supabase
-          .from('tasks')
-          .select('id', { count: 'exact', head: true })
-          .is('deleted_at', null)
-          .eq('department_id', dept.id);
-        const { count: openCount } = await supabase
-          .from('tasks')
-          .select('id', { count: 'exact', head: true })
-          .is('deleted_at', null)
-          .eq('department_id', dept.id)
-          .eq('status_id', (await getStatusId(supabase, 'Open')) || '');
-        const { count: overdueCount } = await supabase
-          .from('tasks')
-          .select('id', { count: 'exact', head: true })
-          .is('deleted_at', null)
-          .eq('department_id', dept.id)
-          .lt('due_date', today)
-          .in(
-            'status_id',
-            await getStatusIds(supabase, ['Open', 'In Progress', 'Blocked'])
-          );
-        departmentWorkload[dept.name] = {
-          total: count || 0,
-          open: openCount || 0,
-          overdue: overdueCount || 0,
-        };
-      }
+        return [
+          member.full_name || member.id,
+          {
+            total: totalCount || 0,
+            open: openCount || 0,
+            overdue: overdueCount || 0,
+          },
+        ];
+      });
 
-      const staffWorkload: Record<
-        string,
-        { total: number; open: number; overdue: number }
-      > = {};
-      for (const member of staffMembers) {
-        const { count } = await supabase
-          .from('tasks')
-          .select('id', { count: 'exact', head: true })
-          .is('deleted_at', null)
-          .or(`assignee_id.eq.${member.id},created_by.eq.${member.id}`);
-        const { count: openCount } = await supabase
-          .from('tasks')
-          .select('id', { count: 'exact', head: true })
-          .is('deleted_at', null)
-          .eq('assignee_id', member.id)
-          .eq('status_id', (await getStatusId(supabase, 'Open')) || '');
-        const { count: overdueCount } = await supabase
-          .from('tasks')
-          .select('id', { count: 'exact', head: true })
-          .is('deleted_at', null)
-          .eq('assignee_id', member.id)
-          .lt('due_date', today)
-          .in(
-            'status_id',
-            await getStatusIds(supabase, ['Open', 'In Progress', 'Blocked'])
-          );
-        staffWorkload[member.full_name || member.id] = {
-          total: count || 0,
-          open: openCount || 0,
-          overdue: overdueCount || 0,
-        };
-      }
+      const staffWorkloadEntries = await Promise.all(staffWorkloadPromises);
+      const staffWorkload = Object.fromEntries(staffWorkloadEntries);
 
-      return NextResponse.json({
+      const responseBody = {
         dashboard: {
           role: 'admin',
           total: totalRes.count || 0,
@@ -186,7 +213,9 @@ export async function GET(req: Request) {
           staff_workload: staffWorkload,
         },
         success: true,
-      });
+      };
+
+      return NextResponse.json(responseBody, { headers });
     }
 
     if (role === 'manager') {
@@ -194,7 +223,7 @@ export async function GET(req: Request) {
       const cacheKey = `dashboard-manager-${deptId || 'no-dept'}`;
       const cachedData = getFromCache(cacheKey);
       if (cachedData) {
-        return NextResponse.json(cachedData);
+        return NextResponse.json(cachedData, { headers });
       }
 
       // Request-specific cache for status and priority lookups
@@ -218,28 +247,36 @@ export async function GET(req: Request) {
         return id;
       };
 
-      // Get status ids
+      // Fetch all status and priority ids in parallel
       const [
         openStatusId,
         inProgressStatusId,
         blockedStatusId,
         completedStatusId,
         closedStatusId,
+        highPriorityId,
+        importantPriorityId,
+        immediatePriorityId,
       ] = await Promise.all([
         getCachedStatusId('Open'),
         getCachedStatusId('In Progress'),
         getCachedStatusId('Blocked'),
         getCachedStatusId('Completed'),
         getCachedStatusId('Closed'),
+        getCachedPriorityId('High'),
+        getCachedPriorityId('Important'),
+        getCachedPriorityId('Immediate'),
       ]);
 
-      // Get priority ids
-      const [highPriorityId, importantPriorityId, immediatePriorityId] =
-        await Promise.all([
-          getCachedPriorityId('High'),
-          getCachedPriorityId('Important'),
-          getCachedPriorityId('Immediate'),
-        ]);
+      // Filter out null ids
+      const validOpenStatusId = openStatusId ?? '';
+      const validInProgressStatusId = inProgressStatusId ?? '';
+      const validBlockedStatusId = blockedStatusId ?? '';
+      const validCompletedStatusId = completedStatusId ?? '';
+      const validClosedStatusId = closedStatusId ?? '';
+      const validHighPriorityId = highPriorityId ?? '';
+      const validImportantPriorityId = importantPriorityId ?? '';
+      const validImmediatePriorityId = immediatePriorityId ?? '';
 
       // Run the five unique queries in parallel
       const [
@@ -269,9 +306,11 @@ export async function GET(req: Request) {
           .eq('department_id', deptId || '')
           .in(
             'priority_id',
-            [highPriorityId, importantPriorityId, immediatePriorityId].filter(
-              (id) => id !== null
-            )
+            [
+              validHighPriorityId,
+              validImportantPriorityId,
+              validImmediatePriorityId,
+            ].filter((id) => id !== '')
           ),
 
         supabase
@@ -282,9 +321,11 @@ export async function GET(req: Request) {
           .lt('due_date', today)
           .in(
             'status_id',
-            [openStatusId, inProgressStatusId, blockedStatusId].filter(
-              (id) => id !== null
-            )
+            [
+              validOpenStatusId,
+              validInProgressStatusId,
+              validBlockedStatusId,
+            ].filter((id) => id !== '')
           ),
 
         supabase
@@ -295,7 +336,9 @@ export async function GET(req: Request) {
           .eq('due_date', today)
           .in(
             'status_id',
-            [completedStatusId, closedStatusId].filter((id) => id !== null)
+            [validCompletedStatusId, validClosedStatusId].filter(
+              (id) => id !== ''
+            )
           ),
       ]);
 
@@ -314,63 +357,68 @@ export async function GET(req: Request) {
       };
 
       setInCache(cacheKey, responseBody);
-      return NextResponse.json(responseBody);
+      return NextResponse.json(responseBody, { headers });
     }
 
-    const myOpenRes = await supabase
-      .from('tasks')
-      .select('id', { count: 'exact', head: true })
-      .is('deleted_at', null)
-      .or(`assignee_id.eq.${staffUser.id},created_by.eq.${staffUser.id}`)
-      .in(
-        'status_id',
-        await getStatusIds(supabase, ['Open', 'In Progress', 'Blocked'])
-      );
+    // Staff role - parallelize all queries
+    const [
+      myOpenRes,
+      dueTodayRes,
+      dueSoonRes,
+      overdueRes,
+      supportingRes,
+      spectatingRes,
+    ] = await Promise.all([
+      supabase
+        .from('tasks')
+        .select('id', { count: 'exact', head: true })
+        .is('deleted_at', null)
+        .or(`assignee_id.eq.${staffUser.id},created_by.eq.${staffUser.id}`)
+        .in(
+          'status_id',
+          await getStatusIds(supabase, ['Open', 'In Progress', 'Blocked'])
+        ),
+      supabase
+        .from('tasks')
+        .select('id', { count: 'exact', head: true })
+        .is('deleted_at', null)
+        .or(`assignee_id.eq.${staffUser.id},created_by.eq.${staffUser.id}`)
+        .eq('due_date', today)
+        .in(
+          'status_id',
+          await getStatusIds(supabase, ['Open', 'In Progress', 'Blocked'])
+        ),
+      supabase
+        .from('tasks')
+        .select('id', { count: 'exact', head: true })
+        .is('deleted_at', null)
+        .or(`assignee_id.eq.${staffUser.id},created_by.eq.${staffUser.id}`)
+        .gt('due_date', today)
+        .in(
+          'status_id',
+          await getStatusIds(supabase, ['Open', 'In Progress', 'Blocked'])
+        ),
+      supabase
+        .from('tasks')
+        .select('id', { count: 'exact', head: true })
+        .is('deleted_at', null)
+        .or(`assignee_id.eq.${staffUser.id},created_by.eq.${staffUser.id}`)
+        .lt('due_date', today)
+        .in(
+          'status_id',
+          await getStatusIds(supabase, ['Open', 'In Progress', 'Blocked'])
+        ),
+      supabase
+        .from('task_assignments')
+        .select('task_id', { count: 'exact', head: true })
+        .eq('user_id', staffUser.id),
+      supabase
+        .from('task_spectators')
+        .select('task_id', { count: 'exact', head: true })
+        .eq('user_id', staffUser.id),
+    ]);
 
-    const dueTodayRes = await supabase
-      .from('tasks')
-      .select('id', { count: 'exact', head: true })
-      .is('deleted_at', null)
-      .or(`assignee_id.eq.${staffUser.id},created_by.eq.${staffUser.id}`)
-      .eq('due_date', today)
-      .in(
-        'status_id',
-        await getStatusIds(supabase, ['Open', 'In Progress', 'Blocked'])
-      );
-
-    const dueSoonRes = await supabase
-      .from('tasks')
-      .select('id', { count: 'exact', head: true })
-      .is('deleted_at', null)
-      .or(`assignee_id.eq.${staffUser.id},created_by.eq.${staffUser.id}`)
-      .gt('due_date', today)
-      .in(
-        'status_id',
-        await getStatusIds(supabase, ['Open', 'In Progress', 'Blocked'])
-      );
-
-    const overdueRes = await supabase
-      .from('tasks')
-      .select('id', { count: 'exact', head: true })
-      .is('deleted_at', null)
-      .or(`assignee_id.eq.${staffUser.id},created_by.eq.${staffUser.id}`)
-      .lt('due_date', today)
-      .in(
-        'status_id',
-        await getStatusIds(supabase, ['Open', 'In Progress', 'Blocked'])
-      );
-
-    const supportingRes = await supabase
-      .from('task_assignments')
-      .select('task_id', { count: 'exact', head: true })
-      .eq('user_id', staffUser.id);
-
-    const spectatingRes = await supabase
-      .from('task_spectators')
-      .select('task_id', { count: 'exact', head: true })
-      .eq('user_id', staffUser.id);
-
-    return NextResponse.json({
+    const responseBody = {
       dashboard: {
         role: 'staff',
         my_open_tasks: myOpenRes.count || 0,
@@ -381,7 +429,9 @@ export async function GET(req: Request) {
         spectating: spectatingRes.count || 0,
       },
       success: true,
-    });
+    };
+
+    return NextResponse.json(responseBody, { headers });
   } catch (err: any) {
     console.error('[Dashboard GET] Error:', err);
     return NextResponse.json(
