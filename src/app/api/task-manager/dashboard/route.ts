@@ -2,6 +2,26 @@ import { NextResponse } from 'next/server';
 import { getServiceClient } from '@/lib/supabase/service';
 import { getAuthenticatedStaff } from '@/lib/auth/task-auth';
 
+// Simple in-memory cache for dashboard data
+const dashboardCache = new Map();
+const CACHE_TTL_SECONDS = 10;
+
+function getFromCache(key: string) {
+  const cached = dashboardCache.get(key);
+  if (cached && cached.expires > Date.now()) {
+    return cached.value;
+  }
+  dashboardCache.delete(key);
+  return null;
+}
+
+function setInCache(key: string, value: any) {
+  dashboardCache.set(key, {
+    value,
+    expires: Date.now() + CACHE_TTL_SECONDS * 1000,
+  });
+}
+
 export async function GET(req: Request) {
   try {
     const staffUser = await getAuthenticatedStaff();
@@ -171,32 +191,80 @@ export async function GET(req: Request) {
 
     if (role === 'manager') {
       const deptId = staffUser.department_id;
+      const cacheKey = `dashboard-manager-${deptId || 'no-dept'}`;
+      const cachedData = getFromCache(cacheKey);
+      if (cachedData) {
+        return NextResponse.json(cachedData);
+      }
+
+      // Request-specific cache for status and priority lookups
+      const statusIdCache = new Map();
+      const getCachedStatusId = async (name: string) => {
+        if (statusIdCache.has(name)) {
+          return statusIdCache.get(name);
+        }
+        const id = await getStatusId(supabase, name);
+        statusIdCache.set(name, id);
+        return id;
+      };
+
+      const priorityIdCache = new Map();
+      const getCachedPriorityId = async (name: string) => {
+        if (priorityIdCache.has(name)) {
+          return priorityIdCache.get(name);
+        }
+        const id = await getPriorityId(supabase, name);
+        priorityIdCache.set(name, id);
+        return id;
+      };
+
+      // Get status ids
+      const [
+        openStatusId,
+        inProgressStatusId,
+        blockedStatusId,
+        completedStatusId,
+        closedStatusId,
+      ] = await Promise.all([
+        getCachedStatusId(supabase, 'Open'),
+        getCachedStatusId(supabase, 'In Progress'),
+        getCachedStatusId(supabase, 'Blocked'),
+        getCachedStatusId(supabase, 'Completed'),
+        getCachedStatusId(supabase, 'Closed'),
+      ]);
+
+      // Get priority ids
+      const [highPriorityId, importantPriorityId, immediatePriorityId] =
+        await Promise.all([
+          getCachedPriorityId(supabase, 'High'),
+          getCachedPriorityId(supabase, 'Important'),
+          getCachedPriorityId(supabase, 'Immediate'),
+        ]);
+
+      // Today date
+      const today = new Date().toISOString().split('T')[0];
+
+      // Run the five unique queries in parallel
       const [
         deptTasksRes,
-        pendingRes,
-        unassignedRes,
+        pendingRes, // for pending_assignment and unassigned
         highPriorityRes,
-        overdueRes,
+        overdueRes, // for overdue and sla_breached
         completedTodayRes,
-        slaBreachedRes,
       ] = await Promise.all([
         supabase
           .from('tasks')
           .select('id', { count: 'exact', head: true })
           .is('deleted_at', null)
           .eq('department_id', deptId || ''),
+
         supabase
           .from('tasks')
           .select('id', { count: 'exact', head: true })
           .is('deleted_at', null)
           .eq('department_id', deptId || '')
           .is('assignee_id', null),
-        supabase
-          .from('tasks')
-          .select('id', { count: 'exact', head: true })
-          .is('deleted_at', null)
-          .eq('department_id', deptId || '')
-          .is('assignee_id', null),
+
         supabase
           .from('tasks')
           .select('id', { count: 'exact', head: true })
@@ -204,8 +272,11 @@ export async function GET(req: Request) {
           .eq('department_id', deptId || '')
           .in(
             'priority_id',
-            await getPriorityIds(supabase, ['High', 'Important', 'Immediate'])
+            [highPriorityId, importantPriorityId, immediatePriorityId].filter(
+              (id) => id !== null
+            )
           ),
+
         supabase
           .from('tasks')
           .select('id', { count: 'exact', head: true })
@@ -214,8 +285,11 @@ export async function GET(req: Request) {
           .lt('due_date', today)
           .in(
             'status_id',
-            await getStatusIds(supabase, ['Open', 'In Progress', 'Blocked'])
+            [openStatusId, inProgressStatusId, blockedStatusId].filter(
+              (id) => id !== null
+            )
           ),
+
         supabase
           .from('tasks')
           .select('id', { count: 'exact', head: true })
@@ -224,33 +298,26 @@ export async function GET(req: Request) {
           .eq('due_date', today)
           .in(
             'status_id',
-            await getStatusIds(supabase, ['Completed', 'Closed'])
-          ),
-        supabase
-          .from('tasks')
-          .select('id', { count: 'exact', head: true })
-          .is('deleted_at', null)
-          .eq('department_id', deptId || '')
-          .lt('due_date', today)
-          .in(
-            'status_id',
-            await getStatusIds(supabase, ['Open', 'In Progress', 'Blocked'])
+            [completedStatusId, closedStatusId].filter((id) => id !== null)
           ),
       ]);
 
-      return NextResponse.json({
+      const responseBody = {
         dashboard: {
           role: 'manager',
           department_tasks: deptTasksRes.count || 0,
           pending_assignment: pendingRes.count || 0,
-          unassigned: unassignedRes.count || 0,
+          unassigned: pendingRes.count || 0, // same as pending_assignment
           high_priority: highPriorityRes.count || 0,
           overdue: overdueRes.count || 0,
           completed_today: completedTodayRes.count || 0,
-          sla_breached: slaBreachedRes.count || 0,
+          sla_breached: overdueRes.count || 0, // same as overdue
         },
         success: true,
-      });
+      };
+
+      setInCache(cacheKey, responseBody);
+      return NextResponse.json(responseBody);
     }
 
     const myOpenRes = await supabase
@@ -356,4 +423,16 @@ async function getPriorityIds(
     .select('id')
     .in('name', names);
   return (data || []).map((p: any) => p.id);
+}
+
+async function getPriorityId(
+  supabase: any,
+  name: string
+): Promise<string | null> {
+  const { data } = await supabase
+    .from('task_priorities')
+    .select('id')
+    .eq('name', name)
+    .single();
+  return data?.id || null;
 }
