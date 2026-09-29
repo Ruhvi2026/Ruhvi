@@ -226,23 +226,20 @@ export async function GET(req: Request) {
         completedStatusId,
         closedStatusId,
       ] = await Promise.all([
-        getCachedStatusId(supabase, 'Open'),
-        getCachedStatusId(supabase, 'In Progress'),
-        getCachedStatusId(supabase, 'Blocked'),
-        getCachedStatusId(supabase, 'Completed'),
-        getCachedStatusId(supabase, 'Closed'),
+        getCachedStatusId('Open'),
+        getCachedStatusId('In Progress'),
+        getCachedStatusId('Blocked'),
+        getCachedStatusId('Completed'),
+        getCachedStatusId('Closed'),
       ]);
 
       // Get priority ids
       const [highPriorityId, importantPriorityId, immediatePriorityId] =
         await Promise.all([
-          getCachedPriorityId(supabase, 'High'),
-          getCachedPriorityId(supabase, 'Important'),
-          getCachedPriorityId(supabase, 'Immediate'),
+          getCachedPriorityId('High'),
+          getCachedPriorityId('Important'),
+          getCachedPriorityId('Immediate'),
         ]);
-
-      // Today date
-      const today = new Date().toISOString().split('T')[0];
 
       // Run the five unique queries in parallel
       const [
