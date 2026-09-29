@@ -2,484 +2,184 @@ import { NextResponse } from 'next/server';
 import { getServiceClient } from '@/lib/supabase/service';
 import { getAuthenticatedStaff } from '@/lib/auth/task-auth';
 
-// Simple in-memory cache for dashboard data (for manager role)
-const dashboardCache = new Map();
-const CACHE_TTL_SECONDS = 10;
+// One Supabase client per server process, created lazily so a missing env var
+// fails at request time rather than at module evaluation.
+let supabaseClient: ReturnType<typeof getServiceClient> | null = null;
 
-// Initialize Supabase client outside the handler for connection reuse
-const supabase = getServiceClient();
-
-function getFromCache(key: string) {
-  const cached = dashboardCache.get(key);
-  if (cached && cached.expires > Date.now()) {
-    return cached.value;
+function getClient() {
+  if (!supabaseClient) {
+    supabaseClient = getServiceClient();
   }
-  dashboardCache.delete(key);
-  return null;
+  return supabaseClient;
 }
 
-function setInCache(key: string, value: any) {
-  dashboardCache.set(key, {
+// Short-lived cache for manager dashboards. Every manager in a department sees
+// identical numbers, so the key only needs the department. Admins and staff
+// payloads are either unique per user or large enough that caching them is not
+// worth the staleness.
+const CACHE_TTL_SECONDS = 10;
+const CACHE_MAX_ENTRIES = 200;
+const managerCache = new Map<string, { value: unknown; expires: number }>();
+
+function getFromCache(key: string) {
+  const cached = managerCache.get(key);
+  if (!cached) return null;
+  if (cached.expires <= Date.now()) {
+    managerCache.delete(key);
+    return null;
+  }
+  return cached.value;
+}
+
+function setInCache(key: string, value: unknown) {
+  if (managerCache.size >= CACHE_MAX_ENTRIES) {
+    const oldest = managerCache.keys().next();
+    if (!oldest.done) managerCache.delete(oldest.value);
+  }
+  managerCache.set(key, {
     value,
     expires: Date.now() + CACHE_TTL_SECONDS * 1000,
   });
 }
 
-export async function GET(req: Request) {
+// Cache-Control header values for different roles
+const CACHE_HEADERS = {
+  // Manager: public cache with stale-while-revalidate for edge caching
+  // s-maxage=1 allows edge cache to serve for 1 second, stale-while-revalidate=59
+  // allows serving stale content for up to 59 seconds while revalidating in background
+  manager: 'public, s-maxage=1, stale-while-revalidate=59',
+  // Admin: private, no-store since data is org-wide and may be sensitive
+  admin: 'private, no-store, max-age=0',
+  // Staff: private, no-store since data is user-specific
+  staff: 'private, no-store, max-age=0',
+} as const;
+
+interface WorkloadRow {
+  name: string;
+  total?: number;
+  open?: number;
+  overdue?: number;
+}
+
+function toWorkloadMap(rows: WorkloadRow[] | null | undefined) {
+  const map: Record<string, { total: number; open: number; overdue: number }> =
+    {};
+  for (const row of rows || []) {
+    if (!row?.name) continue;
+    map[row.name] = {
+      total: row.total || 0,
+      open: row.open || 0,
+      overdue: row.overdue || 0,
+    };
+  }
+  return map;
+}
+
+export async function GET() {
   try {
     const staffUser = await getAuthenticatedStaff();
-    if (!staffUser)
+    if (!staffUser) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
-    const role = staffUser.role;
-    const today = new Date().toISOString().split('T')[0];
+    const isAdmin =
+      staffUser.role === 'super_admin' || staffUser.role === 'admin';
+    const isManager = staffUser.role === 'manager';
+    const cacheKey = isManager
+      ? `manager-${staffUser.department_id || 'no-dept'}`
+      : null;
 
-    // Set edge caching headers
+    // Determine cache header based on role
+    const cacheHeader = isManager
+      ? CACHE_HEADERS.manager
+      : isAdmin
+        ? CACHE_HEADERS.admin
+        : CACHE_HEADERS.staff;
     const headers = new Headers();
-    headers.set('Cache-Control', 's-maxage=60, stale-while-revalidate');
+    headers.set('Cache-Control', cacheHeader);
 
-    if (role === 'super_admin' || role === 'admin') {
-      // Fetch all initial counts in parallel
-      const [
-        totalRes,
-        openRes,
-        inProgressRes,
-        completedRes,
-        overdueRes,
-        completedTodayRes,
-        slaBreachedRes,
-        deptWorkloadRes,
-        staffWorkloadRes,
-      ] = await Promise.all([
-        supabase
-          .from('tasks')
-          .select('id', { count: 'exact', head: true })
-          .is('deleted_at', null),
-        supabase
-          .from('tasks')
-          .select('id', { count: 'exact', head: true })
-          .is('deleted_at', null)
-          .eq('status_id', (await getStatusId(supabase, 'Open')) || ''),
-        supabase
-          .from('tasks')
-          .select('id', { count: 'exact', head: true })
-          .is('deleted_at', null)
-          .eq('status_id', (await getStatusId(supabase, 'In Progress')) || ''),
-        supabase
-          .from('tasks')
-          .select('id', { count: 'exact', head: true })
-          .is('deleted_at', null)
-          .in(
-            'status_id',
-            await getStatusIds(supabase, ['Completed', 'Closed'])
-          ),
-        supabase
-          .from('tasks')
-          .select('id', { count: 'exact', head: true })
-          .is('deleted_at', null)
-          .lt('due_date', today)
-          .not(
-            'status_id',
-            'in',
-            `(${await getStatusIds(supabase, ['Completed', 'Closed']).then((ids) => ids.join(','))})`
-          ),
-        supabase
-          .from('tasks')
-          .select('id', { count: 'exact', head: true })
-          .is('deleted_at', null)
-          .eq('due_date', today)
-          .in(
-            'status_id',
-            await getStatusIds(supabase, ['Completed', 'Closed'])
-          ),
-        supabase
-          .from('tasks')
-          .select('id', { count: 'exact', head: true })
-          .is('deleted_at', null)
-          .lt('due_date', today)
-          .in(
-            'status_id',
-            await getStatusIds(supabase, ['Open', 'In Progress', 'Blocked'])
-          ),
-        supabase.from('departments').select('id, name'),
-        supabase
-          .from('users')
-          .select('id, full_name, role')
-          .neq('role', 'customer')
-          .eq('account_status', 'active'),
-      ]);
+    if (cacheKey) {
+      const cached = getFromCache(cacheKey);
+      if (cached) {
+        return NextResponse.json(cached, { headers });
+      }
+    }
 
-      // Process department workload in parallel
-      const departments = deptWorkloadRes.data || [];
-      const departmentWorkloadPromises = departments.map(async (dept) => {
-        const [
-          { count: totalCount },
-          { count: openCount },
-          { count: overdueCount },
-        ] = await Promise.all([
-          supabase
-            .from('tasks')
-            .select('id', { count: 'exact', head: true })
-            .is('deleted_at', null)
-            .eq('department_id', dept.id),
-          supabase
-            .from('tasks')
-            .select('id', { count: 'exact', head: true })
-            .is('deleted_at', null)
-            .eq('department_id', dept.id)
-            .eq('status_id', (await getStatusId(supabase, 'Open')) || ''),
-          supabase
-            .from('tasks')
-            .select('id', { count: 'exact', head: true })
-            .is('deleted_at', null)
-            .eq('department_id', dept.id)
-            .lt('due_date', today)
-            .in(
-              'status_id',
-              await getStatusIds(supabase, ['Open', 'In Progress', 'Blocked'])
-            ),
-        ]);
+    const { data, error } = await getClient().rpc('get_task_dashboard_stats', {
+      p_department_id: isManager ? staffUser.department_id || null : null,
+      p_user_id: isAdmin || isManager ? null : staffUser.id,
+    });
 
-        return [
-          dept.name,
-          {
-            total: totalCount || 0,
-            open: openCount || 0,
-            overdue: overdueCount || 0,
-          },
-        ];
-      });
+    if (error) {
+      throw error;
+    }
 
-      const departmentWorkloadEntries = await Promise.all(
-        departmentWorkloadPromises
-      );
-      const departmentWorkload = Object.fromEntries(departmentWorkloadEntries);
+    const stats = (data || {}) as {
+      totals?: Record<string, number>;
+      department_workload?: WorkloadRow[];
+      staff_workload?: WorkloadRow[];
+      mine?: Record<string, number>;
+    };
+    const totals = stats.totals || {};
 
-      // Process staff workload in parallel
-      const staffMembers = staffWorkloadRes.data || [];
-      const staffWorkloadPromises = staffMembers.map(async (member) => {
-        const [
-          { count: totalCount },
-          { count: openCount },
-          { count: overdueCount },
-        ] = await Promise.all([
-          supabase
-            .from('tasks')
-            .select('id', { count: 'exact', head: true })
-            .is('deleted_at', null)
-            .or(`assignee_id.eq.${member.id},created_by.eq.${member.id}`),
-          supabase
-            .from('tasks')
-            .select('id', { count: 'exact', head: true })
-            .is('deleted_at', null)
-            .eq('assignee_id', member.id)
-            .eq('status_id', (await getStatusId(supabase, 'Open')) || ''),
-          supabase
-            .from('tasks')
-            .select('id', { count: 'exact', head: true })
-            .is('deleted_at', null)
-            .eq('assignee_id', member.id)
-            .lt('due_date', today)
-            .in(
-              'status_id',
-              await getStatusIds(supabase, ['Open', 'In Progress', 'Blocked'])
-            ),
-        ]);
+    let responseBody: unknown;
 
-        return [
-          member.full_name || member.id,
-          {
-            total: totalCount || 0,
-            open: openCount || 0,
-            overdue: overdueCount || 0,
-          },
-        ];
-      });
-
-      const staffWorkloadEntries = await Promise.all(staffWorkloadPromises);
-      const staffWorkload = Object.fromEntries(staffWorkloadEntries);
-
-      const responseBody = {
+    if (isAdmin) {
+      responseBody = {
         dashboard: {
           role: 'admin',
-          total: totalRes.count || 0,
-          open: openRes.count || 0,
-          in_progress: inProgressRes.count || 0,
-          completed: completedRes.count || 0,
-          overdue: overdueRes.count || 0,
-          completed_today: completedTodayRes.count || 0,
-          sla_breached: slaBreachedRes.count || 0,
-          department_workload: departmentWorkload,
-          staff_workload: staffWorkload,
+          total: totals.total || 0,
+          open: totals.open || 0,
+          in_progress: totals.in_progress || 0,
+          completed: totals.completed || 0,
+          overdue: totals.overdue || 0,
+          completed_today: totals.completed_today || 0,
+          sla_breached: totals.sla_breached || 0,
+          department_workload: toWorkloadMap(stats.department_workload),
+          staff_workload: toWorkloadMap(stats.staff_workload),
         },
         success: true,
       };
-
-      return NextResponse.json(responseBody, { headers });
-    }
-
-    if (role === 'manager') {
-      const deptId = staffUser.department_id;
-      const cacheKey = `dashboard-manager-${deptId || 'no-dept'}`;
-      const cachedData = getFromCache(cacheKey);
-      if (cachedData) {
-        return NextResponse.json(cachedData, { headers });
-      }
-
-      // Request-specific cache for status and priority lookups
-      const statusIdCache = new Map();
-      const getCachedStatusId = async (name: string) => {
-        if (statusIdCache.has(name)) {
-          return statusIdCache.get(name);
-        }
-        const id = await getStatusId(supabase, name);
-        statusIdCache.set(name, id);
-        return id;
-      };
-
-      const priorityIdCache = new Map();
-      const getCachedPriorityId = async (name: string) => {
-        if (priorityIdCache.has(name)) {
-          return priorityIdCache.get(name);
-        }
-        const id = await getPriorityId(supabase, name);
-        priorityIdCache.set(name, id);
-        return id;
-      };
-
-      // Fetch all status and priority ids in parallel
-      const [
-        openStatusId,
-        inProgressStatusId,
-        blockedStatusId,
-        completedStatusId,
-        closedStatusId,
-        highPriorityId,
-        importantPriorityId,
-        immediatePriorityId,
-      ] = await Promise.all([
-        getCachedStatusId('Open'),
-        getCachedStatusId('In Progress'),
-        getCachedStatusId('Blocked'),
-        getCachedStatusId('Completed'),
-        getCachedStatusId('Closed'),
-        getCachedPriorityId('High'),
-        getCachedPriorityId('Important'),
-        getCachedPriorityId('Immediate'),
-      ]);
-
-      // Filter out null ids
-      const validOpenStatusId = openStatusId ?? '';
-      const validInProgressStatusId = inProgressStatusId ?? '';
-      const validBlockedStatusId = blockedStatusId ?? '';
-      const validCompletedStatusId = completedStatusId ?? '';
-      const validClosedStatusId = closedStatusId ?? '';
-      const validHighPriorityId = highPriorityId ?? '';
-      const validImportantPriorityId = importantPriorityId ?? '';
-      const validImmediatePriorityId = immediatePriorityId ?? '';
-
-      // Run the five unique queries in parallel
-      const [
-        deptTasksRes,
-        pendingRes, // for pending_assignment and unassigned
-        highPriorityRes,
-        overdueRes, // for overdue and sla_breached
-        completedTodayRes,
-      ] = await Promise.all([
-        supabase
-          .from('tasks')
-          .select('id', { count: 'exact', head: true })
-          .is('deleted_at', null)
-          .eq('department_id', deptId || ''),
-
-        supabase
-          .from('tasks')
-          .select('id', { count: 'exact', head: true })
-          .is('deleted_at', null)
-          .eq('department_id', deptId || '')
-          .is('assignee_id', null),
-
-        supabase
-          .from('tasks')
-          .select('id', { count: 'exact', head: true })
-          .is('deleted_at', null)
-          .eq('department_id', deptId || '')
-          .in(
-            'priority_id',
-            [
-              validHighPriorityId,
-              validImportantPriorityId,
-              validImmediatePriorityId,
-            ].filter((id) => id !== '')
-          ),
-
-        supabase
-          .from('tasks')
-          .select('id', { count: 'exact', head: true })
-          .is('deleted_at', null)
-          .eq('department_id', deptId || '')
-          .lt('due_date', today)
-          .in(
-            'status_id',
-            [
-              validOpenStatusId,
-              validInProgressStatusId,
-              validBlockedStatusId,
-            ].filter((id) => id !== '')
-          ),
-
-        supabase
-          .from('tasks')
-          .select('id', { count: 'exact', head: true })
-          .is('deleted_at', null)
-          .eq('department_id', deptId || '')
-          .eq('due_date', today)
-          .in(
-            'status_id',
-            [validCompletedStatusId, validClosedStatusId].filter(
-              (id) => id !== ''
-            )
-          ),
-      ]);
-
-      const responseBody = {
+    } else if (isManager) {
+      responseBody = {
         dashboard: {
           role: 'manager',
-          department_tasks: deptTasksRes.count || 0,
-          pending_assignment: pendingRes.count || 0,
-          unassigned: pendingRes.count || 0, // same as pending_assignment
-          high_priority: highPriorityRes.count || 0,
-          overdue: overdueRes.count || 0,
-          completed_today: completedTodayRes.count || 0,
-          sla_breached: overdueRes.count || 0, // same as overdue
+          department_tasks: totals.total || 0,
+          pending_assignment: totals.unassigned || 0,
+          unassigned: totals.unassigned || 0,
+          high_priority: totals.high_priority || 0,
+          overdue: totals.sla_breached || 0,
+          completed_today: totals.completed_today || 0,
+          sla_breached: totals.sla_breached || 0,
         },
         success: true,
       };
 
-      setInCache(cacheKey, responseBody);
-      return NextResponse.json(responseBody, { headers });
+      if (cacheKey) {
+        setInCache(cacheKey, responseBody);
+      }
+    } else {
+      const mine = stats.mine || {};
+      responseBody = {
+        dashboard: {
+          role: 'staff',
+          my_open_tasks: mine.my_open_tasks || 0,
+          due_today: mine.due_today || 0,
+          due_soon: mine.due_soon || 0,
+          overdue: mine.overdue || 0,
+          supporting: mine.supporting || 0,
+          spectating: mine.spectating || 0,
+        },
+        success: true,
+      };
     }
 
-    // Staff role - parallelize all queries
-    const [
-      myOpenRes,
-      dueTodayRes,
-      dueSoonRes,
-      overdueRes,
-      supportingRes,
-      spectatingRes,
-    ] = await Promise.all([
-      supabase
-        .from('tasks')
-        .select('id', { count: 'exact', head: true })
-        .is('deleted_at', null)
-        .or(`assignee_id.eq.${staffUser.id},created_by.eq.${staffUser.id}`)
-        .in(
-          'status_id',
-          await getStatusIds(supabase, ['Open', 'In Progress', 'Blocked'])
-        ),
-      supabase
-        .from('tasks')
-        .select('id', { count: 'exact', head: true })
-        .is('deleted_at', null)
-        .or(`assignee_id.eq.${staffUser.id},created_by.eq.${staffUser.id}`)
-        .eq('due_date', today)
-        .in(
-          'status_id',
-          await getStatusIds(supabase, ['Open', 'In Progress', 'Blocked'])
-        ),
-      supabase
-        .from('tasks')
-        .select('id', { count: 'exact', head: true })
-        .is('deleted_at', null)
-        .or(`assignee_id.eq.${staffUser.id},created_by.eq.${staffUser.id}`)
-        .gt('due_date', today)
-        .in(
-          'status_id',
-          await getStatusIds(supabase, ['Open', 'In Progress', 'Blocked'])
-        ),
-      supabase
-        .from('tasks')
-        .select('id', { count: 'exact', head: true })
-        .is('deleted_at', null)
-        .or(`assignee_id.eq.${staffUser.id},created_by.eq.${staffUser.id}`)
-        .lt('due_date', today)
-        .in(
-          'status_id',
-          await getStatusIds(supabase, ['Open', 'In Progress', 'Blocked'])
-        ),
-      supabase
-        .from('task_assignments')
-        .select('task_id', { count: 'exact', head: true })
-        .eq('user_id', staffUser.id),
-      supabase
-        .from('task_spectators')
-        .select('task_id', { count: 'exact', head: true })
-        .eq('user_id', staffUser.id),
-    ]);
-
-    const responseBody = {
-      dashboard: {
-        role: 'staff',
-        my_open_tasks: myOpenRes.count || 0,
-        due_today: dueTodayRes.count || 0,
-        due_soon: dueSoonRes.count || 0,
-        overdue: overdueRes.count || 0,
-        supporting: supportingRes.count || 0,
-        spectating: spectatingRes.count || 0,
-      },
-      success: true,
-    };
-
     return NextResponse.json(responseBody, { headers });
-  } catch (err: any) {
+  } catch (err) {
     console.error('[Dashboard GET] Error:', err);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
     );
   }
-}
-
-async function getStatusId(
-  supabase: any,
-  name: string
-): Promise<string | null> {
-  const { data } = await supabase
-    .from('task_statuses')
-    .select('id')
-    .eq('name', name)
-    .single();
-  return data?.id || null;
-}
-
-async function getStatusIds(supabase: any, names: string[]): Promise<string[]> {
-  const { data } = await supabase
-    .from('task_statuses')
-    .select('id')
-    .in('name', names);
-  return (data || []).map((s: any) => s.id);
-}
-
-async function getPriorityIds(
-  supabase: any,
-  names: string[]
-): Promise<string[]> {
-  const { data } = await supabase
-    .from('task_priorities')
-    .select('id')
-    .in('name', names);
-  return (data || []).map((p: any) => p.id);
-}
-
-async function getPriorityId(
-  supabase: any,
-  name: string
-): Promise<string | null> {
-  const { data } = await supabase
-    .from('task_priorities')
-    .select('id')
-    .eq('name', name)
-    .single();
-  return data?.id || null;
 }
