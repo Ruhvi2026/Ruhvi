@@ -253,7 +253,7 @@ const getOperationsNavGroups = (): NavGroup[] => [
     items: [
       {
         label: 'Task Manager',
-        href: '/admin/task-manager',
+        href: 'https://admin.ruhvi.in/admin/task-manager',
         icon: ClipboardList,
       },
     ],
