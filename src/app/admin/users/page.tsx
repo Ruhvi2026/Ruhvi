@@ -14,7 +14,11 @@ import {
   CheckCircle2,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
-import { sendPasswordResetLink, setAuthPassword } from '../actions/auth';
+import {
+  getAllUsers,
+  sendPasswordResetLink,
+  setAuthPassword,
+} from '../actions/auth';
 
 interface UserRecord {
   id: string;
@@ -128,11 +132,9 @@ export default function AdminUsersPage() {
     setLoading(true);
     setError('');
     try {
-      const supabase = createClient();
-      const { data, error } = await supabase.rpc('admin_get_all_users');
-
-      if (error) throw error;
-      setUsers((data as UserRecord[]) || []);
+      const res = await getAllUsers();
+      if (!res.success) throw new Error(res.error);
+      setUsers((res.users as UserRecord[]) || []);
     } catch (err: any) {
       console.error('Failed to load users:', err);
       setError('Failed to load users from database.');

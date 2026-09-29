@@ -59,6 +59,38 @@ export async function sendPasswordResetLink(email: string) {
  * Directly updates a user's password in the auth.users table.
  * Requires the user's UUID.
  */
+export async function getAllUsers() {
+  try {
+    const auth = await requireAdmin();
+    if (!auth.ok) {
+      return {
+        success: false,
+        error: 'Unauthorized. Admin privileges are required.',
+        users: [],
+      };
+    }
+
+    const adminClient = getAdminClient();
+    const { data, error } = await adminClient
+      .from('users')
+      .select(
+        'id, full_name, email, phone, role, department_id, allowed_portals, wallet_balance, reward_coins, created_at'
+      )
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    return { success: true, users: data || [] };
+  } catch (err: any) {
+    console.error('Error fetching users:', err);
+    return {
+      success: false,
+      error: err.message || 'Failed to fetch users.',
+      users: [],
+    };
+  }
+}
+
 export async function setAuthPassword(userId: string, newPassword: string) {
   try {
     const auth = await requireAdmin();

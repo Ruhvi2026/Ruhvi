@@ -3,6 +3,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { Wallet, Search, RefreshCw, Edit2, Save, X } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
+import { getAllUsers } from '../actions/auth';
 
 interface WalletUser {
   id: string;
@@ -28,10 +29,10 @@ export default function AdminWalletPage() {
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      const supabase = createClient();
-      const { data } = await supabase.rpc('admin_get_all_users');
+      const res = await getAllUsers();
+      if (!res.success) throw new Error(res.error);
       setUsers(
-        ((data as WalletUser[]) || []).sort(
+        ((res.users as WalletUser[]) || []).sort(
           (a, b) => b.wallet_balance - a.wallet_balance
         )
       );
