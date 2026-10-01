@@ -1,11 +1,4 @@
 import type { Metadata, Viewport } from 'next';
-import {
-  Inter,
-  Playfair_Display,
-  Jost,
-  Marcellus,
-  Cormorant_Garamond,
-} from 'next/font/google';
 import './globals.css';
 import '@/lib/env'; // Validate env variables on boot
 import { Navbar } from '@/components/layout/Navbar';
@@ -24,35 +17,6 @@ import { OfflineDetector } from '@/components/layout/OfflineDetector';
 import { StorefrontChrome } from '@/components/layout/StorefrontChrome';
 import PostHogProvider from '@/components/PostHogProvider';
 import AnalyticsScripts from '@/components/AnalyticsScripts';
-
-const inter = Inter({
-  subsets: ['latin'],
-  variable: '--font-inter',
-});
-
-const playfair = Playfair_Display({
-  subsets: ['latin'],
-  variable: '--font-playfair',
-});
-
-const jost = Jost({
-  subsets: ['latin'],
-  weight: ['400', '500', '600'],
-  variable: '--font-jost',
-});
-
-const marcellus = Marcellus({
-  subsets: ['latin'],
-  weight: ['400'],
-  variable: '--font-marcellus',
-});
-
-const cormorant = Cormorant_Garamond({
-  subsets: ['latin'],
-  weight: ['400', '500', '600'],
-  style: ['normal', 'italic'],
-  variable: '--font-cormorant',
-});
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://ruhvi.in'),
@@ -153,13 +117,11 @@ export default function RootLayout({
   };
 
   return (
-    <html
-      lang="en"
-      className={`${inter.variable} ${playfair.variable} ${jost.variable} ${marcellus.variable} ${cormorant.variable}`}
-      suppressHydrationWarning
-    >
+    <html lang="en" suppressHydrationWarning>
       <body className="bg-cream text-ink font-jost flex min-h-screen flex-col antialiased">
         {/* Preconnect to critical third-party origins to cut connection setup off the LCP critical path */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://ruhvi-f707c.firebaseapp.com" />
         <link rel="preconnect" href="https://eu-assets.i.posthog.com" />
         <link

@@ -1,9 +1,17 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Inter:wght@300;400;500;600;700&family=Jost:wght@400;500;600&family=Marcellus&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
+    --font-inter: 'Inter', sans-serif;
+    --font-playfair: 'Playfair Display', serif;
+    --font-jost: 'Jost', sans-serif;
+    --font-marcellus: 'Marcellus', serif;
+    --font-cormorant: 'Cormorant Garamond', serif;
+
     --background: 41 45% 97%;
     --foreground: 41 10% 10%;
 
