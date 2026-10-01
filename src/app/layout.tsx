@@ -121,7 +121,11 @@ export default function RootLayout({
       <body className="bg-cream text-ink font-jost flex min-h-screen flex-col antialiased">
         {/* Preconnect to critical third-party origins to cut connection setup off the LCP critical path */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="anonymous"
+        />
         <link rel="preconnect" href="https://ruhvi-f707c.firebaseapp.com" />
         <link rel="preconnect" href="https://eu-assets.i.posthog.com" />
         <link
