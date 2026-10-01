@@ -48,7 +48,8 @@
     "recharts": "^3.10.1",
     "resend": "^6.25.0",
     "server-only": "^0.0.1",
-    "zod": "^4.4.3"
+    "zod": "^4.4.3",
+    "@ai-sdk/react": "^2.0.0"
   },
   "devDependencies": {
     "@next/bundle-analyzer": "^16.3.7",
