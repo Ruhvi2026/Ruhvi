@@ -5,16 +5,19 @@ import { useState } from 'react';
 import { Send, Bot, User } from 'lucide-react';
 
 export default function AdminAiChatPage() {
-  // We need to map the messages to the format expected by /api/chat
-  // The current /api/chat expects { messages: [{ sender: 'user', text: '...' }] }
-  // useChat defaults to [{ role: 'user', content: '...' }]
+  const [input, setInput] = useState('');
 
-  const { messages, input, handleInputChange, handleSubmit } = useChat({
+  const { messages, sendMessage, status } = useChat({
     api: '/api/chat',
-    // We need to map the inputs/outputs to match the existing /api/chat route
-    // The Vercel AI SDK expects streaming or specific JSON responses.
-    // Since /api/chat returns { response: '...' }, we might need to use `input` and `append` manually
   });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (input.trim()) {
+      sendMessage(input);
+      setInput('');
+    }
+  };
 
   return (
     <div className="flex h-screen flex-col bg-gray-900 text-white">
@@ -45,12 +48,13 @@ export default function AdminAiChatPage() {
         <input
           className="flex-1 rounded-lg bg-gray-800 p-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
           value={input}
-          onChange={handleInputChange}
+          onChange={(e) => setInput(e.target.value)}
           placeholder="Ask GIA anything..."
         />
         <button
           type="submit"
-          className="rounded-lg bg-emerald-600 p-2 hover:bg-emerald-500"
+          disabled={status === 'streaming'}
+          className="rounded-lg bg-emerald-600 p-2 hover:bg-emerald-500 disabled:opacity-50"
         >
           <Send size={18} />
         </button>
