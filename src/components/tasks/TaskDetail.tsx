@@ -22,7 +22,11 @@ import {
   Box,
   Plus,
   GitBranch,
+  Calendar,
+  Bell,
+  ExternalLink,
 } from 'lucide-react';
+import RelatedEntityModal from './RelatedEntityModal';
 import {
   Task,
   TaskComment,
@@ -60,6 +64,16 @@ export default function TaskDetail({
   const [dependencies, setDependencies] = useState<TaskDependencyItem[]>([]);
   const [depVersion, setDepVersion] = useState(0);
   const [depBusy, setDepBusy] = useState(false);
+  const [inspectModal, setInspectModal] = useState<{
+    isOpen: boolean;
+    type: 'order' | 'product' | 'ticket' | null;
+    idOrCode: string | null;
+    data?: any;
+  }>({
+    isOpen: false,
+    type: null,
+    idOrCode: null,
+  });
 
   const priorityColors: Record<string, string> = {
     Low: 'bg-gray-500/20 text-gray-400 border-gray-500/30',
@@ -494,37 +508,169 @@ export default function TaskDetail({
             {(task.related_order_id ||
               task.related_product_id ||
               task.related_ticket_id) && (
-              <div className="rounded-lg border border-white/10 bg-white/5 p-4">
-                <h3 className="mb-3 text-sm font-semibold text-white">
-                  Related Entities
-                </h3>
+              <div className="space-y-3 rounded-lg border border-white/10 bg-white/5 p-4">
+                <div>
+                  <h3 className="flex items-center gap-2 text-sm font-semibold text-white">
+                    <Package className="h-4 w-4 text-emerald-400" />
+                    Related Entities (Click to inspect full details)
+                  </h3>
+                  <p className="mt-0.5 text-xs text-slate-400">
+                    Click any linked entity below to open the complete details
+                    inspector modal.
+                  </p>
+                </div>
                 <div className="flex flex-wrap gap-3">
-                  {task.related_order_id && task.order && (
-                    <Link
-                      href={`/admin/orders/${task.order.id}`}
-                      className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-slate-300 hover:text-white"
+                  {task.related_order_id && (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setInspectModal({
+                          isOpen: true,
+                          type: 'order',
+                          idOrCode: task.order?.id || task.related_order_id,
+                          data: task.order,
+                        })
+                      }
+                      className="group flex items-center gap-2.5 rounded-xl border border-white/10 bg-white/5 px-3.5 py-2 text-sm text-slate-200 transition-all hover:border-emerald-500/50 hover:bg-emerald-500/10 hover:text-white"
                     >
-                      <Package className="h-4 w-4" /> Order:{' '}
-                      {task.order.order_number}
-                    </Link>
+                      <Package className="h-4 w-4 text-emerald-400 transition-transform group-hover:scale-110" />
+                      <span>
+                        Order:{' '}
+                        <strong className="font-mono text-white">
+                          {task.order?.order_number || task.related_order_id}
+                        </strong>
+                      </span>
+                      <span className="rounded bg-white/10 px-1.5 py-0.5 text-[10px] text-slate-400 group-hover:text-emerald-300">
+                        View Details
+                      </span>
+                    </button>
                   )}
-                  {task.related_product_id && task.product && (
-                    <Link
-                      href={`/admin/products/${task.product.id}`}
-                      className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-slate-300 hover:text-white"
+                  {task.related_product_id && (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setInspectModal({
+                          isOpen: true,
+                          type: 'product',
+                          idOrCode: task.product?.id || task.related_product_id,
+                          data: task.product,
+                        })
+                      }
+                      className="group flex items-center gap-2.5 rounded-xl border border-white/10 bg-white/5 px-3.5 py-2 text-sm text-slate-200 transition-all hover:border-emerald-500/50 hover:bg-emerald-500/10 hover:text-white"
                     >
-                      <Box className="h-4 w-4" /> {task.product.name}
-                    </Link>
+                      <Box className="h-4 w-4 text-emerald-400 transition-transform group-hover:scale-110" />
+                      <span>
+                        Product:{' '}
+                        <strong className="text-white">
+                          {task.product?.name || task.related_product_id}
+                        </strong>
+                      </span>
+                      <span className="rounded bg-white/10 px-1.5 py-0.5 text-[10px] text-slate-400 group-hover:text-emerald-300">
+                        View Details
+                      </span>
+                    </button>
                   )}
-                  {task.related_ticket_id && task.ticket && (
-                    <Link
-                      href={`/admin/support/${task.ticket.id}`}
-                      className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-slate-300 hover:text-white"
+                  {task.related_ticket_id && (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setInspectModal({
+                          isOpen: true,
+                          type: 'ticket',
+                          idOrCode: task.ticket?.id || task.related_ticket_id,
+                          data: task.ticket,
+                        })
+                      }
+                      className="group flex items-center gap-2.5 rounded-xl border border-white/10 bg-white/5 px-3.5 py-2 text-sm text-slate-200 transition-all hover:border-emerald-500/50 hover:bg-emerald-500/10 hover:text-white"
                     >
-                      <Ticket className="h-4 w-4" /> Ticket:{' '}
-                      {task.ticket.ticket_number}
-                    </Link>
+                      <Ticket className="h-4 w-4 text-emerald-400 transition-transform group-hover:scale-110" />
+                      <span>
+                        Ticket:{' '}
+                        <strong className="font-mono text-white">
+                          {task.ticket?.ticket_number || task.related_ticket_id}
+                        </strong>
+                      </span>
+                      <span className="rounded bg-white/10 px-1.5 py-0.5 text-[10px] text-slate-400 group-hover:text-emerald-300">
+                        View Details
+                      </span>
+                    </button>
                   )}
+                </div>
+              </div>
+            )}
+
+            {/* Scheduled Automation & Recurrence Status */}
+            {((task.schedule_type && task.schedule_type !== 'none') ||
+              task.is_auto_scheduled ||
+              task.recurrence) && (
+              <div className="space-y-3 rounded-lg border border-white/10 bg-white/5 p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Calendar className="h-4 w-4 text-emerald-400" />
+                    <h3 className="text-sm font-semibold text-white">
+                      Automated Schedule & Recurrence
+                    </h3>
+                  </div>
+                  <span className="rounded border border-emerald-500/20 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium capitalize text-emerald-400">
+                    {task.schedule_type ||
+                      task.recurrence?.recurrence_pattern ||
+                      'Scheduled'}{' '}
+                    Cadence
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 gap-3 text-xs sm:grid-cols-3">
+                  <div className="rounded-lg border border-white/5 bg-black/20 p-2.5">
+                    <span className="block text-[10px] uppercase tracking-wider text-slate-400">
+                      Assigned Cadence
+                    </span>
+                    <span className="font-semibold capitalize text-white">
+                      {task.schedule_type === 'daily' && 'Daily (Every Day)'}
+                      {task.schedule_type === 'weekly' &&
+                        `Weekly (${(task.recurrence?.recurrence_days || ['Saturday']).join(', ')})`}
+                      {task.schedule_type === 'monthly' &&
+                        `Monthly (Day ${task.recurrence?.day_of_month || 1})`}
+                      {task.schedule_type === 'fixed' && 'Fixed Date Schedule'}
+                      {!task.schedule_type && 'Recurring Automation'}
+                    </span>
+                  </div>
+
+                  <div className="rounded-lg border border-white/5 bg-black/20 p-2.5">
+                    <span className="block text-[10px] uppercase tracking-wider text-slate-400">
+                      Assignment / Trigger Time
+                    </span>
+                    <span className="font-semibold text-emerald-400">
+                      {task.schedule_time ||
+                        task.recurrence?.trigger_time ||
+                        '09:00 AM'}
+                    </span>
+                  </div>
+
+                  <div className="rounded-lg border border-white/5 bg-black/20 p-2.5">
+                    <span className="block text-[10px] uppercase tracking-wider text-slate-400">
+                      Due Deadline
+                    </span>
+                    <span className="font-semibold text-amber-400">
+                      {task.due_time ||
+                        task.recurrence?.due_time ||
+                        '21:00 (9:00 PM)'}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 pt-1 text-xs text-slate-400">
+                  <Bell className="h-3.5 w-3.5 shrink-0 text-amber-400" />
+                  <span>
+                    Automated reminder dispatch:{' '}
+                    <strong>
+                      {task.recurrence?.remind_overdue !== false
+                        ? 'Active'
+                        : 'Disabled'}
+                    </strong>
+                    {task.reminder_sent_at
+                      ? ` (Reminder sent at ${new Date(task.reminder_sent_at).toLocaleTimeString('en-IN')})`
+                      : ' (Dispatches notification if not completed before deadline)'}
+                  </span>
                 </div>
               </div>
             )}
@@ -867,6 +1013,59 @@ export default function TaskDetail({
           </div>
         )}
       </div>
+
+      {/* Sticky Bottom Accessibility Action Bar */}
+      <div className="sticky bottom-0 z-20 flex items-center justify-between border-t border-white/10 bg-[#0d0f1a]/95 px-4 py-3.5 backdrop-blur-md sm:px-6">
+        <div className="hidden items-center gap-3 text-xs text-slate-400 sm:flex">
+          <span className="font-mono text-emerald-400">
+            {task.task_id_text}
+          </span>
+          <span>•</span>
+          <span className="capitalize">
+            {task.status_name?.name || 'Active'}
+          </span>
+        </div>
+
+        <div className="ml-auto flex items-center gap-2">
+          {task.messenger_group_id ? (
+            <Link
+              href={`/admin/chat?c=${task.messenger_group_id}`}
+              className="flex items-center gap-2 rounded-lg border border-indigo-500/30 bg-indigo-600/20 px-3 py-2 text-sm font-medium text-indigo-400 transition-colors hover:bg-indigo-600/30"
+            >
+              <MessageSquare className="h-4 w-4" />
+              <span>Task Group</span>
+            </Link>
+          ) : (
+            <button
+              onClick={handleCreateMessengerGroup}
+              disabled={isCreatingGroup}
+              className="flex items-center gap-2 rounded-lg bg-indigo-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-700 disabled:opacity-50"
+            >
+              <MessageSquare className="h-4 w-4" />
+              <span>{isCreatingGroup ? 'Creating...' : 'Create Group'}</span>
+            </button>
+          )}
+
+          <button
+            onClick={onEdit}
+            className="flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white shadow-lg shadow-emerald-900/30 transition-colors hover:bg-emerald-500"
+          >
+            <Edit className="h-4 w-4" />
+            <span>Edit Task</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Related Entity Modal */}
+      <RelatedEntityModal
+        isOpen={inspectModal.isOpen}
+        onClose={() =>
+          setInspectModal({ isOpen: false, type: null, idOrCode: null })
+        }
+        type={inspectModal.type}
+        idOrCode={inspectModal.idOrCode}
+        initialData={inspectModal.data}
+      />
     </div>
   );
 }

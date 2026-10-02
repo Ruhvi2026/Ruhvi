@@ -275,17 +275,18 @@ export async function middleware(request: NextRequest) {
       const uid = decodedToken.sub;
       const email = decodedToken.email as string | undefined;
 
-      // Fetch user role and allowed portals directly from public.users
+      // Fetch user role, department and allowed portals directly from public.users
       const { data: profile } = await supabase
         .from('users')
-        .select('role, account_status, allowed_portals')
+        .select('role, account_status, allowed_portals, department')
         .eq('id', uid)
         .maybeSingle();
 
       const userProfile = profile;
       const role = userProfile?.role || 'customer';
       const accountStatus = userProfile?.account_status || 'active';
-      const allowedPortals = userProfile?.allowed_portals || [];
+      const allowedPortals = (userProfile as any)?.allowed_portals || [];
+      const department = userProfile?.department;
 
       // 1. Check account status
       if (accountStatus !== 'active') {
@@ -322,45 +323,58 @@ export async function middleware(request: NextRequest) {
 
       // Portal-specific authorization
       let isPortalAllowed = false;
-      if (role === 'super_admin') {
+      if (role === 'super_admin' || role === 'admin') {
         isPortalAllowed = true;
       } else {
         if (
           isAdminHost &&
           (allowedPortals.includes('admin') ||
-            ['admin', 'manager', 'staff', 'super_admin'].includes(role))
-        )
+            ['admin', 'manager', 'super_admin'].includes(role))
+        ) {
           isPortalAllowed = true;
+        }
         if (
           isOperationsHost &&
-          (allowedPortals.includes('operations') || role === 'admin')
-        )
+          (department === 'operations' || allowedPortals.includes('operations'))
+        ) {
           isPortalAllowed = true;
+        }
         if (
           isOrdersHost &&
-          (allowedPortals.includes('orders') || role === 'admin')
-        )
+          (department === 'orders' ||
+            department === 'portal-orders' ||
+            allowedPortals.includes('orders'))
+        ) {
           isPortalAllowed = true;
+        }
         if (
           isSupportHost &&
-          (allowedPortals.includes('support') ||
-            role === 'admin' ||
+          (department === 'support' ||
+            allowedPortals.includes('support') ||
             role === 'staff')
-        )
+        ) {
           isPortalAllowed = true;
+        }
         if (
           isMarketingHost &&
-          (allowedPortals.includes('marketing') || role === 'admin')
-        )
+          (department === 'marketing' || allowedPortals.includes('marketing'))
+        ) {
           isPortalAllowed = true;
-        if (isTechHost && (allowedPortals.includes('tech') || role === 'admin'))
+        }
+        if (
+          isTechHost &&
+          (department === 'tech' || allowedPortals.includes('tech'))
+        ) {
           isPortalAllowed = true;
+        }
         if (
           isCoFounderHost &&
-          (allowedPortals.includes('co-founder') ||
+          (department === 'co-founder' ||
+            allowedPortals.includes('co-founder') ||
             ['super_admin', 'admin'].includes(role))
-        )
+        ) {
           isPortalAllowed = true;
+        }
       }
 
       if (!isPortalAllowed && isAnyPortalHost) {

@@ -2,7 +2,7 @@ import { createClient } from '@supabase/supabase-js';
 import { getTokensForUsers, sendFcmToTokens } from '@/lib/fcm-admin';
 
 export type NotificationCategory =
-  'ORDERS' | 'WALLET' | 'OFFERS' | 'UPDATES' | 'SYSTEM' | 'CHAT';
+  'ORDERS' | 'WALLET' | 'OFFERS' | 'UPDATES' | 'SYSTEM' | 'CHAT' | 'TASK';
 
 export interface CreateNotificationParams {
   userId: string;

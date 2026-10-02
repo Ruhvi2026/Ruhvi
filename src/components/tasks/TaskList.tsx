@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { debounce } from '@/lib/debounce';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
+import RelatedEntityModal from './RelatedEntityModal';
 import {
   Task,
   TaskFilters,
@@ -83,6 +84,16 @@ export default function TaskList({
   });
   const [showFilters, setShowFilters] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [inspectModal, setInspectModal] = useState<{
+    isOpen: boolean;
+    type: 'order' | 'product' | 'ticket' | null;
+    idOrCode: string | null;
+    data?: any;
+  }>({
+    isOpen: false,
+    type: null,
+    idOrCode: null,
+  });
   const debouncedFetch = useRef(
     debounce((pageNum: number, additionalFilters: Partial<TaskFilters>) => {
       fetchTasks(pageNum, additionalFilters);
@@ -570,24 +581,71 @@ export default function TaskList({
                     {(task.related_order_id ||
                       task.related_ticket_id ||
                       task.related_product_id) && (
-                      <div className="flex flex-wrap gap-2 text-[11px] text-slate-500 sm:justify-end">
-                        {task.related_order_id && task.order && (
-                          <span className="flex items-center gap-1">
-                            <Package className="h-3 w-3" />
-                            {task.order.order_number}
-                          </span>
+                      <div className="flex flex-wrap gap-2 text-[11px] sm:justify-end">
+                        {task.related_order_id && (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setInspectModal({
+                                isOpen: true,
+                                type: 'order',
+                                idOrCode:
+                                  task.order?.id || task.related_order_id,
+                                data: task.order,
+                              });
+                            }}
+                            className="flex items-center gap-1 rounded border border-white/5 bg-white/5 px-2 py-0.5 text-slate-400 transition-colors hover:bg-emerald-500/10 hover:text-emerald-400"
+                          >
+                            <Package className="h-3 w-3 text-emerald-400" />
+                            <span>
+                              {task.order?.order_number ||
+                                task.related_order_id}
+                            </span>
+                          </button>
                         )}
-                        {task.related_ticket_id && task.ticket && (
-                          <span className="flex items-center gap-1">
-                            <Ticket className="h-3 w-3" />
-                            {task.ticket.ticket_number}
-                          </span>
+                        {task.related_ticket_id && (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setInspectModal({
+                                isOpen: true,
+                                type: 'ticket',
+                                idOrCode:
+                                  task.ticket?.id || task.related_ticket_id,
+                                data: task.ticket,
+                              });
+                            }}
+                            className="flex items-center gap-1 rounded border border-white/5 bg-white/5 px-2 py-0.5 text-slate-400 transition-colors hover:bg-emerald-500/10 hover:text-emerald-400"
+                          >
+                            <Ticket className="h-3 w-3 text-emerald-400" />
+                            <span>
+                              {task.ticket?.ticket_number ||
+                                task.related_ticket_id}
+                            </span>
+                          </button>
                         )}
-                        {task.related_product_id && task.product && (
-                          <span className="flex items-center gap-1">
-                            <Box className="h-3 w-3" />
-                            {task.product.name}
-                          </span>
+                        {task.related_product_id && (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setInspectModal({
+                                isOpen: true,
+                                type: 'product',
+                                idOrCode:
+                                  task.product?.id || task.related_product_id,
+                                data: task.product,
+                              });
+                            }}
+                            className="flex items-center gap-1 rounded border border-white/5 bg-white/5 px-2 py-0.5 text-slate-400 transition-colors hover:bg-emerald-500/10 hover:text-emerald-400"
+                          >
+                            <Box className="h-3 w-3 text-emerald-400" />
+                            <span className="max-w-[120px] truncate">
+                              {task.product?.name || task.related_product_id}
+                            </span>
+                          </button>
                         )}
                       </div>
                     )}
@@ -636,6 +694,28 @@ export default function TaskList({
           </div>
         )}
       </div>
+
+      {/* Floating Bottom-Right "+ New Task" Accessibility Button */}
+      <div className="fixed bottom-6 right-6 z-30 sm:hidden">
+        <Link
+          href="/admin/task-manager/new"
+          className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-600 text-white shadow-xl shadow-emerald-950/50 transition-all hover:scale-105 hover:bg-emerald-500"
+          title="Create New Task"
+        >
+          <Plus className="h-6 w-6" />
+        </Link>
+      </div>
+
+      {/* Related Entity Modal */}
+      <RelatedEntityModal
+        isOpen={inspectModal.isOpen}
+        onClose={() =>
+          setInspectModal({ isOpen: false, type: null, idOrCode: null })
+        }
+        type={inspectModal.type}
+        idOrCode={inspectModal.idOrCode}
+        initialData={inspectModal.data}
+      />
     </div>
   );
 }

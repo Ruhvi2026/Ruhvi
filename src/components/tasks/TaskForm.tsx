@@ -13,7 +13,15 @@ import {
   Package,
   ListChecks,
   GitBranch,
+  Calendar,
+  Bell,
+  CheckCircle2,
+  Box,
+  Ticket,
+  Search,
+  Eye,
 } from 'lucide-react';
+import RelatedEntityModal from './RelatedEntityModal';
 import {
   Task,
   TaskPriority,
@@ -56,7 +64,27 @@ export default function TaskForm({
     related_product_id: '',
     related_ticket_id: '',
     tags: '',
+    schedule_type: 'none',
+    schedule_time: '09:00',
+    schedule_days: ['saturday'],
+    schedule_day_of_month: 1,
+    remind_overdue: true,
   });
+
+  const [inspectModal, setInspectModal] = useState<{
+    isOpen: boolean;
+    type: 'order' | 'product' | 'ticket' | null;
+    idOrCode: string | null;
+  }>({
+    isOpen: false,
+    type: null,
+    idOrCode: null,
+  });
+
+  const [recentOrders, setRecentOrders] = useState<any[]>([]);
+  const [recentProducts, setRecentProducts] = useState<any[]>([]);
+  const [recentTickets, setRecentTickets] = useState<any[]>([]);
+  const [loadingRelatedList, setLoadingRelatedList] = useState(false);
 
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -77,6 +105,9 @@ export default function TaskForm({
   const [departments, setDepartments] = useState<
     { id: string; name: string }[]
   >([]);
+  const [assignmentType, setAssignmentType] = useState<
+    'individual' | 'department'
+  >('individual');
 
   useEffect(() => {
     if (task) {
@@ -96,13 +127,83 @@ export default function TaskForm({
         related_product_id: task.related_product_id || '',
         related_ticket_id: task.related_ticket_id || '',
         tags: (task.tags || []).join(', '),
+        schedule_type:
+          (task.schedule_type as string) ||
+          (task.is_recurring ? 'weekly' : 'none'),
+        schedule_time:
+          task.schedule_time ||
+          (task.recurrence?.trigger_time
+            ? task.recurrence.trigger_time.slice(0, 5)
+            : '09:00'),
+        schedule_days: task.recurrence?.recurrence_days || ['saturday'],
+        schedule_day_of_month: task.recurrence?.day_of_month || 1,
+        remind_overdue: task.recurrence?.remind_overdue ?? true,
       });
+      if (task.department_id && !task.assignee_id) {
+        setAssignmentType('department');
+      }
       setChecklistDraft(
         (task.checklists || []).map((c) => ({ id: c.id, title: c.title }))
       );
       setRemovedChecklistIds([]);
     }
   }, [task]);
+
+  // Load recent related entities on demand
+  useEffect(() => {
+    if (showRelated && recentOrders.length === 0 && !loadingRelatedList) {
+      setLoadingRelatedList(true);
+      Promise.all([
+        fetch('/api/task-manager/related-entities?type=order')
+          .then((r) => r.json())
+          .catch(() => ({})),
+        fetch('/api/task-manager/related-entities?type=product')
+          .then((r) => r.json())
+          .catch(() => ({})),
+        fetch('/api/task-manager/related-entities?type=ticket')
+          .then((r) => r.json())
+          .catch(() => ({})),
+      ])
+        .then(([ord, prd, tkt]) => {
+          if (ord.success && ord.list) setRecentOrders(ord.list);
+          if (prd.success && prd.list) setRecentProducts(prd.list);
+          if (tkt.success && tkt.list) setRecentTickets(tkt.list);
+        })
+        .finally(() => setLoadingRelatedList(false));
+    }
+  }, [showRelated, recentOrders.length, loadingRelatedList]);
+
+  const handleIndividualSelect = (assigneeId: string) => {
+    const staff = staffList.find((s) => s.id === assigneeId);
+    setFormData((prev) => ({
+      ...prev,
+      assignee_id: assigneeId,
+      department_id:
+        staff?.department_id || (assigneeId ? prev.department_id : ''),
+    }));
+  };
+
+  const handleDepartmentSelect = (deptId: string) => {
+    let manager = staffList.find(
+      (s) => s.department_id === deptId && s.role?.toLowerCase() === 'manager'
+    );
+    if (!manager) {
+      manager = staffList.find(
+        (s) =>
+          s.department_id === deptId &&
+          ['admin', 'super_admin'].includes(s.role?.toLowerCase() || '')
+      );
+    }
+    if (!manager) {
+      manager = staffList.find((s) => s.department_id === deptId);
+    }
+
+    setFormData((prev) => ({
+      ...prev,
+      department_id: deptId,
+      assignee_id: manager ? manager.id : '',
+    }));
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -499,45 +600,144 @@ export default function TaskForm({
             </select>
           </div>
 
-          {/* Assignee */}
-          <div>
-            <label className="mb-1 block text-sm font-medium text-slate-300">
-              <Users className="mr-1 inline h-3 w-3" /> Assignee
-            </label>
-            <select
-              value={formData.assignee_id}
-              onChange={(e) => handleChange('assignee_id', e.target.value)}
-              className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
-            >
-              <option value="">Unassigned</option>
-              {staffList.map((u) => (
-                <option key={u.id} value={u.id}>
-                  {u.full_name} {u.email ? `(${u.email})` : ''}
-                </option>
-              ))}
-            </select>
-            <p className="mt-1 text-[11px] text-slate-500">
-              Leave empty for department assignment
-            </p>
-          </div>
+          {/* Assignment Section */}
+          <div className="rounded-xl border border-white/10 bg-white/5 p-4 sm:p-5 lg:col-span-2">
+            <div className="mb-3 flex items-center justify-between">
+              <label className="flex items-center gap-2 text-sm font-semibold text-white">
+                <Users className="h-4 w-4 text-emerald-400" /> Assignment Mode
+              </label>
+              <span className="text-xs font-normal text-slate-400">
+                Assign directly to individual staff or to a department manager
+              </span>
+            </div>
 
-          {/* Department */}
-          <div>
-            <label className="mb-1 block text-sm font-medium text-slate-300">
-              Department
-            </label>
-            <select
-              value={formData.department_id}
-              onChange={(e) => handleChange('department_id', e.target.value)}
-              className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
-            >
-              <option value="">No Department</option>
-              {departments.map((d) => (
-                <option key={d.id} value={d.id}>
-                  {d.name}
-                </option>
-              ))}
-            </select>
+            {/* Toggle Tabs */}
+            <div className="mb-4 flex rounded-lg border border-white/5 bg-black/30 p-1">
+              <button
+                type="button"
+                onClick={() => setAssignmentType('individual')}
+                className={`flex-1 rounded-md py-2 text-xs font-medium transition-all ${
+                  assignmentType === 'individual'
+                    ? 'bg-emerald-600 text-white shadow'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                Individual Staff Member
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setAssignmentType('department');
+                  if (formData.department_id) {
+                    handleDepartmentSelect(formData.department_id);
+                  }
+                }}
+                className={`flex-1 rounded-md py-2 text-xs font-medium transition-all ${
+                  assignmentType === 'department'
+                    ? 'bg-emerald-600 text-white shadow'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                Department (Manager Assignment)
+              </button>
+            </div>
+
+            {assignmentType === 'individual' ? (
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-slate-300">
+                    Assignee (Direct Staff)
+                  </label>
+                  <select
+                    value={formData.assignee_id}
+                    onChange={(e) => handleIndividualSelect(e.target.value)}
+                    className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  >
+                    <option value="">Unassigned</option>
+                    {staffList.map((u) => {
+                      const dept = departments.find(
+                        (d) => d.id === u.department_id
+                      );
+                      return (
+                        <option key={u.id} value={u.id}>
+                          {u.full_name} {dept ? `[Dept: ${dept.name}]` : ''}{' '}
+                          {u.role ? `(${u.role})` : ''}
+                        </option>
+                      );
+                    })}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-slate-300">
+                    Auto-Fetched Department
+                  </label>
+                  <div className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-emerald-400">
+                    {(() => {
+                      const selectedStaff = staffList.find(
+                        (s) => s.id === formData.assignee_id
+                      );
+                      const dept = departments.find(
+                        (d) =>
+                          d.id ===
+                          (selectedStaff?.department_id ||
+                            formData.department_id)
+                      );
+                      return dept
+                        ? dept.name
+                        : selectedStaff
+                          ? 'No department set for staff'
+                          : 'Unassigned';
+                    })()}
+                  </div>
+                  <p className="mt-1 text-[11px] text-slate-400">
+                    Department is automatically fetched from staff profile.
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-slate-300">
+                    Target Department
+                  </label>
+                  <select
+                    value={formData.department_id}
+                    onChange={(e) => handleDepartmentSelect(e.target.value)}
+                    className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  >
+                    <option value="">Select Department</option>
+                    {departments.map((d) => (
+                      <option key={d.id} value={d.id}>
+                        {d.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-slate-300">
+                    Assigned Manager
+                  </label>
+                  <div className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-emerald-400">
+                    {(() => {
+                      const mgr = staffList.find(
+                        (s) => s.id === formData.assignee_id
+                      );
+                      return mgr
+                        ? `${mgr.full_name} (${mgr.role || 'Manager'})`
+                        : formData.department_id
+                          ? 'Department Manager (Auto-assigned)'
+                          : 'Select a department above';
+                    })()}
+                  </div>
+                  <p className="mt-1 text-[11px] text-slate-400">
+                    Assigned to department manager who can reassign to team
+                    members.
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Due Date */}
@@ -610,9 +810,223 @@ export default function TaskForm({
                 Advanced Options
               </h3>
               <p className="text-xs text-slate-400">
-                All optional — a task works perfectly without these. Add a type,
-                tags, subtasks or dependencies only when you need them.
+                Scheduled automation, recurring assignments, deadline reminders,
+                tags, subtasks, and dependencies.
               </p>
+            </div>
+
+            {/* Scheduled Automation & Recurrence */}
+            <div className="space-y-4 rounded-xl border border-white/10 bg-white/5 p-5">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Calendar className="h-5 w-5 text-emerald-400" />
+                  <h4 className="text-sm font-semibold text-white">
+                    Scheduled Automation & Recurring Rules
+                  </h4>
+                </div>
+                <span className="rounded border border-emerald-500/20 bg-emerald-500/10 px-2.5 py-0.5 text-[11px] font-medium text-emerald-400">
+                  {formData.schedule_type === 'none'
+                    ? 'Standard One-Time'
+                    : 'Automated Schedule'}
+                </span>
+              </div>
+              <p className="text-xs leading-relaxed text-slate-400">
+                Configure automatic recurring assignments (e.g. daily 9 AM order
+                dispatch check assigned to Order Department staff, or weekly
+                Saturday 9 PM low stock report assigned to Operations Manager)
+                with overdue reminders.
+              </p>
+
+              {/* Recurrence Pattern Selector */}
+              <div className="grid grid-cols-2 gap-2 pt-1 sm:grid-cols-5">
+                {[
+                  { id: 'none', label: 'One-time' },
+                  { id: 'daily', label: 'Daily (Every Day)' },
+                  { id: 'weekly', label: 'Weekly' },
+                  { id: 'monthly', label: 'Monthly' },
+                  { id: 'fixed', label: 'Fixed Schedule' },
+                ].map((pattern) => (
+                  <button
+                    key={pattern.id}
+                    type="button"
+                    onClick={() => handleChange('schedule_type', pattern.id)}
+                    className={`rounded-lg border px-3 py-2.5 text-center text-xs font-medium transition-all ${
+                      formData.schedule_type === pattern.id
+                        ? 'border-emerald-500 bg-emerald-500/20 font-semibold text-white shadow-sm'
+                        : 'border-white/10 bg-black/20 text-slate-400 hover:border-white/20 hover:text-white'
+                    }`}
+                  >
+                    {pattern.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* When Recurring or Fixed is selected */}
+              {formData.schedule_type !== 'none' && (
+                <div className="space-y-4 border-t border-white/10 pt-3">
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    {/* Trigger / Assignment Time */}
+                    <div>
+                      <label className="mb-1 block text-xs font-medium text-slate-300">
+                        <Clock className="mr-1 inline h-3.5 w-3.5 text-emerald-400" />
+                        Assignment Time (e.g. 09:00 AM)
+                      </label>
+                      <input
+                        type="time"
+                        value={formData.schedule_time}
+                        onChange={(e) =>
+                          handleChange('schedule_time', e.target.value)
+                        }
+                        className="w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                      />
+                      <p className="mt-1 text-[11px] text-slate-400">
+                        Time when task is automatically assigned to{' '}
+                        {assignmentType === 'department'
+                          ? 'the department manager'
+                          : 'the assigned staff'}
+                        .
+                      </p>
+                    </div>
+
+                    {/* Deadline Due Time */}
+                    <div>
+                      <label className="mb-1 block text-xs font-medium text-slate-300">
+                        <Clock className="mr-1 inline h-3.5 w-3.5 text-amber-400" />
+                        Completion Deadline (Due Time, e.g. 09:00 PM)
+                      </label>
+                      <input
+                        type="time"
+                        value={formData.due_time}
+                        onChange={(e) =>
+                          handleChange('due_time', e.target.value)
+                        }
+                        className="w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                      />
+                      <p className="mt-1 text-[11px] text-slate-400">
+                        Deadline by which staff must complete and mark the task
+                        done.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Weekly Day Selector */}
+                  {formData.schedule_type === 'weekly' && (
+                    <div>
+                      <label className="mb-1.5 block text-xs font-medium text-slate-300">
+                        Active Days of the Week
+                      </label>
+                      <div className="flex flex-wrap gap-2">
+                        {[
+                          'monday',
+                          'tuesday',
+                          'wednesday',
+                          'thursday',
+                          'friday',
+                          'saturday',
+                          'sunday',
+                        ].map((day) => {
+                          const isSelected = (
+                            formData.schedule_days || []
+                          ).includes(day);
+                          return (
+                            <button
+                              key={day}
+                              type="button"
+                              onClick={() => {
+                                const current = formData.schedule_days || [];
+                                const updated = isSelected
+                                  ? current.filter((d: string) => d !== day)
+                                  : [...current, day];
+                                setFormData((prev) => ({
+                                  ...prev,
+                                  schedule_days: updated,
+                                }));
+                              }}
+                              className={`rounded-lg border px-3.5 py-1.5 text-xs font-medium capitalize transition-all ${
+                                isSelected
+                                  ? 'border-emerald-500 bg-emerald-500/20 font-semibold text-emerald-300 shadow'
+                                  : 'border-white/10 bg-black/20 text-slate-400 hover:text-white'
+                              }`}
+                            >
+                              {day.slice(0, 3)}
+                            </button>
+                          );
+                        })}
+                      </div>
+                      <p className="mt-1.5 text-[11px] text-slate-400">
+                        Example: Select <strong>Sat</strong> for weekly low
+                        stock reports till 9 PM.
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Monthly Day of Month Selector */}
+                  {formData.schedule_type === 'monthly' && (
+                    <div>
+                      <label className="mb-1 block text-xs font-medium text-slate-300">
+                        Day of the Month (1-31)
+                      </label>
+                      <input
+                        type="number"
+                        min={1}
+                        max={31}
+                        value={formData.schedule_day_of_month || 1}
+                        onChange={(e) =>
+                          handleChange('schedule_day_of_month', e.target.value)
+                        }
+                        className="w-32 rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                      />
+                    </div>
+                  )}
+
+                  {/* Fixed Schedule Date */}
+                  {formData.schedule_type === 'fixed' && (
+                    <div>
+                      <label className="mb-1 block text-xs font-medium text-slate-300">
+                        Scheduled Target Date
+                      </label>
+                      <input
+                        type="date"
+                        value={formData.due_date}
+                        onChange={(e) =>
+                          handleChange('due_date', e.target.value)
+                        }
+                        className="w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 sm:w-64"
+                      />
+                    </div>
+                  )}
+
+                  {/* Overdue Reminder Checkbox */}
+                  <div className="flex items-start gap-3 rounded-lg border border-amber-500/20 bg-amber-500/5 p-3.5">
+                    <input
+                      type="checkbox"
+                      id="remind_overdue"
+                      checked={formData.remind_overdue}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          remind_overdue: e.target.checked,
+                        }))
+                      }
+                      className="mt-0.5 h-4 w-4 rounded border-amber-500/30 bg-black/40 text-amber-500 focus:ring-amber-500"
+                    />
+                    <label
+                      htmlFor="remind_overdue"
+                      className="cursor-pointer text-xs"
+                    >
+                      <span className="flex items-center gap-1.5 font-semibold text-amber-300">
+                        <Bell className="h-3.5 w-3.5" />
+                        Send Reminder Notification on Overdue / Non-Completion
+                      </span>
+                      <span className="mt-1 block leading-relaxed text-slate-400">
+                        If the task is not marked completed before the deadline,
+                        an automated reminder notification will be dispatched to
+                        the assignee or department manager.
+                      </span>
+                    </label>
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
@@ -819,29 +1233,96 @@ export default function TaskForm({
 
         {/* Related Context */}
         {showRelated && (
-          <div className="space-y-4 rounded-lg border border-white/10 bg-white/5 p-4">
-            <h3 className="text-sm font-semibold text-white">
-              Related Entities
-            </h3>
-            <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-              <div>
-                <label className="mb-1 block text-[11px] font-medium text-slate-400">
-                  Order
-                </label>
+          <div className="space-y-5 rounded-xl border border-white/10 bg-white/5 p-5">
+            <div>
+              <h3 className="flex items-center gap-2 text-sm font-semibold text-white">
+                <Package className="h-4 w-4 text-emerald-400" />
+                Related Entities
+              </h3>
+              <p className="mt-0.5 text-xs text-slate-400">
+                Link this task to an Order, Product, or Support Ticket. Staff
+                can inspect full details with one click.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
+              {/* Related Order */}
+              <div className="space-y-2 rounded-lg border border-white/10 bg-black/20 p-3.5">
+                <div className="flex items-center justify-between">
+                  <label className="block text-xs font-semibold text-slate-300">
+                    Related Order
+                  </label>
+                  {formData.related_order_id && (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setInspectModal({
+                          isOpen: true,
+                          type: 'order',
+                          idOrCode: formData.related_order_id,
+                        })
+                      }
+                      className="flex items-center gap-1 rounded bg-emerald-500/20 px-2 py-0.5 text-[10px] font-medium text-emerald-400 hover:bg-emerald-500/30"
+                    >
+                      <Eye className="h-3 w-3" /> Preview
+                    </button>
+                  )}
+                </div>
                 <input
                   type="text"
                   value={formData.related_order_id}
                   onChange={(e) =>
                     handleChange('related_order_id', e.target.value)
                   }
-                  className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                  placeholder="Order ID"
+                  className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 font-mono text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  placeholder="Order ID or Number (e.g. ORD-1042)"
                 />
+                {recentOrders.length > 0 && (
+                  <div>
+                    <label className="mb-1 block text-[10px] text-slate-400">
+                      Recent Orders:
+                    </label>
+                    <select
+                      className="w-full rounded border border-white/10 bg-black/40 px-2 py-1 text-xs text-slate-300"
+                      onChange={(e) => {
+                        if (e.target.value)
+                          handleChange('related_order_id', e.target.value);
+                      }}
+                      defaultValue=""
+                    >
+                      <option value="">Select recent order...</option>
+                      {recentOrders.map((o) => (
+                        <option key={o.id} value={o.order_number || o.id}>
+                          {o.order_number} — ₹{o.total} ({o.status})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
               </div>
-              <div>
-                <label className="mb-1 block text-[11px] font-medium text-slate-400">
-                  Product
-                </label>
+
+              {/* Related Product */}
+              <div className="space-y-2 rounded-lg border border-white/10 bg-black/20 p-3.5">
+                <div className="flex items-center justify-between">
+                  <label className="block text-xs font-semibold text-slate-300">
+                    Related Product
+                  </label>
+                  {formData.related_product_id && (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setInspectModal({
+                          isOpen: true,
+                          type: 'product',
+                          idOrCode: formData.related_product_id,
+                        })
+                      }
+                      className="flex items-center gap-1 rounded bg-emerald-500/20 px-2 py-0.5 text-[10px] font-medium text-emerald-400 hover:bg-emerald-500/30"
+                    >
+                      <Eye className="h-3 w-3" /> Preview
+                    </button>
+                  )}
+                </div>
                 <input
                   type="text"
                   value={formData.related_product_id}
@@ -849,27 +1330,160 @@ export default function TaskForm({
                     handleChange('related_product_id', e.target.value)
                   }
                   className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                  placeholder="Product ID"
+                  placeholder="Product ID, SKU or Slug"
                 />
+                {recentProducts.length > 0 && (
+                  <div>
+                    <label className="mb-1 block text-[10px] text-slate-400">
+                      Recent Products:
+                    </label>
+                    <select
+                      className="w-full rounded border border-white/10 bg-black/40 px-2 py-1 text-xs text-slate-300"
+                      onChange={(e) => {
+                        if (e.target.value)
+                          handleChange('related_product_id', e.target.value);
+                      }}
+                      defaultValue=""
+                    >
+                      <option value="">Select recent product...</option>
+                      {recentProducts.map((p) => (
+                        <option key={p.id} value={p.sku || p.id}>
+                          {p.name} {p.sku ? `(${p.sku})` : ''}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
               </div>
-              <div>
-                <label className="mb-1 block text-[11px] font-medium text-slate-400">
-                  Support Ticket
-                </label>
+
+              {/* Related Support Ticket */}
+              <div className="space-y-2 rounded-lg border border-white/10 bg-black/20 p-3.5">
+                <div className="flex items-center justify-between">
+                  <label className="block text-xs font-semibold text-slate-300">
+                    Related Support Ticket
+                  </label>
+                  {formData.related_ticket_id && (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setInspectModal({
+                          isOpen: true,
+                          type: 'ticket',
+                          idOrCode: formData.related_ticket_id,
+                        })
+                      }
+                      className="flex items-center gap-1 rounded bg-emerald-500/20 px-2 py-0.5 text-[10px] font-medium text-emerald-400 hover:bg-emerald-500/30"
+                    >
+                      <Eye className="h-3 w-3" /> Preview
+                    </button>
+                  )}
+                </div>
                 <input
                   type="text"
                   value={formData.related_ticket_id}
                   onChange={(e) =>
                     handleChange('related_ticket_id', e.target.value)
                   }
-                  className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                  placeholder="Ticket ID"
+                  className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 font-mono text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  placeholder="Ticket ID or Ticket #"
                 />
+                {recentTickets.length > 0 && (
+                  <div>
+                    <label className="mb-1 block text-[10px] text-slate-400">
+                      Recent Tickets:
+                    </label>
+                    <select
+                      className="w-full rounded border border-white/10 bg-black/40 px-2 py-1 text-xs text-slate-300"
+                      onChange={(e) => {
+                        if (e.target.value)
+                          handleChange('related_ticket_id', e.target.value);
+                      }}
+                      defaultValue=""
+                    >
+                      <option value="">Select recent ticket...</option>
+                      {recentTickets.map((t) => (
+                        <option key={t.id} value={t.ticket_number || t.id}>
+                          {t.ticket_number} — {t.title}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
               </div>
             </div>
           </div>
         )}
       </div>
+
+      {/* Sticky Bottom Accessibility Action Bar (Duplicate of Top Right Options) */}
+      <div className="sticky bottom-0 z-20 flex items-center justify-between border-t border-white/10 bg-[#0d0f1a]/95 px-4 py-3.5 backdrop-blur-md sm:px-6">
+        <div className="hidden items-center gap-2 text-xs text-slate-400 sm:flex">
+          {showAdvanced && (
+            <span className="flex items-center gap-1 font-medium text-emerald-400">
+              <Clock className="h-3 w-3" /> Advanced Options Open
+            </span>
+          )}
+          {showRelated && (
+            <span className="flex items-center gap-1 font-medium text-emerald-400">
+              <Package className="h-3 w-3" /> Related Context Open
+            </span>
+          )}
+        </div>
+
+        <div className="ml-auto flex items-center gap-2">
+          {/* Duplicate Advanced Options button */}
+          <button
+            type="button"
+            onClick={() => setShowAdvanced(!showAdvanced)}
+            className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+              showAdvanced
+                ? 'border border-emerald-500/30 bg-emerald-500/20 text-emerald-300'
+                : 'border border-white/10 text-slate-400 hover:bg-white/5 hover:text-white'
+            }`}
+          >
+            <Clock className="h-4 w-4" />
+            <span>Advanced Options</span>
+          </button>
+
+          {/* Duplicate Related button */}
+          <button
+            type="button"
+            onClick={() => setShowRelated(!showRelated)}
+            className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+              showRelated
+                ? 'border border-emerald-500/30 bg-emerald-500/20 text-emerald-300'
+                : 'border border-white/10 text-slate-400 hover:bg-white/5 hover:text-white'
+            }`}
+          >
+            <Package className="h-4 w-4" />
+            <span>Related</span>
+          </button>
+
+          {/* Duplicate Submit button */}
+          <button
+            type="submit"
+            disabled={submitting}
+            className="flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white shadow-lg shadow-emerald-900/30 transition-colors hover:bg-emerald-500 disabled:opacity-50 sm:px-5"
+          >
+            {submitting ? (
+              <div className="h-4 w-4 animate-spin rounded-full border-b-2 border-white" />
+            ) : (
+              <Save className="h-4 w-4" />
+            )}
+            <span>{isEdit ? 'Update Task' : 'Create Task'}</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Related Entity Inspection Modal */}
+      <RelatedEntityModal
+        isOpen={inspectModal.isOpen}
+        onClose={() =>
+          setInspectModal({ isOpen: false, type: null, idOrCode: null })
+        }
+        type={inspectModal.type}
+        idOrCode={inspectModal.idOrCode}
+      />
     </form>
   );
 }

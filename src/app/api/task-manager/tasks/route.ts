@@ -29,9 +29,10 @@ const TASK_SELECT = `
   status_name:task_statuses(name, display_order, color),
   type_name:task_types(name, icon),
   department_name:departments(name),
-  order:orders(order_number, id),
-  product:products(id, name, slug),
-  ticket:support_tickets(id, ticket_number)
+  order:orders(id, order_number, status, total, payment_method, payment_status, created_at, user_id),
+  product:products(id, name, slug, sku, price, mrp, stock_quantity, status),
+  ticket:support_tickets(id, ticket_number, title, description, status, priority, customer_email, guest_name, created_at),
+  recurrence:task_recurrences(*)
 `;
 
 // priority_id / status_id are NOT NULL in the schema but the form lets staff
@@ -339,19 +340,57 @@ export async function POST(req: Request) {
     let relatedTicketId: string | null;
     let priorityId: string | null;
     let statusId: string | null;
+
+    // Gracefully resolve human identifiers (e.g. ORD-..., SKU, TKT-...) if not UUID
+    let rawOrderId = body.related_order_id;
+    if (
+      rawOrderId &&
+      typeof rawOrderId === 'string' &&
+      !UUID_RE.test(rawOrderId.trim())
+    ) {
+      const { data: ord } = await supabase
+        .from('orders')
+        .select('id')
+        .eq('order_number', rawOrderId.trim())
+        .maybeSingle();
+      if (ord) rawOrderId = ord.id;
+    }
+
+    let rawProductId = body.related_product_id;
+    if (
+      rawProductId &&
+      typeof rawProductId === 'string' &&
+      !UUID_RE.test(rawProductId.trim())
+    ) {
+      const { data: prd } = await supabase
+        .from('products')
+        .select('id')
+        .or(`sku.eq.${rawProductId.trim()},slug.eq.${rawProductId.trim()}`)
+        .maybeSingle();
+      if (prd) rawProductId = prd.id;
+    }
+
+    let rawTicketId = body.related_ticket_id;
+    if (
+      rawTicketId &&
+      typeof rawTicketId === 'string' &&
+      !UUID_RE.test(rawTicketId.trim())
+    ) {
+      const { data: tkt } = await supabase
+        .from('support_tickets')
+        .select('id')
+        .eq('ticket_number', rawTicketId.trim())
+        .maybeSingle();
+      if (tkt) rawTicketId = tkt.id;
+    }
+
     try {
       assigneeId = optionalUuid(body.assignee_id, 'Assignee');
       typeId = optionalUuid(body.type_id, 'Task type');
       departmentId = optionalUuid(body.department_id, 'Department');
-      relatedOrderId = optionalUuid(body.related_order_id, 'Related order');
-      relatedProductId = optionalUuid(
-        body.related_product_id,
-        'Related product'
-      );
-      relatedTicketId = optionalUuid(
-        body.related_ticket_id,
-        'Related support ticket'
-      );
+      relatedOrderId = optionalUuid(rawOrderId, 'Related order');
+      relatedProductId = optionalUuid(rawProductId, 'Related product');
+      relatedTicketId = optionalUuid(rawTicketId, 'Related support ticket');
       priorityId = optionalUuid(body.priority_id, 'Priority');
       statusId = optionalUuid(body.status_id, 'Status');
     } catch (err) {
@@ -392,7 +431,7 @@ export async function POST(req: Request) {
     if (assigneeId) {
       const { data: assignee, error: assigneeErr } = await supabase
         .from('users')
-        .select('id')
+        .select('id, department_id, role')
         .eq('id', assigneeId)
         .neq('role', 'customer')
         .eq('account_status', 'active')
@@ -410,6 +449,37 @@ export async function POST(req: Request) {
           { error: 'Assignee is not an active staff member' },
           { status: 400 }
         );
+      }
+
+      // Automatically fetch assignee's department if departmentId is not explicitly set
+      if (!departmentId && assignee.department_id) {
+        departmentId = assignee.department_id;
+      }
+    } else if (departmentId) {
+      // If task is assigned to a department, automatically assign to that department's manager
+      const { data: mgr } = await supabase
+        .from('users')
+        .select('id')
+        .eq('department_id', departmentId)
+        .eq('role', 'manager')
+        .eq('account_status', 'active')
+        .limit(1)
+        .maybeSingle();
+
+      if (mgr) {
+        assigneeId = mgr.id;
+      } else {
+        const { data: fallbackMgr } = await supabase
+          .from('users')
+          .select('id')
+          .eq('department_id', departmentId)
+          .in('role', ['admin', 'super_admin'])
+          .eq('account_status', 'active')
+          .limit(1)
+          .maybeSingle();
+        if (fallbackMgr) {
+          assigneeId = fallbackMgr.id;
+        }
       }
     }
 
@@ -442,6 +512,18 @@ export async function POST(req: Request) {
       tags: Array.isArray(body.tags)
         ? body.tags.filter((t: unknown) => typeof t === 'string' && t.trim())
         : [],
+      is_recurring: Boolean(
+        body.is_recurring ||
+        (body.schedule_type &&
+          body.schedule_type !== 'none' &&
+          body.schedule_type !== 'fixed')
+      ),
+      schedule_type:
+        typeof body.schedule_type === 'string' ? body.schedule_type : 'none',
+      schedule_time:
+        typeof body.schedule_time === 'string' && body.schedule_time
+          ? body.schedule_time.slice(0, 5)
+          : null,
     };
 
     const { data: firstRow, error: insertError } = await supabase
@@ -502,6 +584,33 @@ export async function POST(req: Request) {
           reference_id: createdTask.id,
           actor_id: staffUser.id,
         });
+      }
+    }
+
+    // Persist recurrence definition if scheduled
+    if (body.schedule_type && body.schedule_type !== 'none') {
+      try {
+        await supabase.from('task_recurrences').insert({
+          task_id: createdTask.id,
+          recurrence_pattern: body.schedule_type,
+          recurrence_interval: 1,
+          recurrence_days: Array.isArray(body.schedule_days)
+            ? body.schedule_days
+            : body.schedule_days
+              ? [body.schedule_days]
+              : null,
+          trigger_time: body.schedule_time
+            ? `${body.schedule_time}:00`
+            : '09:00:00',
+          due_time: body.due_time ? `${body.due_time}:00` : null,
+          day_of_month: body.schedule_day_of_month
+            ? parseInt(body.schedule_day_of_month, 10)
+            : null,
+          remind_overdue: body.remind_overdue !== false,
+          is_active: true,
+        });
+      } catch (recErr) {
+        console.error('[Tasks POST] Recurrence creation error:', recErr);
       }
     }
 

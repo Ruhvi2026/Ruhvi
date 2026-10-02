@@ -36,6 +36,7 @@ export interface TaskUser {
   full_name: string;
   email: string;
   department: string | null;
+  department_id?: string | null;
   avatar_url: string | null;
   role?: string;
 }
@@ -49,17 +50,39 @@ export interface TaskDepartment {
 export interface TaskOrder {
   id: string;
   order_number: string;
+  status?: string;
+  total?: number;
+  payment_method?: string;
+  payment_status?: string;
+  created_at?: string;
+  customer?: { full_name?: string; email?: string; phone?: string } | null;
+  items?: any[];
 }
 
 export interface TaskProduct {
   id: string;
   name: string;
   slug: string;
+  sku?: string;
+  price?: number;
+  mrp?: number;
+  stock_quantity?: number;
+  description?: string;
+  status?: string;
+  images?: { id?: string; url: string; sort_order?: number }[];
 }
 
 export interface TaskTicket {
   id: string;
   ticket_number: string;
+  title?: string;
+  description?: string;
+  status?: string;
+  priority?: string;
+  customer_email?: string;
+  guest_name?: string;
+  created_at?: string;
+  messages?: any[];
 }
 
 export interface TaskAssignment {
@@ -165,6 +188,13 @@ export interface TaskRecurrence {
   recurrence_interval: number;
   recurrence_days: string[] | null;
   recurrence_end_date: string | null;
+  trigger_time?: string | null;
+  due_time?: string | null;
+  day_of_month?: number | null;
+  remind_overdue?: boolean;
+  last_run_at?: string | null;
+  next_run_at?: string | null;
+  is_active?: boolean;
   created_at: string;
 }
 
@@ -191,6 +221,10 @@ export interface Task {
   tags: string[];
   is_recurring: boolean;
   parent_task_id: string | null;
+  schedule_type?: string | null;
+  schedule_time?: string | null;
+  reminder_sent_at?: string | null;
+  is_auto_scheduled?: boolean;
   created_at: string;
   updated_at: string;
   completed_at: string | null;
@@ -207,6 +241,7 @@ export interface Task {
   order?: TaskOrder;
   product?: TaskProduct;
   ticket?: TaskTicket;
+  recurrence?: TaskRecurrence | null;
 
   // Aggregates
   assignments?: TaskAssignment[];

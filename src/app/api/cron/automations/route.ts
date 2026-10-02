@@ -1,6 +1,11 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { sendAbandonedCartEmail, sendWinBackEmail, sendCelebrationEmail } from '@/lib/brevo';
+import {
+  sendAbandonedCartEmail,
+  sendWinBackEmail,
+  sendCelebrationEmail,
+} from '@/lib/brevo';
+import { runTaskScheduler } from '@/app/api/cron/task-scheduler/route';
 
 export async function GET(request: Request) {
   try {
@@ -29,7 +34,7 @@ export async function GET(request: Request) {
     // 1. Abandoned Carts
     // Find carts that were updated more than 24 hours ago, have items, but haven't triggered a reminder recently
     const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
-    
+
     // We fetch users whose cart updated_at < yesterday AND last_cart_reminder_sent < updated_at or is null
     const { data: abandonedUsers } = await supabase
       .from('users')
@@ -37,27 +42,37 @@ export async function GET(request: Request) {
       .lt('carts.updated_at', yesterday)
       .is('email', 'not.null')
       .not('email', 'eq', '')
-      .or(`last_cart_reminder_sent.is.null,last_cart_reminder_sent.lt.${yesterday}`);
+      .or(
+        `last_cart_reminder_sent.is.null,last_cart_reminder_sent.lt.${yesterday}`
+      );
 
     if (abandonedUsers && abandonedUsers.length > 0) {
       for (const user of abandonedUsers) {
-        await sendAbandonedCartEmail(user.email, user.full_name || 'Valued Customer');
-        await supabase.from('users').update({ last_cart_reminder_sent: new Date().toISOString() }).eq('id', user.id);
+        await sendAbandonedCartEmail(
+          user.email,
+          user.full_name || 'Valued Customer'
+        );
+        await supabase
+          .from('users')
+          .update({ last_cart_reminder_sent: new Date().toISOString() })
+          .eq('id', user.id);
         results.abandonedCarts++;
       }
     }
 
     // 2. Win-Back Campaigns
     // Find users whose last order was > 60 days ago
-    const sixtyDaysAgo = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString();
+    const sixtyDaysAgo = new Date(
+      Date.now() - 60 * 24 * 60 * 60 * 1000
+    ).toISOString();
     const { data: winBackUsers } = await supabase
       .from('users')
       .select('id, email, full_name')
       .is('email', 'not.null')
       .or(`last_winback_sent.is.null,last_winback_sent.lt.${sixtyDaysAgo}`);
-      // NOTE: We'd ideally join with orders or keep a `last_order_date` on the users table.
-      // For brevity, we'll assume we can fetch the latest order.
-    
+    // NOTE: We'd ideally join with orders or keep a `last_order_date` on the users table.
+    // For brevity, we'll assume we can fetch the latest order.
+
     if (winBackUsers) {
       for (const user of winBackUsers) {
         const { data: latestOrder } = await supabase
@@ -67,10 +82,20 @@ export async function GET(request: Request) {
           .order('created_at', { ascending: false })
           .limit(1)
           .single();
-        
-        if (latestOrder && new Date(latestOrder.created_at) < new Date(sixtyDaysAgo)) {
-          await sendWinBackEmail(user.email, user.full_name || 'Valued Customer', 'MISSYOU20');
-          await supabase.from('users').update({ last_winback_sent: new Date().toISOString() }).eq('id', user.id);
+
+        if (
+          latestOrder &&
+          new Date(latestOrder.created_at) < new Date(sixtyDaysAgo)
+        ) {
+          await sendWinBackEmail(
+            user.email,
+            user.full_name || 'Valued Customer',
+            'MISSYOU20'
+          );
+          await supabase
+            .from('users')
+            .update({ last_winback_sent: new Date().toISOString() })
+            .eq('id', user.id);
           results.winBacks++;
         }
       }
@@ -83,38 +108,80 @@ export async function GET(request: Request) {
 
     const { data: usersToCelebrate } = await supabase
       .from('users')
-      .select('id, email, full_name, dob, anniversary_date, last_birthday_sent, last_anniversary_sent')
+      .select(
+        'id, email, full_name, dob, anniversary_date, last_birthday_sent, last_anniversary_sent'
+      )
       .is('email', 'not.null');
 
     if (usersToCelebrate) {
       for (const user of usersToCelebrate) {
         const currentYear = today.getFullYear();
-        
+
         if (user.dob) {
           const dobDate = new Date(user.dob);
-          const hasNotBeenSentThisYear = !user.last_birthday_sent || new Date(user.last_birthday_sent).getFullYear() < currentYear;
-          if (dobDate.getMonth() + 1 === currentMonth && dobDate.getDate() === currentDay && hasNotBeenSentThisYear) {
-            await sendCelebrationEmail(user.email, user.full_name || 'Valued Customer', 'birthday', 'BDAY30');
-            await supabase.from('users').update({ last_birthday_sent: new Date().toISOString() }).eq('id', user.id);
+          const hasNotBeenSentThisYear =
+            !user.last_birthday_sent ||
+            new Date(user.last_birthday_sent).getFullYear() < currentYear;
+          if (
+            dobDate.getMonth() + 1 === currentMonth &&
+            dobDate.getDate() === currentDay &&
+            hasNotBeenSentThisYear
+          ) {
+            await sendCelebrationEmail(
+              user.email,
+              user.full_name || 'Valued Customer',
+              'birthday',
+              'BDAY30'
+            );
+            await supabase
+              .from('users')
+              .update({ last_birthday_sent: new Date().toISOString() })
+              .eq('id', user.id);
             results.birthdays++;
           }
         }
 
         if (user.anniversary_date) {
           const annDate = new Date(user.anniversary_date);
-          const hasNotBeenSentThisYear = !user.last_anniversary_sent || new Date(user.last_anniversary_sent).getFullYear() < currentYear;
-          if (annDate.getMonth() + 1 === currentMonth && annDate.getDate() === currentDay && hasNotBeenSentThisYear) {
-            await sendCelebrationEmail(user.email, user.full_name || 'Valued Customer', 'anniversary', 'ANNIV30');
-            await supabase.from('users').update({ last_anniversary_sent: new Date().toISOString() }).eq('id', user.id);
+          const hasNotBeenSentThisYear =
+            !user.last_anniversary_sent ||
+            new Date(user.last_anniversary_sent).getFullYear() < currentYear;
+          if (
+            annDate.getMonth() + 1 === currentMonth &&
+            annDate.getDate() === currentDay &&
+            hasNotBeenSentThisYear
+          ) {
+            await sendCelebrationEmail(
+              user.email,
+              user.full_name || 'Valued Customer',
+              'anniversary',
+              'ANNIV30'
+            );
+            await supabase
+              .from('users')
+              .update({ last_anniversary_sent: new Date().toISOString() })
+              .eq('id', user.id);
             results.anniversaries++;
           }
         }
       }
     }
 
+    // 4. Scheduled Task Recurrences & Overdue Reminders
+    try {
+      const taskResults = await runTaskScheduler();
+      (results as any).taskAutomation = taskResults;
+    } catch (taskErr: any) {
+      console.error('[cron/automations] Task scheduler error:', taskErr);
+      (results as any).taskAutomationError = taskErr?.message;
+    }
+
     return NextResponse.json({ success: true, results });
   } catch (error: any) {
     console.error('Cron job error:', error);
-    return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
+    return NextResponse.json(
+      { error: error.message || 'Internal Server Error' },
+      { status: 500 }
+    );
   }
 }

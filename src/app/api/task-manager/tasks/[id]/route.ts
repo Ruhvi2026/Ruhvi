@@ -20,15 +20,16 @@ export async function GET(
       .select(
         `
         *,
-        assignee:users!tasks_assignee_id_fkey(id, full_name, email, department, avatar_url),
+        assignee:users!tasks_assignee_id_fkey(id, full_name, email, department_id, role, avatar_url),
         creator:users!tasks_created_by_fkey(id, full_name, email),
         priority_name:task_priorities(name, level, color),
         status_name:task_statuses(name, display_order, color),
         type_name:task_types(name, icon),
         department_name:departments(name),
-        order:orders(order_number, id),
-        product:products(id, name, slug),
-        ticket:support_tickets(id, ticket_number),
+        order:orders(id, order_number, status, total, payment_method, payment_status, created_at, user_id),
+        product:products(id, name, slug, sku, price, mrp, stock_quantity, status),
+        ticket:support_tickets(id, ticket_number, title, description, status, priority, customer_email, guest_name, created_at),
+        recurrence:task_recurrences(*),
         
         // Aggregates
         assignments:task_assignments(*, assigned_user:users(id, full_name, email, avatar_url)),
@@ -67,11 +68,21 @@ export async function GET(
       return NextResponse.json({ error: 'Task not found' }, { status: 404 });
     }
 
-    // Normalize department_name: Supabase join returns {name: string} but
-    // the client Task type expects string | null.
+    // Normalize department_name: Supabase join returns {name: string}
+    // If not directly present on task, fetch automatically from assignee's department
+    let departmentName = task.department_name?.name ?? null;
+    if (!departmentName && task.assignee?.department_id) {
+      const { data: dept } = await supabase
+        .from('departments')
+        .select('name')
+        .eq('id', task.assignee.department_id)
+        .maybeSingle();
+      if (dept) departmentName = dept.name;
+    }
+
     const normalizedTask = {
       ...task,
-      department_name: task.department_name?.name ?? null,
+      department_name: departmentName,
     };
 
     return NextResponse.json({ task: normalizedTask, success: true });
@@ -112,6 +123,18 @@ export async function PUT(
     if (body.start_time !== undefined) updates.start_time = body.start_time;
     if (body.type_id !== undefined) updates.type_id = body.type_id;
     if (body.tags !== undefined) updates.tags = body.tags;
+    if (body.schedule_type !== undefined)
+      updates.schedule_type = body.schedule_type;
+    if (body.schedule_time !== undefined)
+      updates.schedule_time = body.schedule_time;
+    if (body.is_recurring !== undefined)
+      updates.is_recurring = body.is_recurring;
+    if (body.related_order_id !== undefined)
+      updates.related_order_id = body.related_order_id;
+    if (body.related_product_id !== undefined)
+      updates.related_product_id = body.related_product_id;
+    if (body.related_ticket_id !== undefined)
+      updates.related_ticket_id = body.related_ticket_id;
 
     if (Object.keys(updates).length === 0) {
       return NextResponse.json(
@@ -238,6 +261,52 @@ export async function PUT(
           reference_id: id,
           actor_id: staffUser.id,
         });
+      }
+    }
+
+    // If schedule_type changed or recurrence configured
+    if (body.schedule_type !== undefined) {
+      if (body.schedule_type && body.schedule_type !== 'none') {
+        const { data: existingRec } = await supabase
+          .from('task_recurrences')
+          .select('id')
+          .eq('task_id', id)
+          .maybeSingle();
+
+        const recPayload = {
+          task_id: id,
+          recurrence_pattern: body.schedule_type,
+          recurrence_interval: 1,
+          recurrence_days: Array.isArray(body.schedule_days)
+            ? body.schedule_days
+            : body.schedule_days
+              ? [body.schedule_days]
+              : null,
+          trigger_time: body.schedule_time
+            ? `${body.schedule_time}:00`
+            : '09:00:00',
+          due_time: body.due_time ? `${body.due_time}:00` : null,
+          day_of_month: body.schedule_day_of_month
+            ? parseInt(body.schedule_day_of_month, 10)
+            : null,
+          remind_overdue: body.remind_overdue !== false,
+          is_active: true,
+          updated_at: new Date().toISOString(),
+        };
+
+        if (existingRec) {
+          await supabase
+            .from('task_recurrences')
+            .update(recPayload)
+            .eq('id', existingRec.id);
+        } else {
+          await supabase.from('task_recurrences').insert(recPayload);
+        }
+      } else {
+        await supabase
+          .from('task_recurrences')
+          .update({ is_active: false })
+          .eq('task_id', id);
       }
     }
 
