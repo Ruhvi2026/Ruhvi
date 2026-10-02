@@ -37,6 +37,7 @@ import {
 } from 'lucide-react';
 import { PortalThemeProvider } from '@/context/PortalThemeContext';
 import { ThemeToggle } from '@/components/portal/ThemeToggle';
+import { PortalSwitcherDropdown } from '@/components/portal/PortalSwitcherDropdown';
 import FloatingStaffMessenger from '@/components/chat/FloatingStaffMessenger';
 
 interface NavChild {
@@ -567,6 +568,7 @@ export default function OperationsLayout({
               </button>
             </div>
             <div className="flex items-center gap-2">
+              <PortalSwitcherDropdown currentPortalId="operations" />
               <ThemeToggle />
               <button className="relative rounded-lg p-2 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-white/5 dark:hover:text-white">
                 <Bell className="h-4 w-4" />

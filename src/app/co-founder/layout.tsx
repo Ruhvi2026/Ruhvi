@@ -15,6 +15,7 @@ import {
   ChevronDown,
 } from 'lucide-react';
 import FloatingStaffMessenger from '@/components/chat/FloatingStaffMessenger';
+import { PortalSwitcherDropdown } from '@/components/portal/PortalSwitcherDropdown';
 
 export default function CoFounderPortalLayout({
   children,
@@ -22,7 +23,6 @@ export default function CoFounderPortalLayout({
   children: React.ReactNode;
 }) {
   const { user, signOut } = useAuth();
-  const [portalMenuOpen, setPortalMenuOpen] = React.useState(false);
 
   return (
     <div className="flex min-h-screen flex-col bg-neutral-950 font-sans text-neutral-100 selection:bg-amber-500 selection:text-neutral-950">
@@ -53,69 +53,7 @@ export default function CoFounderPortalLayout({
         {/* Right: Quick Portals Dropdown, User & Actions */}
         <div className="flex items-center gap-3">
           {/* Portal Switcher Dropdown */}
-          <div className="relative">
-            <button
-              onClick={() => setPortalMenuOpen(!portalMenuOpen)}
-              className="flex items-center gap-1.5 rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-1.5 text-xs font-medium text-neutral-300 transition-colors hover:border-neutral-700 hover:text-white"
-            >
-              <LayoutDashboard size={14} className="text-amber-400" />
-              <span>Switch Portal</span>
-              <ChevronDown size={13} className="opacity-60" />
-            </button>
-
-            {portalMenuOpen && (
-              <div
-                className="animate-in fade-in slide-in-from-top-2 absolute right-0 z-50 mt-2 w-56 rounded-xl border border-neutral-800 bg-neutral-900 p-1 shadow-2xl duration-150"
-                onClick={() => setPortalMenuOpen(false)}
-              >
-                <div className="px-3 py-2 text-[10px] font-semibold uppercase tracking-wider text-neutral-400">
-                  Ruhvi Subdomains
-                </div>
-                <a
-                  href="https://admin.ruhvi.in/admin/dashboard"
-                  className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs text-neutral-300 transition-colors hover:bg-neutral-800 hover:text-white"
-                >
-                  <LayoutDashboard size={14} className="text-amber-400" />
-                  <span>Admin Portal</span>
-                </a>
-                <a
-                  href="https://operation.ruhvi.in/operations/dashboard"
-                  className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs text-neutral-300 transition-colors hover:bg-neutral-800 hover:text-white"
-                >
-                  <Boxes size={14} className="text-blue-400" />
-                  <span>Operations</span>
-                </a>
-                <a
-                  href="https://orders.ruhvi.in/portal-orders/dashboard"
-                  className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs text-neutral-300 transition-colors hover:bg-neutral-800 hover:text-white"
-                >
-                  <PackageCheck size={14} className="text-emerald-400" />
-                  <span>Orders</span>
-                </a>
-                <a
-                  href="https://support.ruhvi.in/support/tickets"
-                  className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs text-neutral-300 transition-colors hover:bg-neutral-800 hover:text-white"
-                >
-                  <Headphones size={14} className="text-purple-400" />
-                  <span>Customer Support</span>
-                </a>
-                <a
-                  href="https://marketing.ruhvi.in/marketing/dashboard"
-                  className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs text-neutral-300 transition-colors hover:bg-neutral-800 hover:text-white"
-                >
-                  <Megaphone size={14} className="text-pink-400" />
-                  <span>Marketing</span>
-                </a>
-                <a
-                  href="https://tech.ruhvi.in/tech/dashboard"
-                  className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs text-neutral-300 transition-colors hover:bg-neutral-800 hover:text-white"
-                >
-                  <Globe size={14} className="text-cyan-400" />
-                  <span>Tech Portal</span>
-                </a>
-              </div>
-            )}
-          </div>
+          <PortalSwitcherDropdown currentPortalId="co-founder" />
 
           {/* User Email & Sign Out */}
           {user && (

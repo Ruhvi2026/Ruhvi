@@ -47,6 +47,7 @@ import { AdminNotificationCenter } from '@/components/admin/AdminNotificationCen
 import FloatingStaffMessenger from '@/components/chat/FloatingStaffMessenger';
 import { PortalThemeProvider } from '@/context/PortalThemeContext';
 import { ThemeToggle } from '@/components/portal/ThemeToggle';
+import { PortalSwitcherDropdown } from '@/components/portal/PortalSwitcherDropdown';
 
 interface NavChild {
   label: string;
@@ -609,6 +610,7 @@ export default function AdminLayout({
               </div>
             </div>
             <div className="flex items-center gap-2">
+              <PortalSwitcherDropdown currentPortalId="admin" />
               <ThemeToggle />
               <Link
                 href="/admin/settings"
