@@ -268,8 +268,15 @@ export async function GET(req: Request) {
       );
     }
 
+    // Normalize department_name: Supabase join returns {name: string} but
+    // the client Task type expects string | null.
+    const normalizedTasks = (tasks || []).map((t: any) => ({
+      ...t,
+      department_name: t.department_name?.name ?? null,
+    }));
+
     return NextResponse.json({
-      tasks: tasks || [],
+      tasks: normalizedTasks,
       total: count || 0,
       page: Math.floor(offset / limit) + 1,
       limit,
@@ -501,7 +508,10 @@ export async function POST(req: Request) {
 
     return NextResponse.json(
       {
-        task: createdTask,
+        task: {
+          ...createdTask,
+          department_name: (createdTask as any)?.department_name?.name ?? null,
+        },
         success: true,
         message: 'Task created successfully',
       },

@@ -67,7 +67,14 @@ export async function GET(
       return NextResponse.json({ error: 'Task not found' }, { status: 404 });
     }
 
-    return NextResponse.json({ task, success: true });
+    // Normalize department_name: Supabase join returns {name: string} but
+    // the client Task type expects string | null.
+    const normalizedTask = {
+      ...task,
+      department_name: task.department_name?.name ?? null,
+    };
+
+    return NextResponse.json({ task: normalizedTask, success: true });
   } catch (err: any) {
     console.error('[Task GET /:id] Error:', err);
     return NextResponse.json(
@@ -275,7 +282,10 @@ export async function PUT(
     }
 
     return NextResponse.json({
-      task: updatedTask,
+      task: {
+        ...updatedTask,
+        department_name: (updatedTask as any)?.department_name?.name ?? null,
+      },
       success: true,
       message: 'Task updated successfully',
     });
