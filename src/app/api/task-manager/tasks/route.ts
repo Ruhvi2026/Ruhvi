@@ -84,7 +84,8 @@ export async function GET(req: Request) {
     const sortDir = searchParams.get('sort_dir') === 'asc' ? 'asc' : 'desc';
 
     const supabase = getServiceClient();
-    const isAdmin = staffUser.role === 'super_admin';
+    const isAdmin =
+      staffUser.role === 'super_admin' || staffUser.role === 'admin';
 
     const validSortColumns = [
       'created_at',
@@ -130,7 +131,7 @@ export async function GET(req: Request) {
         supabase
           .from('task_spectators')
           .select('task_id')
-          .eq('user_id', staffUser.id),
+          .or(`user_id.eq.${staffUser.id},spectator_id.eq.${staffUser.id}`),
       ]);
 
       const idSet = new Set<string>();
@@ -161,7 +162,31 @@ export async function GET(req: Request) {
     }
 
     if (myTasks) {
-      query = query.eq('assignee_id', staffUser.id);
+      const [assignmentsRes, spectatorsRes] = await Promise.all([
+        supabase
+          .from('task_assignments')
+          .select('task_id')
+          .eq('user_id', staffUser.id),
+        supabase
+          .from('task_spectators')
+          .select('task_id')
+          .or(`user_id.eq.${staffUser.id},spectator_id.eq.${staffUser.id}`),
+      ]);
+
+      const myIdSet = new Set<string>();
+      (assignmentsRes.data || []).forEach((a: any) => myIdSet.add(a.task_id));
+      (spectatorsRes.data || []).forEach((s: any) => myIdSet.add(s.task_id));
+      const myTaskIds = Array.from(myIdSet);
+
+      if (myTaskIds.length > 0) {
+        query = query.or(
+          `assignee_id.eq.${staffUser.id},created_by.eq.${staffUser.id},id.in.(${myTaskIds.join(',')})`
+        );
+      } else {
+        query = query.or(
+          `assignee_id.eq.${staffUser.id},created_by.eq.${staffUser.id}`
+        );
+      }
     }
 
     if (allMyTasks) {

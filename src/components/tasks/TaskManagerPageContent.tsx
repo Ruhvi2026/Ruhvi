@@ -12,6 +12,8 @@ import {
 import TaskDetail from '@/components/tasks/TaskDetail';
 import TaskForm from '@/components/tasks/TaskForm';
 
+import { useSearchParams, useRouter, usePathname } from 'next/navigation';
+
 const LoadingSpinner = () => (
   <div className="flex h-64 items-center justify-center">
     <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-emerald-500" />
@@ -19,6 +21,12 @@ const LoadingSpinner = () => (
 );
 
 export default function TaskManagerPageContent() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const basePath = pathname ? pathname.split('?')[0] : '/admin/task-manager';
+  const isCreatingNew = searchParams.get('action') === 'new';
+
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [editing, setEditing] = useState(false);
   const [priorities, setPriorities] = useState<TaskPriority[]>([]);
@@ -90,6 +98,29 @@ export default function TaskManagerPageContent() {
               Retry
             </button>
           </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (isCreatingNew) {
+    return (
+      <div className="flex h-full flex-col bg-[#0d0f1a]">
+        <div className="flex items-center justify-between border-b border-white/5 p-4">
+          <h2 className="text-lg font-semibold text-white">Create New Task</h2>
+          <button
+            onClick={() => router.push(basePath)}
+            className="text-sm text-slate-400 hover:text-white"
+          >
+            Cancel
+          </button>
+        </div>
+        <div className="flex-1 overflow-y-auto">
+          <TaskForm
+            initialPriorities={priorities}
+            initialStatuses={statuses}
+            initialTypes={types}
+          />
         </div>
       </div>
     );

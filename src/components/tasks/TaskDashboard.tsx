@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard,
   Clock,
@@ -52,6 +53,8 @@ const StatCard = ({
 );
 
 export default function TaskDashboard({ initialStats }: TaskDashboardProps) {
+  const pathname = usePathname();
+  const basePath = pathname ? pathname.split('?')[0] : '/admin/task-manager';
   const [stats, setStats] = useState<DashboardStats | null>(
     initialStats || null
   );
@@ -334,19 +337,19 @@ export default function TaskDashboard({ initialStats }: TaskDashboardProps) {
           </h3>
           <div className="flex flex-wrap gap-3">
             <Link
-              href="/admin/task-manager/new"
+              href={`${basePath}?action=new`}
               className="flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-500"
             >
               <Flag className="h-4 w-4" /> New Task
             </Link>
             <Link
-              href="/admin/task-manager?my_tasks=true"
+              href={`${basePath}?my_tasks=true`}
               className="flex items-center gap-2 rounded-lg bg-white/10 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-white/15"
             >
               <Users className="h-4 w-4" /> My Tasks
             </Link>
             <Link
-              href="/admin/task-manager?overdue=true"
+              href={`${basePath}?overdue=true`}
               className="flex items-center gap-2 rounded-lg bg-white/10 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-white/15"
             >
               <AlertCircle className="h-4 w-4" /> Overdue Tasks

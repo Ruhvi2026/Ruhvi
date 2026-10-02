@@ -69,6 +69,8 @@ export default function TaskList({
   const searchParams = useSearchParams();
   const pathname = usePathname();
 
+  const basePath = pathname ? pathname.split('?')[0] : '/admin/task-manager';
+
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
   const [total, setTotal] = useState(initialTotal);
   const [page, setPage] = useState(initialPage);
@@ -77,11 +79,12 @@ export default function TaskList({
   const [loading, setLoading] = useState(false);
   const [filters, setFilters] = useState<TaskFilters>(() => {
     const isMyTasks = searchParams?.get('my_tasks') === 'true';
+    const isOverdue = searchParams?.get('overdue') === 'true';
     return {
       sort_by: 'created_at',
       sort_dir: 'desc',
-      all_my_tasks: !isMyTasks,
       my_tasks: isMyTasks,
+      overdue: isOverdue,
     };
   });
   const [showFilters, setShowFilters] = useState(false);
@@ -161,13 +164,13 @@ export default function TaskList({
   // Initial fetch and re-fetch on route change (pathname/searchParams updates) or refreshKey change
   useEffect(() => {
     const isMyTasks = searchParams?.get('my_tasks') === 'true';
+    const isOverdue = searchParams?.get('overdue') === 'true';
     setFilters((prev) => ({
       ...prev,
-      all_my_tasks: !isMyTasks,
       my_tasks: isMyTasks,
+      overdue: isOverdue,
     }));
-    // We defer the fetch slightly to allow state to settle, or we can pass explicit override to fetchTasks
-    fetchTasks(1, { all_my_tasks: !isMyTasks, my_tasks: isMyTasks });
+    fetchTasks(1, { my_tasks: isMyTasks, overdue: isOverdue });
   }, [pathname, searchParams?.toString(), refreshKey]); // Removed fetchTasks from dep to prevent loop if not wrapped properly
 
   const handleFilterChange = (key: keyof TaskFilters, value: any) => {
@@ -499,7 +502,7 @@ export default function TaskList({
               Get started by creating your first task
             </p>
             <Link
-              href="/admin/task-manager/new"
+              href={`${basePath}?action=new`}
               className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-500"
             >
               Create Task

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import {
   ArrowLeft,
   Save,
@@ -46,6 +46,8 @@ export default function TaskForm({
   initialTypes = [],
 }: TaskFormProps) {
   const router = useRouter();
+  const pathname = usePathname();
+  const basePath = pathname ? pathname.split('?')[0] : '/admin/task-manager';
   const isEdit = !!task;
 
   const [formData, setFormData] = useState({
@@ -413,7 +415,7 @@ export default function TaskForm({
             await syncChecklist(savedTaskId);
           }
         }
-        router.push('/admin/task-manager');
+        router.push(basePath);
         router.refresh();
       } else {
         // A non-JSON body (e.g. a framework-level 404/405) must not be
