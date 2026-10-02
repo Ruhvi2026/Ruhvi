@@ -56,7 +56,6 @@ const STATUS_COLORS: Record<string, string> = {
   Accepted: 'bg-indigo-500/20 text-indigo-400 border-indigo-500/30',
   'In Progress': 'bg-blue-500/20 text-blue-400 border-blue-500/30',
   Updated: 'bg-amber-500/20 text-amber-400 border-amber-500/30',
-  Blocked: 'bg-red-500/20 text-red-400 border-red-500/30',
   Completed: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30',
   Closed: 'bg-gray-500/20 text-gray-400 border-gray-500/30',
 };
@@ -426,11 +425,12 @@ export default function TaskList({
                 }
               >
                 <option value="">All Statuses</option>
-                <option value="open">Open</option>
-                <option value="in_progress">In Progress</option>
-                <option value="blocked">Blocked</option>
-                <option value="completed">Completed</option>
-                <option value="closed">Closed</option>
+                <option value="Open">Open</option>
+                <option value="Accepted">Accepted</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Updated">Updated</option>
+                <option value="Completed">Completed</option>
+                <option value="Closed">Closed</option>
               </select>
             </div>
 

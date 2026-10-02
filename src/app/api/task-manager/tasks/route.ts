@@ -39,24 +39,57 @@ const TASK_SELECT = `
   recurrence:task_recurrences(*)
 `;
 
-// priority_id / status_id are NOT NULL in the schema but the form lets staff
-// leave them blank, so fall back to the first configured row.
-async function resolveLookupId(
-  supabase: ReturnType<typeof getServiceClient>,
-  table: 'task_priorities' | 'task_statuses'
+// Fall back to default priority ('Normal'/'Medium' or lowest level)
+// and default status ('Open' or lowest display_order).
+async function resolveDefaultStatusId(
+  supabase: ReturnType<typeof getServiceClient>
 ): Promise<string | null> {
-  const { data, error } = await supabase
-    .from(table)
+  const { data } = await supabase
+    .from('task_statuses')
     .select('id')
-    .order('id', { ascending: true })
+    .ilike('name', 'Open')
+    .maybeSingle();
+
+  if (data?.id) return data.id;
+
+  const { data: fallback, error } = await supabase
+    .from('task_statuses')
+    .select('id')
+    .order('display_order', { ascending: true })
     .limit(1)
     .maybeSingle();
 
   if (error) {
-    console.error(`[Tasks POST] Error resolving ${table}:`, error);
+    console.error('[Tasks POST] Error resolving default status:', error);
     return null;
   }
-  return data?.id ?? null;
+  return fallback?.id ?? null;
+}
+
+async function resolveDefaultPriorityId(
+  supabase: ReturnType<typeof getServiceClient>
+): Promise<string | null> {
+  const { data } = await supabase
+    .from('task_priorities')
+    .select('id')
+    .or('name.ilike.Normal,name.ilike.Medium,name.ilike.Low')
+    .limit(1)
+    .maybeSingle();
+
+  if (data?.id) return data.id;
+
+  const { data: fallback, error } = await supabase
+    .from('task_priorities')
+    .select('id')
+    .order('level', { ascending: true })
+    .limit(1)
+    .maybeSingle();
+
+  if (error) {
+    console.error('[Tasks POST] Error resolving default priority:', error);
+    return null;
+  }
+  return fallback?.id ?? null;
 }
 
 export async function GET(req: Request) {
@@ -241,8 +274,8 @@ export async function GET(req: Request) {
       const { data: statusRow } = await supabase
         .from('task_statuses')
         .select('id')
-        .eq('name', status)
-        .single();
+        .ilike('name', status)
+        .maybeSingle();
       if (statusRow) query = query.eq('status_id', statusRow.id);
     }
 
@@ -523,8 +556,7 @@ export async function POST(req: Request) {
       );
     }
 
-    if (!priorityId)
-      priorityId = await resolveLookupId(supabase, 'task_priorities');
+    if (!priorityId) priorityId = await resolveDefaultPriorityId(supabase);
     if (!priorityId) {
       return NextResponse.json(
         { error: 'No task priorities are configured' },
@@ -532,7 +564,7 @@ export async function POST(req: Request) {
       );
     }
 
-    if (!statusId) statusId = await resolveLookupId(supabase, 'task_statuses');
+    if (!statusId) statusId = await resolveDefaultStatusId(supabase);
     if (!statusId) {
       return NextResponse.json(
         { error: 'No task statuses are configured' },
