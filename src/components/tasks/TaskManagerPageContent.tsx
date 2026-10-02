@@ -34,6 +34,27 @@ export default function TaskManagerPageContent() {
   const [types, setTypes] = useState<TaskType[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [activeFilterKey, setActiveFilterKey] = useState<string | null>(null);
+  const [activeFilterParams, setActiveFilterParams] = useState<
+    Record<string, unknown>
+  >({});
+  const [activeFilterLabel, setActiveFilterLabel] = useState<string>('');
+
+  const handleFilterSelect = (
+    key: string,
+    params: Record<string, unknown>,
+    label: string
+  ) => {
+    if (activeFilterKey === key || !key) {
+      setActiveFilterKey(null);
+      setActiveFilterParams({});
+      setActiveFilterLabel('');
+    } else {
+      setActiveFilterKey(key);
+      setActiveFilterParams(params);
+      setActiveFilterLabel(label);
+    }
+  };
 
   useEffect(() => {
     let cancelled = false;
