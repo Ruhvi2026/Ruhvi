@@ -177,6 +177,20 @@ export default function TaskManagerPageContent() {
         task={selectedTask}
         onBack={() => setSelectedTask(null)}
         onEdit={() => setEditing(true)}
+        statuses={statuses}
+        onRefresh={async () => {
+          try {
+            const res = await fetch(
+              `/api/task-manager/tasks/${selectedTask.id}`
+            );
+            if (res.ok) {
+              const data = await res.json();
+              setSelectedTask(data.task);
+            }
+          } catch (err) {
+            console.error('Failed to refresh task:', err);
+          }
+        }}
       />
     );
   }

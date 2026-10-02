@@ -181,6 +181,20 @@ export async function PUT(
 
       if (newStatus?.name === 'Completed' && !existingTask.completed_at) {
         updates.completed_at = new Date().toISOString();
+        if (
+          existingTask.created_by &&
+          existingTask.created_by !== staffUser.id
+        ) {
+          await supabase.from('notifications').insert({
+            user_id: existingTask.created_by,
+            title: 'Task Completed',
+            message: `Task "${existingTask.title}" has been marked as Completed and is ready for your review.`,
+            category: 'TASK_STATUS_UPDATE',
+            reference_type: 'task',
+            reference_id: id,
+            actor_id: staffUser.id,
+          });
+        }
       }
       if (newStatus?.name === 'Closed' && !existingTask.closed_at) {
         updates.closed_at = new Date().toISOString();

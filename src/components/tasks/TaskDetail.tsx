@@ -37,7 +37,9 @@ import {
   TaskSpectator,
   TaskAssignment,
   TaskDependencyItem,
+  TaskStatus,
 } from './types';
+import { useSessionUserId } from '@/hooks/useSessionUserId';
 
 interface TaskDetailProps {
   task: Task;
@@ -45,6 +47,7 @@ interface TaskDetailProps {
   onEdit: () => void;
   /** Re-fetch the task without leaving the detail view */
   onRefresh?: () => void;
+  statuses?: TaskStatus[];
 }
 
 export default function TaskDetail({
@@ -52,6 +55,7 @@ export default function TaskDetail({
   onBack,
   onEdit,
   onRefresh,
+  statuses,
 }: TaskDetailProps) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('details');
@@ -75,6 +79,8 @@ export default function TaskDetail({
     type: null,
     idOrCode: null,
   });
+  const currentUserId = useSessionUserId();
+  const [updatingStatus, setUpdatingStatus] = useState(false);
 
   const priorityColors: Record<string, string> = {
     Low: 'bg-gray-500/20 text-gray-400 border-gray-500/30',
@@ -86,7 +92,9 @@ export default function TaskDetail({
 
   const statusColors: Record<string, string> = {
     Open: 'bg-gray-500/20 text-gray-400 border-gray-500/30',
+    Accepted: 'bg-indigo-500/20 text-indigo-400 border-indigo-500/30',
     'In Progress': 'bg-blue-500/20 text-blue-400 border-blue-500/30',
+    Updated: 'bg-amber-500/20 text-amber-400 border-amber-500/30',
     Blocked: 'bg-red-500/20 text-red-400 border-red-500/30',
     Completed: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30',
     Closed: 'bg-gray-500/20 text-gray-400 border-gray-500/30',
@@ -162,7 +170,12 @@ export default function TaskDetail({
       if (!res.ok) throw new Error('Failed to add comment');
       setNewComment('');
       setIsProgressUpdate(false);
-      onRefresh?.();
+
+      if (task.status_name?.name === 'In Progress') {
+        await handleUpdateStatus('Updated');
+      } else {
+        onRefresh?.();
+      }
     } catch (err) {
       console.error('Failed to add comment:', err);
     } finally {
@@ -213,6 +226,36 @@ export default function TaskDetail({
     }
   };
 
+  const handleUpdateStatus = async (targetStatusName: string) => {
+    if (!statuses) {
+      alert('Statuses not loaded. Cannot update status.');
+      return;
+    }
+    const targetStatus = statuses.find((s) => s.name === targetStatusName);
+    if (!targetStatus) {
+      alert(`Status '${targetStatusName}' not found in database.`);
+      return;
+    }
+
+    if (updatingStatus) return;
+    setUpdatingStatus(true);
+    try {
+      const res = await fetch(`/api/task-manager/tasks/${task.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status_id: targetStatus.id }),
+      });
+      if (!res.ok) throw new Error('Failed to update status');
+
+      onRefresh?.();
+    } catch (err) {
+      console.error('Failed to update status:', err);
+      alert('Error updating status: ' + (err as Error).message);
+    } finally {
+      setUpdatingStatus(false);
+    }
+  };
+
   // Dependencies (loaded separately so a failure never breaks the detail view)
   useEffect(() => {
     let cancelled = false;
@@ -240,7 +283,12 @@ export default function TaskDetail({
         }
       );
       if (!res.ok) throw new Error('Failed to update checklist item');
-      onRefresh?.();
+
+      if (task.status_name?.name === 'In Progress') {
+        await handleUpdateStatus('Updated');
+      } else {
+        onRefresh?.();
+      }
     } catch (err) {
       console.error('Failed to update checklist item:', err);
     } finally {
@@ -300,7 +348,12 @@ export default function TaskDetail({
         const data = await res.json().catch(() => ({}));
         throw new Error(data.error || 'Failed to upload attachment');
       }
-      onRefresh?.();
+
+      if (task.status_name?.name === 'In Progress') {
+        await handleUpdateStatus('Updated');
+      } else {
+        onRefresh?.();
+      }
     } catch (err) {
       console.error('Failed to upload attachment:', err);
       alert('Upload failed: ' + (err as Error).message);
@@ -408,6 +461,79 @@ export default function TaskDetail({
               {task.title}
             </h2>
           </div>
+        </div>
+
+        {/* Action Bar (Status Lifecycle) */}
+        <div className="flex items-center gap-2">
+          {(() => {
+            const currentStatus = task.status_name?.name || 'Open';
+            const isAssignor = currentUserId === task.created_by;
+            const isAssignee = currentUserId === task.assignee_id;
+
+            // If closed, lock all actions
+            if (currentStatus === 'Closed') {
+              return (
+                <span className="mr-2 flex items-center gap-1 text-xs font-medium text-slate-500">
+                  <CheckCircle className="h-3 w-3" /> Task Closed
+                </span>
+              );
+            }
+
+            if (isAssignee) {
+              if (currentStatus === 'Open') {
+                return (
+                  <button
+                    onClick={() => handleUpdateStatus('Accepted')}
+                    disabled={updatingStatus}
+                    className="flex items-center gap-2 rounded-lg bg-emerald-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-700 disabled:opacity-50"
+                  >
+                    <CheckCircle className="h-4 w-4" /> Accept Task
+                  </button>
+                );
+              }
+              if (currentStatus === 'Accepted') {
+                return (
+                  <button
+                    onClick={() => handleUpdateStatus('In Progress')}
+                    disabled={updatingStatus}
+                    className="flex items-center gap-2 rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
+                  >
+                    <Activity className="h-4 w-4" /> Start Work
+                  </button>
+                );
+              }
+              if (
+                currentStatus === 'In Progress' ||
+                currentStatus === 'Updated'
+              ) {
+                return (
+                  <button
+                    onClick={() => handleUpdateStatus('Completed')}
+                    disabled={updatingStatus}
+                    className="flex items-center gap-2 rounded-lg bg-emerald-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-700 disabled:opacity-50"
+                  >
+                    <CheckCircle className="h-4 w-4" /> Mark as Completed
+                  </button>
+                );
+              }
+            }
+
+            if (isAssignor) {
+              if (currentStatus === 'Completed') {
+                return (
+                  <button
+                    onClick={() => handleUpdateStatus('Closed')}
+                    disabled={updatingStatus}
+                    className="flex items-center gap-2 rounded-lg bg-gray-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-gray-700 disabled:opacity-50"
+                  >
+                    <XCircle className="h-4 w-4" /> Close Task
+                  </button>
+                );
+              }
+            }
+
+            return null;
+          })()}
         </div>
         <div className="flex items-center gap-2">
           {task.messenger_group_id ? (
