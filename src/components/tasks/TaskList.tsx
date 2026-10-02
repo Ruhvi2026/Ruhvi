@@ -72,9 +72,14 @@ export default function TaskList({
   const [limit] = useState(initialLimit);
   const [hasMore, setHasMore] = useState(initialHasMore);
   const [loading, setLoading] = useState(false);
-  const [filters, setFilters] = useState<TaskFilters>({
-    sort_by: 'created_at',
-    sort_dir: 'desc',
+  const [filters, setFilters] = useState<TaskFilters>(() => {
+    const isMyTasks = searchParams?.get('my_tasks') === 'true';
+    return {
+      sort_by: 'created_at',
+      sort_dir: 'desc',
+      all_my_tasks: !isMyTasks,
+      my_tasks: isMyTasks,
+    };
   });
   const [showFilters, setShowFilters] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
@@ -142,8 +147,15 @@ export default function TaskList({
 
   // Initial fetch and re-fetch on route change (pathname/searchParams updates) or refreshKey change
   useEffect(() => {
-    fetchTasks(1);
-  }, [pathname, searchParams?.toString(), fetchTasks, refreshKey]);
+    const isMyTasks = searchParams?.get('my_tasks') === 'true';
+    setFilters((prev) => ({
+      ...prev,
+      all_my_tasks: !isMyTasks,
+      my_tasks: isMyTasks,
+    }));
+    // We defer the fetch slightly to allow state to settle, or we can pass explicit override to fetchTasks
+    fetchTasks(1, { all_my_tasks: !isMyTasks, my_tasks: isMyTasks });
+  }, [pathname, searchParams?.toString(), refreshKey]); // Removed fetchTasks from dep to prevent loop if not wrapped properly
 
   const handleFilterChange = (key: keyof TaskFilters, value: any) => {
     const newFilters = { ...filters, [key]: value };
@@ -279,7 +291,19 @@ export default function TaskList({
         </div>
 
         <div className="flex w-full items-center gap-2 sm:w-auto">
-          <div className="relative flex-1 sm:w-64">
+          <button
+            onClick={() => handleFilterChange('overdue', !filters.overdue)}
+            className={`hidden items-center gap-1.5 rounded-lg border px-3 py-1.5 text-[11px] font-medium transition-colors sm:flex ${
+              filters.overdue
+                ? 'border-rose-500/30 bg-rose-500/20 text-rose-400'
+                : 'border-white/10 bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white'
+            }`}
+          >
+            <Clock className="h-3.5 w-3.5" />
+            Overdue
+          </button>
+
+          <div className="relative ml-2 flex-1 sm:w-56">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
             <input
               type="text"
@@ -324,7 +348,10 @@ export default function TaskList({
                 className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:outline-none focus:ring-1 focus:ring-emerald-500"
                 value={filters.status || ''}
                 onChange={(e) =>
-                  handleFilterChange('status', e.target.value || undefined)
+                  setFilters((prev) => ({
+                    ...prev,
+                    status: e.target.value || undefined,
+                  }))
                 }
               >
                 <option value="">All Statuses</option>
@@ -344,7 +371,10 @@ export default function TaskList({
                 className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:outline-none focus:ring-1 focus:ring-emerald-500"
                 value={filters.priority || ''}
                 onChange={(e) =>
-                  handleFilterChange('priority', e.target.value || undefined)
+                  setFilters((prev) => ({
+                    ...prev,
+                    priority: e.target.value || undefined,
+                  }))
                 }
               >
                 <option value="">All Priorities</option>
@@ -365,6 +395,7 @@ export default function TaskList({
                 onChange={(e) => {
                   const val = e.target.value;
                   const newFilters: Partial<TaskFilters> = {
+                    all_my_tasks: false,
                     my_tasks: false,
                     assigned_by_me: false,
                     supporting: false,
@@ -372,19 +403,35 @@ export default function TaskList({
                     due_today: false,
                     overdue: false,
                   };
-                  if (val === 'my_tasks') newFilters.my_tasks = true;
+                  if (val === 'all_my_tasks') newFilters.all_my_tasks = true;
+                  else if (val === 'my_tasks') newFilters.my_tasks = true;
                   else if (val === 'assigned_by_me')
                     newFilters.assigned_by_me = true;
                   else if (val === 'supporting') newFilters.supporting = true;
                   else if (val === 'spectating') newFilters.spectating = true;
                   else if (val === 'due_today') newFilters.due_today = true;
                   else if (val === 'overdue') newFilters.overdue = true;
-                  Object.entries(newFilters).forEach(([k, v]) =>
-                    handleFilterChange(k as keyof TaskFilters, v)
-                  );
+                  setFilters((prev) => ({ ...prev, ...newFilters }));
                 }}
+                value={
+                  filters.all_my_tasks
+                    ? 'all_my_tasks'
+                    : filters.my_tasks
+                      ? 'my_tasks'
+                      : filters.assigned_by_me
+                        ? 'assigned_by_me'
+                        : filters.supporting
+                          ? 'supporting'
+                          : filters.spectating
+                            ? 'spectating'
+                            : filters.due_today
+                              ? 'due_today'
+                              : filters.overdue
+                                ? 'overdue'
+                                : ''
+                }
               >
-                <option value="">All Tasks</option>
+                <option value="all_my_tasks">All Tasks (Involved)</option>
                 <option value="my_tasks">My Tasks</option>
                 <option value="assigned_by_me">Assigned by Me</option>
                 <option value="supporting">Supporting</option>
@@ -395,15 +442,33 @@ export default function TaskList({
             </div>
           </div>
 
-          <button
-            onClick={() => {
-              setFilters({ sort_by: 'created_at', sort_dir: 'desc' });
-              fetchTasks(1, { sort_by: 'created_at', sort_dir: 'desc' });
-            }}
-            className="text-sm text-emerald-400 hover:text-emerald-300"
-          >
-            Clear all filters
-          </button>
+          <div className="flex items-center justify-between pt-2">
+            <button
+              onClick={() => {
+                const defaultFilters = {
+                  sort_by: 'created_at',
+                  sort_dir: 'desc',
+                  all_my_tasks: true,
+                };
+                setFilters(defaultFilters as TaskFilters);
+                fetchTasks(1, defaultFilters);
+                setShowFilters(false);
+              }}
+              className="text-sm text-slate-400 transition-colors hover:text-white"
+            >
+              Clear all filters
+            </button>
+
+            <button
+              onClick={() => {
+                fetchTasks(1, filters);
+                setShowFilters(false);
+              }}
+              className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-500"
+            >
+              Apply Filters
+            </button>
+          </div>
         </div>
       )}
 
@@ -435,114 +500,119 @@ export default function TaskList({
                 className="cursor-pointer p-4 transition-colors hover:bg-white/5"
                 onClick={() => onTaskClick?.(task)}
               >
-                <div className="flex items-start gap-4">
-                  {/* Priority indicator */}
-                  <div className="mt-1 flex flex-col items-center gap-2">
-                    {priorityLabel(task)}
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                  {/* Left Section: Title, ID, Status, Priority, Tags */}
+                  <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h3 className="truncate text-sm font-medium text-white">
+                        {task.title}
+                      </h3>
+                      {task.task_id_text && (
+                        <span className="whitespace-nowrap text-[11px] text-slate-500">
+                          {task.task_id_text}
+                        </span>
+                      )}
+                      {priorityLabel(task)}
+                      {statusLabel(task)}
+                    </div>
+
+                    <p className="line-clamp-1 text-xs text-slate-400">
+                      {task.description}
+                    </p>
+
+                    <div className="flex flex-wrap items-center gap-3 text-[11px] text-slate-300">
+                      <span className="flex items-center gap-1">
+                        <span className="text-slate-500">By:</span>
+                        {task.creator?.full_name || 'System'}
+                      </span>
+                      <span className="text-slate-600">•</span>
+                      <span className="flex items-center gap-1">
+                        <span className="text-slate-500">To:</span>
+                        {task.assignee?.full_name || 'Unassigned'}
+                      </span>
+                      {task.department_name && (
+                        <>
+                          <span className="text-slate-600">•</span>
+                          <span className="flex items-center gap-1 text-slate-400">
+                            <Building className="h-3 w-3" />
+                            {task.department_name}
+                          </span>
+                        </>
+                      )}
+                    </div>
+
                     {task.tags && task.tags.length > 0 && (
-                      <div className="flex flex-wrap gap-1">
-                        {task.tags.slice(0, 2).map((tag, i) => (
+                      <div className="mt-1 flex flex-wrap gap-1">
+                        {task.tags.map((tag, i) => (
                           <span
                             key={i}
-                            className="rounded bg-white/5 px-1.5 py-0.5 text-[9px] text-slate-400"
+                            className="rounded bg-white/5 px-1.5 py-0.5 text-[10px] text-slate-400"
                           >
                             {tag}
                           </span>
                         ))}
-                        {task.tags.length > 2 && (
-                          <span className="rounded bg-white/5 px-1.5 py-0.5 text-[9px] text-slate-500">
-                            +{task.tags.length - 2}
-                          </span>
-                        )}
                       </div>
                     )}
                   </div>
 
-                  {/* Main content */}
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="min-w-0 flex-1">
-                        <div className="mb-1 flex flex-wrap items-center gap-2">
-                          <h3 className="truncate font-medium text-white">
-                            {task.title}
-                          </h3>
-                          {task.task_id_text && (
-                            <span className="whitespace-nowrap text-[11px] text-slate-500">
-                              {task.task_id_text}
-                            </span>
-                          )}
-                          {statusLabel(task)}
-                        </div>
-                        <p className="mb-2 line-clamp-2 text-sm text-slate-400">
-                          {task.description}
-                        </p>
-
-                        <div className="flex flex-wrap items-center gap-4 text-[11px] text-slate-500">
-                          {task.assignee && (
-                            <span className="flex items-center gap-1">
-                              <Users className="h-3 w-3" />
-                              {task.assignee.full_name}
-                            </span>
-                          )}
-                          {task.department_name && (
-                            <span className="flex items-center gap-1">
-                              <Building className="h-3 w-3" />
-                              {task.department_name}
-                            </span>
-                          )}
-                          {task.due_date && (
-                            <span
-                              className={`flex items-center gap-1 ${getSlaStatus(task).class}`}
-                            >
-                              <Clock className="h-3 w-3" />
-                              Due: {formatDate(task.due_date)} (
-                              {getSlaStatus(task).label})
-                            </span>
-                          )}
-                          {task.related_order_id && task.order && (
-                            <span className="flex items-center gap-1">
-                              <Package className="h-3 w-3" />
-                              Order: {task.order.order_number}
-                            </span>
-                          )}
-                          {task.related_product_id && task.product && (
-                            <span className="flex items-center gap-1">
-                              <Box className="h-3 w-3" />
-                              {task.product.name}
-                            </span>
-                          )}
-                          {task.related_ticket_id && task.ticket && (
-                            <span className="flex items-center gap-1">
-                              <Ticket className="h-3 w-3" />
-                              Ticket: {task.ticket.ticket_number}
-                            </span>
-                          )}
-                        </div>
+                  {/* Right Section: SLA, References, Actions */}
+                  <div className="flex items-center gap-4 sm:flex-col sm:items-end sm:justify-center sm:gap-2">
+                    {task.due_date && (
+                      <div
+                        className={`whitespace-nowrap text-[11px] font-medium ${
+                          getSlaStatus(task).class
+                        }`}
+                      >
+                        SLA: {getSlaStatus(task).label}
                       </div>
+                    )}
 
-                      {/* Actions */}
-                      <div className="flex items-center gap-1">
-                        <button
-                          className="rounded p-1.5 text-slate-500 transition-colors hover:bg-white/5 hover:text-white"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onTaskClick?.(task);
-                          }}
-                          title="View Details"
-                        >
-                          <Eye className="h-4 w-4" />
-                        </button>
-                        <button
-                          className="rounded p-1.5 text-slate-500 transition-colors hover:bg-white/5 hover:text-white"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            router.push(`/admin/task-manager/${task.id}/edit`);
-                          }}
-                          title="Edit"
-                        >
-                          <Edit className="h-4 w-4" />
-                        </button>
+                    {(task.related_order_id ||
+                      task.related_ticket_id ||
+                      task.related_product_id) && (
+                      <div className="flex flex-wrap gap-2 text-[11px] text-slate-500 sm:justify-end">
+                        {task.related_order_id && task.order && (
+                          <span className="flex items-center gap-1">
+                            <Package className="h-3 w-3" />
+                            {task.order.order_number}
+                          </span>
+                        )}
+                        {task.related_ticket_id && task.ticket && (
+                          <span className="flex items-center gap-1">
+                            <Ticket className="h-3 w-3" />
+                            {task.ticket.ticket_number}
+                          </span>
+                        )}
+                        {task.related_product_id && task.product && (
+                          <span className="flex items-center gap-1">
+                            <Box className="h-3 w-3" />
+                            {task.product.name}
+                          </span>
+                        )}
                       </div>
+                    )}
+
+                    <div className="flex items-center gap-1 sm:mt-1">
+                      <button
+                        className="rounded p-1.5 text-slate-500 transition-colors hover:bg-white/5 hover:text-white"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onTaskClick?.(task);
+                        }}
+                        title="View Details"
+                      >
+                        <Eye className="h-4 w-4" />
+                      </button>
+                      <button
+                        className="rounded p-1.5 text-slate-500 transition-colors hover:bg-white/5 hover:text-white"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          router.push(`/admin/task-manager/${task.id}/edit`);
+                        }}
+                        title="Edit"
+                      >
+                        <Edit className="h-4 w-4" />
+                      </button>
                     </div>
                   </div>
                 </div>

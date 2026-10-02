@@ -72,6 +72,7 @@ export async function GET(req: Request) {
     const dueAfter = searchParams.get('due_after');
     const search = searchParams.get('search');
     const myTasks = searchParams.get('my_tasks') === 'true';
+    const allMyTasks = searchParams.get('all_my_tasks') === 'true';
     const assignedByMe = searchParams.get('assigned_by_me') === 'true';
     const supporting = searchParams.get('supporting') === 'true';
     const spectating = searchParams.get('spectating') === 'true';
@@ -97,7 +98,14 @@ export async function GET(req: Request) {
 
     let accessibleIds: string[] | null = null;
 
-    if (!isAdmin && !myTasks && !assignedByMe && !supporting && !spectating) {
+    if (
+      !isAdmin &&
+      !allMyTasks &&
+      !myTasks &&
+      !assignedByMe &&
+      !supporting &&
+      !spectating
+    ) {
       const orParts = [
         `created_by.eq.${staffUser.id}`, // Always include creator's tasks
         `assignee_id.eq.${staffUser.id}`,
@@ -151,6 +159,10 @@ export async function GET(req: Request) {
     }
 
     if (myTasks) {
+      query = query.eq('assignee_id', staffUser.id);
+    }
+
+    if (allMyTasks) {
       query = query.or(
         `created_by.eq.${staffUser.id},assignee_id.eq.${staffUser.id}`
       );

@@ -235,6 +235,7 @@ export interface TaskFilters {
   due_after?: string;
   search?: string;
   my_tasks?: boolean;
+  all_my_tasks?: boolean;
   assigned_by_me?: boolean;
   due_today?: boolean;
   overdue?: boolean;
