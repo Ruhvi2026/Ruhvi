@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server';
 import { getServiceClient } from '@/lib/supabase/service';
 import { getAuthenticatedStaff } from '@/lib/auth/task-auth';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 function generateTaskIdText() {
   const ts = Date.now().toString(36).toUpperCase();
   const rand = Math.random().toString(36).substring(2, 6).toUpperCase();
@@ -314,14 +317,22 @@ export async function GET(req: Request) {
       department_name: t.department_name?.name ?? null,
     }));
 
-    return NextResponse.json({
-      tasks: normalizedTasks,
-      total: count || 0,
-      page: Math.floor(offset / limit) + 1,
-      limit,
-      has_more: (count || 0) > offset + limit,
-      success: true,
-    });
+    return NextResponse.json(
+      {
+        tasks: normalizedTasks,
+        total: count || 0,
+        page: Math.floor(offset / limit) + 1,
+        limit,
+        has_more: (count || 0) > offset + limit,
+        success: true,
+      },
+      {
+        headers: {
+          'Cache-Control':
+            'no-store, no-cache, must-revalidate, proxy-revalidate',
+        },
+      }
+    );
   } catch (err: any) {
     console.error('[Tasks GET] Error:', err);
     return NextResponse.json(

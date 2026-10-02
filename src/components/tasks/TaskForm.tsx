@@ -415,6 +415,9 @@ export default function TaskForm({
             await syncChecklist(savedTaskId);
           }
         }
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('task-created-or-updated'));
+        }
         router.push(basePath);
         router.refresh();
       } else {

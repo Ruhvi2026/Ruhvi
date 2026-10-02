@@ -64,6 +64,12 @@ export default function TaskDashboard({ initialStats }: TaskDashboardProps) {
     if (!initialStats) {
       fetchDashboard();
     }
+    const handleTaskUpdated = () => {
+      fetchDashboard();
+    };
+    window.addEventListener('task-created-or-updated', handleTaskUpdated);
+    return () =>
+      window.removeEventListener('task-created-or-updated', handleTaskUpdated);
   }, []);
 
   const fetchDashboard = async () => {

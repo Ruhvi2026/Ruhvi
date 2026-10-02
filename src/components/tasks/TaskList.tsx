@@ -126,6 +126,7 @@ export default function TaskList({
         }
       });
 
+      params.set('_t', String(Date.now()));
       return `/api/task-manager/tasks?${params.toString()}`;
     },
     [filters, limit]
@@ -139,7 +140,10 @@ export default function TaskList({
       setLoading(true);
       try {
         const url = buildApiUrl(pageNum, additionalFilters);
-        const response = await fetch(url);
+        const response = await fetch(url, {
+          cache: 'no-store',
+          headers: { 'Cache-Control': 'no-cache' },
+        });
         const data: TaskListResponse = await response.json();
 
         if (data.tasks) {
@@ -171,7 +175,16 @@ export default function TaskList({
       overdue: isOverdue,
     }));
     fetchTasks(1, { my_tasks: isMyTasks, overdue: isOverdue });
-  }, [pathname, searchParams?.toString(), refreshKey]); // Removed fetchTasks from dep to prevent loop if not wrapped properly
+  }, [pathname, searchParams?.toString(), refreshKey]);
+
+  useEffect(() => {
+    const handleTaskCreated = () => {
+      fetchTasks(1);
+    };
+    window.addEventListener('task-created-or-updated', handleTaskCreated);
+    return () =>
+      window.removeEventListener('task-created-or-updated', handleTaskCreated);
+  }, [fetchTasks]);
 
   const handleFilterChange = (key: keyof TaskFilters, value: any) => {
     const newFilters = { ...filters, [key]: value };

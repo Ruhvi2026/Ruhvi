@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server';
 import { getServiceClient } from '@/lib/supabase/service';
 import { getAuthenticatedStaff } from '@/lib/auth/task-auth';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 // One Supabase client per server process, created lazily so a missing env var
 // fails at request time rather than at module evaluation.
 let supabaseClient: ReturnType<typeof getServiceClient> | null = null;
