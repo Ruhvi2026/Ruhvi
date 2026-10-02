@@ -55,7 +55,7 @@ export default function TaskForm({
     department_id: '',
     priority_id: '',
     status_id: '',
-    type_id: '',
+    spectator_id: '',
     due_date: '',
     due_time: '',
     start_time: '',
@@ -111,6 +111,11 @@ export default function TaskForm({
 
   useEffect(() => {
     if (task) {
+      const initialSpectatorId =
+        task.spectators && task.spectators.length > 0
+          ? task.spectators[0].user_id || task.spectators[0].spectator?.id || ''
+          : '';
+
       setFormData({
         title: task.title || '',
         description: task.description || '',
@@ -118,7 +123,7 @@ export default function TaskForm({
         department_id: task.department_id || '',
         priority_id: task.priority_id || '',
         status_id: task.status_id || '',
-        type_id: task.type_id || '',
+        spectator_id: initialSpectatorId,
         due_date: task.due_date ? task.due_date.split('T')[0] : '',
         due_time: task.due_time || '',
         start_time: task.start_time ? task.start_time.split('T')[0] : '',
@@ -127,17 +132,11 @@ export default function TaskForm({
         related_product_id: task.related_product_id || '',
         related_ticket_id: task.related_ticket_id || '',
         tags: (task.tags || []).join(', '),
-        schedule_type:
-          (task.schedule_type as string) ||
-          (task.is_recurring ? 'weekly' : 'none'),
-        schedule_time:
-          task.schedule_time ||
-          (task.recurrence?.trigger_time
-            ? task.recurrence.trigger_time.slice(0, 5)
-            : '09:00'),
-        schedule_days: task.recurrence?.recurrence_days || ['saturday'],
-        schedule_day_of_month: task.recurrence?.day_of_month || 1,
-        remind_overdue: task.recurrence?.remind_overdue ?? true,
+        schedule_type: 'none',
+        schedule_time: '09:00',
+        schedule_days: ['saturday'],
+        schedule_day_of_month: 1,
+        remind_overdue: true,
       });
       if (task.department_id && !task.assignee_id) {
         setAssignmentType('department');
@@ -361,16 +360,11 @@ export default function TaskForm({
     if (!formData.title.trim()) newErrors.title = 'Title is required';
     if (!formData.description.trim())
       newErrors.description = 'Description is required';
+    if (!formData.assignee_id && !formData.department_id) {
+      newErrors.assignee_id = 'Assignment (Assignee or Department) is required';
+    }
     if (formData.due_date && isNaN(Date.parse(formData.due_date)))
       newErrors.due_date = 'Invalid due date';
-    if (
-      formData.related_order_id &&
-      !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
-        formData.related_order_id
-      )
-    ) {
-      // Allow any non-empty string for now - validation happens on backend
-    }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   }, [formData]);
@@ -604,12 +598,18 @@ export default function TaskForm({
           <div className="rounded-xl border border-white/10 bg-white/5 p-4 sm:p-5 lg:col-span-2">
             <div className="mb-3 flex items-center justify-between">
               <label className="flex items-center gap-2 text-sm font-semibold text-white">
-                <Users className="h-4 w-4 text-emerald-400" /> Assignment Mode
+                <Users className="h-4 w-4 text-emerald-400" /> Assignment Mode{' '}
+                <span className="text-rose-400">*</span>
               </label>
               <span className="text-xs font-normal text-slate-400">
                 Assign directly to individual staff or to a department manager
               </span>
             </div>
+            {errors.assignee_id && (
+              <p className="mb-3 text-xs font-medium text-rose-400">
+                {errors.assignee_id}
+              </p>
+            )}
 
             {/* Toggle Tabs */}
             <div className="mb-4 flex rounded-lg border border-white/5 bg-black/30 p-1">
@@ -646,14 +646,15 @@ export default function TaskForm({
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
                   <label className="mb-1 block text-xs font-medium text-slate-300">
-                    Assignee (Direct Staff)
+                    Assignee (Direct Staff){' '}
+                    <span className="text-rose-400">*</span>
                   </label>
                   <select
                     value={formData.assignee_id}
                     onChange={(e) => handleIndividualSelect(e.target.value)}
                     className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   >
-                    <option value="">Unassigned</option>
+                    <option value="">Select Assignee</option>
                     {staffList.map((u) => {
                       const dept = departments.find(
                         (d) => d.id === u.department_id
@@ -699,7 +700,7 @@ export default function TaskForm({
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
                   <label className="mb-1 block text-xs font-medium text-slate-300">
-                    Target Department
+                    Target Department <span className="text-rose-400">*</span>
                   </label>
                   <select
                     value={formData.department_id}
@@ -738,6 +739,39 @@ export default function TaskForm({
                 </div>
               </div>
             )}
+          </div>
+
+          {/* Suspector / Inspector (Progress Monitor) */}
+          <div className="rounded-xl border border-white/10 bg-white/5 p-4 sm:p-5 lg:col-span-2">
+            <div className="mb-2 flex items-center justify-between">
+              <label className="flex items-center gap-2 text-sm font-semibold text-white">
+                <Eye className="h-4 w-4 text-cyan-400" /> Suspector / Inspector
+                (Progress Monitor)
+              </label>
+              <span className="text-xs font-normal text-slate-400">
+                Any staff member who monitors task progress
+              </span>
+            </div>
+            <select
+              value={formData.spectator_id}
+              onChange={(e) => handleChange('spectator_id', e.target.value)}
+              className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            >
+              <option value="">None (No Suspector/Inspector)</option>
+              {staffList.map((u) => {
+                const dept = departments.find((d) => d.id === u.department_id);
+                return (
+                  <option key={u.id} value={u.id}>
+                    {u.full_name} {dept ? `[Dept: ${dept.name}]` : ''}{' '}
+                    {u.role ? `(${u.role})` : ''}
+                  </option>
+                );
+              })}
+            </select>
+            <p className="mt-1 text-[11px] text-slate-400">
+              The assigned suspector/inspector can monitor task progress,
+              activity, and updates.
+            </p>
           </div>
 
           {/* Due Date */}
@@ -802,7 +836,7 @@ export default function TaskForm({
           </div>
         </div>
 
-        {/* Advanced Options (collapsed by default — simple task creation stays simple) */}
+        {/* Advanced Options */}
         {showAdvanced && (
           <div className="space-y-6 rounded-lg border border-white/10 bg-white/5 p-4">
             <div>
@@ -810,261 +844,25 @@ export default function TaskForm({
                 Advanced Options
               </h3>
               <p className="text-xs text-slate-400">
-                Scheduled automation, recurring assignments, deadline reminders,
-                tags, subtasks, and dependencies.
+                Tags, subtasks, and dependencies for this task.
               </p>
             </div>
 
-            {/* Scheduled Automation & Recurrence */}
-            <div className="space-y-4 rounded-xl border border-white/10 bg-white/5 p-5">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Calendar className="h-5 w-5 text-emerald-400" />
-                  <h4 className="text-sm font-semibold text-white">
-                    Scheduled Automation & Recurring Rules
-                  </h4>
-                </div>
-                <span className="rounded border border-emerald-500/20 bg-emerald-500/10 px-2.5 py-0.5 text-[11px] font-medium text-emerald-400">
-                  {formData.schedule_type === 'none'
-                    ? 'Standard One-Time'
-                    : 'Automated Schedule'}
-                </span>
-              </div>
-              <p className="text-xs leading-relaxed text-slate-400">
-                Configure automatic recurring assignments (e.g. daily 9 AM order
-                dispatch check assigned to Order Department staff, or weekly
-                Saturday 9 PM low stock report assigned to Operations Manager)
-                with overdue reminders.
+            {/* Tags */}
+            <div>
+              <label className="mb-1 block text-sm font-medium text-slate-300">
+                Tags
+              </label>
+              <input
+                type="text"
+                value={formData.tags}
+                onChange={(e) => handleChange('tags', e.target.value)}
+                className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                placeholder="tag1, tag2, tag3"
+              />
+              <p className="mt-1 text-[11px] text-slate-500">
+                Separate tags with commas
               </p>
-
-              {/* Recurrence Pattern Selector */}
-              <div className="grid grid-cols-2 gap-2 pt-1 sm:grid-cols-5">
-                {[
-                  { id: 'none', label: 'One-time' },
-                  { id: 'daily', label: 'Daily (Every Day)' },
-                  { id: 'weekly', label: 'Weekly' },
-                  { id: 'monthly', label: 'Monthly' },
-                  { id: 'fixed', label: 'Fixed Schedule' },
-                ].map((pattern) => (
-                  <button
-                    key={pattern.id}
-                    type="button"
-                    onClick={() => handleChange('schedule_type', pattern.id)}
-                    className={`rounded-lg border px-3 py-2.5 text-center text-xs font-medium transition-all ${
-                      formData.schedule_type === pattern.id
-                        ? 'border-emerald-500 bg-emerald-500/20 font-semibold text-white shadow-sm'
-                        : 'border-white/10 bg-black/20 text-slate-400 hover:border-white/20 hover:text-white'
-                    }`}
-                  >
-                    {pattern.label}
-                  </button>
-                ))}
-              </div>
-
-              {/* When Recurring or Fixed is selected */}
-              {formData.schedule_type !== 'none' && (
-                <div className="space-y-4 border-t border-white/10 pt-3">
-                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                    {/* Trigger / Assignment Time */}
-                    <div>
-                      <label className="mb-1 block text-xs font-medium text-slate-300">
-                        <Clock className="mr-1 inline h-3.5 w-3.5 text-emerald-400" />
-                        Assignment Time (e.g. 09:00 AM)
-                      </label>
-                      <input
-                        type="time"
-                        value={formData.schedule_time}
-                        onChange={(e) =>
-                          handleChange('schedule_time', e.target.value)
-                        }
-                        className="w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                      />
-                      <p className="mt-1 text-[11px] text-slate-400">
-                        Time when task is automatically assigned to{' '}
-                        {assignmentType === 'department'
-                          ? 'the department manager'
-                          : 'the assigned staff'}
-                        .
-                      </p>
-                    </div>
-
-                    {/* Deadline Due Time */}
-                    <div>
-                      <label className="mb-1 block text-xs font-medium text-slate-300">
-                        <Clock className="mr-1 inline h-3.5 w-3.5 text-amber-400" />
-                        Completion Deadline (Due Time, e.g. 09:00 PM)
-                      </label>
-                      <input
-                        type="time"
-                        value={formData.due_time}
-                        onChange={(e) =>
-                          handleChange('due_time', e.target.value)
-                        }
-                        className="w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                      />
-                      <p className="mt-1 text-[11px] text-slate-400">
-                        Deadline by which staff must complete and mark the task
-                        done.
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Weekly Day Selector */}
-                  {formData.schedule_type === 'weekly' && (
-                    <div>
-                      <label className="mb-1.5 block text-xs font-medium text-slate-300">
-                        Active Days of the Week
-                      </label>
-                      <div className="flex flex-wrap gap-2">
-                        {[
-                          'monday',
-                          'tuesday',
-                          'wednesday',
-                          'thursday',
-                          'friday',
-                          'saturday',
-                          'sunday',
-                        ].map((day) => {
-                          const isSelected = (
-                            formData.schedule_days || []
-                          ).includes(day);
-                          return (
-                            <button
-                              key={day}
-                              type="button"
-                              onClick={() => {
-                                const current = formData.schedule_days || [];
-                                const updated = isSelected
-                                  ? current.filter((d: string) => d !== day)
-                                  : [...current, day];
-                                setFormData((prev) => ({
-                                  ...prev,
-                                  schedule_days: updated,
-                                }));
-                              }}
-                              className={`rounded-lg border px-3.5 py-1.5 text-xs font-medium capitalize transition-all ${
-                                isSelected
-                                  ? 'border-emerald-500 bg-emerald-500/20 font-semibold text-emerald-300 shadow'
-                                  : 'border-white/10 bg-black/20 text-slate-400 hover:text-white'
-                              }`}
-                            >
-                              {day.slice(0, 3)}
-                            </button>
-                          );
-                        })}
-                      </div>
-                      <p className="mt-1.5 text-[11px] text-slate-400">
-                        Example: Select <strong>Sat</strong> for weekly low
-                        stock reports till 9 PM.
-                      </p>
-                    </div>
-                  )}
-
-                  {/* Monthly Day of Month Selector */}
-                  {formData.schedule_type === 'monthly' && (
-                    <div>
-                      <label className="mb-1 block text-xs font-medium text-slate-300">
-                        Day of the Month (1-31)
-                      </label>
-                      <input
-                        type="number"
-                        min={1}
-                        max={31}
-                        value={formData.schedule_day_of_month || 1}
-                        onChange={(e) =>
-                          handleChange('schedule_day_of_month', e.target.value)
-                        }
-                        className="w-32 rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                      />
-                    </div>
-                  )}
-
-                  {/* Fixed Schedule Date */}
-                  {formData.schedule_type === 'fixed' && (
-                    <div>
-                      <label className="mb-1 block text-xs font-medium text-slate-300">
-                        Scheduled Target Date
-                      </label>
-                      <input
-                        type="date"
-                        value={formData.due_date}
-                        onChange={(e) =>
-                          handleChange('due_date', e.target.value)
-                        }
-                        className="w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 sm:w-64"
-                      />
-                    </div>
-                  )}
-
-                  {/* Overdue Reminder Checkbox */}
-                  <div className="flex items-start gap-3 rounded-lg border border-amber-500/20 bg-amber-500/5 p-3.5">
-                    <input
-                      type="checkbox"
-                      id="remind_overdue"
-                      checked={formData.remind_overdue}
-                      onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          remind_overdue: e.target.checked,
-                        }))
-                      }
-                      className="mt-0.5 h-4 w-4 rounded border-amber-500/30 bg-black/40 text-amber-500 focus:ring-amber-500"
-                    />
-                    <label
-                      htmlFor="remind_overdue"
-                      className="cursor-pointer text-xs"
-                    >
-                      <span className="flex items-center gap-1.5 font-semibold text-amber-300">
-                        <Bell className="h-3.5 w-3.5" />
-                        Send Reminder Notification on Overdue / Non-Completion
-                      </span>
-                      <span className="mt-1 block leading-relaxed text-slate-400">
-                        If the task is not marked completed before the deadline,
-                        an automated reminder notification will be dispatched to
-                        the assignee or department manager.
-                      </span>
-                    </label>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-              {/* Task Type */}
-              <div>
-                <label className="mb-1 block text-sm font-medium text-slate-300">
-                  Task Type
-                </label>
-                <select
-                  value={formData.type_id}
-                  onChange={(e) => handleChange('type_id', e.target.value)}
-                  className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                >
-                  <option value="">Select Type</option>
-                  {initialTypes.map((t) => (
-                    <option key={t.id} value={t.id}>
-                      {t.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Tags */}
-              <div>
-                <label className="mb-1 block text-sm font-medium text-slate-300">
-                  Tags
-                </label>
-                <input
-                  type="text"
-                  value={formData.tags}
-                  onChange={(e) => handleChange('tags', e.target.value)}
-                  className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                  placeholder="tag1, tag2, tag3"
-                />
-                <p className="mt-1 text-[11px] text-slate-500">
-                  Separate tags with commas
-                </p>
-              </div>
             </div>
 
             {/* Subtasks / Checklist */}

@@ -250,7 +250,6 @@ export async function PUT(
         assigned_by: staffUser.id,
       });
 
-      // Notify new assignee
       if (body.assignee_id !== staffUser.id) {
         await supabase.from('notifications').insert({
           user_id: body.assignee_id,
@@ -261,6 +260,40 @@ export async function PUT(
           reference_id: id,
           actor_id: staffUser.id,
         });
+      }
+    }
+
+    // Handle Suspector / Inspector update
+    const spectatorId =
+      body.spectator_id !== undefined
+        ? body.spectator_id
+        : body.inspector_id !== undefined
+          ? body.inspector_id
+          : body.suspector_id;
+    if (spectatorId !== undefined) {
+      await supabase.from('task_spectators').delete().eq('task_id', id);
+      if (
+        spectatorId &&
+        typeof spectatorId === 'string' &&
+        spectatorId.trim()
+      ) {
+        await supabase.from('task_spectators').insert({
+          task_id: id,
+          user_id: spectatorId.trim(),
+          added_by: staffUser.id,
+        });
+
+        if (spectatorId.trim() !== staffUser.id) {
+          await supabase.from('notifications').insert({
+            user_id: spectatorId.trim(),
+            title: 'Assigned as Task Inspector/Suspector',
+            message: `You have been assigned as an inspector/suspector to task "${updatedTask.title}"`,
+            category: 'TASK_SPECTATOR',
+            reference_type: 'task',
+            reference_id: id,
+            actor_id: staffUser.id,
+          });
+        }
       }
     }
 

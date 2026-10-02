@@ -467,7 +467,7 @@ export default function TaskDetail({
             </div>
 
             {/* Metadata Grid */}
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
               <div className="rounded-lg border border-white/10 bg-white/5 p-4">
                 <span className="text-[11px] font-medium text-slate-500">
                   Created By
@@ -482,6 +482,17 @@ export default function TaskDetail({
                 </span>
                 <p className="mt-1 text-sm font-medium text-white">
                   {task.assignee?.full_name || 'Unassigned'}
+                </p>
+              </div>
+              <div className="rounded-lg border border-white/10 bg-white/5 p-4">
+                <span className="flex items-center gap-1 text-[11px] font-medium text-slate-500">
+                  <Eye className="h-3 w-3 text-cyan-400" /> Suspector /
+                  Inspector
+                </span>
+                <p className="mt-1 text-sm font-medium text-cyan-300">
+                  {task.spectators && task.spectators.length > 0
+                    ? task.spectators[0].spectator?.full_name || 'Assigned'
+                    : 'None'}
                 </p>
               </div>
               <div className="rounded-lg border border-white/10 bg-white/5 p-4">

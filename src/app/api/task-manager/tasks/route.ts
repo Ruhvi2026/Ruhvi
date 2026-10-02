@@ -455,32 +455,13 @@ export async function POST(req: Request) {
       if (!departmentId && assignee.department_id) {
         departmentId = assignee.department_id;
       }
-    } else if (departmentId) {
-      // If task is assigned to a department, automatically assign to that department's manager
-      const { data: mgr } = await supabase
-        .from('users')
-        .select('id')
-        .eq('department_id', departmentId)
-        .eq('role', 'manager')
-        .eq('account_status', 'active')
-        .limit(1)
-        .maybeSingle();
+    }
 
-      if (mgr) {
-        assigneeId = mgr.id;
-      } else {
-        const { data: fallbackMgr } = await supabase
-          .from('users')
-          .select('id')
-          .eq('department_id', departmentId)
-          .in('role', ['admin', 'super_admin'])
-          .eq('account_status', 'active')
-          .limit(1)
-          .maybeSingle();
-        if (fallbackMgr) {
-          assigneeId = fallbackMgr.id;
-        }
-      }
+    if (!assigneeId && !departmentId) {
+      return NextResponse.json(
+        { error: 'Assignment (Assignee or Department) is required' },
+        { status: 400 }
+      );
     }
 
     const payload: Record<string, unknown> = {
@@ -580,6 +561,33 @@ export async function POST(req: Request) {
           title: 'New Task Assigned to You',
           message: `Task "${title}" has been assigned to you`,
           category: 'TASK_ASSIGNMENT',
+          reference_type: 'task',
+          reference_id: createdTask.id,
+          actor_id: staffUser.id,
+        });
+      }
+    }
+
+    // Insert Suspector / Inspector if selected
+    const spectatorId =
+      body.spectator_id || body.inspector_id || body.suspector_id;
+    if (
+      spectatorId &&
+      typeof spectatorId === 'string' &&
+      UUID_RE.test(spectatorId.trim())
+    ) {
+      await supabase.from('task_spectators').insert({
+        task_id: createdTask.id,
+        user_id: spectatorId.trim(),
+        added_by: staffUser.id,
+      });
+
+      if (spectatorId.trim() !== staffUser.id) {
+        await supabase.from('notifications').insert({
+          user_id: spectatorId.trim(),
+          title: 'Assigned as Task Inspector/Suspector',
+          message: `You have been added as an inspector/suspector to task "${title}"`,
+          category: 'TASK_SPECTATOR',
           reference_type: 'task',
           reference_id: createdTask.id,
           actor_id: staffUser.id,
