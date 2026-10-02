@@ -101,7 +101,7 @@ const getOrdersNavGroups = (): NavGroup[] => [
     items: [
       {
         label: 'Task Manager',
-        href: 'https://admin.ruhvi.in/admin/task-manager',
+        href: '/portal-orders/task-manager',
         icon: ClipboardList,
       },
     ],

@@ -131,7 +131,7 @@ const getMarketingNavGroups = (): NavGroup[] => [
     items: [
       {
         label: 'Task Manager',
-        href: 'https://admin.ruhvi.in/admin/task-manager',
+        href: '/marketing/task-manager',
         icon: ClipboardList,
       },
     ],
