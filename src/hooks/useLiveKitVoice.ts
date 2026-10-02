@@ -181,7 +181,12 @@ export function useLiveKitVoice(options: UseLiveKitVoiceOptions = {}) {
         });
 
         if (!res.ok) {
-          throw new Error(`Co-Founder brain returned status ${res.status}`);
+          const errData = await res.json().catch(() => ({}));
+          throw new Error(
+            errData.error ||
+              errData.response ||
+              `Co-Founder brain returned status ${res.status}`
+          );
         }
 
         const data = await res.json();
@@ -199,7 +204,9 @@ export function useLiveKitVoice(options: UseLiveKitVoiceOptions = {}) {
       } catch (err: any) {
         console.error('Co-Founder brain error:', err);
         const errMsg =
-          'I had trouble processing that request. Could you please repeat?';
+          err?.message && !err.message.includes('status')
+            ? err.message
+            : 'I had trouble processing that request. Could you please repeat?';
         options.onTranscript?.('assistant', errMsg);
         speakResponse(errMsg);
       }

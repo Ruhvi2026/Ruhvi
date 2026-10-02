@@ -54,20 +54,69 @@ export async function POST(req: NextRequest) {
     }
 
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({
-      model: 'gemini-flash-latest',
-      systemInstruction: systemPrompt,
-    });
 
-    // 3. Format history for Google Gen AI
-    const history = messages.slice(0, -1).map((m: any) => ({
-      role: m.sender === 'user' ? 'user' : 'model',
-      parts: [{ text: m.text }],
-    }));
+    // 3. Format & sanitize history for Google Gen AI
+    // Gemini SDK strictly requires history to start with role 'user' and alternate user -> model
+    const rawHistory = messages.slice(0, -1);
+    const firstUserIdx = rawHistory.findIndex((m: any) => m.sender === 'user');
+    const validHistory: Array<{
+      role: 'user' | 'model';
+      parts: [{ text: string }];
+    }> = [];
 
-    const chat = model.startChat({ history });
-    const result = await chat.sendMessage(latest.text);
-    const responseText = result.response.text();
+    if (firstUserIdx !== -1) {
+      let expectedRole: 'user' | 'model' = 'user';
+      for (let i = firstUserIdx; i < rawHistory.length; i++) {
+        const m = rawHistory[i];
+        const role = m.sender === 'user' ? 'user' : 'model';
+        if (role === expectedRole && m.text?.trim()) {
+          validHistory.push({
+            role,
+            parts: [{ text: m.text.trim() }],
+          });
+          expectedRole = expectedRole === 'user' ? 'model' : 'user';
+        }
+      }
+    }
+
+    // 4. Model hierarchy with automatic fallback
+    const candidateModels = [
+      'gemini-3.5-flash-lite',
+      'gemini-flash-latest',
+      'gemini-3.8-flash',
+    ];
+
+    let responseText = '';
+    let lastError: any = null;
+
+    for (const modelName of candidateModels) {
+      try {
+        const model = genAI.getGenerativeModel({
+          model: modelName,
+          systemInstruction: systemPrompt,
+          generationConfig: {
+            temperature: 0.3,
+            maxOutputTokens: channel === 'voice' ? 300 : 1000,
+          },
+        });
+
+        const chat = model.startChat({ history: validHistory });
+        const result = await chat.sendMessage(latest.text);
+        responseText = result.response.text();
+        if (responseText) break;
+      } catch (err: any) {
+        lastError = err;
+        console.warn(
+          `[Co-Founder Chat] Model ${modelName} failed, attempting next:`,
+          err?.message
+        );
+        continue;
+      }
+    }
+
+    if (!responseText) {
+      throw lastError || new Error('No candidate Gemini model responded.');
+    }
 
     return NextResponse.json({
       response: responseText,
@@ -78,7 +127,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       {
         error: error?.message || 'Co-Founder service temporarily unavailable',
-        response: `I encountered an unexpected issue processing that request: ${error?.message || 'Please try again.'}`,
+        response: `I encountered an issue processing that: ${error?.message || 'Please try again.'}`,
       },
       { status: 500 }
     );
