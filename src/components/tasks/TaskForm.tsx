@@ -143,8 +143,9 @@ export default function TaskForm({
           (task.recurrence?.trigger_time
             ? task.recurrence.trigger_time.slice(0, 5)
             : '09:00'),
-        schedule_days:
-          (task.recurrence?.recurrence_days as string[]) || ['saturday'],
+        schedule_days: (task.recurrence?.recurrence_days as string[]) || [
+          'saturday',
+        ],
         schedule_day_of_month: task.recurrence?.day_of_month || 1,
         remind_overdue:
           task.recurrence?.remind_overdue !== undefined
