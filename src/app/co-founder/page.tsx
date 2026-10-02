@@ -24,6 +24,9 @@ import {
   BarChart3,
   Target,
   Zap,
+  Activity,
+  Radio,
+  Wifi,
 } from 'lucide-react';
 import { LiveVoiceVisualizer } from '@/components/co-founder/LiveVoiceVisualizer';
 import { useLiveKitVoice } from '@/hooks/useLiveKitVoice';
@@ -65,9 +68,13 @@ export default function CoFounderPortalPage() {
   const [pendingApprovals, setPendingApprovals] = useState<any[]>([]);
   const [loadingWidgets, setLoadingWidgets] = useState(false);
   const [selectedWidgetTab, setSelectedWidgetTab] = useState<
-    'alerts' | 'approvals' | 'competitors' | 'seo' | 'architecture'
+    'alerts' | 'approvals' | 'competitors' | 'seo' | 'architecture' | 'usage'
   >('alerts');
   const [architectureInfo, setArchitectureInfo] = useState<any>(null);
+
+  // LiveKit Usage State
+  const [liveKitUsage, setLiveKitUsage] = useState<any>(null);
+  const [loadingUsage, setLoadingUsage] = useState(false);
 
   // Competitor Tracking States
   const [competitors, setCompetitors] = useState<any[]>([]);
@@ -224,8 +231,24 @@ export default function CoFounderPortalPage() {
     }
   };
 
+  const fetchLiveKitUsage = async () => {
+    try {
+      setLoadingUsage(true);
+      const res = await fetch('/api/admin/co-founder/livekit-usage');
+      if (res.ok) {
+        const data = await res.json();
+        setLiveKitUsage(data);
+      }
+    } catch (err) {
+      console.error('Failed to load LiveKit usage:', err);
+    } finally {
+      setLoadingUsage(false);
+    }
+  };
+
   useEffect(() => {
     fetchAIModels();
+    fetchLiveKitUsage();
     refreshStrategicWidgets();
     fetchCompetitors();
     fetchSeoReport();
@@ -450,8 +473,28 @@ export default function CoFounderPortalPage() {
                 Executive Portal
               </span>
             </h1>
-            <p className="text-xs text-neutral-400">
-              LiveKit Multimodal Voice & Strategic Decision Engine
+            <p className="flex flex-wrap items-center gap-2 text-xs text-neutral-400">
+              <span>LiveKit Multimodal Voice & Strategic Decision Engine</span>
+              {liveKitUsage && (
+                <button
+                  onClick={() => {
+                    setSelectedWidgetTab('usage');
+                    fetchLiveKitUsage();
+                  }}
+                  title="Click to view LiveKit Cloud Free Tier analytics"
+                  className="inline-flex items-center gap-1 rounded border border-neutral-800 bg-neutral-900 px-1.5 py-0.5 font-mono text-[10px] text-emerald-400 transition-colors hover:border-amber-500/40"
+                >
+                  <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />
+                  <span>
+                    Free:{' '}
+                    {(
+                      10000 -
+                      (liveKitUsage.quotas?.participantMinutes?.used ?? 0)
+                    ).toLocaleString()}{' '}
+                    mins left
+                  </span>
+                </button>
+              )}
             </p>
           </div>
         </div>
@@ -731,16 +774,43 @@ export default function CoFounderPortalPage() {
               >
                 Architecture
               </button>
+              <button
+                onClick={() => {
+                  setSelectedWidgetTab('usage');
+                  fetchLiveKitUsage();
+                }}
+                className={`flex items-center gap-1.5 rounded-md px-2.5 py-1 text-[11px] transition-colors ${
+                  selectedWidgetTab === 'usage'
+                    ? 'bg-amber-500/20 font-semibold text-amber-400'
+                    : 'text-neutral-400 hover:text-neutral-200'
+                }`}
+              >
+                <Activity
+                  size={11}
+                  className={
+                    selectedWidgetTab === 'usage'
+                      ? 'text-amber-400'
+                      : 'text-neutral-500'
+                  }
+                />
+                <span>LiveKit Usage</span>
+                <span className="py-0.2 rounded border border-emerald-500/30 bg-emerald-500/20 px-1 font-mono text-[8px] text-emerald-400">
+                  Free
+                </span>
+              </button>
             </div>
             <button
-              onClick={refreshStrategicWidgets}
-              disabled={loadingWidgets}
+              onClick={() => {
+                refreshStrategicWidgets();
+                if (selectedWidgetTab === 'usage') fetchLiveKitUsage();
+              }}
+              disabled={loadingWidgets || loadingUsage}
               title="Refresh Intelligence"
               className="p-1 transition-colors hover:text-white"
             >
               <RefreshCw
                 size={12}
-                className={loadingWidgets ? 'animate-spin' : ''}
+                className={loadingWidgets || loadingUsage ? 'animate-spin' : ''}
               />
             </button>
           </div>
@@ -748,8 +818,10 @@ export default function CoFounderPortalPage() {
           {/* Quick Intelligence Drawer */}
           <div
             className={`overflow-y-auto border-b border-neutral-800/60 bg-neutral-900/30 p-3 transition-all duration-200 ${
-              selectedWidgetTab === 'competitors' || selectedWidgetTab === 'seo'
-                ? 'max-h-80'
+              selectedWidgetTab === 'competitors' ||
+              selectedWidgetTab === 'seo' ||
+              selectedWidgetTab === 'usage'
+                ? 'max-h-96'
                 : 'max-h-44'
             }`}
           >
@@ -1099,6 +1171,229 @@ export default function CoFounderPortalPage() {
                   {architectureInfo?.activeIntegrations?.join(', ') ||
                     'LiveKit, Gemini, Supabase, Firebase, Sentry'}
                 </p>
+              </div>
+            )}
+
+            {selectedWidgetTab === 'usage' && (
+              <div className="space-y-3">
+                {/* Free Tier Header Banner */}
+                <div className="flex flex-col items-start justify-between gap-2 rounded-xl border border-neutral-800 bg-neutral-900/90 p-2.5 sm:flex-row sm:items-center">
+                  <div className="flex items-center gap-2.5">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-amber-500/30 bg-amber-500/20 text-xs font-bold text-amber-400">
+                      <Radio className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <p className="text-xs font-semibold text-white">
+                          LiveKit Cloud Developer Tier
+                        </p>
+                        <span className="py-0.2 flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-500/20 px-1.5 text-[9px] font-bold uppercase tracking-wider text-emerald-400">
+                          <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />
+                          Free Tier
+                        </span>
+                      </div>
+                      <p className="text-[10px] text-neutral-400">
+                        Host:{' '}
+                        {liveKitUsage?.cloudHost
+                          ? liveKitUsage.cloudHost.replace(/^https?:\/\//, '')
+                          : 'ruhvi-rkkfx6qd.livekit.cloud'}{' '}
+                        • Cycle resets in{' '}
+                        {liveKitUsage?.billingPeriod?.daysRemaining ?? 29} days
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 self-end sm:self-auto">
+                    <a
+                      href="https://cloud.livekit.io"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="flex items-center gap-1 rounded bg-neutral-800 px-2 py-1 text-[10px] text-neutral-300 transition-colors hover:bg-neutral-700"
+                    >
+                      <span>LiveKit Console</span>
+                      <ExternalLink size={10} />
+                    </a>
+                    <button
+                      onClick={fetchLiveKitUsage}
+                      disabled={loadingUsage}
+                      className="flex items-center gap-1 rounded bg-amber-500 px-2.5 py-1 text-[10px] font-bold text-neutral-950 transition-colors hover:bg-amber-600 disabled:opacity-50"
+                    >
+                      <RefreshCw
+                        size={10}
+                        className={loadingUsage ? 'animate-spin' : ''}
+                      />
+                      <span>{loadingUsage ? 'Syncing...' : 'Sync Live'}</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* 3 Quota Cards Grid */}
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+                  {/* Participant Minutes */}
+                  <div className="space-y-1.5 rounded-xl border border-neutral-800 bg-neutral-900/80 p-2.5">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] font-semibold text-neutral-300">
+                        Voice Minutes
+                      </span>
+                      <span className="font-mono text-[10px] font-bold text-amber-400">
+                        {liveKitUsage?.quotas?.participantMinutes?.used ?? 0} /
+                        10,000 m
+                      </span>
+                    </div>
+                    <div className="h-2 w-full overflow-hidden rounded-full bg-neutral-800">
+                      <div
+                        className="h-full rounded-full bg-gradient-to-r from-amber-500 to-emerald-400 transition-all duration-300"
+                        style={{
+                          width: `${Math.max(1, liveKitUsage?.quotas?.participantMinutes?.percent ?? 0.5)}%`,
+                        }}
+                      />
+                    </div>
+                    <div className="flex items-center justify-between text-[9px] text-neutral-400">
+                      <span>
+                        {(
+                          10000 -
+                          (liveKitUsage?.quotas?.participantMinutes?.used ?? 0)
+                        ).toLocaleString()}{' '}
+                        mins left
+                      </span>
+                      <span className="font-semibold text-emerald-400">
+                        10,000 FREE / Mo
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Bandwidth GB */}
+                  <div className="space-y-1.5 rounded-xl border border-neutral-800 bg-neutral-900/80 p-2.5">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] font-semibold text-neutral-300">
+                        Data Transfer
+                      </span>
+                      <span className="font-mono text-[10px] font-bold text-cyan-400">
+                        {liveKitUsage?.quotas?.bandwidthGB?.used ?? 0} / 25 GB
+                      </span>
+                    </div>
+                    <div className="h-2 w-full overflow-hidden rounded-full bg-neutral-800">
+                      <div
+                        className="h-full rounded-full bg-gradient-to-r from-cyan-500 to-blue-400 transition-all duration-300"
+                        style={{
+                          width: `${Math.max(1, liveKitUsage?.quotas?.bandwidthGB?.percent ?? 0.2)}%`,
+                        }}
+                      />
+                    </div>
+                    <div className="flex items-center justify-between text-[9px] text-neutral-400">
+                      <span>
+                        {(
+                          25 - (liveKitUsage?.quotas?.bandwidthGB?.used ?? 0)
+                        ).toFixed(2)}{' '}
+                        GB left
+                      </span>
+                      <span className="font-semibold text-cyan-400">
+                        25 GB FREE / Mo
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Concurrent Connections */}
+                  <div className="space-y-1.5 rounded-xl border border-neutral-800 bg-neutral-900/80 p-2.5">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] font-semibold text-neutral-300">
+                        Active Connections
+                      </span>
+                      <span className="font-mono text-[10px] font-bold text-emerald-400">
+                        {liveKitUsage?.liveMetrics?.activeParticipantsCount ??
+                          0}{' '}
+                        / 100 max
+                      </span>
+                    </div>
+                    <div className="h-2 w-full overflow-hidden rounded-full bg-neutral-800">
+                      <div
+                        className="h-full rounded-full bg-emerald-500 transition-all duration-300"
+                        style={{
+                          width: `${Math.max(1, (liveKitUsage?.liveMetrics?.activeParticipantsCount ?? 0) * 1)}%`,
+                        }}
+                      />
+                    </div>
+                    <div className="flex items-center justify-between text-[9px] text-neutral-400">
+                      <span>
+                        {liveKitUsage?.liveMetrics?.activeRoomsCount ?? 0}{' '}
+                        Active Rooms
+                      </span>
+                      <span className="font-semibold text-emerald-400">
+                        100 Simultaneous
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Live SFU Room Status */}
+                <div className="space-y-2 rounded-xl border border-neutral-800 bg-neutral-950/70 p-2.5">
+                  <div className="flex items-center justify-between text-[11px]">
+                    <span className="flex items-center gap-1.5 font-semibold text-white">
+                      <Wifi size={13} className="text-emerald-400" />
+                      Live WebRTC SFU Audio Status
+                    </span>
+                    <span className="font-mono text-[10px] text-neutral-400">
+                      {liveKitUsage?.liveMetrics?.activeRoomsCount
+                        ? `${liveKitUsage.liveMetrics.activeRoomsCount} active call`
+                        : 'Standby / Ready'}
+                    </span>
+                  </div>
+
+                  {liveKitUsage?.liveMetrics?.activeRooms &&
+                  liveKitUsage.liveMetrics.activeRooms.length > 0 ? (
+                    <div className="space-y-1.5">
+                      {liveKitUsage.liveMetrics.activeRooms.map((room: any) => (
+                        <div
+                          key={room.sid}
+                          className="flex items-center justify-between rounded-lg border border-neutral-800 bg-neutral-900/80 p-2 text-xs"
+                        >
+                          <div className="flex items-center gap-2">
+                            <span className="h-2 w-2 animate-ping rounded-full bg-emerald-400" />
+                            <span className="font-mono font-semibold text-amber-300">
+                              {room.name}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-3 text-[10px] text-neutral-400">
+                            <span>👥 {room.numParticipants} connected</span>
+                            <span>
+                              ⏱️ {Math.round(room.uptimeSeconds / 60)}m{' '}
+                              {room.uptimeSeconds % 60}s uptime
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-[10px] italic text-neutral-500">
+                      No active WebRTC rooms right now. Speak with AI Co-Founder
+                      via &apos;Realtime Voice&apos; on the left to start a
+                      call.
+                    </p>
+                  )}
+                </div>
+
+                {/* Supported Services Checklist */}
+                <div className="space-y-1 text-[11px] text-neutral-300">
+                  <div className="flex items-center justify-between border-b border-neutral-800/60 pb-1 text-[10px] font-semibold text-neutral-400">
+                    <span>LIVEKIT CLOUD SERVICE</span>
+                    <span>FREE TIER ALLOTMENT</span>
+                  </div>
+                  {liveKitUsage?.supportedServices?.map(
+                    (svc: any, idx: number) => (
+                      <div
+                        key={idx}
+                        className="flex items-center justify-between py-0.5 text-[10px]"
+                      >
+                        <span className="flex items-center gap-1.5 text-neutral-300">
+                          <CheckCircle size={10} className="text-emerald-400" />
+                          {svc.name}
+                        </span>
+                        <span className="font-mono text-emerald-400/90">
+                          {svc.tier}
+                        </span>
+                      </div>
+                    )
+                  )}
+                </div>
               </div>
             )}
           </div>
