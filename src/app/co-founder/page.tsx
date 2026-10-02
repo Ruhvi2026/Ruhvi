@@ -23,6 +23,7 @@ import {
   Plus,
   BarChart3,
   Target,
+  Zap,
 } from 'lucide-react';
 import { LiveVoiceVisualizer } from '@/components/co-founder/LiveVoiceVisualizer';
 import { useLiveKitVoice } from '@/hooks/useLiveKitVoice';
@@ -32,6 +33,9 @@ interface ChatMessage {
   id: string;
   sender: 'user' | 'assistant';
   text: string;
+  provider?: string;
+  model?: string;
+  fallbackUsed?: boolean;
   timestamp?: number;
 }
 
@@ -47,6 +51,14 @@ export default function CoFounderPortalPage() {
     },
   ]);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Model & Provider Selection State
+  const [providers, setProviders] = useState<any[]>([]);
+  const [selectedProvider, setSelectedProvider] = useState<string>('auto');
+  const [selectedModel, setSelectedModel] = useState<string>('auto');
+  const [selectedLanguage, setSelectedLanguage] = useState<string>('en-IN');
+  const [fallbackChain, setFallbackChain] = useState<any[]>([]);
+  const [loadingModels, setLoadingModels] = useState<boolean>(true);
 
   // Quick Widget States
   const [proactiveSignals, setProactiveSignals] = useState<any[]>([]);
@@ -71,13 +83,19 @@ export default function CoFounderPortalPage() {
 
   // Realtime LiveKit Voice Hook
   const voice = useLiveKitVoice({
-    onTranscript: (speaker, text) => {
+    provider: selectedProvider,
+    model: selectedModel,
+    language: selectedLanguage,
+    onTranscript: (speaker, text, meta) => {
       setMessages((prev) => [
         ...prev,
         {
           id: Date.now().toString(),
           sender: speaker,
           text,
+          provider: meta?.provider,
+          model: meta?.model,
+          fallbackUsed: meta?.fallbackUsed,
           timestamp: Date.now(),
         },
       ]);
@@ -161,7 +179,53 @@ export default function CoFounderPortalPage() {
     }
   };
 
+  const fetchAIModels = async () => {
+    try {
+      setLoadingModels(true);
+      const res = await fetch('/api/admin/co-founder/models');
+      if (res.ok) {
+        const data = await res.json();
+        setProviders(data.providers || []);
+        setFallbackChain(data.fallbackChain || []);
+
+        const savedProvider =
+          typeof window !== 'undefined'
+            ? localStorage.getItem('ruhvi_co_founder_provider')
+            : null;
+        const savedModel =
+          typeof window !== 'undefined'
+            ? localStorage.getItem('ruhvi_co_founder_model')
+            : null;
+
+        if (savedProvider) {
+          setSelectedProvider(savedProvider);
+        } else if (data.currentConfig?.provider) {
+          setSelectedProvider(data.currentConfig.provider);
+        }
+
+        if (savedModel) {
+          setSelectedModel(savedModel);
+        } else if (data.currentConfig?.model) {
+          setSelectedModel(data.currentConfig.model);
+        }
+
+        const savedLang =
+          typeof window !== 'undefined'
+            ? localStorage.getItem('ruhvi_co_founder_lang')
+            : null;
+        if (savedLang) {
+          setSelectedLanguage(savedLang);
+        }
+      }
+    } catch (e) {
+      console.error('Failed to load AI models:', e);
+    } finally {
+      setLoadingModels(false);
+    }
+  };
+
   useEffect(() => {
+    fetchAIModels();
     refreshStrategicWidgets();
     fetchCompetitors();
     fetchSeoReport();
@@ -194,6 +258,8 @@ export default function CoFounderPortalPage() {
             text: m.text,
           })),
           channel: 'text',
+          provider: selectedProvider,
+          model: selectedModel,
         }),
       });
 
@@ -204,6 +270,9 @@ export default function CoFounderPortalPage() {
           id: (Date.now() + 1).toString(),
           sender: 'assistant',
           text: data.response || 'No response received.',
+          provider: data.provider,
+          model: data.model,
+          fallbackUsed: data.fallbackUsed,
           timestamp: Date.now(),
         },
       ]);
@@ -361,10 +430,15 @@ export default function CoFounderPortalPage() {
     }
   };
 
+  const activeProviderObj = providers.find(
+    (p) => p.id === selectedProvider || p.type === selectedProvider
+  );
+  const currentAvailableModels = activeProviderObj?.models || [];
+
   return (
     <div className="mx-auto flex h-[calc(100vh-4rem)] max-w-7xl flex-col p-4 text-neutral-100 md:p-6">
       {/* Top Header & Mode Tabs */}
-      <div className="flex flex-col justify-between gap-4 border-b border-neutral-800 pb-4 sm:flex-row sm:items-center">
+      <div className="flex flex-col justify-between gap-4 border-b border-neutral-800 pb-4 lg:flex-row lg:items-center">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-tr from-amber-500 to-amber-600 shadow-lg shadow-amber-500/20">
             <Sparkles className="h-5 w-5 text-neutral-950" />
@@ -382,32 +456,198 @@ export default function CoFounderPortalPage() {
           </div>
         </div>
 
-        {/* Mode Switcher Tabs */}
-        <div className="flex items-center rounded-xl border border-neutral-800 bg-neutral-900 p-1">
-          <button
-            onClick={() => setActiveTab('voice')}
-            className={`flex items-center gap-2 rounded-lg px-4 py-1.5 text-xs font-medium transition-all duration-200 ${
-              activeTab === 'voice'
-                ? 'bg-amber-500 font-semibold text-neutral-950 shadow-md'
-                : 'text-neutral-400 hover:text-white'
-            }`}
-          >
-            <Mic className="h-3.5 w-3.5" />
-            <span>Realtime Voice</span>
-          </button>
-          <button
-            onClick={() => setActiveTab('chat')}
-            className={`flex items-center gap-2 rounded-lg px-4 py-1.5 text-xs font-medium transition-all duration-200 ${
-              activeTab === 'chat'
-                ? 'bg-amber-500 font-semibold text-neutral-950 shadow-md'
-                : 'text-neutral-400 hover:text-white'
-            }`}
-          >
-            <MessageSquare className="h-3.5 w-3.5" />
-            <span>Interactive Chat</span>
-          </button>
+        {/* Engine Controls & Mode Switcher */}
+        <div className="flex flex-wrap items-center gap-3">
+          {/* AI Provider & Model Picker */}
+          <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-neutral-800 bg-neutral-900/90 p-1.5 shadow-sm">
+            {/* Provider Selector */}
+            <div className="flex items-center gap-1.5 px-2 py-0.5">
+              <span className="flex h-2 w-2 rounded-full bg-emerald-400 ring-2 ring-emerald-400/20" />
+              <label
+                htmlFor="co-founder-provider-select"
+                className="text-[11px] font-semibold text-neutral-400"
+              >
+                Provider:
+              </label>
+              <select
+                id="co-founder-provider-select"
+                value={selectedProvider}
+                onChange={(e) => {
+                  const newProv = e.target.value;
+                  setSelectedProvider(newProv);
+                  if (typeof window !== 'undefined') {
+                    localStorage.setItem('ruhvi_co_founder_provider', newProv);
+                  }
+                  if (newProv === 'auto') {
+                    setSelectedModel('auto');
+                    if (typeof window !== 'undefined') {
+                      localStorage.setItem('ruhvi_co_founder_model', 'auto');
+                    }
+                  } else {
+                    const prov = providers.find(
+                      (p) => p.id === newProv || p.type === newProv
+                    );
+                    const firstM = prov?.models?.[0] || 'auto';
+                    setSelectedModel(firstM);
+                    if (typeof window !== 'undefined') {
+                      localStorage.setItem('ruhvi_co_founder_model', firstM);
+                    }
+                  }
+                }}
+                className="cursor-pointer rounded-lg border border-neutral-800 bg-neutral-950 px-2.5 py-1 text-xs font-semibold text-neutral-200 outline-none hover:border-amber-500/40 focus:border-amber-500 focus:text-amber-400"
+              >
+                <option value="auto">⚡ Auto (Admin Fallback)</option>
+                {providers.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.name} {p.isOnline ? '●' : '○'}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Model Selector */}
+            <div className="flex items-center gap-1.5 border-l border-neutral-800 px-2 py-0.5">
+              <Cpu className="h-3.5 w-3.5 text-amber-400" />
+              <label
+                htmlFor="co-founder-model-select"
+                className="text-[11px] font-semibold text-neutral-400"
+              >
+                Model:
+              </label>
+              <select
+                id="co-founder-model-select"
+                value={selectedModel}
+                onChange={(e) => {
+                  setSelectedModel(e.target.value);
+                  if (typeof window !== 'undefined') {
+                    localStorage.setItem(
+                      'ruhvi_co_founder_model',
+                      e.target.value
+                    );
+                  }
+                }}
+                className="cursor-pointer rounded-lg border border-neutral-800 bg-neutral-950 px-2.5 py-1 text-xs font-semibold text-amber-400 outline-none hover:border-amber-500/40 focus:border-amber-500 focus:text-amber-300"
+              >
+                {selectedProvider === 'auto' ? (
+                  <>
+                    <option value="auto">
+                      Default (Gemini 3.5 Flash Lite)
+                    </option>
+                    <option value="gemini-3.5-flash-lite">
+                      gemini-3.5-flash-lite (Ultra Fast)
+                    </option>
+                    <option value="gemini-3.6-flash">gemini-3.6-flash</option>
+                    <option value="gemini-1.5-pro">
+                      gemini-1.5-pro (Deep Reasoning)
+                    </option>
+                    <option value="deepseek-chat">
+                      deepseek-chat (DeepSeek V3)
+                    </option>
+                    <option value="deepseek-reasoner">
+                      deepseek-reasoner (DeepSeek R1)
+                    </option>
+                  </>
+                ) : (
+                  currentAvailableModels.map((m: string) => (
+                    <option key={m} value={m}>
+                      {m}
+                    </option>
+                  ))
+                )}
+              </select>
+            </div>
+
+            {/* Voice Input Language Selector */}
+            <div className="flex items-center gap-1.5 border-l border-neutral-800 px-2 py-0.5">
+              <Globe className="h-3.5 w-3.5 text-cyan-400" />
+              <label
+                htmlFor="co-founder-lang-select"
+                className="text-[11px] font-semibold text-neutral-400"
+              >
+                Voice:
+              </label>
+              <select
+                id="co-founder-lang-select"
+                value={selectedLanguage}
+                onChange={(e) => {
+                  const newLang = e.target.value;
+                  setSelectedLanguage(newLang);
+                  if (typeof window !== 'undefined') {
+                    localStorage.setItem('ruhvi_co_founder_lang', newLang);
+                  }
+                }}
+                className="cursor-pointer rounded-lg border border-neutral-800 bg-neutral-950 px-2 py-1 text-xs font-semibold text-cyan-300 outline-none hover:border-cyan-500/40 focus:border-cyan-500 focus:text-cyan-200"
+              >
+                <option value="en-IN">English (India)</option>
+                <option value="bn-IN">বাংলা (Bengali)</option>
+                <option value="hi-IN">हिन्दी (Hindi)</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Mode Switcher Tabs */}
+          <div className="flex items-center rounded-xl border border-neutral-800 bg-neutral-900 p-1">
+            <button
+              onClick={() => setActiveTab('voice')}
+              className={`flex items-center gap-2 rounded-lg px-4 py-1.5 text-xs font-medium transition-all duration-200 ${
+                activeTab === 'voice'
+                  ? 'bg-amber-500 font-semibold text-neutral-950 shadow-md'
+                  : 'text-neutral-400 hover:text-white'
+              }`}
+            >
+              <Mic className="h-3.5 w-3.5" />
+              <span>Realtime Voice</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('chat')}
+              className={`flex items-center gap-2 rounded-lg px-4 py-1.5 text-xs font-medium transition-all duration-200 ${
+                activeTab === 'chat'
+                  ? 'bg-amber-500 font-semibold text-neutral-950 shadow-md'
+                  : 'text-neutral-400 hover:text-white'
+              }`}
+            >
+              <MessageSquare className="h-3.5 w-3.5" />
+              <span>Interactive Chat</span>
+            </button>
+          </div>
         </div>
       </div>
+
+      {/* Fallback Chain Badge Banner */}
+      {fallbackChain.length > 0 && (
+        <div className="mt-2.5 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-neutral-800/80 bg-neutral-950/60 px-3 py-1.5 text-[11px] text-neutral-400">
+          <div className="flex flex-wrap items-center gap-1.5">
+            <span className="font-semibold text-amber-400">
+              Active Fallback Chain:
+            </span>
+            {fallbackChain.map((item, idx) => (
+              <React.Fragment key={item.id}>
+                <span
+                  className={`inline-flex items-center gap-1 font-mono ${
+                    item.id === selectedProvider
+                      ? 'rounded border border-amber-500/30 bg-amber-500/20 px-1 py-0.5 font-bold text-amber-300'
+                      : 'text-neutral-300'
+                  }`}
+                >
+                  {item.name}
+                </span>
+                {idx < fallbackChain.length - 1 && (
+                  <span className="text-neutral-600">→</span>
+                )}
+              </React.Fragment>
+            ))}
+          </div>
+          <a
+            href="https://admin.ruhvi.in/tech/ai-settings"
+            target="_blank"
+            rel="noreferrer"
+            className="flex items-center gap-1 text-[10px] text-amber-500/80 transition-colors hover:text-amber-400"
+          >
+            <span>Configure Fallback in Admin AI</span>
+            <ExternalLink size={10} />
+          </a>
+        </div>
+      )}
 
       {/* Main Grid: Visualizer/Chat & Strategic Intelligence */}
       <div className="grid flex-1 grid-cols-1 gap-6 overflow-hidden pt-6 lg:grid-cols-12">
@@ -877,13 +1117,28 @@ export default function CoFounderPortalPage() {
                       : 'rounded-tl-none border border-neutral-800 bg-neutral-900 text-neutral-200 shadow-sm'
                   }`}
                 >
-                  <div className="mb-1 flex items-center gap-1.5 text-[11px] font-semibold opacity-80">
-                    {m.sender === 'user' ? (
-                      <User size={13} />
-                    ) : (
-                      <Bot size={13} />
+                  <div className="mb-1.5 flex items-center justify-between gap-2 text-[11px] font-semibold opacity-90">
+                    <div className="flex items-center gap-1.5">
+                      {m.sender === 'user' ? (
+                        <User size={13} />
+                      ) : (
+                        <Bot size={13} className="text-amber-400" />
+                      )}
+                      <span>
+                        {m.sender === 'user' ? 'You' : 'AI Co-Founder'}
+                      </span>
+                    </div>
+                    {m.sender === 'assistant' && (m.model || m.provider) && (
+                      <span className="flex items-center gap-1 rounded border border-neutral-800 bg-neutral-950/80 px-2 py-0.5 font-mono text-[9px] text-amber-400">
+                        <Zap size={9} className="text-amber-400" />
+                        <span>{m.model || m.provider}</span>
+                        {m.fallbackUsed && (
+                          <span className="font-bold text-rose-400">
+                            (fallback)
+                          </span>
+                        )}
+                      </span>
                     )}
-                    <span>{m.sender === 'user' ? 'You' : 'AI Co-Founder'}</span>
                   </div>
                   <p className="whitespace-pre-wrap text-xs leading-relaxed sm:text-sm">
                     {m.text}

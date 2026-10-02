@@ -11,8 +11,15 @@ import {
 import { VoiceConnectionState } from '@/components/co-founder/LiveVoiceVisualizer';
 
 export interface UseLiveKitVoiceOptions {
-  onTranscript?: (speaker: 'user' | 'assistant', text: string) => void;
+  onTranscript?: (
+    speaker: 'user' | 'assistant',
+    text: string,
+    metadata?: { provider?: string; model?: string; fallbackUsed?: boolean }
+  ) => void;
   onError?: (err: Error) => void;
+  provider?: string;
+  model?: string;
+  language?: string;
 }
 
 export function useLiveKitVoice(options: UseLiveKitVoiceOptions = {}) {
@@ -22,6 +29,18 @@ export function useLiveKitVoice(options: UseLiveKitVoiceOptions = {}) {
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [audioLevel, setAudioLevel] = useState<number>(0);
   const [interimTranscript, setInterimTranscript] = useState<string>('');
+
+  const selectedProviderRef = useRef<string | undefined>(options.provider);
+  const selectedModelRef = useRef<string | undefined>(options.model);
+  const selectedLangRef = useRef<string | undefined>(
+    options.language || 'en-IN'
+  );
+
+  useEffect(() => {
+    selectedProviderRef.current = options.provider;
+    selectedModelRef.current = options.model;
+    selectedLangRef.current = options.language || 'en-IN';
+  }, [options.provider, options.model, options.language]);
 
   const roomRef = useRef<Room | null>(null);
   const audioElementsRef = useRef<HTMLAudioElement[]>([]);
@@ -112,19 +131,43 @@ export function useLiveKitVoice(options: UseLiveKitVoiceOptions = {}) {
     utterance.rate = 1.05;
     utterance.pitch = 1.0;
 
-    // Pick best natural voice (prefer Indian/UK/US English neural voices)
+    // Detect language of response: Bengali (বাংলা), Hindi (हिन्दी), or English
+    const isBengali = /[\u0980-\u09FF]/.test(cleanText);
+    const isHindi = /[\u0900-\u097F]/.test(cleanText);
+
     const voices = window.speechSynthesis.getVoices();
-    const preferredVoice =
-      voices.find(
-        (v) =>
-          (v.lang.includes('en') || v.lang.includes('IN')) &&
-          (v.name.includes('Natural') ||
-            v.name.includes('Neural') ||
-            v.name.includes('Google') ||
-            v.name.includes('Online'))
-      ) ||
-      voices.find((v) => v.lang.startsWith('en')) ||
-      voices[0];
+    let preferredVoice = null;
+
+    if (isBengali) {
+      utterance.lang = 'bn-IN';
+      preferredVoice =
+        voices.find((v) => v.lang.startsWith('bn')) ||
+        voices.find(
+          (v) =>
+            v.lang.includes('IN') &&
+            (v.name.includes('Bengali') || v.name.includes('Bangla'))
+        ) ||
+        voices.find((v) => v.lang.includes('IN'));
+    } else if (isHindi) {
+      utterance.lang = 'hi-IN';
+      preferredVoice =
+        voices.find((v) => v.lang.startsWith('hi')) ||
+        voices.find((v) => v.lang.includes('IN') && v.name.includes('Hindi')) ||
+        voices.find((v) => v.lang.includes('IN'));
+    } else {
+      utterance.lang = 'en-IN';
+      preferredVoice =
+        voices.find(
+          (v) =>
+            (v.lang.includes('en') || v.lang.includes('IN')) &&
+            (v.name.includes('Natural') ||
+              v.name.includes('Neural') ||
+              v.name.includes('Google') ||
+              v.name.includes('Online'))
+        ) ||
+        voices.find((v) => v.lang.startsWith('en')) ||
+        voices[0];
+    }
 
     if (preferredVoice) {
       utterance.voice = preferredVoice;
@@ -177,6 +220,8 @@ export function useLiveKitVoice(options: UseLiveKitVoiceOptions = {}) {
           body: JSON.stringify({
             messages: conversationHistoryRef.current,
             channel: 'voice',
+            provider: selectedProviderRef.current,
+            model: selectedModelRef.current,
           }),
         });
 
@@ -198,7 +243,11 @@ export function useLiveKitVoice(options: UseLiveKitVoiceOptions = {}) {
           text: responseText,
         });
 
-        options.onTranscript?.('assistant', responseText);
+        options.onTranscript?.('assistant', responseText, {
+          provider: data.provider,
+          model: data.model,
+          fallbackUsed: data.fallbackUsed,
+        });
         setInterimTranscript('');
         speakResponse(responseText);
       } catch (err: any) {
@@ -283,7 +332,7 @@ export function useLiveKitVoice(options: UseLiveKitVoiceOptions = {}) {
       const recognition = new SpeechRec();
       recognition.continuous = true;
       recognition.interimResults = true;
-      recognition.lang = 'en-IN'; // Indian English / Global default
+      recognition.lang = selectedLangRef.current || 'en-IN'; // Dynamic multilingual language (en-IN, bn-IN, hi-IN)
       recognition.maxAlternatives = 1;
 
       recognition.onresult = (event: any) => {

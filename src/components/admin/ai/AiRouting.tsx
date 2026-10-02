@@ -431,6 +431,7 @@ export default function AiRouting({
             <div className="space-y-4">
               {[
                 'chatbot',
+                'co_founder',
                 'product_description',
                 'seo_metadata',
                 'support_reply',
@@ -450,8 +451,17 @@ export default function AiRouting({
                     className="rounded-lg border border-gray-700 bg-gray-900 p-3.5"
                   >
                     <div className="mb-3 flex items-center justify-between">
-                      <div className="text-sm font-semibold capitalize text-white">
-                        {featureKey.replace(/_/g, ' ')}
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-semibold capitalize text-white">
+                          {featureKey === 'co_founder'
+                            ? 'AI Co-Founder Executive'
+                            : featureKey.replace(/_/g, ' ')}
+                        </span>
+                        {featureKey === 'co_founder' && (
+                          <span className="rounded border border-amber-500/30 bg-amber-500/20 px-1.5 py-0.5 text-[10px] font-medium text-amber-300">
+                            co-founder.ruhvi.in
+                          </span>
+                        )}
                       </div>
                       <label className="flex cursor-pointer items-center">
                         <div className="relative">
