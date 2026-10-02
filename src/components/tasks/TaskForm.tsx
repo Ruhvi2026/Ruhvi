@@ -134,12 +134,29 @@ export default function TaskForm({
         related_product_id: task.related_product_id || '',
         related_ticket_id: task.related_ticket_id || '',
         tags: (task.tags || []).join(', '),
-        schedule_type: 'none',
-        schedule_time: '09:00',
-        schedule_days: ['saturday'],
-        schedule_day_of_month: 1,
-        remind_overdue: true,
+        schedule_type:
+          (task.schedule_type as string) ||
+          (task.recurrence?.recurrence_pattern as string) ||
+          (task.is_recurring ? 'weekly' : 'none'),
+        schedule_time:
+          task.schedule_time ||
+          (task.recurrence?.trigger_time
+            ? task.recurrence.trigger_time.slice(0, 5)
+            : '09:00'),
+        schedule_days:
+          (task.recurrence?.recurrence_days as string[]) || ['saturday'],
+        schedule_day_of_month: task.recurrence?.day_of_month || 1,
+        remind_overdue:
+          task.recurrence?.remind_overdue !== undefined
+            ? task.recurrence.remind_overdue
+            : true,
       });
+      if (
+        (task.schedule_type && task.schedule_type !== 'none') ||
+        task.is_recurring
+      ) {
+        setShowAdvanced(true);
+      }
       if (task.department_id && !task.assignee_id) {
         setAssignmentType('department');
       }
@@ -849,8 +866,223 @@ export default function TaskForm({
                 Advanced Options
               </h3>
               <p className="text-xs text-slate-400">
-                Tags, subtasks, and dependencies for this task.
+                Scheduled automation, recurring assignments, deadline reminders,
+                tags, subtasks, and dependencies for this task.
               </p>
+            </div>
+
+            {/* Scheduled Automation & Recurrence */}
+            <div className="space-y-4 rounded-xl border border-white/10 bg-white/5 p-5">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Calendar className="h-5 w-5 text-emerald-400" />
+                  <h4 className="text-sm font-semibold text-white">
+                    Scheduled Automation & Recurring Rules
+                  </h4>
+                </div>
+                <span className="rounded border border-emerald-500/20 bg-emerald-500/10 px-2.5 py-0.5 text-[11px] font-medium text-emerald-400">
+                  {formData.schedule_type === 'none'
+                    ? 'Standard One-Time'
+                    : 'Automated Schedule'}
+                </span>
+              </div>
+              <p className="text-xs leading-relaxed text-slate-400">
+                Configure automatic recurring assignments (e.g. daily 9 AM order
+                dispatch check assigned to Order Department staff, or weekly
+                Saturday 9 PM low stock report assigned to Operations Manager)
+                with overdue reminders.
+              </p>
+
+              {/* Recurrence Pattern Selector */}
+              <div className="grid grid-cols-2 gap-2 pt-1 sm:grid-cols-5">
+                {[
+                  { id: 'none', label: 'One-time' },
+                  { id: 'daily', label: 'Daily (Every Day)' },
+                  { id: 'weekly', label: 'Weekly' },
+                  { id: 'monthly', label: 'Monthly' },
+                  { id: 'fixed', label: 'Fixed Schedule' },
+                ].map((pattern) => (
+                  <button
+                    key={pattern.id}
+                    type="button"
+                    onClick={() => handleChange('schedule_type', pattern.id)}
+                    className={`rounded-lg border px-3 py-2.5 text-center text-xs font-medium transition-all ${
+                      formData.schedule_type === pattern.id
+                        ? 'border-emerald-500 bg-emerald-500/20 font-semibold text-white shadow-sm'
+                        : 'border-white/10 bg-black/20 text-slate-400 hover:border-white/20 hover:text-white'
+                    }`}
+                  >
+                    {pattern.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* When Recurring or Fixed is selected */}
+              {formData.schedule_type !== 'none' && (
+                <div className="space-y-4 border-t border-white/10 pt-3">
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    {/* Trigger / Assignment Time */}
+                    <div>
+                      <label className="mb-1 block text-xs font-medium text-slate-300">
+                        <Clock className="mr-1 inline h-3.5 w-3.5 text-emerald-400" />
+                        Assignment Time (e.g. 09:00 AM)
+                      </label>
+                      <input
+                        type="time"
+                        value={formData.schedule_time}
+                        onChange={(e) =>
+                          handleChange('schedule_time', e.target.value)
+                        }
+                        className="w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                      />
+                      <p className="mt-1 text-[11px] text-slate-400">
+                        Time when task is automatically assigned to{' '}
+                        {assignmentType === 'department'
+                          ? 'the department manager'
+                          : 'the assigned staff'}
+                        .
+                      </p>
+                    </div>
+
+                    {/* Deadline Due Time */}
+                    <div>
+                      <label className="mb-1 block text-xs font-medium text-slate-300">
+                        <Clock className="mr-1 inline h-3.5 w-3.5 text-amber-400" />
+                        Completion Deadline (Due Time, e.g. 09:00 PM)
+                      </label>
+                      <input
+                        type="time"
+                        value={formData.due_time}
+                        onChange={(e) =>
+                          handleChange('due_time', e.target.value)
+                        }
+                        className="w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                      />
+                      <p className="mt-1 text-[11px] text-slate-400">
+                        Deadline by which staff must complete and mark the task
+                        done.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Weekly Day Selector */}
+                  {formData.schedule_type === 'weekly' && (
+                    <div>
+                      <label className="mb-1.5 block text-xs font-medium text-slate-300">
+                        Active Days of the Week
+                      </label>
+                      <div className="flex flex-wrap gap-2">
+                        {[
+                          'monday',
+                          'tuesday',
+                          'wednesday',
+                          'thursday',
+                          'friday',
+                          'saturday',
+                          'sunday',
+                        ].map((day) => {
+                          const isSelected = (
+                            formData.schedule_days || []
+                          ).includes(day);
+                          return (
+                            <button
+                              key={day}
+                              type="button"
+                              onClick={() => {
+                                const current = formData.schedule_days || [];
+                                const updated = isSelected
+                                  ? current.filter((d: string) => d !== day)
+                                  : [...current, day];
+                                setFormData((prev) => ({
+                                  ...prev,
+                                  schedule_days: updated,
+                                }));
+                              }}
+                              className={`rounded-lg border px-3.5 py-1.5 text-xs font-medium capitalize transition-all ${
+                                isSelected
+                                  ? 'border-emerald-500 bg-emerald-500/20 font-semibold text-emerald-300 shadow'
+                                  : 'border-white/10 bg-black/20 text-slate-400 hover:text-white'
+                              }`}
+                            >
+                              {day.slice(0, 3)}
+                            </button>
+                          );
+                        })}
+                      </div>
+                      <p className="mt-1.5 text-[11px] text-slate-400">
+                        Example: Select <strong>Sat</strong> for weekly low
+                        stock reports till 9 PM.
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Monthly Day of Month Selector */}
+                  {formData.schedule_type === 'monthly' && (
+                    <div>
+                      <label className="mb-1 block text-xs font-medium text-slate-300">
+                        Day of the Month (1-31)
+                      </label>
+                      <input
+                        type="number"
+                        min={1}
+                        max={31}
+                        value={formData.schedule_day_of_month || 1}
+                        onChange={(e) =>
+                          handleChange('schedule_day_of_month', e.target.value)
+                        }
+                        className="w-32 rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                      />
+                    </div>
+                  )}
+
+                  {/* Fixed Schedule Date */}
+                  {formData.schedule_type === 'fixed' && (
+                    <div>
+                      <label className="mb-1 block text-xs font-medium text-slate-300">
+                        Scheduled Target Date
+                      </label>
+                      <input
+                        type="date"
+                        value={formData.due_date}
+                        onChange={(e) =>
+                          handleChange('due_date', e.target.value)
+                        }
+                        className="w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 sm:w-64"
+                      />
+                    </div>
+                  )}
+
+                  {/* Overdue Reminder Checkbox */}
+                  <div className="flex items-start gap-3 rounded-lg border border-amber-500/20 bg-amber-500/5 p-3.5">
+                    <input
+                      type="checkbox"
+                      id="remind_overdue"
+                      checked={formData.remind_overdue}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          remind_overdue: e.target.checked,
+                        }))
+                      }
+                      className="mt-0.5 h-4 w-4 rounded border-amber-500/30 bg-black/40 text-amber-500 focus:ring-amber-500"
+                    />
+                    <label
+                      htmlFor="remind_overdue"
+                      className="cursor-pointer text-xs"
+                    >
+                      <span className="flex items-center gap-1.5 font-semibold text-amber-300">
+                        <Bell className="h-3.5 w-3.5" />
+                        Send Reminder Notification on Overdue / Non-Completion
+                      </span>
+                      <span className="mt-1 block leading-relaxed text-slate-400">
+                        If the task is not marked completed before the deadline,
+                        an automated reminder notification will be dispatched to
+                        the assignee or department manager.
+                      </span>
+                    </label>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Tags */}
