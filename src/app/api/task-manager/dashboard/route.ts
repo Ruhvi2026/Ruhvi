@@ -86,8 +86,9 @@ export async function GET() {
     }
 
     const isAdmin =
-      staffUser.role === 'super_admin' || staffUser.role === 'admin';
-    const isManager = staffUser.role === 'manager';
+      (staffUser as any).role === 'super_admin' ||
+      (staffUser as any).role === 'admin';
+    const isManager = (staffUser as any).role === 'manager';
     const cacheKey = isManager
       ? `manager-${staffUser.department_id || 'no-dept'}`
       : null;

@@ -789,7 +789,7 @@ export default function TaskList({
       {/* Floating Bottom-Right "+ New Task" Accessibility Button */}
       <div className="fixed bottom-6 right-6 z-30 sm:hidden">
         <Link
-          href="/admin/task-manager/new"
+          href={`${basePath}?action=new`}
           className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-600 text-white shadow-xl shadow-emerald-950/50 transition-all hover:scale-105 hover:bg-emerald-500"
           title="Create New Task"
         >

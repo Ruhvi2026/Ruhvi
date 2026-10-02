@@ -477,7 +477,7 @@ export default function TaskForm({
         <div className="flex items-center gap-3">
           <button
             type="button"
-            onClick={() => router.push('/admin/task-manager')}
+            onClick={() => router.push(basePath)}
             className="rounded-lg p-2 text-slate-400 transition-colors hover:bg-white/5 hover:text-white"
           >
             <ArrowLeft className="h-5 w-5" />

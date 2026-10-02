@@ -8,6 +8,7 @@ import React, {
   useMemo,
 } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { createClient } from '@/lib/supabase/client';
 import { useUnreadChatCount } from '@/hooks/useUnreadChatCount';
@@ -130,6 +131,8 @@ export default function FloatingStaffMessenger() {
   const supabaseUserId = useSessionUserId();
   const unreadTotal = useUnreadChatCount(supabaseUserId ?? undefined);
   const supabase = createClient();
+  const pathname = usePathname();
+  const portalPrefix = pathname ? `/${pathname.split('/')[1]}` : '/admin';
 
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
@@ -658,17 +661,17 @@ export default function FloatingStaffMessenger() {
           )}
 
           <Link
-            href="/admin/task-manager"
+            href={`${portalPrefix}/task-manager`}
             className="rounded-lg p-1.5 text-slate-400 transition hover:bg-white/10 hover:text-emerald-400"
-            title="Open Task Manager (/admin/task-manager)"
+            title={`Open Task Manager (${portalPrefix}/task-manager)`}
           >
             <ClipboardList className="h-3.5 w-3.5" />
           </Link>
 
           <Link
-            href="/admin/chat"
+            href={`${portalPrefix}/chat`}
             className="rounded-lg p-1.5 text-slate-400 transition hover:bg-white/10 hover:text-white"
-            title="Open in Full Screen (/admin/chat)"
+            title={`Open in Full Screen (${portalPrefix}/chat)`}
           >
             <Maximize2 className="h-3.5 w-3.5" />
           </Link>
