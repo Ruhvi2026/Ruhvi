@@ -27,6 +27,12 @@ import {
   Activity,
   Radio,
   Wifi,
+  SlidersHorizontal,
+  Volume2,
+  Play,
+  Check,
+  X,
+  Info,
 } from 'lucide-react';
 import { LiveVoiceVisualizer } from '@/components/co-founder/LiveVoiceVisualizer';
 import { useLiveKitVoice } from '@/hooks/useLiveKitVoice';
@@ -59,9 +65,34 @@ export default function CoFounderPortalPage() {
   const [providers, setProviders] = useState<any[]>([]);
   const [selectedProvider, setSelectedProvider] = useState<string>('auto');
   const [selectedModel, setSelectedModel] = useState<string>('auto');
-  const [selectedLanguage, setSelectedLanguage] = useState<string>('en-IN');
+  const [selectedLanguage, setSelectedLanguage] = useState<string>('bn-IN');
   const [fallbackChain, setFallbackChain] = useState<any[]>([]);
   const [loadingModels, setLoadingModels] = useState<boolean>(true);
+
+  // Voice Studio Customization States
+  const [selectedVoiceURI, setSelectedVoiceURI] = useState<string>('auto');
+  const [speechRate, setSpeechRate] = useState<number>(0.92);
+  const [speechPitch, setSpeechPitch] = useState<number>(1.0);
+  const [voiceStyle, setVoiceStyle] = useState<
+    'spoken_bengali' | 'banglish' | 'standard'
+  >('spoken_bengali');
+  const [isVoiceModalOpen, setIsVoiceModalOpen] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const savedVoiceURI = localStorage.getItem('ruhvi_co_founder_voice_uri');
+      if (savedVoiceURI) setSelectedVoiceURI(savedVoiceURI);
+
+      const savedRate = localStorage.getItem('ruhvi_co_founder_speech_rate');
+      if (savedRate) setSpeechRate(parseFloat(savedRate));
+
+      const savedPitch = localStorage.getItem('ruhvi_co_founder_speech_pitch');
+      if (savedPitch) setSpeechPitch(parseFloat(savedPitch));
+
+      const savedStyle = localStorage.getItem('ruhvi_co_founder_voice_style');
+      if (savedStyle) setVoiceStyle(savedStyle as any);
+    }
+  }, []);
 
   // Quick Widget States
   const [proactiveSignals, setProactiveSignals] = useState<any[]>([]);
@@ -93,6 +124,10 @@ export default function CoFounderPortalPage() {
     provider: selectedProvider,
     model: selectedModel,
     language: selectedLanguage,
+    voiceURI: selectedVoiceURI,
+    speechRate,
+    speechPitch,
+    voiceStyle,
     onTranscript: (speaker, text, meta) => {
       setMessages((prev) => [
         ...prev,
@@ -607,7 +642,7 @@ export default function CoFounderPortalPage() {
                 htmlFor="co-founder-lang-select"
                 className="text-[11px] font-semibold text-neutral-400"
               >
-                Voice:
+                Lang:
               </label>
               <select
                 id="co-founder-lang-select"
@@ -621,10 +656,34 @@ export default function CoFounderPortalPage() {
                 }}
                 className="cursor-pointer rounded-lg border border-neutral-800 bg-neutral-950 px-2 py-1 text-xs font-semibold text-cyan-300 outline-none hover:border-cyan-500/40 focus:border-cyan-500 focus:text-cyan-200"
               >
-                <option value="en-IN">English (India)</option>
                 <option value="bn-IN">বাংলা (Bengali)</option>
+                <option value="en-IN">English (India)</option>
                 <option value="hi-IN">हिन्दी (Hindi)</option>
               </select>
+            </div>
+
+            {/* Voice Studio Settings Modal Trigger */}
+            <div className="flex items-center border-l border-neutral-800 px-2 py-0.5">
+              <button
+                type="button"
+                onClick={() => setIsVoiceModalOpen(true)}
+                className="flex items-center gap-1.5 rounded-lg border border-amber-500/30 bg-amber-500/10 px-2.5 py-1 text-xs font-semibold text-amber-300 transition-all hover:border-amber-500/60 hover:bg-amber-500/20 hover:text-amber-200"
+                title="ভয়েস, উচ্চারণ ও কথার গতি কাস্টমাইজ করুন (Voice Settings)"
+              >
+                <SlidersHorizontal className="h-3.5 w-3.5 text-amber-400" />
+                <span>Voice Studio</span>
+                {voice.hasBengaliVoice ? (
+                  <span
+                    className="h-1.5 w-1.5 rounded-full bg-emerald-400"
+                    title="Native Bengali Voice Active"
+                  />
+                ) : (
+                  <span
+                    className="h-1.5 w-1.5 animate-pulse rounded-full bg-amber-400"
+                    title="Audio Tuning Recommended"
+                  />
+                )}
+              </button>
             </div>
           </div>
 
@@ -1465,6 +1524,311 @@ export default function CoFounderPortalPage() {
           </div>
         </div>
       </div>
+
+      {/* Voice Customization Studio Modal */}
+      {isVoiceModalOpen && (
+        <div
+          id="co-founder-voice-modal-backdrop"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm"
+          onClick={() => setIsVoiceModalOpen(false)}
+        >
+          <div
+            id="co-founder-voice-modal"
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-xl rounded-2xl border border-neutral-800 bg-neutral-900/95 p-6 shadow-2xl backdrop-blur-xl"
+          >
+            {/* Modal Header */}
+            <div className="flex items-center justify-between border-b border-neutral-800 pb-4">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-amber-500/20 bg-amber-500/10 text-amber-400">
+                  <Volume2 className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="flex items-center gap-2 text-base font-bold text-white">
+                    Executive Voice Studio
+                    <span className="rounded-full bg-amber-500/20 px-2 py-0.5 text-[10px] font-semibold text-amber-300">
+                      ভয়েস ও উচ্চারণ
+                    </span>
+                  </h3>
+                  <p className="text-xs text-neutral-400">
+                    বাংলা ও ভারতীয় ভাষার স্পষ্ট উচ্চারণ, ব্রাউজার ভয়েস এবং গতি
+                    নিয়ন্ত্রণ করুন
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsVoiceModalOpen(false)}
+                className="rounded-lg p-1.5 text-neutral-400 transition-colors hover:bg-neutral-800 hover:text-white"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="mt-5 max-h-[72vh] space-y-5 overflow-y-auto pr-1">
+              {/* 1. Bengali Pronunciation & Phrasing Mode */}
+              <div>
+                <label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-neutral-400">
+                  ১. বাংলা বলার ধরন (Spoken Bengali Style)
+                </label>
+                <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setVoiceStyle('spoken_bengali');
+                      if (typeof window !== 'undefined') {
+                        localStorage.setItem(
+                          'ruhvi_co_founder_voice_style',
+                          'spoken_bengali'
+                        );
+                      }
+                    }}
+                    className={`flex flex-col rounded-xl border p-3 text-left transition-all ${
+                      voiceStyle === 'spoken_bengali'
+                        ? 'border-amber-500 bg-amber-500/10 text-white shadow-sm'
+                        : 'border-neutral-800 bg-neutral-950/60 text-neutral-400 hover:border-neutral-700 hover:text-neutral-200'
+                    }`}
+                  >
+                    <div className="mb-1 flex w-full items-center justify-between">
+                      <span className="flex items-center gap-1.5 text-xs font-semibold text-amber-300">
+                        {voiceStyle === 'spoken_bengali' && (
+                          <Check className="h-3.5 w-3.5 text-amber-400" />
+                        )}
+                        সহজ চলিত মুখের বাংলা
+                      </span>
+                      <span className="rounded bg-emerald-500/20 px-1.5 py-0.5 text-[10px] font-medium text-emerald-400">
+                        Recommended
+                      </span>
+                    </div>
+                    <p className="text-[11px] leading-normal text-neutral-400">
+                      মুখে কথা বলার মতো স্বাভাবিক মিষ্টি বাংলা। “এবং”, “বলিবেন”
+                      বারণ। ছোট ছোট স্পষ্ট বাক্য।
+                    </p>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setVoiceStyle('banglish');
+                      if (typeof window !== 'undefined') {
+                        localStorage.setItem(
+                          'ruhvi_co_founder_voice_style',
+                          'banglish'
+                        );
+                      }
+                    }}
+                    className={`flex flex-col rounded-xl border p-3 text-left transition-all ${
+                      voiceStyle === 'banglish'
+                        ? 'border-cyan-500 bg-cyan-500/10 text-white shadow-sm'
+                        : 'border-neutral-800 bg-neutral-950/60 text-neutral-400 hover:border-neutral-700 hover:text-neutral-200'
+                    }`}
+                  >
+                    <div className="mb-1 flex w-full items-center justify-between">
+                      <span className="flex items-center gap-1.5 text-xs font-semibold text-cyan-300">
+                        {voiceStyle === 'banglish' && (
+                          <Check className="h-3.5 w-3.5 text-cyan-400" />
+                        )}
+                        বাংলিশ মোড (Banglish)
+                      </span>
+                      <span className="rounded bg-cyan-500/20 px-1.5 py-0.5 text-[10px] font-medium text-cyan-300">
+                        100% Clear
+                      </span>
+                    </div>
+                    <p className="text-[11px] leading-normal text-neutral-400">
+                      ইংরেজি হরফে বাংলা (যেমন: “Aajker orders dekhbo?”)। যেকোনো
+                      উইন্ডোজ বা ব্রাউজারে স্পষ্ট উচ্চারণ।
+                    </p>
+                  </button>
+                </div>
+              </div>
+
+              {/* 2. Detected System Voice Selection */}
+              <div>
+                <div className="mb-1.5 flex items-center justify-between">
+                  <label
+                    htmlFor="co-founder-tts-voice-select"
+                    className="text-xs font-semibold uppercase tracking-wider text-neutral-400"
+                  >
+                    ২. স্পিচ ভয়েস নির্বাচন (Browser Speech Engine)
+                  </label>
+                  <span className="text-[11px] text-neutral-500">
+                    {voice.availableVoices.length} voices detected
+                  </span>
+                </div>
+                <select
+                  id="co-founder-tts-voice-select"
+                  value={selectedVoiceURI}
+                  onChange={(e) => {
+                    const uri = e.target.value;
+                    setSelectedVoiceURI(uri);
+                    if (typeof window !== 'undefined') {
+                      localStorage.setItem('ruhvi_co_founder_voice_uri', uri);
+                    }
+                  }}
+                  className="w-full rounded-xl border border-neutral-800 bg-neutral-950 px-3 py-2.5 text-xs text-white outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500"
+                >
+                  <option value="auto">
+                    ✨ Auto-Detect (স্বয়ংক্রিয় সেরা কণ্ঠস্বর)
+                  </option>
+                  {voice.availableVoices.map((v) => {
+                    const isBn =
+                      v.lang.toLowerCase().startsWith('bn') ||
+                      v.name.toLowerCase().includes('bengali') ||
+                      v.name.toLowerCase().includes('bangla');
+                    const isHi =
+                      v.lang.toLowerCase().startsWith('hi') ||
+                      v.name.toLowerCase().includes('hindi');
+                    const isIndEn =
+                      v.lang.toLowerCase().includes('in') &&
+                      v.lang.toLowerCase().startsWith('en');
+
+                    const tag = isBn
+                      ? ' [বাংলা - Native Bengali]'
+                      : isHi
+                        ? ' [हिन्दी - Hindi]'
+                        : isIndEn
+                          ? ' [Indian English]'
+                          : ` [${v.lang}]`;
+
+                    return (
+                      <option key={v.voiceURI} value={v.voiceURI}>
+                        {v.name} {tag}
+                      </option>
+                    );
+                  })}
+                </select>
+
+                {/* If no native Bengali voice is installed, guide user */}
+                {!voice.hasBengaliVoice && (
+                  <div className="mt-2.5 flex items-start gap-2.5 rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-300">
+                    <Info className="mt-0.5 h-4 w-4 shrink-0 text-amber-400" />
+                    <div className="space-y-1 text-[11px] leading-relaxed">
+                      <p className="font-semibold text-amber-200">
+                        আপনার ব্রাউজার বা ডিভাইসে সরাসরি কোনো বাংলা ভয়েস প্যাক
+                        ইনস্টল নেই:
+                      </p>
+                      <ul className="list-disc space-y-0.5 pl-4 text-neutral-300">
+                        <li>
+                          <strong>Google Chrome:</strong> ক্রোম ব্রাউজারে
+                          সাধারণত <code>Google বাংলা</code> বিল্ট-ইন থাকে।
+                        </li>
+                        <li>
+                          <strong>Windows 10/11:</strong> Windows Settings ➔
+                          Time & Language ➔ Speech ➔ 'Add voices' ➔{' '}
+                          <strong>Bengali (India)</strong> যোগ করুন।
+                        </li>
+                        <li>
+                          <strong>তাৎক্ষণিক সমাধান:</strong> ওপরে{' '}
+                          <strong>“বাংলিশ মোড”</strong> বেছে নিন—এটি যেকোনো
+                          ইন্ডিয়ান ইংলিশ ভয়েসে চমৎকার এবং ১০০% স্পষ্ট শোনায়।
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* 3. Speed & Cadence Control */}
+              <div>
+                <div className="mb-1.5 flex items-center justify-between">
+                  <label className="text-xs font-semibold uppercase tracking-wider text-neutral-400">
+                    ৩. কথার গতি (Speech Speed)
+                  </label>
+                  <span className="font-mono text-xs font-semibold text-amber-400">
+                    {speechRate.toFixed(2)}x
+                  </span>
+                </div>
+                <input
+                  type="range"
+                  min="0.75"
+                  max="1.25"
+                  step="0.02"
+                  value={speechRate}
+                  onChange={(e) => {
+                    const rate = parseFloat(e.target.value);
+                    setSpeechRate(rate);
+                    if (typeof window !== 'undefined') {
+                      localStorage.setItem(
+                        'ruhvi_co_founder_speech_rate',
+                        rate.toString()
+                      );
+                    }
+                  }}
+                  className="w-full cursor-pointer accent-amber-500"
+                />
+                <div className="mt-1 flex justify-between text-[10px] text-neutral-500">
+                  <span>ধীর ও স্পষ্ট (0.75x)</span>
+                  <span className="font-medium text-amber-400/80">
+                    বাংলা উচ্চারণের জন্য সেরা: 0.90x - 0.94x
+                  </span>
+                  <span>দ্রুত (1.25x)</span>
+                </div>
+              </div>
+
+              {/* 4. Pitch Control */}
+              <div>
+                <div className="mb-1.5 flex items-center justify-between">
+                  <label className="text-xs font-semibold uppercase tracking-wider text-neutral-400">
+                    ৪. ভয়েসের সুর (Voice Pitch)
+                  </label>
+                  <span className="font-mono text-xs font-semibold text-amber-400">
+                    {speechPitch.toFixed(2)}
+                  </span>
+                </div>
+                <input
+                  type="range"
+                  min="0.80"
+                  max="1.20"
+                  step="0.05"
+                  value={speechPitch}
+                  onChange={(e) => {
+                    const pitch = parseFloat(e.target.value);
+                    setSpeechPitch(pitch);
+                    if (typeof window !== 'undefined') {
+                      localStorage.setItem(
+                        'ruhvi_co_founder_speech_pitch',
+                        pitch.toString()
+                      );
+                    }
+                  }}
+                  className="w-full cursor-pointer accent-amber-500"
+                />
+              </div>
+
+              {/* 5. Live Audio Test Button */}
+              <div className="pt-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    voice.testVoice();
+                    toast.success('ভয়েস টেস্ট চালু করা হয়েছে...', {
+                      id: 'voice-test',
+                    });
+                  }}
+                  className="flex w-full items-center justify-center gap-2 rounded-xl border border-amber-500/40 bg-amber-500/10 py-2.5 text-xs font-bold text-amber-300 transition-all hover:bg-amber-500/20 active:scale-[0.99]"
+                >
+                  <Play className="h-4 w-4 fill-amber-400 text-amber-400" />
+                  <span>ভয়েস পরীক্ষা করুন (Play Live Sample)</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="mt-6 flex justify-end border-t border-neutral-800 pt-4">
+              <button
+                type="button"
+                onClick={() => {
+                  setIsVoiceModalOpen(false);
+                  toast.success('ভয়েস সেটিংস সংরক্ষিত হয়েছে');
+                }}
+                className="rounded-xl bg-amber-500 px-5 py-2 text-xs font-bold text-neutral-950 transition-colors hover:bg-amber-400"
+              >
+                সংরক্ষণ করুন (Done)
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

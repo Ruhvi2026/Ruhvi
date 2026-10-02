@@ -20,6 +20,40 @@ export interface UseLiveKitVoiceOptions {
   provider?: string;
   model?: string;
   language?: string;
+  voiceURI?: string;
+  speechRate?: number;
+  speechPitch?: number;
+  voiceStyle?: 'spoken_bengali' | 'banglish' | 'standard';
+}
+
+/**
+ * Normalizes Bengali & Indian multilingual text for natural text-to-speech cadence:
+ * - Converts archaic formal conjunctions ("এবং" -> "আর")
+ * - Expands currency ("₹500" -> "500 টাকা")
+ * - Expands percentages ("20%" -> "20 পার্সেন্ট")
+ * - Formats commas/daris for comfortable breathing pauses
+ */
+export function normalizeBengaliForSpeech(rawText: string): string {
+  if (!rawText) return '';
+  const text = rawText
+    // Remove markdown symbols and links
+    .replace(/[*#_`~>]/g, '')
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+    .replace(/https?:\/\/\S+/g, '')
+    // Replace archaic formal conjunction "এবং" with natural spoken "আর"
+    .replace(/\bএবং\b/g, 'আর')
+    .replace(/ এবং /g, ' আর ')
+    // Currency normalization for natural speech
+    .replace(/₹\s*([0-9,]+)/g, '$1 টাকা')
+    .replace(/INR\s*([0-9,]+)/gi, '$1 টাকা')
+    // Percentage normalization
+    .replace(/([0-9]+)\s*%/g, '$1 পার্সেন্ট')
+    // Clean excessive punctuation & spaces
+    .replace(/([।!?.,])\1+/g, '$1')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  return text;
 }
 
 export function useLiveKitVoice(options: UseLiveKitVoiceOptions = {}) {
@@ -29,18 +63,66 @@ export function useLiveKitVoice(options: UseLiveKitVoiceOptions = {}) {
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [audioLevel, setAudioLevel] = useState<number>(0);
   const [interimTranscript, setInterimTranscript] = useState<string>('');
+  const [availableVoices, setAvailableVoices] = useState<
+    SpeechSynthesisVoice[]
+  >([]);
+  const [hasBengaliVoice, setHasBengaliVoice] = useState<boolean>(false);
 
   const selectedProviderRef = useRef<string | undefined>(options.provider);
   const selectedModelRef = useRef<string | undefined>(options.model);
   const selectedLangRef = useRef<string | undefined>(
     options.language || 'en-IN'
   );
+  const selectedVoiceURIRef = useRef<string | undefined>(options.voiceURI);
+  const speechRateRef = useRef<number>(options.speechRate ?? 0.94);
+  const speechPitchRef = useRef<number>(options.speechPitch ?? 1.0);
+  const voiceStyleRef = useRef<string>(options.voiceStyle || 'spoken_bengali');
 
   useEffect(() => {
     selectedProviderRef.current = options.provider;
     selectedModelRef.current = options.model;
     selectedLangRef.current = options.language || 'en-IN';
-  }, [options.provider, options.model, options.language]);
+    selectedVoiceURIRef.current = options.voiceURI;
+    speechRateRef.current = options.speechRate ?? 0.94;
+    speechPitchRef.current = options.speechPitch ?? 1.0;
+    voiceStyleRef.current = options.voiceStyle || 'spoken_bengali';
+  }, [
+    options.provider,
+    options.model,
+    options.language,
+    options.voiceURI,
+    options.speechRate,
+    options.speechPitch,
+    options.voiceStyle,
+  ]);
+
+  // Load browser speech synthesis voices dynamically
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.speechSynthesis) return;
+
+    const loadVoices = () => {
+      const vList = window.speechSynthesis.getVoices();
+      if (vList && vList.length > 0) {
+        setAvailableVoices(vList);
+        const hasBn = vList.some(
+          (v) =>
+            v.lang.toLowerCase().startsWith('bn') ||
+            v.name.toLowerCase().includes('bengali') ||
+            v.name.toLowerCase().includes('bangla')
+        );
+        setHasBengaliVoice(hasBn);
+      }
+    };
+
+    loadVoices();
+    window.speechSynthesis.onvoiceschanged = loadVoices;
+
+    return () => {
+      if (window.speechSynthesis) {
+        window.speechSynthesis.onvoiceschanged = null;
+      }
+    };
+  }, []);
 
   const roomRef = useRef<Room | null>(null);
   const audioElementsRef = useRef<HTMLAudioElement[]>([]);
@@ -118,59 +200,94 @@ export function useLiveKitVoice(options: UseLiveKitVoiceOptions = {}) {
 
     window.speechSynthesis.cancel();
 
-    // Clean markdown symbols for natural speaking
-    const cleanText = text
-      .replace(/[*#_`~>]/g, '')
-      .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
-      .replace(/https?:\/\/\S+/g, '')
-      .trim();
+    // Clean markdown and apply spoken Bengali normalizations
+    const cleanText = normalizeBengaliForSpeech(text);
 
     if (!cleanText) return;
 
     const utterance = new SpeechSynthesisUtterance(cleanText);
-    utterance.rate = 1.05;
-    utterance.pitch = 1.0;
+    utterance.pitch = speechPitchRef.current ?? 1.0;
 
     // Detect language of response: Bengali (বাংলা), Hindi (हिन्दी), or English
     const isBengali = /[\u0980-\u09FF]/.test(cleanText);
     const isHindi = /[\u0900-\u097F]/.test(cleanText);
 
     const voices = window.speechSynthesis.getVoices();
-    let preferredVoice = null;
+    let preferredVoice: SpeechSynthesisVoice | null = null;
 
-    if (isBengali) {
-      utterance.lang = 'bn-IN';
+    // 1. Explicitly configured voice URI from Voice Studio
+    if (selectedVoiceURIRef.current && selectedVoiceURIRef.current !== 'auto') {
       preferredVoice =
-        voices.find((v) => v.lang.startsWith('bn')) ||
-        voices.find(
-          (v) =>
-            v.lang.includes('IN') &&
-            (v.name.includes('Bengali') || v.name.includes('Bangla'))
-        ) ||
-        voices.find((v) => v.lang.includes('IN'));
-    } else if (isHindi) {
-      utterance.lang = 'hi-IN';
-      preferredVoice =
-        voices.find((v) => v.lang.startsWith('hi')) ||
-        voices.find((v) => v.lang.includes('IN') && v.name.includes('Hindi')) ||
-        voices.find((v) => v.lang.includes('IN'));
-    } else {
-      utterance.lang = 'en-IN';
-      preferredVoice =
-        voices.find(
-          (v) =>
-            (v.lang.includes('en') || v.lang.includes('IN')) &&
-            (v.name.includes('Natural') ||
-              v.name.includes('Neural') ||
-              v.name.includes('Google') ||
-              v.name.includes('Online'))
-        ) ||
-        voices.find((v) => v.lang.startsWith('en')) ||
-        voices[0];
+        voices.find((v) => v.voiceURI === selectedVoiceURIRef.current) ||
+        voices.find((v) => v.name === selectedVoiceURIRef.current) ||
+        null;
+    }
+
+    // 2. Intelligent Auto-Detection & High-Fidelity Match
+    if (!preferredVoice) {
+      if (isBengali) {
+        // Look for true Bengali voices (Google বাংলা, Microsoft Bashkar, Microsoft Sabina)
+        preferredVoice =
+          voices.find((v) => v.lang.toLowerCase().startsWith('bn')) ||
+          voices.find(
+            (v) =>
+              v.name.toLowerCase().includes('bengali') ||
+              v.name.toLowerCase().includes('bangla')
+          ) ||
+          null;
+
+        // Fallback for systems without native Bengali pack
+        if (!preferredVoice) {
+          preferredVoice =
+            voices.find(
+              (v) =>
+                v.lang.includes('IN') &&
+                (v.name.includes('Natural') ||
+                  v.name.includes('Neural') ||
+                  v.name.includes('Google'))
+            ) ||
+            voices.find((v) => v.lang.includes('IN')) ||
+            null;
+        }
+      } else if (isHindi) {
+        preferredVoice =
+          voices.find((v) => v.lang.startsWith('hi')) ||
+          voices.find(
+            (v) => v.lang.includes('IN') && v.name.includes('Hindi')
+          ) ||
+          voices.find((v) => v.lang.includes('IN')) ||
+          null;
+      } else {
+        preferredVoice =
+          voices.find(
+            (v) =>
+              (v.lang.includes('en') || v.lang.includes('IN')) &&
+              (v.name.includes('Natural') ||
+                v.name.includes('Neural') ||
+                v.name.includes('Google') ||
+                v.name.includes('Online'))
+          ) ||
+          voices.find((v) => v.lang.startsWith('en')) ||
+          voices[0] ||
+          null;
+      }
     }
 
     if (preferredVoice) {
       utterance.voice = preferredVoice;
+      utterance.lang = preferredVoice.lang;
+    } else {
+      utterance.lang = isBengali ? 'bn-IN' : isHindi ? 'hi-IN' : 'en-IN';
+    }
+
+    // Speech Rate: Bengali syllables & conjuncts sound vastly more articulate at 0.90x - 0.94x tempo
+    if (
+      isBengali &&
+      (!speechRateRef.current || speechRateRef.current === 1.05)
+    ) {
+      utterance.rate = 0.92;
+    } else {
+      utterance.rate = speechRateRef.current ?? 0.94;
     }
 
     utterance.onstart = () => {
@@ -192,6 +309,24 @@ export function useLiveKitVoice(options: UseLiveKitVoiceOptions = {}) {
 
     window.speechSynthesis.speak(utterance);
   }, []);
+
+  /**
+   * Preview/test the current voice settings with an articulate sample sentence
+   */
+  const testVoice = useCallback(
+    (customText?: string) => {
+      const sample =
+        customText ||
+        (selectedLangRef.current === 'bn-IN' ||
+        voiceStyleRef.current === 'spoken_bengali'
+          ? 'নমস্কার Founder! আমি রূহভির কোফাউন্ডার। আজকের ব্যবসার পরিস্থিতি আর অর্ডারগুলো দেখতে চান?'
+          : voiceStyleRef.current === 'banglish'
+            ? 'Nomoshkar Founder! Ami Ruhvi co-founder. Aajker sales aar orders dekhbo ki?'
+            : 'Hello Founder! I am your AI Co-Founder at Ruhvi. Ready to review sales and stock.');
+      speakResponse(sample);
+    },
+    [speakResponse]
+  );
 
   /**
    * Send recognized user speech to AI Co-Founder Brain
@@ -222,6 +357,8 @@ export function useLiveKitVoice(options: UseLiveKitVoiceOptions = {}) {
             channel: 'voice',
             provider: selectedProviderRef.current,
             model: selectedModelRef.current,
+            language: selectedLangRef.current,
+            voiceStyle: voiceStyleRef.current,
           }),
         });
 
@@ -520,8 +657,12 @@ export function useLiveKitVoice(options: UseLiveKitVoiceOptions = {}) {
     errorMessage,
     audioLevel,
     interimTranscript,
+    availableVoices,
+    hasBengaliVoice,
     startSession,
     disconnect,
     toggleMute,
+    speakResponse,
+    testVoice,
   };
 }

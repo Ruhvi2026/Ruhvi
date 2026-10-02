@@ -277,4 +277,29 @@ describe('Stage 3 — Co-Founder Brain & Memory System', () => {
     ]);
     expect(blocked.success).toBe(false);
   });
+
+  it('enforces natural colloquial spoken Bengali rules and bans archaic words', async () => {
+    const prompt = await getCoFounderSystemPrompt({
+      adminName: 'Founder',
+      channel: 'voice',
+      language: 'bn-IN',
+      voiceStyle: 'spoken_bengali',
+    });
+    expect(prompt).toContain('BENGALI SPOKEN VOICE PHONICS');
+    expect(prompt).toContain('NATURAL COLLOQUIAL SPOKEN BENGALI');
+    expect(prompt).toContain('NEVER use "এবং"');
+    expect(prompt).toContain('ALWAYS use "আর"');
+    expect(prompt).toContain('SHORT, BREATHABLE CADENCE');
+  });
+
+  it('formats Banglish phonetic instructions when banglish mode is active', async () => {
+    const prompt = await getCoFounderSystemPrompt({
+      adminName: 'Founder',
+      channel: 'voice',
+      language: 'bn-IN',
+      voiceStyle: 'banglish',
+    });
+    expect(prompt).toContain('BANGLISH / ROMANIZED PHONETIC MODE ACTIVE');
+    expect(prompt).toContain('Romanized Bengali');
+  });
 });

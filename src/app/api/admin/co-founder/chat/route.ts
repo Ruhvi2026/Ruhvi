@@ -28,6 +28,8 @@ export async function POST(req: NextRequest) {
       channel = 'text',
       provider: requestedProvider,
       model: requestedModel,
+      language,
+      voiceStyle,
     } = body;
 
     if (!messages || !Array.isArray(messages) || messages.length === 0) {
@@ -52,6 +54,8 @@ export async function POST(req: NextRequest) {
       adminName: 'Founder',
       channel: channel as 'voice' | 'text',
       sessionGoal: latest.text,
+      language,
+      voiceStyle,
     });
 
     // 2. Fetch configured AI Providers & Feature Routing from DB
