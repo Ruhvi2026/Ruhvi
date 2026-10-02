@@ -164,12 +164,20 @@ export default function TaskManagerPageContent() {
     <div className="flex h-full flex-col bg-[#0d0f1a]">
       <div className="border-b border-white/5 p-4">
         <Suspense fallback={<LoadingSpinner />}>
-          <TaskDashboard />
+          <TaskDashboard
+            activeFilterKey={activeFilterKey}
+            onFilterSelect={handleFilterSelect}
+          />
         </Suspense>
       </div>
       <div className="flex-1">
         <Suspense fallback={<LoadingSpinner />}>
-          <TaskList onTaskClick={setSelectedTask} />
+          <TaskList
+            onTaskClick={setSelectedTask}
+            externalFilters={activeFilterParams}
+            activeFilterLabel={activeFilterLabel}
+            onClearFilter={() => handleFilterSelect('', {}, '')}
+          />
         </Suspense>
       </div>
     </div>

@@ -270,12 +270,18 @@ export interface TaskFilters {
   due_after?: string;
   search?: string;
   my_tasks?: boolean;
+  my_open_tasks?: boolean;
   all_my_tasks?: boolean;
   assigned_by_me?: boolean;
   due_today?: boolean;
+  due_soon?: boolean;
   overdue?: boolean;
   supporting?: boolean;
   spectating?: boolean;
+  unassigned?: boolean;
+  high_priority?: boolean;
+  completed_today?: boolean;
+  sla_breached?: boolean;
   sort_by?: string;
   sort_dir?: 'asc' | 'desc';
   limit?: number;

@@ -38,6 +38,9 @@ interface TaskListProps {
   initialHasMore?: boolean;
   onTaskClick?: (task: Task) => void;
   refreshKey?: number;
+  externalFilters?: Record<string, any>;
+  activeFilterLabel?: string;
+  onClearFilter?: () => void;
 }
 
 const PRIORITY_COLORS: Record<string, string> = {
@@ -64,6 +67,9 @@ export default function TaskList({
   initialHasMore = false,
   onTaskClick,
   refreshKey,
+  externalFilters,
+  activeFilterLabel,
+  onClearFilter,
 }: TaskListProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -165,17 +171,25 @@ export default function TaskList({
     [buildApiUrl, limit]
   );
 
-  // Initial fetch and re-fetch on route change (pathname/searchParams updates) or refreshKey change
+  // Initial fetch and re-fetch on route change or externalFilters / refreshKey change
   useEffect(() => {
     const isMyTasks = searchParams?.get('my_tasks') === 'true';
     const isOverdue = searchParams?.get('overdue') === 'true';
-    setFilters((prev) => ({
-      ...prev,
+    const mergedFilters: TaskFilters = {
+      sort_by: 'created_at',
+      sort_dir: 'desc',
       my_tasks: isMyTasks,
       overdue: isOverdue,
-    }));
-    fetchTasks(1, { my_tasks: isMyTasks, overdue: isOverdue });
-  }, [pathname, searchParams?.toString(), refreshKey]);
+      ...externalFilters,
+    };
+    setFilters(mergedFilters);
+    fetchTasks(1, mergedFilters);
+  }, [
+    pathname,
+    searchParams?.toString(),
+    refreshKey,
+    JSON.stringify(externalFilters),
+  ]);
 
   useEffect(() => {
     const handleTaskCreated = () => {
@@ -310,6 +324,32 @@ export default function TaskList({
 
   return (
     <div className="flex h-full flex-col bg-[#0d0f1a]">
+      {activeFilterLabel && (
+        <div className="border-b border-emerald-500/20 bg-emerald-500/10 px-4 py-3 text-sm text-white">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Filter className="h-4 w-4 text-emerald-400" />
+              <span>
+                Filtered by dashboard tile:{' '}
+                <strong className="font-semibold text-emerald-300">
+                  {activeFilterLabel}
+                </strong>{' '}
+                ({total} {total === 1 ? 'task' : 'tasks'} found)
+              </span>
+            </div>
+            {onClearFilter && (
+              <button
+                type="button"
+                onClick={onClearFilter}
+                className="rounded-lg bg-emerald-500/20 px-3 py-1 text-xs font-semibold text-emerald-300 transition-colors hover:bg-emerald-500/30 hover:text-white"
+              >
+                Clear Filter
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Toolbar */}
       <div className="flex flex-col items-start justify-between gap-4 border-b border-white/5 p-4 sm:flex-row sm:items-center">
         <div className="flex items-center gap-3">

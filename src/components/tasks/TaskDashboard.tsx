@@ -14,45 +14,109 @@ import {
   TrendingUp,
   Activity,
   ArrowUpRight,
-  ArrowDownRight,
   Minus,
   Eye,
+  Check,
 } from 'lucide-react';
 import { DashboardStats } from './types';
 
 interface TaskDashboardProps {
   initialStats?: DashboardStats;
+  activeFilterKey?: string | null;
+  onFilterSelect?: (
+    filterKey: string,
+    params: Record<string, any>,
+    label: string
+  ) => void;
 }
 
 interface StatCardProps {
+  filterKey: string;
   label: string;
   value: number;
   icon: any;
   color?: string;
   bgColor?: string;
+  filterParams: Record<string, any>;
+  activeFilterKey?: string | null;
+  onSelect?: (
+    filterKey: string,
+    params: Record<string, any>,
+    label: string
+  ) => void;
 }
 
 const StatCard = ({
+  filterKey,
   label,
   value,
   icon: Icon,
   color = 'text-white',
   bgColor = 'bg-white/5',
-}: StatCardProps) => (
-  <div className={`rounded-lg border p-4 ${bgColor} border-white/10`}>
-    <div className="flex items-center justify-between">
-      <div>
-        <p className="text-[11px] font-medium uppercase tracking-wider text-slate-500">
-          {label}
-        </p>
-        <p className={`mt-1 text-2xl font-bold ${color}`}>{value}</p>
-      </div>
-      <Icon className="h-6 w-6 text-slate-500" />
-    </div>
-  </div>
-);
+  filterParams,
+  activeFilterKey,
+  onSelect,
+}: StatCardProps) => {
+  const isActive = activeFilterKey === filterKey;
 
-export default function TaskDashboard({ initialStats }: TaskDashboardProps) {
+  return (
+    <button
+      type="button"
+      onClick={() => onSelect?.(filterKey, filterParams, label)}
+      className={`group relative w-full text-left transition-all duration-200 focus:outline-none ${
+        isActive
+          ? 'scale-[1.02] shadow-lg shadow-emerald-500/10'
+          : 'hover:-translate-y-0.5 hover:scale-[1.01]'
+      }`}
+    >
+      <div
+        className={`relative overflow-hidden rounded-xl border p-4 transition-colors ${bgColor} ${
+          isActive
+            ? 'border-emerald-500/80 bg-emerald-500/10 ring-2 ring-emerald-500/50'
+            : 'border-white/10 hover:border-emerald-500/40 hover:bg-white/[0.08]'
+        }`}
+      >
+        {isActive && (
+          <div className="absolute right-2 top-2 flex items-center gap-1 rounded-full border border-emerald-500/40 bg-emerald-500/20 px-2 py-0.5 text-[10px] font-semibold text-emerald-400">
+            <Check className="h-3 w-3" />
+            <span>Active</span>
+          </div>
+        )}
+
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-[11px] font-medium uppercase tracking-wider text-slate-400 transition-colors group-hover:text-slate-200">
+              {label}
+            </p>
+            <p className={`mt-1 text-2xl font-bold ${color}`}>{value}</p>
+          </div>
+          <div
+            className={`rounded-lg p-2.5 transition-colors ${
+              isActive
+                ? 'bg-emerald-500/20 text-emerald-400'
+                : 'bg-white/5 text-slate-400 group-hover:bg-white/10 group-hover:text-white'
+            }`}
+          >
+            <Icon className="h-6 w-6" />
+          </div>
+        </div>
+
+        <div className="mt-3 flex items-center gap-1 text-[11px] font-medium text-slate-400 transition-colors group-hover:text-emerald-400">
+          <span>
+            {isActive ? 'Click to clear filter' : 'Click to filter tasks'}
+          </span>
+          <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+        </div>
+      </div>
+    </button>
+  );
+};
+
+export default function TaskDashboard({
+  initialStats,
+  activeFilterKey,
+  onFilterSelect,
+}: TaskDashboardProps) {
   const pathname = usePathname();
   const basePath = pathname ? pathname.split('?')[0] : '/admin/task-manager';
   const [stats, setStats] = useState<DashboardStats | null>(
@@ -85,6 +149,18 @@ export default function TaskDashboard({ initialStats }: TaskDashboardProps) {
     }
   };
 
+  const handleCardSelect = (
+    key: string,
+    params: Record<string, any>,
+    label: string
+  ) => {
+    if (activeFilterKey === key) {
+      onFilterSelect?.('', {}, '');
+    } else {
+      onFilterSelect?.(key, params, label);
+    }
+  };
+
   if (loading || !stats) {
     return (
       <div className="flex h-64 items-center justify-center">
@@ -99,9 +175,14 @@ export default function TaskDashboard({ initialStats }: TaskDashboardProps) {
       <div className="flex items-center justify-between border-b border-white/5 p-4">
         <div className="flex items-center gap-3">
           <LayoutDashboard className="h-6 w-6 text-emerald-400" />
-          <h2 className="text-lg font-semibold text-white">
-            Task Manager Dashboard
-          </h2>
+          <div>
+            <h2 className="text-lg font-semibold text-white">
+              Task Manager Dashboard
+            </h2>
+            <p className="text-xs text-slate-400">
+              Click any metric tile to filter the task list below
+            </p>
+          </div>
           <span className="rounded bg-emerald-500/10 px-2 py-0.5 text-[11px] font-medium capitalize text-emerald-400">
             {stats.role}
           </span>
@@ -122,43 +203,67 @@ export default function TaskDashboard({ initialStats }: TaskDashboardProps) {
           <>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
               <StatCard
+                filterKey="my_open_tasks"
                 label="My Open Tasks"
                 value={stats.my_open_tasks || 0}
                 icon={Flag}
                 color="text-blue-400"
+                filterParams={{ my_tasks: true, my_open_tasks: true }}
+                activeFilterKey={activeFilterKey}
+                onSelect={handleCardSelect}
               />
               <StatCard
+                filterKey="due_today"
                 label="Due Today"
                 value={stats.due_today || 0}
                 icon={Clock}
                 color="text-amber-400"
+                filterParams={{ my_tasks: true, due_today: true }}
+                activeFilterKey={activeFilterKey}
+                onSelect={handleCardSelect}
               />
               <StatCard
+                filterKey="due_soon"
                 label="Due Soon"
                 value={stats.due_soon || 0}
                 icon={ArrowUpRight}
                 color="text-emerald-400"
+                filterParams={{ my_tasks: true, due_soon: true }}
+                activeFilterKey={activeFilterKey}
+                onSelect={handleCardSelect}
               />
               <StatCard
+                filterKey="overdue"
                 label="Overdue"
                 value={stats.overdue || 0}
                 icon={AlertCircle}
                 color="text-rose-400"
+                filterParams={{ my_tasks: true, overdue: true }}
+                activeFilterKey={activeFilterKey}
+                onSelect={handleCardSelect}
               />
             </div>
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <StatCard
+                filterKey="supporting"
                 label="Supporting"
                 value={stats.supporting || 0}
                 icon={Users}
                 color="text-purple-400"
+                filterParams={{ supporting: true }}
+                activeFilterKey={activeFilterKey}
+                onSelect={handleCardSelect}
               />
               <StatCard
+                filterKey="spectating"
                 label="Spectating"
                 value={stats.spectating || 0}
                 icon={Eye}
                 color="text-slate-400"
+                filterParams={{ spectating: true }}
+                activeFilterKey={activeFilterKey}
+                onSelect={handleCardSelect}
               />
             </div>
           </>
@@ -169,49 +274,77 @@ export default function TaskDashboard({ initialStats }: TaskDashboardProps) {
           <>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
               <StatCard
+                filterKey="department_tasks"
                 label="Department Tasks"
                 value={stats.department_tasks || 0}
                 icon={Package}
                 color="text-blue-400"
+                filterParams={{ my_tasks: false }}
+                activeFilterKey={activeFilterKey}
+                onSelect={handleCardSelect}
               />
               <StatCard
+                filterKey="pending_assignment"
                 label="Pending Assignment"
                 value={stats.pending_assignment || 0}
                 icon={Users}
                 color="text-amber-400"
+                filterParams={{ unassigned: true }}
+                activeFilterKey={activeFilterKey}
+                onSelect={handleCardSelect}
               />
               <StatCard
+                filterKey="high_priority"
                 label="High Priority"
                 value={stats.high_priority || 0}
                 icon={Flag}
                 color="text-red-400"
+                filterParams={{ high_priority: true }}
+                activeFilterKey={activeFilterKey}
+                onSelect={handleCardSelect}
               />
               <StatCard
+                filterKey="overdue"
                 label="Overdue"
                 value={stats.overdue || 0}
                 icon={AlertCircle}
                 color="text-rose-400"
+                filterParams={{ overdue: true }}
+                activeFilterKey={activeFilterKey}
+                onSelect={handleCardSelect}
               />
             </div>
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
               <StatCard
+                filterKey="unassigned"
                 label="Unassigned"
                 value={stats.unassigned || 0}
                 icon={Minus}
                 color="text-slate-400"
+                filterParams={{ unassigned: true }}
+                activeFilterKey={activeFilterKey}
+                onSelect={handleCardSelect}
               />
               <StatCard
+                filterKey="completed_today"
                 label="Completed Today"
                 value={stats.completed_today || 0}
                 icon={CheckCircle}
                 color="text-emerald-400"
+                filterParams={{ completed_today: true }}
+                activeFilterKey={activeFilterKey}
+                onSelect={handleCardSelect}
               />
               <StatCard
+                filterKey="sla_breached"
                 label="SLA Breached"
                 value={stats.sla_breached || 0}
                 icon={AlertCircle}
                 color="text-rose-400"
+                filterParams={{ sla_breached: true }}
+                activeFilterKey={activeFilterKey}
+                onSelect={handleCardSelect}
               />
             </div>
           </>
@@ -222,49 +355,77 @@ export default function TaskDashboard({ initialStats }: TaskDashboardProps) {
           <>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
               <StatCard
+                filterKey="total"
                 label="Total Tasks"
                 value={stats.total || 0}
                 icon={Package}
                 color="text-white"
+                filterParams={{}}
+                activeFilterKey={activeFilterKey}
+                onSelect={handleCardSelect}
               />
               <StatCard
+                filterKey="open"
                 label="Open"
                 value={stats.open || 0}
                 icon={Flag}
                 color="text-blue-400"
+                filterParams={{ status: 'Open' }}
+                activeFilterKey={activeFilterKey}
+                onSelect={handleCardSelect}
               />
               <StatCard
+                filterKey="in_progress"
                 label="In Progress"
                 value={stats.in_progress || 0}
                 icon={Activity}
                 color="text-amber-400"
+                filterParams={{ status: 'In Progress' }}
+                activeFilterKey={activeFilterKey}
+                onSelect={handleCardSelect}
               />
               <StatCard
+                filterKey="completed"
                 label="Completed"
                 value={stats.completed || 0}
                 icon={CheckCircle}
                 color="text-emerald-400"
+                filterParams={{ status: 'Completed' }}
+                activeFilterKey={activeFilterKey}
+                onSelect={handleCardSelect}
               />
             </div>
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
               <StatCard
+                filterKey="overdue"
                 label="Overdue"
                 value={stats.overdue || 0}
                 icon={AlertCircle}
                 color="text-rose-400"
+                filterParams={{ overdue: true }}
+                activeFilterKey={activeFilterKey}
+                onSelect={handleCardSelect}
               />
               <StatCard
+                filterKey="sla_breached"
                 label="SLA Breached"
                 value={stats.sla_breached || 0}
                 icon={AlertCircle}
                 color="text-red-500"
+                filterParams={{ sla_breached: true }}
+                activeFilterKey={activeFilterKey}
+                onSelect={handleCardSelect}
               />
               <StatCard
+                filterKey="completed_today"
                 label="Completed Today"
                 value={stats.completed_today || 0}
                 icon={TrendingUp}
                 color="text-emerald-400"
+                filterParams={{ completed_today: true }}
+                activeFilterKey={activeFilterKey}
+                onSelect={handleCardSelect}
               />
             </div>
 
@@ -348,18 +509,28 @@ export default function TaskDashboard({ initialStats }: TaskDashboardProps) {
             >
               <Flag className="h-4 w-4" /> New Task
             </Link>
-            <Link
-              href={`${basePath}?my_tasks=true`}
+            <button
+              type="button"
+              onClick={() =>
+                handleCardSelect(
+                  'my_open_tasks',
+                  { my_tasks: true },
+                  'My Tasks'
+                )
+              }
               className="flex items-center gap-2 rounded-lg bg-white/10 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-white/15"
             >
               <Users className="h-4 w-4" /> My Tasks
-            </Link>
-            <Link
-              href={`${basePath}?overdue=true`}
+            </button>
+            <button
+              type="button"
+              onClick={() =>
+                handleCardSelect('overdue', { overdue: true }, 'Overdue Tasks')
+              }
               className="flex items-center gap-2 rounded-lg bg-white/10 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-white/15"
             >
               <AlertCircle className="h-4 w-4" /> Overdue Tasks
-            </Link>
+            </button>
           </div>
         </div>
       </div>

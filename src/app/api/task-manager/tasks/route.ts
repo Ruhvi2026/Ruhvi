@@ -288,6 +288,82 @@ export async function GET(req: Request) {
       }
     }
 
+    if (searchParams.get('my_open_tasks') === 'true') {
+      const { data: statuses } = await supabase
+        .from('task_statuses')
+        .select('id')
+        .neq('name', 'Completed')
+        .neq('name', 'Closed');
+      const nonFinalIds = (statuses || []).map((s: any) => s.id);
+      if (nonFinalIds.length > 0) {
+        query = query.in('status_id', nonFinalIds);
+      }
+    }
+
+    if (searchParams.get('due_soon') === 'true') {
+      const today = new Date();
+      const threeDaysLater = new Date();
+      threeDaysLater.setDate(today.getDate() + 3);
+      query = query
+        .gte('due_date', today.toISOString().split('T')[0])
+        .lte('due_date', threeDaysLater.toISOString().split('T')[0]);
+      const { data: statuses } = await supabase
+        .from('task_statuses')
+        .select('id')
+        .neq('name', 'Completed')
+        .neq('name', 'Closed');
+      const nonFinalIds = (statuses || []).map((s: any) => s.id);
+      if (nonFinalIds.length > 0) {
+        query = query.in('status_id', nonFinalIds);
+      }
+    }
+
+    if (
+      searchParams.get('unassigned') === 'true' ||
+      searchParams.get('pending_assignment') === 'true'
+    ) {
+      query = query.is('assignee_id', null);
+    }
+
+    if (searchParams.get('high_priority') === 'true') {
+      const { data: priorityRows } = await supabase
+        .from('task_priorities')
+        .select('id')
+        .in('name', ['High', 'Important', 'Immediate']);
+      const priorityIds = (priorityRows || []).map((p: any) => p.id);
+      if (priorityIds.length > 0) {
+        query = query.in('priority_id', priorityIds);
+      }
+    }
+
+    if (searchParams.get('completed_today') === 'true') {
+      const todayStr = new Date().toISOString().split('T')[0];
+      const { data: completedStatus } = await supabase
+        .from('task_statuses')
+        .select('id')
+        .eq('name', 'Completed')
+        .maybeSingle();
+      if (completedStatus) {
+        query = query
+          .eq('status_id', completedStatus.id)
+          .gte('updated_at', `${todayStr}T00:00:00.000Z`);
+      }
+    }
+
+    if (searchParams.get('sla_breached') === 'true') {
+      const todayStr = new Date().toISOString().split('T')[0];
+      query = query.lt('due_date', todayStr);
+      const { data: statuses } = await supabase
+        .from('task_statuses')
+        .select('id')
+        .neq('name', 'Completed')
+        .neq('name', 'Closed');
+      const nonFinalIds = (statuses || []).map((s: any) => s.id);
+      if (nonFinalIds.length > 0) {
+        query = query.in('status_id', nonFinalIds);
+      }
+    }
+
     if (search) {
       query = query.or(
         `title.ilike.%${search}%,description.ilike.%${search}%,task_id_text.ilike.%${search}%`
