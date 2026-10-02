@@ -445,7 +445,7 @@ export default function TaskList({
           <div className="flex items-center justify-between pt-2">
             <button
               onClick={() => {
-                const defaultFilters = {
+                const defaultFilters: Partial<TaskFilters> = {
                   sort_by: 'created_at',
                   sort_dir: 'desc',
                   all_my_tasks: true,
