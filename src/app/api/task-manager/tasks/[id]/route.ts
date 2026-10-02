@@ -170,7 +170,7 @@ export async function PUT(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    // Handle status change to completed/closed - set timestamps
+    // Handle status change - set timestamps and notifications
     let reachedFinalStatus = false;
     if (body.status_id) {
       const { data: newStatus } = await supabase
@@ -181,6 +181,7 @@ export async function PUT(
 
       if (newStatus?.name === 'Completed' && !existingTask.completed_at) {
         updates.completed_at = new Date().toISOString();
+        // Notify the assignor (creator) that the task is completed
         if (
           existingTask.created_by &&
           existingTask.created_by !== staffUser.id
@@ -196,9 +197,67 @@ export async function PUT(
           });
         }
       }
+
       if (newStatus?.name === 'Closed' && !existingTask.closed_at) {
         updates.closed_at = new Date().toISOString();
       }
+
+      // Re-open: clear completion/close timestamps and notify the assignee
+      if (newStatus?.name === 'Open') {
+        updates.completed_at = null;
+        updates.closed_at = null;
+        if (
+          existingTask.assignee_id &&
+          existingTask.assignee_id !== staffUser.id
+        ) {
+          await supabase.from('notifications').insert({
+            user_id: existingTask.assignee_id,
+            title: 'Task Re-opened',
+            message: `Task "${existingTask.title}" has been re-opened and needs your attention.`,
+            category: 'TASK_STATUS_UPDATE',
+            reference_type: 'task',
+            reference_id: id,
+            actor_id: staffUser.id,
+          });
+        }
+      }
+
+      // Notify the assignor when task is Updated (assignee needs input)
+      if (newStatus?.name === 'Updated') {
+        if (
+          existingTask.created_by &&
+          existingTask.created_by !== staffUser.id
+        ) {
+          await supabase.from('notifications').insert({
+            user_id: existingTask.created_by,
+            title: 'Task Update',
+            message: `Task "${existingTask.title}" has been updated by the assignee and may need your input.`,
+            category: 'TASK_STATUS_UPDATE',
+            reference_type: 'task',
+            reference_id: id,
+            actor_id: staffUser.id,
+          });
+        }
+      }
+
+      // Notify the assignee when task is Accepted (confirmation)
+      if (newStatus?.name === 'Accepted') {
+        if (
+          existingTask.created_by &&
+          existingTask.created_by !== staffUser.id
+        ) {
+          await supabase.from('notifications').insert({
+            user_id: existingTask.created_by,
+            title: 'Task Accepted',
+            message: `Task "${existingTask.title}" has been accepted by the assignee.`,
+            category: 'TASK_STATUS_UPDATE',
+            reference_type: 'task',
+            reference_id: id,
+            actor_id: staffUser.id,
+          });
+        }
+      }
+
       if (newStatus?.name === 'Completed' || newStatus?.name === 'Closed') {
         reachedFinalStatus = true;
       }

@@ -25,6 +25,9 @@ import {
   Calendar,
   Bell,
   ExternalLink,
+  RefreshCw,
+  ArrowUpCircle,
+  PlayCircle,
 } from 'lucide-react';
 import RelatedEntityModal from './RelatedEntityModal';
 import StaffAvatar from './StaffAvatar';
@@ -486,7 +489,8 @@ export default function TaskDetail({
                     disabled={updatingStatus}
                     className="flex items-center gap-2 rounded-lg bg-emerald-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-700 disabled:opacity-50"
                   >
-                    <CheckCircle className="h-4 w-4" /> Accept Task
+                    <CheckCircle className="h-4 w-4" />
+                    {updatingStatus ? 'Accepting...' : 'Accept Task'}
                   </button>
                 );
               }
@@ -497,7 +501,8 @@ export default function TaskDetail({
                     disabled={updatingStatus}
                     className="flex items-center gap-2 rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
                   >
-                    <Activity className="h-4 w-4" /> Start Work
+                    <PlayCircle className="h-4 w-4" />
+                    {updatingStatus ? 'Starting...' : 'Start Work'}
                   </button>
                 );
               }
@@ -506,13 +511,24 @@ export default function TaskDetail({
                 currentStatus === 'Updated'
               ) {
                 return (
-                  <button
-                    onClick={() => handleUpdateStatus('Completed')}
-                    disabled={updatingStatus}
-                    className="flex items-center gap-2 rounded-lg bg-emerald-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-700 disabled:opacity-50"
-                  >
-                    <CheckCircle className="h-4 w-4" /> Mark as Completed
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => handleUpdateStatus('Updated')}
+                      disabled={updatingStatus || currentStatus === 'Updated'}
+                      className="flex items-center gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-sm font-medium text-amber-400 transition-colors hover:bg-amber-500/20 disabled:opacity-50"
+                    >
+                      <ArrowUpCircle className="h-4 w-4" />
+                      Update
+                    </button>
+                    <button
+                      onClick={() => handleUpdateStatus('Completed')}
+                      disabled={updatingStatus}
+                      className="flex items-center gap-2 rounded-lg bg-emerald-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-700 disabled:opacity-50"
+                    >
+                      <CheckCircle className="h-4 w-4" />
+                      {updatingStatus ? 'Completing...' : 'Mark as Completed'}
+                    </button>
+                  </div>
                 );
               }
             }
@@ -520,13 +536,24 @@ export default function TaskDetail({
             if (isAssignor) {
               if (currentStatus === 'Completed') {
                 return (
-                  <button
-                    onClick={() => handleUpdateStatus('Closed')}
-                    disabled={updatingStatus}
-                    className="flex items-center gap-2 rounded-lg bg-gray-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-gray-700 disabled:opacity-50"
-                  >
-                    <XCircle className="h-4 w-4" /> Close Task
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => handleUpdateStatus('Open')}
+                      disabled={updatingStatus}
+                      className="flex items-center gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-sm font-medium text-amber-400 transition-colors hover:bg-amber-500/20 disabled:opacity-50"
+                    >
+                      <RefreshCw className="h-4 w-4" />
+                      {updatingStatus ? 'Re-opening...' : 'Re-open'}
+                    </button>
+                    <button
+                      onClick={() => handleUpdateStatus('Closed')}
+                      disabled={updatingStatus}
+                      className="flex items-center gap-2 rounded-lg bg-gray-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-gray-700 disabled:opacity-50"
+                    >
+                      <XCircle className="h-4 w-4" />
+                      {updatingStatus ? 'Closing...' : 'Close Task'}
+                    </button>
+                  </div>
                 );
               }
             }

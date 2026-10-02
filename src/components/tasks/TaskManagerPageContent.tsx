@@ -212,6 +212,7 @@ export default function TaskManagerPageContent() {
             externalFilters={activeFilterParams}
             activeFilterLabel={activeFilterLabel}
             onClearFilter={() => handleFilterSelect('', {}, '')}
+            statuses={statuses}
           />
         </Suspense>
       </div>

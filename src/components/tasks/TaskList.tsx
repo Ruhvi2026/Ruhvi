@@ -16,11 +16,17 @@ import {
   Ticket,
   ClipboardList,
   MessageSquare,
+  CheckCircle,
+  PlayCircle,
+  RefreshCw,
+  XCircle,
+  ArrowUpCircle,
 } from 'lucide-react';
 import { debounce } from '@/lib/debounce';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import RelatedEntityModal from './RelatedEntityModal';
 import StaffAvatar from './StaffAvatar';
+import { useSessionUserId } from '@/hooks/useSessionUserId';
 import {
   Task,
   TaskFilters,
@@ -41,6 +47,7 @@ interface TaskListProps {
   externalFilters?: Record<string, any>;
   activeFilterLabel?: string;
   onClearFilter?: () => void;
+  statuses?: TaskStatus[];
 }
 
 const PRIORITY_COLORS: Record<string, string> = {
@@ -71,10 +78,13 @@ export default function TaskList({
   externalFilters,
   activeFilterLabel,
   onClearFilter,
+  statuses,
 }: TaskListProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
+  const currentUserId = useSessionUserId();
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
 
   const basePath = pathname ? pathname.split('?')[0] : '/admin/task-manager';
 
@@ -313,6 +323,120 @@ export default function TaskList({
         {statusStr}
       </span>
     );
+  };
+
+  const handleQuickStatusUpdate = async (
+    e: React.MouseEvent,
+    task: Task,
+    targetStatusName: string
+  ) => {
+    e.stopPropagation();
+    if (!statuses || actionLoading) return;
+    const targetStatus = statuses.find((s) => s.name === targetStatusName);
+    if (!targetStatus) return;
+
+    setActionLoading(task.id);
+    try {
+      const res = await fetch(`/api/task-manager/tasks/${task.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status_id: targetStatus.id }),
+      });
+      if (!res.ok) throw new Error('Failed to update status');
+      // Refresh the list
+      await fetchTasks(page, filters);
+      window.dispatchEvent(new Event('task-created-or-updated'));
+    } catch (err) {
+      console.error('Failed to update task status:', err);
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const getActionButton = (task: Task) => {
+    if (!currentUserId || !statuses) return null;
+    const currentStatus = task.status_name?.name || 'Open';
+    const isAssignee = currentUserId === task.assignee_id;
+    const isAssignor = currentUserId === task.created_by;
+    const isLoading = actionLoading === task.id;
+
+    if (currentStatus === 'Closed') return null;
+
+    if (isAssignee) {
+      if (currentStatus === 'Open') {
+        return (
+          <button
+            onClick={(e) => handleQuickStatusUpdate(e, task, 'Accepted')}
+            disabled={isLoading}
+            className="flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-all hover:bg-emerald-500 hover:shadow-md disabled:opacity-50"
+          >
+            <CheckCircle className="h-3.5 w-3.5" />
+            {isLoading ? 'Accepting...' : 'Accept'}
+          </button>
+        );
+      }
+      if (currentStatus === 'Accepted') {
+        return (
+          <button
+            onClick={(e) => handleQuickStatusUpdate(e, task, 'In Progress')}
+            disabled={isLoading}
+            className="flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-all hover:bg-blue-500 hover:shadow-md disabled:opacity-50"
+          >
+            <PlayCircle className="h-3.5 w-3.5" />
+            {isLoading ? 'Starting...' : 'Start Work'}
+          </button>
+        );
+      }
+      if (currentStatus === 'In Progress' || currentStatus === 'Updated') {
+        return (
+          <div className="flex items-center gap-2">
+            <button
+              onClick={(e) => handleQuickStatusUpdate(e, task, 'Updated')}
+              disabled={isLoading || currentStatus === 'Updated'}
+              className="flex items-center gap-1.5 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-1.5 text-xs font-semibold text-amber-400 transition-all hover:bg-amber-500/20 disabled:opacity-50"
+            >
+              <ArrowUpCircle className="h-3.5 w-3.5" />
+              Update
+            </button>
+            <button
+              onClick={(e) => handleQuickStatusUpdate(e, task, 'Completed')}
+              disabled={isLoading}
+              className="flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-all hover:bg-emerald-500 hover:shadow-md disabled:opacity-50"
+            >
+              <CheckCircle className="h-3.5 w-3.5" />
+              {isLoading ? 'Completing...' : 'Complete'}
+            </button>
+          </div>
+        );
+      }
+    }
+
+    if (isAssignor) {
+      if (currentStatus === 'Completed') {
+        return (
+          <div className="flex items-center gap-2">
+            <button
+              onClick={(e) => handleQuickStatusUpdate(e, task, 'Open')}
+              disabled={isLoading}
+              className="flex items-center gap-1.5 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-1.5 text-xs font-semibold text-amber-400 transition-all hover:bg-amber-500/20 disabled:opacity-50"
+            >
+              <RefreshCw className="h-3.5 w-3.5" />
+              Re-open
+            </button>
+            <button
+              onClick={(e) => handleQuickStatusUpdate(e, task, 'Closed')}
+              disabled={isLoading}
+              className="flex items-center gap-1.5 rounded-lg bg-gray-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-all hover:bg-gray-500 hover:shadow-md disabled:opacity-50"
+            >
+              <XCircle className="h-3.5 w-3.5" />
+              {isLoading ? 'Closing...' : 'Close Task'}
+            </button>
+          </div>
+        );
+      }
+    }
+
+    return null;
   };
 
   if (loading && tasks.length === 0) {
@@ -767,6 +891,13 @@ export default function TaskList({
                     </div>
                   )}
                 </div>
+
+                {/* Action Button */}
+                {getActionButton(task) && (
+                  <div className="flex items-center justify-end border-t border-white/5 pt-3">
+                    {getActionButton(task)}
+                  </div>
+                )}
               </div>
             ))}
           </div>
