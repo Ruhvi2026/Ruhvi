@@ -32,8 +32,8 @@ export async function GET(
         recurrence:task_recurrences(*),
         
         // Aggregates
-        assignments:task_assignments(*, assigned_user:users(id, full_name, email, avatar_url)),
-        spectators:task_spectators(*, spectator:users(id, full_name, email, avatar_url)),
+        assignments:task_assignments(*, assigned_user:users!task_assignments_user_id_fkey(id, full_name, email, avatar_url)),
+        spectators:task_spectators(*, spectator:users!task_spectators_user_id_fkey(id, full_name, email, avatar_url)),
         comments:task_comments(*, user:users(id, full_name, email, avatar_url)),
         checklists:task_checklists(*),
         attachments:task_attachments(*),

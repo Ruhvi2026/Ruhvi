@@ -57,7 +57,7 @@ export async function GET(
     const { data: spectators, error } = await supabase
       .from('task_spectators')
       .select(
-        '*, spectator:users(id, full_name, email, avatar_url, department)'
+        '*, spectator:users!task_spectators_user_id_fkey(id, full_name, email, avatar_url, department)'
       )
       .eq('task_id', id)
       .order('added_at', { ascending: true });
