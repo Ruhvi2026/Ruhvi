@@ -8,6 +8,8 @@ function isPortalHostname(hostname: string): boolean {
   return (
     h === 'admin.ruhvi.in' ||
     h.startsWith('admin.localhost') ||
+    h === 'co-founder.ruhvi.in' ||
+    h.startsWith('co-founder.localhost') ||
     h === 'support.ruhvi.in' ||
     h.startsWith('support.localhost') ||
     h === 'auth.ruhvi.in' ||
@@ -25,6 +27,7 @@ function isPortalHostname(hostname: string): boolean {
 
 const PORTAL_PATHS = [
   '/admin',
+  '/co-founder',
   '/manager',
   '/staff',
   '/operations',

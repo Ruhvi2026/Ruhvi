@@ -427,6 +427,8 @@ export default function CoFounderPortalPage() {
             onStart={voice.startSession}
             errorMessage={voice.errorMessage}
             roomName={voice.roomName}
+            audioLevel={voice.audioLevel}
+            interimTranscript={voice.interimTranscript}
           />
         </div>
 

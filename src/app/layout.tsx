@@ -156,7 +156,7 @@ export default function RootLayout({
                   // to the system preference. Resolving the right key before first
                   // paint avoids a flash of the wrong theme on portal load.
                   var path = window.location.pathname || '';
-                  var isPortal = /^\\/(admin|operations|portal-orders|support|marketing|tech)(\\/|$)/.test(path);
+                  var isPortal = /^\\/(admin|co-founder|operations|portal-orders|support|marketing|tech)(\\/|$)/.test(path);
                   var theme = isPortal
                     ? (localStorage.getItem('ruhvi-portal-theme') || 'dark')
                     : (localStorage.getItem('theme') || 'system');
