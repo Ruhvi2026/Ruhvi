@@ -13,6 +13,10 @@ import {
 } from '@/lib/ai/mcp-auth';
 import { sendWhatsAppMessage } from '@/lib/whatsapp';
 import { sendFcmToTokens, getTokensForUsers } from '@/lib/fcm-admin';
+import {
+  getStoreAnalytics,
+  type AnalyticsTimeframe,
+} from '@/lib/ai/co-founder/analytics';
 
 // ---------------------------------------------------------------------------
 // Shared helpers
@@ -736,6 +740,35 @@ function registerReadTools(server: McpServer, ctx: McpRequestContext) {
               null,
               2
             ),
+          },
+        ],
+      };
+    }
+  );
+
+  // -------------------------------------------------------------------------
+  // get_sales_analytics
+  // -------------------------------------------------------------------------
+  server.tool(
+    'get_sales_analytics',
+    'Get comprehensive sales analytics, period-over-period trends, order counts, AOV, cancellations, and business anomalies.',
+    {
+      timeframe: z
+        .enum(['today', 'yesterday', '7d', '30d', 'this_month', 'last_month'])
+        .default('30d')
+        .describe('Time window for analytics comparison'),
+    },
+    async ({ timeframe }) => {
+      const report = await getStoreAnalytics({
+        timeframe: timeframe as AnalyticsTimeframe,
+      });
+      await audit(ctx, 'mcp_get_sales_analytics', 'analytics');
+
+      return {
+        content: [
+          {
+            type: 'text' as const,
+            text: JSON.stringify(report, null, 2),
           },
         ],
       };

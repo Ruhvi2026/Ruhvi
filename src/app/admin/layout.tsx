@@ -41,6 +41,7 @@ import {
   BookOpen,
   MessageCircle,
   ClipboardList,
+  Sparkles,
 } from 'lucide-react';
 import { AdminNotificationCenter } from '@/components/admin/AdminNotificationCenter';
 import FloatingStaffMessenger from '@/components/chat/FloatingStaffMessenger';
@@ -230,6 +231,14 @@ const NAV_GROUPS: NavGroup[] = [
         href: 'https://tech.ruhvi.in/tech/dashboard',
         external: true,
         icon: Globe,
+      },
+      {
+        label: 'AI Co-Founder Portal',
+        href: 'https://co-founder.ruhvi.in',
+        external: true,
+        icon: Sparkles,
+        badge: 'Live',
+        badgeColor: 'amber',
       },
     ],
   },

@@ -33,6 +33,11 @@ export async function middleware(request: NextRequest) {
     hostname === 'auth.ruhvi.in' || hostname.startsWith('auth.localhost');
   const isTechHost =
     hostname === 'tech.ruhvi.in' || hostname.startsWith('tech.localhost');
+  const isCoFounderHost =
+    hostname === 'co-founder.ruhvi.in' ||
+    hostname.startsWith('co-founder.localhost') ||
+    hostname === 'cofounder.ruhvi.in' ||
+    hostname.startsWith('cofounder.localhost');
 
   const isAnyPortalHost =
     isAdminHost ||
@@ -40,7 +45,8 @@ export async function middleware(request: NextRequest) {
     isOrdersHost ||
     isSupportHost ||
     isMarketingHost ||
-    isTechHost;
+    isTechHost ||
+    isCoFounderHost;
   const path = request.nextUrl.pathname;
 
   // Save referral code from URL to cookie
@@ -72,6 +78,8 @@ export async function middleware(request: NextRequest) {
       );
     if (isTechHost)
       return NextResponse.redirect(new URL('/tech/dashboard', request.url));
+    if (isCoFounderHost)
+      return NextResponse.redirect(new URL('/co-founder', request.url));
     if (isAuthHost)
       return NextResponse.redirect(new URL('/login', request.url));
   }
@@ -91,6 +99,7 @@ export async function middleware(request: NextRequest) {
     '/unauthorized',
     '/admin/task-manager',
     '/admin/chat',
+    '/co-founder',
   ];
   const isCommonAllowed =
     commonAllowedPaths.some((p) => path.startsWith(p)) ||
@@ -126,6 +135,14 @@ export async function middleware(request: NextRequest) {
     if (!isCommonAllowed && !path.startsWith('/tech')) {
       return NextResponse.rewrite(new URL('/404', request.url));
     }
+  } else if (isCoFounderHost) {
+    if (
+      !isCommonAllowed &&
+      !path.startsWith('/co-founder') &&
+      !path.startsWith('/admin/ai-chat')
+    ) {
+      return NextResponse.rewrite(new URL('/404', request.url));
+    }
   } else if (isAuthHost) {
     const isAuthAllowed =
       isCommonAllowed ||
@@ -147,6 +164,7 @@ export async function middleware(request: NextRequest) {
       '/support',
       '/marketing',
       '/tech',
+      '/co-founder',
     ];
     const isBlocked = internalBases.some(
       (b) => path === b || path.startsWith(b + '/')
@@ -170,6 +188,7 @@ export async function middleware(request: NextRequest) {
     '/support',
     '/marketing',
     '/tech',
+    '/co-founder',
   ];
   const isInternalRoute = internalBases.some(
     (b) => path === b || path.startsWith(b + '/')
@@ -335,6 +354,12 @@ export async function middleware(request: NextRequest) {
         )
           isPortalAllowed = true;
         if (isTechHost && (allowedPortals.includes('tech') || role === 'admin'))
+          isPortalAllowed = true;
+        if (
+          isCoFounderHost &&
+          (allowedPortals.includes('co-founder') ||
+            ['super_admin', 'admin'].includes(role))
+        )
           isPortalAllowed = true;
       }
 
