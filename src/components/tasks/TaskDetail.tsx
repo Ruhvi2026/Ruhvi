@@ -193,11 +193,17 @@ export default function TaskDetail({
           method: 'POST',
         }
       );
+      const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.error || 'Failed to create group');
+        throw new Error(data.error || 'Failed to create group');
       }
-      // Group created, refresh task to get the new messenger_group_id
+      if (data.conversation?.id) {
+        window.dispatchEvent(
+          new CustomEvent('open-staff-chat', {
+            detail: { conversationId: data.conversation.id },
+          })
+        );
+      }
       onRefresh?.();
     } catch (err) {
       console.error('Failed to create messenger group:', err);
@@ -405,12 +411,19 @@ export default function TaskDetail({
         </div>
         <div className="flex items-center gap-2">
           {task.messenger_group_id ? (
-            <Link
-              href={`/admin/chat?c=${task.messenger_group_id}`}
+            <button
+              type="button"
+              onClick={() => {
+                window.dispatchEvent(
+                  new CustomEvent('open-staff-chat', {
+                    detail: { conversationId: task.messenger_group_id },
+                  })
+                );
+              }}
               className="flex items-center gap-2 rounded-lg border border-indigo-500/30 bg-indigo-600/20 px-3 py-2 text-sm font-medium text-indigo-400 transition-colors hover:bg-indigo-600/30"
             >
               <MessageSquare className="h-4 w-4" /> Open Task Group
-            </Link>
+            </button>
           ) : (
             <button
               onClick={handleCreateMessengerGroup}
@@ -1055,13 +1068,20 @@ export default function TaskDetail({
 
         <div className="ml-auto flex items-center gap-2">
           {task.messenger_group_id ? (
-            <Link
-              href={`/admin/chat?c=${task.messenger_group_id}`}
+            <button
+              type="button"
+              onClick={() => {
+                window.dispatchEvent(
+                  new CustomEvent('open-staff-chat', {
+                    detail: { conversationId: task.messenger_group_id },
+                  })
+                );
+              }}
               className="flex items-center gap-2 rounded-lg border border-indigo-500/30 bg-indigo-600/20 px-3 py-2 text-sm font-medium text-indigo-400 transition-colors hover:bg-indigo-600/30"
             >
               <MessageSquare className="h-4 w-4" />
               <span>Task Group</span>
-            </Link>
+            </button>
           ) : (
             <button
               onClick={handleCreateMessengerGroup}

@@ -216,6 +216,39 @@ export default function FloatingStaffMessenger() {
       window.removeEventListener('toggle-staff-messenger', handleToggle);
   }, [isMinimized]);
 
+  useEffect(() => {
+    const handleOpenChat = async (e: any) => {
+      const convId = e.detail?.conversationId;
+      setIsOpen(true);
+      setIsMinimized(false);
+      if (convId) {
+        try {
+          const res = await fetch('/api/internal-chat/conversations');
+          if (res.ok) {
+            const data = await res.json();
+            const list = data.conversations || [];
+            setConversations(list);
+            const target = list.find((c: any) => c.id === convId);
+            if (target) {
+              setActiveConv(target);
+            } else {
+              setActiveConv({
+                id: convId,
+                type: 'group',
+                group_name: 'Task Group',
+              } as any);
+            }
+          }
+        } catch (err) {
+          console.error('Failed to open task chat:', err);
+        }
+      }
+    };
+
+    window.addEventListener('open-staff-chat', handleOpenChat);
+    return () => window.removeEventListener('open-staff-chat', handleOpenChat);
+  }, []);
+
   // Load conversations when opened
   const loadConversations = useCallback(async () => {
     if (!user?.uid) return;
