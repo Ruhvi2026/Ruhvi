@@ -286,6 +286,9 @@ export default function OrdersPortalLayout({
   const permissions = profile?.permissions || [];
   const role = (profile?.role as string) || 'customer';
   const isSuperAdmin = role === 'super_admin' || role === 'SUPER_ADMIN';
+  const isInternalStaff = ['super_admin', 'admin', 'manager', 'staff'].includes(
+    role.toLowerCase()
+  );
 
   const hasPermission = (requiredPerm?: string) => {
     if (!requiredPerm) return true;
@@ -294,6 +297,7 @@ export default function OrdersPortalLayout({
     if (permissions.includes(requiredPerm)) return true;
     const [module] = requiredPerm.split('.');
     if (permissions.includes(`${module}.*`)) return true;
+    if (isInternalStaff) return true;
     return false;
   };
 

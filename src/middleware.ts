@@ -325,6 +325,8 @@ export async function middleware(request: NextRequest) {
       let isPortalAllowed = false;
       if (role === 'super_admin' || role === 'admin') {
         isPortalAllowed = true;
+      } else if (isCommonAllowed) {
+        isPortalAllowed = true;
       } else {
         if (
           isAdminHost &&

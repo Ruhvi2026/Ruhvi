@@ -467,6 +467,9 @@ export default function OperationsLayout({
 
   const permissions = profile?.permissions || [];
   const userRole = profile?.role || 'customer';
+  const isInternalStaff = ['super_admin', 'admin', 'manager', 'staff'].includes(
+    userRole.toLowerCase()
+  );
   const displayRole =
     userRole === 'admin'
       ? 'Administrator'
@@ -480,6 +483,7 @@ export default function OperationsLayout({
     if (permissions.includes(requiredPerm)) return true;
     const [module] = requiredPerm.split('.');
     if (permissions.includes(`${module}.*`)) return true;
+    if (isInternalStaff) return true;
     return false;
   };
 
