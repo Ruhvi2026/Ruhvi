@@ -24,7 +24,8 @@ function optionalUuid(value: unknown, label: string) {
 const TASK_SELECT = `
   *,
   assignee:users!tasks_assignee_id_fkey(id, full_name, email, avatar_url),
-  creator:users!tasks_created_by_fkey(id, full_name, email),
+  creator:users!tasks_created_by_fkey(id, full_name, email, avatar_url),
+  spectators:task_spectators(*, spectator:users(id, full_name, email, avatar_url)),
   priority_name:task_priorities(name, level, color),
   status_name:task_statuses(name, display_order, color),
   type_name:task_types(name, icon),

@@ -15,10 +15,12 @@ import {
   Box,
   Ticket,
   ClipboardList,
+  MessageSquare,
 } from 'lucide-react';
 import { debounce } from '@/lib/debounce';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import RelatedEntityModal from './RelatedEntityModal';
+import StaffAvatar from './StaffAvatar';
 import {
   Task,
   TaskFilters,
@@ -504,175 +506,208 @@ export default function TaskList({
             </Link>
           </div>
         ) : (
-          <div className="divide-y divide-white/5">
+          <div className="space-y-3 p-3 sm:p-4">
             {tasks.map((task) => (
               <div
                 key={task.id}
-                className="cursor-pointer p-4 transition-colors hover:bg-white/5"
                 onClick={() => onTaskClick?.(task)}
+                className="group cursor-pointer space-y-3 rounded-xl border border-white/10 bg-[#161B2C]/80 p-4 shadow-sm transition-all hover:border-emerald-500/40 hover:bg-[#1C2339] hover:shadow-lg sm:p-5"
               >
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                  {/* Left Section: Title, ID, Status, Priority, Tags */}
-                  <div className="flex min-w-0 flex-1 flex-col gap-1.5">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <h3 className="truncate text-sm font-medium text-white">
-                        {task.title}
-                      </h3>
-                      {task.task_id_text && (
-                        <span className="whitespace-nowrap text-[11px] text-slate-500">
-                          {task.task_id_text}
-                        </span>
-                      )}
-                      {priorityLabel(task)}
-                      {statusLabel(task)}
+                {/* Top Row: Task ID, Title, Priority, Status, SLA */}
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="flex min-w-0 flex-wrap items-center gap-2.5">
+                    <span className="rounded border border-white/10 bg-white/5 px-2 py-0.5 font-mono text-xs font-medium text-slate-400">
+                      {task.task_id_text || 'TASK'}
+                    </span>
+                    <h3 className="truncate text-base font-semibold text-white transition-colors group-hover:text-emerald-400">
+                      {task.title}
+                    </h3>
+                    {priorityLabel(task)}
+                    {statusLabel(task)}
+                  </div>
+
+                  {task.due_date && (
+                    <div
+                      className={`whitespace-nowrap rounded-full border border-white/10 bg-black/30 px-3 py-1 text-xs font-medium ${
+                        getSlaStatus(task).class
+                      }`}
+                    >
+                      SLA: {getSlaStatus(task).label}
                     </div>
+                  )}
+                </div>
 
-                    <p className="line-clamp-1 text-xs text-slate-400">
-                      {task.description}
-                    </p>
+                {/* Description */}
+                {task.description && (
+                  <p className="line-clamp-2 text-xs leading-relaxed text-slate-300">
+                    {task.description}
+                  </p>
+                )}
 
-                    <div className="flex flex-wrap items-center gap-3 text-[11px] text-slate-300">
-                      <span className="flex items-center gap-1">
-                        <span className="text-slate-500">By:</span>
+                {/* Middle Section: Full-Width People Cards (By, To, Suspector) */}
+                <div className="grid grid-cols-1 gap-2.5 pt-1 sm:grid-cols-3">
+                  {/* Created By Card */}
+                  <div className="flex items-center gap-2.5 rounded-lg border border-white/5 bg-black/40 px-3 py-2">
+                    <StaffAvatar user={task.creator} size="sm" />
+                    <div className="min-w-0 flex-1">
+                      <span className="block text-[10px] font-medium uppercase tracking-wider text-slate-400">
+                        Created By
+                      </span>
+                      <p className="truncate text-xs font-semibold text-white">
                         {task.creator?.full_name || 'System'}
-                      </span>
-                      <span className="text-slate-600">•</span>
-                      <span className="flex items-center gap-1">
-                        <span className="text-slate-500">To:</span>
-                        {task.assignee?.full_name || 'Unassigned'}
-                      </span>
-                      {task.department_name && (
-                        <>
-                          <span className="text-slate-600">•</span>
-                          <span className="flex items-center gap-1 text-slate-400">
-                            <Building className="h-3 w-3" />
-                            {task.department_name}
-                          </span>
-                        </>
-                      )}
+                      </p>
                     </div>
+                  </div>
+
+                  {/* Assigned To Card */}
+                  <div className="flex items-center gap-2.5 rounded-lg border border-white/5 bg-black/40 px-3 py-2">
+                    <StaffAvatar user={task.assignee} size="sm" />
+                    <div className="min-w-0 flex-1">
+                      <span className="block text-[10px] font-medium uppercase tracking-wider text-slate-400">
+                        Assigned To
+                      </span>
+                      <p className="truncate text-xs font-semibold text-white">
+                        {task.assignee?.full_name || 'Unassigned'}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Suspector / Inspector Card */}
+                  <div className="flex items-center gap-2.5 rounded-lg border border-cyan-500/20 bg-cyan-500/10 px-3 py-2">
+                    {task.spectators &&
+                    task.spectators.length > 0 &&
+                    task.spectators[0].spectator ? (
+                      <>
+                        <StaffAvatar
+                          user={task.spectators[0].spectator}
+                          size="sm"
+                        />
+                        <div className="min-w-0 flex-1">
+                          <span className="block text-[10px] font-medium uppercase tracking-wider text-cyan-400">
+                            Suspector / Inspector
+                          </span>
+                          <p className="truncate text-xs font-semibold text-cyan-200">
+                            {task.spectators[0].spectator.full_name}
+                          </p>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="min-w-0 flex-1">
+                        <span className="block text-[10px] font-medium uppercase tracking-wider text-slate-400">
+                          Suspector / Inspector
+                        </span>
+                        <p className="truncate text-xs font-medium text-slate-400">
+                          None Assigned
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Footer Section: Department, Messenger Group, Tags, Related Entities */}
+                <div className="flex flex-wrap items-center justify-between gap-3 border-t border-white/5 pt-2 text-xs text-slate-400">
+                  <div className="flex flex-wrap items-center gap-2.5">
+                    {task.department_name && (
+                      <span className="flex items-center gap-1.5 rounded border border-white/10 bg-white/5 px-2.5 py-1 text-[11px] font-medium text-slate-300">
+                        <Building className="h-3.5 w-3.5 text-emerald-400" />
+                        {task.department_name}
+                      </span>
+                    )}
+
+                    {task.messenger_group_id && (
+                      <span className="flex items-center gap-1.5 rounded border border-indigo-500/30 bg-indigo-500/15 px-2.5 py-1 text-[11px] font-medium text-indigo-300">
+                        <MessageSquare className="h-3.5 w-3.5" />
+                        Chat Group Active
+                      </span>
+                    )}
 
                     {task.tags && task.tags.length > 0 && (
-                      <div className="mt-1 flex flex-wrap gap-1">
+                      <div className="flex flex-wrap gap-1">
                         {task.tags.map((tag, i) => (
                           <span
                             key={i}
-                            className="rounded bg-white/5 px-1.5 py-0.5 text-[10px] text-slate-400"
+                            className="rounded bg-white/5 px-2 py-0.5 text-[10px] text-slate-400"
                           >
-                            {tag}
+                            #{tag}
                           </span>
                         ))}
                       </div>
                     )}
                   </div>
 
-                  {/* Right Section: SLA, References, Actions */}
-                  <div className="flex items-center gap-4 sm:flex-col sm:items-end sm:justify-center sm:gap-2">
-                    {task.due_date && (
-                      <div
-                        className={`whitespace-nowrap text-[11px] font-medium ${
-                          getSlaStatus(task).class
-                        }`}
-                      >
-                        SLA: {getSlaStatus(task).label}
-                      </div>
-                    )}
-
-                    {(task.related_order_id ||
-                      task.related_ticket_id ||
-                      task.related_product_id) && (
-                      <div className="flex flex-wrap gap-2 text-[11px] sm:justify-end">
-                        {task.related_order_id && (
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setInspectModal({
-                                isOpen: true,
-                                type: 'order',
-                                idOrCode:
-                                  task.order?.id || task.related_order_id,
-                                data: task.order,
-                              });
-                            }}
-                            className="flex items-center gap-1 rounded border border-white/5 bg-white/5 px-2 py-0.5 text-slate-400 transition-colors hover:bg-emerald-500/10 hover:text-emerald-400"
-                          >
-                            <Package className="h-3 w-3 text-emerald-400" />
-                            <span>
-                              {task.order?.order_number ||
-                                task.related_order_id}
-                            </span>
-                          </button>
-                        )}
-                        {task.related_ticket_id && (
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setInspectModal({
-                                isOpen: true,
-                                type: 'ticket',
-                                idOrCode:
-                                  task.ticket?.id || task.related_ticket_id,
-                                data: task.ticket,
-                              });
-                            }}
-                            className="flex items-center gap-1 rounded border border-white/5 bg-white/5 px-2 py-0.5 text-slate-400 transition-colors hover:bg-emerald-500/10 hover:text-emerald-400"
-                          >
-                            <Ticket className="h-3 w-3 text-emerald-400" />
-                            <span>
-                              {task.ticket?.ticket_number ||
-                                task.related_ticket_id}
-                            </span>
-                          </button>
-                        )}
-                        {task.related_product_id && (
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setInspectModal({
-                                isOpen: true,
-                                type: 'product',
-                                idOrCode:
-                                  task.product?.id || task.related_product_id,
-                                data: task.product,
-                              });
-                            }}
-                            className="flex items-center gap-1 rounded border border-white/5 bg-white/5 px-2 py-0.5 text-slate-400 transition-colors hover:bg-emerald-500/10 hover:text-emerald-400"
-                          >
-                            <Box className="h-3 w-3 text-emerald-400" />
-                            <span className="max-w-[120px] truncate">
-                              {task.product?.name || task.related_product_id}
-                            </span>
-                          </button>
-                        )}
-                      </div>
-                    )}
-
-                    <div className="flex items-center gap-1 sm:mt-1">
-                      <button
-                        className="rounded p-1.5 text-slate-500 transition-colors hover:bg-white/5 hover:text-white"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onTaskClick?.(task);
-                        }}
-                        title="View Details"
-                      >
-                        <Eye className="h-4 w-4" />
-                      </button>
-                      <button
-                        className="rounded p-1.5 text-slate-500 transition-colors hover:bg-white/5 hover:text-white"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          router.push(`/admin/task-manager/${task.id}/edit`);
-                        }}
-                        title="Edit"
-                      >
-                        <Edit className="h-4 w-4" />
-                      </button>
+                  {/* Related Entities Buttons */}
+                  {(task.related_order_id ||
+                    task.related_ticket_id ||
+                    task.related_product_id) && (
+                    <div className="flex flex-wrap gap-2 text-[11px]">
+                      {task.related_order_id && (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setInspectModal({
+                              isOpen: true,
+                              type: 'order',
+                              idOrCode: task.order?.id || task.related_order_id,
+                              data: task.order,
+                            });
+                          }}
+                          className="flex items-center gap-1.5 rounded border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 text-emerald-300 transition-colors hover:bg-emerald-500/20"
+                        >
+                          <Package className="h-3.5 w-3.5 text-emerald-400" />
+                          <span>
+                            Order:{' '}
+                            {task.order?.order_number || task.related_order_id}
+                          </span>
+                        </button>
+                      )}
+                      {task.related_ticket_id && (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setInspectModal({
+                              isOpen: true,
+                              type: 'ticket',
+                              idOrCode:
+                                task.ticket?.id || task.related_ticket_id,
+                              data: task.ticket,
+                            });
+                          }}
+                          className="flex items-center gap-1.5 rounded border border-blue-500/30 bg-blue-500/10 px-2.5 py-1 text-blue-300 transition-colors hover:bg-blue-500/20"
+                        >
+                          <Ticket className="h-3.5 w-3.5 text-blue-400" />
+                          <span>
+                            Ticket:{' '}
+                            {task.ticket?.ticket_number ||
+                              task.related_ticket_id}
+                          </span>
+                        </button>
+                      )}
+                      {task.related_product_id && (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setInspectModal({
+                              isOpen: true,
+                              type: 'product',
+                              idOrCode:
+                                task.product?.id || task.related_product_id,
+                              data: task.product,
+                            });
+                          }}
+                          className="flex items-center gap-1.5 rounded border border-purple-500/30 bg-purple-500/10 px-2.5 py-1 text-purple-300 transition-colors hover:bg-purple-500/20"
+                        >
+                          <Box className="h-3.5 w-3.5 text-purple-400" />
+                          <span className="max-w-[140px] truncate">
+                            Product:{' '}
+                            {task.product?.name || task.related_product_id}
+                          </span>
+                        </button>
+                      )}
                     </div>
-                  </div>
+                  )}
                 </div>
               </div>
             ))}

@@ -107,7 +107,7 @@ export async function GET() {
 
         const { data: memberProfiles } = await supabase
           .from('users')
-          .select('id, full_name, email, role, department')
+          .select('id, full_name, email, role, department, avatar_url')
           .in('id', memberUserIds);
 
         const members = conv.chat_conversation_members

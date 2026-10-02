@@ -39,12 +39,12 @@ export async function POST(
     // 2. Fetch assignments and spectators to auto-add them
     const { data: assignments } = await supabase
       .from('task_assignments')
-      .select('assigned_user_id')
+      .select('assigned_user_id, user_id')
       .eq('task_id', taskId);
 
     const { data: spectators } = await supabase
       .from('task_spectators')
-      .select('spectator_id')
+      .select('spectator_id, user_id')
       .eq('task_id', taskId);
 
     // 3. Compile all members (creator, assignee, assignees, spectators, and the person creating the group)
@@ -53,10 +53,16 @@ export async function POST(
     if (task.created_by) memberIdsSet.add(task.created_by);
     if (task.assignee_id) memberIdsSet.add(task.assignee_id);
     if (assignments) {
-      assignments.forEach((a: any) => memberIdsSet.add(a.assigned_user_id));
+      assignments.forEach((a: any) => {
+        const uid = a.assigned_user_id || a.user_id;
+        if (uid) memberIdsSet.add(uid);
+      });
     }
     if (spectators) {
-      spectators.forEach((s: any) => memberIdsSet.add(s.spectator_id));
+      spectators.forEach((s: any) => {
+        const uid = s.spectator_id || s.user_id;
+        if (uid) memberIdsSet.add(uid);
+      });
     }
 
     const memberIds = Array.from(memberIdsSet);
@@ -70,8 +76,8 @@ export async function POST(
 
     const validMemberIds = validUsers?.map((u: any) => u.id) || [];
 
-    // 4. Create the group
-    const groupName = `Task: ${task.task_id_text} - ${task.title}`.substring(
+    // 4. Create the group (Group name is task title)
+    const groupName = (task.title || `Task ${task.task_id_text}`).substring(
       0,
       100
     );

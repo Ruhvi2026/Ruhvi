@@ -27,6 +27,7 @@ import {
   ExternalLink,
 } from 'lucide-react';
 import RelatedEntityModal from './RelatedEntityModal';
+import StaffAvatar from './StaffAvatar';
 import {
   Task,
   TaskComment,
@@ -472,28 +473,46 @@ export default function TaskDetail({
                 <span className="text-[11px] font-medium text-slate-500">
                   Created By
                 </span>
-                <p className="mt-1 text-sm font-medium text-white">
-                  {task.creator?.full_name || 'Unknown'}
-                </p>
+                <div className="mt-1 flex items-center gap-2">
+                  <StaffAvatar user={task.creator} size="sm" />
+                  <p className="truncate text-sm font-medium text-white">
+                    {task.creator?.full_name || 'Unknown'}
+                  </p>
+                </div>
               </div>
               <div className="rounded-lg border border-white/10 bg-white/5 p-4">
                 <span className="text-[11px] font-medium text-slate-500">
                   Assigned To
                 </span>
-                <p className="mt-1 text-sm font-medium text-white">
-                  {task.assignee?.full_name || 'Unassigned'}
-                </p>
+                <div className="mt-1 flex items-center gap-2">
+                  <StaffAvatar user={task.assignee} size="sm" />
+                  <p className="truncate text-sm font-medium text-white">
+                    {task.assignee?.full_name || 'Unassigned'}
+                  </p>
+                </div>
               </div>
               <div className="rounded-lg border border-white/10 bg-white/5 p-4">
                 <span className="flex items-center gap-1 text-[11px] font-medium text-slate-500">
                   <Eye className="h-3 w-3 text-cyan-400" /> Suspector /
                   Inspector
                 </span>
-                <p className="mt-1 text-sm font-medium text-cyan-300">
-                  {task.spectators && task.spectators.length > 0
-                    ? task.spectators[0].spectator?.full_name || 'Assigned'
-                    : 'None'}
-                </p>
+                <div className="mt-1 flex items-center gap-2">
+                  {task.spectators &&
+                  task.spectators.length > 0 &&
+                  task.spectators[0].spectator ? (
+                    <>
+                      <StaffAvatar
+                        user={task.spectators[0].spectator}
+                        size="sm"
+                      />
+                      <p className="truncate text-sm font-medium text-cyan-300">
+                        {task.spectators[0].spectator.full_name}
+                      </p>
+                    </>
+                  ) : (
+                    <p className="text-sm font-medium text-cyan-300">None</p>
+                  )}
+                </div>
               </div>
               <div className="rounded-lg border border-white/10 bg-white/5 p-4">
                 <span className="text-[11px] font-medium text-slate-500">
@@ -865,7 +884,8 @@ export default function TaskDetail({
                   key={comment.id}
                   className="rounded-lg border border-white/10 bg-white/5 p-4"
                 >
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2.5">
+                    <StaffAvatar user={comment.user} size="sm" />
                     <span className="text-sm font-medium text-white">
                       {comment.user?.full_name || 'Unknown'}
                     </span>
@@ -899,9 +919,7 @@ export default function TaskDetail({
                 key={activity.id}
                 className="flex gap-3 rounded-lg border border-white/10 bg-white/5 p-4"
               >
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-500/10 text-xs font-bold text-blue-400">
-                  {activity.user?.full_name?.[0]?.toUpperCase() || '?'}
-                </div>
+                <StaffAvatar user={activity.user} size="sm" />
                 <div className="flex-1">
                   <p className="text-sm font-medium text-white">
                     {activity.user?.full_name || 'System'} {activity.action}
@@ -1003,9 +1021,7 @@ export default function TaskDetail({
                 key={spectator.id}
                 className="flex items-center gap-3 rounded-lg border border-white/10 bg-white/5 p-4"
               >
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-purple-500/10 text-xs font-bold text-purple-400">
-                  {spectator.spectator?.full_name?.[0]?.toUpperCase() || '?'}
-                </div>
+                <StaffAvatar user={spectator.spectator} size="sm" />
                 <div>
                   <p className="text-sm font-medium text-white">
                     {spectator.spectator?.full_name || 'Unknown'}

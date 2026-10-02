@@ -21,7 +21,7 @@ export async function GET(
         `
         *,
         assignee:users!tasks_assignee_id_fkey(id, full_name, email, department_id, role, avatar_url),
-        creator:users!tasks_created_by_fkey(id, full_name, email),
+        creator:users!tasks_created_by_fkey(id, full_name, email, avatar_url),
         priority_name:task_priorities(name, level, color),
         status_name:task_statuses(name, display_order, color),
         type_name:task_types(name, icon),
@@ -37,7 +37,7 @@ export async function GET(
         comments:task_comments(*, user:users(id, full_name, email, avatar_url)),
         checklists:task_checklists(*),
         attachments:task_attachments(*),
-        activity:task_activity(*, user:users(id, full_name, email))
+        activity:task_activity(*, user:users(id, full_name, email, avatar_url))
       `
       )
       .eq('id', id)
