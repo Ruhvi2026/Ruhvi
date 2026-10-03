@@ -105,6 +105,17 @@ export interface TaskSpectator {
   spectator?: TaskUser;
 }
 
+export interface TaskCollaborator {
+  id: string;
+  task_id: string;
+  user_id: string;
+  added_by: string;
+  added_at: string;
+  created_at: string;
+  collaborator?: TaskUser;
+  added_by_user?: TaskUser;
+}
+
 export interface TaskComment {
   id: string;
   task_id: string;
@@ -221,6 +232,9 @@ export interface Task {
   tags: string[];
   is_recurring: boolean;
   parent_task_id: string | null;
+  /** 'department' = originally assigned via dept → manager route.
+   *  'direct_user' = assigned directly to a specific individual.  */
+  assigned_type: 'department' | 'direct_user';
   schedule_type?: string | null;
   schedule_time?: string | null;
   reminder_sent_at?: string | null;
@@ -246,6 +260,7 @@ export interface Task {
   // Aggregates
   assignments?: TaskAssignment[];
   spectators?: TaskSpectator[];
+  collaborators?: TaskCollaborator[];
   comments?: TaskComment[];
   activity?: TaskActivity[];
   checklists?: TaskChecklist[];

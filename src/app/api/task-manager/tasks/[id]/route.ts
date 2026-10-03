@@ -34,6 +34,7 @@ export async function GET(
         // Aggregates
         assignments:task_assignments(*, assigned_user:users!task_assignments_user_id_fkey(id, full_name, email, avatar_url)),
         spectators:task_spectators(*, spectator:users!task_spectators_user_id_fkey(id, full_name, email, avatar_url)),
+        collaborators:task_collaborators(*, collaborator:users!task_collaborators_user_id_fkey(id, full_name, email, avatar_url, department_id, role)),
         comments:task_comments(*, user:users(id, full_name, email, avatar_url)),
         checklists:task_checklists(*),
         attachments:task_attachments(*),
@@ -54,7 +55,7 @@ export async function GET(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    // Staff can only see tasks in their department or assigned to them or created by them or spectating
+    // Staff can only see tasks in their department or assigned to them or created by them or spectating or collaborating
     const canView =
       staffUser.role === 'super_admin' ||
       task.created_by === staffUser.id ||
@@ -62,7 +63,8 @@ export async function GET(
       (staffUser.department_id &&
         task.department_id === staffUser.department_id) ||
       task.assignments?.some((a: any) => a.assigned_user.id === staffUser.id) ||
-      task.spectators?.some((s: any) => s.spectator.id === staffUser.id);
+      task.spectators?.some((s: any) => s.spectator.id === staffUser.id) ||
+      task.collaborators?.some((c: any) => c.collaborator?.id === staffUser.id);
 
     if (!canView) {
       return NextResponse.json({ error: 'Task not found' }, { status: 404 });

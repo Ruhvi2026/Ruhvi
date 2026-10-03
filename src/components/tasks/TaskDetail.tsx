@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
@@ -8,6 +8,8 @@ import {
   Edit,
   Trash2,
   Users,
+  UserPlus,
+  UserCheck,
   Clock,
   Flag,
   Paperclip,
@@ -28,6 +30,10 @@ import {
   RefreshCw,
   ArrowUpCircle,
   PlayCircle,
+  ChevronDown,
+  X,
+  Search,
+  ArrowRightCircle,
 } from 'lucide-react';
 import RelatedEntityModal from './RelatedEntityModal';
 import StaffAvatar from './StaffAvatar';
@@ -38,9 +44,11 @@ import {
   TaskAttachment,
   TaskChecklist,
   TaskSpectator,
+  TaskCollaborator,
   TaskAssignment,
   TaskDependencyItem,
   TaskStatus,
+  TaskUser,
 } from './types';
 import { useAuth } from '@/context/AuthContext';
 
@@ -108,7 +116,28 @@ export default function TaskDetail({
   // profile.id is the Supabase UUID, user.id is the Firebase UID. We need the Supabase UUID.
   const currentUserId = profile?.id || user?.id;
   const isSuperAdmin = profile?.role === ('super_admin' as any);
+  const isManager = profile?.role === 'manager';
   const [updatingStatus, setUpdatingStatus] = useState(false);
+
+  // ── Delegation state (Feature 1) ────────────────────────────────────────────
+  const [showDelegatePanel, setShowDelegatePanel] = useState(false);
+  const [deptStaff, setDeptStaff] = useState<TaskUser[]>([]);
+  const [deptStaffLoading, setDeptStaffLoading] = useState(false);
+  const [delegateSearch, setDelegateSearch] = useState('');
+  const [selectedDelegateId, setSelectedDelegateId] = useState('');
+  const [delegating, setDelegating] = useState(false);
+  const [delegateError, setDelegateError] = useState('');
+
+  // ── Collaborator state (Feature 2) ──────────────────────────────────────────
+  const [showCollabPanel, setShowCollabPanel] = useState(false);
+  const [collabSearch, setCollabSearch] = useState('');
+  const [collabSearchResults, setCollabSearchResults] = useState<TaskUser[]>(
+    []
+  );
+  const [collabSearchLoading, setCollabSearchLoading] = useState(false);
+  const [addingCollab, setAddingCollab] = useState(false);
+  const [collabError, setCollabError] = useState('');
+  const collabSearchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const priorityColors: Record<string, string> = {
     Low: 'bg-gray-500/20 text-gray-400 border-gray-500/30',
@@ -433,12 +462,156 @@ export default function TaskDetail({
     }
   };
 
+  // ── Delegation handlers (Feature 1) ─────────────────────────────────────────
+
+  /** Load staff belonging to the task's department for the delegate dropdown */
+  const loadDeptStaff = async () => {
+    if (!task.department_id) return;
+    setDeptStaffLoading(true);
+    try {
+      const res = await fetch(
+        `/api/task-manager/staff?department_id=${task.department_id}`
+      );
+      const data = await res.json();
+      // Exclude the manager themselves and anyone who is already the primary assignee
+      const staffList: TaskUser[] = (data.staff || []).filter(
+        (s: TaskUser) => s.id !== currentUserId
+      );
+      setDeptStaff(staffList);
+    } catch (err) {
+      console.error('Failed to load dept staff:', err);
+    } finally {
+      setDeptStaffLoading(false);
+    }
+  };
+
+  const handleOpenDelegatePanel = () => {
+    setDelegateError('');
+    setSelectedDelegateId('');
+    setDelegateSearch('');
+    setShowDelegatePanel(true);
+    loadDeptStaff();
+  };
+
+  const handleDelegate = async () => {
+    if (!selectedDelegateId || delegating) return;
+    setDelegating(true);
+    setDelegateError('');
+    try {
+      const res = await fetch(`/api/task-manager/tasks/${task.id}/delegate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ staff_id: selectedDelegateId }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to delegate');
+      setShowDelegatePanel(false);
+      onRefresh?.();
+    } catch (err: any) {
+      setDelegateError(err.message || 'Failed to delegate task');
+    } finally {
+      setDelegating(false);
+    }
+  };
+
+  // ── Collaborator handlers (Feature 2) ────────────────────────────────────────
+
+  const searchCollabStaff = (query: string) => {
+    setCollabSearch(query);
+    if (collabSearchTimer.current) clearTimeout(collabSearchTimer.current);
+    if (!query.trim()) {
+      setCollabSearchResults([]);
+      return;
+    }
+    collabSearchTimer.current = setTimeout(async () => {
+      setCollabSearchLoading(true);
+      try {
+        const res = await fetch(
+          `/api/task-manager/staff?q=${encodeURIComponent(query)}`
+        );
+        const data = await res.json();
+        // Filter out existing collaborators and the primary assignee
+        const existingCollabIds = new Set(
+          (task.collaborators || []).map((c) => c.user_id)
+        );
+        const results: TaskUser[] = (data.staff || []).filter(
+          (s: TaskUser) =>
+            !existingCollabIds.has(s.id) && s.id !== task.assignee_id
+        );
+        setCollabSearchResults(results);
+      } catch (err) {
+        console.error('Failed to search staff:', err);
+      } finally {
+        setCollabSearchLoading(false);
+      }
+    }, 300);
+  };
+
+  const handleAddCollaborator = async (userId: string) => {
+    if (addingCollab) return;
+    setAddingCollab(true);
+    setCollabError('');
+    try {
+      const res = await fetch(
+        `/api/task-manager/tasks/${task.id}/collaborators`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ user_id: userId }),
+        }
+      );
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to add collaborator');
+      setCollabSearch('');
+      setCollabSearchResults([]);
+      onRefresh?.();
+    } catch (err: any) {
+      setCollabError(err.message || 'Failed to add collaborator');
+    } finally {
+      setAddingCollab(false);
+    }
+  };
+
+  const handleRemoveCollaborator = async (collabId: string) => {
+    try {
+      const res = await fetch(
+        `/api/task-manager/tasks/${task.id}/collaborators?collaborator_id=${collabId}`,
+        { method: 'DELETE' }
+      );
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || 'Failed to remove collaborator');
+      }
+      onRefresh?.();
+    } catch (err) {
+      console.error('Failed to remove collaborator:', err);
+    }
+  };
+
   const slaStatus = getSlaStatus();
   const checklistItems = task.checklists || [];
   const checklistDone = checklistItems.filter((c) => c.completed).length;
   const checklistPct = checklistItems.length
     ? Math.round((checklistDone / checklistItems.length) * 100)
     : 0;
+
+  // Determine if the current user can delegate:
+  // Must be manager of the task's department AND task must be department-assigned
+  const profileDeptId = (profile as any)?.department_id as
+    string | null | undefined;
+  const canDelegate =
+    (isSuperAdmin ||
+      (isManager && profileDeptId && profileDeptId === task.department_id)) &&
+    task.assigned_type === 'department';
+
+  // Any involved staff can add collaborators
+  const isInvolved =
+    isSuperAdmin ||
+    currentUserId === task.created_by ||
+    currentUserId === task.assignee_id ||
+    task.assignments?.some((a) => a.user_id === currentUserId) ||
+    task.spectators?.some((s) => s.user_id === currentUserId) ||
+    task.collaborators?.some((c) => c.user_id === currentUserId);
 
   return (
     <div className="flex h-full flex-col bg-[#0d0f1a]">
@@ -639,6 +812,15 @@ export default function TaskDetail({
               {isCreatingGroup ? 'Creating...' : 'Create Task Group'}
             </button>
           )}
+          {/* ── Feature 1: Delegate to Staff (conditional on dept assignment + manager) ── */}
+          {canDelegate && (
+            <button
+              onClick={handleOpenDelegatePanel}
+              className="flex items-center gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-sm font-medium text-amber-400 transition-colors hover:bg-amber-500/20"
+            >
+              <ArrowRightCircle className="h-4 w-4" /> Delegate
+            </button>
+          )}
           <button
             onClick={onEdit}
             className="flex items-center gap-2 rounded-lg bg-white/10 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-white/15"
@@ -648,6 +830,130 @@ export default function TaskDetail({
         </div>
       </div>
 
+      {/* ── Feature 1: Delegate Panel ──────────────────────────────────────── */}
+      {showDelegatePanel && canDelegate && (
+        <div className="border-b border-amber-500/20 bg-amber-500/5 px-4 py-4">
+          <div className="mb-3 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <ArrowRightCircle className="h-4 w-4 text-amber-400" />
+              <h3 className="text-sm font-semibold text-white">
+                Delegate to Staff Member
+              </h3>
+              <span className="rounded border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[10px] font-medium text-amber-400">
+                Department: {task.department_name || 'Your Dept'}
+              </span>
+            </div>
+            <button
+              onClick={() => setShowDelegatePanel(false)}
+              className="rounded p-1 text-slate-400 hover:text-white"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+          <p className="mb-3 text-xs text-slate-400">
+            Select a staff member from your department to delegate this task to.
+            This option is available because the task was originally assigned to
+            your department.
+          </p>
+
+          {delegateError && (
+            <div className="mb-3 rounded-lg border border-rose-500/30 bg-rose-500/10 px-3 py-2 text-sm text-rose-400">
+              {delegateError}
+            </div>
+          )}
+
+          {deptStaffLoading ? (
+            <p className="text-sm text-slate-400">Loading staff members...</p>
+          ) : (
+            <>
+              {/* Search filter */}
+              <div className="relative mb-3">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
+                <input
+                  type="text"
+                  value={delegateSearch}
+                  onChange={(e) => setDelegateSearch(e.target.value)}
+                  className="w-full rounded-lg border border-white/10 bg-white/5 py-2 pl-9 pr-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  placeholder="Filter staff members..."
+                />
+              </div>
+              {/* Staff list */}
+              <div className="max-h-52 space-y-1.5 overflow-y-auto">
+                {deptStaff
+                  .filter((s) =>
+                    delegateSearch
+                      ? s.full_name
+                          .toLowerCase()
+                          .includes(delegateSearch.toLowerCase()) ||
+                        s.email
+                          .toLowerCase()
+                          .includes(delegateSearch.toLowerCase())
+                      : true
+                  )
+                  .map((s) => (
+                    <button
+                      key={s.id}
+                      type="button"
+                      onClick={() => setSelectedDelegateId(s.id)}
+                      className={`flex w-full items-center gap-3 rounded-lg border px-3 py-2 text-left transition-colors ${
+                        selectedDelegateId === s.id
+                          ? 'border-amber-500/50 bg-amber-500/15'
+                          : 'border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/10'
+                      }`}
+                    >
+                      <StaffAvatar user={s} size="sm" />
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-medium text-white">
+                          {s.full_name}
+                        </p>
+                        <p className="truncate text-xs text-slate-400">
+                          {s.email}
+                        </p>
+                      </div>
+                      {selectedDelegateId === s.id && (
+                        <UserCheck className="h-4 w-4 shrink-0 text-amber-400" />
+                      )}
+                    </button>
+                  ))}
+                {deptStaff.filter((s) =>
+                  delegateSearch
+                    ? s.full_name
+                        .toLowerCase()
+                        .includes(delegateSearch.toLowerCase()) ||
+                      s.email
+                        .toLowerCase()
+                        .includes(delegateSearch.toLowerCase())
+                    : true
+                ).length === 0 && (
+                  <p className="text-sm text-slate-500">
+                    {delegateSearch
+                      ? 'No staff members match your search.'
+                      : 'No other staff members found in this department.'}
+                  </p>
+                )}
+              </div>
+              {/* Confirm */}
+              <div className="mt-3 flex items-center gap-2">
+                <button
+                  onClick={handleDelegate}
+                  disabled={!selectedDelegateId || delegating}
+                  className="flex items-center gap-2 rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-amber-500 disabled:opacity-50"
+                >
+                  <ArrowRightCircle className="h-4 w-4" />
+                  {delegating ? 'Delegating...' : 'Confirm Delegation'}
+                </button>
+                <button
+                  onClick={() => setShowDelegatePanel(false)}
+                  className="rounded-lg px-3 py-2 text-sm text-slate-400 hover:text-white"
+                >
+                  Cancel
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      )}
+
       {/* Tabs */}
       <div className="flex gap-6 border-b border-white/5 px-4">
         {[
@@ -656,6 +962,11 @@ export default function TaskDetail({
           { id: 'activity', label: 'Activity', icon: Activity },
           { id: 'attachments', label: 'Attachments', icon: Paperclip },
           { id: 'spectators', label: 'Spectators', icon: Eye },
+          {
+            id: 'collaborators',
+            label: `Collaborators${(task.collaborators || []).length > 0 ? ` (${task.collaborators!.length})` : ''}`,
+            icon: Users,
+          },
         ].map((tab) => (
           <button
             key={tab.id}
@@ -1255,6 +1566,148 @@ export default function TaskDetail({
                 No spectators
               </p>
             )}
+          </div>
+        )}
+
+        {/* ── Feature 2: Collaborators Tab ──────────────────────────────────── */}
+        {activeTab === 'collaborators' && (
+          <div className="space-y-4">
+            {/* Add Collaborator Section — accessible to all involved staff */}
+            {isInvolved && (
+              <div className="rounded-lg border border-white/10 bg-white/5 p-4">
+                <div className="mb-3 flex items-center gap-2">
+                  <UserPlus className="h-4 w-4 text-emerald-400" />
+                  <h3 className="text-sm font-semibold text-white">
+                    Add Collaborator
+                  </h3>
+                </div>
+                <p className="mb-3 text-xs text-slate-400">
+                  Search for a staff member to add as a collaborator.
+                  Collaborators gain view, comment, and attachment access to
+                  this task and will receive a notification.
+                </p>
+
+                {collabError && (
+                  <div className="mb-3 rounded-lg border border-rose-500/30 bg-rose-500/10 px-3 py-2 text-sm text-rose-400">
+                    {collabError}
+                  </div>
+                )}
+
+                {/* Search input */}
+                <div className="relative mb-2">
+                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
+                  <input
+                    type="text"
+                    value={collabSearch}
+                    onChange={(e) => searchCollabStaff(e.target.value)}
+                    className="w-full rounded-lg border border-white/10 bg-white/5 py-2 pl-9 pr-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    placeholder="Search staff by name or email..."
+                    id="collab-search-input"
+                  />
+                  {collabSearch && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setCollabSearch('');
+                        setCollabSearchResults([]);
+                      }}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  )}
+                </div>
+
+                {/* Search results */}
+                {collabSearchLoading && (
+                  <p className="py-2 text-sm text-slate-400">Searching...</p>
+                )}
+                {!collabSearchLoading && collabSearchResults.length > 0 && (
+                  <div className="max-h-48 space-y-1 overflow-y-auto rounded-lg border border-white/10 bg-black/20 p-1">
+                    {collabSearchResults.map((s) => (
+                      <button
+                        key={s.id}
+                        type="button"
+                        onClick={() => handleAddCollaborator(s.id)}
+                        disabled={addingCollab}
+                        className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-left transition-colors hover:bg-white/10 disabled:opacity-50"
+                      >
+                        <StaffAvatar user={s} size="sm" />
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-sm font-medium text-white">
+                            {s.full_name}
+                          </p>
+                          <p className="truncate text-xs text-slate-400">
+                            {s.email}
+                          </p>
+                        </div>
+                        <span className="shrink-0 rounded-md bg-emerald-600/20 px-2 py-0.5 text-[10px] font-medium text-emerald-400">
+                          + Add
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+                {!collabSearchLoading &&
+                  collabSearch &&
+                  collabSearchResults.length === 0 && (
+                    <p className="py-1 text-sm text-slate-500">
+                      No matching staff found.
+                    </p>
+                  )}
+              </div>
+            )}
+
+            {/* Current Collaborators List */}
+            <div className="space-y-2">
+              <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+                Current Collaborators ({(task.collaborators || []).length})
+              </h3>
+              {(task.collaborators || []).map((collab: TaskCollaborator) => {
+                const canRemoveCollab =
+                  isSuperAdmin ||
+                  currentUserId === task.created_by ||
+                  currentUserId === task.assignee_id ||
+                  (isManager && profileDeptId === task.department_id);
+                return (
+                  <div
+                    key={collab.id}
+                    className="flex items-center gap-3 rounded-lg border border-white/10 bg-white/5 p-3"
+                  >
+                    <StaffAvatar user={collab.collaborator} size="sm" />
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-medium text-white">
+                        {collab.collaborator?.full_name || 'Unknown'}
+                      </p>
+                      <p className="text-xs text-slate-500">
+                        Added {formatDateTime(collab.added_at)}
+                      </p>
+                    </div>
+                    <span className="shrink-0 rounded border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium text-emerald-400">
+                      Collaborator
+                    </span>
+                    {canRemoveCollab && (
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveCollaborator(collab.id)}
+                        title="Remove collaborator"
+                        className="rounded p-1 text-slate-500 transition-colors hover:text-rose-400"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
+              {(task.collaborators || []).length === 0 && (
+                <p className="py-4 text-center text-sm text-slate-500">
+                  No collaborators yet.{' '}
+                  {isInvolved
+                    ? 'Use the search above to add one.'
+                    : 'Contact the task owner to be added.'}
+                </p>
+              )}
+            </div>
           </div>
         )}
       </div>

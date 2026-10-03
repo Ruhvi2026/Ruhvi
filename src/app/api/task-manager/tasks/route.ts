@@ -29,6 +29,7 @@ const TASK_SELECT = `
   assignee:users!tasks_assignee_id_fkey(id, full_name, email, avatar_url),
   creator:users!tasks_created_by_fkey(id, full_name, email, avatar_url),
   spectators:task_spectators(*, spectator:users!task_spectators_user_id_fkey(id, full_name, email, avatar_url)),
+  collaborators:task_collaborators(*, collaborator:users!task_collaborators_user_id_fkey(id, full_name, email, avatar_url, department_id, role)),
   priority_name:task_priorities(name, level, color),
   status_name:task_statuses(name, display_order, color),
   type_name:task_types(name, icon),
@@ -159,21 +160,27 @@ export async function GET(req: Request) {
         .is('deleted_at', null)
         .or(orParts.join(','));
 
-      const [assignmentsRes, spectatorsRes] = await Promise.all([
-        supabase
-          .from('task_assignments')
-          .select('task_id')
-          .eq('user_id', staffUser.id),
-        supabase
-          .from('task_spectators')
-          .select('task_id')
-          .or(`user_id.eq.${staffUser.id},spectator_id.eq.${staffUser.id}`),
-      ]);
+      const [assignmentsRes, spectatorsRes, collaboratorsRes] =
+        await Promise.all([
+          supabase
+            .from('task_assignments')
+            .select('task_id')
+            .eq('user_id', staffUser.id),
+          supabase
+            .from('task_spectators')
+            .select('task_id')
+            .or(`user_id.eq.${staffUser.id},spectator_id.eq.${staffUser.id}`),
+          supabase
+            .from('task_collaborators')
+            .select('task_id')
+            .eq('user_id', staffUser.id),
+        ]);
 
       const idSet = new Set<string>();
       (directTasks || []).forEach((t: any) => idSet.add(t.id));
       (assignmentsRes.data || []).forEach((a: any) => idSet.add(a.task_id));
       (spectatorsRes.data || []).forEach((s: any) => idSet.add(s.task_id));
+      (collaboratorsRes.data || []).forEach((c: any) => idSet.add(c.task_id));
       accessibleIds = [...idSet];
 
       if (accessibleIds.length === 0) {
@@ -609,6 +616,12 @@ export async function POST(req: Request) {
       );
     }
 
+    // Determine assignment type:
+    //   'department' = task routed to a department (assignee is dept manager)
+    //   'direct_user' = task assigned directly to a specific individual
+    const assignedType: 'department' | 'direct_user' =
+      body.department_id && !body.assignee_id ? 'department' : 'direct_user';
+
     const payload: Record<string, unknown> = {
       task_id_text: generateTaskIdText(),
       title,
@@ -618,6 +631,7 @@ export async function POST(req: Request) {
       status_id: statusId,
       department_id: departmentId ?? staffUser.department_id ?? null,
       assignee_id: assigneeId,
+      assigned_type: assignedType,
       type_id: typeId,
       due_date: dueDate,
       due_time:
