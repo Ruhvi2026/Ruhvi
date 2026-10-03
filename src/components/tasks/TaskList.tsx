@@ -754,18 +754,14 @@ export default function TaskList({
                 onClick={() => onTaskClick?.(task)}
                 className="shadow-xs group cursor-pointer rounded-lg border border-white/10 bg-[#161B2C]/80 px-3.5 py-2.5 transition-all hover:border-emerald-500/40 hover:bg-[#1C2339] hover:shadow-md"
               >
-                {/* Unified Full-Width Row: ID, Badges, Title, Dept, People, Entities, Tags, SLA & Action */}
-                <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
-                  {/* Left & Middle Content Flow */}
+                {/* Main Row: Left (Identity, Title, Dept, People, Entities) & Right (Status, Priority, Tags, Chat, SLA, Action) */}
+                <div className="flex flex-col gap-2.5 lg:flex-row lg:items-center lg:justify-between">
+                  {/* Left Side: ID, Title, Dept, People & Related Entities */}
                   <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2 sm:gap-2.5">
                     {/* Task ID */}
                     <span className="rounded border border-white/10 bg-white/5 px-2 py-0.5 font-mono text-xs font-medium text-slate-400">
                       {task.task_id_text || 'TASK'}
                     </span>
-
-                    {/* Priority & Status Badges */}
-                    {priorityLabel(task)}
-                    {statusLabel(task)}
 
                     {/* Title */}
                     <h3 className="text-sm font-semibold text-white transition-colors group-hover:text-emerald-400 sm:text-[15px]">
@@ -864,14 +860,6 @@ export default function TaskList({
                       </div>
                     ) : null}
 
-                    {/* Chat Group */}
-                    {task.messenger_group_id && (
-                      <span className="inline-flex items-center gap-1.5 rounded border border-indigo-500/30 bg-indigo-500/10 px-2 py-0.5 text-xs font-medium text-indigo-300">
-                        <MessageSquare className="h-3.5 w-3.5 shrink-0" />
-                        Chat
-                      </span>
-                    )}
-
                     {/* Related Entities */}
                     {task.related_order_id && (
                       <button
@@ -939,6 +927,13 @@ export default function TaskList({
                         </span>
                       </button>
                     )}
+                  </div>
+
+                  {/* Right Side: Status, Priority, Tags, Group/Chat, SLA Badge, Action Button */}
+                  <div className="flex flex-wrap items-center gap-2 sm:gap-2.5 lg:shrink-0 lg:justify-end">
+                    {/* Status & Priority */}
+                    {statusLabel(task)}
+                    {priorityLabel(task)}
 
                     {/* Tags */}
                     {task.tags && task.tags.length > 0 && (
@@ -953,10 +948,30 @@ export default function TaskList({
                         ))}
                       </div>
                     )}
-                  </div>
 
-                  {/* Right: SLA Badge & Quick Action Button */}
-                  <div className="flex shrink-0 items-center gap-2 sm:ml-auto">
+                    {/* Group Options / Chat */}
+                    {task.messenger_group_id && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          window.dispatchEvent(
+                            new CustomEvent('openMessengerGroup', {
+                              detail: {
+                                conversationId: task.messenger_group_id,
+                              },
+                            })
+                          );
+                        }}
+                        className="inline-flex items-center gap-1.5 rounded border border-indigo-500/30 bg-indigo-500/10 px-2 py-0.5 text-xs font-medium text-indigo-300 transition-colors hover:bg-indigo-500/20"
+                        title="Open Group Chat"
+                      >
+                        <MessageSquare className="h-3.5 w-3.5 shrink-0 text-indigo-400" />
+                        <span>Chat</span>
+                      </button>
+                    )}
+
+                    {/* SLA Badge */}
                     {task.due_date && (
                       <span
                         className={`whitespace-nowrap rounded-full border border-white/10 bg-black/30 px-2.5 py-0.5 text-xs font-medium ${
@@ -966,6 +981,8 @@ export default function TaskList({
                         SLA: {getSlaStatus(task).label}
                       </span>
                     )}
+
+                    {/* Action Button */}
                     {getActionButton(task) && (
                       <div
                         onClick={(e) => e.stopPropagation()}
