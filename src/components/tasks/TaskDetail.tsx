@@ -42,7 +42,7 @@ import {
   TaskDependencyItem,
   TaskStatus,
 } from './types';
-import { useSessionUserId } from '@/hooks/useSessionUserId';
+import { useAuth } from '@/context/AuthContext';
 
 interface TaskDetailProps {
   task: Task;
@@ -82,7 +82,9 @@ export default function TaskDetail({
     type: null,
     idOrCode: null,
   });
-  const currentUserId = useSessionUserId();
+  const { user, profile } = useAuth();
+  const currentUserId = user?.id;
+  const isSuperAdmin = profile?.role === 'super_admin';
   const [updatingStatus, setUpdatingStatus] = useState(false);
 
   const priorityColors: Record<string, string> = {
@@ -469,8 +471,10 @@ export default function TaskDetail({
         <div className="flex items-center gap-2">
           {(() => {
             const currentStatus = task.status_name?.name || 'Open';
-            const isAssignor = currentUserId === task.created_by;
-            const isAssignee = currentUserId === task.assignee_id;
+            const isAssignor =
+              currentUserId === task.created_by || isSuperAdmin;
+            const isAssignee =
+              currentUserId === task.assignee_id || isSuperAdmin;
 
             // If closed, lock all actions
             if (currentStatus === 'Closed') {

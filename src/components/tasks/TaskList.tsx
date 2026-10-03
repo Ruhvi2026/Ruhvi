@@ -26,7 +26,7 @@ import { debounce } from '@/lib/debounce';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import RelatedEntityModal from './RelatedEntityModal';
 import StaffAvatar from './StaffAvatar';
-import { useSessionUserId } from '@/hooks/useSessionUserId';
+import { useAuth } from '@/context/AuthContext';
 import {
   Task,
   TaskFilters,
@@ -83,7 +83,9 @@ export default function TaskList({
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
-  const currentUserId = useSessionUserId();
+  const { user, profile } = useAuth();
+  const currentUserId = user?.id;
+  const isSuperAdmin = profile?.role === 'super_admin';
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
   const basePath = pathname ? pathname.split('?')[0] : '/admin/task-manager';
@@ -356,8 +358,8 @@ export default function TaskList({
   const getActionButton = (task: Task) => {
     if (!currentUserId || !statuses) return null;
     const currentStatus = task.status_name?.name || 'Open';
-    const isAssignee = currentUserId === task.assignee_id;
-    const isAssignor = currentUserId === task.created_by;
+    const isAssignee = currentUserId === task.assignee_id || isSuperAdmin;
+    const isAssignor = currentUserId === task.created_by || isSuperAdmin;
     const isLoading = actionLoading === task.id;
 
     if (currentStatus === 'Closed') return null;
