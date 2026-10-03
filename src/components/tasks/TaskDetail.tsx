@@ -137,6 +137,8 @@ export default function TaskDetail({
   const [collabSearchLoading, setCollabSearchLoading] = useState(false);
   const [addingCollab, setAddingCollab] = useState(false);
   const [collabError, setCollabError] = useState('');
+  const [allStaffList, setAllStaffList] = useState<TaskUser[]>([]);
+  const [allStaffLoading, setAllStaffLoading] = useState(false);
   const collabSearchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const priorityColors: Record<string, string> = {
@@ -516,11 +518,41 @@ export default function TaskDetail({
 
   // ── Collaborator handlers (Feature 2) ────────────────────────────────────────
 
+  const loadAllStaffForCollab = async () => {
+    if (allStaffList.length > 0 || allStaffLoading) return;
+    setAllStaffLoading(true);
+    try {
+      const res = await fetch('/api/task-manager/staff');
+      const data = await res.json();
+      setAllStaffList(data.staff || []);
+    } catch (err) {
+      console.error('Failed to fetch staff list:', err);
+    } finally {
+      setAllStaffLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === 'collaborators') {
+      loadAllStaffForCollab();
+    }
+  }, [activeTab]);
+
   const searchCollabStaff = (query: string) => {
     setCollabSearch(query);
     if (collabSearchTimer.current) clearTimeout(collabSearchTimer.current);
     if (!query.trim()) {
-      setCollabSearchResults([]);
+      if (allStaffList.length > 0) {
+        const existingCollabIds = new Set(
+          (task.collaborators || []).map((c) => c.user_id)
+        );
+        const results = allStaffList.filter(
+          (s) => !existingCollabIds.has(s.id) && s.id !== task.assignee_id
+        );
+        setCollabSearchResults(results);
+      } else {
+        setCollabSearchResults([]);
+      }
       return;
     }
     collabSearchTimer.current = setTimeout(async () => {
@@ -1593,12 +1625,90 @@ export default function TaskDetail({
                   </div>
                 )}
 
+                {/* Dropdown Selection for All Staff */}
+                {(() => {
+                  const existingCollabIds = new Set(
+                    (task.collaborators || []).map((c) => c.user_id)
+                  );
+                  const availableStaffForDropdown = allStaffList.filter(
+                    (s) =>
+                      !existingCollabIds.has(s.id) && s.id !== task.assignee_id
+                  );
+                  return (
+                    <div className="mb-3">
+                      <label className="mb-1.5 block text-xs font-medium text-slate-300">
+                        Select Staff from Dropdown:
+                      </label>
+                      <div className="relative">
+                        <select
+                          value=""
+                          onFocus={loadAllStaffForCollab}
+                          onClick={loadAllStaffForCollab}
+                          onChange={(e) => {
+                            if (e.target.value) {
+                              handleAddCollaborator(e.target.value);
+                            }
+                          }}
+                          disabled={addingCollab || allStaffLoading}
+                          className="w-full appearance-none rounded-lg border border-white/10 bg-slate-900 px-3 py-2 pr-9 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 disabled:opacity-50"
+                          id="collab-staff-dropdown"
+                        >
+                          <option
+                            value=""
+                            className="bg-slate-900 text-slate-400"
+                          >
+                            {allStaffLoading
+                              ? 'Loading staff members...'
+                              : availableStaffForDropdown.length === 0
+                                ? '-- No additional staff available --'
+                                : '-- Click to select staff from list --'}
+                          </option>
+                          {availableStaffForDropdown.map((s) => (
+                            <option
+                              key={s.id}
+                              value={s.id}
+                              className="bg-slate-900 py-1 text-white"
+                            >
+                              {s.full_name} ({s.email})
+                              {s.role ? ` • ${s.role}` : ''}
+                            </option>
+                          ))}
+                        </select>
+                        <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                      </div>
+                    </div>
+                  );
+                })()}
+
+                <div className="relative my-3 flex items-center justify-center">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-white/10" />
+                  </div>
+                  <span className="relative bg-slate-950 px-2 text-[10px] uppercase tracking-wider text-slate-400">
+                    Or Search Staff
+                  </span>
+                </div>
+
                 {/* Search input */}
                 <div className="relative mb-2">
                   <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
                   <input
                     type="text"
                     value={collabSearch}
+                    onFocus={() => {
+                      loadAllStaffForCollab();
+                      if (!collabSearch && allStaffList.length > 0) {
+                        const existingCollabIds = new Set(
+                          (task.collaborators || []).map((c) => c.user_id)
+                        );
+                        const results = allStaffList.filter(
+                          (s) =>
+                            !existingCollabIds.has(s.id) &&
+                            s.id !== task.assignee_id
+                        );
+                        setCollabSearchResults(results);
+                      }
+                    }}
                     onChange={(e) => searchCollabStaff(e.target.value)}
                     className="w-full rounded-lg border border-white/10 bg-white/5 py-2 pl-9 pr-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                     placeholder="Search staff by name or email..."
