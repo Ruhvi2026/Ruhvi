@@ -535,10 +535,10 @@ export default function TaskList({
       )}
 
       {/* Toolbar */}
-      <div className="flex flex-col items-start justify-between gap-4 border-b border-white/5 p-4 sm:flex-row sm:items-center">
-        <div className="flex items-center gap-3">
-          <h2 className="text-lg font-semibold text-white">Tasks</h2>
-          <span className="rounded bg-white/5 px-2 py-0.5 text-[11px] font-medium text-slate-400">
+      <div className="flex flex-col items-start justify-between gap-2.5 border-b border-white/5 px-3 py-2 sm:flex-row sm:items-center sm:px-4 sm:py-2.5">
+        <div className="flex items-center gap-2.5">
+          <h2 className="text-sm font-semibold text-white">Tasks</h2>
+          <span className="rounded bg-white/5 px-1.5 py-0.5 text-[10px] font-medium text-slate-400">
             {total} total
           </span>
         </div>
@@ -546,22 +546,22 @@ export default function TaskList({
         <div className="flex w-full items-center gap-2 sm:w-auto">
           <button
             onClick={() => handleFilterChange('overdue', !filters.overdue)}
-            className={`hidden items-center gap-1.5 rounded-lg border px-3 py-1.5 text-[11px] font-medium transition-colors sm:flex ${
+            className={`hidden items-center gap-1.5 rounded-lg border px-2.5 py-1 text-[11px] font-medium transition-colors sm:flex ${
               filters.overdue
                 ? 'border-rose-500/30 bg-rose-500/20 text-rose-400'
                 : 'border-white/10 bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white'
             }`}
           >
-            <Clock className="h-3.5 w-3.5" />
+            <Clock className="h-3 w-3" />
             Overdue
           </button>
 
-          <div className="relative ml-2 flex-1 sm:w-56">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
+          <div className="relative flex-1 sm:w-52">
+            <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-500" />
             <input
               type="text"
               placeholder="Search tasks..."
-              className="w-full rounded-lg border border-white/10 bg-white/5 py-2 pl-10 pr-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+              className="w-full rounded-lg border border-white/10 bg-white/5 py-1.5 pl-8 pr-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
               onChange={(e) => handleSearch(e.target.value)}
               defaultValue={filters.search}
             />
@@ -569,21 +569,21 @@ export default function TaskList({
 
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+            className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors ${
               showFilters
                 ? 'bg-emerald-500/10 text-emerald-400'
                 : 'text-slate-400 hover:bg-white/5 hover:text-white'
             }`}
           >
-            <Filter className="h-4 w-4" />
+            <Filter className="h-3.5 w-3.5" />
             <span className="hidden sm:inline">Filters</span>
           </button>
 
           <Link
             href={`${basePath}?action=new`}
-            className="flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-500"
+            className="shadow-xs flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-emerald-500"
           >
-            <Plus className="h-4 w-4" />
+            <Plus className="h-3.5 w-3.5" />
             <span>New Task</span>
           </Link>
         </div>
@@ -747,216 +747,206 @@ export default function TaskList({
             </Link>
           </div>
         ) : (
-          <div className="space-y-3 p-3 sm:p-4">
+          <div className="space-y-2 p-2 sm:p-3">
             {tasks.map((task) => (
               <div
                 key={task.id}
                 onClick={() => onTaskClick?.(task)}
-                className="group cursor-pointer space-y-3 rounded-xl border border-white/10 bg-[#161B2C]/80 p-4 shadow-sm transition-all hover:border-emerald-500/40 hover:bg-[#1C2339] hover:shadow-lg sm:p-5"
+                className="shadow-xs group cursor-pointer rounded-lg border border-white/10 bg-[#161B2C]/80 px-3.5 py-2.5 transition-all hover:border-emerald-500/40 hover:bg-[#1C2339] hover:shadow-md"
               >
-                {/* Top Row: Task ID, Title, Priority, Status, SLA */}
-                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                  <div className="flex min-w-0 flex-wrap items-center gap-2.5">
-                    <span className="rounded border border-white/10 bg-white/5 px-2 py-0.5 font-mono text-xs font-medium text-slate-400">
+                {/* Row 1: Task ID, Priority, Status, Title, SLA, Action Button */}
+                <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
+                    <span className="rounded border border-white/10 bg-white/5 px-1.5 py-0.5 font-mono text-[11px] font-medium text-slate-400">
                       {task.task_id_text || 'TASK'}
                     </span>
-                    <h3 className="truncate text-base font-semibold text-white transition-colors group-hover:text-emerald-400">
-                      {task.title}
-                    </h3>
                     {priorityLabel(task)}
                     {statusLabel(task)}
+                    <h3 className="truncate text-sm font-semibold text-white transition-colors group-hover:text-emerald-400">
+                      {task.title}
+                    </h3>
                   </div>
 
-                  {task.due_date && (
-                    <div
-                      className={`whitespace-nowrap rounded-full border border-white/10 bg-black/30 px-3 py-1 text-xs font-medium ${
-                        getSlaStatus(task).class
-                      }`}
-                    >
-                      SLA: {getSlaStatus(task).label}
-                    </div>
-                  )}
-                </div>
-
-                {/* Description */}
-                {task.description && (
-                  <p className="line-clamp-2 text-xs leading-relaxed text-slate-300">
-                    {task.description}
-                  </p>
-                )}
-
-                {/* Middle Section: Full-Width People Cards (By, To, Suspector) */}
-                <div className="grid grid-cols-1 gap-2.5 pt-1 sm:grid-cols-3">
-                  {/* Created By Card */}
-                  <div className="flex items-center gap-2.5 rounded-lg border border-white/5 bg-black/40 px-3 py-2">
-                    <StaffAvatar user={task.creator} size="sm" />
-                    <div className="min-w-0 flex-1">
-                      <span className="block text-[10px] font-medium uppercase tracking-wider text-slate-400">
-                        Created By
+                  <div className="flex shrink-0 items-center gap-2">
+                    {task.due_date && (
+                      <span
+                        className={`whitespace-nowrap rounded-full border border-white/10 bg-black/30 px-2 py-0.5 text-[10px] font-medium ${
+                          getSlaStatus(task).class
+                        }`}
+                      >
+                        SLA: {getSlaStatus(task).label}
                       </span>
-                      <p className="truncate text-xs font-semibold text-white">
-                        {task.creator?.full_name || 'System'}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Assigned To Card */}
-                  <div className="flex items-center gap-2.5 rounded-lg border border-white/5 bg-black/40 px-3 py-2">
-                    <StaffAvatar user={task.assignee} size="sm" />
-                    <div className="min-w-0 flex-1">
-                      <span className="block text-[10px] font-medium uppercase tracking-wider text-slate-400">
-                        Assigned To
-                      </span>
-                      <p className="truncate text-xs font-semibold text-white">
-                        {task.assignee?.full_name || 'Unassigned'}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Suspector / Inspector Card */}
-                  <div className="flex items-center gap-2.5 rounded-lg border border-cyan-500/20 bg-cyan-500/10 px-3 py-2">
-                    {task.spectators &&
-                    task.spectators.length > 0 &&
-                    task.spectators[0].spectator ? (
-                      <>
-                        <StaffAvatar
-                          user={task.spectators[0].spectator}
-                          size="sm"
-                        />
-                        <div className="min-w-0 flex-1">
-                          <span className="block text-[10px] font-medium uppercase tracking-wider text-cyan-400">
-                            Suspector / Inspector
-                          </span>
-                          <p className="truncate text-xs font-semibold text-cyan-200">
-                            {task.spectators[0].spectator.full_name}
-                          </p>
-                        </div>
-                      </>
-                    ) : (
-                      <div className="min-w-0 flex-1">
-                        <span className="block text-[10px] font-medium uppercase tracking-wider text-slate-400">
-                          Suspector / Inspector
-                        </span>
-                        <p className="truncate text-xs font-medium text-slate-400">
-                          None Assigned
-                        </p>
+                    )}
+                    {getActionButton(task) && (
+                      <div
+                        onClick={(e) => e.stopPropagation()}
+                        className="shrink-0"
+                      >
+                        {getActionButton(task)}
                       </div>
                     )}
                   </div>
                 </div>
 
-                {/* Footer Section: Department, Messenger Group, Tags, Related Entities */}
-                <div className="flex flex-wrap items-center justify-between gap-3 border-t border-white/5 pt-2 text-xs text-slate-400">
-                  <div className="flex flex-wrap items-center gap-2.5">
+                {/* Description (Single line preview) */}
+                {task.description && (
+                  <p className="mt-0.5 line-clamp-1 text-xs text-slate-400">
+                    {task.description}
+                  </p>
+                )}
+
+                {/* Row 2: People, Department, Messenger, Tags, Related Entities */}
+                <div className="mt-1.5 flex flex-wrap items-center justify-between gap-2 border-t border-white/5 pt-1.5 text-xs">
+                  {/* Left: People & Organization */}
+                  <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
+                    {/* Created By */}
+                    <div
+                      className="flex items-center gap-1"
+                      title={`Created by: ${task.creator?.full_name || 'System'}`}
+                    >
+                      <StaffAvatar user={task.creator} size="xs" />
+                      <span className="text-[11px] text-slate-400">
+                        <span className="text-slate-500">By:</span>{' '}
+                        {task.creator?.full_name || 'System'}
+                      </span>
+                    </div>
+
+                    <span className="text-slate-700">•</span>
+
+                    {/* Assigned To */}
+                    <div
+                      className="flex items-center gap-1"
+                      title={`Assigned to: ${task.assignee?.full_name || 'Unassigned'}`}
+                    >
+                      <StaffAvatar user={task.assignee} size="xs" />
+                      <span className="text-[11px] font-medium text-slate-300">
+                        <span className="font-normal text-slate-500">To:</span>{' '}
+                        {task.assignee?.full_name || 'Unassigned'}
+                      </span>
+                    </div>
+
+                    {/* Suspector / Inspector */}
+                    {task.spectators &&
+                      task.spectators.length > 0 &&
+                      task.spectators[0].spectator && (
+                        <>
+                          <span className="text-slate-700">•</span>
+                          <div
+                            className="flex items-center gap-1"
+                            title={`Inspector: ${task.spectators[0].spectator.full_name}`}
+                          >
+                            <Eye className="h-3 w-3 text-cyan-400" />
+                            <span className="text-[11px] font-medium text-cyan-300">
+                              {task.spectators[0].spectator.full_name}
+                            </span>
+                          </div>
+                        </>
+                      )}
+
+                    {/* Department */}
                     {task.department_name && (
-                      <span className="flex items-center gap-1.5 rounded border border-white/10 bg-white/5 px-2.5 py-1 text-[11px] font-medium text-slate-300">
-                        <Building className="h-3.5 w-3.5 text-emerald-400" />
-                        {task.department_name}
-                      </span>
+                      <>
+                        <span className="text-slate-700">•</span>
+                        <span className="flex items-center gap-1 rounded bg-white/5 px-1.5 py-0.5 text-[10px] text-slate-300">
+                          <Building className="h-3 w-3 text-emerald-400" />
+                          {task.department_name}
+                        </span>
+                      </>
                     )}
 
+                    {/* Chat Group */}
                     {task.messenger_group_id && (
-                      <span className="flex items-center gap-1.5 rounded border border-indigo-500/30 bg-indigo-500/15 px-2.5 py-1 text-[11px] font-medium text-indigo-300">
-                        <MessageSquare className="h-3.5 w-3.5" />
-                        Chat Group Active
+                      <span className="flex items-center gap-1 rounded border border-indigo-500/30 bg-indigo-500/10 px-1.5 py-0.5 text-[10px] font-medium text-indigo-300">
+                        <MessageSquare className="h-3 w-3" />
+                        Chat
                       </span>
                     )}
+                  </div>
 
+                  {/* Right: Tags & Related Entities */}
+                  <div className="flex flex-wrap items-center gap-1.5">
                     {task.tags && task.tags.length > 0 && (
                       <div className="flex flex-wrap gap-1">
                         {task.tags.map((tag, i) => (
                           <span
                             key={i}
-                            className="rounded bg-white/5 px-2 py-0.5 text-[10px] text-slate-400"
+                            className="rounded bg-white/5 px-1.5 py-0.5 text-[9px] text-slate-400"
                           >
                             #{tag}
                           </span>
                         ))}
                       </div>
                     )}
-                  </div>
 
-                  {/* Related Entities Buttons */}
-                  {(task.related_order_id ||
-                    task.related_ticket_id ||
-                    task.related_product_id) && (
-                    <div className="flex flex-wrap gap-2 text-[11px]">
-                      {task.related_order_id && (
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setInspectModal({
-                              isOpen: true,
-                              type: 'order',
-                              idOrCode: task.order?.id || task.related_order_id,
-                              data: task.order,
-                            });
-                          }}
-                          className="flex items-center gap-1.5 rounded border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 text-emerald-300 transition-colors hover:bg-emerald-500/20"
-                        >
-                          <Package className="h-3.5 w-3.5 text-emerald-400" />
-                          <span>
-                            Order:{' '}
-                            {task.order?.order_number || task.related_order_id}
-                          </span>
-                        </button>
-                      )}
-                      {task.related_ticket_id && (
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setInspectModal({
-                              isOpen: true,
-                              type: 'ticket',
-                              idOrCode:
-                                task.ticket?.id || task.related_ticket_id,
-                              data: task.ticket,
-                            });
-                          }}
-                          className="flex items-center gap-1.5 rounded border border-blue-500/30 bg-blue-500/10 px-2.5 py-1 text-blue-300 transition-colors hover:bg-blue-500/20"
-                        >
-                          <Ticket className="h-3.5 w-3.5 text-blue-400" />
-                          <span>
-                            Ticket:{' '}
-                            {task.ticket?.ticket_number ||
-                              task.related_ticket_id}
-                          </span>
-                        </button>
-                      )}
-                      {task.related_product_id && (
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setInspectModal({
-                              isOpen: true,
-                              type: 'product',
-                              idOrCode:
-                                task.product?.id || task.related_product_id,
-                              data: task.product,
-                            });
-                          }}
-                          className="flex items-center gap-1.5 rounded border border-purple-500/30 bg-purple-500/10 px-2.5 py-1 text-purple-300 transition-colors hover:bg-purple-500/20"
-                        >
-                          <Box className="h-3.5 w-3.5 text-purple-400" />
-                          <span className="max-w-[140px] truncate">
-                            Product:{' '}
-                            {task.product?.name || task.related_product_id}
-                          </span>
-                        </button>
-                      )}
-                    </div>
-                  )}
+                    {/* Related Entities */}
+                    {task.related_order_id && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setInspectModal({
+                            isOpen: true,
+                            type: 'order',
+                            idOrCode: task.order?.id || task.related_order_id,
+                            data: task.order,
+                          });
+                        }}
+                        className="flex items-center gap-1 rounded border border-emerald-500/30 bg-emerald-500/10 px-1.5 py-0.5 text-[10px] text-emerald-300 transition-colors hover:bg-emerald-500/20"
+                      >
+                        <Package className="h-3 w-3 text-emerald-400" />
+                        <span>
+                          Order:{' '}
+                          {task.order?.order_number || task.related_order_id}
+                        </span>
+                      </button>
+                    )}
+
+                    {task.related_ticket_id && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setInspectModal({
+                            isOpen: true,
+                            type: 'ticket',
+                            idOrCode: task.ticket?.id || task.related_ticket_id,
+                            data: task.ticket,
+                          });
+                        }}
+                        className="flex items-center gap-1 rounded border border-blue-500/30 bg-blue-500/10 px-1.5 py-0.5 text-[10px] text-blue-300 transition-colors hover:bg-blue-500/20"
+                      >
+                        <Ticket className="h-3 w-3 text-blue-400" />
+                        <span>
+                          Ticket:{' '}
+                          {task.ticket?.ticket_number || task.related_ticket_id}
+                        </span>
+                      </button>
+                    )}
+
+                    {task.related_product_id && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setInspectModal({
+                            isOpen: true,
+                            type: 'product',
+                            idOrCode:
+                              task.product?.id || task.related_product_id,
+                            data: task.product,
+                          });
+                        }}
+                        className="flex items-center gap-1 rounded border border-purple-500/30 bg-purple-500/10 px-1.5 py-0.5 text-[10px] text-purple-300 transition-colors hover:bg-purple-500/20"
+                      >
+                        <Box className="h-3 w-3 text-purple-400" />
+                        <span className="max-w-[110px] truncate">
+                          Product:{' '}
+                          {task.product?.name || task.related_product_id}
+                        </span>
+                      </button>
+                    )}
+                  </div>
                 </div>
-
-                {/* Action Button */}
-                {getActionButton(task) && (
-                  <div className="flex items-center justify-end border-t border-white/5 pt-3">
-                    {getActionButton(task)}
-                  </div>
-                )}
               </div>
             ))}
           </div>

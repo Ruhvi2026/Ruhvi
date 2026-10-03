@@ -499,13 +499,21 @@ export async function DELETE(
       return NextResponse.json({ error: 'Task not found' }, { status: 404 });
     }
 
-    // Permission check - only creator or super_admin can delete
+    // Permission check - tasks can ONLY be deleted by administrators (super_admin / admin)
     const canDelete =
       staffUser.role === 'super_admin' ||
-      staffUser.id === existingTask.created_by;
+      staffUser.role === 'admin' ||
+      staffUser.role === 'SUPER_ADMIN' ||
+      staffUser.role === 'ADMIN';
 
     if (!canDelete) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+      return NextResponse.json(
+        {
+          error:
+            'Forbidden: Tasks can only be deleted from the Admin Panel by administrators.',
+        },
+        { status: 403 }
+      );
     }
 
     // Soft delete

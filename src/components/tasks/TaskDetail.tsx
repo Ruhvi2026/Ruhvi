@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import {
   ArrowLeft,
@@ -117,7 +117,38 @@ export default function TaskDetail({
   const currentUserId = profile?.id || user?.id;
   const isSuperAdmin = profile?.role === ('super_admin' as any);
   const isManager = profile?.role === 'manager';
+  const pathname = usePathname();
+  const isAdminRole =
+    isSuperAdmin ||
+    profile?.role === 'admin' ||
+    (profile?.role as any) === 'SUPER_ADMIN' ||
+    (profile?.role as any) === 'ADMIN';
+  const isInAdminPanel = pathname ? pathname.startsWith('/admin') : false;
+  const canDeleteTask = isAdminRole && isInAdminPanel;
   const [updatingStatus, setUpdatingStatus] = useState(false);
+  const [deletingTask, setDeletingTask] = useState(false);
+
+  const handleDeleteTask = async () => {
+    if (!canDeleteTask || deletingTask) return;
+    const confirmed = window.confirm(
+      `Are you sure you want to permanently delete task "${task.task_id_text || task.title}"? This action can only be performed from the Admin Panel and cannot be undone.`
+    );
+    if (!confirmed) return;
+
+    setDeletingTask(true);
+    try {
+      const res = await fetch(`/api/task-manager/tasks/${task.id}`, {
+        method: 'DELETE',
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to delete task');
+      onBack();
+    } catch (err: any) {
+      alert(err.message || 'Failed to delete task');
+    } finally {
+      setDeletingTask(false);
+    }
+  };
 
   // ── Delegation state (Feature 1) ────────────────────────────────────────────
   const [showDelegatePanel, setShowDelegatePanel] = useState(false);
@@ -913,6 +944,17 @@ export default function TaskDetail({
           >
             <Edit className="h-4 w-4" /> Edit
           </button>
+          {canDeleteTask && (
+            <button
+              onClick={handleDeleteTask}
+              disabled={deletingTask}
+              className="flex items-center gap-2 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm font-medium text-red-500 transition-colors hover:bg-red-500/20 disabled:opacity-50 dark:text-red-400"
+              title="Delete Task (Admin Panel Only)"
+            >
+              <Trash2 className="h-4 w-4" />
+              <span>{deletingTask ? 'Deleting...' : 'Delete'}</span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -1918,6 +1960,18 @@ export default function TaskDetail({
             >
               <MessageSquare className="h-4 w-4" />
               <span>{isCreatingGroup ? 'Creating...' : 'Create Group'}</span>
+            </button>
+          )}
+
+          {canDeleteTask && (
+            <button
+              onClick={handleDeleteTask}
+              disabled={deletingTask}
+              className="flex items-center gap-2 rounded-lg border border-red-500/30 bg-red-500/10 px-3.5 py-2 text-sm font-medium text-red-500 transition-colors hover:bg-red-500/20 disabled:opacity-50 dark:text-red-400"
+              title="Delete Task (Admin Panel Only)"
+            >
+              <Trash2 className="h-4 w-4" />
+              <span>{deletingTask ? 'Deleting...' : 'Delete Task'}</span>
             </button>
           )}
 

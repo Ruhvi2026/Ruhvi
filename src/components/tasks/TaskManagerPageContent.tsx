@@ -197,7 +197,7 @@ export default function TaskManagerPageContent() {
 
   return (
     <div className="flex h-full flex-col bg-[#0d0f1a]">
-      <div className="border-b border-white/5 p-4">
+      <div className="border-b border-white/5 px-3 py-2 sm:px-4 sm:py-2.5">
         <Suspense fallback={<LoadingSpinner />}>
           <TaskDashboard
             activeFilterKey={activeFilterKey}
