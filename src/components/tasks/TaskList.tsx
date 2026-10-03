@@ -92,6 +92,29 @@ export default function TaskList({
   const basePath = pathname ? pathname.split('?')[0] : '/admin/task-manager';
 
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
+  const [availableStatuses, setAvailableStatuses] = useState<TaskStatus[]>(
+    statuses || []
+  );
+
+  useEffect(() => {
+    if (initialTasks && initialTasks.length > 0) {
+      setTasks(initialTasks);
+    }
+  }, [initialTasks]);
+
+  useEffect(() => {
+    if (statuses && statuses.length > 0) {
+      setAvailableStatuses(statuses);
+    } else {
+      fetch('/api/task-manager/statuses')
+        .then((r) => r.json())
+        .then((d) => {
+          if (d.statuses) setAvailableStatuses(d.statuses);
+        })
+        .catch(() => {});
+    }
+  }, [statuses]);
+
   const [total, setTotal] = useState(initialTotal);
   const [page, setPage] = useState(initialPage);
   const [limit] = useState(initialLimit);
@@ -334,11 +357,36 @@ export default function TaskList({
     targetStatusName: string
   ) => {
     e.stopPropagation();
-    if (!statuses || actionLoading) return;
-    const targetStatus = statuses.find((s) => s.name === targetStatusName);
-    if (!targetStatus) return;
+    let statusList = availableStatuses;
+    if (!statusList || statusList.length === 0) {
+      try {
+        const sRes = await fetch('/api/task-manager/statuses');
+        const sData = await sRes.json();
+        statusList = sData.statuses || [];
+        setAvailableStatuses(statusList);
+      } catch (err) {
+        console.error('Failed to fetch statuses:', err);
+      }
+    }
+
+    const targetStatus = statusList.find((s) => s.name === targetStatusName);
+    if (!targetStatus || actionLoading) return;
 
     setActionLoading(task.id);
+
+    // Optimistically update the UI state immediately
+    setTasks((prevTasks) =>
+      prevTasks.map((t) =>
+        t.id === task.id
+          ? {
+              ...t,
+              status_id: targetStatus.id,
+              status_name: targetStatus,
+            }
+          : t
+      )
+    );
+
     try {
       const res = await fetch(`/api/task-manager/tasks/${task.id}`, {
         method: 'PUT',
@@ -346,18 +394,26 @@ export default function TaskList({
         body: JSON.stringify({ status_id: targetStatus.id }),
       });
       if (!res.ok) throw new Error('Failed to update status');
-      // Refresh the list
-      await fetchTasks(page, filters);
+
+      const data = await res.json();
+      if (data.task) {
+        setTasks((prevTasks) =>
+          prevTasks.map((t) => (t.id === task.id ? { ...t, ...data.task } : t))
+        );
+      }
+
       window.dispatchEvent(new Event('task-created-or-updated'));
     } catch (err) {
       console.error('Failed to update task status:', err);
+      // Revert from server if error
+      await fetchTasks(page, filters);
     } finally {
       setActionLoading(null);
     }
   };
 
   const getActionButton = (task: Task) => {
-    if (!currentUserId || !statuses) return null;
+    if (!currentUserId || availableStatuses.length === 0) return null;
     const currentStatus = task.status_name?.name || 'Open';
     const isAssignee = currentUserId === task.assignee_id || isSuperAdmin;
     const isAssignor = currentUserId === task.created_by || isSuperAdmin;

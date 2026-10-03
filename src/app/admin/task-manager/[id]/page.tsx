@@ -94,6 +94,7 @@ export default function TaskDetailPage() {
       onBack={() => router.push('/admin/task-manager')}
       onEdit={() => setEditing(true)}
       onRefresh={refreshTask}
+      statuses={statuses}
     />
   );
 }

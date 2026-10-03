@@ -54,13 +54,35 @@ interface TaskDetailProps {
 }
 
 export default function TaskDetail({
-  task,
+  task: initialTask,
   onBack,
   onEdit,
   onRefresh,
   statuses,
 }: TaskDetailProps) {
   const router = useRouter();
+  const [task, setTask] = useState<Task>(initialTask);
+  const [availableStatuses, setAvailableStatuses] = useState<TaskStatus[]>(
+    statuses || []
+  );
+
+  useEffect(() => {
+    setTask(initialTask);
+  }, [initialTask]);
+
+  useEffect(() => {
+    if (statuses && statuses.length > 0) {
+      setAvailableStatuses(statuses);
+    } else {
+      fetch('/api/task-manager/statuses')
+        .then((r) => r.json())
+        .then((d) => {
+          if (d.statuses) setAvailableStatuses(d.statuses);
+        })
+        .catch(() => {});
+    }
+  }, [statuses]);
+
   const [activeTab, setActiveTab] = useState('details');
   const [newComment, setNewComment] = useState('');
   const [isProgressUpdate, setIsProgressUpdate] = useState(false);
@@ -232,11 +254,19 @@ export default function TaskDetail({
   };
 
   const handleUpdateStatus = async (targetStatusName: string) => {
-    if (!statuses) {
-      alert('Statuses not loaded. Cannot update status.');
-      return;
+    let statusList = availableStatuses;
+    if (!statusList || statusList.length === 0) {
+      try {
+        const sRes = await fetch('/api/task-manager/statuses');
+        const sData = await sRes.json();
+        statusList = sData.statuses || [];
+        setAvailableStatuses(statusList);
+      } catch (e) {
+        console.error('Failed to fetch statuses:', e);
+      }
     }
-    const targetStatus = statuses.find((s) => s.name === targetStatusName);
+
+    const targetStatus = statusList.find((s) => s.name === targetStatusName);
     if (!targetStatus) {
       alert(`Status '${targetStatusName}' not found in database.`);
       return;
@@ -244,6 +274,14 @@ export default function TaskDetail({
 
     if (updatingStatus) return;
     setUpdatingStatus(true);
+
+    // Optimistically update local task status immediately
+    setTask((prev) => ({
+      ...prev,
+      status_id: targetStatus.id,
+      status_name: targetStatus,
+    }));
+
     try {
       const res = await fetch(`/api/task-manager/tasks/${task.id}`, {
         method: 'PUT',
@@ -252,10 +290,20 @@ export default function TaskDetail({
       });
       if (!res.ok) throw new Error('Failed to update status');
 
+      const data = await res.json();
+      if (data.task) {
+        setTask((prev) => ({
+          ...prev,
+          ...data.task,
+        }));
+      }
+
       onRefresh?.();
+      window.dispatchEvent(new Event('task-created-or-updated'));
     } catch (err) {
       console.error('Failed to update status:', err);
       alert('Error updating status: ' + (err as Error).message);
+      setTask(initialTask);
     } finally {
       setUpdatingStatus(false);
     }
