@@ -50,7 +50,8 @@ CREATE INDEX IF NOT EXISTS idx_co_founder_action_plans_signal_id ON public.co_fo
 -- 4. Enable Row Level Security (RLS)
 ALTER TABLE public.co_founder_action_plans ENABLE ROW LEVEL SECURITY;
 
--- 5. Staff and Admin access policies
+-- 5. Staff and Admin access policies (Idempotent with DROP POLICY IF EXISTS)
+DROP POLICY IF EXISTS "Admins and staff can view action_plans" ON public.co_founder_action_plans;
 CREATE POLICY "Admins and staff can view action_plans"
     ON public.co_founder_action_plans FOR SELECT
     TO authenticated
@@ -61,6 +62,7 @@ CREATE POLICY "Admins and staff can view action_plans"
         )
     );
 
+DROP POLICY IF EXISTS "Admins and staff can insert action_plans" ON public.co_founder_action_plans;
 CREATE POLICY "Admins and staff can insert action_plans"
     ON public.co_founder_action_plans FOR INSERT
     TO authenticated
@@ -71,6 +73,7 @@ CREATE POLICY "Admins and staff can insert action_plans"
         )
     );
 
+DROP POLICY IF EXISTS "Admins and staff can update action_plans" ON public.co_founder_action_plans;
 CREATE POLICY "Admins and staff can update action_plans"
     ON public.co_founder_action_plans FOR UPDATE
     TO authenticated
@@ -81,8 +84,10 @@ CREATE POLICY "Admins and staff can update action_plans"
         )
     );
 
+DROP POLICY IF EXISTS "Service role full access on action_plans" ON public.co_founder_action_plans;
 CREATE POLICY "Service role full access on action_plans"
     ON public.co_founder_action_plans FOR ALL
     TO service_role
     USING (true)
     WITH CHECK (true);
+
