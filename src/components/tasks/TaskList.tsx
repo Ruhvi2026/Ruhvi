@@ -21,6 +21,7 @@ import {
   RefreshCw,
   XCircle,
   ArrowUpCircle,
+  Trash2,
 } from 'lucide-react';
 import { debounce } from '@/lib/debounce';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
@@ -90,6 +91,18 @@ export default function TaskList({
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
   const basePath = pathname ? pathname.split('?')[0] : '/admin/task-manager';
+  const isAdminRole =
+    isSuperAdmin ||
+    profile?.role === 'admin' ||
+    (profile?.role as any) === 'SUPER_ADMIN' ||
+    (profile?.role as any) === 'ADMIN';
+  const isInAdminPanel = pathname ? pathname.startsWith('/admin') : false;
+  const canDeleteTasks = isAdminRole && isInAdminPanel;
+
+  const [selectedTaskIds, setSelectedTaskIds] = useState<Set<string>>(
+    new Set()
+  );
+  const [deletingTasks, setDeletingTasks] = useState(false);
 
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
   const [availableStatuses, setAvailableStatuses] = useState<TaskStatus[]>(
@@ -245,6 +258,86 @@ export default function TaskList({
       debouncedFetch.current(1, { [key]: value });
     } else {
       fetchTasks(1, { [key]: value });
+    }
+  };
+
+  const toggleTaskSelection = (taskId: string) => {
+    setSelectedTaskIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(taskId)) {
+        next.delete(taskId);
+      } else {
+        next.add(taskId);
+      }
+      return next;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (tasks.length > 0 && selectedTaskIds.size === tasks.length) {
+      setSelectedTaskIds(new Set());
+    } else {
+      setSelectedTaskIds(new Set(tasks.map((t) => t.id)));
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (!canDeleteTasks || selectedTaskIds.size === 0 || deletingTasks) return;
+    const count = selectedTaskIds.size;
+    const confirmed = window.confirm(
+      `Are you sure you want to permanently delete ${count} selected task(s)? This action can only be performed from the Admin Panel and cannot be undone.`
+    );
+    if (!confirmed) return;
+
+    setDeletingTasks(true);
+    try {
+      const res = await fetch('/api/task-manager/tasks', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ task_ids: Array.from(selectedTaskIds) }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to delete tasks');
+
+      const deletedSet = new Set(selectedTaskIds);
+      setTasks((prev) => prev.filter((t) => !deletedSet.has(t.id)));
+      setTotal((prev) => Math.max(0, (prev || 0) - deletedSet.size));
+      setSelectedTaskIds(new Set());
+    } catch (err: any) {
+      console.error('Bulk delete failed:', err);
+      alert('Error deleting tasks: ' + (err.message || 'Unknown error'));
+    } finally {
+      setDeletingTasks(false);
+    }
+  };
+
+  const handleDeleteSingleTask = async (taskToDelete: Task) => {
+    if (!canDeleteTasks || deletingTasks) return;
+    const confirmed = window.confirm(
+      `Are you sure you want to permanently delete task "${taskToDelete.task_id_text || taskToDelete.title}"?`
+    );
+    if (!confirmed) return;
+
+    setDeletingTasks(true);
+    try {
+      const res = await fetch(`/api/task-manager/tasks/${taskToDelete.id}`, {
+        method: 'DELETE',
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to delete task');
+
+      setTasks((prev) => prev.filter((t) => t.id !== taskToDelete.id));
+      setTotal((prev) => Math.max(0, (prev || 0) - 1));
+      setSelectedTaskIds((prev) => {
+        const next = new Set(prev);
+        next.delete(taskToDelete.id);
+        return next;
+      });
+    } catch (err: any) {
+      console.error('Failed to delete task:', err);
+      alert('Error: ' + (err.message || 'Failed to delete task'));
+    } finally {
+      setDeletingTasks(false);
     }
   };
 
@@ -726,6 +819,53 @@ export default function TaskList({
         </div>
       )}
 
+      {/* Task List Header & Bulk Selection Bar */}
+      {canDeleteTasks && tasks.length > 0 && (
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/5 bg-[#121624] px-3.5 py-2 text-xs">
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={
+                tasks.length > 0 && selectedTaskIds.size === tasks.length
+              }
+              onChange={toggleSelectAll}
+              className="h-4 w-4 cursor-pointer rounded border-white/20 bg-white/5 text-emerald-500 focus:ring-emerald-500/50"
+              title="Select all tasks on this page"
+            />
+            <span className="font-medium text-slate-300">
+              {selectedTaskIds.size > 0
+                ? `${selectedTaskIds.size} of ${tasks.length} selected`
+                : 'Select all tasks'}
+            </span>
+          </div>
+
+          {selectedTaskIds.size > 0 && (
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setSelectedTaskIds(new Set())}
+                className="rounded px-2 py-1 text-slate-400 transition-colors hover:text-white"
+              >
+                Clear Selection
+              </button>
+              <button
+                type="button"
+                onClick={handleBulkDelete}
+                disabled={deletingTasks}
+                className="flex items-center gap-1.5 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-1.5 text-xs font-semibold text-red-400 transition-colors hover:bg-red-500/20 disabled:opacity-50"
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+                <span>
+                  {deletingTasks
+                    ? 'Deleting...'
+                    : `Delete Selected (${selectedTaskIds.size})`}
+                </span>
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Task List */}
       <div className="flex-1 overflow-y-auto">
         {tasks.length === 0 ? (
@@ -756,8 +896,27 @@ export default function TaskList({
               >
                 {/* Main Row: Left (Identity, Title, Dept, People, Entities) & Right (Status, Priority, Tags, Chat, SLA, Action) */}
                 <div className="flex flex-col gap-2.5 lg:flex-row lg:items-center lg:justify-between">
-                  {/* Left Side: ID, Title, Dept, People & Related Entities */}
+                  {/* Left Side: Checkbox, ID, Title, Dept, People & Related Entities */}
                   <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2 sm:gap-2.5">
+                    {/* Admin Selection Checkbox */}
+                    {canDeleteTasks && (
+                      <div
+                        onClick={(e) => e.stopPropagation()}
+                        className="flex shrink-0 items-center pr-1"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={selectedTaskIds.has(task.id)}
+                          onChange={(e) => {
+                            e.stopPropagation();
+                            toggleTaskSelection(task.id);
+                          }}
+                          className="h-4 w-4 cursor-pointer rounded border-white/20 bg-white/5 text-emerald-500 focus:ring-emerald-500/50"
+                          title="Select task for bulk actions"
+                        />
+                      </div>
+                    )}
+
                     {/* Task ID */}
                     <span className="rounded border border-white/10 bg-white/5 px-2 py-0.5 font-mono text-xs font-medium text-slate-400">
                       {task.task_id_text || 'TASK'}
@@ -990,6 +1149,22 @@ export default function TaskList({
                       >
                         {getActionButton(task)}
                       </div>
+                    )}
+
+                    {/* Single Delete Button (Admin Only) */}
+                    {canDeleteTasks && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteSingleTask(task);
+                        }}
+                        disabled={deletingTasks}
+                        className="inline-flex items-center justify-center rounded p-1.5 text-slate-500 transition-colors hover:bg-red-500/10 hover:text-red-400 disabled:opacity-50"
+                        title="Delete Task (Admin Panel Only)"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
                     )}
                   </div>
                 </div>

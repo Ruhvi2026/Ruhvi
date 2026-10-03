@@ -817,3 +817,75 @@ export async function POST(req: Request) {
     );
   }
 }
+
+export async function DELETE(req: Request) {
+  try {
+    const staffUser = await getAuthenticatedStaff();
+    if (!staffUser) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Permission check - tasks can ONLY be deleted by administrators (super_admin / admin)
+    const canDelete =
+      staffUser.role === 'super_admin' ||
+      staffUser.role === 'admin' ||
+      staffUser.role === 'SUPER_ADMIN' ||
+      staffUser.role === 'ADMIN';
+
+    if (!canDelete) {
+      return NextResponse.json(
+        {
+          error:
+            'Forbidden: Tasks can only be deleted from the Admin Panel by administrators.',
+        },
+        { status: 403 }
+      );
+    }
+
+    const body = await req.json().catch(() => ({}));
+    const { task_ids } = body;
+
+    if (!Array.isArray(task_ids) || task_ids.length === 0) {
+      return NextResponse.json(
+        { error: 'task_ids array is required' },
+        { status: 400 }
+      );
+    }
+
+    const supabase = getServiceClient();
+
+    // Soft delete all requested tasks
+    const { error: deleteErr } = await supabase
+      .from('tasks')
+      .update({ deleted_at: new Date().toISOString() })
+      .in('id', task_ids);
+
+    if (deleteErr) {
+      console.error('[Tasks Bulk DELETE] Error:', deleteErr);
+      return NextResponse.json(
+        { error: 'Failed to delete tasks' },
+        { status: 500 }
+      );
+    }
+
+    // Log activity for each task
+    const activities = task_ids.map((id: string) => ({
+      task_id: id,
+      user_id: staffUser.id,
+      action: 'deleted',
+    }));
+    await supabase.from('task_activity').insert(activities);
+
+    return NextResponse.json({
+      success: true,
+      message: `${task_ids.length} task(s) deleted successfully`,
+      deleted_ids: task_ids,
+    });
+  } catch (err: any) {
+    console.error('[Tasks Bulk DELETE] Error:', err);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
