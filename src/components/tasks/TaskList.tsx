@@ -754,74 +754,57 @@ export default function TaskList({
                 onClick={() => onTaskClick?.(task)}
                 className="shadow-xs group cursor-pointer rounded-lg border border-white/10 bg-[#161B2C]/80 px-3.5 py-2.5 transition-all hover:border-emerald-500/40 hover:bg-[#1C2339] hover:shadow-md"
               >
-                {/* Row 1: Task ID, Priority, Status, Title, SLA, Action Button */}
-                <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-                  <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
+                {/* Unified Full-Width Row: ID, Badges, Title, Dept, People, Entities, Tags, SLA & Action */}
+                <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
+                  {/* Left & Middle Content Flow */}
+                  <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2 sm:gap-2.5">
+                    {/* Task ID */}
                     <span className="rounded border border-white/10 bg-white/5 px-1.5 py-0.5 font-mono text-[11px] font-medium text-slate-400">
                       {task.task_id_text || 'TASK'}
                     </span>
+
+                    {/* Priority & Status Badges */}
                     {priorityLabel(task)}
                     {statusLabel(task)}
-                    <h3 className="truncate text-sm font-semibold text-white transition-colors group-hover:text-emerald-400">
+
+                    {/* Title */}
+                    <h3 className="text-sm font-semibold text-white transition-colors group-hover:text-emerald-400">
                       {task.title}
                     </h3>
-                  </div>
 
-                  <div className="flex shrink-0 items-center gap-2">
-                    {task.due_date && (
-                      <span
-                        className={`whitespace-nowrap rounded-full border border-white/10 bg-black/30 px-2 py-0.5 text-[10px] font-medium ${
-                          getSlaStatus(task).class
-                        }`}
-                      >
-                        SLA: {getSlaStatus(task).label}
+                    {/* Department */}
+                    {task.department_name && (
+                      <span className="inline-flex items-center gap-1 rounded border border-white/5 bg-white/5 px-1.5 py-0.5 text-[10px] text-slate-300">
+                        <Building className="h-3 w-3 shrink-0 text-emerald-400" />
+                        <span>{task.department_name}</span>
                       </span>
                     )}
-                    {getActionButton(task) && (
-                      <div
-                        onClick={(e) => e.stopPropagation()}
-                        className="shrink-0"
-                      >
-                        {getActionButton(task)}
-                      </div>
-                    )}
-                  </div>
-                </div>
 
-                {/* Description (Single line preview) */}
-                {task.description && (
-                  <p className="mt-0.5 line-clamp-1 text-xs text-slate-400">
-                    {task.description}
-                  </p>
-                )}
-
-                {/* Row 2: People, Department, Messenger, Tags, Related Entities */}
-                <div className="mt-1.5 flex flex-wrap items-center justify-between gap-2 border-t border-white/5 pt-1.5 text-xs">
-                  {/* Left: People & Organization */}
-                  <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
                     {/* Created By */}
                     <div
-                      className="flex items-center gap-1"
+                      className="inline-flex items-center gap-1 text-[11px] text-slate-400"
                       title={`Created by: ${task.creator?.full_name || 'System'}`}
                     >
                       <StaffAvatar user={task.creator} size="xs" />
-                      <span className="text-[11px] text-slate-400">
+                      <span>
                         <span className="text-slate-500">By:</span>{' '}
-                        {task.creator?.full_name || 'System'}
+                        <span className="text-slate-300">
+                          {task.creator?.full_name || 'System'}
+                        </span>
                       </span>
                     </div>
 
-                    <span className="text-slate-700">•</span>
-
                     {/* Assigned To */}
                     <div
-                      className="flex items-center gap-1"
+                      className="inline-flex items-center gap-1 text-[11px] text-slate-300"
                       title={`Assigned to: ${task.assignee?.full_name || 'Unassigned'}`}
                     >
                       <StaffAvatar user={task.assignee} size="xs" />
-                      <span className="text-[11px] font-medium text-slate-300">
-                        <span className="font-normal text-slate-500">To:</span>{' '}
-                        {task.assignee?.full_name || 'Unassigned'}
+                      <span>
+                        <span className="text-slate-500">To:</span>{' '}
+                        <span className="font-medium text-slate-200">
+                          {task.assignee?.full_name || 'Unassigned'}
+                        </span>
                       </span>
                     </div>
 
@@ -829,53 +812,46 @@ export default function TaskList({
                     {task.spectators &&
                       task.spectators.length > 0 &&
                       task.spectators[0].spectator && (
-                        <>
-                          <span className="text-slate-700">•</span>
-                          <div
-                            className="flex items-center gap-1"
-                            title={`Inspector: ${task.spectators[0].spectator.full_name}`}
-                          >
-                            <Eye className="h-3 w-3 text-cyan-400" />
-                            <span className="text-[11px] font-medium text-cyan-300">
-                              {task.spectators[0].spectator.full_name}
-                            </span>
-                          </div>
-                        </>
+                        <div
+                          className="inline-flex items-center gap-1 rounded border border-cyan-500/20 bg-cyan-500/10 px-1.5 py-0.5 text-[11px] text-cyan-300"
+                          title={`Inspector: ${task.spectators[0].spectator.full_name}`}
+                        >
+                          <Eye className="h-3 w-3 shrink-0 text-cyan-400" />
+                          <span className="text-[10px] text-cyan-400/80">
+                            Insp:
+                          </span>
+                          <span className="max-w-[110px] truncate font-medium">
+                            {task.spectators[0].spectator.full_name}
+                          </span>
+                        </div>
                       )}
 
-                    {/* Department */}
-                    {task.department_name && (
-                      <>
-                        <span className="text-slate-700">•</span>
-                        <span className="flex items-center gap-1 rounded bg-white/5 px-1.5 py-0.5 text-[10px] text-slate-300">
-                          <Building className="h-3 w-3 text-emerald-400" />
-                          {task.department_name}
+                    {/* Collaborators */}
+                    {task.collaborators && task.collaborators.length > 0 && (
+                      <div
+                        className="inline-flex items-center gap-1 rounded border border-purple-500/20 bg-purple-500/10 px-1.5 py-0.5 text-[10px] text-purple-300"
+                        title={
+                          task.collaborators
+                            .map((c) => c.collaborator?.full_name || 'Staff')
+                            .join(', ') || 'Collaborators'
+                        }
+                      >
+                        <Users className="h-3 w-3 shrink-0 text-purple-400" />
+                        <span>
+                          {task.collaborators.length === 1
+                            ? task.collaborators[0].collaborator?.full_name ||
+                              '1 Collab'
+                            : `${task.collaborators.length} Collabs`}
                         </span>
-                      </>
+                      </div>
                     )}
 
                     {/* Chat Group */}
                     {task.messenger_group_id && (
-                      <span className="flex items-center gap-1 rounded border border-indigo-500/30 bg-indigo-500/10 px-1.5 py-0.5 text-[10px] font-medium text-indigo-300">
-                        <MessageSquare className="h-3 w-3" />
+                      <span className="inline-flex items-center gap-1 rounded border border-indigo-500/30 bg-indigo-500/10 px-1.5 py-0.5 text-[10px] font-medium text-indigo-300">
+                        <MessageSquare className="h-3 w-3 shrink-0" />
                         Chat
                       </span>
-                    )}
-                  </div>
-
-                  {/* Right: Tags & Related Entities */}
-                  <div className="flex flex-wrap items-center gap-1.5">
-                    {task.tags && task.tags.length > 0 && (
-                      <div className="flex flex-wrap gap-1">
-                        {task.tags.map((tag, i) => (
-                          <span
-                            key={i}
-                            className="rounded bg-white/5 px-1.5 py-0.5 text-[9px] text-slate-400"
-                          >
-                            #{tag}
-                          </span>
-                        ))}
-                      </div>
                     )}
 
                     {/* Related Entities */}
@@ -891,9 +867,9 @@ export default function TaskList({
                             data: task.order,
                           });
                         }}
-                        className="flex items-center gap-1 rounded border border-emerald-500/30 bg-emerald-500/10 px-1.5 py-0.5 text-[10px] text-emerald-300 transition-colors hover:bg-emerald-500/20"
+                        className="inline-flex items-center gap-1 rounded border border-emerald-500/30 bg-emerald-500/10 px-1.5 py-0.5 text-[10px] text-emerald-300 transition-colors hover:bg-emerald-500/20"
                       >
-                        <Package className="h-3 w-3 text-emerald-400" />
+                        <Package className="h-3 w-3 shrink-0 text-emerald-400" />
                         <span>
                           Order:{' '}
                           {task.order?.order_number || task.related_order_id}
@@ -913,9 +889,9 @@ export default function TaskList({
                             data: task.ticket,
                           });
                         }}
-                        className="flex items-center gap-1 rounded border border-blue-500/30 bg-blue-500/10 px-1.5 py-0.5 text-[10px] text-blue-300 transition-colors hover:bg-blue-500/20"
+                        className="inline-flex items-center gap-1 rounded border border-blue-500/30 bg-blue-500/10 px-1.5 py-0.5 text-[10px] text-blue-300 transition-colors hover:bg-blue-500/20"
                       >
-                        <Ticket className="h-3 w-3 text-blue-400" />
+                        <Ticket className="h-3 w-3 shrink-0 text-blue-400" />
                         <span>
                           Ticket:{' '}
                           {task.ticket?.ticket_number || task.related_ticket_id}
@@ -936,17 +912,59 @@ export default function TaskList({
                             data: task.product,
                           });
                         }}
-                        className="flex items-center gap-1 rounded border border-purple-500/30 bg-purple-500/10 px-1.5 py-0.5 text-[10px] text-purple-300 transition-colors hover:bg-purple-500/20"
+                        className="inline-flex items-center gap-1 rounded border border-purple-500/30 bg-purple-500/10 px-1.5 py-0.5 text-[10px] text-purple-300 transition-colors hover:bg-purple-500/20"
                       >
-                        <Box className="h-3 w-3 text-purple-400" />
+                        <Box className="h-3 w-3 shrink-0 text-purple-400" />
                         <span className="max-w-[110px] truncate">
                           Product:{' '}
                           {task.product?.name || task.related_product_id}
                         </span>
                       </button>
                     )}
+
+                    {/* Tags */}
+                    {task.tags && task.tags.length > 0 && (
+                      <div className="inline-flex flex-wrap items-center gap-1">
+                        {task.tags.map((tag, i) => (
+                          <span
+                            key={i}
+                            className="rounded border border-white/5 bg-white/5 px-1.5 py-0.5 text-[9px] text-slate-400"
+                          >
+                            #{tag}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Right: SLA Badge & Quick Action Button */}
+                  <div className="flex shrink-0 items-center gap-2 sm:ml-auto">
+                    {task.due_date && (
+                      <span
+                        className={`whitespace-nowrap rounded-full border border-white/10 bg-black/30 px-2 py-0.5 text-[10px] font-medium ${
+                          getSlaStatus(task).class
+                        }`}
+                      >
+                        SLA: {getSlaStatus(task).label}
+                      </span>
+                    )}
+                    {getActionButton(task) && (
+                      <div
+                        onClick={(e) => e.stopPropagation()}
+                        className="shrink-0"
+                      >
+                        {getActionButton(task)}
+                      </div>
+                    )}
                   </div>
                 </div>
+
+                {/* Optional Description Preview (Single Line) */}
+                {task.description && (
+                  <p className="mt-1 line-clamp-1 text-xs text-slate-400/80">
+                    {task.description}
+                  </p>
+                )}
               </div>
             ))}
           </div>
