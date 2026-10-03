@@ -402,6 +402,8 @@ export default function TaskForm({
 
       const body: Record<string, any> = {
         ...formData,
+        assigned_type:
+          assignmentType === 'department' ? 'department' : 'direct_user',
         tags: formData.tags
           .split(',')
           .map((t) => t.trim())

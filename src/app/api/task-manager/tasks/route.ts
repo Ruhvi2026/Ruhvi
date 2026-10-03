@@ -620,7 +620,11 @@ export async function POST(req: Request) {
     //   'department' = task routed to a department (assignee is dept manager)
     //   'direct_user' = task assigned directly to a specific individual
     const assignedType: 'department' | 'direct_user' =
-      body.department_id && !body.assignee_id ? 'department' : 'direct_user';
+      body.assigned_type === 'department'
+        ? 'department'
+        : body.department_id && !body.assignee_id
+          ? 'department'
+          : 'direct_user';
 
     const payload: Record<string, unknown> = {
       task_id_text: generateTaskIdText(),
