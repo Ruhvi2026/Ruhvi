@@ -322,7 +322,7 @@ export default function TaskList({
     }
     return (
       <span
-        className={`inline-flex items-center rounded border px-2 py-0.5 text-[10px] font-medium ${
+        className={`inline-flex items-center rounded border px-2 py-0.5 text-xs font-medium ${
           PRIORITY_COLORS[priorityStr] || PRIORITY_COLORS.Normal
         }`}
       >
@@ -342,7 +342,7 @@ export default function TaskList({
     }
     return (
       <span
-        className={`inline-flex items-center rounded border px-2 py-0.5 text-[10px] font-medium ${
+        className={`inline-flex items-center rounded border px-2 py-0.5 text-xs font-medium ${
           STATUS_COLORS[statusStr] || STATUS_COLORS.Open
         }`}
       >
@@ -759,7 +759,7 @@ export default function TaskList({
                   {/* Left & Middle Content Flow */}
                   <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2 sm:gap-2.5">
                     {/* Task ID */}
-                    <span className="rounded border border-white/10 bg-white/5 px-1.5 py-0.5 font-mono text-[11px] font-medium text-slate-400">
+                    <span className="rounded border border-white/10 bg-white/5 px-2 py-0.5 font-mono text-xs font-medium text-slate-400">
                       {task.task_id_text || 'TASK'}
                     </span>
 
@@ -768,27 +768,27 @@ export default function TaskList({
                     {statusLabel(task)}
 
                     {/* Title */}
-                    <h3 className="text-sm font-semibold text-white transition-colors group-hover:text-emerald-400">
+                    <h3 className="text-sm font-semibold text-white transition-colors group-hover:text-emerald-400 sm:text-[15px]">
                       {task.title}
                     </h3>
 
                     {/* Department */}
                     {task.department_name && (
-                      <span className="inline-flex items-center gap-1 rounded border border-white/5 bg-white/5 px-1.5 py-0.5 text-[10px] text-slate-300">
-                        <Building className="h-3 w-3 shrink-0 text-emerald-400" />
+                      <span className="inline-flex items-center gap-1.5 rounded border border-white/5 bg-white/5 px-2 py-0.5 text-xs text-slate-300">
+                        <Building className="h-3.5 w-3.5 shrink-0 text-emerald-400" />
                         <span>{task.department_name}</span>
                       </span>
                     )}
 
                     {/* Created By */}
                     <div
-                      className="inline-flex items-center gap-1 text-[11px] text-slate-400"
+                      className="inline-flex items-center gap-1.5 text-xs text-slate-400"
                       title={`Created by: ${task.creator?.full_name || 'System'}`}
                     >
-                      <StaffAvatar user={task.creator} size="xs" />
+                      <StaffAvatar user={task.creator} size="sm" />
                       <span>
                         <span className="text-slate-500">By:</span>{' '}
-                        <span className="text-slate-300">
+                        <span className="font-medium text-slate-200">
                           {task.creator?.full_name || 'System'}
                         </span>
                       </span>
@@ -796,13 +796,13 @@ export default function TaskList({
 
                     {/* Assigned To */}
                     <div
-                      className="inline-flex items-center gap-1 text-[11px] text-slate-300"
+                      className="inline-flex items-center gap-1.5 text-xs text-slate-300"
                       title={`Assigned to: ${task.assignee?.full_name || 'Unassigned'}`}
                     >
-                      <StaffAvatar user={task.assignee} size="xs" />
+                      <StaffAvatar user={task.assignee} size="sm" />
                       <span>
                         <span className="text-slate-500">To:</span>{' '}
-                        <span className="font-medium text-slate-200">
+                        <span className="font-semibold text-slate-100">
                           {task.assignee?.full_name || 'Unassigned'}
                         </span>
                       </span>
@@ -813,43 +813,61 @@ export default function TaskList({
                       task.spectators.length > 0 &&
                       task.spectators[0].spectator && (
                         <div
-                          className="inline-flex items-center gap-1 rounded border border-cyan-500/20 bg-cyan-500/10 px-1.5 py-0.5 text-[11px] text-cyan-300"
+                          className="inline-flex items-center gap-1.5 rounded-md border border-cyan-500/20 bg-cyan-500/10 px-2 py-0.5 text-xs text-cyan-300"
                           title={`Inspector: ${task.spectators[0].spectator.full_name}`}
                         >
-                          <Eye className="h-3 w-3 shrink-0 text-cyan-400" />
-                          <span className="text-[10px] text-cyan-400/80">
+                          <StaffAvatar
+                            user={task.spectators[0].spectator}
+                            size="sm"
+                          />
+                          <span className="text-[11px] text-cyan-400/80">
                             Insp:
                           </span>
-                          <span className="max-w-[110px] truncate font-medium">
+                          <span className="max-w-[120px] truncate font-medium text-cyan-200">
                             {task.spectators[0].spectator.full_name}
                           </span>
                         </div>
                       )}
 
                     {/* Collaborators */}
-                    {task.collaborators && task.collaborators.length > 0 && (
+                    {task.collaborators && task.collaborators.length > 1 ? (
                       <div
-                        className="inline-flex items-center gap-1 rounded border border-purple-500/20 bg-purple-500/10 px-1.5 py-0.5 text-[10px] text-purple-300"
+                        className="inline-flex items-center gap-1.5 rounded-md border border-purple-500/20 bg-purple-500/10 px-2 py-0.5 text-xs text-purple-300"
                         title={
                           task.collaborators
                             .map((c) => c.collaborator?.full_name || 'Staff')
                             .join(', ') || 'Collaborators'
                         }
                       >
-                        <Users className="h-3 w-3 shrink-0 text-purple-400" />
-                        <span>
-                          {task.collaborators.length === 1
-                            ? task.collaborators[0].collaborator?.full_name ||
-                              '1 Collab'
-                            : `${task.collaborators.length} Collabs`}
+                        <Users className="h-3.5 w-3.5 shrink-0 text-purple-400" />
+                        <span className="font-medium">
+                          {task.collaborators.length} Collabs
                         </span>
                       </div>
-                    )}
+                    ) : task.collaborators &&
+                      task.collaborators.length === 1 &&
+                      task.collaborators[0].collaborator ? (
+                      <div
+                        className="inline-flex items-center gap-1.5 rounded-md border border-purple-500/20 bg-purple-500/10 px-2 py-0.5 text-xs text-purple-300"
+                        title={`Collaborator: ${task.collaborators[0].collaborator.full_name}`}
+                      >
+                        <StaffAvatar
+                          user={task.collaborators[0].collaborator}
+                          size="sm"
+                        />
+                        <span className="text-[11px] text-purple-400/80">
+                          Collab:
+                        </span>
+                        <span className="max-w-[120px] truncate font-medium text-purple-200">
+                          {task.collaborators[0].collaborator.full_name}
+                        </span>
+                      </div>
+                    ) : null}
 
                     {/* Chat Group */}
                     {task.messenger_group_id && (
-                      <span className="inline-flex items-center gap-1 rounded border border-indigo-500/30 bg-indigo-500/10 px-1.5 py-0.5 text-[10px] font-medium text-indigo-300">
-                        <MessageSquare className="h-3 w-3 shrink-0" />
+                      <span className="inline-flex items-center gap-1.5 rounded border border-indigo-500/30 bg-indigo-500/10 px-2 py-0.5 text-xs font-medium text-indigo-300">
+                        <MessageSquare className="h-3.5 w-3.5 shrink-0" />
                         Chat
                       </span>
                     )}
@@ -867,9 +885,9 @@ export default function TaskList({
                             data: task.order,
                           });
                         }}
-                        className="inline-flex items-center gap-1 rounded border border-emerald-500/30 bg-emerald-500/10 px-1.5 py-0.5 text-[10px] text-emerald-300 transition-colors hover:bg-emerald-500/20"
+                        className="inline-flex items-center gap-1.5 rounded border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-xs text-emerald-300 transition-colors hover:bg-emerald-500/20"
                       >
-                        <Package className="h-3 w-3 shrink-0 text-emerald-400" />
+                        <Package className="h-3.5 w-3.5 shrink-0 text-emerald-400" />
                         <span>
                           Order:{' '}
                           {task.order?.order_number || task.related_order_id}
@@ -889,9 +907,9 @@ export default function TaskList({
                             data: task.ticket,
                           });
                         }}
-                        className="inline-flex items-center gap-1 rounded border border-blue-500/30 bg-blue-500/10 px-1.5 py-0.5 text-[10px] text-blue-300 transition-colors hover:bg-blue-500/20"
+                        className="inline-flex items-center gap-1.5 rounded border border-blue-500/30 bg-blue-500/10 px-2 py-0.5 text-xs text-blue-300 transition-colors hover:bg-blue-500/20"
                       >
-                        <Ticket className="h-3 w-3 shrink-0 text-blue-400" />
+                        <Ticket className="h-3.5 w-3.5 shrink-0 text-blue-400" />
                         <span>
                           Ticket:{' '}
                           {task.ticket?.ticket_number || task.related_ticket_id}
@@ -912,10 +930,10 @@ export default function TaskList({
                             data: task.product,
                           });
                         }}
-                        className="inline-flex items-center gap-1 rounded border border-purple-500/30 bg-purple-500/10 px-1.5 py-0.5 text-[10px] text-purple-300 transition-colors hover:bg-purple-500/20"
+                        className="inline-flex items-center gap-1.5 rounded border border-purple-500/30 bg-purple-500/10 px-2 py-0.5 text-xs text-purple-300 transition-colors hover:bg-purple-500/20"
                       >
-                        <Box className="h-3 w-3 shrink-0 text-purple-400" />
-                        <span className="max-w-[110px] truncate">
+                        <Box className="h-3.5 w-3.5 shrink-0 text-purple-400" />
+                        <span className="max-w-[120px] truncate">
                           Product:{' '}
                           {task.product?.name || task.related_product_id}
                         </span>
@@ -928,7 +946,7 @@ export default function TaskList({
                         {task.tags.map((tag, i) => (
                           <span
                             key={i}
-                            className="rounded border border-white/5 bg-white/5 px-1.5 py-0.5 text-[9px] text-slate-400"
+                            className="rounded border border-white/5 bg-white/5 px-2 py-0.5 text-[10px] text-slate-400"
                           >
                             #{tag}
                           </span>
@@ -941,7 +959,7 @@ export default function TaskList({
                   <div className="flex shrink-0 items-center gap-2 sm:ml-auto">
                     {task.due_date && (
                       <span
-                        className={`whitespace-nowrap rounded-full border border-white/10 bg-black/30 px-2 py-0.5 text-[10px] font-medium ${
+                        className={`whitespace-nowrap rounded-full border border-white/10 bg-black/30 px-2.5 py-0.5 text-xs font-medium ${
                           getSlaStatus(task).class
                         }`}
                       >
@@ -961,7 +979,7 @@ export default function TaskList({
 
                 {/* Optional Description Preview (Single Line) */}
                 {task.description && (
-                  <p className="mt-1 line-clamp-1 text-xs text-slate-400/80">
+                  <p className="mt-1.5 line-clamp-1 text-xs text-slate-400/80">
                     {task.description}
                   </p>
                 )}
