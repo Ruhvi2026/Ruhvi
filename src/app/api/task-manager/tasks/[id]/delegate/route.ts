@@ -1,4 +1,4 @@
-﻿import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { getServiceClient } from '@/lib/supabase/service';
 import { getAuthenticatedStaff } from '@/lib/auth/task-auth';
 
@@ -45,7 +45,7 @@ export async function POST(
     const { data: task, error: fetchErr } = await supabase
       .from('tasks')
       .select(
-        'id, title, assigned_type, assignee_id, department_id, created_by'
+        'id, title, assigned_type, assignee_id, department_id, created_by, status_name:task_statuses(name)'
       )
       .eq('id', id)
       .is('deleted_at', null)
@@ -62,6 +62,18 @@ export async function POST(
           error:
             'Delegation is only available for tasks originally assigned to a department. ' +
             'This task was assigned directly to an individual.',
+        },
+        { status: 403 }
+      );
+    }
+
+    // ── Guard 1.5: Task must be accepted first ─────────────────────────────
+    const currentStatus = (task as any).status_name?.name || 'Open';
+    if (currentStatus === 'Open') {
+      return NextResponse.json(
+        {
+          error:
+            'You must accept the task before you can delegate it to your staff.',
         },
         { status: 403 }
       );

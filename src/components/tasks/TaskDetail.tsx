@@ -631,10 +631,12 @@ export default function TaskDetail({
   // Must be manager of the task's department AND task must be department-assigned
   const profileDeptId = (profile as any)?.department_id as
     string | null | undefined;
+  const currentStatus = task.status_name?.name || 'Open';
   const canDelegate =
     (isSuperAdmin ||
       (isManager && profileDeptId && profileDeptId === task.department_id)) &&
-    task.assigned_type === 'department';
+    task.assigned_type === 'department' &&
+    currentStatus !== 'Open';
 
   // Any involved staff can add collaborators
   const isInvolved =
