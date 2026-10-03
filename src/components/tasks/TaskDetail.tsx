@@ -596,7 +596,38 @@ export default function TaskDetail({
       if (!res.ok) throw new Error(data.error || 'Failed to add collaborator');
       setCollabSearch('');
       setCollabSearchResults([]);
-      onRefresh?.();
+
+      // Optimistically update local task state immediately so user sees new collaborator instantly
+      if (data.collaborator) {
+        setTask((prev) => {
+          const exists = prev.collaborators?.some(
+            (c) =>
+              c.id === data.collaborator.id ||
+              c.user_id === data.collaborator.user_id
+          );
+          if (exists) return prev;
+          return {
+            ...prev,
+            collaborators: [...(prev.collaborators || []), data.collaborator],
+          };
+        });
+      } else {
+        // Fallback fetch collaborators list
+        const collabRes = await fetch(
+          `/api/task-manager/tasks/${task.id}/collaborators`
+        );
+        if (collabRes.ok) {
+          const cData = await collabRes.json();
+          if (cData.collaborators) {
+            setTask((prev) => ({
+              ...prev,
+              collaborators: cData.collaborators,
+            }));
+          }
+        }
+      }
+
+      await onRefresh?.();
     } catch (err: any) {
       setCollabError(err.message || 'Failed to add collaborator');
     } finally {
@@ -606,6 +637,14 @@ export default function TaskDetail({
 
   const handleRemoveCollaborator = async (collabId: string) => {
     try {
+      // Optimistically update local state immediately
+      setTask((prev) => ({
+        ...prev,
+        collaborators: (prev.collaborators || []).filter(
+          (c) => c.id !== collabId
+        ),
+      }));
+
       const res = await fetch(
         `/api/task-manager/tasks/${task.id}/collaborators?collaborator_id=${collabId}`,
         { method: 'DELETE' }
@@ -614,9 +653,22 @@ export default function TaskDetail({
         const data = await res.json().catch(() => ({}));
         throw new Error(data.error || 'Failed to remove collaborator');
       }
-      onRefresh?.();
+      await onRefresh?.();
     } catch (err) {
       console.error('Failed to remove collaborator:', err);
+      // Re-fetch to restore state if failed
+      const collabRes = await fetch(
+        `/api/task-manager/tasks/${task.id}/collaborators`
+      );
+      if (collabRes.ok) {
+        const cData = await collabRes.json();
+        if (cData.collaborators) {
+          setTask((prev) => ({
+            ...prev,
+            collaborators: cData.collaborators,
+          }));
+        }
+      }
     }
   };
 
@@ -866,48 +918,51 @@ export default function TaskDetail({
 
       {/* ── Feature 1: Delegate Panel ──────────────────────────────────────── */}
       {showDelegatePanel && canDelegate && (
-        <div className="border-b border-amber-500/20 bg-amber-500/5 px-4 py-4">
+        <div className="border-b border-amber-300/40 bg-amber-500/10 px-4 py-4 dark:border-amber-500/20 dark:bg-amber-500/5">
           <div className="mb-3 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <ArrowRightCircle className="h-4 w-4 text-amber-400" />
-              <h3 className="text-sm font-semibold text-white">
+              <ArrowRightCircle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+              <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
                 Delegate to Staff Member
               </h3>
-              <span className="rounded border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[10px] font-medium text-amber-400">
+              <span className="rounded border border-amber-300 bg-amber-100/80 px-2 py-0.5 text-[10px] font-medium text-amber-800 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-400">
                 Department: {task.department_name || 'Your Dept'}
               </span>
             </div>
             <button
               onClick={() => setShowDelegatePanel(false)}
-              className="rounded p-1 text-slate-400 hover:text-white"
+              className="rounded p-1 text-slate-400 hover:text-slate-700 dark:hover:text-white"
             >
               <X className="h-4 w-4" />
             </button>
           </div>
-          <p className="mb-3 text-xs text-slate-400">
+          <p className="mb-3 text-xs text-slate-600 dark:text-slate-400">
             Select a staff member from your department to delegate this task to.
             This option is available because the task was originally assigned to
             your department.
           </p>
 
           {delegateError && (
-            <div className="mb-3 rounded-lg border border-rose-500/30 bg-rose-500/10 px-3 py-2 text-sm text-rose-400">
-              {delegateError}
+            <div className="mb-3 flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs font-medium text-red-700 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-400">
+              <AlertCircle className="h-4 w-4 shrink-0 text-red-500" />
+              <span>{delegateError}</span>
             </div>
           )}
 
           {deptStaffLoading ? (
-            <p className="text-sm text-slate-400">Loading staff members...</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400">
+              Loading staff members...
+            </p>
           ) : (
             <>
               {/* Search filter */}
               <div className="relative mb-3">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                 <input
                   type="text"
                   value={delegateSearch}
                   onChange={(e) => setDelegateSearch(e.target.value)}
-                  className="w-full rounded-lg border border-white/10 bg-white/5 py-2 pl-9 pr-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  className="shadow-xs w-full rounded-lg border border-slate-300 bg-white py-2 pl-9 pr-3 text-sm text-slate-900 placeholder-slate-400 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20 dark:border-white/10 dark:bg-white/5 dark:text-white dark:placeholder-slate-500 dark:focus:border-amber-500"
                   placeholder="Filter staff members..."
                 />
               </div>
@@ -931,21 +986,21 @@ export default function TaskDetail({
                       onClick={() => setSelectedDelegateId(s.id)}
                       className={`flex w-full items-center gap-3 rounded-lg border px-3 py-2 text-left transition-colors ${
                         selectedDelegateId === s.id
-                          ? 'border-amber-500/50 bg-amber-500/15'
-                          : 'border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/10'
+                          ? 'border-amber-500 bg-amber-50 dark:border-amber-500/50 dark:bg-amber-500/15'
+                          : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50 dark:border-white/10 dark:bg-white/5 dark:hover:border-white/20 dark:hover:bg-white/10'
                       }`}
                     >
                       <StaffAvatar user={s} size="sm" />
                       <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-medium text-white">
+                        <p className="truncate text-sm font-medium text-slate-900 dark:text-white">
                           {s.full_name}
                         </p>
-                        <p className="truncate text-xs text-slate-400">
+                        <p className="truncate text-xs text-slate-500 dark:text-slate-400">
                           {s.email}
                         </p>
                       </div>
                       {selectedDelegateId === s.id && (
-                        <UserCheck className="h-4 w-4 shrink-0 text-amber-400" />
+                        <UserCheck className="h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400" />
                       )}
                     </button>
                   ))}
@@ -978,7 +1033,7 @@ export default function TaskDetail({
                 </button>
                 <button
                   onClick={() => setShowDelegatePanel(false)}
-                  className="rounded-lg px-3 py-2 text-sm text-slate-400 hover:text-white"
+                  className="rounded-lg px-3 py-2 text-sm text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
                 >
                   Cancel
                 </button>
@@ -989,7 +1044,7 @@ export default function TaskDetail({
       )}
 
       {/* Tabs */}
-      <div className="flex gap-6 border-b border-white/5 px-4">
+      <div className="flex gap-6 border-b border-slate-200 px-4 dark:border-white/10">
         {[
           { id: 'details', label: 'Details', icon: null },
           { id: 'comments', label: 'Comments', icon: MessageSquare },
@@ -1007,8 +1062,8 @@ export default function TaskDetail({
             onClick={() => setActiveTab(tab.id)}
             className={`px-1 pb-3 text-sm font-medium transition-colors ${
               activeTab === tab.id
-                ? 'border-b-2 border-emerald-500 text-emerald-400'
-                : 'text-slate-400 hover:text-white'
+                ? 'border-b-2 border-emerald-600 font-semibold text-emerald-600 dark:border-emerald-500 dark:text-emerald-400'
+                : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
             }`}
           >
             {tab.label}
@@ -1608,22 +1663,23 @@ export default function TaskDetail({
           <div className="space-y-4">
             {/* Add Collaborator Section — accessible to all involved staff */}
             {isInvolved && (
-              <div className="rounded-lg border border-white/10 bg-white/5 p-4">
-                <div className="mb-3 flex items-center gap-2">
-                  <UserPlus className="h-4 w-4 text-emerald-400" />
-                  <h3 className="text-sm font-semibold text-white">
+              <div className="shadow-xs rounded-xl border border-slate-200 bg-white p-5 dark:border-white/10 dark:bg-white/5">
+                <div className="mb-2 flex items-center gap-2">
+                  <UserPlus className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                  <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
                     Add Collaborator
                   </h3>
                 </div>
-                <p className="mb-3 text-xs text-slate-400">
-                  Search for a staff member to add as a collaborator.
+                <p className="mb-4 text-xs text-slate-600 dark:text-slate-400">
+                  Search or select a staff member to add as a collaborator.
                   Collaborators gain view, comment, and attachment access to
                   this task and will receive a notification.
                 </p>
 
                 {collabError && (
-                  <div className="mb-3 rounded-lg border border-rose-500/30 bg-rose-500/10 px-3 py-2 text-sm text-rose-400">
-                    {collabError}
+                  <div className="mb-4 flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-3.5 py-2.5 text-xs font-medium text-red-700 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-300">
+                    <AlertCircle className="h-4 w-4 shrink-0 text-red-500" />
+                    <span>{collabError}</span>
                   </div>
                 )}
 
@@ -1637,8 +1693,8 @@ export default function TaskDetail({
                       !existingCollabIds.has(s.id) && s.id !== task.assignee_id
                   );
                   return (
-                    <div className="mb-3">
-                      <label className="mb-1.5 block text-xs font-medium text-slate-300">
+                    <div className="mb-4">
+                      <label className="mb-1.5 block text-xs font-medium text-slate-700 dark:text-slate-300">
                         Select Staff from Dropdown:
                       </label>
                       <div className="relative">
@@ -1652,12 +1708,12 @@ export default function TaskDetail({
                             }
                           }}
                           disabled={addingCollab || allStaffLoading}
-                          className="w-full appearance-none rounded-lg border border-white/10 bg-slate-900 px-3 py-2 pr-9 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 disabled:opacity-50"
+                          className="shadow-xs w-full appearance-none rounded-lg border border-slate-300 bg-slate-50 px-3.5 py-2.5 pr-10 text-sm font-medium text-slate-900 transition-colors hover:border-slate-400 focus:border-emerald-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 disabled:cursor-not-allowed disabled:opacity-50 dark:border-white/10 dark:bg-slate-800 dark:text-white dark:hover:border-white/20 dark:focus:border-emerald-500 dark:focus:bg-slate-800"
                           id="collab-staff-dropdown"
                         >
                           <option
                             value=""
-                            className="bg-slate-900 text-slate-400"
+                            className="bg-white text-slate-500 dark:bg-slate-900 dark:text-slate-400"
                           >
                             {allStaffLoading
                               ? 'Loading staff members...'
@@ -1669,31 +1725,31 @@ export default function TaskDetail({
                             <option
                               key={s.id}
                               value={s.id}
-                              className="bg-slate-900 py-1 text-white"
+                              className="bg-white py-1 text-slate-900 dark:bg-slate-900 dark:text-white"
                             >
                               {s.full_name} ({s.email})
                               {s.role ? ` • ${s.role}` : ''}
                             </option>
                           ))}
                         </select>
-                        <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                        <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 dark:text-slate-400" />
                       </div>
                     </div>
                   );
                 })()}
 
-                <div className="relative my-3 flex items-center justify-center">
+                <div className="relative my-4 flex items-center justify-center">
                   <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-white/10" />
+                    <div className="w-full border-t border-slate-200 dark:border-white/10" />
                   </div>
-                  <span className="relative bg-slate-950 px-2 text-[10px] uppercase tracking-wider text-slate-400">
+                  <span className="relative rounded-full bg-slate-100 px-3 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-slate-600 dark:bg-slate-800 dark:text-slate-400">
                     Or Search Staff
                   </span>
                 </div>
 
                 {/* Search input */}
                 <div className="relative mb-2">
-                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
+                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                   <input
                     type="text"
                     value={collabSearch}
@@ -1712,7 +1768,7 @@ export default function TaskDetail({
                       }
                     }}
                     onChange={(e) => searchCollabStaff(e.target.value)}
-                    className="w-full rounded-lg border border-white/10 bg-white/5 py-2 pl-9 pr-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    className="shadow-xs w-full rounded-lg border border-slate-300 bg-slate-50 py-2 pl-9 pr-8 text-sm text-slate-900 placeholder-slate-400 transition-colors hover:border-slate-400 focus:border-emerald-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 dark:border-white/10 dark:bg-white/5 dark:text-white dark:placeholder-slate-500 dark:hover:border-white/20 dark:focus:border-emerald-500"
                     placeholder="Search staff by name or email..."
                     id="collab-search-input"
                   />
@@ -1723,7 +1779,7 @@ export default function TaskDetail({
                         setCollabSearch('');
                         setCollabSearchResults([]);
                       }}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 dark:hover:text-white"
                     >
                       <X className="h-4 w-4" />
                     </button>
@@ -1732,28 +1788,30 @@ export default function TaskDetail({
 
                 {/* Search results */}
                 {collabSearchLoading && (
-                  <p className="py-2 text-sm text-slate-400">Searching...</p>
+                  <p className="py-2 text-xs text-slate-500 dark:text-slate-400">
+                    Searching...
+                  </p>
                 )}
                 {!collabSearchLoading && collabSearchResults.length > 0 && (
-                  <div className="max-h-48 space-y-1 overflow-y-auto rounded-lg border border-white/10 bg-black/20 p-1">
+                  <div className="max-h-48 space-y-1 overflow-y-auto rounded-lg border border-slate-200 bg-white p-1.5 shadow-sm dark:border-white/10 dark:bg-slate-900/90">
                     {collabSearchResults.map((s) => (
                       <button
                         key={s.id}
                         type="button"
                         onClick={() => handleAddCollaborator(s.id)}
                         disabled={addingCollab}
-                        className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-left transition-colors hover:bg-white/10 disabled:opacity-50"
+                        className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-left transition-colors hover:bg-slate-100 disabled:opacity-50 dark:hover:bg-white/10"
                       >
                         <StaffAvatar user={s} size="sm" />
                         <div className="min-w-0 flex-1">
-                          <p className="truncate text-sm font-medium text-white">
+                          <p className="truncate text-sm font-medium text-slate-900 dark:text-white">
                             {s.full_name}
                           </p>
-                          <p className="truncate text-xs text-slate-400">
+                          <p className="truncate text-xs text-slate-500 dark:text-slate-400">
                             {s.email}
                           </p>
                         </div>
-                        <span className="shrink-0 rounded-md bg-emerald-600/20 px-2 py-0.5 text-[10px] font-medium text-emerald-400">
+                        <span className="shrink-0 rounded-md border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[10px] font-medium text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-600/20 dark:text-emerald-400">
                           + Add
                         </span>
                       </button>
@@ -1763,7 +1821,7 @@ export default function TaskDetail({
                 {!collabSearchLoading &&
                   collabSearch &&
                   collabSearchResults.length === 0 && (
-                    <p className="py-1 text-sm text-slate-500">
+                    <p className="py-1 text-xs text-slate-500 dark:text-slate-400">
                       No matching staff found.
                     </p>
                   )}
@@ -1772,7 +1830,7 @@ export default function TaskDetail({
 
             {/* Current Collaborators List */}
             <div className="space-y-2">
-              <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+              <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400">
                 Current Collaborators ({(task.collaborators || []).length})
               </h3>
               {(task.collaborators || []).map((collab: TaskCollaborator) => {
@@ -1784,18 +1842,18 @@ export default function TaskDetail({
                 return (
                   <div
                     key={collab.id}
-                    className="flex items-center gap-3 rounded-lg border border-white/10 bg-white/5 p-3"
+                    className="shadow-xs flex items-center gap-3 rounded-lg border border-slate-200 bg-white p-3 dark:border-white/10 dark:bg-white/5"
                   >
                     <StaffAvatar user={collab.collaborator} size="sm" />
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium text-white">
+                      <p className="truncate text-sm font-medium text-slate-900 dark:text-white">
                         {collab.collaborator?.full_name || 'Unknown'}
                       </p>
-                      <p className="text-xs text-slate-500">
+                      <p className="text-xs text-slate-500 dark:text-slate-400">
                         Added {formatDateTime(collab.added_at)}
                       </p>
                     </div>
-                    <span className="shrink-0 rounded border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium text-emerald-400">
+                    <span className="shrink-0 rounded-md border border-emerald-200 bg-emerald-50 px-2.5 py-0.5 text-[10px] font-medium text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-400">
                       Collaborator
                     </span>
                     {canRemoveCollab && (
@@ -1803,7 +1861,7 @@ export default function TaskDetail({
                         type="button"
                         onClick={() => handleRemoveCollaborator(collab.id)}
                         title="Remove collaborator"
-                        className="rounded p-1 text-slate-500 transition-colors hover:text-rose-400"
+                        className="rounded-md p-1.5 text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-500/10 dark:hover:text-rose-400"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
                       </button>
@@ -1812,12 +1870,12 @@ export default function TaskDetail({
                 );
               })}
               {(task.collaborators || []).length === 0 && (
-                <p className="py-4 text-center text-sm text-slate-500">
+                <div className="rounded-lg border border-dashed border-slate-200 bg-slate-50/50 p-6 text-center text-sm text-slate-500 dark:border-white/10 dark:bg-transparent dark:text-slate-400">
                   No collaborators yet.{' '}
                   {isInvolved
-                    ? 'Use the search above to add one.'
+                    ? 'Use the dropdown or search above to add one.'
                     : 'Contact the task owner to be added.'}
-                </p>
+                </div>
               )}
             </div>
           </div>

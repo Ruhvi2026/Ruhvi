@@ -1,4 +1,4 @@
-﻿import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { getServiceClient } from '@/lib/supabase/service';
 import { getAuthenticatedStaff } from '@/lib/auth/task-auth';
 
@@ -198,13 +198,17 @@ export async function POST(
     }
 
     // Insert collaborator
-    const { error: insertErr } = await supabase
+    const { data: newCollab, error: insertErr } = await supabase
       .from('task_collaborators')
       .insert({
         task_id: id,
         user_id,
         added_by: staffUser.id,
-      });
+      })
+      .select(
+        '*, collaborator:users!task_collaborators_user_id_fkey(id, full_name, email, avatar_url, department_id, role), added_by_user:users!task_collaborators_added_by_fkey(id, full_name, email)'
+      )
+      .single();
 
     if (insertErr) {
       console.error('[Collaborators POST] Error:', insertErr);
@@ -240,6 +244,7 @@ export async function POST(
 
     return NextResponse.json({
       success: true,
+      collaborator: newCollab,
       message: `${targetUser.full_name} has been added as a collaborator`,
     });
   } catch (err: any) {
