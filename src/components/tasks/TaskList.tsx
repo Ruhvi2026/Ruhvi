@@ -84,7 +84,8 @@ export default function TaskList({
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const { user, profile } = useAuth();
-  const currentUserId = user?.id;
+  // profile.id is the Supabase UUID, user.id is the Firebase UID. We need the Supabase UUID.
+  const currentUserId = profile?.id || user?.id;
   const isSuperAdmin = profile?.role === ('super_admin' as any);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
