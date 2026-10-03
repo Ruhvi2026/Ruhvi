@@ -85,7 +85,7 @@ export default function TaskList({
   const pathname = usePathname();
   const { user, profile } = useAuth();
   const currentUserId = user?.id;
-  const isSuperAdmin = profile?.role === 'super_admin';
+  const isSuperAdmin = profile?.role === ('super_admin' as any);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
   const basePath = pathname ? pathname.split('?')[0] : '/admin/task-manager';

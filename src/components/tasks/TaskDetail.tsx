@@ -84,7 +84,7 @@ export default function TaskDetail({
   });
   const { user, profile } = useAuth();
   const currentUserId = user?.id;
-  const isSuperAdmin = profile?.role === 'super_admin';
+  const isSuperAdmin = profile?.role === ('super_admin' as any);
   const [updatingStatus, setUpdatingStatus] = useState(false);
 
   const priorityColors: Record<string, string> = {
