@@ -111,9 +111,31 @@ export async function deleteCompetitor(
 }
 
 /**
- * Scrape basic public metadata from competitor URL
+ * Scrape live content and metadata from competitor URL using Playwright
  */
 async function scrapePublicMetadata(url: string): Promise<string> {
+  try {
+    const { browseWebPageWithPlaywright } =
+      await import('@/lib/ai/browser/playwright');
+    const result = await browseWebPageWithPlaywright({
+      url,
+      timeoutMs: 15000,
+    });
+
+    if (result.status < 400 && (result.title || result.textContent)) {
+      const pricingStr =
+        result.detectedPrices.length > 0
+          ? `\nObserved Pricing / Offers: ${result.detectedPrices.join(', ')}`
+          : '';
+      return `Website Title: ${result.title}\nMeta Description: ${result.metaDescription}\nHeadlines & Sections: ${result.headings.join(' | ')}${pricingStr}\nExtracted Content Summary: ${result.textContent.slice(0, 1500)}`;
+    }
+  } catch (err: any) {
+    console.warn(
+      '[Competitors] Playwright browsing fallback to fetch:',
+      err?.message
+    );
+  }
+
   try {
     const res = await fetch(url, {
       headers: {

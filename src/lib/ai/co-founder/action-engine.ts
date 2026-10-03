@@ -4,6 +4,7 @@ import { getServiceClient } from '@/lib/supabase/service';
 import { logAuditEvent } from '@/lib/audit';
 import { assertToolPermission } from '@/lib/ai/mcp-auth';
 import { acknowledgeSignal } from './proactive';
+import { executeActionPlanToTaskManager } from './action-planner';
 
 export type ActionStatus =
   'pending' | 'validating' | 'executing' | 'completed' | 'failed';
@@ -408,6 +409,61 @@ export async function executeApprovedBusinessAction(
           affectedEntities,
           resultData: newCoupon,
           voiceSummary: `Coupon ${newCoupon.code} has been created and activated.`,
+          timestamp,
+        };
+      }
+
+      // ── Strategic Action Plan Execution ──────────────────────────────────
+      case 'execute_action_plan': {
+        const { plan_id } = request.actionPayload;
+        if (!plan_id) {
+          throw new Error('plan_id is required to execute action plan');
+        }
+        const execRes = await executeActionPlanToTaskManager(
+          plan_id,
+          request.userId
+        );
+        if (!execRes.success) {
+          throw new Error(
+            execRes.error || 'Failed to execute action plan tasks'
+          );
+        }
+
+        const affectedEntities = execRes.createdTasks.map((t) => ({
+          type: 'task',
+          id: t.id,
+        }));
+
+        if (approvalRecord) {
+          await supabase
+            .from('co_founder_approvals')
+            .update({
+              status: 'executed',
+              execution_result: {
+                plan_id,
+                tasks_created: execRes.createdTasks,
+              },
+              updated_at: new Date().toISOString(),
+            })
+            .eq('id', approvalRecord.id);
+        }
+
+        await logAuditEvent({
+          portal: 'admin',
+          action: 'co_founder_execute_action_plan',
+          entityType: 'action_plan',
+          entityId: plan_id,
+          changes: { tasksCreated: execRes.tasksCreatedCount },
+        }).catch(() => {});
+
+        return {
+          actionId,
+          actionType: request.actionType,
+          status: 'completed',
+          success: true,
+          affectedEntities,
+          resultData: execRes,
+          voiceSummary: execRes.voiceSummary,
           timestamp,
         };
       }

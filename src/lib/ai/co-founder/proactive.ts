@@ -364,3 +364,94 @@ export async function getActiveProactiveSignals(
     return [];
   }
 }
+
+export interface ExecutiveAdvisorReport {
+  problemOrOpportunity: string;
+  evidence: string;
+  recommendedSolution: string;
+  actionPlan: string;
+  priority: 'low' | 'medium' | 'high' | 'critical';
+  executiveVoiceSummary: string;
+}
+
+/**
+ * Standardized Proactive Advisor Mode:
+ * Proactively generates executive briefings in the strict format:
+ * Problem/Opportunity → Evidence → Recommended Solution → Action Plan → Priority
+ */
+export async function generateExecutiveAdvisorBriefing(): Promise<
+  ExecutiveAdvisorReport[]
+> {
+  const { runBusinessIntelligenceScan } =
+    await import('./business-intelligence');
+  const { formulateStrategicSolution } = await import('./strategy-engine');
+  const { generateActionPlanFromStrategy } = await import('./action-planner');
+
+  const digest = await runBusinessIntelligenceScan('7d');
+  const reports: ExecutiveAdvisorReport[] = [];
+
+  // 1. Process Problems with sufficient evidence
+  for (const prob of digest.problems) {
+    const strategy = formulateStrategicSolution({
+      title: prob.title,
+      issueType: prob.title,
+      additionalContext: prob.detail,
+    });
+    const plan = generateActionPlanFromStrategy(strategy, {
+      problemStatement: prob.summary,
+    });
+
+    reports.push({
+      problemOrOpportunity: `[PROBLEM] ${prob.title}: ${prob.summary}`,
+      evidence: `${prob.detail} Potential Impact: ${prob.potentialImpact}`,
+      recommendedSolution: strategy.recommendedSolution,
+      actionPlan: `Tasks to create: ${plan.tasks.map((t) => t.title).join('; ')}`,
+      priority: prob.severity,
+      executiveVoiceSummary: `${prob.summary} I recommend ${strategy.recommendedSolution.slice(0, 120)}...`,
+    });
+  }
+
+  // 2. Process Operational Risks
+  for (const risk of digest.risks) {
+    const strategy = formulateStrategicSolution({
+      title: risk.title,
+      issueType: risk.title,
+      additionalContext: risk.detail,
+    });
+    const plan = generateActionPlanFromStrategy(strategy, {
+      problemStatement: risk.summary,
+    });
+
+    reports.push({
+      problemOrOpportunity: `[RISK] ${risk.title}: ${risk.summary}`,
+      evidence: `${risk.detail} Potential Impact: ${risk.potentialImpact}`,
+      recommendedSolution: strategy.recommendedSolution,
+      actionPlan: `Tasks to create: ${plan.tasks.map((t) => t.title).join('; ')}`,
+      priority: risk.severity,
+      executiveVoiceSummary: `${risk.summary} Recommended move: ${strategy.recommendedSolution.slice(0, 120)}...`,
+    });
+  }
+
+  // 3. Process Growth Opportunities
+  for (const opp of digest.growthOpportunities) {
+    const strategy = formulateStrategicSolution({
+      title: opp.title,
+      issueType: opp.title,
+      additionalContext: opp.detail,
+    });
+    const plan = generateActionPlanFromStrategy(strategy, {
+      problemStatement: opp.summary,
+    });
+
+    reports.push({
+      problemOrOpportunity: `[OPPORTUNITY] ${opp.title}: ${opp.summary}`,
+      evidence: `${opp.detail} Potential Impact: ${opp.potentialImpact}`,
+      recommendedSolution: strategy.recommendedSolution,
+      actionPlan: `Tasks to create: ${plan.tasks.map((t) => t.title).join('; ')}`,
+      priority: opp.severity,
+      executiveVoiceSummary: `${opp.summary} We can capture ${strategy.expectedImpact.quantitativeProjection}.`,
+    });
+  }
+
+  return reports;
+}

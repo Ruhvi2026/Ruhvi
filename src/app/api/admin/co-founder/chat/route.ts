@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
     }
 
     // 1. Synthesize prioritized Co-Founder System Prompt
-    const systemPrompt = await getCoFounderSystemPrompt({
+    let systemPrompt = await getCoFounderSystemPrompt({
       userId: auth.uid,
       userRole: auth.role || 'founder',
       adminName: 'Founder',
@@ -57,6 +57,46 @@ export async function POST(req: NextRequest) {
       language,
       voiceStyle,
     });
+
+    // Check if user is asking to browse a URL or mentioned a website
+    let browsingResult: any = null;
+    const urlMatch = latest.text.match(
+      /https?:\/\/[^\s]+|(?:www\.)?[a-zA-Z0-9-]+\.(?:com|in|co|org|net|io|store|shop|app)(?:\/[^\s]*)?/i
+    );
+    const browseIntent =
+      /(browse|check|look at|inspect|open|visit|analyze|scrape|website|competitor|view|see)/i.test(
+        latest.text
+      );
+
+    if (urlMatch && (browseIntent || urlMatch[0].startsWith('http'))) {
+      try {
+        const targetUrl = urlMatch[0];
+        const { browseWebPageWithPlaywright } =
+          await import('@/lib/ai/browser/playwright');
+        browsingResult = await browseWebPageWithPlaywright({
+          url: targetUrl,
+          captureScreenshot: true,
+          timeoutMs: 15000,
+        });
+
+        if (browsingResult && browsingResult.status < 400) {
+          systemPrompt +=
+            `\n\n[LIVE PLAYWRIGHT BROWSER RESULT FOR ${targetUrl}]:\n` +
+            `Title: ${browsingResult.title}\n` +
+            `Meta Description: ${browsingResult.metaDescription}\n` +
+            `Headings: ${browsingResult.headings.join(' | ')}\n` +
+            (browsingResult.detectedPrices.length > 0
+              ? `Observed Prices / Offers: ${browsingResult.detectedPrices.join(', ')}\n`
+              : '') +
+            `Extracted Text Content:\n${browsingResult.textContent.slice(0, 2000)}`;
+        }
+      } catch (browseErr: any) {
+        console.warn(
+          '[Co-Founder Chat] Auto-browse fallback:',
+          browseErr?.message
+        );
+      }
+    }
 
     // 2. Fetch configured AI Providers & Feature Routing from DB
     const cookieStore = await cookies();
@@ -514,6 +554,7 @@ export async function POST(req: NextRequest) {
       provider: answeredProvider,
       model: answeredModel,
       fallbackUsed: answeredProvider !== primaryProvider,
+      browsingResult: browsingResult || undefined,
       timestamp: Date.now(),
     });
   } catch (error: any) {

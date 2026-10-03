@@ -192,7 +192,13 @@ export const TOOL_PERMISSION_MAP: Record<
   audit_seo_health: { module: 'analytics', action: 'read' },
   get_competitors: { module: 'analytics', action: 'read' },
   add_competitor: { module: 'analytics', action: 'write' },
-  analyze_competitor: { module: 'analytics', action: 'write' },
+  browse_website: { module: 'analytics', action: 'read' },
+  get_business_context: { module: 'analytics', action: 'read' },
+  run_business_intelligence_scan: { module: 'analytics', action: 'read' },
+  investigate_root_cause: { module: 'analytics', action: 'read' },
+  formulate_strategy: { module: 'analytics', action: 'read' },
+  generate_action_plan: { module: 'analytics', action: 'write' },
+  execute_action_plan: { module: 'analytics', action: 'write' },
 
   // Support Tickets (Read & Write)
   get_support_tickets: { module: 'support_ticket', action: 'read' },

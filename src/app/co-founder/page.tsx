@@ -33,8 +33,10 @@ import {
   Check,
   X,
   Info,
+  Layers,
 } from 'lucide-react';
 import { LiveVoiceVisualizer } from '@/components/co-founder/LiveVoiceVisualizer';
+import { PlaywrightBrowserWindow } from '@/components/co-founder/PlaywrightBrowserWindow';
 import { useLiveKitVoice } from '@/hooks/useLiveKitVoice';
 import toast from 'react-hot-toast';
 
@@ -99,9 +101,26 @@ export default function CoFounderPortalPage() {
   const [pendingApprovals, setPendingApprovals] = useState<any[]>([]);
   const [loadingWidgets, setLoadingWidgets] = useState(false);
   const [selectedWidgetTab, setSelectedWidgetTab] = useState<
-    'alerts' | 'approvals' | 'competitors' | 'seo' | 'architecture' | 'usage'
+    | 'alerts'
+    | 'approvals'
+    | 'competitors'
+    | 'seo'
+    | 'architecture'
+    | 'usage'
+    | 'browser'
+    | 'plans'
   >('alerts');
   const [architectureInfo, setArchitectureInfo] = useState<any>(null);
+
+  // Strategic Action Plans States
+  const [actionPlans, setActionPlans] = useState<any[]>([]);
+  const [loadingPlans, setLoadingPlans] = useState(false);
+
+  // Playwright Live Browser Window States
+  const [browserData, setBrowserData] = useState<any>(null);
+  const [isBrowserOpen, setIsBrowserOpen] = useState(false);
+  const [isBrowserMinimized, setIsBrowserMinimized] = useState(false);
+  const [isBrowserLoading, setIsBrowserLoading] = useState(false);
 
   // LiveKit Usage State
   const [liveKitUsage, setLiveKitUsage] = useState<any>(null);
@@ -191,6 +210,48 @@ export default function CoFounderPortalPage() {
       console.error('[Failed to fetch widgets]', err);
     } finally {
       setLoadingWidgets(false);
+    }
+  };
+
+  const fetchActionPlans = async () => {
+    try {
+      setLoadingPlans(true);
+      const res = await fetch('/api/admin/co-founder/action-plans');
+      if (res.ok) {
+        const data = await res.json();
+        setActionPlans(data.plans || []);
+      }
+    } catch {
+      // quiet fallback
+    } finally {
+      setLoadingPlans(false);
+    }
+  };
+
+  const handleExecuteActionPlan = async (planId: string) => {
+    try {
+      toast.loading('Creating tasks in Task Manager...', { id: 'exec-plan' });
+      const res = await fetch('/api/admin/co-founder/action-plans', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'execute', planId }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        toast.success(
+          `Success! Created ${data.tasksCreatedCount} tasks in Task Manager`,
+          { id: 'exec-plan' }
+        );
+        fetchActionPlans();
+      } else {
+        toast.error(`Execution failed: ${data.error || 'Unknown error'}`, {
+          id: 'exec-plan',
+        });
+      }
+    } catch (err: any) {
+      toast.error(`Failed to execute plan: ${err.message}`, {
+        id: 'exec-plan',
+      });
     }
   };
 
@@ -287,6 +348,7 @@ export default function CoFounderPortalPage() {
     refreshStrategicWidgets();
     fetchCompetitors();
     fetchSeoReport();
+    fetchActionPlans();
   }, []);
 
   // Handle Chat Submit
@@ -322,6 +384,13 @@ export default function CoFounderPortalPage() {
       });
 
       const data = await res.json();
+      if (data.browsingResult) {
+        setBrowserData(data.browsingResult);
+        setIsBrowserOpen(true);
+        setIsBrowserMinimized(false);
+        setSelectedWidgetTab('browser');
+      }
+
       setMessages((prev) => [
         ...prev,
         {
@@ -347,6 +416,35 @@ export default function CoFounderPortalPage() {
       ]);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  // Playwright Live Browsing Action
+  const handleBrowseUrl = async (url: string) => {
+    try {
+      setIsBrowserOpen(true);
+      setIsBrowserMinimized(false);
+      setIsBrowserLoading(true);
+      setSelectedWidgetTab('browser');
+
+      const res = await fetch('/api/admin/co-founder/browse', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url, captureScreenshot: true }),
+      });
+
+      const json = await res.json();
+      if (json.ok && json.data) {
+        setBrowserData(json.data);
+        toast.success(`Browsed: ${json.data.title || url}`, { icon: '🌐' });
+      } else {
+        toast.error(json.error || 'Failed to browse website');
+        if (json.data) setBrowserData(json.data);
+      }
+    } catch (err: any) {
+      toast.error(`Browsing failed: ${err.message}`);
+    } finally {
+      setIsBrowserLoading(false);
     }
   };
 
@@ -454,6 +552,11 @@ export default function CoFounderPortalPage() {
       toast.loading(`Analyzing ${name}'s website live...`, {
         id: `analyze-${id}`,
       });
+
+      const comp = competitors.find((c) => c.id === id);
+      if (comp?.website_url) {
+        handleBrowseUrl(comp.website_url);
+      }
 
       const res = await fetch('/api/admin/co-founder/competitors', {
         method: 'POST',
@@ -857,19 +960,75 @@ export default function CoFounderPortalPage() {
                   Free
                 </span>
               </button>
+              <button
+                onClick={() => {
+                  setSelectedWidgetTab('browser');
+                  setIsBrowserOpen(true);
+                  setIsBrowserMinimized(false);
+                }}
+                className={`flex items-center gap-1.5 rounded-md px-2.5 py-1 text-[11px] transition-colors ${
+                  selectedWidgetTab === 'browser'
+                    ? 'bg-amber-500/20 font-semibold text-amber-400'
+                    : 'text-neutral-400 hover:text-neutral-200'
+                }`}
+              >
+                <Globe
+                  size={11}
+                  className={
+                    selectedWidgetTab === 'browser'
+                      ? 'text-amber-400'
+                      : 'text-neutral-500'
+                  }
+                />
+                <span>Live Browser</span>
+                {isBrowserLoading ? (
+                  <RefreshCw size={9} className="animate-spin text-amber-400" />
+                ) : browserData ? (
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                ) : null}
+              </button>
+              <button
+                onClick={() => {
+                  setSelectedWidgetTab('plans');
+                  fetchActionPlans();
+                }}
+                className={`flex items-center gap-1.5 rounded-md px-2.5 py-1 text-[11px] transition-colors ${
+                  selectedWidgetTab === 'plans'
+                    ? 'bg-amber-500/20 font-semibold text-amber-400'
+                    : 'text-neutral-400 hover:text-neutral-200'
+                }`}
+              >
+                <Layers
+                  size={11}
+                  className={
+                    selectedWidgetTab === 'plans'
+                      ? 'text-amber-400'
+                      : 'text-neutral-500'
+                  }
+                />
+                <span>Action Plans ({actionPlans.length})</span>
+                {loadingPlans && (
+                  <RefreshCw size={9} className="animate-spin text-amber-400" />
+                )}
+              </button>
             </div>
             <button
               onClick={() => {
                 refreshStrategicWidgets();
                 if (selectedWidgetTab === 'usage') fetchLiveKitUsage();
+                if (selectedWidgetTab === 'plans') fetchActionPlans();
               }}
-              disabled={loadingWidgets || loadingUsage}
+              disabled={loadingWidgets || loadingUsage || loadingPlans}
               title="Refresh Intelligence"
               className="p-1 transition-colors hover:text-white"
             >
               <RefreshCw
                 size={12}
-                className={loadingWidgets || loadingUsage ? 'animate-spin' : ''}
+                className={
+                  loadingWidgets || loadingUsage || loadingPlans
+                    ? 'animate-spin'
+                    : ''
+                }
               />
             </button>
           </div>
@@ -879,8 +1038,10 @@ export default function CoFounderPortalPage() {
             className={`overflow-y-auto border-b border-neutral-800/60 bg-neutral-900/30 p-3 transition-all duration-200 ${
               selectedWidgetTab === 'competitors' ||
               selectedWidgetTab === 'seo' ||
-              selectedWidgetTab === 'usage'
-                ? 'max-h-96'
+              selectedWidgetTab === 'usage' ||
+              selectedWidgetTab === 'browser' ||
+              selectedWidgetTab === 'plans'
+                ? 'max-h-[560px]'
                 : 'max-h-44'
             }`}
           >
@@ -1455,6 +1616,168 @@ export default function CoFounderPortalPage() {
                 </div>
               </div>
             )}
+
+            {selectedWidgetTab === 'browser' && (
+              <div className="p-1">
+                <PlaywrightBrowserWindow
+                  data={browserData}
+                  isLoading={isBrowserLoading}
+                  isOpen={isBrowserOpen}
+                  isMinimized={isBrowserMinimized}
+                  onClose={() => {
+                    setIsBrowserOpen(false);
+                    setSelectedWidgetTab('alerts');
+                  }}
+                  onMinimize={() => setIsBrowserMinimized(true)}
+                  onRestore={() => {
+                    setIsBrowserMinimized(false);
+                    setSelectedWidgetTab('browser');
+                  }}
+                  onBrowseUrl={(url) => handleBrowseUrl(url)}
+                />
+              </div>
+            )}
+
+            {selectedWidgetTab === 'plans' && (
+              <div className="space-y-3">
+                <div className="flex items-center justify-between border-b border-neutral-800 pb-2">
+                  <div>
+                    <h3 className="flex items-center gap-1.5 text-xs font-bold text-white">
+                      <Layers size={13} className="text-amber-400" />
+                      Strategic Action Plans ({actionPlans.length})
+                    </h3>
+                    <p className="text-[10px] text-neutral-400">
+                      Goal → Strategy → Project → Tasks → Steps → Success
+                      Metrics decomposed by AI Co-Founder.
+                    </p>
+                  </div>
+                  <button
+                    onClick={fetchActionPlans}
+                    disabled={loadingPlans}
+                    className="flex items-center gap-1 rounded bg-neutral-800 px-2 py-1 text-[10px] text-neutral-300 transition-colors hover:bg-neutral-700"
+                  >
+                    <RefreshCw
+                      size={10}
+                      className={loadingPlans ? 'animate-spin' : ''}
+                    />
+                    <span>Sync</span>
+                  </button>
+                </div>
+
+                {actionPlans.length === 0 ? (
+                  <div className="rounded-xl border border-neutral-800 bg-neutral-900/50 p-4 text-center">
+                    <p className="mb-1 text-xs font-semibold text-neutral-300">
+                      No Action Plans Active
+                    </p>
+                    <p className="mx-auto max-w-sm text-[11px] text-neutral-500">
+                      Ask AI Co-Founder in voice or chat to &apos;formulate a
+                      strategy&apos; or &apos;run business intelligence
+                      scan&apos; to automatically generate actionable multi-step
+                      departmental plans.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-2.5">
+                    {actionPlans.map((plan: any) => {
+                      const isExecuted =
+                        plan.status === 'in_progress' ||
+                        plan.status === 'completed';
+                      const tasksList = Array.isArray(plan.tasks_created)
+                        ? plan.tasks_created
+                        : [];
+
+                      return (
+                        <div
+                          key={plan.id}
+                          className="space-y-2 rounded-xl border border-neutral-800 bg-neutral-900/80 p-3"
+                        >
+                          <div className="flex items-start justify-between gap-2">
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <span
+                                  className={`rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider ${
+                                    plan.priority === 'critical'
+                                      ? 'border border-rose-500/30 bg-rose-500/20 text-rose-400'
+                                      : plan.priority === 'high'
+                                        ? 'border border-amber-500/30 bg-amber-500/20 text-amber-400'
+                                        : 'bg-neutral-800 text-neutral-400'
+                                  }`}
+                                >
+                                  {plan.priority}
+                                </span>
+                                <h4 className="text-xs font-bold text-white">
+                                  {plan.title}
+                                </h4>
+                              </div>
+                              <p className="mt-1 text-[11px] text-neutral-400">
+                                <strong className="text-neutral-300">
+                                  Goal:
+                                </strong>{' '}
+                                {plan.goal}
+                              </p>
+                            </div>
+
+                            <span
+                              className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
+                                isExecuted
+                                  ? 'border border-emerald-500/30 bg-emerald-500/20 text-emerald-400'
+                                  : 'border border-amber-500/30 bg-amber-500/20 text-amber-400'
+                              }`}
+                            >
+                              {plan.status.replace('_', ' ')}
+                            </span>
+                          </div>
+
+                          <div className="space-y-1 rounded-lg bg-neutral-950/70 p-2 text-[10px] text-neutral-400">
+                            <p>
+                              <strong className="text-neutral-300">
+                                Strategy:
+                              </strong>{' '}
+                              {plan.strategy}
+                            </p>
+                            {plan.expected_impact && (
+                              <p>
+                                <strong className="text-emerald-400">
+                                  Expected Impact:
+                                </strong>{' '}
+                                {plan.expected_impact}
+                              </p>
+                            )}
+                            {tasksList.length > 0 && (
+                              <p>
+                                <strong className="text-neutral-300">
+                                  Decomposed Tasks:
+                                </strong>{' '}
+                                {tasksList.length} task
+                                {tasksList.length > 1 ? 's' : ''} assigned with
+                                checklists.
+                              </p>
+                            )}
+                          </div>
+
+                          <div className="flex items-center justify-end gap-2 border-t border-neutral-800/60 pt-1">
+                            {!isExecuted ? (
+                              <button
+                                onClick={() => handleExecuteActionPlan(plan.id)}
+                                className="flex items-center gap-1.5 rounded-lg bg-amber-500 px-3 py-1 text-[11px] font-bold text-neutral-950 transition-colors hover:bg-amber-400"
+                              >
+                                <Zap size={11} />
+                                <span>Execute to Task Manager</span>
+                              </button>
+                            ) : (
+                              <span className="flex items-center gap-1 text-[10px] font-semibold text-emerald-400">
+                                <CheckCircle size={11} />
+                                <span>Tasks Active in Task Manager</span>
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Conversation Messages Container */}
@@ -1829,6 +2152,24 @@ export default function CoFounderPortalPage() {
           </div>
         </div>
       )}
+
+      {/* Floating Browser Minimized Pill / Overlay when minimized or outside drawer tab */}
+      {isBrowserOpen &&
+        (isBrowserMinimized || selectedWidgetTab !== 'browser') && (
+          <PlaywrightBrowserWindow
+            data={browserData}
+            isLoading={isBrowserLoading}
+            isOpen={isBrowserOpen}
+            isMinimized={isBrowserMinimized}
+            onClose={() => setIsBrowserOpen(false)}
+            onMinimize={() => setIsBrowserMinimized(true)}
+            onRestore={() => {
+              setIsBrowserMinimized(false);
+              setSelectedWidgetTab('browser');
+            }}
+            onBrowseUrl={(url) => handleBrowseUrl(url)}
+          />
+        )}
     </div>
   );
 }

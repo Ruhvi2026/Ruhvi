@@ -134,6 +134,22 @@ BRAND FOUNDATION:
 - Craft: 22K gold-plated jewellery with anti-tarnish e-coating and 6-month color guarantee.
 - Shipping: Blue Dart Air transit across India, free shipping on all orders.
 
+CO-FOUNDER ADVISOR, ANALYST, STRATEGIST & EXECUTION AGENT PROTOCOL:
+1. BUSINESS CONTEXT: Draw upon real users, revenue, products, support, tasks, and memory. Use 'get_business_context'.
+2. BUSINESS INTELLIGENCE: Detect problems, trends, anomalies, risks, and opportunities using 'run_business_intelligence_scan'.
+3. ROOT-CAUSE ANALYSIS: When an issue arises, investigate evidence first via 'investigate_root_cause'. Differentiate:
+   - Facts (authoritative DB records)
+   - Evidence (statistical patterns & timestamps)
+   - Assumptions (operational premises)
+   - Hypotheses (ranked candidate causes)
+   - Uncertainty (known unknowns & data gaps)
+4. STRATEGIC SOLUTIONS: Formulate solutions with reasoning, expected impact (₹ / % projections), effort/cost, and trade-offs using 'formulate_strategy'.
+5. ACTION PLANNING: Convert strategies into Goal → Strategy → Project → Tasks → Steps → Metrics using 'generate_action_plan'.
+6. TASK EXECUTION: Execute approved plans directly into Ruhvi Task Manager with checklists and metrics using 'execute_action_plan'.
+7. PROACTIVE ADVISOR MODE: When reporting proactively, structure insights as:
+   Problem/Opportunity → Evidence → Recommended Solution → Action Plan → Priority
+8. MEASURE & LEARN: Track closed-loop outcomes and persist validated findings to business memory.
+
 ${memoryBlock}
 
 ${proactiveBlock}
@@ -383,6 +399,166 @@ export const CO_FOUNDER_TOOL_DECLARATIONS = [
         days: {
           type: 'NUMBER',
           description: 'Number of past days to analyze (default: 30)',
+        },
+      },
+    },
+  },
+  {
+    name: 'browse_website',
+    description:
+      'Browse and inspect any public website or competitor URL live using Playwright browser engine. Renders JavaScript/SPAs, extracts headlines, main text content, detected pricing, and marketing hooks.',
+    parameters: {
+      type: 'OBJECT',
+      required: ['url'],
+      properties: {
+        url: {
+          type: 'STRING',
+          description:
+            'The target website URL to browse (e.g. "https://competitor.com" or "competitor.com/collections")',
+        },
+        wait_for_selector: {
+          type: 'STRING',
+          description:
+            'Optional CSS selector to wait for before extracting page content',
+        },
+        timeout_ms: {
+          type: 'NUMBER',
+          description: 'Timeout in milliseconds (default: 20000)',
+        },
+        capture_screenshot: {
+          type: 'BOOLEAN',
+          description:
+            'Whether to capture a visual screenshot of the rendered page',
+        },
+      },
+    },
+  },
+  {
+    name: 'get_business_context',
+    description:
+      'Retrieve a 360-degree holistic business context covering Users, Revenue, Catalog stock velocity, Support tickets, Active Tasks/Roadmap, Governance Decisions, and Business Memory.',
+    parameters: {
+      type: 'OBJECT',
+      properties: {
+        force_refresh: {
+          type: 'BOOLEAN',
+          description:
+            'Whether to bypass the 60s cache and force query fresh database rows',
+        },
+      },
+    },
+  },
+  {
+    name: 'run_business_intelligence_scan',
+    description:
+      'Execute an automated Business Intelligence scan to detect Problems, Metric Trends & Anomalies, Operational Risks, and Revenue Growth Opportunities.',
+    parameters: {
+      type: 'OBJECT',
+      properties: {
+        timeframe: {
+          type: 'STRING',
+          description: 'Analysis window: "7d" or "30d" (default: "7d")',
+        },
+      },
+    },
+  },
+  {
+    name: 'investigate_root_cause',
+    description:
+      'Perform a formal Root-Cause Analysis (RCA) on an identified problem, partitioning findings into Facts, Evidence, Assumptions, Hypotheses, and Uncertainty.',
+    parameters: {
+      type: 'OBJECT',
+      required: ['issue_type'],
+      properties: {
+        issue_type: {
+          type: 'STRING',
+          description:
+            'Type of issue: "revenue_decline", "high_cancellation_rate", "inventory_stockout", "support_ticket_spike", "system_errors", "custom"',
+        },
+        context: {
+          type: 'STRING',
+          description:
+            'Optional additional context or observations regarding the issue',
+        },
+      },
+    },
+  },
+  {
+    name: 'formulate_strategy',
+    description:
+      'Formulate practical business solutions with strategic reasoning, quantitative expected impact, operational effort/cost, trade-offs, and alternative approaches.',
+    parameters: {
+      type: 'OBJECT',
+      required: ['title', 'issue_type'],
+      properties: {
+        title: {
+          type: 'STRING',
+          description: 'Title of the problem or strategic objective',
+        },
+        issue_type: {
+          type: 'STRING',
+          description:
+            'Core issue area (e.g., "cancellation", "stockout", "revenue", "general")',
+        },
+        additional_context: {
+          type: 'STRING',
+          description:
+            'Specific details or constraints to factor into strategy',
+        },
+      },
+    },
+  },
+  {
+    name: 'generate_action_plan',
+    description:
+      'Convert an approved strategy into a structured Action Plan: Goal → Strategy → Project → Tasks → Steps → Success Metrics, and save to the action plan registry.',
+    parameters: {
+      type: 'OBJECT',
+      required: ['strategy_title', 'strategy_objective'],
+      properties: {
+        strategy_title: {
+          type: 'STRING',
+          description: 'Title of the strategy to decompose',
+        },
+        strategy_objective: {
+          type: 'STRING',
+          description: 'Core high-level goal and objective',
+        },
+        strategy_recommendation: {
+          type: 'STRING',
+          description: 'Recommended methodology and execution approach',
+        },
+        problem_statement: {
+          type: 'STRING',
+          description: 'Original problem statement being solved',
+        },
+        recommendation_id: {
+          type: 'STRING',
+          description:
+            'Optional linked recommendation UUID from co_founder_recommendations',
+        },
+        signal_id: {
+          type: 'STRING',
+          description: 'Optional linked signal UUID from co_founder_signals',
+        },
+      },
+    },
+  },
+  {
+    name: 'execute_action_plan',
+    description:
+      'Execute an approved action plan: automatically creates and routes real tasks in Ruhvi Task Manager with checklist steps, and registers closed-loop metric tracking.',
+    parameters: {
+      type: 'OBJECT',
+      required: ['plan_id'],
+      properties: {
+        plan_id: {
+          type: 'STRING',
+          description: 'UUID of the action plan from co_founder_action_plans',
+        },
+        staff_user_id: {
+          type: 'STRING',
+          description: 'Staff UUID executing the plan',
         },
       },
     },

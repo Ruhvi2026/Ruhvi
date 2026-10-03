@@ -17,6 +17,18 @@ import {
   getStoreAnalytics,
   type AnalyticsTimeframe,
 } from '@/lib/ai/co-founder/analytics';
+import { getHolisticBusinessContext } from '@/lib/ai/co-founder/business-context';
+import { runBusinessIntelligenceScan } from '@/lib/ai/co-founder/business-intelligence';
+import {
+  performRootCauseAnalysis,
+  type RootCauseInvestigationType,
+} from '@/lib/ai/co-founder/root-cause';
+import { formulateStrategicSolution } from '@/lib/ai/co-founder/strategy-engine';
+import {
+  generateActionPlanFromStrategy,
+  saveActionPlan,
+  executeActionPlanToTaskManager,
+} from '@/lib/ai/co-founder/action-planner';
 
 // ---------------------------------------------------------------------------
 // Shared helpers
@@ -1159,22 +1171,189 @@ function registerReadTools(server: McpServer, ctx: McpRequestContext) {
   });
 
   // -------------------------------------------------------------------------
-  // list_available_mcp_tools
+  // browse_website (Playwright dynamic browser engine)
   // -------------------------------------------------------------------------
-  server.tool('get_mcp_capabilities', 'List all MCP tools.', {}, async () => {
-    await audit(ctx, 'mcp_list_tools', 'mcp_tools');
-    return {
-      content: [
-        {
-          type: 'text' as const,
-          text: JSON.stringify({
-            message:
-              'List of tools is handled natively by MCP protocol discovery.',
-          }),
-        },
-      ],
-    };
-  });
+  server.tool(
+    'browse_website',
+    'Browse and extract content, headings, and pricing from any public web page live using Playwright.',
+    {
+      url: z.string().url().describe('The web page URL to browse and inspect'),
+      wait_for_selector: z
+        .string()
+        .optional()
+        .describe('Optional CSS selector to wait for'),
+      timeout_ms: z
+        .number()
+        .int()
+        .positive()
+        .max(60000)
+        .default(20000)
+        .optional()
+        .describe('Timeout in milliseconds'),
+      capture_screenshot: z
+        .boolean()
+        .default(false)
+        .optional()
+        .describe('Whether to capture a screenshot'),
+    },
+    async ({ url, wait_for_selector, timeout_ms, capture_screenshot }) => {
+      const { browseWebPageWithPlaywright } =
+        await import('@/lib/ai/browser/playwright');
+      const result = await browseWebPageWithPlaywright({
+        url,
+        waitForSelector: wait_for_selector,
+        timeoutMs: timeout_ms,
+        captureScreenshot: capture_screenshot,
+      });
+
+      await audit(ctx, 'mcp_browse_website', 'analytics', undefined, { url });
+
+      return {
+        content: [
+          {
+            type: 'text' as const,
+            text: JSON.stringify(result, null, 2),
+          },
+        ],
+      };
+    }
+  );
+
+  // -------------------------------------------------------------------------
+  // get_business_context
+  // -------------------------------------------------------------------------
+  server.tool(
+    'get_business_context',
+    'Get 360-degree holistic business context covering Users, Revenue, Catalog, Support, Roadmap, Decisions, and Business Memory.',
+    {
+      force_refresh: z
+        .boolean()
+        .default(false)
+        .optional()
+        .describe('Bypass 60s cache'),
+    },
+    async ({ force_refresh }) => {
+      const context = await getHolisticBusinessContext({
+        forceRefresh: force_refresh,
+      });
+      await audit(ctx, 'mcp_get_business_context', 'analytics');
+      return {
+        content: [
+          {
+            type: 'text' as const,
+            text: JSON.stringify(context, null, 2),
+          },
+        ],
+      };
+    }
+  );
+
+  // -------------------------------------------------------------------------
+  // run_business_intelligence_scan
+  // -------------------------------------------------------------------------
+  server.tool(
+    'run_business_intelligence_scan',
+    'Execute Business Intelligence scan detecting Problems, Trends & Anomalies, Operational Risks, and Growth Opportunities.',
+    {
+      timeframe: z
+        .enum(['7d', '30d'])
+        .default('7d')
+        .describe('Analysis timeframe'),
+    },
+    async ({ timeframe }) => {
+      const digest = await runBusinessIntelligenceScan(timeframe);
+      await audit(
+        ctx,
+        'mcp_run_business_intelligence_scan',
+        'analytics',
+        undefined,
+        { timeframe }
+      );
+      return {
+        content: [
+          {
+            type: 'text' as const,
+            text: JSON.stringify(digest, null, 2),
+          },
+        ],
+      };
+    }
+  );
+
+  // -------------------------------------------------------------------------
+  // investigate_root_cause
+  // -------------------------------------------------------------------------
+  server.tool(
+    'investigate_root_cause',
+    'Perform formal Root-Cause Analysis (RCA) on an identified problem with Facts, Evidence, Assumptions, Hypotheses, and Uncertainty.',
+    {
+      issue_type: z
+        .enum([
+          'revenue_decline',
+          'high_cancellation_rate',
+          'inventory_stockout',
+          'support_ticket_spike',
+          'system_errors',
+          'custom',
+        ])
+        .describe('Issue category to investigate'),
+      context: z
+        .string()
+        .optional()
+        .describe('Additional observations or parameters'),
+    },
+    async ({ issue_type, context }) => {
+      const rca = await performRootCauseAnalysis(
+        issue_type as RootCauseInvestigationType,
+        context
+      );
+      await audit(ctx, 'mcp_investigate_root_cause', 'analytics', undefined, {
+        issue_type,
+      });
+      return {
+        content: [
+          {
+            type: 'text' as const,
+            text: JSON.stringify(rca, null, 2),
+          },
+        ],
+      };
+    }
+  );
+
+  // -------------------------------------------------------------------------
+  // formulate_strategy
+  // -------------------------------------------------------------------------
+  server.tool(
+    'formulate_strategy',
+    'Formulate practical business solutions with strategic reasoning, expected impact, costs, trade-offs, and alternatives.',
+    {
+      title: z.string().describe('Title of the issue or objective'),
+      issue_type: z
+        .string()
+        .describe('Issue area (e.g. cancellation, stockout, revenue)'),
+      additional_context: z.string().optional(),
+    },
+    async ({ title, issue_type, additional_context }) => {
+      const solution = formulateStrategicSolution({
+        title,
+        issueType: issue_type,
+        additionalContext: additional_context,
+      });
+      await audit(ctx, 'mcp_formulate_strategy', 'analytics', undefined, {
+        title,
+        issue_type,
+      });
+      return {
+        content: [
+          {
+            type: 'text' as const,
+            text: JSON.stringify(solution, null, 2),
+          },
+        ],
+      };
+    }
+  );
 }
 
 // ===========================================================================
@@ -1829,6 +2008,101 @@ function registerWriteTools(server: McpServer, ctx: McpRequestContext) {
       return {
         content: [
           { type: 'text' as const, text: JSON.stringify({ success: true }) },
+        ],
+      };
+    }
+  );
+
+  // -------------------------------------------------------------------------
+  // generate_action_plan
+  // -------------------------------------------------------------------------
+  server.tool(
+    'generate_action_plan',
+    'Decompose an approved strategy into an Action Plan: Goal → Strategy → Project → Tasks → Steps → Metrics.',
+    {
+      strategy_title: z.string().describe('Title of the strategy to decompose'),
+      strategy_objective: z
+        .string()
+        .describe('Core high-level goal and objective'),
+      strategy_recommendation: z
+        .string()
+        .optional()
+        .describe('Recommended methodology'),
+      problem_statement: z
+        .string()
+        .optional()
+        .describe('Original problem statement'),
+      recommendation_id: uuidSchema.optional(),
+      signal_id: uuidSchema.optional(),
+    },
+    async ({
+      strategy_title,
+      strategy_objective,
+      strategy_recommendation,
+      problem_statement,
+      recommendation_id,
+      signal_id,
+    }) => {
+      const solution = formulateStrategicSolution({
+        title: strategy_title,
+        issueType: strategy_title,
+        additionalContext: strategy_recommendation,
+      });
+      const plan = generateActionPlanFromStrategy(solution, {
+        recommendationId: recommendation_id,
+        signalId: signal_id,
+        problemStatement: problem_statement,
+      });
+
+      const saveRes = await saveActionPlan(plan, ctx.keyId);
+      await audit(
+        ctx,
+        'mcp_generate_action_plan',
+        'analytics',
+        saveRes.planId,
+        { strategy_title }
+      );
+
+      return {
+        content: [
+          {
+            type: 'text' as const,
+            text: JSON.stringify(
+              { success: saveRes.success, planId: saveRes.planId, plan },
+              null,
+              2
+            ),
+          },
+        ],
+      };
+    }
+  );
+
+  // -------------------------------------------------------------------------
+  // execute_action_plan
+  // -------------------------------------------------------------------------
+  server.tool(
+    'execute_action_plan',
+    'Execute an approved action plan: creates real tasks in Task Manager with checklists and begins metric tracking.',
+    {
+      plan_id: uuidSchema.describe('UUID of the action plan to execute'),
+      staff_user_id: uuidSchema.optional(),
+    },
+    async ({ plan_id, staff_user_id }) => {
+      const res = await executeActionPlanToTaskManager(
+        plan_id,
+        staff_user_id || ctx.keyId
+      );
+      await audit(ctx, 'mcp_execute_action_plan', 'analytics', plan_id, {
+        tasksCreated: res.tasksCreatedCount,
+      });
+
+      return {
+        content: [
+          {
+            type: 'text' as const,
+            text: JSON.stringify(res, null, 2),
+          },
         ],
       };
     }

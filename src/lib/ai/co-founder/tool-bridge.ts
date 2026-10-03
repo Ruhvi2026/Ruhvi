@@ -19,6 +19,18 @@ import {
   analyzeCompetitor,
 } from './competitors';
 import { auditCatalogSeoHealth } from './seo-health';
+import { getHolisticBusinessContext } from './business-context';
+import { runBusinessIntelligenceScan } from './business-intelligence';
+import {
+  performRootCauseAnalysis,
+  type RootCauseInvestigationType,
+} from './root-cause';
+import { formulateStrategicSolution } from './strategy-engine';
+import {
+  generateActionPlanFromStrategy,
+  saveActionPlan,
+  executeActionPlanToTaskManager,
+} from './action-planner';
 
 export interface ToolExecutionResult {
   toolName: string;
@@ -399,17 +411,138 @@ export async function executeCoFounderTool(
         };
       }
 
-      case 'analyze_competitor': {
-        if (!args.competitor_id) {
-          throw new Error('competitor_id is required for competitor analysis');
+      case 'browse_website': {
+        if (!args.url) {
+          throw new Error('url is required to browse a website');
         }
-        const res = await analyzeCompetitor(args.competitor_id);
+        const { browseWebPageWithPlaywright } =
+          await import('@/lib/ai/browser/playwright');
+        const res = await browseWebPageWithPlaywright({
+          url: args.url,
+          waitForSelector: args.wait_for_selector,
+          timeoutMs:
+            typeof args.timeout_ms === 'number' ? args.timeout_ms : 20000,
+          captureScreenshot: Boolean(args.capture_screenshot),
+        });
+
+        return {
+          toolName,
+          success: res.status < 400,
+          data: res,
+          error: res.error,
+          summaryForVoice: res.executiveVoiceSummary,
+        };
+      }
+
+      case 'get_business_context': {
+        const forceRefresh = Boolean(args.force_refresh);
+        const context = await getHolisticBusinessContext({
+          forceRefresh,
+          userId: args.user_id,
+        });
+
+        return {
+          toolName,
+          success: true,
+          data: context,
+          summaryForVoice: context.executiveVoiceSummary,
+        };
+      }
+
+      case 'run_business_intelligence_scan': {
+        const timeframe = (args.timeframe || '7d') as '7d' | '30d';
+        const digest = await runBusinessIntelligenceScan(timeframe);
+
+        return {
+          toolName,
+          success: true,
+          data: digest,
+          summaryForVoice: digest.executiveVoiceSummary,
+        };
+      }
+
+      case 'investigate_root_cause': {
+        if (!args.issue_type) {
+          throw new Error('issue_type is required for root cause analysis');
+        }
+        const rca = await performRootCauseAnalysis(
+          args.issue_type as RootCauseInvestigationType,
+          args.context
+        );
+
+        return {
+          toolName,
+          success: true,
+          data: rca,
+          summaryForVoice: rca.executiveVoiceSummary,
+        };
+      }
+
+      case 'formulate_strategy': {
+        if (!args.title || !args.issue_type) {
+          throw new Error(
+            'title and issue_type are required to formulate a strategy'
+          );
+        }
+        const solution = formulateStrategicSolution({
+          title: args.title,
+          issueType: args.issue_type,
+          additionalContext: args.additional_context,
+        });
+
+        return {
+          toolName,
+          success: true,
+          data: solution,
+          summaryForVoice: solution.executiveVoiceSummary,
+        };
+      }
+
+      case 'generate_action_plan': {
+        if (!args.strategy_title || !args.strategy_objective) {
+          throw new Error(
+            'strategy_title and strategy_objective are required to generate an action plan'
+          );
+        }
+        const solution = formulateStrategicSolution({
+          title: args.strategy_title,
+          issueType: args.issue_type || args.strategy_title,
+          additionalContext: args.strategy_recommendation,
+        });
+        const plan = generateActionPlanFromStrategy(solution, {
+          recommendationId: args.recommendation_id,
+          signalId: args.signal_id,
+          problemStatement: args.problem_statement,
+        });
+
+        const saveRes = await saveActionPlan(plan, args.user_id);
+
+        return {
+          toolName,
+          success: saveRes.success,
+          data: { ...plan, id: saveRes.planId },
+          error: saveRes.error,
+          summaryForVoice: `Action plan "${plan.title}" has been structured into ${plan.tasks.length} departmental tasks and saved. Ready for execution.`,
+        };
+      }
+
+      case 'execute_action_plan': {
+        if (!args.plan_id) {
+          throw new Error('plan_id is required to execute action plan tasks');
+        }
+        const staffUserId =
+          args.staff_user_id || '00000000-0000-0000-0000-000000000000';
+        const res = await executeActionPlanToTaskManager(
+          args.plan_id,
+          staffUserId
+        );
+
         return {
           toolName,
           success: res.success,
-          data: res.insights,
+          data: res,
           error: res.error,
-          summaryForVoice: res.voiceSummary || 'Competitor analysis completed.',
+          summaryForVoice: res.voiceSummary,
         };
       }
 
