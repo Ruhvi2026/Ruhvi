@@ -5,15 +5,12 @@ import {
   Mic,
   MicOff,
   PhoneOff,
-  Volume2,
   Sparkles,
-  AlertCircle,
-  RefreshCw,
   Orbit,
   Layers,
   Activity,
 } from 'lucide-react';
-import { Cofounder3DCharacter } from '@/components/ai/motion-engine/Cofounder3DCharacter';
+import { CoFounderCharacter, CharacterState } from './CoFounderCharacter';
 
 export type VoiceConnectionState =
   | 'idle'
@@ -53,8 +50,8 @@ export function LiveVoiceVisualizer({
   // Dynamic scale and glow based on real microphone / speaker audio level
   const glowOpacity = isLive ? 0.4 + audioLevel * 0.6 : 0.2;
 
-  // Map VoiceConnectionState to AgentWorkState for 3D character
-  const charState =
+  // Map VoiceConnectionState to CharacterState
+  const charState: CharacterState =
     state === 'speaking'
       ? 'speaking'
       : state === 'listening'
@@ -62,79 +59,76 @@ export function LiveVoiceVisualizer({
         : state === 'connecting'
           ? 'thinking'
           : state === 'error'
-            ? 'idle'
+            ? 'error'
             : 'idle';
 
   return (
-    <div className="relative flex flex-col items-center justify-center overflow-hidden rounded-3xl border border-neutral-800 bg-[#121318] p-6 text-neutral-100 shadow-2xl backdrop-blur-2xl transition-all">
-      {/* Background Starfield & Soft Ambient Grid */}
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(#262833_1px,transparent_1px)] opacity-30 [background-size:24px_24px]" />
-
-      {/* Background Ambient Glow reacting to voice volume */}
+    <div className="relative flex flex-col items-center justify-center overflow-hidden rounded-3xl border border-neutral-200/80 bg-nm-light-bg p-6 text-nm-light-textPrimary shadow-nm-flat backdrop-blur-2xl transition-all dark:border-neutral-800/90 dark:bg-nm-dark-bg dark:text-nm-dark-textPrimary dark:shadow-nm-flat-dark">
+      {/* Background Soft Ambient Glow reacting to voice volume */}
       <div
         className={`pointer-events-none absolute -top-16 left-1/2 h-96 w-96 -translate-x-1/2 rounded-full blur-3xl transition-all duration-300 ${
           state === 'speaking'
-            ? 'bg-violet-600/35'
+            ? 'bg-violet-600/30'
             : state === 'listening'
-              ? 'bg-cyan-500/30'
+              ? 'bg-cyan-500/25'
               : state === 'error'
-                ? 'bg-rose-500/25'
-                : 'bg-violet-600/15'
+                ? 'bg-rose-500/20'
+                : 'bg-violet-600/10'
         }`}
         style={{
-          transform: `translateX(-50%) scale(${1 + audioLevel * 0.6})`,
+          transform: `translateX(-50%) scale(${1 + audioLevel * 0.5})`,
           opacity: glowOpacity,
         }}
       />
 
       {/* Header Badge */}
-      <div className="relative z-10 mb-2 flex items-center gap-2 rounded-full border border-neutral-800 bg-neutral-900/90 px-4 py-1 text-xs font-medium shadow-sm backdrop-blur-md">
-        <Sparkles className="h-3.5 w-3.5 text-violet-400" />
-        <span className="font-semibold text-neutral-200">
-          Ruhvi AI Co-Founder • 3D Voice Core
+      <div className="relative z-10 mb-4 flex items-center gap-2 rounded-full border border-neutral-300/80 bg-nm-light-bg px-4 py-1.5 text-xs font-medium shadow-nm-flat backdrop-blur-md dark:border-neutral-800 dark:bg-nm-dark-bg dark:shadow-nm-flat-dark">
+        <Sparkles className="h-3.5 w-3.5 text-violet-600 dark:text-amber-400" />
+        <span className="font-bold text-nm-light-textPrimary dark:text-white">
+          AI Co-Founder • Real-Time Voice Spec
         </span>
         {roomName ? (
-          <span className="border-l border-neutral-700 pl-2 font-mono text-[11px] text-neutral-400">
+          <span className="border-l border-neutral-300 pl-2 font-mono text-[11px] text-nm-light-textSecondary dark:border-neutral-800 dark:text-neutral-400">
             {roomName.split('-').slice(0, 3).join('-')}
           </span>
         ) : (
-          <span className="border-l border-neutral-700 pl-2 font-mono text-[10px] text-violet-300">
-            19 Agents Active
+          <span className="border-l border-neutral-300 pl-2 font-mono text-[10px] font-bold text-violet-700 dark:border-neutral-800 dark:text-violet-300">
+            7 Agents Synchronized
           </span>
         )}
       </div>
 
-      {/* Central 3D AI Co-Founder Character */}
-      <div className="relative my-2 flex w-full items-center justify-center">
-        <div className="relative flex items-center justify-center">
-          <Cofounder3DCharacter
-            roleId="co_founder"
-            name="Ruhvi AI Co-Founder"
-            baseColor="#8b5cf6"
-            accentColor="#a855f7"
-            isApex={true}
-            state={charState}
-            audioLevel={audioLevel}
-            size={320}
-            showPodium={true}
-            interactive={true}
-          />
-        </div>
+      {/* Central Modular 3D AI Co-Founder Character Component */}
+      <div className="relative my-3 flex w-full items-center justify-center">
+        <CoFounderCharacter
+          state={charState}
+          audioLevel={audioLevel}
+          size={290}
+          messageBubble={
+            interimTranscript ||
+            (isLive
+              ? undefined
+              : 'Great idea! Let me check and get back to you...')
+          }
+          isMuted={isMuted}
+          onMicToggle={isLive ? onToggleMute : undefined}
+          interactive={true}
+        />
       </div>
 
       {/* Orbiting Co-Workers HUD Status Pill Bar */}
-      <div className="relative z-10 mb-3 flex flex-wrap items-center justify-center gap-2 font-mono text-[10px]">
-        <span className="flex items-center gap-1 rounded-lg border border-neutral-800 bg-neutral-900/80 px-2.5 py-1 text-neutral-300">
-          <Orbit className="h-3 w-3 text-violet-400" />
+      <div className="relative z-10 my-3 flex flex-wrap items-center justify-center gap-2 font-mono text-[10px]">
+        <span className="flex items-center gap-1 rounded-xl border border-neutral-300/80 bg-nm-light-bg px-2.5 py-1 font-bold text-violet-700 shadow-nm-flat dark:border-neutral-800 dark:bg-nm-dark-bg dark:text-violet-300 dark:shadow-nm-flat-dark">
+          <Orbit className="h-3 w-3 text-violet-600 dark:text-violet-400" />
           <span>Apex Co-Founder</span>
         </span>
-        <span className="flex items-center gap-1 rounded-lg border border-neutral-800 bg-neutral-900/80 px-2.5 py-1 text-neutral-300">
-          <Layers className="h-3 w-3 text-cyan-400" />
-          <span>12 Core Workers</span>
+        <span className="flex items-center gap-1 rounded-xl border border-neutral-300/80 bg-nm-light-bg px-2.5 py-1 font-bold text-cyan-700 shadow-nm-flat dark:border-neutral-800 dark:bg-nm-dark-bg dark:text-cyan-300 dark:shadow-nm-flat-dark">
+          <Layers className="h-3 w-3 text-cyan-600 dark:text-cyan-400" />
+          <span>6 Orbiting Workers</span>
         </span>
-        <span className="flex items-center gap-1 rounded-lg border border-neutral-800 bg-neutral-900/80 px-2.5 py-1 text-amber-300">
-          <Activity className="h-3 w-3 text-emerald-400" />
-          <span>6 Co-Workers</span>
+        <span className="flex items-center gap-1 rounded-xl border border-neutral-300/80 bg-nm-light-bg px-2.5 py-1 font-bold text-emerald-700 shadow-nm-flat dark:border-neutral-800 dark:bg-nm-dark-bg dark:text-emerald-300 dark:shadow-nm-flat-dark">
+          <Activity className="h-3 w-3 text-emerald-600 dark:text-emerald-400" />
+          <span>WebRTC Voice Active</span>
         </span>
       </div>
 
@@ -150,7 +144,7 @@ export function LiveVoiceVisualizer({
               <span
                 key={idx}
                 className={`w-1 rounded-full transition-all duration-75 ${
-                  state === 'speaking' ? 'bg-violet-400' : 'bg-cyan-400'
+                  state === 'speaking' ? 'bg-violet-500' : 'bg-cyan-400'
                 }`}
                 style={{ height: `${barHeight}px` }}
               />
@@ -159,19 +153,9 @@ export function LiveVoiceVisualizer({
         </div>
       )}
 
-      {/* Live Hearing Transcript Display */}
-      {interimTranscript && (
-        <div className="animate-fade-in relative z-10 my-1 max-w-md rounded-xl border border-violet-500/30 bg-neutral-900/90 px-3.5 py-2 text-center shadow-lg">
-          <p className="flex items-center justify-center gap-1.5 font-mono text-[11px] italic text-violet-300">
-            <span className="h-1.5 w-1.5 animate-ping rounded-full bg-violet-400" />
-            &ldquo;{interimTranscript}&rdquo;
-          </p>
-        </div>
-      )}
-
       {/* Connection State Description */}
       <div className="relative z-10 my-1 min-h-[36px] text-center">
-        <p className="font-mono text-xs font-bold uppercase tracking-wider text-violet-400">
+        <p className="font-mono text-xs font-bold uppercase tracking-wider text-violet-700 dark:text-amber-400">
           {state === 'idle' && 'AI Co-Founder Ready'}
           {state === 'connecting' && 'Connecting Voice Session...'}
           {state === 'connected' && 'Connected • Ready for Voice'}
@@ -183,9 +167,9 @@ export function LiveVoiceVisualizer({
           {state === 'reconnecting' && 'Reconnecting live stream...'}
           {state === 'error' && 'Voice Connection Error'}
         </p>
-        <p className="mt-0.5 max-w-sm text-xs text-neutral-400">
+        <p className="mt-0.5 max-w-sm text-xs text-nm-light-textSecondary dark:text-neutral-400">
           {state === 'idle' &&
-            'Engage in realtime voice conversation with your AI Co-Founder.'}
+            'Engage in real-time voice conversation with your AI Co-Founder.'}
           {state === 'listening' &&
             'Speak naturally into your microphone. Workers sync in real-time.'}
           {state === 'speaking' &&
@@ -203,7 +187,7 @@ export function LiveVoiceVisualizer({
           <button
             onClick={onStart}
             disabled={state === 'connecting'}
-            className="flex items-center gap-2 rounded-2xl bg-gradient-to-r from-violet-600 to-amber-500 px-6 py-2.5 text-xs font-bold text-white shadow-xl shadow-violet-500/25 transition-all hover:from-violet-500 hover:to-amber-400 active:scale-95 disabled:opacity-50"
+            className="flex items-center gap-2 rounded-2xl border border-violet-500/30 bg-nm-gradient-light px-6 py-2.5 text-xs font-bold text-violet-700 shadow-nm-flat transition-all hover:opacity-90 active:scale-95 disabled:opacity-50 dark:bg-nm-gradient-dark dark:text-amber-400 dark:shadow-nm-flat-dark"
           >
             <Mic className="h-4 w-4" />
             <span>Start Voice Call</span>
@@ -212,23 +196,23 @@ export function LiveVoiceVisualizer({
           <>
             <button
               onClick={onToggleMute}
-              className={`rounded-2xl border p-2.5 transition-all duration-200 ${
+              className={`rounded-2xl border p-2.5 shadow-nm-flat transition-all duration-200 dark:shadow-nm-flat-dark ${
                 isMuted
                   ? 'border-rose-500 bg-rose-500/20 text-rose-400 hover:bg-rose-500/30'
-                  : 'border-neutral-700 bg-neutral-800 text-neutral-200 hover:bg-neutral-700'
+                  : 'border-neutral-300 bg-nm-light-bg text-nm-light-textPrimary dark:border-neutral-800 dark:bg-nm-dark-bg dark:text-neutral-200'
               }`}
               title={isMuted ? 'Unmute microphone' : 'Mute microphone'}
             >
               {isMuted ? (
                 <MicOff className="h-4 w-4" />
               ) : (
-                <Mic className="h-4 w-4" />
+                <Mic className="h-4 w-4 text-violet-600 dark:text-amber-400" />
               )}
             </button>
 
             <button
               onClick={onDisconnect}
-              className="flex items-center gap-2 rounded-2xl bg-rose-600 px-5 py-2.5 text-xs font-bold text-white shadow-lg shadow-rose-600/30 transition-all hover:bg-rose-500 active:scale-95"
+              className="flex items-center gap-2 rounded-2xl border border-rose-500/40 bg-rose-500/20 px-5 py-2.5 text-xs font-bold text-rose-600 shadow-nm-flat transition-all hover:bg-rose-500/30 active:scale-95 dark:text-rose-400 dark:shadow-nm-flat-dark"
               title="End voice session"
             >
               <PhoneOff className="h-4 w-4" />

@@ -103,6 +103,91 @@ module.exports = {
           900: '#171717',
           950: '#0F0F0F',
         },
+        nm: {
+          textPrimary: '#1E293B',
+          textSecondary: '#64748B',
+          light: {
+            DEFAULT: '#E0E5EC',
+            bg: '#E0E5EC',
+            darkShadow: '#A3B1C6',
+            lightShadow: '#FFFFFF',
+            textPrimary: '#1E293B',
+            textSecondary: '#64748B',
+          },
+          dark: {
+            DEFAULT: '#1A1C20',
+            bg: '#1A1C20',
+            darkShadow: '#0E1012',
+            lightShadow: '#2E323A',
+            textPrimary: '#F1F5F9',
+            textSecondary: '#94A3B8',
+          },
+        },
+        role: {
+          cofounder: {
+            DEFAULT: '#8B5CF6',
+            base: '#8B5CF6',
+            light: '#A78BFA',
+            dark: '#6D28D9',
+          },
+          researcher: {
+            DEFAULT: '#00CFFF',
+            base: '#00CFFF',
+            light: '#67E8F9',
+            dark: '#0369A1',
+          },
+          coder: {
+            DEFAULT: '#FF8A3D',
+            base: '#FF8A3D',
+            light: '#FDBA74',
+            dark: '#C2410C',
+          },
+          writer: {
+            DEFAULT: '#FF4FA3',
+            base: '#FF4FA3',
+            light: '#F472B6',
+            dark: '#BE185D',
+          },
+          designer: {
+            DEFAULT: '#6B46C1',
+            base: '#6B46C1',
+            light: '#9F7AEA',
+            dark: '#553C9A',
+          },
+          analyst: {
+            DEFAULT: '#10B981',
+            base: '#10B981',
+            light: '#34D399',
+            dark: '#047857',
+          },
+          marketer: {
+            DEFAULT: '#FFD84D',
+            base: '#FFD84D',
+            light: '#FDE047',
+            dark: '#EAB308',
+          },
+        },
+      },
+      boxShadow: {
+        'nm-flat': '6px 6px 12px #A3B1C6, -6px -6px 12px #FFFFFF',
+        'nm-convex': '6px 6px 12px #A3B1C6, -6px -6px 12px #FFFFFF',
+        'nm-inset': 'inset 6px 6px 12px #A3B1C6, inset -6px -6px 12px #FFFFFF',
+        'nm-flat-dark': '6px 6px 12px #0E1012, -6px -6px 12px #2E323A',
+        'nm-convex-dark': '6px 6px 12px #0E1012, -6px -6px 12px #2E323A',
+        'nm-inset-dark':
+          'inset 6px 6px 12px #0E1012, inset -6px -6px 12px #2E323A',
+      },
+      backgroundImage: {
+        'nm-shine':
+          'linear-gradient(135deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0) 60%)',
+        'nm-shine-dark':
+          'linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(0, 0, 0, 0) 60%)',
+        'nm-convex': 'linear-gradient(145deg, #F0F5FC, #D5DCE5)',
+        'nm-concave': 'linear-gradient(145deg, #D5DCE5, #F0F5FC)',
+        'nm-convex-dark': 'linear-gradient(145deg, #1C1E23, #17191C)',
+        'nm-concave-dark': 'linear-gradient(145deg, #17191C, #1C1E23)',
+        'nm-gradient-light': 'linear-gradient(145deg, #F0F5FC, #D5DCE5)',
+        'nm-gradient-dark': 'linear-gradient(145deg, #1C1E23, #17191C)',
       },
       fontFamily: {
         sans: ['var(--font-inter)', 'sans-serif'],

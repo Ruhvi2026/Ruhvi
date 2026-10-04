@@ -38,6 +38,7 @@ import {
 } from 'lucide-react';
 import { LiveVoiceVisualizer } from '@/components/co-founder/LiveVoiceVisualizer';
 import { PlaywrightBrowserWindow } from '@/components/co-founder/PlaywrightBrowserWindow';
+import { CoFounderCharacter } from '@/components/co-founder/CoFounderCharacter';
 import { AiHierarchyVisualizer } from '@/components/ai/motion-engine/AiHierarchyVisualizer';
 import { useLiveKitVoice } from '@/hooks/useLiveKitVoice';
 import toast from 'react-hot-toast';
@@ -50,12 +51,274 @@ interface ChatMessage {
   model?: string;
   fallbackUsed?: boolean;
   timestamp?: number;
+  role?:
+    | 'cofounder'
+    | 'researcher'
+    | 'coder'
+    | 'writer'
+    | 'designer'
+    | 'analyst'
+    | 'marketer';
+  workerName?: string;
 }
+
+export interface SwarmWorkerNode {
+  id: string;
+  role:
+    | 'cofounder'
+    | 'researcher'
+    | 'coder'
+    | 'writer'
+    | 'designer'
+    | 'analyst'
+    | 'marketer';
+  name: string;
+  title: string;
+  description: string;
+  accentHex: string;
+  badgeClass: string;
+  borderClass: string;
+  activeTool: string;
+  currentAction: string;
+  status:
+    'active' | 'thinking' | 'idle' | 'executing' | 'analyzing' | 'generating';
+  latencyMs: number;
+  tokensPerSec: number;
+}
+
+export const SWARM_NODES: SwarmWorkerNode[] = [
+  {
+    id: 'co_founder',
+    role: 'cofounder',
+    name: 'AI Co-Founder',
+    title: 'Apex Business Orchestrator & Strategic Advisor',
+    description:
+      'Central strategy engine orchestrating multi-agent workforce and business metrics.',
+    accentHex: '#8B5CF6',
+    badgeClass:
+      'border-role-cofounder-base/40 bg-role-cofounder-base/15 text-violet-700 dark:text-violet-300',
+    borderClass: 'border-role-cofounder-base',
+    activeTool: 'dispatcher.routeIntent()',
+    currentAction: 'Monitoring catalog health & revenue trajectory',
+    status: 'active',
+    latencyMs: 142,
+    tokensPerSec: 68.4,
+  },
+  {
+    id: 'researcher',
+    role: 'researcher',
+    name: 'Researcher',
+    title: 'Market Intelligence & Headless Web Scraper',
+    description:
+      'Finds market insights, crawls competitor offerings using Playwright live browser.',
+    accentHex: '#00CFFF',
+    badgeClass:
+      'border-role-researcher-base/40 bg-role-researcher-base/15 text-cyan-700 dark:text-cyan-300',
+    borderClass: 'border-role-researcher-base',
+    activeTool: 'playwright.auditCompetitor()',
+    currentAction: 'Analyzing competitor 22K pricing & promo offers',
+    status: 'analyzing',
+    latencyMs: 95,
+    tokensPerSec: 54.2,
+  },
+  {
+    id: 'coder',
+    role: 'coder',
+    name: 'Coder',
+    title: 'Full-Stack Feature & System Architect',
+    description:
+      'Writes clean code, executes database migrations, and verifies API contracts.',
+    accentHex: '#FF8A3D',
+    badgeClass:
+      'border-role-coder-base/40 bg-role-coder-base/15 text-orange-700 dark:text-orange-300',
+    borderClass: 'border-role-coder-base',
+    activeTool: 'taskManager.createSubTasks()',
+    currentAction: 'Validating zero-breakage TypeScript builds',
+    status: 'executing',
+    latencyMs: 110,
+    tokensPerSec: 61.2,
+  },
+  {
+    id: 'writer',
+    role: 'writer',
+    name: 'Writer',
+    title: 'Multilingual Copywriter & Brand Storyteller',
+    description:
+      'Creates marketing copy, Bengali & Hinglish spoken scripts, and product stories.',
+    accentHex: '#FF4FA3',
+    badgeClass:
+      'border-role-writer-base/40 bg-role-writer-base/15 text-pink-700 dark:text-pink-300',
+    borderClass: 'border-role-writer-base',
+    activeTool: 'content.synthesizeMultilingual()',
+    currentAction: 'Drafting spoken Bengali voice scripts',
+    status: 'generating',
+    latencyMs: 115,
+    tokensPerSec: 64.0,
+  },
+  {
+    id: 'designer',
+    role: 'designer',
+    name: 'Designer',
+    title: 'UI/UX Motion Engine & 3D Spatial Designer',
+    description:
+      'Designs Neumorphic soft UIs, 3D particle simulations, and visual themes.',
+    accentHex: '#6B46C1',
+    badgeClass:
+      'border-role-designer-base/40 bg-role-designer-base/15 text-purple-700 dark:text-purple-300',
+    borderClass: 'border-role-designer-base',
+    activeTool: 'theme.applyNeumorphism()',
+    currentAction: 'Synthesizing convex & concave soft gradients',
+    status: 'idle',
+    latencyMs: 88,
+    tokensPerSec: 51.5,
+  },
+  {
+    id: 'analyst',
+    role: 'analyst',
+    name: 'Analyst',
+    title: 'Financial Unit Economics & Cohort Analyst',
+    description:
+      'Monitors AOV, cohort retention, checkout drop-off rates, and gross margins.',
+    accentHex: '#10B981',
+    badgeClass:
+      'border-role-analyst-base/40 bg-role-analyst-base/15 text-emerald-700 dark:text-emerald-300',
+    borderClass: 'border-role-analyst-base',
+    activeTool: 'supabase.queryOrders()',
+    currentAction: 'Calculating AOV ₹3,850 and gross margin',
+    status: 'active',
+    latencyMs: 76,
+    tokensPerSec: 48.0,
+  },
+  {
+    id: 'marketer',
+    role: 'marketer',
+    name: 'Marketer',
+    title: 'Growth Campaigns & Meta Ads Manager',
+    description:
+      'Formulates target audiences, budget rules, and continuous video ad flows.',
+    accentHex: '#FFD84D',
+    badgeClass:
+      'border-role-marketer-base/40 bg-role-marketer-base/15 text-amber-700 dark:text-amber-300',
+    borderClass: 'border-role-marketer-base',
+    activeTool: 'metaAds.registerDraftCampaign()',
+    currentAction: 'Monitoring PAUSED draft campaign performance',
+    status: 'idle',
+    latencyMs: 120,
+    tokensPerSec: 72.1,
+  },
+];
+
+export const getRoleTheme = (role: SwarmWorkerNode['role']) => {
+  switch (role) {
+    case 'cofounder':
+      return {
+        accent: '#8B5CF6',
+        border: 'border-role-cofounder-base',
+        badge:
+          'border-role-cofounder-base/40 bg-role-cofounder-base/15 text-violet-700 dark:text-violet-300',
+        glow: 'shadow-[0_0_20px_rgba(139,92,246,0.25)]',
+        activeGlow: 'shadow-[0_0_35px_rgba(139,92,246,0.5)]',
+        text: 'text-role-cofounder-base',
+        bgGradient: 'from-violet-500/20 via-violet-500/10 to-transparent',
+      };
+    case 'researcher':
+      return {
+        accent: '#00CFFF',
+        border: 'border-role-researcher-base',
+        badge:
+          'border-role-researcher-base/40 bg-role-researcher-base/15 text-cyan-700 dark:text-cyan-300',
+        glow: 'shadow-[0_0_20px_rgba(0,207,255,0.25)]',
+        activeGlow: 'shadow-[0_0_35px_rgba(0,207,255,0.5)]',
+        text: 'text-role-researcher-base',
+        bgGradient: 'from-cyan-500/20 via-cyan-500/10 to-transparent',
+      };
+    case 'coder':
+      return {
+        accent: '#FF8A3D',
+        border: 'border-role-coder-base',
+        badge:
+          'border-role-coder-base/40 bg-role-coder-base/15 text-orange-700 dark:text-orange-300',
+        glow: 'shadow-[0_0_20px_rgba(255,138,61,0.25)]',
+        activeGlow: 'shadow-[0_0_35px_rgba(255,138,61,0.5)]',
+        text: 'text-role-coder-base',
+        bgGradient: 'from-orange-500/20 via-orange-500/10 to-transparent',
+      };
+    case 'writer':
+      return {
+        accent: '#FF4FA3',
+        border: 'border-role-writer-base',
+        badge:
+          'border-role-writer-base/40 bg-role-writer-base/15 text-pink-700 dark:text-pink-300',
+        glow: 'shadow-[0_0_20px_rgba(255,79,163,0.25)]',
+        activeGlow: 'shadow-[0_0_35px_rgba(255,79,163,0.5)]',
+        text: 'text-role-writer-base',
+        bgGradient: 'from-pink-500/20 via-pink-500/10 to-transparent',
+      };
+    case 'designer':
+      return {
+        accent: '#6B46C1',
+        border: 'border-role-designer-base',
+        badge:
+          'border-role-designer-base/40 bg-role-designer-base/15 text-purple-700 dark:text-purple-300',
+        glow: 'shadow-[0_0_20px_rgba(107,70,193,0.25)]',
+        activeGlow: 'shadow-[0_0_35px_rgba(107,70,193,0.5)]',
+        text: 'text-role-designer-base',
+        bgGradient: 'from-purple-500/20 via-purple-500/10 to-transparent',
+      };
+    case 'analyst':
+      return {
+        accent: '#10B981',
+        border: 'border-role-analyst-base',
+        badge:
+          'border-role-analyst-base/40 bg-role-analyst-base/15 text-emerald-700 dark:text-emerald-300',
+        glow: 'shadow-[0_0_20px_rgba(16,185,129,0.25)]',
+        activeGlow: 'shadow-[0_0_35px_rgba(16,185,129,0.5)]',
+        text: 'text-role-analyst-base',
+        bgGradient: 'from-emerald-500/20 via-emerald-500/10 to-transparent',
+      };
+    case 'marketer':
+      return {
+        accent: '#FFD84D',
+        border: 'border-role-marketer-base',
+        badge:
+          'border-role-marketer-base/40 bg-role-marketer-base/15 text-amber-700 dark:text-amber-300',
+        glow: 'shadow-[0_0_20px_rgba(255,216,77,0.25)]',
+        activeGlow: 'shadow-[0_0_35px_rgba(255,216,77,0.5)]',
+        text: 'text-role-marketer-base',
+        bgGradient: 'from-yellow-500/20 via-yellow-500/10 to-transparent',
+      };
+  }
+};
+
+export const getWorkerIcon = (role: SwarmWorkerNode['role']) => {
+  switch (role) {
+    case 'cofounder':
+      return <Bot className="h-5 w-5 text-violet-600 dark:text-violet-400" />;
+    case 'researcher':
+      return <Search className="h-4 w-4 text-cyan-600 dark:text-cyan-400" />;
+    case 'coder':
+      return <Cpu className="h-4 w-4 text-orange-600 dark:text-orange-400" />;
+    case 'writer':
+      return (
+        <MessageSquare className="h-4 w-4 text-pink-600 dark:text-pink-400" />
+      );
+    case 'designer':
+      return <Orbit className="h-4 w-4 text-purple-600 dark:text-purple-400" />;
+    case 'analyst':
+      return (
+        <TrendingUp className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+      );
+    case 'marketer':
+      return <Target className="h-4 w-4 text-amber-600 dark:text-amber-400" />;
+  }
+};
 
 export default function CoFounderPortalPage() {
   const [activeTab, setActiveTab] = useState<'voice' | 'chat' | 'swarm_3d'>(
     'voice'
   );
+  const [selectedWorkerId, setSelectedWorkerId] =
+    useState<string>('co_founder');
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
@@ -63,6 +326,8 @@ export default function CoFounderPortalPage() {
       sender: 'assistant',
       text: 'Greetings Founder. I am your Ruhvi AI Co-Founder on co-founder.ruhvi.in. I have direct access to your real-time catalog, sales metrics, support tickets, and system architecture. You can speak with me using live WebRTC audio or type below.',
       timestamp: Date.now(),
+      role: 'cofounder',
+      workerName: 'AI Co-Founder',
     },
   ]);
   const [isLoading, setIsLoading] = useState(false);
@@ -153,6 +418,12 @@ export default function CoFounderPortalPage() {
     speechPitch,
     voiceStyle,
     onTranscript: (speaker, text, meta) => {
+      const activeNode = SWARM_NODES.find((n) => n.id === selectedWorkerId);
+      const role =
+        speaker === 'user' ? undefined : activeNode?.role || 'cofounder';
+      const workerName =
+        speaker === 'user' ? 'You' : activeNode?.name || 'AI Co-Founder';
+
       setMessages((prev) => [
         ...prev,
         {
@@ -163,6 +434,8 @@ export default function CoFounderPortalPage() {
           model: meta?.model,
           fallbackUsed: meta?.fallbackUsed,
           timestamp: Date.now(),
+          role,
+          workerName,
         },
       ]);
     },
@@ -361,10 +634,41 @@ export default function CoFounderPortalPage() {
     e.preventDefault();
     if (!input.trim() || isLoading) return;
 
+    const rawInput = input.trim();
+    let targetedRole: any = 'cofounder';
+    let workerName = 'AI Co-Founder';
+
+    const lower = rawInput.toLowerCase();
+    if (lower.includes('@researcher')) {
+      targetedRole = 'researcher';
+      workerName = 'Researcher';
+    } else if (lower.includes('@coder')) {
+      targetedRole = 'coder';
+      workerName = 'Coder';
+    } else if (lower.includes('@writer')) {
+      targetedRole = 'writer';
+      workerName = 'Writer';
+    } else if (lower.includes('@designer')) {
+      targetedRole = 'designer';
+      workerName = 'Designer';
+    } else if (lower.includes('@analyst')) {
+      targetedRole = 'analyst';
+      workerName = 'Analyst';
+    } else if (lower.includes('@marketer')) {
+      targetedRole = 'marketer';
+      workerName = 'Marketer';
+    } else if (selectedWorkerId && selectedWorkerId !== 'co_founder') {
+      const node = SWARM_NODES.find((n) => n.id === selectedWorkerId);
+      if (node) {
+        targetedRole = node.role;
+        workerName = node.name;
+      }
+    }
+
     const userMsg: ChatMessage = {
       id: Date.now().toString(),
       sender: 'user',
-      text: input.trim(),
+      text: rawInput,
       timestamp: Date.now(),
     };
 
@@ -385,6 +689,7 @@ export default function CoFounderPortalPage() {
           channel: 'text',
           provider: selectedProvider,
           model: selectedModel,
+          role: targetedRole,
         }),
       });
 
@@ -406,6 +711,8 @@ export default function CoFounderPortalPage() {
           model: data.model,
           fallbackUsed: data.fallbackUsed,
           timestamp: Date.now(),
+          role: targetedRole,
+          workerName,
         },
       ]);
     } catch (err: unknown) {
@@ -417,6 +724,8 @@ export default function CoFounderPortalPage() {
           sender: 'assistant',
           text: `Error: ${errorText}`,
           timestamp: Date.now(),
+          role: targetedRole,
+          workerName,
         },
       ]);
     } finally {
@@ -601,23 +910,264 @@ export default function CoFounderPortalPage() {
   );
   const currentAvailableModels = activeProviderObj?.models || [];
 
+  // Interactive 3D Spatial Workforce Swarm UI Component Render
+  const renderSwarmSpatialUI = (isCompact = false) => {
+    const selectedNode =
+      SWARM_NODES.find((n) => n.id === selectedWorkerId) || SWARM_NODES[0];
+    const cofounderNode = SWARM_NODES[0];
+
+    return (
+      <div className="flex flex-col space-y-4">
+        {/* Telemetry Header */}
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-neutral-200/80 bg-nm-light-bg p-3.5 shadow-nm-flat dark:border-neutral-800 dark:bg-nm-dark-bg dark:shadow-nm-flat-dark">
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-nm-gradient-light shadow-nm-flat dark:bg-nm-gradient-dark dark:shadow-nm-flat-dark">
+              <Orbit className="animate-spin-slow h-5 w-5 text-violet-600 dark:text-violet-400" />
+            </div>
+            <div>
+              <h3 className="flex items-center gap-2 text-xs font-bold text-nm-light-textPrimary dark:text-white">
+                AI Workforce Swarm Orbit
+                <span className="rounded-full border border-emerald-500/40 bg-emerald-500/20 px-2 py-0.5 text-[9px] font-bold text-emerald-600 dark:text-emerald-400">
+                  7 Agents Synchronized
+                </span>
+              </h3>
+              <p className="text-[10px] text-nm-light-textSecondary dark:text-neutral-400">
+                Select any worker to inspect telemetry, active tool, or delegate
+                intent.
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3 font-mono text-[10px]">
+            <div className="flex items-center gap-1 text-nm-light-textSecondary dark:text-neutral-400">
+              <Wifi size={11} className="text-emerald-500" />
+              <span>WebRTC Active</span>
+            </div>
+            <div className="flex items-center gap-1 text-nm-light-textSecondary dark:text-neutral-400">
+              <Activity size={11} className="text-violet-500" />
+              <span>Avg Latency: 104ms</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Spatial Orbital Container */}
+        <div
+          className={`relative flex flex-col items-center justify-center overflow-hidden rounded-3xl border border-neutral-200/80 bg-nm-light-bg p-6 shadow-nm-flat dark:border-neutral-800 dark:bg-nm-dark-bg dark:shadow-nm-flat-dark ${isCompact ? 'min-h-[360px]' : 'min-h-[460px]'}`}
+        >
+          {/* Soft Background Grid & Radial Glow */}
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(139,92,246,0.08)_0%,transparent_70%)]" />
+          <div className="pointer-events-none absolute inset-0 scale-[0.75] animate-pulse rounded-full border border-violet-500/10" />
+          <div className="pointer-events-none absolute inset-0 scale-[0.9] rounded-full border border-dashed border-neutral-300 dark:border-neutral-800" />
+
+          {/* Orbit Lines & Swarm Nodes Grid */}
+          <div className="relative z-10 grid w-full max-w-4xl grid-cols-1 items-center justify-items-center gap-6 md:grid-cols-3">
+            {/* Left Orbit Column (Researcher, Writer, Analyst) */}
+            <div className="flex w-full max-w-xs flex-col gap-4">
+              {SWARM_NODES.filter((n) =>
+                ['researcher', 'writer', 'analyst'].includes(n.role)
+              ).map((node) => {
+                const theme = getRoleTheme(node.role);
+                const isSelected = selectedWorkerId === node.id;
+                return (
+                  <button
+                    key={node.id}
+                    onClick={() => setSelectedWorkerId(node.id)}
+                    className={`group relative flex items-center gap-3 rounded-2xl border p-3 text-left transition-all duration-300 ${
+                      isSelected
+                        ? `border-2 ${theme.border} bg-nm-gradient-light dark:bg-nm-gradient-dark ${theme.activeGlow} scale-105`
+                        : `hover:scale-102 border-neutral-200/80 bg-nm-light-bg shadow-nm-convex dark:border-neutral-800 dark:bg-nm-dark-bg dark:shadow-nm-convex-dark ${theme.glow}`
+                    }`}
+                  >
+                    <div
+                      className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border ${theme.badge} shadow-nm-flat dark:shadow-nm-flat-dark`}
+                    >
+                      {getWorkerIcon(node.role)}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center justify-between gap-1">
+                        <span className="truncate text-xs font-bold text-nm-light-textPrimary dark:text-white">
+                          {node.name}
+                        </span>
+                        <span
+                          className={`h-2 w-2 rounded-full ${node.status === 'active' || node.status === 'executing' ? 'animate-pulse bg-emerald-500' : node.status === 'analyzing' || node.status === 'generating' ? 'animate-pulse bg-cyan-400' : 'bg-neutral-400'}`}
+                        />
+                      </div>
+                      <p className="truncate text-[10px] text-nm-light-textSecondary dark:text-neutral-400">
+                        {node.title}
+                      </p>
+                      <p className="mt-0.5 truncate font-mono text-[9px] text-nm-light-textSecondary/80 dark:text-neutral-500">
+                        {node.activeTool}
+                      </p>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Central Pedestal: AI Co-Founder Apex Entity */}
+            <div className="my-4 flex flex-col items-center justify-center md:my-0">
+              <CoFounderCharacter
+                state={
+                  voice.state === 'speaking'
+                    ? 'speaking'
+                    : voice.state === 'listening'
+                      ? 'listening'
+                      : voice.state === 'connecting'
+                        ? 'thinking'
+                        : 'idle'
+                }
+                audioLevel={voice.audioLevel}
+                size={isCompact ? 220 : 260}
+                onClick={() => setSelectedWorkerId(cofounderNode.id)}
+                interactive={true}
+              />
+            </div>
+
+            {/* Right Orbit Column (Coder, Designer, Marketer) */}
+            <div className="flex w-full max-w-xs flex-col gap-4">
+              {SWARM_NODES.filter((n) =>
+                ['coder', 'designer', 'marketer'].includes(n.role)
+              ).map((node) => {
+                const theme = getRoleTheme(node.role);
+                const isSelected = selectedWorkerId === node.id;
+                return (
+                  <button
+                    key={node.id}
+                    onClick={() => setSelectedWorkerId(node.id)}
+                    className={`group relative flex items-center gap-3 rounded-2xl border p-3 text-left transition-all duration-300 ${
+                      isSelected
+                        ? `border-2 ${theme.border} bg-nm-gradient-light dark:bg-nm-gradient-dark ${theme.activeGlow} scale-105`
+                        : `hover:scale-102 border-neutral-200/80 bg-nm-light-bg shadow-nm-convex dark:border-neutral-800 dark:bg-nm-dark-bg dark:shadow-nm-convex-dark ${theme.glow}`
+                    }`}
+                  >
+                    <div
+                      className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border ${theme.badge} shadow-nm-flat dark:shadow-nm-flat-dark`}
+                    >
+                      {getWorkerIcon(node.role)}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center justify-between gap-1">
+                        <span className="truncate text-xs font-bold text-nm-light-textPrimary dark:text-white">
+                          {node.name}
+                        </span>
+                        <span
+                          className={`h-2 w-2 rounded-full ${node.status === 'active' || node.status === 'executing' ? 'animate-pulse bg-emerald-500' : node.status === 'analyzing' || node.status === 'generating' ? 'animate-pulse bg-cyan-400' : 'bg-neutral-400'}`}
+                        />
+                      </div>
+                      <p className="truncate text-[10px] text-nm-light-textSecondary dark:text-neutral-400">
+                        {node.title}
+                      </p>
+                      <p className="mt-0.5 truncate font-mono text-[9px] text-nm-light-textSecondary/80 dark:text-neutral-500">
+                        {node.activeTool}
+                      </p>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        {/* Selected Node Telemetry & Context Panel */}
+        {selectedNode && (
+          <div
+            className={`rounded-3xl border ${getRoleTheme(selectedNode.role).border} space-y-3 bg-nm-light-bg p-5 shadow-nm-flat dark:bg-nm-dark-bg dark:shadow-nm-flat-dark`}
+          >
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-neutral-200/80 pb-3 dark:border-neutral-800">
+              <div className="flex items-center gap-3">
+                <div
+                  className={`flex h-11 w-11 items-center justify-center rounded-2xl border ${getRoleTheme(selectedNode.role).badge} shadow-nm-flat dark:shadow-nm-flat-dark`}
+                >
+                  {getWorkerIcon(selectedNode.role)}
+                </div>
+                <div>
+                  <h4 className="flex items-center gap-2 text-sm font-bold text-nm-light-textPrimary dark:text-white">
+                    {selectedNode.name}
+                    <span
+                      className={`rounded-full border px-2.5 py-0.5 text-[10px] font-bold ${getRoleTheme(selectedNode.role).badge}`}
+                    >
+                      {selectedNode.role.toUpperCase()}
+                    </span>
+                  </h4>
+                  <p className="text-xs text-nm-light-textSecondary dark:text-neutral-400">
+                    {selectedNode.title}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => {
+                    setInput(`@${selectedNode.role} `);
+                    setActiveTab('chat');
+                  }}
+                  className={`flex items-center gap-1.5 rounded-xl border ${getRoleTheme(selectedNode.role).border} bg-nm-gradient-light px-3.5 py-2 text-xs font-bold text-nm-light-textPrimary shadow-nm-flat transition-all hover:opacity-90 dark:bg-nm-gradient-dark dark:text-white dark:shadow-nm-flat-dark`}
+                >
+                  <MessageSquare size={13} />
+                  <span>@Prompt {selectedNode.name}</span>
+                </button>
+              </div>
+            </div>
+
+            <p className="text-xs leading-relaxed text-nm-light-textSecondary dark:text-neutral-300">
+              {selectedNode.description}
+            </p>
+
+            <div className="grid grid-cols-2 gap-3 pt-1 text-xs md:grid-cols-4">
+              <div className="rounded-2xl border border-neutral-200/80 bg-nm-light-bg p-2.5 shadow-nm-inset dark:border-neutral-800 dark:bg-nm-dark-bg dark:shadow-nm-inset-dark">
+                <span className="mb-0.5 block text-[10px] font-bold uppercase tracking-wider text-nm-light-textSecondary dark:text-neutral-400">
+                  Active Tool
+                </span>
+                <span className="block truncate font-mono text-[11px] text-violet-700 dark:text-violet-300">
+                  {selectedNode.activeTool}
+                </span>
+              </div>
+              <div className="rounded-2xl border border-neutral-200/80 bg-nm-light-bg p-2.5 shadow-nm-inset dark:border-neutral-800 dark:bg-nm-dark-bg dark:shadow-nm-inset-dark">
+                <span className="mb-0.5 block text-[10px] font-bold uppercase tracking-wider text-nm-light-textSecondary dark:text-neutral-400">
+                  Current Action
+                </span>
+                <span className="block truncate text-[11px] text-nm-light-textPrimary dark:text-neutral-200">
+                  {selectedNode.currentAction}
+                </span>
+              </div>
+              <div className="rounded-2xl border border-neutral-200/80 bg-nm-light-bg p-2.5 shadow-nm-inset dark:border-neutral-800 dark:bg-nm-dark-bg dark:shadow-nm-inset-dark">
+                <span className="mb-0.5 block text-[10px] font-bold uppercase tracking-wider text-nm-light-textSecondary dark:text-neutral-400">
+                  Response Latency
+                </span>
+                <span className="block font-mono text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
+                  {selectedNode.latencyMs} ms
+                </span>
+              </div>
+              <div className="rounded-2xl border border-neutral-200/80 bg-nm-light-bg p-2.5 shadow-nm-inset dark:border-neutral-800 dark:bg-nm-dark-bg dark:shadow-nm-inset-dark">
+                <span className="mb-0.5 block text-[10px] font-bold uppercase tracking-wider text-nm-light-textSecondary dark:text-neutral-400">
+                  Throughput
+                </span>
+                <span className="block font-mono text-[11px] font-bold text-cyan-600 dark:text-cyan-400">
+                  {selectedNode.tokensPerSec} tok/s
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   return (
-    <div className="mx-auto flex h-[calc(100vh-4rem)] max-w-7xl flex-col space-y-4 p-4 text-neutral-100 md:p-6">
+    <div className="mx-auto flex h-[calc(100vh-4rem)] max-w-7xl flex-col space-y-4 bg-nm-light-bg p-4 text-nm-light-textPrimary dark:bg-nm-dark-bg dark:text-nm-dark-textPrimary md:p-6">
       {/* Top Header & Dark Neumorphic Controls */}
-      <div className="flex flex-col justify-between gap-4 rounded-3xl border border-neutral-800/90 bg-[#14151a]/95 p-4 shadow-2xl backdrop-blur-2xl lg:flex-row lg:items-center">
+      <div className="flex flex-col justify-between gap-4 rounded-3xl border border-neutral-200/80 bg-nm-light-bg p-4 shadow-nm-flat backdrop-blur-2xl dark:border-neutral-800/90 dark:bg-nm-dark-bg dark:shadow-nm-flat-dark lg:flex-row lg:items-center">
         <div className="flex items-center gap-3.5">
-          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-tr from-violet-600 to-amber-500 shadow-lg shadow-violet-500/25">
-            <Sparkles className="h-6 w-6 text-white" />
+          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-nm-gradient-light shadow-nm-flat dark:bg-nm-gradient-dark dark:shadow-nm-flat-dark">
+            <Sparkles className="h-6 w-6 text-violet-600 dark:text-amber-400" />
           </div>
           <div>
-            <h1 className="flex items-center gap-2 text-lg font-bold tracking-tight text-white">
+            <h1 className="flex items-center gap-2 text-lg font-bold tracking-tight text-nm-light-textPrimary dark:text-white">
               AI Co-Founder
-              <span className="rounded-full border border-violet-500/30 bg-violet-500/20 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-widest text-violet-300">
+              <span className="rounded-full border border-violet-500/30 bg-violet-500/20 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-widest text-violet-700 dark:text-violet-300">
                 Executive Command Center
               </span>
             </h1>
-            <p className="mt-0.5 flex flex-wrap items-center gap-2 text-xs text-neutral-400">
-              <span>LiveKit Multimodal Voice & 3D Workforce</span>
+            <p className="mt-0.5 flex flex-wrap items-center gap-2 text-xs text-nm-light-textSecondary dark:text-neutral-400">
+              <span>LiveKit Multimodal Voice & 3D Workforce Swarm</span>
               {liveKitUsage && (
                 <button
                   onClick={() => {
@@ -625,9 +1175,9 @@ export default function CoFounderPortalPage() {
                     fetchLiveKitUsage();
                   }}
                   title="Click to view LiveKit Cloud Free Tier analytics"
-                  className="inline-flex items-center gap-1 rounded-md border border-neutral-800 bg-neutral-900 px-2 py-0.5 font-mono text-[10px] text-emerald-400 transition-colors hover:border-violet-500/40"
+                  className="inline-flex items-center gap-1 rounded-md border border-neutral-300 bg-nm-light-bg px-2 py-0.5 font-mono text-[10px] text-emerald-600 shadow-nm-flat transition-colors hover:border-violet-500/40 dark:border-neutral-800 dark:bg-nm-dark-bg dark:text-emerald-400 dark:shadow-nm-flat-dark"
                 >
-                  <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />
+                  <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500 dark:bg-emerald-400" />
                   <span>
                     Free:{' '}
                     {(
@@ -645,13 +1195,13 @@ export default function CoFounderPortalPage() {
         {/* Engine Controls & Mode Switcher */}
         <div className="flex flex-wrap items-center gap-3">
           {/* AI Provider & Model Picker */}
-          <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-neutral-800 bg-neutral-950/80 p-1.5 shadow-inner">
+          <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-neutral-300/70 bg-nm-light-bg p-1.5 shadow-nm-inset dark:border-neutral-800 dark:bg-nm-dark-bg dark:shadow-nm-inset-dark">
             {/* Provider Selector */}
             <div className="flex items-center gap-1.5 px-2 py-0.5">
-              <span className="flex h-2 w-2 rounded-full bg-emerald-400 ring-2 ring-emerald-400/20" />
+              <span className="flex h-2 w-2 rounded-full bg-emerald-500 ring-2 ring-emerald-400/20 dark:bg-emerald-400" />
               <label
                 htmlFor="co-founder-provider-select"
-                className="text-[11px] font-semibold text-neutral-400"
+                className="text-[11px] font-semibold text-nm-light-textSecondary dark:text-neutral-400"
               >
                 Provider:
               </label>
@@ -680,7 +1230,7 @@ export default function CoFounderPortalPage() {
                     }
                   }
                 }}
-                className="cursor-pointer rounded-xl border border-neutral-800 bg-neutral-900 px-2.5 py-1 text-xs font-semibold text-neutral-200 outline-none transition-colors hover:border-violet-500/40 focus:border-violet-500 focus:text-violet-300"
+                className="cursor-pointer rounded-xl border border-neutral-300 bg-nm-light-bg px-2.5 py-1 text-xs font-semibold text-nm-light-textPrimary shadow-nm-flat outline-none transition-colors hover:border-violet-500/40 focus:border-violet-500 focus:text-violet-600 dark:border-neutral-800 dark:bg-nm-dark-bg dark:text-neutral-200 dark:shadow-nm-flat-dark dark:focus:text-violet-300"
               >
                 <option value="auto">⚡ Auto (Admin Fallback)</option>
                 {providers.map((p) => (
@@ -692,11 +1242,11 @@ export default function CoFounderPortalPage() {
             </div>
 
             {/* Model Selector */}
-            <div className="flex items-center gap-1.5 border-l border-neutral-800 px-2 py-0.5">
-              <Cpu className="h-3.5 w-3.5 text-violet-400" />
+            <div className="flex items-center gap-1.5 border-l border-neutral-300 px-2 py-0.5 dark:border-neutral-800">
+              <Cpu className="h-3.5 w-3.5 text-violet-600 dark:text-violet-400" />
               <label
                 htmlFor="co-founder-model-select"
-                className="text-[11px] font-semibold text-neutral-400"
+                className="text-[11px] font-semibold text-nm-light-textSecondary dark:text-neutral-400"
               >
                 Model:
               </label>
@@ -712,7 +1262,7 @@ export default function CoFounderPortalPage() {
                     );
                   }
                 }}
-                className="cursor-pointer rounded-xl border border-neutral-800 bg-neutral-900 px-2.5 py-1 text-xs font-semibold text-violet-300 outline-none transition-colors hover:border-violet-500/40 focus:border-violet-500 focus:text-violet-200"
+                className="cursor-pointer rounded-xl border border-neutral-300 bg-nm-light-bg px-2.5 py-1 text-xs font-semibold text-violet-700 shadow-nm-flat outline-none transition-colors hover:border-violet-500/40 focus:border-violet-500 focus:text-violet-600 dark:border-neutral-800 dark:bg-nm-dark-bg dark:text-violet-300 dark:shadow-nm-flat-dark dark:focus:text-violet-200"
               >
                 {selectedProvider === 'auto' ? (
                   <>
@@ -744,11 +1294,11 @@ export default function CoFounderPortalPage() {
             </div>
 
             {/* Voice Input Language Selector */}
-            <div className="flex items-center gap-1.5 border-l border-neutral-800 px-2 py-0.5">
-              <Globe className="h-3.5 w-3.5 text-cyan-400" />
+            <div className="flex items-center gap-1.5 border-l border-neutral-300 px-2 py-0.5 dark:border-neutral-800">
+              <Globe className="h-3.5 w-3.5 text-cyan-600 dark:text-cyan-400" />
               <label
                 htmlFor="co-founder-lang-select"
-                className="text-[11px] font-semibold text-neutral-400"
+                className="text-[11px] font-semibold text-nm-light-textSecondary dark:text-neutral-400"
               >
                 Lang:
               </label>
@@ -762,7 +1312,7 @@ export default function CoFounderPortalPage() {
                     localStorage.setItem('ruhvi_co_founder_lang', newLang);
                   }
                 }}
-                className="cursor-pointer rounded-xl border border-neutral-800 bg-neutral-900 px-2 py-1 text-xs font-semibold text-cyan-300 outline-none transition-colors hover:border-cyan-500/40 focus:border-cyan-500 focus:text-cyan-200"
+                className="cursor-pointer rounded-xl border border-neutral-300 bg-nm-light-bg px-2 py-1 text-xs font-semibold text-cyan-700 shadow-nm-flat outline-none transition-colors hover:border-cyan-500/40 focus:border-cyan-500 focus:text-cyan-600 dark:border-neutral-800 dark:bg-nm-dark-bg dark:text-cyan-300 dark:shadow-nm-flat-dark dark:focus:text-cyan-200"
               >
                 <option value="bn-IN">বাংলা (Bengali)</option>
                 <option value="en-IN">English (India)</option>
@@ -771,23 +1321,23 @@ export default function CoFounderPortalPage() {
             </div>
 
             {/* Voice Studio Settings Modal Trigger */}
-            <div className="flex items-center border-l border-neutral-800 px-2 py-0.5">
+            <div className="flex items-center border-l border-neutral-300 px-2 py-0.5 dark:border-neutral-800">
               <button
                 type="button"
                 onClick={() => setIsVoiceModalOpen(true)}
-                className="flex items-center gap-1.5 rounded-xl border border-violet-500/30 bg-violet-500/10 px-2.5 py-1 text-xs font-semibold text-violet-300 transition-all hover:border-violet-500/60 hover:bg-violet-500/20"
+                className="flex items-center gap-1.5 rounded-xl border border-violet-500/30 bg-nm-gradient-light px-2.5 py-1 text-xs font-semibold text-violet-700 shadow-nm-flat transition-all hover:border-violet-500/60 dark:bg-nm-gradient-dark dark:text-violet-300 dark:shadow-nm-flat-dark"
                 title="Voice Studio Settings"
               >
-                <SlidersHorizontal className="h-3.5 w-3.5 text-violet-400" />
+                <SlidersHorizontal className="h-3.5 w-3.5 text-violet-600 dark:text-violet-400" />
                 <span>Voice Studio</span>
                 {voice.hasBengaliVoice ? (
                   <span
-                    className="h-1.5 w-1.5 rounded-full bg-emerald-400"
+                    className="h-1.5 w-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400"
                     title="Native Bengali Voice Active"
                   />
                 ) : (
                   <span
-                    className="h-1.5 w-1.5 animate-pulse rounded-full bg-amber-400"
+                    className="h-1.5 w-1.5 animate-pulse rounded-full bg-amber-500 dark:bg-amber-400"
                     title="Audio Tuning Recommended"
                   />
                 )}
@@ -796,13 +1346,13 @@ export default function CoFounderPortalPage() {
           </div>
 
           {/* Mode Switcher Tabs */}
-          <div className="flex items-center rounded-2xl border border-neutral-800 bg-neutral-950 p-1 shadow-inner">
+          <div className="flex items-center rounded-2xl border border-neutral-300/70 bg-nm-light-bg p-1 shadow-nm-inset dark:border-neutral-800 dark:bg-nm-dark-bg dark:shadow-nm-inset-dark">
             <button
               onClick={() => setActiveTab('voice')}
               className={`flex items-center gap-2 rounded-xl px-3.5 py-1.5 text-xs font-medium transition-all duration-200 ${
                 activeTab === 'voice'
-                  ? 'bg-gradient-to-r from-violet-600 to-amber-500 font-bold text-white shadow-md'
-                  : 'text-neutral-400 hover:text-white'
+                  ? 'bg-nm-gradient-light font-bold text-violet-700 shadow-nm-flat dark:bg-nm-gradient-dark dark:text-amber-400 dark:shadow-nm-flat-dark'
+                  : 'text-nm-light-textSecondary hover:text-nm-light-textPrimary dark:text-neutral-400 dark:hover:text-white'
               }`}
             >
               <Mic className="h-3.5 w-3.5" />
@@ -812,8 +1362,8 @@ export default function CoFounderPortalPage() {
               onClick={() => setActiveTab('chat')}
               className={`flex items-center gap-2 rounded-xl px-3.5 py-1.5 text-xs font-medium transition-all duration-200 ${
                 activeTab === 'chat'
-                  ? 'bg-gradient-to-r from-violet-600 to-amber-500 font-bold text-white shadow-md'
-                  : 'text-neutral-400 hover:text-white'
+                  ? 'bg-nm-gradient-light font-bold text-violet-700 shadow-nm-flat dark:bg-nm-gradient-dark dark:text-amber-400 dark:shadow-nm-flat-dark'
+                  : 'text-nm-light-textSecondary hover:text-nm-light-textPrimary dark:text-neutral-400 dark:hover:text-white'
               }`}
             >
               <MessageSquare className="h-3.5 w-3.5" />
@@ -823,12 +1373,12 @@ export default function CoFounderPortalPage() {
               onClick={() => setActiveTab('swarm_3d')}
               className={`flex items-center gap-2 rounded-xl px-3.5 py-1.5 text-xs font-medium transition-all duration-200 ${
                 activeTab === 'swarm_3d'
-                  ? 'bg-gradient-to-r from-violet-600 to-amber-500 font-bold text-white shadow-md'
-                  : 'text-neutral-400 hover:text-white'
+                  ? 'bg-nm-gradient-light font-bold text-violet-700 shadow-nm-flat dark:bg-nm-gradient-dark dark:text-amber-400 dark:shadow-nm-flat-dark'
+                  : 'text-nm-light-textSecondary hover:text-nm-light-textPrimary dark:text-neutral-400 dark:hover:text-white'
               }`}
             >
               <Orbit className="h-3.5 w-3.5" />
-              <span>3D Workforce</span>
+              <span>3D Workforce Swarm</span>
             </button>
           </div>
         </div>
@@ -836,9 +1386,9 @@ export default function CoFounderPortalPage() {
 
       {/* Fallback Chain Badge Banner */}
       {fallbackChain.length > 0 && (
-        <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-neutral-800/80 bg-[#121318]/90 px-4 py-2 text-[11px] text-neutral-400 shadow-sm">
+        <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-neutral-200/80 bg-nm-light-bg px-4 py-2 text-[11px] text-nm-light-textSecondary shadow-nm-flat dark:border-neutral-800/80 dark:bg-nm-dark-bg dark:text-neutral-400 dark:shadow-nm-flat-dark">
           <div className="flex flex-wrap items-center gap-1.5">
-            <span className="font-semibold text-violet-300">
+            <span className="font-semibold text-violet-700 dark:text-violet-300">
               Active Fallback Chain:
             </span>
             {fallbackChain.map((item, idx) => (
@@ -846,14 +1396,16 @@ export default function CoFounderPortalPage() {
                 <span
                   className={`inline-flex items-center gap-1 font-mono ${
                     item.id === selectedProvider
-                      ? 'rounded-md border border-violet-500/30 bg-violet-500/20 px-2 py-0.5 font-bold text-violet-300'
-                      : 'text-neutral-300'
+                      ? 'rounded-md border border-violet-500/30 bg-violet-500/20 px-2 py-0.5 font-bold text-violet-700 dark:text-violet-300'
+                      : 'text-nm-light-textPrimary dark:text-neutral-300'
                   }`}
                 >
                   {item.name}
                 </span>
                 {idx < fallbackChain.length - 1 && (
-                  <span className="text-neutral-600">→</span>
+                  <span className="text-neutral-400 dark:text-neutral-600">
+                    →
+                  </span>
                 )}
               </React.Fragment>
             ))}
@@ -862,7 +1414,7 @@ export default function CoFounderPortalPage() {
             href="https://admin.ruhvi.in/tech/ai-settings"
             target="_blank"
             rel="noreferrer"
-            className="flex items-center gap-1 text-[10px] text-violet-400 transition-colors hover:text-violet-300"
+            className="flex items-center gap-1 text-[10px] text-violet-600 transition-colors hover:text-violet-700 dark:text-violet-400 dark:hover:text-violet-300"
           >
             <span>Configure Fallback in Admin AI</span>
             <ExternalLink size={10} />
@@ -873,12 +1425,7 @@ export default function CoFounderPortalPage() {
       {/* Main View Area */}
       {activeTab === 'swarm_3d' ? (
         <div className="flex-1 overflow-y-auto">
-          <AiHierarchyVisualizer
-            audioLevel={voice.audioLevel}
-            isThinking={
-              voice.state === 'listening' || voice.state === 'speaking'
-            }
-          />
+          {renderSwarmSpatialUI(false)}
         </div>
       ) : (
         <div className="grid flex-1 grid-cols-1 gap-6 overflow-hidden lg:grid-cols-12">
@@ -905,19 +1452,19 @@ export default function CoFounderPortalPage() {
 
           {/* Right Column (5 or 7 cols): Intelligence Drawer & Chat Stream */}
           <div
-            className={`flex h-full flex-col overflow-hidden rounded-3xl border border-neutral-800/90 bg-[#13141a]/95 shadow-2xl backdrop-blur-2xl ${
+            className={`flex h-full flex-col overflow-hidden rounded-3xl border border-neutral-200/80 bg-nm-light-bg p-0 shadow-nm-flat backdrop-blur-2xl dark:border-neutral-800/90 dark:bg-nm-dark-bg dark:shadow-nm-flat-dark ${
               activeTab === 'voice' ? 'lg:col-span-5' : 'lg:col-span-7'
             }`}
           >
             {/* Header Controls for Right Column */}
-            <div className="flex items-center justify-between border-b border-neutral-800 bg-[#16171e]/80 px-4 py-3 text-xs font-medium text-neutral-400">
+            <div className="flex items-center justify-between border-b border-neutral-200/80 bg-nm-light-bg px-4 py-3 text-xs font-medium text-nm-light-textSecondary dark:border-neutral-800 dark:bg-nm-dark-bg dark:text-neutral-400">
               <div className="scrollbar-none flex items-center gap-1.5 overflow-x-auto py-0.5">
                 <button
                   onClick={() => setSelectedWidgetTab('alerts')}
                   className={`rounded-xl px-2.5 py-1 text-[11px] font-medium transition-all ${
                     selectedWidgetTab === 'alerts'
-                      ? 'border border-violet-500/40 bg-violet-500/20 font-bold text-violet-300'
-                      : 'text-neutral-400 hover:text-neutral-200'
+                      ? 'border border-violet-500/40 bg-nm-gradient-light font-bold text-violet-700 shadow-nm-flat dark:bg-nm-gradient-dark dark:text-violet-300 dark:shadow-nm-flat-dark'
+                      : 'text-nm-light-textSecondary hover:text-nm-light-textPrimary dark:text-neutral-400 dark:hover:text-neutral-200'
                   }`}
                 >
                   Alerts ({proactiveSignals.length})
@@ -926,8 +1473,8 @@ export default function CoFounderPortalPage() {
                   onClick={() => setSelectedWidgetTab('approvals')}
                   className={`rounded-xl px-2.5 py-1 text-[11px] font-medium transition-all ${
                     selectedWidgetTab === 'approvals'
-                      ? 'border border-violet-500/40 bg-violet-500/20 font-bold text-violet-300'
-                      : 'text-neutral-400 hover:text-neutral-200'
+                      ? 'border border-violet-500/40 bg-nm-gradient-light font-bold text-violet-700 shadow-nm-flat dark:bg-nm-gradient-dark dark:text-violet-300 dark:shadow-nm-flat-dark'
+                      : 'text-nm-light-textSecondary hover:text-nm-light-textPrimary dark:text-neutral-400 dark:hover:text-neutral-200'
                   }`}
                 >
                   Approvals ({pendingApprovals.length})
@@ -936,8 +1483,8 @@ export default function CoFounderPortalPage() {
                   onClick={() => setSelectedWidgetTab('competitors')}
                   className={`rounded-xl px-2.5 py-1 text-[11px] font-medium transition-all ${
                     selectedWidgetTab === 'competitors'
-                      ? 'border border-violet-500/40 bg-violet-500/20 font-bold text-violet-300'
-                      : 'text-neutral-400 hover:text-neutral-200'
+                      ? 'border border-violet-500/40 bg-nm-gradient-light font-bold text-violet-700 shadow-nm-flat dark:bg-nm-gradient-dark dark:text-violet-300 dark:shadow-nm-flat-dark'
+                      : 'text-nm-light-textSecondary hover:text-nm-light-textPrimary dark:text-neutral-400 dark:hover:text-neutral-200'
                   }`}
                 >
                   Competitors ({competitors.length})
@@ -946,8 +1493,8 @@ export default function CoFounderPortalPage() {
                   onClick={() => setSelectedWidgetTab('seo')}
                   className={`rounded-xl px-2.5 py-1 text-[11px] font-medium transition-all ${
                     selectedWidgetTab === 'seo'
-                      ? 'border border-violet-500/40 bg-violet-500/20 font-bold text-violet-300'
-                      : 'text-neutral-400 hover:text-neutral-200'
+                      ? 'border border-violet-500/40 bg-nm-gradient-light font-bold text-violet-700 shadow-nm-flat dark:bg-nm-gradient-dark dark:text-violet-300 dark:shadow-nm-flat-dark'
+                      : 'text-nm-light-textSecondary hover:text-nm-light-textPrimary dark:text-neutral-400 dark:hover:text-neutral-200'
                   }`}
                 >
                   SEO Health
@@ -956,8 +1503,8 @@ export default function CoFounderPortalPage() {
                   onClick={() => setSelectedWidgetTab('architecture')}
                   className={`rounded-xl px-2.5 py-1 text-[11px] font-medium transition-all ${
                     selectedWidgetTab === 'architecture'
-                      ? 'border border-violet-500/40 bg-violet-500/20 font-bold text-violet-300'
-                      : 'text-neutral-400 hover:text-neutral-200'
+                      ? 'border border-violet-500/40 bg-nm-gradient-light font-bold text-violet-700 shadow-nm-flat dark:bg-nm-gradient-dark dark:text-violet-300 dark:shadow-nm-flat-dark'
+                      : 'text-nm-light-textSecondary hover:text-nm-light-textPrimary dark:text-neutral-400 dark:hover:text-neutral-200'
                   }`}
                 >
                   Architecture
@@ -969,15 +1516,15 @@ export default function CoFounderPortalPage() {
                   }}
                   className={`flex items-center gap-1 rounded-xl px-2.5 py-1 text-[11px] font-medium transition-all ${
                     selectedWidgetTab === 'usage'
-                      ? 'border border-violet-500/40 bg-violet-500/20 font-bold text-violet-300'
-                      : 'text-neutral-400 hover:text-neutral-200'
+                      ? 'border border-violet-500/40 bg-nm-gradient-light font-bold text-violet-700 shadow-nm-flat dark:bg-nm-gradient-dark dark:text-violet-300 dark:shadow-nm-flat-dark'
+                      : 'text-nm-light-textSecondary hover:text-nm-light-textPrimary dark:text-neutral-400 dark:hover:text-neutral-200'
                   }`}
                 >
                   <Activity
                     size={11}
                     className={
                       selectedWidgetTab === 'usage'
-                        ? 'text-violet-300'
+                        ? 'text-violet-700 dark:text-violet-300'
                         : 'text-neutral-500'
                     }
                   />
@@ -991,15 +1538,15 @@ export default function CoFounderPortalPage() {
                   }}
                   className={`flex items-center gap-1 rounded-xl px-2.5 py-1 text-[11px] font-medium transition-all ${
                     selectedWidgetTab === 'browser'
-                      ? 'border border-violet-500/40 bg-violet-500/20 font-bold text-violet-300'
-                      : 'text-neutral-400 hover:text-neutral-200'
+                      ? 'border border-violet-500/40 bg-nm-gradient-light font-bold text-violet-700 shadow-nm-flat dark:bg-nm-gradient-dark dark:text-violet-300 dark:shadow-nm-flat-dark'
+                      : 'text-nm-light-textSecondary hover:text-nm-light-textPrimary dark:text-neutral-400 dark:hover:text-neutral-200'
                   }`}
                 >
                   <Globe
                     size={11}
                     className={
                       selectedWidgetTab === 'browser'
-                        ? 'text-violet-300'
+                        ? 'text-violet-700 dark:text-violet-300'
                         : 'text-neutral-500'
                     }
                   />
@@ -1007,10 +1554,10 @@ export default function CoFounderPortalPage() {
                   {isBrowserLoading ? (
                     <RefreshCw
                       size={9}
-                      className="animate-spin text-amber-400"
+                      className="animate-spin text-amber-500 dark:text-amber-400"
                     />
                   ) : browserData ? (
-                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400" />
                   ) : null}
                 </button>
                 <button
@@ -1020,15 +1567,15 @@ export default function CoFounderPortalPage() {
                   }}
                   className={`flex items-center gap-1 rounded-xl px-2.5 py-1 text-[11px] font-medium transition-all ${
                     selectedWidgetTab === 'plans'
-                      ? 'border border-violet-500/40 bg-violet-500/20 font-bold text-violet-300'
-                      : 'text-neutral-400 hover:text-neutral-200'
+                      ? 'border border-violet-500/40 bg-nm-gradient-light font-bold text-violet-700 shadow-nm-flat dark:bg-nm-gradient-dark dark:text-violet-300 dark:shadow-nm-flat-dark'
+                      : 'text-nm-light-textSecondary hover:text-nm-light-textPrimary dark:text-neutral-400 dark:hover:text-neutral-200'
                   }`}
                 >
                   <Layers
                     size={11}
                     className={
                       selectedWidgetTab === 'plans'
-                        ? 'text-violet-300'
+                        ? 'text-violet-700 dark:text-violet-300'
                         : 'text-neutral-500'
                     }
                   />
@@ -1038,15 +1585,15 @@ export default function CoFounderPortalPage() {
                   onClick={() => setSelectedWidgetTab('swarm')}
                   className={`flex items-center gap-1 rounded-xl px-2.5 py-1 text-[11px] font-medium transition-all ${
                     selectedWidgetTab === 'swarm'
-                      ? 'border border-violet-500/40 bg-violet-500/20 font-bold text-violet-300'
-                      : 'text-neutral-400 hover:text-neutral-200'
+                      ? 'border border-violet-500/40 bg-nm-gradient-light font-bold text-violet-700 shadow-nm-flat dark:bg-nm-gradient-dark dark:text-violet-300 dark:shadow-nm-flat-dark'
+                      : 'text-nm-light-textSecondary hover:text-nm-light-textPrimary dark:text-neutral-400 dark:hover:text-neutral-200'
                   }`}
                 >
                   <Orbit
                     size={11}
                     className={
                       selectedWidgetTab === 'swarm'
-                        ? 'text-violet-300'
+                        ? 'text-violet-700 dark:text-violet-300'
                         : 'text-neutral-500'
                     }
                   />
@@ -1061,7 +1608,7 @@ export default function CoFounderPortalPage() {
                 }}
                 disabled={loadingWidgets || loadingUsage || loadingPlans}
                 title="Refresh Intelligence"
-                className="p-1 text-neutral-400 transition-colors hover:text-white"
+                className="p-1 text-nm-light-textSecondary transition-colors hover:text-nm-light-textPrimary dark:text-neutral-400 dark:hover:text-white"
               >
                 <RefreshCw
                   size={12}
@@ -1076,12 +1623,13 @@ export default function CoFounderPortalPage() {
 
             {/* Quick Intelligence Drawer */}
             <div
-              className={`overflow-y-auto border-b border-neutral-800/60 bg-neutral-950/40 p-4 transition-all duration-200 ${
+              className={`overflow-y-auto border-b border-neutral-200/60 bg-nm-light-bg p-4 shadow-nm-inset transition-all duration-200 dark:border-neutral-800/60 dark:bg-nm-dark-bg dark:shadow-nm-inset-dark ${
                 selectedWidgetTab === 'competitors' ||
                 selectedWidgetTab === 'seo' ||
                 selectedWidgetTab === 'usage' ||
                 selectedWidgetTab === 'browser' ||
-                selectedWidgetTab === 'plans'
+                selectedWidgetTab === 'plans' ||
+                selectedWidgetTab === 'swarm'
                   ? 'max-h-[560px]'
                   : 'max-h-48'
               }`}
@@ -1089,33 +1637,36 @@ export default function CoFounderPortalPage() {
               {selectedWidgetTab === 'alerts' && (
                 <div className="space-y-2">
                   {proactiveSignals.length === 0 ? (
-                    <p className="flex items-center gap-1.5 py-1 text-[11px] text-neutral-400">
-                      <ShieldCheck size={13} className="text-emerald-400" />
+                    <p className="flex items-center gap-1.5 py-1 text-[11px] text-nm-light-textSecondary dark:text-neutral-400">
+                      <ShieldCheck
+                        size={13}
+                        className="text-emerald-500 dark:text-emerald-400"
+                      />
                       All inventory, support, and sales signals are normal.
                     </p>
                   ) : (
                     proactiveSignals.map((sig) => (
                       <div
                         key={sig.id}
-                        className="flex items-start justify-between gap-2 rounded-xl border border-neutral-800 bg-[#16171d]/90 p-2.5 shadow-sm"
+                        className="flex items-start justify-between gap-2 rounded-xl border border-neutral-200/80 bg-nm-light-bg p-2.5 shadow-nm-flat dark:border-neutral-800 dark:bg-nm-dark-bg dark:shadow-nm-flat-dark"
                       >
                         <div className="flex items-start gap-2">
                           <AlertTriangle
                             size={14}
-                            className="mt-0.5 shrink-0 text-amber-400"
+                            className="mt-0.5 shrink-0 text-amber-500 dark:text-amber-400"
                           />
                           <div>
-                            <p className="text-xs font-bold text-white">
+                            <p className="text-xs font-bold text-nm-light-textPrimary dark:text-white">
                               {sig.title}
                             </p>
-                            <p className="line-clamp-1 text-[11px] text-neutral-400">
+                            <p className="line-clamp-1 text-[11px] text-nm-light-textSecondary dark:text-neutral-400">
                               {sig.summary}
                             </p>
                           </div>
                         </div>
                         <button
                           onClick={() => handleAcknowledgeSignal(sig.id)}
-                          className="rounded-lg bg-neutral-800 px-2 py-0.5 text-[10px] text-neutral-300 transition-colors hover:bg-neutral-700"
+                          className="rounded-lg bg-nm-light-bg px-2 py-0.5 text-[10px] text-nm-light-textSecondary shadow-nm-flat transition-colors hover:bg-neutral-200 dark:bg-nm-dark-bg dark:text-neutral-300 dark:shadow-nm-flat-dark dark:hover:bg-neutral-700"
                         >
                           Dismiss
                         </button>
@@ -1128,21 +1679,24 @@ export default function CoFounderPortalPage() {
               {selectedWidgetTab === 'approvals' && (
                 <div className="space-y-2">
                   {pendingApprovals.length === 0 ? (
-                    <p className="flex items-center gap-1.5 py-1 text-[11px] text-neutral-400">
-                      <CheckCircle size={13} className="text-emerald-400" />
+                    <p className="flex items-center gap-1.5 py-1 text-[11px] text-nm-light-textSecondary dark:text-neutral-400">
+                      <CheckCircle
+                        size={13}
+                        className="text-emerald-500 dark:text-emerald-400"
+                      />
                       No high-impact actions awaiting founder authorization.
                     </p>
                   ) : (
                     pendingApprovals.map((app) => (
                       <div
                         key={app.id}
-                        className="flex items-center justify-between gap-2 rounded-xl border border-neutral-800 bg-[#16171d]/90 p-2.5 shadow-sm"
+                        className="flex items-center justify-between gap-2 rounded-xl border border-neutral-200/80 bg-nm-light-bg p-2.5 shadow-nm-flat dark:border-neutral-800 dark:bg-nm-dark-bg dark:shadow-nm-flat-dark"
                       >
                         <div>
-                          <p className="text-[11px] font-bold uppercase tracking-wider text-white">
+                          <p className="text-[11px] font-bold uppercase tracking-wider text-nm-light-textPrimary dark:text-white">
                             {app.action_type?.replace(/_/g, ' ')}
                           </p>
-                          <p className="line-clamp-1 text-[11px] text-neutral-400">
+                          <p className="line-clamp-1 text-[11px] text-nm-light-textSecondary dark:text-neutral-400">
                             {app.recommendation_summary}
                           </p>
                         </div>
@@ -1151,7 +1705,7 @@ export default function CoFounderPortalPage() {
                             onClick={() =>
                               handleApprovalDecision(app.id, 'approved')
                             }
-                            className="rounded-lg border border-emerald-500/40 bg-emerald-500/20 px-2.5 py-1 text-[10px] font-bold text-emerald-400 transition-colors hover:bg-emerald-500/30"
+                            className="rounded-lg border border-emerald-500/40 bg-emerald-500/20 px-2.5 py-1 text-[10px] font-bold text-emerald-600 shadow-nm-flat transition-colors hover:bg-emerald-500/30 dark:text-emerald-400 dark:shadow-nm-flat-dark"
                           >
                             Approve
                           </button>
@@ -1159,7 +1713,7 @@ export default function CoFounderPortalPage() {
                             onClick={() =>
                               handleApprovalDecision(app.id, 'rejected')
                             }
-                            className="rounded-lg border border-rose-500/40 bg-rose-500/20 px-2.5 py-1 text-[10px] font-bold text-rose-400 transition-colors hover:bg-rose-500/30"
+                            className="rounded-lg border border-rose-500/40 bg-rose-500/20 px-2.5 py-1 text-[10px] font-bold text-rose-600 shadow-nm-flat transition-colors hover:bg-rose-500/30 dark:text-rose-400 dark:shadow-nm-flat-dark"
                           >
                             Reject
                           </button>
@@ -1174,9 +1728,9 @@ export default function CoFounderPortalPage() {
                 <div className="space-y-3">
                   <form
                     onSubmit={handleAddCompetitor}
-                    className="space-y-2 rounded-2xl border border-neutral-800 bg-[#16171d]/90 p-3"
+                    className="space-y-2 rounded-2xl border border-neutral-200/80 bg-nm-light-bg p-3 shadow-nm-flat dark:border-neutral-800 dark:bg-nm-dark-bg dark:shadow-nm-flat-dark"
                   >
-                    <div className="flex items-center gap-1.5 text-[11px] font-bold text-violet-400">
+                    <div className="flex items-center gap-1.5 text-[11px] font-bold text-violet-600 dark:text-violet-400">
                       <Target size={13} />
                       <span>Track New Competitor Website</span>
                     </div>
@@ -1186,21 +1740,21 @@ export default function CoFounderPortalPage() {
                         value={newCompName}
                         onChange={(e) => setNewCompName(e.target.value)}
                         placeholder="Brand Name (e.g. GIVA, CaratLane)"
-                        className="rounded-xl border border-neutral-800 bg-neutral-950 px-3 py-2 text-xs text-white placeholder-neutral-500 focus:border-violet-500 focus:outline-none"
+                        className="rounded-xl border border-neutral-300/80 bg-nm-light-bg px-3 py-2 text-xs text-nm-light-textPrimary placeholder-neutral-400 shadow-nm-inset focus:border-violet-500 focus:outline-none dark:border-neutral-800 dark:bg-nm-dark-bg dark:text-white dark:placeholder-neutral-500 dark:shadow-nm-inset-dark"
                       />
                       <input
                         type="text"
                         value={newCompUrl}
                         onChange={(e) => setNewCompUrl(e.target.value)}
                         placeholder="Website URL (e.g. giva.co)"
-                        className="rounded-xl border border-neutral-800 bg-neutral-950 px-3 py-2 text-xs text-white placeholder-neutral-500 focus:border-violet-500 focus:outline-none"
+                        className="rounded-xl border border-neutral-300/80 bg-nm-light-bg px-3 py-2 text-xs text-nm-light-textPrimary placeholder-neutral-400 shadow-nm-inset focus:border-violet-500 focus:outline-none dark:border-neutral-800 dark:bg-nm-dark-bg dark:text-white dark:placeholder-neutral-500 dark:shadow-nm-inset-dark"
                       />
                     </div>
                     <div className="flex items-center justify-between gap-2">
                       <select
                         value={newCompCategory}
                         onChange={(e) => setNewCompCategory(e.target.value)}
-                        className="rounded-xl border border-neutral-800 bg-neutral-950 px-3 py-1.5 text-[11px] text-neutral-300 focus:outline-none"
+                        className="rounded-xl border border-neutral-300/80 bg-nm-light-bg px-3 py-1.5 text-[11px] text-nm-light-textPrimary shadow-nm-flat focus:outline-none dark:border-neutral-800 dark:bg-nm-dark-bg dark:text-neutral-300 dark:shadow-nm-flat-dark"
                       >
                         <option value="Fine Jewellery">Fine Jewellery</option>
                         <option value="Silver Jewellery">
@@ -1218,7 +1772,7 @@ export default function CoFounderPortalPage() {
                           !newCompName.trim() ||
                           !newCompUrl.trim()
                         }
-                        className="flex items-center gap-1 rounded-xl bg-violet-600 px-3.5 py-1.5 text-xs font-bold text-white transition-colors hover:bg-violet-500 disabled:opacity-50"
+                        className="flex items-center gap-1 rounded-xl bg-nm-gradient-light px-3.5 py-1.5 text-xs font-bold text-violet-700 shadow-nm-flat transition-colors hover:opacity-90 disabled:opacity-50 dark:bg-nm-gradient-dark dark:text-violet-300 dark:shadow-nm-flat-dark"
                       >
                         <Plus size={13} />
                         <span>
@@ -1230,7 +1784,7 @@ export default function CoFounderPortalPage() {
 
                   <div className="space-y-2">
                     {competitors.length === 0 ? (
-                      <p className="py-1 text-center text-[11px] text-neutral-400">
+                      <p className="py-1 text-center text-[11px] text-nm-light-textSecondary dark:text-neutral-400">
                         No competitors saved yet. Enter a brand name & website
                         above.
                       </p>
@@ -1238,14 +1792,14 @@ export default function CoFounderPortalPage() {
                       competitors.map((comp) => (
                         <div
                           key={comp.id}
-                          className="space-y-1.5 rounded-2xl border border-neutral-800 bg-[#16171d]/80 p-3"
+                          className="space-y-1.5 rounded-2xl border border-neutral-200/80 bg-nm-light-bg p-3 shadow-nm-flat dark:border-neutral-800 dark:bg-nm-dark-bg dark:shadow-nm-flat-dark"
                         >
                           <div className="flex items-center justify-between gap-2">
                             <div className="flex items-center gap-2">
-                              <span className="text-xs font-bold text-white">
+                              <span className="text-xs font-bold text-nm-light-textPrimary dark:text-white">
                                 {comp.name}
                               </span>
-                              <span className="rounded-md border border-neutral-700 bg-neutral-800 px-1.5 py-0.5 text-[9px] font-medium text-neutral-400">
+                              <span className="rounded-md border border-neutral-300 bg-nm-light-bg px-1.5 py-0.5 text-[9px] font-medium text-nm-light-textSecondary shadow-nm-flat dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-400 dark:shadow-nm-flat-dark">
                                 {comp.category}
                               </span>
                               <a
@@ -1256,7 +1810,7 @@ export default function CoFounderPortalPage() {
                                 }
                                 target="_blank"
                                 rel="noreferrer"
-                                className="text-neutral-500 transition-colors hover:text-violet-400"
+                                className="text-neutral-500 transition-colors hover:text-violet-600 dark:hover:text-violet-400"
                                 title="Visit website"
                               >
                                 <ExternalLink size={11} />
@@ -1268,7 +1822,7 @@ export default function CoFounderPortalPage() {
                                   handleAnalyzeCompetitor(comp.id, comp.name)
                                 }
                                 disabled={analyzingCompId === comp.id}
-                                className="flex items-center gap-1 rounded-lg border border-violet-500/40 bg-violet-500/20 px-2 py-1 text-[10px] font-bold text-violet-300 transition-colors hover:bg-violet-500/30 disabled:opacity-50"
+                                className="flex items-center gap-1 rounded-lg border border-violet-500/40 bg-violet-500/20 px-2 py-1 text-[10px] font-bold text-violet-700 shadow-nm-flat transition-colors hover:bg-violet-500/30 disabled:opacity-50 dark:text-violet-300 dark:shadow-nm-flat-dark"
                               >
                                 <Search
                                   size={10}
@@ -1288,7 +1842,7 @@ export default function CoFounderPortalPage() {
                                 onClick={() =>
                                   handleDeleteCompetitor(comp.id, comp.name)
                                 }
-                                className="p-1 text-neutral-500 transition-colors hover:text-rose-400"
+                                className="p-1 text-neutral-500 transition-colors hover:text-rose-500 dark:hover:text-rose-400"
                                 title="Delete competitor"
                               >
                                 <Trash2 size={12} />
@@ -1297,10 +1851,10 @@ export default function CoFounderPortalPage() {
                           </div>
 
                           {comp.latest_insights ? (
-                            <div className="space-y-1 rounded-xl border border-neutral-800 bg-neutral-950/70 p-2.5 text-[11px] text-neutral-300">
+                            <div className="space-y-1 rounded-xl border border-neutral-300/80 bg-nm-light-bg p-2.5 text-[11px] text-nm-light-textPrimary shadow-nm-inset dark:border-neutral-800 dark:bg-nm-dark-bg dark:text-neutral-300 dark:shadow-nm-inset-dark">
                               {comp.latest_insights.positioning && (
                                 <p>
-                                  <strong className="text-neutral-400">
+                                  <strong className="text-nm-light-textSecondary dark:text-neutral-400">
                                     Positioning:
                                   </strong>{' '}
                                   {comp.latest_insights.positioning}
@@ -1308,21 +1862,21 @@ export default function CoFounderPortalPage() {
                               )}
                               {comp.latest_insights.promotions && (
                                 <p>
-                                  <strong className="text-amber-400">
+                                  <strong className="text-amber-600 dark:text-amber-400">
                                     Promotions:
                                   </strong>{' '}
                                   {comp.latest_insights.promotions}
                                 </p>
                               )}
                               {comp.latest_insights.strategicCounterMove && (
-                                <p className="text-emerald-400">
+                                <p className="text-emerald-600 dark:text-emerald-400">
                                   <strong>🚀 Ruhvi Counter-Move:</strong>{' '}
                                   {comp.latest_insights.strategicCounterMove}
                                 </p>
                               )}
                             </div>
                           ) : (
-                            <p className="text-[10px] italic text-neutral-500">
+                            <p className="text-[10px] italic text-nm-light-textSecondary dark:text-neutral-500">
                               Not analyzed yet. Click &apos;Analyze Live&apos;
                               to extract live offers & positioning.
                             </p>
@@ -1336,16 +1890,16 @@ export default function CoFounderPortalPage() {
 
               {selectedWidgetTab === 'seo' && (
                 <div className="space-y-2.5">
-                  <div className="flex items-center justify-between rounded-2xl border border-neutral-800 bg-[#16171d]/90 p-3">
+                  <div className="flex items-center justify-between rounded-2xl border border-neutral-200/80 bg-nm-light-bg p-3 shadow-nm-flat dark:border-neutral-800 dark:bg-nm-dark-bg dark:shadow-nm-flat-dark">
                     <div className="flex items-center gap-2.5">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-emerald-500/30 bg-emerald-500/20 text-xs font-bold text-emerald-400">
+                      <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-emerald-500/30 bg-emerald-500/20 text-xs font-bold text-emerald-600 shadow-nm-flat dark:text-emerald-400 dark:shadow-nm-flat-dark">
                         {seoReport?.healthScore || 85}
                       </div>
                       <div>
-                        <p className="text-xs font-bold text-white">
+                        <p className="text-xs font-bold text-nm-light-textPrimary dark:text-white">
                           Catalog SEO Health Score
                         </p>
-                        <p className="text-[10px] text-neutral-400">
+                        <p className="text-[10px] text-nm-light-textSecondary dark:text-neutral-400">
                           {seoReport?.totalProductsScanned || 0} Products
                           Scanned
                         </p>
@@ -1354,7 +1908,7 @@ export default function CoFounderPortalPage() {
                     <button
                       onClick={fetchSeoReport}
                       disabled={loadingSeo}
-                      className="flex items-center gap-1 rounded-xl bg-violet-600 px-3 py-1.5 text-[10px] font-bold text-white transition-colors hover:bg-violet-500 disabled:opacity-50"
+                      className="flex items-center gap-1 rounded-xl bg-nm-gradient-light px-3 py-1.5 text-[10px] font-bold text-violet-700 shadow-nm-flat transition-colors hover:opacity-90 disabled:opacity-50 dark:bg-nm-gradient-dark dark:text-violet-300 dark:shadow-nm-flat-dark"
                     >
                       <RefreshCw
                         size={10}
@@ -1365,27 +1919,27 @@ export default function CoFounderPortalPage() {
                   </div>
 
                   <div className="grid grid-cols-3 gap-2 text-center">
-                    <div className="rounded-xl border border-neutral-800 bg-neutral-900/80 p-2">
-                      <p className="text-xs font-bold text-rose-400">
+                    <div className="rounded-xl border border-neutral-200/80 bg-nm-light-bg p-2 shadow-nm-flat dark:border-neutral-800 dark:bg-nm-dark-bg dark:shadow-nm-flat-dark">
+                      <p className="text-xs font-bold text-rose-600 dark:text-rose-400">
                         {seoReport?.missingMetaDescriptions || 0}
                       </p>
-                      <p className="text-[9px] uppercase tracking-wider text-neutral-400">
+                      <p className="text-[9px] uppercase tracking-wider text-nm-light-textSecondary dark:text-neutral-400">
                         Missing Meta
                       </p>
                     </div>
-                    <div className="rounded-xl border border-neutral-800 bg-neutral-900/80 p-2">
-                      <p className="text-xs font-bold text-amber-400">
+                    <div className="rounded-xl border border-neutral-200/80 bg-nm-light-bg p-2 shadow-nm-flat dark:border-neutral-800 dark:bg-nm-dark-bg dark:shadow-nm-flat-dark">
+                      <p className="text-xs font-bold text-amber-600 dark:text-amber-400">
                         {seoReport?.weakKeywordCount || 0}
                       </p>
-                      <p className="text-[9px] uppercase tracking-wider text-neutral-400">
+                      <p className="text-[9px] uppercase tracking-wider text-nm-light-textSecondary dark:text-neutral-400">
                         Weak Keywords
                       </p>
                     </div>
-                    <div className="rounded-xl border border-neutral-800 bg-neutral-900/80 p-2">
-                      <p className="text-xs font-bold text-neutral-300">
+                    <div className="rounded-xl border border-neutral-200/80 bg-nm-light-bg p-2 shadow-nm-flat dark:border-neutral-800 dark:bg-nm-dark-bg dark:shadow-nm-flat-dark">
+                      <p className="text-xs font-bold text-nm-light-textPrimary dark:text-neutral-300">
                         {seoReport?.missingAltText || 0}
                       </p>
-                      <p className="text-[9px] uppercase tracking-wider text-neutral-400">
+                      <p className="text-[9px] uppercase tracking-wider text-nm-light-textSecondary dark:text-neutral-400">
                         Missing Alt
                       </p>
                     </div>
@@ -1394,12 +1948,15 @@ export default function CoFounderPortalPage() {
               )}
 
               {selectedWidgetTab === 'architecture' && (
-                <div className="space-y-1.5 rounded-2xl border border-neutral-800 bg-[#16171d]/80 p-2 text-[11px] text-neutral-300">
+                <div className="space-y-1.5 rounded-2xl border border-neutral-200/80 bg-nm-light-bg p-2 text-[11px] text-nm-light-textPrimary shadow-nm-flat dark:border-neutral-800 dark:bg-nm-dark-bg dark:text-neutral-300 dark:shadow-nm-flat-dark">
                   <p className="flex items-center gap-1.5">
-                    <Cpu size={12} className="text-cyan-400" />
+                    <Cpu
+                      size={12}
+                      className="text-cyan-600 dark:text-cyan-400"
+                    />
                     <strong>Framework:</strong>{' '}
                     {architectureInfo?.framework ||
-                      'Next.js 15 (App Router) + React 19 + Three.js 3D Engine'}
+                      'Next.js 15 (App Router) + React 19 + LiveKit WebRTC Engine'}
                   </p>
                   <p>
                     <strong>Total Database Migrations:</strong>{' '}
@@ -1408,29 +1965,28 @@ export default function CoFounderPortalPage() {
                   <p className="line-clamp-1">
                     <strong>Active Integrations:</strong>{' '}
                     {architectureInfo?.activeIntegrations?.join(', ') ||
-                      'LiveKit, Gemini, Supabase, Firebase, Sentry, Three.js'}
+                      'LiveKit, Gemini, Supabase, Firebase, Sentry'}
                   </p>
                 </div>
               )}
 
               {selectedWidgetTab === 'usage' && (
                 <div className="space-y-3">
-                  <div className="flex flex-col items-start justify-between gap-2 rounded-2xl border border-neutral-800 bg-[#16171d]/90 p-3 sm:flex-row sm:items-center">
+                  <div className="flex flex-col items-start justify-between gap-2 rounded-2xl border border-neutral-200/80 bg-nm-light-bg p-3 shadow-nm-flat dark:border-neutral-800 dark:bg-nm-dark-bg dark:shadow-nm-flat-dark sm:flex-row sm:items-center">
                     <div className="flex items-center gap-2.5">
-                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-violet-500/30 bg-violet-500/20 text-xs font-bold text-violet-300">
-                        <Radio className="h-4 w-4" />
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-violet-500/30 bg-violet-500/20 text-violet-600 shadow-nm-flat dark:text-violet-400 dark:shadow-nm-flat-dark">
+                        <Activity size={16} />
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <p className="text-xs font-bold text-white">
-                            LiveKit Cloud Developer Tier
+                          <p className="text-xs font-bold text-nm-light-textPrimary dark:text-white">
+                            LiveKit Cloud Telemetry
                           </p>
-                          <span className="py-0.2 flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-500/20 px-2 text-[9px] font-bold uppercase tracking-wider text-emerald-400">
-                            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />
+                          <span className="rounded bg-emerald-500/20 px-1.5 py-0.5 text-[9px] font-bold text-emerald-600 dark:text-emerald-400">
                             Free Tier
                           </span>
                         </div>
-                        <p className="text-[10px] text-neutral-400">
+                        <p className="text-[10px] text-nm-light-textSecondary dark:text-neutral-400">
                           Host: ruhvi-rkkfx6qd.livekit.cloud • Cycle resets in{' '}
                           {liveKitUsage?.billingPeriod?.daysRemaining ?? 29}{' '}
                           days
@@ -1464,27 +2020,30 @@ export default function CoFounderPortalPage() {
 
               {selectedWidgetTab === 'plans' && (
                 <div className="space-y-3">
-                  <div className="flex items-center justify-between border-b border-neutral-800 pb-2">
-                    <h3 className="flex items-center gap-1.5 text-xs font-bold text-white">
-                      <Layers size={13} className="text-violet-400" />
+                  <div className="flex items-center justify-between border-b border-neutral-200/80 pb-2 dark:border-neutral-800">
+                    <h3 className="flex items-center gap-1.5 text-xs font-bold text-nm-light-textPrimary dark:text-white">
+                      <Layers
+                        size={13}
+                        className="text-violet-600 dark:text-violet-400"
+                      />
                       Strategic Action Plans ({actionPlans.length})
                     </h3>
                   </div>
 
                   {actionPlans.length === 0 ? (
-                    <p className="py-3 text-center text-xs text-neutral-400">
+                    <p className="py-3 text-center text-xs text-nm-light-textSecondary dark:text-neutral-400">
                       No Action Plans Active right now.
                     </p>
                   ) : (
                     actionPlans.map((plan: any) => (
                       <div
                         key={plan.id}
-                        className="space-y-1.5 rounded-2xl border border-neutral-800 bg-[#16171d]/80 p-3"
+                        className="space-y-1.5 rounded-2xl border border-neutral-200/80 bg-nm-light-bg p-3 shadow-nm-flat dark:border-neutral-800 dark:bg-nm-dark-bg dark:shadow-nm-flat-dark"
                       >
-                        <h4 className="text-xs font-bold text-white">
+                        <h4 className="text-xs font-bold text-nm-light-textPrimary dark:text-white">
                           {plan.title}
                         </h4>
-                        <p className="text-[11px] text-neutral-400">
+                        <p className="text-[11px] text-nm-light-textSecondary dark:text-neutral-400">
                           {plan.goal}
                         </p>
                       </div>
@@ -1494,77 +2053,124 @@ export default function CoFounderPortalPage() {
               )}
 
               {selectedWidgetTab === 'swarm' && (
-                <div className="space-y-4">
-                  <AiHierarchyVisualizer
-                    audioLevel={voice.audioLevel}
-                    isThinking={
-                      voice.state === 'listening' || voice.state === 'speaking'
-                    }
-                  />
-                </div>
+                <div className="space-y-4">{renderSwarmSpatialUI(true)}</div>
               )}
             </div>
 
-            {/* Conversation Messages Container */}
-            <div className="flex-1 space-y-3 overflow-y-auto p-4">
-              {messages.map((m) => (
-                <div
-                  key={m.id}
-                  className={`flex ${m.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-                >
+            {/* Dedicated Conversation Messages Stream Panel */}
+            <div className="scrollbar-thin flex-1 space-y-3 overflow-y-auto p-4">
+              {messages.map((m) => {
+                const isUser = m.sender === 'user';
+                const role = isUser ? undefined : m.role || 'cofounder';
+                const roleTheme = role ? getRoleTheme(role) : null;
+                const workerName = isUser
+                  ? 'You'
+                  : m.workerName || 'AI Co-Founder';
+
+                return (
                   <div
-                    className={`max-w-[85%] rounded-3xl p-3.5 text-sm ${
-                      m.sender === 'user'
-                        ? 'rounded-tr-none bg-gradient-to-r from-violet-600 to-amber-500 font-medium text-white shadow-md'
-                        : 'rounded-tl-none border border-neutral-800 bg-[#16171d] text-neutral-200 shadow-sm'
-                    }`}
+                    key={m.id}
+                    className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}
                   >
-                    <div className="mb-1.5 flex items-center justify-between gap-2 text-[11px] font-semibold opacity-90">
-                      <div className="flex items-center gap-1.5">
-                        {m.sender === 'user' ? (
-                          <User size={13} />
-                        ) : (
-                          <Bot size={13} className="text-violet-400" />
-                        )}
-                        <span>
-                          {m.sender === 'user' ? 'You' : 'AI Co-Founder'}
-                        </span>
-                      </div>
-                      {m.sender === 'assistant' && (m.model || m.provider) && (
-                        <span className="flex items-center gap-1 rounded-md border border-neutral-800 bg-neutral-950/80 px-2 py-0.5 font-mono text-[9px] text-violet-300">
-                          <Zap size={9} className="text-violet-400" />
-                          <span>{m.model || m.provider}</span>
-                          {m.fallbackUsed && (
-                            <span className="font-bold text-rose-400">
-                              (fallback)
-                            </span>
+                    <div
+                      className={`max-w-[85%] rounded-3xl p-4 text-sm ${
+                        isUser
+                          ? 'rounded-tr-none border border-violet-500/20 bg-nm-gradient-light font-medium text-violet-950 shadow-nm-flat dark:bg-nm-gradient-dark dark:text-white dark:shadow-nm-flat-dark'
+                          : `rounded-tl-none border-l-4 ${roleTheme?.border || 'border-violet-500'} border-y border-r border-neutral-200/80 bg-nm-light-bg text-nm-light-textPrimary shadow-nm-flat dark:border-neutral-800 dark:bg-nm-dark-bg dark:text-neutral-200 dark:shadow-nm-flat-dark`
+                      }`}
+                    >
+                      <div className="mb-2 flex items-center justify-between gap-2 text-[11px] font-semibold">
+                        <div className="flex items-center gap-2">
+                          {isUser ? (
+                            <div className="flex items-center gap-1.5 rounded-full border border-violet-500/30 bg-violet-500/10 px-2.5 py-0.5 text-xs font-bold text-violet-700 dark:text-violet-300">
+                              <User size={13} />
+                              <span>You</span>
+                            </div>
+                          ) : (
+                            <div
+                              className={`flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-bold ${roleTheme?.badge}`}
+                            >
+                              {getWorkerIcon(role || 'cofounder')}
+                              <span>{workerName}</span>
+                            </div>
                           )}
-                        </span>
-                      )}
+                        </div>
+                        {!isUser && (m.model || m.provider) && (
+                          <span className="flex items-center gap-1 rounded-md border border-neutral-300/80 bg-nm-light-bg px-2 py-0.5 font-mono text-[9px] text-nm-light-textSecondary shadow-nm-flat dark:border-neutral-800 dark:bg-nm-dark-bg dark:text-neutral-400 dark:shadow-nm-flat-dark">
+                            <Zap
+                              size={9}
+                              className="text-violet-600 dark:text-violet-400"
+                            />
+                            <span>{m.model || m.provider}</span>
+                            {m.fallbackUsed && (
+                              <span className="font-bold text-rose-600 dark:text-rose-400">
+                                (fallback)
+                              </span>
+                            )}
+                          </span>
+                        )}
+                      </div>
+                      <p className="whitespace-pre-wrap text-xs leading-relaxed sm:text-sm">
+                        {m.text}
+                      </p>
                     </div>
-                    <p className="whitespace-pre-wrap text-xs leading-relaxed sm:text-sm">
-                      {m.text}
-                    </p>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
-            {/* Message Input Box */}
-            <div className="border-t border-neutral-800 bg-[#16171e]/70 p-3">
+            {/* Message Input Box & Worker Quick Tags */}
+            <div className="space-y-2.5 border-t border-neutral-200/80 bg-nm-light-bg p-3.5 dark:border-neutral-800 dark:bg-nm-dark-bg">
+              {/* Worker Shortcut Selector Pills */}
+              <div className="scrollbar-none flex items-center gap-1.5 overflow-x-auto pb-0.5">
+                <span className="mr-1 shrink-0 text-[10px] font-bold uppercase tracking-wider text-nm-light-textSecondary dark:text-neutral-400">
+                  Delegate:
+                </span>
+                {SWARM_NODES.map((node) => {
+                  const theme = getRoleTheme(node.role);
+                  const isSelected = selectedWorkerId === node.id;
+                  return (
+                    <button
+                      key={node.id}
+                      type="button"
+                      onClick={() => {
+                        setSelectedWorkerId(node.id);
+                        if (!input.includes(`@${node.role}`)) {
+                          setInput(
+                            (prev) =>
+                              `@${node.role} ${prev.replace(/^@\w+\s*/, '')}`
+                          );
+                        }
+                      }}
+                      className={`flex shrink-0 items-center gap-1 rounded-xl border px-2.5 py-1 text-[10px] font-bold transition-all ${
+                        isSelected
+                          ? `${theme.border} ${theme.badge} shadow-nm-flat dark:shadow-nm-flat-dark`
+                          : 'border-neutral-300/70 bg-nm-light-bg text-nm-light-textSecondary hover:text-nm-light-textPrimary dark:border-neutral-800 dark:bg-nm-dark-bg dark:text-neutral-400 dark:hover:text-white'
+                      }`}
+                    >
+                      <span
+                        className={`h-1.5 w-1.5 rounded-full ${isSelected ? 'bg-current' : 'bg-neutral-400'}`}
+                      />
+                      <span>@{node.name}</span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Form Input */}
               <form onSubmit={handleSubmit} className="flex gap-2">
                 <input
                   type="text"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  placeholder="Ask your AI Co-Founder about sales, stock, tickets, or strategy..."
-                  className="flex-1 rounded-2xl border border-neutral-800 bg-neutral-950 px-4 py-2.5 text-xs text-white placeholder-neutral-500 focus:border-violet-500/50 focus:outline-none"
+                  placeholder="Ask your AI Co-Founder or tag @worker (e.g. @coder, @researcher)..."
+                  className="flex-1 rounded-2xl border border-neutral-300/80 bg-nm-light-bg px-4 py-2.5 text-xs text-nm-light-textPrimary placeholder-neutral-400 shadow-nm-inset focus:border-violet-500/50 focus:outline-none dark:border-neutral-800 dark:bg-nm-dark-bg dark:text-white dark:placeholder-neutral-500 dark:shadow-nm-inset-dark"
                   disabled={isLoading}
                 />
                 <button
                   type="submit"
                   disabled={isLoading || !input.trim()}
-                  className="flex shrink-0 items-center justify-center rounded-2xl bg-gradient-to-r from-violet-600 to-amber-500 px-5 py-2.5 text-xs font-bold text-white transition-all hover:from-violet-500 hover:to-amber-400 active:scale-95 disabled:opacity-50"
+                  className="flex shrink-0 items-center justify-center rounded-2xl bg-nm-gradient-light px-5 py-2.5 text-xs font-bold text-violet-700 shadow-nm-flat transition-all hover:opacity-90 active:scale-95 disabled:opacity-50 dark:bg-nm-gradient-dark dark:text-amber-400 dark:shadow-nm-flat-dark"
                 >
                   <Send size={14} />
                 </button>
@@ -1584,21 +2190,21 @@ export default function CoFounderPortalPage() {
           <div
             id="co-founder-voice-modal"
             onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-xl rounded-3xl border border-neutral-800 bg-[#15161c] p-6 shadow-2xl backdrop-blur-2xl"
+            className="w-full max-w-xl rounded-3xl border border-neutral-200/80 bg-nm-light-bg p-6 shadow-nm-flat backdrop-blur-2xl dark:border-neutral-800 dark:bg-nm-dark-bg dark:shadow-nm-flat-dark"
           >
-            <div className="flex items-center justify-between border-b border-neutral-800 pb-4">
+            <div className="flex items-center justify-between border-b border-neutral-200/80 pb-4 dark:border-neutral-800">
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-violet-500/30 bg-violet-500/15 text-violet-300">
+                <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-violet-500/30 bg-violet-500/15 text-violet-600 shadow-nm-flat dark:text-violet-300 dark:shadow-nm-flat-dark">
                   <Volume2 className="h-5 w-5" />
                 </div>
                 <div>
-                  <h3 className="flex items-center gap-2 text-base font-bold text-white">
+                  <h3 className="flex items-center gap-2 text-base font-bold text-nm-light-textPrimary dark:text-white">
                     Executive Voice Studio
-                    <span className="rounded-full border border-violet-500/30 bg-violet-500/20 px-2 py-0.5 text-[10px] font-semibold text-violet-300">
+                    <span className="rounded-full border border-violet-500/30 bg-violet-500/20 px-2 py-0.5 text-[10px] font-semibold text-violet-700 dark:text-violet-300">
                       ভয়েস ও উচ্চারণ
                     </span>
                   </h3>
-                  <p className="text-xs text-neutral-400">
+                  <p className="text-xs text-nm-light-textSecondary dark:text-neutral-400">
                     বাংলা ও ভারতীয় ভাষার স্পষ্ট উচ্চারণ, ব্রাউজার ভয়েস এবং গতি
                     নিয়ন্ত্রণ করুন
                   </p>
@@ -1607,7 +2213,7 @@ export default function CoFounderPortalPage() {
               <button
                 type="button"
                 onClick={() => setIsVoiceModalOpen(false)}
-                className="rounded-xl p-1.5 text-neutral-400 transition-colors hover:bg-neutral-800 hover:text-white"
+                className="rounded-xl p-1.5 text-nm-light-textSecondary transition-colors hover:bg-neutral-200 hover:text-nm-light-textPrimary dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-white"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -1615,7 +2221,7 @@ export default function CoFounderPortalPage() {
 
             <div className="mt-5 max-h-[72vh] space-y-5 overflow-y-auto pr-1">
               <div>
-                <label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-neutral-400">
+                <label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-nm-light-textSecondary dark:text-neutral-400">
                   ১. বাংলা বলার ধরন (Spoken Bengali Style)
                 </label>
                 <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
@@ -1632,22 +2238,22 @@ export default function CoFounderPortalPage() {
                     }}
                     className={`flex flex-col rounded-2xl border p-3.5 text-left transition-all ${
                       voiceStyle === 'spoken_bengali'
-                        ? 'border-violet-500 bg-violet-500/15 text-white shadow-md'
-                        : 'border-neutral-800 bg-neutral-950/60 text-neutral-400 hover:border-neutral-700 hover:text-neutral-200'
+                        ? 'border-violet-500 bg-nm-gradient-light font-bold text-violet-800 shadow-nm-flat dark:bg-nm-gradient-dark dark:text-white dark:shadow-nm-flat-dark'
+                        : 'border-neutral-300/80 bg-nm-light-bg text-nm-light-textSecondary shadow-nm-inset hover:text-nm-light-textPrimary dark:border-neutral-800 dark:bg-nm-dark-bg dark:text-neutral-400 dark:shadow-nm-inset-dark dark:hover:text-neutral-200'
                     }`}
                   >
                     <div className="mb-1 flex w-full items-center justify-between">
-                      <span className="flex items-center gap-1.5 text-xs font-bold text-violet-300">
+                      <span className="flex items-center gap-1.5 text-xs font-bold text-violet-700 dark:text-violet-300">
                         {voiceStyle === 'spoken_bengali' && (
-                          <Check className="h-3.5 w-3.5 text-violet-400" />
+                          <Check className="h-3.5 w-3.5 text-violet-600 dark:text-violet-400" />
                         )}
                         সহজ চলিত মুখের বাংলা
                       </span>
-                      <span className="rounded bg-emerald-500/20 px-1.5 py-0.5 text-[10px] font-bold text-emerald-400">
+                      <span className="rounded bg-emerald-500/20 px-1.5 py-0.5 text-[10px] font-bold text-emerald-600 dark:text-emerald-400">
                         Recommended
                       </span>
                     </div>
-                    <p className="text-[11px] leading-normal text-neutral-400">
+                    <p className="text-[11px] leading-normal text-nm-light-textSecondary dark:text-neutral-400">
                       মুখে কথা বলার মতো স্বাভাবিক মিষ্টি বাংলা। “এবং”, “বলিবেন”
                       বারণ।
                     </p>
@@ -1666,22 +2272,22 @@ export default function CoFounderPortalPage() {
                     }}
                     className={`flex flex-col rounded-2xl border p-3.5 text-left transition-all ${
                       voiceStyle === 'banglish'
-                        ? 'border-cyan-500 bg-cyan-500/15 text-white shadow-md'
-                        : 'border-neutral-800 bg-neutral-950/60 text-neutral-400 hover:border-neutral-700 hover:text-neutral-200'
+                        ? 'border-cyan-500 bg-nm-gradient-light font-bold text-cyan-800 shadow-nm-flat dark:bg-nm-gradient-dark dark:text-white dark:shadow-nm-flat-dark'
+                        : 'border-neutral-300/80 bg-nm-light-bg text-nm-light-textSecondary shadow-nm-inset hover:text-nm-light-textPrimary dark:border-neutral-800 dark:bg-nm-dark-bg dark:text-neutral-400 dark:shadow-nm-inset-dark dark:hover:text-neutral-200'
                     }`}
                   >
                     <div className="mb-1 flex w-full items-center justify-between">
-                      <span className="flex items-center gap-1.5 text-xs font-bold text-cyan-300">
+                      <span className="flex items-center gap-1.5 text-xs font-bold text-cyan-700 dark:text-cyan-300">
                         {voiceStyle === 'banglish' && (
-                          <Check className="h-3.5 w-3.5 text-cyan-400" />
+                          <Check className="h-3.5 w-3.5 text-cyan-600 dark:text-cyan-400" />
                         )}
                         বাংলিশ মোড (Banglish)
                       </span>
-                      <span className="rounded bg-cyan-500/20 px-1.5 py-0.5 text-[10px] font-bold text-cyan-300">
+                      <span className="rounded bg-cyan-500/20 px-1.5 py-0.5 text-[10px] font-bold text-cyan-700 dark:text-cyan-300">
                         100% Clear
                       </span>
                     </div>
-                    <p className="text-[11px] leading-normal text-neutral-400">
+                    <p className="text-[11px] leading-normal text-nm-light-textSecondary dark:text-neutral-400">
                       ইংরেজি হরফে বাংলা। যেকোনো উইন্ডোজ বা ব্রাউজারে স্পষ্ট
                       উচ্চারণ।
                     </p>
@@ -1693,11 +2299,11 @@ export default function CoFounderPortalPage() {
                 <div className="mb-1.5 flex items-center justify-between">
                   <label
                     htmlFor="co-founder-tts-voice-select"
-                    className="text-xs font-semibold uppercase tracking-wider text-neutral-400"
+                    className="text-xs font-semibold uppercase tracking-wider text-nm-light-textSecondary dark:text-neutral-400"
                   >
                     ২. স্পিচ ভয়েস নির্বাচন (Browser Speech Engine)
                   </label>
-                  <span className="font-mono text-[11px] text-neutral-500">
+                  <span className="font-mono text-[11px] text-nm-light-textSecondary dark:text-neutral-500">
                     {voice.availableVoices.length} voices detected
                   </span>
                 </div>
@@ -1711,7 +2317,7 @@ export default function CoFounderPortalPage() {
                       localStorage.setItem('ruhvi_co_founder_voice_uri', uri);
                     }
                   }}
-                  className="w-full rounded-2xl border border-neutral-800 bg-neutral-950 px-3.5 py-2.5 text-xs text-white outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500"
+                  className="w-full rounded-2xl border border-neutral-300/80 bg-nm-light-bg px-3.5 py-2.5 text-xs text-nm-light-textPrimary shadow-nm-inset outline-none focus:border-violet-500 dark:border-neutral-800 dark:bg-nm-dark-bg dark:text-white dark:shadow-nm-inset-dark"
                 >
                   <option value="auto">
                     ✨ Auto-Detect (স্বয়ংক্রিয় সেরা কণ্ঠস্বর)
@@ -1726,10 +2332,10 @@ export default function CoFounderPortalPage() {
 
               <div>
                 <div className="mb-1.5 flex items-center justify-between">
-                  <label className="text-xs font-semibold uppercase tracking-wider text-neutral-400">
+                  <label className="text-xs font-semibold uppercase tracking-wider text-nm-light-textSecondary dark:text-neutral-400">
                     ৩. কথার গতি (Speech Speed)
                   </label>
-                  <span className="font-mono text-xs font-bold text-violet-300">
+                  <span className="font-mono text-xs font-bold text-violet-700 dark:text-violet-300">
                     {speechRate.toFixed(2)}x
                   </span>
                 </div>
@@ -1755,10 +2361,10 @@ export default function CoFounderPortalPage() {
 
               <div>
                 <div className="mb-1.5 flex items-center justify-between">
-                  <label className="text-xs font-semibold uppercase tracking-wider text-neutral-400">
+                  <label className="text-xs font-semibold uppercase tracking-wider text-nm-light-textSecondary dark:text-neutral-400">
                     ৪. ভয়েসের সুর (Voice Pitch)
                   </label>
-                  <span className="font-mono text-xs font-bold text-violet-300">
+                  <span className="font-mono text-xs font-bold text-violet-700 dark:text-violet-300">
                     {speechPitch.toFixed(2)}
                   </span>
                 </div>
@@ -1791,22 +2397,22 @@ export default function CoFounderPortalPage() {
                       id: 'voice-test',
                     });
                   }}
-                  className="flex w-full items-center justify-center gap-2 rounded-2xl border border-violet-500/40 bg-violet-500/10 py-2.5 text-xs font-bold text-violet-300 transition-all hover:bg-violet-500/20 active:scale-[0.99]"
+                  className="flex w-full items-center justify-center gap-2 rounded-2xl border border-violet-500/40 bg-nm-gradient-light py-2.5 text-xs font-bold text-violet-700 shadow-nm-flat transition-all hover:opacity-90 active:scale-[0.99] dark:bg-nm-gradient-dark dark:text-violet-300 dark:shadow-nm-flat-dark"
                 >
-                  <Play className="h-4 w-4 fill-violet-400 text-violet-400" />
+                  <Play className="h-4 w-4 fill-violet-600 text-violet-600 dark:fill-violet-400 dark:text-violet-400" />
                   <span>ভয়েস পরীক্ষা করুন (Play Live Sample)</span>
                 </button>
               </div>
             </div>
 
-            <div className="mt-6 flex justify-end border-t border-neutral-800 pt-4">
+            <div className="mt-6 flex justify-end border-t border-neutral-200/80 pt-4 dark:border-neutral-800">
               <button
                 type="button"
                 onClick={() => {
                   setIsVoiceModalOpen(false);
-                  toast.success('ভয়েস সেটিংস সংরক্ষিত হয়েছে');
+                  toast.success('ভয়েস সেটি সেটিংস সংরক্ষিত হয়েছে');
                 }}
-                className="rounded-2xl bg-gradient-to-r from-violet-600 to-amber-500 px-5 py-2 text-xs font-bold text-white shadow-md hover:from-violet-500 hover:to-amber-400"
+                className="rounded-2xl bg-nm-gradient-light px-5 py-2 text-xs font-bold text-violet-700 shadow-nm-flat hover:opacity-90 dark:bg-nm-gradient-dark dark:text-amber-400 dark:shadow-nm-flat-dark"
               >
                 সংরক্ষণ করুন (Done)
               </button>
