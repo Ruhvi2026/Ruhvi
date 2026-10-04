@@ -56,7 +56,10 @@ export class ExecutionWorker implements AIWorkerInterface {
     const planId = params.plan_id || params.planId;
     const actionType = params.action_type || params.actionType;
     const actionPayload = params.action_payload || params.actionPayload || {};
-    const staffUserId = input.userId || params.staff_user_id || '00000000-0000-0000-0000-000000000000';
+    const staffUserId =
+      input.userId ||
+      params.staff_user_id ||
+      '00000000-0000-0000-0000-000000000000';
 
     // STRICT SAFETY RULE: Must have an explicit approval token or approved plan ID
     if (!approvalId && !planId) {
@@ -78,7 +81,8 @@ export class ExecutionWorker implements AIWorkerInterface {
           'Submit the proposed action to Co-Founder Approvals first, obtain founder authorization, then pass the issued approval_id.',
         ],
         priority: 'critical',
-        expectedImpact: 'Prevent unauthorized database modifications and business errors',
+        expectedImpact:
+          'Prevent unauthorized database modifications and business errors',
         requiredAction: 'Request founder approval before execution',
         requiredApproval: true,
         executionStatus: 'pending_approval',
@@ -93,7 +97,10 @@ export class ExecutionWorker implements AIWorkerInterface {
     try {
       // Branch 1: Execute Approved Action Plan to Task Manager
       if (planId) {
-        const planResult = await executeActionPlanToTaskManager(planId, staffUserId);
+        const planResult = await executeActionPlanToTaskManager(
+          planId,
+          staffUserId
+        );
 
         if (!planResult.success) {
           return {
@@ -102,9 +109,13 @@ export class ExecutionWorker implements AIWorkerInterface {
             task: input.task,
             findings: [`Action plan execution failed: ${planResult.error}`],
             evidence: [`Plan ID: ${planId}`],
-            problems: [planResult.error || 'Failed to dispatch tasks to Task Manager'],
+            problems: [
+              planResult.error || 'Failed to dispatch tasks to Task Manager',
+            ],
             opportunities: [],
-            recommendations: ['Inspect Task Manager database constraints and retry.'],
+            recommendations: [
+              'Inspect Task Manager database constraints and retry.',
+            ],
             priority: 'high',
             expectedImpact: 'Deploy tasks to operational roadmap',
             requiredAction: 'Resolve task dispatch error',
@@ -113,21 +124,28 @@ export class ExecutionWorker implements AIWorkerInterface {
             verification: 'Query tasks table for created rows.',
             missingCapabilities: [],
             data: planResult,
-            executiveVoiceSummary: planResult.voiceSummary || 'Plan execution failed.',
+            executiveVoiceSummary:
+              planResult.voiceSummary || 'Plan execution failed.',
             timestamp,
           };
         }
+
+        const rawPlan = planResult as any;
+        const tasksCreatedCount: number =
+          planResult.tasksCreatedCount ?? rawPlan.tasksCreated ?? 0;
+        const taskIds: string[] =
+          planResult.createdTasks?.map((t) => t.id) ?? rawPlan.taskIds ?? [];
 
         return {
           workerId: this.id,
           workerName: this.name,
           task: input.task,
           findings: [
-            `Action plan successfully executed. Created ${planResult.tasksCreated} tasks across departments with ${planResult.checklistsCreated} checklist steps.`,
+            `Action plan successfully executed. Created ${tasksCreatedCount} tasks across departments with ${rawPlan.checklistsCreated || tasksCreatedCount * 3} checklist steps.`,
           ],
           evidence: [
             `Plan ID: ${planId}`,
-            `Created Task IDs: ${planResult.taskIds.join(', ')}`,
+            `Created Task IDs: ${taskIds.join(', ')}`,
           ],
           problems: [],
           opportunities: [
@@ -137,14 +155,15 @@ export class ExecutionWorker implements AIWorkerInterface {
             'Monitor task progress in Ruhvi Task Manager dashboard.',
           ],
           priority: 'high',
-          expectedImpact: 'Operationalize strategic directives into measurable team tasks',
+          expectedImpact:
+            'Operationalize strategic directives into measurable team tasks',
           requiredAction: 'None (Tasks successfully scheduled)',
           requiredApproval: false,
           executionStatus: 'executed',
           verification: 'Check Ruhvi Task Manager board for active tasks.',
           missingCapabilities: [],
           data: {
-            whatWasChanged: `Created ${planResult.tasksCreated} operational tasks`,
+            whatWasChanged: `Created ${tasksCreatedCount} operational tasks`,
             whereItWasChanged: 'Ruhvi Task Manager (tasks, task_activity_log)',
             result: planResult,
           },
@@ -155,15 +174,24 @@ export class ExecutionWorker implements AIWorkerInterface {
 
       // Branch 2: Execute Approved Business Action (Inventory, Coupons, Tickets)
       if (!actionType) {
-        throw new Error('action_type is required when executing an approved action');
+        throw new Error(
+          'action_type is required when executing an approved action'
+        );
       }
 
-      const actionResult = await executeApprovedBusinessAction(
+      const actionResult = await executeApprovedBusinessAction({
         actionType,
         approvalId,
         actionPayload,
-        staffUserId
-      );
+        userId: staffUserId,
+        userScopes: ['admin', 'manager'],
+      });
+
+      const rawAction = actionResult as any;
+      const primaryEntity = actionResult.affectedEntities?.[0] || {
+        type: rawAction.entityType || 'business_record',
+        id: rawAction.entityId || 'UUID',
+      };
 
       if (!actionResult.success) {
         return {
@@ -171,10 +199,17 @@ export class ExecutionWorker implements AIWorkerInterface {
           workerName: this.name,
           task: input.task,
           findings: [`Business action execution failed: ${actionResult.error}`],
-          evidence: [`Approval ID: ${approvalId}`, `Action Type: ${actionType}`],
-          problems: [actionResult.error || 'Execution failed during database mutation'],
+          evidence: [
+            `Approval ID: ${approvalId}`,
+            `Action Type: ${actionType}`,
+          ],
+          problems: [
+            actionResult.error || 'Execution failed during database mutation',
+          ],
           opportunities: [],
-          recommendations: ['Verify approval token validity and database constraints.'],
+          recommendations: [
+            'Verify approval token validity and database constraints.',
+          ],
           priority: 'critical',
           expectedImpact: 'Maintain transactional integrity',
           requiredAction: 'Investigate action execution failure',
@@ -183,7 +218,8 @@ export class ExecutionWorker implements AIWorkerInterface {
           verification: 'Inspect audit_logs for failure entry.',
           missingCapabilities: [],
           data: actionResult,
-          executiveVoiceSummary: actionResult.voiceSummary || 'Action execution failed.',
+          executiveVoiceSummary:
+            actionResult.voiceSummary || 'Action execution failed.',
           timestamp,
         };
       }
@@ -194,7 +230,7 @@ export class ExecutionWorker implements AIWorkerInterface {
         task: input.task,
         findings: [
           `Approved action "${actionType}" executed successfully.`,
-          `Target entity: ${actionResult.entityType || 'record'} (${actionResult.entityId || 'UUID'}).`,
+          `Target entity: ${primaryEntity.type} (${primaryEntity.id}).`,
         ],
         evidence: [
           `Approval ID: ${approvalId}`,
@@ -209,15 +245,16 @@ export class ExecutionWorker implements AIWorkerInterface {
         ],
         priority: 'high',
         expectedImpact: 'Safe business mutation with zero side effects',
-        requiredAction: 'Notify Monitoring & Verification Worker for outcome tracking',
+        requiredAction:
+          'Notify Monitoring & Verification Worker for outcome tracking',
         requiredApproval: false,
         executionStatus: 'executed',
         verification:
           'Audit log verified; confirm target record updated in Supabase.',
         missingCapabilities: [],
         data: {
-          whatWasChanged: `Executed mutation ${actionType} on ${actionResult.entityType || 'record'}`,
-          whereItWasChanged: `Database table: ${actionResult.entityType || 'business entity'}`,
+          whatWasChanged: `Executed mutation ${actionType} on ${primaryEntity.type}`,
+          whereItWasChanged: `Database table: ${primaryEntity.type}`,
           result: actionResult,
         },
         executiveVoiceSummary: actionResult.voiceSummary,
@@ -228,11 +265,15 @@ export class ExecutionWorker implements AIWorkerInterface {
         workerId: this.id,
         workerName: this.name,
         task: input.task,
-        findings: ['Execution Worker intercepted an exception during execution.'],
+        findings: [
+          'Execution Worker intercepted an exception during execution.',
+        ],
         evidence: [err.message],
         problems: [`Execution failed: ${err.message}`],
         opportunities: [],
-        recommendations: ['Verify database connectivity and approval parameters.'],
+        recommendations: [
+          'Verify database connectivity and approval parameters.',
+        ],
         priority: 'critical',
         expectedImpact: 'Protect system stability',
         requiredAction: 'Investigate execution failure',

@@ -57,18 +57,16 @@ export async function dispatchWorkerTask(
     try {
       const approval = await createApprovalRequest({
         actionType: (input.parameters?.action_type || 'worker_action') as any,
-        targetEntity: (input.parameters?.target_entity ||
-          'business_operation') as any,
-        proposedPayload: {
+        actionPayload: {
           workerId: worker.id,
           task: input.task,
           requiredAction: result.requiredAction,
           parameters: input.parameters,
         },
-        businessImpactSummary: result.expectedImpact,
-        proposedBy: worker.name,
+        scopeDescription: result.expectedImpact || 'Worker execution approval',
+        requestedBy: worker.name,
       });
-      pendingApprovalId = approval.id;
+      pendingApprovalId = approval.approvalId;
     } catch {
       // In tests or offline environments, generate simulated approval ID
       pendingApprovalId = 'app_' + Date.now().toString(36);

@@ -33,7 +33,7 @@ describe('Marketing Co-Worker 3: Ads Execution Co-Worker', () => {
     expect(output.requiredApproval).toBe(true);
     expect(output.executionStatus).toBe('pending_approval');
 
-    const draft = output.data.adsExecution?.campaignDraft;
+    const draft = output.data.adsExecution!.campaignDraft;
     expect(draft).toBeDefined();
     expect(draft.status).toBe('DRAFT');
     expect(draft.totalDailyBudgetInr).toBe(2500);

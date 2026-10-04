@@ -47,11 +47,7 @@ export class SalesConversionWorker implements AIWorkerInterface {
         'Payment gateway failure analysis',
         'Conversion Rate Optimization (CRO)',
       ],
-      requiredTools: [
-        'get_store_metrics',
-        'get_sales_analytics',
-        'get_orders',
-      ],
+      requiredTools: ['get_store_metrics', 'get_sales_analytics', 'get_orders'],
       permissionScope: ['mcp_tools:read'],
       isSystemWorker: false,
     };
@@ -65,6 +61,8 @@ export class SalesConversionWorker implements AIWorkerInterface {
 
     try {
       const analytics = await getStoreAnalytics({ timeframe });
+      const rawAnalytics = analytics as any;
+      const cur = rawAnalytics.currentPeriod || rawAnalytics.kpis || {};
 
       const findings: string[] = [];
       const evidence: string[] = [];
@@ -72,11 +70,13 @@ export class SalesConversionWorker implements AIWorkerInterface {
       const opportunities: string[] = [];
       const recommendations: string[] = [];
 
-      const totalOrders = analytics.currentPeriod.totalOrders;
-      const completedOrders = analytics.currentPeriod.completedOrders;
-      const cancelledOrders = analytics.currentPeriod.cancelledOrders;
-      const aov = analytics.currentPeriod.aov;
-      const rev = analytics.currentPeriod.totalRevenue;
+      const totalOrders: number = cur.totalOrders ?? 0;
+      const completedOrders: number =
+        cur.completedOrders ?? cur.paidOrders ?? 0;
+      const cancelledOrders: number = cur.cancelledOrders ?? 0;
+      const cancellationRate: number = cur.cancellationRate ?? 0;
+      const aov: number = cur.aov ?? 0;
+      const rev: number = cur.totalRevenue ?? 0;
 
       // Modelled e-commerce funnel based on authoritative order volume
       // In luxury demi-fine jewellery: Benchmark visitor -> cart ~ 6%, cart -> checkout ~ 50%, checkout -> placed ~ 65%
@@ -94,30 +94,48 @@ export class SalesConversionWorker implements AIWorkerInterface {
         {
           stage: 'Added to Cart',
           count: estimatedCarts,
-          conversionRatePercent: Number(((estimatedCarts / estimatedVisitors) * 100).toFixed(1)),
-          dropOffRatePercent: Number((100 - (estimatedCarts / estimatedVisitors) * 100).toFixed(1)),
+          conversionRatePercent: Number(
+            ((estimatedCarts / estimatedVisitors) * 100).toFixed(1)
+          ),
+          dropOffRatePercent: Number(
+            (100 - (estimatedCarts / estimatedVisitors) * 100).toFixed(1)
+          ),
         },
         {
           stage: 'Initiated Checkout',
           count: estimatedCheckouts,
-          conversionRatePercent: Number(((estimatedCheckouts / estimatedCarts) * 100).toFixed(1)),
-          dropOffRatePercent: Number((100 - (estimatedCheckouts / estimatedCarts) * 100).toFixed(1)),
+          conversionRatePercent: Number(
+            ((estimatedCheckouts / estimatedCarts) * 100).toFixed(1)
+          ),
+          dropOffRatePercent: Number(
+            (100 - (estimatedCheckouts / estimatedCarts) * 100).toFixed(1)
+          ),
         },
         {
           stage: 'Orders Placed',
           count: totalOrders,
-          conversionRatePercent: Number(((totalOrders / estimatedCheckouts) * 100).toFixed(1)),
-          dropOffRatePercent: Number((100 - (totalOrders / estimatedCheckouts) * 100).toFixed(1)),
+          conversionRatePercent: Number(
+            ((totalOrders / estimatedCheckouts) * 100).toFixed(1)
+          ),
+          dropOffRatePercent: Number(
+            (100 - (totalOrders / estimatedCheckouts) * 100).toFixed(1)
+          ),
         },
         {
           stage: 'Orders Completed (Delivered / Paid)',
           count: completedOrders,
-          conversionRatePercent: Number(((completedOrders / Math.max(totalOrders, 1)) * 100).toFixed(1)),
-          dropOffRatePercent: Number(((cancelledOrders / Math.max(totalOrders, 1)) * 100).toFixed(1)),
+          conversionRatePercent: Number(
+            ((completedOrders / Math.max(totalOrders, 1)) * 100).toFixed(1)
+          ),
+          dropOffRatePercent: Number(
+            ((cancelledOrders / Math.max(totalOrders, 1)) * 100).toFixed(1)
+          ),
         },
       ];
 
-      const overallConversionRate = Number(((totalOrders / estimatedVisitors) * 100).toFixed(2));
+      const overallConversionRate = Number(
+        ((totalOrders / estimatedVisitors) * 100).toFixed(2)
+      );
       const checkoutDropoffRate = funnel[3].dropOffRatePercent;
 
       findings.push(
@@ -129,7 +147,7 @@ export class SalesConversionWorker implements AIWorkerInterface {
       );
 
       evidence.push(
-        `Authoritative completed orders: ${completedOrders}, cancelled/unfulfilled orders: ${cancelledOrders} (Cancellation rate: ${analytics.currentPeriod.cancellationRate}%).`
+        `Authoritative completed orders: ${completedOrders}, cancelled/unfulfilled orders: ${cancelledOrders} (Cancellation rate: ${cancellationRate}%).`
       );
 
       // Bottleneck identification
@@ -142,14 +160,16 @@ export class SalesConversionWorker implements AIWorkerInterface {
         );
       }
 
-      if (analytics.currentPeriod.cancellationRate > 12) {
+      if (cancellationRate > 12) {
         problems.push(
-          `Post-order cancellation rate of ${analytics.currentPeriod.cancellationRate}% reduces net realized GMV.`
+          `Post-order cancellation rate of ${cancellationRate}% reduces net realized GMV.`
         );
       }
 
       // CRO Opportunities
-      const potentialRecoveredOrders = Math.round((estimatedCheckouts - totalOrders) * 0.15);
+      const potentialRecoveredOrders = Math.round(
+        (estimatedCheckouts - totalOrders) * 0.15
+      );
       const potentialRevenueUpside = potentialRecoveredOrders * aov;
 
       opportunities.push(
@@ -171,7 +191,8 @@ export class SalesConversionWorker implements AIWorkerInterface {
         'Implement automated WhatsApp abandoned checkout recovery at 30 minutes with an instant 5% incentive.'
       );
 
-      const priority = checkoutDropoffRate > 40 || analytics.currentPeriod.cancellationRate > 15 ? 'high' : 'medium';
+      const priority =
+        checkoutDropoffRate > 40 || cancellationRate > 15 ? 'high' : 'medium';
 
       const voiceSummary =
         `Sales and conversion audit complete. Overall store conversion is ${overallConversionRate}% with ${totalOrders} orders and ₹${aov.toLocaleString('en-IN')} AOV. ` +
@@ -215,7 +236,9 @@ export class SalesConversionWorker implements AIWorkerInterface {
         evidence: [err.message],
         problems: [`Failed to compute sales funnel metrics: ${err.message}`],
         opportunities: [],
-        recommendations: ['Check analytics service logs and database query health.'],
+        recommendations: [
+          'Check analytics service logs and database query health.',
+        ],
         priority: 'high',
         expectedImpact: 'Restore conversion funnel observability',
         requiredAction: 'Resolve sales analytics query error',

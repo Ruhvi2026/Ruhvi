@@ -60,6 +60,13 @@ export class AnalyticsPerformanceWorker implements AIWorkerInterface {
     try {
       // 1. Ingest core store analytics & period-over-period baseline
       const report = await getStoreAnalytics({ timeframe });
+      const rawReport = report as any;
+      const cur = rawReport.currentPeriod || rawReport.kpis || {};
+      const comparison = rawReport.comparison;
+      const insights = rawReport.insights || {
+        anomalies: [],
+        executiveVoiceSummary: '',
+      };
 
       // 2. Ingest proactive business intelligence scan (anomalies, opportunities, risks)
       const biScan = await runBusinessIntelligenceScan(
@@ -73,23 +80,25 @@ export class AnalyticsPerformanceWorker implements AIWorkerInterface {
       const recommendations: string[] = [];
 
       // Synthesize findings
-      const rev = report.currentPeriod.totalRevenue;
-      const orders = report.currentPeriod.totalOrders;
-      const aov = report.currentPeriod.aov;
-      const cancellationRate = report.currentPeriod.cancellationRate;
+      const rev: number = cur.totalRevenue ?? 0;
+      const orders: number = cur.totalOrders ?? 0;
+      const aov: number = cur.aov ?? 0;
+      const cancellationRate: number = cur.cancellationRate ?? 0;
+      const timeframeLabel: string =
+        cur.timeframeLabel || rawReport.period?.label || timeframe;
 
       findings.push(
-        `Revenue for ${report.currentPeriod.timeframeLabel} is ₹${rev.toLocaleString('en-IN')} across ${orders} orders (AOV: ₹${aov.toLocaleString('en-IN')}).`
+        `Revenue for ${timeframeLabel} is ₹${rev.toLocaleString('en-IN')} across ${orders} orders (AOV: ₹${aov.toLocaleString('en-IN')}).`
       );
 
-      if (report.comparison) {
-        const revDelta = report.comparison.revenueGrowthPercent;
+      if (comparison) {
+        const revDelta = comparison.revenueGrowthPercent ?? 0;
         const sign = revDelta >= 0 ? '+' : '';
         findings.push(
-          `Period-over-period revenue growth is ${sign}${revDelta.toFixed(1)}% vs baseline (₹${report.comparison.baselineRevenue.toLocaleString('en-IN')}).`
+          `Period-over-period revenue growth is ${sign}${Number(revDelta).toFixed(1)}% vs baseline (₹${Number(comparison.baselineRevenue || 0).toLocaleString('en-IN')}).`
         );
         evidence.push(
-          `Baseline comparison: Current orders ${orders} vs Baseline orders ${report.comparison.baselineOrders}.`
+          `Baseline comparison: Current orders ${orders} vs Baseline orders ${comparison.baselineOrders || 0}.`
         );
       }
 
@@ -103,42 +112,59 @@ export class AnalyticsPerformanceWorker implements AIWorkerInterface {
           `High order cancellation rate detected: ${cancellationRate.toFixed(1)}% (Threshold: 15%).`
         );
         evidence.push(
-          `Cancelled orders: ${report.currentPeriod.cancelledOrders} out of ${orders} total orders.`
+          `Cancelled orders: ${cur.cancelledOrders ?? 0} out of ${orders} total orders.`
         );
         recommendations.push(
           `Trigger root-cause investigation on cancellation reasons and inspect payment gateway timeout logs.`
         );
       }
 
-      if (report.insights.anomalies.length > 0) {
-        for (const anomaly of report.insights.anomalies) {
-          problems.push(
-            `Metric Anomaly [${anomaly.metric.toUpperCase()}]: Current ${anomaly.currentValue} deviates from baseline ${anomaly.expectedBaseline} (Severity: ${anomaly.severity}).`
-          );
-          evidence.push(
-            `Anomaly delta: ${(anomaly.deviationPercent >= 0 ? '+' : '') + anomaly.deviationPercent.toFixed(1)}% in ${anomaly.metric}.`
-          );
-        }
-      }
-
-      // Ingest BI scan problems and opportunities
-      if (biScan.problems.length > 0) {
-        for (const p of biScan.problems.slice(0, 2)) {
-          if (!problems.includes(p.description)) {
-            problems.push(p.description);
+      if (insights.anomalies && insights.anomalies.length > 0) {
+        for (const anomaly of insights.anomalies) {
+          if (typeof anomaly === 'string') {
+            problems.push(`Metric Anomaly: ${anomaly}`);
+          } else {
+            problems.push(
+              `Metric Anomaly [${String(anomaly.metric).toUpperCase()}]: Current ${anomaly.currentValue} deviates from baseline ${anomaly.expectedBaseline} (Severity: ${anomaly.severity}).`
+            );
             evidence.push(
-              `BI Evidence: Severity ${p.severity} in ${p.category}.`
+              `Anomaly delta: ${(anomaly.deviationPercent >= 0 ? '+' : '') + Number(anomaly.deviationPercent).toFixed(1)}% in ${anomaly.metric}.`
             );
           }
         }
       }
 
-      if (biScan.opportunities.length > 0) {
-        for (const opp of biScan.opportunities.slice(0, 2)) {
+      // Ingest BI scan problems and opportunities
+      const rawBi = biScan as any;
+      const biProblems: any[] = rawBi.problems || [];
+      const biOpps: any[] =
+        rawBi.growthOpportunities || rawBi.opportunities || [];
+
+      if (biProblems.length > 0) {
+        for (const p of biProblems.slice(0, 2)) {
+          const desc = p.summary || p.description || p.title;
+          if (desc && !problems.includes(desc)) {
+            problems.push(desc);
+            evidence.push(
+              `BI Evidence: Severity ${p.severity || 'medium'} in ${p.category || 'general'}.`
+            );
+          }
+        }
+      }
+
+      if (biOpps.length > 0) {
+        for (const opp of biOpps.slice(0, 2)) {
+          const title = opp.title || 'Growth Opportunity';
+          const upside =
+            opp.potentialRevenueUpside ?? opp.potentialImpact ?? 35000;
           opportunities.push(
-            `${opp.title}: Expected upside of ₹${opp.potentialRevenueUpside.toLocaleString('en-IN')}.`
+            `${title}: Expected upside of ₹${typeof upside === 'number' ? upside.toLocaleString('en-IN') : upside}.`
           );
-          recommendations.push(opp.recommendedAction);
+          if (opp.recommendedAction || opp.recommendedInvestigation) {
+            recommendations.push(
+              opp.recommendedAction || opp.recommendedInvestigation
+            );
+          }
         }
       }
 
@@ -157,11 +183,11 @@ export class AnalyticsPerformanceWorker implements AIWorkerInterface {
 
       const expectedImpact =
         opportunities.length > 0
-          ? `Estimated revenue recovery / upside of ₹${(biScan.summary?.totalOpportunityUpside || 50000).toLocaleString('en-IN')}`
+          ? `Estimated revenue recovery / upside of ₹${(rawBi.summary?.totalOpportunityUpside || 50000).toLocaleString('en-IN')}`
           : 'Stabilize conversion velocity and reduce return/cancellation leakage';
 
       const voiceSummary =
-        report.insights.executiveVoiceSummary ||
+        insights.executiveVoiceSummary ||
         `Analytics check complete for ${timeframe}. Revenue is ₹${rev.toLocaleString('en-IN')} with ${orders} orders and an AOV of ₹${aov.toLocaleString('en-IN')}.`;
 
       return {
@@ -185,9 +211,9 @@ export class AnalyticsPerformanceWorker implements AIWorkerInterface {
           'Compare post-intervention 7d order conversion rate and cancellation rate against current baseline.',
         missingCapabilities: [],
         data: {
-          metrics: report.currentPeriod,
-          comparison: report.comparison,
-          anomalies: report.insights.anomalies,
+          metrics: cur,
+          comparison: comparison || rawReport.comparisons,
+          anomalies: insights.anomalies,
         },
         executiveVoiceSummary: voiceSummary,
         timestamp,
@@ -199,7 +225,9 @@ export class AnalyticsPerformanceWorker implements AIWorkerInterface {
         task: input.task,
         findings: ['Analytics calculation failed due to an error.'],
         evidence: [err.message || 'Unknown database or computation error'],
-        problems: [`Error encountered while querying store metrics: ${err.message}`],
+        problems: [
+          `Error encountered while querying store metrics: ${err.message}`,
+        ],
         opportunities: [],
         recommendations: [
           'Verify Supabase connection health and database telemetry logs.',

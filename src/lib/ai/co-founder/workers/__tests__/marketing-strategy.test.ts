@@ -54,12 +54,14 @@ describe('Marketing Co-Worker 1: Strategy Co-Worker', () => {
     expect(output.status).toBe('ENABLED');
     expect(output.success).toBe(true);
 
-    const strat = output.data.strategy;
+    const strat = output.data.strategy!;
     expect(strat).toBeDefined();
     expect(strat.angles.length).toBe(3);
     expect(strat.angles[0].hook).toContain('gold');
     expect(strat.angles[0].headline).toBeTruthy();
-    expect(strat.budgetRecommendation.suggestedDailyBudgetInr).toBeGreaterThanOrEqual(1500);
+    expect(
+      strat.budgetRecommendation.suggestedDailyBudgetInr
+    ).toBeGreaterThanOrEqual(1500);
     expect(strat.budgetRecommendation.expectedRoasFloor).toBe(3.2);
     expect(strat.creativeRequirements.requiresVideo).toBe(true);
     expect(strat.recommendedNextWorkers).toContain('marketing_creative_media');

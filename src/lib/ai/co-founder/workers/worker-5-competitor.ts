@@ -109,9 +109,12 @@ export class CompetitorResearchWorker implements AIWorkerInterface {
       }
 
       // Benchmark against known competitor registry
-      const competitorSummary = competitors.map((c) => ({
+      const competitorSummary = competitors.map((c: any) => ({
         name: c.name,
-        pricing: c.price_positioning || 'Mid-tier (₹1,500 - ₹4,500)',
+        pricing:
+          c.price_positioning ||
+          c.latest_insights?.positioning ||
+          'Mid-tier (₹1,500 - ₹4,500)',
         materials: c.strengths?.includes('Silver')
           ? '925 Silver / Flash Plating'
           : 'Brass / Imitation',

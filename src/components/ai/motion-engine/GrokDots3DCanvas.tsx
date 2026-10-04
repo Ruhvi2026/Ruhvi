@@ -114,7 +114,6 @@ export const GrokDots3DCanvas: React.FC<GrokDots3DCanvasProps> = ({
         });
       }
     });
-    synapsesRef.push = () => 0; // retain type
     synapsesRef.current = synList;
   }, [nodes]);
 

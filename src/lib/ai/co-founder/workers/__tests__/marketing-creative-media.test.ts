@@ -16,7 +16,11 @@ describe('Marketing Co-Worker 2: Creative Media Co-Worker', () => {
     const def = creative.getDefinition();
     expect(def.status).toBe('ENABLED');
     expect(def.skills.length).toBe(35);
-    expect(def.skills).toContain('Two-video continuity planning'.toLowerCase() ? 'Video continuity planning' : 'Video continuity planning');
+    expect(def.skills).toContain(
+      'Two-video continuity planning'.toLowerCase()
+        ? 'Video continuity planning'
+        : 'Video continuity planning'
+    );
     expect(def.skills).toContain('Flow/Veo prompt generation');
     expect(def.skills).toContain('Bengali voice-over preparation');
     expect(def.skills).toContain('Cloudinary asset management');
@@ -32,11 +36,12 @@ describe('Marketing Co-Worker 2: Creative Media Co-Worker', () => {
     expect(output.coWorkerId).toBe('marketing_creative_media');
     expect(output.success).toBe(true);
 
-    const media = output.data.creativeMedia;
+    const media = output.data.creativeMedia!;
     expect(media).toBeDefined();
 
     // Verify 2-Video prompts exist
-    const { video1Prompt, video2Prompt, continuityInstructions } = media.twoVideoFlow;
+    const { video1Prompt, video2Prompt, continuityInstructions } =
+      media.twoVideoFlow;
     expect(video1Prompt.id).toBe('video_1');
     expect(video1Prompt.durationSeconds).toBe(7);
     expect(video1Prompt.aspectRatio).toBe('9:16');
@@ -51,7 +56,9 @@ describe('Marketing Co-Worker 2: Creative Media Co-Worker', () => {
 
     // Verify shared continuity guidelines
     expect(continuityInstructions.sharedCharacterDescription).toBeTruthy();
-    expect(continuityInstructions.sharedClothingDescription).toContain('emerald');
+    expect(continuityInstructions.sharedClothingDescription).toContain(
+      'emerald'
+    );
     expect(continuityInstructions.sharedLighting).toContain('sunlight');
     expect(continuityInstructions.transitionInstruction).toBeTruthy();
   });
@@ -61,7 +68,7 @@ describe('Marketing Co-Worker 2: Creative Media Co-Worker', () => {
       task: 'Create multilingual voiceovers for Royal Filigree Jhumkas',
     });
 
-    const vo = output.data.creativeMedia?.voiceover;
+    const vo = output.data.creativeMedia!.voiceover;
     expect(vo).toBeDefined();
 
     // Bengali

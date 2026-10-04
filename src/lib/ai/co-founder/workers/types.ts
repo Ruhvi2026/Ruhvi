@@ -21,7 +21,8 @@ export type WorkerExecutionStatus =
   | 'pending_approval'
   | 'approved'
   | 'executed'
-  | 'failed';
+  | 'failed'
+  | 'disabled';
 
 export interface WorkerDefinition {
   id: WorkerId;

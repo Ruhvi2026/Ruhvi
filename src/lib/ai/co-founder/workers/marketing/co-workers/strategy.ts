@@ -77,11 +77,15 @@ export class StrategyCoWorker {
         coWorkerName: this.name,
         status: 'DISABLED',
         success: false,
-        findings: ['Strategy Co-worker is currently disabled in environment configuration.'],
+        findings: [
+          'Strategy Co-worker is currently disabled in environment configuration.',
+        ],
         evidence: [],
         problems: ['Cannot execute strategy task on a disabled worker.'],
         opportunities: [],
-        recommendations: ['Enable marketing_strategy via config or admin dashboard.'],
+        recommendations: [
+          'Enable marketing_strategy via config or admin dashboard.',
+        ],
         data: {},
         requiredApproval: false,
         executionStatus: 'disabled',
@@ -92,22 +96,31 @@ export class StrategyCoWorker {
 
     try {
       // 1. Fetch live metrics and competitors for grounded strategy
-      const analytics = await getStoreAnalytics({ timeframe: '30d' }).catch(() => null);
+      const analytics = await getStoreAnalytics({ timeframe: '30d' }).catch(
+        () => null
+      );
       const competitors = await getCompetitors().catch(() => []);
 
-      const aov = analytics?.currentPeriod.aov || 3500;
+      const aov =
+        (analytics as any)?.currentPeriod?.aov || analytics?.kpis?.aov || 3500;
       const competitorNames = competitors.map((c) => c.name);
 
       // 2. Identify Product / Theme Context
-      const productName = input.productName || (taskLower.includes('choker') ? '22K Gold-Plated Choker' : 'Ruhvi Anti-Tarnish Demi-Fine Jewellery');
-      const isDiwali = taskLower.includes('diwali') || taskLower.includes('festive');
-      const isWedding = taskLower.includes('wedding') || taskLower.includes('bridal');
+      const productName =
+        input.productName ||
+        (taskLower.includes('choker')
+          ? '22K Gold-Plated Choker'
+          : 'Ruhvi Anti-Tarnish Demi-Fine Jewellery');
+      const isDiwali =
+        taskLower.includes('diwali') || taskLower.includes('festive');
+      const isWedding =
+        taskLower.includes('wedding') || taskLower.includes('bridal');
 
       const campaignTheme = isDiwali
         ? 'Diwali Radiance — Festive Luxury with 22K Anti-Tarnish Elegance'
         : isWedding
-        ? 'Royal Wedding Demi-Fine — Heritage Craft Without Solid Gold Markup'
-        : 'Timeless Radiance — Everyday Anti-Tarnish 22K Gold Plated Jewellery';
+          ? 'Royal Wedding Demi-Fine — Heritage Craft Without Solid Gold Markup'
+          : 'Timeless Radiance — Everyday Anti-Tarnish 22K Gold Plated Jewellery';
 
       const targetAudience =
         input.targetAudience ||
@@ -148,7 +161,8 @@ export class StrategyCoWorker {
       // 3. Margin-Aware Discount Safeguards
       let requiredApproval = false;
       let approvalReason: string | undefined;
-      let offer = 'Free Express Blue Dart Delivery across India + Signature Velvet Box';
+      let offer =
+        'Free Express Blue Dart Delivery across India + Signature Velvet Box';
 
       if (
         taskLower.includes('discount') ||
@@ -157,8 +171,10 @@ export class StrategyCoWorker {
         taskLower.includes('15%')
       ) {
         requiredApproval = true;
-        approvalReason = 'Promotional discount code creation requires explicit founder approval for margin safeguard.';
-        offer = 'Festive Offer: ₹500 OFF on orders above ₹4,000 (Code: RUHVI500)';
+        approvalReason =
+          'Promotional discount code creation requires explicit founder approval for margin safeguard.';
+        offer =
+          'Festive Offer: ₹500 OFF on orders above ₹4,000 (Code: RUHVI500)';
       }
 
       // 4. Budget Recommendation calibrated to AOV
@@ -167,14 +183,18 @@ export class StrategyCoWorker {
       const totalBudgetInr = suggestedDailyBudgetInr * testFlightDays;
 
       const strategyResult: MarketingStrategyResult = {
-        objective: 'Acquire high-intent customers with profitable Return on Ad Spend (ROAS)',
+        objective:
+          'Acquire high-intent customers with profitable Return on Ad Spend (ROAS)',
         businessGoal: `Drive qualified traffic to ${productName} and lift AOV above current baseline of ₹${aov.toLocaleString('en-IN')}`,
         campaignType: 'Conversion / Advantage+ Shopping Campaign',
         targetAudience,
-        customerProblem: 'Traditional artificial jewellery tarnishes quickly, while real gold is too expensive/risky for daily wear.',
-        valueProposition: 'Authentic 22K gold plating + anti-tarnish e-coating + 6-month color guarantee + free express shipping.',
+        customerProblem:
+          'Traditional artificial jewellery tarnishes quickly, while real gold is too expensive/risky for daily wear.',
+        valueProposition:
+          'Authentic 22K gold plating + anti-tarnish e-coating + 6-month color guarantee + free express shipping.',
         offer,
-        campaignAngle: 'Anti-Tarnish Wear Test vs Heritage Bengal Craftsmanship',
+        campaignAngle:
+          'Anti-Tarnish Wear Test vs Heritage Bengal Craftsmanship',
         angles,
         hooks,
         headlines,
@@ -190,12 +210,22 @@ export class StrategyCoWorker {
           expectedRoasFloor: 3.2,
         },
         testingPlan: {
-          creativeTestingStrategy: '3:2:2 Dynamic Creative Test (3 hooks, 2 visual creatives, 2 primary copy variations)',
-          audienceTestingStrategy: 'Broad targeting with Advantage+ audience vs Interest-based (Luxury Fashion & Bridal Jewellery)',
-          metricsToMonitor: ['Cost per Purchase (CPP)', 'Click-Through Rate (CTR Link)', 'Thumbstop Ratio (3-sec Video Views / Impressions)', 'ROAS'],
+          creativeTestingStrategy:
+            '3:2:2 Dynamic Creative Test (3 hooks, 2 visual creatives, 2 primary copy variations)',
+          audienceTestingStrategy:
+            'Broad targeting with Advantage+ audience vs Interest-based (Luxury Fashion & Bridal Jewellery)',
+          metricsToMonitor: [
+            'Cost per Purchase (CPP)',
+            'Click-Through Rate (CTR Link)',
+            'Thumbstop Ratio (3-sec Video Views / Impressions)',
+            'ROAS',
+          ],
         },
         competitorInsights: {
-          observedCompetitors: competitorNames.length > 0 ? competitorNames : ['Giva', 'Palmonas', 'Mia by Tanishq'],
+          observedCompetitors:
+            competitorNames.length > 0
+              ? competitorNames
+              : ['Giva', 'Palmonas', 'Mia by Tanishq'],
           differentiationAngles: [
             'Ruhvi provides 6-month anti-tarnish guarantee explicitly highlighted in hook',
             'Authentic Bengal artisan heritage vs mass-produced imported alloy',
@@ -210,9 +240,13 @@ export class StrategyCoWorker {
           requiresVideo: true,
           requiresImage: true,
           aspectRatios: ['9:16 (Reels/Stories)', '1:1 (Feed)'],
-          suggestedFormat: '2-Clip Connected Video Reel (Hook + Wear Test Demonstration)',
+          suggestedFormat:
+            '2-Clip Connected Video Reel (Hook + Wear Test Demonstration)',
         },
-        recommendedNextWorkers: ['marketing_creative_media', 'marketing_ads_execution'],
+        recommendedNextWorkers: [
+          'marketing_creative_media',
+          'marketing_ads_execution',
+        ],
         risks: [
           'High CPMs during peak festival season auction spikes',
           'Ad fatigue if single creative is scaled without fresh hook variations',
@@ -228,7 +262,9 @@ export class StrategyCoWorker {
         },
         executiveVoiceSummary:
           `Marketing strategy ready for "${campaignTheme}". I've crafted ${angles.length} luxury ad angles calibrated against our ₹${aov.toLocaleString('en-IN')} AOV, recommended a ${testFlightDays}-day Meta campaign at ₹${suggestedDailyBudgetInr.toLocaleString('en-IN')}/day, and structured creative requirements for the Creative Media co-worker.` +
-          (requiredApproval ? ' Awaiting your approval before activating any discount codes.' : ''),
+          (requiredApproval
+            ? ' Awaiting your approval before activating any discount codes.'
+            : ''),
       };
 
       const findings = [
@@ -242,7 +278,9 @@ export class StrategyCoWorker {
       ];
 
       if (requiredApproval) {
-        recommendations.push(`Awaiting founder approval for coupon RUHVI500 before activation.`);
+        recommendations.push(
+          `Awaiting founder approval for coupon RUHVI500 before activation.`
+        );
       }
 
       return {
@@ -276,7 +314,9 @@ export class StrategyCoWorker {
         evidence: [err.message],
         problems: [`Failed to formulate marketing strategy: ${err.message}`],
         opportunities: [],
-        recommendations: ['Retry strategy formulation with specific product parameters.'],
+        recommendations: [
+          'Retry strategy formulation with specific product parameters.',
+        ],
         data: {},
         requiredApproval: false,
         executionStatus: 'failed',
