@@ -9,7 +9,9 @@ import {
   Sparkles,
   AlertCircle,
   RefreshCw,
+  Orbit,
 } from 'lucide-react';
+import { GrokDotsVoiceBody } from '@/components/ai/motion-engine/GrokDotsVoiceBody';
 
 export type VoiceConnectionState =
   | 'idle'
@@ -82,13 +84,22 @@ export function LiveVoiceVisualizer({
         )}
       </div>
 
-      {/* Central Visualizer Orb with Voice-Reactive Dynamics */}
+      {/* Central Visualizer Orb with Voice-Reactive Dynamics & Grok Dots 3D Particle Body */}
       <div className="relative my-6 flex items-center justify-center">
+        {/* Grok Dots 3D Particle Constellation Body */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <GrokDotsVoiceBody
+            audioLevel={audioLevel}
+            state={state === 'speaking' ? 'speaking' : state === 'listening' ? 'listening' : state === 'error' ? 'error' : 'idle'}
+            size={230}
+          />
+        </div>
+
         {/* Pulsing Outer Dynamic Rings */}
         {isLive && (
           <>
             <div
-              className={`absolute h-48 w-48 rounded-full border border-amber-400/30 transition-transform duration-75 ${
+              className={`absolute h-48 w-48 rounded-full border border-amber-400/30 transition-transform duration-75 pointer-events-none ${
                 state === 'speaking'
                   ? 'border-amber-400/50'
                   : 'border-emerald-400/40'
@@ -99,7 +110,7 @@ export function LiveVoiceVisualizer({
               }}
             />
             <div
-              className={`absolute h-36 w-36 rounded-full blur-md transition-all duration-75 ${
+              className={`absolute h-36 w-36 rounded-full blur-md transition-all duration-75 pointer-events-none ${
                 state === 'speaking'
                   ? 'bg-gradient-to-tr from-amber-500/40 to-yellow-400/30'
                   : 'bg-gradient-to-tr from-emerald-500/30 to-teal-400/30'

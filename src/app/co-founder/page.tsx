@@ -34,9 +34,11 @@ import {
   X,
   Info,
   Layers,
+  Orbit,
 } from 'lucide-react';
 import { LiveVoiceVisualizer } from '@/components/co-founder/LiveVoiceVisualizer';
 import { PlaywrightBrowserWindow } from '@/components/co-founder/PlaywrightBrowserWindow';
+import { AiHierarchyVisualizer } from '@/components/ai/motion-engine/AiHierarchyVisualizer';
 import { useLiveKitVoice } from '@/hooks/useLiveKitVoice';
 import toast from 'react-hot-toast';
 
@@ -51,7 +53,7 @@ interface ChatMessage {
 }
 
 export default function CoFounderPortalPage() {
-  const [activeTab, setActiveTab] = useState<'voice' | 'chat'>('voice');
+  const [activeTab, setActiveTab] = useState<'voice' | 'chat' | 'swarm_3d'>('voice');
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
@@ -109,6 +111,7 @@ export default function CoFounderPortalPage() {
     | 'usage'
     | 'browser'
     | 'plans'
+    | 'swarm'
   >('alerts');
   const [architectureInfo, setArchitectureInfo] = useState<any>(null);
 
@@ -794,7 +797,7 @@ export default function CoFounderPortalPage() {
           <div className="flex items-center rounded-xl border border-neutral-800 bg-neutral-900 p-1">
             <button
               onClick={() => setActiveTab('voice')}
-              className={`flex items-center gap-2 rounded-lg px-4 py-1.5 text-xs font-medium transition-all duration-200 ${
+              className={`flex items-center gap-2 rounded-lg px-3.5 py-1.5 text-xs font-medium transition-all duration-200 ${
                 activeTab === 'voice'
                   ? 'bg-amber-500 font-semibold text-neutral-950 shadow-md'
                   : 'text-neutral-400 hover:text-white'
@@ -805,7 +808,7 @@ export default function CoFounderPortalPage() {
             </button>
             <button
               onClick={() => setActiveTab('chat')}
-              className={`flex items-center gap-2 rounded-lg px-4 py-1.5 text-xs font-medium transition-all duration-200 ${
+              className={`flex items-center gap-2 rounded-lg px-3.5 py-1.5 text-xs font-medium transition-all duration-200 ${
                 activeTab === 'chat'
                   ? 'bg-amber-500 font-semibold text-neutral-950 shadow-md'
                   : 'text-neutral-400 hover:text-white'
@@ -813,6 +816,17 @@ export default function CoFounderPortalPage() {
             >
               <MessageSquare className="h-3.5 w-3.5" />
               <span>Interactive Chat</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('swarm_3d')}
+              className={`flex items-center gap-2 rounded-lg px-3.5 py-1.5 text-xs font-medium transition-all duration-200 ${
+                activeTab === 'swarm_3d'
+                  ? 'bg-amber-500 font-semibold text-neutral-950 shadow-md'
+                  : 'text-neutral-400 hover:text-white'
+              }`}
+            >
+              <Orbit className="h-3.5 w-3.5" />
+              <span>3D Motion Swarm</span>
             </button>
           </div>
         </div>
@@ -854,16 +868,24 @@ export default function CoFounderPortalPage() {
         </div>
       )}
 
-      {/* Main Grid: Visualizer/Chat & Strategic Intelligence */}
-      <div className="grid flex-1 grid-cols-1 gap-6 overflow-hidden pt-6 lg:grid-cols-12">
-        {/* Left Column (7 cols): Voice Visualizer or Extended Chat */}
-        <div
-          className={`flex flex-col justify-center ${
-            activeTab === 'voice'
-              ? 'lg:col-span-7'
-              : 'hidden opacity-80 lg:col-span-5 lg:flex'
-          }`}
-        >
+      {/* Main Grid: Visualizer/Chat & Strategic Intelligence or 3D Swarm */}
+      {activeTab === 'swarm_3d' ? (
+        <div className="flex-1 overflow-y-auto pt-6">
+          <AiHierarchyVisualizer
+            audioLevel={voice.audioLevel}
+            isThinking={voice.state === 'listening' || voice.state === 'speaking'}
+          />
+        </div>
+      ) : (
+        <div className="grid flex-1 grid-cols-1 gap-6 overflow-hidden pt-6 lg:grid-cols-12">
+          {/* Left Column (7 cols): Voice Visualizer or Extended Chat */}
+          <div
+            className={`flex flex-col justify-center ${
+              activeTab === 'voice'
+                ? 'lg:col-span-7'
+                : 'hidden opacity-80 lg:col-span-5 lg:flex'
+            }`}
+          >
           <LiveVoiceVisualizer
             state={voice.state}
             isMuted={voice.isMuted}
@@ -1010,6 +1032,27 @@ export default function CoFounderPortalPage() {
                 {loadingPlans && (
                   <RefreshCw size={9} className="animate-spin text-amber-400" />
                 )}
+              </button>
+              <button
+                onClick={() => setSelectedWidgetTab('swarm')}
+                className={`flex items-center gap-1.5 rounded-md px-2.5 py-1 text-[11px] transition-colors ${
+                  selectedWidgetTab === 'swarm'
+                    ? 'bg-amber-500/20 font-semibold text-amber-400'
+                    : 'text-neutral-400 hover:text-neutral-200'
+                }`}
+              >
+                <Orbit
+                  size={11}
+                  className={
+                    selectedWidgetTab === 'swarm'
+                      ? 'text-amber-400'
+                      : 'text-neutral-500'
+                  }
+                />
+                <span>Swarm 3D</span>
+                <span className="py-0.2 rounded border border-amber-500/30 bg-amber-500/20 px-1 font-mono text-[8px] text-amber-300">
+                  Motion
+                </span>
               </button>
             </div>
             <button
@@ -1777,6 +1820,13 @@ export default function CoFounderPortalPage() {
                   </div>
                 )}
               </div>
+            {selectedWidgetTab === 'swarm' && (
+              <div className="space-y-4">
+                <AiHierarchyVisualizer
+                  audioLevel={voice.audioLevel}
+                  isThinking={voice.state === 'listening' || voice.state === 'speaking'}
+                />
+              </div>
             )}
           </div>
 
@@ -1847,6 +1897,7 @@ export default function CoFounderPortalPage() {
           </div>
         </div>
       </div>
+      )}
 
       {/* Voice Customization Studio Modal */}
       {isVoiceModalOpen && (

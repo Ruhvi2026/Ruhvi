@@ -11,16 +11,18 @@ import {
   Film,
   BarChart3,
   Bot,
+  Orbit,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { CoWorkerStatusPanel } from '@/lib/../components/marketing/ai-studio/CoWorkerStatusPanel';
 import { CreativeMediaStudio } from '@/lib/../components/marketing/ai-studio/CreativeMediaStudio';
 import { CampaignReviewCard } from '@/lib/../components/marketing/ai-studio/CampaignReviewCard';
+import { AiHierarchyVisualizer } from '@/components/ai/motion-engine/AiHierarchyVisualizer';
 
 export default function MarketingAiStudioPage() {
   const [prompt, setPrompt] = useState('Create an ad campaign for 22K Gold Plated Choker');
   const [loading, setLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState<'creative_studio' | 'campaign_review' | 'coworkers'>('creative_studio');
+  const [activeTab, setActiveTab] = useState<'creative_studio' | 'campaign_review' | 'coworkers' | 'motion_3d'>('creative_studio');
   const [executionResult, setExecutionResult] = useState<any>(null);
 
   const samplePrompts = [
@@ -114,6 +116,17 @@ export default function MarketingAiStudioPage() {
           >
             Co-Workers Registry
           </button>
+          <button
+            onClick={() => setActiveTab('motion_3d')}
+            className={`flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-medium rounded-lg transition ${
+              activeTab === 'motion_3d'
+                ? 'bg-amber-500 text-stone-950 font-bold shadow'
+                : 'text-stone-400 hover:text-stone-200'
+            }`}
+          >
+            <Orbit className="w-3.5 h-3.5" />
+            <span>3D Swarm Motion</span>
+          </button>
         </div>
       </div>
 
@@ -165,6 +178,12 @@ export default function MarketingAiStudioPage() {
 
       {/* Main Content Area based on Selected Tab */}
       {activeTab === 'coworkers' && <CoWorkerStatusPanel />}
+
+      {activeTab === 'motion_3d' && (
+        <div className="space-y-6">
+          <AiHierarchyVisualizer initialSelectedId="worker_2" />
+        </div>
+      )}
 
       {activeTab === 'creative_studio' && (
         <div className="space-y-6">
