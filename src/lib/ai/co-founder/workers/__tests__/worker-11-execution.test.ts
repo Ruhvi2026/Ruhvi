@@ -6,7 +6,8 @@ jest.mock('@/lib/ai/co-founder/action-engine', () => ({
     actionType: 'update_inventory_stock',
     entityType: 'product',
     entityId: 'prod_123',
-    voiceSummary: 'Stock for Royal Bengal Choker successfully updated to 25 units.',
+    voiceSummary:
+      'Stock for Royal Bengal Choker successfully updated to 25 units.',
   }),
 }));
 
@@ -17,10 +18,12 @@ jest.mock('@/lib/ai/co-founder/action-planner', () => ({
     tasksCreated: 3,
     checklistsCreated: 9,
     taskIds: ['task_1', 'task_2', 'task_3'],
-    voiceSummary: 'Action plan successfully deployed into 3 tasks in Ruhvi Task Manager.',
+    voiceSummary:
+      'Action plan successfully deployed into 3 tasks in Ruhvi Task Manager.',
   }),
 }));
 
+import { executeApprovedBusinessAction } from '@/lib/ai/co-founder/action-engine';
 import { ExecutionWorker } from '../worker-11-execution';
 
 describe('Worker 11: Execution Worker (System Worker)', () => {
@@ -55,8 +58,12 @@ describe('Worker 11: Execution Worker (System Worker)', () => {
     expect(output.executionStatus).toBe('pending_approval');
     expect(output.requiredApproval).toBe(true);
     expect(output.findings[0]).toContain('EXECUTION BLOCKED');
-    expect(output.problems[0]).toContain('Unauthorized execution attempt intercepted');
-    expect(output.executiveVoiceSummary).toContain('cannot execute this action without your explicit approval');
+    expect(output.problems[0]).toContain(
+      'Unauthorized execution attempt intercepted'
+    );
+    expect(output.executiveVoiceSummary).toContain(
+      'cannot execute this action without your explicit approval'
+    );
   });
 
   it('safely executes an approved business action when approval_id is provided', async () => {
@@ -75,7 +82,9 @@ describe('Worker 11: Execution Worker (System Worker)', () => {
     expect(output.findings[0]).toContain('executed successfully');
     expect(output.data?.whatWasChanged).toBeTruthy();
     expect(output.data?.whereItWasChanged).toBeTruthy();
-    expect(output.recommendations.some((r) => r.includes('Worker 12'))).toBe(true);
+    expect(output.recommendations.some((r) => r.includes('Worker 12'))).toBe(
+      true
+    );
   });
 
   it('safely executes an approved action plan to Task Manager when plan_id is provided', async () => {
@@ -88,13 +97,16 @@ describe('Worker 11: Execution Worker (System Worker)', () => {
 
     expect(output.workerId).toBe('worker_execution');
     expect(output.executionStatus).toBe('executed');
-    expect(output.data?.whatWasChanged).toContain('Created 3 operational tasks');
-    expect(output.executiveVoiceSummary).toContain('3 tasks in Ruhvi Task Manager');
+    expect(output.data?.whatWasChanged).toContain(
+      'Created 3 operational tasks'
+    );
+    expect(output.executiveVoiceSummary).toContain(
+      '3 tasks in Ruhvi Task Manager'
+    );
   });
 
   it('handles execution engine failures cleanly', async () => {
-    const { executeApprovedBusinessAction } = require('@/lib/ai/co-founder/action-engine');
-    executeApprovedBusinessAction.mockResolvedValueOnce({
+    (executeApprovedBusinessAction as jest.Mock).mockResolvedValueOnce({
       success: false,
       error: 'Approval token has expired or already been executed',
     });

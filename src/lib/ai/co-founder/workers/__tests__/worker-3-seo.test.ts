@@ -12,6 +12,7 @@ jest.mock('@/lib/ai/co-founder/seo-health', () => ({
   }),
 }));
 
+import { auditCatalogSeoHealth } from '@/lib/ai/co-founder/seo-health';
 import { SeoWorker } from '../worker-3-seo';
 
 describe('Worker 3: SEO Worker', () => {
@@ -42,17 +43,22 @@ describe('Worker 3: SEO Worker', () => {
     expect(output.workerId).toBe('worker_seo');
     expect(output.findings[0]).toContain('74/100');
     expect(output.problems.length).toBeGreaterThan(0);
-    expect(output.problems[0]).toContain('12 products are missing custom meta descriptions');
+    expect(output.problems[0]).toContain(
+      '12 products are missing custom meta descriptions'
+    );
     expect(output.opportunities.length).toBeGreaterThanOrEqual(3);
-    expect(output.opportunities.some((o) => o.includes('anti tarnish'))).toBe(true);
-    expect(output.recommendations.some((r) => r.includes('JSON-LD'))).toBe(true);
+    expect(output.opportunities.some((o) => o.includes('anti tarnish'))).toBe(
+      true
+    );
+    expect(output.recommendations.some((r) => r.includes('JSON-LD'))).toBe(
+      true
+    );
     expect(output.priority).toBe('high');
     expect(output.executiveVoiceSummary).toContain('74 out of 100');
   });
 
   it('elevates priority to critical when SEO score is critically low', async () => {
-    const { auditCatalogSeoHealth } = require('@/lib/ai/co-founder/seo-health');
-    auditCatalogSeoHealth.mockResolvedValueOnce({
+    (auditCatalogSeoHealth as jest.Mock).mockResolvedValueOnce({
       seoScore: 48,
       totalProductsAudited: 50,
       missingMetaDescriptionCount: 35,
@@ -71,8 +77,9 @@ describe('Worker 3: SEO Worker', () => {
   });
 
   it('handles SEO audit exception gracefully', async () => {
-    const { auditCatalogSeoHealth } = require('@/lib/ai/co-founder/seo-health');
-    auditCatalogSeoHealth.mockRejectedValueOnce(new Error('Catalog DB read error'));
+    (auditCatalogSeoHealth as jest.Mock).mockRejectedValueOnce(
+      new Error('Catalog DB read error')
+    );
 
     const output = await worker.execute({
       task: 'Audit SEO',

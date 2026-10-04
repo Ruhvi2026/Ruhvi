@@ -34,6 +34,7 @@ jest.mock('@/lib/ai/co-founder/analytics', () => ({
   }),
 }));
 
+import { getStoreAnalytics } from '@/lib/ai/co-founder/analytics';
 import { MonitoringVerificationWorker } from '../worker-12-monitoring';
 
 describe('Worker 12: Monitoring & Verification Worker (System Worker)', () => {
@@ -72,8 +73,7 @@ describe('Worker 12: Monitoring & Verification Worker (System Worker)', () => {
   });
 
   it('detects performance regression and elevates priority to critical with rollback recommendation', async () => {
-    const { getStoreAnalytics } = require('@/lib/ai/co-founder/analytics');
-    getStoreAnalytics.mockResolvedValueOnce({
+    (getStoreAnalytics as jest.Mock).mockResolvedValueOnce({
       currentPeriod: {
         totalRevenue: 180000,
         totalOrders: 45,
@@ -91,8 +91,14 @@ describe('Worker 12: Monitoring & Verification Worker (System Worker)', () => {
     });
 
     expect(output.priority).toBe('critical');
-    expect(output.problems.some((p) => p.includes('Performance Regression Detected'))).toBe(true);
-    expect(output.recommendations.some((r) => r.includes('rolling back'))).toBe(true);
-    expect(output.executiveVoiceSummary).toContain('Alert: A performance regression was detected');
+    expect(
+      output.problems.some((p) => p.includes('Performance Regression Detected'))
+    ).toBe(true);
+    expect(output.recommendations.some((r) => r.includes('rolling back'))).toBe(
+      true
+    );
+    expect(output.executiveVoiceSummary).toContain(
+      'Alert: A performance regression was detected'
+    );
   });
 });

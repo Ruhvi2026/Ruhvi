@@ -14,7 +14,7 @@ jest.mock('@/lib/ai/co-founder/competitors', () => ({
 }));
 
 jest.mock('@/lib/ai/browser/playwright', () => ({
-  browsePublicWebsite: jest.fn().mockResolvedValue({
+  browseWebPageWithPlaywright: jest.fn().mockResolvedValue({
     url: 'https://competitor.com',
     status: 200,
     title: 'Luxury Demi-Fine Jewellery Online',
@@ -25,6 +25,7 @@ jest.mock('@/lib/ai/browser/playwright', () => ({
   }),
 }));
 
+import { browseWebPageWithPlaywright } from '@/lib/ai/browser/playwright';
 import { CompetitorResearchWorker } from '../worker-5-competitor';
 
 describe('Worker 5: Competitor Research Worker', () => {
@@ -56,18 +57,36 @@ describe('Worker 5: Competitor Research Worker', () => {
 
     // Check VERIFIED items
     const verified = output.data?.verifiedInformation || [];
-    expect(verified.some((v: string) => v.includes('[VERIFIED] Successfully browsed competitor site'))).toBe(true);
-    expect(verified.some((v: string) => v.includes('[VERIFIED] Primary Value Proposition'))).toBe(true);
-    expect(verified.some((v: string) => v.includes('[VERIFIED] Live Extracted Price Points'))).toBe(true);
+    expect(
+      verified.some((v: string) =>
+        v.includes('[VERIFIED] Successfully browsed competitor site')
+      )
+    ).toBe(true);
+    expect(
+      verified.some((v: string) =>
+        v.includes('[VERIFIED] Primary Value Proposition')
+      )
+    ).toBe(true);
+    expect(
+      verified.some((v: string) =>
+        v.includes('[VERIFIED] Live Extracted Price Points')
+      )
+    ).toBe(true);
 
     // Check INFERRED items
     const inferences = output.data?.assumptionsAndInferences || [];
-    expect(inferences.some((i: string) => i.includes('[INFERENCE]'))).toBe(true);
+    expect(inferences.some((i: string) => i.includes('[INFERENCE]'))).toBe(
+      true
+    );
 
     // Differentiation and recommendations
     expect(output.opportunities.length).toBeGreaterThan(0);
-    expect(output.opportunities.some((o) => o.includes('Ruhvi Guarantee Advantage'))).toBe(true);
-    expect(output.executiveVoiceSummary).toContain('Competitor analysis complete');
+    expect(
+      output.opportunities.some((o) => o.includes('Ruhvi Guarantee Advantage'))
+    ).toBe(true);
+    expect(output.executiveVoiceSummary).toContain(
+      'Competitor analysis complete'
+    );
   });
 
   it('works seamlessly using database competitor registry when no URL is provided', async () => {
@@ -76,20 +95,25 @@ describe('Worker 5: Competitor Research Worker', () => {
     });
 
     expect(output.workerId).toBe('worker_competitor_research');
-    expect(output.findings.some((f) => f.includes('Giva Jewellery'))).toBe(true);
+    expect(output.findings.some((f) => f.includes('Giva Jewellery'))).toBe(
+      true
+    );
     expect(output.recommendations.length).toBeGreaterThan(0);
   });
 
   it('handles browser crawl errors gracefully and falls back to inference', async () => {
-    const { browsePublicWebsite } = require('@/lib/ai/browser/playwright');
-    browsePublicWebsite.mockRejectedValueOnce(new Error('Cloudflare Captcha Challenge'));
+    (browseWebPageWithPlaywright as jest.Mock).mockRejectedValueOnce(
+      new Error('Cloudflare Captcha Challenge')
+    );
 
     const output = await worker.execute({
       task: 'Analyze https://blocked-competitor.com',
     });
 
     expect(output.workerId).toBe('worker_competitor_research');
-    expect(output.findings.some((f) => f.includes('timed out or blocked'))).toBe(true);
+    expect(
+      output.findings.some((f) => f.includes('timed out or blocked'))
+    ).toBe(true);
     expect(output.executionStatus).toBe('not_required');
   });
 });

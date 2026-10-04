@@ -21,6 +21,7 @@ jest.mock('@/lib/ai/co-founder/competitors', () => ({
   ]),
 }));
 
+import { getStoreAnalytics } from '@/lib/ai/co-founder/analytics';
 import { MarketingWorker } from '../worker-2-marketing';
 
 describe('Worker 2: Marketing Worker', () => {
@@ -37,7 +38,9 @@ describe('Worker 2: Marketing Worker', () => {
 
     const def = worker.getDefinition();
     expect(def.role).toContain('Marketing Director');
-    expect(def.responsibilities).toContain('Multi-angle ad copy generation (Meta, Google, WhatsApp, Email)');
+    expect(def.responsibilities).toContain(
+      'Multi-angle ad copy generation (Meta, Google, WhatsApp, Email)'
+    );
     expect(def.requiredSkills).toContain('Visual art direction');
   });
 
@@ -58,7 +61,11 @@ describe('Worker 2: Marketing Worker', () => {
     expect(brief.videoStoryboard.scenes.length).toBe(3);
 
     // Checks missing capability is transparently declared per Step 0.3
-    expect(output.missingCapabilities?.some((c) => c.includes('Direct Video Rendering'))).toBe(true);
+    expect(
+      output.missingCapabilities?.some((c) =>
+        c.includes('Direct Video Rendering')
+      )
+    ).toBe(true);
     expect(output.requiredApproval).toBe(false);
     expect(output.executionStatus).toBe('not_required');
   });
@@ -70,13 +77,18 @@ describe('Worker 2: Marketing Worker', () => {
 
     expect(output.requiredApproval).toBe(true);
     expect(output.executionStatus).toBe('pending_approval');
-    expect(output.recommendations.some((r) => r.includes('RUHVI500') || r.includes('coupon'))).toBe(true);
+    expect(
+      output.recommendations.some(
+        (r) => r.includes('RUHVI500') || r.includes('coupon')
+      )
+    ).toBe(true);
     expect(output.executiveVoiceSummary).toContain('Awaiting your approval');
   });
 
   it('handles external dependency failure gracefully', async () => {
-    const { getStoreAnalytics } = require('@/lib/ai/co-founder/analytics');
-    getStoreAnalytics.mockRejectedValueOnce(new Error('Analytics service unreachable'));
+    (getStoreAnalytics as jest.Mock).mockRejectedValueOnce(
+      new Error('Analytics service unreachable')
+    );
 
     // Should not crash, competitor and fallbacks should work
     const output = await worker.execute({

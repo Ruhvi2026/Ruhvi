@@ -38,7 +38,8 @@ jest.mock('@/lib/ai/co-founder/business-intelligence', () => ({
         id: 'opp_1',
         title: 'Choker Cross-Sell Opportunity',
         potentialRevenueUpside: 35000,
-        recommendedAction: 'Bundle choker with matching earrings for 10% discount',
+        recommendedAction:
+          'Bundle choker with matching earrings for 10% discount',
       },
     ],
     summary: {
@@ -49,6 +50,7 @@ jest.mock('@/lib/ai/co-founder/business-intelligence', () => ({
   }),
 }));
 
+import { getStoreAnalytics } from '@/lib/ai/co-founder/analytics';
 import { AnalyticsPerformanceWorker } from '../worker-1-analytics';
 
 describe('Worker 1: Analytics & Performance Worker', () => {
@@ -92,8 +94,7 @@ describe('Worker 1: Analytics & Performance Worker', () => {
   });
 
   it('detects high cancellation rates and flags as high/critical priority', async () => {
-    const { getStoreAnalytics } = require('@/lib/ai/co-founder/analytics');
-    getStoreAnalytics.mockResolvedValueOnce({
+    (getStoreAnalytics as jest.Mock).mockResolvedValueOnce({
       currentPeriod: {
         timeframeLabel: 'Last 7 Days',
         startDate: '2026-09-27',
@@ -127,13 +128,18 @@ describe('Worker 1: Analytics & Performance Worker', () => {
     });
 
     expect(output.priority).toBe('critical');
-    expect(output.problems.some((p) => p.includes('cancellation rate'))).toBe(true);
-    expect(output.recommendations.some((r) => r.includes('root-cause investigation'))).toBe(true);
+    expect(output.problems.some((p) => p.includes('cancellation rate'))).toBe(
+      true
+    );
+    expect(
+      output.recommendations.some((r) => r.includes('root-cause investigation'))
+    ).toBe(true);
   });
 
   it('handles backend failures gracefully without crashing', async () => {
-    const { getStoreAnalytics } = require('@/lib/ai/co-founder/analytics');
-    getStoreAnalytics.mockRejectedValueOnce(new Error('Supabase database timeout'));
+    (getStoreAnalytics as jest.Mock).mockRejectedValueOnce(
+      new Error('Supabase database timeout')
+    );
 
     const output = await worker.execute({
       task: 'Check store metrics',

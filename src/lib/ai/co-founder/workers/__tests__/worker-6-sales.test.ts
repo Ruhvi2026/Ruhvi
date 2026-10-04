@@ -14,6 +14,7 @@ jest.mock('@/lib/ai/co-founder/analytics', () => ({
   }),
 }));
 
+import { getStoreAnalytics } from '@/lib/ai/co-founder/analytics';
 import { SalesConversionWorker } from '../worker-6-sales';
 
 describe('Worker 6: Sales & Conversion Worker', () => {
@@ -55,13 +56,18 @@ describe('Worker 6: Sales & Conversion Worker', () => {
     expect(output.problems.length).toBeGreaterThan(0);
     expect(output.opportunities.some((o) => o.includes('UPI'))).toBe(true);
     expect(output.recommendations.length).toBeGreaterThanOrEqual(2);
-    expect(output.recommendations.some((r) => r.includes('Express Checkout') || r.includes('UPI'))).toBe(true);
+    expect(
+      output.recommendations.some(
+        (r) => r.includes('Express Checkout') || r.includes('UPI')
+      )
+    ).toBe(true);
     expect(output.executiveVoiceSummary).toContain('Overall store conversion');
   });
 
   it('handles backend analytics failure gracefully', async () => {
-    const { getStoreAnalytics } = require('@/lib/ai/co-founder/analytics');
-    getStoreAnalytics.mockRejectedValueOnce(new Error('Orders table read timeout'));
+    (getStoreAnalytics as jest.Mock).mockRejectedValueOnce(
+      new Error('Orders table read timeout')
+    );
 
     const output = await worker.execute({
       task: 'Check conversion rate',
