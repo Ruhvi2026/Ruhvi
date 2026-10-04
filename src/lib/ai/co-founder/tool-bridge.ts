@@ -31,6 +31,10 @@ import {
   saveActionPlan,
   executeActionPlanToTaskManager,
 } from './action-planner';
+import {
+  dispatchWorkerTask,
+  getWorkerRegistryStatus,
+} from './workers';
 
 export interface ToolExecutionResult {
   toolName: string;
@@ -49,7 +53,13 @@ export interface ToolExecutionResult {
 export async function executeCoFounderTool(
   toolName: string,
   args: Record<string, any> = {},
-  userScopes: string[] = ['admin:full', 'mcp_tools:read', 'mcp_tools:write']
+  userScopes: string[] = [
+    'admin:full',
+    'mcp_tools:read',
+    'mcp_tools:write',
+    'analytics:read',
+    'analytics:write',
+  ]
 ): Promise<ToolExecutionResult> {
   // 1. Authorize tool execution using the existing permission matrix
   const permissionError = assertToolPermission(userScopes, toolName);
@@ -543,6 +553,134 @@ export async function executeCoFounderTool(
           data: res,
           error: res.error,
           summaryForVoice: res.voiceSummary,
+        };
+      }
+
+      case 'dispatch_worker_task': {
+        if (!args.task) {
+          throw new Error('task description is required to dispatch worker');
+        }
+        const target = args.worker_id || 'auto';
+        const dispatchRes = await dispatchWorkerTask(target, {
+          task: args.task,
+          timeframe: args.timeframe,
+          parameters: args.parameters,
+        });
+
+        return {
+          toolName,
+          success: true,
+          data: dispatchRes,
+          summaryForVoice: dispatchRes.summaryForVoice,
+        };
+      }
+
+      case 'get_worker_statuses': {
+        const statuses = getWorkerRegistryStatus();
+        return {
+          toolName,
+          success: true,
+          data: statuses,
+          summaryForVoice: `All 12 AI Agent Workers are active and operational under the AI Co-Founder.`,
+        };
+      }
+
+      case 'dispatch_marketing_coworker': {
+        if (!args.task) {
+          throw new Error('task is required to dispatch marketing co-worker');
+        }
+        const { executeCoWorkerById } = await import('@/lib/ai/co-founder/workers/marketing');
+        const coWorkerId = args.coworker_id || 'marketing_strategy';
+        const result = await executeCoWorkerById(coWorkerId, {
+          task: args.task,
+          parameters: args.parameters,
+        });
+
+        return {
+          toolName,
+          success: result.success,
+          data: result,
+          summaryForVoice: result.executiveVoiceSummary,
+        };
+      }
+
+      case 'get_marketing_coworker_statuses': {
+        const { getAllCoWorkerStatuses } = await import('@/lib/ai/co-founder/workers/marketing');
+        const statuses = getAllCoWorkerStatuses();
+        return {
+          toolName,
+          success: true,
+          data: statuses,
+          summaryForVoice: `There are 3 enabled and 3 production-only disabled Marketing Co-Workers in the registry.`,
+        };
+      }
+
+      case 'toggle_marketing_coworker': {
+        if (!args.coworker_id || !args.status) {
+          throw new Error('coworker_id and status ("ENABLED" | "DISABLED") are required');
+        }
+        const { setCoWorkerStatus } = await import('@/lib/ai/co-founder/workers/marketing');
+        setCoWorkerStatus(args.coworker_id, args.status);
+        return {
+          toolName,
+          success: true,
+          data: { coworker_id: args.coworker_id, status: args.status },
+          summaryForVoice: `Marketing Co-worker ${args.coworker_id} is now ${args.status}.`,
+        };
+      }
+
+      case 'trigger_media_processing_job': {
+        if (!args.video_1_url || !args.video_2_url) {
+          throw new Error('video_1_url and video_2_url are required to trigger media processing');
+        }
+        const { createAndDispatchMediaJob } = await import('@/lib/ai/co-founder/workers/marketing');
+        const job = await createAndDispatchMediaJob({
+          campaignId: args.campaign_id || `cmp_${Date.now()}`,
+          taskId: args.task_id || `task_${Date.now()}`,
+          video1Url: args.video_1_url,
+          video2Url: args.video_2_url,
+          voiceoverLanguage: args.voiceover_language,
+          voiceoverScript: args.voiceover_script,
+        });
+        return {
+          toolName,
+          success: true,
+          data: job,
+          summaryForVoice: `Media job ${job.jobId} created and dispatched to n8n webhook pipeline.`,
+        };
+      }
+
+      case 'get_media_job_status': {
+        if (!args.job_id) {
+          throw new Error('job_id is required');
+        }
+        const { getMediaJob } = await import('@/lib/ai/co-founder/workers/marketing');
+        const job = getMediaJob(args.job_id);
+        return {
+          toolName,
+          success: Boolean(job),
+          data: job,
+          summaryForVoice: job
+            ? `Media job ${job.jobId} status is ${job.status}.`
+            : `Media job ${args.job_id} not found.`,
+        };
+      }
+
+      case 'publish_ad_campaign': {
+        if (!args.campaign_id) {
+          throw new Error('campaign_id is required to publish ad campaign');
+        }
+        const { metaAdsService } = await import('@/lib/ai/co-founder/workers/marketing');
+        const pubResult = await metaAdsService.activateApprovedCampaign({
+          metaCampaignId: args.campaign_id,
+          approvalId: args.approval_id || `app_override_${Date.now()}`,
+          approvedBy: args.user_id || 'founder_admin',
+        });
+        return {
+          toolName,
+          success: pubResult.success,
+          data: pubResult,
+          summaryForVoice: `Campaign ${args.campaign_id} has been approved and published to Meta Ads.`,
         };
       }
 

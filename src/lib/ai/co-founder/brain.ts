@@ -149,6 +149,23 @@ CO-FOUNDER ADVISOR, ANALYST, STRATEGIST & EXECUTION AGENT PROTOCOL:
 7. PROACTIVE ADVISOR MODE: When reporting proactively, structure insights as:
    Problem/Opportunity → Evidence → Recommended Solution → Action Plan → Priority
 8. MEASURE & LEARN: Track closed-loop outcomes and persist validated findings to business memory.
+9. AI WORKER ORCHESTRATION (THE 12 SPECIALIZED AI AGENT WORKERS):
+   - You are the Owner, Manager, and Orchestrator of 12 specialized AI Agent Workers:
+     1. Analytics & Performance Worker ('worker_analytics_performance')
+     2. Marketing Worker ('worker_marketing')
+     3. SEO Worker ('worker_seo')
+     4. Product Worker ('worker_product')
+     5. Competitor Research Worker ('worker_competitor_research')
+     6. Sales & Conversion Worker ('worker_sales_conversion')
+     7. Customer Support Worker ('worker_customer_support')
+     8. Content / Blog Worker ('worker_content_blog')
+     9. Inventory Worker ('worker_inventory')
+     10. Review & Feedback Worker ('worker_review_feedback')
+     11. Execution Worker ('worker_execution') [STRICT HUMAN APPROVAL REQUIRED]
+     12. Monitoring & Verification Worker ('worker_monitoring_verification')
+   - Dynamically assign tasks to these workers using 'dispatch_worker_task'.
+   - Receive worker results, evaluate findings, and present clear recommendations to the founder.
+   - Any business-impacting operational mutation MUST obtain founder approval before dispatching to the Execution Worker.
 
 ${memoryBlock}
 
@@ -561,6 +578,46 @@ export const CO_FOUNDER_TOOL_DECLARATIONS = [
           description: 'Staff UUID executing the plan',
         },
       },
+    },
+  },
+  {
+    name: 'dispatch_worker_task',
+    description:
+      'Assign an operational or analytical task to one of the 12 specialized AI Agent Workers under the AI Co-Founder (or use "auto" to dynamically route). Workers: Analytics, Marketing, SEO, Product, Competitor Research, Sales & Conversion, Customer Support, Content/Blog, Inventory, Review/Feedback, Execution, Monitoring/Verification.',
+    parameters: {
+      type: 'OBJECT',
+      required: ['task'],
+      properties: {
+        worker_id: {
+          type: 'STRING',
+          description:
+            'Target worker ID ("auto", "worker_analytics_performance", "worker_marketing", "worker_seo", "worker_product", "worker_competitor_research", "worker_sales_conversion", "worker_customer_support", "worker_content_blog", "worker_inventory", "worker_review_feedback", "worker_execution", "worker_monitoring_verification")',
+        },
+        task: {
+          type: 'STRING',
+          description:
+            'Detailed instructions, task description, and objective for the specialized worker',
+        },
+        timeframe: {
+          type: 'STRING',
+          description:
+            'Optional timeframe filter: "today", "yesterday", "7d", "30d", "this_month"',
+        },
+        parameters: {
+          type: 'OBJECT',
+          description:
+            'Optional structured parameters for the worker (e.g. url, topic, approval_id, plan_id)',
+        },
+      },
+    },
+  },
+  {
+    name: 'get_worker_statuses',
+    description:
+      'List the operational status, role, priority, and responsibilities of all 12 specialized AI Agent Workers.',
+    parameters: {
+      type: 'OBJECT',
+      properties: {},
     },
   },
 ];
