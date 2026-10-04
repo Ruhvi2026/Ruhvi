@@ -39,7 +39,11 @@ import {
 import { LiveVoiceVisualizer } from '@/components/co-founder/LiveVoiceVisualizer';
 import { PlaywrightBrowserWindow } from '@/components/co-founder/PlaywrightBrowserWindow';
 import { CoFounderCharacter } from '@/components/co-founder/CoFounderCharacter';
+import { CoWorkerAvatar } from '@/components/co-founder/CoWorkerAvatar';
+import { CoWorkerShowcase } from '@/components/co-founder/CoWorkerShowcase';
+import { WorkerGrid } from '@/components/co-founder/workforce/WorkerGrid';
 import { AiHierarchyVisualizer } from '@/components/ai/motion-engine/AiHierarchyVisualizer';
+import { LiveWorkspace } from '@/components/co-founder/workspace/LiveWorkspace';
 import { useLiveKitVoice } from '@/hooks/useLiveKitVoice';
 import toast from 'react-hot-toast';
 
@@ -314,9 +318,9 @@ export const getWorkerIcon = (role: SwarmWorkerNode['role']) => {
 };
 
 export default function CoFounderPortalPage() {
-  const [activeTab, setActiveTab] = useState<'voice' | 'chat' | 'swarm_3d'>(
-    'voice'
-  );
+  const [activeTab, setActiveTab] = useState<
+    'voice' | 'chat' | 'swarm_3d' | 'workspace'
+  >('voice');
   const [selectedWorkerId, setSelectedWorkerId] =
     useState<string>('co_founder');
   const [input, setInput] = useState('');
@@ -379,6 +383,7 @@ export default function CoFounderPortalPage() {
     | 'browser'
     | 'plans'
     | 'swarm'
+    | 'workspace'
   >('alerts');
   const [architectureInfo, setArchitectureInfo] = useState<any>(null);
 
@@ -630,11 +635,10 @@ export default function CoFounderPortalPage() {
   }, []);
 
   // Handle Chat Submit
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!input.trim() || isLoading) return;
+  const executeChatMessage = async (rawText: string) => {
+    if (!rawText.trim() || isLoading) return;
 
-    const rawInput = input.trim();
+    const rawInput = rawText.trim();
     let targetedRole: any = 'cofounder';
     let workerName = 'AI Co-Founder';
 
@@ -731,6 +735,11 @@ export default function CoFounderPortalPage() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    executeChatMessage(input);
   };
 
   // Playwright Live Browsing Action
@@ -967,21 +976,29 @@ export default function CoFounderPortalPage() {
               ).map((node) => {
                 const theme = getRoleTheme(node.role);
                 const isSelected = selectedWorkerId === node.id;
+                const avatarStatus =
+                  node.status === 'executing' || node.status === 'active'
+                    ? 'working'
+                    : node.status === 'analyzing' ||
+                        node.status === 'generating'
+                      ? 'thinking'
+                      : 'idle';
                 return (
                   <button
                     key={node.id}
                     onClick={() => setSelectedWorkerId(node.id)}
-                    className={`group relative flex items-center gap-3 rounded-2xl border p-3 text-left transition-all duration-300 ${
+                    className={`group relative flex items-center gap-3.5 rounded-2xl border p-3 text-left transition-all duration-300 ${
                       isSelected
                         ? `border-2 ${theme.border} bg-nm-gradient-light dark:bg-nm-gradient-dark ${theme.activeGlow} scale-105`
                         : `hover:scale-102 border-neutral-200/80 bg-nm-light-bg shadow-nm-convex dark:border-neutral-800 dark:bg-nm-dark-bg dark:shadow-nm-convex-dark ${theme.glow}`
                     }`}
                   >
-                    <div
-                      className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border ${theme.badge} shadow-nm-flat dark:shadow-nm-flat-dark`}
-                    >
-                      {getWorkerIcon(node.role)}
-                    </div>
+                    <CoWorkerAvatar
+                      role={node.role}
+                      status={avatarStatus}
+                      size="sm"
+                      showBadge={false}
+                    />
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center justify-between gap-1">
                         <span className="truncate text-xs font-bold text-nm-light-textPrimary dark:text-white">
@@ -1029,21 +1046,29 @@ export default function CoFounderPortalPage() {
               ).map((node) => {
                 const theme = getRoleTheme(node.role);
                 const isSelected = selectedWorkerId === node.id;
+                const avatarStatus =
+                  node.status === 'executing' || node.status === 'active'
+                    ? 'working'
+                    : node.status === 'analyzing' ||
+                        node.status === 'generating'
+                      ? 'thinking'
+                      : 'idle';
                 return (
                   <button
                     key={node.id}
                     onClick={() => setSelectedWorkerId(node.id)}
-                    className={`group relative flex items-center gap-3 rounded-2xl border p-3 text-left transition-all duration-300 ${
+                    className={`group relative flex items-center gap-3.5 rounded-2xl border p-3 text-left transition-all duration-300 ${
                       isSelected
                         ? `border-2 ${theme.border} bg-nm-gradient-light dark:bg-nm-gradient-dark ${theme.activeGlow} scale-105`
                         : `hover:scale-102 border-neutral-200/80 bg-nm-light-bg shadow-nm-convex dark:border-neutral-800 dark:bg-nm-dark-bg dark:shadow-nm-convex-dark ${theme.glow}`
                     }`}
                   >
-                    <div
-                      className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border ${theme.badge} shadow-nm-flat dark:shadow-nm-flat-dark`}
-                    >
-                      {getWorkerIcon(node.role)}
-                    </div>
+                    <CoWorkerAvatar
+                      role={node.role}
+                      status={avatarStatus}
+                      size="sm"
+                      showBadge={false}
+                    />
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center justify-between gap-1">
                         <span className="truncate text-xs font-bold text-nm-light-textPrimary dark:text-white">
@@ -1380,6 +1405,17 @@ export default function CoFounderPortalPage() {
               <Orbit className="h-3.5 w-3.5" />
               <span>3D Workforce Swarm</span>
             </button>
+            <button
+              onClick={() => setActiveTab('workspace')}
+              className={`flex items-center gap-2 rounded-xl px-3.5 py-1.5 text-xs font-medium transition-all duration-200 ${
+                activeTab === 'workspace'
+                  ? 'bg-nm-gradient-light font-bold text-cyan-700 shadow-nm-flat dark:bg-nm-gradient-dark dark:text-cyan-300 dark:shadow-nm-flat-dark'
+                  : 'text-nm-light-textSecondary hover:text-nm-light-textPrimary dark:text-neutral-400 dark:hover:text-white'
+              }`}
+            >
+              <Activity className="h-3.5 w-3.5" />
+              <span>Live Workspace</span>
+            </button>
           </div>
         </div>
       </div>
@@ -1424,8 +1460,24 @@ export default function CoFounderPortalPage() {
 
       {/* Main View Area */}
       {activeTab === 'swarm_3d' ? (
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 space-y-6 overflow-y-auto pr-1">
           {renderSwarmSpatialUI(false)}
+          <WorkerGrid
+            onSelectWorker={(id) => setSelectedWorkerId(id)}
+            onPromptWorker={(role) => {
+              setInput(`@${role} `);
+              setActiveTab('chat');
+            }}
+          />
+        </div>
+      ) : activeTab === 'workspace' ? (
+        <div className="flex-1 overflow-y-auto pr-1">
+          <LiveWorkspace
+            onWorkerClick={(role) => {
+              setInput(`@${role} `);
+              setActiveTab('chat');
+            }}
+          />
         </div>
       ) : (
         <div className="grid flex-1 grid-cols-1 gap-6 overflow-hidden lg:grid-cols-12">
@@ -1447,6 +1499,9 @@ export default function CoFounderPortalPage() {
               roomName={voice.roomName}
               audioLevel={voice.audioLevel}
               interimTranscript={voice.interimTranscript}
+              messages={messages}
+              onSendMessage={executeChatMessage}
+              isLoading={isLoading}
             />
           </div>
 
@@ -1599,6 +1654,24 @@ export default function CoFounderPortalPage() {
                   />
                   <span>Swarm</span>
                 </button>
+                <button
+                  onClick={() => setSelectedWidgetTab('workspace')}
+                  className={`flex items-center gap-1 rounded-xl px-2.5 py-1 text-[11px] font-medium transition-all ${
+                    selectedWidgetTab === 'workspace'
+                      ? 'border border-cyan-500/40 bg-nm-gradient-light font-bold text-cyan-700 shadow-nm-flat dark:bg-nm-gradient-dark dark:text-cyan-300 dark:shadow-nm-flat-dark'
+                      : 'text-nm-light-textSecondary hover:text-nm-light-textPrimary dark:text-neutral-400 dark:hover:text-neutral-200'
+                  }`}
+                >
+                  <Activity
+                    size={11}
+                    className={
+                      selectedWidgetTab === 'workspace'
+                        ? 'text-cyan-700 dark:text-cyan-300'
+                        : 'text-neutral-500'
+                    }
+                  />
+                  <span>Workspace</span>
+                </button>
               </div>
               <button
                 onClick={() => {
@@ -1629,8 +1702,9 @@ export default function CoFounderPortalPage() {
                 selectedWidgetTab === 'usage' ||
                 selectedWidgetTab === 'browser' ||
                 selectedWidgetTab === 'plans' ||
-                selectedWidgetTab === 'swarm'
-                  ? 'max-h-[560px]'
+                selectedWidgetTab === 'swarm' ||
+                selectedWidgetTab === 'workspace'
+                  ? 'max-h-[600px]'
                   : 'max-h-48'
               }`}
             >
@@ -2053,7 +2127,22 @@ export default function CoFounderPortalPage() {
               )}
 
               {selectedWidgetTab === 'swarm' && (
-                <div className="space-y-4">{renderSwarmSpatialUI(true)}</div>
+                <div className="space-y-6">
+                  {renderSwarmSpatialUI(true)}
+                  <CoWorkerShowcase />
+                </div>
+              )}
+
+              {selectedWidgetTab === 'workspace' && (
+                <div className="space-y-4">
+                  <LiveWorkspace
+                    className="p-1 sm:p-2"
+                    onWorkerClick={(role) => {
+                      setInput(`@${role} `);
+                      setActiveTab('chat');
+                    }}
+                  />
+                </div>
               )}
             </div>
 

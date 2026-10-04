@@ -11,6 +11,10 @@ import {
   Activity,
 } from 'lucide-react';
 import { CoFounderCharacter, CharacterState } from './CoFounderCharacter';
+import {
+  VoiceTranscriptWindow,
+  ChatMessageItem,
+} from './VoiceTranscriptWindow';
 
 export type VoiceConnectionState =
   | 'idle'
@@ -31,6 +35,9 @@ interface LiveVoiceVisualizerProps {
   roomName?: string;
   audioLevel?: number;
   interimTranscript?: string;
+  messages?: ChatMessageItem[];
+  onSendMessage?: (text: string) => void;
+  isLoading?: boolean;
 }
 
 export function LiveVoiceVisualizer({
@@ -43,6 +50,9 @@ export function LiveVoiceVisualizer({
   roomName,
   audioLevel = 0,
   interimTranscript = '',
+  messages = [],
+  onSendMessage,
+  isLoading = false,
 }: LiveVoiceVisualizerProps) {
   const isLive =
     state === 'connected' || state === 'listening' || state === 'speaking';
@@ -63,7 +73,7 @@ export function LiveVoiceVisualizer({
             : 'idle';
 
   return (
-    <div className="relative flex flex-col items-center justify-center overflow-hidden rounded-3xl border border-neutral-200/80 bg-nm-light-bg p-6 text-nm-light-textPrimary shadow-nm-flat backdrop-blur-2xl transition-all dark:border-neutral-800/90 dark:bg-nm-dark-bg dark:text-nm-dark-textPrimary dark:shadow-nm-flat-dark">
+    <div className="relative flex flex-col items-center justify-center overflow-hidden rounded-3xl border border-neutral-200/80 bg-nm-light-bg p-5 text-nm-light-textPrimary shadow-nm-flat backdrop-blur-2xl transition-all dark:border-neutral-800/90 dark:bg-nm-dark-bg dark:text-nm-dark-textPrimary dark:shadow-nm-flat-dark">
       {/* Background Soft Ambient Glow reacting to voice volume */}
       <div
         className={`pointer-events-none absolute -top-16 left-1/2 h-96 w-96 -translate-x-1/2 rounded-full blur-3xl transition-all duration-300 ${
@@ -82,10 +92,10 @@ export function LiveVoiceVisualizer({
       />
 
       {/* Header Badge */}
-      <div className="relative z-10 mb-4 flex items-center gap-2 rounded-full border border-neutral-300/80 bg-nm-light-bg px-4 py-1.5 text-xs font-medium shadow-nm-flat backdrop-blur-md dark:border-neutral-800 dark:bg-nm-dark-bg dark:shadow-nm-flat-dark">
+      <div className="relative z-10 mb-3 flex items-center gap-2 rounded-full border border-neutral-300/80 bg-nm-light-bg px-4 py-1.5 text-xs font-medium shadow-nm-flat backdrop-blur-md dark:border-neutral-800 dark:bg-nm-dark-bg dark:shadow-nm-flat-dark">
         <Sparkles className="h-3.5 w-3.5 text-violet-600 dark:text-amber-400" />
         <span className="font-bold text-nm-light-textPrimary dark:text-white">
-          AI Co-Founder • Real-Time Voice Spec
+          AI Co-Founder • Real-Time Voice Workspace
         </span>
         {roomName ? (
           <span className="border-l border-neutral-300 pl-2 font-mono text-[11px] text-nm-light-textSecondary dark:border-neutral-800 dark:text-neutral-400">
@@ -98,18 +108,24 @@ export function LiveVoiceVisualizer({
         )}
       </div>
 
-      {/* Central Modular 3D AI Co-Founder Character Component */}
-      <div className="relative my-3 flex w-full items-center justify-center">
+      {/* 1. Real-Time Floating Voice Transcript Window (Mounted Directly Above 3D Character) */}
+      <div className="relative z-20 mb-3 w-full max-w-xl">
+        <VoiceTranscriptWindow
+          messages={messages}
+          interimTranscript={interimTranscript}
+          isListening={state === 'listening'}
+          isSpeaking={state === 'speaking'}
+          onSendMessage={onSendMessage}
+          isLoading={isLoading}
+        />
+      </div>
+
+      {/* 2. Central Modular 3D AI Co-Founder Character Component */}
+      <div className="relative my-2 flex w-full items-center justify-center">
         <CoFounderCharacter
           state={charState}
           audioLevel={audioLevel}
-          size={290}
-          messageBubble={
-            interimTranscript ||
-            (isLive
-              ? undefined
-              : 'Great idea! Let me check and get back to you...')
-          }
+          size={270}
           isMuted={isMuted}
           onMicToggle={isLive ? onToggleMute : undefined}
           interactive={true}
@@ -117,7 +133,7 @@ export function LiveVoiceVisualizer({
       </div>
 
       {/* Orbiting Co-Workers HUD Status Pill Bar */}
-      <div className="relative z-10 my-3 flex flex-wrap items-center justify-center gap-2 font-mono text-[10px]">
+      <div className="relative z-10 my-2 flex flex-wrap items-center justify-center gap-2 font-mono text-[10px]">
         <span className="flex items-center gap-1 rounded-xl border border-neutral-300/80 bg-nm-light-bg px-2.5 py-1 font-bold text-violet-700 shadow-nm-flat dark:border-neutral-800 dark:bg-nm-dark-bg dark:text-violet-300 dark:shadow-nm-flat-dark">
           <Orbit className="h-3 w-3 text-violet-600 dark:text-violet-400" />
           <span>Apex Co-Founder</span>
@@ -132,29 +148,8 @@ export function LiveVoiceVisualizer({
         </span>
       </div>
 
-      {/* Voice Wave Equalizer Bars (Active when Live) */}
-      {isLive && !isMuted && (
-        <div className="relative z-10 mb-2 flex h-6 items-center gap-1.5">
-          {[0.6, 1.2, 0.8, 1.6, 0.7, 1.4, 0.9, 1.3].map((factor, idx) => {
-            const barHeight = Math.max(
-              4,
-              Math.min(24, 4 + audioLevel * 22 * factor)
-            );
-            return (
-              <span
-                key={idx}
-                className={`w-1 rounded-full transition-all duration-75 ${
-                  state === 'speaking' ? 'bg-violet-500' : 'bg-cyan-400'
-                }`}
-                style={{ height: `${barHeight}px` }}
-              />
-            );
-          })}
-        </div>
-      )}
-
       {/* Connection State Description */}
-      <div className="relative z-10 my-1 min-h-[36px] text-center">
+      <div className="relative z-10 my-1 min-h-[30px] text-center">
         <p className="font-mono text-xs font-bold uppercase tracking-wider text-violet-700 dark:text-amber-400">
           {state === 'idle' && 'AI Co-Founder Ready'}
           {state === 'connecting' && 'Connecting Voice Session...'}
@@ -167,22 +162,10 @@ export function LiveVoiceVisualizer({
           {state === 'reconnecting' && 'Reconnecting live stream...'}
           {state === 'error' && 'Voice Connection Error'}
         </p>
-        <p className="mt-0.5 max-w-sm text-xs text-nm-light-textSecondary dark:text-neutral-400">
-          {state === 'idle' &&
-            'Engage in real-time voice conversation with your AI Co-Founder.'}
-          {state === 'listening' &&
-            'Speak naturally into your microphone. Workers sync in real-time.'}
-          {state === 'speaking' &&
-            'Co-Founder is responding. You can interrupt anytime.'}
-          {state === 'error' &&
-            (errorMessage || 'Failed to establish WebRTC voice session.')}
-          {state === 'connecting' &&
-            'Initializing microphone and AI voice session.'}
-        </p>
       </div>
 
       {/* Control Buttons Bar */}
-      <div className="relative z-10 mt-3 flex items-center gap-3">
+      <div className="relative z-10 mt-2 flex items-center gap-3">
         {!isLive ? (
           <button
             onClick={onStart}
