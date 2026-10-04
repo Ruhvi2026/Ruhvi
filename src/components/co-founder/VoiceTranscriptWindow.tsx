@@ -6,7 +6,7 @@ import {
   getRoleTheme,
   getWorkerIcon,
   SwarmWorkerNode,
-} from '@/app/co-founder/page';
+} from '@/components/co-founder/swarm/swarmTypes';
 
 export interface ChatMessageItem {
   id: string;
