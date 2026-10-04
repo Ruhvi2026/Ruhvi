@@ -1820,6 +1820,8 @@ export default function CoFounderPortalPage() {
                   </div>
                 )}
               </div>
+            )}
+
             {selectedWidgetTab === 'swarm' && (
               <div className="space-y-4">
                 <AiHierarchyVisualizer

@@ -2,21 +2,10 @@
 
 import React, { useState } from 'react';
 import {
-  Cpu,
   Activity,
   Zap,
-  Terminal,
   Play,
-  RotateCcw,
   CheckCircle2,
-  AlertCircle,
-  Clock,
-  Layers,
-  Sparkles,
-  ArrowRight,
-  ShieldCheck,
-  Radio,
-  Sliders,
 } from 'lucide-react';
 import { AgentNode, AgentWorkState } from './types';
 import toast from 'react-hot-toast';

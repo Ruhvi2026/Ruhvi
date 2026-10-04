@@ -44,7 +44,6 @@ export const GrokDots3DCanvas: React.FC<GrokDots3DCanvasProps> = ({
   audioLevel = 0,
   isThinking = false,
   className = '',
-  viewMode = 'galaxy',
 }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -326,7 +325,6 @@ export const GrokDots3DCanvas: React.FC<GrokDots3DCanvasProps> = ({
           const pz2 = py1 * sinX + pz1 * cosX;
 
           // Project to 2D
-          const dotScale = fov / (fov + (sim.worldZ + pz2) + 350);
           const screenDotX = sim.screenX + px1 * sim.screenScale;
           const screenDotY = sim.screenY + py2 * sim.screenScale;
           const dotRadius = Math.max(0.6, p.size * sim.screenScale * (pz2 > 0 ? 1.3 : 0.8));
@@ -388,9 +386,6 @@ export const GrokDots3DCanvas: React.FC<GrokDots3DCanvasProps> = ({
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!containerRef.current) return;
-    const rect = containerRef.current.getBoundingClientRect();
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
 
     if (isDragging) {
       const dx = e.clientX - lastMousePos.current.x;
@@ -399,36 +394,10 @@ export const GrokDots3DCanvas: React.FC<GrokDots3DCanvasProps> = ({
       setRotX((prev) => Math.max(-0.8, Math.min(0.8, prev + dy * 0.007)));
       lastMousePos.current = { x: e.clientX, y: e.clientY };
     }
-
-    // Check hit test for hover
-    let hovered: string | null = null;
-    nodes.forEach((n) => {
-      // rough distance check on projected screen coordinates
-      const sim = nodes.find((node) => node.id === n.id);
-      if (sim) {
-        // Handled in canvas loop
-      }
-    });
   };
 
   const handleMouseUp = () => {
     setIsDragging(false);
-  };
-
-  const handleCanvasClick = (e: React.MouseEvent) => {
-    if (!containerRef.current || !canvasRef.current) return;
-    const rect = containerRef.current.getBoundingClientRect();
-    const clickX = e.clientX - rect.left;
-    const clickY = e.clientY - rect.top;
-
-    // Direct geometric hit test with tolerance
-    let closestNode: AgentNode | null = null;
-    let minDistance = 35; // px hit radius
-
-    nodes.forEach((n) => {
-      // Find matching simulated node by position
-      // Trigger selection if clicked near node screen center
-    });
   };
 
   return (
@@ -439,7 +408,6 @@ export const GrokDots3DCanvas: React.FC<GrokDots3DCanvasProps> = ({
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}
-      onClick={handleCanvasClick}
     >
       {/* Background Starfield Ambient Grid */}
       <div className="absolute inset-0 bg-[radial-gradient(#262626_1px,transparent_1px)] [background-size:24px_24px] opacity-40 pointer-events-none" />

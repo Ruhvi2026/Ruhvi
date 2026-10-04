@@ -3,18 +3,8 @@
 import React, { useState } from 'react';
 import {
   Sparkles,
-  Layers,
-  Activity,
-  Cpu,
-  Radio,
-  Sliders,
-  Maximize2,
-  Minimize2,
   Workflow,
   Orbit,
-  Bot,
-  ChevronRight,
-  ShieldAlert,
 } from 'lucide-react';
 import { GrokDots3DCanvas } from './GrokDots3DCanvas';
 import { WorkerDisplayWindow } from './WorkerDisplayWindow';
