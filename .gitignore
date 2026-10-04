@@ -47,6 +47,10 @@ PERFORMANCE_OPTIMIZATION_REPORT.pdf
 # Agent Manager worktrees / local state
 .kilo/
 
+# Vendored local copy of the ai-ui-ux-motion-engine skill (canonical copy is
+# tracked at .agents/skills/ai-ui-ux-motion-engine/)
+/ai-ui-ux-motion-engine/
+
 # Firebase / Google Services credentials — NEVER COMMIT
 google-services.json
 GoogleService-Info.plist
