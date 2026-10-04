@@ -1,12 +1,8 @@
 import 'server-only';
 
-import {
-  WorkerId,
-  WorkerStructuredOutput,
-  WorkerTaskInput,
-} from './types';
+import { WorkerId, WorkerStructuredOutput, WorkerTaskInput } from './types';
 import { workerRegistry } from './registry';
-import { requestApproval } from '@/lib/ai/co-founder/approvals';
+import { createApprovalRequest } from '@/lib/ai/co-founder/approvals';
 
 export interface DispatchResponse {
   workerId: WorkerId;
@@ -41,7 +37,9 @@ export async function dispatchWorkerTask(
   if (!worker) {
     // Dynamic routing based on task text
     worker = workerRegistry.findWorkerForTask(
-      workerIdOrQuery === 'auto' ? input.task : `${workerIdOrQuery} ${input.task}`
+      workerIdOrQuery === 'auto'
+        ? input.task
+        : `${workerIdOrQuery} ${input.task}`
     );
   }
 
@@ -52,11 +50,15 @@ export async function dispatchWorkerTask(
   // If worker recommends an action requiring approval, register approval request
   let pendingApprovalId: string | undefined;
 
-  if (result.requiredApproval && result.executionStatus === 'pending_approval') {
+  if (
+    result.requiredApproval &&
+    result.executionStatus === 'pending_approval'
+  ) {
     try {
-      const approval = await requestApproval({
+      const approval = await createApprovalRequest({
         actionType: (input.parameters?.action_type || 'worker_action') as any,
-        targetEntity: (input.parameters?.target_entity || 'business_operation') as any,
+        targetEntity: (input.parameters?.target_entity ||
+          'business_operation') as any,
         proposedPayload: {
           workerId: worker.id,
           task: input.task,

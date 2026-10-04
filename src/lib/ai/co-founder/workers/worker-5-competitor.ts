@@ -13,7 +13,7 @@ import {
   analyzeCompetitor,
   CompetitorRecord,
 } from '@/lib/ai/co-founder/competitors';
-import { browsePublicWebsite } from '@/lib/ai/browser/playwright';
+import { browseWebPageWithPlaywright } from '@/lib/ai/browser/playwright';
 
 export class CompetitorResearchWorker implements AIWorkerInterface {
   readonly id: WorkerId = 'worker_competitor_research';
@@ -56,7 +56,9 @@ export class CompetitorResearchWorker implements AIWorkerInterface {
     const timestamp = new Date().toISOString();
     const targetUrl =
       input.parameters?.url ||
-      (input.task.match(/https?:\/\/[^\s]+/i) ? input.task.match(/https?:\/\/[^\s]+/i)![0] : null);
+      (input.task.match(/https?:\/\/[^\s]+/i)
+        ? input.task.match(/https?:\/\/[^\s]+/i)![0]
+        : null);
 
     try {
       // 1. Ingest tracked competitors from database registry
@@ -73,7 +75,7 @@ export class CompetitorResearchWorker implements AIWorkerInterface {
       // 2. If a specific URL was requested or found, perform real headless browser inspection
       if (targetUrl) {
         try {
-          liveCrawlData = await browsePublicWebsite({
+          liveCrawlData = await browseWebPageWithPlaywright({
             url: targetUrl,
             timeoutMs: 15000,
           });
@@ -110,8 +112,12 @@ export class CompetitorResearchWorker implements AIWorkerInterface {
       const competitorSummary = competitors.map((c) => ({
         name: c.name,
         pricing: c.price_positioning || 'Mid-tier (₹1,500 - ₹4,500)',
-        materials: c.strengths?.includes('Silver') ? '925 Silver / Flash Plating' : 'Brass / Imitation',
-        warranty: c.weaknesses?.includes('warranty') ? 'No color guarantee' : '30-day return policy',
+        materials: c.strengths?.includes('Silver')
+          ? '925 Silver / Flash Plating'
+          : 'Brass / Imitation',
+        warranty: c.weaknesses?.includes('warranty')
+          ? 'No color guarantee'
+          : '30-day return policy',
       }));
 
       verifiedInformation.push(
@@ -150,10 +156,7 @@ export class CompetitorResearchWorker implements AIWorkerInterface {
         workerId: this.id,
         workerName: this.name,
         task: input.task,
-        findings: [
-          ...verifiedInformation,
-          ...assumptionsAndInferences,
-        ],
+        findings: [...verifiedInformation, ...assumptionsAndInferences],
         evidence: [
           `Verified facts extracted via Playwright browser and Ruhvi competitor database records.`,
           `Assumptions clearly flagged and derived from jewellery industry benchmarks.`,
@@ -191,7 +194,9 @@ export class CompetitorResearchWorker implements AIWorkerInterface {
         evidence: [err.message],
         problems: [`Failed to execute competitor research: ${err.message}`],
         opportunities: [],
-        recommendations: ['Verify browser automation service and competitor registry.'],
+        recommendations: [
+          'Verify browser automation service and competitor registry.',
+        ],
         priority: 'high',
         expectedImpact: 'Restore market intelligence capability',
         requiredAction: 'Resolve competitor worker error',
