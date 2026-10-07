@@ -1277,72 +1277,74 @@ export default function CoFounderPortalPage() {
             </div>
           </div>
 
-          {/* Mode Switcher Tabs */}
-          <div
-            className="scrollbar-thin flex items-center overflow-x-auto rounded-2xl border border-neutral-300/70 bg-nm-light-bg p-1 shadow-nm-inset dark:border-neutral-800 dark:bg-nm-dark-bg dark:shadow-nm-inset-dark"
-            role="tablist"
-            aria-label="Co-Founder mode switch"
-          >
-            <button
-              type="button"
-              role="tab"
-              aria-selected={activeTab === 'voice'}
-              aria-controls="voice-panel"
-              onClick={() => setActiveTab('voice')}
-              className={`flex shrink-0 items-center gap-2 whitespace-nowrap rounded-xl px-3.5 py-1.5 text-xs font-medium transition-all duration-200 ${
-                activeTab === 'voice'
-                  ? 'bg-nm-gradient-light font-bold text-violet-700 shadow-nm-flat dark:bg-nm-gradient-dark dark:text-amber-400 dark:shadow-nm-flat-dark'
-                  : 'text-nm-light-textSecondary hover:text-nm-light-textPrimary dark:text-neutral-400 dark:hover:text-white'
-              }`}
+          {/* Mode Switcher Tabs - Below Model Selection Panel */}
+          <div className="mt-3 w-full">
+            <div
+              className="scrollbar-thin flex items-center overflow-x-auto rounded-2xl border border-neutral-300/70 bg-nm-light-bg p-1 shadow-nm-inset dark:border-neutral-800 dark:bg-nm-dark-bg dark:shadow-nm-inset-dark"
+              role="tablist"
+              aria-label="Co-Founder mode switch"
             >
-              <Mic className="h-3.5 w-3.5" />
-              <span>Realtime Voice</span>
-            </button>
-            <button
-              type="button"
-              role="tab"
-              aria-selected={activeTab === 'chat'}
-              aria-controls="chat-panel"
-              onClick={() => setActiveTab('chat')}
-              className={`flex shrink-0 items-center gap-2 whitespace-nowrap rounded-xl px-3.5 py-1.5 text-xs font-medium transition-all duration-200 ${
-                activeTab === 'chat'
-                  ? 'bg-nm-gradient-light font-bold text-violet-700 shadow-nm-flat dark:bg-nm-gradient-dark dark:text-amber-400 dark:shadow-nm-flat-dark'
-                  : 'text-nm-light-textSecondary hover:text-nm-light-textPrimary dark:text-neutral-400 dark:hover:text-white'
-              }`}
-            >
-              <MessageSquare className="h-3.5 w-3.5" />
-              <span>Interactive Chat</span>
-            </button>
-            <button
-              type="button"
-              role="tab"
-              aria-selected={activeTab === 'swarm_3d'}
-              aria-controls="swarm-3d-panel"
-              onClick={() => setActiveTab('swarm_3d')}
-              className={`flex shrink-0 items-center gap-2 whitespace-nowrap rounded-xl px-3.5 py-1.5 text-xs font-medium transition-all duration-200 ${
-                activeTab === 'swarm_3d'
-                  ? 'bg-nm-gradient-light font-bold text-violet-700 shadow-nm-flat dark:bg-nm-gradient-dark dark:text-amber-400 dark:shadow-nm-flat-dark'
-                  : 'text-nm-light-textSecondary hover:text-nm-light-textPrimary dark:text-neutral-400 dark:hover:text-white'
-              }`}
-            >
-              <Orbit className="h-3.5 w-3.5" />
-              <span>3D Workforce Swarm</span>
-            </button>
-            <button
-              type="button"
-              role="tab"
-              aria-selected={activeTab === 'workspace'}
-              aria-controls="workspace-panel"
-              onClick={() => setActiveTab('workspace')}
-              className={`flex shrink-0 items-center gap-2 whitespace-nowrap rounded-xl px-3.5 py-1.5 text-xs font-medium transition-all duration-200 ${
-                activeTab === 'workspace'
-                  ? 'bg-nm-gradient-light font-bold text-cyan-700 shadow-nm-flat dark:bg-nm-gradient-dark dark:text-cyan-300 dark:shadow-nm-flat-dark'
-                  : 'text-nm-light-textSecondary hover:text-nm-light-textPrimary dark:text-neutral-400 dark:hover:text-white'
-              }`}
-            >
-              <Activity className="h-3.5 w-3.5" />
-              <span>Live Workspace</span>
-            </button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={activeTab === 'voice'}
+                aria-controls="voice-panel"
+                onClick={() => setActiveTab('voice')}
+                className={`flex shrink-0 items-center gap-2 whitespace-nowrap rounded-xl px-3.5 py-1.5 text-xs font-medium transition-all duration-200 ${
+                  activeTab === 'voice'
+                    ? 'bg-nm-gradient-light font-bold text-violet-700 shadow-nm-flat dark:bg-nm-gradient-dark dark:text-amber-400 dark:shadow-nm-flat-dark'
+                    : 'text-nm-light-textSecondary hover:text-nm-light-textPrimary dark:text-neutral-400 dark:hover:text-white'
+                }`}
+              >
+                <Mic className="h-3.5 w-3.5" />
+                <span>Realtime Voice</span>
+              </button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={activeTab === 'chat'}
+                aria-controls="chat-panel"
+                onClick={() => setActiveTab('chat')}
+                className={`flex shrink-0 items-center gap-2 whitespace-nowrap rounded-xl px-3.5 py-1.5 text-xs font-medium transition-all duration-200 ${
+                  activeTab === 'chat'
+                    ? 'bg-nm-gradient-light font-bold text-violet-700 shadow-nm-flat dark:bg-nm-gradient-dark dark:text-amber-400 dark:shadow-nm-flat-dark'
+                    : 'text-nm-light-textSecondary hover:text-nm-light-textPrimary dark:text-neutral-400 dark:hover:text-white'
+                }`}
+              >
+                <MessageSquare className="h-3.5 w-3.5" />
+                <span>Interactive Chat</span>
+              </button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={activeTab === 'swarm_3d'}
+                aria-controls="swarm-3d-panel"
+                onClick={() => setActiveTab('swarm_3d')}
+                className={`flex shrink-0 items-center gap-2 whitespace-nowrap rounded-xl px-3.5 py-1.5 text-xs font-medium transition-all duration-200 ${
+                  activeTab === 'swarm_3d'
+                    ? 'bg-nm-gradient-light font-bold text-violet-700 shadow-nm-flat dark:bg-nm-gradient-dark dark:text-amber-400 dark:shadow-nm-flat-dark'
+                    : 'text-nm-light-textSecondary hover:text-nm-light-textPrimary dark:text-neutral-400 dark:hover:text-white'
+                }`}
+              >
+                <Orbit className="h-3.5 w-3.5" />
+                <span>3D Workforce Swarm</span>
+              </button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={activeTab === 'workspace'}
+                aria-controls="workspace-panel"
+                onClick={() => setActiveTab('workspace')}
+                className={`flex shrink-0 items-center gap-2 whitespace-nowrap rounded-xl px-3.5 py-1.5 text-xs font-medium transition-all duration-200 ${
+                  activeTab === 'workspace'
+                    ? 'bg-nm-gradient-light font-bold text-cyan-700 shadow-nm-flat dark:bg-nm-gradient-dark dark:text-cyan-300 dark:shadow-nm-flat-dark'
+                    : 'text-nm-light-textSecondary hover:text-nm-light-textPrimary dark:text-neutral-400 dark:hover:text-white'
+                }`}
+              >
+                <Activity className="h-3.5 w-3.5" />
+                <span>Live Workspace</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -2434,7 +2436,50 @@ export default function CoFounderPortalPage() {
                       ? '১. বাংলা বলার ধরন (Spoken Bengali Style)'
                       : '1. Voice Style'}
                 </label>
-                <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+                <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setVoiceStyle('standard');
+                      if (typeof window !== 'undefined') {
+                        localStorage.setItem(
+                          'ruhvi_co_founder_voice_style',
+                          'standard'
+                        );
+                      }
+                    }}
+                    className={`flex flex-col rounded-2xl border p-3.5 text-left transition-all ${
+                      voiceStyle === 'standard'
+                        ? 'border-emerald-500 bg-nm-gradient-light font-bold text-emerald-800 shadow-nm-flat dark:bg-nm-gradient-dark dark:text-white dark:shadow-nm-flat-dark'
+                        : 'border-neutral-300/80 bg-nm-light-bg text-nm-light-textSecondary shadow-nm-inset hover:text-nm-light-textPrimary dark:border-neutral-800 dark:bg-nm-dark-bg dark:text-neutral-400 dark:shadow-nm-inset-dark dark:hover:text-neutral-200'
+                    }`}
+                  >
+                    <div className="mb-1 flex w-full items-center justify-between">
+                      <span className="flex items-center gap-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-300">
+                        {voiceStyle === 'standard' && (
+                          <Check className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+                        )}
+                        {selectedLanguage === 'hi-IN'
+                          ? 'मानक अंग्रेजी'
+                          : selectedLanguage === 'bn-IN'
+                            ? 'স্ট্যান্ডার্ড ইংরেজি'
+                            : 'Standard English'}
+                      </span>
+                      <span className="rounded bg-emerald-500/20 px-1.5 py-0.5 text-[10px] font-bold text-emerald-600 dark:text-emerald-400">
+                        {selectedLanguage === 'bn-IN'
+                          ? 'সার্বজনীন'
+                          : 'Universal'}
+                      </span>
+                    </div>
+                    <p className="text-[11px] leading-normal text-nm-light-textSecondary dark:text-neutral-400">
+                      {selectedLanguage === 'hi-IN'
+                        ? 'ब्राउज़र का डिफ़ॉल्ट अंग्रेजी वॉयस। सभी सिस्टम पर काम करता है।'
+                        : selectedLanguage === 'bn-IN'
+                          ? 'ব্রাউজারের ডিফল্ট ইংরেজি ভয়েস। সব সিস্টেমে কাজ করে।'
+                          : 'Browser default English voice. Works on all systems.'}
+                    </p>
+                  </button>
+
                   <button
                     type="button"
                     onClick={() => {
