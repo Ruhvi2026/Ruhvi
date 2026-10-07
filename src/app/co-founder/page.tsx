@@ -274,12 +274,7 @@ export default function CoFounderPortalPage() {
     language: selectedLanguage,
     onTranscript: (text, isFinal) => {
       if (isFinal) {
-        setInput((prev) => prev + ' ' + text);
-      } else {
-        setInput((prev) => {
-          const base = prev.replace(/\s+$/, '');
-          return base + ' ' + text;
-        });
+        setInput((prev) => (prev ? `${prev} ${text}` : text));
       }
     },
     onError: (err) => {
@@ -2315,7 +2310,13 @@ export default function CoFounderPortalPage() {
               <form onSubmit={handleSubmit} className="flex gap-2">
                 <input
                   type="text"
-                  value={input}
+                  value={
+                    browserVoice.isRecording && browserVoice.interimTranscript
+                      ? input
+                        ? `${input} ${browserVoice.interimTranscript}`
+                        : browserVoice.interimTranscript
+                      : input
+                  }
                   onChange={(e) => setInput(e.target.value)}
                   placeholder="Ask your AI Co-Founder or tag @worker (e.g. @coder, @researcher)..."
                   className="flex-1 rounded-2xl border border-neutral-300/80 bg-nm-light-bg px-4 py-2.5 text-xs text-nm-light-textPrimary placeholder-neutral-400 shadow-nm-inset focus:border-violet-500/50 focus:outline-none dark:border-neutral-800 dark:bg-nm-dark-bg dark:text-white dark:placeholder-neutral-500 dark:shadow-nm-inset-dark"

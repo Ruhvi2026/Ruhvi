@@ -20,6 +20,8 @@ export function useBrowserVoice(options: UseBrowserVoiceOptions = {}) {
   const recognitionRef = useRef<any>(null);
   const isSpeakingRef = useRef(false);
   const selectedLanguageRef = useRef(options.language || 'bn-IN');
+  const lastProcessedIndexRef = useRef(0);
+  const accumulatedFinalRef = useRef('');
 
   useEffect(() => {
     selectedLanguageRef.current = options.language || 'bn-IN';
@@ -70,11 +72,20 @@ export function useBrowserVoice(options: UseBrowserVoiceOptions = {}) {
       recognition.lang = selectedLanguageRef.current;
       recognition.maxAlternatives = 1;
 
+      // Reset tracking refs
+      lastProcessedIndexRef.current = 0;
+      accumulatedFinalRef.current = '';
+
       recognition.onresult = (event: any) => {
         let finalText = '';
         let interimText = '';
 
-        for (let i = event.resultIndex; i < event.results.length; i++) {
+        // Only process NEW results since lastProcessedIndexRef.current
+        for (
+          let i = lastProcessedIndexRef.current;
+          i < event.results.length;
+          i++
+        ) {
           const trans = event.results[i][0].transcript;
           if (event.results[i].isFinal) {
             finalText += trans;
@@ -83,6 +94,9 @@ export function useBrowserVoice(options: UseBrowserVoiceOptions = {}) {
           }
         }
 
+        // Update the last processed index
+        lastProcessedIndexRef.current = event.results.length;
+
         if (interimText) {
           setInterimTranscript(interimText);
           options.onTranscript?.(interimText, false);
@@ -90,7 +104,12 @@ export function useBrowserVoice(options: UseBrowserVoiceOptions = {}) {
 
         if (finalText.trim()) {
           setInterimTranscript('');
-          setFinalTranscript((prev) => prev + ' ' + finalText);
+          accumulatedFinalRef.current = (
+            accumulatedFinalRef.current +
+            ' ' +
+            finalText
+          ).trim();
+          setFinalTranscript(accumulatedFinalRef.current);
           options.onTranscript?.(finalText, true);
         }
       };
@@ -104,7 +123,8 @@ export function useBrowserVoice(options: UseBrowserVoiceOptions = {}) {
       };
 
       recognition.onend = () => {
-        if (isRecording) {
+        // Only restart if still recording (user didn't stop)
+        if (isRecording && recognitionRef.current === recognition) {
           try {
             recognition.start();
           } catch {}
@@ -134,6 +154,7 @@ export function useBrowserVoice(options: UseBrowserVoiceOptions = {}) {
     }
     setIsRecording(false);
     setInterimTranscript('');
+    // Keep final transcript for user
   }, []);
 
   const toggleRecording = useCallback(() => {
@@ -241,6 +262,7 @@ export function useBrowserVoice(options: UseBrowserVoiceOptions = {}) {
   const clearTranscript = useCallback(() => {
     setFinalTranscript('');
     setInterimTranscript('');
+    accumulatedFinalRef.current = '';
   }, []);
 
   useEffect(() => {
