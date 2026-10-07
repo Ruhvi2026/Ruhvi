@@ -29,6 +29,7 @@ import {
   Wifi,
   SlidersHorizontal,
   Volume2,
+  VolumeX,
   Play,
   Check,
   X,
@@ -59,6 +60,7 @@ import {
   agentNodesToWorkerGrid,
 } from '@/lib/ai/co-founder/workers/client-status';
 import { useLiveKitVoice } from '@/hooks/useLiveKitVoice';
+import { useBrowserVoice } from '@/hooks/useBrowserVoice';
 import toast from 'react-hot-toast';
 
 interface ChatMessage {
@@ -264,6 +266,24 @@ export default function CoFounderPortalPage() {
           workerName,
         },
       ]);
+    },
+  });
+
+  // Browser Voice Hook (Web Speech API for chat input + TTS for AI responses)
+  const browserVoice = useBrowserVoice({
+    language: selectedLanguage,
+    onTranscript: (text, isFinal) => {
+      if (isFinal) {
+        setInput((prev) => prev + ' ' + text);
+      } else {
+        setInput((prev) => {
+          const base = prev.replace(/\s+$/, '');
+          return base + ' ' + text;
+        });
+      }
+    },
+    onError: (err) => {
+      toast.error(err, { id: 'browser-voice-error' });
     },
   });
 
@@ -474,6 +494,23 @@ export default function CoFounderPortalPage() {
     fetchActionPlans();
   }, []);
 
+  // Track last spoken message to avoid re-speaking
+  const lastSpokenMsgIdRef = useRef<string | null>(null);
+
+  // Auto-speak new AI assistant messages (handles initial welcome + LiveKit transcripts)
+  useEffect(() => {
+    const lastAssistantMsg = [...messages]
+      .reverse()
+      .find((m) => m.sender === 'assistant');
+    if (
+      lastAssistantMsg &&
+      lastAssistantMsg.id !== lastSpokenMsgIdRef.current
+    ) {
+      lastSpokenMsgIdRef.current = lastAssistantMsg.id;
+      browserVoice.speak(lastAssistantMsg.text);
+    }
+  }, [messages, browserVoice]);
+
   // Handle Chat Submit
   const executeChatMessage = async (rawText: string) => {
     if (!rawText.trim() || isLoading) return;
@@ -545,12 +582,14 @@ export default function CoFounderPortalPage() {
         setSelectedWidgetTab('browser');
       }
 
+      const assistantResponse = data.response || 'No response received.';
+
       setMessages((prev) => [
         ...prev,
         {
           id: genId(),
           sender: 'assistant',
-          text: data.response || 'No response received.',
+          text: assistantResponse,
           provider: data.provider,
           model: data.model,
           fallbackUsed: data.fallbackUsed,
@@ -559,19 +598,26 @@ export default function CoFounderPortalPage() {
           workerName,
         },
       ]);
+
+      // Auto-speak AI response using browser TTS
+      browserVoice.speak(assistantResponse);
     } catch (err: unknown) {
       const errorText = err instanceof Error ? err.message : 'Unknown error';
+      const errorMsg = `Error: ${errorText}`;
       setMessages((prev) => [
         ...prev,
         {
           id: genId(),
           sender: 'assistant',
-          text: `Error: ${errorText}`,
+          text: errorMsg,
           timestamp: Date.now(),
           role: targetedRole,
           workerName,
         },
       ]);
+
+      // Auto-speak error message using browser TTS
+      browserVoice.speak(errorMsg);
     } finally {
       setIsLoading(false);
     }
@@ -1633,6 +1679,23 @@ export default function CoFounderPortalPage() {
                   }
                 />
               </button>
+              {/* Browser Voice TTS Mute/Unmute Toggle */}
+              <button
+                onClick={browserVoice.toggleMute}
+                title={
+                  browserVoice.isMuted ? 'Unmute AI Voice' : 'Mute AI Voice'
+                }
+                className="p-1 text-nm-light-textSecondary transition-colors hover:text-nm-light-textPrimary dark:text-neutral-400 dark:hover:text-white"
+                aria-label={
+                  browserVoice.isMuted ? 'Unmute AI Voice' : 'Mute AI Voice'
+                }
+              >
+                {browserVoice.isMuted ? (
+                  <VolumeX size={14} className="text-rose-500" />
+                ) : (
+                  <Volume2 size={14} className="text-emerald-500" />
+                )}
+              </button>
             </div>
 
             {/* Quick Intelligence Drawer */}
@@ -2258,6 +2321,36 @@ export default function CoFounderPortalPage() {
                   className="flex-1 rounded-2xl border border-neutral-300/80 bg-nm-light-bg px-4 py-2.5 text-xs text-nm-light-textPrimary placeholder-neutral-400 shadow-nm-inset focus:border-violet-500/50 focus:outline-none dark:border-neutral-800 dark:bg-nm-dark-bg dark:text-white dark:placeholder-neutral-500 dark:shadow-nm-inset-dark"
                   disabled={isLoading}
                 />
+                {/* Browser Speech Recognition Microphone Button */}
+                <button
+                  type="button"
+                  onClick={browserVoice.toggleRecording}
+                  disabled={isLoading}
+                  title={
+                    browserVoice.isRecording
+                      ? 'Stop voice input'
+                      : 'Start voice input'
+                  }
+                  className={`flex shrink-0 items-center justify-center rounded-2xl px-4 py-2.5 text-xs font-bold shadow-nm-flat transition-all hover:opacity-90 active:scale-95 disabled:opacity-50 ${
+                    browserVoice.isRecording
+                      ? 'animate-pulse bg-rose-500/20 text-rose-600 dark:bg-rose-500/20 dark:text-rose-400'
+                      : 'bg-nm-gradient-light text-violet-700 dark:bg-nm-gradient-dark dark:text-amber-400'
+                  }`}
+                  aria-label={
+                    browserVoice.isRecording
+                      ? 'Stop voice input'
+                      : 'Start voice input'
+                  }
+                  aria-pressed={browserVoice.isRecording}
+                >
+                  <Mic size={14} />
+                  {browserVoice.isRecording && (
+                    <span className="ml-1.5 flex items-center gap-1">
+                      <span className="h-2 w-2 animate-pulse rounded-full bg-rose-500" />
+                      <span className="font-mono text-[10px]">REC</span>
+                    </span>
+                  )}
+                </button>
                 <button
                   type="submit"
                   disabled={isLoading || !input.trim()}
