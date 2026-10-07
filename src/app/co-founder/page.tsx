@@ -1084,7 +1084,7 @@ export default function CoFounderPortalPage() {
   };
 
   return (
-    <div className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-7xl flex-col space-y-4 bg-nm-light-bg p-3 text-nm-light-textPrimary dark:bg-nm-dark-bg dark:text-nm-dark-textPrimary md:p-4 lg:p-6">
+    <div className="mx-auto flex min-h-[calc(100vh-4rem)] w-full flex-col space-y-4 bg-nm-light-bg p-3 text-nm-light-textPrimary dark:bg-nm-dark-bg dark:text-nm-dark-textPrimary md:p-4 lg:p-6">
       {/* Top Header & Dark Neumorphic Controls */}
       <div className="flex flex-col justify-between gap-3 rounded-3xl border border-neutral-200/80 bg-nm-light-bg p-3 shadow-nm-flat backdrop-blur-2xl dark:border-neutral-800/90 dark:bg-nm-dark-bg dark:shadow-nm-flat-dark lg:flex-row lg:items-center lg:gap-4 lg:p-4">
         <div className="flex items-center gap-3.5">
@@ -1280,7 +1280,7 @@ export default function CoFounderPortalPage() {
           {/* Mode Switcher Tabs - Below Model Selection Panel */}
           <div className="mt-3 w-full">
             <div
-              className="scrollbar-thin flex items-center overflow-x-auto rounded-2xl border border-neutral-300/70 bg-nm-light-bg p-1 shadow-nm-inset dark:border-neutral-800 dark:bg-nm-dark-bg dark:shadow-nm-inset-dark"
+              className="flex w-full rounded-2xl border border-neutral-300/70 bg-nm-light-bg p-1 shadow-nm-inset dark:border-neutral-800 dark:bg-nm-dark-bg dark:shadow-nm-inset-dark"
               role="tablist"
               aria-label="Co-Founder mode switch"
             >
@@ -1290,7 +1290,7 @@ export default function CoFounderPortalPage() {
                 aria-selected={activeTab === 'voice'}
                 aria-controls="voice-panel"
                 onClick={() => setActiveTab('voice')}
-                className={`flex shrink-0 items-center gap-2 whitespace-nowrap rounded-xl px-3.5 py-1.5 text-xs font-medium transition-all duration-200 ${
+                className={`flex flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-xl px-3.5 py-1.5 text-xs font-medium transition-all duration-200 ${
                   activeTab === 'voice'
                     ? 'bg-nm-gradient-light font-bold text-violet-700 shadow-nm-flat dark:bg-nm-gradient-dark dark:text-amber-400 dark:shadow-nm-flat-dark'
                     : 'text-nm-light-textSecondary hover:text-nm-light-textPrimary dark:text-neutral-400 dark:hover:text-white'
@@ -1305,7 +1305,7 @@ export default function CoFounderPortalPage() {
                 aria-selected={activeTab === 'chat'}
                 aria-controls="chat-panel"
                 onClick={() => setActiveTab('chat')}
-                className={`flex shrink-0 items-center gap-2 whitespace-nowrap rounded-xl px-3.5 py-1.5 text-xs font-medium transition-all duration-200 ${
+                className={`flex flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-xl px-3.5 py-1.5 text-xs font-medium transition-all duration-200 ${
                   activeTab === 'chat'
                     ? 'bg-nm-gradient-light font-bold text-violet-700 shadow-nm-flat dark:bg-nm-gradient-dark dark:text-amber-400 dark:shadow-nm-flat-dark'
                     : 'text-nm-light-textSecondary hover:text-nm-light-textPrimary dark:text-neutral-400 dark:hover:text-white'
@@ -1320,7 +1320,7 @@ export default function CoFounderPortalPage() {
                 aria-selected={activeTab === 'swarm_3d'}
                 aria-controls="swarm-3d-panel"
                 onClick={() => setActiveTab('swarm_3d')}
-                className={`flex shrink-0 items-center gap-2 whitespace-nowrap rounded-xl px-3.5 py-1.5 text-xs font-medium transition-all duration-200 ${
+                className={`flex flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-xl px-3.5 py-1.5 text-xs font-medium transition-all duration-200 ${
                   activeTab === 'swarm_3d'
                     ? 'bg-nm-gradient-light font-bold text-violet-700 shadow-nm-flat dark:bg-nm-gradient-dark dark:text-amber-400 dark:shadow-nm-flat-dark'
                     : 'text-nm-light-textSecondary hover:text-nm-light-textPrimary dark:text-neutral-400 dark:hover:text-white'
@@ -1335,7 +1335,7 @@ export default function CoFounderPortalPage() {
                 aria-selected={activeTab === 'workspace'}
                 aria-controls="workspace-panel"
                 onClick={() => setActiveTab('workspace')}
-                className={`flex shrink-0 items-center gap-2 whitespace-nowrap rounded-xl px-3.5 py-1.5 text-xs font-medium transition-all duration-200 ${
+                className={`flex flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-xl px-3.5 py-1.5 text-xs font-medium transition-all duration-200 ${
                   activeTab === 'workspace'
                     ? 'bg-nm-gradient-light font-bold text-cyan-700 shadow-nm-flat dark:bg-nm-gradient-dark dark:text-cyan-300 dark:shadow-nm-flat-dark'
                     : 'text-nm-light-textSecondary hover:text-nm-light-textPrimary dark:text-neutral-400 dark:hover:text-white'
@@ -1348,44 +1348,6 @@ export default function CoFounderPortalPage() {
           </div>
         </div>
       </div>
-
-      {/* Fallback Chain Badge Banner */}
-      {fallbackChain.length > 0 && (
-        <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-neutral-200/80 bg-nm-light-bg px-4 py-2 text-[11px] text-nm-light-textSecondary shadow-nm-flat dark:border-neutral-800/80 dark:bg-nm-dark-bg dark:text-neutral-400 dark:shadow-nm-flat-dark">
-          <div className="flex flex-wrap items-center gap-1.5">
-            <span className="font-semibold text-violet-700 dark:text-violet-300">
-              Active Fallback Chain:
-            </span>
-            {fallbackChain.map((item, idx) => (
-              <React.Fragment key={item.id}>
-                <span
-                  className={`inline-flex items-center gap-1 font-mono ${
-                    item.id === selectedProvider
-                      ? 'rounded-md border border-violet-500/30 bg-violet-500/20 px-2 py-0.5 font-bold text-violet-700 dark:text-violet-300'
-                      : 'text-nm-light-textPrimary dark:text-neutral-300'
-                  }`}
-                >
-                  {item.name}
-                </span>
-                {idx < fallbackChain.length - 1 && (
-                  <span className="text-neutral-400 dark:text-neutral-600">
-                    →
-                  </span>
-                )}
-              </React.Fragment>
-            ))}
-          </div>
-          <a
-            href="https://admin.ruhvi.in/tech/ai-settings"
-            target="_blank"
-            rel="noreferrer"
-            className="flex items-center gap-1 text-[10px] text-violet-600 transition-colors hover:text-violet-700 dark:text-violet-400 dark:hover:text-violet-300"
-          >
-            <span>Configure Fallback in Admin AI</span>
-            <ExternalLink size={10} />
-          </a>
-        </div>
-      )}
 
       {/* Main View Area */}
       {activeTab === 'swarm_3d' ? (
@@ -1420,13 +1382,13 @@ export default function CoFounderPortalPage() {
           />
         </div>
       ) : (
-        <div className="grid flex-1 grid-cols-1 gap-6 overflow-hidden lg:grid-cols-12">
-          {/* Left Column (7 cols on voice, 5 on chat): 3D Voice Visualizer */}
+        <div className="flex flex-1 gap-6 overflow-hidden">
+          {/* Left Column: 3D Voice Visualizer */}
           <div
-            className={`flex flex-col justify-center ${
+            className={`flex min-w-0 flex-1 flex-col justify-center ${
               activeTab === 'voice'
-                ? 'lg:col-span-7'
-                : 'hidden opacity-80 lg:col-span-5 lg:flex'
+                ? 'lg:max-w-[58%]'
+                : 'hidden lg:block lg:max-w-[42%]'
             }`}
           >
             <LiveVoiceVisualizer
@@ -1445,10 +1407,10 @@ export default function CoFounderPortalPage() {
             />
           </div>
 
-          {/* Right Column (5 or 7 cols): Intelligence Drawer & Chat Stream */}
+          {/* Right Column: Intelligence Drawer & Chat Stream */}
           <div
-            className={`flex h-full flex-col overflow-hidden rounded-3xl border border-neutral-200/80 bg-nm-light-bg p-0 shadow-nm-flat backdrop-blur-2xl dark:border-neutral-800/90 dark:bg-nm-dark-bg dark:shadow-nm-flat-dark ${
-              activeTab === 'voice' ? 'lg:col-span-5' : 'lg:col-span-7'
+            className={`flex h-full min-w-0 flex-1 flex-col overflow-hidden rounded-3xl border border-neutral-200/80 bg-nm-light-bg p-0 shadow-nm-flat backdrop-blur-2xl dark:border-neutral-800/90 dark:bg-nm-dark-bg dark:shadow-nm-flat-dark ${
+              activeTab === 'voice' ? 'lg:max-w-[42%]' : 'lg:max-w-[58%]'
             }`}
           >
             {/* Header Controls for Right Column */}
