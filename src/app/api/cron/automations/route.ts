@@ -5,9 +5,9 @@ import {
   sendWinBackEmail,
   sendCelebrationEmail,
 } from '@/lib/brevo';
-import { runTaskScheduler } from '@/app/api/cron/task-scheduler/route';
-import { runBlogPublisher } from '@/app/api/cron/publish-blog/route';
-import { runProactiveCronScan } from '@/app/api/cron/co-founder/proactive/route';
+import { runTaskScheduler } from '@/lib/cron/task-scheduler';
+import { runBlogPublisher } from '@/lib/cron/blog-publisher';
+import { runProactiveCronScan } from '@/lib/ai/co-founder/proactive';
 
 export async function GET(request: Request) {
   try {
