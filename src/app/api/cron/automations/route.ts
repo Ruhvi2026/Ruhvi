@@ -6,6 +6,8 @@ import {
   sendCelebrationEmail,
 } from '@/lib/brevo';
 import { runTaskScheduler } from '@/app/api/cron/task-scheduler/route';
+import { runBlogPublisher } from '@/app/api/cron/publish-blog/route';
+import { runProactiveCronScan } from '@/app/api/cron/co-founder/proactive/route';
 
 export async function GET(request: Request) {
   try {
@@ -174,6 +176,24 @@ export async function GET(request: Request) {
     } catch (taskErr: any) {
       console.error('[cron/automations] Task scheduler error:', taskErr);
       (results as any).taskAutomationError = taskErr?.message;
+    }
+
+    // 5. Blog Publishing Automation
+    try {
+      const blogResults = await runBlogPublisher();
+      (results as any).blogPublisher = blogResults;
+    } catch (blogErr: any) {
+      console.error('[cron/automations] Blog publisher error:', blogErr);
+      (results as any).blogPublisherError = blogErr?.message;
+    }
+
+    // 6. Proactive AI Co-Founder Telemetry & Anomaly Scan
+    try {
+      const proactiveResults = await runProactiveCronScan();
+      (results as any).proactiveScan = proactiveResults;
+    } catch (proactiveErr: any) {
+      console.error('[cron/automations] Proactive scan error:', proactiveErr);
+      (results as any).proactiveScanError = proactiveErr?.message;
     }
 
     return NextResponse.json({ success: true, results });

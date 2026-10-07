@@ -2,15 +2,7 @@
   "crons": [
     {
       "path": "/api/cron/automations",
-      "schedule": "30 3 * * *"
-    },
-    {
-      "path": "/api/cron/publish-blog",
-      "schedule": "0 0 * * *"
-    },
-    {
-      "path": "/api/cron/co-founder/proactive",
-      "schedule": "0 * * * *"
+      "schedule": "0 4 * * *"
     }
   ]
 }
