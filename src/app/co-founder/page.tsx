@@ -1362,7 +1362,6 @@ export default function CoFounderPortalPage() {
             onSelectNode={setSelectedWorkerId}
             className="mb-6"
           />
-          {renderSwarmSpatialUI(liveSwarmNodes, false)}
           <WorkerGrid
             workers={liveWorkerGrid.length > 0 ? liveWorkerGrid : undefined}
             onSelectWorker={(id) => setSelectedWorkerId(id)}
@@ -1577,28 +1576,6 @@ export default function CoFounderPortalPage() {
                 <button
                   type="button"
                   role="tab"
-                  aria-selected={selectedWidgetTab === 'swarm'}
-                  aria-controls="swarm-panel"
-                  onClick={() => setSelectedWidgetTab('swarm')}
-                  className={`flex shrink-0 items-center gap-1 whitespace-nowrap rounded-xl px-2.5 py-1 text-[11px] font-medium transition-all ${
-                    selectedWidgetTab === 'swarm'
-                      ? 'border border-violet-500/40 bg-nm-gradient-light font-bold text-violet-700 shadow-nm-flat dark:bg-nm-gradient-dark dark:text-violet-300 dark:shadow-nm-flat-dark'
-                      : 'text-nm-light-textSecondary hover:text-nm-light-textPrimary dark:text-neutral-400 dark:hover:text-neutral-200'
-                  }`}
-                >
-                  <Orbit
-                    size={11}
-                    className={
-                      selectedWidgetTab === 'swarm'
-                        ? 'text-violet-700 dark:text-violet-300'
-                        : 'text-neutral-500'
-                    }
-                  />
-                  <span>Swarm</span>
-                </button>
-                <button
-                  type="button"
-                  role="tab"
                   aria-selected={selectedWidgetTab === 'workspace'}
                   aria-controls="workspace-panel"
                   onClick={() => setSelectedWidgetTab('workspace')}
@@ -1665,7 +1642,6 @@ export default function CoFounderPortalPage() {
                 selectedWidgetTab === 'usage' ||
                 selectedWidgetTab === 'browser' ||
                 selectedWidgetTab === 'plans' ||
-                selectedWidgetTab === 'swarm' ||
                 selectedWidgetTab === 'workspace'
                   ? 'max-h-[600px]'
                   : 'max-h-48'
@@ -2147,13 +2123,6 @@ export default function CoFounderPortalPage() {
                       </div>
                     ))
                   )}
-                </div>
-              )}
-
-              {selectedWidgetTab === 'swarm' && (
-                <div className="space-y-6">
-                  {renderSwarmSpatialUI(liveSwarmNodes, true)}
-                  <CoWorkerShowcase />
                 </div>
               )}
 
