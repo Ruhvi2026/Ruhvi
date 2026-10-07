@@ -50,7 +50,7 @@ export async function GET(req: NextRequest) {
               message: signal.summary,
               category: 'UPDATES',
               type: 'system',
-              link: '/admin/ai-chat',
+              link: '/co-founder',
             });
           }
         }

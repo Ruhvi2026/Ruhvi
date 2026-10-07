@@ -4,7 +4,9 @@
       "command": "npx",
       "args": ["-y", "@sentry/mcp-server"],
       "env": {
-        "SENTRY_AUTH_TOKEN": ""
+        "SENTRY_AUTH_TOKEN": "<REPLACE_WITH_SENTRY_AUTH_TOKEN>",
+        "SENTRY_URL": "https://de.sentry.io",
+        "SENTRY_ORG": "ruhvi-jewels"
       }
     }
   }

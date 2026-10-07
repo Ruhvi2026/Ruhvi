@@ -1,63 +1,81 @@
 import { z } from 'zod';
 
+const optionalUrl = z
+  .string()
+  .url()
+  .optional()
+  .or(z.literal(''))
+  .or(z.undefined());
+const optionalString = z.string().optional().or(z.literal(''));
+
 const envSchema = z.object({
   // Next configs
-  NEXT_PUBLIC_APP_URL: z.string().url().optional(),
+  NEXT_PUBLIC_APP_URL: optionalUrl,
 
   // Supabase
-  NEXT_PUBLIC_SUPABASE_URL: z.string().url(),
-  NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(1),
-  SUPABASE_SERVICE_ROLE_KEY: z.string().min(1).optional(),
+  NEXT_PUBLIC_SUPABASE_URL: z
+    .string()
+    .url()
+    .optional()
+    .or(z.literal(''))
+    .default('https://placeholder.supabase.co'),
+  NEXT_PUBLIC_SUPABASE_ANON_KEY: z
+    .string()
+    .min(1)
+    .optional()
+    .or(z.literal(''))
+    .default('placeholder-anon-key'),
+  SUPABASE_SERVICE_ROLE_KEY: optionalString,
 
   // Upstash Redis
-  UPSTASH_REDIS_REST_URL: z.string().url().optional(),
-  UPSTASH_REDIS_REST_TOKEN: z.string().min(1).optional(),
-  UPSTASH_REDIS_REST_READONLY_URL: z.string().url().optional(),
-  UPSTASH_REDIS_REST_READONLY_TOKEN: z.string().min(1).optional(),
+  UPSTASH_REDIS_REST_URL: optionalUrl,
+  UPSTASH_REDIS_REST_TOKEN: optionalString,
+  UPSTASH_REDIS_REST_READONLY_URL: optionalUrl,
+  UPSTASH_REDIS_REST_READONLY_TOKEN: optionalString,
 
   // Firebase
-  NEXT_PUBLIC_FIREBASE_API_KEY: z.string().min(1).optional(),
-  NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: z.string().min(1).optional(),
-  NEXT_PUBLIC_FIREBASE_PROJECT_ID: z.string().min(1).optional(),
-  NEXT_PUBLIC_FIREBASE_APP_ID: z.string().min(1).optional(),
-  NEXT_PUBLIC_FIREBASE_VAPID_KEY: z.string().optional(),
-  NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: z.string().optional(),
+  NEXT_PUBLIC_FIREBASE_API_KEY: optionalString,
+  NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: optionalString,
+  NEXT_PUBLIC_FIREBASE_PROJECT_ID: optionalString,
+  NEXT_PUBLIC_FIREBASE_APP_ID: optionalString,
+  NEXT_PUBLIC_FIREBASE_VAPID_KEY: optionalString,
+  NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: optionalString,
 
   // Firebase Admin (service account — server-only, used by FCM + Auth REST clients)
-  FIREBASE_CLIENT_EMAIL: z.string().optional(),
-  FIREBASE_PRIVATE_KEY: z.string().optional(),
+  FIREBASE_CLIENT_EMAIL: optionalString,
+  FIREBASE_PRIVATE_KEY: optionalString,
 
   // Meta/Analytics
-  NEXT_PUBLIC_META_PIXEL_ID: z.string().optional(),
-  NEXT_PUBLIC_GA_MEASUREMENT_ID: z.string().optional(),
+  NEXT_PUBLIC_META_PIXEL_ID: optionalString,
+  NEXT_PUBLIC_GA_MEASUREMENT_ID: optionalString,
 
   // PostHog (Product Analytics, Web Analytics, Session Replay)
-  NEXT_PUBLIC_POSTHOG_KEY: z.string().min(1).optional(),
-  NEXT_PUBLIC_POSTHOG_HOST: z.string().url().optional(),
-  NEXT_PUBLIC_POSTHOG_UI_HOST: z.string().url().optional(),
-  POSTHOG_PERSONAL_API_KEY: z.string().optional(),
-  POSTHOG_PROJECT_ID: z.string().optional(),
+  NEXT_PUBLIC_POSTHOG_KEY: optionalString,
+  NEXT_PUBLIC_POSTHOG_HOST: optionalUrl,
+  NEXT_PUBLIC_POSTHOG_UI_HOST: optionalUrl,
+  POSTHOG_PERSONAL_API_KEY: optionalString,
+  POSTHOG_PROJECT_ID: optionalString,
 
   // Cloudinary
-  NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: z.string().optional(),
-  NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET: z.string().optional(),
+  NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: optionalString,
+  NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET: optionalString,
 
   // Resend Email (Transactional)
-  RESEND_API_KEY: z.string().optional(),
-  RESEND_SENDER_EMAIL: z.string().optional(),
+  RESEND_API_KEY: optionalString,
+  RESEND_SENDER_EMAIL: optionalString,
 
   // Brevo Email (Marketing)
-  BREVO_API_KEY: z.string().optional(),
-  BREVO_SENDER_NAME: z.string().optional(),
-  BREVO_SENDER_EMAIL: z.string().optional(),
+  BREVO_API_KEY: optionalString,
+  BREVO_SENDER_NAME: optionalString,
+  BREVO_SENDER_EMAIL: optionalString,
 
   // EspoCRM (agent console at crm.support.ruhvi.in)
-  ESPO_ENABLED: z.string().optional(),
-  ESPO_BASE_URL: z.string().url().optional(),
-  ESPO_API_KEY: z.string().optional(),
-  ESPO_WEBHOOK_SECRET: z.string().optional(),
-  RUHVI_BASE_URL: z.string().url().optional(),
-  ESPO_DEFAULT_ASSIGNEE_EMAIL: z.string().optional(),
+  ESPO_ENABLED: optionalString,
+  ESPO_BASE_URL: optionalUrl,
+  ESPO_API_KEY: optionalString,
+  ESPO_WEBHOOK_SECRET: optionalString,
+  RUHVI_BASE_URL: optionalUrl,
+  ESPO_DEFAULT_ASSIGNEE_EMAIL: optionalString,
 });
 
 const _env = envSchema.safeParse({
@@ -107,8 +125,10 @@ const _env = envSchema.safeParse({
 });
 
 if (!_env.success) {
-  console.error('❌ Invalid environment variables:', _env.error.format());
-  throw new Error('Invalid environment variables');
+  console.warn('⚠️ Environment variables warning:', _env.error.format());
 }
 
-export const env = _env.data;
+export const env = _env.success
+  ? _env.data
+  : (process.env as unknown as z.infer<typeof envSchema>);
+

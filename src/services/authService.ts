@@ -100,13 +100,21 @@ export function handleAuthCollision(error: any): never {
   throw error;
 }
 
+function getValidAuth() {
+  if (!auth) {
+    throw new Error('Firebase Auth is not initialized. Please ensure NEXT_PUBLIC_FIREBASE_API_KEY is configured.');
+  }
+  return auth;
+}
+
 // ------------------------------------------------------------------
 // INDIVIDUAL AUTH FLOWS
 // ------------------------------------------------------------------
 
 export async function signUpWithEmail(email: string, pass: string) {
   try {
-    const res = await createUserWithEmailAndPassword(auth, email, pass);
+    const authInstance = getValidAuth();
+    const res = await createUserWithEmailAndPassword(authInstance, email, pass);
     await upsertUserProfile(res.user);
     return res;
   } catch (error) {
@@ -115,15 +123,17 @@ export async function signUpWithEmail(email: string, pass: string) {
 }
 
 export async function signInWithEmail(email: string, pass: string) {
-  const res = await signInWithEmailAndPassword(auth, email, pass);
+  const authInstance = getValidAuth();
+  const res = await signInWithEmailAndPassword(authInstance, email, pass);
   await upsertUserProfile(res.user);
   return res;
 }
 
 export async function signInWithGoogle() {
   try {
+    const authInstance = getValidAuth();
     const provider = new GoogleAuthProvider();
-    const res = await signInWithPopup(auth, provider);
+    const res = await signInWithPopup(authInstance, provider);
     await upsertUserProfile(res.user);
     return res;
   } catch (error) {
@@ -133,8 +143,9 @@ export async function signInWithGoogle() {
 
 export async function signInWithFacebook() {
   try {
+    const authInstance = getValidAuth();
     const provider = new FacebookAuthProvider();
-    const res = await signInWithPopup(auth, provider);
+    const res = await signInWithPopup(authInstance, provider);
     await upsertUserProfile(res.user);
     return res;
   } catch (error) {
@@ -145,8 +156,9 @@ export async function signInWithFacebook() {
 let recaptchaVerifier: RecaptchaVerifier | null = null;
 
 export function setupRecaptcha(containerId: string) {
+  const authInstance = getValidAuth();
   if (!recaptchaVerifier) {
-    recaptchaVerifier = new RecaptchaVerifier(auth, containerId, {
+    recaptchaVerifier = new RecaptchaVerifier(authInstance, containerId, {
       size: 'invisible',
     });
   }
@@ -158,8 +170,9 @@ export async function sendPhoneVerification(
   containerId: string
 ) {
   try {
+    const authInstance = getValidAuth();
     const verifier = setupRecaptcha(containerId);
-    return await signInWithPhoneNumber(auth, phoneNumber, verifier);
+    return await signInWithPhoneNumber(authInstance, phoneNumber, verifier);
   } catch (error) {
     handleAuthCollision(error);
   }
@@ -183,25 +196,28 @@ export async function verifyPhoneCode(
 // ------------------------------------------------------------------
 
 export async function linkGoogleToSession() {
-  if (!auth.currentUser) throw new Error('No user is currently signed in.');
+  const authInstance = getValidAuth();
+  if (!authInstance.currentUser) throw new Error('No user is currently signed in.');
   const provider = new GoogleAuthProvider();
-  const res = await linkWithPopup(auth.currentUser, provider);
+  const res = await linkWithPopup(authInstance.currentUser, provider);
   await upsertUserProfile(res.user);
   return res;
 }
 
 export async function linkFacebookToSession() {
-  if (!auth.currentUser) throw new Error('No user is currently signed in.');
+  const authInstance = getValidAuth();
+  if (!authInstance.currentUser) throw new Error('No user is currently signed in.');
   const provider = new FacebookAuthProvider();
-  const res = await linkWithPopup(auth.currentUser, provider);
+  const res = await linkWithPopup(authInstance.currentUser, provider);
   await upsertUserProfile(res.user);
   return res;
 }
 
 export async function linkEmailPasswordToSession(email: string, pass: string) {
-  if (!auth.currentUser) throw new Error('No user is currently signed in.');
+  const authInstance = getValidAuth();
+  if (!authInstance.currentUser) throw new Error('No user is currently signed in.');
   const credential = EmailAuthProvider.credential(email, pass);
-  const res = await linkWithCredential(auth.currentUser, credential);
+  const res = await linkWithCredential(authInstance.currentUser, credential);
   await upsertUserProfile(res.user);
   return res;
 }
@@ -210,12 +226,13 @@ export async function linkPhoneToSession(
   phoneNumber: string,
   containerId: string
 ) {
-  if (!auth.currentUser) throw new Error('No user is currently signed in.');
+  const authInstance = getValidAuth();
+  if (!authInstance.currentUser) throw new Error('No user is currently signed in.');
   const verifier = setupRecaptcha(containerId);
 
   // Start linking phone number
   const res = await linkWithPhoneNumber(
-    auth.currentUser,
+    authInstance.currentUser,
     phoneNumber,
     verifier
   );

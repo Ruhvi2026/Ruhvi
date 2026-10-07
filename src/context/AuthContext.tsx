@@ -137,10 +137,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signOut = async () => {
     try {
-      try {
-        await firebaseSignOut(auth);
-      } catch (e) {
-        console.error('Firebase signout error:', e);
+      if (auth) {
+        try {
+          await firebaseSignOut(auth);
+        } catch (e) {
+          console.error('Firebase signout error:', e);
+        }
       }
 
       try {
@@ -248,7 +250,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     };
 
-    unsubscribe = onAuthStateChanged(auth, handleFirebaseUser);
+    if (auth) {
+      unsubscribe = onAuthStateChanged(auth, handleFirebaseUser);
+    } else {
+      setLoading(false);
+    }
 
     return () => {
       isMounted = false;

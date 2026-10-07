@@ -38,19 +38,21 @@ export function CoFounderCharacter({
   const audioPulse = Math.min(1, Math.max(0, audioLevel));
   const scaleEffect = 1 + audioPulse * 0.08;
 
-  // Eye color mapping
+  // Eye color mapping — bound to project brand scales (tech:rose, tech:cyan, role:cofounder)
   const eyeColorClass = isError
-    ? 'bg-rose-400 shadow-[0_0_12px_#F43F5E]'
+    ? 'bg-tech-rose shadow-[0_0_12px_theme(colors.tech.rose)]'
     : isListening
-      ? 'bg-cyan-300 shadow-[0_0_14px_#22D3EE]'
+      ? 'bg-tech-cyan shadow-[0_0_14px_theme(colors.tech.cyan)]'
       : isSpeaking
-        ? 'bg-violet-200 shadow-[0_0_16px_#C4B5FD]'
-        : 'bg-violet-300 shadow-[0_0_10px_#A78BFA]';
+        ? 'bg-role-cofounder-light shadow-[0_0_16px_theme(colors.role.cofounder.light)]'
+        : 'bg-violet-300 shadow-[0_0_10px_theme(colors.role.cofounder.DEFAULT)]';
 
   return (
     <div
       className={`relative flex select-none flex-col items-center justify-center ${className}`}
       style={{ width: `${size}px` }}
+      role="img"
+      aria-label="AI Co-Founder character, reacts visually to voice activity"
     >
       {/* 1. Speech Bubble Overlay (if provided) */}
       {messageBubble && (
@@ -154,25 +156,25 @@ export function CoFounderCharacter({
         {/* Outer 3D Soft Shell Container */}
         <div
           className="relative flex items-center justify-center overflow-hidden rounded-full p-2 shadow-[0_20px_50px_rgba(139,92,246,0.35)] shadow-nm-convex ring-1 ring-white/30 transition-all duration-300 dark:shadow-nm-convex-dark"
-          style={{
-            width: `${size * 0.85}px`,
-            height: `${size * 0.85}px`,
-            background:
-              'radial-gradient(circle at 35% 25%, #A78BFA 0%, #8B5CF6 55%, #6D28D9 100%)',
-          }}
+           style={{
+             width: `${size * 0.85}px`,
+             height: `${size * 0.85}px`,
+             background:
+               'radial-gradient(circle at 35% 25%, theme(colors.role.cofounder.light) 0%, theme(colors.role.cofounder.DEFAULT) 55%, theme(colors.role.cofounder.dark) 100%)',
+           }}
         >
           {/* Top-Down Studio Overhead Specular Bounce Light */}
           <div className="pointer-events-none absolute inset-0 rounded-full bg-gradient-to-b from-white/40 via-white/10 to-transparent" />
 
           {/* Inner Volumetric Depth Gradient */}
-          <div className="pointer-events-none absolute inset-0 rounded-full bg-gradient-to-tr from-[#6D28D9]/40 via-transparent to-white/30" />
+          <div className="pointer-events-none absolute inset-0 rounded-full bg-gradient-to-tr from-[theme(colors.role.cofounder.dark)]/40 via-transparent to-white/30" />
 
           {/* Rim Light Flare Accent */}
           <div className="pointer-events-none absolute left-6 top-2 h-12 w-24 -rotate-12 rounded-full bg-white/35 blur-sm" />
 
           {/* 4. Expressive Inset Visor Screen */}
           <div
-            className="relative flex items-center justify-center rounded-full border border-violet-400/40 bg-[#0B0D13] p-4 shadow-[inset_0_6px_20px_rgba(0,0,0,0.95)]"
+            className="relative flex items-center justify-center rounded-full border border-violet-400/40 bg-midnight-bg p-4 shadow-[inset_0_6px_20px_rgba(0,0,0,0.95)]"
             style={{
               width: `${size * 0.58}px`,
               height: `${size * 0.42}px`,

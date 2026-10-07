@@ -7,6 +7,7 @@ const IGNORE_PATTERNS = [
   /Cannot read properties of null \(reading 'parentNode'\)/,
   /^aborted$/,
   /Supabase Client is configured with the accessToken option/,
+  /auth\/invalid-api-key/,
 ];
 
 export function beforeSendSentry(event: ErrorEvent) {

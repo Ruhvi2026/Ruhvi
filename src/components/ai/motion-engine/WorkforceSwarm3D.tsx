@@ -370,7 +370,7 @@ export const WorkforceSwarm3D: React.FC<WorkforceSwarm3DProps> = ({
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
       onWheel={handleWheel}
-      className={`relative h-[520px] w-full cursor-grab select-none overflow-hidden rounded-3xl border border-neutral-800/80 bg-[#0f1013] shadow-[inset_0_2px_12px_rgba(0,0,0,0.8)] active:cursor-grabbing ${className}`}
+      className={`relative h-[380px] w-full cursor-grab select-none overflow-hidden rounded-3xl border border-neutral-800/80 bg-midnight-bg shadow-[inset_0_2px_12px_rgba(0,0,0,0.8)] active:cursor-grabbing md:h-[520px] ${className}`}
     >
       {/* Background Radial Ambient Glow */}
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(139,92,246,0.12)_0%,transparent_70%)]" />
@@ -379,7 +379,7 @@ export const WorkforceSwarm3D: React.FC<WorkforceSwarm3DProps> = ({
       <canvas ref={canvasRef} className="block h-full w-full" />
 
       {/* Interactive Quick-Select HUD Strip at Bottom */}
-      <div className="absolute bottom-3 left-3 right-3 z-20 flex items-center justify-between gap-2 overflow-x-auto rounded-2xl border border-neutral-800 bg-[#16171d]/90 p-2 shadow-2xl backdrop-blur-xl">
+      <div className="absolute bottom-3 left-3 right-3 z-20 flex items-center justify-between gap-2 overflow-x-auto rounded-2xl border border-neutral-800 bg-neutral-900/90 p-2 shadow-2xl backdrop-blur-xl">
         <div className="scrollbar-none flex items-center gap-1.5 overflow-x-auto py-0.5">
           {nodes.map((node) => {
             const isSelected = node.id === selectedNodeId;
@@ -417,7 +417,7 @@ export const WorkforceSwarm3D: React.FC<WorkforceSwarm3DProps> = ({
       </div>
 
       {/* Camera Tip Badge */}
-      <div className="pointer-events-none absolute right-3 top-3 z-20 flex items-center gap-1.5 rounded-full border border-neutral-800 bg-[#14151a]/80 px-3 py-1 font-mono text-[10px] text-neutral-400 backdrop-blur-md">
+      <div className="pointer-events-none absolute right-3 top-3 z-20 flex items-center gap-1.5 rounded-full border border-neutral-800 bg-neutral-900/80 px-3 py-1 font-mono text-[10px] text-neutral-400 backdrop-blur-md">
         <span>🖱️ Drag to orbit • Scroll to zoom</span>
       </div>
     </div>

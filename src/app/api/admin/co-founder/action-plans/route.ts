@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { requireAdmin } from '@/lib/auth/require-admin';
 import { getServiceClient } from '@/lib/supabase/service';
 import {
   generateActionPlanFromStrategy,
@@ -11,6 +12,11 @@ export const dynamic = 'force-dynamic';
 
 export async function GET(req: Request) {
   try {
+    const auth = await requireAdmin();
+    if (!auth.ok) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: auth.status });
+    }
+
     const supabase = getServiceClient();
     const { data: plans, error } = await supabase
       .from('co_founder_action_plans')
@@ -35,6 +41,11 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
+    const auth = await requireAdmin();
+    if (!auth.ok) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: auth.status });
+    }
+
     const body = await req.json();
     const {
       action,
@@ -42,7 +53,6 @@ export async function POST(req: Request) {
       strategyTitle,
       strategyObjective,
       strategyRecommendation,
-      staffUserId,
     } = body;
 
     // Action 1: Execute existing action plan into Task Manager
@@ -56,7 +66,7 @@ export async function POST(req: Request) {
 
       const execRes = await executeActionPlanToTaskManager(
         planId,
-        staffUserId || '00000000-0000-0000-0000-000000000000'
+        auth.uid
       );
 
       return NextResponse.json(execRes);
@@ -82,7 +92,7 @@ export async function POST(req: Request) {
       signalId: body.signalId,
     });
 
-    const saveRes = await saveActionPlan(plan, staffUserId);
+    const saveRes = await saveActionPlan(plan, auth.uid);
 
     return NextResponse.json({
       success: saveRes.success,

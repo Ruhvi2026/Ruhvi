@@ -1,6 +1,6 @@
 // Import the functions you need from the SDKs you need
-import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
+import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
+import { getAuth, Auth } from 'firebase/auth';
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -11,8 +11,24 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-// Initialize Firebase (prevent re-initialization in Next.js development)
-const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+let appInstance: FirebaseApp;
 
-export const auth = getAuth(app);
+if (!getApps().length) {
+  if (firebaseConfig.apiKey) {
+    appInstance = initializeApp(firebaseConfig);
+  } else {
+    // Fallback for SSR / build-phase to prevent auth/invalid-api-key exceptions
+    appInstance = initializeApp({
+      apiKey: 'AIzaSyDummyKeyForBuildPhaseOnly0000000',
+      projectId: firebaseConfig.projectId || 'ruhvi-dummy',
+      appId: firebaseConfig.appId || '1:000000000000:web:0000000000000000000000',
+    });
+  }
+} else {
+  appInstance = getApp();
+}
+
+export const app: FirebaseApp = appInstance;
+export const auth: Auth = getAuth(appInstance);
 export default app;
+

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/auth/require-admin';
 import { executeCoFounderTool } from '@/lib/ai/co-founder/tool-bridge';
+import { getUserScopes } from '@/lib/auth/rbac';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -9,7 +10,7 @@ export async function POST(req: NextRequest) {
   try {
     const auth = await requireAdmin();
     if (!auth.ok) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: auth.status });
     }
 
     const { toolName, args } = await req.json();
@@ -20,29 +21,9 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const result = await executeCoFounderTool(toolName, args, [
-      'orders:read',
-      'products:read',
-      'category:read',
-      'inventory:read',
-      'customer:read',
-      'wallet:read',
-      'rewards_coin:read',
-      'payment:read',
-      'whatsapp:read',
-      'push_notifications:read',
-      'blog:read',
-      'offers:read',
-      'marketing_campaign:read',
-      'website_management:read',
-      'analytics:read',
-      'user_management:read',
-      'team_management:read',
-      'role_management:read',
-      'mcp_tools:read',
-      'support_ticket:read',
-      'coupons:read',
-    ]);
+    const scopes = await getUserScopes(auth.uid);
+
+    const result = await executeCoFounderTool(toolName, args, scopes);
 
     return NextResponse.json(result);
   } catch (error: any) {

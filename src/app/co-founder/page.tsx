@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Send,
   Bot,
@@ -41,7 +41,7 @@ import { PlaywrightBrowserWindow } from '@/components/co-founder/PlaywrightBrows
 import { CoFounderCharacter } from '@/components/co-founder/CoFounderCharacter';
 import { CoWorkerAvatar } from '@/components/co-founder/CoWorkerAvatar';
 import { CoWorkerShowcase } from '@/components/co-founder/CoWorkerShowcase';
-import { WorkerGrid } from '@/components/co-founder/workforce/WorkerGrid';
+import { WorkerGrid, WorkerNodeData } from '@/components/co-founder/workforce/WorkerGrid';
 import { AiHierarchyVisualizer } from '@/components/ai/motion-engine/AiHierarchyVisualizer';
 import { LiveWorkspace } from '@/components/co-founder/workspace/LiveWorkspace';
 import {
@@ -50,6 +50,11 @@ import {
   getRoleTheme,
   getWorkerIcon,
 } from '@/components/co-founder/swarm/swarmTypes';
+import { useCoFounderWorkforce } from '@/hooks/useCoFounderWorkforce';
+import {
+  agentNodesToSwarmNodes,
+  agentNodesToWorkerGrid,
+} from '@/lib/ai/co-founder/workers/client-status';
 import { useLiveKitVoice } from '@/hooks/useLiveKitVoice';
 import toast from 'react-hot-toast';
 
@@ -79,6 +84,8 @@ export default function CoFounderPortalPage() {
   const [selectedWorkerId, setSelectedWorkerId] =
     useState<string>('co_founder');
   const [input, setInput] = useState('');
+  const genId = () => crypto.randomUUID();
+
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: 'welcome',
@@ -107,6 +114,32 @@ export default function CoFounderPortalPage() {
     'spoken_bengali' | 'banglish' | 'standard'
   >('spoken_bengali');
   const [isVoiceModalOpen, setIsVoiceModalOpen] = useState<boolean>(false);
+  const voiceModalRef = useRef<HTMLDivElement>(null);
+  const previouslyFocusedRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    if (isVoiceModalOpen) {
+      previouslyFocusedRef.current = document.activeElement as HTMLElement;
+      const timer = setTimeout(() => {
+        const firstFocusable = voiceModalRef.current?.querySelector<
+          HTMLElement
+        >(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        );
+        firstFocusable?.focus();
+      }, 0);
+      const handleEscape = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') setIsVoiceModalOpen(false);
+      };
+      document.addEventListener('keydown', handleEscape);
+      return () => {
+        clearTimeout(timer);
+        document.removeEventListener('keydown', handleEscape);
+      };
+    } else {
+      previouslyFocusedRef.current?.focus();
+    }
+  }, [isVoiceModalOpen]);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -168,6 +201,15 @@ export default function CoFounderPortalPage() {
   const [seoReport, setSeoReport] = useState<any>(null);
   const [loadingSeo, setLoadingSeo] = useState(false);
 
+  // Live Workforce Data Hook
+  const { data: workforceData } = useCoFounderWorkforce();
+  const liveSwarmNodes: SwarmWorkerNode[] = workforceData
+    ? agentNodesToSwarmNodes(workforceData.nodes)
+    : SWARM_NODES;
+  const liveWorkerGrid: WorkerNodeData[] = workforceData
+    ? agentNodesToWorkerGrid(workforceData.nodes)
+    : [];
+
   // Realtime LiveKit Voice Hook
   const voice = useLiveKitVoice({
     provider: selectedProvider,
@@ -187,7 +229,7 @@ export default function CoFounderPortalPage() {
       setMessages((prev) => [
         ...prev,
         {
-          id: Date.now().toString(),
+          id: genId(),
           sender: speaker,
           text,
           provider: meta?.provider,
@@ -218,6 +260,8 @@ export default function CoFounderPortalPage() {
       if (sigRes.ok) {
         const sigData = await sigRes.json();
         setProactiveSignals(sigData.data || []);
+      } else {
+        toast.error('Failed to load proactive signals');
       }
 
       // Fetch pending approvals
@@ -229,6 +273,8 @@ export default function CoFounderPortalPage() {
       if (appRes.ok) {
         const appData = await appRes.json();
         setPendingApprovals(appData.data || []);
+      } else {
+        toast.error('Failed to load pending approvals');
       }
 
       // Fetch repository architecture
@@ -243,9 +289,12 @@ export default function CoFounderPortalPage() {
       if (archRes.ok) {
         const archData = await archRes.json();
         setArchitectureInfo(archData.data || null);
+      } else {
+        toast.error('Failed to load repository architecture');
       }
     } catch (err) {
       console.error('[Failed to fetch widgets]', err);
+      toast.error('Failed to load intelligence widgets');
     } finally {
       setLoadingWidgets(false);
     }
@@ -258,9 +307,11 @@ export default function CoFounderPortalPage() {
       if (res.ok) {
         const data = await res.json();
         setActionPlans(data.plans || []);
+      } else {
+        toast.error('Failed to load action plans');
       }
     } catch {
-      // quiet fallback
+      toast.error('Failed to load action plans');
     } finally {
       setLoadingPlans(false);
     }
@@ -299,9 +350,11 @@ export default function CoFounderPortalPage() {
       if (res.ok) {
         const data = await res.json();
         setCompetitors(data.competitors || []);
+      } else {
+        toast.error('Failed to load competitors');
       }
     } catch {
-      // quiet fallback
+      toast.error('Failed to load competitors');
     }
   };
 
@@ -312,9 +365,11 @@ export default function CoFounderPortalPage() {
       if (res.ok) {
         const data = await res.json();
         setSeoReport(data);
+      } else {
+        toast.error('Failed to load SEO report');
       }
     } catch {
-      // quiet fallback
+      toast.error('Failed to load SEO report');
     } finally {
       setLoadingSeo(false);
     }
@@ -357,9 +412,12 @@ export default function CoFounderPortalPage() {
         if (savedLang) {
           setSelectedLanguage(savedLang);
         }
+      } else {
+        toast.error('Failed to load AI models');
       }
     } catch (e) {
       console.error('Failed to load AI models:', e);
+      toast.error('Failed to load AI models');
     } finally {
       setLoadingModels(false);
     }
@@ -372,9 +430,12 @@ export default function CoFounderPortalPage() {
       if (res.ok) {
         const data = await res.json();
         setLiveKitUsage(data);
+      } else {
+        toast.error('Failed to load LiveKit usage');
       }
     } catch (err) {
       console.error('Failed to load LiveKit usage:', err);
+      toast.error('Failed to load LiveKit usage');
     } finally {
       setLoadingUsage(false);
     }
@@ -425,7 +486,7 @@ export default function CoFounderPortalPage() {
     }
 
     const userMsg: ChatMessage = {
-      id: Date.now().toString(),
+      id: genId(),
       sender: 'user',
       text: rawInput,
       timestamp: Date.now(),
@@ -463,7 +524,7 @@ export default function CoFounderPortalPage() {
       setMessages((prev) => [
         ...prev,
         {
-          id: (Date.now() + 1).toString(),
+          id: genId(),
           sender: 'assistant',
           text: data.response || 'No response received.',
           provider: data.provider,
@@ -479,7 +540,7 @@ export default function CoFounderPortalPage() {
       setMessages((prev) => [
         ...prev,
         {
-          id: (Date.now() + 1).toString(),
+          id: genId(),
           sender: 'assistant',
           text: `Error: ${errorText}`,
           timestamp: Date.now(),
@@ -540,6 +601,9 @@ export default function CoFounderPortalPage() {
       if (res.ok) {
         toast.success('Signal acknowledged');
         setProactiveSignals((prev) => prev.filter((s) => s.id !== signalId));
+      } else {
+        const err = await res.json();
+        toast.error(err.error || 'Failed to acknowledge signal');
       }
     } catch {
       toast.error('Failed to acknowledge signal');
@@ -563,6 +627,9 @@ export default function CoFounderPortalPage() {
       if (res.ok) {
         toast.success(`Action successfully ${decision}`);
         setPendingApprovals((prev) => prev.filter((a) => a.id !== approvalId));
+      } else {
+        const err = await res.json();
+        toast.error(err.error || `Failed to ${decision} action`);
       }
     } catch {
       toast.error('Failed to submit approval');
@@ -675,15 +742,22 @@ export default function CoFounderPortalPage() {
   const currentAvailableModels = activeProviderObj?.models || [];
 
   // Interactive 3D Spatial Workforce Swarm UI Component Render
-  const renderSwarmSpatialUI = (isCompact = false) => {
+  const renderSwarmSpatialUI = (swarmNodes: SwarmWorkerNode[] = SWARM_NODES, isCompact = false) => {
     const selectedNode =
-      SWARM_NODES.find((n) => n.id === selectedWorkerId) || SWARM_NODES[0];
-    const cofounderNode = SWARM_NODES[0];
+      swarmNodes.find((n) => n.id === selectedWorkerId) || swarmNodes[0];
+    const cofounderNode = swarmNodes[0];
+
+    const activeWorkerCount = swarmNodes.filter(
+      (n) => n.status === 'active' || n.status === 'executing' || n.status === 'analyzing' || n.status === 'generating'
+    ).length;
+    const avgLatency = Math.round(
+      swarmNodes.reduce((sum, n) => sum + n.latencyMs, 0) / swarmNodes.length
+    );
 
     return (
       <div className="flex flex-col space-y-4">
         {/* Telemetry Header */}
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-neutral-200/80 bg-nm-light-bg p-3.5 shadow-nm-flat dark:border-neutral-800 dark:bg-nm-dark-bg dark:shadow-nm-flat-dark">
+        <div className="flex flex-col gap-3 rounded-2xl border border-neutral-200/80 bg-nm-light-bg p-3 shadow-nm-flat dark:border-neutral-800 dark:bg-nm-dark-bg dark:shadow-nm-flat-dark sm:p-3.5 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-2.5">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-nm-gradient-light shadow-nm-flat dark:bg-nm-gradient-dark dark:shadow-nm-flat-dark">
               <Orbit className="animate-spin-slow h-5 w-5 text-violet-600 dark:text-violet-400" />
@@ -692,7 +766,9 @@ export default function CoFounderPortalPage() {
               <h3 className="flex items-center gap-2 text-xs font-bold text-nm-light-textPrimary dark:text-white">
                 AI Workforce Swarm Orbit
                 <span className="rounded-full border border-emerald-500/40 bg-emerald-500/20 px-2 py-0.5 text-[9px] font-bold text-emerald-600 dark:text-emerald-400">
-                  7 Agents Synchronized
+                  {activeWorkerCount > 0
+                    ? `${activeWorkerCount} Agents Active`
+                    : `${swarmNodes.length} Agents Synchronized`}
                 </span>
               </h3>
               <p className="text-[10px] text-nm-light-textSecondary dark:text-neutral-400">
@@ -708,14 +784,14 @@ export default function CoFounderPortalPage() {
             </div>
             <div className="flex items-center gap-1 text-nm-light-textSecondary dark:text-neutral-400">
               <Activity size={11} className="text-violet-500" />
-              <span>Avg Latency: 104ms</span>
+              <span>Avg Latency: {avgLatency}ms</span>
             </div>
           </div>
         </div>
 
         {/* Spatial Orbital Container */}
         <div
-          className={`relative flex flex-col items-center justify-center overflow-hidden rounded-3xl border border-neutral-200/80 bg-nm-light-bg p-6 shadow-nm-flat dark:border-neutral-800 dark:bg-nm-dark-bg dark:shadow-nm-flat-dark ${isCompact ? 'min-h-[360px]' : 'min-h-[460px]'}`}
+          className={`relative flex flex-col items-center justify-center overflow-hidden rounded-3xl border border-neutral-200/80 bg-nm-light-bg p-4 shadow-nm-flat dark:border-neutral-800 dark:bg-nm-dark-bg dark:shadow-nm-flat-dark sm:p-6 ${isCompact ? 'min-h-[360px]' : 'min-h-[400px] md:min-h-[460px]'}`}
         >
           {/* Soft Background Grid & Radial Glow */}
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(139,92,246,0.08)_0%,transparent_70%)]" />
@@ -726,7 +802,7 @@ export default function CoFounderPortalPage() {
           <div className="relative z-10 grid w-full max-w-4xl grid-cols-1 items-center justify-items-center gap-6 md:grid-cols-3">
             {/* Left Orbit Column (Researcher, Writer, Analyst) */}
             <div className="flex w-full max-w-xs flex-col gap-4">
-              {SWARM_NODES.filter((n) =>
+              {swarmNodes.filter((n) =>
                 ['researcher', 'writer', 'analyst'].includes(n.role)
               ).map((node) => {
                 const theme = getRoleTheme(node.role);
@@ -796,7 +872,7 @@ export default function CoFounderPortalPage() {
 
             {/* Right Orbit Column (Coder, Designer, Marketer) */}
             <div className="flex w-full max-w-xs flex-col gap-4">
-              {SWARM_NODES.filter((n) =>
+              {swarmNodes.filter((n) =>
                 ['coder', 'designer', 'marketer'].includes(n.role)
               ).map((node) => {
                 const theme = getRoleTheme(node.role);
@@ -891,7 +967,7 @@ export default function CoFounderPortalPage() {
               {selectedNode.description}
             </p>
 
-            <div className="grid grid-cols-2 gap-3 pt-1 text-xs md:grid-cols-4">
+            <div className="grid grid-cols-2 gap-3 pt-1 text-xs sm:grid-cols-2 md:grid-cols-4">
               <div className="rounded-2xl border border-neutral-200/80 bg-nm-light-bg p-2.5 shadow-nm-inset dark:border-neutral-800 dark:bg-nm-dark-bg dark:shadow-nm-inset-dark">
                 <span className="mb-0.5 block text-[10px] font-bold uppercase tracking-wider text-nm-light-textSecondary dark:text-neutral-400">
                   Active Tool
@@ -932,9 +1008,9 @@ export default function CoFounderPortalPage() {
   };
 
   return (
-    <div className="mx-auto flex h-[calc(100vh-4rem)] max-w-7xl flex-col space-y-4 bg-nm-light-bg p-4 text-nm-light-textPrimary dark:bg-nm-dark-bg dark:text-nm-dark-textPrimary md:p-6">
+    <div className="mx-auto flex h-[calc(100vh-4rem)] max-w-7xl flex-col space-y-4 bg-nm-light-bg p-3 text-nm-light-textPrimary dark:bg-nm-dark-bg dark:text-nm-dark-textPrimary md:p-4 lg:p-6">
       {/* Top Header & Dark Neumorphic Controls */}
-      <div className="flex flex-col justify-between gap-4 rounded-3xl border border-neutral-200/80 bg-nm-light-bg p-4 shadow-nm-flat backdrop-blur-2xl dark:border-neutral-800/90 dark:bg-nm-dark-bg dark:shadow-nm-flat-dark lg:flex-row lg:items-center">
+      <div className="flex flex-col justify-between gap-3 rounded-3xl border border-neutral-200/80 bg-nm-light-bg p-3 shadow-nm-flat backdrop-blur-2xl dark:border-neutral-800/90 dark:bg-nm-dark-bg dark:shadow-nm-flat-dark lg:flex-row lg:items-center lg:gap-4 lg:p-4">
         <div className="flex items-center gap-3.5">
           <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-nm-gradient-light shadow-nm-flat dark:bg-nm-gradient-dark dark:shadow-nm-flat-dark">
             <Sparkles className="h-6 w-6 text-violet-600 dark:text-amber-400" />
@@ -1126,8 +1202,16 @@ export default function CoFounderPortalPage() {
           </div>
 
           {/* Mode Switcher Tabs */}
-          <div className="flex items-center rounded-2xl border border-neutral-300/70 bg-nm-light-bg p-1 shadow-nm-inset dark:border-neutral-800 dark:bg-nm-dark-bg dark:shadow-nm-inset-dark">
+          <div
+            className="flex items-center rounded-2xl border border-neutral-300/70 bg-nm-light-bg p-1 shadow-nm-inset dark:border-neutral-800 dark:bg-nm-dark-bg dark:shadow-nm-inset-dark"
+            role="tablist"
+            aria-label="Co-Founder mode switch"
+          >
             <button
+              type="button"
+              role="tab"
+              aria-selected={activeTab === 'voice'}
+              aria-controls="voice-panel"
               onClick={() => setActiveTab('voice')}
               className={`flex items-center gap-2 rounded-xl px-3.5 py-1.5 text-xs font-medium transition-all duration-200 ${
                 activeTab === 'voice'
@@ -1139,6 +1223,10 @@ export default function CoFounderPortalPage() {
               <span>Realtime Voice</span>
             </button>
             <button
+              type="button"
+              role="tab"
+              aria-selected={activeTab === 'chat'}
+              aria-controls="chat-panel"
               onClick={() => setActiveTab('chat')}
               className={`flex items-center gap-2 rounded-xl px-3.5 py-1.5 text-xs font-medium transition-all duration-200 ${
                 activeTab === 'chat'
@@ -1150,6 +1238,10 @@ export default function CoFounderPortalPage() {
               <span>Interactive Chat</span>
             </button>
             <button
+              type="button"
+              role="tab"
+              aria-selected={activeTab === 'swarm_3d'}
+              aria-controls="swarm-3d-panel"
               onClick={() => setActiveTab('swarm_3d')}
               className={`flex items-center gap-2 rounded-xl px-3.5 py-1.5 text-xs font-medium transition-all duration-200 ${
                 activeTab === 'swarm_3d'
@@ -1161,6 +1253,10 @@ export default function CoFounderPortalPage() {
               <span>3D Workforce Swarm</span>
             </button>
             <button
+              type="button"
+              role="tab"
+              aria-selected={activeTab === 'workspace'}
+              aria-controls="workspace-panel"
               onClick={() => setActiveTab('workspace')}
               className={`flex items-center gap-2 rounded-xl px-3.5 py-1.5 text-xs font-medium transition-all duration-200 ${
                 activeTab === 'workspace'
@@ -1216,8 +1312,17 @@ export default function CoFounderPortalPage() {
       {/* Main View Area */}
       {activeTab === 'swarm_3d' ? (
         <div className="flex-1 space-y-6 overflow-y-auto pr-1">
-          {renderSwarmSpatialUI(false)}
+          <AiHierarchyVisualizer
+            isThinking={voice.state === 'listening' || voice.state === 'connecting'}
+            liveNodes={workforceData?.nodes}
+            isLiveData={!!workforceData}
+            selectedNodeId={selectedWorkerId}
+            onSelectNode={setSelectedWorkerId}
+            className="mb-6"
+          />
+          {renderSwarmSpatialUI(liveSwarmNodes, false)}
           <WorkerGrid
+            workers={liveWorkerGrid.length > 0 ? liveWorkerGrid : undefined}
             onSelectWorker={(id) => setSelectedWorkerId(id)}
             onPromptWorker={(role) => {
               setInput(`@${role} `);
@@ -1268,8 +1373,16 @@ export default function CoFounderPortalPage() {
           >
             {/* Header Controls for Right Column */}
             <div className="flex items-center justify-between border-b border-neutral-200/80 bg-nm-light-bg px-4 py-3 text-xs font-medium text-nm-light-textSecondary dark:border-neutral-800 dark:bg-nm-dark-bg dark:text-neutral-400">
-              <div className="scrollbar-none flex items-center gap-1.5 overflow-x-auto py-0.5">
+              <div
+              className="flex items-center gap-1.5 overflow-x-auto py-0.5"
+              role="tablist"
+              aria-label="Intelligent drawer tabs"
+            >
                 <button
+                  type="button"
+                  role="tab"
+                  aria-selected={selectedWidgetTab === 'alerts'}
+                  aria-controls="alerts-panel"
                   onClick={() => setSelectedWidgetTab('alerts')}
                   className={`rounded-xl px-2.5 py-1 text-[11px] font-medium transition-all ${
                     selectedWidgetTab === 'alerts'
@@ -1280,6 +1393,10 @@ export default function CoFounderPortalPage() {
                   Alerts ({proactiveSignals.length})
                 </button>
                 <button
+                  type="button"
+                  role="tab"
+                  aria-selected={selectedWidgetTab === 'approvals'}
+                  aria-controls="approvals-panel"
                   onClick={() => setSelectedWidgetTab('approvals')}
                   className={`rounded-xl px-2.5 py-1 text-[11px] font-medium transition-all ${
                     selectedWidgetTab === 'approvals'
@@ -1290,6 +1407,10 @@ export default function CoFounderPortalPage() {
                   Approvals ({pendingApprovals.length})
                 </button>
                 <button
+                  type="button"
+                  role="tab"
+                  aria-selected={selectedWidgetTab === 'competitors'}
+                  aria-controls="competitors-panel"
                   onClick={() => setSelectedWidgetTab('competitors')}
                   className={`rounded-xl px-2.5 py-1 text-[11px] font-medium transition-all ${
                     selectedWidgetTab === 'competitors'
@@ -1300,6 +1421,10 @@ export default function CoFounderPortalPage() {
                   Competitors ({competitors.length})
                 </button>
                 <button
+                  type="button"
+                  role="tab"
+                  aria-selected={selectedWidgetTab === 'seo'}
+                  aria-controls="seo-panel"
                   onClick={() => setSelectedWidgetTab('seo')}
                   className={`rounded-xl px-2.5 py-1 text-[11px] font-medium transition-all ${
                     selectedWidgetTab === 'seo'
@@ -1310,6 +1435,10 @@ export default function CoFounderPortalPage() {
                   SEO Health
                 </button>
                 <button
+                  type="button"
+                  role="tab"
+                  aria-selected={selectedWidgetTab === 'architecture'}
+                  aria-controls="architecture-panel"
                   onClick={() => setSelectedWidgetTab('architecture')}
                   className={`rounded-xl px-2.5 py-1 text-[11px] font-medium transition-all ${
                     selectedWidgetTab === 'architecture'
@@ -1320,6 +1449,10 @@ export default function CoFounderPortalPage() {
                   Architecture
                 </button>
                 <button
+                  type="button"
+                  role="tab"
+                  aria-selected={selectedWidgetTab === 'usage'}
+                  aria-controls="usage-panel"
                   onClick={() => {
                     setSelectedWidgetTab('usage');
                     fetchLiveKitUsage();
@@ -1341,6 +1474,10 @@ export default function CoFounderPortalPage() {
                   <span>LiveKit</span>
                 </button>
                 <button
+                  type="button"
+                  role="tab"
+                  aria-selected={selectedWidgetTab === 'browser'}
+                  aria-controls="browser-panel"
                   onClick={() => {
                     setSelectedWidgetTab('browser');
                     setIsBrowserOpen(true);
@@ -1371,6 +1508,10 @@ export default function CoFounderPortalPage() {
                   ) : null}
                 </button>
                 <button
+                  type="button"
+                  role="tab"
+                  aria-selected={selectedWidgetTab === 'plans'}
+                  aria-controls="plans-panel"
                   onClick={() => {
                     setSelectedWidgetTab('plans');
                     fetchActionPlans();
@@ -1392,6 +1533,10 @@ export default function CoFounderPortalPage() {
                   <span>Plans ({actionPlans.length})</span>
                 </button>
                 <button
+                  type="button"
+                  role="tab"
+                  aria-selected={selectedWidgetTab === 'swarm'}
+                  aria-controls="swarm-panel"
                   onClick={() => setSelectedWidgetTab('swarm')}
                   className={`flex items-center gap-1 rounded-xl px-2.5 py-1 text-[11px] font-medium transition-all ${
                     selectedWidgetTab === 'swarm'
@@ -1410,6 +1555,10 @@ export default function CoFounderPortalPage() {
                   <span>Swarm</span>
                 </button>
                 <button
+                  type="button"
+                  role="tab"
+                  aria-selected={selectedWidgetTab === 'workspace'}
+                  aria-controls="workspace-panel"
                   onClick={() => setSelectedWidgetTab('workspace')}
                   className={`flex items-center gap-1 rounded-xl px-2.5 py-1 text-[11px] font-medium transition-all ${
                     selectedWidgetTab === 'workspace'
@@ -1464,7 +1613,7 @@ export default function CoFounderPortalPage() {
               }`}
             >
               {selectedWidgetTab === 'alerts' && (
-                <div className="space-y-2">
+                <div className="space-y-2" aria-live="polite" aria-label="Proactive alerts">
                   {proactiveSignals.length === 0 ? (
                     <p className="flex items-center gap-1.5 py-1 text-[11px] text-nm-light-textSecondary dark:text-neutral-400">
                       <ShieldCheck
@@ -1718,7 +1867,13 @@ export default function CoFounderPortalPage() {
               )}
 
               {selectedWidgetTab === 'seo' && (
-                <div className="space-y-2.5">
+                <div className="space-y-2.5" aria-live="polite" aria-label="SEO health report">
+                  {loadingSeo ? (
+                    <p className="flex items-center gap-1.5 py-2 text-[11px] text-nm-light-textSecondary dark:text-neutral-400">
+                      <RefreshCw size={13} className="animate-spin text-violet-500" />
+                      Scanning catalog SEO health...
+                    </p>
+                  ) : seoReport ? (
                   <div className="flex items-center justify-between rounded-2xl border border-neutral-200/80 bg-nm-light-bg p-3 shadow-nm-flat dark:border-neutral-800 dark:bg-nm-dark-bg dark:shadow-nm-flat-dark">
                     <div className="flex items-center gap-2.5">
                       <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-emerald-500/30 bg-emerald-500/20 text-xs font-bold text-emerald-600 shadow-nm-flat dark:text-emerald-400 dark:shadow-nm-flat-dark">
@@ -1746,6 +1901,12 @@ export default function CoFounderPortalPage() {
                       <span>{loadingSeo ? 'Scanning...' : 'Rescan SEO'}</span>
                     </button>
                   </div>
+                  ) : (
+                    <p className="flex items-center gap-1.5 py-2 text-[11px] text-nm-light-textSecondary dark:text-neutral-400">
+                      <Info size={13} className="text-neutral-400 dark:text-neutral-500" />
+                      No SEO report available. Click 'Rescan SEO' to generate one.
+                    </p>
+                  )}
 
                   <div className="grid grid-cols-3 gap-2 text-center">
                     <div className="rounded-xl border border-neutral-200/80 bg-nm-light-bg p-2 shadow-nm-flat dark:border-neutral-800 dark:bg-nm-dark-bg dark:shadow-nm-flat-dark">
@@ -1778,51 +1939,72 @@ export default function CoFounderPortalPage() {
 
               {selectedWidgetTab === 'architecture' && (
                 <div className="space-y-1.5 rounded-2xl border border-neutral-200/80 bg-nm-light-bg p-2 text-[11px] text-nm-light-textPrimary shadow-nm-flat dark:border-neutral-800 dark:bg-nm-dark-bg dark:text-neutral-300 dark:shadow-nm-flat-dark">
-                  <p className="flex items-center gap-1.5">
-                    <Cpu
-                      size={12}
-                      className="text-cyan-600 dark:text-cyan-400"
-                    />
-                    <strong>Framework:</strong>{' '}
-                    {architectureInfo?.framework ||
-                      'Next.js 15 (App Router) + React 19 + LiveKit WebRTC Engine'}
-                  </p>
-                  <p>
-                    <strong>Total Database Migrations:</strong>{' '}
-                    {architectureInfo?.totalMigrations || 28}
-                  </p>
-                  <p className="line-clamp-1">
-                    <strong>Active Integrations:</strong>{' '}
-                    {architectureInfo?.activeIntegrations?.join(', ') ||
-                      'LiveKit, Gemini, Supabase, Firebase, Sentry'}
-                  </p>
+                  {loadingWidgets ? (
+                    <p className="flex items-center gap-1.5 py-2 text-[11px] text-nm-light-textSecondary dark:text-neutral-400">
+                      <RefreshCw size={13} className="animate-spin text-violet-500" />
+                      Loading repository architecture...
+                    </p>
+                  ) : architectureInfo ? (
+                  <div>
+                    <p className="flex items-center gap-1.5">
+                      <Cpu
+                        size={12}
+                        className="text-cyan-600 dark:text-cyan-400"
+                      />
+                      <strong>Framework:</strong>{' '}
+                      {architectureInfo?.framework ||
+                        'Next.js 15 (App Router) + React 19 + LiveKit WebRTC Engine'}
+                    </p>
+                    <p>
+                      <strong>Total Database Migrations:</strong>{' '}
+                      {architectureInfo?.totalMigrations || 28}
+                    </p>
+                    <p className="line-clamp-1">
+                      <strong>Active Integrations:</strong>{' '}
+                      {architectureInfo?.activeIntegrations?.join(', ') ||
+                        'LiveKit, Gemini, Supabase, Firebase, Sentry'}
+                    </p>
+                  </div>
+                  ) : (
+                    <p className="flex items-center gap-1.5 py-2 text-[11px] text-nm-light-textSecondary dark:text-neutral-400">
+                      <Info size={13} className="text-neutral-400 dark:text-neutral-500" />
+                      No architecture data loaded. Try refreshing.
+                    </p>
+                  )}
                 </div>
               )}
 
               {selectedWidgetTab === 'usage' && (
-                <div className="space-y-3">
-                  <div className="flex flex-col items-start justify-between gap-2 rounded-2xl border border-neutral-200/80 bg-nm-light-bg p-3 shadow-nm-flat dark:border-neutral-800 dark:bg-nm-dark-bg dark:shadow-nm-flat-dark sm:flex-row sm:items-center">
-                    <div className="flex items-center gap-2.5">
-                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-violet-500/30 bg-violet-500/20 text-violet-600 shadow-nm-flat dark:text-violet-400 dark:shadow-nm-flat-dark">
-                        <Activity size={16} />
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <p className="text-xs font-bold text-nm-light-textPrimary dark:text-white">
-                            LiveKit Cloud Telemetry
-                          </p>
-                          <span className="rounded bg-emerald-500/20 px-1.5 py-0.5 text-[9px] font-bold text-emerald-600 dark:text-emerald-400">
-                            Free Tier
-                          </span>
+                <div className="space-y-3" aria-live="polite" aria-label="LiveKit usage telemetry">
+                  {loadingUsage && !liveKitUsage ? (
+                    <p className="flex items-center gap-1.5 py-2 text-[11px] text-nm-light-textSecondary dark:text-neutral-400">
+                      <RefreshCw size={13} className="animate-spin text-violet-500" />
+                      Fetching LiveKit telemetry...
+                    </p>
+                  ) : (
+                    <div className="flex flex-col items-start justify-between gap-2 rounded-2xl border border-neutral-200/80 bg-nm-light-bg p-3 shadow-nm-flat dark:border-neutral-800 dark:bg-nm-dark-bg dark:shadow-nm-flat-dark sm:flex-row sm:items-center">
+                      <div className="flex items-center gap-2.5">
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-violet-500/30 bg-violet-500/20 text-violet-600 shadow-nm-flat dark:text-violet-400 dark:shadow-nm-flat-dark">
+                          <Activity size={16} />
                         </div>
-                        <p className="text-[10px] text-nm-light-textSecondary dark:text-neutral-400">
-                          Host: ruhvi-rkkfx6qd.livekit.cloud • Cycle resets in{' '}
-                          {liveKitUsage?.billingPeriod?.daysRemaining ?? 29}{' '}
-                          days
-                        </p>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <p className="text-xs font-bold text-nm-light-textPrimary dark:text-white">
+                              LiveKit Cloud Telemetry
+                            </p>
+                            <span className="rounded bg-emerald-500/20 px-1.5 py-0.5 text-[9px] font-bold text-emerald-600 dark:text-emerald-400">
+                              Free Tier
+                            </span>
+                          </div>
+                          <p className="text-[10px] text-nm-light-textSecondary dark:text-neutral-400">
+                            Host: ruhvi-rkkfx6qd.livekit.cloud • Cycle resets in{' '}
+                            {liveKitUsage?.billingPeriod?.daysRemaining ?? 29}{' '}
+                            days
+                          </p>
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  )}
                 </div>
               )}
 
@@ -1883,7 +2065,7 @@ export default function CoFounderPortalPage() {
 
               {selectedWidgetTab === 'swarm' && (
                 <div className="space-y-6">
-                  {renderSwarmSpatialUI(true)}
+                  {renderSwarmSpatialUI(liveSwarmNodes, true)}
                   <CoWorkerShowcase />
                 </div>
               )}
@@ -2033,6 +2215,16 @@ export default function CoFounderPortalPage() {
         >
           <div
             id="co-founder-voice-modal"
+            ref={voiceModalRef}
+            role="dialog"
+            aria-modal="true"
+            aria-label={
+              selectedLanguage === 'bn-IN'
+                ? 'Executive Voice Studio Settings (Voice Studio)'
+                : selectedLanguage === 'hi-IN'
+                  ? 'Executive Voice Studio Settings (Voice Studio)'
+                  : 'Executive Voice Studio Settings'
+            }
             onClick={(e) => e.stopPropagation()}
             className="w-full max-w-xl rounded-3xl border border-neutral-200/80 bg-nm-light-bg p-6 shadow-nm-flat backdrop-blur-2xl dark:border-neutral-800 dark:bg-nm-dark-bg dark:shadow-nm-flat-dark"
           >
@@ -2043,14 +2235,25 @@ export default function CoFounderPortalPage() {
                 </div>
                 <div>
                   <h3 className="flex items-center gap-2 text-base font-bold text-nm-light-textPrimary dark:text-white">
-                    Executive Voice Studio
+                    {selectedLanguage === 'hi-IN'
+                      ? 'एक्जीक्यूटिव वॉयस स्टूडियो'
+                      : selectedLanguage === 'bn-IN'
+                        ? 'Executive Voice Studio'
+                        : 'Executive Voice Studio'}
                     <span className="rounded-full border border-violet-500/30 bg-violet-500/20 px-2 py-0.5 text-[10px] font-semibold text-violet-700 dark:text-violet-300">
-                      ভয়েস ও উচ্চারণ
+                      {selectedLanguage === 'hi-IN'
+                        ? 'वॉयस सेटिंग्स'
+                        : selectedLanguage === 'bn-IN'
+                          ? 'ভয়েস ও উচ্চারণ'
+                          : 'Voice Studio'}
                     </span>
                   </h3>
                   <p className="text-xs text-nm-light-textSecondary dark:text-neutral-400">
-                    বাংলা ও ভারতীয় ভাষার স্পষ্ট উচ্চারণ, ব্রাউজার ভয়েস এবং গতি
-                    নিয়ন্ত্রণ করুন
+                    {selectedLanguage === 'hi-IN'
+                      ? 'ब्राउज़र वॉयस और भाषा नियंत्रण सेट करें'
+                      : selectedLanguage === 'bn-IN'
+                        ? 'বাংলা ও ভারতীয় ভাষার স্পষ্ট উচ্চারণ, ব্রাউজার ভয়েস এবং গতি নিয়ন্ত্রণ করুন'
+                        : 'Configure browser voice, speech rate, pitch and language preferences'}
                   </p>
                 </div>
               </div>
@@ -2066,7 +2269,11 @@ export default function CoFounderPortalPage() {
             <div className="mt-5 max-h-[72vh] space-y-5 overflow-y-auto pr-1">
               <div>
                 <label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-nm-light-textSecondary dark:text-neutral-400">
-                  ১. বাংলা বলার ধরন (Spoken Bengali Style)
+                  {selectedLanguage === 'hi-IN'
+                    ? '1. बोलने का अंदाज (Spoken Style)'
+                    : selectedLanguage === 'bn-IN'
+                      ? '১. বাংলা বলার ধরন (Spoken Bengali Style)'
+                      : '1. Voice Style'}
                 </label>
                 <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
                   <button
@@ -2086,21 +2293,28 @@ export default function CoFounderPortalPage() {
                         : 'border-neutral-300/80 bg-nm-light-bg text-nm-light-textSecondary shadow-nm-inset hover:text-nm-light-textPrimary dark:border-neutral-800 dark:bg-nm-dark-bg dark:text-neutral-400 dark:shadow-nm-inset-dark dark:hover:text-neutral-200'
                     }`}
                   >
-                    <div className="mb-1 flex w-full items-center justify-between">
-                      <span className="flex items-center gap-1.5 text-xs font-bold text-violet-700 dark:text-violet-300">
-                        {voiceStyle === 'spoken_bengali' && (
-                          <Check className="h-3.5 w-3.5 text-violet-600 dark:text-violet-400" />
-                        )}
-                        সহজ চলিত মুখের বাংলা
-                      </span>
-                      <span className="rounded bg-emerald-500/20 px-1.5 py-0.5 text-[10px] font-bold text-emerald-600 dark:text-emerald-400">
-                        Recommended
-                      </span>
-                    </div>
-                    <p className="text-[11px] leading-normal text-nm-light-textSecondary dark:text-neutral-400">
-                      মুখে কথা বলার মতো স্বাভাবিক মিষ্টি বাংলা। “এবং”, “বলিবেন”
-                      বারণ।
-                    </p>
+                  <div className="mb-1 flex w-full items-center justify-between">
+                    <span className="flex items-center gap-1.5 text-xs font-bold text-violet-700 dark:text-violet-300">
+                      {voiceStyle === 'spoken_bengali' && (
+                        <Check className="h-3.5 w-3.5 text-violet-600 dark:text-violet-400" />
+                      )}
+                      {selectedLanguage === 'hi-IN'
+                        ? 'सरल बोलचाल का बंगाली'
+                        : selectedLanguage === 'bn-IN'
+                          ? 'সহজ চলিত মুখের বাংলা'
+                          : 'Natural Spoken Bengali'}
+                    </span>
+                    <span className="rounded bg-emerald-500/20 px-1.5 py-0.5 text-[10px] font-bold text-emerald-600 dark:text-emerald-400">
+                      {selectedLanguage === 'bn-IN' ? 'সুপারিশিত' : 'Recommended'}
+                    </span>
+                  </div>
+                  <p className="text-[11px] leading-normal text-nm-light-textSecondary dark:text-neutral-400">
+                    {selectedLanguage === 'hi-IN'
+                      ? 'बोले जाने वाला प्राकृतिक मीठा बंगाली। "और", "बोलिए" बचाएं।'
+                      : selectedLanguage === 'bn-IN'
+                        ? 'মুখে কথা বলার মতো স্বাভাবিক মিষ্টি বাংলা। “এবং”, “বলিবেন” বারণ।'
+                        : 'Natural sweet Bengali as spoken. Avoids “এবং”, “বলিবেন” for clearer TTS.'}
+                  </p>
                   </button>
 
                   <button
@@ -2125,15 +2339,18 @@ export default function CoFounderPortalPage() {
                         {voiceStyle === 'banglish' && (
                           <Check className="h-3.5 w-3.5 text-cyan-600 dark:text-cyan-400" />
                         )}
-                        বাংলিশ মোড (Banglish)
+                        {selectedLanguage === 'bn-IN'
+                          ? 'বাংলিশ মোড (Banglish)'
+                          : 'Banglish Mode'}
                       </span>
                       <span className="rounded bg-cyan-500/20 px-1.5 py-0.5 text-[10px] font-bold text-cyan-700 dark:text-cyan-300">
-                        100% Clear
+                        {selectedLanguage === 'bn-IN' ? '১০০% স্পষ্ট' : '100% Clear'}
                       </span>
                     </div>
                     <p className="text-[11px] leading-normal text-nm-light-textSecondary dark:text-neutral-400">
-                      ইংরেজি হরফে বাংলা। যেকোনো উইন্ডোজ বা ব্রাউজারে স্পষ্ট
-                      উচ্চারণ।
+                      {selectedLanguage === 'bn-IN'
+                        ? 'ইংরেজি হরফে বাংলা। যেকোনো উইন্ডোজ বা ব্রাউজারে স্পষ্ট উচ্চারণ।'
+                        : 'Bengali in English letters. Clear pronunciation on any system.'}
                     </p>
                   </button>
                 </div>
@@ -2145,7 +2362,11 @@ export default function CoFounderPortalPage() {
                     htmlFor="co-founder-tts-voice-select"
                     className="text-xs font-semibold uppercase tracking-wider text-nm-light-textSecondary dark:text-neutral-400"
                   >
-                    ২. স্পিচ ভয়েস নির্বাচন (Browser Speech Engine)
+                    {selectedLanguage === 'hi-IN'
+                      ? '2. स्पीच वॉयस चयन (Browser Speech Engine)'
+                      : selectedLanguage === 'bn-IN'
+                        ? '২. স্পিচ ভয়েস নির্বাচন (Browser Speech Engine)'
+                        : '2. Voice Selection'}
                   </label>
                   <span className="font-mono text-[11px] text-nm-light-textSecondary dark:text-neutral-500">
                     {voice.availableVoices.length} voices detected
@@ -2164,7 +2385,9 @@ export default function CoFounderPortalPage() {
                   className="w-full rounded-2xl border border-neutral-300/80 bg-nm-light-bg px-3.5 py-2.5 text-xs text-nm-light-textPrimary shadow-nm-inset outline-none focus:border-violet-500 dark:border-neutral-800 dark:bg-nm-dark-bg dark:text-white dark:shadow-nm-inset-dark"
                 >
                   <option value="auto">
-                    ✨ Auto-Detect (স্বয়ংক্রিয় সেরা কণ্ঠস্বর)
+                    {selectedLanguage === 'bn-IN'
+                      ? '✨ স্বয়ংক্রিয় সেরা কণ্ঠস্বর'
+                      : '✨ Auto-Detect Best Voice'}
                   </option>
                   {voice.availableVoices.map((v) => (
                     <option key={v.voiceURI} value={v.voiceURI}>
@@ -2177,7 +2400,11 @@ export default function CoFounderPortalPage() {
               <div>
                 <div className="mb-1.5 flex items-center justify-between">
                   <label className="text-xs font-semibold uppercase tracking-wider text-nm-light-textSecondary dark:text-neutral-400">
-                    ৩. কথার গতি (Speech Speed)
+                    {selectedLanguage === 'hi-IN'
+                      ? '3. भाषण की गति (Speech Speed)'
+                      : selectedLanguage === 'bn-IN'
+                        ? '৩. কথার গতি (Speech Speed)'
+                        : '3. Speech Speed'}
                   </label>
                   <span className="font-mono text-xs font-bold text-violet-700 dark:text-violet-300">
                     {speechRate.toFixed(2)}x
@@ -2206,7 +2433,11 @@ export default function CoFounderPortalPage() {
               <div>
                 <div className="mb-1.5 flex items-center justify-between">
                   <label className="text-xs font-semibold uppercase tracking-wider text-nm-light-textSecondary dark:text-neutral-400">
-                    ৪. ভয়েসের সুর (Voice Pitch)
+                    {selectedLanguage === 'hi-IN'
+                      ? '4. वॉयस पिच (Voice Pitch)'
+                      : selectedLanguage === 'bn-IN'
+                        ? '৪. ভয়েসের সুর (Voice Pitch)'
+                        : '4. Voice Pitch'}
                   </label>
                   <span className="font-mono text-xs font-bold text-violet-700 dark:text-violet-300">
                     {speechPitch.toFixed(2)}
@@ -2237,28 +2468,49 @@ export default function CoFounderPortalPage() {
                   type="button"
                   onClick={() => {
                     voice.testVoice();
-                    toast.success('ভয়েস টেস্ট চালু করা হয়েছে...', {
-                      id: 'voice-test',
-                    });
+                    toast.success(
+                      selectedLanguage === 'bn-IN'
+                        ? 'ভয়েস টেস্ট চালু করা হয়েছে...'
+                        : selectedLanguage === 'hi-IN'
+                          ? 'वॉयस टेस्ट शुरू हो गया...'
+                          : 'Voice test started...',
+                      { id: 'voice-test' }
+                    );
                   }}
                   className="flex w-full items-center justify-center gap-2 rounded-2xl border border-violet-500/40 bg-nm-gradient-light py-2.5 text-xs font-bold text-violet-700 shadow-nm-flat transition-all hover:opacity-90 active:scale-[0.99] dark:bg-nm-gradient-dark dark:text-violet-300 dark:shadow-nm-flat-dark"
                 >
                   <Play className="h-4 w-4 fill-violet-600 text-violet-600 dark:fill-violet-400 dark:text-violet-400" />
-                  <span>ভয়েস পরীক্ষা করুন (Play Live Sample)</span>
+                  <span>
+                    {selectedLanguage === 'bn-IN'
+                      ? 'ভয়েস পরীক্ষা করুন'
+                      : selectedLanguage === 'hi-IN'
+                        ? 'लाइव सैंपल चलाएं'
+                        : 'Play Live Sample'}
+                  </span>
                 </button>
               </div>
             </div>
 
             <div className="mt-6 flex justify-end border-t border-neutral-200/80 pt-4 dark:border-neutral-800">
-              <button
-                type="button"
-                onClick={() => {
-                  setIsVoiceModalOpen(false);
-                  toast.success('ভয়েস সেটি সেটিংস সংরক্ষিত হয়েছে');
-                }}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsVoiceModalOpen(false);
+                    toast.success(
+                      selectedLanguage === 'bn-IN'
+                        ? 'ভয়েস সেটি সেটিংস সংরক্ষিত হয়েছে'
+                        : selectedLanguage === 'hi-IN'
+                          ? 'वॉयस सेटिंग्स सहेजी गईं'
+                          : 'Voice settings saved'
+                    );
+                  }}
                 className="rounded-2xl bg-nm-gradient-light px-5 py-2 text-xs font-bold text-violet-700 shadow-nm-flat hover:opacity-90 dark:bg-nm-gradient-dark dark:text-amber-400 dark:shadow-nm-flat-dark"
               >
-                সংরক্ষণ করুন (Done)
+                {selectedLanguage === 'bn-IN'
+                  ? 'সংরক্ষণ করুন (Done)'
+                  : selectedLanguage === 'hi-IN'
+                    ? 'सहेजें (Done)'
+                    : 'Save (Done)'}
               </button>
             </div>
           </div>
