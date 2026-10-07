@@ -389,7 +389,7 @@ export const WorkforceSwarm3D: React.FC<WorkforceSwarm3DProps> = ({
               <button
                 key={node.id}
                 onClick={() => onSelectNode(node.id)}
-                className={`flex items-center gap-1.5 whitespace-nowrap rounded-xl px-2.5 py-1.5 text-xs font-medium transition-all duration-200 ${
+                className={`flex min-h-[44px] items-center gap-1.5 whitespace-nowrap rounded-xl px-2.5 py-2 text-xs font-medium transition-all duration-200 ${
                   isSelected
                     ? 'border border-neutral-700 bg-neutral-800 text-white shadow-md'
                     : 'text-neutral-400 hover:bg-neutral-900/60 hover:text-neutral-200'

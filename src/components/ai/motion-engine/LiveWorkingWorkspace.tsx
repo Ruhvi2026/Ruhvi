@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Activity,
   Terminal,
@@ -40,6 +40,16 @@ export const LiveWorkingWorkspace: React.FC<LiveWorkingWorkspaceProps> = ({
   onSimulateWork,
   className = '',
 }) => {
+  const [charSize, setCharSize] = useState(64);
+  useEffect(() => {
+    const updateSize = () => {
+      setCharSize(window.innerWidth < 640 ? 48 : 64);
+    };
+    updateSize();
+    window.addEventListener('resize', updateSize);
+    return () => window.removeEventListener('resize', updateSize);
+  }, []);
+
   const [activeTab, setActiveTab] = useState<
     'workspace' | 'telemetry' | 'capabilities'
   >('workspace');
@@ -191,7 +201,7 @@ export const LiveWorkingWorkspace: React.FC<LiveWorkingWorkspaceProps> = ({
             </span>
           </div>
 
-          <div className="grid grid-cols-3 gap-2 text-center">
+          <div className="grid grid-cols-1 gap-2 text-center sm:grid-cols-3">
             <div className="rounded-xl border border-neutral-800 bg-neutral-900 p-2.5">
               <span className="text-[10px] font-semibold uppercase text-neutral-400">
                 30D Gross Revenue
@@ -360,7 +370,7 @@ export const LiveWorkingWorkspace: React.FC<LiveWorkingWorkspaceProps> = ({
 
   return (
     <div
-      className={`relative overflow-hidden rounded-3xl border border-neutral-800/90 bg-[#14151a] p-6 shadow-2xl backdrop-blur-2xl ${className}`}
+      className={`relative overflow-hidden rounded-3xl border border-neutral-800/90 bg-[#14151a] p-4 shadow-2xl backdrop-blur-2xl sm:p-6 ${className}`}
     >
       {/* Background Subtle Accent Glow */}
       <div
@@ -369,10 +379,10 @@ export const LiveWorkingWorkspace: React.FC<LiveWorkingWorkspaceProps> = ({
       />
 
       {/* Header Section */}
-      <div className="relative z-10 flex flex-col items-start justify-between gap-4 border-b border-neutral-800/80 pb-5 md:flex-row md:items-center">
+      <div className="relative z-10 flex flex-col items-start justify-between gap-3 border-b border-neutral-800/80 pb-4 md:flex-row md:items-center md:gap-4 md:pb-5">
         <div className="flex items-center gap-3.5">
           {/* Miniature 3D Character Avatar */}
-          <div className="relative flex h-16 w-16 items-center justify-center rounded-2xl border border-neutral-700/80 bg-neutral-900 shadow-lg">
+          <div className="relative flex h-12 w-12 items-center justify-center rounded-2xl border border-neutral-700/80 bg-neutral-900 shadow-lg sm:h-16 sm:w-16">
             <Cofounder3DCharacter
               roleId={node.id}
               name={node.name}
@@ -380,14 +390,14 @@ export const LiveWorkingWorkspace: React.FC<LiveWorkingWorkspaceProps> = ({
               accentColor={node.accentColor}
               isApex={node.level === 'apex_co_founder'}
               state={isExecuting ? 'executing' : node.state}
-              size={64}
+              size={charSize}
               showPodium={false}
               interactive={false}
             />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="text-base font-bold tracking-tight text-white">
+              <h3 className="text-sm font-bold tracking-tight text-white sm:text-base">
                 {node.name}
               </h3>
               {getStatusBadge(isExecuting ? 'executing' : node.state)}
@@ -401,7 +411,7 @@ export const LiveWorkingWorkspace: React.FC<LiveWorkingWorkspaceProps> = ({
           <button
             onClick={handleTriggerWork}
             disabled={isExecuting}
-            className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 px-4 py-2 text-xs font-bold text-neutral-950 shadow-md shadow-amber-500/20 transition-all hover:from-amber-300 hover:to-amber-400 active:scale-95 disabled:opacity-50"
+            className="flex min-h-[44px] items-center gap-2 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 px-4 py-2.5 text-xs font-bold text-neutral-950 shadow-md shadow-amber-500/20 transition-all hover:from-amber-300 hover:to-amber-400 active:scale-95 disabled:opacity-50 sm:py-2"
           >
             <Play
               className={`h-3.5 w-3.5 fill-current ${isExecuting ? 'animate-spin' : ''}`}

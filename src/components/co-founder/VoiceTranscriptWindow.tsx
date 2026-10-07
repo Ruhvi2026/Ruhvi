@@ -97,7 +97,7 @@ export function VoiceTranscriptWindow({
       </div>
 
       {/* Transcript Messages Thread Panel */}
-      <div className="scrollbar-thin max-h-[360px] min-h-[220px] flex-1 space-y-3.5 overflow-y-auto py-3 pr-1">
+      <div className="scrollbar-thin max-h-[240px] min-h-[180px] flex-1 space-y-3.5 overflow-y-auto py-3 pr-1 sm:max-h-[360px] sm:min-h-[220px]">
         {messages.length === 0 && !interimTranscript ? (
           <div className="flex h-full min-h-[180px] flex-col items-center justify-center text-center">
             <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-2xl bg-nm-light-bg shadow-nm-inset dark:bg-nm-dark-bg dark:shadow-nm-inset-dark">
@@ -194,13 +194,13 @@ export function VoiceTranscriptWindow({
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
             placeholder="Type your message..."
-            className="flex-1 rounded-2xl border border-neutral-300/80 bg-nm-light-bg px-3.5 py-2 text-xs text-nm-light-textPrimary placeholder-neutral-400 shadow-nm-inset focus:border-violet-500/50 focus:outline-none dark:border-neutral-800 dark:bg-nm-dark-bg dark:text-white dark:placeholder-neutral-500 dark:shadow-nm-inset-dark"
+            className="min-h-[44px] flex-1 rounded-2xl border border-neutral-300/80 bg-nm-light-bg px-3.5 py-2.5 text-xs text-nm-light-textPrimary placeholder-neutral-400 shadow-nm-inset focus:border-violet-500/50 focus:outline-none dark:border-neutral-800 dark:bg-nm-dark-bg dark:text-white dark:placeholder-neutral-500 dark:shadow-nm-inset-dark"
             disabled={isLoading}
           />
           <button
             type="submit"
             disabled={isLoading || !inputText.trim()}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-nm-gradient-light text-violet-700 shadow-nm-flat transition-all hover:opacity-90 active:scale-95 disabled:opacity-50 dark:bg-nm-gradient-dark dark:text-amber-400 dark:shadow-nm-flat-dark"
+            className="flex h-10 min-h-[44px] w-10 min-w-[44px] shrink-0 items-center justify-center rounded-xl bg-nm-gradient-light text-violet-700 shadow-nm-flat transition-all hover:opacity-90 active:scale-95 disabled:opacity-50 dark:bg-nm-gradient-dark dark:text-amber-400 dark:shadow-nm-flat-dark sm:h-9 sm:min-h-[36px] sm:w-9 sm:min-w-[36px]"
           >
             <Send size={14} />
           </button>

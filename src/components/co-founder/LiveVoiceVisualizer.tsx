@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Mic,
   MicOff,
@@ -72,8 +72,22 @@ export function LiveVoiceVisualizer({
             ? 'error'
             : 'idle';
 
+  // Responsive character size based on viewport width
+  const [charSize, setCharSize] = useState(270);
+  useEffect(() => {
+    const updateSize = () => {
+      const vw = window.innerWidth;
+      if (vw < 640) setCharSize(210);
+      else if (vw < 768) setCharSize(240);
+      else setCharSize(270);
+    };
+    updateSize();
+    window.addEventListener('resize', updateSize);
+    return () => window.removeEventListener('resize', updateSize);
+  }, []);
+
   return (
-    <div className="relative flex flex-col items-center justify-center overflow-hidden rounded-3xl border border-neutral-200/80 bg-nm-light-bg p-5 text-nm-light-textPrimary shadow-nm-flat backdrop-blur-2xl transition-all dark:border-neutral-800/90 dark:bg-nm-dark-bg dark:text-nm-dark-textPrimary dark:shadow-nm-flat-dark">
+    <div className="relative flex flex-col items-center justify-center overflow-hidden rounded-3xl border border-neutral-200/80 bg-nm-light-bg p-4 text-nm-light-textPrimary shadow-nm-flat backdrop-blur-2xl transition-all dark:border-neutral-800/90 dark:bg-nm-dark-bg dark:text-nm-dark-textPrimary dark:shadow-nm-flat-dark sm:p-5">
       {/* Background Soft Ambient Glow reacting to voice volume */}
       <div
         className={`pointer-events-none absolute -top-16 left-1/2 h-96 w-96 -translate-x-1/2 rounded-full blur-3xl transition-all duration-300 ${
@@ -125,7 +139,7 @@ export function LiveVoiceVisualizer({
         <CoFounderCharacter
           state={charState}
           audioLevel={audioLevel}
-          size={270}
+          size={charSize}
           isMuted={isMuted}
           onMicToggle={isLive ? onToggleMute : undefined}
           interactive={true}

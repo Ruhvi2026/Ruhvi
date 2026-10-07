@@ -41,7 +41,10 @@ import { PlaywrightBrowserWindow } from '@/components/co-founder/PlaywrightBrows
 import { CoFounderCharacter } from '@/components/co-founder/CoFounderCharacter';
 import { CoWorkerAvatar } from '@/components/co-founder/CoWorkerAvatar';
 import { CoWorkerShowcase } from '@/components/co-founder/CoWorkerShowcase';
-import { WorkerGrid, WorkerNodeData } from '@/components/co-founder/workforce/WorkerGrid';
+import {
+  WorkerGrid,
+  WorkerNodeData,
+} from '@/components/co-founder/workforce/WorkerGrid';
 import { AiHierarchyVisualizer } from '@/components/ai/motion-engine/AiHierarchyVisualizer';
 import { LiveWorkspace } from '@/components/co-founder/workspace/LiveWorkspace';
 import {
@@ -86,6 +89,28 @@ export default function CoFounderPortalPage() {
   const [input, setInput] = useState('');
   const genId = () => crypto.randomUUID();
 
+  // Responsive character sizes for the 3D swarm view
+  const [swarmCharSize, setSwarmCharSize] = useState(260);
+  const [compactSwarmCharSize, setCompactSwarmCharSize] = useState(220);
+  useEffect(() => {
+    const updateSizes = () => {
+      const vw = window.innerWidth;
+      if (vw < 640) {
+        setSwarmCharSize(180);
+        setCompactSwarmCharSize(150);
+      } else if (vw < 1024) {
+        setSwarmCharSize(220);
+        setCompactSwarmCharSize(180);
+      } else {
+        setSwarmCharSize(260);
+        setCompactSwarmCharSize(220);
+      }
+    };
+    updateSizes();
+    window.addEventListener('resize', updateSizes);
+    return () => window.removeEventListener('resize', updateSizes);
+  }, []);
+
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: 'welcome',
@@ -121,11 +146,10 @@ export default function CoFounderPortalPage() {
     if (isVoiceModalOpen) {
       previouslyFocusedRef.current = document.activeElement as HTMLElement;
       const timer = setTimeout(() => {
-        const firstFocusable = voiceModalRef.current?.querySelector<
-          HTMLElement
-        >(
-          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-        );
+        const firstFocusable =
+          voiceModalRef.current?.querySelector<HTMLElement>(
+            'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+          );
         firstFocusable?.focus();
       }, 0);
       const handleEscape = (e: KeyboardEvent) => {
@@ -742,13 +766,20 @@ export default function CoFounderPortalPage() {
   const currentAvailableModels = activeProviderObj?.models || [];
 
   // Interactive 3D Spatial Workforce Swarm UI Component Render
-  const renderSwarmSpatialUI = (swarmNodes: SwarmWorkerNode[] = SWARM_NODES, isCompact = false) => {
+  const renderSwarmSpatialUI = (
+    swarmNodes: SwarmWorkerNode[] = SWARM_NODES,
+    isCompact = false
+  ) => {
     const selectedNode =
       swarmNodes.find((n) => n.id === selectedWorkerId) || swarmNodes[0];
     const cofounderNode = swarmNodes[0];
 
     const activeWorkerCount = swarmNodes.filter(
-      (n) => n.status === 'active' || n.status === 'executing' || n.status === 'analyzing' || n.status === 'generating'
+      (n) =>
+        n.status === 'active' ||
+        n.status === 'executing' ||
+        n.status === 'analyzing' ||
+        n.status === 'generating'
     ).length;
     const avgLatency = Math.round(
       swarmNodes.reduce((sum, n) => sum + n.latencyMs, 0) / swarmNodes.length
@@ -757,7 +788,7 @@ export default function CoFounderPortalPage() {
     return (
       <div className="flex flex-col space-y-4">
         {/* Telemetry Header */}
-        <div className="flex flex-col gap-3 rounded-2xl border border-neutral-200/80 bg-nm-light-bg p-3 shadow-nm-flat dark:border-neutral-800 dark:bg-nm-dark-bg dark:shadow-nm-flat-dark sm:p-3.5 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-3 rounded-2xl border border-neutral-200/80 bg-nm-light-bg p-3 shadow-nm-flat dark:border-neutral-800 dark:bg-nm-dark-bg dark:shadow-nm-flat-dark sm:flex-row sm:items-center sm:justify-between sm:p-3.5">
           <div className="flex items-center gap-2.5">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-nm-gradient-light shadow-nm-flat dark:bg-nm-gradient-dark dark:shadow-nm-flat-dark">
               <Orbit className="animate-spin-slow h-5 w-5 text-violet-600 dark:text-violet-400" />
@@ -802,53 +833,55 @@ export default function CoFounderPortalPage() {
           <div className="relative z-10 grid w-full max-w-4xl grid-cols-1 items-center justify-items-center gap-6 md:grid-cols-3">
             {/* Left Orbit Column (Researcher, Writer, Analyst) */}
             <div className="flex w-full max-w-xs flex-col gap-4">
-              {swarmNodes.filter((n) =>
-                ['researcher', 'writer', 'analyst'].includes(n.role)
-              ).map((node) => {
-                const theme = getRoleTheme(node.role);
-                const isSelected = selectedWorkerId === node.id;
-                const avatarStatus =
-                  node.status === 'executing' || node.status === 'active'
-                    ? 'working'
-                    : node.status === 'analyzing' ||
-                        node.status === 'generating'
-                      ? 'thinking'
-                      : 'idle';
-                return (
-                  <button
-                    key={node.id}
-                    onClick={() => setSelectedWorkerId(node.id)}
-                    className={`group relative flex items-center gap-3.5 rounded-2xl border p-3 text-left transition-all duration-300 ${
-                      isSelected
-                        ? `border-2 ${theme.border} bg-nm-gradient-light dark:bg-nm-gradient-dark ${theme.activeGlow} scale-105`
-                        : `hover:scale-102 border-neutral-200/80 bg-nm-light-bg shadow-nm-convex dark:border-neutral-800 dark:bg-nm-dark-bg dark:shadow-nm-convex-dark ${theme.glow}`
-                    }`}
-                  >
-                    <CoWorkerAvatar
-                      role={node.role}
-                      status={avatarStatus}
-                      size="sm"
-                      showBadge={false}
-                    />
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center justify-between gap-1">
-                        <span className="truncate text-xs font-bold text-nm-light-textPrimary dark:text-white">
-                          {node.name}
-                        </span>
-                        <span
-                          className={`h-2 w-2 rounded-full ${node.status === 'active' || node.status === 'executing' ? 'animate-pulse bg-emerald-500' : node.status === 'analyzing' || node.status === 'generating' ? 'animate-pulse bg-cyan-400' : 'bg-neutral-400'}`}
-                        />
+              {swarmNodes
+                .filter((n) =>
+                  ['researcher', 'writer', 'analyst'].includes(n.role)
+                )
+                .map((node) => {
+                  const theme = getRoleTheme(node.role);
+                  const isSelected = selectedWorkerId === node.id;
+                  const avatarStatus =
+                    node.status === 'executing' || node.status === 'active'
+                      ? 'working'
+                      : node.status === 'analyzing' ||
+                          node.status === 'generating'
+                        ? 'thinking'
+                        : 'idle';
+                  return (
+                    <button
+                      key={node.id}
+                      onClick={() => setSelectedWorkerId(node.id)}
+                      className={`group relative flex items-center gap-3.5 rounded-2xl border p-3 text-left transition-all duration-300 ${
+                        isSelected
+                          ? `border-2 ${theme.border} bg-nm-gradient-light dark:bg-nm-gradient-dark ${theme.activeGlow} scale-105`
+                          : `hover:scale-102 border-neutral-200/80 bg-nm-light-bg shadow-nm-convex dark:border-neutral-800 dark:bg-nm-dark-bg dark:shadow-nm-convex-dark ${theme.glow}`
+                      }`}
+                    >
+                      <CoWorkerAvatar
+                        role={node.role}
+                        status={avatarStatus}
+                        size="sm"
+                        showBadge={false}
+                      />
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center justify-between gap-1">
+                          <span className="truncate text-xs font-bold text-nm-light-textPrimary dark:text-white">
+                            {node.name}
+                          </span>
+                          <span
+                            className={`h-2 w-2 rounded-full ${node.status === 'active' || node.status === 'executing' ? 'animate-pulse bg-emerald-500' : node.status === 'analyzing' || node.status === 'generating' ? 'animate-pulse bg-cyan-400' : 'bg-neutral-400'}`}
+                          />
+                        </div>
+                        <p className="truncate text-[10px] text-nm-light-textSecondary dark:text-neutral-400">
+                          {node.title}
+                        </p>
+                        <p className="mt-0.5 truncate font-mono text-[9px] text-nm-light-textSecondary/80 dark:text-neutral-500">
+                          {node.activeTool}
+                        </p>
                       </div>
-                      <p className="truncate text-[10px] text-nm-light-textSecondary dark:text-neutral-400">
-                        {node.title}
-                      </p>
-                      <p className="mt-0.5 truncate font-mono text-[9px] text-nm-light-textSecondary/80 dark:text-neutral-500">
-                        {node.activeTool}
-                      </p>
-                    </div>
-                  </button>
-                );
-              })}
+                    </button>
+                  );
+                })}
             </div>
 
             {/* Central Pedestal: AI Co-Founder Apex Entity */}
@@ -864,7 +897,7 @@ export default function CoFounderPortalPage() {
                         : 'idle'
                 }
                 audioLevel={voice.audioLevel}
-                size={isCompact ? 220 : 260}
+                size={isCompact ? compactSwarmCharSize : swarmCharSize}
                 onClick={() => setSelectedWorkerId(cofounderNode.id)}
                 interactive={true}
               />
@@ -872,53 +905,55 @@ export default function CoFounderPortalPage() {
 
             {/* Right Orbit Column (Coder, Designer, Marketer) */}
             <div className="flex w-full max-w-xs flex-col gap-4">
-              {swarmNodes.filter((n) =>
-                ['coder', 'designer', 'marketer'].includes(n.role)
-              ).map((node) => {
-                const theme = getRoleTheme(node.role);
-                const isSelected = selectedWorkerId === node.id;
-                const avatarStatus =
-                  node.status === 'executing' || node.status === 'active'
-                    ? 'working'
-                    : node.status === 'analyzing' ||
-                        node.status === 'generating'
-                      ? 'thinking'
-                      : 'idle';
-                return (
-                  <button
-                    key={node.id}
-                    onClick={() => setSelectedWorkerId(node.id)}
-                    className={`group relative flex items-center gap-3.5 rounded-2xl border p-3 text-left transition-all duration-300 ${
-                      isSelected
-                        ? `border-2 ${theme.border} bg-nm-gradient-light dark:bg-nm-gradient-dark ${theme.activeGlow} scale-105`
-                        : `hover:scale-102 border-neutral-200/80 bg-nm-light-bg shadow-nm-convex dark:border-neutral-800 dark:bg-nm-dark-bg dark:shadow-nm-convex-dark ${theme.glow}`
-                    }`}
-                  >
-                    <CoWorkerAvatar
-                      role={node.role}
-                      status={avatarStatus}
-                      size="sm"
-                      showBadge={false}
-                    />
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center justify-between gap-1">
-                        <span className="truncate text-xs font-bold text-nm-light-textPrimary dark:text-white">
-                          {node.name}
-                        </span>
-                        <span
-                          className={`h-2 w-2 rounded-full ${node.status === 'active' || node.status === 'executing' ? 'animate-pulse bg-emerald-500' : node.status === 'analyzing' || node.status === 'generating' ? 'animate-pulse bg-cyan-400' : 'bg-neutral-400'}`}
-                        />
+              {swarmNodes
+                .filter((n) =>
+                  ['coder', 'designer', 'marketer'].includes(n.role)
+                )
+                .map((node) => {
+                  const theme = getRoleTheme(node.role);
+                  const isSelected = selectedWorkerId === node.id;
+                  const avatarStatus =
+                    node.status === 'executing' || node.status === 'active'
+                      ? 'working'
+                      : node.status === 'analyzing' ||
+                          node.status === 'generating'
+                        ? 'thinking'
+                        : 'idle';
+                  return (
+                    <button
+                      key={node.id}
+                      onClick={() => setSelectedWorkerId(node.id)}
+                      className={`group relative flex items-center gap-3.5 rounded-2xl border p-3 text-left transition-all duration-300 ${
+                        isSelected
+                          ? `border-2 ${theme.border} bg-nm-gradient-light dark:bg-nm-gradient-dark ${theme.activeGlow} scale-105`
+                          : `hover:scale-102 border-neutral-200/80 bg-nm-light-bg shadow-nm-convex dark:border-neutral-800 dark:bg-nm-dark-bg dark:shadow-nm-convex-dark ${theme.glow}`
+                      }`}
+                    >
+                      <CoWorkerAvatar
+                        role={node.role}
+                        status={avatarStatus}
+                        size="sm"
+                        showBadge={false}
+                      />
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center justify-between gap-1">
+                          <span className="truncate text-xs font-bold text-nm-light-textPrimary dark:text-white">
+                            {node.name}
+                          </span>
+                          <span
+                            className={`h-2 w-2 rounded-full ${node.status === 'active' || node.status === 'executing' ? 'animate-pulse bg-emerald-500' : node.status === 'analyzing' || node.status === 'generating' ? 'animate-pulse bg-cyan-400' : 'bg-neutral-400'}`}
+                          />
+                        </div>
+                        <p className="truncate text-[10px] text-nm-light-textSecondary dark:text-neutral-400">
+                          {node.title}
+                        </p>
+                        <p className="mt-0.5 truncate font-mono text-[9px] text-nm-light-textSecondary/80 dark:text-neutral-500">
+                          {node.activeTool}
+                        </p>
                       </div>
-                      <p className="truncate text-[10px] text-nm-light-textSecondary dark:text-neutral-400">
-                        {node.title}
-                      </p>
-                      <p className="mt-0.5 truncate font-mono text-[9px] text-nm-light-textSecondary/80 dark:text-neutral-500">
-                        {node.activeTool}
-                      </p>
-                    </div>
-                  </button>
-                );
-              })}
+                    </button>
+                  );
+                })}
             </div>
           </div>
         </div>
@@ -1008,7 +1043,7 @@ export default function CoFounderPortalPage() {
   };
 
   return (
-    <div className="mx-auto flex h-[calc(100vh-4rem)] max-w-7xl flex-col space-y-4 bg-nm-light-bg p-3 text-nm-light-textPrimary dark:bg-nm-dark-bg dark:text-nm-dark-textPrimary md:p-4 lg:p-6">
+    <div className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-7xl flex-col space-y-4 bg-nm-light-bg p-3 text-nm-light-textPrimary dark:bg-nm-dark-bg dark:text-nm-dark-textPrimary md:p-4 lg:p-6">
       {/* Top Header & Dark Neumorphic Controls */}
       <div className="flex flex-col justify-between gap-3 rounded-3xl border border-neutral-200/80 bg-nm-light-bg p-3 shadow-nm-flat backdrop-blur-2xl dark:border-neutral-800/90 dark:bg-nm-dark-bg dark:shadow-nm-flat-dark lg:flex-row lg:items-center lg:gap-4 lg:p-4">
         <div className="flex items-center gap-3.5">
@@ -1049,11 +1084,11 @@ export default function CoFounderPortalPage() {
         </div>
 
         {/* Engine Controls & Mode Switcher */}
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="scrollbar-thin flex flex-nowrap items-center gap-3 overflow-x-auto py-0.5">
           {/* AI Provider & Model Picker */}
-          <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-neutral-300/70 bg-nm-light-bg p-1.5 shadow-nm-inset dark:border-neutral-800 dark:bg-nm-dark-bg dark:shadow-nm-inset-dark">
+          <div className="flex flex-nowrap items-center gap-1.5 rounded-2xl border border-neutral-300/70 bg-nm-light-bg px-2 py-1.5 shadow-nm-inset dark:border-neutral-800 dark:bg-nm-dark-bg dark:shadow-nm-inset-dark sm:gap-2 sm:px-3">
             {/* Provider Selector */}
-            <div className="flex items-center gap-1.5 px-2 py-0.5">
+            <div className="flex items-center gap-1.5 whitespace-nowrap px-2 py-0.5">
               <span className="flex h-2 w-2 rounded-full bg-emerald-500 ring-2 ring-emerald-400/20 dark:bg-emerald-400" />
               <label
                 htmlFor="co-founder-provider-select"
@@ -1086,7 +1121,7 @@ export default function CoFounderPortalPage() {
                     }
                   }
                 }}
-                className="cursor-pointer rounded-xl border border-neutral-300 bg-nm-light-bg px-2.5 py-1 text-xs font-semibold text-nm-light-textPrimary shadow-nm-flat outline-none transition-colors hover:border-violet-500/40 focus:border-violet-500 focus:text-violet-600 dark:border-neutral-800 dark:bg-nm-dark-bg dark:text-neutral-200 dark:shadow-nm-flat-dark dark:focus:text-violet-300"
+                className="min-h-[44px] cursor-pointer rounded-xl border border-neutral-300 bg-nm-light-bg px-2.5 py-1 text-xs font-semibold text-nm-light-textPrimary shadow-nm-flat outline-none transition-colors hover:border-violet-500/40 focus:border-violet-500 focus:text-violet-700 dark:border-neutral-800 dark:bg-nm-dark-bg dark:text-neutral-200 dark:shadow-nm-flat-dark dark:focus:text-violet-400"
               >
                 <option value="auto">⚡ Auto (Admin Fallback)</option>
                 {providers.map((p) => (
@@ -1098,7 +1133,7 @@ export default function CoFounderPortalPage() {
             </div>
 
             {/* Model Selector */}
-            <div className="flex items-center gap-1.5 border-l border-neutral-300 px-2 py-0.5 dark:border-neutral-800">
+            <div className="flex items-center gap-1.5 whitespace-nowrap border-l border-neutral-300 px-2 py-0.5 dark:border-neutral-800">
               <Cpu className="h-3.5 w-3.5 text-violet-600 dark:text-violet-400" />
               <label
                 htmlFor="co-founder-model-select"
@@ -1118,7 +1153,7 @@ export default function CoFounderPortalPage() {
                     );
                   }
                 }}
-                className="cursor-pointer rounded-xl border border-neutral-300 bg-nm-light-bg px-2.5 py-1 text-xs font-semibold text-violet-700 shadow-nm-flat outline-none transition-colors hover:border-violet-500/40 focus:border-violet-500 focus:text-violet-600 dark:border-neutral-800 dark:bg-nm-dark-bg dark:text-violet-300 dark:shadow-nm-flat-dark dark:focus:text-violet-200"
+                className="min-h-[44px] cursor-pointer rounded-xl border border-neutral-300 bg-nm-light-bg px-2.5 py-1 text-xs font-semibold text-violet-700 shadow-nm-flat outline-none transition-colors hover:border-violet-500/40 focus:border-violet-500 focus:text-violet-700 dark:border-neutral-800 dark:bg-nm-dark-bg dark:text-violet-300 dark:shadow-nm-flat-dark dark:focus:text-violet-400"
               >
                 {selectedProvider === 'auto' ? (
                   <>
@@ -1150,7 +1185,7 @@ export default function CoFounderPortalPage() {
             </div>
 
             {/* Voice Input Language Selector */}
-            <div className="flex items-center gap-1.5 border-l border-neutral-300 px-2 py-0.5 dark:border-neutral-800">
+            <div className="flex items-center gap-1.5 whitespace-nowrap border-l border-neutral-300 px-2 py-0.5 dark:border-neutral-800">
               <Globe className="h-3.5 w-3.5 text-cyan-600 dark:text-cyan-400" />
               <label
                 htmlFor="co-founder-lang-select"
@@ -1177,7 +1212,7 @@ export default function CoFounderPortalPage() {
             </div>
 
             {/* Voice Studio Settings Modal Trigger */}
-            <div className="flex items-center border-l border-neutral-300 px-2 py-0.5 dark:border-neutral-800">
+            <div className="flex items-center whitespace-nowrap border-l border-neutral-300 px-2 py-0.5 dark:border-neutral-800">
               <button
                 type="button"
                 onClick={() => setIsVoiceModalOpen(true)}
@@ -1203,7 +1238,7 @@ export default function CoFounderPortalPage() {
 
           {/* Mode Switcher Tabs */}
           <div
-            className="flex items-center rounded-2xl border border-neutral-300/70 bg-nm-light-bg p-1 shadow-nm-inset dark:border-neutral-800 dark:bg-nm-dark-bg dark:shadow-nm-inset-dark"
+            className="scrollbar-thin flex items-center overflow-x-auto rounded-2xl border border-neutral-300/70 bg-nm-light-bg p-1 shadow-nm-inset dark:border-neutral-800 dark:bg-nm-dark-bg dark:shadow-nm-inset-dark"
             role="tablist"
             aria-label="Co-Founder mode switch"
           >
@@ -1213,7 +1248,7 @@ export default function CoFounderPortalPage() {
               aria-selected={activeTab === 'voice'}
               aria-controls="voice-panel"
               onClick={() => setActiveTab('voice')}
-              className={`flex items-center gap-2 rounded-xl px-3.5 py-1.5 text-xs font-medium transition-all duration-200 ${
+              className={`flex shrink-0 items-center gap-2 whitespace-nowrap rounded-xl px-3.5 py-1.5 text-xs font-medium transition-all duration-200 ${
                 activeTab === 'voice'
                   ? 'bg-nm-gradient-light font-bold text-violet-700 shadow-nm-flat dark:bg-nm-gradient-dark dark:text-amber-400 dark:shadow-nm-flat-dark'
                   : 'text-nm-light-textSecondary hover:text-nm-light-textPrimary dark:text-neutral-400 dark:hover:text-white'
@@ -1228,7 +1263,7 @@ export default function CoFounderPortalPage() {
               aria-selected={activeTab === 'chat'}
               aria-controls="chat-panel"
               onClick={() => setActiveTab('chat')}
-              className={`flex items-center gap-2 rounded-xl px-3.5 py-1.5 text-xs font-medium transition-all duration-200 ${
+              className={`flex shrink-0 items-center gap-2 whitespace-nowrap rounded-xl px-3.5 py-1.5 text-xs font-medium transition-all duration-200 ${
                 activeTab === 'chat'
                   ? 'bg-nm-gradient-light font-bold text-violet-700 shadow-nm-flat dark:bg-nm-gradient-dark dark:text-amber-400 dark:shadow-nm-flat-dark'
                   : 'text-nm-light-textSecondary hover:text-nm-light-textPrimary dark:text-neutral-400 dark:hover:text-white'
@@ -1243,7 +1278,7 @@ export default function CoFounderPortalPage() {
               aria-selected={activeTab === 'swarm_3d'}
               aria-controls="swarm-3d-panel"
               onClick={() => setActiveTab('swarm_3d')}
-              className={`flex items-center gap-2 rounded-xl px-3.5 py-1.5 text-xs font-medium transition-all duration-200 ${
+              className={`flex shrink-0 items-center gap-2 whitespace-nowrap rounded-xl px-3.5 py-1.5 text-xs font-medium transition-all duration-200 ${
                 activeTab === 'swarm_3d'
                   ? 'bg-nm-gradient-light font-bold text-violet-700 shadow-nm-flat dark:bg-nm-gradient-dark dark:text-amber-400 dark:shadow-nm-flat-dark'
                   : 'text-nm-light-textSecondary hover:text-nm-light-textPrimary dark:text-neutral-400 dark:hover:text-white'
@@ -1258,7 +1293,7 @@ export default function CoFounderPortalPage() {
               aria-selected={activeTab === 'workspace'}
               aria-controls="workspace-panel"
               onClick={() => setActiveTab('workspace')}
-              className={`flex items-center gap-2 rounded-xl px-3.5 py-1.5 text-xs font-medium transition-all duration-200 ${
+              className={`flex shrink-0 items-center gap-2 whitespace-nowrap rounded-xl px-3.5 py-1.5 text-xs font-medium transition-all duration-200 ${
                 activeTab === 'workspace'
                   ? 'bg-nm-gradient-light font-bold text-cyan-700 shadow-nm-flat dark:bg-nm-gradient-dark dark:text-cyan-300 dark:shadow-nm-flat-dark'
                   : 'text-nm-light-textSecondary hover:text-nm-light-textPrimary dark:text-neutral-400 dark:hover:text-white'
@@ -1313,7 +1348,9 @@ export default function CoFounderPortalPage() {
       {activeTab === 'swarm_3d' ? (
         <div className="flex-1 space-y-6 overflow-y-auto pr-1">
           <AiHierarchyVisualizer
-            isThinking={voice.state === 'listening' || voice.state === 'connecting'}
+            isThinking={
+              voice.state === 'listening' || voice.state === 'connecting'
+            }
             liveNodes={workforceData?.nodes}
             isLiveData={!!workforceData}
             selectedNodeId={selectedWorkerId}
@@ -1374,17 +1411,17 @@ export default function CoFounderPortalPage() {
             {/* Header Controls for Right Column */}
             <div className="flex items-center justify-between border-b border-neutral-200/80 bg-nm-light-bg px-4 py-3 text-xs font-medium text-nm-light-textSecondary dark:border-neutral-800 dark:bg-nm-dark-bg dark:text-neutral-400">
               <div
-              className="flex items-center gap-1.5 overflow-x-auto py-0.5"
-              role="tablist"
-              aria-label="Intelligent drawer tabs"
-            >
+                className="scrollbar-thin flex items-center gap-1.5 overflow-x-auto py-0.5"
+                role="tablist"
+                aria-label="Intelligent drawer tabs"
+              >
                 <button
                   type="button"
                   role="tab"
                   aria-selected={selectedWidgetTab === 'alerts'}
                   aria-controls="alerts-panel"
                   onClick={() => setSelectedWidgetTab('alerts')}
-                  className={`rounded-xl px-2.5 py-1 text-[11px] font-medium transition-all ${
+                  className={`shrink-0 whitespace-nowrap rounded-xl px-2.5 py-1 text-[11px] font-medium transition-all ${
                     selectedWidgetTab === 'alerts'
                       ? 'border border-violet-500/40 bg-nm-gradient-light font-bold text-violet-700 shadow-nm-flat dark:bg-nm-gradient-dark dark:text-violet-300 dark:shadow-nm-flat-dark'
                       : 'text-nm-light-textSecondary hover:text-nm-light-textPrimary dark:text-neutral-400 dark:hover:text-neutral-200'
@@ -1398,7 +1435,7 @@ export default function CoFounderPortalPage() {
                   aria-selected={selectedWidgetTab === 'approvals'}
                   aria-controls="approvals-panel"
                   onClick={() => setSelectedWidgetTab('approvals')}
-                  className={`rounded-xl px-2.5 py-1 text-[11px] font-medium transition-all ${
+                  className={`shrink-0 whitespace-nowrap rounded-xl px-2.5 py-1 text-[11px] font-medium transition-all ${
                     selectedWidgetTab === 'approvals'
                       ? 'border border-violet-500/40 bg-nm-gradient-light font-bold text-violet-700 shadow-nm-flat dark:bg-nm-gradient-dark dark:text-violet-300 dark:shadow-nm-flat-dark'
                       : 'text-nm-light-textSecondary hover:text-nm-light-textPrimary dark:text-neutral-400 dark:hover:text-neutral-200'
@@ -1412,7 +1449,7 @@ export default function CoFounderPortalPage() {
                   aria-selected={selectedWidgetTab === 'competitors'}
                   aria-controls="competitors-panel"
                   onClick={() => setSelectedWidgetTab('competitors')}
-                  className={`rounded-xl px-2.5 py-1 text-[11px] font-medium transition-all ${
+                  className={`shrink-0 whitespace-nowrap rounded-xl px-2.5 py-1 text-[11px] font-medium transition-all ${
                     selectedWidgetTab === 'competitors'
                       ? 'border border-violet-500/40 bg-nm-gradient-light font-bold text-violet-700 shadow-nm-flat dark:bg-nm-gradient-dark dark:text-violet-300 dark:shadow-nm-flat-dark'
                       : 'text-nm-light-textSecondary hover:text-nm-light-textPrimary dark:text-neutral-400 dark:hover:text-neutral-200'
@@ -1426,7 +1463,7 @@ export default function CoFounderPortalPage() {
                   aria-selected={selectedWidgetTab === 'seo'}
                   aria-controls="seo-panel"
                   onClick={() => setSelectedWidgetTab('seo')}
-                  className={`rounded-xl px-2.5 py-1 text-[11px] font-medium transition-all ${
+                  className={`shrink-0 whitespace-nowrap rounded-xl px-2.5 py-1 text-[11px] font-medium transition-all ${
                     selectedWidgetTab === 'seo'
                       ? 'border border-violet-500/40 bg-nm-gradient-light font-bold text-violet-700 shadow-nm-flat dark:bg-nm-gradient-dark dark:text-violet-300 dark:shadow-nm-flat-dark'
                       : 'text-nm-light-textSecondary hover:text-nm-light-textPrimary dark:text-neutral-400 dark:hover:text-neutral-200'
@@ -1440,7 +1477,7 @@ export default function CoFounderPortalPage() {
                   aria-selected={selectedWidgetTab === 'architecture'}
                   aria-controls="architecture-panel"
                   onClick={() => setSelectedWidgetTab('architecture')}
-                  className={`rounded-xl px-2.5 py-1 text-[11px] font-medium transition-all ${
+                  className={`shrink-0 whitespace-nowrap rounded-xl px-2.5 py-1 text-[11px] font-medium transition-all ${
                     selectedWidgetTab === 'architecture'
                       ? 'border border-violet-500/40 bg-nm-gradient-light font-bold text-violet-700 shadow-nm-flat dark:bg-nm-gradient-dark dark:text-violet-300 dark:shadow-nm-flat-dark'
                       : 'text-nm-light-textSecondary hover:text-nm-light-textPrimary dark:text-neutral-400 dark:hover:text-neutral-200'
@@ -1457,7 +1494,7 @@ export default function CoFounderPortalPage() {
                     setSelectedWidgetTab('usage');
                     fetchLiveKitUsage();
                   }}
-                  className={`flex items-center gap-1 rounded-xl px-2.5 py-1 text-[11px] font-medium transition-all ${
+                  className={`flex shrink-0 items-center gap-1 whitespace-nowrap rounded-xl px-2.5 py-1 text-[11px] font-medium transition-all ${
                     selectedWidgetTab === 'usage'
                       ? 'border border-violet-500/40 bg-nm-gradient-light font-bold text-violet-700 shadow-nm-flat dark:bg-nm-gradient-dark dark:text-violet-300 dark:shadow-nm-flat-dark'
                       : 'text-nm-light-textSecondary hover:text-nm-light-textPrimary dark:text-neutral-400 dark:hover:text-neutral-200'
@@ -1483,7 +1520,7 @@ export default function CoFounderPortalPage() {
                     setIsBrowserOpen(true);
                     setIsBrowserMinimized(false);
                   }}
-                  className={`flex items-center gap-1 rounded-xl px-2.5 py-1 text-[11px] font-medium transition-all ${
+                  className={`flex shrink-0 items-center gap-1 whitespace-nowrap rounded-xl px-2.5 py-1 text-[11px] font-medium transition-all ${
                     selectedWidgetTab === 'browser'
                       ? 'border border-violet-500/40 bg-nm-gradient-light font-bold text-violet-700 shadow-nm-flat dark:bg-nm-gradient-dark dark:text-violet-300 dark:shadow-nm-flat-dark'
                       : 'text-nm-light-textSecondary hover:text-nm-light-textPrimary dark:text-neutral-400 dark:hover:text-neutral-200'
@@ -1516,7 +1553,7 @@ export default function CoFounderPortalPage() {
                     setSelectedWidgetTab('plans');
                     fetchActionPlans();
                   }}
-                  className={`flex items-center gap-1 rounded-xl px-2.5 py-1 text-[11px] font-medium transition-all ${
+                  className={`flex shrink-0 items-center gap-1 whitespace-nowrap rounded-xl px-2.5 py-1 text-[11px] font-medium transition-all ${
                     selectedWidgetTab === 'plans'
                       ? 'border border-violet-500/40 bg-nm-gradient-light font-bold text-violet-700 shadow-nm-flat dark:bg-nm-gradient-dark dark:text-violet-300 dark:shadow-nm-flat-dark'
                       : 'text-nm-light-textSecondary hover:text-nm-light-textPrimary dark:text-neutral-400 dark:hover:text-neutral-200'
@@ -1538,7 +1575,7 @@ export default function CoFounderPortalPage() {
                   aria-selected={selectedWidgetTab === 'swarm'}
                   aria-controls="swarm-panel"
                   onClick={() => setSelectedWidgetTab('swarm')}
-                  className={`flex items-center gap-1 rounded-xl px-2.5 py-1 text-[11px] font-medium transition-all ${
+                  className={`flex shrink-0 items-center gap-1 whitespace-nowrap rounded-xl px-2.5 py-1 text-[11px] font-medium transition-all ${
                     selectedWidgetTab === 'swarm'
                       ? 'border border-violet-500/40 bg-nm-gradient-light font-bold text-violet-700 shadow-nm-flat dark:bg-nm-gradient-dark dark:text-violet-300 dark:shadow-nm-flat-dark'
                       : 'text-nm-light-textSecondary hover:text-nm-light-textPrimary dark:text-neutral-400 dark:hover:text-neutral-200'
@@ -1560,7 +1597,7 @@ export default function CoFounderPortalPage() {
                   aria-selected={selectedWidgetTab === 'workspace'}
                   aria-controls="workspace-panel"
                   onClick={() => setSelectedWidgetTab('workspace')}
-                  className={`flex items-center gap-1 rounded-xl px-2.5 py-1 text-[11px] font-medium transition-all ${
+                  className={`flex shrink-0 items-center gap-1 whitespace-nowrap rounded-xl px-2.5 py-1 text-[11px] font-medium transition-all ${
                     selectedWidgetTab === 'workspace'
                       ? 'border border-cyan-500/40 bg-nm-gradient-light font-bold text-cyan-700 shadow-nm-flat dark:bg-nm-gradient-dark dark:text-cyan-300 dark:shadow-nm-flat-dark'
                       : 'text-nm-light-textSecondary hover:text-nm-light-textPrimary dark:text-neutral-400 dark:hover:text-neutral-200'
@@ -1613,7 +1650,11 @@ export default function CoFounderPortalPage() {
               }`}
             >
               {selectedWidgetTab === 'alerts' && (
-                <div className="space-y-2" aria-live="polite" aria-label="Proactive alerts">
+                <div
+                  className="space-y-2"
+                  aria-live="polite"
+                  aria-label="Proactive alerts"
+                >
                   {proactiveSignals.length === 0 ? (
                     <p className="flex items-center gap-1.5 py-1 text-[11px] text-nm-light-textSecondary dark:text-neutral-400">
                       <ShieldCheck
@@ -1867,44 +1908,55 @@ export default function CoFounderPortalPage() {
               )}
 
               {selectedWidgetTab === 'seo' && (
-                <div className="space-y-2.5" aria-live="polite" aria-label="SEO health report">
+                <div
+                  className="space-y-2.5"
+                  aria-live="polite"
+                  aria-label="SEO health report"
+                >
                   {loadingSeo ? (
                     <p className="flex items-center gap-1.5 py-2 text-[11px] text-nm-light-textSecondary dark:text-neutral-400">
-                      <RefreshCw size={13} className="animate-spin text-violet-500" />
+                      <RefreshCw
+                        size={13}
+                        className="animate-spin text-violet-500"
+                      />
                       Scanning catalog SEO health...
                     </p>
                   ) : seoReport ? (
-                  <div className="flex items-center justify-between rounded-2xl border border-neutral-200/80 bg-nm-light-bg p-3 shadow-nm-flat dark:border-neutral-800 dark:bg-nm-dark-bg dark:shadow-nm-flat-dark">
-                    <div className="flex items-center gap-2.5">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-emerald-500/30 bg-emerald-500/20 text-xs font-bold text-emerald-600 shadow-nm-flat dark:text-emerald-400 dark:shadow-nm-flat-dark">
-                        {seoReport?.healthScore || 85}
+                    <div className="flex items-center justify-between rounded-2xl border border-neutral-200/80 bg-nm-light-bg p-3 shadow-nm-flat dark:border-neutral-800 dark:bg-nm-dark-bg dark:shadow-nm-flat-dark">
+                      <div className="flex items-center gap-2.5">
+                        <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-emerald-500/30 bg-emerald-500/20 text-xs font-bold text-emerald-600 shadow-nm-flat dark:text-emerald-400 dark:shadow-nm-flat-dark">
+                          {seoReport?.healthScore || 85}
+                        </div>
+                        <div>
+                          <p className="text-xs font-bold text-nm-light-textPrimary dark:text-white">
+                            Catalog SEO Health Score
+                          </p>
+                          <p className="text-[10px] text-nm-light-textSecondary dark:text-neutral-400">
+                            {seoReport?.totalProductsScanned || 0} Products
+                            Scanned
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="text-xs font-bold text-nm-light-textPrimary dark:text-white">
-                          Catalog SEO Health Score
-                        </p>
-                        <p className="text-[10px] text-nm-light-textSecondary dark:text-neutral-400">
-                          {seoReport?.totalProductsScanned || 0} Products
-                          Scanned
-                        </p>
-                      </div>
+                      <button
+                        onClick={fetchSeoReport}
+                        disabled={loadingSeo}
+                        className="flex items-center gap-1 rounded-xl bg-nm-gradient-light px-3 py-1.5 text-[10px] font-bold text-violet-700 shadow-nm-flat transition-colors hover:opacity-90 disabled:opacity-50 dark:bg-nm-gradient-dark dark:text-violet-300 dark:shadow-nm-flat-dark"
+                      >
+                        <RefreshCw
+                          size={10}
+                          className={loadingSeo ? 'animate-spin' : ''}
+                        />
+                        <span>{loadingSeo ? 'Scanning...' : 'Rescan SEO'}</span>
+                      </button>
                     </div>
-                    <button
-                      onClick={fetchSeoReport}
-                      disabled={loadingSeo}
-                      className="flex items-center gap-1 rounded-xl bg-nm-gradient-light px-3 py-1.5 text-[10px] font-bold text-violet-700 shadow-nm-flat transition-colors hover:opacity-90 disabled:opacity-50 dark:bg-nm-gradient-dark dark:text-violet-300 dark:shadow-nm-flat-dark"
-                    >
-                      <RefreshCw
-                        size={10}
-                        className={loadingSeo ? 'animate-spin' : ''}
-                      />
-                      <span>{loadingSeo ? 'Scanning...' : 'Rescan SEO'}</span>
-                    </button>
-                  </div>
                   ) : (
                     <p className="flex items-center gap-1.5 py-2 text-[11px] text-nm-light-textSecondary dark:text-neutral-400">
-                      <Info size={13} className="text-neutral-400 dark:text-neutral-500" />
-                      No SEO report available. Click 'Rescan SEO' to generate one.
+                      <Info
+                        size={13}
+                        className="text-neutral-400 dark:text-neutral-500"
+                      />
+                      No SEO report available. Click 'Rescan SEO' to generate
+                      one.
                     </p>
                   )}
 
@@ -1941,33 +1993,39 @@ export default function CoFounderPortalPage() {
                 <div className="space-y-1.5 rounded-2xl border border-neutral-200/80 bg-nm-light-bg p-2 text-[11px] text-nm-light-textPrimary shadow-nm-flat dark:border-neutral-800 dark:bg-nm-dark-bg dark:text-neutral-300 dark:shadow-nm-flat-dark">
                   {loadingWidgets ? (
                     <p className="flex items-center gap-1.5 py-2 text-[11px] text-nm-light-textSecondary dark:text-neutral-400">
-                      <RefreshCw size={13} className="animate-spin text-violet-500" />
+                      <RefreshCw
+                        size={13}
+                        className="animate-spin text-violet-500"
+                      />
                       Loading repository architecture...
                     </p>
                   ) : architectureInfo ? (
-                  <div>
-                    <p className="flex items-center gap-1.5">
-                      <Cpu
-                        size={12}
-                        className="text-cyan-600 dark:text-cyan-400"
-                      />
-                      <strong>Framework:</strong>{' '}
-                      {architectureInfo?.framework ||
-                        'Next.js 15 (App Router) + React 19 + LiveKit WebRTC Engine'}
-                    </p>
-                    <p>
-                      <strong>Total Database Migrations:</strong>{' '}
-                      {architectureInfo?.totalMigrations || 28}
-                    </p>
-                    <p className="line-clamp-1">
-                      <strong>Active Integrations:</strong>{' '}
-                      {architectureInfo?.activeIntegrations?.join(', ') ||
-                        'LiveKit, Gemini, Supabase, Firebase, Sentry'}
-                    </p>
-                  </div>
+                    <div>
+                      <p className="flex items-center gap-1.5">
+                        <Cpu
+                          size={12}
+                          className="text-cyan-600 dark:text-cyan-400"
+                        />
+                        <strong>Framework:</strong>{' '}
+                        {architectureInfo?.framework ||
+                          'Next.js 15 (App Router) + React 19 + LiveKit WebRTC Engine'}
+                      </p>
+                      <p>
+                        <strong>Total Database Migrations:</strong>{' '}
+                        {architectureInfo?.totalMigrations || 28}
+                      </p>
+                      <p className="line-clamp-1">
+                        <strong>Active Integrations:</strong>{' '}
+                        {architectureInfo?.activeIntegrations?.join(', ') ||
+                          'LiveKit, Gemini, Supabase, Firebase, Sentry'}
+                      </p>
+                    </div>
                   ) : (
                     <p className="flex items-center gap-1.5 py-2 text-[11px] text-nm-light-textSecondary dark:text-neutral-400">
-                      <Info size={13} className="text-neutral-400 dark:text-neutral-500" />
+                      <Info
+                        size={13}
+                        className="text-neutral-400 dark:text-neutral-500"
+                      />
                       No architecture data loaded. Try refreshing.
                     </p>
                   )}
@@ -1975,10 +2033,17 @@ export default function CoFounderPortalPage() {
               )}
 
               {selectedWidgetTab === 'usage' && (
-                <div className="space-y-3" aria-live="polite" aria-label="LiveKit usage telemetry">
+                <div
+                  className="space-y-3"
+                  aria-live="polite"
+                  aria-label="LiveKit usage telemetry"
+                >
                   {loadingUsage && !liveKitUsage ? (
                     <p className="flex items-center gap-1.5 py-2 text-[11px] text-nm-light-textSecondary dark:text-neutral-400">
-                      <RefreshCw size={13} className="animate-spin text-violet-500" />
+                      <RefreshCw
+                        size={13}
+                        className="animate-spin text-violet-500"
+                      />
                       Fetching LiveKit telemetry...
                     </p>
                   ) : (
@@ -2099,7 +2164,7 @@ export default function CoFounderPortalPage() {
                     className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}
                   >
                     <div
-                      className={`max-w-[85%] rounded-3xl p-4 text-sm ${
+                      className={`max-w-[88%] rounded-3xl p-3.5 text-xs sm:max-w-[85%] sm:p-4 sm:text-sm ${
                         isUser
                           ? 'rounded-tr-none border border-violet-500/20 bg-nm-gradient-light font-medium text-violet-950 shadow-nm-flat dark:bg-nm-gradient-dark dark:text-white dark:shadow-nm-flat-dark'
                           : `rounded-tl-none border-l-4 ${roleTheme?.border || 'border-violet-500'} border-y border-r border-neutral-200/80 bg-nm-light-bg text-nm-light-textPrimary shadow-nm-flat dark:border-neutral-800 dark:bg-nm-dark-bg dark:text-neutral-200 dark:shadow-nm-flat-dark`
@@ -2168,7 +2233,7 @@ export default function CoFounderPortalPage() {
                           );
                         }
                       }}
-                      className={`flex shrink-0 items-center gap-1 rounded-xl border px-2.5 py-1 text-[10px] font-bold transition-all ${
+                      className={`flex shrink-0 items-center gap-1 whitespace-nowrap rounded-xl border px-2.5 py-1 text-[10px] font-bold transition-all ${
                         isSelected
                           ? `${theme.border} ${theme.badge} shadow-nm-flat dark:shadow-nm-flat-dark`
                           : 'border-neutral-300/70 bg-nm-light-bg text-nm-light-textSecondary hover:text-nm-light-textPrimary dark:border-neutral-800 dark:bg-nm-dark-bg dark:text-neutral-400 dark:hover:text-white'
@@ -2293,28 +2358,30 @@ export default function CoFounderPortalPage() {
                         : 'border-neutral-300/80 bg-nm-light-bg text-nm-light-textSecondary shadow-nm-inset hover:text-nm-light-textPrimary dark:border-neutral-800 dark:bg-nm-dark-bg dark:text-neutral-400 dark:shadow-nm-inset-dark dark:hover:text-neutral-200'
                     }`}
                   >
-                  <div className="mb-1 flex w-full items-center justify-between">
-                    <span className="flex items-center gap-1.5 text-xs font-bold text-violet-700 dark:text-violet-300">
-                      {voiceStyle === 'spoken_bengali' && (
-                        <Check className="h-3.5 w-3.5 text-violet-600 dark:text-violet-400" />
-                      )}
+                    <div className="mb-1 flex w-full items-center justify-between">
+                      <span className="flex items-center gap-1.5 text-xs font-bold text-violet-700 dark:text-violet-300">
+                        {voiceStyle === 'spoken_bengali' && (
+                          <Check className="h-3.5 w-3.5 text-violet-600 dark:text-violet-400" />
+                        )}
+                        {selectedLanguage === 'hi-IN'
+                          ? 'सरल बोलचाल का बंगाली'
+                          : selectedLanguage === 'bn-IN'
+                            ? 'সহজ চলিত মুখের বাংলা'
+                            : 'Natural Spoken Bengali'}
+                      </span>
+                      <span className="rounded bg-emerald-500/20 px-1.5 py-0.5 text-[10px] font-bold text-emerald-600 dark:text-emerald-400">
+                        {selectedLanguage === 'bn-IN'
+                          ? 'সুপারিশিত'
+                          : 'Recommended'}
+                      </span>
+                    </div>
+                    <p className="text-[11px] leading-normal text-nm-light-textSecondary dark:text-neutral-400">
                       {selectedLanguage === 'hi-IN'
-                        ? 'सरल बोलचाल का बंगाली'
+                        ? 'बोले जाने वाला प्राकृतिक मीठा बंगाली। "और", "बोलिए" बचाएं।'
                         : selectedLanguage === 'bn-IN'
-                          ? 'সহজ চলিত মুখের বাংলা'
-                          : 'Natural Spoken Bengali'}
-                    </span>
-                    <span className="rounded bg-emerald-500/20 px-1.5 py-0.5 text-[10px] font-bold text-emerald-600 dark:text-emerald-400">
-                      {selectedLanguage === 'bn-IN' ? 'সুপারিশিত' : 'Recommended'}
-                    </span>
-                  </div>
-                  <p className="text-[11px] leading-normal text-nm-light-textSecondary dark:text-neutral-400">
-                    {selectedLanguage === 'hi-IN'
-                      ? 'बोले जाने वाला प्राकृतिक मीठा बंगाली। "और", "बोलिए" बचाएं।'
-                      : selectedLanguage === 'bn-IN'
-                        ? 'মুখে কথা বলার মতো স্বাভাবিক মিষ্টি বাংলা। “এবং”, “বলিবেন” বারণ।'
-                        : 'Natural sweet Bengali as spoken. Avoids “এবং”, “বলিবেন” for clearer TTS.'}
-                  </p>
+                          ? 'মুখে কথা বলার মতো স্বাভাবিক মিষ্টি বাংলা। “এবং”, “বলিবেন” বারণ।'
+                          : 'Natural sweet Bengali as spoken. Avoids “এবং”, “বলিবেন” for clearer TTS.'}
+                    </p>
                   </button>
 
                   <button
@@ -2344,7 +2411,9 @@ export default function CoFounderPortalPage() {
                           : 'Banglish Mode'}
                       </span>
                       <span className="rounded bg-cyan-500/20 px-1.5 py-0.5 text-[10px] font-bold text-cyan-700 dark:text-cyan-300">
-                        {selectedLanguage === 'bn-IN' ? '১০০% স্পষ্ট' : '100% Clear'}
+                        {selectedLanguage === 'bn-IN'
+                          ? '১০০% স্পষ্ট'
+                          : '100% Clear'}
                       </span>
                     </div>
                     <p className="text-[11px] leading-normal text-nm-light-textSecondary dark:text-neutral-400">
@@ -2492,18 +2561,18 @@ export default function CoFounderPortalPage() {
             </div>
 
             <div className="mt-6 flex justify-end border-t border-neutral-200/80 pt-4 dark:border-neutral-800">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsVoiceModalOpen(false);
-                    toast.success(
-                      selectedLanguage === 'bn-IN'
-                        ? 'ভয়েস সেটি সেটিংস সংরক্ষিত হয়েছে'
-                        : selectedLanguage === 'hi-IN'
-                          ? 'वॉयस सेटिंग्स सहेजी गईं'
-                          : 'Voice settings saved'
-                    );
-                  }}
+              <button
+                type="button"
+                onClick={() => {
+                  setIsVoiceModalOpen(false);
+                  toast.success(
+                    selectedLanguage === 'bn-IN'
+                      ? 'ভয়েস সেটি সেটিংস সংরক্ষিত হয়েছে'
+                      : selectedLanguage === 'hi-IN'
+                        ? 'वॉयस सेटिंग्स सहेजी गईं'
+                        : 'Voice settings saved'
+                  );
+                }}
                 className="rounded-2xl bg-nm-gradient-light px-5 py-2 text-xs font-bold text-violet-700 shadow-nm-flat hover:opacity-90 dark:bg-nm-gradient-dark dark:text-amber-400 dark:shadow-nm-flat-dark"
               >
                 {selectedLanguage === 'bn-IN'

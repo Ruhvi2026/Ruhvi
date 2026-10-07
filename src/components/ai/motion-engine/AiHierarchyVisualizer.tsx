@@ -1,12 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import {
-  Sparkles,
-  Workflow,
-  Orbit,
-  ChevronRight,
-} from 'lucide-react';
+import { Sparkles, Workflow, Orbit, ChevronRight } from 'lucide-react';
 import { WorkforceSwarm3D } from './WorkforceSwarm3D';
 import { LiveWorkingWorkspace } from './LiveWorkingWorkspace';
 import { INITIAL_AI_HIERARCHY } from './nodes-data';
@@ -90,54 +85,62 @@ export const AiHierarchyVisualizer: React.FC<AiHierarchyVisualizerProps> = ({
   });
 
   return (
-    <div className={`space-y-6 ${className}`} data-testid="ai-hierarchy-visualizer">
+    <div
+      className={`space-y-6 ${className}`}
+      data-testid="ai-hierarchy-visualizer"
+    >
       {/* Top Controls Header */}
-      <div className="flex flex-col items-start justify-between gap-4 rounded-3xl border border-neutral-200/80 bg-nm-light-bg p-4 shadow-nm-flat backdrop-blur-xl dark:border-neutral-800 dark:bg-nm-dark-bg dark:shadow-nm-flat-dark sm:flex-row sm:items-center" data-testid="hierarchy-header">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-amber-500/30 bg-nm-gradient-light shadow-nm-flat dark:bg-nm-gradient-dark dark:shadow-nm-flat-dark">
-              <Sparkles className="h-5 w-5 text-amber-600 dark:text-amber-400" />
-            </div>
-            <div>
-              <h2 className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-nm-light-textPrimary dark:text-neutral-100">
-                <span>AI Workforce 3D Command Center</span>
-                <span className="rounded-full border border-amber-500/30 bg-amber-500/20 px-2 py-0.5 font-mono text-[10px] text-amber-700 dark:text-amber-400">
-                  {isLiveData && liveNodes
-                    ? `${liveNodes.filter(
+      <div
+        className="flex flex-col items-start justify-between gap-4 rounded-3xl border border-neutral-200/80 bg-nm-light-bg p-4 shadow-nm-flat backdrop-blur-xl dark:border-neutral-800 dark:bg-nm-dark-bg dark:shadow-nm-flat-dark sm:flex-row sm:items-center"
+        data-testid="hierarchy-header"
+      >
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-amber-500/30 bg-nm-gradient-light shadow-nm-flat dark:bg-nm-gradient-dark dark:shadow-nm-flat-dark">
+            <Sparkles className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+          </div>
+          <div>
+            <h2 className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-nm-light-textPrimary dark:text-neutral-100">
+              <span>AI Workforce 3D Command Center</span>
+              <span className="rounded-full border border-amber-500/30 bg-amber-500/20 px-2 py-0.5 font-mono text-[10px] text-amber-700 dark:text-amber-400">
+                {isLiveData && liveNodes
+                  ? `${
+                      liveNodes.filter(
                         (n) =>
                           n.state === 'analyzing' ||
                           n.state === 'executing' ||
                           n.state === 'generating' ||
                           n.state === 'thinking' ||
                           n.state === 'waiting_approval'
-                      ).length} Live Agents`
-                    : `${nodes.length} Agents Active`}
-                </span>
-              </h2>
-              <p className="text-xs text-nm-light-textSecondary dark:text-neutral-400">
-                Apex AI Co-Founder • 12 Specialized Core Workers • 6 Marketing
-                Co-Workers
-              </p>
-            </div>
+                      ).length
+                    } Live Agents`
+                  : `${nodes.length} Agents Active`}
+              </span>
+            </h2>
+            <p className="text-[11px] text-nm-light-textSecondary dark:text-neutral-400 sm:text-xs">
+              Apex AI Co-Founder {String.fromCharCode(8226)} 12 Specialized Core
+              Workers {String.fromCharCode(8226)} 6 Marketing Co-Workers
+            </p>
           </div>
+        </div>
 
         {/* View Mode & Filter Switcher */}
         <div className="flex flex-wrap items-center gap-2">
           {/* Level Filter */}
           <div className="flex rounded-2xl border border-neutral-300/80 bg-nm-light-bg p-1 font-mono text-xs shadow-nm-inset dark:border-neutral-800 dark:bg-nm-dark-bg dark:shadow-nm-inset-dark">
-             {(['all', 'apex', 'core', 'coworker'] as const).map((lvl) => {
-                const count =
-                  lvl === 'all'
-                    ? nodes.length
-                    : lvl === 'apex'
-                      ? nodes.filter((n) => n.level === 'apex_co_founder').length
-                      : lvl === 'core'
-                        ? nodes.filter((n) => n.level === 'core_worker').length
-                        : nodes.filter((n) => n.level === 'co_worker').length;
-                return (
+            {(['all', 'apex', 'core', 'coworker'] as const).map((lvl) => {
+              const count =
+                lvl === 'all'
+                  ? nodes.length
+                  : lvl === 'apex'
+                    ? nodes.filter((n) => n.level === 'apex_co_founder').length
+                    : lvl === 'core'
+                      ? nodes.filter((n) => n.level === 'core_worker').length
+                      : nodes.filter((n) => n.level === 'co_worker').length;
+              return (
                 <button
                   key={lvl}
                   onClick={() => setFilterLevel(lvl)}
-                  className={`rounded-xl px-3 py-1.5 capitalize transition-all ${
+                  className={`min-h-[44px] rounded-xl px-3 py-2 font-mono text-xs capitalize transition-all ${
                     filterLevel === lvl
                       ? 'border border-amber-500/40 bg-nm-gradient-light font-bold text-amber-800 shadow-nm-flat dark:bg-nm-gradient-dark dark:text-amber-300 dark:shadow-nm-flat-dark'
                       : 'text-nm-light-textSecondary hover:text-nm-light-textPrimary dark:text-neutral-400 dark:hover:text-neutral-200'
@@ -151,15 +154,15 @@ export const AiHierarchyVisualizer: React.FC<AiHierarchyVisualizerProps> = ({
                         ? `Workers (${count})`
                         : `Co-Workers (${count})`}
                 </button>
-                );
-              })}
+              );
+            })}
           </div>
 
           {/* 3D vs Tree Toggle */}
           <div className="flex rounded-2xl border border-neutral-300/80 bg-nm-light-bg p-1 font-mono text-xs shadow-nm-inset dark:border-neutral-800 dark:bg-nm-dark-bg dark:shadow-nm-inset-dark">
             <button
               onClick={() => setViewMode('3d_swarm')}
-              className={`flex items-center gap-1.5 rounded-xl px-3 py-1.5 transition-all ${
+              className={`flex min-h-[44px] items-center gap-1.5 rounded-xl px-3 py-2 font-mono text-xs transition-all ${
                 viewMode === '3d_swarm'
                   ? 'border border-amber-500/40 bg-nm-gradient-light font-bold text-amber-800 shadow-nm-flat dark:bg-nm-gradient-dark dark:text-amber-300 dark:shadow-nm-flat-dark'
                   : 'text-nm-light-textSecondary hover:text-nm-light-textPrimary dark:text-neutral-400 dark:hover:text-neutral-200'
@@ -170,7 +173,7 @@ export const AiHierarchyVisualizer: React.FC<AiHierarchyVisualizerProps> = ({
             </button>
             <button
               onClick={() => setViewMode('hierarchy_tree')}
-              className={`flex items-center gap-1.5 rounded-xl px-3 py-1.5 transition-all ${
+              className={`flex min-h-[44px] items-center gap-1.5 rounded-xl px-3 py-2 font-mono text-xs transition-all ${
                 viewMode === 'hierarchy_tree'
                   ? 'border border-amber-500/40 bg-nm-gradient-light font-bold text-amber-800 shadow-nm-flat dark:bg-nm-gradient-dark dark:text-amber-300 dark:shadow-nm-flat-dark'
                   : 'text-nm-light-textSecondary hover:text-nm-light-textPrimary dark:text-neutral-400 dark:hover:text-neutral-200'
@@ -205,7 +208,7 @@ export const AiHierarchyVisualizer: React.FC<AiHierarchyVisualizerProps> = ({
         /* Neural Hierarchy Tree View */
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
           {/* Left: Hierarchy Tree List (5 Cols) */}
-          <div className="max-h-[680px] space-y-3 overflow-y-auto rounded-3xl border border-neutral-800 bg-neutral-900 p-5 shadow-2xl lg:col-span-5">
+          <div className="max-h-[480px] space-y-3 overflow-y-auto rounded-3xl border border-neutral-800 bg-neutral-900 p-4 shadow-2xl sm:max-h-[680px] sm:p-5 lg:col-span-5">
             <div className="flex items-center justify-between border-b border-neutral-800 pb-3">
               <span className="font-mono text-xs font-bold uppercase tracking-wider text-neutral-300">
                 Agent Directory ({filteredNodes.length})
@@ -224,7 +227,7 @@ export const AiHierarchyVisualizer: React.FC<AiHierarchyVisualizerProps> = ({
                   <button
                     key={node.id}
                     onClick={() => handleSelectNode(node.id)}
-                    className={`flex w-full items-center justify-between rounded-2xl border p-3 text-left transition-all ${
+                    className={`flex min-h-[56px] w-full items-center justify-between rounded-2xl border p-3.5 text-left transition-all sm:p-3 ${
                       isSelected
                         ? 'border-amber-500/60 bg-amber-500/10 shadow-md'
                         : 'border-neutral-800/80 bg-neutral-900/60 hover:border-neutral-700 hover:bg-neutral-900'
