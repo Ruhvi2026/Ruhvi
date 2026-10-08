@@ -9,7 +9,6 @@ const nextConfig = {
       '@tiptap/react',
       'recharts',
     ],
-    instrumentationHook: true,
   },
   compiler: {
     removeConsole:
