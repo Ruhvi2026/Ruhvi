@@ -20,7 +20,6 @@ const nextConfig = {
     if (nextRuntime === 'edge') {
       config.externals = config.externals || [];
       config.externals.push({
-        '@opentelemetry/api': 'commonjs @opentelemetry/api',
         '@opentelemetry/sdk-node': 'commonjs @opentelemetry/sdk-node',
         '@opentelemetry/exporter-trace-otlp-http':
           'commonjs @opentelemetry/exporter-trace-otlp-http',
