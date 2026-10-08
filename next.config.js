@@ -1,12 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   outputFileTracingRoot: __dirname,
-  compiler: {
-    removeConsole:
-      process.env.NODE_ENV === 'production'
-        ? { exclude: ['error', 'warn'] }
-        : false,
-  },
   experimental: {
     optimizePackageImports: [
       'lucide-react',
@@ -15,6 +9,13 @@ const nextConfig = {
       '@tiptap/react',
       'recharts',
     ],
+    instrumentationHook: true,
+  },
+  compiler: {
+    removeConsole:
+      process.env.NODE_ENV === 'production'
+        ? { exclude: ['error', 'warn'] }
+        : false,
   },
   async headers() {
     const publicPageCache = {

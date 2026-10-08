@@ -1,6 +1,9 @@
 import * as Sentry from '@sentry/nextjs';
+import { registerOTel } from './instrumentation-otel';
 
 export async function register() {
+  registerOTel();
+
   if (process.env.NEXT_RUNTIME === 'nodejs') {
     await import('../sentry.server.config');
   }
