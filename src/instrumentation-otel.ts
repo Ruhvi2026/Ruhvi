@@ -1,13 +1,16 @@
-import { NodeSDK } from '@opentelemetry/sdk-node';
-import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-grpc';
-import { resources } from '@opentelemetry/sdk-node';
-import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
-import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
-
-export function registerOTel() {
+export async function registerOTel() {
   if (process.env.NEXT_RUNTIME !== 'nodejs') {
     return;
   }
+
+  const { NodeSDK } = await import('@opentelemetry/sdk-node');
+  const { OTLPTraceExporter } =
+    await import('@opentelemetry/exporter-trace-otlp-grpc');
+  const { resources } = await import('@opentelemetry/sdk-node');
+  const { SemanticResourceAttributes } =
+    await import('@opentelemetry/semantic-conventions');
+  const { getNodeAutoInstrumentations } =
+    await import('@opentelemetry/auto-instrumentations-node');
 
   const resource = new resources.Resource({
     [SemanticResourceAttributes.SERVICE_NAME]: 'ruhvi-ecommerce',
@@ -30,6 +33,15 @@ export function registerOTel() {
           enabled: false,
         },
         '@opentelemetry/instrumentation-dns': {
+          enabled: false,
+        },
+        '@opentelemetry/instrumentation-winston': {
+          enabled: false,
+        },
+        '@opentelemetry/instrumentation-pino': {
+          enabled: false,
+        },
+        '@opentelemetry/instrumentation-bunyan': {
           enabled: false,
         },
       }),
