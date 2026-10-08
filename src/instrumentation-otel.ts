@@ -5,14 +5,18 @@ export async function registerOTel() {
 
   const { NodeSDK } = await import('@opentelemetry/sdk-node');
   const { OTLPTraceExporter } =
-    await import('@opentelemetry/exporter-trace-otlp-grpc');
-  const { resources } = await import('@opentelemetry/sdk-node');
+    await import('@opentelemetry/exporter-trace-otlp-http');
+  const { resourceFromAttributes } = await import('@opentelemetry/resources');
   const { SemanticResourceAttributes } =
     await import('@opentelemetry/semantic-conventions');
-  const { getNodeAutoInstrumentations } =
-    await import('@opentelemetry/auto-instrumentations-node');
+  const { HttpInstrumentation } =
+    await import('@opentelemetry/instrumentation-http');
+  const { ExpressInstrumentation } =
+    await import('@opentelemetry/instrumentation-express');
+  const { UndiciInstrumentation } =
+    await import('@opentelemetry/instrumentation-undici');
 
-  const resource = new resources.Resource({
+  const resource = resourceFromAttributes({
     [SemanticResourceAttributes.SERVICE_NAME]: 'ruhvi-ecommerce',
     [SemanticResourceAttributes.SERVICE_VERSION]:
       process.env.npm_package_version ?? '0.1.0',
@@ -21,36 +25,22 @@ export async function registerOTel() {
   });
 
   const exporter = new OTLPTraceExporter({
-    url: 'http://localhost:4317',
+    url: 'http://localhost:4318/v1/traces',
   } as any);
 
   const sdk = new NodeSDK({
     resource,
     traceExporter: exporter as any,
     instrumentations: [
-      getNodeAutoInstrumentations({
-        '@opentelemetry/instrumentation-fs': {
-          enabled: false,
-        },
-        '@opentelemetry/instrumentation-dns': {
-          enabled: false,
-        },
-        '@opentelemetry/instrumentation-winston': {
-          enabled: false,
-        },
-        '@opentelemetry/instrumentation-pino': {
-          enabled: false,
-        },
-        '@opentelemetry/instrumentation-bunyan': {
-          enabled: false,
-        },
-      }),
+      new HttpInstrumentation(),
+      new ExpressInstrumentation(),
+      new UndiciInstrumentation(),
     ],
   });
 
   sdk.start();
 
   console.log(
-    'OpenTelemetry initialized with OTLP gRPC exporter to Jaeger at http://localhost:4317'
+    'OpenTelemetry initialized with OTLP HTTP exporter to Jaeger at http://localhost:4318'
   );
 }
