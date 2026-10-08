@@ -17,6 +17,27 @@ const nextConfig = {
         ? { exclude: ['error', 'warn'] }
         : false,
   },
+  webpack: (config, { isServer, nextRuntime }) => {
+    if (nextRuntime === 'edge') {
+      config.externals = config.externals || [];
+      config.externals.push({
+        '@opentelemetry/api': 'commonjs @opentelemetry/api',
+        '@opentelemetry/sdk-node': 'commonjs @opentelemetry/sdk-node',
+        '@opentelemetry/exporter-trace-otlp-http':
+          'commonjs @opentelemetry/exporter-trace-otlp-http',
+        '@opentelemetry/resources': 'commonjs @opentelemetry/resources',
+        '@opentelemetry/semantic-conventions':
+          'commonjs @opentelemetry/semantic-conventions',
+        '@opentelemetry/instrumentation-http':
+          'commonjs @opentelemetry/instrumentation-http',
+        '@opentelemetry/instrumentation-express':
+          'commonjs @opentelemetry/instrumentation-express',
+        '@opentelemetry/instrumentation-undici':
+          'commonjs @opentelemetry/instrumentation-undici',
+      });
+    }
+    return config;
+  },
   async headers() {
     const publicPageCache = {
       key: 'Cache-Control',
