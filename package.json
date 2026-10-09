@@ -49,6 +49,7 @@
     "lucide-react": "^0.475.0",
     "motion": "^14.0.0",
     "next": "^15.1.7",
+    "paytmchecksum": "^1.5.1",
     "photoswipe": "^5.4.4",
     "playwright": "^1.63.0",
     "posthog-js": "^1.418.12",

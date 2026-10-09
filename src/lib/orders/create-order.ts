@@ -29,6 +29,9 @@ export interface OrderPayload {
   phonepe_merchant_transaction_id?: string;
   phonepe_transaction_id?: string;
   phonepe_payment_state?: string;
+  paytm_order_id?: string;
+  paytm_transaction_id?: string;
+  paytm_payment_state?: string;
   isPartialCod?: boolean;
   prepaidAmount?: number;
 }
@@ -330,7 +333,7 @@ export async function createOrder(
       payment_status: options.paymentStatus || defaultPaymentStatus,
       prepaid_amount: isPartialCod
         ? (prepaidAmount ?? finalTotal)
-        : paymentMethod === 'phonepe'
+        : paymentMethod === 'phonepe' || paymentMethod === 'paytm'
           ? finalTotal
           : 0,
       cod_balance: isPartialCod

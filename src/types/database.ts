@@ -17,7 +17,7 @@ export type OrderStatus =
   | 'return_rejected'
   | 'returned'
   | 'refunded';
-export type PaymentMethod = 'phonepe' | 'cod';
+export type PaymentMethod = 'phonepe' | 'paytm' | 'cod';
 export type PaymentStatus = 'pending' | 'paid' | 'failed' | 'refunded';
 export type CoinLedgerType = 'earned' | 'redeemed' | 'expired' | 'cashback';
 export type WalletLedgerType = 'credit' | 'debit' | 'cashback';
@@ -156,6 +156,9 @@ export interface Order {
   phonepe_merchant_transaction_id?: string | null;
   phonepe_transaction_id?: string | null;
   phonepe_payment_state?: string | null;
+  paytm_order_id?: string | null;
+  paytm_transaction_id?: string | null;
+  paytm_payment_state?: string | null;
   prepaid_amount?: number;
   cod_balance?: number;
   created_at?: string;

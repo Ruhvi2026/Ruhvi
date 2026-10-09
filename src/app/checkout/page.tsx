@@ -214,9 +214,9 @@ export default function CheckoutPage() {
   const [giftMessage, setGiftMessage] = useState('');
 
   // Payment Method State
-  const [paymentMethod, setPaymentMethod] = useState<'phonepe' | 'cod'>(
-    'phonepe'
-  );
+  const [paymentMethod, setPaymentMethod] = useState<
+    'phonepe' | 'paytm' | 'cod'
+  >('phonepe');
   const [isProcessing, setIsProcessing] = useState(false);
 
   const handlePaymentKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>) => {
@@ -574,18 +574,23 @@ export default function CheckoutPage() {
 
     try {
       if (
+        paymentMethod === 'paytm' ||
         paymentMethod === 'phonepe' ||
         (paymentMethod === 'cod' && totalPayable > 2000)
       ) {
         const isPartialCod = paymentMethod === 'cod';
-        const phonePeAmount = isPartialCod ? totalPayable * 0.1 : totalPayable;
+        const onlineAmount = isPartialCod ? totalPayable * 0.1 : totalPayable;
+        const gatewayEndpoint =
+          paymentMethod === 'paytm'
+            ? '/api/checkout/paytm'
+            : '/api/checkout/phonepe';
 
-        // 1. Initialize PhonePe payment on backend API
-        const res = await fetch('/api/checkout/phonepe', {
+        // 1. Initialize payment on backend API
+        const res = await fetch(gatewayEndpoint, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            amount: phonePeAmount,
+            amount: onlineAmount,
             mobileNumber: selectedAddress.phone,
             items,
             address: selectedAddress,
@@ -600,7 +605,7 @@ export default function CheckoutPage() {
             coins_redeemed: coinsDiscount,
             coupon_discount: couponDiscount,
             isPartialCod,
-            prepaidAmount: isPartialCod ? phonePeAmount : undefined,
+            prepaidAmount: isPartialCod ? onlineAmount : undefined,
             idempotencyKey: pendingOrderId,
           }),
         });
@@ -608,7 +613,8 @@ export default function CheckoutPage() {
         const orderData = await res.json();
         if (!res.ok) {
           throw new Error(
-            orderData.error || 'Failed to initialize PhonePe payment'
+            orderData.error ||
+              `Failed to initialize ${paymentMethod === 'paytm' ? 'Paytm' : 'PhonePe'} payment`
           );
         }
 
@@ -618,20 +624,23 @@ export default function CheckoutPage() {
           window.localStorage.setItem('checkout_order_id', createdOrderId);
         }
 
-        if (orderData.redirectUrl && !orderData.isSimulated) {
-          // Redirect to PhonePe Secure Gateway URL
-          window.location.href = orderData.redirectUrl;
+        const redirectUrl = orderData.gatewayUrl || orderData.redirectUrl;
+        if (redirectUrl && !orderData.isSimulated) {
+          // Redirect to Secure Gateway URL
+          window.location.href = redirectUrl;
           return;
         }
 
         // Test / Simulated payment fallback
         await finalizeOrder({
           phonepe_merchant_transaction_id:
-            orderData.merchantTransactionId || `MT_${Date.now()}`,
+            orderData.paytmOrderId ||
+            orderData.merchantTransactionId ||
+            `MT_${Date.now()}`,
           phonepe_transaction_id: `T_SIM_${Date.now()}`,
           phonepe_payment_state: 'COMPLETED',
           isPartialCod,
-          prepaidAmount: isPartialCod ? phonePeAmount : undefined,
+          prepaidAmount: isPartialCod ? onlineAmount : undefined,
         });
       } else {
         // COD order
@@ -1348,6 +1357,43 @@ export default function CheckoutPage() {
                   )}
                 </button>
 
+                {/* Paytm PG Option */}
+                <button
+                  type="button"
+                  role="radio"
+                  aria-checked={paymentMethod === 'paytm'}
+                  tabIndex={paymentMethod === 'paytm' ? 0 : -1}
+                  onClick={() => setPaymentMethod('paytm')}
+                  onKeyDown={handlePaymentKeyDown}
+                  disabled={useWallet && walletBalance >= preWalletTotal}
+                  className={`flex w-full cursor-pointer items-center justify-between rounded-xl border p-4 text-left transition-all ${
+                    paymentMethod === 'paytm'
+                      ? 'border-gold-700 bg-gold-50 ring-1 ring-gold-700'
+                      : 'border-stone-200 hover:border-stone-300'
+                  } disabled:pointer-events-none disabled:opacity-50`}
+                >
+                  <div className="flex items-center space-x-3">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-50 font-sans text-xs font-bold text-sky-700">
+                      Paytm
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-1.5 text-xs font-semibold text-stone-900">
+                        <span>Paytm Payment Gateway</span>
+                        <span className="rounded border border-sky-300/60 bg-sky-50 px-1.5 py-0.5 text-[10px] font-bold text-sky-800">
+                          UPI / NetBanking / Cards
+                        </span>
+                      </div>
+                      <div className="text-xs text-stone-500">
+                        Pay securely with Paytm PG, Paytm UPI, Debit/Credit Card
+                        & NetBanking
+                      </div>
+                    </div>
+                  </div>
+                  {paymentMethod === 'paytm' && (
+                    <Check className="h-4 w-4 font-bold text-gold-700" />
+                  )}
+                </button>
+
                 {/* COD Option */}
                 <button
                   type="button"
@@ -1689,11 +1735,13 @@ export default function CheckoutPage() {
               >
                 {isProcessing
                   ? 'Processing Order...'
-                  : paymentMethod === 'phonepe'
-                    ? 'Pay via PhonePe'
-                    : paymentMethod === 'cod' && totalPayable > 2000
-                      ? `Pay 10% Deposit (₹${(totalPayable * 0.1).toFixed(2)})`
-                      : 'Place COD Order'}
+                  : paymentMethod === 'paytm'
+                    ? 'Pay via Paytm'
+                    : paymentMethod === 'phonepe'
+                      ? 'Pay via PhonePe'
+                      : paymentMethod === 'cod' && totalPayable > 2000
+                        ? `Pay 10% Deposit (₹${(totalPayable * 0.1).toFixed(2)})`
+                        : 'Place COD Order'}
               </button>
 
               <div className="space-y-2 text-center text-xs text-stone-400">
@@ -1825,7 +1873,7 @@ export default function CheckoutPage() {
           >
             {isProcessing
               ? 'Processing...'
-              : paymentMethod === 'phonepe'
+              : paymentMethod === 'phonepe' || paymentMethod === 'paytm'
                 ? 'Proceed to Pay'
                 : 'Place Order'}
           </button>
