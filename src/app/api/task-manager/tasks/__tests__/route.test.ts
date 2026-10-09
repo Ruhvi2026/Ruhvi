@@ -79,6 +79,12 @@ const supabaseStub: any = {
       order() {
         return builder;
       },
+      or() {
+        return builder;
+      },
+      ilike() {
+        return builder;
+      },
       limit(n: number) {
         builder._limit = n;
         return builder;
@@ -146,6 +152,7 @@ const STATUS_ID = 'bbbbbbbb-2222-4222-8222-bbbbbbbbbbbb';
 const ASSIGNEE_ID = '33333333-3333-4333-8333-333333333333';
 const CUSTOMER_ID = '44444444-4444-4444-8444-444444444444';
 const INACTIVE_ID = '55555555-5555-4555-8555-555555555555';
+const DEPARTMENT_ID = '22222222-2222-4222-8222-222222222222';
 
 // Mirrors exactly what TaskForm.handleSubmit sends for a new task: every blank
 // field is converted to null, and tags become a string array.
@@ -154,7 +161,7 @@ function formBody(overrides: Record<string, any> = {}) {
     title: '  Verify order #1042 packaging  ',
     description: '  Confirm the outer box matches the new spec.  ',
     assignee_id: null,
-    department_id: null,
+    department_id: DEPARTMENT_ID,
     priority_id: PRIORITY_ID,
     status_id: STATUS_ID,
     type_id: null,

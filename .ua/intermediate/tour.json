@@ -1,0 +1,63 @@
+[
+  {
+    "order": 1,
+    "title": "Project Overview & Architecture",
+    "description": "Start by reviewing the core project documentation and architecture overview.",
+    "nodeIds": [
+      "document:.agents/skills/understand/frameworks/django.md",
+      "document:.agents/skills/understand/frameworks/express.md",
+      "document:.agents/skills/understand/frameworks/fastapi.md",
+      "document:.agents/skills/understand/frameworks/flask.md",
+      "document:.agents/skills/understand/frameworks/gin.md"
+    ]
+  },
+  {
+    "order": 2,
+    "title": "Database Foundation & Schema",
+    "description": "Explore the database migrations, core schemas, and data model tables.",
+    "nodeIds": [
+      "table:supabase/migrations/0001_phase0_foundation.sql",
+      "table:supabase/migrations/0001_phase0_foundation.sql:public",
+      "table:supabase/migrations/0002_phase1_product_catalog.sql",
+      "table:supabase/migrations/0002_phase1_product_catalog.sql:public",
+      "table:supabase/migrations/0003_phase2_purchase_flow.sql",
+      "table:supabase/migrations/0004_phase3_post_purchase_account.sql",
+      "table:supabase/migrations/0004_phase3_post_purchase_account.sql:public",
+      "table:supabase/migrations/0005_phase4_money_features.sql"
+    ]
+  },
+  {
+    "order": 3,
+    "title": "Core Business Logic & Services",
+    "description": "Understand the core backend services, analytics integrators, and helper logic.",
+    "nodeIds": [
+      "file:ruhvi-mobile_DO_NOT_DELETE/src/lib/cloudinary.ts",
+      "function:ruhvi-mobile_DO_NOT_DELETE/src/lib/cloudinary.ts:sha1",
+      "function:ruhvi-mobile_DO_NOT_DELETE/src/lib/cloudinary.ts:uploadToCloudinary",
+      "file:ruhvi-mobile_DO_NOT_DELETE/src/lib/notifications.ts",
+      "function:ruhvi-mobile_DO_NOT_DELETE/src/lib/notifications.ts:registerForPushNotificationsAsync",
+      "function:ruhvi-mobile_DO_NOT_DELETE/src/lib/notifications.ts:triggerLocalNotification",
+      "function:ruhvi-mobile_DO_NOT_DELETE/src/lib/notifications.ts:dispatchChatPushNotification",
+      "file:ruhvi-mobile_DO_NOT_DELETE/src/lib/supabase.ts",
+      "function:ruhvi-mobile_DO_NOT_DELETE/src/lib/supabase.ts:parseJwtSub",
+      "function:ruhvi-mobile_DO_NOT_DELETE/src/lib/supabase.ts:getSupabaseClient"
+    ]
+  },
+  {
+    "order": 4,
+    "title": "Frontend Application & UI Components",
+    "description": "Inspect the primary React components, page views, and design engine.",
+    "nodeIds": [
+      "file:src/components/AddressTagSelector.tsx",
+      "function:src/components/AddressTagSelector.tsx:AddressTagSelector",
+      "file:src/components/AnalyticsScripts.tsx",
+      "function:src/components/AnalyticsScripts.tsx:AnalyticsScripts",
+      "file:src/components/CustomerSupportChat.tsx",
+      "function:src/components/CustomerSupportChat.tsx:BotMessage",
+      "function:src/components/CustomerSupportChat.tsx:CustomerSupportChat",
+      "file:src/components/CustomerSupportChatTrigger.tsx",
+      "function:src/components/CustomerSupportChatTrigger.tsx:CustomerSupportChatTrigger",
+      "file:src/components/FcmInit.tsx"
+    ]
+  }
+]

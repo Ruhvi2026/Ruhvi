@@ -1,0 +1,653 @@
+{
+  "batchIndex": 6,
+  "batchFiles": [
+    {
+      "path": ".env.example",
+      "language": "config",
+      "sizeLines": 48,
+      "fileCategory": "config"
+    },
+    {
+      "path": "CLAUDE.md",
+      "language": "markdown",
+      "sizeLines": 72,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "DELETED_FILES_LOG.md",
+      "language": "markdown",
+      "sizeLines": 60,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "PROJECT_INTEGRATIONS_AUDIT.md",
+      "language": "markdown",
+      "sizeLines": 224,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "README.md",
+      "language": "markdown",
+      "sizeLines": 58,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "RUHVI_A_TO_Z_PROJECT_GUIDE.md",
+      "language": "markdown",
+      "sizeLines": 209,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "capacitor.config.json",
+      "language": "json",
+      "sizeLines": 16,
+      "fileCategory": "config"
+    },
+    {
+      "path": "marketing co-workers.md",
+      "language": "markdown",
+      "sizeLines": 1575,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "package.json",
+      "language": "json",
+      "sizeLines": 100,
+      "fileCategory": "config"
+    },
+    {
+      "path": "pendingAI_COFOUNDER_MASTER_IMPLEMENTATION_PLAN.md",
+      "language": "markdown",
+      "sizeLines": 1609,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "pending_performance.md",
+      "language": "markdown",
+      "sizeLines": 1392,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "posthog.md",
+      "language": "markdown",
+      "sizeLines": 221,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "tsconfig.json",
+      "language": "json",
+      "sizeLines": 27,
+      "fileCategory": "config"
+    },
+    {
+      "path": "vercel.json",
+      "language": "json",
+      "sizeLines": 8,
+      "fileCategory": "config"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "config:.env.example",
+      "name": ".env.example",
+      "type": "config",
+      "filePath": ".env.example",
+      "summary": "config config file (49 lines)",
+      "complexity": "simple",
+      "tags": [
+        "config",
+        "config"
+      ]
+    },
+    {
+      "id": "table:.env.example:NEXT_PUBLIC_SUPABASE_URL",
+      "name": "NEXT_PUBLIC_SUPABASE_URL",
+      "type": "table",
+      "filePath": ".env.example",
+      "parentId": "config:.env.example",
+      "summary": "Table definition NEXT_PUBLIC_SUPABASE_URL",
+      "complexity": "simple"
+    },
+    {
+      "id": "table:.env.example:NEXT_PUBLIC_SUPABASE_ANON_KEY",
+      "name": "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+      "type": "table",
+      "filePath": ".env.example",
+      "parentId": "config:.env.example",
+      "summary": "Table definition NEXT_PUBLIC_SUPABASE_ANON_KEY",
+      "complexity": "simple"
+    },
+    {
+      "id": "table:.env.example:SUPABASE_SERVICE_ROLE_KEY",
+      "name": "SUPABASE_SERVICE_ROLE_KEY",
+      "type": "table",
+      "filePath": ".env.example",
+      "parentId": "config:.env.example",
+      "summary": "Table definition SUPABASE_SERVICE_ROLE_KEY",
+      "complexity": "simple"
+    },
+    {
+      "id": "table:.env.example:JWT_SECRET",
+      "name": "JWT_SECRET",
+      "type": "table",
+      "filePath": ".env.example",
+      "parentId": "config:.env.example",
+      "summary": "Table definition JWT_SECRET",
+      "complexity": "simple"
+    },
+    {
+      "id": "table:.env.example:NEXT_PUBLIC_APP_URL",
+      "name": "NEXT_PUBLIC_APP_URL",
+      "type": "table",
+      "filePath": ".env.example",
+      "parentId": "config:.env.example",
+      "summary": "Table definition NEXT_PUBLIC_APP_URL",
+      "complexity": "simple"
+    },
+    {
+      "id": "table:.env.example:NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME",
+      "name": "NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME",
+      "type": "table",
+      "filePath": ".env.example",
+      "parentId": "config:.env.example",
+      "summary": "Table definition NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME",
+      "complexity": "simple"
+    },
+    {
+      "id": "table:.env.example:NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET",
+      "name": "NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET",
+      "type": "table",
+      "filePath": ".env.example",
+      "parentId": "config:.env.example",
+      "summary": "Table definition NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET",
+      "complexity": "simple"
+    },
+    {
+      "id": "table:.env.example:CLOUDINARY_API_KEY",
+      "name": "CLOUDINARY_API_KEY",
+      "type": "table",
+      "filePath": ".env.example",
+      "parentId": "config:.env.example",
+      "summary": "Table definition CLOUDINARY_API_KEY",
+      "complexity": "simple"
+    },
+    {
+      "id": "table:.env.example:CLOUDINARY_API_SECRET",
+      "name": "CLOUDINARY_API_SECRET",
+      "type": "table",
+      "filePath": ".env.example",
+      "parentId": "config:.env.example",
+      "summary": "Table definition CLOUDINARY_API_SECRET",
+      "complexity": "simple"
+    },
+    {
+      "id": "table:.env.example:NEXT_PUBLIC_CHAT_CLOUDINARY_CLOUD_NAME",
+      "name": "NEXT_PUBLIC_CHAT_CLOUDINARY_CLOUD_NAME",
+      "type": "table",
+      "filePath": ".env.example",
+      "parentId": "config:.env.example",
+      "summary": "Table definition NEXT_PUBLIC_CHAT_CLOUDINARY_CLOUD_NAME",
+      "complexity": "simple"
+    },
+    {
+      "id": "table:.env.example:CHAT_CLOUDINARY_API_KEY",
+      "name": "CHAT_CLOUDINARY_API_KEY",
+      "type": "table",
+      "filePath": ".env.example",
+      "parentId": "config:.env.example",
+      "summary": "Table definition CHAT_CLOUDINARY_API_KEY",
+      "complexity": "simple"
+    },
+    {
+      "id": "table:.env.example:CHAT_CLOUDINARY_API_SECRET",
+      "name": "CHAT_CLOUDINARY_API_SECRET",
+      "type": "table",
+      "filePath": ".env.example",
+      "parentId": "config:.env.example",
+      "summary": "Table definition CHAT_CLOUDINARY_API_SECRET",
+      "complexity": "simple"
+    },
+    {
+      "id": "table:.env.example:RESEND_API_KEY",
+      "name": "RESEND_API_KEY",
+      "type": "table",
+      "filePath": ".env.example",
+      "parentId": "config:.env.example",
+      "summary": "Table definition RESEND_API_KEY",
+      "complexity": "simple"
+    },
+    {
+      "id": "table:.env.example:NEXT_PUBLIC_SENTRY_DSN",
+      "name": "NEXT_PUBLIC_SENTRY_DSN",
+      "type": "table",
+      "filePath": ".env.example",
+      "parentId": "config:.env.example",
+      "summary": "Table definition NEXT_PUBLIC_SENTRY_DSN",
+      "complexity": "simple"
+    },
+    {
+      "id": "table:.env.example:SENTRY_AUTH_TOKEN",
+      "name": "SENTRY_AUTH_TOKEN",
+      "type": "table",
+      "filePath": ".env.example",
+      "parentId": "config:.env.example",
+      "summary": "Table definition SENTRY_AUTH_TOKEN",
+      "complexity": "simple"
+    },
+    {
+      "id": "table:.env.example:NEXT_PUBLIC_POSTHOG_KEY",
+      "name": "NEXT_PUBLIC_POSTHOG_KEY",
+      "type": "table",
+      "filePath": ".env.example",
+      "parentId": "config:.env.example",
+      "summary": "Table definition NEXT_PUBLIC_POSTHOG_KEY",
+      "complexity": "simple"
+    },
+    {
+      "id": "table:.env.example:NEXT_PUBLIC_POSTHOG_HOST",
+      "name": "NEXT_PUBLIC_POSTHOG_HOST",
+      "type": "table",
+      "filePath": ".env.example",
+      "parentId": "config:.env.example",
+      "summary": "Table definition NEXT_PUBLIC_POSTHOG_HOST",
+      "complexity": "simple"
+    },
+    {
+      "id": "table:.env.example:NEXT_PUBLIC_FIREBASE_API_KEY",
+      "name": "NEXT_PUBLIC_FIREBASE_API_KEY",
+      "type": "table",
+      "filePath": ".env.example",
+      "parentId": "config:.env.example",
+      "summary": "Table definition NEXT_PUBLIC_FIREBASE_API_KEY",
+      "complexity": "simple"
+    },
+    {
+      "id": "table:.env.example:NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN",
+      "name": "NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN",
+      "type": "table",
+      "filePath": ".env.example",
+      "parentId": "config:.env.example",
+      "summary": "Table definition NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN",
+      "complexity": "simple"
+    },
+    {
+      "id": "table:.env.example:NEXT_PUBLIC_FIREBASE_PROJECT_ID",
+      "name": "NEXT_PUBLIC_FIREBASE_PROJECT_ID",
+      "type": "table",
+      "filePath": ".env.example",
+      "parentId": "config:.env.example",
+      "summary": "Table definition NEXT_PUBLIC_FIREBASE_PROJECT_ID",
+      "complexity": "simple"
+    },
+    {
+      "id": "table:.env.example:NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET",
+      "name": "NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET",
+      "type": "table",
+      "filePath": ".env.example",
+      "parentId": "config:.env.example",
+      "summary": "Table definition NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET",
+      "complexity": "simple"
+    },
+    {
+      "id": "table:.env.example:NEXT_PUBLIC_FIREBASE_MESSSENDER_ID",
+      "name": "NEXT_PUBLIC_FIREBASE_MESSSENDER_ID",
+      "type": "table",
+      "filePath": ".env.example",
+      "parentId": "config:.env.example",
+      "summary": "Table definition NEXT_PUBLIC_FIREBASE_MESSSENDER_ID",
+      "complexity": "simple"
+    },
+    {
+      "id": "table:.env.example:NEXT_PUBLIC_FIREBASE_APP_ID",
+      "name": "NEXT_PUBLIC_FIREBASE_APP_ID",
+      "type": "table",
+      "filePath": ".env.example",
+      "parentId": "config:.env.example",
+      "summary": "Table definition NEXT_PUBLIC_FIREBASE_APP_ID",
+      "complexity": "simple"
+    },
+    {
+      "id": "table:.env.example:VERCEL_URL",
+      "name": "VERCEL_URL",
+      "type": "table",
+      "filePath": ".env.example",
+      "parentId": "config:.env.example",
+      "summary": "Table definition VERCEL_URL",
+      "complexity": "simple"
+    },
+    {
+      "id": "table:.env.example:UPSTASH_REDIS_REST_URL",
+      "name": "UPSTASH_REDIS_REST_URL",
+      "type": "table",
+      "filePath": ".env.example",
+      "parentId": "config:.env.example",
+      "summary": "Table definition UPSTASH_REDIS_REST_URL",
+      "complexity": "simple"
+    },
+    {
+      "id": "table:.env.example:UPSTASH_REDIS_REST_TOKEN",
+      "name": "UPSTASH_REDIS_REST_TOKEN",
+      "type": "table",
+      "filePath": ".env.example",
+      "parentId": "config:.env.example",
+      "summary": "Table definition UPSTASH_REDIS_REST_TOKEN",
+      "complexity": "simple"
+    },
+    {
+      "id": "table:.env.example:ESPOCRM_BASE_URL",
+      "name": "ESPOCRM_BASE_URL",
+      "type": "table",
+      "filePath": ".env.example",
+      "parentId": "config:.env.example",
+      "summary": "Table definition ESPOCRM_BASE_URL",
+      "complexity": "simple"
+    },
+    {
+      "id": "table:.env.example:ESPOCRM_API_KEY",
+      "name": "ESPOCRM_API_KEY",
+      "type": "table",
+      "filePath": ".env.example",
+      "parentId": "config:.env.example",
+      "summary": "Table definition ESPOCRM_API_KEY",
+      "complexity": "simple"
+    },
+    {
+      "id": "document:CLAUDE.md",
+      "name": "CLAUDE.md",
+      "type": "document",
+      "filePath": "CLAUDE.md",
+      "summary": "markdown docs file (72 lines)",
+      "complexity": "simple",
+      "tags": [
+        "markdown",
+        "docs"
+      ]
+    },
+    {
+      "id": "document:DELETED_FILES_LOG.md",
+      "name": "DELETED_FILES_LOG.md",
+      "type": "document",
+      "filePath": "DELETED_FILES_LOG.md",
+      "summary": "markdown docs file (60 lines)",
+      "complexity": "simple",
+      "tags": [
+        "markdown",
+        "docs"
+      ]
+    },
+    {
+      "id": "document:PROJECT_INTEGRATIONS_AUDIT.md",
+      "name": "PROJECT_INTEGRATIONS_AUDIT.md",
+      "type": "document",
+      "filePath": "PROJECT_INTEGRATIONS_AUDIT.md",
+      "summary": "markdown docs file (224 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "markdown",
+        "docs"
+      ]
+    },
+    {
+      "id": "document:README.md",
+      "name": "README.md",
+      "type": "document",
+      "filePath": "README.md",
+      "summary": "markdown docs file (58 lines)",
+      "complexity": "simple",
+      "tags": [
+        "markdown",
+        "docs"
+      ]
+    },
+    {
+      "id": "document:RUHVI_A_TO_Z_PROJECT_GUIDE.md",
+      "name": "RUHVI_A_TO_Z_PROJECT_GUIDE.md",
+      "type": "document",
+      "filePath": "RUHVI_A_TO_Z_PROJECT_GUIDE.md",
+      "summary": "markdown docs file (209 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "markdown",
+        "docs"
+      ]
+    },
+    {
+      "id": "config:capacitor.config.json",
+      "name": "capacitor.config.json",
+      "type": "config",
+      "filePath": "capacitor.config.json",
+      "summary": "json config file (16 lines)",
+      "complexity": "simple",
+      "tags": [
+        "json",
+        "config"
+      ]
+    },
+    {
+      "id": "document:marketing co-workers.md",
+      "name": "marketing co-workers.md",
+      "type": "document",
+      "filePath": "marketing co-workers.md",
+      "summary": "markdown docs file (1576 lines)",
+      "complexity": "complex",
+      "tags": [
+        "markdown",
+        "docs"
+      ]
+    },
+    {
+      "id": "config:package.json",
+      "name": "package.json",
+      "type": "config",
+      "filePath": "package.json",
+      "summary": "json config file (100 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "json",
+        "config"
+      ]
+    },
+    {
+      "id": "document:pendingAI_COFOUNDER_MASTER_IMPLEMENTATION_PLAN.md",
+      "name": "pendingAI_COFOUNDER_MASTER_IMPLEMENTATION_PLAN.md",
+      "type": "document",
+      "filePath": "pendingAI_COFOUNDER_MASTER_IMPLEMENTATION_PLAN.md",
+      "summary": "markdown docs file (1609 lines)",
+      "complexity": "complex",
+      "tags": [
+        "markdown",
+        "docs"
+      ]
+    },
+    {
+      "id": "document:pending_performance.md",
+      "name": "pending_performance.md",
+      "type": "document",
+      "filePath": "pending_performance.md",
+      "summary": "markdown docs file (1393 lines)",
+      "complexity": "complex",
+      "tags": [
+        "markdown",
+        "docs"
+      ]
+    },
+    {
+      "id": "document:posthog.md",
+      "name": "posthog.md",
+      "type": "document",
+      "filePath": "posthog.md",
+      "summary": "markdown docs file (221 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "markdown",
+        "docs"
+      ]
+    },
+    {
+      "id": "config:tsconfig.json",
+      "name": "tsconfig.json",
+      "type": "config",
+      "filePath": "tsconfig.json",
+      "summary": "json config file (27 lines)",
+      "complexity": "simple",
+      "tags": [
+        "json",
+        "config"
+      ]
+    },
+    {
+      "id": "config:vercel.json",
+      "name": "vercel.json",
+      "type": "config",
+      "filePath": "vercel.json",
+      "summary": "json config file (8 lines)",
+      "complexity": "simple",
+      "tags": [
+        "json",
+        "config"
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "source": "config:.env.example",
+      "target": "table:.env.example:NEXT_PUBLIC_SUPABASE_URL",
+      "type": "contains"
+    },
+    {
+      "source": "config:.env.example",
+      "target": "table:.env.example:NEXT_PUBLIC_SUPABASE_ANON_KEY",
+      "type": "contains"
+    },
+    {
+      "source": "config:.env.example",
+      "target": "table:.env.example:SUPABASE_SERVICE_ROLE_KEY",
+      "type": "contains"
+    },
+    {
+      "source": "config:.env.example",
+      "target": "table:.env.example:JWT_SECRET",
+      "type": "contains"
+    },
+    {
+      "source": "config:.env.example",
+      "target": "table:.env.example:NEXT_PUBLIC_APP_URL",
+      "type": "contains"
+    },
+    {
+      "source": "config:.env.example",
+      "target": "table:.env.example:NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME",
+      "type": "contains"
+    },
+    {
+      "source": "config:.env.example",
+      "target": "table:.env.example:NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET",
+      "type": "contains"
+    },
+    {
+      "source": "config:.env.example",
+      "target": "table:.env.example:CLOUDINARY_API_KEY",
+      "type": "contains"
+    },
+    {
+      "source": "config:.env.example",
+      "target": "table:.env.example:CLOUDINARY_API_SECRET",
+      "type": "contains"
+    },
+    {
+      "source": "config:.env.example",
+      "target": "table:.env.example:NEXT_PUBLIC_CHAT_CLOUDINARY_CLOUD_NAME",
+      "type": "contains"
+    },
+    {
+      "source": "config:.env.example",
+      "target": "table:.env.example:CHAT_CLOUDINARY_API_KEY",
+      "type": "contains"
+    },
+    {
+      "source": "config:.env.example",
+      "target": "table:.env.example:CHAT_CLOUDINARY_API_SECRET",
+      "type": "contains"
+    },
+    {
+      "source": "config:.env.example",
+      "target": "table:.env.example:RESEND_API_KEY",
+      "type": "contains"
+    },
+    {
+      "source": "config:.env.example",
+      "target": "table:.env.example:NEXT_PUBLIC_SENTRY_DSN",
+      "type": "contains"
+    },
+    {
+      "source": "config:.env.example",
+      "target": "table:.env.example:SENTRY_AUTH_TOKEN",
+      "type": "contains"
+    },
+    {
+      "source": "config:.env.example",
+      "target": "table:.env.example:NEXT_PUBLIC_POSTHOG_KEY",
+      "type": "contains"
+    },
+    {
+      "source": "config:.env.example",
+      "target": "table:.env.example:NEXT_PUBLIC_POSTHOG_HOST",
+      "type": "contains"
+    },
+    {
+      "source": "config:.env.example",
+      "target": "table:.env.example:NEXT_PUBLIC_FIREBASE_API_KEY",
+      "type": "contains"
+    },
+    {
+      "source": "config:.env.example",
+      "target": "table:.env.example:NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN",
+      "type": "contains"
+    },
+    {
+      "source": "config:.env.example",
+      "target": "table:.env.example:NEXT_PUBLIC_FIREBASE_PROJECT_ID",
+      "type": "contains"
+    },
+    {
+      "source": "config:.env.example",
+      "target": "table:.env.example:NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET",
+      "type": "contains"
+    },
+    {
+      "source": "config:.env.example",
+      "target": "table:.env.example:NEXT_PUBLIC_FIREBASE_MESSSENDER_ID",
+      "type": "contains"
+    },
+    {
+      "source": "config:.env.example",
+      "target": "table:.env.example:NEXT_PUBLIC_FIREBASE_APP_ID",
+      "type": "contains"
+    },
+    {
+      "source": "config:.env.example",
+      "target": "table:.env.example:VERCEL_URL",
+      "type": "contains"
+    },
+    {
+      "source": "config:.env.example",
+      "target": "table:.env.example:UPSTASH_REDIS_REST_URL",
+      "type": "contains"
+    },
+    {
+      "source": "config:.env.example",
+      "target": "table:.env.example:UPSTASH_REDIS_REST_TOKEN",
+      "type": "contains"
+    },
+    {
+      "source": "config:.env.example",
+      "target": "table:.env.example:ESPOCRM_BASE_URL",
+      "type": "contains"
+    },
+    {
+      "source": "config:.env.example",
+      "target": "table:.env.example:ESPOCRM_API_KEY",
+      "type": "contains"
+    }
+  ]
+}

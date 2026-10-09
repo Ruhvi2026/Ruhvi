@@ -1,0 +1,134 @@
+{
+  "batchIndex": 5,
+  "batchFiles": [
+    {
+      "path": ".agents/skills/understand/locales/en.md",
+      "language": "markdown",
+      "sizeLines": 43,
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".agents/skills/understand/locales/ja.md",
+      "language": "markdown",
+      "sizeLines": 48,
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".agents/skills/understand/locales/ko.md",
+      "language": "markdown",
+      "sizeLines": 48,
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".agents/skills/understand/locales/ru.md",
+      "language": "markdown",
+      "sizeLines": 49,
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".agents/skills/understand/locales/vi.md",
+      "language": "markdown",
+      "sizeLines": 49,
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".agents/skills/understand/locales/zh-TW.md",
+      "language": "markdown",
+      "sizeLines": 48,
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".agents/skills/understand/locales/zh.md",
+      "language": "markdown",
+      "sizeLines": 48,
+      "fileCategory": "docs"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "document:.agents/skills/understand/locales/en.md",
+      "name": "en.md",
+      "type": "document",
+      "filePath": ".agents/skills/understand/locales/en.md",
+      "summary": "markdown docs file (44 lines)",
+      "complexity": "simple",
+      "tags": [
+        "markdown",
+        "docs"
+      ]
+    },
+    {
+      "id": "document:.agents/skills/understand/locales/ja.md",
+      "name": "ja.md",
+      "type": "document",
+      "filePath": ".agents/skills/understand/locales/ja.md",
+      "summary": "markdown docs file (49 lines)",
+      "complexity": "simple",
+      "tags": [
+        "markdown",
+        "docs"
+      ]
+    },
+    {
+      "id": "document:.agents/skills/understand/locales/ko.md",
+      "name": "ko.md",
+      "type": "document",
+      "filePath": ".agents/skills/understand/locales/ko.md",
+      "summary": "markdown docs file (49 lines)",
+      "complexity": "simple",
+      "tags": [
+        "markdown",
+        "docs"
+      ]
+    },
+    {
+      "id": "document:.agents/skills/understand/locales/ru.md",
+      "name": "ru.md",
+      "type": "document",
+      "filePath": ".agents/skills/understand/locales/ru.md",
+      "summary": "markdown docs file (49 lines)",
+      "complexity": "simple",
+      "tags": [
+        "markdown",
+        "docs"
+      ]
+    },
+    {
+      "id": "document:.agents/skills/understand/locales/vi.md",
+      "name": "vi.md",
+      "type": "document",
+      "filePath": ".agents/skills/understand/locales/vi.md",
+      "summary": "markdown docs file (49 lines)",
+      "complexity": "simple",
+      "tags": [
+        "markdown",
+        "docs"
+      ]
+    },
+    {
+      "id": "document:.agents/skills/understand/locales/zh-TW.md",
+      "name": "zh-TW.md",
+      "type": "document",
+      "filePath": ".agents/skills/understand/locales/zh-TW.md",
+      "summary": "markdown docs file (49 lines)",
+      "complexity": "simple",
+      "tags": [
+        "markdown",
+        "docs"
+      ]
+    },
+    {
+      "id": "document:.agents/skills/understand/locales/zh.md",
+      "name": "zh.md",
+      "type": "document",
+      "filePath": ".agents/skills/understand/locales/zh.md",
+      "summary": "markdown docs file (49 lines)",
+      "complexity": "simple",
+      "tags": [
+        "markdown",
+        "docs"
+      ]
+    }
+  ],
+  "edges": []
+}

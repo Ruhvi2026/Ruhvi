@@ -1,0 +1,4667 @@
+{
+  "batchIndex": 45,
+  "batchFiles": [
+    {
+      "path": "src/lib/orders/status-engine.ts",
+      "language": "typescript",
+      "sizeLines": 275,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/posthog.ts",
+      "language": "typescript",
+      "sizeLines": 31,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/products.ts",
+      "language": "typescript",
+      "sizeLines": 1,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/redis.ts",
+      "language": "typescript",
+      "sizeLines": 129,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/resend.ts",
+      "language": "typescript",
+      "sizeLines": 609,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/sales-metrics.ts",
+      "language": "typescript",
+      "sizeLines": 104,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/security/ssrf.ts",
+      "language": "typescript",
+      "sizeLines": 342,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/sentry-ignore.ts",
+      "language": "typescript",
+      "sizeLines": 20,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/shipping/index.ts",
+      "language": "typescript",
+      "sizeLines": 9,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/shipping/provider.ts",
+      "language": "typescript",
+      "sizeLines": 106,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/shipping/shiprocket-provider.ts",
+      "language": "typescript",
+      "sizeLines": 90,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/shiprocket.ts",
+      "language": "typescript",
+      "sizeLines": 116,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/sku.ts",
+      "language": "typescript",
+      "sizeLines": 27,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/storefront.ts",
+      "language": "typescript",
+      "sizeLines": 89,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/supabase/client.ts",
+      "language": "typescript",
+      "sizeLines": 19,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/supabase/public.ts",
+      "language": "typescript",
+      "sizeLines": 26,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/supabase/server.ts",
+      "language": "typescript",
+      "sizeLines": 34,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/supabase/service.ts",
+      "language": "typescript",
+      "sizeLines": 21,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/support/serverAuth.ts",
+      "language": "typescript",
+      "sizeLines": 54,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/utils/url.ts",
+      "language": "typescript",
+      "sizeLines": 13,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/wallet/debit.ts",
+      "language": "typescript",
+      "sizeLines": 94,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/wallet/topup.ts",
+      "language": "typescript",
+      "sizeLines": 244,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/whatsapp.ts",
+      "language": "typescript",
+      "sizeLines": 109,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/middleware.ts",
+      "language": "typescript",
+      "sizeLines": 425,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/services/authService.ts",
+      "language": "typescript",
+      "sizeLines": 240,
+      "fileCategory": "code"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "file:src/lib/orders/status-engine.ts",
+      "name": "status-engine.ts",
+      "type": "file",
+      "filePath": "src/lib/orders/status-engine.ts",
+      "summary": "typescript code file (275 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/lib/orders/status-engine.ts:transitionOrder",
+      "name": "transitionOrder",
+      "type": "function",
+      "filePath": "src/lib/orders/status-engine.ts",
+      "parentId": "file:src/lib/orders/status-engine.ts",
+      "summary": "Function transitionOrder",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/posthog.ts",
+      "name": "posthog.ts",
+      "type": "file",
+      "filePath": "src/lib/posthog.ts",
+      "summary": "typescript code file (31 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/lib/posthog.ts:PostHogClient",
+      "name": "PostHogClient",
+      "type": "function",
+      "filePath": "src/lib/posthog.ts",
+      "parentId": "file:src/lib/posthog.ts",
+      "summary": "Function PostHogClient",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/products.ts",
+      "name": "products.ts",
+      "type": "file",
+      "filePath": "src/lib/products.ts",
+      "summary": "typescript code file (1 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:src/lib/redis.ts",
+      "name": "redis.ts",
+      "type": "file",
+      "filePath": "src/lib/redis.ts",
+      "summary": "typescript code file (129 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/lib/redis.ts:getRedis",
+      "name": "getRedis",
+      "type": "function",
+      "filePath": "src/lib/redis.ts",
+      "parentId": "file:src/lib/redis.ts",
+      "summary": "Function getRedis",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/redis.ts:getRedisReadOnly",
+      "name": "getRedisReadOnly",
+      "type": "function",
+      "filePath": "src/lib/redis.ts",
+      "parentId": "file:src/lib/redis.ts",
+      "summary": "Function getRedisReadOnly",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/redis.ts:cacheGet",
+      "name": "cacheGet",
+      "type": "function",
+      "filePath": "src/lib/redis.ts",
+      "parentId": "file:src/lib/redis.ts",
+      "summary": "Function cacheGet",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/redis.ts:cacheSet",
+      "name": "cacheSet",
+      "type": "function",
+      "filePath": "src/lib/redis.ts",
+      "parentId": "file:src/lib/redis.ts",
+      "summary": "Function cacheSet",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/redis.ts:cacheDelete",
+      "name": "cacheDelete",
+      "type": "function",
+      "filePath": "src/lib/redis.ts",
+      "parentId": "file:src/lib/redis.ts",
+      "summary": "Function cacheDelete",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/redis.ts:cacheWrap",
+      "name": "cacheWrap",
+      "type": "function",
+      "filePath": "src/lib/redis.ts",
+      "parentId": "file:src/lib/redis.ts",
+      "summary": "Function cacheWrap",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/redis.ts:getFixedWindowScript",
+      "name": "getFixedWindowScript",
+      "type": "function",
+      "filePath": "src/lib/redis.ts",
+      "parentId": "file:src/lib/redis.ts",
+      "summary": "Function getFixedWindowScript",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/redis.ts:rateLimit",
+      "name": "rateLimit",
+      "type": "function",
+      "filePath": "src/lib/redis.ts",
+      "parentId": "file:src/lib/redis.ts",
+      "summary": "Function rateLimit",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/redis.ts:rateLimitSliding",
+      "name": "rateLimitSliding",
+      "type": "function",
+      "filePath": "src/lib/redis.ts",
+      "parentId": "file:src/lib/redis.ts",
+      "summary": "Function rateLimitSliding",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/resend.ts",
+      "name": "resend.ts",
+      "type": "file",
+      "filePath": "src/lib/resend.ts",
+      "summary": "typescript code file (609 lines)",
+      "complexity": "complex",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/lib/resend.ts:getResendClient",
+      "name": "getResendClient",
+      "type": "function",
+      "filePath": "src/lib/resend.ts",
+      "parentId": "file:src/lib/resend.ts",
+      "summary": "Function getResendClient",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/resend.ts:getSender",
+      "name": "getSender",
+      "type": "function",
+      "filePath": "src/lib/resend.ts",
+      "parentId": "file:src/lib/resend.ts",
+      "summary": "Function getSender",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/resend.ts:compileTemplate",
+      "name": "compileTemplate",
+      "type": "function",
+      "filePath": "src/lib/resend.ts",
+      "parentId": "file:src/lib/resend.ts",
+      "summary": "Function compileTemplate",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/resend.ts:sendWelcomeEmail",
+      "name": "sendWelcomeEmail",
+      "type": "function",
+      "filePath": "src/lib/resend.ts",
+      "parentId": "file:src/lib/resend.ts",
+      "summary": "Function sendWelcomeEmail",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/resend.ts:sendOrderConfirmationEmail",
+      "name": "sendOrderConfirmationEmail",
+      "type": "function",
+      "filePath": "src/lib/resend.ts",
+      "parentId": "file:src/lib/resend.ts",
+      "summary": "Function sendOrderConfirmationEmail",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/resend.ts:sendOrderShippedEmail",
+      "name": "sendOrderShippedEmail",
+      "type": "function",
+      "filePath": "src/lib/resend.ts",
+      "parentId": "file:src/lib/resend.ts",
+      "summary": "Function sendOrderShippedEmail",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/resend.ts:sendOrderOutForDeliveryEmail",
+      "name": "sendOrderOutForDeliveryEmail",
+      "type": "function",
+      "filePath": "src/lib/resend.ts",
+      "parentId": "file:src/lib/resend.ts",
+      "summary": "Function sendOrderOutForDeliveryEmail",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/resend.ts:sendOrderDeliveredEmail",
+      "name": "sendOrderDeliveredEmail",
+      "type": "function",
+      "filePath": "src/lib/resend.ts",
+      "parentId": "file:src/lib/resend.ts",
+      "summary": "Function sendOrderDeliveredEmail",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/resend.ts:sendOrderCancelledEmail",
+      "name": "sendOrderCancelledEmail",
+      "type": "function",
+      "filePath": "src/lib/resend.ts",
+      "parentId": "file:src/lib/resend.ts",
+      "summary": "Function sendOrderCancelledEmail",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/resend.ts:sendPaymentReceivedEmail",
+      "name": "sendPaymentReceivedEmail",
+      "type": "function",
+      "filePath": "src/lib/resend.ts",
+      "parentId": "file:src/lib/resend.ts",
+      "summary": "Function sendPaymentReceivedEmail",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/resend.ts:sendPaymentFailedEmail",
+      "name": "sendPaymentFailedEmail",
+      "type": "function",
+      "filePath": "src/lib/resend.ts",
+      "parentId": "file:src/lib/resend.ts",
+      "summary": "Function sendPaymentFailedEmail",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/resend.ts:sendRefundProcessedEmail",
+      "name": "sendRefundProcessedEmail",
+      "type": "function",
+      "filePath": "src/lib/resend.ts",
+      "parentId": "file:src/lib/resend.ts",
+      "summary": "Function sendRefundProcessedEmail",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/resend.ts:sendShippingUpdateEmail",
+      "name": "sendShippingUpdateEmail",
+      "type": "function",
+      "filePath": "src/lib/resend.ts",
+      "parentId": "file:src/lib/resend.ts",
+      "summary": "Function sendShippingUpdateEmail",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/resend.ts:sendSupportTicketEmail",
+      "name": "sendSupportTicketEmail",
+      "type": "function",
+      "filePath": "src/lib/resend.ts",
+      "parentId": "file:src/lib/resend.ts",
+      "summary": "Function sendSupportTicketEmail",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/resend.ts:sendPasswordResetEmail",
+      "name": "sendPasswordResetEmail",
+      "type": "function",
+      "filePath": "src/lib/resend.ts",
+      "parentId": "file:src/lib/resend.ts",
+      "summary": "Function sendPasswordResetEmail",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/resend.ts:sendVerificationEmail",
+      "name": "sendVerificationEmail",
+      "type": "function",
+      "filePath": "src/lib/resend.ts",
+      "parentId": "file:src/lib/resend.ts",
+      "summary": "Function sendVerificationEmail",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/resend.ts:sendTicketCreatedEmail",
+      "name": "sendTicketCreatedEmail",
+      "type": "function",
+      "filePath": "src/lib/resend.ts",
+      "parentId": "file:src/lib/resend.ts",
+      "summary": "Function sendTicketCreatedEmail",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/resend.ts:sendTicketResolvedEmail",
+      "name": "sendTicketResolvedEmail",
+      "type": "function",
+      "filePath": "src/lib/resend.ts",
+      "parentId": "file:src/lib/resend.ts",
+      "summary": "Function sendTicketResolvedEmail",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/resend.ts:sendTicketUpdateEmail",
+      "name": "sendTicketUpdateEmail",
+      "type": "function",
+      "filePath": "src/lib/resend.ts",
+      "parentId": "file:src/lib/resend.ts",
+      "summary": "Function sendTicketUpdateEmail",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/sales-metrics.ts",
+      "name": "sales-metrics.ts",
+      "type": "file",
+      "filePath": "src/lib/sales-metrics.ts",
+      "summary": "typescript code file (104 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/lib/sales-metrics.ts:computeSalesMetrics",
+      "name": "computeSalesMetrics",
+      "type": "function",
+      "filePath": "src/lib/sales-metrics.ts",
+      "parentId": "file:src/lib/sales-metrics.ts",
+      "summary": "Function computeSalesMetrics",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/security/ssrf.ts",
+      "name": "ssrf.ts",
+      "type": "file",
+      "filePath": "src/lib/security/ssrf.ts",
+      "summary": "typescript code file (342 lines)",
+      "complexity": "complex",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/lib/security/ssrf.ts:isPrivateIpv4",
+      "name": "isPrivateIpv4",
+      "type": "function",
+      "filePath": "src/lib/security/ssrf.ts",
+      "parentId": "file:src/lib/security/ssrf.ts",
+      "summary": "Function isPrivateIpv4",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/security/ssrf.ts:isPrivateIpv4FromUint32",
+      "name": "isPrivateIpv4FromUint32",
+      "type": "function",
+      "filePath": "src/lib/security/ssrf.ts",
+      "parentId": "file:src/lib/security/ssrf.ts",
+      "summary": "Function isPrivateIpv4FromUint32",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/security/ssrf.ts:ipv6ToBigInt",
+      "name": "ipv6ToBigInt",
+      "type": "function",
+      "filePath": "src/lib/security/ssrf.ts",
+      "parentId": "file:src/lib/security/ssrf.ts",
+      "summary": "Function ipv6ToBigInt",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/security/ssrf.ts:isPrivateIpv6",
+      "name": "isPrivateIpv6",
+      "type": "function",
+      "filePath": "src/lib/security/ssrf.ts",
+      "parentId": "file:src/lib/security/ssrf.ts",
+      "summary": "Function isPrivateIpv6",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/security/ssrf.ts:isPrivateIp",
+      "name": "isPrivateIp",
+      "type": "function",
+      "filePath": "src/lib/security/ssrf.ts",
+      "parentId": "file:src/lib/security/ssrf.ts",
+      "summary": "Function isPrivateIp",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/security/ssrf.ts:isReservedHostname",
+      "name": "isReservedHostname",
+      "type": "function",
+      "filePath": "src/lib/security/ssrf.ts",
+      "parentId": "file:src/lib/security/ssrf.ts",
+      "summary": "Function isReservedHostname",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/security/ssrf.ts:parseOctet",
+      "name": "parseOctet",
+      "type": "function",
+      "filePath": "src/lib/security/ssrf.ts",
+      "parentId": "file:src/lib/security/ssrf.ts",
+      "summary": "Function parseOctet",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/security/ssrf.ts:parsePotentialIpv4",
+      "name": "parsePotentialIpv4",
+      "type": "function",
+      "filePath": "src/lib/security/ssrf.ts",
+      "parentId": "file:src/lib/security/ssrf.ts",
+      "summary": "Function parsePotentialIpv4",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/security/ssrf.ts:assertSafeOutboundUrl",
+      "name": "assertSafeOutboundUrl",
+      "type": "function",
+      "filePath": "src/lib/security/ssrf.ts",
+      "parentId": "file:src/lib/security/ssrf.ts",
+      "summary": "Function assertSafeOutboundUrl",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/security/ssrf.ts:safeFetch",
+      "name": "safeFetch",
+      "type": "function",
+      "filePath": "src/lib/security/ssrf.ts",
+      "parentId": "file:src/lib/security/ssrf.ts",
+      "summary": "Function safeFetch",
+      "complexity": "simple"
+    },
+    {
+      "id": "class:src/lib/security/ssrf.ts:UnsafeUrlError",
+      "name": "UnsafeUrlError",
+      "type": "class",
+      "filePath": "src/lib/security/ssrf.ts",
+      "parentId": "file:src/lib/security/ssrf.ts",
+      "summary": "Class UnsafeUrlError",
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/lib/sentry-ignore.ts",
+      "name": "sentry-ignore.ts",
+      "type": "file",
+      "filePath": "src/lib/sentry-ignore.ts",
+      "summary": "typescript code file (20 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/lib/sentry-ignore.ts:beforeSendSentry",
+      "name": "beforeSendSentry",
+      "type": "function",
+      "filePath": "src/lib/sentry-ignore.ts",
+      "parentId": "file:src/lib/sentry-ignore.ts",
+      "summary": "Function beforeSendSentry",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/shipping/index.ts",
+      "name": "index.ts",
+      "type": "file",
+      "filePath": "src/lib/shipping/index.ts",
+      "summary": "typescript code file (9 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:src/lib/shipping/provider.ts",
+      "name": "provider.ts",
+      "type": "file",
+      "filePath": "src/lib/shipping/provider.ts",
+      "summary": "typescript code file (106 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/lib/shipping/provider.ts:getActiveCourierProvider",
+      "name": "getActiveCourierProvider",
+      "type": "function",
+      "filePath": "src/lib/shipping/provider.ts",
+      "parentId": "file:src/lib/shipping/provider.ts",
+      "summary": "Function getActiveCourierProvider",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/shipping/provider.ts:registerProvider",
+      "name": "registerProvider",
+      "type": "function",
+      "filePath": "src/lib/shipping/provider.ts",
+      "parentId": "file:src/lib/shipping/provider.ts",
+      "summary": "Function registerProvider",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/shipping/provider.ts:getShippingProvider",
+      "name": "getShippingProvider",
+      "type": "function",
+      "filePath": "src/lib/shipping/provider.ts",
+      "parentId": "file:src/lib/shipping/provider.ts",
+      "summary": "Function getShippingProvider",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/shipping/shiprocket-provider.ts",
+      "name": "shiprocket-provider.ts",
+      "type": "file",
+      "filePath": "src/lib/shipping/shiprocket-provider.ts",
+      "summary": "typescript code file (90 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "class:src/lib/shipping/shiprocket-provider.ts:ShiprocketProvider",
+      "name": "ShiprocketProvider",
+      "type": "class",
+      "filePath": "src/lib/shipping/shiprocket-provider.ts",
+      "parentId": "file:src/lib/shipping/shiprocket-provider.ts",
+      "summary": "Class ShiprocketProvider",
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/lib/shiprocket.ts",
+      "name": "shiprocket.ts",
+      "type": "file",
+      "filePath": "src/lib/shiprocket.ts",
+      "summary": "typescript code file (116 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/lib/shiprocket.ts:getShiprocketToken",
+      "name": "getShiprocketToken",
+      "type": "function",
+      "filePath": "src/lib/shiprocket.ts",
+      "parentId": "file:src/lib/shiprocket.ts",
+      "summary": "Function getShiprocketToken",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/shiprocket.ts:createCustomOrder",
+      "name": "createCustomOrder",
+      "type": "function",
+      "filePath": "src/lib/shiprocket.ts",
+      "parentId": "file:src/lib/shiprocket.ts",
+      "summary": "Function createCustomOrder",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/shiprocket.ts:generateAWB",
+      "name": "generateAWB",
+      "type": "function",
+      "filePath": "src/lib/shiprocket.ts",
+      "parentId": "file:src/lib/shiprocket.ts",
+      "summary": "Function generateAWB",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/sku.ts",
+      "name": "sku.ts",
+      "type": "file",
+      "filePath": "src/lib/sku.ts",
+      "summary": "typescript code file (27 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/lib/sku.ts:generateSKU",
+      "name": "generateSKU",
+      "type": "function",
+      "filePath": "src/lib/sku.ts",
+      "parentId": "file:src/lib/sku.ts",
+      "summary": "Function generateSKU",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/storefront.ts",
+      "name": "storefront.ts",
+      "type": "file",
+      "filePath": "src/lib/storefront.ts",
+      "summary": "typescript code file (89 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:src/lib/supabase/client.ts",
+      "name": "client.ts",
+      "type": "file",
+      "filePath": "src/lib/supabase/client.ts",
+      "summary": "typescript code file (19 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/lib/supabase/client.ts:createClient",
+      "name": "createClient",
+      "type": "function",
+      "filePath": "src/lib/supabase/client.ts",
+      "parentId": "file:src/lib/supabase/client.ts",
+      "summary": "Function createClient",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/supabase/public.ts",
+      "name": "public.ts",
+      "type": "file",
+      "filePath": "src/lib/supabase/public.ts",
+      "summary": "typescript code file (26 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/lib/supabase/public.ts:createPublicClient",
+      "name": "createPublicClient",
+      "type": "function",
+      "filePath": "src/lib/supabase/public.ts",
+      "parentId": "file:src/lib/supabase/public.ts",
+      "summary": "Function createPublicClient",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/supabase/server.ts",
+      "name": "server.ts",
+      "type": "file",
+      "filePath": "src/lib/supabase/server.ts",
+      "summary": "typescript code file (34 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/lib/supabase/server.ts:createClient",
+      "name": "createClient",
+      "type": "function",
+      "filePath": "src/lib/supabase/server.ts",
+      "parentId": "file:src/lib/supabase/server.ts",
+      "summary": "Function createClient",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/supabase/service.ts",
+      "name": "service.ts",
+      "type": "file",
+      "filePath": "src/lib/supabase/service.ts",
+      "summary": "typescript code file (21 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/lib/supabase/service.ts:getServiceClient",
+      "name": "getServiceClient",
+      "type": "function",
+      "filePath": "src/lib/supabase/service.ts",
+      "parentId": "file:src/lib/supabase/service.ts",
+      "summary": "Function getServiceClient",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/support/serverAuth.ts",
+      "name": "serverAuth.ts",
+      "type": "file",
+      "filePath": "src/lib/support/serverAuth.ts",
+      "summary": "typescript code file (54 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/lib/support/serverAuth.ts:getSupabaseAdminClient",
+      "name": "getSupabaseAdminClient",
+      "type": "function",
+      "filePath": "src/lib/support/serverAuth.ts",
+      "parentId": "file:src/lib/support/serverAuth.ts",
+      "summary": "Function getSupabaseAdminClient",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/support/serverAuth.ts:getCurrentSupportUser",
+      "name": "getCurrentSupportUser",
+      "type": "function",
+      "filePath": "src/lib/support/serverAuth.ts",
+      "parentId": "file:src/lib/support/serverAuth.ts",
+      "summary": "Function getCurrentSupportUser",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/utils/url.ts",
+      "name": "url.ts",
+      "type": "file",
+      "filePath": "src/lib/utils/url.ts",
+      "summary": "typescript code file (13 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/lib/utils/url.ts:getSiteUrl",
+      "name": "getSiteUrl",
+      "type": "function",
+      "filePath": "src/lib/utils/url.ts",
+      "parentId": "file:src/lib/utils/url.ts",
+      "summary": "Function getSiteUrl",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/wallet/debit.ts",
+      "name": "debit.ts",
+      "type": "file",
+      "filePath": "src/lib/wallet/debit.ts",
+      "summary": "typescript code file (94 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/lib/wallet/debit.ts:assertWalletBalance",
+      "name": "assertWalletBalance",
+      "type": "function",
+      "filePath": "src/lib/wallet/debit.ts",
+      "parentId": "file:src/lib/wallet/debit.ts",
+      "summary": "Function assertWalletBalance",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/wallet/debit.ts:debitWalletForOrder",
+      "name": "debitWalletForOrder",
+      "type": "function",
+      "filePath": "src/lib/wallet/debit.ts",
+      "parentId": "file:src/lib/wallet/debit.ts",
+      "summary": "Function debitWalletForOrder",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/wallet/topup.ts",
+      "name": "topup.ts",
+      "type": "file",
+      "filePath": "src/lib/wallet/topup.ts",
+      "summary": "typescript code file (244 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/lib/wallet/topup.ts:calculateTopUpBonus",
+      "name": "calculateTopUpBonus",
+      "type": "function",
+      "filePath": "src/lib/wallet/topup.ts",
+      "parentId": "file:src/lib/wallet/topup.ts",
+      "summary": "Function calculateTopUpBonus",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/wallet/topup.ts:getPhonePeConfig",
+      "name": "getPhonePeConfig",
+      "type": "function",
+      "filePath": "src/lib/wallet/topup.ts",
+      "parentId": "file:src/lib/wallet/topup.ts",
+      "summary": "Function getPhonePeConfig",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/wallet/topup.ts:generateMerchantTransactionId",
+      "name": "generateMerchantTransactionId",
+      "type": "function",
+      "filePath": "src/lib/wallet/topup.ts",
+      "parentId": "file:src/lib/wallet/topup.ts",
+      "summary": "Function generateMerchantTransactionId",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/wallet/topup.ts:adminClient",
+      "name": "adminClient",
+      "type": "function",
+      "filePath": "src/lib/wallet/topup.ts",
+      "parentId": "file:src/lib/wallet/topup.ts",
+      "summary": "Function adminClient",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/wallet/topup.ts:creditWalletTopUp",
+      "name": "creditWalletTopUp",
+      "type": "function",
+      "filePath": "src/lib/wallet/topup.ts",
+      "parentId": "file:src/lib/wallet/topup.ts",
+      "summary": "Function creditWalletTopUp",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/wallet/topup.ts:markWalletTopUpFailed",
+      "name": "markWalletTopUpFailed",
+      "type": "function",
+      "filePath": "src/lib/wallet/topup.ts",
+      "parentId": "file:src/lib/wallet/topup.ts",
+      "summary": "Function markWalletTopUpFailed",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/wallet/topup.ts:checkWalletPhonePeStatus",
+      "name": "checkWalletPhonePeStatus",
+      "type": "function",
+      "filePath": "src/lib/wallet/topup.ts",
+      "parentId": "file:src/lib/wallet/topup.ts",
+      "summary": "Function checkWalletPhonePeStatus",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/wallet/topup.ts:verifyWalletWebhook",
+      "name": "verifyWalletWebhook",
+      "type": "function",
+      "filePath": "src/lib/wallet/topup.ts",
+      "parentId": "file:src/lib/wallet/topup.ts",
+      "summary": "Function verifyWalletWebhook",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/whatsapp.ts",
+      "name": "whatsapp.ts",
+      "type": "file",
+      "filePath": "src/lib/whatsapp.ts",
+      "summary": "typescript code file (109 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/lib/whatsapp.ts:getWhatsAppConfig",
+      "name": "getWhatsAppConfig",
+      "type": "function",
+      "filePath": "src/lib/whatsapp.ts",
+      "parentId": "file:src/lib/whatsapp.ts",
+      "summary": "Function getWhatsAppConfig",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/whatsapp.ts:sendWhatsAppMessage",
+      "name": "sendWhatsAppMessage",
+      "type": "function",
+      "filePath": "src/lib/whatsapp.ts",
+      "parentId": "file:src/lib/whatsapp.ts",
+      "summary": "Function sendWhatsAppMessage",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/whatsapp.ts:sendOrderConfirmation",
+      "name": "sendOrderConfirmation",
+      "type": "function",
+      "filePath": "src/lib/whatsapp.ts",
+      "parentId": "file:src/lib/whatsapp.ts",
+      "summary": "Function sendOrderConfirmation",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/whatsapp.ts:sendShippingUpdate",
+      "name": "sendShippingUpdate",
+      "type": "function",
+      "filePath": "src/lib/whatsapp.ts",
+      "parentId": "file:src/lib/whatsapp.ts",
+      "summary": "Function sendShippingUpdate",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/middleware.ts",
+      "name": "middleware.ts",
+      "type": "file",
+      "filePath": "src/middleware.ts",
+      "summary": "typescript code file (425 lines)",
+      "complexity": "complex",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/middleware.ts:middleware",
+      "name": "middleware",
+      "type": "function",
+      "filePath": "src/middleware.ts",
+      "parentId": "file:src/middleware.ts",
+      "summary": "Function middleware",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/services/authService.ts",
+      "name": "authService.ts",
+      "type": "file",
+      "filePath": "src/services/authService.ts",
+      "summary": "typescript code file (240 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/services/authService.ts:upsertUserProfile",
+      "name": "upsertUserProfile",
+      "type": "function",
+      "filePath": "src/services/authService.ts",
+      "parentId": "file:src/services/authService.ts",
+      "summary": "Function upsertUserProfile",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/services/authService.ts:handleAuthCollision",
+      "name": "handleAuthCollision",
+      "type": "function",
+      "filePath": "src/services/authService.ts",
+      "parentId": "file:src/services/authService.ts",
+      "summary": "Function handleAuthCollision",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/services/authService.ts:getValidAuth",
+      "name": "getValidAuth",
+      "type": "function",
+      "filePath": "src/services/authService.ts",
+      "parentId": "file:src/services/authService.ts",
+      "summary": "Function getValidAuth",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/services/authService.ts:signUpWithEmail",
+      "name": "signUpWithEmail",
+      "type": "function",
+      "filePath": "src/services/authService.ts",
+      "parentId": "file:src/services/authService.ts",
+      "summary": "Function signUpWithEmail",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/services/authService.ts:signInWithEmail",
+      "name": "signInWithEmail",
+      "type": "function",
+      "filePath": "src/services/authService.ts",
+      "parentId": "file:src/services/authService.ts",
+      "summary": "Function signInWithEmail",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/services/authService.ts:signInWithGoogle",
+      "name": "signInWithGoogle",
+      "type": "function",
+      "filePath": "src/services/authService.ts",
+      "parentId": "file:src/services/authService.ts",
+      "summary": "Function signInWithGoogle",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/services/authService.ts:signInWithFacebook",
+      "name": "signInWithFacebook",
+      "type": "function",
+      "filePath": "src/services/authService.ts",
+      "parentId": "file:src/services/authService.ts",
+      "summary": "Function signInWithFacebook",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/services/authService.ts:setupRecaptcha",
+      "name": "setupRecaptcha",
+      "type": "function",
+      "filePath": "src/services/authService.ts",
+      "parentId": "file:src/services/authService.ts",
+      "summary": "Function setupRecaptcha",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/services/authService.ts:sendPhoneVerification",
+      "name": "sendPhoneVerification",
+      "type": "function",
+      "filePath": "src/services/authService.ts",
+      "parentId": "file:src/services/authService.ts",
+      "summary": "Function sendPhoneVerification",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/services/authService.ts:verifyPhoneCode",
+      "name": "verifyPhoneCode",
+      "type": "function",
+      "filePath": "src/services/authService.ts",
+      "parentId": "file:src/services/authService.ts",
+      "summary": "Function verifyPhoneCode",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/services/authService.ts:linkGoogleToSession",
+      "name": "linkGoogleToSession",
+      "type": "function",
+      "filePath": "src/services/authService.ts",
+      "parentId": "file:src/services/authService.ts",
+      "summary": "Function linkGoogleToSession",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/services/authService.ts:linkFacebookToSession",
+      "name": "linkFacebookToSession",
+      "type": "function",
+      "filePath": "src/services/authService.ts",
+      "parentId": "file:src/services/authService.ts",
+      "summary": "Function linkFacebookToSession",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/services/authService.ts:linkEmailPasswordToSession",
+      "name": "linkEmailPasswordToSession",
+      "type": "function",
+      "filePath": "src/services/authService.ts",
+      "parentId": "file:src/services/authService.ts",
+      "summary": "Function linkEmailPasswordToSession",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/services/authService.ts:linkPhoneToSession",
+      "name": "linkPhoneToSession",
+      "type": "function",
+      "filePath": "src/services/authService.ts",
+      "parentId": "file:src/services/authService.ts",
+      "summary": "Function linkPhoneToSession",
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:src/lib/orders/status-engine.ts",
+      "target": "function:src/lib/orders/status-engine.ts:transitionOrder",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/orders/status-engine.ts:transitionOrder",
+      "target": "function:src/lib/orders/status-engine.ts:getServiceClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/status-engine.ts:transitionOrder",
+      "target": "function:src/lib/orders/status-engine.ts:supabase\n    .from('orders')\n    .select('id, user_id, status, payment_method, payment_status')\n    .eq('id', input.orderId)\n    .maybeSingle",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/status-engine.ts:transitionOrder",
+      "target": "function:src/lib/orders/status-engine.ts:supabase\n    .from('orders')\n    .select('id, user_id, status, payment_method, payment_status')\n    .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/status-engine.ts:transitionOrder",
+      "target": "function:src/lib/orders/status-engine.ts:supabase\n    .from('orders')\n    .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/status-engine.ts:transitionOrder",
+      "target": "function:src/lib/orders/status-engine.ts:supabase\n    .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/status-engine.ts:transitionOrder",
+      "target": "function:src/lib/orders/status-engine.ts:allowed.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/status-engine.ts:transitionOrder",
+      "target": "function:src/lib/orders/status-engine.ts:new Date().toISOString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/status-engine.ts:transitionOrder",
+      "target": "function:src/lib/orders/status-engine.ts:new Date().toISOString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/status-engine.ts:transitionOrder",
+      "target": "function:src/lib/orders/status-engine.ts:supabase\n    .from('orders')\n    .update(update)\n    .eq('id', order.id)\n    .eq('status', order.status)\n    .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/status-engine.ts:transitionOrder",
+      "target": "function:src/lib/orders/status-engine.ts:supabase\n    .from('orders')\n    .update(update)\n    .eq('id', order.id)\n    .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/status-engine.ts:transitionOrder",
+      "target": "function:src/lib/orders/status-engine.ts:supabase\n    .from('orders')\n    .update(update)\n    .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/status-engine.ts:transitionOrder",
+      "target": "function:src/lib/orders/status-engine.ts:supabase\n    .from('orders')\n    .update",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/status-engine.ts:transitionOrder",
+      "target": "function:src/lib/orders/status-engine.ts:supabase\n    .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/status-engine.ts:transitionOrder",
+      "target": "function:src/lib/orders/status-engine.ts:supabase\n      .from('order_events')\n      .select('id')\n      .eq('order_id', order.id)\n      .eq('event_type', STATUS_TO_EVENT[input.newStatus] || 'ORDER_CONFIRMED')\n      .eq('portal', 'orders')\n      .order('created_at', { ascending: false })\n      .limit(1)\n      .maybeSingle",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/status-engine.ts:transitionOrder",
+      "target": "function:src/lib/orders/status-engine.ts:supabase\n      .from('order_events')\n      .select('id')\n      .eq('order_id', order.id)\n      .eq('event_type', STATUS_TO_EVENT[input.newStatus] || 'ORDER_CONFIRMED')\n      .eq('portal', 'orders')\n      .order('created_at', { ascending: false })\n      .limit",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/status-engine.ts:transitionOrder",
+      "target": "function:src/lib/orders/status-engine.ts:supabase\n      .from('order_events')\n      .select('id')\n      .eq('order_id', order.id)\n      .eq('event_type', STATUS_TO_EVENT[input.newStatus] || 'ORDER_CONFIRMED')\n      .eq('portal', 'orders')\n      .order",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/status-engine.ts:transitionOrder",
+      "target": "function:src/lib/orders/status-engine.ts:supabase\n      .from('order_events')\n      .select('id')\n      .eq('order_id', order.id)\n      .eq('event_type', STATUS_TO_EVENT[input.newStatus] || 'ORDER_CONFIRMED')\n      .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/status-engine.ts:transitionOrder",
+      "target": "function:src/lib/orders/status-engine.ts:supabase\n      .from('order_events')\n      .select('id')\n      .eq('order_id', order.id)\n      .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/status-engine.ts:transitionOrder",
+      "target": "function:src/lib/orders/status-engine.ts:supabase\n      .from('order_events')\n      .select('id')\n      .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/status-engine.ts:transitionOrder",
+      "target": "function:src/lib/orders/status-engine.ts:supabase\n      .from('order_events')\n      .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/status-engine.ts:transitionOrder",
+      "target": "function:src/lib/orders/status-engine.ts:supabase\n      .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/status-engine.ts:transitionOrder",
+      "target": "function:src/lib/orders/status-engine.ts:supabase.from('order_events').insert",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/status-engine.ts:transitionOrder",
+      "target": "function:src/lib/orders/status-engine.ts:supabase.from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/status-engine.ts:transitionOrder",
+      "target": "function:src/lib/orders/status-engine.ts:[\n      'shipped',\n      'out_for_delivery',\n      'delivered',\n      'cancelled',\n      'return_approved',\n      'return_rejected',\n      'refunded',\n    ].includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/status-engine.ts:transitionOrder",
+      "target": "function:src/lib/orders/status-engine.ts:order.id.split('-')[0].toUpperCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/status-engine.ts:transitionOrder",
+      "target": "function:src/lib/orders/status-engine.ts:order.id.split",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/status-engine.ts:transitionOrder",
+      "target": "function:src/lib/orders/status-engine.ts:order.id.split('-')[0].toUpperCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/status-engine.ts:transitionOrder",
+      "target": "function:src/lib/orders/status-engine.ts:order.id.split",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/status-engine.ts:transitionOrder",
+      "target": "function:src/lib/orders/status-engine.ts:order.id.split('-')[0].toUpperCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/status-engine.ts:transitionOrder",
+      "target": "function:src/lib/orders/status-engine.ts:order.id.split",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/status-engine.ts:transitionOrder",
+      "target": "function:src/lib/orders/status-engine.ts:order.id.split('-')[0].toUpperCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/status-engine.ts:transitionOrder",
+      "target": "function:src/lib/orders/status-engine.ts:order.id.split",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/status-engine.ts:transitionOrder",
+      "target": "function:src/lib/orders/status-engine.ts:order.id.split('-')[0].toUpperCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/status-engine.ts:transitionOrder",
+      "target": "function:src/lib/orders/status-engine.ts:order.id.split",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/status-engine.ts:transitionOrder",
+      "target": "function:src/lib/orders/status-engine.ts:order.id.split('-')[0].toUpperCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/status-engine.ts:transitionOrder",
+      "target": "function:src/lib/orders/status-engine.ts:order.id.split",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/status-engine.ts:transitionOrder",
+      "target": "function:src/lib/orders/status-engine.ts:order.id.split('-')[0].toUpperCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/status-engine.ts:transitionOrder",
+      "target": "function:src/lib/orders/status-engine.ts:order.id.split",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/status-engine.ts:transitionOrder",
+      "target": "function:src/lib/orders/status-engine.ts:import('@/lib/notifications/service').then",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/status-engine.ts:transitionOrder",
+      "target": "function:src/lib/orders/status-engine.ts:import",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/status-engine.ts:transitionOrder",
+      "target": "function:src/lib/orders/status-engine.ts:createAndSendNotification({\n            userId: order.user_id,\n            title,\n            message,\n            category: 'ORDERS',\n            referenceType: 'order',\n            referenceId: order.id,\n            idempotencyKey: `order_${input.newStatus}_${order.id}`,\n          }).catch",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/status-engine.ts:transitionOrder",
+      "target": "function:src/lib/orders/status-engine.ts:createAndSendNotification",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/status-engine.ts:transitionOrder",
+      "target": "function:src/lib/orders/status-engine.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/lib/posthog.ts",
+      "target": "function:src/lib/posthog.ts:PostHogClient",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/redis.ts",
+      "target": "function:src/lib/redis.ts:getRedis",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/redis.ts",
+      "target": "function:src/lib/redis.ts:getRedisReadOnly",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/redis.ts",
+      "target": "function:src/lib/redis.ts:cacheGet",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/redis.ts",
+      "target": "function:src/lib/redis.ts:cacheSet",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/redis.ts",
+      "target": "function:src/lib/redis.ts:cacheDelete",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/redis.ts",
+      "target": "function:src/lib/redis.ts:cacheWrap",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/redis.ts",
+      "target": "function:src/lib/redis.ts:getFixedWindowScript",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/redis.ts",
+      "target": "function:src/lib/redis.ts:rateLimit",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/redis.ts",
+      "target": "function:src/lib/redis.ts:rateLimitSliding",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/redis.ts:getRedis",
+      "target": "function:src/lib/redis.ts:Redis.fromEnv",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/redis.ts:getRedisReadOnly",
+      "target": "function:src/lib/redis.ts:getRedis",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/redis.ts:cacheGet",
+      "target": "function:src/lib/redis.ts:getRedis().get",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/redis.ts:cacheGet",
+      "target": "function:src/lib/redis.ts:getRedis",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/redis.ts:cacheSet",
+      "target": "function:src/lib/redis.ts:getRedis().set",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/redis.ts:cacheSet",
+      "target": "function:src/lib/redis.ts:getRedis",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/redis.ts:cacheDelete",
+      "target": "function:src/lib/redis.ts:getRedis().del",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/redis.ts:cacheDelete",
+      "target": "function:src/lib/redis.ts:getRedis",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/redis.ts:cacheWrap",
+      "target": "function:src/lib/redis.ts:await getRedis().get",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/redis.ts:cacheWrap",
+      "target": "function:src/lib/redis.ts:getRedis",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/redis.ts:cacheWrap",
+      "target": "function:src/lib/redis.ts:fetcher",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/redis.ts:cacheWrap",
+      "target": "function:src/lib/redis.ts:getRedis().set",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/redis.ts:cacheWrap",
+      "target": "function:src/lib/redis.ts:getRedis",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/redis.ts:getFixedWindowScript",
+      "target": "function:src/lib/redis.ts:getRedis().createScript",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/redis.ts:getFixedWindowScript",
+      "target": "function:src/lib/redis.ts:getRedis",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/redis.ts:rateLimit",
+      "target": "function:src/lib/redis.ts:getFixedWindowScript().exec",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/redis.ts:rateLimit",
+      "target": "function:src/lib/redis.ts:getFixedWindowScript",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/redis.ts:rateLimit",
+      "target": "function:src/lib/redis.ts:String",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/redis.ts:rateLimit",
+      "target": "function:src/lib/redis.ts:Math.max",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/redis.ts:rateLimit",
+      "target": "function:src/lib/redis.ts:Math.floor",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/redis.ts:rateLimit",
+      "target": "function:src/lib/redis.ts:Date.now",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/redis.ts:rateLimitSliding",
+      "target": "function:src/lib/redis.ts:Date.now",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/redis.ts:rateLimitSliding",
+      "target": "function:src/lib/redis.ts:getRedis",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/redis.ts:rateLimitSliding",
+      "target": "function:src/lib/redis.ts:client.zremrangebyscore",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/redis.ts:rateLimitSliding",
+      "target": "function:src/lib/redis.ts:client.zcard",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/redis.ts:rateLimitSliding",
+      "target": "function:src/lib/redis.ts:client.zrange",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/redis.ts:rateLimitSliding",
+      "target": "function:src/lib/redis.ts:Number",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/redis.ts:rateLimitSliding",
+      "target": "function:src/lib/redis.ts:Math.floor",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/redis.ts:rateLimitSliding",
+      "target": "function:src/lib/redis.ts:client.zadd",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/redis.ts:rateLimitSliding",
+      "target": "function:src/lib/redis.ts:Math.random().toString(36).slice",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/redis.ts:rateLimitSliding",
+      "target": "function:src/lib/redis.ts:Math.random().toString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/redis.ts:rateLimitSliding",
+      "target": "function:src/lib/redis.ts:Math.random",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/redis.ts:rateLimitSliding",
+      "target": "function:src/lib/redis.ts:client.expire",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/redis.ts:rateLimitSliding",
+      "target": "function:src/lib/redis.ts:Math.floor",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/lib/resend.ts",
+      "target": "function:src/lib/resend.ts:getResendClient",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/resend.ts",
+      "target": "function:src/lib/resend.ts:getSender",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/resend.ts",
+      "target": "function:src/lib/resend.ts:compileTemplate",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/resend.ts",
+      "target": "function:src/lib/resend.ts:sendWelcomeEmail",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/resend.ts",
+      "target": "function:src/lib/resend.ts:sendOrderConfirmationEmail",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/resend.ts",
+      "target": "function:src/lib/resend.ts:sendOrderShippedEmail",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/resend.ts",
+      "target": "function:src/lib/resend.ts:sendOrderOutForDeliveryEmail",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/resend.ts",
+      "target": "function:src/lib/resend.ts:sendOrderDeliveredEmail",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/resend.ts",
+      "target": "function:src/lib/resend.ts:sendOrderCancelledEmail",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/resend.ts",
+      "target": "function:src/lib/resend.ts:sendPaymentReceivedEmail",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/resend.ts",
+      "target": "function:src/lib/resend.ts:sendPaymentFailedEmail",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/resend.ts",
+      "target": "function:src/lib/resend.ts:sendRefundProcessedEmail",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/resend.ts",
+      "target": "function:src/lib/resend.ts:sendShippingUpdateEmail",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/resend.ts",
+      "target": "function:src/lib/resend.ts:sendSupportTicketEmail",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/resend.ts",
+      "target": "function:src/lib/resend.ts:sendPasswordResetEmail",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/resend.ts",
+      "target": "function:src/lib/resend.ts:sendVerificationEmail",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/resend.ts",
+      "target": "function:src/lib/resend.ts:sendTicketCreatedEmail",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/resend.ts",
+      "target": "function:src/lib/resend.ts:sendTicketResolvedEmail",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/resend.ts",
+      "target": "function:src/lib/resend.ts:sendTicketUpdateEmail",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/resend.ts:getResendClient",
+      "target": "function:src/lib/resend.ts:console.warn",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:compileTemplate",
+      "target": "function:src/lib/resend.ts:path.join",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:compileTemplate",
+      "target": "function:src/lib/resend.ts:process.cwd",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:compileTemplate",
+      "target": "function:src/lib/resend.ts:fs.existsSync",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:compileTemplate",
+      "target": "function:src/lib/resend.ts:console.warn",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:compileTemplate",
+      "target": "function:src/lib/resend.ts:fs.readFileSync",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:compileTemplate",
+      "target": "function:src/lib/resend.ts:Handlebars.compile",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:compileTemplate",
+      "target": "function:src/lib/resend.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:sendWelcomeEmail",
+      "target": "function:src/lib/resend.ts:getResendClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:sendWelcomeEmail",
+      "target": "function:src/lib/resend.ts:compileTemplate",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:sendWelcomeEmail",
+      "target": "function:src/lib/resend.ts:template",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:sendWelcomeEmail",
+      "target": "function:src/lib/resend.ts:resend.emails.send",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:sendWelcomeEmail",
+      "target": "function:src/lib/resend.ts:getSender",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:sendWelcomeEmail",
+      "target": "function:src/lib/resend.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:sendOrderConfirmationEmail",
+      "target": "function:src/lib/resend.ts:getResendClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:sendOrderConfirmationEmail",
+      "target": "function:src/lib/resend.ts:compileTemplate",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:sendOrderConfirmationEmail",
+      "target": "function:src/lib/resend.ts:template",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:sendOrderConfirmationEmail",
+      "target": "function:src/lib/resend.ts:resend.emails.send",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:sendOrderConfirmationEmail",
+      "target": "function:src/lib/resend.ts:getSender",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:sendOrderConfirmationEmail",
+      "target": "function:src/lib/resend.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:sendOrderShippedEmail",
+      "target": "function:src/lib/resend.ts:getResendClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:sendOrderShippedEmail",
+      "target": "function:src/lib/resend.ts:compileTemplate",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:sendOrderShippedEmail",
+      "target": "function:src/lib/resend.ts:template",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:sendOrderShippedEmail",
+      "target": "function:src/lib/resend.ts:resend.emails.send",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:sendOrderShippedEmail",
+      "target": "function:src/lib/resend.ts:getSender",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:sendOrderShippedEmail",
+      "target": "function:src/lib/resend.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:sendOrderOutForDeliveryEmail",
+      "target": "function:src/lib/resend.ts:getResendClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:sendOrderOutForDeliveryEmail",
+      "target": "function:src/lib/resend.ts:compileTemplate",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:sendOrderOutForDeliveryEmail",
+      "target": "function:src/lib/resend.ts:template",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:sendOrderOutForDeliveryEmail",
+      "target": "function:src/lib/resend.ts:resend.emails.send",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:sendOrderOutForDeliveryEmail",
+      "target": "function:src/lib/resend.ts:getSender",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:sendOrderOutForDeliveryEmail",
+      "target": "function:src/lib/resend.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:sendOrderDeliveredEmail",
+      "target": "function:src/lib/resend.ts:getResendClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:sendOrderDeliveredEmail",
+      "target": "function:src/lib/resend.ts:compileTemplate",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:sendOrderDeliveredEmail",
+      "target": "function:src/lib/resend.ts:template",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:sendOrderDeliveredEmail",
+      "target": "function:src/lib/resend.ts:resend.emails.send",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:sendOrderDeliveredEmail",
+      "target": "function:src/lib/resend.ts:getSender",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:sendOrderDeliveredEmail",
+      "target": "function:src/lib/resend.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:sendOrderCancelledEmail",
+      "target": "function:src/lib/resend.ts:getResendClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:sendOrderCancelledEmail",
+      "target": "function:src/lib/resend.ts:compileTemplate",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:sendOrderCancelledEmail",
+      "target": "function:src/lib/resend.ts:template",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:sendOrderCancelledEmail",
+      "target": "function:src/lib/resend.ts:resend.emails.send",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:sendOrderCancelledEmail",
+      "target": "function:src/lib/resend.ts:getSender",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:sendOrderCancelledEmail",
+      "target": "function:src/lib/resend.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:sendPaymentReceivedEmail",
+      "target": "function:src/lib/resend.ts:getResendClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:sendPaymentReceivedEmail",
+      "target": "function:src/lib/resend.ts:compileTemplate",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:sendPaymentReceivedEmail",
+      "target": "function:src/lib/resend.ts:template",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:sendPaymentReceivedEmail",
+      "target": "function:src/lib/resend.ts:resend.emails.send",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:sendPaymentReceivedEmail",
+      "target": "function:src/lib/resend.ts:getSender",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:sendPaymentReceivedEmail",
+      "target": "function:src/lib/resend.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:sendPaymentFailedEmail",
+      "target": "function:src/lib/resend.ts:getResendClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:sendPaymentFailedEmail",
+      "target": "function:src/lib/resend.ts:compileTemplate",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:sendPaymentFailedEmail",
+      "target": "function:src/lib/resend.ts:template",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:sendPaymentFailedEmail",
+      "target": "function:src/lib/resend.ts:resend.emails.send",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:sendPaymentFailedEmail",
+      "target": "function:src/lib/resend.ts:getSender",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:sendPaymentFailedEmail",
+      "target": "function:src/lib/resend.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:sendRefundProcessedEmail",
+      "target": "function:src/lib/resend.ts:getResendClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:sendRefundProcessedEmail",
+      "target": "function:src/lib/resend.ts:resend.emails.send",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:sendRefundProcessedEmail",
+      "target": "function:src/lib/resend.ts:getSender",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:sendRefundProcessedEmail",
+      "target": "function:src/lib/resend.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:sendShippingUpdateEmail",
+      "target": "function:src/lib/resend.ts:sendOrderShippedEmail",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:sendSupportTicketEmail",
+      "target": "function:src/lib/resend.ts:getResendClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:sendSupportTicketEmail",
+      "target": "function:src/lib/resend.ts:resend.emails.send",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:sendSupportTicketEmail",
+      "target": "function:src/lib/resend.ts:getSender",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:sendSupportTicketEmail",
+      "target": "function:src/lib/resend.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:sendPasswordResetEmail",
+      "target": "function:src/lib/resend.ts:getResendClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:sendPasswordResetEmail",
+      "target": "function:src/lib/resend.ts:resend.emails.send",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:sendPasswordResetEmail",
+      "target": "function:src/lib/resend.ts:getSender",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:sendPasswordResetEmail",
+      "target": "function:src/lib/resend.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:sendVerificationEmail",
+      "target": "function:src/lib/resend.ts:getResendClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:sendVerificationEmail",
+      "target": "function:src/lib/resend.ts:resend.emails.send",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:sendVerificationEmail",
+      "target": "function:src/lib/resend.ts:getSender",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:sendVerificationEmail",
+      "target": "function:src/lib/resend.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:sendTicketCreatedEmail",
+      "target": "function:src/lib/resend.ts:getResendClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:sendTicketCreatedEmail",
+      "target": "function:src/lib/resend.ts:resend.emails.send",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:sendTicketCreatedEmail",
+      "target": "function:src/lib/resend.ts:getSender",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:sendTicketCreatedEmail",
+      "target": "function:src/lib/resend.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:sendTicketResolvedEmail",
+      "target": "function:src/lib/resend.ts:getResendClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:sendTicketResolvedEmail",
+      "target": "function:src/lib/resend.ts:resend.emails.send",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:sendTicketResolvedEmail",
+      "target": "function:src/lib/resend.ts:getSender",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:sendTicketResolvedEmail",
+      "target": "function:src/lib/resend.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:sendTicketUpdateEmail",
+      "target": "function:src/lib/resend.ts:getResendClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:sendTicketUpdateEmail",
+      "target": "function:src/lib/resend.ts:resend.emails.send",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:sendTicketUpdateEmail",
+      "target": "function:src/lib/resend.ts:getSender",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/resend.ts:sendTicketUpdateEmail",
+      "target": "function:src/lib/resend.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/lib/sales-metrics.ts",
+      "target": "function:src/lib/sales-metrics.ts:computeSalesMetrics",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/sales-metrics.ts:computeSalesMetrics",
+      "target": "function:src/lib/sales-metrics.ts:(allOrdersMonth || []).reduce",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/sales-metrics.ts:computeSalesMetrics",
+      "target": "function:src/lib/sales-metrics.ts:Number",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/sales-metrics.ts:computeSalesMetrics",
+      "target": "function:src/lib/sales-metrics.ts:(todayOrders || []).reduce",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/sales-metrics.ts:computeSalesMetrics",
+      "target": "function:src/lib/sales-metrics.ts:Number",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/sales-metrics.ts:computeSalesMetrics",
+      "target": "function:src/lib/sales-metrics.ts:(allOrdersMonth || []).filter",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/sales-metrics.ts:computeSalesMetrics",
+      "target": "function:src/lib/sales-metrics.ts:cancelledOrders.reduce",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/sales-metrics.ts:computeSalesMetrics",
+      "target": "function:src/lib/sales-metrics.ts:Number",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/sales-metrics.ts:computeSalesMetrics",
+      "target": "function:src/lib/sales-metrics.ts:(allOrdersMonth || []).forEach",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/sales-metrics.ts:computeSalesMetrics",
+      "target": "function:src/lib/sales-metrics.ts:new Date(order.created_at || '').toLocaleDateString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/sales-metrics.ts:computeSalesMetrics",
+      "target": "function:src/lib/sales-metrics.ts:Number",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/sales-metrics.ts:computeSalesMetrics",
+      "target": "function:src/lib/sales-metrics.ts:Object.values",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/sales-metrics.ts:computeSalesMetrics",
+      "target": "function:src/lib/sales-metrics.ts:(orderItems || []).forEach",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/sales-metrics.ts:computeSalesMetrics",
+      "target": "function:src/lib/sales-metrics.ts:Array.isArray",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/sales-metrics.ts:computeSalesMetrics",
+      "target": "function:src/lib/sales-metrics.ts:catId.slice",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/sales-metrics.ts:computeSalesMetrics",
+      "target": "function:src/lib/sales-metrics.ts:Object.values(productCounts)\r\n    .sort((a, b) => b.value - a.value)\r\n    .slice",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/sales-metrics.ts:computeSalesMetrics",
+      "target": "function:src/lib/sales-metrics.ts:Object.values(productCounts)\r\n    .sort",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/sales-metrics.ts:computeSalesMetrics",
+      "target": "function:src/lib/sales-metrics.ts:Object.values",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/sales-metrics.ts:computeSalesMetrics",
+      "target": "function:src/lib/sales-metrics.ts:Object.values(categoryEarnings)\r\n    .sort((a, b) => b.value - a.value)\r\n    .slice",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/sales-metrics.ts:computeSalesMetrics",
+      "target": "function:src/lib/sales-metrics.ts:Object.values(categoryEarnings)\r\n    .sort",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/sales-metrics.ts:computeSalesMetrics",
+      "target": "function:src/lib/sales-metrics.ts:Object.values",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/lib/security/ssrf.ts",
+      "target": "function:src/lib/security/ssrf.ts:isPrivateIpv4",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/security/ssrf.ts",
+      "target": "function:src/lib/security/ssrf.ts:isPrivateIpv4FromUint32",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/security/ssrf.ts",
+      "target": "function:src/lib/security/ssrf.ts:ipv6ToBigInt",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/security/ssrf.ts",
+      "target": "function:src/lib/security/ssrf.ts:isPrivateIpv6",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/security/ssrf.ts",
+      "target": "function:src/lib/security/ssrf.ts:isPrivateIp",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/security/ssrf.ts",
+      "target": "function:src/lib/security/ssrf.ts:isReservedHostname",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/security/ssrf.ts",
+      "target": "function:src/lib/security/ssrf.ts:parseOctet",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/security/ssrf.ts",
+      "target": "function:src/lib/security/ssrf.ts:parsePotentialIpv4",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/security/ssrf.ts",
+      "target": "function:src/lib/security/ssrf.ts:assertSafeOutboundUrl",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/security/ssrf.ts",
+      "target": "function:src/lib/security/ssrf.ts:safeFetch",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/security/ssrf.ts",
+      "target": "class:src/lib/security/ssrf.ts:UnsafeUrlError",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:constructor",
+      "target": "function:src/lib/security/ssrf.ts:super",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:isPrivateIpv4FromUint32",
+      "target": "function:src/lib/security/ssrf.ts:isPrivateIpv4",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:ipv6ToBigInt",
+      "target": "function:src/lib/security/ssrf.ts:addr.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:ipv6ToBigInt",
+      "target": "function:src/lib/security/ssrf.ts:addr.lastIndexOf",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:ipv6ToBigInt",
+      "target": "function:src/lib/security/ssrf.ts:addr.slice",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:ipv6ToBigInt",
+      "target": "function:src/lib/security/ssrf.ts:tail.split('.').map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:ipv6ToBigInt",
+      "target": "function:src/lib/security/ssrf.ts:tail.split",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:ipv6ToBigInt",
+      "target": "function:src/lib/security/ssrf.ts:Number",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:ipv6ToBigInt",
+      "target": "function:src/lib/security/ssrf.ts:parts.some",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:ipv6ToBigInt",
+      "target": "function:src/lib/security/ssrf.ts:Number.isInteger",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:ipv6ToBigInt",
+      "target": "function:src/lib/security/ssrf.ts:addr.slice",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:ipv6ToBigInt",
+      "target": "function:src/lib/security/ssrf.ts:addr.indexOf",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:ipv6ToBigInt",
+      "target": "function:src/lib/security/ssrf.ts:addr.slice",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:ipv6ToBigInt",
+      "target": "function:src/lib/security/ssrf.ts:addr.slice",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:ipv6ToBigInt",
+      "target": "function:src/lib/security/ssrf.ts:leftRaw.split(':').filter",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:ipv6ToBigInt",
+      "target": "function:src/lib/security/ssrf.ts:leftRaw.split",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:ipv6ToBigInt",
+      "target": "function:src/lib/security/ssrf.ts:rightRaw.split(':').filter",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:ipv6ToBigInt",
+      "target": "function:src/lib/security/ssrf.ts:rightRaw.split",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:ipv6ToBigInt",
+      "target": "function:src/lib/security/ssrf.ts:left.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:ipv6ToBigInt",
+      "target": "function:src/lib/security/ssrf.ts:parseInt",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:ipv6ToBigInt",
+      "target": "function:src/lib/security/ssrf.ts:Array(missing).fill",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:ipv6ToBigInt",
+      "target": "function:src/lib/security/ssrf.ts:Array",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:ipv6ToBigInt",
+      "target": "function:src/lib/security/ssrf.ts:right.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:ipv6ToBigInt",
+      "target": "function:src/lib/security/ssrf.ts:parseInt",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:ipv6ToBigInt",
+      "target": "function:src/lib/security/ssrf.ts:addr.split(':').map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:ipv6ToBigInt",
+      "target": "function:src/lib/security/ssrf.ts:addr.split",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:ipv6ToBigInt",
+      "target": "function:src/lib/security/ssrf.ts:parseInt",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:ipv6ToBigInt",
+      "target": "function:src/lib/security/ssrf.ts:BigInt",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:ipv6ToBigInt",
+      "target": "function:src/lib/security/ssrf.ts:BigInt",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:ipv6ToBigInt",
+      "target": "function:src/lib/security/ssrf.ts:BigInt",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:ipv6ToBigInt",
+      "target": "function:src/lib/security/ssrf.ts:BigInt",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:isPrivateIpv6",
+      "target": "function:src/lib/security/ssrf.ts:BigInt",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:isPrivateIpv6",
+      "target": "function:src/lib/security/ssrf.ts:BigInt",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:embeddedIpv4",
+      "target": "function:src/lib/security/ssrf.ts:isPrivateIpv4FromUint32",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:embeddedIpv4",
+      "target": "function:src/lib/security/ssrf.ts:Number",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:isPrivateIpv6",
+      "target": "function:src/lib/security/ssrf.ts:BigInt",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:isPrivateIpv6",
+      "target": "function:src/lib/security/ssrf.ts:embeddedIpv4",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:isPrivateIpv6",
+      "target": "function:src/lib/security/ssrf.ts:BigInt",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:isPrivateIpv6",
+      "target": "function:src/lib/security/ssrf.ts:embeddedIpv4",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:isPrivateIpv6",
+      "target": "function:src/lib/security/ssrf.ts:BigInt",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:isPrivateIpv6",
+      "target": "function:src/lib/security/ssrf.ts:embeddedIpv4",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:isPrivateIpv6",
+      "target": "function:src/lib/security/ssrf.ts:BigInt",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:isPrivateIpv6",
+      "target": "function:src/lib/security/ssrf.ts:embeddedIpv4",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:isPrivateIpv6",
+      "target": "function:src/lib/security/ssrf.ts:BigInt",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:isPrivateIpv6",
+      "target": "function:src/lib/security/ssrf.ts:embeddedIpv4",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:isPrivateIpv6",
+      "target": "function:src/lib/security/ssrf.ts:BigInt",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:isPrivateIpv6",
+      "target": "function:src/lib/security/ssrf.ts:embeddedIpv4",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:isPrivateIpv6",
+      "target": "function:src/lib/security/ssrf.ts:BigInt",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:isPrivateIpv6",
+      "target": "function:src/lib/security/ssrf.ts:BigInt",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:isPrivateIpv6",
+      "target": "function:src/lib/security/ssrf.ts:BigInt",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:isPrivateIpv6",
+      "target": "function:src/lib/security/ssrf.ts:BigInt",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:isPrivateIpv6",
+      "target": "function:src/lib/security/ssrf.ts:BigInt",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:isPrivateIpv6",
+      "target": "function:src/lib/security/ssrf.ts:BigInt",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:isPrivateIpv6",
+      "target": "function:src/lib/security/ssrf.ts:BigInt",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:isPrivateIp",
+      "target": "function:src/lib/security/ssrf.ts:isIP",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:isPrivateIp",
+      "target": "function:src/lib/security/ssrf.ts:ip.split('.').map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:isPrivateIp",
+      "target": "function:src/lib/security/ssrf.ts:ip.split",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:isPrivateIp",
+      "target": "function:src/lib/security/ssrf.ts:isPrivateIpv4",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:isPrivateIp",
+      "target": "function:src/lib/security/ssrf.ts:isPrivateIpv6",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:isPrivateIp",
+      "target": "function:src/lib/security/ssrf.ts:ipv6ToBigInt",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:isReservedHostname",
+      "target": "function:src/lib/security/ssrf.ts:hostname.replace(/\\.+$/, '').toLowerCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:isReservedHostname",
+      "target": "function:src/lib/security/ssrf.ts:hostname.replace",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:isReservedHostname",
+      "target": "function:src/lib/security/ssrf.ts:RESERVED_HOSTNAME_RE.test",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:parseOctet",
+      "target": "function:src/lib/security/ssrf.ts:/^0[xX][0-9a-fA-F]+$/.test",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:parseOctet",
+      "target": "function:src/lib/security/ssrf.ts:parseInt",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:parseOctet",
+      "target": "function:src/lib/security/ssrf.ts:part.slice",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:parseOctet",
+      "target": "function:src/lib/security/ssrf.ts:/^0[0-7]+$/.test",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:parseOctet",
+      "target": "function:src/lib/security/ssrf.ts:parseInt",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:parseOctet",
+      "target": "function:src/lib/security/ssrf.ts:parseInt",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:parsePotentialIpv4",
+      "target": "function:src/lib/security/ssrf.ts:hostname.replace",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:parsePotentialIpv4",
+      "target": "function:src/lib/security/ssrf.ts:host.split",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:parsePotentialIpv4",
+      "target": "function:src/lib/security/ssrf.ts:parts.every",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:parsePotentialIpv4",
+      "target": "function:src/lib/security/ssrf.ts:/^(0[xX][0-9a-fA-F]+|0[0-7]+|\\d+)$/.test",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:parsePotentialIpv4",
+      "target": "function:src/lib/security/ssrf.ts:parts.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:parsePotentialIpv4",
+      "target": "function:src/lib/security/ssrf.ts:nums.some",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:parsePotentialIpv4",
+      "target": "function:src/lib/security/ssrf.ts:Number.isNaN",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:parsePotentialIpv4",
+      "target": "function:src/lib/security/ssrf.ts:nums.some",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:parsePotentialIpv4",
+      "target": "function:src/lib/security/ssrf.ts:nums.join",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:assertSafeOutboundUrl",
+      "target": "function:src/lib/security/ssrf.ts:String(input).trim",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:assertSafeOutboundUrl",
+      "target": "function:src/lib/security/ssrf.ts:String",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:assertSafeOutboundUrl",
+      "target": "function:src/lib/security/ssrf.ts:host.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:assertSafeOutboundUrl",
+      "target": "function:src/lib/security/ssrf.ts:host.endsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:assertSafeOutboundUrl",
+      "target": "function:src/lib/security/ssrf.ts:host.slice",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:assertSafeOutboundUrl",
+      "target": "function:src/lib/security/ssrf.ts:host.replace",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:assertSafeOutboundUrl",
+      "target": "function:src/lib/security/ssrf.ts:isReservedHostname",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:assertSafeOutboundUrl",
+      "target": "function:src/lib/security/ssrf.ts:isIP",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:assertSafeOutboundUrl",
+      "target": "function:src/lib/security/ssrf.ts:ipsToCheck.add",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:assertSafeOutboundUrl",
+      "target": "function:src/lib/security/ssrf.ts:parsePotentialIpv4",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:assertSafeOutboundUrl",
+      "target": "function:src/lib/security/ssrf.ts:ipsToCheck.add",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:assertSafeOutboundUrl",
+      "target": "function:src/lib/security/ssrf.ts:lookup",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:assertSafeOutboundUrl",
+      "target": "function:src/lib/security/ssrf.ts:ipsToCheck.add",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:assertSafeOutboundUrl",
+      "target": "function:src/lib/security/ssrf.ts:isPrivateIp",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:safeFetch",
+      "target": "function:src/lib/security/ssrf.ts:assertSafeOutboundUrl",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:safeFetch",
+      "target": "function:src/lib/security/ssrf.ts:fetch",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:safeFetch",
+      "target": "function:src/lib/security/ssrf.ts:REDIRECT_STATUSES.has",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:safeFetch",
+      "target": "function:src/lib/security/ssrf.ts:res.headers.get",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:safeFetch",
+      "target": "function:src/lib/security/ssrf.ts:new URL(location, current).toString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:safeFetch",
+      "target": "function:src/lib/security/ssrf.ts:res.arrayBuffer().catch",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/security/ssrf.ts:safeFetch",
+      "target": "function:src/lib/security/ssrf.ts:res.arrayBuffer",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/lib/sentry-ignore.ts",
+      "target": "function:src/lib/sentry-ignore.ts:beforeSendSentry",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/sentry-ignore.ts:beforeSendSentry",
+      "target": "function:src/lib/sentry-ignore.ts:IGNORE_PATTERNS.some",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/sentry-ignore.ts:beforeSendSentry",
+      "target": "function:src/lib/sentry-ignore.ts:p.test",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/lib/shipping/provider.ts",
+      "target": "function:src/lib/shipping/provider.ts:getActiveCourierProvider",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/shipping/provider.ts",
+      "target": "function:src/lib/shipping/provider.ts:registerProvider",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/shipping/provider.ts",
+      "target": "function:src/lib/shipping/provider.ts:getShippingProvider",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/shipping/provider.ts:getActiveCourierProvider",
+      "target": "function:src/lib/shipping/provider.ts:getSupabaseClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/shipping/provider.ts:getActiveCourierProvider",
+      "target": "function:src/lib/shipping/provider.ts:supabase\n      .from('courier_providers')\n      .select('name')\n      .eq('is_active', true)\n      .order('priority', { ascending: true })\n      .limit(1)\n      .maybeSingle",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/shipping/provider.ts:getActiveCourierProvider",
+      "target": "function:src/lib/shipping/provider.ts:supabase\n      .from('courier_providers')\n      .select('name')\n      .eq('is_active', true)\n      .order('priority', { ascending: true })\n      .limit",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/shipping/provider.ts:getActiveCourierProvider",
+      "target": "function:src/lib/shipping/provider.ts:supabase\n      .from('courier_providers')\n      .select('name')\n      .eq('is_active', true)\n      .order",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/shipping/provider.ts:getActiveCourierProvider",
+      "target": "function:src/lib/shipping/provider.ts:supabase\n      .from('courier_providers')\n      .select('name')\n      .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/shipping/provider.ts:getActiveCourierProvider",
+      "target": "function:src/lib/shipping/provider.ts:supabase\n      .from('courier_providers')\n      .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/shipping/provider.ts:getActiveCourierProvider",
+      "target": "function:src/lib/shipping/provider.ts:supabase\n      .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/shipping/provider.ts:registerProvider",
+      "target": "function:src/lib/shipping/provider.ts:name.toLowerCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/shipping/provider.ts:getShippingProvider",
+      "target": "function:src/lib/shipping/provider.ts:(provider || (await getActiveCourierProvider())).toLowerCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/shipping/provider.ts:getShippingProvider",
+      "target": "function:src/lib/shipping/provider.ts:getActiveCourierProvider",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/shipping/provider.ts:getShippingProvider",
+      "target": "function:src/lib/shipping/provider.ts:factory",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/lib/shipping/shiprocket-provider.ts",
+      "target": "class:src/lib/shipping/shiprocket-provider.ts:ShiprocketProvider",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/shipping/shiprocket-provider.ts:createShipment",
+      "target": "function:src/lib/shipping/shiprocket-provider.ts:createCustomOrder",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/shipping/shiprocket-provider.ts:createShipment",
+      "target": "function:src/lib/shipping/shiprocket-provider.ts:new Date(input.orderDate).toISOString().split",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/shipping/shiprocket-provider.ts:createShipment",
+      "target": "function:src/lib/shipping/shiprocket-provider.ts:new Date(input.orderDate).toISOString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/shipping/shiprocket-provider.ts:createShipment",
+      "target": "function:src/lib/shipping/shiprocket-provider.ts:input.items.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/shipping/shiprocket-provider.ts:createShipment",
+      "target": "function:src/lib/shipping/shiprocket-provider.ts:generateAWB",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/lib/shiprocket.ts",
+      "target": "function:src/lib/shiprocket.ts:getShiprocketToken",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/shiprocket.ts",
+      "target": "function:src/lib/shiprocket.ts:createCustomOrder",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/shiprocket.ts",
+      "target": "function:src/lib/shiprocket.ts:generateAWB",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/shiprocket.ts:getShiprocketToken",
+      "target": "function:src/lib/shiprocket.ts:Date.now",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/shiprocket.ts:getShiprocketToken",
+      "target": "function:src/lib/shiprocket.ts:fetch",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/shiprocket.ts:getShiprocketToken",
+      "target": "function:src/lib/shiprocket.ts:JSON.stringify",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/shiprocket.ts:getShiprocketToken",
+      "target": "function:src/lib/shiprocket.ts:response.json",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/shiprocket.ts:getShiprocketToken",
+      "target": "function:src/lib/shiprocket.ts:Date.now",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/shiprocket.ts:getShiprocketToken",
+      "target": "function:src/lib/shiprocket.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/shiprocket.ts:createCustomOrder",
+      "target": "function:src/lib/shiprocket.ts:getShiprocketToken",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/shiprocket.ts:createCustomOrder",
+      "target": "function:src/lib/shiprocket.ts:fetch",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/shiprocket.ts:createCustomOrder",
+      "target": "function:src/lib/shiprocket.ts:JSON.stringify",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/shiprocket.ts:createCustomOrder",
+      "target": "function:src/lib/shiprocket.ts:response.json",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/shiprocket.ts:createCustomOrder",
+      "target": "function:src/lib/shiprocket.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/shiprocket.ts:generateAWB",
+      "target": "function:src/lib/shiprocket.ts:getShiprocketToken",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/shiprocket.ts:generateAWB",
+      "target": "function:src/lib/shiprocket.ts:fetch",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/shiprocket.ts:generateAWB",
+      "target": "function:src/lib/shiprocket.ts:JSON.stringify",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/shiprocket.ts:generateAWB",
+      "target": "function:src/lib/shiprocket.ts:response.json",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/shiprocket.ts:generateAWB",
+      "target": "function:src/lib/shiprocket.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/lib/sku.ts",
+      "target": "function:src/lib/sku.ts:generateSKU",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/sku.ts:generateSKU",
+      "target": "function:src/lib/sku.ts:categorySlugOrPrefix.toLowerCase().trim",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/sku.ts:generateSKU",
+      "target": "function:src/lib/sku.ts:categorySlugOrPrefix.toLowerCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/sku.ts:generateSKU",
+      "target": "function:src/lib/sku.ts:normalizedKey.substring(0, 3).toUpperCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/sku.ts:generateSKU",
+      "target": "function:src/lib/sku.ts:normalizedKey.substring",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/sku.ts:generateSKU",
+      "target": "function:src/lib/sku.ts:sequenceNumber.toString().padStart",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/sku.ts:generateSKU",
+      "target": "function:src/lib/sku.ts:sequenceNumber.toString",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/lib/supabase/client.ts",
+      "target": "function:src/lib/supabase/client.ts:createClient",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/supabase/client.ts:createClient",
+      "target": "function:src/lib/supabase/client.ts:createSupabaseClient",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/lib/supabase/public.ts",
+      "target": "function:src/lib/supabase/public.ts:createPublicClient",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/supabase/public.ts:createPublicClient",
+      "target": "function:src/lib/supabase/public.ts:createSupabaseClient",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/lib/supabase/server.ts",
+      "target": "function:src/lib/supabase/server.ts:createClient",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/supabase/server.ts:createClient",
+      "target": "function:src/lib/supabase/server.ts:cookies",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/supabase/server.ts:createClient",
+      "target": "function:src/lib/supabase/server.ts:createServerClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/supabase/server.ts:getAll",
+      "target": "function:src/lib/supabase/server.ts:cookieStore.getAll",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/supabase/server.ts:setAll",
+      "target": "function:src/lib/supabase/server.ts:cookiesToSet.forEach",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/supabase/server.ts:setAll",
+      "target": "function:src/lib/supabase/server.ts:cookieStore.set",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/lib/supabase/service.ts",
+      "target": "function:src/lib/supabase/service.ts:getServiceClient",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/supabase/service.ts:getServiceClient",
+      "target": "function:src/lib/supabase/service.ts:createJSClient",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/lib/support/serverAuth.ts",
+      "target": "function:src/lib/support/serverAuth.ts:getSupabaseAdminClient",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/support/serverAuth.ts",
+      "target": "function:src/lib/support/serverAuth.ts:getCurrentSupportUser",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/support/serverAuth.ts:getSupabaseAdminClient",
+      "target": "function:src/lib/support/serverAuth.ts:cookies",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/support/serverAuth.ts:getSupabaseAdminClient",
+      "target": "function:src/lib/support/serverAuth.ts:createServerClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/support/serverAuth.ts:getAll",
+      "target": "function:src/lib/support/serverAuth.ts:store.getAll",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/support/serverAuth.ts:getCurrentSupportUser",
+      "target": "function:src/lib/support/serverAuth.ts:cookies",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/support/serverAuth.ts:getCurrentSupportUser",
+      "target": "function:src/lib/support/serverAuth.ts:cookieStore.get",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/support/serverAuth.ts:getCurrentSupportUser",
+      "target": "function:src/lib/support/serverAuth.ts:verifySessionToken",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/support/serverAuth.ts:getCurrentSupportUser",
+      "target": "function:src/lib/support/serverAuth.ts:getSupabaseAdminClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/support/serverAuth.ts:getCurrentSupportUser",
+      "target": "function:src/lib/support/serverAuth.ts:supabase\n      .from('users')\n      .select('id, full_name, email, phone, role')\n      .eq('id', uid)\n      .maybeSingle",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/support/serverAuth.ts:getCurrentSupportUser",
+      "target": "function:src/lib/support/serverAuth.ts:supabase\n      .from('users')\n      .select('id, full_name, email, phone, role')\n      .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/support/serverAuth.ts:getCurrentSupportUser",
+      "target": "function:src/lib/support/serverAuth.ts:supabase\n      .from('users')\n      .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/support/serverAuth.ts:getCurrentSupportUser",
+      "target": "function:src/lib/support/serverAuth.ts:supabase\n      .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/support/serverAuth.ts:getCurrentSupportUser",
+      "target": "function:src/lib/support/serverAuth.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/lib/utils/url.ts",
+      "target": "function:src/lib/utils/url.ts:getSiteUrl",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/utils/url.ts:getSiteUrl",
+      "target": "function:src/lib/utils/url.ts:url.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/utils/url.ts:getSiteUrl",
+      "target": "function:src/lib/utils/url.ts:url.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/utils/url.ts:getSiteUrl",
+      "target": "function:src/lib/utils/url.ts:url.replace",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/lib/wallet/debit.ts",
+      "target": "function:src/lib/wallet/debit.ts:assertWalletBalance",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/wallet/debit.ts",
+      "target": "function:src/lib/wallet/debit.ts:debitWalletForOrder",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/wallet/debit.ts:assertWalletBalance",
+      "target": "function:src/lib/wallet/debit.ts:createJSClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/wallet/debit.ts:assertWalletBalance",
+      "target": "function:src/lib/wallet/debit.ts:supabase\n    .from('users')\n    .select('wallet_balance')\n    .eq('id', userId)\n    .single",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/wallet/debit.ts:assertWalletBalance",
+      "target": "function:src/lib/wallet/debit.ts:supabase\n    .from('users')\n    .select('wallet_balance')\n    .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/wallet/debit.ts:assertWalletBalance",
+      "target": "function:src/lib/wallet/debit.ts:supabase\n    .from('users')\n    .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/wallet/debit.ts:assertWalletBalance",
+      "target": "function:src/lib/wallet/debit.ts:supabase\n    .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/wallet/debit.ts:assertWalletBalance",
+      "target": "function:src/lib/wallet/debit.ts:Number",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/wallet/debit.ts:assertWalletBalance",
+      "target": "function:src/lib/wallet/debit.ts:balance.toFixed",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/wallet/debit.ts:assertWalletBalance",
+      "target": "function:src/lib/wallet/debit.ts:amount.toFixed",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/wallet/debit.ts:debitWalletForOrder",
+      "target": "function:src/lib/wallet/debit.ts:createJSClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/wallet/debit.ts:debitWalletForOrder",
+      "target": "function:src/lib/wallet/debit.ts:supabase\n    .from('wallet_ledger')\n    .select('id')\n    .eq('order_id', orderId)\n    .eq('type', 'debit')\n    .maybeSingle",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/wallet/debit.ts:debitWalletForOrder",
+      "target": "function:src/lib/wallet/debit.ts:supabase\n    .from('wallet_ledger')\n    .select('id')\n    .eq('order_id', orderId)\n    .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/wallet/debit.ts:debitWalletForOrder",
+      "target": "function:src/lib/wallet/debit.ts:supabase\n    .from('wallet_ledger')\n    .select('id')\n    .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/wallet/debit.ts:debitWalletForOrder",
+      "target": "function:src/lib/wallet/debit.ts:supabase\n    .from('wallet_ledger')\n    .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/wallet/debit.ts:debitWalletForOrder",
+      "target": "function:src/lib/wallet/debit.ts:supabase\n    .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/wallet/debit.ts:debitWalletForOrder",
+      "target": "function:src/lib/wallet/debit.ts:supabase\n    .from('users')\n    .select('wallet_balance')\n    .eq('id', userId)\n    .single",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/wallet/debit.ts:debitWalletForOrder",
+      "target": "function:src/lib/wallet/debit.ts:supabase\n    .from('users')\n    .select('wallet_balance')\n    .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/wallet/debit.ts:debitWalletForOrder",
+      "target": "function:src/lib/wallet/debit.ts:supabase\n    .from('users')\n    .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/wallet/debit.ts:debitWalletForOrder",
+      "target": "function:src/lib/wallet/debit.ts:supabase\n    .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/wallet/debit.ts:debitWalletForOrder",
+      "target": "function:src/lib/wallet/debit.ts:Number",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/wallet/debit.ts:debitWalletForOrder",
+      "target": "function:src/lib/wallet/debit.ts:balance.toFixed",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/wallet/debit.ts:debitWalletForOrder",
+      "target": "function:src/lib/wallet/debit.ts:amount.toFixed",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/wallet/debit.ts:debitWalletForOrder",
+      "target": "function:src/lib/wallet/debit.ts:supabase.from('wallet_ledger').insert",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/wallet/debit.ts:debitWalletForOrder",
+      "target": "function:src/lib/wallet/debit.ts:supabase.from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/wallet/debit.ts:debitWalletForOrder",
+      "target": "function:src/lib/wallet/debit.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/lib/wallet/topup.ts",
+      "target": "function:src/lib/wallet/topup.ts:calculateTopUpBonus",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/wallet/topup.ts",
+      "target": "function:src/lib/wallet/topup.ts:getPhonePeConfig",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/wallet/topup.ts",
+      "target": "function:src/lib/wallet/topup.ts:generateMerchantTransactionId",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/wallet/topup.ts",
+      "target": "function:src/lib/wallet/topup.ts:adminClient",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/wallet/topup.ts",
+      "target": "function:src/lib/wallet/topup.ts:creditWalletTopUp",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/wallet/topup.ts",
+      "target": "function:src/lib/wallet/topup.ts:markWalletTopUpFailed",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/wallet/topup.ts",
+      "target": "function:src/lib/wallet/topup.ts:checkWalletPhonePeStatus",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/wallet/topup.ts",
+      "target": "function:src/lib/wallet/topup.ts:verifyWalletWebhook",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/wallet/topup.ts:generateMerchantTransactionId",
+      "target": "function:src/lib/wallet/topup.ts:Date.now",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/wallet/topup.ts:generateMerchantTransactionId",
+      "target": "function:src/lib/wallet/topup.ts:Math.random().toString(36).substring",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/wallet/topup.ts:generateMerchantTransactionId",
+      "target": "function:src/lib/wallet/topup.ts:Math.random().toString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/wallet/topup.ts:generateMerchantTransactionId",
+      "target": "function:src/lib/wallet/topup.ts:Math.random",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/wallet/topup.ts:adminClient",
+      "target": "function:src/lib/wallet/topup.ts:createJSClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/wallet/topup.ts:creditWalletTopUp",
+      "target": "function:src/lib/wallet/topup.ts:adminClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/wallet/topup.ts:creditWalletTopUp",
+      "target": "function:src/lib/wallet/topup.ts:supabase\n    .from('wallet_topups')\n    .select('*')\n    .eq('merchant_transaction_id', merchantTransactionId)\n    .maybeSingle",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/wallet/topup.ts:creditWalletTopUp",
+      "target": "function:src/lib/wallet/topup.ts:supabase\n    .from('wallet_topups')\n    .select('*')\n    .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/wallet/topup.ts:creditWalletTopUp",
+      "target": "function:src/lib/wallet/topup.ts:supabase\n    .from('wallet_topups')\n    .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/wallet/topup.ts:creditWalletTopUp",
+      "target": "function:src/lib/wallet/topup.ts:supabase\n    .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/wallet/topup.ts:creditWalletTopUp",
+      "target": "function:src/lib/wallet/topup.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/wallet/topup.ts:creditWalletTopUp",
+      "target": "function:src/lib/wallet/topup.ts:supabase.rpc",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/wallet/topup.ts:creditWalletTopUp",
+      "target": "function:src/lib/wallet/topup.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/wallet/topup.ts:creditWalletTopUp",
+      "target": "function:src/lib/wallet/topup.ts:Number",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/wallet/topup.ts:creditWalletTopUp",
+      "target": "function:src/lib/wallet/topup.ts:supabase.rpc",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/wallet/topup.ts:creditWalletTopUp",
+      "target": "function:src/lib/wallet/topup.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/wallet/topup.ts:creditWalletTopUp",
+      "target": "function:src/lib/wallet/topup.ts:new Date().toISOString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/wallet/topup.ts:creditWalletTopUp",
+      "target": "function:src/lib/wallet/topup.ts:supabase.from('wallet_topups').update(update).eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/wallet/topup.ts:creditWalletTopUp",
+      "target": "function:src/lib/wallet/topup.ts:supabase.from('wallet_topups').update",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/wallet/topup.ts:creditWalletTopUp",
+      "target": "function:src/lib/wallet/topup.ts:supabase.from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/wallet/topup.ts:creditWalletTopUp",
+      "target": "function:src/lib/wallet/topup.ts:import('@/lib/notifications/service').then",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/wallet/topup.ts:creditWalletTopUp",
+      "target": "function:src/lib/wallet/topup.ts:import",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/wallet/topup.ts:creditWalletTopUp",
+      "target": "function:src/lib/wallet/topup.ts:createAndSendNotification({\n        userId: topup.user_id,\n        title: 'Wallet Recharged! 💰',\n        message: `Your wallet has been credited with ₹${topup.amount}${topup.bonus_amount > 0 ? ` plus a ₹${topup.bonus_amount} bonus!` : '.'}`,\n        category: 'WALLET',\n        referenceType: 'wallet_topup',\n        referenceId: topup.id,\n        idempotencyKey: `wallet_topup_success_${topup.id}`,\n      }).catch",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/wallet/topup.ts:creditWalletTopUp",
+      "target": "function:src/lib/wallet/topup.ts:createAndSendNotification",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/wallet/topup.ts:creditWalletTopUp",
+      "target": "function:src/lib/wallet/topup.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/wallet/topup.ts:markWalletTopUpFailed",
+      "target": "function:src/lib/wallet/topup.ts:adminClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/wallet/topup.ts:markWalletTopUpFailed",
+      "target": "function:src/lib/wallet/topup.ts:supabase\n    .from('wallet_topups')\n    .select('id, status')\n    .eq('merchant_transaction_id', merchantTransactionId)\n    .maybeSingle",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/wallet/topup.ts:markWalletTopUpFailed",
+      "target": "function:src/lib/wallet/topup.ts:supabase\n    .from('wallet_topups')\n    .select('id, status')\n    .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/wallet/topup.ts:markWalletTopUpFailed",
+      "target": "function:src/lib/wallet/topup.ts:supabase\n    .from('wallet_topups')\n    .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/wallet/topup.ts:markWalletTopUpFailed",
+      "target": "function:src/lib/wallet/topup.ts:supabase\n    .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/wallet/topup.ts:markWalletTopUpFailed",
+      "target": "function:src/lib/wallet/topup.ts:new Date().toISOString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/wallet/topup.ts:markWalletTopUpFailed",
+      "target": "function:src/lib/wallet/topup.ts:supabase.from('wallet_topups').update(update).eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/wallet/topup.ts:markWalletTopUpFailed",
+      "target": "function:src/lib/wallet/topup.ts:supabase.from('wallet_topups').update",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/wallet/topup.ts:markWalletTopUpFailed",
+      "target": "function:src/lib/wallet/topup.ts:supabase.from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/wallet/topup.ts:checkWalletPhonePeStatus",
+      "target": "function:src/lib/wallet/topup.ts:getPhonePeConfig",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/wallet/topup.ts:checkWalletPhonePeStatus",
+      "target": "function:src/lib/wallet/topup.ts:JSON.stringify",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/wallet/topup.ts:checkWalletPhonePeStatus",
+      "target": "function:src/lib/wallet/topup.ts:Buffer.from(payload).toString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/wallet/topup.ts:checkWalletPhonePeStatus",
+      "target": "function:src/lib/wallet/topup.ts:Buffer.from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/wallet/topup.ts:checkWalletPhonePeStatus",
+      "target": "function:src/lib/wallet/topup.ts:crypto\n    .createHash('sha256')\n    .update(base64Payload + apiEndpoint + saltKey)\n    .digest",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/wallet/topup.ts:checkWalletPhonePeStatus",
+      "target": "function:src/lib/wallet/topup.ts:crypto\n    .createHash('sha256')\n    .update",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/wallet/topup.ts:checkWalletPhonePeStatus",
+      "target": "function:src/lib/wallet/topup.ts:crypto\n    .createHash",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/wallet/topup.ts:checkWalletPhonePeStatus",
+      "target": "function:src/lib/wallet/topup.ts:fetch",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/wallet/topup.ts:checkWalletPhonePeStatus",
+      "target": "function:src/lib/wallet/topup.ts:response.json",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/wallet/topup.ts:checkWalletPhonePeStatus",
+      "target": "function:src/lib/wallet/topup.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/wallet/topup.ts:checkWalletPhonePeStatus",
+      "target": "function:src/lib/wallet/topup.ts:JSON.parse",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/wallet/topup.ts:checkWalletPhonePeStatus",
+      "target": "function:src/lib/wallet/topup.ts:Buffer.from(data.data.response, 'base64').toString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/wallet/topup.ts:checkWalletPhonePeStatus",
+      "target": "function:src/lib/wallet/topup.ts:Buffer.from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/wallet/topup.ts:verifyWalletWebhook",
+      "target": "function:src/lib/wallet/topup.ts:crypto\n      .createHash('sha256')\n      .update(response + saltKey + '/pg/v1/pay')\n      .digest",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/wallet/topup.ts:verifyWalletWebhook",
+      "target": "function:src/lib/wallet/topup.ts:crypto\n      .createHash('sha256')\n      .update",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/wallet/topup.ts:verifyWalletWebhook",
+      "target": "function:src/lib/wallet/topup.ts:crypto\n      .createHash",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/wallet/topup.ts:verifyWalletWebhook",
+      "target": "function:src/lib/wallet/topup.ts:Buffer.from(checksum, 'base64').toString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/wallet/topup.ts:verifyWalletWebhook",
+      "target": "function:src/lib/wallet/topup.ts:Buffer.from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/wallet/topup.ts:verifyWalletWebhook",
+      "target": "function:src/lib/wallet/topup.ts:buf.includes",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/lib/whatsapp.ts",
+      "target": "function:src/lib/whatsapp.ts:getWhatsAppConfig",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/whatsapp.ts",
+      "target": "function:src/lib/whatsapp.ts:sendWhatsAppMessage",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/whatsapp.ts",
+      "target": "function:src/lib/whatsapp.ts:sendOrderConfirmation",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/whatsapp.ts",
+      "target": "function:src/lib/whatsapp.ts:sendShippingUpdate",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/whatsapp.ts:sendWhatsAppMessage",
+      "target": "function:src/lib/whatsapp.ts:getWhatsAppConfig",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/whatsapp.ts:sendWhatsAppMessage",
+      "target": "function:src/lib/whatsapp.ts:to.replace(/\\D/g, '').replace",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/whatsapp.ts:sendWhatsAppMessage",
+      "target": "function:src/lib/whatsapp.ts:to.replace",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/whatsapp.ts:sendWhatsAppMessage",
+      "target": "function:src/lib/whatsapp.ts:console.log",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/whatsapp.ts:sendWhatsAppMessage",
+      "target": "function:src/lib/whatsapp.ts:console.log",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/whatsapp.ts:sendWhatsAppMessage",
+      "target": "function:src/lib/whatsapp.ts:JSON.stringify",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/whatsapp.ts:sendWhatsAppMessage",
+      "target": "function:src/lib/whatsapp.ts:fetch",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/whatsapp.ts:sendWhatsAppMessage",
+      "target": "function:src/lib/whatsapp.ts:JSON.stringify",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/whatsapp.ts:sendWhatsAppMessage",
+      "target": "function:src/lib/whatsapp.ts:response.json",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/whatsapp.ts:sendWhatsAppMessage",
+      "target": "function:src/lib/whatsapp.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/whatsapp.ts:sendWhatsAppMessage",
+      "target": "function:src/lib/whatsapp.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/whatsapp.ts:sendOrderConfirmation",
+      "target": "function:src/lib/whatsapp.ts:totalAmount.toLocaleString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/whatsapp.ts:sendOrderConfirmation",
+      "target": "function:src/lib/whatsapp.ts:sendWhatsAppMessage",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/whatsapp.ts:sendShippingUpdate",
+      "target": "function:src/lib/whatsapp.ts:sendWhatsAppMessage",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/middleware.ts",
+      "target": "function:src/middleware.ts:middleware",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:NextResponse.next",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:supabaseResponse.headers.set",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:supabaseResponse.headers.set",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:supabaseResponse.headers.set",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:request.headers.get",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:supabaseResponse.headers.set",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:hostname.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:hostname.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:hostname.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:hostname.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:hostname.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:hostname.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:hostname.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:hostname.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:hostname.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:request.nextUrl.searchParams.get",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:supabaseResponse.cookies.set",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:NextResponse.redirect",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:NextResponse.redirect",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:NextResponse.redirect",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:NextResponse.redirect",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:NextResponse.redirect",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:NextResponse.redirect",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:NextResponse.redirect",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:NextResponse.redirect",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:path.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:NextResponse.redirect",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:commonAllowedPaths.some",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:path.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:path.endsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:path.endsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:path.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:path.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:path.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:NextResponse.rewrite",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:path.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:NextResponse.rewrite",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:path.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:NextResponse.rewrite",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:path.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:NextResponse.rewrite",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:path.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:NextResponse.rewrite",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:path.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:NextResponse.rewrite",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:path.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:path.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:NextResponse.rewrite",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:path.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:path.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:path.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:path.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:NextResponse.rewrite",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:internalBases.some",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:path.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:NextResponse.rewrite",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:supabaseResponse.headers.set",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:internalBases.some",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:path.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:createServerClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:getAll",
+      "target": "function:src/middleware.ts:request.cookies.getAll",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:setAll",
+      "target": "function:src/middleware.ts:cookiesToSet.forEach",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:setAll",
+      "target": "function:src/middleware.ts:request.cookies.set",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:setAll",
+      "target": "function:src/middleware.ts:NextResponse.next",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:setAll",
+      "target": "function:src/middleware.ts:supabaseResponse.headers.set",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:setAll",
+      "target": "function:src/middleware.ts:cookiesToSet.forEach",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:setAll",
+      "target": "function:src/middleware.ts:supabaseResponse.cookies.set",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:request.cookies.get",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:loginUrl.searchParams.set",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:NextResponse.redirect",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:redirectResponse.headers.set",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:supabaseResponse.cookies.getAll().forEach",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:supabaseResponse.cookies.getAll",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:redirectResponse.cookies.set",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:verifySessionToken",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:loginUrl.searchParams.set",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:NextResponse.redirect",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:redirectResponse.headers.set",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:supabaseResponse.cookies.getAll().forEach",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:supabaseResponse.cookies.getAll",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:redirectResponse.cookies.set",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:supabase\r\n        .from('users')\r\n        .select('role, account_status, allowed_portals, department')\r\n        .eq('id', uid)\r\n        .maybeSingle",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:supabase\r\n        .from('users')\r\n        .select('role, account_status, allowed_portals, department')\r\n        .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:supabase\r\n        .from('users')\r\n        .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:supabase\r\n        .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:NextResponse.redirect",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:redirectResponse.headers.set",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:supabaseResponse.cookies.getAll().forEach",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:supabaseResponse.cookies.getAll",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:redirectResponse.cookies.set",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:allowedRoles.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:NextResponse.redirect",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:redirectResponse.headers.set",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:supabaseResponse.cookies.getAll().forEach",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:supabaseResponse.cookies.getAll",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:redirectResponse.cookies.set",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:allowedPortals.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:['admin', 'manager', 'super_admin'].includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:allowedPortals.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:allowedPortals.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:allowedPortals.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:allowedPortals.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:allowedPortals.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:allowedPortals.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:['super_admin', 'admin'].includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:NextResponse.redirect",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:redirectResponse.headers.set",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:supabaseResponse.cookies.getAll().forEach",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:supabaseResponse.cookies.getAll",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:redirectResponse.cookies.set",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:loginUrl.searchParams.set",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:NextResponse.redirect",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/middleware.ts:middleware",
+      "target": "function:src/middleware.ts:redirectResponse.headers.set",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/services/authService.ts",
+      "target": "function:src/services/authService.ts:upsertUserProfile",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/services/authService.ts",
+      "target": "function:src/services/authService.ts:handleAuthCollision",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/services/authService.ts",
+      "target": "function:src/services/authService.ts:getValidAuth",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/services/authService.ts",
+      "target": "function:src/services/authService.ts:signUpWithEmail",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/services/authService.ts",
+      "target": "function:src/services/authService.ts:signInWithEmail",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/services/authService.ts",
+      "target": "function:src/services/authService.ts:signInWithGoogle",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/services/authService.ts",
+      "target": "function:src/services/authService.ts:signInWithFacebook",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/services/authService.ts",
+      "target": "function:src/services/authService.ts:setupRecaptcha",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/services/authService.ts",
+      "target": "function:src/services/authService.ts:sendPhoneVerification",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/services/authService.ts",
+      "target": "function:src/services/authService.ts:verifyPhoneCode",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/services/authService.ts",
+      "target": "function:src/services/authService.ts:linkGoogleToSession",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/services/authService.ts",
+      "target": "function:src/services/authService.ts:linkFacebookToSession",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/services/authService.ts",
+      "target": "function:src/services/authService.ts:linkEmailPasswordToSession",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/services/authService.ts",
+      "target": "function:src/services/authService.ts:linkPhoneToSession",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/services/authService.ts:upsertUserProfile",
+      "target": "function:src/services/authService.ts:user.getIdToken",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/authService.ts:upsertUserProfile",
+      "target": "function:src/services/authService.ts:fetch",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/authService.ts:upsertUserProfile",
+      "target": "function:src/services/authService.ts:JSON.stringify",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/authService.ts:upsertUserProfile",
+      "target": "function:src/services/authService.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/authService.ts:upsertUserProfile",
+      "target": "function:src/services/authService.ts:fetch",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/authService.ts:upsertUserProfile",
+      "target": "function:src/services/authService.ts:JSON.stringify",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/authService.ts:upsertUserProfile",
+      "target": "function:src/services/authService.ts:response.json",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/authService.ts:upsertUserProfile",
+      "target": "function:src/services/authService.ts:createClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/authService.ts:upsertUserProfile",
+      "target": "function:src/services/authService.ts:supabase.auth.setSession",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/authService.ts:upsertUserProfile",
+      "target": "function:src/services/authService.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/authService.ts:upsertUserProfile",
+      "target": "function:src/services/authService.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/authService.ts:upsertUserProfile",
+      "target": "function:src/services/authService.ts:response.text",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/authService.ts:upsertUserProfile",
+      "target": "function:src/services/authService.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/authService.ts:signUpWithEmail",
+      "target": "function:src/services/authService.ts:getValidAuth",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/authService.ts:signUpWithEmail",
+      "target": "function:src/services/authService.ts:createUserWithEmailAndPassword",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/authService.ts:signUpWithEmail",
+      "target": "function:src/services/authService.ts:upsertUserProfile",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/authService.ts:signUpWithEmail",
+      "target": "function:src/services/authService.ts:handleAuthCollision",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/authService.ts:signInWithEmail",
+      "target": "function:src/services/authService.ts:getValidAuth",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/authService.ts:signInWithEmail",
+      "target": "function:src/services/authService.ts:signInWithEmailAndPassword",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/authService.ts:signInWithEmail",
+      "target": "function:src/services/authService.ts:upsertUserProfile",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/authService.ts:signInWithGoogle",
+      "target": "function:src/services/authService.ts:getValidAuth",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/authService.ts:signInWithGoogle",
+      "target": "function:src/services/authService.ts:signInWithPopup",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/authService.ts:signInWithGoogle",
+      "target": "function:src/services/authService.ts:upsertUserProfile",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/authService.ts:signInWithGoogle",
+      "target": "function:src/services/authService.ts:handleAuthCollision",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/authService.ts:signInWithFacebook",
+      "target": "function:src/services/authService.ts:getValidAuth",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/authService.ts:signInWithFacebook",
+      "target": "function:src/services/authService.ts:signInWithPopup",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/authService.ts:signInWithFacebook",
+      "target": "function:src/services/authService.ts:upsertUserProfile",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/authService.ts:signInWithFacebook",
+      "target": "function:src/services/authService.ts:handleAuthCollision",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/authService.ts:setupRecaptcha",
+      "target": "function:src/services/authService.ts:getValidAuth",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/authService.ts:sendPhoneVerification",
+      "target": "function:src/services/authService.ts:getValidAuth",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/authService.ts:sendPhoneVerification",
+      "target": "function:src/services/authService.ts:setupRecaptcha",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/authService.ts:sendPhoneVerification",
+      "target": "function:src/services/authService.ts:signInWithPhoneNumber",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/authService.ts:sendPhoneVerification",
+      "target": "function:src/services/authService.ts:handleAuthCollision",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/authService.ts:verifyPhoneCode",
+      "target": "function:src/services/authService.ts:confirmationResult.confirm",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/authService.ts:verifyPhoneCode",
+      "target": "function:src/services/authService.ts:upsertUserProfile",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/authService.ts:verifyPhoneCode",
+      "target": "function:src/services/authService.ts:handleAuthCollision",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/authService.ts:linkGoogleToSession",
+      "target": "function:src/services/authService.ts:getValidAuth",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/authService.ts:linkGoogleToSession",
+      "target": "function:src/services/authService.ts:linkWithPopup",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/authService.ts:linkGoogleToSession",
+      "target": "function:src/services/authService.ts:upsertUserProfile",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/authService.ts:linkFacebookToSession",
+      "target": "function:src/services/authService.ts:getValidAuth",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/authService.ts:linkFacebookToSession",
+      "target": "function:src/services/authService.ts:linkWithPopup",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/authService.ts:linkFacebookToSession",
+      "target": "function:src/services/authService.ts:upsertUserProfile",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/authService.ts:linkEmailPasswordToSession",
+      "target": "function:src/services/authService.ts:getValidAuth",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/authService.ts:linkEmailPasswordToSession",
+      "target": "function:src/services/authService.ts:EmailAuthProvider.credential",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/authService.ts:linkEmailPasswordToSession",
+      "target": "function:src/services/authService.ts:linkWithCredential",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/authService.ts:linkEmailPasswordToSession",
+      "target": "function:src/services/authService.ts:upsertUserProfile",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/authService.ts:linkPhoneToSession",
+      "target": "function:src/services/authService.ts:getValidAuth",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/authService.ts:linkPhoneToSession",
+      "target": "function:src/services/authService.ts:setupRecaptcha",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/authService.ts:linkPhoneToSession",
+      "target": "function:src/services/authService.ts:linkWithPhoneNumber",
+      "type": "calls"
+    }
+  ]
+}

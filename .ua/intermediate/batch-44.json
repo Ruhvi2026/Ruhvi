@@ -1,0 +1,4319 @@
+{
+  "batchIndex": 44,
+  "batchFiles": [
+    {
+      "path": "src/lib/espo/crypto.ts",
+      "language": "typescript",
+      "sizeLines": 46,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/espo/mapping.ts",
+      "language": "typescript",
+      "sizeLines": 86,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/espo/sync.ts",
+      "language": "typescript",
+      "sizeLines": 219,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/espo/types.ts",
+      "language": "typescript",
+      "sizeLines": 95,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/fcm-admin.ts",
+      "language": "typescript",
+      "sizeLines": 200,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/fcm.ts",
+      "language": "typescript",
+      "sizeLines": 62,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/firebase-admin.ts",
+      "language": "typescript",
+      "sizeLines": 237,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/firebase.ts",
+      "language": "typescript",
+      "sizeLines": 34,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/gtag.ts",
+      "language": "typescript",
+      "sizeLines": 36,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/imageService.ts",
+      "language": "typescript",
+      "sizeLines": 143,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/inventory.ts",
+      "language": "typescript",
+      "sizeLines": 134,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/livekit/__tests__/token.test.ts",
+      "language": "typescript",
+      "sizeLines": 67,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/livekit/agent-dispatch.ts",
+      "language": "typescript",
+      "sizeLines": 123,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/livekit/config.ts",
+      "language": "typescript",
+      "sizeLines": 49,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/livekit/gemini-live.ts",
+      "language": "typescript",
+      "sizeLines": 268,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/livekit/session-memory.ts",
+      "language": "typescript",
+      "sizeLines": 132,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/livekit/token.ts",
+      "language": "typescript",
+      "sizeLines": 94,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/livekit/usage.ts",
+      "language": "typescript",
+      "sizeLines": 331,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/notifications/service.ts",
+      "language": "typescript",
+      "sizeLines": 154,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/order-events.ts",
+      "language": "typescript",
+      "sizeLines": 303,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/orders/cod.ts",
+      "language": "typescript",
+      "sizeLines": 148,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/orders/create-order.ts",
+      "language": "typescript",
+      "sizeLines": 354,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/orders/finalize-phonepe-order.ts",
+      "language": "typescript",
+      "sizeLines": 279,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/orders/refund.ts",
+      "language": "typescript",
+      "sizeLines": 127,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/orders/returns.ts",
+      "language": "typescript",
+      "sizeLines": 230,
+      "fileCategory": "code"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "file:src/lib/espo/crypto.ts",
+      "name": "crypto.ts",
+      "type": "file",
+      "filePath": "src/lib/espo/crypto.ts",
+      "summary": "typescript code file (46 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/lib/espo/crypto.ts:signPayload",
+      "name": "signPayload",
+      "type": "function",
+      "filePath": "src/lib/espo/crypto.ts",
+      "parentId": "file:src/lib/espo/crypto.ts",
+      "summary": "Function signPayload",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/espo/crypto.ts:verifySignature",
+      "name": "verifySignature",
+      "type": "function",
+      "filePath": "src/lib/espo/crypto.ts",
+      "parentId": "file:src/lib/espo/crypto.ts",
+      "summary": "Function verifySignature",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/espo/mapping.ts",
+      "name": "mapping.ts",
+      "type": "file",
+      "filePath": "src/lib/espo/mapping.ts",
+      "summary": "typescript code file (86 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/lib/espo/mapping.ts:ruhviStatusToEspo",
+      "name": "ruhviStatusToEspo",
+      "type": "function",
+      "filePath": "src/lib/espo/mapping.ts",
+      "parentId": "file:src/lib/espo/mapping.ts",
+      "summary": "Function ruhviStatusToEspo",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/espo/mapping.ts:espoStatusToRuhvi",
+      "name": "espoStatusToRuhvi",
+      "type": "function",
+      "filePath": "src/lib/espo/mapping.ts",
+      "parentId": "file:src/lib/espo/mapping.ts",
+      "summary": "Function espoStatusToRuhvi",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/espo/mapping.ts:ruhviPriorityToEspo",
+      "name": "ruhviPriorityToEspo",
+      "type": "function",
+      "filePath": "src/lib/espo/mapping.ts",
+      "parentId": "file:src/lib/espo/mapping.ts",
+      "summary": "Function ruhviPriorityToEspo",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/espo/mapping.ts:espoPriorityToRuhvi",
+      "name": "espoPriorityToRuhvi",
+      "type": "function",
+      "filePath": "src/lib/espo/mapping.ts",
+      "parentId": "file:src/lib/espo/mapping.ts",
+      "summary": "Function espoPriorityToRuhvi",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/espo/sync.ts",
+      "name": "sync.ts",
+      "type": "file",
+      "filePath": "src/lib/espo/sync.ts",
+      "summary": "typescript code file (219 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/lib/espo/sync.ts:getClient",
+      "name": "getClient",
+      "type": "function",
+      "filePath": "src/lib/espo/sync.ts",
+      "parentId": "file:src/lib/espo/sync.ts",
+      "summary": "Function getClient",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/espo/sync.ts:pushTicketToEspo",
+      "name": "pushTicketToEspo",
+      "type": "function",
+      "filePath": "src/lib/espo/sync.ts",
+      "parentId": "file:src/lib/espo/sync.ts",
+      "summary": "Function pushTicketToEspo",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/espo/sync.ts:syncTicketToEspo",
+      "name": "syncTicketToEspo",
+      "type": "function",
+      "filePath": "src/lib/espo/sync.ts",
+      "parentId": "file:src/lib/espo/sync.ts",
+      "summary": "Function syncTicketToEspo",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/espo/sync.ts:pushTicketUpdateToEspo",
+      "name": "pushTicketUpdateToEspo",
+      "type": "function",
+      "filePath": "src/lib/espo/sync.ts",
+      "parentId": "file:src/lib/espo/sync.ts",
+      "summary": "Function pushTicketUpdateToEspo",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/espo/sync.ts:pushMessageToEspo",
+      "name": "pushMessageToEspo",
+      "type": "function",
+      "filePath": "src/lib/espo/sync.ts",
+      "parentId": "file:src/lib/espo/sync.ts",
+      "summary": "Function pushMessageToEspo",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/espo/types.ts",
+      "name": "types.ts",
+      "type": "file",
+      "filePath": "src/lib/espo/types.ts",
+      "summary": "typescript code file (95 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:src/lib/fcm-admin.ts",
+      "name": "fcm-admin.ts",
+      "type": "file",
+      "filePath": "src/lib/fcm-admin.ts",
+      "summary": "typescript code file (200 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/lib/fcm-admin.ts:formatPrivateKey",
+      "name": "formatPrivateKey",
+      "type": "function",
+      "filePath": "src/lib/fcm-admin.ts",
+      "parentId": "file:src/lib/fcm-admin.ts",
+      "summary": "Function formatPrivateKey",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/fcm-admin.ts:getFcmAccessToken",
+      "name": "getFcmAccessToken",
+      "type": "function",
+      "filePath": "src/lib/fcm-admin.ts",
+      "parentId": "file:src/lib/fcm-admin.ts",
+      "summary": "Function getFcmAccessToken",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/fcm-admin.ts:sendFcmToToken",
+      "name": "sendFcmToToken",
+      "type": "function",
+      "filePath": "src/lib/fcm-admin.ts",
+      "parentId": "file:src/lib/fcm-admin.ts",
+      "summary": "Function sendFcmToToken",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/fcm-admin.ts:sendFcmToTokens",
+      "name": "sendFcmToTokens",
+      "type": "function",
+      "filePath": "src/lib/fcm-admin.ts",
+      "parentId": "file:src/lib/fcm-admin.ts",
+      "summary": "Function sendFcmToTokens",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/fcm-admin.ts:getTokensForUsers",
+      "name": "getTokensForUsers",
+      "type": "function",
+      "filePath": "src/lib/fcm-admin.ts",
+      "parentId": "file:src/lib/fcm-admin.ts",
+      "summary": "Function getTokensForUsers",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/fcm.ts",
+      "name": "fcm.ts",
+      "type": "file",
+      "filePath": "src/lib/fcm.ts",
+      "summary": "typescript code file (62 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/lib/fcm.ts:requestFcmToken",
+      "name": "requestFcmToken",
+      "type": "function",
+      "filePath": "src/lib/fcm.ts",
+      "parentId": "file:src/lib/fcm.ts",
+      "summary": "Function requestFcmToken",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/fcm.ts:onForegroundMessage",
+      "name": "onForegroundMessage",
+      "type": "function",
+      "filePath": "src/lib/fcm.ts",
+      "parentId": "file:src/lib/fcm.ts",
+      "summary": "Function onForegroundMessage",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/firebase-admin.ts",
+      "name": "firebase-admin.ts",
+      "type": "file",
+      "filePath": "src/lib/firebase-admin.ts",
+      "summary": "typescript code file (237 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/lib/firebase-admin.ts:formatPrivateKey",
+      "name": "formatPrivateKey",
+      "type": "function",
+      "filePath": "src/lib/firebase-admin.ts",
+      "parentId": "file:src/lib/firebase-admin.ts",
+      "summary": "Function formatPrivateKey",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/firebase-admin.ts:getGoogleAuthToken",
+      "name": "getGoogleAuthToken",
+      "type": "function",
+      "filePath": "src/lib/firebase-admin.ts",
+      "parentId": "file:src/lib/firebase-admin.ts",
+      "summary": "Function getGoogleAuthToken",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/firebase-admin.ts:getAdminAuth",
+      "name": "getAdminAuth",
+      "type": "function",
+      "filePath": "src/lib/firebase-admin.ts",
+      "parentId": "file:src/lib/firebase-admin.ts",
+      "summary": "Function getAdminAuth",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/firebase.ts",
+      "name": "firebase.ts",
+      "type": "file",
+      "filePath": "src/lib/firebase.ts",
+      "summary": "typescript code file (34 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:src/lib/gtag.ts",
+      "name": "gtag.ts",
+      "type": "file",
+      "filePath": "src/lib/gtag.ts",
+      "summary": "typescript code file (36 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/lib/gtag.ts:pageview",
+      "name": "pageview",
+      "type": "function",
+      "filePath": "src/lib/gtag.ts",
+      "parentId": "file:src/lib/gtag.ts",
+      "summary": "Function pageview",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/gtag.ts:event",
+      "name": "event",
+      "type": "function",
+      "filePath": "src/lib/gtag.ts",
+      "parentId": "file:src/lib/gtag.ts",
+      "summary": "Function event",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/gtag.ts:ecommerceEvent",
+      "name": "ecommerceEvent",
+      "type": "function",
+      "filePath": "src/lib/gtag.ts",
+      "parentId": "file:src/lib/gtag.ts",
+      "summary": "Function ecommerceEvent",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/imageService.ts",
+      "name": "imageService.ts",
+      "type": "file",
+      "filePath": "src/lib/imageService.ts",
+      "summary": "typescript code file (143 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/lib/imageService.ts:getZoomImage",
+      "name": "getZoomImage",
+      "type": "function",
+      "filePath": "src/lib/imageService.ts",
+      "parentId": "file:src/lib/imageService.ts",
+      "summary": "Function getZoomImage",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/imageService.ts:getProductImage",
+      "name": "getProductImage",
+      "type": "function",
+      "filePath": "src/lib/imageService.ts",
+      "parentId": "file:src/lib/imageService.ts",
+      "summary": "Function getProductImage",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/imageService.ts:getThumbnailImage",
+      "name": "getThumbnailImage",
+      "type": "function",
+      "filePath": "src/lib/imageService.ts",
+      "parentId": "file:src/lib/imageService.ts",
+      "summary": "Function getThumbnailImage",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/imageService.ts:getOptimizedImageUrl",
+      "name": "getOptimizedImageUrl",
+      "type": "function",
+      "filePath": "src/lib/imageService.ts",
+      "parentId": "file:src/lib/imageService.ts",
+      "summary": "Function getOptimizedImageUrl",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/imageService.ts:uploadAttachment",
+      "name": "uploadAttachment",
+      "type": "function",
+      "filePath": "src/lib/imageService.ts",
+      "parentId": "file:src/lib/imageService.ts",
+      "summary": "Function uploadAttachment",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/imageService.ts:uploadProductImage",
+      "name": "uploadProductImage",
+      "type": "function",
+      "filePath": "src/lib/imageService.ts",
+      "parentId": "file:src/lib/imageService.ts",
+      "summary": "Function uploadProductImage",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/imageService.ts:deleteProductImage",
+      "name": "deleteProductImage",
+      "type": "function",
+      "filePath": "src/lib/imageService.ts",
+      "parentId": "file:src/lib/imageService.ts",
+      "summary": "Function deleteProductImage",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/inventory.ts",
+      "name": "inventory.ts",
+      "type": "file",
+      "filePath": "src/lib/inventory.ts",
+      "summary": "typescript code file (134 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/lib/inventory.ts:getInventoryThresholds",
+      "name": "getInventoryThresholds",
+      "type": "function",
+      "filePath": "src/lib/inventory.ts",
+      "parentId": "file:src/lib/inventory.ts",
+      "summary": "Function getInventoryThresholds",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/inventory.ts:computeStockStatus",
+      "name": "computeStockStatus",
+      "type": "function",
+      "filePath": "src/lib/inventory.ts",
+      "parentId": "file:src/lib/inventory.ts",
+      "summary": "Function computeStockStatus",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/livekit/__tests__/token.test.ts",
+      "name": "token.test.ts",
+      "type": "file",
+      "filePath": "src/lib/livekit/__tests__/token.test.ts",
+      "summary": "typescript code file (67 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:src/lib/livekit/agent-dispatch.ts",
+      "name": "agent-dispatch.ts",
+      "type": "file",
+      "filePath": "src/lib/livekit/agent-dispatch.ts",
+      "summary": "typescript code file (123 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "class:src/lib/livekit/agent-dispatch.ts:LiveKitAgentManager",
+      "name": "LiveKitAgentManager",
+      "type": "class",
+      "filePath": "src/lib/livekit/agent-dispatch.ts",
+      "parentId": "file:src/lib/livekit/agent-dispatch.ts",
+      "summary": "Class LiveKitAgentManager",
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/lib/livekit/config.ts",
+      "name": "config.ts",
+      "type": "file",
+      "filePath": "src/lib/livekit/config.ts",
+      "summary": "typescript code file (49 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/lib/livekit/config.ts:getLiveKitConfig",
+      "name": "getLiveKitConfig",
+      "type": "function",
+      "filePath": "src/lib/livekit/config.ts",
+      "parentId": "file:src/lib/livekit/config.ts",
+      "summary": "Function getLiveKitConfig",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/livekit/gemini-live.ts",
+      "name": "gemini-live.ts",
+      "type": "file",
+      "filePath": "src/lib/livekit/gemini-live.ts",
+      "summary": "typescript code file (268 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "class:src/lib/livekit/gemini-live.ts:GeminiLiveSession",
+      "name": "GeminiLiveSession",
+      "type": "class",
+      "filePath": "src/lib/livekit/gemini-live.ts",
+      "parentId": "file:src/lib/livekit/gemini-live.ts",
+      "summary": "Class GeminiLiveSession",
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/lib/livekit/session-memory.ts",
+      "name": "session-memory.ts",
+      "type": "file",
+      "filePath": "src/lib/livekit/session-memory.ts",
+      "summary": "typescript code file (132 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/lib/livekit/session-memory.ts:startVoiceSessionMemory",
+      "name": "startVoiceSessionMemory",
+      "type": "function",
+      "filePath": "src/lib/livekit/session-memory.ts",
+      "parentId": "file:src/lib/livekit/session-memory.ts",
+      "summary": "Function startVoiceSessionMemory",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/livekit/session-memory.ts:appendVoiceTurn",
+      "name": "appendVoiceTurn",
+      "type": "function",
+      "filePath": "src/lib/livekit/session-memory.ts",
+      "parentId": "file:src/lib/livekit/session-memory.ts",
+      "summary": "Function appendVoiceTurn",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/livekit/session-memory.ts:getSessionContext",
+      "name": "getSessionContext",
+      "type": "function",
+      "filePath": "src/lib/livekit/session-memory.ts",
+      "parentId": "file:src/lib/livekit/session-memory.ts",
+      "summary": "Function getSessionContext",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/livekit/session-memory.ts:persistTurnLogAsync",
+      "name": "persistTurnLogAsync",
+      "type": "function",
+      "filePath": "src/lib/livekit/session-memory.ts",
+      "parentId": "file:src/lib/livekit/session-memory.ts",
+      "summary": "Function persistTurnLogAsync",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/livekit/session-memory.ts:endVoiceSessionMemory",
+      "name": "endVoiceSessionMemory",
+      "type": "function",
+      "filePath": "src/lib/livekit/session-memory.ts",
+      "parentId": "file:src/lib/livekit/session-memory.ts",
+      "summary": "Function endVoiceSessionMemory",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/livekit/token.ts",
+      "name": "token.ts",
+      "type": "file",
+      "filePath": "src/lib/livekit/token.ts",
+      "summary": "typescript code file (94 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/lib/livekit/token.ts:createLiveKitToken",
+      "name": "createLiveKitToken",
+      "type": "function",
+      "filePath": "src/lib/livekit/token.ts",
+      "parentId": "file:src/lib/livekit/token.ts",
+      "summary": "Function createLiveKitToken",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/livekit/token.ts:verifyLiveKitToken",
+      "name": "verifyLiveKitToken",
+      "type": "function",
+      "filePath": "src/lib/livekit/token.ts",
+      "parentId": "file:src/lib/livekit/token.ts",
+      "summary": "Function verifyLiveKitToken",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/livekit/usage.ts",
+      "name": "usage.ts",
+      "type": "file",
+      "filePath": "src/lib/livekit/usage.ts",
+      "summary": "typescript code file (331 lines)",
+      "complexity": "complex",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/lib/livekit/usage.ts:mintLiveKitAdminToken",
+      "name": "mintLiveKitAdminToken",
+      "type": "function",
+      "filePath": "src/lib/livekit/usage.ts",
+      "parentId": "file:src/lib/livekit/usage.ts",
+      "summary": "Function mintLiveKitAdminToken",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/livekit/usage.ts:getLiveKitCloudUsage",
+      "name": "getLiveKitCloudUsage",
+      "type": "function",
+      "filePath": "src/lib/livekit/usage.ts",
+      "parentId": "file:src/lib/livekit/usage.ts",
+      "summary": "Function getLiveKitCloudUsage",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/notifications/service.ts",
+      "name": "service.ts",
+      "type": "file",
+      "filePath": "src/lib/notifications/service.ts",
+      "summary": "typescript code file (154 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/lib/notifications/service.ts:sendExpoPush",
+      "name": "sendExpoPush",
+      "type": "function",
+      "filePath": "src/lib/notifications/service.ts",
+      "parentId": "file:src/lib/notifications/service.ts",
+      "summary": "Function sendExpoPush",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/notifications/service.ts:createAndSendNotification",
+      "name": "createAndSendNotification",
+      "type": "function",
+      "filePath": "src/lib/notifications/service.ts",
+      "parentId": "file:src/lib/notifications/service.ts",
+      "summary": "Function createAndSendNotification",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/order-events.ts",
+      "name": "order-events.ts",
+      "type": "file",
+      "filePath": "src/lib/order-events.ts",
+      "summary": "typescript code file (303 lines)",
+      "complexity": "complex",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/lib/order-events.ts:getServiceClient",
+      "name": "getServiceClient",
+      "type": "function",
+      "filePath": "src/lib/order-events.ts",
+      "parentId": "file:src/lib/order-events.ts",
+      "summary": "Function getServiceClient",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/order-events.ts:logOrderEvent",
+      "name": "logOrderEvent",
+      "type": "function",
+      "filePath": "src/lib/order-events.ts",
+      "parentId": "file:src/lib/order-events.ts",
+      "summary": "Function logOrderEvent",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/order-events.ts:getOrderEvents",
+      "name": "getOrderEvents",
+      "type": "function",
+      "filePath": "src/lib/order-events.ts",
+      "parentId": "file:src/lib/order-events.ts",
+      "summary": "Function getOrderEvents",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/order-events.ts:getEventDisplayConfig",
+      "name": "getEventDisplayConfig",
+      "type": "function",
+      "filePath": "src/lib/order-events.ts",
+      "parentId": "file:src/lib/order-events.ts",
+      "summary": "Function getEventDisplayConfig",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/orders/cod.ts",
+      "name": "cod.ts",
+      "type": "file",
+      "filePath": "src/lib/orders/cod.ts",
+      "summary": "typescript code file (148 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/lib/orders/cod.ts:getCodRefusalThreshold",
+      "name": "getCodRefusalThreshold",
+      "type": "function",
+      "filePath": "src/lib/orders/cod.ts",
+      "parentId": "file:src/lib/orders/cod.ts",
+      "summary": "Function getCodRefusalThreshold",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/orders/cod.ts:getCodEligibility",
+      "name": "getCodEligibility",
+      "type": "function",
+      "filePath": "src/lib/orders/cod.ts",
+      "parentId": "file:src/lib/orders/cod.ts",
+      "summary": "Function getCodEligibility",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/orders/cod.ts:recordCodRefusal",
+      "name": "recordCodRefusal",
+      "type": "function",
+      "filePath": "src/lib/orders/cod.ts",
+      "parentId": "file:src/lib/orders/cod.ts",
+      "summary": "Function recordCodRefusal",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/orders/cod.ts:resetCodEligibility",
+      "name": "resetCodEligibility",
+      "type": "function",
+      "filePath": "src/lib/orders/cod.ts",
+      "parentId": "file:src/lib/orders/cod.ts",
+      "summary": "Function resetCodEligibility",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/orders/create-order.ts",
+      "name": "create-order.ts",
+      "type": "file",
+      "filePath": "src/lib/orders/create-order.ts",
+      "summary": "typescript code file (354 lines)",
+      "complexity": "complex",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/lib/orders/create-order.ts:createOrder",
+      "name": "createOrder",
+      "type": "function",
+      "filePath": "src/lib/orders/create-order.ts",
+      "parentId": "file:src/lib/orders/create-order.ts",
+      "summary": "Function createOrder",
+      "complexity": "simple"
+    },
+    {
+      "id": "class:src/lib/orders/create-order.ts:OrderError",
+      "name": "OrderError",
+      "type": "class",
+      "filePath": "src/lib/orders/create-order.ts",
+      "parentId": "file:src/lib/orders/create-order.ts",
+      "summary": "Class OrderError",
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/lib/orders/finalize-phonepe-order.ts",
+      "name": "finalize-phonepe-order.ts",
+      "type": "file",
+      "filePath": "src/lib/orders/finalize-phonepe-order.ts",
+      "summary": "typescript code file (279 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/lib/orders/finalize-phonepe-order.ts:finalizePhonePeOrder",
+      "name": "finalizePhonePeOrder",
+      "type": "function",
+      "filePath": "src/lib/orders/finalize-phonepe-order.ts",
+      "parentId": "file:src/lib/orders/finalize-phonepe-order.ts",
+      "summary": "Function finalizePhonePeOrder",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/orders/finalize-phonepe-order.ts:sendOrderNotifications",
+      "name": "sendOrderNotifications",
+      "type": "function",
+      "filePath": "src/lib/orders/finalize-phonepe-order.ts",
+      "parentId": "file:src/lib/orders/finalize-phonepe-order.ts",
+      "summary": "Function sendOrderNotifications",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/orders/refund.ts",
+      "name": "refund.ts",
+      "type": "file",
+      "filePath": "src/lib/orders/refund.ts",
+      "summary": "typescript code file (128 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/lib/orders/refund.ts:computeRefundableAmount",
+      "name": "computeRefundableAmount",
+      "type": "function",
+      "filePath": "src/lib/orders/refund.ts",
+      "parentId": "file:src/lib/orders/refund.ts",
+      "summary": "Function computeRefundableAmount",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/orders/refund.ts:executeRefund",
+      "name": "executeRefund",
+      "type": "function",
+      "filePath": "src/lib/orders/refund.ts",
+      "parentId": "file:src/lib/orders/refund.ts",
+      "summary": "Function executeRefund",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/orders/returns.ts",
+      "name": "returns.ts",
+      "type": "file",
+      "filePath": "src/lib/orders/returns.ts",
+      "summary": "typescript code file (231 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/lib/orders/returns.ts:approveReturn",
+      "name": "approveReturn",
+      "type": "function",
+      "filePath": "src/lib/orders/returns.ts",
+      "parentId": "file:src/lib/orders/returns.ts",
+      "summary": "Function approveReturn",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/orders/returns.ts:rejectReturn",
+      "name": "rejectReturn",
+      "type": "function",
+      "filePath": "src/lib/orders/returns.ts",
+      "parentId": "file:src/lib/orders/returns.ts",
+      "summary": "Function rejectReturn",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/orders/returns.ts:receiveReturn",
+      "name": "receiveReturn",
+      "type": "function",
+      "filePath": "src/lib/orders/returns.ts",
+      "parentId": "file:src/lib/orders/returns.ts",
+      "summary": "Function receiveReturn",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/orders/returns.ts:receiveRto",
+      "name": "receiveRto",
+      "type": "function",
+      "filePath": "src/lib/orders/returns.ts",
+      "parentId": "file:src/lib/orders/returns.ts",
+      "summary": "Function receiveRto",
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:src/lib/espo/crypto.ts",
+      "target": "function:src/lib/espo/crypto.ts:signPayload",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/espo/crypto.ts",
+      "target": "function:src/lib/espo/crypto.ts:verifySignature",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/espo/crypto.ts:signPayload",
+      "target": "function:src/lib/espo/crypto.ts:crypto.subtle.importKey",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/espo/crypto.ts:signPayload",
+      "target": "function:src/lib/espo/crypto.ts:encoder.encode",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/espo/crypto.ts:signPayload",
+      "target": "function:src/lib/espo/crypto.ts:crypto.subtle.sign",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/espo/crypto.ts:signPayload",
+      "target": "function:src/lib/espo/crypto.ts:encoder.encode",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/espo/crypto.ts:signPayload",
+      "target": "function:src/lib/espo/crypto.ts:Array.from(new Uint8Array(signature))\n    .map((b) => b.toString(16).padStart(2, '0'))\n    .join",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/espo/crypto.ts:signPayload",
+      "target": "function:src/lib/espo/crypto.ts:Array.from(new Uint8Array(signature))\n    .map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/espo/crypto.ts:signPayload",
+      "target": "function:src/lib/espo/crypto.ts:Array.from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/espo/crypto.ts:signPayload",
+      "target": "function:src/lib/espo/crypto.ts:b.toString(16).padStart",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/espo/crypto.ts:signPayload",
+      "target": "function:src/lib/espo/crypto.ts:b.toString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/espo/crypto.ts:verifySignature",
+      "target": "function:src/lib/espo/crypto.ts:signPayload",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/lib/espo/mapping.ts",
+      "target": "function:src/lib/espo/mapping.ts:ruhviStatusToEspo",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/espo/mapping.ts",
+      "target": "function:src/lib/espo/mapping.ts:espoStatusToRuhvi",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/espo/mapping.ts",
+      "target": "function:src/lib/espo/mapping.ts:ruhviPriorityToEspo",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/espo/mapping.ts",
+      "target": "function:src/lib/espo/mapping.ts:espoPriorityToRuhvi",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/espo/mapping.ts:ruhviStatusToEspo",
+      "target": "function:src/lib/espo/mapping.ts:STATUS_MAP.find",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/espo/mapping.ts:espoStatusToRuhvi",
+      "target": "function:src/lib/espo/mapping.ts:espoStatus.toLowerCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/espo/mapping.ts:ruhviPriorityToEspo",
+      "target": "function:src/lib/espo/mapping.ts:PRIORITY_MAP.find",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/espo/mapping.ts:espoPriorityToRuhvi",
+      "target": "function:src/lib/espo/mapping.ts:espoPriority.toLowerCase",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/lib/espo/sync.ts",
+      "target": "function:src/lib/espo/sync.ts:getClient",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/espo/sync.ts",
+      "target": "function:src/lib/espo/sync.ts:pushTicketToEspo",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/espo/sync.ts",
+      "target": "function:src/lib/espo/sync.ts:syncTicketToEspo",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/espo/sync.ts",
+      "target": "function:src/lib/espo/sync.ts:pushTicketUpdateToEspo",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/espo/sync.ts",
+      "target": "function:src/lib/espo/sync.ts:pushMessageToEspo",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/espo/sync.ts:getClient",
+      "target": "function:src/lib/espo/sync.ts:getEspoConfig",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/espo/sync.ts:pushTicketToEspo",
+      "target": "function:src/lib/espo/sync.ts:getClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/espo/sync.ts:pushTicketToEspo",
+      "target": "function:src/lib/espo/sync.ts:c.findCaseByTicketId",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/espo/sync.ts:pushTicketToEspo",
+      "target": "function:src/lib/espo/sync.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/espo/sync.ts:pushTicketToEspo",
+      "target": "function:src/lib/espo/sync.ts:supabase\n        .from('support_tickets')\n        .update({\n          espo_case_id: existing.id,\n          espo_synced_at: new Date().toISOString(),\n        })\n        .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/espo/sync.ts:pushTicketToEspo",
+      "target": "function:src/lib/espo/sync.ts:supabase\n        .from('support_tickets')\n        .update",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/espo/sync.ts:pushTicketToEspo",
+      "target": "function:src/lib/espo/sync.ts:supabase\n        .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/espo/sync.ts:pushTicketToEspo",
+      "target": "function:src/lib/espo/sync.ts:new Date().toISOString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/espo/sync.ts:pushTicketToEspo",
+      "target": "function:src/lib/espo/sync.ts:ruhviStatusToEspo",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/espo/sync.ts:pushTicketToEspo",
+      "target": "function:src/lib/espo/sync.ts:ruhviPriorityToEspo",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/espo/sync.ts:pushTicketToEspo",
+      "target": "function:src/lib/espo/sync.ts:c.createCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/espo/sync.ts:pushTicketToEspo",
+      "target": "function:src/lib/espo/sync.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/espo/sync.ts:pushTicketToEspo",
+      "target": "function:src/lib/espo/sync.ts:supabase\n        .from('support_tickets')\n        .update({\n          espo_case_id: created.id,\n          espo_synced_at: new Date().toISOString(),\n        })\n        .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/espo/sync.ts:pushTicketToEspo",
+      "target": "function:src/lib/espo/sync.ts:supabase\n        .from('support_tickets')\n        .update",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/espo/sync.ts:pushTicketToEspo",
+      "target": "function:src/lib/espo/sync.ts:supabase\n        .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/espo/sync.ts:pushTicketToEspo",
+      "target": "function:src/lib/espo/sync.ts:new Date().toISOString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/espo/sync.ts:pushTicketToEspo",
+      "target": "function:src/lib/espo/sync.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/espo/sync.ts:syncTicketToEspo",
+      "target": "function:src/lib/espo/sync.ts:supabase\n      .from('support_tickets')\n      .select(\n        `id, ticket_number, title, description, priority, status, assigned_to,\n         customer:customer_id(email, full_name, phone)`\n      )\n      .eq('id', ticketId)\n      .maybeSingle",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/espo/sync.ts:syncTicketToEspo",
+      "target": "function:src/lib/espo/sync.ts:supabase\n      .from('support_tickets')\n      .select(\n        `id, ticket_number, title, description, priority, status, assigned_to,\n         customer:customer_id(email, full_name, phone)`\n      )\n      .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/espo/sync.ts:syncTicketToEspo",
+      "target": "function:src/lib/espo/sync.ts:supabase\n      .from('support_tickets')\n      .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/espo/sync.ts:syncTicketToEspo",
+      "target": "function:src/lib/espo/sync.ts:supabase\n      .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/espo/sync.ts:syncTicketToEspo",
+      "target": "function:src/lib/espo/sync.ts:Array.isArray",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/espo/sync.ts:syncTicketToEspo",
+      "target": "function:src/lib/espo/sync.ts:pushTicketToEspo",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/espo/sync.ts:syncTicketToEspo",
+      "target": "function:src/lib/espo/sync.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/espo/sync.ts:pushTicketUpdateToEspo",
+      "target": "function:src/lib/espo/sync.ts:getClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/espo/sync.ts:pushTicketUpdateToEspo",
+      "target": "function:src/lib/espo/sync.ts:c.findCaseByTicketId",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/espo/sync.ts:pushTicketUpdateToEspo",
+      "target": "function:src/lib/espo/sync.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/espo/sync.ts:pushTicketUpdateToEspo",
+      "target": "function:src/lib/espo/sync.ts:ruhviStatusToEspo",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/espo/sync.ts:pushTicketUpdateToEspo",
+      "target": "function:src/lib/espo/sync.ts:ruhviPriorityToEspo",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/espo/sync.ts:pushTicketUpdateToEspo",
+      "target": "function:src/lib/espo/sync.ts:Object.keys",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/espo/sync.ts:pushTicketUpdateToEspo",
+      "target": "function:src/lib/espo/sync.ts:c.updateCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/espo/sync.ts:pushTicketUpdateToEspo",
+      "target": "function:src/lib/espo/sync.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/espo/sync.ts:pushTicketUpdateToEspo",
+      "target": "function:src/lib/espo/sync.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/espo/sync.ts:pushMessageToEspo",
+      "target": "function:src/lib/espo/sync.ts:getClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/espo/sync.ts:pushMessageToEspo",
+      "target": "function:src/lib/espo/sync.ts:c.findCaseByTicketId",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/espo/sync.ts:pushMessageToEspo",
+      "target": "function:src/lib/espo/sync.ts:c.addNote",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/espo/sync.ts:pushMessageToEspo",
+      "target": "function:src/lib/espo/sync.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/espo/sync.ts:pushMessageToEspo",
+      "target": "function:src/lib/espo/sync.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/lib/fcm-admin.ts",
+      "target": "function:src/lib/fcm-admin.ts:formatPrivateKey",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/fcm-admin.ts",
+      "target": "function:src/lib/fcm-admin.ts:getFcmAccessToken",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/fcm-admin.ts",
+      "target": "function:src/lib/fcm-admin.ts:sendFcmToToken",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/fcm-admin.ts",
+      "target": "function:src/lib/fcm-admin.ts:sendFcmToTokens",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/fcm-admin.ts",
+      "target": "function:src/lib/fcm-admin.ts:getTokensForUsers",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/fcm-admin.ts:formatPrivateKey",
+      "target": "function:src/lib/fcm-admin.ts:key.trim",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/fcm-admin.ts:formatPrivateKey",
+      "target": "function:src/lib/fcm-admin.ts:cleaned.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/fcm-admin.ts:formatPrivateKey",
+      "target": "function:src/lib/fcm-admin.ts:cleaned.endsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/fcm-admin.ts:formatPrivateKey",
+      "target": "function:src/lib/fcm-admin.ts:cleaned.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/fcm-admin.ts:formatPrivateKey",
+      "target": "function:src/lib/fcm-admin.ts:cleaned.endsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/fcm-admin.ts:formatPrivateKey",
+      "target": "function:src/lib/fcm-admin.ts:cleaned.slice",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/fcm-admin.ts:formatPrivateKey",
+      "target": "function:src/lib/fcm-admin.ts:cleaned.replace(/\\\\n/g, '\\n').trim",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/fcm-admin.ts:formatPrivateKey",
+      "target": "function:src/lib/fcm-admin.ts:cleaned.replace",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/fcm-admin.ts:formatPrivateKey",
+      "target": "function:src/lib/fcm-admin.ts:cleaned.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/fcm-admin.ts:getFcmAccessToken",
+      "target": "function:src/lib/fcm-admin.ts:Math.floor",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/fcm-admin.ts:getFcmAccessToken",
+      "target": "function:src/lib/fcm-admin.ts:Date.now",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/fcm-admin.ts:getFcmAccessToken",
+      "target": "function:src/lib/fcm-admin.ts:importPKCS8",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/fcm-admin.ts:getFcmAccessToken",
+      "target": "function:src/lib/fcm-admin.ts:formatPrivateKey",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/fcm-admin.ts:getFcmAccessToken",
+      "target": "function:src/lib/fcm-admin.ts:new SignJWT({ scope: FCM_SCOPE })\r\n    .setProtectedHeader({ alg: 'RS256', typ: 'JWT' })\r\n    .setIssuer(clientEmail)\r\n    .setSubject(clientEmail)\r\n    .setAudience('https://oauth2.googleapis.com/token')\r\n    .setIssuedAt(now)\r\n    .setExpirationTime(now + 3600)\r\n    .sign",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/fcm-admin.ts:getFcmAccessToken",
+      "target": "function:src/lib/fcm-admin.ts:new SignJWT({ scope: FCM_SCOPE })\r\n    .setProtectedHeader({ alg: 'RS256', typ: 'JWT' })\r\n    .setIssuer(clientEmail)\r\n    .setSubject(clientEmail)\r\n    .setAudience('https://oauth2.googleapis.com/token')\r\n    .setIssuedAt(now)\r\n    .setExpirationTime",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/fcm-admin.ts:getFcmAccessToken",
+      "target": "function:src/lib/fcm-admin.ts:new SignJWT({ scope: FCM_SCOPE })\r\n    .setProtectedHeader({ alg: 'RS256', typ: 'JWT' })\r\n    .setIssuer(clientEmail)\r\n    .setSubject(clientEmail)\r\n    .setAudience('https://oauth2.googleapis.com/token')\r\n    .setIssuedAt",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/fcm-admin.ts:getFcmAccessToken",
+      "target": "function:src/lib/fcm-admin.ts:new SignJWT({ scope: FCM_SCOPE })\r\n    .setProtectedHeader({ alg: 'RS256', typ: 'JWT' })\r\n    .setIssuer(clientEmail)\r\n    .setSubject(clientEmail)\r\n    .setAudience",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/fcm-admin.ts:getFcmAccessToken",
+      "target": "function:src/lib/fcm-admin.ts:new SignJWT({ scope: FCM_SCOPE })\r\n    .setProtectedHeader({ alg: 'RS256', typ: 'JWT' })\r\n    .setIssuer(clientEmail)\r\n    .setSubject",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/fcm-admin.ts:getFcmAccessToken",
+      "target": "function:src/lib/fcm-admin.ts:new SignJWT({ scope: FCM_SCOPE })\r\n    .setProtectedHeader({ alg: 'RS256', typ: 'JWT' })\r\n    .setIssuer",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/fcm-admin.ts:getFcmAccessToken",
+      "target": "function:src/lib/fcm-admin.ts:new SignJWT({ scope: FCM_SCOPE })\r\n    .setProtectedHeader",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/fcm-admin.ts:getFcmAccessToken",
+      "target": "function:src/lib/fcm-admin.ts:fetch",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/fcm-admin.ts:getFcmAccessToken",
+      "target": "function:src/lib/fcm-admin.ts:res.json",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/fcm-admin.ts:sendFcmToToken",
+      "target": "function:src/lib/fcm-admin.ts:getFcmAccessToken",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/fcm-admin.ts:sendFcmToToken",
+      "target": "function:src/lib/fcm-admin.ts:fetch",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/fcm-admin.ts:sendFcmToToken",
+      "target": "function:src/lib/fcm-admin.ts:JSON.stringify",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/fcm-admin.ts:sendFcmToToken",
+      "target": "function:src/lib/fcm-admin.ts:res.json",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/fcm-admin.ts:sendFcmToTokens",
+      "target": "function:src/lib/fcm-admin.ts:sendFcmToToken",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/fcm-admin.ts:sendFcmToTokens",
+      "target": "function:src/lib/fcm-admin.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/fcm-admin.ts:getTokensForUsers",
+      "target": "function:src/lib/fcm-admin.ts:import",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/fcm-admin.ts:getTokensForUsers",
+      "target": "function:src/lib/fcm-admin.ts:createClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/fcm-admin.ts:getTokensForUsers",
+      "target": "function:src/lib/fcm-admin.ts:supabase\r\n    .from('user_push_tokens')\r\n    .select('token')\r\n    .in",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/fcm-admin.ts:getTokensForUsers",
+      "target": "function:src/lib/fcm-admin.ts:supabase\r\n    .from('user_push_tokens')\r\n    .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/fcm-admin.ts:getTokensForUsers",
+      "target": "function:src/lib/fcm-admin.ts:supabase\r\n    .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/fcm-admin.ts:getTokensForUsers",
+      "target": "function:src/lib/fcm-admin.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/fcm-admin.ts:getTokensForUsers",
+      "target": "function:src/lib/fcm-admin.ts:(data || []).map",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/lib/fcm.ts",
+      "target": "function:src/lib/fcm.ts:requestFcmToken",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/fcm.ts",
+      "target": "function:src/lib/fcm.ts:onForegroundMessage",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/fcm.ts:requestFcmToken",
+      "target": "function:src/lib/fcm.ts:isSupported",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/fcm.ts:requestFcmToken",
+      "target": "function:src/lib/fcm.ts:console.log",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/fcm.ts:requestFcmToken",
+      "target": "function:src/lib/fcm.ts:Notification.requestPermission",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/fcm.ts:requestFcmToken",
+      "target": "function:src/lib/fcm.ts:console.warn",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/fcm.ts:requestFcmToken",
+      "target": "function:src/lib/fcm.ts:getMessaging",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/fcm.ts:requestFcmToken",
+      "target": "function:src/lib/fcm.ts:getToken",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/fcm.ts:requestFcmToken",
+      "target": "function:src/lib/fcm.ts:console.log",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/fcm.ts:requestFcmToken",
+      "target": "function:src/lib/fcm.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/fcm.ts:onForegroundMessage",
+      "target": "function:src/lib/fcm.ts:isSupported",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/fcm.ts:onForegroundMessage",
+      "target": "function:src/lib/fcm.ts:getMessaging",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/fcm.ts:onForegroundMessage",
+      "target": "function:src/lib/fcm.ts:onMessage",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/fcm.ts:onForegroundMessage",
+      "target": "function:src/lib/fcm.ts:callback",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/fcm.ts:onForegroundMessage",
+      "target": "function:src/lib/fcm.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/lib/firebase-admin.ts",
+      "target": "function:src/lib/firebase-admin.ts:formatPrivateKey",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/firebase-admin.ts",
+      "target": "function:src/lib/firebase-admin.ts:getGoogleAuthToken",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/firebase-admin.ts",
+      "target": "function:src/lib/firebase-admin.ts:getAdminAuth",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/firebase-admin.ts:formatPrivateKey",
+      "target": "function:src/lib/firebase-admin.ts:key.trim",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/firebase-admin.ts:formatPrivateKey",
+      "target": "function:src/lib/firebase-admin.ts:cleaned.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/firebase-admin.ts:formatPrivateKey",
+      "target": "function:src/lib/firebase-admin.ts:cleaned.endsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/firebase-admin.ts:formatPrivateKey",
+      "target": "function:src/lib/firebase-admin.ts:cleaned.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/firebase-admin.ts:formatPrivateKey",
+      "target": "function:src/lib/firebase-admin.ts:cleaned.endsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/firebase-admin.ts:formatPrivateKey",
+      "target": "function:src/lib/firebase-admin.ts:cleaned.slice",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/firebase-admin.ts:formatPrivateKey",
+      "target": "function:src/lib/firebase-admin.ts:cleaned.replace(/\\\\n/g, '\\n').trim",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/firebase-admin.ts:formatPrivateKey",
+      "target": "function:src/lib/firebase-admin.ts:cleaned.replace",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/firebase-admin.ts:formatPrivateKey",
+      "target": "function:src/lib/firebase-admin.ts:cleaned.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/firebase-admin.ts:getGoogleAuthToken",
+      "target": "function:src/lib/firebase-admin.ts:Math.floor",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/firebase-admin.ts:getGoogleAuthToken",
+      "target": "function:src/lib/firebase-admin.ts:Date.now",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/firebase-admin.ts:getGoogleAuthToken",
+      "target": "function:src/lib/firebase-admin.ts:formatPrivateKey",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/firebase-admin.ts:getGoogleAuthToken",
+      "target": "function:src/lib/firebase-admin.ts:importPKCS8",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/firebase-admin.ts:getGoogleAuthToken",
+      "target": "function:src/lib/firebase-admin.ts:new SignJWT({\n    scope:\n      'https://www.googleapis.com/auth/identitytoolkit https://www.googleapis.com/auth/firebase.auth',\n  })\n    .setProtectedHeader({ alg: 'RS256', typ: 'JWT' })\n    .setIssuer(clientEmail)\n    .setSubject(clientEmail)\n    .setAudience('https://oauth2.googleapis.com/token')\n    .setIssuedAt(now)\n    .setExpirationTime(now + 3600)\n    .sign",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/firebase-admin.ts:getGoogleAuthToken",
+      "target": "function:src/lib/firebase-admin.ts:new SignJWT({\n    scope:\n      'https://www.googleapis.com/auth/identitytoolkit https://www.googleapis.com/auth/firebase.auth',\n  })\n    .setProtectedHeader({ alg: 'RS256', typ: 'JWT' })\n    .setIssuer(clientEmail)\n    .setSubject(clientEmail)\n    .setAudience('https://oauth2.googleapis.com/token')\n    .setIssuedAt(now)\n    .setExpirationTime",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/firebase-admin.ts:getGoogleAuthToken",
+      "target": "function:src/lib/firebase-admin.ts:new SignJWT({\n    scope:\n      'https://www.googleapis.com/auth/identitytoolkit https://www.googleapis.com/auth/firebase.auth',\n  })\n    .setProtectedHeader({ alg: 'RS256', typ: 'JWT' })\n    .setIssuer(clientEmail)\n    .setSubject(clientEmail)\n    .setAudience('https://oauth2.googleapis.com/token')\n    .setIssuedAt",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/firebase-admin.ts:getGoogleAuthToken",
+      "target": "function:src/lib/firebase-admin.ts:new SignJWT({\n    scope:\n      'https://www.googleapis.com/auth/identitytoolkit https://www.googleapis.com/auth/firebase.auth',\n  })\n    .setProtectedHeader({ alg: 'RS256', typ: 'JWT' })\n    .setIssuer(clientEmail)\n    .setSubject(clientEmail)\n    .setAudience",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/firebase-admin.ts:getGoogleAuthToken",
+      "target": "function:src/lib/firebase-admin.ts:new SignJWT({\n    scope:\n      'https://www.googleapis.com/auth/identitytoolkit https://www.googleapis.com/auth/firebase.auth',\n  })\n    .setProtectedHeader({ alg: 'RS256', typ: 'JWT' })\n    .setIssuer(clientEmail)\n    .setSubject",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/firebase-admin.ts:getGoogleAuthToken",
+      "target": "function:src/lib/firebase-admin.ts:new SignJWT({\n    scope:\n      'https://www.googleapis.com/auth/identitytoolkit https://www.googleapis.com/auth/firebase.auth',\n  })\n    .setProtectedHeader({ alg: 'RS256', typ: 'JWT' })\n    .setIssuer",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/firebase-admin.ts:getGoogleAuthToken",
+      "target": "function:src/lib/firebase-admin.ts:new SignJWT({\n    scope:\n      'https://www.googleapis.com/auth/identitytoolkit https://www.googleapis.com/auth/firebase.auth',\n  })\n    .setProtectedHeader",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/firebase-admin.ts:getGoogleAuthToken",
+      "target": "function:src/lib/firebase-admin.ts:fetch",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/firebase-admin.ts:getGoogleAuthToken",
+      "target": "function:src/lib/firebase-admin.ts:res.json",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/firebase-admin.ts:getUserByEmail",
+      "target": "function:src/lib/firebase-admin.ts:getGoogleAuthToken",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/firebase-admin.ts:getUserByEmail",
+      "target": "function:src/lib/firebase-admin.ts:console.warn",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/firebase-admin.ts:getUserByEmail",
+      "target": "function:src/lib/firebase-admin.ts:fetch",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/firebase-admin.ts:getUserByEmail",
+      "target": "function:src/lib/firebase-admin.ts:JSON.stringify",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/firebase-admin.ts:getUserByEmail",
+      "target": "function:src/lib/firebase-admin.ts:res.json",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/firebase-admin.ts:generatePasswordResetLink",
+      "target": "function:src/lib/firebase-admin.ts:getGoogleAuthToken",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/firebase-admin.ts:generatePasswordResetLink",
+      "target": "function:src/lib/firebase-admin.ts:fetch",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/firebase-admin.ts:generatePasswordResetLink",
+      "target": "function:src/lib/firebase-admin.ts:JSON.stringify",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/firebase-admin.ts:generatePasswordResetLink",
+      "target": "function:src/lib/firebase-admin.ts:res.json",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/firebase-admin.ts:generatePasswordResetLink",
+      "target": "function:src/lib/firebase-admin.ts:fetch",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/firebase-admin.ts:generatePasswordResetLink",
+      "target": "function:src/lib/firebase-admin.ts:JSON.stringify",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/firebase-admin.ts:generatePasswordResetLink",
+      "target": "function:src/lib/firebase-admin.ts:res.json",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/firebase-admin.ts:createUser",
+      "target": "function:src/lib/firebase-admin.ts:fetch",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/firebase-admin.ts:createUser",
+      "target": "function:src/lib/firebase-admin.ts:JSON.stringify",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/firebase-admin.ts:createUser",
+      "target": "function:src/lib/firebase-admin.ts:res.json",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/lib/gtag.ts",
+      "target": "function:src/lib/gtag.ts:pageview",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/gtag.ts",
+      "target": "function:src/lib/gtag.ts:event",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/gtag.ts",
+      "target": "function:src/lib/gtag.ts:ecommerceEvent",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/gtag.ts:pageview",
+      "target": "function:src/lib/gtag.ts:posthog.capture",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/gtag.ts:event",
+      "target": "function:src/lib/gtag.ts:posthog.capture",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/gtag.ts:ecommerceEvent",
+      "target": "function:src/lib/gtag.ts:posthog.capture",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/lib/imageService.ts",
+      "target": "function:src/lib/imageService.ts:getZoomImage",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/imageService.ts",
+      "target": "function:src/lib/imageService.ts:getProductImage",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/imageService.ts",
+      "target": "function:src/lib/imageService.ts:getThumbnailImage",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/imageService.ts",
+      "target": "function:src/lib/imageService.ts:getOptimizedImageUrl",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/imageService.ts",
+      "target": "function:src/lib/imageService.ts:uploadAttachment",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/imageService.ts",
+      "target": "function:src/lib/imageService.ts:uploadProductImage",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/imageService.ts",
+      "target": "function:src/lib/imageService.ts:deleteProductImage",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/imageService.ts:getOptimizedImageUrl",
+      "target": "function:src/lib/imageService.ts:sourceUrl.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/imageService.ts:getOptimizedImageUrl",
+      "target": "function:src/lib/imageService.ts:transformations.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/imageService.ts:getOptimizedImageUrl",
+      "target": "function:src/lib/imageService.ts:transformations.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/imageService.ts:getOptimizedImageUrl",
+      "target": "function:src/lib/imageService.ts:finalTransformations.replace",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/imageService.ts:getOptimizedImageUrl",
+      "target": "function:src/lib/imageService.ts:sourceUrl.match",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/imageService.ts:getOptimizedImageUrl",
+      "target": "function:src/lib/imageService.ts:sourceUrl.replace",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/imageService.ts:getOptimizedImageUrl",
+      "target": "function:src/lib/imageService.ts:sourceUrl.replace",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/imageService.ts:uploadAttachment",
+      "target": "function:src/lib/imageService.ts:createClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/imageService.ts:uploadAttachment",
+      "target": "function:src/lib/imageService.ts:file.name.split('.').pop",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/imageService.ts:uploadAttachment",
+      "target": "function:src/lib/imageService.ts:file.name.split",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/imageService.ts:uploadAttachment",
+      "target": "function:src/lib/imageService.ts:Date.now",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/imageService.ts:uploadAttachment",
+      "target": "function:src/lib/imageService.ts:Math.random().toString(36).substring",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/imageService.ts:uploadAttachment",
+      "target": "function:src/lib/imageService.ts:Math.random().toString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/imageService.ts:uploadAttachment",
+      "target": "function:src/lib/imageService.ts:Math.random",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/imageService.ts:uploadAttachment",
+      "target": "function:src/lib/imageService.ts:supabase.storage\n    .from('assets')\n    .upload",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/imageService.ts:uploadAttachment",
+      "target": "function:src/lib/imageService.ts:supabase.storage\n    .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/imageService.ts:uploadAttachment",
+      "target": "function:src/lib/imageService.ts:supabase.storage.from('assets').getPublicUrl",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/imageService.ts:uploadAttachment",
+      "target": "function:src/lib/imageService.ts:supabase.storage.from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/imageService.ts:uploadProductImage",
+      "target": "function:src/lib/imageService.ts:createClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/imageService.ts:uploadProductImage",
+      "target": "function:src/lib/imageService.ts:file.name.split('.').pop",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/imageService.ts:uploadProductImage",
+      "target": "function:src/lib/imageService.ts:file.name.split",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/imageService.ts:uploadProductImage",
+      "target": "function:src/lib/imageService.ts:Date.now",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/imageService.ts:uploadProductImage",
+      "target": "function:src/lib/imageService.ts:Math.random().toString(36).substring",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/imageService.ts:uploadProductImage",
+      "target": "function:src/lib/imageService.ts:Math.random().toString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/imageService.ts:uploadProductImage",
+      "target": "function:src/lib/imageService.ts:Math.random",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/imageService.ts:uploadProductImage",
+      "target": "function:src/lib/imageService.ts:supabase.storage\n    .from('assets')\n    .upload",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/imageService.ts:uploadProductImage",
+      "target": "function:src/lib/imageService.ts:supabase.storage\n    .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/imageService.ts:uploadProductImage",
+      "target": "function:src/lib/imageService.ts:supabase.storage.from('assets').getPublicUrl",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/imageService.ts:uploadProductImage",
+      "target": "function:src/lib/imageService.ts:supabase.storage.from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/imageService.ts:deleteProductImage",
+      "target": "function:src/lib/imageService.ts:createClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/imageService.ts:deleteProductImage",
+      "target": "function:src/lib/imageService.ts:supabase.storage.from('assets').remove",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/imageService.ts:deleteProductImage",
+      "target": "function:src/lib/imageService.ts:supabase.storage.from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/imageService.ts:deleteProductImage",
+      "target": "function:src/lib/imageService.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/lib/inventory.ts",
+      "target": "function:src/lib/inventory.ts:getInventoryThresholds",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/inventory.ts",
+      "target": "function:src/lib/inventory.ts:computeStockStatus",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/inventory.ts:getInventoryThresholds",
+      "target": "function:src/lib/inventory.ts:supabase\n      .from('settings')\n      .select('value')\n      .eq('key', 'operations_thresholds')\n      .single",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/inventory.ts:getInventoryThresholds",
+      "target": "function:src/lib/inventory.ts:supabase\n      .from('settings')\n      .select('value')\n      .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/inventory.ts:getInventoryThresholds",
+      "target": "function:src/lib/inventory.ts:supabase\n      .from('settings')\n      .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/inventory.ts:getInventoryThresholds",
+      "target": "function:src/lib/inventory.ts:supabase\n      .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/inventory.ts:getInventoryThresholds",
+      "target": "function:src/lib/inventory.ts:Number",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/inventory.ts:getInventoryThresholds",
+      "target": "function:src/lib/inventory.ts:Number",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/inventory.ts:getInventoryThresholds",
+      "target": "function:src/lib/inventory.ts:Number",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/inventory.ts:getInventoryThresholds",
+      "target": "function:src/lib/inventory.ts:Number",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/inventory.ts:getInventoryThresholds",
+      "target": "function:src/lib/inventory.ts:Number",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/lib/livekit/agent-dispatch.ts",
+      "target": "class:src/lib/livekit/agent-dispatch.ts:LiveKitAgentManager",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/livekit/agent-dispatch.ts:constructor",
+      "target": "function:src/lib/livekit/agent-dispatch.ts:getLiveKitConfig",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/agent-dispatch.ts:constructor",
+      "target": "function:src/lib/livekit/agent-dispatch.ts:config.url\r\n      .replace(/^wss:\\/\\//, 'https://')\r\n      .replace",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/agent-dispatch.ts:constructor",
+      "target": "function:src/lib/livekit/agent-dispatch.ts:config.url\r\n      .replace",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/agent-dispatch.ts:createAgentToken",
+      "target": "function:src/lib/livekit/agent-dispatch.ts:LIVEKIT_ROOM_SETTINGS.getAgentIdentity",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/agent-dispatch.ts:createAgentToken",
+      "target": "function:src/lib/livekit/agent-dispatch.ts:createLiveKitToken",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/agent-dispatch.ts:ensureRoom",
+      "target": "function:src/lib/livekit/agent-dispatch.ts:this.roomService.listRooms",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/agent-dispatch.ts:ensureRoom",
+      "target": "function:src/lib/livekit/agent-dispatch.ts:this.roomService.createRoom",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/agent-dispatch.ts:ensureRoom",
+      "target": "function:src/lib/livekit/agent-dispatch.ts:console.warn",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/agent-dispatch.ts:dispatchAgent",
+      "target": "function:src/lib/livekit/agent-dispatch.ts:this.agentDispatch.createDispatch",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/agent-dispatch.ts:dispatchAgent",
+      "target": "function:src/lib/livekit/agent-dispatch.ts:JSON.stringify",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/agent-dispatch.ts:dispatchAgent",
+      "target": "function:src/lib/livekit/agent-dispatch.ts:Date.now",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/agent-dispatch.ts:sendDataToRoom",
+      "target": "function:src/lib/livekit/agent-dispatch.ts:new TextEncoder().encode",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/agent-dispatch.ts:sendDataToRoom",
+      "target": "function:src/lib/livekit/agent-dispatch.ts:this.roomService.sendData",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/agent-dispatch.ts:closeRoom",
+      "target": "function:src/lib/livekit/agent-dispatch.ts:this.roomService.deleteRoom",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/lib/livekit/config.ts",
+      "target": "function:src/lib/livekit/config.ts:getLiveKitConfig",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/livekit/gemini-live.ts",
+      "target": "class:src/lib/livekit/gemini-live.ts:GeminiLiveSession",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/livekit/gemini-live.ts:connect",
+      "target": "function:src/lib/livekit/gemini-live.ts:import",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/gemini-live.ts:connect",
+      "target": "function:src/lib/livekit/gemini-live.ts:this.sendInitialSetup",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/gemini-live.ts:connect",
+      "target": "function:src/lib/livekit/gemini-live.ts:resolve",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/gemini-live.ts:connect",
+      "target": "function:src/lib/livekit/gemini-live.ts:this.handleIncomingMessage",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/gemini-live.ts:connect",
+      "target": "function:src/lib/livekit/gemini-live.ts:this.handlers.onError",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/gemini-live.ts:connect",
+      "target": "function:src/lib/livekit/gemini-live.ts:reject",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/gemini-live.ts:connect",
+      "target": "function:src/lib/livekit/gemini-live.ts:this.handlers.onClose",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/gemini-live.ts:connect",
+      "target": "function:src/lib/livekit/gemini-live.ts:reject",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/gemini-live.ts:sendInitialSetup",
+      "target": "function:src/lib/livekit/gemini-live.ts:this.sendJson",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/gemini-live.ts:sendRealtimeAudio",
+      "target": "function:src/lib/livekit/gemini-live.ts:this.sendJson",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/gemini-live.ts:sendTextMessage",
+      "target": "function:src/lib/livekit/gemini-live.ts:this.sendJson",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/gemini-live.ts:sendToolResponse",
+      "target": "function:src/lib/livekit/gemini-live.ts:responses.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/gemini-live.ts:sendToolResponse",
+      "target": "function:src/lib/livekit/gemini-live.ts:this.sendJson",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/gemini-live.ts:sendJson",
+      "target": "function:src/lib/livekit/gemini-live.ts:this.ws.send",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/gemini-live.ts:sendJson",
+      "target": "function:src/lib/livekit/gemini-live.ts:JSON.stringify",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/gemini-live.ts:handleIncomingMessage",
+      "target": "function:src/lib/livekit/gemini-live.ts:rawData.toString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/gemini-live.ts:handleIncomingMessage",
+      "target": "function:src/lib/livekit/gemini-live.ts:JSON.parse",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/gemini-live.ts:handleIncomingMessage",
+      "target": "function:src/lib/livekit/gemini-live.ts:this.handlers.onInterrupted",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/gemini-live.ts:handleIncomingMessage",
+      "target": "function:src/lib/livekit/gemini-live.ts:this.handlers.onAudioData",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/gemini-live.ts:handleIncomingMessage",
+      "target": "function:src/lib/livekit/gemini-live.ts:this.handlers.onTextDelta",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/gemini-live.ts:handleIncomingMessage",
+      "target": "function:src/lib/livekit/gemini-live.ts:this.handlers.onToolCall",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/gemini-live.ts:handleIncomingMessage",
+      "target": "function:src/lib/livekit/gemini-live.ts:this.handlers.onTurnComplete",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/gemini-live.ts:handleIncomingMessage",
+      "target": "function:src/lib/livekit/gemini-live.ts:this.handlers.onError",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/gemini-live.ts:disconnect",
+      "target": "function:src/lib/livekit/gemini-live.ts:this.ws.close",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/lib/livekit/session-memory.ts",
+      "target": "function:src/lib/livekit/session-memory.ts:startVoiceSessionMemory",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/livekit/session-memory.ts",
+      "target": "function:src/lib/livekit/session-memory.ts:appendVoiceTurn",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/livekit/session-memory.ts",
+      "target": "function:src/lib/livekit/session-memory.ts:getSessionContext",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/livekit/session-memory.ts",
+      "target": "function:src/lib/livekit/session-memory.ts:persistTurnLogAsync",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/livekit/session-memory.ts",
+      "target": "function:src/lib/livekit/session-memory.ts:endVoiceSessionMemory",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/livekit/session-memory.ts:startVoiceSessionMemory",
+      "target": "function:src/lib/livekit/session-memory.ts:Date.now",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/session-memory.ts:startVoiceSessionMemory",
+      "target": "function:src/lib/livekit/session-memory.ts:Date.now",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/session-memory.ts:startVoiceSessionMemory",
+      "target": "function:src/lib/livekit/session-memory.ts:activeSessions.set",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/session-memory.ts:appendVoiceTurn",
+      "target": "function:src/lib/livekit/session-memory.ts:activeSessions.get",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/session-memory.ts:appendVoiceTurn",
+      "target": "function:src/lib/livekit/session-memory.ts:session.turns.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/session-memory.ts:appendVoiceTurn",
+      "target": "function:src/lib/livekit/session-memory.ts:Date.now",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/session-memory.ts:appendVoiceTurn",
+      "target": "function:src/lib/livekit/session-memory.ts:Math.random().toString(36).slice",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/session-memory.ts:appendVoiceTurn",
+      "target": "function:src/lib/livekit/session-memory.ts:Math.random().toString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/session-memory.ts:appendVoiceTurn",
+      "target": "function:src/lib/livekit/session-memory.ts:Math.random",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/session-memory.ts:appendVoiceTurn",
+      "target": "function:src/lib/livekit/session-memory.ts:Date.now",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/session-memory.ts:appendVoiceTurn",
+      "target": "function:src/lib/livekit/session-memory.ts:Date.now",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/session-memory.ts:appendVoiceTurn",
+      "target": "function:src/lib/livekit/session-memory.ts:queueMicrotask",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/session-memory.ts:appendVoiceTurn",
+      "target": "function:src/lib/livekit/session-memory.ts:persistTurnLogAsync(session.userId, session.sessionId, speaker, text).catch",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/session-memory.ts:appendVoiceTurn",
+      "target": "function:src/lib/livekit/session-memory.ts:persistTurnLogAsync",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/session-memory.ts:getSessionContext",
+      "target": "function:src/lib/livekit/session-memory.ts:activeSessions.get",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/session-memory.ts:persistTurnLogAsync",
+      "target": "function:src/lib/livekit/session-memory.ts:getServiceClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/session-memory.ts:persistTurnLogAsync",
+      "target": "function:src/lib/livekit/session-memory.ts:supabase.from('ai_logs').insert",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/session-memory.ts:persistTurnLogAsync",
+      "target": "function:src/lib/livekit/session-memory.ts:supabase.from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/session-memory.ts:persistTurnLogAsync",
+      "target": "function:src/lib/livekit/session-memory.ts:Math.ceil",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/session-memory.ts:endVoiceSessionMemory",
+      "target": "function:src/lib/livekit/session-memory.ts:activeSessions.get",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/session-memory.ts:endVoiceSessionMemory",
+      "target": "function:src/lib/livekit/session-memory.ts:Math.round",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/session-memory.ts:endVoiceSessionMemory",
+      "target": "function:src/lib/livekit/session-memory.ts:Date.now",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/session-memory.ts:endVoiceSessionMemory",
+      "target": "function:src/lib/livekit/session-memory.ts:logAuditEvent",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/session-memory.ts:endVoiceSessionMemory",
+      "target": "function:src/lib/livekit/session-memory.ts:activeSessions.delete",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/lib/livekit/token.ts",
+      "target": "function:src/lib/livekit/token.ts:createLiveKitToken",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/livekit/token.ts",
+      "target": "function:src/lib/livekit/token.ts:verifyLiveKitToken",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/livekit/token.ts:createLiveKitToken",
+      "target": "function:src/lib/livekit/token.ts:getLiveKitConfig",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/token.ts:createLiveKitToken",
+      "target": "function:src/lib/livekit/token.ts:Math.floor",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/token.ts:createLiveKitToken",
+      "target": "function:src/lib/livekit/token.ts:Date.now",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/token.ts:createLiveKitToken",
+      "target": "function:src/lib/livekit/token.ts:new TextEncoder().encode",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/token.ts:createLiveKitToken",
+      "target": "function:src/lib/livekit/token.ts:new jose.SignJWT(payload as Record<string, any>)\r\n    .setProtectedHeader({ alg: 'HS256', typ: 'JWT' })\r\n    .sign",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/token.ts:createLiveKitToken",
+      "target": "function:src/lib/livekit/token.ts:new jose.SignJWT(payload as Record<string, any>)\r\n    .setProtectedHeader",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/token.ts:verifyLiveKitToken",
+      "target": "function:src/lib/livekit/token.ts:getLiveKitConfig",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/token.ts:verifyLiveKitToken",
+      "target": "function:src/lib/livekit/token.ts:new TextEncoder().encode",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/token.ts:verifyLiveKitToken",
+      "target": "function:src/lib/livekit/token.ts:jose.jwtVerify",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/lib/livekit/usage.ts",
+      "target": "function:src/lib/livekit/usage.ts:mintLiveKitAdminToken",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/livekit/usage.ts",
+      "target": "function:src/lib/livekit/usage.ts:getLiveKitCloudUsage",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/livekit/usage.ts:mintLiveKitAdminToken",
+      "target": "function:src/lib/livekit/usage.ts:new TextEncoder().encode",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/usage.ts:mintLiveKitAdminToken",
+      "target": "function:src/lib/livekit/usage.ts:Math.floor",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/usage.ts:mintLiveKitAdminToken",
+      "target": "function:src/lib/livekit/usage.ts:Date.now",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/usage.ts:mintLiveKitAdminToken",
+      "target": "function:src/lib/livekit/usage.ts:new jose.SignJWT({\r\n    video: {\r\n      roomList: true,\r\n      roomAdmin: true,\r\n      roomCreate: true,\r\n    },\r\n  })\r\n    .setProtectedHeader({ alg: 'HS256' })\r\n    .setIssuer(apiKey)\r\n    .setSubject('livekit-usage-inspector')\r\n    .setNotBefore(now - 5)\r\n    .setExpirationTime(now + 600)\r\n    .sign",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/usage.ts:mintLiveKitAdminToken",
+      "target": "function:src/lib/livekit/usage.ts:new jose.SignJWT({\r\n    video: {\r\n      roomList: true,\r\n      roomAdmin: true,\r\n      roomCreate: true,\r\n    },\r\n  })\r\n    .setProtectedHeader({ alg: 'HS256' })\r\n    .setIssuer(apiKey)\r\n    .setSubject('livekit-usage-inspector')\r\n    .setNotBefore(now - 5)\r\n    .setExpirationTime",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/usage.ts:mintLiveKitAdminToken",
+      "target": "function:src/lib/livekit/usage.ts:new jose.SignJWT({\r\n    video: {\r\n      roomList: true,\r\n      roomAdmin: true,\r\n      roomCreate: true,\r\n    },\r\n  })\r\n    .setProtectedHeader({ alg: 'HS256' })\r\n    .setIssuer(apiKey)\r\n    .setSubject('livekit-usage-inspector')\r\n    .setNotBefore",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/usage.ts:mintLiveKitAdminToken",
+      "target": "function:src/lib/livekit/usage.ts:new jose.SignJWT({\r\n    video: {\r\n      roomList: true,\r\n      roomAdmin: true,\r\n      roomCreate: true,\r\n    },\r\n  })\r\n    .setProtectedHeader({ alg: 'HS256' })\r\n    .setIssuer(apiKey)\r\n    .setSubject",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/usage.ts:mintLiveKitAdminToken",
+      "target": "function:src/lib/livekit/usage.ts:new jose.SignJWT({\r\n    video: {\r\n      roomList: true,\r\n      roomAdmin: true,\r\n      roomCreate: true,\r\n    },\r\n  })\r\n    .setProtectedHeader({ alg: 'HS256' })\r\n    .setIssuer",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/usage.ts:mintLiveKitAdminToken",
+      "target": "function:src/lib/livekit/usage.ts:new jose.SignJWT({\r\n    video: {\r\n      roomList: true,\r\n      roomAdmin: true,\r\n      roomCreate: true,\r\n    },\r\n  })\r\n    .setProtectedHeader",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/usage.ts:getLiveKitCloudUsage",
+      "target": "function:src/lib/livekit/usage.ts:getLiveKitConfig",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/usage.ts:getLiveKitCloudUsage",
+      "target": "function:src/lib/livekit/usage.ts:config.url\r\n    .replace(/^wss:\\/\\//i, 'https://')\r\n    .replace",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/usage.ts:getLiveKitCloudUsage",
+      "target": "function:src/lib/livekit/usage.ts:config.url\r\n    .replace",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/usage.ts:getLiveKitCloudUsage",
+      "target": "function:src/lib/livekit/usage.ts:config.url.replace(/^wss?:\\/\\//i, '').split",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/usage.ts:getLiveKitCloudUsage",
+      "target": "function:src/lib/livekit/usage.ts:config.url.replace",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/usage.ts:getLiveKitCloudUsage",
+      "target": "function:src/lib/livekit/usage.ts:mintLiveKitAdminToken",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/usage.ts:getLiveKitCloudUsage",
+      "target": "function:src/lib/livekit/usage.ts:svc.listRooms",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/usage.ts:getLiveKitCloudUsage",
+      "target": "function:src/lib/livekit/usage.ts:Math.floor",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/usage.ts:getLiveKitCloudUsage",
+      "target": "function:src/lib/livekit/usage.ts:Date.now",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/usage.ts:getLiveKitCloudUsage",
+      "target": "function:src/lib/livekit/usage.ts:rawRooms.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/usage.ts:getLiveKitCloudUsage",
+      "target": "function:src/lib/livekit/usage.ts:Number",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/usage.ts:getLiveKitCloudUsage",
+      "target": "function:src/lib/livekit/usage.ts:Math.max",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/usage.ts:getLiveKitCloudUsage",
+      "target": "function:src/lib/livekit/usage.ts:Number",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/usage.ts:getLiveKitCloudUsage",
+      "target": "function:src/lib/livekit/usage.ts:Number",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/usage.ts:getLiveKitCloudUsage",
+      "target": "function:src/lib/livekit/usage.ts:Boolean",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/usage.ts:getLiveKitCloudUsage",
+      "target": "function:src/lib/livekit/usage.ts:console.warn",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/usage.ts:getLiveKitCloudUsage",
+      "target": "function:src/lib/livekit/usage.ts:now.getFullYear",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/usage.ts:getLiveKitCloudUsage",
+      "target": "function:src/lib/livekit/usage.ts:now.getMonth",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/usage.ts:getLiveKitCloudUsage",
+      "target": "function:src/lib/livekit/usage.ts:now.getFullYear",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/usage.ts:getLiveKitCloudUsage",
+      "target": "function:src/lib/livekit/usage.ts:now.getMonth",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/usage.ts:getLiveKitCloudUsage",
+      "target": "function:src/lib/livekit/usage.ts:Math.max",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/usage.ts:getLiveKitCloudUsage",
+      "target": "function:src/lib/livekit/usage.ts:endOfMonth.getDate",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/usage.ts:getLiveKitCloudUsage",
+      "target": "function:src/lib/livekit/usage.ts:now.getDate",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/usage.ts:getLiveKitCloudUsage",
+      "target": "function:src/lib/livekit/usage.ts:cookies",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/usage.ts:getLiveKitCloudUsage",
+      "target": "function:src/lib/livekit/usage.ts:createServerClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/usage.ts:getAll",
+      "target": "function:src/lib/livekit/usage.ts:cookieStore.getAll",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/usage.ts:getLiveKitCloudUsage",
+      "target": "function:src/lib/livekit/usage.ts:supabaseAdmin\r\n      .from('ai_logs')\r\n      .select('created_at, metadata, latency_ms', { count: 'exact' })\r\n      .eq('feature', 'co_founder_voice')\r\n      .gte('created_at', startOfMonth.toISOString())\r\n      .lte",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/usage.ts:getLiveKitCloudUsage",
+      "target": "function:src/lib/livekit/usage.ts:supabaseAdmin\r\n      .from('ai_logs')\r\n      .select('created_at, metadata, latency_ms', { count: 'exact' })\r\n      .eq('feature', 'co_founder_voice')\r\n      .gte",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/usage.ts:getLiveKitCloudUsage",
+      "target": "function:src/lib/livekit/usage.ts:supabaseAdmin\r\n      .from('ai_logs')\r\n      .select('created_at, metadata, latency_ms', { count: 'exact' })\r\n      .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/usage.ts:getLiveKitCloudUsage",
+      "target": "function:src/lib/livekit/usage.ts:supabaseAdmin\r\n      .from('ai_logs')\r\n      .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/usage.ts:getLiveKitCloudUsage",
+      "target": "function:src/lib/livekit/usage.ts:supabaseAdmin\r\n      .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/usage.ts:getLiveKitCloudUsage",
+      "target": "function:src/lib/livekit/usage.ts:startOfMonth.toISOString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/usage.ts:getLiveKitCloudUsage",
+      "target": "function:src/lib/livekit/usage.ts:endOfMonth.toISOString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/usage.ts:getLiveKitCloudUsage",
+      "target": "function:src/lib/livekit/usage.ts:supabaseAdmin\r\n      .from('audit_logs')\r\n      .select('changes, created_at')\r\n      .eq('action', 'co_founder_voice_session_completed')\r\n      .gte('created_at', startOfMonth.toISOString())\r\n      .lte",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/usage.ts:getLiveKitCloudUsage",
+      "target": "function:src/lib/livekit/usage.ts:supabaseAdmin\r\n      .from('audit_logs')\r\n      .select('changes, created_at')\r\n      .eq('action', 'co_founder_voice_session_completed')\r\n      .gte",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/usage.ts:getLiveKitCloudUsage",
+      "target": "function:src/lib/livekit/usage.ts:supabaseAdmin\r\n      .from('audit_logs')\r\n      .select('changes, created_at')\r\n      .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/usage.ts:getLiveKitCloudUsage",
+      "target": "function:src/lib/livekit/usage.ts:supabaseAdmin\r\n      .from('audit_logs')\r\n      .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/usage.ts:getLiveKitCloudUsage",
+      "target": "function:src/lib/livekit/usage.ts:supabaseAdmin\r\n      .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/usage.ts:getLiveKitCloudUsage",
+      "target": "function:src/lib/livekit/usage.ts:startOfMonth.toISOString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/usage.ts:getLiveKitCloudUsage",
+      "target": "function:src/lib/livekit/usage.ts:endOfMonth.toISOString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/usage.ts:getLiveKitCloudUsage",
+      "target": "function:src/lib/livekit/usage.ts:sessionAudits.reduce",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/usage.ts:getLiveKitCloudUsage",
+      "target": "function:src/lib/livekit/usage.ts:Number",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/usage.ts:getLiveKitCloudUsage",
+      "target": "function:src/lib/livekit/usage.ts:Math.round",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/usage.ts:getLiveKitCloudUsage",
+      "target": "function:src/lib/livekit/usage.ts:Math.max",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/usage.ts:getLiveKitCloudUsage",
+      "target": "function:src/lib/livekit/usage.ts:Math.round",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/usage.ts:getLiveKitCloudUsage",
+      "target": "function:src/lib/livekit/usage.ts:console.warn",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/usage.ts:getLiveKitCloudUsage",
+      "target": "function:src/lib/livekit/usage.ts:Math.round",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/usage.ts:getLiveKitCloudUsage",
+      "target": "function:src/lib/livekit/usage.ts:Math.round",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/usage.ts:getLiveKitCloudUsage",
+      "target": "function:src/lib/livekit/usage.ts:Math.max",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/usage.ts:getLiveKitCloudUsage",
+      "target": "function:src/lib/livekit/usage.ts:Math.min",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/usage.ts:getLiveKitCloudUsage",
+      "target": "function:src/lib/livekit/usage.ts:Math.round",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/usage.ts:getLiveKitCloudUsage",
+      "target": "function:src/lib/livekit/usage.ts:Math.max",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/usage.ts:getLiveKitCloudUsage",
+      "target": "function:src/lib/livekit/usage.ts:Math.round",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/usage.ts:getLiveKitCloudUsage",
+      "target": "function:src/lib/livekit/usage.ts:Math.min",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/usage.ts:getLiveKitCloudUsage",
+      "target": "function:src/lib/livekit/usage.ts:Math.round",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/usage.ts:getLiveKitCloudUsage",
+      "target": "function:src/lib/livekit/usage.ts:Math.min",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/usage.ts:getLiveKitCloudUsage",
+      "target": "function:src/lib/livekit/usage.ts:Math.round",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/usage.ts:getLiveKitCloudUsage",
+      "target": "function:src/lib/livekit/usage.ts:startOfMonth.toISOString().split",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/usage.ts:getLiveKitCloudUsage",
+      "target": "function:src/lib/livekit/usage.ts:startOfMonth.toISOString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/usage.ts:getLiveKitCloudUsage",
+      "target": "function:src/lib/livekit/usage.ts:endOfMonth.toISOString().split",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/usage.ts:getLiveKitCloudUsage",
+      "target": "function:src/lib/livekit/usage.ts:endOfMonth.toISOString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/usage.ts:getLiveKitCloudUsage",
+      "target": "function:src/lib/livekit/usage.ts:Math.max",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/livekit/usage.ts:getLiveKitCloudUsage",
+      "target": "function:src/lib/livekit/usage.ts:new Date().toISOString",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/lib/notifications/service.ts",
+      "target": "function:src/lib/notifications/service.ts:sendExpoPush",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/notifications/service.ts",
+      "target": "function:src/lib/notifications/service.ts:createAndSendNotification",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/notifications/service.ts:sendExpoPush",
+      "target": "function:src/lib/notifications/service.ts:tokens.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/notifications/service.ts:sendExpoPush",
+      "target": "function:src/lib/notifications/service.ts:fetch",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/notifications/service.ts:sendExpoPush",
+      "target": "function:src/lib/notifications/service.ts:JSON.stringify",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/notifications/service.ts:sendExpoPush",
+      "target": "function:src/lib/notifications/service.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/notifications/service.ts:createAndSendNotification",
+      "target": "function:src/lib/notifications/service.ts:createClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/notifications/service.ts:createAndSendNotification",
+      "target": "function:src/lib/notifications/service.ts:supabase\r\n    .from('notifications')\r\n    .insert({\r\n      user_id: params.userId,\r\n      title: params.title,\r\n      message: params.message,\r\n      category: params.category,\r\n      type: params.type || 'system',\r\n      link: params.link || null,\r\n      reference_type: params.referenceType || null,\r\n      reference_id: params.referenceId || null,\r\n      image_url: params.imageUrl || null,\r\n      idempotency_key: params.idempotencyKey || null,\r\n    })\r\n    .select()\r\n    .single",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/notifications/service.ts:createAndSendNotification",
+      "target": "function:src/lib/notifications/service.ts:supabase\r\n    .from('notifications')\r\n    .insert({\r\n      user_id: params.userId,\r\n      title: params.title,\r\n      message: params.message,\r\n      category: params.category,\r\n      type: params.type || 'system',\r\n      link: params.link || null,\r\n      reference_type: params.referenceType || null,\r\n      reference_id: params.referenceId || null,\r\n      image_url: params.imageUrl || null,\r\n      idempotency_key: params.idempotencyKey || null,\r\n    })\r\n    .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/notifications/service.ts:createAndSendNotification",
+      "target": "function:src/lib/notifications/service.ts:supabase\r\n    .from('notifications')\r\n    .insert",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/notifications/service.ts:createAndSendNotification",
+      "target": "function:src/lib/notifications/service.ts:supabase\r\n    .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/notifications/service.ts:createAndSendNotification",
+      "target": "function:src/lib/notifications/service.ts:console.log",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/notifications/service.ts:createAndSendNotification",
+      "target": "function:src/lib/notifications/service.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/notifications/service.ts:createAndSendNotification",
+      "target": "function:src/lib/notifications/service.ts:getTokensForUsers",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/notifications/service.ts:createAndSendNotification",
+      "target": "function:src/lib/notifications/service.ts:tokens.filter",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/notifications/service.ts:createAndSendNotification",
+      "target": "function:src/lib/notifications/service.ts:t.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/notifications/service.ts:createAndSendNotification",
+      "target": "function:src/lib/notifications/service.ts:t.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/notifications/service.ts:createAndSendNotification",
+      "target": "function:src/lib/notifications/service.ts:tokens.filter",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/notifications/service.ts:createAndSendNotification",
+      "target": "function:src/lib/notifications/service.ts:t.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/notifications/service.ts:createAndSendNotification",
+      "target": "function:src/lib/notifications/service.ts:t.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/notifications/service.ts:createAndSendNotification",
+      "target": "function:src/lib/notifications/service.ts:sendExpoPush",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/notifications/service.ts:createAndSendNotification",
+      "target": "function:src/lib/notifications/service.ts:sendFcmToTokens",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/notifications/service.ts:createAndSendNotification",
+      "target": "function:src/lib/notifications/service.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/lib/order-events.ts",
+      "target": "function:src/lib/order-events.ts:getServiceClient",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/order-events.ts",
+      "target": "function:src/lib/order-events.ts:logOrderEvent",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/order-events.ts",
+      "target": "function:src/lib/order-events.ts:getOrderEvents",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/order-events.ts",
+      "target": "function:src/lib/order-events.ts:getEventDisplayConfig",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/order-events.ts:getServiceClient",
+      "target": "function:src/lib/order-events.ts:createServerClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/order-events.ts:logOrderEvent",
+      "target": "function:src/lib/order-events.ts:getServerUser",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/order-events.ts:logOrderEvent",
+      "target": "function:src/lib/order-events.ts:getServiceClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/order-events.ts:logOrderEvent",
+      "target": "function:src/lib/order-events.ts:serviceSupabase\r\n      .from('users')\r\n      .select('role')\r\n      .eq('id', user.id)\r\n      .single",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/order-events.ts:logOrderEvent",
+      "target": "function:src/lib/order-events.ts:serviceSupabase\r\n      .from('users')\r\n      .select('role')\r\n      .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/order-events.ts:logOrderEvent",
+      "target": "function:src/lib/order-events.ts:serviceSupabase\r\n      .from('users')\r\n      .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/order-events.ts:logOrderEvent",
+      "target": "function:src/lib/order-events.ts:serviceSupabase\r\n      .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/order-events.ts:logOrderEvent",
+      "target": "function:src/lib/order-events.ts:['super_admin', 'admin', 'manager', 'staff'].includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/order-events.ts:logOrderEvent",
+      "target": "function:src/lib/order-events.ts:serviceSupabase.from('order_events').insert",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/order-events.ts:logOrderEvent",
+      "target": "function:src/lib/order-events.ts:serviceSupabase.from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/order-events.ts:logOrderEvent",
+      "target": "function:src/lib/order-events.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/order-events.ts:logOrderEvent",
+      "target": "function:src/lib/order-events.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/order-events.ts:getOrderEvents",
+      "target": "function:src/lib/order-events.ts:createClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/order-events.ts:getOrderEvents",
+      "target": "function:src/lib/order-events.ts:supabase\r\n      .from('order_events')\r\n      .select(\r\n        `\r\n        id,\r\n        order_id,\r\n        event_type,\r\n        performed_by,\r\n        portal,\r\n        metadata,\r\n        created_at,\r\n        performed_by_user:users!order_events_performed_by_fkey(full_name, email)\r\n      `\r\n      )\r\n      .eq('order_id', orderId)\r\n      .order",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/order-events.ts:getOrderEvents",
+      "target": "function:src/lib/order-events.ts:supabase\r\n      .from('order_events')\r\n      .select(\r\n        `\r\n        id,\r\n        order_id,\r\n        event_type,\r\n        performed_by,\r\n        portal,\r\n        metadata,\r\n        created_at,\r\n        performed_by_user:users!order_events_performed_by_fkey(full_name, email)\r\n      `\r\n      )\r\n      .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/order-events.ts:getOrderEvents",
+      "target": "function:src/lib/order-events.ts:supabase\r\n      .from('order_events')\r\n      .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/order-events.ts:getOrderEvents",
+      "target": "function:src/lib/order-events.ts:supabase\r\n      .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/order-events.ts:getOrderEvents",
+      "target": "function:src/lib/order-events.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/lib/orders/cod.ts",
+      "target": "function:src/lib/orders/cod.ts:getCodRefusalThreshold",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/orders/cod.ts",
+      "target": "function:src/lib/orders/cod.ts:getCodEligibility",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/orders/cod.ts",
+      "target": "function:src/lib/orders/cod.ts:recordCodRefusal",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/orders/cod.ts",
+      "target": "function:src/lib/orders/cod.ts:resetCodEligibility",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/orders/cod.ts:getCodRefusalThreshold",
+      "target": "function:src/lib/orders/cod.ts:getServiceClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/cod.ts:getCodRefusalThreshold",
+      "target": "function:src/lib/orders/cod.ts:client\r\n      .from('settings')\r\n      .select('value')\r\n      .eq('key', 'cod_refusal_threshold')\r\n      .maybeSingle",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/cod.ts:getCodRefusalThreshold",
+      "target": "function:src/lib/orders/cod.ts:client\r\n      .from('settings')\r\n      .select('value')\r\n      .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/cod.ts:getCodRefusalThreshold",
+      "target": "function:src/lib/orders/cod.ts:client\r\n      .from('settings')\r\n      .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/cod.ts:getCodRefusalThreshold",
+      "target": "function:src/lib/orders/cod.ts:client\r\n      .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/cod.ts:getCodRefusalThreshold",
+      "target": "function:src/lib/orders/cod.ts:Number",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/cod.ts:getCodRefusalThreshold",
+      "target": "function:src/lib/orders/cod.ts:Number.isFinite",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/cod.ts:getCodRefusalThreshold",
+      "target": "function:src/lib/orders/cod.ts:Math.floor",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/cod.ts:getCodEligibility",
+      "target": "function:src/lib/orders/cod.ts:getServiceClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/cod.ts:getCodEligibility",
+      "target": "function:src/lib/orders/cod.ts:supabase\r\n    .from('cod_eligibility')\r\n    .select('cod_disabled, cod_refusal_count, last_refusal_at')\r\n    .eq('customer_id', customerId)\r\n    .maybeSingle",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/cod.ts:getCodEligibility",
+      "target": "function:src/lib/orders/cod.ts:supabase\r\n    .from('cod_eligibility')\r\n    .select('cod_disabled, cod_refusal_count, last_refusal_at')\r\n    .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/cod.ts:getCodEligibility",
+      "target": "function:src/lib/orders/cod.ts:supabase\r\n    .from('cod_eligibility')\r\n    .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/cod.ts:getCodEligibility",
+      "target": "function:src/lib/orders/cod.ts:supabase\r\n    .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/cod.ts:recordCodRefusal",
+      "target": "function:src/lib/orders/cod.ts:qualifying.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/cod.ts:recordCodRefusal",
+      "target": "function:src/lib/orders/cod.ts:(input.result || '').toLowerCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/cod.ts:recordCodRefusal",
+      "target": "function:src/lib/orders/cod.ts:getServiceClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/cod.ts:recordCodRefusal",
+      "target": "function:src/lib/orders/cod.ts:supabase.from('cod_eligibility_events').insert",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/cod.ts:recordCodRefusal",
+      "target": "function:src/lib/orders/cod.ts:supabase.from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/cod.ts:recordCodRefusal",
+      "target": "function:src/lib/orders/cod.ts:getCodEligibility",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/cod.ts:recordCodRefusal",
+      "target": "function:src/lib/orders/cod.ts:supabase.rpc",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/cod.ts:recordCodRefusal",
+      "target": "function:src/lib/orders/cod.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/cod.ts:recordCodRefusal",
+      "target": "function:src/lib/orders/cod.ts:getCodRefusalThreshold",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/cod.ts:recordCodRefusal",
+      "target": "function:src/lib/orders/cod.ts:Number",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/cod.ts:recordCodRefusal",
+      "target": "function:src/lib/orders/cod.ts:supabase\r\n      .from('cod_eligibility')\r\n      .update({ cod_disabled: true })\r\n      .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/cod.ts:recordCodRefusal",
+      "target": "function:src/lib/orders/cod.ts:supabase\r\n      .from('cod_eligibility')\r\n      .update",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/cod.ts:recordCodRefusal",
+      "target": "function:src/lib/orders/cod.ts:supabase\r\n      .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/cod.ts:resetCodEligibility",
+      "target": "function:src/lib/orders/cod.ts:getServiceClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/cod.ts:resetCodEligibility",
+      "target": "function:src/lib/orders/cod.ts:supabase\r\n    .from('cod_eligibility')\r\n    .update({\r\n      cod_disabled: false,\r\n      cod_refusal_count: 0,\r\n      last_refusal_at: null,\r\n      updated_at: new Date().toISOString(),\r\n    })\r\n    .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/cod.ts:resetCodEligibility",
+      "target": "function:src/lib/orders/cod.ts:supabase\r\n    .from('cod_eligibility')\r\n    .update",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/cod.ts:resetCodEligibility",
+      "target": "function:src/lib/orders/cod.ts:supabase\r\n    .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/cod.ts:resetCodEligibility",
+      "target": "function:src/lib/orders/cod.ts:new Date().toISOString",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/lib/orders/create-order.ts",
+      "target": "function:src/lib/orders/create-order.ts:createOrder",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/orders/create-order.ts",
+      "target": "class:src/lib/orders/create-order.ts:OrderError",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/orders/create-order.ts:constructor",
+      "target": "function:src/lib/orders/create-order.ts:super",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/create-order.ts:createOrder",
+      "target": "function:src/lib/orders/create-order.ts:createServerClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/create-order.ts:createOrder",
+      "target": "function:src/lib/orders/create-order.ts:getServerUser",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/create-order.ts:createOrder",
+      "target": "function:src/lib/orders/create-order.ts:import",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/create-order.ts:createOrder",
+      "target": "function:src/lib/orders/create-order.ts:getCodEligibility",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/create-order.ts:createOrder",
+      "target": "function:src/lib/orders/create-order.ts:supabase\r\n      .from('users')\r\n      .select('phone_verified, email_verified, email')\r\n      .eq('id', user.id)\r\n      .single",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/create-order.ts:createOrder",
+      "target": "function:src/lib/orders/create-order.ts:supabase\r\n      .from('users')\r\n      .select('phone_verified, email_verified, email')\r\n      .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/create-order.ts:createOrder",
+      "target": "function:src/lib/orders/create-order.ts:supabase\r\n      .from('users')\r\n      .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/create-order.ts:createOrder",
+      "target": "function:src/lib/orders/create-order.ts:supabase\r\n      .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/create-order.ts:createOrder",
+      "target": "function:src/lib/orders/create-order.ts:console.log",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/create-order.ts:createOrder",
+      "target": "function:src/lib/orders/create-order.ts:Date.now",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/create-order.ts:createOrder",
+      "target": "function:src/lib/orders/create-order.ts:Math.floor",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/create-order.ts:createOrder",
+      "target": "function:src/lib/orders/create-order.ts:Math.random",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/create-order.ts:createOrder",
+      "target": "function:src/lib/orders/create-order.ts:Date.now",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/create-order.ts:createOrder",
+      "target": "function:src/lib/orders/create-order.ts:createJSClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/create-order.ts:createOrder",
+      "target": "function:src/lib/orders/create-order.ts:import",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/create-order.ts:createOrder",
+      "target": "function:src/lib/orders/create-order.ts:getAdminAuth",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/create-order.ts:createOrder",
+      "target": "function:src/lib/orders/create-order.ts:adminAuth.createUser",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/create-order.ts:createOrder",
+      "target": "function:src/lib/orders/create-order.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/create-order.ts:createOrder",
+      "target": "function:src/lib/orders/create-order.ts:createJSClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/create-order.ts:createOrder",
+      "target": "function:src/lib/orders/create-order.ts:adminSupabase.rpc",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/create-order.ts:createOrder",
+      "target": "function:src/lib/orders/create-order.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/create-order.ts:createOrder",
+      "target": "function:src/lib/orders/create-order.ts:new Date().getFullYear",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/create-order.ts:createOrder",
+      "target": "function:src/lib/orders/create-order.ts:Math.floor",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/create-order.ts:createOrder",
+      "target": "function:src/lib/orders/create-order.ts:Math.random",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/create-order.ts:createOrder",
+      "target": "function:src/lib/orders/create-order.ts:Number",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/create-order.ts:createOrder",
+      "target": "function:src/lib/orders/create-order.ts:assertWalletBalance",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/create-order.ts:createOrder",
+      "target": "function:src/lib/orders/create-order.ts:Math.round",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/create-order.ts:createOrder",
+      "target": "function:src/lib/orders/create-order.ts:shippingAddressId.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/create-order.ts:createOrder",
+      "target": "function:src/lib/orders/create-order.ts:supabase\r\n      .from('addresses')\r\n      .insert({\r\n        user_id: user!.id,\r\n        label: address.label || 'Home',\r\n        full_name:\r\n          address.full_name || address.firstName + ' ' + address.lastName,\r\n        phone: address.phone,\r\n        line1: address.line1 || address.address,\r\n        line2: address.line2 || '',\r\n        city: address.city,\r\n        state: address.state,\r\n        pincode: address.pincode,\r\n        is_default: address.is_default || false,\r\n      })\r\n      .select('id')\r\n      .single",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/create-order.ts:createOrder",
+      "target": "function:src/lib/orders/create-order.ts:supabase\r\n      .from('addresses')\r\n      .insert({\r\n        user_id: user!.id,\r\n        label: address.label || 'Home',\r\n        full_name:\r\n          address.full_name || address.firstName + ' ' + address.lastName,\r\n        phone: address.phone,\r\n        line1: address.line1 || address.address,\r\n        line2: address.line2 || '',\r\n        city: address.city,\r\n        state: address.state,\r\n        pincode: address.pincode,\r\n        is_default: address.is_default || false,\r\n      })\r\n      .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/create-order.ts:createOrder",
+      "target": "function:src/lib/orders/create-order.ts:supabase\r\n      .from('addresses')\r\n      .insert",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/create-order.ts:createOrder",
+      "target": "function:src/lib/orders/create-order.ts:supabase\r\n      .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/create-order.ts:createOrder",
+      "target": "function:src/lib/orders/create-order.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/create-order.ts:createOrder",
+      "target": "function:src/lib/orders/create-order.ts:supabase\r\n    .from('orders')\r\n    .insert({\r\n      user_id: user!.id,\r\n      order_number: orderNumber,\r\n      status: options.status || 'confirmed',\r\n      subtotal,\r\n      shipping_charge: shippingCharge,\r\n      cod_charge: codCharge,\r\n      coupon_discount: coupon_discount || 0,\r\n      wallet_used: wallet_used || 0,\r\n      coins_redeemed: coins_redeemed || 0,\r\n      gst_amount: gstAmount,\r\n      total,\r\n      payment_method: paymentMethod || 'phonepe',\r\n      payment_status: options.paymentStatus || defaultPaymentStatus,\r\n      prepaid_amount: isPartialCod\r\n        ? prepaidAmount\r\n        : paymentMethod === 'phonepe'\r\n          ? total\r\n          : 0,\r\n      cod_balance: isPartialCod\r\n        ? total - (prepaidAmount || 0)\r\n        : paymentMethod === 'cod'\r\n          ? total\r\n          : 0,\r\n      gift_wrap: giftWrap,\r\n      gift_message: giftMessage,\r\n      shipping_address_id: shippingAddressId,\r\n      phonepe_merchant_transaction_id: phonepe_merchant_transaction_id || null,\r\n      phonepe_transaction_id: phonepe_transaction_id || null,\r\n      phonepe_payment_state: phonepe_payment_state || null,\r\n    })\r\n    .select('id')\r\n    .single",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/create-order.ts:createOrder",
+      "target": "function:src/lib/orders/create-order.ts:supabase\r\n    .from('orders')\r\n    .insert({\r\n      user_id: user!.id,\r\n      order_number: orderNumber,\r\n      status: options.status || 'confirmed',\r\n      subtotal,\r\n      shipping_charge: shippingCharge,\r\n      cod_charge: codCharge,\r\n      coupon_discount: coupon_discount || 0,\r\n      wallet_used: wallet_used || 0,\r\n      coins_redeemed: coins_redeemed || 0,\r\n      gst_amount: gstAmount,\r\n      total,\r\n      payment_method: paymentMethod || 'phonepe',\r\n      payment_status: options.paymentStatus || defaultPaymentStatus,\r\n      prepaid_amount: isPartialCod\r\n        ? prepaidAmount\r\n        : paymentMethod === 'phonepe'\r\n          ? total\r\n          : 0,\r\n      cod_balance: isPartialCod\r\n        ? total - (prepaidAmount || 0)\r\n        : paymentMethod === 'cod'\r\n          ? total\r\n          : 0,\r\n      gift_wrap: giftWrap,\r\n      gift_message: giftMessage,\r\n      shipping_address_id: shippingAddressId,\r\n      phonepe_merchant_transaction_id: phonepe_merchant_transaction_id || null,\r\n      phonepe_transaction_id: phonepe_transaction_id || null,\r\n      phonepe_payment_state: phonepe_payment_state || null,\r\n    })\r\n    .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/create-order.ts:createOrder",
+      "target": "function:src/lib/orders/create-order.ts:supabase\r\n    .from('orders')\r\n    .insert",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/create-order.ts:createOrder",
+      "target": "function:src/lib/orders/create-order.ts:supabase\r\n    .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/create-order.ts:createOrder",
+      "target": "function:src/lib/orders/create-order.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/create-order.ts:createOrder",
+      "target": "function:src/lib/orders/create-order.ts:Number",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/create-order.ts:createOrder",
+      "target": "function:src/lib/orders/create-order.ts:debitWalletForOrder",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/create-order.ts:createOrder",
+      "target": "function:src/lib/orders/create-order.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/create-order.ts:createOrder",
+      "target": "function:src/lib/orders/create-order.ts:items.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/create-order.ts:createOrder",
+      "target": "function:src/lib/orders/create-order.ts:supabase\r\n    .from('order_items')\r\n    .insert",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/create-order.ts:createOrder",
+      "target": "function:src/lib/orders/create-order.ts:supabase\r\n    .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/create-order.ts:createOrder",
+      "target": "function:src/lib/orders/create-order.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/create-order.ts:createOrder",
+      "target": "function:src/lib/orders/create-order.ts:new Date().toISOString",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/lib/orders/finalize-phonepe-order.ts",
+      "target": "function:src/lib/orders/finalize-phonepe-order.ts:finalizePhonePeOrder",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/orders/finalize-phonepe-order.ts",
+      "target": "function:src/lib/orders/finalize-phonepe-order.ts:sendOrderNotifications",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/orders/finalize-phonepe-order.ts:finalizePhonePeOrder",
+      "target": "function:src/lib/orders/finalize-phonepe-order.ts:createJSClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/finalize-phonepe-order.ts:finalizePhonePeOrder",
+      "target": "function:src/lib/orders/finalize-phonepe-order.ts:supabase\n    .from('orders')\n    .select('*')\n    .eq('phonepe_merchant_transaction_id', merchantTransactionId)\n    .maybeSingle",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/finalize-phonepe-order.ts:finalizePhonePeOrder",
+      "target": "function:src/lib/orders/finalize-phonepe-order.ts:supabase\n    .from('orders')\n    .select('*')\n    .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/finalize-phonepe-order.ts:finalizePhonePeOrder",
+      "target": "function:src/lib/orders/finalize-phonepe-order.ts:supabase\n    .from('orders')\n    .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/finalize-phonepe-order.ts:finalizePhonePeOrder",
+      "target": "function:src/lib/orders/finalize-phonepe-order.ts:supabase\n    .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/finalize-phonepe-order.ts:finalizePhonePeOrder",
+      "target": "function:src/lib/orders/finalize-phonepe-order.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/finalize-phonepe-order.ts:finalizePhonePeOrder",
+      "target": "function:src/lib/orders/finalize-phonepe-order.ts:(\n    details.phonepePaymentState ||\n    order.phonepe_payment_state ||\n    ''\n  ).toUpperCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/finalize-phonepe-order.ts:finalizePhonePeOrder",
+      "target": "function:src/lib/orders/finalize-phonepe-order.ts:PAYED_STATES.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/finalize-phonepe-order.ts:finalizePhonePeOrder",
+      "target": "function:src/lib/orders/finalize-phonepe-order.ts:new Date().toISOString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/finalize-phonepe-order.ts:finalizePhonePeOrder",
+      "target": "function:src/lib/orders/finalize-phonepe-order.ts:supabase\n      .from('orders')\n      .update(update)\n      .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/finalize-phonepe-order.ts:finalizePhonePeOrder",
+      "target": "function:src/lib/orders/finalize-phonepe-order.ts:supabase\n      .from('orders')\n      .update",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/finalize-phonepe-order.ts:finalizePhonePeOrder",
+      "target": "function:src/lib/orders/finalize-phonepe-order.ts:supabase\n      .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/finalize-phonepe-order.ts:finalizePhonePeOrder",
+      "target": "function:src/lib/orders/finalize-phonepe-order.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/finalize-phonepe-order.ts:finalizePhonePeOrder",
+      "target": "function:src/lib/orders/finalize-phonepe-order.ts:supabase\n        .from('order_items')\n        .select('product:products(name)')\n        .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/finalize-phonepe-order.ts:finalizePhonePeOrder",
+      "target": "function:src/lib/orders/finalize-phonepe-order.ts:supabase\n        .from('order_items')\n        .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/finalize-phonepe-order.ts:finalizePhonePeOrder",
+      "target": "function:src/lib/orders/finalize-phonepe-order.ts:supabase\n        .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/finalize-phonepe-order.ts:finalizePhonePeOrder",
+      "target": "function:src/lib/orders/finalize-phonepe-order.ts:PostHogClient()?.capture",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/finalize-phonepe-order.ts:finalizePhonePeOrder",
+      "target": "function:src/lib/orders/finalize-phonepe-order.ts:PostHogClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/finalize-phonepe-order.ts:finalizePhonePeOrder",
+      "target": "function:src/lib/orders/finalize-phonepe-order.ts:Number",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/finalize-phonepe-order.ts:finalizePhonePeOrder",
+      "target": "function:src/lib/orders/finalize-phonepe-order.ts:(orderItems || [])\n            .map((item: any) => item.product?.name)\n            .filter(Boolean)\n            .join",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/finalize-phonepe-order.ts:finalizePhonePeOrder",
+      "target": "function:src/lib/orders/finalize-phonepe-order.ts:(orderItems || [])\n            .map((item: any) => item.product?.name)\n            .filter",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/finalize-phonepe-order.ts:finalizePhonePeOrder",
+      "target": "function:src/lib/orders/finalize-phonepe-order.ts:(orderItems || [])\n            .map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/finalize-phonepe-order.ts:finalizePhonePeOrder",
+      "target": "function:src/lib/orders/finalize-phonepe-order.ts:Number",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/finalize-phonepe-order.ts:finalizePhonePeOrder",
+      "target": "function:src/lib/orders/finalize-phonepe-order.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/finalize-phonepe-order.ts:finalizePhonePeOrder",
+      "target": "function:src/lib/orders/finalize-phonepe-order.ts:Number",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/finalize-phonepe-order.ts:finalizePhonePeOrder",
+      "target": "function:src/lib/orders/finalize-phonepe-order.ts:debitWalletForOrder",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/finalize-phonepe-order.ts:finalizePhonePeOrder",
+      "target": "function:src/lib/orders/finalize-phonepe-order.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/finalize-phonepe-order.ts:finalizePhonePeOrder",
+      "target": "function:src/lib/orders/finalize-phonepe-order.ts:sendOrderNotifications(supabase, { ...order, ...update }).catch",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/finalize-phonepe-order.ts:finalizePhonePeOrder",
+      "target": "function:src/lib/orders/finalize-phonepe-order.ts:sendOrderNotifications",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/finalize-phonepe-order.ts:finalizePhonePeOrder",
+      "target": "function:src/lib/orders/finalize-phonepe-order.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/finalize-phonepe-order.ts:finalizePhonePeOrder",
+      "target": "function:src/lib/orders/finalize-phonepe-order.ts:FAILED_STATES.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/finalize-phonepe-order.ts:finalizePhonePeOrder",
+      "target": "function:src/lib/orders/finalize-phonepe-order.ts:supabase\n      .from('orders')\n      .update({\n        payment_status: 'failed',\n        phonepe_payment_state: details.phonepePaymentState || state,\n        phonepe_transaction_id: details.phonepeTransactionId || null,\n        updated_at: new Date().toISOString(),\n      })\n      .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/finalize-phonepe-order.ts:finalizePhonePeOrder",
+      "target": "function:src/lib/orders/finalize-phonepe-order.ts:supabase\n      .from('orders')\n      .update",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/finalize-phonepe-order.ts:finalizePhonePeOrder",
+      "target": "function:src/lib/orders/finalize-phonepe-order.ts:supabase\n      .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/finalize-phonepe-order.ts:finalizePhonePeOrder",
+      "target": "function:src/lib/orders/finalize-phonepe-order.ts:new Date().toISOString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/finalize-phonepe-order.ts:finalizePhonePeOrder",
+      "target": "function:src/lib/orders/finalize-phonepe-order.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/finalize-phonepe-order.ts:sendOrderNotifications",
+      "target": "function:src/lib/orders/finalize-phonepe-order.ts:Promise.all",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/finalize-phonepe-order.ts:sendOrderNotifications",
+      "target": "function:src/lib/orders/finalize-phonepe-order.ts:supabase\n      .from('users')\n      .select('email, phone, full_name')\n      .eq('id', order.user_id)\n      .maybeSingle",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/finalize-phonepe-order.ts:sendOrderNotifications",
+      "target": "function:src/lib/orders/finalize-phonepe-order.ts:supabase\n      .from('users')\n      .select('email, phone, full_name')\n      .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/finalize-phonepe-order.ts:sendOrderNotifications",
+      "target": "function:src/lib/orders/finalize-phonepe-order.ts:supabase\n      .from('users')\n      .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/finalize-phonepe-order.ts:sendOrderNotifications",
+      "target": "function:src/lib/orders/finalize-phonepe-order.ts:supabase\n      .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/finalize-phonepe-order.ts:sendOrderNotifications",
+      "target": "function:src/lib/orders/finalize-phonepe-order.ts:supabase\n          .from('addresses')\n          .select('*')\n          .eq('id', order.shipping_address_id)\n          .maybeSingle",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/finalize-phonepe-order.ts:sendOrderNotifications",
+      "target": "function:src/lib/orders/finalize-phonepe-order.ts:supabase\n          .from('addresses')\n          .select('*')\n          .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/finalize-phonepe-order.ts:sendOrderNotifications",
+      "target": "function:src/lib/orders/finalize-phonepe-order.ts:supabase\n          .from('addresses')\n          .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/finalize-phonepe-order.ts:sendOrderNotifications",
+      "target": "function:src/lib/orders/finalize-phonepe-order.ts:supabase\n          .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/finalize-phonepe-order.ts:sendOrderNotifications",
+      "target": "function:src/lib/orders/finalize-phonepe-order.ts:Promise.resolve",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/finalize-phonepe-order.ts:sendOrderNotifications",
+      "target": "function:src/lib/orders/finalize-phonepe-order.ts:supabase\n      .from('order_items')\n      .select(\n        'quantity, price_at_purchase, sku, product_id, product:products(id, name, sku, images:product_images(url, type, sort_order))'\n      )\n      .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/finalize-phonepe-order.ts:sendOrderNotifications",
+      "target": "function:src/lib/orders/finalize-phonepe-order.ts:supabase\n      .from('order_items')\n      .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/finalize-phonepe-order.ts:sendOrderNotifications",
+      "target": "function:src/lib/orders/finalize-phonepe-order.ts:supabase\n      .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/finalize-phonepe-order.ts:sendOrderNotifications",
+      "target": "function:src/lib/orders/finalize-phonepe-order.ts:Number",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/finalize-phonepe-order.ts:sendOrderNotifications",
+      "target": "function:src/lib/orders/finalize-phonepe-order.ts:sendOrderConfirmation(\n      orderNumber,\n      address.phone,\n      customerName,\n      total\n    ).catch",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/finalize-phonepe-order.ts:sendOrderNotifications",
+      "target": "function:src/lib/orders/finalize-phonepe-order.ts:sendOrderConfirmation",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/finalize-phonepe-order.ts:sendOrderNotifications",
+      "target": "function:src/lib/orders/finalize-phonepe-order.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/finalize-phonepe-order.ts:sendOrderNotifications",
+      "target": "function:src/lib/orders/finalize-phonepe-order.ts:Math.round",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/finalize-phonepe-order.ts:sendOrderNotifications",
+      "target": "function:src/lib/orders/finalize-phonepe-order.ts:Number",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/finalize-phonepe-order.ts:sendOrderNotifications",
+      "target": "function:src/lib/orders/finalize-phonepe-order.ts:new Date(order.created_at || Date.now()).toLocaleDateString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/finalize-phonepe-order.ts:sendOrderNotifications",
+      "target": "function:src/lib/orders/finalize-phonepe-order.ts:Date.now",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/finalize-phonepe-order.ts:sendOrderNotifications",
+      "target": "function:src/lib/orders/finalize-phonepe-order.ts:items.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/finalize-phonepe-order.ts:sendOrderNotifications",
+      "target": "function:src/lib/orders/finalize-phonepe-order.ts:item.product?.images?.find",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/finalize-phonepe-order.ts:sendOrderNotifications",
+      "target": "function:src/lib/orders/finalize-phonepe-order.ts:Number(item.price_at_purchase).toLocaleString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/finalize-phonepe-order.ts:sendOrderNotifications",
+      "target": "function:src/lib/orders/finalize-phonepe-order.ts:Number",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/finalize-phonepe-order.ts:sendOrderNotifications",
+      "target": "function:src/lib/orders/finalize-phonepe-order.ts:(\n                Number(item.price_at_purchase) * item.quantity\n              ).toLocaleString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/finalize-phonepe-order.ts:sendOrderNotifications",
+      "target": "function:src/lib/orders/finalize-phonepe-order.ts:Number",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/finalize-phonepe-order.ts:sendOrderNotifications",
+      "target": "function:src/lib/orders/finalize-phonepe-order.ts:Number(order.subtotal || 0).toLocaleString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/finalize-phonepe-order.ts:sendOrderNotifications",
+      "target": "function:src/lib/orders/finalize-phonepe-order.ts:Number",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/finalize-phonepe-order.ts:sendOrderNotifications",
+      "target": "function:src/lib/orders/finalize-phonepe-order.ts:Number(order.coupon_discount || 0).toLocaleString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/finalize-phonepe-order.ts:sendOrderNotifications",
+      "target": "function:src/lib/orders/finalize-phonepe-order.ts:Number",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/finalize-phonepe-order.ts:sendOrderNotifications",
+      "target": "function:src/lib/orders/finalize-phonepe-order.ts:Number(order.shipping_charge || 0).toLocaleString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/finalize-phonepe-order.ts:sendOrderNotifications",
+      "target": "function:src/lib/orders/finalize-phonepe-order.ts:Number",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/finalize-phonepe-order.ts:sendOrderNotifications",
+      "target": "function:src/lib/orders/finalize-phonepe-order.ts:gstAmount.toLocaleString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/finalize-phonepe-order.ts:sendOrderNotifications",
+      "target": "function:src/lib/orders/finalize-phonepe-order.ts:total.toLocaleString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/finalize-phonepe-order.ts:sendOrderNotifications",
+      "target": "function:src/lib/orders/finalize-phonepe-order.ts:Number",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/finalize-phonepe-order.ts:sendOrderNotifications",
+      "target": "function:src/lib/orders/finalize-phonepe-order.ts:sendOrderConfirmationEmail(user.email, emailData).catch",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/finalize-phonepe-order.ts:sendOrderNotifications",
+      "target": "function:src/lib/orders/finalize-phonepe-order.ts:sendOrderConfirmationEmail",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/finalize-phonepe-order.ts:sendOrderNotifications",
+      "target": "function:src/lib/orders/finalize-phonepe-order.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/finalize-phonepe-order.ts:sendOrderNotifications",
+      "target": "function:src/lib/orders/finalize-phonepe-order.ts:createAndSendNotification({\n      userId: order.user_id,\n      title: 'Order Confirmed 🎉',\n      message: `Your order ${orderNumber} has been successfully placed. Thank you for shopping with us!`,\n      category: 'ORDERS',\n      referenceType: 'order',\n      referenceId: order.id,\n      idempotencyKey: `order_confirmed_${order.id}`,\n    }).catch",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/finalize-phonepe-order.ts:sendOrderNotifications",
+      "target": "function:src/lib/orders/finalize-phonepe-order.ts:createAndSendNotification",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/finalize-phonepe-order.ts:sendOrderNotifications",
+      "target": "function:src/lib/orders/finalize-phonepe-order.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/lib/orders/refund.ts",
+      "target": "function:src/lib/orders/refund.ts:computeRefundableAmount",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/orders/refund.ts",
+      "target": "function:src/lib/orders/refund.ts:executeRefund",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/orders/refund.ts:computeRefundableAmount",
+      "target": "function:src/lib/orders/refund.ts:Number",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/refund.ts:computeRefundableAmount",
+      "target": "function:src/lib/orders/refund.ts:Number",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/refund.ts:executeRefund",
+      "target": "function:src/lib/orders/refund.ts:getServiceClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/refund.ts:executeRefund",
+      "target": "function:src/lib/orders/refund.ts:supabase\r\n    .from('orders')\r\n    .select('id, user_id, order_number, payment_method, payment_status, status, total, prepaid_amount, cod_balance')\r\n    .eq('id', input.orderId)\r\n    .maybeSingle",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/refund.ts:executeRefund",
+      "target": "function:src/lib/orders/refund.ts:supabase\r\n    .from('orders')\r\n    .select('id, user_id, order_number, payment_method, payment_status, status, total, prepaid_amount, cod_balance')\r\n    .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/refund.ts:executeRefund",
+      "target": "function:src/lib/orders/refund.ts:supabase\r\n    .from('orders')\r\n    .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/refund.ts:executeRefund",
+      "target": "function:src/lib/orders/refund.ts:supabase\r\n    .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/refund.ts:executeRefund",
+      "target": "function:src/lib/orders/refund.ts:computeRefundableAmount",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/refund.ts:executeRefund",
+      "target": "function:src/lib/orders/refund.ts:Number",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/refund.ts:executeRefund",
+      "target": "function:src/lib/orders/refund.ts:Math.min",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/refund.ts:executeRefund",
+      "target": "function:src/lib/orders/refund.ts:Number",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/refund.ts:executeRefund",
+      "target": "function:src/lib/orders/refund.ts:supabase.from('wallet_ledger').insert",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/refund.ts:executeRefund",
+      "target": "function:src/lib/orders/refund.ts:supabase.from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/refund.ts:executeRefund",
+      "target": "function:src/lib/orders/refund.ts:new Date().toISOString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/refund.ts:executeRefund",
+      "target": "function:src/lib/orders/refund.ts:new Date().toISOString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/refund.ts:executeRefund",
+      "target": "function:src/lib/orders/refund.ts:supabase.from('orders').update(update).eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/refund.ts:executeRefund",
+      "target": "function:src/lib/orders/refund.ts:supabase.from('orders').update",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/refund.ts:executeRefund",
+      "target": "function:src/lib/orders/refund.ts:supabase.from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/refund.ts:executeRefund",
+      "target": "function:src/lib/orders/refund.ts:supabase.from('order_events').insert",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/refund.ts:executeRefund",
+      "target": "function:src/lib/orders/refund.ts:supabase.from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/refund.ts:executeRefund",
+      "target": "function:src/lib/orders/refund.ts:new Date().toISOString",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/lib/orders/returns.ts",
+      "target": "function:src/lib/orders/returns.ts:approveReturn",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/orders/returns.ts",
+      "target": "function:src/lib/orders/returns.ts:rejectReturn",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/orders/returns.ts",
+      "target": "function:src/lib/orders/returns.ts:receiveReturn",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/orders/returns.ts",
+      "target": "function:src/lib/orders/returns.ts:receiveRto",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/orders/returns.ts:approveReturn",
+      "target": "function:src/lib/orders/returns.ts:getServiceClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/returns.ts:approveReturn",
+      "target": "function:src/lib/orders/returns.ts:supabase\r\n    .from('returns')\r\n    .select('id, order_id, status')\r\n    .eq('id', input.returnId)\r\n    .maybeSingle",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/returns.ts:approveReturn",
+      "target": "function:src/lib/orders/returns.ts:supabase\r\n    .from('returns')\r\n    .select('id, order_id, status')\r\n    .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/returns.ts:approveReturn",
+      "target": "function:src/lib/orders/returns.ts:supabase\r\n    .from('returns')\r\n    .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/returns.ts:approveReturn",
+      "target": "function:src/lib/orders/returns.ts:supabase\r\n    .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/returns.ts:approveReturn",
+      "target": "function:src/lib/orders/returns.ts:supabase\r\n    .from('returns')\r\n    .update({ status: 'approved' })\r\n    .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/returns.ts:approveReturn",
+      "target": "function:src/lib/orders/returns.ts:supabase\r\n    .from('returns')\r\n    .update",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/returns.ts:approveReturn",
+      "target": "function:src/lib/orders/returns.ts:supabase\r\n    .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/returns.ts:approveReturn",
+      "target": "function:src/lib/orders/returns.ts:transitionOrder",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/returns.ts:rejectReturn",
+      "target": "function:src/lib/orders/returns.ts:getServiceClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/returns.ts:rejectReturn",
+      "target": "function:src/lib/orders/returns.ts:supabase\r\n    .from('returns')\r\n    .select('id, order_id, status')\r\n    .eq('id', input.returnId)\r\n    .maybeSingle",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/returns.ts:rejectReturn",
+      "target": "function:src/lib/orders/returns.ts:supabase\r\n    .from('returns')\r\n    .select('id, order_id, status')\r\n    .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/returns.ts:rejectReturn",
+      "target": "function:src/lib/orders/returns.ts:supabase\r\n    .from('returns')\r\n    .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/returns.ts:rejectReturn",
+      "target": "function:src/lib/orders/returns.ts:supabase\r\n    .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/returns.ts:rejectReturn",
+      "target": "function:src/lib/orders/returns.ts:supabase\r\n    .from('returns')\r\n    .update({ status: 'rejected', resolved_at: new Date().toISOString() })\r\n    .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/returns.ts:rejectReturn",
+      "target": "function:src/lib/orders/returns.ts:supabase\r\n    .from('returns')\r\n    .update",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/returns.ts:rejectReturn",
+      "target": "function:src/lib/orders/returns.ts:supabase\r\n    .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/returns.ts:rejectReturn",
+      "target": "function:src/lib/orders/returns.ts:new Date().toISOString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/returns.ts:rejectReturn",
+      "target": "function:src/lib/orders/returns.ts:transitionOrder",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/returns.ts:receiveReturn",
+      "target": "function:src/lib/orders/returns.ts:getServiceClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/returns.ts:receiveReturn",
+      "target": "function:src/lib/orders/returns.ts:supabase\r\n    .from('returns')\r\n    .select('id, order_id, status')\r\n    .eq('id', input.returnId)\r\n    .maybeSingle",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/returns.ts:receiveReturn",
+      "target": "function:src/lib/orders/returns.ts:supabase\r\n    .from('returns')\r\n    .select('id, order_id, status')\r\n    .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/returns.ts:receiveReturn",
+      "target": "function:src/lib/orders/returns.ts:supabase\r\n    .from('returns')\r\n    .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/returns.ts:receiveReturn",
+      "target": "function:src/lib/orders/returns.ts:supabase\r\n    .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/returns.ts:receiveReturn",
+      "target": "function:src/lib/orders/returns.ts:supabase\r\n    .from('order_items')\r\n    .select('product_id, variant_id, sku, quantity')\r\n    .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/returns.ts:receiveReturn",
+      "target": "function:src/lib/orders/returns.ts:supabase\r\n    .from('order_items')\r\n    .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/returns.ts:receiveReturn",
+      "target": "function:src/lib/orders/returns.ts:supabase\r\n    .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/returns.ts:receiveReturn",
+      "target": "function:src/lib/orders/returns.ts:supabase.from('inventory_movements').insert",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/returns.ts:receiveReturn",
+      "target": "function:src/lib/orders/returns.ts:supabase.from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/returns.ts:receiveReturn",
+      "target": "function:src/lib/orders/returns.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/returns.ts:receiveReturn",
+      "target": "function:src/lib/orders/returns.ts:supabase.rpc",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/returns.ts:receiveReturn",
+      "target": "function:src/lib/orders/returns.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/returns.ts:receiveReturn",
+      "target": "function:src/lib/orders/returns.ts:supabase\r\n    .from('returns')\r\n    .update({ status: 'completed', resolved_at: new Date().toISOString() })\r\n    .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/returns.ts:receiveReturn",
+      "target": "function:src/lib/orders/returns.ts:supabase\r\n    .from('returns')\r\n    .update",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/returns.ts:receiveReturn",
+      "target": "function:src/lib/orders/returns.ts:supabase\r\n    .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/returns.ts:receiveReturn",
+      "target": "function:src/lib/orders/returns.ts:new Date().toISOString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/returns.ts:receiveReturn",
+      "target": "function:src/lib/orders/returns.ts:transitionOrder",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/returns.ts:receiveRto",
+      "target": "function:src/lib/orders/returns.ts:getServiceClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/returns.ts:receiveRto",
+      "target": "function:src/lib/orders/returns.ts:supabase\r\n    .from('orders')\r\n    .select('id, status')\r\n    .eq('id', orderId)\r\n    .maybeSingle",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/returns.ts:receiveRto",
+      "target": "function:src/lib/orders/returns.ts:supabase\r\n    .from('orders')\r\n    .select('id, status')\r\n    .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/returns.ts:receiveRto",
+      "target": "function:src/lib/orders/returns.ts:supabase\r\n    .from('orders')\r\n    .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/returns.ts:receiveRto",
+      "target": "function:src/lib/orders/returns.ts:supabase\r\n    .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/returns.ts:receiveRto",
+      "target": "function:src/lib/orders/returns.ts:transitionOrder",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/returns.ts:receiveRto",
+      "target": "function:src/lib/orders/returns.ts:supabase\r\n    .from('rto_records')\r\n    .select('id')\r\n    .eq('order_reference', orderId)\r\n    .maybeSingle",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/returns.ts:receiveRto",
+      "target": "function:src/lib/orders/returns.ts:supabase\r\n    .from('rto_records')\r\n    .select('id')\r\n    .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/returns.ts:receiveRto",
+      "target": "function:src/lib/orders/returns.ts:supabase\r\n    .from('rto_records')\r\n    .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/returns.ts:receiveRto",
+      "target": "function:src/lib/orders/returns.ts:supabase\r\n    .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/returns.ts:receiveRto",
+      "target": "function:src/lib/orders/returns.ts:supabase.from('rto_records').insert",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/orders/returns.ts:receiveRto",
+      "target": "function:src/lib/orders/returns.ts:supabase.from",
+      "type": "calls"
+    }
+  ]
+}

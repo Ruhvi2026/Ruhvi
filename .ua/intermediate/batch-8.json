@@ -1,0 +1,116 @@
+{
+  "batchIndex": 8,
+  "batchFiles": [
+    {
+      "path": "ruhvi-mobile_DO_NOT_DELETE/AGENTS.md",
+      "language": "markdown",
+      "sizeLines": 3,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "ruhvi-mobile_DO_NOT_DELETE/CLAUDE.md",
+      "language": "markdown",
+      "sizeLines": 1,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "ruhvi-mobile_DO_NOT_DELETE/app.json",
+      "language": "json",
+      "sizeLines": 42,
+      "fileCategory": "config"
+    },
+    {
+      "path": "ruhvi-mobile_DO_NOT_DELETE/eas.json",
+      "language": "json",
+      "sizeLines": 25,
+      "fileCategory": "config"
+    },
+    {
+      "path": "ruhvi-mobile_DO_NOT_DELETE/package.json",
+      "language": "json",
+      "sizeLines": 38,
+      "fileCategory": "config"
+    },
+    {
+      "path": "ruhvi-mobile_DO_NOT_DELETE/tsconfig.json",
+      "language": "json",
+      "sizeLines": 6,
+      "fileCategory": "config"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "document:ruhvi-mobile_DO_NOT_DELETE/AGENTS.md",
+      "name": "AGENTS.md",
+      "type": "document",
+      "filePath": "ruhvi-mobile_DO_NOT_DELETE/AGENTS.md",
+      "summary": "markdown docs file (3 lines)",
+      "complexity": "simple",
+      "tags": [
+        "markdown",
+        "docs"
+      ]
+    },
+    {
+      "id": "document:ruhvi-mobile_DO_NOT_DELETE/CLAUDE.md",
+      "name": "CLAUDE.md",
+      "type": "document",
+      "filePath": "ruhvi-mobile_DO_NOT_DELETE/CLAUDE.md",
+      "summary": "markdown docs file (1 lines)",
+      "complexity": "simple",
+      "tags": [
+        "markdown",
+        "docs"
+      ]
+    },
+    {
+      "id": "config:ruhvi-mobile_DO_NOT_DELETE/app.json",
+      "name": "app.json",
+      "type": "config",
+      "filePath": "ruhvi-mobile_DO_NOT_DELETE/app.json",
+      "summary": "json config file (42 lines)",
+      "complexity": "simple",
+      "tags": [
+        "json",
+        "config"
+      ]
+    },
+    {
+      "id": "config:ruhvi-mobile_DO_NOT_DELETE/eas.json",
+      "name": "eas.json",
+      "type": "config",
+      "filePath": "ruhvi-mobile_DO_NOT_DELETE/eas.json",
+      "summary": "json config file (25 lines)",
+      "complexity": "simple",
+      "tags": [
+        "json",
+        "config"
+      ]
+    },
+    {
+      "id": "config:ruhvi-mobile_DO_NOT_DELETE/package.json",
+      "name": "package.json",
+      "type": "config",
+      "filePath": "ruhvi-mobile_DO_NOT_DELETE/package.json",
+      "summary": "json config file (38 lines)",
+      "complexity": "simple",
+      "tags": [
+        "json",
+        "config"
+      ]
+    },
+    {
+      "id": "config:ruhvi-mobile_DO_NOT_DELETE/tsconfig.json",
+      "name": "tsconfig.json",
+      "type": "config",
+      "filePath": "ruhvi-mobile_DO_NOT_DELETE/tsconfig.json",
+      "summary": "json config file (6 lines)",
+      "complexity": "simple",
+      "tags": [
+        "json",
+        "config"
+      ]
+    }
+  ],
+  "edges": []
+}

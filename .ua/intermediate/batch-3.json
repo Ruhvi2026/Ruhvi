@@ -1,0 +1,368 @@
+{
+  "batchIndex": 3,
+  "batchFiles": [
+    {
+      "path": ".agents/skills/understand/languages/cpp.md",
+      "language": "markdown",
+      "sizeLines": 47,
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".agents/skills/understand/languages/csharp.md",
+      "language": "markdown",
+      "sizeLines": 46,
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".agents/skills/understand/languages/css.md",
+      "language": "markdown",
+      "sizeLines": 37,
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".agents/skills/understand/languages/dockerfile.md",
+      "language": "markdown",
+      "sizeLines": 34,
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".agents/skills/understand/languages/go.md",
+      "language": "markdown",
+      "sizeLines": 47,
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".agents/skills/understand/languages/graphql.md",
+      "language": "markdown",
+      "sizeLines": 35,
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".agents/skills/understand/languages/html.md",
+      "language": "markdown",
+      "sizeLines": 34,
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".agents/skills/understand/languages/java.md",
+      "language": "markdown",
+      "sizeLines": 45,
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".agents/skills/understand/languages/javascript.md",
+      "language": "markdown",
+      "sizeLines": 46,
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".agents/skills/understand/languages/json.md",
+      "language": "markdown",
+      "sizeLines": 34,
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".agents/skills/understand/languages/kotlin.md",
+      "language": "markdown",
+      "sizeLines": 45,
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".agents/skills/understand/languages/markdown.md",
+      "language": "markdown",
+      "sizeLines": 34,
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".agents/skills/understand/languages/php.md",
+      "language": "markdown",
+      "sizeLines": 46,
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".agents/skills/understand/languages/protobuf.md",
+      "language": "markdown",
+      "sizeLines": 34,
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".agents/skills/understand/languages/python.md",
+      "language": "markdown",
+      "sizeLines": 48,
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".agents/skills/understand/languages/ruby.md",
+      "language": "markdown",
+      "sizeLines": 46,
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".agents/skills/understand/languages/rust.md",
+      "language": "markdown",
+      "sizeLines": 47,
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".agents/skills/understand/languages/scala.md",
+      "language": "markdown",
+      "sizeLines": 51,
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".agents/skills/understand/languages/shell.md",
+      "language": "markdown",
+      "sizeLines": 35,
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".agents/skills/understand/languages/sql.md",
+      "language": "markdown",
+      "sizeLines": 36,
+      "fileCategory": "docs"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "document:.agents/skills/understand/languages/cpp.md",
+      "name": "cpp.md",
+      "type": "document",
+      "filePath": ".agents/skills/understand/languages/cpp.md",
+      "summary": "markdown docs file (47 lines)",
+      "complexity": "simple",
+      "tags": [
+        "markdown",
+        "docs"
+      ]
+    },
+    {
+      "id": "document:.agents/skills/understand/languages/csharp.md",
+      "name": "csharp.md",
+      "type": "document",
+      "filePath": ".agents/skills/understand/languages/csharp.md",
+      "summary": "markdown docs file (46 lines)",
+      "complexity": "simple",
+      "tags": [
+        "markdown",
+        "docs"
+      ]
+    },
+    {
+      "id": "document:.agents/skills/understand/languages/css.md",
+      "name": "css.md",
+      "type": "document",
+      "filePath": ".agents/skills/understand/languages/css.md",
+      "summary": "markdown docs file (37 lines)",
+      "complexity": "simple",
+      "tags": [
+        "markdown",
+        "docs"
+      ]
+    },
+    {
+      "id": "document:.agents/skills/understand/languages/dockerfile.md",
+      "name": "dockerfile.md",
+      "type": "document",
+      "filePath": ".agents/skills/understand/languages/dockerfile.md",
+      "summary": "markdown docs file (34 lines)",
+      "complexity": "simple",
+      "tags": [
+        "markdown",
+        "docs"
+      ]
+    },
+    {
+      "id": "document:.agents/skills/understand/languages/go.md",
+      "name": "go.md",
+      "type": "document",
+      "filePath": ".agents/skills/understand/languages/go.md",
+      "summary": "markdown docs file (47 lines)",
+      "complexity": "simple",
+      "tags": [
+        "markdown",
+        "docs"
+      ]
+    },
+    {
+      "id": "document:.agents/skills/understand/languages/graphql.md",
+      "name": "graphql.md",
+      "type": "document",
+      "filePath": ".agents/skills/understand/languages/graphql.md",
+      "summary": "markdown docs file (35 lines)",
+      "complexity": "simple",
+      "tags": [
+        "markdown",
+        "docs"
+      ]
+    },
+    {
+      "id": "document:.agents/skills/understand/languages/html.md",
+      "name": "html.md",
+      "type": "document",
+      "filePath": ".agents/skills/understand/languages/html.md",
+      "summary": "markdown docs file (34 lines)",
+      "complexity": "simple",
+      "tags": [
+        "markdown",
+        "docs"
+      ]
+    },
+    {
+      "id": "document:.agents/skills/understand/languages/java.md",
+      "name": "java.md",
+      "type": "document",
+      "filePath": ".agents/skills/understand/languages/java.md",
+      "summary": "markdown docs file (45 lines)",
+      "complexity": "simple",
+      "tags": [
+        "markdown",
+        "docs"
+      ]
+    },
+    {
+      "id": "document:.agents/skills/understand/languages/javascript.md",
+      "name": "javascript.md",
+      "type": "document",
+      "filePath": ".agents/skills/understand/languages/javascript.md",
+      "summary": "markdown docs file (46 lines)",
+      "complexity": "simple",
+      "tags": [
+        "markdown",
+        "docs"
+      ]
+    },
+    {
+      "id": "document:.agents/skills/understand/languages/json.md",
+      "name": "json.md",
+      "type": "document",
+      "filePath": ".agents/skills/understand/languages/json.md",
+      "summary": "markdown docs file (34 lines)",
+      "complexity": "simple",
+      "tags": [
+        "markdown",
+        "docs"
+      ]
+    },
+    {
+      "id": "document:.agents/skills/understand/languages/kotlin.md",
+      "name": "kotlin.md",
+      "type": "document",
+      "filePath": ".agents/skills/understand/languages/kotlin.md",
+      "summary": "markdown docs file (45 lines)",
+      "complexity": "simple",
+      "tags": [
+        "markdown",
+        "docs"
+      ]
+    },
+    {
+      "id": "document:.agents/skills/understand/languages/markdown.md",
+      "name": "markdown.md",
+      "type": "document",
+      "filePath": ".agents/skills/understand/languages/markdown.md",
+      "summary": "markdown docs file (34 lines)",
+      "complexity": "simple",
+      "tags": [
+        "markdown",
+        "docs"
+      ]
+    },
+    {
+      "id": "document:.agents/skills/understand/languages/php.md",
+      "name": "php.md",
+      "type": "document",
+      "filePath": ".agents/skills/understand/languages/php.md",
+      "summary": "markdown docs file (46 lines)",
+      "complexity": "simple",
+      "tags": [
+        "markdown",
+        "docs"
+      ]
+    },
+    {
+      "id": "document:.agents/skills/understand/languages/protobuf.md",
+      "name": "protobuf.md",
+      "type": "document",
+      "filePath": ".agents/skills/understand/languages/protobuf.md",
+      "summary": "markdown docs file (34 lines)",
+      "complexity": "simple",
+      "tags": [
+        "markdown",
+        "docs"
+      ]
+    },
+    {
+      "id": "document:.agents/skills/understand/languages/python.md",
+      "name": "python.md",
+      "type": "document",
+      "filePath": ".agents/skills/understand/languages/python.md",
+      "summary": "markdown docs file (48 lines)",
+      "complexity": "simple",
+      "tags": [
+        "markdown",
+        "docs"
+      ]
+    },
+    {
+      "id": "document:.agents/skills/understand/languages/ruby.md",
+      "name": "ruby.md",
+      "type": "document",
+      "filePath": ".agents/skills/understand/languages/ruby.md",
+      "summary": "markdown docs file (46 lines)",
+      "complexity": "simple",
+      "tags": [
+        "markdown",
+        "docs"
+      ]
+    },
+    {
+      "id": "document:.agents/skills/understand/languages/rust.md",
+      "name": "rust.md",
+      "type": "document",
+      "filePath": ".agents/skills/understand/languages/rust.md",
+      "summary": "markdown docs file (47 lines)",
+      "complexity": "simple",
+      "tags": [
+        "markdown",
+        "docs"
+      ]
+    },
+    {
+      "id": "document:.agents/skills/understand/languages/scala.md",
+      "name": "scala.md",
+      "type": "document",
+      "filePath": ".agents/skills/understand/languages/scala.md",
+      "summary": "markdown docs file (51 lines)",
+      "complexity": "simple",
+      "tags": [
+        "markdown",
+        "docs"
+      ]
+    },
+    {
+      "id": "document:.agents/skills/understand/languages/shell.md",
+      "name": "shell.md",
+      "type": "document",
+      "filePath": ".agents/skills/understand/languages/shell.md",
+      "summary": "markdown docs file (35 lines)",
+      "complexity": "simple",
+      "tags": [
+        "markdown",
+        "docs"
+      ]
+    },
+    {
+      "id": "document:.agents/skills/understand/languages/sql.md",
+      "name": "sql.md",
+      "type": "document",
+      "filePath": ".agents/skills/understand/languages/sql.md",
+      "summary": "markdown docs file (36 lines)",
+      "complexity": "simple",
+      "tags": [
+        "markdown",
+        "docs"
+      ]
+    }
+  ],
+  "edges": []
+}

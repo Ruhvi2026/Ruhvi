@@ -1,0 +1,2573 @@
+{
+  "batchIndex": 40,
+  "batchFiles": [
+    {
+      "path": "src/lib/ai/co-founder/engineering.ts",
+      "language": "typescript",
+      "sizeLines": 254,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/ai/co-founder/memory.ts",
+      "language": "typescript",
+      "sizeLines": 160,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/ai/co-founder/outcomes.ts",
+      "language": "typescript",
+      "sizeLines": 468,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/ai/co-founder/proactive.ts",
+      "language": "typescript",
+      "sizeLines": 521,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/ai/co-founder/root-cause.ts",
+      "language": "typescript",
+      "sizeLines": 329,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/ai/co-founder/seo-health.ts",
+      "language": "typescript",
+      "sizeLines": 180,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/ai/co-founder/strategy-engine.ts",
+      "language": "typescript",
+      "sizeLines": 228,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/ai/co-founder/tool-bridge.ts",
+      "language": "typescript",
+      "sizeLines": 703,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/ai/co-founder/workers/__tests__/bridge-integration.test.ts",
+      "language": "typescript",
+      "sizeLines": 68,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/ai/co-founder/workers/__tests__/dispatcher.test.ts",
+      "language": "typescript",
+      "sizeLines": 115,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/ai/co-founder/workers/__tests__/marketing-ads-execution.test.ts",
+      "language": "typescript",
+      "sizeLines": 55,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/ai/co-founder/workers/__tests__/marketing-creative-media.test.ts",
+      "language": "typescript",
+      "sizeLines": 87,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/ai/co-founder/workers/__tests__/marketing-disabled-coworkers.test.ts",
+      "language": "typescript",
+      "sizeLines": 78,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/ai/co-founder/workers/__tests__/marketing-e2e-flow.test.ts",
+      "language": "typescript",
+      "sizeLines": 142,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/ai/co-founder/workers/__tests__/marketing-media-jobs.test.ts",
+      "language": "typescript",
+      "sizeLines": 143,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/ai/co-founder/workers/__tests__/marketing-strategy.test.ts",
+      "language": "typescript",
+      "sizeLines": 82,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/ai/co-founder/workers/__tests__/worker-1-analytics.test.ts",
+      "language": "typescript",
+      "sizeLines": 153,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/ai/co-founder/workers/__tests__/worker-10-review.test.ts",
+      "language": "typescript",
+      "sizeLines": 104,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/ai/co-founder/workers/__tests__/worker-11-execution.test.ts",
+      "language": "typescript",
+      "sizeLines": 125,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/ai/co-founder/workers/__tests__/worker-12-monitoring.test.ts",
+      "language": "typescript",
+      "sizeLines": 104,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/ai/co-founder/workers/__tests__/worker-2-marketing.test.ts",
+      "language": "typescript",
+      "sizeLines": 101,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/ai/co-founder/workers/__tests__/worker-3-seo.test.ts",
+      "language": "typescript",
+      "sizeLines": 91,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/ai/co-founder/workers/__tests__/worker-4-product.test.ts",
+      "language": "typescript",
+      "sizeLines": 116,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/ai/co-founder/workers/__tests__/worker-5-competitor.test.ts",
+      "language": "typescript",
+      "sizeLines": 119,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/ai/co-founder/workers/__tests__/worker-6-sales.test.ts",
+      "language": "typescript",
+      "sizeLines": 79,
+      "fileCategory": "code"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "file:src/lib/ai/co-founder/engineering.ts",
+      "name": "engineering.ts",
+      "type": "file",
+      "filePath": "src/lib/ai/co-founder/engineering.ts",
+      "summary": "typescript code file (254 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/lib/ai/co-founder/engineering.ts:getRepositoryArchitecture",
+      "name": "getRepositoryArchitecture",
+      "type": "function",
+      "filePath": "src/lib/ai/co-founder/engineering.ts",
+      "parentId": "file:src/lib/ai/co-founder/engineering.ts",
+      "summary": "Function getRepositoryArchitecture",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/ai/co-founder/engineering.ts:inspectRecentErrors",
+      "name": "inspectRecentErrors",
+      "type": "function",
+      "filePath": "src/lib/ai/co-founder/engineering.ts",
+      "parentId": "file:src/lib/ai/co-founder/engineering.ts",
+      "summary": "Function inspectRecentErrors",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/ai/co-founder/engineering.ts:analyzeCodeSnippet",
+      "name": "analyzeCodeSnippet",
+      "type": "function",
+      "filePath": "src/lib/ai/co-founder/engineering.ts",
+      "parentId": "file:src/lib/ai/co-founder/engineering.ts",
+      "summary": "Function analyzeCodeSnippet",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/ai/co-founder/memory.ts",
+      "name": "memory.ts",
+      "type": "file",
+      "filePath": "src/lib/ai/co-founder/memory.ts",
+      "summary": "typescript code file (160 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/lib/ai/co-founder/memory.ts:getRelevantMemories",
+      "name": "getRelevantMemories",
+      "type": "function",
+      "filePath": "src/lib/ai/co-founder/memory.ts",
+      "parentId": "file:src/lib/ai/co-founder/memory.ts",
+      "summary": "Function getRelevantMemories",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/ai/co-founder/memory.ts:writeCoFounderMemory",
+      "name": "writeCoFounderMemory",
+      "type": "function",
+      "filePath": "src/lib/ai/co-founder/memory.ts",
+      "parentId": "file:src/lib/ai/co-founder/memory.ts",
+      "summary": "Function writeCoFounderMemory",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/ai/co-founder/memory.ts:correctCoFounderMemory",
+      "name": "correctCoFounderMemory",
+      "type": "function",
+      "filePath": "src/lib/ai/co-founder/memory.ts",
+      "parentId": "file:src/lib/ai/co-founder/memory.ts",
+      "summary": "Function correctCoFounderMemory",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/ai/co-founder/outcomes.ts",
+      "name": "outcomes.ts",
+      "type": "file",
+      "filePath": "src/lib/ai/co-founder/outcomes.ts",
+      "summary": "typescript code file (468 lines)",
+      "complexity": "complex",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/lib/ai/co-founder/outcomes.ts:recordOutcomeEvent",
+      "name": "recordOutcomeEvent",
+      "type": "function",
+      "filePath": "src/lib/ai/co-founder/outcomes.ts",
+      "parentId": "file:src/lib/ai/co-founder/outcomes.ts",
+      "summary": "Function recordOutcomeEvent",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/ai/co-founder/outcomes.ts:recordUserFeedback",
+      "name": "recordUserFeedback",
+      "type": "function",
+      "filePath": "src/lib/ai/co-founder/outcomes.ts",
+      "parentId": "file:src/lib/ai/co-founder/outcomes.ts",
+      "summary": "Function recordUserFeedback",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/ai/co-founder/outcomes.ts:verifyDelayedOutcome",
+      "name": "verifyDelayedOutcome",
+      "type": "function",
+      "filePath": "src/lib/ai/co-founder/outcomes.ts",
+      "parentId": "file:src/lib/ai/co-founder/outcomes.ts",
+      "summary": "Function verifyDelayedOutcome",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/ai/co-founder/outcomes.ts:getOutcomeAnalytics",
+      "name": "getOutcomeAnalytics",
+      "type": "function",
+      "filePath": "src/lib/ai/co-founder/outcomes.ts",
+      "parentId": "file:src/lib/ai/co-founder/outcomes.ts",
+      "summary": "Function getOutcomeAnalytics",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/ai/co-founder/outcomes.ts:verifyDueActionPlanOutcomes",
+      "name": "verifyDueActionPlanOutcomes",
+      "type": "function",
+      "filePath": "src/lib/ai/co-founder/outcomes.ts",
+      "parentId": "file:src/lib/ai/co-founder/outcomes.ts",
+      "summary": "Function verifyDueActionPlanOutcomes",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/ai/co-founder/proactive.ts",
+      "name": "proactive.ts",
+      "type": "file",
+      "filePath": "src/lib/ai/co-founder/proactive.ts",
+      "summary": "typescript code file (521 lines)",
+      "complexity": "complex",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/lib/ai/co-founder/proactive.ts:createSignalFingerprint",
+      "name": "createSignalFingerprint",
+      "type": "function",
+      "filePath": "src/lib/ai/co-founder/proactive.ts",
+      "parentId": "file:src/lib/ai/co-founder/proactive.ts",
+      "summary": "Function createSignalFingerprint",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/ai/co-founder/proactive.ts:scanProactiveSignals",
+      "name": "scanProactiveSignals",
+      "type": "function",
+      "filePath": "src/lib/ai/co-founder/proactive.ts",
+      "parentId": "file:src/lib/ai/co-founder/proactive.ts",
+      "summary": "Function scanProactiveSignals",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/ai/co-founder/proactive.ts:acknowledgeSignal",
+      "name": "acknowledgeSignal",
+      "type": "function",
+      "filePath": "src/lib/ai/co-founder/proactive.ts",
+      "parentId": "file:src/lib/ai/co-founder/proactive.ts",
+      "summary": "Function acknowledgeSignal",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/ai/co-founder/proactive.ts:getActiveProactiveSignals",
+      "name": "getActiveProactiveSignals",
+      "type": "function",
+      "filePath": "src/lib/ai/co-founder/proactive.ts",
+      "parentId": "file:src/lib/ai/co-founder/proactive.ts",
+      "summary": "Function getActiveProactiveSignals",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/ai/co-founder/proactive.ts:generateExecutiveAdvisorBriefing",
+      "name": "generateExecutiveAdvisorBriefing",
+      "type": "function",
+      "filePath": "src/lib/ai/co-founder/proactive.ts",
+      "parentId": "file:src/lib/ai/co-founder/proactive.ts",
+      "summary": "Function generateExecutiveAdvisorBriefing",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/ai/co-founder/proactive.ts:runProactiveCronScan",
+      "name": "runProactiveCronScan",
+      "type": "function",
+      "filePath": "src/lib/ai/co-founder/proactive.ts",
+      "parentId": "file:src/lib/ai/co-founder/proactive.ts",
+      "summary": "Function runProactiveCronScan",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/ai/co-founder/root-cause.ts",
+      "name": "root-cause.ts",
+      "type": "file",
+      "filePath": "src/lib/ai/co-founder/root-cause.ts",
+      "summary": "typescript code file (329 lines)",
+      "complexity": "complex",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/lib/ai/co-founder/root-cause.ts:performRootCauseAnalysis",
+      "name": "performRootCauseAnalysis",
+      "type": "function",
+      "filePath": "src/lib/ai/co-founder/root-cause.ts",
+      "parentId": "file:src/lib/ai/co-founder/root-cause.ts",
+      "summary": "Function performRootCauseAnalysis",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/ai/co-founder/seo-health.ts",
+      "name": "seo-health.ts",
+      "type": "file",
+      "filePath": "src/lib/ai/co-founder/seo-health.ts",
+      "summary": "typescript code file (180 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/lib/ai/co-founder/seo-health.ts:auditCatalogSeoHealth",
+      "name": "auditCatalogSeoHealth",
+      "type": "function",
+      "filePath": "src/lib/ai/co-founder/seo-health.ts",
+      "parentId": "file:src/lib/ai/co-founder/seo-health.ts",
+      "summary": "Function auditCatalogSeoHealth",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/ai/co-founder/strategy-engine.ts",
+      "name": "strategy-engine.ts",
+      "type": "file",
+      "filePath": "src/lib/ai/co-founder/strategy-engine.ts",
+      "summary": "typescript code file (228 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/lib/ai/co-founder/strategy-engine.ts:formulateStrategicSolution",
+      "name": "formulateStrategicSolution",
+      "type": "function",
+      "filePath": "src/lib/ai/co-founder/strategy-engine.ts",
+      "parentId": "file:src/lib/ai/co-founder/strategy-engine.ts",
+      "summary": "Function formulateStrategicSolution",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/ai/co-founder/tool-bridge.ts",
+      "name": "tool-bridge.ts",
+      "type": "file",
+      "filePath": "src/lib/ai/co-founder/tool-bridge.ts",
+      "summary": "typescript code file (703 lines)",
+      "complexity": "complex",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/lib/ai/co-founder/tool-bridge.ts:executeCoFounderTool",
+      "name": "executeCoFounderTool",
+      "type": "function",
+      "filePath": "src/lib/ai/co-founder/tool-bridge.ts",
+      "parentId": "file:src/lib/ai/co-founder/tool-bridge.ts",
+      "summary": "Function executeCoFounderTool",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/ai/co-founder/workers/__tests__/bridge-integration.test.ts",
+      "name": "bridge-integration.test.ts",
+      "type": "file",
+      "filePath": "src/lib/ai/co-founder/workers/__tests__/bridge-integration.test.ts",
+      "summary": "typescript code file (68 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:src/lib/ai/co-founder/workers/__tests__/dispatcher.test.ts",
+      "name": "dispatcher.test.ts",
+      "type": "file",
+      "filePath": "src/lib/ai/co-founder/workers/__tests__/dispatcher.test.ts",
+      "summary": "typescript code file (115 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:src/lib/ai/co-founder/workers/__tests__/marketing-ads-execution.test.ts",
+      "name": "marketing-ads-execution.test.ts",
+      "type": "file",
+      "filePath": "src/lib/ai/co-founder/workers/__tests__/marketing-ads-execution.test.ts",
+      "summary": "typescript code file (55 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:src/lib/ai/co-founder/workers/__tests__/marketing-creative-media.test.ts",
+      "name": "marketing-creative-media.test.ts",
+      "type": "file",
+      "filePath": "src/lib/ai/co-founder/workers/__tests__/marketing-creative-media.test.ts",
+      "summary": "typescript code file (87 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:src/lib/ai/co-founder/workers/__tests__/marketing-disabled-coworkers.test.ts",
+      "name": "marketing-disabled-coworkers.test.ts",
+      "type": "file",
+      "filePath": "src/lib/ai/co-founder/workers/__tests__/marketing-disabled-coworkers.test.ts",
+      "summary": "typescript code file (78 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:src/lib/ai/co-founder/workers/__tests__/marketing-e2e-flow.test.ts",
+      "name": "marketing-e2e-flow.test.ts",
+      "type": "file",
+      "filePath": "src/lib/ai/co-founder/workers/__tests__/marketing-e2e-flow.test.ts",
+      "summary": "typescript code file (142 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:src/lib/ai/co-founder/workers/__tests__/marketing-media-jobs.test.ts",
+      "name": "marketing-media-jobs.test.ts",
+      "type": "file",
+      "filePath": "src/lib/ai/co-founder/workers/__tests__/marketing-media-jobs.test.ts",
+      "summary": "typescript code file (143 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:src/lib/ai/co-founder/workers/__tests__/marketing-strategy.test.ts",
+      "name": "marketing-strategy.test.ts",
+      "type": "file",
+      "filePath": "src/lib/ai/co-founder/workers/__tests__/marketing-strategy.test.ts",
+      "summary": "typescript code file (82 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:src/lib/ai/co-founder/workers/__tests__/worker-1-analytics.test.ts",
+      "name": "worker-1-analytics.test.ts",
+      "type": "file",
+      "filePath": "src/lib/ai/co-founder/workers/__tests__/worker-1-analytics.test.ts",
+      "summary": "typescript code file (153 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:src/lib/ai/co-founder/workers/__tests__/worker-10-review.test.ts",
+      "name": "worker-10-review.test.ts",
+      "type": "file",
+      "filePath": "src/lib/ai/co-founder/workers/__tests__/worker-10-review.test.ts",
+      "summary": "typescript code file (104 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:src/lib/ai/co-founder/workers/__tests__/worker-11-execution.test.ts",
+      "name": "worker-11-execution.test.ts",
+      "type": "file",
+      "filePath": "src/lib/ai/co-founder/workers/__tests__/worker-11-execution.test.ts",
+      "summary": "typescript code file (125 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:src/lib/ai/co-founder/workers/__tests__/worker-12-monitoring.test.ts",
+      "name": "worker-12-monitoring.test.ts",
+      "type": "file",
+      "filePath": "src/lib/ai/co-founder/workers/__tests__/worker-12-monitoring.test.ts",
+      "summary": "typescript code file (104 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:src/lib/ai/co-founder/workers/__tests__/worker-2-marketing.test.ts",
+      "name": "worker-2-marketing.test.ts",
+      "type": "file",
+      "filePath": "src/lib/ai/co-founder/workers/__tests__/worker-2-marketing.test.ts",
+      "summary": "typescript code file (101 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:src/lib/ai/co-founder/workers/__tests__/worker-3-seo.test.ts",
+      "name": "worker-3-seo.test.ts",
+      "type": "file",
+      "filePath": "src/lib/ai/co-founder/workers/__tests__/worker-3-seo.test.ts",
+      "summary": "typescript code file (91 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:src/lib/ai/co-founder/workers/__tests__/worker-4-product.test.ts",
+      "name": "worker-4-product.test.ts",
+      "type": "file",
+      "filePath": "src/lib/ai/co-founder/workers/__tests__/worker-4-product.test.ts",
+      "summary": "typescript code file (116 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:src/lib/ai/co-founder/workers/__tests__/worker-5-competitor.test.ts",
+      "name": "worker-5-competitor.test.ts",
+      "type": "file",
+      "filePath": "src/lib/ai/co-founder/workers/__tests__/worker-5-competitor.test.ts",
+      "summary": "typescript code file (119 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:src/lib/ai/co-founder/workers/__tests__/worker-6-sales.test.ts",
+      "name": "worker-6-sales.test.ts",
+      "type": "file",
+      "filePath": "src/lib/ai/co-founder/workers/__tests__/worker-6-sales.test.ts",
+      "summary": "typescript code file (79 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:src/lib/ai/co-founder/engineering.ts",
+      "target": "function:src/lib/ai/co-founder/engineering.ts:getRepositoryArchitecture",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/ai/co-founder/engineering.ts",
+      "target": "function:src/lib/ai/co-founder/engineering.ts:inspectRecentErrors",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/ai/co-founder/engineering.ts",
+      "target": "function:src/lib/ai/co-founder/engineering.ts:analyzeCodeSnippet",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/engineering.ts:getRepositoryArchitecture",
+      "target": "function:src/lib/ai/co-founder/engineering.ts:process.cwd",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/engineering.ts:getRepositoryArchitecture",
+      "target": "function:src/lib/ai/co-founder/engineering.ts:path.join",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/engineering.ts:getRepositoryArchitecture",
+      "target": "function:src/lib/ai/co-founder/engineering.ts:fs.existsSync",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/engineering.ts:getRepositoryArchitecture",
+      "target": "function:src/lib/ai/co-founder/engineering.ts:fs\r\n        .readdirSync(migrationsDir)\r\n        .filter",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/engineering.ts:getRepositoryArchitecture",
+      "target": "function:src/lib/ai/co-founder/engineering.ts:fs\r\n        .readdirSync",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/engineering.ts:getRepositoryArchitecture",
+      "target": "function:src/lib/ai/co-founder/engineering.ts:f.endsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/engineering.ts:inspectRecentErrors",
+      "target": "function:src/lib/ai/co-founder/engineering.ts:getServiceClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/engineering.ts:inspectRecentErrors",
+      "target": "function:src/lib/ai/co-founder/engineering.ts:supabase\r\n      .from('ai_failure_diagnostics')\r\n      .select(\r\n        'id, provider, failure_reason, error_message, latency_ms, created_at'\r\n      )\r\n      .order('created_at', { ascending: false })\r\n      .limit",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/engineering.ts:inspectRecentErrors",
+      "target": "function:src/lib/ai/co-founder/engineering.ts:supabase\r\n      .from('ai_failure_diagnostics')\r\n      .select(\r\n        'id, provider, failure_reason, error_message, latency_ms, created_at'\r\n      )\r\n      .order",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/engineering.ts:inspectRecentErrors",
+      "target": "function:src/lib/ai/co-founder/engineering.ts:supabase\r\n      .from('ai_failure_diagnostics')\r\n      .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/engineering.ts:inspectRecentErrors",
+      "target": "function:src/lib/ai/co-founder/engineering.ts:supabase\r\n      .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/engineering.ts:inspectRecentErrors",
+      "target": "function:src/lib/ai/co-founder/engineering.ts:data.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/engineering.ts:inspectRecentErrors",
+      "target": "function:src/lib/ai/co-founder/engineering.ts:top.errorMessage.slice",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/engineering.ts:analyzeCodeSnippet",
+      "target": "function:src/lib/ai/co-founder/engineering.ts:pat.test",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/engineering.ts:analyzeCodeSnippet",
+      "target": "function:src/lib/ai/co-founder/engineering.ts:issues.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/engineering.ts:analyzeCodeSnippet",
+      "target": "function:src/lib/ai/co-founder/engineering.ts:passedChecks.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/engineering.ts:analyzeCodeSnippet",
+      "target": "function:src/lib/ai/co-founder/engineering.ts:/\\beval\\s*\\(/.test",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/engineering.ts:analyzeCodeSnippet",
+      "target": "function:src/lib/ai/co-founder/engineering.ts:/exec\\s*\\([^)]*\\$\\{[^}]+\\}/.test",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/engineering.ts:analyzeCodeSnippet",
+      "target": "function:src/lib/ai/co-founder/engineering.ts:issues.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/engineering.ts:analyzeCodeSnippet",
+      "target": "function:src/lib/ai/co-founder/engineering.ts:passedChecks.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/engineering.ts:analyzeCodeSnippet",
+      "target": "function:src/lib/ai/co-founder/engineering.ts:/query\\s*\\(\\s*`[^`]*\\$\\{[^}]+\\}/.test",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/engineering.ts:analyzeCodeSnippet",
+      "target": "function:src/lib/ai/co-founder/engineering.ts:/EXECUTE\\s+format\\s*\\(/i.test",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/engineering.ts:analyzeCodeSnippet",
+      "target": "function:src/lib/ai/co-founder/engineering.ts:issues.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/engineering.ts:analyzeCodeSnippet",
+      "target": "function:src/lib/ai/co-founder/engineering.ts:passedChecks.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/engineering.ts:analyzeCodeSnippet",
+      "target": "function:src/lib/ai/co-founder/engineering.ts:issues.some",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/engineering.ts:analyzeCodeSnippet",
+      "target": "function:src/lib/ai/co-founder/engineering.ts:issues[0].rule.toLowerCase().replace",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/engineering.ts:analyzeCodeSnippet",
+      "target": "function:src/lib/ai/co-founder/engineering.ts:issues[0].rule.toLowerCase",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/lib/ai/co-founder/memory.ts",
+      "target": "function:src/lib/ai/co-founder/memory.ts:getRelevantMemories",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/ai/co-founder/memory.ts",
+      "target": "function:src/lib/ai/co-founder/memory.ts:writeCoFounderMemory",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/ai/co-founder/memory.ts",
+      "target": "function:src/lib/ai/co-founder/memory.ts:correctCoFounderMemory",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/memory.ts:getRelevantMemories",
+      "target": "function:src/lib/ai/co-founder/memory.ts:getServiceClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/memory.ts:getRelevantMemories",
+      "target": "function:src/lib/ai/co-founder/memory.ts:supabase\r\n      .from('co_founder_memories')\r\n      .select(\r\n        'id, user_id, category, key, value, confidence, source, metadata, created_at'\r\n      )\r\n      .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/memory.ts:getRelevantMemories",
+      "target": "function:src/lib/ai/co-founder/memory.ts:supabase\r\n      .from('co_founder_memories')\r\n      .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/memory.ts:getRelevantMemories",
+      "target": "function:src/lib/ai/co-founder/memory.ts:supabase\r\n      .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/memory.ts:getRelevantMemories",
+      "target": "function:src/lib/ai/co-founder/memory.ts:query.eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/memory.ts:getRelevantMemories",
+      "target": "function:src/lib/ai/co-founder/memory.ts:query.eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/memory.ts:getRelevantMemories",
+      "target": "function:src/lib/ai/co-founder/memory.ts:query\r\n      .order('created_at', { ascending: false })\r\n      .limit",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/memory.ts:getRelevantMemories",
+      "target": "function:src/lib/ai/co-founder/memory.ts:query\r\n      .order",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/memory.ts:getRelevantMemories",
+      "target": "function:src/lib/ai/co-founder/memory.ts:data.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/memory.ts:getRelevantMemories",
+      "target": "function:src/lib/ai/co-founder/memory.ts:Number",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/memory.ts:getRelevantMemories",
+      "target": "function:src/lib/ai/co-founder/memory.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/memory.ts:writeCoFounderMemory",
+      "target": "function:src/lib/ai/co-founder/memory.ts:getServiceClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/memory.ts:writeCoFounderMemory",
+      "target": "function:src/lib/ai/co-founder/memory.ts:supabase\r\n      .from('co_founder_memories')\r\n      .select('id')\r\n      .eq('user_id', item.userId)\r\n      .eq('key', item.key)\r\n      .eq('is_active', true)\r\n      .maybeSingle",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/memory.ts:writeCoFounderMemory",
+      "target": "function:src/lib/ai/co-founder/memory.ts:supabase\r\n      .from('co_founder_memories')\r\n      .select('id')\r\n      .eq('user_id', item.userId)\r\n      .eq('key', item.key)\r\n      .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/memory.ts:writeCoFounderMemory",
+      "target": "function:src/lib/ai/co-founder/memory.ts:supabase\r\n      .from('co_founder_memories')\r\n      .select('id')\r\n      .eq('user_id', item.userId)\r\n      .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/memory.ts:writeCoFounderMemory",
+      "target": "function:src/lib/ai/co-founder/memory.ts:supabase\r\n      .from('co_founder_memories')\r\n      .select('id')\r\n      .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/memory.ts:writeCoFounderMemory",
+      "target": "function:src/lib/ai/co-founder/memory.ts:supabase\r\n      .from('co_founder_memories')\r\n      .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/memory.ts:writeCoFounderMemory",
+      "target": "function:src/lib/ai/co-founder/memory.ts:supabase\r\n      .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/memory.ts:writeCoFounderMemory",
+      "target": "function:src/lib/ai/co-founder/memory.ts:supabase\r\n      .from('co_founder_memories')\r\n      .insert({\r\n        user_id: item.userId,\r\n        category: item.category,\r\n        key: item.key,\r\n        value: item.value,\r\n        confidence: item.confidence ?? 1.0,\r\n        source: item.source || 'user_explicit',\r\n        metadata: item.metadata || {},\r\n        is_active: true,\r\n      })\r\n      .select('id')\r\n      .single",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/memory.ts:writeCoFounderMemory",
+      "target": "function:src/lib/ai/co-founder/memory.ts:supabase\r\n      .from('co_founder_memories')\r\n      .insert({\r\n        user_id: item.userId,\r\n        category: item.category,\r\n        key: item.key,\r\n        value: item.value,\r\n        confidence: item.confidence ?? 1.0,\r\n        source: item.source || 'user_explicit',\r\n        metadata: item.metadata || {},\r\n        is_active: true,\r\n      })\r\n      .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/memory.ts:writeCoFounderMemory",
+      "target": "function:src/lib/ai/co-founder/memory.ts:supabase\r\n      .from('co_founder_memories')\r\n      .insert",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/memory.ts:writeCoFounderMemory",
+      "target": "function:src/lib/ai/co-founder/memory.ts:supabase\r\n      .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/memory.ts:writeCoFounderMemory",
+      "target": "function:src/lib/ai/co-founder/memory.ts:supabase\r\n        .from('co_founder_memories')\r\n        .update({\r\n          is_active: false,\r\n          superseded_by: inserted.id,\r\n          updated_at: new Date().toISOString(),\r\n        })\r\n        .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/memory.ts:writeCoFounderMemory",
+      "target": "function:src/lib/ai/co-founder/memory.ts:supabase\r\n        .from('co_founder_memories')\r\n        .update",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/memory.ts:writeCoFounderMemory",
+      "target": "function:src/lib/ai/co-founder/memory.ts:supabase\r\n        .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/memory.ts:writeCoFounderMemory",
+      "target": "function:src/lib/ai/co-founder/memory.ts:new Date().toISOString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/memory.ts:writeCoFounderMemory",
+      "target": "function:src/lib/ai/co-founder/memory.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/memory.ts:correctCoFounderMemory",
+      "target": "function:src/lib/ai/co-founder/memory.ts:writeCoFounderMemory",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/memory.ts:correctCoFounderMemory",
+      "target": "function:src/lib/ai/co-founder/memory.ts:Date.now",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/lib/ai/co-founder/outcomes.ts",
+      "target": "function:src/lib/ai/co-founder/outcomes.ts:recordOutcomeEvent",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/ai/co-founder/outcomes.ts",
+      "target": "function:src/lib/ai/co-founder/outcomes.ts:recordUserFeedback",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/ai/co-founder/outcomes.ts",
+      "target": "function:src/lib/ai/co-founder/outcomes.ts:verifyDelayedOutcome",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/ai/co-founder/outcomes.ts",
+      "target": "function:src/lib/ai/co-founder/outcomes.ts:getOutcomeAnalytics",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/ai/co-founder/outcomes.ts",
+      "target": "function:src/lib/ai/co-founder/outcomes.ts:verifyDueActionPlanOutcomes",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/outcomes.ts:recordOutcomeEvent",
+      "target": "function:src/lib/ai/co-founder/outcomes.ts:getServiceClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/outcomes.ts:recordOutcomeEvent",
+      "target": "function:src/lib/ai/co-founder/outcomes.ts:new Date().toISOString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/outcomes.ts:recordOutcomeEvent",
+      "target": "function:src/lib/ai/co-founder/outcomes.ts:new Date().toISOString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/outcomes.ts:recordOutcomeEvent",
+      "target": "function:src/lib/ai/co-founder/outcomes.ts:supabase\r\n    .from('co_founder_outcomes')\r\n    .insert([newRecord])\r\n    .select()\r\n    .single",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/outcomes.ts:recordOutcomeEvent",
+      "target": "function:src/lib/ai/co-founder/outcomes.ts:supabase\r\n    .from('co_founder_outcomes')\r\n    .insert([newRecord])\r\n    .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/outcomes.ts:recordOutcomeEvent",
+      "target": "function:src/lib/ai/co-founder/outcomes.ts:supabase\r\n    .from('co_founder_outcomes')\r\n    .insert",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/outcomes.ts:recordOutcomeEvent",
+      "target": "function:src/lib/ai/co-founder/outcomes.ts:supabase\r\n    .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/outcomes.ts:recordOutcomeEvent",
+      "target": "function:src/lib/ai/co-founder/outcomes.ts:logAuditEvent",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/outcomes.ts:recordUserFeedback",
+      "target": "function:src/lib/ai/co-founder/outcomes.ts:getServiceClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/outcomes.ts:recordUserFeedback",
+      "target": "function:src/lib/ai/co-founder/outcomes.ts:recordOutcomeEvent",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/outcomes.ts:recordUserFeedback",
+      "target": "function:src/lib/ai/co-founder/outcomes.ts:new Date().toISOString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/outcomes.ts:recordUserFeedback",
+      "target": "function:src/lib/ai/co-founder/outcomes.ts:supabase.from('co_founder_memories').insert",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/outcomes.ts:recordUserFeedback",
+      "target": "function:src/lib/ai/co-founder/outcomes.ts:supabase.from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/outcomes.ts:recordUserFeedback",
+      "target": "function:src/lib/ai/co-founder/outcomes.ts:new Date().toISOString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/outcomes.ts:recordUserFeedback",
+      "target": "function:src/lib/ai/co-founder/outcomes.ts:new Date().toISOString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/outcomes.ts:verifyDelayedOutcome",
+      "target": "function:src/lib/ai/co-founder/outcomes.ts:getServiceClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/outcomes.ts:verifyDelayedOutcome",
+      "target": "function:src/lib/ai/co-founder/outcomes.ts:supabase\r\n    .from('co_founder_outcomes')\r\n    .select('*')\r\n    .eq('id', outcomeId)\r\n    .single",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/outcomes.ts:verifyDelayedOutcome",
+      "target": "function:src/lib/ai/co-founder/outcomes.ts:supabase\r\n    .from('co_founder_outcomes')\r\n    .select('*')\r\n    .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/outcomes.ts:verifyDelayedOutcome",
+      "target": "function:src/lib/ai/co-founder/outcomes.ts:supabase\r\n    .from('co_founder_outcomes')\r\n    .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/outcomes.ts:verifyDelayedOutcome",
+      "target": "function:src/lib/ai/co-founder/outcomes.ts:supabase\r\n    .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/outcomes.ts:verifyDelayedOutcome",
+      "target": "function:src/lib/ai/co-founder/outcomes.ts:supabase\r\n    .from('co_founder_outcomes')\r\n    .update({\r\n      verification_status: newStatus,\r\n      verification_source: 'authoritative_db',\r\n      evidence,\r\n      updated_at: new Date().toISOString(),\r\n    })\r\n    .eq('id', outcomeId)\r\n    .select()\r\n    .single",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/outcomes.ts:verifyDelayedOutcome",
+      "target": "function:src/lib/ai/co-founder/outcomes.ts:supabase\r\n    .from('co_founder_outcomes')\r\n    .update({\r\n      verification_status: newStatus,\r\n      verification_source: 'authoritative_db',\r\n      evidence,\r\n      updated_at: new Date().toISOString(),\r\n    })\r\n    .eq('id', outcomeId)\r\n    .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/outcomes.ts:verifyDelayedOutcome",
+      "target": "function:src/lib/ai/co-founder/outcomes.ts:supabase\r\n    .from('co_founder_outcomes')\r\n    .update({\r\n      verification_status: newStatus,\r\n      verification_source: 'authoritative_db',\r\n      evidence,\r\n      updated_at: new Date().toISOString(),\r\n    })\r\n    .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/outcomes.ts:verifyDelayedOutcome",
+      "target": "function:src/lib/ai/co-founder/outcomes.ts:supabase\r\n    .from('co_founder_outcomes')\r\n    .update",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/outcomes.ts:verifyDelayedOutcome",
+      "target": "function:src/lib/ai/co-founder/outcomes.ts:supabase\r\n    .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/outcomes.ts:verifyDelayedOutcome",
+      "target": "function:src/lib/ai/co-founder/outcomes.ts:new Date().toISOString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/outcomes.ts:getOutcomeAnalytics",
+      "target": "function:src/lib/ai/co-founder/outcomes.ts:getServiceClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/outcomes.ts:getOutcomeAnalytics",
+      "target": "function:src/lib/ai/co-founder/outcomes.ts:new Date(Date.now() - days * 86400000).toISOString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/outcomes.ts:getOutcomeAnalytics",
+      "target": "function:src/lib/ai/co-founder/outcomes.ts:Date.now",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/outcomes.ts:getOutcomeAnalytics",
+      "target": "function:src/lib/ai/co-founder/outcomes.ts:supabase\r\n    .from('co_founder_outcomes')\r\n    .select('*')\r\n    .gte",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/outcomes.ts:getOutcomeAnalytics",
+      "target": "function:src/lib/ai/co-founder/outcomes.ts:supabase\r\n    .from('co_founder_outcomes')\r\n    .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/outcomes.ts:getOutcomeAnalytics",
+      "target": "function:src/lib/ai/co-founder/outcomes.ts:supabase\r\n    .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/outcomes.ts:getOutcomeAnalytics",
+      "target": "function:src/lib/ai/co-founder/outcomes.ts:data.filter",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/outcomes.ts:getOutcomeAnalytics",
+      "target": "function:src/lib/ai/co-founder/outcomes.ts:data.filter",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/outcomes.ts:getOutcomeAnalytics",
+      "target": "function:src/lib/ai/co-founder/outcomes.ts:Math.round",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/outcomes.ts:getOutcomeAnalytics",
+      "target": "function:src/lib/ai/co-founder/outcomes.ts:Math.round",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/outcomes.ts:getOutcomeAnalytics",
+      "target": "function:src/lib/ai/co-founder/outcomes.ts:data.filter",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/outcomes.ts:getOutcomeAnalytics",
+      "target": "function:src/lib/ai/co-founder/outcomes.ts:data.filter",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/outcomes.ts:getOutcomeAnalytics",
+      "target": "function:src/lib/ai/co-founder/outcomes.ts:Math.round",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/outcomes.ts:getOutcomeAnalytics",
+      "target": "function:src/lib/ai/co-founder/outcomes.ts:data.filter",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/outcomes.ts:getOutcomeAnalytics",
+      "target": "function:src/lib/ai/co-founder/outcomes.ts:data.filter",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/outcomes.ts:getOutcomeAnalytics",
+      "target": "function:src/lib/ai/co-founder/outcomes.ts:data.filter",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/outcomes.ts:getOutcomeAnalytics",
+      "target": "function:src/lib/ai/co-founder/outcomes.ts:Math.round",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/outcomes.ts:getOutcomeAnalytics",
+      "target": "function:src/lib/ai/co-founder/outcomes.ts:data.filter",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/outcomes.ts:getOutcomeAnalytics",
+      "target": "function:src/lib/ai/co-founder/outcomes.ts:Object.keys",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/outcomes.ts:verifyDueActionPlanOutcomes",
+      "target": "function:src/lib/ai/co-founder/outcomes.ts:getServiceClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/outcomes.ts:verifyDueActionPlanOutcomes",
+      "target": "function:src/lib/ai/co-founder/outcomes.ts:new Date().toISOString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/outcomes.ts:verifyDueActionPlanOutcomes",
+      "target": "function:src/lib/ai/co-founder/outcomes.ts:supabase\r\n    .from('co_founder_outcomes')\r\n    .select('*')\r\n    .eq('verification_status', 'pending')\r\n    .lte('measurement_window_end', now)\r\n    .limit",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/outcomes.ts:verifyDueActionPlanOutcomes",
+      "target": "function:src/lib/ai/co-founder/outcomes.ts:supabase\r\n    .from('co_founder_outcomes')\r\n    .select('*')\r\n    .eq('verification_status', 'pending')\r\n    .lte",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/outcomes.ts:verifyDueActionPlanOutcomes",
+      "target": "function:src/lib/ai/co-founder/outcomes.ts:supabase\r\n    .from('co_founder_outcomes')\r\n    .select('*')\r\n    .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/outcomes.ts:verifyDueActionPlanOutcomes",
+      "target": "function:src/lib/ai/co-founder/outcomes.ts:supabase\r\n    .from('co_founder_outcomes')\r\n    .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/outcomes.ts:verifyDueActionPlanOutcomes",
+      "target": "function:src/lib/ai/co-founder/outcomes.ts:supabase\r\n    .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/outcomes.ts:verifyDueActionPlanOutcomes",
+      "target": "function:src/lib/ai/co-founder/outcomes.ts:supabase\r\n        .from('co_founder_outcomes')\r\n        .update({\r\n          verification_status: status,\r\n          actual_outcome: `Measured against baseline (${baseline}) and target (${target}). Status verified.`,\r\n          verification_source: 'authoritative_db',\r\n          updated_at: new Date().toISOString(),\r\n        })\r\n        .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/outcomes.ts:verifyDueActionPlanOutcomes",
+      "target": "function:src/lib/ai/co-founder/outcomes.ts:supabase\r\n        .from('co_founder_outcomes')\r\n        .update",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/outcomes.ts:verifyDueActionPlanOutcomes",
+      "target": "function:src/lib/ai/co-founder/outcomes.ts:supabase\r\n        .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/outcomes.ts:verifyDueActionPlanOutcomes",
+      "target": "function:src/lib/ai/co-founder/outcomes.ts:new Date().toISOString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/outcomes.ts:verifyDueActionPlanOutcomes",
+      "target": "function:src/lib/ai/co-founder/outcomes.ts:writeCoFounderMemory",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/outcomes.ts:verifyDueActionPlanOutcomes",
+      "target": "function:src/lib/ai/co-founder/outcomes.ts:outcome.id.slice",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/outcomes.ts:verifyDueActionPlanOutcomes",
+      "target": "function:src/lib/ai/co-founder/outcomes.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/lib/ai/co-founder/proactive.ts",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:createSignalFingerprint",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/ai/co-founder/proactive.ts",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:scanProactiveSignals",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/ai/co-founder/proactive.ts",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:acknowledgeSignal",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/ai/co-founder/proactive.ts",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:getActiveProactiveSignals",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/ai/co-founder/proactive.ts",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:generateExecutiveAdvisorBriefing",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/ai/co-founder/proactive.ts",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:runProactiveCronScan",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:scanProactiveSignals",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:getServiceClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:scanProactiveSignals",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:now.toISOString().split",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:scanProactiveSignals",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:now.toISOString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:scanProactiveSignals",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:getStoreAnalytics",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:scanProactiveSignals",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:candidateSignals.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:scanProactiveSignals",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:createSignalFingerprint",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:scanProactiveSignals",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:Math.abs",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:scanProactiveSignals",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:kpis7d.netRevenue.toLocaleString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:scanProactiveSignals",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:revComp.baseline.toLocaleString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:scanProactiveSignals",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:revComp.current.toLocaleString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:scanProactiveSignals",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:candidateSignals.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:scanProactiveSignals",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:createSignalFingerprint",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:scanProactiveSignals",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:candidateSignals.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:scanProactiveSignals",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:createSignalFingerprint",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:scanProactiveSignals",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:candidateSignals.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:scanProactiveSignals",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:createSignalFingerprint",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:scanProactiveSignals",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:getRelevantMemories",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:scanProactiveSignals",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:candidateSignals.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:scanProactiveSignals",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:createSignalFingerprint",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:scanProactiveSignals",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:topGoal.key.replace",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:scanProactiveSignals",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:topGoal.value.slice",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:scanProactiveSignals",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:kpis7d.netRevenue.toLocaleString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:scanProactiveSignals",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:scanProactiveSignals",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:new Date(\r\n    now.getTime() - cooldownHours * 60 * 60 * 1000\r\n  ).toISOString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:scanProactiveSignals",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:now.getTime",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:scanProactiveSignals",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:supabase\r\n        .from('co_founder_signals')\r\n        .select('id, is_acknowledged, created_at')\r\n        .eq('fingerprint', signal.fingerprint)\r\n        .gte('created_at', cooldownCutoff)\r\n        .maybeSingle",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:scanProactiveSignals",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:supabase\r\n        .from('co_founder_signals')\r\n        .select('id, is_acknowledged, created_at')\r\n        .eq('fingerprint', signal.fingerprint)\r\n        .gte",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:scanProactiveSignals",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:supabase\r\n        .from('co_founder_signals')\r\n        .select('id, is_acknowledged, created_at')\r\n        .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:scanProactiveSignals",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:supabase\r\n        .from('co_founder_signals')\r\n        .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:scanProactiveSignals",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:supabase\r\n        .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:scanProactiveSignals",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:supabase\r\n        .from('co_founder_signals')\r\n        .insert({\r\n          fingerprint: signal.fingerprint,\r\n          signal_type: signal.signalType,\r\n          category: signal.category,\r\n          severity: signal.severity,\r\n          confidence: signal.confidence,\r\n          title: signal.title,\r\n          summary: signal.summary,\r\n          detail: signal.detail,\r\n          metrics: signal.metrics || {},\r\n          recommended_action: signal.recommendedAction,\r\n          requires_approval: signal.requiresApproval,\r\n          is_acknowledged: false,\r\n        })\r\n        .select('id, created_at')\r\n        .single",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:scanProactiveSignals",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:supabase\r\n        .from('co_founder_signals')\r\n        .insert({\r\n          fingerprint: signal.fingerprint,\r\n          signal_type: signal.signalType,\r\n          category: signal.category,\r\n          severity: signal.severity,\r\n          confidence: signal.confidence,\r\n          title: signal.title,\r\n          summary: signal.summary,\r\n          detail: signal.detail,\r\n          metrics: signal.metrics || {},\r\n          recommended_action: signal.recommendedAction,\r\n          requires_approval: signal.requiresApproval,\r\n          is_acknowledged: false,\r\n        })\r\n        .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:scanProactiveSignals",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:supabase\r\n        .from('co_founder_signals')\r\n        .insert",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:scanProactiveSignals",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:supabase\r\n        .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:scanProactiveSignals",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:activeSignals.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:scanProactiveSignals",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:activeSignals.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:scanProactiveSignals",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:activeSignals.sort",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:acknowledgeSignal",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:getServiceClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:acknowledgeSignal",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:supabase\r\n      .from('co_founder_signals')\r\n      .update({\r\n        is_acknowledged: true,\r\n        acknowledged_at: new Date().toISOString(),\r\n        acknowledged_by: userId || null,\r\n      })\r\n      .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:acknowledgeSignal",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:supabase\r\n      .from('co_founder_signals')\r\n      .update",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:acknowledgeSignal",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:supabase\r\n      .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:acknowledgeSignal",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:new Date().toISOString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:acknowledgeSignal",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:getActiveProactiveSignals",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:getServiceClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:getActiveProactiveSignals",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:supabase\r\n      .from('co_founder_signals')\r\n      .select('*')\r\n      .eq('is_acknowledged', false)\r\n      .order('created_at', { ascending: false })\r\n      .limit",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:getActiveProactiveSignals",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:supabase\r\n      .from('co_founder_signals')\r\n      .select('*')\r\n      .eq('is_acknowledged', false)\r\n      .order",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:getActiveProactiveSignals",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:supabase\r\n      .from('co_founder_signals')\r\n      .select('*')\r\n      .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:getActiveProactiveSignals",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:supabase\r\n      .from('co_founder_signals')\r\n      .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:getActiveProactiveSignals",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:supabase\r\n      .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:getActiveProactiveSignals",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:data.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:getActiveProactiveSignals",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:generateExecutiveAdvisorBriefing",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:import",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:generateExecutiveAdvisorBriefing",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:import",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:generateExecutiveAdvisorBriefing",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:import",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:generateExecutiveAdvisorBriefing",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:runBusinessIntelligenceScan",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:generateExecutiveAdvisorBriefing",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:formulateStrategicSolution",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:generateExecutiveAdvisorBriefing",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:generateActionPlanFromStrategy",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:generateExecutiveAdvisorBriefing",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:reports.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:generateExecutiveAdvisorBriefing",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:plan.tasks.map((t) => t.title).join",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:generateExecutiveAdvisorBriefing",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:plan.tasks.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:generateExecutiveAdvisorBriefing",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:strategy.recommendedSolution.slice",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:generateExecutiveAdvisorBriefing",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:formulateStrategicSolution",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:generateExecutiveAdvisorBriefing",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:generateActionPlanFromStrategy",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:generateExecutiveAdvisorBriefing",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:reports.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:generateExecutiveAdvisorBriefing",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:plan.tasks.map((t) => t.title).join",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:generateExecutiveAdvisorBriefing",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:plan.tasks.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:generateExecutiveAdvisorBriefing",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:strategy.recommendedSolution.slice",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:generateExecutiveAdvisorBriefing",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:formulateStrategicSolution",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:generateExecutiveAdvisorBriefing",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:generateActionPlanFromStrategy",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:generateExecutiveAdvisorBriefing",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:reports.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:generateExecutiveAdvisorBriefing",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:plan.tasks.map((t) => t.title).join",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:generateExecutiveAdvisorBriefing",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:plan.tasks.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:runProactiveCronScan",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:Date.now",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:runProactiveCronScan",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:scanProactiveSignals",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:runProactiveCronScan",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:getServiceClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:runProactiveCronScan",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:scanResult.activeSignals.filter",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:runProactiveCronScan",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:supabase\r\n      .from('users')\r\n      .select('id')\r\n      .in",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:runProactiveCronScan",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:supabase\r\n      .from('users')\r\n      .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:runProactiveCronScan",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:supabase\r\n      .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:runProactiveCronScan",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:notificationsToInsert.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:runProactiveCronScan",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:supabase.from('notifications').insert",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:runProactiveCronScan",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:supabase.from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:runProactiveCronScan",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:Date.now",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/proactive.ts:runProactiveCronScan",
+      "target": "function:src/lib/ai/co-founder/proactive.ts:scanResult.activeSignals.map",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/lib/ai/co-founder/root-cause.ts",
+      "target": "function:src/lib/ai/co-founder/root-cause.ts:performRootCauseAnalysis",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/root-cause.ts:performRootCauseAnalysis",
+      "target": "function:src/lib/ai/co-founder/root-cause.ts:getServiceClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/root-cause.ts:performRootCauseAnalysis",
+      "target": "function:src/lib/ai/co-founder/root-cause.ts:Date.now",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/root-cause.ts:performRootCauseAnalysis",
+      "target": "function:src/lib/ai/co-founder/root-cause.ts:new Date().toISOString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/root-cause.ts:performRootCauseAnalysis",
+      "target": "function:src/lib/ai/co-founder/root-cause.ts:getStoreAnalytics",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/root-cause.ts:performRootCauseAnalysis",
+      "target": "function:src/lib/ai/co-founder/root-cause.ts:facts.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/root-cause.ts:performRootCauseAnalysis",
+      "target": "function:src/lib/ai/co-founder/root-cause.ts:analytics7d.kpis.netRevenue.toLocaleString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/root-cause.ts:performRootCauseAnalysis",
+      "target": "function:src/lib/ai/co-founder/root-cause.ts:(rev?.baseline ?? 0).toLocaleString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/root-cause.ts:performRootCauseAnalysis",
+      "target": "function:src/lib/ai/co-founder/root-cause.ts:(aov?.baseline ?? 0).toLocaleString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/root-cause.ts:performRootCauseAnalysis",
+      "target": "function:src/lib/ai/co-founder/root-cause.ts:(aov?.current ?? 0).toLocaleString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/root-cause.ts:performRootCauseAnalysis",
+      "target": "function:src/lib/ai/co-founder/root-cause.ts:supabase\r\n        .from('products')\r\n        .select('name, stock_quantity')\r\n        .lte('stock_quantity', 2)\r\n        .limit",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/root-cause.ts:performRootCauseAnalysis",
+      "target": "function:src/lib/ai/co-founder/root-cause.ts:supabase\r\n        .from('products')\r\n        .select('name, stock_quantity')\r\n        .lte",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/root-cause.ts:performRootCauseAnalysis",
+      "target": "function:src/lib/ai/co-founder/root-cause.ts:supabase\r\n        .from('products')\r\n        .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/root-cause.ts:performRootCauseAnalysis",
+      "target": "function:src/lib/ai/co-founder/root-cause.ts:supabase\r\n        .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/root-cause.ts:performRootCauseAnalysis",
+      "target": "function:src/lib/ai/co-founder/root-cause.ts:evidence.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/root-cause.ts:performRootCauseAnalysis",
+      "target": "function:src/lib/ai/co-founder/root-cause.ts:topProds.map((p) => `${p.name} (${p.stock_quantity} left)`).join",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/root-cause.ts:performRootCauseAnalysis",
+      "target": "function:src/lib/ai/co-founder/root-cause.ts:topProds.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/root-cause.ts:performRootCauseAnalysis",
+      "target": "function:src/lib/ai/co-founder/root-cause.ts:assumptions.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/root-cause.ts:performRootCauseAnalysis",
+      "target": "function:src/lib/ai/co-founder/root-cause.ts:hypotheses.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/root-cause.ts:performRootCauseAnalysis",
+      "target": "function:src/lib/ai/co-founder/root-cause.ts:Math.abs",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/root-cause.ts:performRootCauseAnalysis",
+      "target": "function:src/lib/ai/co-founder/root-cause.ts:hypotheses.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/root-cause.ts:performRootCauseAnalysis",
+      "target": "function:src/lib/ai/co-founder/root-cause.ts:unknownFactors.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/root-cause.ts:performRootCauseAnalysis",
+      "target": "function:src/lib/ai/co-founder/root-cause.ts:dataGaps.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/root-cause.ts:performRootCauseAnalysis",
+      "target": "function:src/lib/ai/co-founder/root-cause.ts:Math.abs",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/root-cause.ts:performRootCauseAnalysis",
+      "target": "function:src/lib/ai/co-founder/root-cause.ts:supabase\r\n        .from('orders')\r\n        .select(\r\n          'id, order_number, total, payment_method, payment_status, status, created_at'\r\n        )\r\n        .eq('status', 'cancelled')\r\n        .order('created_at', { ascending: false })\r\n        .limit",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/root-cause.ts:performRootCauseAnalysis",
+      "target": "function:src/lib/ai/co-founder/root-cause.ts:supabase\r\n        .from('orders')\r\n        .select(\r\n          'id, order_number, total, payment_method, payment_status, status, created_at'\r\n        )\r\n        .eq('status', 'cancelled')\r\n        .order",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/root-cause.ts:performRootCauseAnalysis",
+      "target": "function:src/lib/ai/co-founder/root-cause.ts:supabase\r\n        .from('orders')\r\n        .select(\r\n          'id, order_number, total, payment_method, payment_status, status, created_at'\r\n        )\r\n        .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/root-cause.ts:performRootCauseAnalysis",
+      "target": "function:src/lib/ai/co-founder/root-cause.ts:supabase\r\n        .from('orders')\r\n        .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/root-cause.ts:performRootCauseAnalysis",
+      "target": "function:src/lib/ai/co-founder/root-cause.ts:supabase\r\n        .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/root-cause.ts:performRootCauseAnalysis",
+      "target": "function:src/lib/ai/co-founder/root-cause.ts:cancelledOrders?.filter",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/root-cause.ts:performRootCauseAnalysis",
+      "target": "function:src/lib/ai/co-founder/root-cause.ts:o.payment_method?.toLowerCase().includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/root-cause.ts:performRootCauseAnalysis",
+      "target": "function:src/lib/ai/co-founder/root-cause.ts:o.payment_method?.toLowerCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/root-cause.ts:performRootCauseAnalysis",
+      "target": "function:src/lib/ai/co-founder/root-cause.ts:facts.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/root-cause.ts:performRootCauseAnalysis",
+      "target": "function:src/lib/ai/co-founder/root-cause.ts:Math.round",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/root-cause.ts:performRootCauseAnalysis",
+      "target": "function:src/lib/ai/co-founder/root-cause.ts:evidence.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/root-cause.ts:performRootCauseAnalysis",
+      "target": "function:src/lib/ai/co-founder/root-cause.ts:assumptions.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/root-cause.ts:performRootCauseAnalysis",
+      "target": "function:src/lib/ai/co-founder/root-cause.ts:hypotheses.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/root-cause.ts:performRootCauseAnalysis",
+      "target": "function:src/lib/ai/co-founder/root-cause.ts:Math.round",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/root-cause.ts:performRootCauseAnalysis",
+      "target": "function:src/lib/ai/co-founder/root-cause.ts:hypotheses.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/root-cause.ts:performRootCauseAnalysis",
+      "target": "function:src/lib/ai/co-founder/root-cause.ts:unknownFactors.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/root-cause.ts:performRootCauseAnalysis",
+      "target": "function:src/lib/ai/co-founder/root-cause.ts:dataGaps.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/root-cause.ts:performRootCauseAnalysis",
+      "target": "function:src/lib/ai/co-founder/root-cause.ts:Math.round",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/root-cause.ts:performRootCauseAnalysis",
+      "target": "function:src/lib/ai/co-founder/root-cause.ts:Math.max",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/root-cause.ts:performRootCauseAnalysis",
+      "target": "function:src/lib/ai/co-founder/root-cause.ts:supabase\r\n        .from('products')\r\n        .select('id, name, sku, stock_quantity, price')\r\n        .lte('stock_quantity', 3)\r\n        .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/root-cause.ts:performRootCauseAnalysis",
+      "target": "function:src/lib/ai/co-founder/root-cause.ts:supabase\r\n        .from('products')\r\n        .select('id, name, sku, stock_quantity, price')\r\n        .lte",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/root-cause.ts:performRootCauseAnalysis",
+      "target": "function:src/lib/ai/co-founder/root-cause.ts:supabase\r\n        .from('products')\r\n        .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/root-cause.ts:performRootCauseAnalysis",
+      "target": "function:src/lib/ai/co-founder/root-cause.ts:supabase\r\n        .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/root-cause.ts:performRootCauseAnalysis",
+      "target": "function:src/lib/ai/co-founder/root-cause.ts:facts.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/root-cause.ts:performRootCauseAnalysis",
+      "target": "function:src/lib/ai/co-founder/root-cause.ts:evidence.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/root-cause.ts:performRootCauseAnalysis",
+      "target": "function:src/lib/ai/co-founder/root-cause.ts:(lowStock || [])\r\n          .slice(0, 4)\r\n          .map((p) => p.name)\r\n          .join",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/root-cause.ts:performRootCauseAnalysis",
+      "target": "function:src/lib/ai/co-founder/root-cause.ts:(lowStock || [])\r\n          .slice(0, 4)\r\n          .map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/root-cause.ts:performRootCauseAnalysis",
+      "target": "function:src/lib/ai/co-founder/root-cause.ts:(lowStock || [])\r\n          .slice",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/root-cause.ts:performRootCauseAnalysis",
+      "target": "function:src/lib/ai/co-founder/root-cause.ts:assumptions.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/root-cause.ts:performRootCauseAnalysis",
+      "target": "function:src/lib/ai/co-founder/root-cause.ts:hypotheses.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/root-cause.ts:performRootCauseAnalysis",
+      "target": "function:src/lib/ai/co-founder/root-cause.ts:supabase\r\n        .from('support_tickets')\r\n        .select('id, ticket_number, category, priority, status, created_at')\r\n        .in('status', ['open', 'in_progress'])\r\n        .limit",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/root-cause.ts:performRootCauseAnalysis",
+      "target": "function:src/lib/ai/co-founder/root-cause.ts:supabase\r\n        .from('support_tickets')\r\n        .select('id, ticket_number, category, priority, status, created_at')\r\n        .in",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/root-cause.ts:performRootCauseAnalysis",
+      "target": "function:src/lib/ai/co-founder/root-cause.ts:supabase\r\n        .from('support_tickets')\r\n        .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/root-cause.ts:performRootCauseAnalysis",
+      "target": "function:src/lib/ai/co-founder/root-cause.ts:supabase\r\n        .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/root-cause.ts:performRootCauseAnalysis",
+      "target": "function:src/lib/ai/co-founder/root-cause.ts:facts.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/root-cause.ts:performRootCauseAnalysis",
+      "target": "function:src/lib/ai/co-founder/root-cause.ts:Object.entries(categories)\r\n            .map(([k, v]) => `${k}: ${v}`)\r\n            .join",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/root-cause.ts:performRootCauseAnalysis",
+      "target": "function:src/lib/ai/co-founder/root-cause.ts:Object.entries(categories)\r\n            .map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/root-cause.ts:performRootCauseAnalysis",
+      "target": "function:src/lib/ai/co-founder/root-cause.ts:Object.entries",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/root-cause.ts:performRootCauseAnalysis",
+      "target": "function:src/lib/ai/co-founder/root-cause.ts:evidence.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/root-cause.ts:performRootCauseAnalysis",
+      "target": "function:src/lib/ai/co-founder/root-cause.ts:assumptions.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/root-cause.ts:performRootCauseAnalysis",
+      "target": "function:src/lib/ai/co-founder/root-cause.ts:hypotheses.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/root-cause.ts:performRootCauseAnalysis",
+      "target": "function:src/lib/ai/co-founder/root-cause.ts:facts.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/root-cause.ts:performRootCauseAnalysis",
+      "target": "function:src/lib/ai/co-founder/root-cause.ts:assumptions.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/root-cause.ts:performRootCauseAnalysis",
+      "target": "function:src/lib/ai/co-founder/root-cause.ts:hypotheses.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/root-cause.ts:performRootCauseAnalysis",
+      "target": "function:src/lib/ai/co-founder/root-cause.ts:issueType.replace",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/lib/ai/co-founder/seo-health.ts",
+      "target": "function:src/lib/ai/co-founder/seo-health.ts:auditCatalogSeoHealth",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/seo-health.ts:auditCatalogSeoHealth",
+      "target": "function:src/lib/ai/co-founder/seo-health.ts:getServiceClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/seo-health.ts:auditCatalogSeoHealth",
+      "target": "function:src/lib/ai/co-founder/seo-health.ts:supabase\r\n      .from('products')\r\n      .select(\r\n        'id, name, title, description, seo_title, seo_description, images, status'\r\n      )\r\n      .limit",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/seo-health.ts:auditCatalogSeoHealth",
+      "target": "function:src/lib/ai/co-founder/seo-health.ts:supabase\r\n      .from('products')\r\n      .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/seo-health.ts:auditCatalogSeoHealth",
+      "target": "function:src/lib/ai/co-founder/seo-health.ts:supabase\r\n      .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/seo-health.ts:auditCatalogSeoHealth",
+      "target": "function:src/lib/ai/co-founder/seo-health.ts:highIntentKeywords.some",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/seo-health.ts:auditCatalogSeoHealth",
+      "target": "function:src/lib/ai/co-founder/seo-health.ts:name.toLowerCase().includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/seo-health.ts:auditCatalogSeoHealth",
+      "target": "function:src/lib/ai/co-founder/seo-health.ts:name.toLowerCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/seo-health.ts:auditCatalogSeoHealth",
+      "target": "function:src/lib/ai/co-founder/seo-health.ts:desc.toLowerCase().includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/seo-health.ts:auditCatalogSeoHealth",
+      "target": "function:src/lib/ai/co-founder/seo-health.ts:desc.toLowerCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/seo-health.ts:auditCatalogSeoHealth",
+      "target": "function:src/lib/ai/co-founder/seo-health.ts:Array.isArray",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/seo-health.ts:auditCatalogSeoHealth",
+      "target": "function:src/lib/ai/co-founder/seo-health.ts:Math.max",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/seo-health.ts:auditCatalogSeoHealth",
+      "target": "function:src/lib/ai/co-founder/seo-health.ts:Math.round",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/seo-health.ts:auditCatalogSeoHealth",
+      "target": "function:src/lib/ai/co-founder/seo-health.ts:topActionItems.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/seo-health.ts:auditCatalogSeoHealth",
+      "target": "function:src/lib/ai/co-founder/seo-health.ts:topActionItems.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/seo-health.ts:auditCatalogSeoHealth",
+      "target": "function:src/lib/ai/co-founder/seo-health.ts:topActionItems.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/seo-health.ts:auditCatalogSeoHealth",
+      "target": "function:src/lib/ai/co-founder/seo-health.ts:supabase.from('catalog_seo_audits').insert",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/seo-health.ts:auditCatalogSeoHealth",
+      "target": "function:src/lib/ai/co-founder/seo-health.ts:supabase.from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/seo-health.ts:auditCatalogSeoHealth",
+      "target": "function:src/lib/ai/co-founder/seo-health.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/lib/ai/co-founder/strategy-engine.ts",
+      "target": "function:src/lib/ai/co-founder/strategy-engine.ts:formulateStrategicSolution",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/strategy-engine.ts:formulateStrategicSolution",
+      "target": "function:src/lib/ai/co-founder/strategy-engine.ts:Date.now",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/strategy-engine.ts:formulateStrategicSolution",
+      "target": "function:src/lib/ai/co-founder/strategy-engine.ts:problemContext.issueType.toLowerCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/strategy-engine.ts:formulateStrategicSolution",
+      "target": "function:src/lib/ai/co-founder/strategy-engine.ts:issue.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/strategy-engine.ts:formulateStrategicSolution",
+      "target": "function:src/lib/ai/co-founder/strategy-engine.ts:issue.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/strategy-engine.ts:formulateStrategicSolution",
+      "target": "function:src/lib/ai/co-founder/strategy-engine.ts:issue.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/strategy-engine.ts:formulateStrategicSolution",
+      "target": "function:src/lib/ai/co-founder/strategy-engine.ts:issue.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/strategy-engine.ts:formulateStrategicSolution",
+      "target": "function:src/lib/ai/co-founder/strategy-engine.ts:issue.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/strategy-engine.ts:formulateStrategicSolution",
+      "target": "function:src/lib/ai/co-founder/strategy-engine.ts:issue.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/strategy-engine.ts:formulateStrategicSolution",
+      "target": "function:src/lib/ai/co-founder/strategy-engine.ts:issue.includes",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/lib/ai/co-founder/tool-bridge.ts",
+      "target": "function:src/lib/ai/co-founder/tool-bridge.ts:executeCoFounderTool",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/tool-bridge.ts:executeCoFounderTool",
+      "target": "function:src/lib/ai/co-founder/tool-bridge.ts:assertToolPermission",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/tool-bridge.ts:executeCoFounderTool",
+      "target": "function:src/lib/ai/co-founder/tool-bridge.ts:getServiceClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/tool-bridge.ts:executeCoFounderTool",
+      "target": "function:src/lib/ai/co-founder/tool-bridge.ts:getStoreAnalytics",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/tool-bridge.ts:executeCoFounderTool",
+      "target": "function:src/lib/ai/co-founder/tool-bridge.ts:Math.min",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/tool-bridge.ts:executeCoFounderTool",
+      "target": "function:src/lib/ai/co-founder/tool-bridge.ts:getActiveProactiveSignals",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/tool-bridge.ts:executeCoFounderTool",
+      "target": "function:src/lib/ai/co-founder/tool-bridge.ts:acknowledgeSignal",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/tool-bridge.ts:executeCoFounderTool",
+      "target": "function:src/lib/ai/co-founder/tool-bridge.ts:getPendingApprovals",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/tool-bridge.ts:executeCoFounderTool",
+      "target": "function:src/lib/ai/co-founder/tool-bridge.ts:top.actionType.replace",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/tool-bridge.ts:executeCoFounderTool",
+      "target": "function:src/lib/ai/co-founder/tool-bridge.ts:reviewApproval",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/tool-bridge.ts:executeCoFounderTool",
+      "target": "function:src/lib/ai/co-founder/tool-bridge.ts:executeApprovedBusinessAction",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/tool-bridge.ts:executeCoFounderTool",
+      "target": "function:src/lib/ai/co-founder/tool-bridge.ts:getRepositoryArchitecture",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/tool-bridge.ts:executeCoFounderTool",
+      "target": "function:src/lib/ai/co-founder/tool-bridge.ts:Math.min",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/tool-bridge.ts:executeCoFounderTool",
+      "target": "function:src/lib/ai/co-founder/tool-bridge.ts:inspectRecentErrors",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/tool-bridge.ts:executeCoFounderTool",
+      "target": "function:src/lib/ai/co-founder/tool-bridge.ts:analyzeCodeSnippet",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/tool-bridge.ts:executeCoFounderTool",
+      "target": "function:src/lib/ai/co-founder/tool-bridge.ts:recordUserFeedback",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/tool-bridge.ts:executeCoFounderTool",
+      "target": "function:src/lib/ai/co-founder/tool-bridge.ts:getOutcomeAnalytics",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/tool-bridge.ts:executeCoFounderTool",
+      "target": "function:src/lib/ai/co-founder/tool-bridge.ts:Math.min",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/tool-bridge.ts:executeCoFounderTool",
+      "target": "function:src/lib/ai/co-founder/tool-bridge.ts:supabase\r\n          .from('orders')\r\n          .select(\r\n            'id, order_number, total_amount, status, payment_status, created_at'\r\n          )\r\n          .order('created_at', { ascending: false })\r\n          .limit",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/tool-bridge.ts:executeCoFounderTool",
+      "target": "function:src/lib/ai/co-founder/tool-bridge.ts:supabase\r\n          .from('orders')\r\n          .select(\r\n            'id, order_number, total_amount, status, payment_status, created_at'\r\n          )\r\n          .order",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/tool-bridge.ts:executeCoFounderTool",
+      "target": "function:src/lib/ai/co-founder/tool-bridge.ts:supabase\r\n          .from('orders')\r\n          .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/tool-bridge.ts:executeCoFounderTool",
+      "target": "function:src/lib/ai/co-founder/tool-bridge.ts:supabase\r\n          .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/tool-bridge.ts:executeCoFounderTool",
+      "target": "function:src/lib/ai/co-founder/tool-bridge.ts:query.eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/tool-bridge.ts:executeCoFounderTool",
+      "target": "function:src/lib/ai/co-founder/tool-bridge.ts:supabase\r\n          .from('products')\r\n          .select('id, name, sku, stock_quantity')\r\n          .lte('stock_quantity', 5)\r\n          .eq('status', 'active')\r\n          .limit",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/tool-bridge.ts:executeCoFounderTool",
+      "target": "function:src/lib/ai/co-founder/tool-bridge.ts:supabase\r\n          .from('products')\r\n          .select('id, name, sku, stock_quantity')\r\n          .lte('stock_quantity', 5)\r\n          .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/tool-bridge.ts:executeCoFounderTool",
+      "target": "function:src/lib/ai/co-founder/tool-bridge.ts:supabase\r\n          .from('products')\r\n          .select('id, name, sku, stock_quantity')\r\n          .lte",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/tool-bridge.ts:executeCoFounderTool",
+      "target": "function:src/lib/ai/co-founder/tool-bridge.ts:supabase\r\n          .from('products')\r\n          .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/tool-bridge.ts:executeCoFounderTool",
+      "target": "function:src/lib/ai/co-founder/tool-bridge.ts:supabase\r\n          .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/tool-bridge.ts:executeCoFounderTool",
+      "target": "function:src/lib/ai/co-founder/tool-bridge.ts:lowStockProducts\r\n          ?.slice(0, 3)\r\n          .map((p) => `${p.name} (${p.stock_quantity} left)`)\r\n          .join",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/tool-bridge.ts:executeCoFounderTool",
+      "target": "function:src/lib/ai/co-founder/tool-bridge.ts:lowStockProducts\r\n          ?.slice(0, 3)\r\n          .map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/tool-bridge.ts:executeCoFounderTool",
+      "target": "function:src/lib/ai/co-founder/tool-bridge.ts:lowStockProducts\r\n          ?.slice",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/tool-bridge.ts:executeCoFounderTool",
+      "target": "function:src/lib/ai/co-founder/tool-bridge.ts:supabase\r\n          .from('support_tickets')\r\n          .select('id, ticket_number, subject, status, priority, created_at')\r\n          .order('created_at', { ascending: false })\r\n          .limit",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/tool-bridge.ts:executeCoFounderTool",
+      "target": "function:src/lib/ai/co-founder/tool-bridge.ts:supabase\r\n          .from('support_tickets')\r\n          .select('id, ticket_number, subject, status, priority, created_at')\r\n          .order",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/tool-bridge.ts:executeCoFounderTool",
+      "target": "function:src/lib/ai/co-founder/tool-bridge.ts:supabase\r\n          .from('support_tickets')\r\n          .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/tool-bridge.ts:executeCoFounderTool",
+      "target": "function:src/lib/ai/co-founder/tool-bridge.ts:supabase\r\n          .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/tool-bridge.ts:executeCoFounderTool",
+      "target": "function:src/lib/ai/co-founder/tool-bridge.ts:query.eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/tool-bridge.ts:executeCoFounderTool",
+      "target": "function:src/lib/ai/co-founder/tool-bridge.ts:auditCatalogSeoHealth",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/tool-bridge.ts:executeCoFounderTool",
+      "target": "function:src/lib/ai/co-founder/tool-bridge.ts:getCompetitors",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/tool-bridge.ts:executeCoFounderTool",
+      "target": "function:src/lib/ai/co-founder/tool-bridge.ts:competitors.map((c) => c.name).join",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/tool-bridge.ts:executeCoFounderTool",
+      "target": "function:src/lib/ai/co-founder/tool-bridge.ts:competitors.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/tool-bridge.ts:executeCoFounderTool",
+      "target": "function:src/lib/ai/co-founder/tool-bridge.ts:addCompetitor",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/tool-bridge.ts:executeCoFounderTool",
+      "target": "function:src/lib/ai/co-founder/tool-bridge.ts:import",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/tool-bridge.ts:executeCoFounderTool",
+      "target": "function:src/lib/ai/co-founder/tool-bridge.ts:browseWebPageWithPlaywright",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/tool-bridge.ts:executeCoFounderTool",
+      "target": "function:src/lib/ai/co-founder/tool-bridge.ts:Boolean",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/tool-bridge.ts:executeCoFounderTool",
+      "target": "function:src/lib/ai/co-founder/tool-bridge.ts:Boolean",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/tool-bridge.ts:executeCoFounderTool",
+      "target": "function:src/lib/ai/co-founder/tool-bridge.ts:getHolisticBusinessContext",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/tool-bridge.ts:executeCoFounderTool",
+      "target": "function:src/lib/ai/co-founder/tool-bridge.ts:runBusinessIntelligenceScan",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/tool-bridge.ts:executeCoFounderTool",
+      "target": "function:src/lib/ai/co-founder/tool-bridge.ts:performRootCauseAnalysis",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/tool-bridge.ts:executeCoFounderTool",
+      "target": "function:src/lib/ai/co-founder/tool-bridge.ts:formulateStrategicSolution",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/tool-bridge.ts:executeCoFounderTool",
+      "target": "function:src/lib/ai/co-founder/tool-bridge.ts:formulateStrategicSolution",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/tool-bridge.ts:executeCoFounderTool",
+      "target": "function:src/lib/ai/co-founder/tool-bridge.ts:generateActionPlanFromStrategy",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/tool-bridge.ts:executeCoFounderTool",
+      "target": "function:src/lib/ai/co-founder/tool-bridge.ts:saveActionPlan",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/tool-bridge.ts:executeCoFounderTool",
+      "target": "function:src/lib/ai/co-founder/tool-bridge.ts:executeActionPlanToTaskManager",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/tool-bridge.ts:executeCoFounderTool",
+      "target": "function:src/lib/ai/co-founder/tool-bridge.ts:dispatchWorkerTask",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/tool-bridge.ts:executeCoFounderTool",
+      "target": "function:src/lib/ai/co-founder/tool-bridge.ts:getWorkerRegistryStatus",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/tool-bridge.ts:executeCoFounderTool",
+      "target": "function:src/lib/ai/co-founder/tool-bridge.ts:import",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/tool-bridge.ts:executeCoFounderTool",
+      "target": "function:src/lib/ai/co-founder/tool-bridge.ts:executeCoWorkerById",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/tool-bridge.ts:executeCoFounderTool",
+      "target": "function:src/lib/ai/co-founder/tool-bridge.ts:import",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/tool-bridge.ts:executeCoFounderTool",
+      "target": "function:src/lib/ai/co-founder/tool-bridge.ts:getAllCoWorkerStatuses",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/tool-bridge.ts:executeCoFounderTool",
+      "target": "function:src/lib/ai/co-founder/tool-bridge.ts:import",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/tool-bridge.ts:executeCoFounderTool",
+      "target": "function:src/lib/ai/co-founder/tool-bridge.ts:setCoWorkerStatus",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/tool-bridge.ts:executeCoFounderTool",
+      "target": "function:src/lib/ai/co-founder/tool-bridge.ts:import",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/tool-bridge.ts:executeCoFounderTool",
+      "target": "function:src/lib/ai/co-founder/tool-bridge.ts:createAndDispatchMediaJob",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/tool-bridge.ts:executeCoFounderTool",
+      "target": "function:src/lib/ai/co-founder/tool-bridge.ts:Date.now",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/tool-bridge.ts:executeCoFounderTool",
+      "target": "function:src/lib/ai/co-founder/tool-bridge.ts:Date.now",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/tool-bridge.ts:executeCoFounderTool",
+      "target": "function:src/lib/ai/co-founder/tool-bridge.ts:import",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/tool-bridge.ts:executeCoFounderTool",
+      "target": "function:src/lib/ai/co-founder/tool-bridge.ts:getMediaJob",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/tool-bridge.ts:executeCoFounderTool",
+      "target": "function:src/lib/ai/co-founder/tool-bridge.ts:Boolean",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/tool-bridge.ts:executeCoFounderTool",
+      "target": "function:src/lib/ai/co-founder/tool-bridge.ts:import",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/tool-bridge.ts:executeCoFounderTool",
+      "target": "function:src/lib/ai/co-founder/tool-bridge.ts:metaAdsService.activateApprovedCampaign",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/tool-bridge.ts:executeCoFounderTool",
+      "target": "function:src/lib/ai/co-founder/tool-bridge.ts:Date.now",
+      "type": "calls"
+    }
+  ]
+}

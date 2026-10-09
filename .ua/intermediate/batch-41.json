@@ -1,0 +1,2817 @@
+{
+  "batchIndex": 41,
+  "batchFiles": [
+    {
+      "path": "src/lib/ai/co-founder/workers/__tests__/worker-7-support.test.ts",
+      "language": "typescript",
+      "sizeLines": 111,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/ai/co-founder/workers/__tests__/worker-8-content.test.ts",
+      "language": "typescript",
+      "sizeLines": 54,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/ai/co-founder/workers/__tests__/worker-9-inventory.test.ts",
+      "language": "typescript",
+      "sizeLines": 116,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/ai/co-founder/workers/client-status.ts",
+      "language": "typescript",
+      "sizeLines": 177,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/ai/co-founder/workers/dispatcher.ts",
+      "language": "typescript",
+      "sizeLines": 135,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/ai/co-founder/workers/index.ts",
+      "language": "typescript",
+      "sizeLines": 18,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/ai/co-founder/workers/marketing/cloudinary-service.ts",
+      "language": "typescript",
+      "sizeLines": 176,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/ai/co-founder/workers/marketing/co-workers/ads-execution.ts",
+      "language": "typescript",
+      "sizeLines": 269,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/ai/co-founder/workers/marketing/co-workers/creative-media.ts",
+      "language": "typescript",
+      "sizeLines": 283,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/ai/co-founder/workers/marketing/co-workers/email.ts",
+      "language": "typescript",
+      "sizeLines": 102,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/ai/co-founder/workers/marketing/co-workers/influencer.ts",
+      "language": "typescript",
+      "sizeLines": 100,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/ai/co-founder/workers/marketing/co-workers/social-media.ts",
+      "language": "typescript",
+      "sizeLines": 102,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/ai/co-founder/workers/marketing/co-workers/strategy.ts",
+      "language": "typescript",
+      "sizeLines": 331,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/ai/co-founder/workers/marketing/config.ts",
+      "language": "typescript",
+      "sizeLines": 82,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/ai/co-founder/workers/marketing/index.ts",
+      "language": "typescript",
+      "sizeLines": 16,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/ai/co-founder/workers/marketing/media-job-service.ts",
+      "language": "typescript",
+      "sizeLines": 246,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/ai/co-founder/workers/marketing/meta-ads-service.ts",
+      "language": "typescript",
+      "sizeLines": 132,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/ai/co-founder/workers/marketing/n8n-client.ts",
+      "language": "typescript",
+      "sizeLines": 116,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/ai/co-founder/workers/marketing/router.ts",
+      "language": "typescript",
+      "sizeLines": 153,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/ai/co-founder/workers/marketing/types.ts",
+      "language": "typescript",
+      "sizeLines": 313,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/ai/co-founder/workers/registry.ts",
+      "language": "typescript",
+      "sizeLines": 189,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/ai/co-founder/workers/status-builder.ts",
+      "language": "typescript",
+      "sizeLines": 182,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/ai/co-founder/workers/types.ts",
+      "language": "typescript",
+      "sizeLines": 77,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/ai/co-founder/workers/worker-1-analytics.ts",
+      "language": "typescript",
+      "sizeLines": 249,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/ai/co-founder/workers/worker-10-review.ts",
+      "language": "typescript",
+      "sizeLines": 235,
+      "fileCategory": "code"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "file:src/lib/ai/co-founder/workers/__tests__/worker-7-support.test.ts",
+      "name": "worker-7-support.test.ts",
+      "type": "file",
+      "filePath": "src/lib/ai/co-founder/workers/__tests__/worker-7-support.test.ts",
+      "summary": "typescript code file (111 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:src/lib/ai/co-founder/workers/__tests__/worker-8-content.test.ts",
+      "name": "worker-8-content.test.ts",
+      "type": "file",
+      "filePath": "src/lib/ai/co-founder/workers/__tests__/worker-8-content.test.ts",
+      "summary": "typescript code file (54 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:src/lib/ai/co-founder/workers/__tests__/worker-9-inventory.test.ts",
+      "name": "worker-9-inventory.test.ts",
+      "type": "file",
+      "filePath": "src/lib/ai/co-founder/workers/__tests__/worker-9-inventory.test.ts",
+      "summary": "typescript code file (116 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:src/lib/ai/co-founder/workers/client-status.ts",
+      "name": "client-status.ts",
+      "type": "file",
+      "filePath": "src/lib/ai/co-founder/workers/client-status.ts",
+      "summary": "typescript code file (177 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/lib/ai/co-founder/workers/client-status.ts:agentNodesToSwarmNodes",
+      "name": "agentNodesToSwarmNodes",
+      "type": "function",
+      "filePath": "src/lib/ai/co-founder/workers/client-status.ts",
+      "parentId": "file:src/lib/ai/co-founder/workers/client-status.ts",
+      "summary": "Function agentNodesToSwarmNodes",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/ai/co-founder/workers/client-status.ts:mapAgentStateToSwarmStatus",
+      "name": "mapAgentStateToSwarmStatus",
+      "type": "function",
+      "filePath": "src/lib/ai/co-founder/workers/client-status.ts",
+      "parentId": "file:src/lib/ai/co-founder/workers/client-status.ts",
+      "summary": "Function mapAgentStateToSwarmStatus",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/ai/co-founder/workers/client-status.ts:mapAgentStateToWorkerStatus",
+      "name": "mapAgentStateToWorkerStatus",
+      "type": "function",
+      "filePath": "src/lib/ai/co-founder/workers/client-status.ts",
+      "parentId": "file:src/lib/ai/co-founder/workers/client-status.ts",
+      "summary": "Function mapAgentStateToWorkerStatus",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/ai/co-founder/workers/client-status.ts:agentNodesToWorkerGrid",
+      "name": "agentNodesToWorkerGrid",
+      "type": "function",
+      "filePath": "src/lib/ai/co-founder/workers/client-status.ts",
+      "parentId": "file:src/lib/ai/co-founder/workers/client-status.ts",
+      "summary": "Function agentNodesToWorkerGrid",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/ai/co-founder/workers/client-status.ts:computeWorkforceSummary",
+      "name": "computeWorkforceSummary",
+      "type": "function",
+      "filePath": "src/lib/ai/co-founder/workers/client-status.ts",
+      "parentId": "file:src/lib/ai/co-founder/workers/client-status.ts",
+      "summary": "Function computeWorkforceSummary",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/ai/co-founder/workers/dispatcher.ts",
+      "name": "dispatcher.ts",
+      "type": "file",
+      "filePath": "src/lib/ai/co-founder/workers/dispatcher.ts",
+      "summary": "typescript code file (135 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/lib/ai/co-founder/workers/dispatcher.ts:dispatchWorkerTask",
+      "name": "dispatchWorkerTask",
+      "type": "function",
+      "filePath": "src/lib/ai/co-founder/workers/dispatcher.ts",
+      "parentId": "file:src/lib/ai/co-founder/workers/dispatcher.ts",
+      "summary": "Function dispatchWorkerTask",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/ai/co-founder/workers/dispatcher.ts:getWorkerRegistryStatus",
+      "name": "getWorkerRegistryStatus",
+      "type": "function",
+      "filePath": "src/lib/ai/co-founder/workers/dispatcher.ts",
+      "parentId": "file:src/lib/ai/co-founder/workers/dispatcher.ts",
+      "summary": "Function getWorkerRegistryStatus",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/ai/co-founder/workers/index.ts",
+      "name": "index.ts",
+      "type": "file",
+      "filePath": "src/lib/ai/co-founder/workers/index.ts",
+      "summary": "typescript code file (18 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:src/lib/ai/co-founder/workers/marketing/cloudinary-service.ts",
+      "name": "cloudinary-service.ts",
+      "type": "file",
+      "filePath": "src/lib/ai/co-founder/workers/marketing/cloudinary-service.ts",
+      "summary": "typescript code file (176 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/lib/ai/co-founder/workers/marketing/cloudinary-service.ts:validateVideoUpload",
+      "name": "validateVideoUpload",
+      "type": "function",
+      "filePath": "src/lib/ai/co-founder/workers/marketing/cloudinary-service.ts",
+      "parentId": "file:src/lib/ai/co-founder/workers/marketing/cloudinary-service.ts",
+      "summary": "Function validateVideoUpload",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/ai/co-founder/workers/marketing/cloudinary-service.ts:uploadMarketingVideoToCloudinary",
+      "name": "uploadMarketingVideoToCloudinary",
+      "type": "function",
+      "filePath": "src/lib/ai/co-founder/workers/marketing/cloudinary-service.ts",
+      "parentId": "file:src/lib/ai/co-founder/workers/marketing/cloudinary-service.ts",
+      "summary": "Function uploadMarketingVideoToCloudinary",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/ai/co-founder/workers/marketing/co-workers/ads-execution.ts",
+      "name": "ads-execution.ts",
+      "type": "file",
+      "filePath": "src/lib/ai/co-founder/workers/marketing/co-workers/ads-execution.ts",
+      "summary": "typescript code file (269 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "class:src/lib/ai/co-founder/workers/marketing/co-workers/ads-execution.ts:AdsExecutionCoWorker",
+      "name": "AdsExecutionCoWorker",
+      "type": "class",
+      "filePath": "src/lib/ai/co-founder/workers/marketing/co-workers/ads-execution.ts",
+      "parentId": "file:src/lib/ai/co-founder/workers/marketing/co-workers/ads-execution.ts",
+      "summary": "Class AdsExecutionCoWorker",
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/lib/ai/co-founder/workers/marketing/co-workers/creative-media.ts",
+      "name": "creative-media.ts",
+      "type": "file",
+      "filePath": "src/lib/ai/co-founder/workers/marketing/co-workers/creative-media.ts",
+      "summary": "typescript code file (283 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "class:src/lib/ai/co-founder/workers/marketing/co-workers/creative-media.ts:CreativeMediaCoWorker",
+      "name": "CreativeMediaCoWorker",
+      "type": "class",
+      "filePath": "src/lib/ai/co-founder/workers/marketing/co-workers/creative-media.ts",
+      "parentId": "file:src/lib/ai/co-founder/workers/marketing/co-workers/creative-media.ts",
+      "summary": "Class CreativeMediaCoWorker",
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/lib/ai/co-founder/workers/marketing/co-workers/email.ts",
+      "name": "email.ts",
+      "type": "file",
+      "filePath": "src/lib/ai/co-founder/workers/marketing/co-workers/email.ts",
+      "summary": "typescript code file (102 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "class:src/lib/ai/co-founder/workers/marketing/co-workers/email.ts:EmailMarketingCoWorker",
+      "name": "EmailMarketingCoWorker",
+      "type": "class",
+      "filePath": "src/lib/ai/co-founder/workers/marketing/co-workers/email.ts",
+      "parentId": "file:src/lib/ai/co-founder/workers/marketing/co-workers/email.ts",
+      "summary": "Class EmailMarketingCoWorker",
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/lib/ai/co-founder/workers/marketing/co-workers/influencer.ts",
+      "name": "influencer.ts",
+      "type": "file",
+      "filePath": "src/lib/ai/co-founder/workers/marketing/co-workers/influencer.ts",
+      "summary": "typescript code file (100 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "class:src/lib/ai/co-founder/workers/marketing/co-workers/influencer.ts:InfluencerMarketingCoWorker",
+      "name": "InfluencerMarketingCoWorker",
+      "type": "class",
+      "filePath": "src/lib/ai/co-founder/workers/marketing/co-workers/influencer.ts",
+      "parentId": "file:src/lib/ai/co-founder/workers/marketing/co-workers/influencer.ts",
+      "summary": "Class InfluencerMarketingCoWorker",
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/lib/ai/co-founder/workers/marketing/co-workers/social-media.ts",
+      "name": "social-media.ts",
+      "type": "file",
+      "filePath": "src/lib/ai/co-founder/workers/marketing/co-workers/social-media.ts",
+      "summary": "typescript code file (102 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "class:src/lib/ai/co-founder/workers/marketing/co-workers/social-media.ts:SocialMediaCoWorker",
+      "name": "SocialMediaCoWorker",
+      "type": "class",
+      "filePath": "src/lib/ai/co-founder/workers/marketing/co-workers/social-media.ts",
+      "parentId": "file:src/lib/ai/co-founder/workers/marketing/co-workers/social-media.ts",
+      "summary": "Class SocialMediaCoWorker",
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/lib/ai/co-founder/workers/marketing/co-workers/strategy.ts",
+      "name": "strategy.ts",
+      "type": "file",
+      "filePath": "src/lib/ai/co-founder/workers/marketing/co-workers/strategy.ts",
+      "summary": "typescript code file (331 lines)",
+      "complexity": "complex",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "class:src/lib/ai/co-founder/workers/marketing/co-workers/strategy.ts:StrategyCoWorker",
+      "name": "StrategyCoWorker",
+      "type": "class",
+      "filePath": "src/lib/ai/co-founder/workers/marketing/co-workers/strategy.ts",
+      "parentId": "file:src/lib/ai/co-founder/workers/marketing/co-workers/strategy.ts",
+      "summary": "Class StrategyCoWorker",
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/lib/ai/co-founder/workers/marketing/config.ts",
+      "name": "config.ts",
+      "type": "file",
+      "filePath": "src/lib/ai/co-founder/workers/marketing/config.ts",
+      "summary": "typescript code file (82 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/lib/ai/co-founder/workers/marketing/config.ts:isCoWorkerEnabled",
+      "name": "isCoWorkerEnabled",
+      "type": "function",
+      "filePath": "src/lib/ai/co-founder/workers/marketing/config.ts",
+      "parentId": "file:src/lib/ai/co-founder/workers/marketing/config.ts",
+      "summary": "Function isCoWorkerEnabled",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/ai/co-founder/workers/marketing/config.ts:setCoWorkerStatus",
+      "name": "setCoWorkerStatus",
+      "type": "function",
+      "filePath": "src/lib/ai/co-founder/workers/marketing/config.ts",
+      "parentId": "file:src/lib/ai/co-founder/workers/marketing/config.ts",
+      "summary": "Function setCoWorkerStatus",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/ai/co-founder/workers/marketing/config.ts:getAllCoWorkerStatuses",
+      "name": "getAllCoWorkerStatuses",
+      "type": "function",
+      "filePath": "src/lib/ai/co-founder/workers/marketing/config.ts",
+      "parentId": "file:src/lib/ai/co-founder/workers/marketing/config.ts",
+      "summary": "Function getAllCoWorkerStatuses",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/ai/co-founder/workers/marketing/index.ts",
+      "name": "index.ts",
+      "type": "file",
+      "filePath": "src/lib/ai/co-founder/workers/marketing/index.ts",
+      "summary": "typescript code file (16 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:src/lib/ai/co-founder/workers/marketing/media-job-service.ts",
+      "name": "media-job-service.ts",
+      "type": "file",
+      "filePath": "src/lib/ai/co-founder/workers/marketing/media-job-service.ts",
+      "summary": "typescript code file (246 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/lib/ai/co-founder/workers/marketing/media-job-service.ts:createAndDispatchMediaJob",
+      "name": "createAndDispatchMediaJob",
+      "type": "function",
+      "filePath": "src/lib/ai/co-founder/workers/marketing/media-job-service.ts",
+      "parentId": "file:src/lib/ai/co-founder/workers/marketing/media-job-service.ts",
+      "summary": "Function createAndDispatchMediaJob",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/ai/co-founder/workers/marketing/media-job-service.ts:getMediaJob",
+      "name": "getMediaJob",
+      "type": "function",
+      "filePath": "src/lib/ai/co-founder/workers/marketing/media-job-service.ts",
+      "parentId": "file:src/lib/ai/co-founder/workers/marketing/media-job-service.ts",
+      "summary": "Function getMediaJob",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/ai/co-founder/workers/marketing/media-job-service.ts:listMediaJobs",
+      "name": "listMediaJobs",
+      "type": "function",
+      "filePath": "src/lib/ai/co-founder/workers/marketing/media-job-service.ts",
+      "parentId": "file:src/lib/ai/co-founder/workers/marketing/media-job-service.ts",
+      "summary": "Function listMediaJobs",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/ai/co-founder/workers/marketing/media-job-service.ts:handleMediaJobCallback",
+      "name": "handleMediaJobCallback",
+      "type": "function",
+      "filePath": "src/lib/ai/co-founder/workers/marketing/media-job-service.ts",
+      "parentId": "file:src/lib/ai/co-founder/workers/marketing/media-job-service.ts",
+      "summary": "Function handleMediaJobCallback",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/ai/co-founder/workers/marketing/media-job-service.ts:analyzeFinalMarketingVideo",
+      "name": "analyzeFinalMarketingVideo",
+      "type": "function",
+      "filePath": "src/lib/ai/co-founder/workers/marketing/media-job-service.ts",
+      "parentId": "file:src/lib/ai/co-founder/workers/marketing/media-job-service.ts",
+      "summary": "Function analyzeFinalMarketingVideo",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/ai/co-founder/workers/marketing/meta-ads-service.ts",
+      "name": "meta-ads-service.ts",
+      "type": "file",
+      "filePath": "src/lib/ai/co-founder/workers/marketing/meta-ads-service.ts",
+      "summary": "typescript code file (132 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "class:src/lib/ai/co-founder/workers/marketing/meta-ads-service.ts:MetaAdsService",
+      "name": "MetaAdsService",
+      "type": "class",
+      "filePath": "src/lib/ai/co-founder/workers/marketing/meta-ads-service.ts",
+      "parentId": "file:src/lib/ai/co-founder/workers/marketing/meta-ads-service.ts",
+      "summary": "Class MetaAdsService",
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/lib/ai/co-founder/workers/marketing/n8n-client.ts",
+      "name": "n8n-client.ts",
+      "type": "file",
+      "filePath": "src/lib/ai/co-founder/workers/marketing/n8n-client.ts",
+      "summary": "typescript code file (116 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/lib/ai/co-founder/workers/marketing/n8n-client.ts:triggerN8nMediaProcessor",
+      "name": "triggerN8nMediaProcessor",
+      "type": "function",
+      "filePath": "src/lib/ai/co-founder/workers/marketing/n8n-client.ts",
+      "parentId": "file:src/lib/ai/co-founder/workers/marketing/n8n-client.ts",
+      "summary": "Function triggerN8nMediaProcessor",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/ai/co-founder/workers/marketing/router.ts",
+      "name": "router.ts",
+      "type": "file",
+      "filePath": "src/lib/ai/co-founder/workers/marketing/router.ts",
+      "summary": "typescript code file (153 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/lib/ai/co-founder/workers/marketing/router.ts:routeMarketingTask",
+      "name": "routeMarketingTask",
+      "type": "function",
+      "filePath": "src/lib/ai/co-founder/workers/marketing/router.ts",
+      "parentId": "file:src/lib/ai/co-founder/workers/marketing/router.ts",
+      "summary": "Function routeMarketingTask",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/ai/co-founder/workers/marketing/router.ts:executeCoWorkerById",
+      "name": "executeCoWorkerById",
+      "type": "function",
+      "filePath": "src/lib/ai/co-founder/workers/marketing/router.ts",
+      "parentId": "file:src/lib/ai/co-founder/workers/marketing/router.ts",
+      "summary": "Function executeCoWorkerById",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/ai/co-founder/workers/marketing/types.ts",
+      "name": "types.ts",
+      "type": "file",
+      "filePath": "src/lib/ai/co-founder/workers/marketing/types.ts",
+      "summary": "typescript code file (313 lines)",
+      "complexity": "complex",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:src/lib/ai/co-founder/workers/registry.ts",
+      "name": "registry.ts",
+      "type": "file",
+      "filePath": "src/lib/ai/co-founder/workers/registry.ts",
+      "summary": "typescript code file (189 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "class:src/lib/ai/co-founder/workers/registry.ts:WorkerRegistry",
+      "name": "WorkerRegistry",
+      "type": "class",
+      "filePath": "src/lib/ai/co-founder/workers/registry.ts",
+      "parentId": "file:src/lib/ai/co-founder/workers/registry.ts",
+      "summary": "Class WorkerRegistry",
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/lib/ai/co-founder/workers/status-builder.ts",
+      "name": "status-builder.ts",
+      "type": "file",
+      "filePath": "src/lib/ai/co-founder/workers/status-builder.ts",
+      "summary": "typescript code file (182 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/lib/ai/co-founder/workers/status-builder.ts:deepCloneNodes",
+      "name": "deepCloneNodes",
+      "type": "function",
+      "filePath": "src/lib/ai/co-founder/workers/status-builder.ts",
+      "parentId": "file:src/lib/ai/co-founder/workers/status-builder.ts",
+      "summary": "Function deepCloneNodes",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/ai/co-founder/workers/status-builder.ts:buildLiveWorkforceStatus",
+      "name": "buildLiveWorkforceStatus",
+      "type": "function",
+      "filePath": "src/lib/ai/co-founder/workers/status-builder.ts",
+      "parentId": "file:src/lib/ai/co-founder/workers/status-builder.ts",
+      "summary": "Function buildLiveWorkforceStatus",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/ai/co-founder/workers/types.ts",
+      "name": "types.ts",
+      "type": "file",
+      "filePath": "src/lib/ai/co-founder/workers/types.ts",
+      "summary": "typescript code file (77 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:src/lib/ai/co-founder/workers/worker-1-analytics.ts",
+      "name": "worker-1-analytics.ts",
+      "type": "file",
+      "filePath": "src/lib/ai/co-founder/workers/worker-1-analytics.ts",
+      "summary": "typescript code file (249 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "class:src/lib/ai/co-founder/workers/worker-1-analytics.ts:AnalyticsPerformanceWorker",
+      "name": "AnalyticsPerformanceWorker",
+      "type": "class",
+      "filePath": "src/lib/ai/co-founder/workers/worker-1-analytics.ts",
+      "parentId": "file:src/lib/ai/co-founder/workers/worker-1-analytics.ts",
+      "summary": "Class AnalyticsPerformanceWorker",
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/lib/ai/co-founder/workers/worker-10-review.ts",
+      "name": "worker-10-review.ts",
+      "type": "file",
+      "filePath": "src/lib/ai/co-founder/workers/worker-10-review.ts",
+      "summary": "typescript code file (235 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "class:src/lib/ai/co-founder/workers/worker-10-review.ts:ReviewFeedbackWorker",
+      "name": "ReviewFeedbackWorker",
+      "type": "class",
+      "filePath": "src/lib/ai/co-founder/workers/worker-10-review.ts",
+      "parentId": "file:src/lib/ai/co-founder/workers/worker-10-review.ts",
+      "summary": "Class ReviewFeedbackWorker",
+      "complexity": "moderate"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:src/lib/ai/co-founder/workers/client-status.ts",
+      "target": "function:src/lib/ai/co-founder/workers/client-status.ts:agentNodesToSwarmNodes",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/ai/co-founder/workers/client-status.ts",
+      "target": "function:src/lib/ai/co-founder/workers/client-status.ts:mapAgentStateToSwarmStatus",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/ai/co-founder/workers/client-status.ts",
+      "target": "function:src/lib/ai/co-founder/workers/client-status.ts:mapAgentStateToWorkerStatus",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/ai/co-founder/workers/client-status.ts",
+      "target": "function:src/lib/ai/co-founder/workers/client-status.ts:agentNodesToWorkerGrid",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/ai/co-founder/workers/client-status.ts",
+      "target": "function:src/lib/ai/co-founder/workers/client-status.ts:computeWorkforceSummary",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/client-status.ts:agentNodesToSwarmNodes",
+      "target": "function:src/lib/ai/co-founder/workers/client-status.ts:nodes.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/client-status.ts:agentNodesToSwarmNodes",
+      "target": "function:src/lib/ai/co-founder/workers/client-status.ts:SWARM_NODES.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/client-status.ts:agentNodesToSwarmNodes",
+      "target": "function:src/lib/ai/co-founder/workers/client-status.ts:nodeMap.get",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/client-status.ts:agentNodesToSwarmNodes",
+      "target": "function:src/lib/ai/co-founder/workers/client-status.ts:mapAgentStateToSwarmStatus",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/client-status.ts:agentNodesToSwarmNodes",
+      "target": "function:src/lib/ai/co-founder/workers/client-status.ts:nodes\r\n      .filter((n) => n.level === 'core_worker')\r\n      .find",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/client-status.ts:agentNodesToSwarmNodes",
+      "target": "function:src/lib/ai/co-founder/workers/client-status.ts:nodes\r\n      .filter",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/client-status.ts:agentNodesToSwarmNodes",
+      "target": "function:src/lib/ai/co-founder/workers/client-status.ts:nodeMap.get",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/client-status.ts:agentNodesToSwarmNodes",
+      "target": "function:src/lib/ai/co-founder/workers/client-status.ts:mapAgentStateToSwarmStatus",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/client-status.ts:agentNodesToWorkerGrid",
+      "target": "function:src/lib/ai/co-founder/workers/client-status.ts:nodes\r\n    .filter((n) => n.level === 'core_worker')\r\n    .map((node): WorkerNodeData | null => {\r\n      const role = WORKER_NODE_TO_ROLE[node.id];\r\n      if (!role) return null;\r\n\r\n      const subAgents: SubAgent[] =\r\n        node.subagentIds?.map((subId) => {\r\n          const sub = nodes.find((n) => n.id === subId);\r\n          return {\r\n            id: subId,\r\n            name: sub ? sub.name.replace(/^coworker_|/g, '') : subId,\r\n            roleDescription: sub?.category || 'Specialized sub-agent',\r\n            status: sub ? mapAgentStateToWorkerStatus(sub.state) : 'idle',\r\n            tool: sub?.telemetry.activeTool || 'agent.subtask()',\r\n            lastExecutionMs: sub ? Math.round(sub.telemetry.latencyMs) : 0,\r\n          };\r\n        }) || [];\r\n\r\n      return {\r\n        id: node.id,\r\n        role: role as WorkerNodeData['role'],\r\n        name: node.name.replace(/^Worker \\d:\\s*/, ''),\r\n        title: node.title,\r\n        description: node.category,\r\n        status: mapAgentStateToWorkerStatus(node.state),\r\n        activeTask: node.telemetry.currentAction,\r\n        latencyMs: node.telemetry.latencyMs,\r\n        tokensPerSec: node.telemetry.tokensPerSec,\r\n        subAgents,\r\n      };\r\n    })\r\n    .filter",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/client-status.ts:agentNodesToWorkerGrid",
+      "target": "function:src/lib/ai/co-founder/workers/client-status.ts:nodes\r\n    .filter((n) => n.level === 'core_worker')\r\n    .map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/client-status.ts:agentNodesToWorkerGrid",
+      "target": "function:src/lib/ai/co-founder/workers/client-status.ts:nodes\r\n    .filter",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/client-status.ts:agentNodesToWorkerGrid",
+      "target": "function:src/lib/ai/co-founder/workers/client-status.ts:node.subagentIds?.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/client-status.ts:agentNodesToWorkerGrid",
+      "target": "function:src/lib/ai/co-founder/workers/client-status.ts:nodes.find",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/client-status.ts:agentNodesToWorkerGrid",
+      "target": "function:src/lib/ai/co-founder/workers/client-status.ts:sub.name.replace",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/client-status.ts:agentNodesToWorkerGrid",
+      "target": "function:src/lib/ai/co-founder/workers/client-status.ts:mapAgentStateToWorkerStatus",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/client-status.ts:agentNodesToWorkerGrid",
+      "target": "function:src/lib/ai/co-founder/workers/client-status.ts:Math.round",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/client-status.ts:agentNodesToWorkerGrid",
+      "target": "function:src/lib/ai/co-founder/workers/client-status.ts:node.name.replace",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/client-status.ts:agentNodesToWorkerGrid",
+      "target": "function:src/lib/ai/co-founder/workers/client-status.ts:mapAgentStateToWorkerStatus",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/client-status.ts:computeWorkforceSummary",
+      "target": "function:src/lib/ai/co-founder/workers/client-status.ts:nodes.filter",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/client-status.ts:computeWorkforceSummary",
+      "target": "function:src/lib/ai/co-founder/workers/client-status.ts:coreWorkers.filter",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/client-status.ts:computeWorkforceSummary",
+      "target": "function:src/lib/ai/co-founder/workers/client-status.ts:coreWorkers.filter",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/lib/ai/co-founder/workers/dispatcher.ts",
+      "target": "function:src/lib/ai/co-founder/workers/dispatcher.ts:dispatchWorkerTask",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/ai/co-founder/workers/dispatcher.ts",
+      "target": "function:src/lib/ai/co-founder/workers/dispatcher.ts:getWorkerRegistryStatus",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/dispatcher.ts:dispatchWorkerTask",
+      "target": "function:src/lib/ai/co-founder/workers/dispatcher.ts:workerRegistry.getWorker",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/dispatcher.ts:dispatchWorkerTask",
+      "target": "function:src/lib/ai/co-founder/workers/dispatcher.ts:workerRegistry.findWorkerForTask",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/dispatcher.ts:dispatchWorkerTask",
+      "target": "function:src/lib/ai/co-founder/workers/dispatcher.ts:worker.execute",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/dispatcher.ts:dispatchWorkerTask",
+      "target": "function:src/lib/ai/co-founder/workers/dispatcher.ts:createApprovalRequest",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/dispatcher.ts:dispatchWorkerTask",
+      "target": "function:src/lib/ai/co-founder/workers/dispatcher.ts:Date.now().toString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/dispatcher.ts:dispatchWorkerTask",
+      "target": "function:src/lib/ai/co-founder/workers/dispatcher.ts:Date.now",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/dispatcher.ts:dispatchWorkerTask",
+      "target": "function:src/lib/ai/co-founder/workers/dispatcher.ts:result.problems.join",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/dispatcher.ts:dispatchWorkerTask",
+      "target": "function:src/lib/ai/co-founder/workers/dispatcher.ts:result.evidence.join",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/dispatcher.ts:dispatchWorkerTask",
+      "target": "function:src/lib/ai/co-founder/workers/dispatcher.ts:result.recommendations.join",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/dispatcher.ts:getWorkerRegistryStatus",
+      "target": "function:src/lib/ai/co-founder/workers/dispatcher.ts:workerRegistry.getAllWorkers",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/dispatcher.ts:getWorkerRegistryStatus",
+      "target": "function:src/lib/ai/co-founder/workers/dispatcher.ts:workers.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/dispatcher.ts:getWorkerRegistryStatus",
+      "target": "function:src/lib/ai/co-founder/workers/dispatcher.ts:w.getDefinition",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/lib/ai/co-founder/workers/marketing/cloudinary-service.ts",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/cloudinary-service.ts:validateVideoUpload",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/ai/co-founder/workers/marketing/cloudinary-service.ts",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/cloudinary-service.ts:uploadMarketingVideoToCloudinary",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/cloudinary-service.ts:validateVideoUpload",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/cloudinary-service.ts:(file.size / (1024 * 1024)).toFixed",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/cloudinary-service.ts:validateVideoUpload",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/cloudinary-service.ts:ALLOWED_MIME_TYPES.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/cloudinary-service.ts:validateVideoUpload",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/cloudinary-service.ts:file.name?.endsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/cloudinary-service.ts:validateVideoUpload",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/cloudinary-service.ts:file.name?.endsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/cloudinary-service.ts:validateVideoUpload",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/cloudinary-service.ts:file.name?.endsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/cloudinary-service.ts:uploadMarketingVideoToCloudinary",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/cloudinary-service.ts:Date.now",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/cloudinary-service.ts:uploadMarketingVideoToCloudinary",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/cloudinary-service.ts:cloudinary.uploader.upload_stream",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/cloudinary-service.ts:uploadMarketingVideoToCloudinary",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/cloudinary-service.ts:metadata.clipIndex.toString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/cloudinary-service.ts:uploadMarketingVideoToCloudinary",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/cloudinary-service.ts:reject",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/cloudinary-service.ts:uploadMarketingVideoToCloudinary",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/cloudinary-service.ts:resolve",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/cloudinary-service.ts:uploadMarketingVideoToCloudinary",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/cloudinary-service.ts:Buffer.isBuffer",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/cloudinary-service.ts:uploadMarketingVideoToCloudinary",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/cloudinary-service.ts:uploadStream.end",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/cloudinary-service.ts:uploadMarketingVideoToCloudinary",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/cloudinary-service.ts:cloudinary.uploader.upload",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/cloudinary-service.ts:uploadMarketingVideoToCloudinary",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/cloudinary-service.ts:reject",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/cloudinary-service.ts:uploadMarketingVideoToCloudinary",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/cloudinary-service.ts:resolve",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/lib/ai/co-founder/workers/marketing/co-workers/ads-execution.ts",
+      "target": "class:src/lib/ai/co-founder/workers/marketing/co-workers/ads-execution.ts:AdsExecutionCoWorker",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/co-workers/ads-execution.ts:getDefinition",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/co-workers/ads-execution.ts:isCoWorkerEnabled",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/co-workers/ads-execution.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/co-workers/ads-execution.ts:new Date().toISOString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/co-workers/ads-execution.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/co-workers/ads-execution.ts:input.task.toLowerCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/co-workers/ads-execution.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/co-workers/ads-execution.ts:isCoWorkerEnabled",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/co-workers/ads-execution.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/co-workers/ads-execution.ts:Math.round",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/co-workers/ads-execution.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/co-workers/ads-execution.ts:Math.round",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/co-workers/ads-execution.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/co-workers/ads-execution.ts:Date.now",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/co-workers/ads-execution.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/co-workers/ads-execution.ts:dailyBudgetInr.toLocaleString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/co-workers/ads-execution.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/co-workers/ads-execution.ts:metaAdsService.createCampaignDraft",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/co-workers/ads-execution.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/co-workers/ads-execution.ts:dailyBudgetInr.toLocaleString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/co-workers/ads-execution.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/co-workers/ads-execution.ts:dailyBudgetInr.toLocaleString",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/lib/ai/co-founder/workers/marketing/co-workers/creative-media.ts",
+      "target": "class:src/lib/ai/co-founder/workers/marketing/co-workers/creative-media.ts:CreativeMediaCoWorker",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/co-workers/creative-media.ts:getDefinition",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/co-workers/creative-media.ts:isCoWorkerEnabled",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/co-workers/creative-media.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/co-workers/creative-media.ts:new Date().toISOString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/co-workers/creative-media.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/co-workers/creative-media.ts:input.task.toLowerCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/co-workers/creative-media.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/co-workers/creative-media.ts:isCoWorkerEnabled",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/co-workers/creative-media.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/co-workers/creative-media.ts:taskLower.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/co-workers/creative-media.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/co-workers/creative-media.ts:taskLower.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/co-workers/creative-media.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/co-workers/creative-media.ts:taskLower.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/co-workers/creative-media.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/co-workers/creative-media.ts:taskLower.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/co-workers/creative-media.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/co-workers/creative-media.ts:strategy?.campaignAngle?.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/co-workers/creative-media.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/co-workers/creative-media.ts:taskLower.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/co-workers/creative-media.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/co-workers/creative-media.ts:taskLower.includes",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/lib/ai/co-founder/workers/marketing/co-workers/email.ts",
+      "target": "class:src/lib/ai/co-founder/workers/marketing/co-workers/email.ts:EmailMarketingCoWorker",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/co-workers/email.ts:getDefinition",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/co-workers/email.ts:isCoWorkerEnabled",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/co-workers/email.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/co-workers/email.ts:new Date().toISOString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/co-workers/email.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/co-workers/email.ts:isCoWorkerEnabled",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/lib/ai/co-founder/workers/marketing/co-workers/influencer.ts",
+      "target": "class:src/lib/ai/co-founder/workers/marketing/co-workers/influencer.ts:InfluencerMarketingCoWorker",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/co-workers/influencer.ts:getDefinition",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/co-workers/influencer.ts:isCoWorkerEnabled",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/co-workers/influencer.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/co-workers/influencer.ts:new Date().toISOString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/co-workers/influencer.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/co-workers/influencer.ts:isCoWorkerEnabled",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/lib/ai/co-founder/workers/marketing/co-workers/social-media.ts",
+      "target": "class:src/lib/ai/co-founder/workers/marketing/co-workers/social-media.ts:SocialMediaCoWorker",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/co-workers/social-media.ts:getDefinition",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/co-workers/social-media.ts:isCoWorkerEnabled",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/co-workers/social-media.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/co-workers/social-media.ts:new Date().toISOString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/co-workers/social-media.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/co-workers/social-media.ts:isCoWorkerEnabled",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/lib/ai/co-founder/workers/marketing/co-workers/strategy.ts",
+      "target": "class:src/lib/ai/co-founder/workers/marketing/co-workers/strategy.ts:StrategyCoWorker",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/co-workers/strategy.ts:getDefinition",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/co-workers/strategy.ts:isCoWorkerEnabled",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/co-workers/strategy.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/co-workers/strategy.ts:new Date().toISOString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/co-workers/strategy.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/co-workers/strategy.ts:input.task.toLowerCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/co-workers/strategy.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/co-workers/strategy.ts:isCoWorkerEnabled",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/co-workers/strategy.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/co-workers/strategy.ts:getStoreAnalytics({ timeframe: '30d' }).catch",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/co-workers/strategy.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/co-workers/strategy.ts:getStoreAnalytics",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/co-workers/strategy.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/co-workers/strategy.ts:getCompetitors().catch",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/co-workers/strategy.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/co-workers/strategy.ts:getCompetitors",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/co-workers/strategy.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/co-workers/strategy.ts:competitors.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/co-workers/strategy.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/co-workers/strategy.ts:taskLower.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/co-workers/strategy.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/co-workers/strategy.ts:taskLower.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/co-workers/strategy.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/co-workers/strategy.ts:taskLower.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/co-workers/strategy.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/co-workers/strategy.ts:taskLower.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/co-workers/strategy.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/co-workers/strategy.ts:taskLower.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/co-workers/strategy.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/co-workers/strategy.ts:angles.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/co-workers/strategy.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/co-workers/strategy.ts:angles.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/co-workers/strategy.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/co-workers/strategy.ts:taskLower.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/co-workers/strategy.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/co-workers/strategy.ts:taskLower.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/co-workers/strategy.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/co-workers/strategy.ts:taskLower.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/co-workers/strategy.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/co-workers/strategy.ts:taskLower.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/co-workers/strategy.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/co-workers/strategy.ts:Math.max",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/co-workers/strategy.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/co-workers/strategy.ts:Math.round",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/co-workers/strategy.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/co-workers/strategy.ts:aov.toLocaleString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/co-workers/strategy.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/co-workers/strategy.ts:aov.toLocaleString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/co-workers/strategy.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/co-workers/strategy.ts:aov.toLocaleString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/co-workers/strategy.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/co-workers/strategy.ts:suggestedDailyBudgetInr.toLocaleString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/co-workers/strategy.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/co-workers/strategy.ts:aov.toLocaleString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/co-workers/strategy.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/co-workers/strategy.ts:suggestedDailyBudgetInr.toLocaleString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/co-workers/strategy.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/co-workers/strategy.ts:recommendations.push",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/lib/ai/co-founder/workers/marketing/config.ts",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/config.ts:isCoWorkerEnabled",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/ai/co-founder/workers/marketing/config.ts",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/config.ts:setCoWorkerStatus",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/ai/co-founder/workers/marketing/config.ts",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/config.ts:getAllCoWorkerStatuses",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/config.ts:isCoWorkerEnabled",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/config.ts:coWorkerStatusStore.get",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/config.ts:setCoWorkerStatus",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/config.ts:coWorkerStatusStore.set",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/config.ts:getAllCoWorkerStatuses",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/config.ts:(Object.keys(COWORKER_METADATA) as MarketingCoWorkerId[]).map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/config.ts:getAllCoWorkerStatuses",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/config.ts:Object.keys",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/config.ts:getAllCoWorkerStatuses",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/config.ts:coWorkerStatusStore.get",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/lib/ai/co-founder/workers/marketing/media-job-service.ts",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/media-job-service.ts:createAndDispatchMediaJob",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/ai/co-founder/workers/marketing/media-job-service.ts",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/media-job-service.ts:getMediaJob",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/ai/co-founder/workers/marketing/media-job-service.ts",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/media-job-service.ts:listMediaJobs",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/ai/co-founder/workers/marketing/media-job-service.ts",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/media-job-service.ts:handleMediaJobCallback",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/ai/co-founder/workers/marketing/media-job-service.ts",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/media-job-service.ts:analyzeFinalMarketingVideo",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/media-job-service.ts:createAndDispatchMediaJob",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/media-job-service.ts:Date.now",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/media-job-service.ts:createAndDispatchMediaJob",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/media-job-service.ts:Math.random().toString(36).substring",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/media-job-service.ts:createAndDispatchMediaJob",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/media-job-service.ts:Math.random().toString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/media-job-service.ts:createAndDispatchMediaJob",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/media-job-service.ts:Math.random",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/media-job-service.ts:createAndDispatchMediaJob",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/media-job-service.ts:new Date().toISOString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/media-job-service.ts:createAndDispatchMediaJob",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/media-job-service.ts:mediaJobsMemoryStore.set",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/media-job-service.ts:createAndDispatchMediaJob",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/media-job-service.ts:triggerN8nMediaProcessor",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/media-job-service.ts:createAndDispatchMediaJob",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/media-job-service.ts:new Date().toISOString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/media-job-service.ts:createAndDispatchMediaJob",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/media-job-service.ts:mediaJobsMemoryStore.set",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/media-job-service.ts:createAndDispatchMediaJob",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/media-job-service.ts:new Date().toISOString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/media-job-service.ts:createAndDispatchMediaJob",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/media-job-service.ts:mediaJobsMemoryStore.set",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/media-job-service.ts:createAndDispatchMediaJob",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/media-job-service.ts:new Date().toISOString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/media-job-service.ts:createAndDispatchMediaJob",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/media-job-service.ts:mediaJobsMemoryStore.set",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/media-job-service.ts:getMediaJob",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/media-job-service.ts:mediaJobsMemoryStore.get",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/media-job-service.ts:listMediaJobs",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/media-job-service.ts:Array.from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/media-job-service.ts:listMediaJobs",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/media-job-service.ts:mediaJobsMemoryStore.values",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/media-job-service.ts:listMediaJobs",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/media-job-service.ts:all.filter",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/media-job-service.ts:listMediaJobs",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/media-job-service.ts:all.sort",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/media-job-service.ts:listMediaJobs",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/media-job-service.ts:new Date(b.createdAt).getTime",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/media-job-service.ts:listMediaJobs",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/media-job-service.ts:new Date(a.createdAt).getTime",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/media-job-service.ts:handleMediaJobCallback",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/media-job-service.ts:mediaJobsMemoryStore.get",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/media-job-service.ts:handleMediaJobCallback",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/media-job-service.ts:analyzeFinalMarketingVideo",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/media-job-service.ts:handleMediaJobCallback",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/media-job-service.ts:new Date().toISOString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/media-job-service.ts:handleMediaJobCallback",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/media-job-service.ts:new Date().toISOString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/media-job-service.ts:handleMediaJobCallback",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/media-job-service.ts:mediaJobsMemoryStore.set",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/media-job-service.ts:handleMediaJobCallback",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/media-job-service.ts:new Date().toISOString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/media-job-service.ts:handleMediaJobCallback",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/media-job-service.ts:analyzeFinalMarketingVideo",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/media-job-service.ts:handleMediaJobCallback",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/media-job-service.ts:mediaJobsMemoryStore.set",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/media-job-service.ts:analyzeFinalMarketingVideo",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/media-job-service.ts:reasons.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/media-job-service.ts:analyzeFinalMarketingVideo",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/media-job-service.ts:reasons.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/media-job-service.ts:analyzeFinalMarketingVideo",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/media-job-service.ts:reasons.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/media-job-service.ts:analyzeFinalMarketingVideo",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/media-job-service.ts:reasons.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/media-job-service.ts:analyzeFinalMarketingVideo",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/media-job-service.ts:reasons.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/media-job-service.ts:analyzeFinalMarketingVideo",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/media-job-service.ts:new Date().toISOString",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/lib/ai/co-founder/workers/marketing/meta-ads-service.ts",
+      "target": "class:src/lib/ai/co-founder/workers/marketing/meta-ads-service.ts:MetaAdsService",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/meta-ads-service.ts:createCampaignDraft",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/meta-ads-service.ts:Date.now",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/meta-ads-service.ts:createCampaignDraft",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/meta-ads-service.ts:Math.random().toString(36).substring",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/meta-ads-service.ts:createCampaignDraft",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/meta-ads-service.ts:Math.random().toString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/meta-ads-service.ts:createCampaignDraft",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/meta-ads-service.ts:Math.random",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/meta-ads-service.ts:activateApprovedCampaign",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/meta-ads-service.ts:new Date().toISOString",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/lib/ai/co-founder/workers/marketing/n8n-client.ts",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/n8n-client.ts:triggerN8nMediaProcessor",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/n8n-client.ts:triggerN8nMediaProcessor",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/n8n-client.ts:Date.now",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/n8n-client.ts:triggerN8nMediaProcessor",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/n8n-client.ts:setTimeout",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/n8n-client.ts:triggerN8nMediaProcessor",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/n8n-client.ts:controller.abort",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/n8n-client.ts:triggerN8nMediaProcessor",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/n8n-client.ts:fetch",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/n8n-client.ts:triggerN8nMediaProcessor",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/n8n-client.ts:JSON.stringify",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/n8n-client.ts:triggerN8nMediaProcessor",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/n8n-client.ts:clearTimeout",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/n8n-client.ts:triggerN8nMediaProcessor",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/n8n-client.ts:response.text().catch",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/n8n-client.ts:triggerN8nMediaProcessor",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/n8n-client.ts:response.text",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/n8n-client.ts:triggerN8nMediaProcessor",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/n8n-client.ts:response.json().catch",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/n8n-client.ts:triggerN8nMediaProcessor",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/n8n-client.ts:response.json",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/lib/ai/co-founder/workers/marketing/router.ts",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/router.ts:routeMarketingTask",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/ai/co-founder/workers/marketing/router.ts",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/router.ts:executeCoWorkerById",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/router.ts:routeMarketingTask",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/router.ts:taskText.toLowerCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/router.ts:routeMarketingTask",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/router.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/router.ts:routeMarketingTask",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/router.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/router.ts:routeMarketingTask",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/router.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/router.ts:routeMarketingTask",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/router.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/router.ts:routeMarketingTask",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/router.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/router.ts:routeMarketingTask",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/router.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/router.ts:routeMarketingTask",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/router.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/router.ts:routeMarketingTask",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/router.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/router.ts:routeMarketingTask",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/router.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/router.ts:routeMarketingTask",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/router.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/router.ts:routeMarketingTask",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/router.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/router.ts:routeMarketingTask",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/router.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/router.ts:routeMarketingTask",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/router.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/router.ts:routeMarketingTask",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/router.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/router.ts:routeMarketingTask",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/router.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/router.ts:routeMarketingTask",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/router.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/router.ts:routeMarketingTask",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/router.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/router.ts:routeMarketingTask",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/router.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/router.ts:routeMarketingTask",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/router.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/router.ts:routeMarketingTask",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/router.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/router.ts:routeMarketingTask",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/router.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/router.ts:routeMarketingTask",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/router.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/router.ts:routeMarketingTask",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/router.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/router.ts:routeMarketingTask",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/router.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/router.ts:routeMarketingTask",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/router.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/router.ts:routeMarketingTask",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/router.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/router.ts:routeMarketingTask",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/router.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/router.ts:routeMarketingTask",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/router.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/router.ts:routeMarketingTask",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/router.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/router.ts:routeMarketingTask",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/router.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/router.ts:routeMarketingTask",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/router.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/router.ts:routeMarketingTask",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/router.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/router.ts:routeMarketingTask",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/router.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/router.ts:routeMarketingTask",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/router.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/router.ts:routeMarketingTask",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/router.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/router.ts:routeMarketingTask",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/router.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/router.ts:executeCoWorkerById",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/router.ts:strategyCoWorker.execute",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/router.ts:executeCoWorkerById",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/router.ts:creativeMediaCoWorker.execute",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/router.ts:executeCoWorkerById",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/router.ts:adsExecutionCoWorker.execute",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/router.ts:executeCoWorkerById",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/router.ts:socialMediaCoWorker.execute",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/router.ts:executeCoWorkerById",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/router.ts:emailMarketingCoWorker.execute",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/marketing/router.ts:executeCoWorkerById",
+      "target": "function:src/lib/ai/co-founder/workers/marketing/router.ts:influencerMarketingCoWorker.execute",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/lib/ai/co-founder/workers/registry.ts",
+      "target": "class:src/lib/ai/co-founder/workers/registry.ts:WorkerRegistry",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/registry.ts:constructor",
+      "target": "function:src/lib/ai/co-founder/workers/registry.ts:this.register",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/registry.ts:constructor",
+      "target": "function:src/lib/ai/co-founder/workers/registry.ts:this.register",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/registry.ts:constructor",
+      "target": "function:src/lib/ai/co-founder/workers/registry.ts:this.register",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/registry.ts:constructor",
+      "target": "function:src/lib/ai/co-founder/workers/registry.ts:this.register",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/registry.ts:constructor",
+      "target": "function:src/lib/ai/co-founder/workers/registry.ts:this.register",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/registry.ts:constructor",
+      "target": "function:src/lib/ai/co-founder/workers/registry.ts:this.register",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/registry.ts:constructor",
+      "target": "function:src/lib/ai/co-founder/workers/registry.ts:this.register",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/registry.ts:constructor",
+      "target": "function:src/lib/ai/co-founder/workers/registry.ts:this.register",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/registry.ts:constructor",
+      "target": "function:src/lib/ai/co-founder/workers/registry.ts:this.register",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/registry.ts:constructor",
+      "target": "function:src/lib/ai/co-founder/workers/registry.ts:this.register",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/registry.ts:constructor",
+      "target": "function:src/lib/ai/co-founder/workers/registry.ts:this.register",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/registry.ts:constructor",
+      "target": "function:src/lib/ai/co-founder/workers/registry.ts:this.register",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/registry.ts:register",
+      "target": "function:src/lib/ai/co-founder/workers/registry.ts:this.workers.set",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/registry.ts:getWorker",
+      "target": "function:src/lib/ai/co-founder/workers/registry.ts:this.workers.get",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/registry.ts:getAllWorkers",
+      "target": "function:src/lib/ai/co-founder/workers/registry.ts:Array.from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/registry.ts:getAllWorkers",
+      "target": "function:src/lib/ai/co-founder/workers/registry.ts:this.workers.values",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/registry.ts:getAllDefinitions",
+      "target": "function:src/lib/ai/co-founder/workers/registry.ts:this.getAllWorkers().map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/registry.ts:getAllDefinitions",
+      "target": "function:src/lib/ai/co-founder/workers/registry.ts:this.getAllWorkers",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/registry.ts:getAllDefinitions",
+      "target": "function:src/lib/ai/co-founder/workers/registry.ts:w.getDefinition",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/registry.ts:findWorkerForTask",
+      "target": "function:src/lib/ai/co-founder/workers/registry.ts:taskText.toLowerCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/registry.ts:findWorkerForTask",
+      "target": "function:src/lib/ai/co-founder/workers/registry.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/registry.ts:findWorkerForTask",
+      "target": "function:src/lib/ai/co-founder/workers/registry.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/registry.ts:findWorkerForTask",
+      "target": "function:src/lib/ai/co-founder/workers/registry.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/registry.ts:findWorkerForTask",
+      "target": "function:src/lib/ai/co-founder/workers/registry.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/registry.ts:findWorkerForTask",
+      "target": "function:src/lib/ai/co-founder/workers/registry.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/registry.ts:findWorkerForTask",
+      "target": "function:src/lib/ai/co-founder/workers/registry.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/registry.ts:findWorkerForTask",
+      "target": "function:src/lib/ai/co-founder/workers/registry.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/registry.ts:findWorkerForTask",
+      "target": "function:src/lib/ai/co-founder/workers/registry.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/registry.ts:findWorkerForTask",
+      "target": "function:src/lib/ai/co-founder/workers/registry.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/registry.ts:findWorkerForTask",
+      "target": "function:src/lib/ai/co-founder/workers/registry.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/registry.ts:findWorkerForTask",
+      "target": "function:src/lib/ai/co-founder/workers/registry.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/registry.ts:findWorkerForTask",
+      "target": "function:src/lib/ai/co-founder/workers/registry.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/registry.ts:findWorkerForTask",
+      "target": "function:src/lib/ai/co-founder/workers/registry.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/registry.ts:findWorkerForTask",
+      "target": "function:src/lib/ai/co-founder/workers/registry.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/registry.ts:findWorkerForTask",
+      "target": "function:src/lib/ai/co-founder/workers/registry.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/registry.ts:findWorkerForTask",
+      "target": "function:src/lib/ai/co-founder/workers/registry.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/registry.ts:findWorkerForTask",
+      "target": "function:src/lib/ai/co-founder/workers/registry.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/registry.ts:findWorkerForTask",
+      "target": "function:src/lib/ai/co-founder/workers/registry.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/registry.ts:findWorkerForTask",
+      "target": "function:src/lib/ai/co-founder/workers/registry.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/registry.ts:findWorkerForTask",
+      "target": "function:src/lib/ai/co-founder/workers/registry.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/registry.ts:findWorkerForTask",
+      "target": "function:src/lib/ai/co-founder/workers/registry.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/registry.ts:findWorkerForTask",
+      "target": "function:src/lib/ai/co-founder/workers/registry.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/registry.ts:findWorkerForTask",
+      "target": "function:src/lib/ai/co-founder/workers/registry.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/registry.ts:findWorkerForTask",
+      "target": "function:src/lib/ai/co-founder/workers/registry.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/registry.ts:findWorkerForTask",
+      "target": "function:src/lib/ai/co-founder/workers/registry.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/registry.ts:findWorkerForTask",
+      "target": "function:src/lib/ai/co-founder/workers/registry.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/registry.ts:findWorkerForTask",
+      "target": "function:src/lib/ai/co-founder/workers/registry.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/registry.ts:findWorkerForTask",
+      "target": "function:src/lib/ai/co-founder/workers/registry.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/registry.ts:findWorkerForTask",
+      "target": "function:src/lib/ai/co-founder/workers/registry.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/registry.ts:findWorkerForTask",
+      "target": "function:src/lib/ai/co-founder/workers/registry.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/registry.ts:findWorkerForTask",
+      "target": "function:src/lib/ai/co-founder/workers/registry.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/registry.ts:findWorkerForTask",
+      "target": "function:src/lib/ai/co-founder/workers/registry.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/registry.ts:findWorkerForTask",
+      "target": "function:src/lib/ai/co-founder/workers/registry.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/registry.ts:findWorkerForTask",
+      "target": "function:src/lib/ai/co-founder/workers/registry.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/registry.ts:findWorkerForTask",
+      "target": "function:src/lib/ai/co-founder/workers/registry.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/registry.ts:findWorkerForTask",
+      "target": "function:src/lib/ai/co-founder/workers/registry.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/registry.ts:findWorkerForTask",
+      "target": "function:src/lib/ai/co-founder/workers/registry.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/registry.ts:findWorkerForTask",
+      "target": "function:src/lib/ai/co-founder/workers/registry.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/registry.ts:findWorkerForTask",
+      "target": "function:src/lib/ai/co-founder/workers/registry.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/registry.ts:findWorkerForTask",
+      "target": "function:src/lib/ai/co-founder/workers/registry.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/registry.ts:findWorkerForTask",
+      "target": "function:src/lib/ai/co-founder/workers/registry.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/registry.ts:findWorkerForTask",
+      "target": "function:src/lib/ai/co-founder/workers/registry.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/registry.ts:findWorkerForTask",
+      "target": "function:src/lib/ai/co-founder/workers/registry.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/registry.ts:findWorkerForTask",
+      "target": "function:src/lib/ai/co-founder/workers/registry.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/registry.ts:findWorkerForTask",
+      "target": "function:src/lib/ai/co-founder/workers/registry.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/registry.ts:findWorkerForTask",
+      "target": "function:src/lib/ai/co-founder/workers/registry.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/registry.ts:findWorkerForTask",
+      "target": "function:src/lib/ai/co-founder/workers/registry.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/registry.ts:findWorkerForTask",
+      "target": "function:src/lib/ai/co-founder/workers/registry.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/registry.ts:findWorkerForTask",
+      "target": "function:src/lib/ai/co-founder/workers/registry.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/registry.ts:findWorkerForTask",
+      "target": "function:src/lib/ai/co-founder/workers/registry.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/registry.ts:findWorkerForTask",
+      "target": "function:src/lib/ai/co-founder/workers/registry.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/registry.ts:findWorkerForTask",
+      "target": "function:src/lib/ai/co-founder/workers/registry.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/registry.ts:findWorkerForTask",
+      "target": "function:src/lib/ai/co-founder/workers/registry.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/registry.ts:findWorkerForTask",
+      "target": "function:src/lib/ai/co-founder/workers/registry.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/registry.ts:findWorkerForTask",
+      "target": "function:src/lib/ai/co-founder/workers/registry.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/registry.ts:findWorkerForTask",
+      "target": "function:src/lib/ai/co-founder/workers/registry.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/registry.ts:findWorkerForTask",
+      "target": "function:src/lib/ai/co-founder/workers/registry.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/registry.ts:findWorkerForTask",
+      "target": "function:src/lib/ai/co-founder/workers/registry.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/registry.ts:findWorkerForTask",
+      "target": "function:src/lib/ai/co-founder/workers/registry.ts:text.includes",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/lib/ai/co-founder/workers/status-builder.ts",
+      "target": "function:src/lib/ai/co-founder/workers/status-builder.ts:deepCloneNodes",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/ai/co-founder/workers/status-builder.ts",
+      "target": "function:src/lib/ai/co-founder/workers/status-builder.ts:buildLiveWorkforceStatus",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/status-builder.ts:deepCloneNodes",
+      "target": "function:src/lib/ai/co-founder/workers/status-builder.ts:JSON.parse",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/status-builder.ts:deepCloneNodes",
+      "target": "function:src/lib/ai/co-founder/workers/status-builder.ts:JSON.stringify",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/status-builder.ts:buildLiveWorkforceStatus",
+      "target": "function:src/lib/ai/co-founder/workers/status-builder.ts:deepCloneNodes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/status-builder.ts:buildLiveWorkforceStatus",
+      "target": "function:src/lib/ai/co-founder/workers/status-builder.ts:nodes.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/status-builder.ts:buildLiveWorkforceStatus",
+      "target": "function:src/lib/ai/co-founder/workers/status-builder.ts:getServiceClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/status-builder.ts:buildLiveWorkforceStatus",
+      "target": "function:src/lib/ai/co-founder/workers/status-builder.ts:supabase\r\n    .from('co_founder_signals')\r\n    .select('id,signal_type,category,severity,confidence,title,summary,detail,metrics,is_acknowledged,created_at')\r\n    .eq('is_acknowledged', false)\r\n    .order('created_at', { ascending: false })\r\n    .limit",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/status-builder.ts:buildLiveWorkforceStatus",
+      "target": "function:src/lib/ai/co-founder/workers/status-builder.ts:supabase\r\n    .from('co_founder_signals')\r\n    .select('id,signal_type,category,severity,confidence,title,summary,detail,metrics,is_acknowledged,created_at')\r\n    .eq('is_acknowledged', false)\r\n    .order",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/status-builder.ts:buildLiveWorkforceStatus",
+      "target": "function:src/lib/ai/co-founder/workers/status-builder.ts:supabase\r\n    .from('co_founder_signals')\r\n    .select('id,signal_type,category,severity,confidence,title,summary,detail,metrics,is_acknowledged,created_at')\r\n    .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/status-builder.ts:buildLiveWorkforceStatus",
+      "target": "function:src/lib/ai/co-founder/workers/status-builder.ts:supabase\r\n    .from('co_founder_signals')\r\n    .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/status-builder.ts:buildLiveWorkforceStatus",
+      "target": "function:src/lib/ai/co-founder/workers/status-builder.ts:supabase\r\n    .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/status-builder.ts:buildLiveWorkforceStatus",
+      "target": "function:src/lib/ai/co-founder/workers/status-builder.ts:supabase\r\n    .from('co_founder_approvals')\r\n    .select('id,action_type,scope_description,risk_level,status,created_at')\r\n    .eq('status', 'pending')\r\n    .order('created_at', { ascending: false })\r\n    .limit",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/status-builder.ts:buildLiveWorkforceStatus",
+      "target": "function:src/lib/ai/co-founder/workers/status-builder.ts:supabase\r\n    .from('co_founder_approvals')\r\n    .select('id,action_type,scope_description,risk_level,status,created_at')\r\n    .eq('status', 'pending')\r\n    .order",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/status-builder.ts:buildLiveWorkforceStatus",
+      "target": "function:src/lib/ai/co-founder/workers/status-builder.ts:supabase\r\n    .from('co_founder_approvals')\r\n    .select('id,action_type,scope_description,risk_level,status,created_at')\r\n    .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/status-builder.ts:buildLiveWorkforceStatus",
+      "target": "function:src/lib/ai/co-founder/workers/status-builder.ts:supabase\r\n    .from('co_founder_approvals')\r\n    .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/status-builder.ts:buildLiveWorkforceStatus",
+      "target": "function:src/lib/ai/co-founder/workers/status-builder.ts:supabase\r\n    .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/status-builder.ts:buildLiveWorkforceStatus",
+      "target": "function:src/lib/ai/co-founder/workers/status-builder.ts:registry.getAllDefinitions",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/status-builder.ts:buildLiveWorkforceStatus",
+      "target": "function:src/lib/ai/co-founder/workers/status-builder.ts:(signals || []).forEach",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/status-builder.ts:buildLiveWorkforceStatus",
+      "target": "function:src/lib/ai/co-founder/workers/status-builder.ts:workers.forEach",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/status-builder.ts:buildLiveWorkforceStatus",
+      "target": "function:src/lib/ai/co-founder/workers/status-builder.ts:signalMap.get",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/status-builder.ts:buildLiveWorkforceStatus",
+      "target": "function:src/lib/ai/co-founder/workers/status-builder.ts:list.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/status-builder.ts:buildLiveWorkforceStatus",
+      "target": "function:src/lib/ai/co-founder/workers/status-builder.ts:signalMap.set",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/status-builder.ts:buildLiveWorkforceStatus",
+      "target": "function:src/lib/ai/co-founder/workers/status-builder.ts:nodes.forEach",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/status-builder.ts:buildLiveWorkforceStatus",
+      "target": "function:src/lib/ai/co-founder/workers/status-builder.ts:definitions.find",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/status-builder.ts:buildLiveWorkforceStatus",
+      "target": "function:src/lib/ai/co-founder/workers/status-builder.ts:signalMap.get",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/status-builder.ts:buildLiveWorkforceStatus",
+      "target": "function:src/lib/ai/co-founder/workers/status-builder.ts:nodeSignals.some",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/status-builder.ts:buildLiveWorkforceStatus",
+      "target": "function:src/lib/ai/co-founder/workers/status-builder.ts:nodeSignals.some",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/status-builder.ts:buildLiveWorkforceStatus",
+      "target": "function:src/lib/ai/co-founder/workers/status-builder.ts:Math.min",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/status-builder.ts:buildLiveWorkforceStatus",
+      "target": "function:src/lib/ai/co-founder/workers/status-builder.ts:Math.max",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/status-builder.ts:buildLiveWorkforceStatus",
+      "target": "function:src/lib/ai/co-founder/workers/status-builder.ts:Math.floor",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/status-builder.ts:buildLiveWorkforceStatus",
+      "target": "function:src/lib/ai/co-founder/workers/status-builder.ts:Date.now",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/status-builder.ts:buildLiveWorkforceStatus",
+      "target": "function:src/lib/ai/co-founder/workers/status-builder.ts:new Date(latest.created_at).getTime",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/status-builder.ts:buildLiveWorkforceStatus",
+      "target": "function:src/lib/ai/co-founder/workers/status-builder.ts:parseFloat",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/status-builder.ts:buildLiveWorkforceStatus",
+      "target": "function:src/lib/ai/co-founder/workers/status-builder.ts:(40 + Math.random() * 40).toFixed",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/status-builder.ts:buildLiveWorkforceStatus",
+      "target": "function:src/lib/ai/co-founder/workers/status-builder.ts:Math.random",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/status-builder.ts:buildLiveWorkforceStatus",
+      "target": "function:src/lib/ai/co-founder/workers/status-builder.ts:def.objective.split",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/status-builder.ts:buildLiveWorkforceStatus",
+      "target": "function:src/lib/ai/co-founder/workers/status-builder.ts:nodeMap.get",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/status-builder.ts:buildLiveWorkforceStatus",
+      "target": "function:src/lib/ai/co-founder/workers/status-builder.ts:nodes.filter",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/status-builder.ts:buildLiveWorkforceStatus",
+      "target": "function:src/lib/ai/co-founder/workers/status-builder.ts:Math.floor",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/status-builder.ts:buildLiveWorkforceStatus",
+      "target": "function:src/lib/ai/co-founder/workers/status-builder.ts:Math.random",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/status-builder.ts:buildLiveWorkforceStatus",
+      "target": "function:src/lib/ai/co-founder/workers/status-builder.ts:Math.random",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/status-builder.ts:buildLiveWorkforceStatus",
+      "target": "function:src/lib/ai/co-founder/workers/status-builder.ts:Math.min",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/lib/ai/co-founder/workers/worker-1-analytics.ts",
+      "target": "class:src/lib/ai/co-founder/workers/worker-1-analytics.ts:AnalyticsPerformanceWorker",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/worker-1-analytics.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/worker-1-analytics.ts:new Date().toISOString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/worker-1-analytics.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/worker-1-analytics.ts:getStoreAnalytics",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/worker-1-analytics.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/worker-1-analytics.ts:runBusinessIntelligenceScan",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/worker-1-analytics.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/worker-1-analytics.ts:findings.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/worker-1-analytics.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/worker-1-analytics.ts:rev.toLocaleString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/worker-1-analytics.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/worker-1-analytics.ts:aov.toLocaleString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/worker-1-analytics.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/worker-1-analytics.ts:findings.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/worker-1-analytics.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/worker-1-analytics.ts:Number(revDelta).toFixed",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/worker-1-analytics.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/worker-1-analytics.ts:Number",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/worker-1-analytics.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/worker-1-analytics.ts:Number(comparison.baselineRevenue || 0).toLocaleString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/worker-1-analytics.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/worker-1-analytics.ts:Number",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/worker-1-analytics.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/worker-1-analytics.ts:evidence.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/worker-1-analytics.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/worker-1-analytics.ts:evidence.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/worker-1-analytics.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/worker-1-analytics.ts:problems.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/worker-1-analytics.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/worker-1-analytics.ts:cancellationRate.toFixed",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/worker-1-analytics.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/worker-1-analytics.ts:evidence.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/worker-1-analytics.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/worker-1-analytics.ts:recommendations.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/worker-1-analytics.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/worker-1-analytics.ts:problems.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/worker-1-analytics.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/worker-1-analytics.ts:problems.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/worker-1-analytics.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/worker-1-analytics.ts:String(anomaly.metric).toUpperCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/worker-1-analytics.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/worker-1-analytics.ts:String",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/worker-1-analytics.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/worker-1-analytics.ts:evidence.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/worker-1-analytics.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/worker-1-analytics.ts:Number(anomaly.deviationPercent).toFixed",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/worker-1-analytics.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/worker-1-analytics.ts:Number",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/worker-1-analytics.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/worker-1-analytics.ts:biProblems.slice",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/worker-1-analytics.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/worker-1-analytics.ts:problems.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/worker-1-analytics.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/worker-1-analytics.ts:problems.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/worker-1-analytics.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/worker-1-analytics.ts:evidence.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/worker-1-analytics.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/worker-1-analytics.ts:biOpps.slice",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/worker-1-analytics.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/worker-1-analytics.ts:opportunities.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/worker-1-analytics.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/worker-1-analytics.ts:upside.toLocaleString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/worker-1-analytics.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/worker-1-analytics.ts:recommendations.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/worker-1-analytics.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/worker-1-analytics.ts:recommendations.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/worker-1-analytics.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/worker-1-analytics.ts:(rawBi.summary?.totalOpportunityUpside || 50000).toLocaleString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/worker-1-analytics.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/worker-1-analytics.ts:rev.toLocaleString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/worker-1-analytics.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/worker-1-analytics.ts:aov.toLocaleString",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/lib/ai/co-founder/workers/worker-10-review.ts",
+      "target": "class:src/lib/ai/co-founder/workers/worker-10-review.ts:ReviewFeedbackWorker",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/worker-10-review.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/worker-10-review.ts:new Date().toISOString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/worker-10-review.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/worker-10-review.ts:getServiceClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/worker-10-review.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/worker-10-review.ts:supabase\r\n        .from('reviews')\r\n        .select('id, product_id, rating, title, comment, verified_purchase, created_at')\r\n        .order('created_at', { ascending: false })\r\n        .limit",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/worker-10-review.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/worker-10-review.ts:supabase\r\n        .from('reviews')\r\n        .select('id, product_id, rating, title, comment, verified_purchase, created_at')\r\n        .order",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/worker-10-review.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/worker-10-review.ts:supabase\r\n        .from('reviews')\r\n        .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/worker-10-review.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/worker-10-review.ts:supabase\r\n        .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/worker-10-review.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/worker-10-review.ts:Number",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/worker-10-review.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/worker-10-review.ts:Number",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/worker-10-review.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/worker-10-review.ts:(ratingSum / totalReviews).toFixed",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/worker-10-review.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/worker-10-review.ts:Math.round",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/worker-10-review.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/worker-10-review.ts:Math.round",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/worker-10-review.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/worker-10-review.ts:Math.round",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/worker-10-review.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/worker-10-review.ts:findings.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/worker-10-review.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/worker-10-review.ts:findings.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/worker-10-review.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/worker-10-review.ts:evidence.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/worker-10-review.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/worker-10-review.ts:problems.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/worker-10-review.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/worker-10-review.ts:evidence.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/worker-10-review.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/worker-10-review.ts:opportunities.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/worker-10-review.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/worker-10-review.ts:opportunities.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/worker-10-review.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/worker-10-review.ts:recommendations.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/co-founder/workers/worker-10-review.ts:execute",
+      "target": "function:src/lib/ai/co-founder/workers/worker-10-review.ts:recommendations.push",
+      "type": "calls"
+    }
+  ]
+}

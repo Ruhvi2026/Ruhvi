@@ -1,0 +1,3740 @@
+{
+  "batchIndex": 18,
+  "batchFiles": [
+    {
+      "path": "ruhvi-mobile_DO_NOT_DELETE/src/types/chat.ts",
+      "language": "typescript",
+      "sizeLines": 165,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/add_statuses.mjs",
+      "language": "javascript",
+      "sizeLines": 37,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/create-admin-public.mjs",
+      "language": "javascript",
+      "sizeLines": 35,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/create-admin.mjs",
+      "language": "javascript",
+      "sizeLines": 124,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/create_test_ticket.ts",
+      "language": "typescript",
+      "sizeLines": 80,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/encrypt-credentials.ts",
+      "language": "typescript",
+      "sizeLines": 83,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/generate_favicons.js",
+      "language": "javascript",
+      "sizeLines": 58,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/generate_favicons.ps1",
+      "language": "powershell",
+      "sizeLines": 46,
+      "fileCategory": "script"
+    },
+    {
+      "path": "scripts/test-jwt.mjs",
+      "language": "javascript",
+      "sizeLines": 240,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/test-login.mjs",
+      "language": "javascript",
+      "sizeLines": 13,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sentry.edge.config.ts",
+      "language": "typescript",
+      "sizeLines": 23,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sentry.server.config.ts",
+      "language": "typescript",
+      "sizeLines": 22,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/(auth)/complete-profile/page.tsx",
+      "language": "typescript",
+      "sizeLines": 499,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/(auth)/forgot-password/page.tsx",
+      "language": "typescript",
+      "sizeLines": 128,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/(auth)/login/AdminLogin.tsx",
+      "language": "typescript",
+      "sizeLines": 196,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/(auth)/login/CustomerLogin.tsx",
+      "language": "typescript",
+      "sizeLines": 502,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/(auth)/login/page.tsx",
+      "language": "typescript",
+      "sizeLines": 37,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/(auth)/reset-password/page.tsx",
+      "language": "typescript",
+      "sizeLines": 153,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/(auth)/set-password/page.tsx",
+      "language": "typescript",
+      "sizeLines": 339,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/(auth)/signup/page.tsx",
+      "language": "typescript",
+      "sizeLines": 575,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/(policies)/cancellation-policy/page.tsx",
+      "language": "typescript",
+      "sizeLines": 108,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/(policies)/data-deletion/page.tsx",
+      "language": "typescript",
+      "sizeLines": 216,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/(policies)/privacy-policy/page.tsx",
+      "language": "typescript",
+      "sizeLines": 274,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/(policies)/return-policy/page.tsx",
+      "language": "typescript",
+      "sizeLines": 134,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/(policies)/shipping-policy/page.tsx",
+      "language": "typescript",
+      "sizeLines": 119,
+      "fileCategory": "code"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "file:ruhvi-mobile_DO_NOT_DELETE/src/types/chat.ts",
+      "name": "chat.ts",
+      "type": "file",
+      "filePath": "ruhvi-mobile_DO_NOT_DELETE/src/types/chat.ts",
+      "summary": "typescript code file (165 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:scripts/add_statuses.mjs",
+      "name": "add_statuses.mjs",
+      "type": "file",
+      "filePath": "scripts/add_statuses.mjs",
+      "summary": "javascript code file (37 lines)",
+      "complexity": "simple",
+      "tags": [
+        "javascript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:scripts/add_statuses.mjs:addStatuses",
+      "name": "addStatuses",
+      "type": "function",
+      "filePath": "scripts/add_statuses.mjs",
+      "parentId": "file:scripts/add_statuses.mjs",
+      "summary": "Function addStatuses",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:scripts/create-admin-public.mjs",
+      "name": "create-admin-public.mjs",
+      "type": "file",
+      "filePath": "scripts/create-admin-public.mjs",
+      "summary": "javascript code file (35 lines)",
+      "complexity": "simple",
+      "tags": [
+        "javascript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:scripts/create-admin-public.mjs:signUpAdmin",
+      "name": "signUpAdmin",
+      "type": "function",
+      "filePath": "scripts/create-admin-public.mjs",
+      "parentId": "file:scripts/create-admin-public.mjs",
+      "summary": "Function signUpAdmin",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:scripts/create-admin.mjs",
+      "name": "create-admin.mjs",
+      "type": "file",
+      "filePath": "scripts/create-admin.mjs",
+      "summary": "javascript code file (124 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "javascript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:scripts/create-admin.mjs:createAdminUser",
+      "name": "createAdminUser",
+      "type": "function",
+      "filePath": "scripts/create-admin.mjs",
+      "parentId": "file:scripts/create-admin.mjs",
+      "summary": "Function createAdminUser",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:scripts/create_test_ticket.ts",
+      "name": "create_test_ticket.ts",
+      "type": "file",
+      "filePath": "scripts/create_test_ticket.ts",
+      "summary": "typescript code file (80 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:scripts/create_test_ticket.ts:main",
+      "name": "main",
+      "type": "function",
+      "filePath": "scripts/create_test_ticket.ts",
+      "parentId": "file:scripts/create_test_ticket.ts",
+      "summary": "Function main",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:scripts/encrypt-credentials.ts",
+      "name": "encrypt-credentials.ts",
+      "type": "file",
+      "filePath": "scripts/encrypt-credentials.ts",
+      "summary": "typescript code file (83 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:scripts/encrypt-credentials.ts:main",
+      "name": "main",
+      "type": "function",
+      "filePath": "scripts/encrypt-credentials.ts",
+      "parentId": "file:scripts/encrypt-credentials.ts",
+      "summary": "Function main",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:scripts/generate_favicons.js",
+      "name": "generate_favicons.js",
+      "type": "file",
+      "filePath": "scripts/generate_favicons.js",
+      "summary": "javascript code file (58 lines)",
+      "complexity": "simple",
+      "tags": [
+        "javascript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:scripts/generate_favicons.ps1",
+      "name": "generate_favicons.ps1",
+      "type": "file",
+      "filePath": "scripts/generate_favicons.ps1",
+      "summary": "powershell script file (46 lines)",
+      "complexity": "simple",
+      "tags": [
+        "powershell",
+        "script"
+      ]
+    },
+    {
+      "id": "file:scripts/test-jwt.mjs",
+      "name": "test-jwt.mjs",
+      "type": "file",
+      "filePath": "scripts/test-jwt.mjs",
+      "summary": "javascript code file (240 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "javascript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:scripts/test-jwt.mjs:assert",
+      "name": "assert",
+      "type": "function",
+      "filePath": "scripts/test-jwt.mjs",
+      "parentId": "file:scripts/test-jwt.mjs",
+      "summary": "Function assert",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:scripts/test-jwt.mjs:runTests",
+      "name": "runTests",
+      "type": "function",
+      "filePath": "scripts/test-jwt.mjs",
+      "parentId": "file:scripts/test-jwt.mjs",
+      "summary": "Function runTests",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:scripts/test-login.mjs",
+      "name": "test-login.mjs",
+      "type": "file",
+      "filePath": "scripts/test-login.mjs",
+      "summary": "javascript code file (13 lines)",
+      "complexity": "simple",
+      "tags": [
+        "javascript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:scripts/test-login.mjs:testLogin",
+      "name": "testLogin",
+      "type": "function",
+      "filePath": "scripts/test-login.mjs",
+      "parentId": "file:scripts/test-login.mjs",
+      "summary": "Function testLogin",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:sentry.edge.config.ts",
+      "name": "sentry.edge.config.ts",
+      "type": "file",
+      "filePath": "sentry.edge.config.ts",
+      "summary": "typescript code file (23 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:sentry.server.config.ts",
+      "name": "sentry.server.config.ts",
+      "type": "file",
+      "filePath": "sentry.server.config.ts",
+      "summary": "typescript code file (22 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:src/app/(auth)/complete-profile/page.tsx",
+      "name": "page.tsx",
+      "type": "file",
+      "filePath": "src/app/(auth)/complete-profile/page.tsx",
+      "summary": "typescript code file (499 lines)",
+      "complexity": "complex",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/app/(auth)/complete-profile/page.tsx:CompleteProfilePage",
+      "name": "CompleteProfilePage",
+      "type": "function",
+      "filePath": "src/app/(auth)/complete-profile/page.tsx",
+      "parentId": "file:src/app/(auth)/complete-profile/page.tsx",
+      "summary": "Function CompleteProfilePage",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app/(auth)/forgot-password/page.tsx",
+      "name": "page.tsx",
+      "type": "file",
+      "filePath": "src/app/(auth)/forgot-password/page.tsx",
+      "summary": "typescript code file (128 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/app/(auth)/forgot-password/page.tsx:ForgotPasswordPage",
+      "name": "ForgotPasswordPage",
+      "type": "function",
+      "filePath": "src/app/(auth)/forgot-password/page.tsx",
+      "parentId": "file:src/app/(auth)/forgot-password/page.tsx",
+      "summary": "Function ForgotPasswordPage",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app/(auth)/login/AdminLogin.tsx",
+      "name": "AdminLogin.tsx",
+      "type": "file",
+      "filePath": "src/app/(auth)/login/AdminLogin.tsx",
+      "summary": "typescript code file (196 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/app/(auth)/login/AdminLogin.tsx:AdminLogin",
+      "name": "AdminLogin",
+      "type": "function",
+      "filePath": "src/app/(auth)/login/AdminLogin.tsx",
+      "parentId": "file:src/app/(auth)/login/AdminLogin.tsx",
+      "summary": "Function AdminLogin",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app/(auth)/login/CustomerLogin.tsx",
+      "name": "CustomerLogin.tsx",
+      "type": "file",
+      "filePath": "src/app/(auth)/login/CustomerLogin.tsx",
+      "summary": "typescript code file (502 lines)",
+      "complexity": "complex",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/app/(auth)/login/CustomerLogin.tsx:LoginForm",
+      "name": "LoginForm",
+      "type": "function",
+      "filePath": "src/app/(auth)/login/CustomerLogin.tsx",
+      "parentId": "file:src/app/(auth)/login/CustomerLogin.tsx",
+      "summary": "Function LoginForm",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/(auth)/login/CustomerLogin.tsx:LoginPage",
+      "name": "LoginPage",
+      "type": "function",
+      "filePath": "src/app/(auth)/login/CustomerLogin.tsx",
+      "parentId": "file:src/app/(auth)/login/CustomerLogin.tsx",
+      "summary": "Function LoginPage",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app/(auth)/login/page.tsx",
+      "name": "page.tsx",
+      "type": "file",
+      "filePath": "src/app/(auth)/login/page.tsx",
+      "summary": "typescript code file (37 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/app/(auth)/login/page.tsx:LoginPage",
+      "name": "LoginPage",
+      "type": "function",
+      "filePath": "src/app/(auth)/login/page.tsx",
+      "parentId": "file:src/app/(auth)/login/page.tsx",
+      "summary": "Function LoginPage",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app/(auth)/reset-password/page.tsx",
+      "name": "page.tsx",
+      "type": "file",
+      "filePath": "src/app/(auth)/reset-password/page.tsx",
+      "summary": "typescript code file (153 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/app/(auth)/reset-password/page.tsx:ResetPasswordForm",
+      "name": "ResetPasswordForm",
+      "type": "function",
+      "filePath": "src/app/(auth)/reset-password/page.tsx",
+      "parentId": "file:src/app/(auth)/reset-password/page.tsx",
+      "summary": "Function ResetPasswordForm",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/(auth)/reset-password/page.tsx:ResetPasswordPage",
+      "name": "ResetPasswordPage",
+      "type": "function",
+      "filePath": "src/app/(auth)/reset-password/page.tsx",
+      "parentId": "file:src/app/(auth)/reset-password/page.tsx",
+      "summary": "Function ResetPasswordPage",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app/(auth)/set-password/page.tsx",
+      "name": "page.tsx",
+      "type": "file",
+      "filePath": "src/app/(auth)/set-password/page.tsx",
+      "summary": "typescript code file (339 lines)",
+      "complexity": "complex",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/app/(auth)/set-password/page.tsx:SetPasswordForm",
+      "name": "SetPasswordForm",
+      "type": "function",
+      "filePath": "src/app/(auth)/set-password/page.tsx",
+      "parentId": "file:src/app/(auth)/set-password/page.tsx",
+      "summary": "Function SetPasswordForm",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/(auth)/set-password/page.tsx:SetPasswordPage",
+      "name": "SetPasswordPage",
+      "type": "function",
+      "filePath": "src/app/(auth)/set-password/page.tsx",
+      "parentId": "file:src/app/(auth)/set-password/page.tsx",
+      "summary": "Function SetPasswordPage",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app/(auth)/signup/page.tsx",
+      "name": "page.tsx",
+      "type": "file",
+      "filePath": "src/app/(auth)/signup/page.tsx",
+      "summary": "typescript code file (575 lines)",
+      "complexity": "complex",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/app/(auth)/signup/page.tsx:SignUpPage",
+      "name": "SignUpPage",
+      "type": "function",
+      "filePath": "src/app/(auth)/signup/page.tsx",
+      "parentId": "file:src/app/(auth)/signup/page.tsx",
+      "summary": "Function SignUpPage",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app/(policies)/cancellation-policy/page.tsx",
+      "name": "page.tsx",
+      "type": "file",
+      "filePath": "src/app/(policies)/cancellation-policy/page.tsx",
+      "summary": "typescript code file (108 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/app/(policies)/cancellation-policy/page.tsx:CancellationPolicyPage",
+      "name": "CancellationPolicyPage",
+      "type": "function",
+      "filePath": "src/app/(policies)/cancellation-policy/page.tsx",
+      "parentId": "file:src/app/(policies)/cancellation-policy/page.tsx",
+      "summary": "Function CancellationPolicyPage",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app/(policies)/data-deletion/page.tsx",
+      "name": "page.tsx",
+      "type": "file",
+      "filePath": "src/app/(policies)/data-deletion/page.tsx",
+      "summary": "typescript code file (216 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/app/(policies)/data-deletion/page.tsx:DataDeletionPage",
+      "name": "DataDeletionPage",
+      "type": "function",
+      "filePath": "src/app/(policies)/data-deletion/page.tsx",
+      "parentId": "file:src/app/(policies)/data-deletion/page.tsx",
+      "summary": "Function DataDeletionPage",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app/(policies)/privacy-policy/page.tsx",
+      "name": "page.tsx",
+      "type": "file",
+      "filePath": "src/app/(policies)/privacy-policy/page.tsx",
+      "summary": "typescript code file (274 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/app/(policies)/privacy-policy/page.tsx:PrivacyPolicyPage",
+      "name": "PrivacyPolicyPage",
+      "type": "function",
+      "filePath": "src/app/(policies)/privacy-policy/page.tsx",
+      "parentId": "file:src/app/(policies)/privacy-policy/page.tsx",
+      "summary": "Function PrivacyPolicyPage",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app/(policies)/return-policy/page.tsx",
+      "name": "page.tsx",
+      "type": "file",
+      "filePath": "src/app/(policies)/return-policy/page.tsx",
+      "summary": "typescript code file (134 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/app/(policies)/return-policy/page.tsx:ReturnPolicyPage",
+      "name": "ReturnPolicyPage",
+      "type": "function",
+      "filePath": "src/app/(policies)/return-policy/page.tsx",
+      "parentId": "file:src/app/(policies)/return-policy/page.tsx",
+      "summary": "Function ReturnPolicyPage",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app/(policies)/shipping-policy/page.tsx",
+      "name": "page.tsx",
+      "type": "file",
+      "filePath": "src/app/(policies)/shipping-policy/page.tsx",
+      "summary": "typescript code file (119 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/app/(policies)/shipping-policy/page.tsx:ShippingPolicyPage",
+      "name": "ShippingPolicyPage",
+      "type": "function",
+      "filePath": "src/app/(policies)/shipping-policy/page.tsx",
+      "parentId": "file:src/app/(policies)/shipping-policy/page.tsx",
+      "summary": "Function ShippingPolicyPage",
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:scripts/add_statuses.mjs",
+      "target": "function:scripts/add_statuses.mjs:addStatuses",
+      "type": "contains"
+    },
+    {
+      "source": "function:scripts/add_statuses.mjs:addStatuses",
+      "target": "function:scripts/add_statuses.mjs:supabase\r\n      .from('task_statuses')\r\n      .upsert",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/add_statuses.mjs:addStatuses",
+      "target": "function:scripts/add_statuses.mjs:supabase\r\n      .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/add_statuses.mjs:addStatuses",
+      "target": "function:scripts/add_statuses.mjs:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/add_statuses.mjs:addStatuses",
+      "target": "function:scripts/add_statuses.mjs:console.log",
+      "type": "calls"
+    },
+    {
+      "source": "file:scripts/create-admin-public.mjs",
+      "target": "function:scripts/create-admin-public.mjs:signUpAdmin",
+      "type": "contains"
+    },
+    {
+      "source": "function:scripts/create-admin-public.mjs:signUpAdmin",
+      "target": "function:scripts/create-admin-public.mjs:console.log",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/create-admin-public.mjs:signUpAdmin",
+      "target": "function:scripts/create-admin-public.mjs:supabase.auth.signUp",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/create-admin-public.mjs:signUpAdmin",
+      "target": "function:scripts/create-admin-public.mjs:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/create-admin-public.mjs:signUpAdmin",
+      "target": "function:scripts/create-admin-public.mjs:console.log",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/create-admin-public.mjs:signUpAdmin",
+      "target": "function:scripts/create-admin-public.mjs:console.log",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/create-admin-public.mjs:signUpAdmin",
+      "target": "function:scripts/create-admin-public.mjs:console.log",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/create-admin-public.mjs:signUpAdmin",
+      "target": "function:scripts/create-admin-public.mjs:console.log",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/create-admin-public.mjs:signUpAdmin",
+      "target": "function:scripts/create-admin-public.mjs:console.log",
+      "type": "calls"
+    },
+    {
+      "source": "file:scripts/create-admin.mjs",
+      "target": "function:scripts/create-admin.mjs:createAdminUser",
+      "type": "contains"
+    },
+    {
+      "source": "function:scripts/create-admin.mjs:createAdminUser",
+      "target": "function:scripts/create-admin.mjs:console.log",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/create-admin.mjs:createAdminUser",
+      "target": "function:scripts/create-admin.mjs:fetch",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/create-admin.mjs:createAdminUser",
+      "target": "function:scripts/create-admin.mjs:JSON.stringify",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/create-admin.mjs:createAdminUser",
+      "target": "function:scripts/create-admin.mjs:createRes.json",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/create-admin.mjs:createAdminUser",
+      "target": "function:scripts/create-admin.mjs:authUser?.message?.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/create-admin.mjs:createAdminUser",
+      "target": "function:scripts/create-admin.mjs:console.log",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/create-admin.mjs:createAdminUser",
+      "target": "function:scripts/create-admin.mjs:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/create-admin.mjs:createAdminUser",
+      "target": "function:scripts/create-admin.mjs:JSON.stringify",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/create-admin.mjs:createAdminUser",
+      "target": "function:scripts/create-admin.mjs:process.exit",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/create-admin.mjs:createAdminUser",
+      "target": "function:scripts/create-admin.mjs:console.log",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/create-admin.mjs:createAdminUser",
+      "target": "function:scripts/create-admin.mjs:fetch",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/create-admin.mjs:createAdminUser",
+      "target": "function:scripts/create-admin.mjs:listRes.json",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/create-admin.mjs:createAdminUser",
+      "target": "function:scripts/create-admin.mjs:listData?.users?.find",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/create-admin.mjs:createAdminUser",
+      "target": "function:scripts/create-admin.mjs:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/create-admin.mjs:createAdminUser",
+      "target": "function:scripts/create-admin.mjs:process.exit",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/create-admin.mjs:createAdminUser",
+      "target": "function:scripts/create-admin.mjs:console.log",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/create-admin.mjs:createAdminUser",
+      "target": "function:scripts/create-admin.mjs:fetch",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/create-admin.mjs:createAdminUser",
+      "target": "function:scripts/create-admin.mjs:JSON.stringify",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/create-admin.mjs:createAdminUser",
+      "target": "function:scripts/create-admin.mjs:new Date().toISOString",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/create-admin.mjs:createAdminUser",
+      "target": "function:scripts/create-admin.mjs:new Date().toISOString",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/create-admin.mjs:createAdminUser",
+      "target": "function:scripts/create-admin.mjs:upsertRes.text",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/create-admin.mjs:createAdminUser",
+      "target": "function:scripts/create-admin.mjs:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/create-admin.mjs:createAdminUser",
+      "target": "function:scripts/create-admin.mjs:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/create-admin.mjs:createAdminUser",
+      "target": "function:scripts/create-admin.mjs:process.exit",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/create-admin.mjs:createAdminUser",
+      "target": "function:scripts/create-admin.mjs:console.log",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/create-admin.mjs:createAdminUser",
+      "target": "function:scripts/create-admin.mjs:console.log",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/create-admin.mjs:createAdminUser",
+      "target": "function:scripts/create-admin.mjs:console.log",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/create-admin.mjs:createAdminUser",
+      "target": "function:scripts/create-admin.mjs:console.log",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/create-admin.mjs:createAdminUser",
+      "target": "function:scripts/create-admin.mjs:console.log",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/create-admin.mjs:createAdminUser",
+      "target": "function:scripts/create-admin.mjs:console.log",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/create-admin.mjs:createAdminUser",
+      "target": "function:scripts/create-admin.mjs:console.log",
+      "type": "calls"
+    },
+    {
+      "source": "file:scripts/create_test_ticket.ts",
+      "target": "function:scripts/create_test_ticket.ts:main",
+      "type": "contains"
+    },
+    {
+      "source": "function:scripts/create_test_ticket.ts:main",
+      "target": "function:scripts/create_test_ticket.ts:console.log",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/create_test_ticket.ts:main",
+      "target": "function:scripts/create_test_ticket.ts:supabase\n    .from('users')\n    .select('id')\n    .limit",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/create_test_ticket.ts:main",
+      "target": "function:scripts/create_test_ticket.ts:supabase\n    .from('users')\n    .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/create_test_ticket.ts:main",
+      "target": "function:scripts/create_test_ticket.ts:supabase\n    .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/create_test_ticket.ts:main",
+      "target": "function:scripts/create_test_ticket.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/create_test_ticket.ts:main",
+      "target": "function:scripts/create_test_ticket.ts:console.log",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/create_test_ticket.ts:main",
+      "target": "function:scripts/create_test_ticket.ts:console.log",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/create_test_ticket.ts:main",
+      "target": "function:scripts/create_test_ticket.ts:supabase\n    .from('support_tickets')\n    .insert({\n      customer_id: userId,\n      title: 'Test Ticket from Script',\n      description:\n        'This is a test ticket generated via script to verify the support ticket queue functionality.',\n      priority: 'high',\n      source: 'manual',\n      ai_created: false,\n      status: 'new',\n    })\n    .select('id, ticket_number')\n    .single",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/create_test_ticket.ts:main",
+      "target": "function:scripts/create_test_ticket.ts:supabase\n    .from('support_tickets')\n    .insert({\n      customer_id: userId,\n      title: 'Test Ticket from Script',\n      description:\n        'This is a test ticket generated via script to verify the support ticket queue functionality.',\n      priority: 'high',\n      source: 'manual',\n      ai_created: false,\n      status: 'new',\n    })\n    .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/create_test_ticket.ts:main",
+      "target": "function:scripts/create_test_ticket.ts:supabase\n    .from('support_tickets')\n    .insert",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/create_test_ticket.ts:main",
+      "target": "function:scripts/create_test_ticket.ts:supabase\n    .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/create_test_ticket.ts:main",
+      "target": "function:scripts/create_test_ticket.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/create_test_ticket.ts:main",
+      "target": "function:scripts/create_test_ticket.ts:console.log",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/create_test_ticket.ts:main",
+      "target": "function:scripts/create_test_ticket.ts:console.log",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/create_test_ticket.ts:main",
+      "target": "function:scripts/create_test_ticket.ts:supabase\n    .from('support_ticket_messages')\n    .insert",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/create_test_ticket.ts:main",
+      "target": "function:scripts/create_test_ticket.ts:supabase\n    .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/create_test_ticket.ts:main",
+      "target": "function:scripts/create_test_ticket.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/create_test_ticket.ts:main",
+      "target": "function:scripts/create_test_ticket.ts:console.log",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/create_test_ticket.ts:main",
+      "target": "function:scripts/create_test_ticket.ts:supabase.from('support_ticket_audit_log').insert",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/create_test_ticket.ts:main",
+      "target": "function:scripts/create_test_ticket.ts:supabase.from",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/create_test_ticket.ts:main",
+      "target": "function:scripts/create_test_ticket.ts:console.log",
+      "type": "calls"
+    },
+    {
+      "source": "file:scripts/encrypt-credentials.ts",
+      "target": "function:scripts/encrypt-credentials.ts:main",
+      "type": "contains"
+    },
+    {
+      "source": "function:scripts/encrypt-credentials.ts:main",
+      "target": "function:scripts/encrypt-credentials.ts:console.log",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/encrypt-credentials.ts:main",
+      "target": "function:scripts/encrypt-credentials.ts:supabase\n    .from('ai_provider_credentials')\n    .select('id, provider_id, display_name, encrypted_key')\n    .order",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/encrypt-credentials.ts:main",
+      "target": "function:scripts/encrypt-credentials.ts:supabase\n    .from('ai_provider_credentials')\n    .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/encrypt-credentials.ts:main",
+      "target": "function:scripts/encrypt-credentials.ts:supabase\n    .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/encrypt-credentials.ts:main",
+      "target": "function:scripts/encrypt-credentials.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/encrypt-credentials.ts:main",
+      "target": "function:scripts/encrypt-credentials.ts:process.exit",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/encrypt-credentials.ts:main",
+      "target": "function:scripts/encrypt-credentials.ts:console.log",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/encrypt-credentials.ts:main",
+      "target": "function:scripts/encrypt-credentials.ts:credentials.filter",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/encrypt-credentials.ts:main",
+      "target": "function:scripts/encrypt-credentials.ts:c.encrypted_key.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/encrypt-credentials.ts:main",
+      "target": "function:scripts/encrypt-credentials.ts:console.log",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/encrypt-credentials.ts:main",
+      "target": "function:scripts/encrypt-credentials.ts:console.log",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/encrypt-credentials.ts:main",
+      "target": "function:scripts/encrypt-credentials.ts:import",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/encrypt-credentials.ts:main",
+      "target": "function:scripts/encrypt-credentials.ts:encryptApiKey",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/encrypt-credentials.ts:main",
+      "target": "function:scripts/encrypt-credentials.ts:supabase\n      .from('ai_provider_credentials')\n      .update({ encrypted_key: encryptedKey })\n      .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/encrypt-credentials.ts:main",
+      "target": "function:scripts/encrypt-credentials.ts:supabase\n      .from('ai_provider_credentials')\n      .update",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/encrypt-credentials.ts:main",
+      "target": "function:scripts/encrypt-credentials.ts:supabase\n      .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/encrypt-credentials.ts:main",
+      "target": "function:scripts/encrypt-credentials.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/encrypt-credentials.ts:main",
+      "target": "function:scripts/encrypt-credentials.ts:console.log",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/encrypt-credentials.ts:main",
+      "target": "function:scripts/encrypt-credentials.ts:console.log",
+      "type": "calls"
+    },
+    {
+      "source": "file:scripts/test-jwt.mjs",
+      "target": "function:scripts/test-jwt.mjs:assert",
+      "type": "contains"
+    },
+    {
+      "source": "file:scripts/test-jwt.mjs",
+      "target": "function:scripts/test-jwt.mjs:runTests",
+      "type": "contains"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:assert",
+      "target": "function:scripts/test-jwt.mjs:console.log",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:assert",
+      "target": "function:scripts/test-jwt.mjs:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:runTests",
+      "target": "function:scripts/test-jwt.mjs:console.log",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:runTests",
+      "target": "function:scripts/test-jwt.mjs:assert",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:runTests",
+      "target": "function:scripts/test-jwt.mjs:assert",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:runTests",
+      "target": "function:scripts/test-jwt.mjs:assert",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:runTests",
+      "target": "function:scripts/test-jwt.mjs:console.log",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:runTests",
+      "target": "function:scripts/test-jwt.mjs:new TextEncoder().encode",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:runTests",
+      "target": "function:scripts/test-jwt.mjs:Math.floor",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:runTests",
+      "target": "function:scripts/test-jwt.mjs:Date.now",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:runTests",
+      "target": "function:scripts/test-jwt.mjs:console.log",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:runTests",
+      "target": "function:scripts/test-jwt.mjs:new SignJWT({\n    sub: testUserId,\n    email: testEmail,\n    firebase_uid: testFirebaseUid,\n    name: 'Customer Test',\n    phone: '+919876543210',\n  })\n    .setProtectedHeader({ alg: 'HS256' })\n    .setIssuedAt(now)\n    .setExpirationTime(now + expiresInSeconds)\n    .sign",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:runTests",
+      "target": "function:scripts/test-jwt.mjs:new SignJWT({\n    sub: testUserId,\n    email: testEmail,\n    firebase_uid: testFirebaseUid,\n    name: 'Customer Test',\n    phone: '+919876543210',\n  })\n    .setProtectedHeader({ alg: 'HS256' })\n    .setIssuedAt(now)\n    .setExpirationTime",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:runTests",
+      "target": "function:scripts/test-jwt.mjs:new SignJWT({\n    sub: testUserId,\n    email: testEmail,\n    firebase_uid: testFirebaseUid,\n    name: 'Customer Test',\n    phone: '+919876543210',\n  })\n    .setProtectedHeader({ alg: 'HS256' })\n    .setIssuedAt",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:runTests",
+      "target": "function:scripts/test-jwt.mjs:new SignJWT({\n    sub: testUserId,\n    email: testEmail,\n    firebase_uid: testFirebaseUid,\n    name: 'Customer Test',\n    phone: '+919876543210',\n  })\n    .setProtectedHeader",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:runTests",
+      "target": "function:scripts/test-jwt.mjs:assert",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:runTests",
+      "target": "function:scripts/test-jwt.mjs:sessionToken.split",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:runTests",
+      "target": "function:scripts/test-jwt.mjs:jwtVerify",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:runTests",
+      "target": "function:scripts/test-jwt.mjs:assert",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:runTests",
+      "target": "function:scripts/test-jwt.mjs:assert",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:runTests",
+      "target": "function:scripts/test-jwt.mjs:assert",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:runTests",
+      "target": "function:scripts/test-jwt.mjs:assert",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:runTests",
+      "target": "function:scripts/test-jwt.mjs:assert",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:runTests",
+      "target": "function:scripts/test-jwt.mjs:console.log",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:runTests",
+      "target": "function:scripts/test-jwt.mjs:console.log",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:runTests",
+      "target": "function:scripts/test-jwt.mjs:new SignJWT({ sub: testUserId })\n    .setProtectedHeader({ alg: 'HS256' })\n    .setIssuedAt(now - 3600)\n    .setExpirationTime(now - 60) // Expired 1 minute ago\n    .sign",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:runTests",
+      "target": "function:scripts/test-jwt.mjs:new SignJWT({ sub: testUserId })\n    .setProtectedHeader({ alg: 'HS256' })\n    .setIssuedAt(now - 3600)\n    .setExpirationTime",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:runTests",
+      "target": "function:scripts/test-jwt.mjs:new SignJWT({ sub: testUserId })\n    .setProtectedHeader({ alg: 'HS256' })\n    .setIssuedAt",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:runTests",
+      "target": "function:scripts/test-jwt.mjs:new SignJWT({ sub: testUserId })\n    .setProtectedHeader",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:runTests",
+      "target": "function:scripts/test-jwt.mjs:jwtVerify",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:runTests",
+      "target": "function:scripts/test-jwt.mjs:assert",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:runTests",
+      "target": "function:scripts/test-jwt.mjs:sessionToken.split",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:runTests",
+      "target": "function:scripts/test-jwt.mjs:Buffer.from(JSON.stringify({ sub: 'attacker-uuid', exp: now + 99999 })).toString",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:runTests",
+      "target": "function:scripts/test-jwt.mjs:Buffer.from",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:runTests",
+      "target": "function:scripts/test-jwt.mjs:JSON.stringify",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:runTests",
+      "target": "function:scripts/test-jwt.mjs:jwtVerify",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:runTests",
+      "target": "function:scripts/test-jwt.mjs:assert",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:runTests",
+      "target": "function:scripts/test-jwt.mjs:new SignJWT({ sub: testUserId })\n    .setProtectedHeader({ alg: 'HS512' })\n    .setIssuedAt(now)\n    .setExpirationTime(now + 3600)\n    .sign",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:runTests",
+      "target": "function:scripts/test-jwt.mjs:new SignJWT({ sub: testUserId })\n    .setProtectedHeader({ alg: 'HS512' })\n    .setIssuedAt(now)\n    .setExpirationTime",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:runTests",
+      "target": "function:scripts/test-jwt.mjs:new SignJWT({ sub: testUserId })\n    .setProtectedHeader({ alg: 'HS512' })\n    .setIssuedAt",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:runTests",
+      "target": "function:scripts/test-jwt.mjs:new SignJWT({ sub: testUserId })\n    .setProtectedHeader",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:runTests",
+      "target": "function:scripts/test-jwt.mjs:jwtVerify",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:runTests",
+      "target": "function:scripts/test-jwt.mjs:assert",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:runTests",
+      "target": "function:scripts/test-jwt.mjs:new TextEncoder().encode",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:runTests",
+      "target": "function:scripts/test-jwt.mjs:jwtVerify",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:runTests",
+      "target": "function:scripts/test-jwt.mjs:assert",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:runTests",
+      "target": "function:scripts/test-jwt.mjs:console.log",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:runTests",
+      "target": "function:scripts/test-jwt.mjs:console.log",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:runTests",
+      "target": "function:scripts/test-jwt.mjs:new SignJWT({\n    iss: 'supabase',\n    sub: testUserId,\n    firebase_uid: testFirebaseUid,\n    aud: 'authenticated',\n    role: 'authenticated',\n    email: testEmail,\n    phone: '+919876543210',\n    app_metadata: { provider: 'firebase' },\n    user_metadata: {\n      email: testEmail,\n      phone: '+919876543210',\n    },\n  })\n    .setProtectedHeader({ alg: 'HS256', typ: 'JWT' })\n    .setIssuedAt(now)\n    .setExpirationTime(now + 3600)\n    .sign",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:runTests",
+      "target": "function:scripts/test-jwt.mjs:new SignJWT({\n    iss: 'supabase',\n    sub: testUserId,\n    firebase_uid: testFirebaseUid,\n    aud: 'authenticated',\n    role: 'authenticated',\n    email: testEmail,\n    phone: '+919876543210',\n    app_metadata: { provider: 'firebase' },\n    user_metadata: {\n      email: testEmail,\n      phone: '+919876543210',\n    },\n  })\n    .setProtectedHeader({ alg: 'HS256', typ: 'JWT' })\n    .setIssuedAt(now)\n    .setExpirationTime",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:runTests",
+      "target": "function:scripts/test-jwt.mjs:new SignJWT({\n    iss: 'supabase',\n    sub: testUserId,\n    firebase_uid: testFirebaseUid,\n    aud: 'authenticated',\n    role: 'authenticated',\n    email: testEmail,\n    phone: '+919876543210',\n    app_metadata: { provider: 'firebase' },\n    user_metadata: {\n      email: testEmail,\n      phone: '+919876543210',\n    },\n  })\n    .setProtectedHeader({ alg: 'HS256', typ: 'JWT' })\n    .setIssuedAt",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:runTests",
+      "target": "function:scripts/test-jwt.mjs:new SignJWT({\n    iss: 'supabase',\n    sub: testUserId,\n    firebase_uid: testFirebaseUid,\n    aud: 'authenticated',\n    role: 'authenticated',\n    email: testEmail,\n    phone: '+919876543210',\n    app_metadata: { provider: 'firebase' },\n    user_metadata: {\n      email: testEmail,\n      phone: '+919876543210',\n    },\n  })\n    .setProtectedHeader",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:runTests",
+      "target": "function:scripts/test-jwt.mjs:jwtVerify",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:runTests",
+      "target": "function:scripts/test-jwt.mjs:assert",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:runTests",
+      "target": "function:scripts/test-jwt.mjs:assert",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:runTests",
+      "target": "function:scripts/test-jwt.mjs:assert",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:runTests",
+      "target": "function:scripts/test-jwt.mjs:assert",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:runTests",
+      "target": "function:scripts/test-jwt.mjs:assert",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:runTests",
+      "target": "function:scripts/test-jwt.mjs:assert",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:runTests",
+      "target": "function:scripts/test-jwt.mjs:assert",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:runTests",
+      "target": "function:scripts/test-jwt.mjs:console.log",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:runTests",
+      "target": "function:scripts/test-jwt.mjs:console.log",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:formatPrivateKey",
+      "target": "function:scripts/test-jwt.mjs:key.trim",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:formatPrivateKey",
+      "target": "function:scripts/test-jwt.mjs:cleaned.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:formatPrivateKey",
+      "target": "function:scripts/test-jwt.mjs:cleaned.endsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:formatPrivateKey",
+      "target": "function:scripts/test-jwt.mjs:cleaned.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:formatPrivateKey",
+      "target": "function:scripts/test-jwt.mjs:cleaned.endsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:formatPrivateKey",
+      "target": "function:scripts/test-jwt.mjs:cleaned.slice",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:formatPrivateKey",
+      "target": "function:scripts/test-jwt.mjs:cleaned.replace(/\\\\n/g, '\\n').trim",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:formatPrivateKey",
+      "target": "function:scripts/test-jwt.mjs:cleaned.replace",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:formatPrivateKey",
+      "target": "function:scripts/test-jwt.mjs:cleaned.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:runTests",
+      "target": "function:scripts/test-jwt.mjs:formatPrivateKey",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:runTests",
+      "target": "function:scripts/test-jwt.mjs:importPKCS8",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:runTests",
+      "target": "function:scripts/test-jwt.mjs:new SignJWT({ uid: testUserId, claims: {} })\n    .setProtectedHeader({ alg: 'RS256', typ: 'JWT' })\n    .setIssuer(FIREBASE_CLIENT_EMAIL)\n    .setSubject(FIREBASE_CLIENT_EMAIL)\n    .setAudience('https://identitytoolkit.googleapis.com/google.identity.identitytoolkit.v1.IdentityToolkit')\n    .setIssuedAt(now)\n    .setExpirationTime(now + 3600)\n    .sign",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:runTests",
+      "target": "function:scripts/test-jwt.mjs:new SignJWT({ uid: testUserId, claims: {} })\n    .setProtectedHeader({ alg: 'RS256', typ: 'JWT' })\n    .setIssuer(FIREBASE_CLIENT_EMAIL)\n    .setSubject(FIREBASE_CLIENT_EMAIL)\n    .setAudience('https://identitytoolkit.googleapis.com/google.identity.identitytoolkit.v1.IdentityToolkit')\n    .setIssuedAt(now)\n    .setExpirationTime",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:runTests",
+      "target": "function:scripts/test-jwt.mjs:new SignJWT({ uid: testUserId, claims: {} })\n    .setProtectedHeader({ alg: 'RS256', typ: 'JWT' })\n    .setIssuer(FIREBASE_CLIENT_EMAIL)\n    .setSubject(FIREBASE_CLIENT_EMAIL)\n    .setAudience('https://identitytoolkit.googleapis.com/google.identity.identitytoolkit.v1.IdentityToolkit')\n    .setIssuedAt",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:runTests",
+      "target": "function:scripts/test-jwt.mjs:new SignJWT({ uid: testUserId, claims: {} })\n    .setProtectedHeader({ alg: 'RS256', typ: 'JWT' })\n    .setIssuer(FIREBASE_CLIENT_EMAIL)\n    .setSubject(FIREBASE_CLIENT_EMAIL)\n    .setAudience",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:runTests",
+      "target": "function:scripts/test-jwt.mjs:new SignJWT({ uid: testUserId, claims: {} })\n    .setProtectedHeader({ alg: 'RS256', typ: 'JWT' })\n    .setIssuer(FIREBASE_CLIENT_EMAIL)\n    .setSubject",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:runTests",
+      "target": "function:scripts/test-jwt.mjs:new SignJWT({ uid: testUserId, claims: {} })\n    .setProtectedHeader({ alg: 'RS256', typ: 'JWT' })\n    .setIssuer",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:runTests",
+      "target": "function:scripts/test-jwt.mjs:new SignJWT({ uid: testUserId, claims: {} })\n    .setProtectedHeader",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:runTests",
+      "target": "function:scripts/test-jwt.mjs:assert",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:runTests",
+      "target": "function:scripts/test-jwt.mjs:fbCustomToken.split",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:runTests",
+      "target": "function:scripts/test-jwt.mjs:decodeJwt",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:runTests",
+      "target": "function:scripts/test-jwt.mjs:assert",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:runTests",
+      "target": "function:scripts/test-jwt.mjs:assert",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:runTests",
+      "target": "function:scripts/test-jwt.mjs:assert",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:runTests",
+      "target": "function:scripts/test-jwt.mjs:assert",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:runTests",
+      "target": "function:scripts/test-jwt.mjs:assert",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:runTests",
+      "target": "function:scripts/test-jwt.mjs:console.log",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:runTests",
+      "target": "function:scripts/test-jwt.mjs:console.log",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:runTests",
+      "target": "function:scripts/test-jwt.mjs:console.log",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-jwt.mjs:runTests",
+      "target": "function:scripts/test-jwt.mjs:console.log",
+      "type": "calls"
+    },
+    {
+      "source": "file:scripts/test-login.mjs",
+      "target": "function:scripts/test-login.mjs:testLogin",
+      "type": "contains"
+    },
+    {
+      "source": "function:scripts/test-login.mjs:testLogin",
+      "target": "function:scripts/test-login.mjs:supabase.auth.signInWithPassword",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-login.mjs:testLogin",
+      "target": "function:scripts/test-login.mjs:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:scripts/test-login.mjs:testLogin",
+      "target": "function:scripts/test-login.mjs:console.log",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/app/(auth)/complete-profile/page.tsx",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:CompleteProfilePage",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:CompleteProfilePage",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:useRouter",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:CompleteProfilePage",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:useSearchParams",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:CompleteProfilePage",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:searchParams.get",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:CompleteProfilePage",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:CompleteProfilePage",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:CompleteProfilePage",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:CompleteProfilePage",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:CompleteProfilePage",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:CompleteProfilePage",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:CompleteProfilePage",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:CompleteProfilePage",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:CompleteProfilePage",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:CompleteProfilePage",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:CompleteProfilePage",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:CompleteProfilePage",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:CompleteProfilePage",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:CompleteProfilePage",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:CompleteProfilePage",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:CompleteProfilePage",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:useEffect",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:CompleteProfilePage",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:(window as any).recaptchaVerifier.clear",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:CompleteProfilePage",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:useEffect",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:CompleteProfilePage",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:onAuthStateChanged",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:CompleteProfilePage",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:setUser",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:CompleteProfilePage",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:currentUser.providerData.some",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:CompleteProfilePage",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:currentUser.providerData.some",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:CompleteProfilePage",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:currentUser.providerData.some",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:CompleteProfilePage",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:createClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:CompleteProfilePage",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:supabase\n            .rpc('get_user_profile', { p_user_id: currentUser.uid })\n            .limit(1)\n            .maybeSingle",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:CompleteProfilePage",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:supabase\n            .rpc('get_user_profile', { p_user_id: currentUser.uid })\n            .limit",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:CompleteProfilePage",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:supabase\n            .rpc",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:CompleteProfilePage",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:Array.isArray",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:CompleteProfilePage",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:CompleteProfilePage",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:currentUser.providerData.some",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:CompleteProfilePage",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:toast.success",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:CompleteProfilePage",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:router.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:CompleteProfilePage",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:setMissingEmail",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:CompleteProfilePage",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:setMissingPhone",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:CompleteProfilePage",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:setMissingPassword",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:CompleteProfilePage",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:setEmail",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:CompleteProfilePage",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:setLoading",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:CompleteProfilePage",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:router.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:CompleteProfilePage",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:encodeURIComponent",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:CompleteProfilePage",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:unsubscribe",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:handleSendOtp",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:setError",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:handleSendOtp",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:setSubmitting",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:handleSendOtp",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:setError",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:handleSendOtp",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:phone.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:handleSendOtp",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:phone.replace(/\\D/g, '').slice",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:handleSendOtp",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:phone.replace",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:handleSendOtp",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:(window as any).recaptchaVerifier.clear",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:handleSendOtp",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:document.getElementById",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:handleSendOtp",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:linkWithPhoneNumber",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:handleSendOtp",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:setConfirmationResult",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:handleSendOtp",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:setShowOtpInput",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:handleSendOtp",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:setMessage",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:handleSendOtp",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:handleSendOtp",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:setError",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:handleSendOtp",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:setSubmitting",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:handleSubmit",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:e.preventDefault",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:handleSubmit",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:setSubmitting",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:handleSubmit",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:setError",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:handleSubmit",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:setMessage",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:handleSubmit",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:PhoneAuthProvider.credential",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:handleSubmit",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:linkWithCredential",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:handleSubmit",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:handleSendOtp",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:handleSubmit",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:EmailAuthProvider.credential",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:handleSubmit",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:linkWithCredential",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:handleSubmit",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:updatedUser.getIdToken",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:handleSubmit",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:upsertUserProfile",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:handleSubmit",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:createClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:handleSubmit",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:supabase.rpc",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:handleSubmit",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:setMessage",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:handleSubmit",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:toast.success",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:handleSubmit",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:setTimeout",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:handleSubmit",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:router.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:handleSubmit",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:router.refresh",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:handleSubmit",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:handleSubmit",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:setError",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:handleSubmit",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:toast.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:handleSubmit",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:setSubmitting",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:CompleteProfilePage",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:setEmail",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:CompleteProfilePage",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:setPhone",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:CompleteProfilePage",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:setOtp",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:CompleteProfilePage",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:setShowOtpInput",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:CompleteProfilePage",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:setOtp",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:CompleteProfilePage",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:setMessage",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:CompleteProfilePage",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:setPassword",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:CompleteProfilePage",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:setShowPassword",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:CompleteProfilePage",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:router.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/complete-profile/page.tsx:CompleteProfilePage",
+      "target": "function:src/app/(auth)/complete-profile/page.tsx:router.refresh",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/app/(auth)/forgot-password/page.tsx",
+      "target": "function:src/app/(auth)/forgot-password/page.tsx:ForgotPasswordPage",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/app/(auth)/forgot-password/page.tsx:ForgotPasswordPage",
+      "target": "function:src/app/(auth)/forgot-password/page.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/forgot-password/page.tsx:ForgotPasswordPage",
+      "target": "function:src/app/(auth)/forgot-password/page.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/forgot-password/page.tsx:ForgotPasswordPage",
+      "target": "function:src/app/(auth)/forgot-password/page.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/forgot-password/page.tsx:ForgotPasswordPage",
+      "target": "function:src/app/(auth)/forgot-password/page.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/forgot-password/page.tsx:handleReset",
+      "target": "function:src/app/(auth)/forgot-password/page.tsx:e.preventDefault",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/forgot-password/page.tsx:handleReset",
+      "target": "function:src/app/(auth)/forgot-password/page.tsx:setLoading",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/forgot-password/page.tsx:handleReset",
+      "target": "function:src/app/(auth)/forgot-password/page.tsx:setError",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/forgot-password/page.tsx:handleReset",
+      "target": "function:src/app/(auth)/forgot-password/page.tsx:setMessage",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/forgot-password/page.tsx:handleReset",
+      "target": "function:src/app/(auth)/forgot-password/page.tsx:fetch",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/forgot-password/page.tsx:handleReset",
+      "target": "function:src/app/(auth)/forgot-password/page.tsx:JSON.stringify",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/forgot-password/page.tsx:handleReset",
+      "target": "function:src/app/(auth)/forgot-password/page.tsx:res.headers.get",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/forgot-password/page.tsx:handleReset",
+      "target": "function:src/app/(auth)/forgot-password/page.tsx:contentType.indexOf",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/forgot-password/page.tsx:handleReset",
+      "target": "function:src/app/(auth)/forgot-password/page.tsx:res.json",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/forgot-password/page.tsx:handleReset",
+      "target": "function:src/app/(auth)/forgot-password/page.tsx:res.text",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/forgot-password/page.tsx:handleReset",
+      "target": "function:src/app/(auth)/forgot-password/page.tsx:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/forgot-password/page.tsx:handleReset",
+      "target": "function:src/app/(auth)/forgot-password/page.tsx:setMessage",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/forgot-password/page.tsx:handleReset",
+      "target": "function:src/app/(auth)/forgot-password/page.tsx:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/forgot-password/page.tsx:handleReset",
+      "target": "function:src/app/(auth)/forgot-password/page.tsx:setError",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/forgot-password/page.tsx:handleReset",
+      "target": "function:src/app/(auth)/forgot-password/page.tsx:setLoading",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/forgot-password/page.tsx:ForgotPasswordPage",
+      "target": "function:src/app/(auth)/forgot-password/page.tsx:setEmail",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/app/(auth)/login/AdminLogin.tsx",
+      "target": "function:src/app/(auth)/login/AdminLogin.tsx:AdminLogin",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/app/(auth)/login/AdminLogin.tsx:AdminLogin",
+      "target": "function:src/app/(auth)/login/AdminLogin.tsx:useRouter",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/AdminLogin.tsx:AdminLogin",
+      "target": "function:src/app/(auth)/login/AdminLogin.tsx:useSearchParams",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/AdminLogin.tsx:AdminLogin",
+      "target": "function:src/app/(auth)/login/AdminLogin.tsx:searchParams.get",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/AdminLogin.tsx:AdminLogin",
+      "target": "function:src/app/(auth)/login/AdminLogin.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/AdminLogin.tsx:AdminLogin",
+      "target": "function:src/app/(auth)/login/AdminLogin.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/AdminLogin.tsx:AdminLogin",
+      "target": "function:src/app/(auth)/login/AdminLogin.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/AdminLogin.tsx:AdminLogin",
+      "target": "function:src/app/(auth)/login/AdminLogin.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/AdminLogin.tsx:AdminLogin",
+      "target": "function:src/app/(auth)/login/AdminLogin.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/AdminLogin.tsx:handleLogin",
+      "target": "function:src/app/(auth)/login/AdminLogin.tsx:e.preventDefault",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/AdminLogin.tsx:handleLogin",
+      "target": "function:src/app/(auth)/login/AdminLogin.tsx:setLoading",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/AdminLogin.tsx:handleLogin",
+      "target": "function:src/app/(auth)/login/AdminLogin.tsx:setError",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/AdminLogin.tsx:handleLogin",
+      "target": "function:src/app/(auth)/login/AdminLogin.tsx:signInWithEmail",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/AdminLogin.tsx:handleLogin",
+      "target": "function:src/app/(auth)/login/AdminLogin.tsx:upsertUserProfile",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/AdminLogin.tsx:handleLogin",
+      "target": "function:src/app/(auth)/login/AdminLogin.tsx:import",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/AdminLogin.tsx:handleLogin",
+      "target": "function:src/app/(auth)/login/AdminLogin.tsx:createClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/AdminLogin.tsx:handleLogin",
+      "target": "function:src/app/(auth)/login/AdminLogin.tsx:supabase\n        .rpc('get_user_profile', { p_user_id: fbUser.uid })\n        .maybeSingle",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/AdminLogin.tsx:handleLogin",
+      "target": "function:src/app/(auth)/login/AdminLogin.tsx:supabase\n        .rpc",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/AdminLogin.tsx:handleLogin",
+      "target": "function:src/app/(auth)/login/AdminLogin.tsx:[\n        'admin',\n        'manager',\n        'staff',\n        'super_admin',\n        'SUPER_ADMIN',\n      ].includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/AdminLogin.tsx:handleLogin",
+      "target": "function:src/app/(auth)/login/AdminLogin.tsx:import",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/AdminLogin.tsx:handleLogin",
+      "target": "function:src/app/(auth)/login/AdminLogin.tsx:firebaseSignOut",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/AdminLogin.tsx:handleLogin",
+      "target": "function:src/app/(auth)/login/AdminLogin.tsx:router.refresh",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/AdminLogin.tsx:handleLogin",
+      "target": "function:src/app/(auth)/login/AdminLogin.tsx:setTimeout",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/AdminLogin.tsx:handleLogin",
+      "target": "function:src/app/(auth)/login/AdminLogin.tsx:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/AdminLogin.tsx:handleLogin",
+      "target": "function:src/app/(auth)/login/AdminLogin.tsx:setError",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/AdminLogin.tsx:handleLogin",
+      "target": "function:src/app/(auth)/login/AdminLogin.tsx:setLoading",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/AdminLogin.tsx:AdminLogin",
+      "target": "function:src/app/(auth)/login/AdminLogin.tsx:setEmail",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/AdminLogin.tsx:AdminLogin",
+      "target": "function:src/app/(auth)/login/AdminLogin.tsx:setPassword",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/AdminLogin.tsx:AdminLogin",
+      "target": "function:src/app/(auth)/login/AdminLogin.tsx:setShowPassword",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/app/(auth)/login/CustomerLogin.tsx",
+      "target": "function:src/app/(auth)/login/CustomerLogin.tsx:LoginForm",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/app/(auth)/login/CustomerLogin.tsx",
+      "target": "function:src/app/(auth)/login/CustomerLogin.tsx:LoginPage",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/app/(auth)/login/CustomerLogin.tsx:LoginForm",
+      "target": "function:src/app/(auth)/login/CustomerLogin.tsx:useRouter",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/CustomerLogin.tsx:LoginForm",
+      "target": "function:src/app/(auth)/login/CustomerLogin.tsx:useSearchParams",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/CustomerLogin.tsx:LoginForm",
+      "target": "function:src/app/(auth)/login/CustomerLogin.tsx:searchParams.get",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/CustomerLogin.tsx:LoginForm",
+      "target": "function:src/app/(auth)/login/CustomerLogin.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/CustomerLogin.tsx:LoginForm",
+      "target": "function:src/app/(auth)/login/CustomerLogin.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/CustomerLogin.tsx:LoginForm",
+      "target": "function:src/app/(auth)/login/CustomerLogin.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/CustomerLogin.tsx:LoginForm",
+      "target": "function:src/app/(auth)/login/CustomerLogin.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/CustomerLogin.tsx:LoginForm",
+      "target": "function:src/app/(auth)/login/CustomerLogin.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/CustomerLogin.tsx:LoginForm",
+      "target": "function:src/app/(auth)/login/CustomerLogin.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/CustomerLogin.tsx:LoginForm",
+      "target": "function:src/app/(auth)/login/CustomerLogin.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/CustomerLogin.tsx:LoginForm",
+      "target": "function:src/app/(auth)/login/CustomerLogin.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/CustomerLogin.tsx:LoginForm",
+      "target": "function:src/app/(auth)/login/CustomerLogin.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/CustomerLogin.tsx:LoginForm",
+      "target": "function:src/app/(auth)/login/CustomerLogin.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/CustomerLogin.tsx:LoginForm",
+      "target": "function:src/app/(auth)/login/CustomerLogin.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/CustomerLogin.tsx:LoginForm",
+      "target": "function:src/app/(auth)/login/CustomerLogin.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/CustomerLogin.tsx:LoginForm",
+      "target": "function:src/app/(auth)/login/CustomerLogin.tsx:useEffect",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/CustomerLogin.tsx:LoginForm",
+      "target": "function:src/app/(auth)/login/CustomerLogin.tsx:setIsAdminHost",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/CustomerLogin.tsx:LoginForm",
+      "target": "function:src/app/(auth)/login/CustomerLogin.tsx:window.location.hostname.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/CustomerLogin.tsx:handleEmailLogin",
+      "target": "function:src/app/(auth)/login/CustomerLogin.tsx:e.preventDefault",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/CustomerLogin.tsx:handleEmailLogin",
+      "target": "function:src/app/(auth)/login/CustomerLogin.tsx:setLoading",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/CustomerLogin.tsx:handleEmailLogin",
+      "target": "function:src/app/(auth)/login/CustomerLogin.tsx:setError",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/CustomerLogin.tsx:handleEmailLogin",
+      "target": "function:src/app/(auth)/login/CustomerLogin.tsx:setMessage",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/CustomerLogin.tsx:handleEmailLogin",
+      "target": "function:src/app/(auth)/login/CustomerLogin.tsx:signInWithEmail",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/CustomerLogin.tsx:handleEmailLogin",
+      "target": "function:src/app/(auth)/login/CustomerLogin.tsx:setMessage",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/CustomerLogin.tsx:handleEmailLogin",
+      "target": "function:src/app/(auth)/login/CustomerLogin.tsx:router.refresh",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/CustomerLogin.tsx:handleEmailLogin",
+      "target": "function:src/app/(auth)/login/CustomerLogin.tsx:setTimeout",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/CustomerLogin.tsx:handleEmailLogin",
+      "target": "function:src/app/(auth)/login/CustomerLogin.tsx:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/CustomerLogin.tsx:handleEmailLogin",
+      "target": "function:src/app/(auth)/login/CustomerLogin.tsx:setError",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/CustomerLogin.tsx:handleEmailLogin",
+      "target": "function:src/app/(auth)/login/CustomerLogin.tsx:setLoading",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/CustomerLogin.tsx:handleSendOtp",
+      "target": "function:src/app/(auth)/login/CustomerLogin.tsx:e.preventDefault",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/CustomerLogin.tsx:handleSendOtp",
+      "target": "function:src/app/(auth)/login/CustomerLogin.tsx:setLoading",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/CustomerLogin.tsx:handleSendOtp",
+      "target": "function:src/app/(auth)/login/CustomerLogin.tsx:setError",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/CustomerLogin.tsx:handleSendOtp",
+      "target": "function:src/app/(auth)/login/CustomerLogin.tsx:setMessage",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/CustomerLogin.tsx:handleSendOtp",
+      "target": "function:src/app/(auth)/login/CustomerLogin.tsx:phone.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/CustomerLogin.tsx:handleSendOtp",
+      "target": "function:src/app/(auth)/login/CustomerLogin.tsx:phone.replace(/\\D/g, '').slice",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/CustomerLogin.tsx:handleSendOtp",
+      "target": "function:src/app/(auth)/login/CustomerLogin.tsx:phone.replace",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/CustomerLogin.tsx:handleSendOtp",
+      "target": "function:src/app/(auth)/login/CustomerLogin.tsx:sendPhoneVerification",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/CustomerLogin.tsx:handleSendOtp",
+      "target": "function:src/app/(auth)/login/CustomerLogin.tsx:setConfirmationResult",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/CustomerLogin.tsx:handleSendOtp",
+      "target": "function:src/app/(auth)/login/CustomerLogin.tsx:setShowOtpInput",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/CustomerLogin.tsx:handleSendOtp",
+      "target": "function:src/app/(auth)/login/CustomerLogin.tsx:setMessage",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/CustomerLogin.tsx:handleSendOtp",
+      "target": "function:src/app/(auth)/login/CustomerLogin.tsx:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/CustomerLogin.tsx:handleSendOtp",
+      "target": "function:src/app/(auth)/login/CustomerLogin.tsx:setError",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/CustomerLogin.tsx:handleSendOtp",
+      "target": "function:src/app/(auth)/login/CustomerLogin.tsx:setLoading",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/CustomerLogin.tsx:handleVerifyOtp",
+      "target": "function:src/app/(auth)/login/CustomerLogin.tsx:e.preventDefault",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/CustomerLogin.tsx:handleVerifyOtp",
+      "target": "function:src/app/(auth)/login/CustomerLogin.tsx:setLoading",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/CustomerLogin.tsx:handleVerifyOtp",
+      "target": "function:src/app/(auth)/login/CustomerLogin.tsx:setError",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/CustomerLogin.tsx:handleVerifyOtp",
+      "target": "function:src/app/(auth)/login/CustomerLogin.tsx:verifyPhoneCode",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/CustomerLogin.tsx:handleVerifyOtp",
+      "target": "function:src/app/(auth)/login/CustomerLogin.tsx:setMessage",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/CustomerLogin.tsx:handleVerifyOtp",
+      "target": "function:src/app/(auth)/login/CustomerLogin.tsx:router.refresh",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/CustomerLogin.tsx:handleVerifyOtp",
+      "target": "function:src/app/(auth)/login/CustomerLogin.tsx:setTimeout",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/CustomerLogin.tsx:handleVerifyOtp",
+      "target": "function:src/app/(auth)/login/CustomerLogin.tsx:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/CustomerLogin.tsx:handleVerifyOtp",
+      "target": "function:src/app/(auth)/login/CustomerLogin.tsx:setError",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/CustomerLogin.tsx:handleVerifyOtp",
+      "target": "function:src/app/(auth)/login/CustomerLogin.tsx:setLoading",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/CustomerLogin.tsx:handleGoogleSignIn",
+      "target": "function:src/app/(auth)/login/CustomerLogin.tsx:setLoading",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/CustomerLogin.tsx:handleGoogleSignIn",
+      "target": "function:src/app/(auth)/login/CustomerLogin.tsx:setError",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/CustomerLogin.tsx:handleGoogleSignIn",
+      "target": "function:src/app/(auth)/login/CustomerLogin.tsx:signInWithGoogle",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/CustomerLogin.tsx:handleGoogleSignIn",
+      "target": "function:src/app/(auth)/login/CustomerLogin.tsx:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/CustomerLogin.tsx:handleGoogleSignIn",
+      "target": "function:src/app/(auth)/login/CustomerLogin.tsx:setError",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/CustomerLogin.tsx:handleGoogleSignIn",
+      "target": "function:src/app/(auth)/login/CustomerLogin.tsx:setLoading",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/CustomerLogin.tsx:handleFacebookSignIn",
+      "target": "function:src/app/(auth)/login/CustomerLogin.tsx:setLoading",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/CustomerLogin.tsx:handleFacebookSignIn",
+      "target": "function:src/app/(auth)/login/CustomerLogin.tsx:setError",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/CustomerLogin.tsx:handleFacebookSignIn",
+      "target": "function:src/app/(auth)/login/CustomerLogin.tsx:signInWithFacebook",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/CustomerLogin.tsx:handleFacebookSignIn",
+      "target": "function:src/app/(auth)/login/CustomerLogin.tsx:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/CustomerLogin.tsx:handleFacebookSignIn",
+      "target": "function:src/app/(auth)/login/CustomerLogin.tsx:setError",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/CustomerLogin.tsx:handleFacebookSignIn",
+      "target": "function:src/app/(auth)/login/CustomerLogin.tsx:setLoading",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/CustomerLogin.tsx:LoginForm",
+      "target": "function:src/app/(auth)/login/CustomerLogin.tsx:setAuthMethod",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/CustomerLogin.tsx:LoginForm",
+      "target": "function:src/app/(auth)/login/CustomerLogin.tsx:setError",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/CustomerLogin.tsx:LoginForm",
+      "target": "function:src/app/(auth)/login/CustomerLogin.tsx:setMessage",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/CustomerLogin.tsx:LoginForm",
+      "target": "function:src/app/(auth)/login/CustomerLogin.tsx:setAuthMethod",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/CustomerLogin.tsx:LoginForm",
+      "target": "function:src/app/(auth)/login/CustomerLogin.tsx:setError",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/CustomerLogin.tsx:LoginForm",
+      "target": "function:src/app/(auth)/login/CustomerLogin.tsx:setMessage",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/CustomerLogin.tsx:LoginForm",
+      "target": "function:src/app/(auth)/login/CustomerLogin.tsx:setEmail",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/CustomerLogin.tsx:LoginForm",
+      "target": "function:src/app/(auth)/login/CustomerLogin.tsx:setPassword",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/CustomerLogin.tsx:LoginForm",
+      "target": "function:src/app/(auth)/login/CustomerLogin.tsx:setShowPassword",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/CustomerLogin.tsx:LoginForm",
+      "target": "function:src/app/(auth)/login/CustomerLogin.tsx:setPhone",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/CustomerLogin.tsx:LoginForm",
+      "target": "function:src/app/(auth)/login/CustomerLogin.tsx:setOtp",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/CustomerLogin.tsx:LoginForm",
+      "target": "function:src/app/(auth)/login/CustomerLogin.tsx:setShowOtpInput",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/CustomerLogin.tsx:LoginForm",
+      "target": "function:src/app/(auth)/login/CustomerLogin.tsx:setOtp",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/CustomerLogin.tsx:LoginForm",
+      "target": "function:src/app/(auth)/login/CustomerLogin.tsx:setMessage",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/app/(auth)/login/page.tsx",
+      "target": "function:src/app/(auth)/login/page.tsx:LoginPage",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/app/(auth)/login/page.tsx:LoginPage",
+      "target": "function:src/app/(auth)/login/page.tsx:headers",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/page.tsx:LoginPage",
+      "target": "function:src/app/(auth)/login/page.tsx:headersList.get",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/page.tsx:LoginPage",
+      "target": "function:src/app/(auth)/login/page.tsx:host.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/page.tsx:LoginPage",
+      "target": "function:src/app/(auth)/login/page.tsx:host.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/page.tsx:LoginPage",
+      "target": "function:src/app/(auth)/login/page.tsx:host.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/page.tsx:LoginPage",
+      "target": "function:src/app/(auth)/login/page.tsx:host.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/login/page.tsx:LoginPage",
+      "target": "function:src/app/(auth)/login/page.tsx:host.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/app/(auth)/reset-password/page.tsx",
+      "target": "function:src/app/(auth)/reset-password/page.tsx:ResetPasswordForm",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/app/(auth)/reset-password/page.tsx",
+      "target": "function:src/app/(auth)/reset-password/page.tsx:ResetPasswordPage",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/app/(auth)/reset-password/page.tsx:ResetPasswordForm",
+      "target": "function:src/app/(auth)/reset-password/page.tsx:useRouter",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/reset-password/page.tsx:ResetPasswordForm",
+      "target": "function:src/app/(auth)/reset-password/page.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/reset-password/page.tsx:ResetPasswordForm",
+      "target": "function:src/app/(auth)/reset-password/page.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/reset-password/page.tsx:ResetPasswordForm",
+      "target": "function:src/app/(auth)/reset-password/page.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/reset-password/page.tsx:ResetPasswordForm",
+      "target": "function:src/app/(auth)/reset-password/page.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/reset-password/page.tsx:ResetPasswordForm",
+      "target": "function:src/app/(auth)/reset-password/page.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/reset-password/page.tsx:handleUpdatePassword",
+      "target": "function:src/app/(auth)/reset-password/page.tsx:e.preventDefault",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/reset-password/page.tsx:handleUpdatePassword",
+      "target": "function:src/app/(auth)/reset-password/page.tsx:setError",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/reset-password/page.tsx:handleUpdatePassword",
+      "target": "function:src/app/(auth)/reset-password/page.tsx:setLoading",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/reset-password/page.tsx:handleUpdatePassword",
+      "target": "function:src/app/(auth)/reset-password/page.tsx:setError",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/reset-password/page.tsx:handleUpdatePassword",
+      "target": "function:src/app/(auth)/reset-password/page.tsx:setMessage",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/reset-password/page.tsx:handleUpdatePassword",
+      "target": "function:src/app/(auth)/reset-password/page.tsx:createClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/reset-password/page.tsx:handleUpdatePassword",
+      "target": "function:src/app/(auth)/reset-password/page.tsx:supabase.auth.updateUser",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/reset-password/page.tsx:handleUpdatePassword",
+      "target": "function:src/app/(auth)/reset-password/page.tsx:setMessage",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/reset-password/page.tsx:handleUpdatePassword",
+      "target": "function:src/app/(auth)/reset-password/page.tsx:setTimeout",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/reset-password/page.tsx:handleUpdatePassword",
+      "target": "function:src/app/(auth)/reset-password/page.tsx:router.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/reset-password/page.tsx:handleUpdatePassword",
+      "target": "function:src/app/(auth)/reset-password/page.tsx:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/reset-password/page.tsx:handleUpdatePassword",
+      "target": "function:src/app/(auth)/reset-password/page.tsx:setError",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/reset-password/page.tsx:handleUpdatePassword",
+      "target": "function:src/app/(auth)/reset-password/page.tsx:setLoading",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/reset-password/page.tsx:ResetPasswordForm",
+      "target": "function:src/app/(auth)/reset-password/page.tsx:setPassword",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/reset-password/page.tsx:ResetPasswordForm",
+      "target": "function:src/app/(auth)/reset-password/page.tsx:setConfirmPassword",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/app/(auth)/set-password/page.tsx",
+      "target": "function:src/app/(auth)/set-password/page.tsx:SetPasswordForm",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/app/(auth)/set-password/page.tsx",
+      "target": "function:src/app/(auth)/set-password/page.tsx:SetPasswordPage",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/app/(auth)/set-password/page.tsx:SetPasswordForm",
+      "target": "function:src/app/(auth)/set-password/page.tsx:useRouter",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/set-password/page.tsx:SetPasswordForm",
+      "target": "function:src/app/(auth)/set-password/page.tsx:useSearchParams",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/set-password/page.tsx:SetPasswordForm",
+      "target": "function:src/app/(auth)/set-password/page.tsx:searchParams.get",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/set-password/page.tsx:SetPasswordForm",
+      "target": "function:src/app/(auth)/set-password/page.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/set-password/page.tsx:SetPasswordForm",
+      "target": "function:src/app/(auth)/set-password/page.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/set-password/page.tsx:SetPasswordForm",
+      "target": "function:src/app/(auth)/set-password/page.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/set-password/page.tsx:SetPasswordForm",
+      "target": "function:src/app/(auth)/set-password/page.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/set-password/page.tsx:SetPasswordForm",
+      "target": "function:src/app/(auth)/set-password/page.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/set-password/page.tsx:SetPasswordForm",
+      "target": "function:src/app/(auth)/set-password/page.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/set-password/page.tsx:SetPasswordForm",
+      "target": "function:src/app/(auth)/set-password/page.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/set-password/page.tsx:SetPasswordForm",
+      "target": "function:src/app/(auth)/set-password/page.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/set-password/page.tsx:SetPasswordForm",
+      "target": "function:src/app/(auth)/set-password/page.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/set-password/page.tsx:SetPasswordForm",
+      "target": "function:src/app/(auth)/set-password/page.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/set-password/page.tsx:SetPasswordForm",
+      "target": "function:src/app/(auth)/set-password/page.tsx:useEffect",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/set-password/page.tsx:SetPasswordForm",
+      "target": "function:src/app/(auth)/set-password/page.tsx:onAuthStateChanged",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/set-password/page.tsx:SetPasswordForm",
+      "target": "function:src/app/(auth)/set-password/page.tsx:setUser",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/set-password/page.tsx:SetPasswordForm",
+      "target": "function:src/app/(auth)/set-password/page.tsx:currentUser.providerData.some",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/set-password/page.tsx:SetPasswordForm",
+      "target": "function:src/app/(auth)/set-password/page.tsx:router.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/set-password/page.tsx:SetPasswordForm",
+      "target": "function:src/app/(auth)/set-password/page.tsx:router.refresh",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/set-password/page.tsx:SetPasswordForm",
+      "target": "function:src/app/(auth)/set-password/page.tsx:setEmail",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/set-password/page.tsx:SetPasswordForm",
+      "target": "function:src/app/(auth)/set-password/page.tsx:setLoading",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/set-password/page.tsx:SetPasswordForm",
+      "target": "function:src/app/(auth)/set-password/page.tsx:router.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/set-password/page.tsx:SetPasswordForm",
+      "target": "function:src/app/(auth)/set-password/page.tsx:encodeURIComponent",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/set-password/page.tsx:SetPasswordForm",
+      "target": "function:src/app/(auth)/set-password/page.tsx:unsubscribe",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/set-password/page.tsx:handleSetPassword",
+      "target": "function:src/app/(auth)/set-password/page.tsx:e.preventDefault",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/set-password/page.tsx:handleSetPassword",
+      "target": "function:src/app/(auth)/set-password/page.tsx:setError",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/set-password/page.tsx:handleSetPassword",
+      "target": "function:src/app/(auth)/set-password/page.tsx:setError",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/set-password/page.tsx:handleSetPassword",
+      "target": "function:src/app/(auth)/set-password/page.tsx:(user.email || email).trim",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/set-password/page.tsx:handleSetPassword",
+      "target": "function:src/app/(auth)/set-password/page.tsx:setError",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/set-password/page.tsx:handleSetPassword",
+      "target": "function:src/app/(auth)/set-password/page.tsx:setSubmitting",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/set-password/page.tsx:handleSetPassword",
+      "target": "function:src/app/(auth)/set-password/page.tsx:setError",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/set-password/page.tsx:handleSetPassword",
+      "target": "function:src/app/(auth)/set-password/page.tsx:setMessage",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/set-password/page.tsx:handleSetPassword",
+      "target": "function:src/app/(auth)/set-password/page.tsx:EmailAuthProvider.credential",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/set-password/page.tsx:handleSetPassword",
+      "target": "function:src/app/(auth)/set-password/page.tsx:linkWithCredential",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/set-password/page.tsx:handleSetPassword",
+      "target": "function:src/app/(auth)/set-password/page.tsx:updatedUser.getIdToken",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/set-password/page.tsx:handleSetPassword",
+      "target": "function:src/app/(auth)/set-password/page.tsx:upsertUserProfile",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/set-password/page.tsx:handleSetPassword",
+      "target": "function:src/app/(auth)/set-password/page.tsx:createClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/set-password/page.tsx:handleSetPassword",
+      "target": "function:src/app/(auth)/set-password/page.tsx:supabase.rpc",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/set-password/page.tsx:handleSetPassword",
+      "target": "function:src/app/(auth)/set-password/page.tsx:setMessage",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/set-password/page.tsx:handleSetPassword",
+      "target": "function:src/app/(auth)/set-password/page.tsx:toast.success",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/set-password/page.tsx:handleSetPassword",
+      "target": "function:src/app/(auth)/set-password/page.tsx:setTimeout",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/set-password/page.tsx:handleSetPassword",
+      "target": "function:src/app/(auth)/set-password/page.tsx:router.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/set-password/page.tsx:handleSetPassword",
+      "target": "function:src/app/(auth)/set-password/page.tsx:router.refresh",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/set-password/page.tsx:handleSetPassword",
+      "target": "function:src/app/(auth)/set-password/page.tsx:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/set-password/page.tsx:handleSetPassword",
+      "target": "function:src/app/(auth)/set-password/page.tsx:setError",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/set-password/page.tsx:handleSetPassword",
+      "target": "function:src/app/(auth)/set-password/page.tsx:toast.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/set-password/page.tsx:handleSetPassword",
+      "target": "function:src/app/(auth)/set-password/page.tsx:setSubmitting",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/set-password/page.tsx:SetPasswordForm",
+      "target": "function:src/app/(auth)/set-password/page.tsx:setEmail",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/set-password/page.tsx:SetPasswordForm",
+      "target": "function:src/app/(auth)/set-password/page.tsx:setPassword",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/set-password/page.tsx:SetPasswordForm",
+      "target": "function:src/app/(auth)/set-password/page.tsx:setShowPassword",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/set-password/page.tsx:SetPasswordForm",
+      "target": "function:src/app/(auth)/set-password/page.tsx:setConfirmPassword",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/set-password/page.tsx:SetPasswordForm",
+      "target": "function:src/app/(auth)/set-password/page.tsx:setShowConfirmPassword",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/set-password/page.tsx:SetPasswordForm",
+      "target": "function:src/app/(auth)/set-password/page.tsx:router.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/set-password/page.tsx:SetPasswordForm",
+      "target": "function:src/app/(auth)/set-password/page.tsx:router.refresh",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/app/(auth)/signup/page.tsx",
+      "target": "function:src/app/(auth)/signup/page.tsx:SignUpPage",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:SignUpPage",
+      "target": "function:src/app/(auth)/signup/page.tsx:useRouter",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:SignUpPage",
+      "target": "function:src/app/(auth)/signup/page.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:SignUpPage",
+      "target": "function:src/app/(auth)/signup/page.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:SignUpPage",
+      "target": "function:src/app/(auth)/signup/page.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:SignUpPage",
+      "target": "function:src/app/(auth)/signup/page.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:SignUpPage",
+      "target": "function:src/app/(auth)/signup/page.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:SignUpPage",
+      "target": "function:src/app/(auth)/signup/page.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:SignUpPage",
+      "target": "function:src/app/(auth)/signup/page.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:SignUpPage",
+      "target": "function:src/app/(auth)/signup/page.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:SignUpPage",
+      "target": "function:src/app/(auth)/signup/page.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:SignUpPage",
+      "target": "function:src/app/(auth)/signup/page.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:SignUpPage",
+      "target": "function:src/app/(auth)/signup/page.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:SignUpPage",
+      "target": "function:src/app/(auth)/signup/page.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:SignUpPage",
+      "target": "function:src/app/(auth)/signup/page.tsx:useSearchParams",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:SignUpPage",
+      "target": "function:src/app/(auth)/signup/page.tsx:searchParams?.get",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:trackReferralIfCookieExists",
+      "target": "function:src/app/(auth)/signup/page.tsx:document.cookie\n      .split('; ')\n      .find",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:trackReferralIfCookieExists",
+      "target": "function:src/app/(auth)/signup/page.tsx:document.cookie\n      .split",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:trackReferralIfCookieExists",
+      "target": "function:src/app/(auth)/signup/page.tsx:c.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:trackReferralIfCookieExists",
+      "target": "function:src/app/(auth)/signup/page.tsx:fetch",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:trackReferralIfCookieExists",
+      "target": "function:src/app/(auth)/signup/page.tsx:JSON.stringify",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:trackReferralIfCookieExists",
+      "target": "function:src/app/(auth)/signup/page.tsx:refCookie.split",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:trackReferralIfCookieExists",
+      "target": "function:src/app/(auth)/signup/page.tsx:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:handleEmailSignUp",
+      "target": "function:src/app/(auth)/signup/page.tsx:e.preventDefault",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:handleEmailSignUp",
+      "target": "function:src/app/(auth)/signup/page.tsx:setError",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:handleEmailSignUp",
+      "target": "function:src/app/(auth)/signup/page.tsx:setLoading",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:handleEmailSignUp",
+      "target": "function:src/app/(auth)/signup/page.tsx:setError",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:handleEmailSignUp",
+      "target": "function:src/app/(auth)/signup/page.tsx:setMessage",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:handleEmailSignUp",
+      "target": "function:src/app/(auth)/signup/page.tsx:signUpWithEmail",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:handleEmailSignUp",
+      "target": "function:src/app/(auth)/signup/page.tsx:updateProfile",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:handleEmailSignUp",
+      "target": "function:src/app/(auth)/signup/page.tsx:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:handleEmailSignUp",
+      "target": "function:src/app/(auth)/signup/page.tsx:upsertUserProfile",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:handleEmailSignUp",
+      "target": "function:src/app/(auth)/signup/page.tsx:trackReferralIfCookieExists",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:handleEmailSignUp",
+      "target": "function:src/app/(auth)/signup/page.tsx:fetch('/api/emails/welcome', {\n        method: 'POST',\n        headers: { 'Content-Type': 'application/json' },\n        body: JSON.stringify({\n          email: fbUser.email,\n          name: fullName,\n        }),\n      }).catch",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:handleEmailSignUp",
+      "target": "function:src/app/(auth)/signup/page.tsx:fetch",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:handleEmailSignUp",
+      "target": "function:src/app/(auth)/signup/page.tsx:JSON.stringify",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:handleEmailSignUp",
+      "target": "function:src/app/(auth)/signup/page.tsx:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:handleEmailSignUp",
+      "target": "function:src/app/(auth)/signup/page.tsx:fetch('/api/auth/send-verification', {\n        method: 'POST',\n        headers: { 'Content-Type': 'application/json' },\n        body: JSON.stringify({\n          email: fbUser.email,\n        }),\n      }).catch",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:handleEmailSignUp",
+      "target": "function:src/app/(auth)/signup/page.tsx:fetch",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:handleEmailSignUp",
+      "target": "function:src/app/(auth)/signup/page.tsx:JSON.stringify",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:handleEmailSignUp",
+      "target": "function:src/app/(auth)/signup/page.tsx:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:handleEmailSignUp",
+      "target": "function:src/app/(auth)/signup/page.tsx:posthog.capture",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:handleEmailSignUp",
+      "target": "function:src/app/(auth)/signup/page.tsx:setMessage",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:handleEmailSignUp",
+      "target": "function:src/app/(auth)/signup/page.tsx:setTimeout",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:handleEmailSignUp",
+      "target": "function:src/app/(auth)/signup/page.tsx:router.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:handleEmailSignUp",
+      "target": "function:src/app/(auth)/signup/page.tsx:router.refresh",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:handleEmailSignUp",
+      "target": "function:src/app/(auth)/signup/page.tsx:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:handleEmailSignUp",
+      "target": "function:src/app/(auth)/signup/page.tsx:setError",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:handleEmailSignUp",
+      "target": "function:src/app/(auth)/signup/page.tsx:setLoading",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:handleSendOtp",
+      "target": "function:src/app/(auth)/signup/page.tsx:e.preventDefault",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:handleSendOtp",
+      "target": "function:src/app/(auth)/signup/page.tsx:setLoading",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:handleSendOtp",
+      "target": "function:src/app/(auth)/signup/page.tsx:setError",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:handleSendOtp",
+      "target": "function:src/app/(auth)/signup/page.tsx:setMessage",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:handleSendOtp",
+      "target": "function:src/app/(auth)/signup/page.tsx:phone.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:handleSendOtp",
+      "target": "function:src/app/(auth)/signup/page.tsx:phone.replace(/\\D/g, '').slice",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:handleSendOtp",
+      "target": "function:src/app/(auth)/signup/page.tsx:phone.replace",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:handleSendOtp",
+      "target": "function:src/app/(auth)/signup/page.tsx:sendPhoneVerification",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:handleSendOtp",
+      "target": "function:src/app/(auth)/signup/page.tsx:setConfirmationResult",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:handleSendOtp",
+      "target": "function:src/app/(auth)/signup/page.tsx:setShowOtpInput",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:handleSendOtp",
+      "target": "function:src/app/(auth)/signup/page.tsx:setMessage",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:handleSendOtp",
+      "target": "function:src/app/(auth)/signup/page.tsx:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:handleSendOtp",
+      "target": "function:src/app/(auth)/signup/page.tsx:setError",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:handleSendOtp",
+      "target": "function:src/app/(auth)/signup/page.tsx:setLoading",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:handleVerifyOtp",
+      "target": "function:src/app/(auth)/signup/page.tsx:e.preventDefault",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:handleVerifyOtp",
+      "target": "function:src/app/(auth)/signup/page.tsx:setLoading",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:handleVerifyOtp",
+      "target": "function:src/app/(auth)/signup/page.tsx:setError",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:handleVerifyOtp",
+      "target": "function:src/app/(auth)/signup/page.tsx:verifyPhoneCode",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:handleVerifyOtp",
+      "target": "function:src/app/(auth)/signup/page.tsx:updateProfile",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:handleVerifyOtp",
+      "target": "function:src/app/(auth)/signup/page.tsx:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:handleVerifyOtp",
+      "target": "function:src/app/(auth)/signup/page.tsx:upsertUserProfile",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:handleVerifyOtp",
+      "target": "function:src/app/(auth)/signup/page.tsx:trackReferralIfCookieExists",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:handleVerifyOtp",
+      "target": "function:src/app/(auth)/signup/page.tsx:posthog.capture",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:handleVerifyOtp",
+      "target": "function:src/app/(auth)/signup/page.tsx:setMessage",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:handleVerifyOtp",
+      "target": "function:src/app/(auth)/signup/page.tsx:setTimeout",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:handleVerifyOtp",
+      "target": "function:src/app/(auth)/signup/page.tsx:router.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:handleVerifyOtp",
+      "target": "function:src/app/(auth)/signup/page.tsx:router.refresh",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:handleVerifyOtp",
+      "target": "function:src/app/(auth)/signup/page.tsx:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:handleVerifyOtp",
+      "target": "function:src/app/(auth)/signup/page.tsx:setError",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:handleVerifyOtp",
+      "target": "function:src/app/(auth)/signup/page.tsx:setLoading",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:handleGoogleSignIn",
+      "target": "function:src/app/(auth)/signup/page.tsx:setLoading",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:handleGoogleSignIn",
+      "target": "function:src/app/(auth)/signup/page.tsx:setError",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:handleGoogleSignIn",
+      "target": "function:src/app/(auth)/signup/page.tsx:signInWithGoogle",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:handleGoogleSignIn",
+      "target": "function:src/app/(auth)/signup/page.tsx:upsertUserProfile",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:handleGoogleSignIn",
+      "target": "function:src/app/(auth)/signup/page.tsx:trackReferralIfCookieExists",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:handleGoogleSignIn",
+      "target": "function:src/app/(auth)/signup/page.tsx:posthog.capture",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:handleGoogleSignIn",
+      "target": "function:src/app/(auth)/signup/page.tsx:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:handleGoogleSignIn",
+      "target": "function:src/app/(auth)/signup/page.tsx:setError",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:handleGoogleSignIn",
+      "target": "function:src/app/(auth)/signup/page.tsx:setLoading",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:handleFacebookSignIn",
+      "target": "function:src/app/(auth)/signup/page.tsx:setLoading",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:handleFacebookSignIn",
+      "target": "function:src/app/(auth)/signup/page.tsx:setError",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:handleFacebookSignIn",
+      "target": "function:src/app/(auth)/signup/page.tsx:signInWithFacebook",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:handleFacebookSignIn",
+      "target": "function:src/app/(auth)/signup/page.tsx:upsertUserProfile",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:handleFacebookSignIn",
+      "target": "function:src/app/(auth)/signup/page.tsx:trackReferralIfCookieExists",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:handleFacebookSignIn",
+      "target": "function:src/app/(auth)/signup/page.tsx:posthog.capture",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:handleFacebookSignIn",
+      "target": "function:src/app/(auth)/signup/page.tsx:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:handleFacebookSignIn",
+      "target": "function:src/app/(auth)/signup/page.tsx:setError",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:handleFacebookSignIn",
+      "target": "function:src/app/(auth)/signup/page.tsx:setLoading",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:SignUpPage",
+      "target": "function:src/app/(auth)/signup/page.tsx:setAuthMethod",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:SignUpPage",
+      "target": "function:src/app/(auth)/signup/page.tsx:setError",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:SignUpPage",
+      "target": "function:src/app/(auth)/signup/page.tsx:setMessage",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:SignUpPage",
+      "target": "function:src/app/(auth)/signup/page.tsx:setAuthMethod",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:SignUpPage",
+      "target": "function:src/app/(auth)/signup/page.tsx:setError",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:SignUpPage",
+      "target": "function:src/app/(auth)/signup/page.tsx:setMessage",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:SignUpPage",
+      "target": "function:src/app/(auth)/signup/page.tsx:setFullName",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:SignUpPage",
+      "target": "function:src/app/(auth)/signup/page.tsx:setEmail",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:SignUpPage",
+      "target": "function:src/app/(auth)/signup/page.tsx:setPassword",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:SignUpPage",
+      "target": "function:src/app/(auth)/signup/page.tsx:setConfirmPassword",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:SignUpPage",
+      "target": "function:src/app/(auth)/signup/page.tsx:setFullName",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:SignUpPage",
+      "target": "function:src/app/(auth)/signup/page.tsx:setPhone",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:SignUpPage",
+      "target": "function:src/app/(auth)/signup/page.tsx:setOtp",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:SignUpPage",
+      "target": "function:src/app/(auth)/signup/page.tsx:setShowOtpInput",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:SignUpPage",
+      "target": "function:src/app/(auth)/signup/page.tsx:setOtp",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/(auth)/signup/page.tsx:SignUpPage",
+      "target": "function:src/app/(auth)/signup/page.tsx:setMessage",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/app/(policies)/cancellation-policy/page.tsx",
+      "target": "function:src/app/(policies)/cancellation-policy/page.tsx:CancellationPolicyPage",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/app/(policies)/data-deletion/page.tsx",
+      "target": "function:src/app/(policies)/data-deletion/page.tsx:DataDeletionPage",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/app/(policies)/privacy-policy/page.tsx",
+      "target": "function:src/app/(policies)/privacy-policy/page.tsx:PrivacyPolicyPage",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/app/(policies)/return-policy/page.tsx",
+      "target": "function:src/app/(policies)/return-policy/page.tsx:ReturnPolicyPage",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/app/(policies)/shipping-policy/page.tsx",
+      "target": "function:src/app/(policies)/shipping-policy/page.tsx:ShippingPolicyPage",
+      "type": "contains"
+    }
+  ]
+}

@@ -69,6 +69,7 @@ export async function POST(req: Request) {
       //    (GET /api/checkout/verify) and the callback
       //    (POST /api/webhooks/phonepe) can finalize it.
       let orderId: string | null = null;
+      let createdOrder: any = null;
       try {
         const created = await createOrder(
           {
@@ -91,6 +92,7 @@ export async function POST(req: Request) {
           { status: 'pending', paymentStatus: 'pending' }
         );
         orderId = created.orderId;
+        createdOrder = created.newOrder;
       } catch (err) {
         console.error('Failed to pre-create pending order:', err);
         if (err instanceof OrderError) {
@@ -105,11 +107,15 @@ export async function POST(req: Request) {
         );
       }
 
+      const payableAmount = isPartialCod
+        ? createdOrder?.prepaid_amount || createdOrder?.total || total
+        : createdOrder?.total || total;
+
       const payload = {
         merchantId,
         merchantTransactionId,
         merchantUserId: userId || `USR_${Date.now()}`,
-        amount: Math.round(amount * 100), // amount in paise
+        amount: Math.round(payableAmount * 100), // authoritative amount in paise
         redirectUrl: `${siteUrl}/api/checkout/verify?merchantTransactionId=${merchantTransactionId}`,
         redirectMode: 'REDIRECT',
         callbackUrl: `${siteUrl}/api/webhooks/phonepe`,

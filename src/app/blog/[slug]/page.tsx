@@ -6,6 +6,7 @@ import { notFound } from 'next/navigation';
 import { ArrowLeft, Calendar } from 'lucide-react';
 import { createClient } from '@/lib/supabase/server';
 import BlogEngagement from './BlogEngagement';
+import { sanitizeHtml } from '@/lib/security/sanitize';
 
 interface BlogPost {
   title: string;
@@ -188,7 +189,7 @@ export default async function BlogPostPage({
           {/* Prose Content */}
           <div
             className="prose prose-lg prose-stone max-w-none prose-headings:font-serif prose-headings:font-bold prose-h2:mt-12 prose-h2:text-3xl prose-p:leading-relaxed prose-a:text-gold-700"
-            dangerouslySetInnerHTML={{ __html: post.content }}
+            dangerouslySetInnerHTML={{ __html: sanitizeHtml(post.content) }}
           />
         </div>
       </div>

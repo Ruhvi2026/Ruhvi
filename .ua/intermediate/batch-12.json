@@ -1,0 +1,578 @@
+{
+  "batchIndex": 12,
+  "batchFiles": [
+    {
+      "path": ".agents/packages/core/src/languages/configs/makefile.ts",
+      "language": "typescript",
+      "sizeLines": 15,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/languages/configs/markdown.ts",
+      "language": "typescript",
+      "sizeLines": 14,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/languages/configs/openapi.ts",
+      "language": "typescript",
+      "sizeLines": 15,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/languages/configs/php.ts",
+      "language": "typescript",
+      "sizeLines": 29,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/languages/configs/plaintext.ts",
+      "language": "typescript",
+      "sizeLines": 14,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/languages/configs/powershell.ts",
+      "language": "typescript",
+      "sizeLines": 14,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/languages/configs/protobuf.ts",
+      "language": "typescript",
+      "sizeLines": 14,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/languages/configs/python.ts",
+      "language": "typescript",
+      "sizeLines": 44,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/languages/configs/restructuredtext.ts",
+      "language": "typescript",
+      "sizeLines": 14,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/languages/configs/ruby.ts",
+      "language": "typescript",
+      "sizeLines": 28,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/languages/configs/rust.ts",
+      "language": "typescript",
+      "sizeLines": 31,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/languages/configs/scala.ts",
+      "language": "typescript",
+      "sizeLines": 29,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/languages/configs/shell.ts",
+      "language": "typescript",
+      "sizeLines": 14,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/languages/configs/sql.ts",
+      "language": "typescript",
+      "sizeLines": 14,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/languages/configs/swift.ts",
+      "language": "typescript",
+      "sizeLines": 29,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/languages/configs/terraform.ts",
+      "language": "typescript",
+      "sizeLines": 14,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/languages/configs/toml.ts",
+      "language": "typescript",
+      "sizeLines": 14,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/languages/configs/typescript.ts",
+      "language": "typescript",
+      "sizeLines": 30,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/languages/configs/xml.ts",
+      "language": "typescript",
+      "sizeLines": 14,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/languages/configs/yaml.ts",
+      "language": "typescript",
+      "sizeLines": 14,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/languages/framework-registry.ts",
+      "language": "typescript",
+      "sizeLines": 86,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/languages/frameworks/django.ts",
+      "language": "typescript",
+      "sizeLines": 36,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/languages/frameworks/express.ts",
+      "language": "typescript",
+      "sizeLines": 26,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/languages/frameworks/fastapi.ts",
+      "language": "typescript",
+      "sizeLines": 25,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/languages/frameworks/flask.ts",
+      "language": "typescript",
+      "sizeLines": 31,
+      "fileCategory": "code"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "file:.agents/packages/core/src/languages/configs/makefile.ts",
+      "name": "makefile.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/languages/configs/makefile.ts",
+      "summary": "typescript code file (15 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:.agents/packages/core/src/languages/configs/markdown.ts",
+      "name": "markdown.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/languages/configs/markdown.ts",
+      "summary": "typescript code file (14 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:.agents/packages/core/src/languages/configs/openapi.ts",
+      "name": "openapi.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/languages/configs/openapi.ts",
+      "summary": "typescript code file (15 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:.agents/packages/core/src/languages/configs/php.ts",
+      "name": "php.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/languages/configs/php.ts",
+      "summary": "typescript code file (29 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:.agents/packages/core/src/languages/configs/plaintext.ts",
+      "name": "plaintext.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/languages/configs/plaintext.ts",
+      "summary": "typescript code file (14 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:.agents/packages/core/src/languages/configs/powershell.ts",
+      "name": "powershell.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/languages/configs/powershell.ts",
+      "summary": "typescript code file (14 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:.agents/packages/core/src/languages/configs/protobuf.ts",
+      "name": "protobuf.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/languages/configs/protobuf.ts",
+      "summary": "typescript code file (14 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:.agents/packages/core/src/languages/configs/python.ts",
+      "name": "python.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/languages/configs/python.ts",
+      "summary": "typescript code file (44 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:.agents/packages/core/src/languages/configs/restructuredtext.ts",
+      "name": "restructuredtext.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/languages/configs/restructuredtext.ts",
+      "summary": "typescript code file (14 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:.agents/packages/core/src/languages/configs/ruby.ts",
+      "name": "ruby.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/languages/configs/ruby.ts",
+      "summary": "typescript code file (28 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:.agents/packages/core/src/languages/configs/rust.ts",
+      "name": "rust.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/languages/configs/rust.ts",
+      "summary": "typescript code file (31 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:.agents/packages/core/src/languages/configs/scala.ts",
+      "name": "scala.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/languages/configs/scala.ts",
+      "summary": "typescript code file (29 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:.agents/packages/core/src/languages/configs/shell.ts",
+      "name": "shell.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/languages/configs/shell.ts",
+      "summary": "typescript code file (14 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:.agents/packages/core/src/languages/configs/sql.ts",
+      "name": "sql.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/languages/configs/sql.ts",
+      "summary": "typescript code file (14 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:.agents/packages/core/src/languages/configs/swift.ts",
+      "name": "swift.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/languages/configs/swift.ts",
+      "summary": "typescript code file (29 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:.agents/packages/core/src/languages/configs/terraform.ts",
+      "name": "terraform.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/languages/configs/terraform.ts",
+      "summary": "typescript code file (14 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:.agents/packages/core/src/languages/configs/toml.ts",
+      "name": "toml.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/languages/configs/toml.ts",
+      "summary": "typescript code file (14 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:.agents/packages/core/src/languages/configs/typescript.ts",
+      "name": "typescript.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/languages/configs/typescript.ts",
+      "summary": "typescript code file (30 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:.agents/packages/core/src/languages/configs/xml.ts",
+      "name": "xml.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/languages/configs/xml.ts",
+      "summary": "typescript code file (14 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:.agents/packages/core/src/languages/configs/yaml.ts",
+      "name": "yaml.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/languages/configs/yaml.ts",
+      "summary": "typescript code file (14 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:.agents/packages/core/src/languages/framework-registry.ts",
+      "name": "framework-registry.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/languages/framework-registry.ts",
+      "summary": "typescript code file (86 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "class:.agents/packages/core/src/languages/framework-registry.ts:FrameworkRegistry",
+      "name": "FrameworkRegistry",
+      "type": "class",
+      "filePath": ".agents/packages/core/src/languages/framework-registry.ts",
+      "parentId": "file:.agents/packages/core/src/languages/framework-registry.ts",
+      "summary": "Class FrameworkRegistry",
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:.agents/packages/core/src/languages/frameworks/django.ts",
+      "name": "django.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/languages/frameworks/django.ts",
+      "summary": "typescript code file (36 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:.agents/packages/core/src/languages/frameworks/express.ts",
+      "name": "express.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/languages/frameworks/express.ts",
+      "summary": "typescript code file (26 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:.agents/packages/core/src/languages/frameworks/fastapi.ts",
+      "name": "fastapi.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/languages/frameworks/fastapi.ts",
+      "summary": "typescript code file (25 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:.agents/packages/core/src/languages/frameworks/flask.ts",
+      "name": "flask.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/languages/frameworks/flask.ts",
+      "summary": "typescript code file (31 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:.agents/packages/core/src/languages/framework-registry.ts",
+      "target": "class:.agents/packages/core/src/languages/framework-registry.ts:FrameworkRegistry",
+      "type": "contains"
+    },
+    {
+      "source": "function:.agents/packages/core/src/languages/framework-registry.ts:register",
+      "target": "function:.agents/packages/core/src/languages/framework-registry.ts:FrameworkConfigSchema.parse",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/languages/framework-registry.ts:register",
+      "target": "function:.agents/packages/core/src/languages/framework-registry.ts:this.byId.has",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/languages/framework-registry.ts:register",
+      "target": "function:.agents/packages/core/src/languages/framework-registry.ts:this.byId.set",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/languages/framework-registry.ts:register",
+      "target": "function:.agents/packages/core/src/languages/framework-registry.ts:this.byLanguage.get",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/languages/framework-registry.ts:register",
+      "target": "function:.agents/packages/core/src/languages/framework-registry.ts:existing.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/languages/framework-registry.ts:register",
+      "target": "function:.agents/packages/core/src/languages/framework-registry.ts:this.byLanguage.set",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/languages/framework-registry.ts:getById",
+      "target": "function:.agents/packages/core/src/languages/framework-registry.ts:this.byId.get",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/languages/framework-registry.ts:getForLanguage",
+      "target": "function:.agents/packages/core/src/languages/framework-registry.ts:this.byLanguage.get",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/languages/framework-registry.ts:getAllFrameworks",
+      "target": "function:.agents/packages/core/src/languages/framework-registry.ts:this.byId.values",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/languages/framework-registry.ts:detectFrameworks",
+      "target": "function:.agents/packages/core/src/languages/framework-registry.ts:this.byId.values",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/languages/framework-registry.ts:detectFrameworks",
+      "target": "function:.agents/packages/core/src/languages/framework-registry.ts:detected.has",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/languages/framework-registry.ts:detectFrameworks",
+      "target": "function:.agents/packages/core/src/languages/framework-registry.ts:Object.entries(manifests).find",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/languages/framework-registry.ts:detectFrameworks",
+      "target": "function:.agents/packages/core/src/languages/framework-registry.ts:Object.entries",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/languages/framework-registry.ts:detectFrameworks",
+      "target": "function:.agents/packages/core/src/languages/framework-registry.ts:key.endsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/languages/framework-registry.ts:detectFrameworks",
+      "target": "function:.agents/packages/core/src/languages/framework-registry.ts:content.toLowerCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/languages/framework-registry.ts:detectFrameworks",
+      "target": "function:.agents/packages/core/src/languages/framework-registry.ts:config.detectionKeywords.some",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/languages/framework-registry.ts:detectFrameworks",
+      "target": "function:.agents/packages/core/src/languages/framework-registry.ts:contentLower.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/languages/framework-registry.ts:detectFrameworks",
+      "target": "function:.agents/packages/core/src/languages/framework-registry.ts:keyword.toLowerCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/languages/framework-registry.ts:detectFrameworks",
+      "target": "function:.agents/packages/core/src/languages/framework-registry.ts:detected.add",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/languages/framework-registry.ts:detectFrameworks",
+      "target": "function:.agents/packages/core/src/languages/framework-registry.ts:results.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/languages/framework-registry.ts:createDefault",
+      "target": "function:.agents/packages/core/src/languages/framework-registry.ts:registry.register",
+      "type": "calls"
+    }
+  ]
+}

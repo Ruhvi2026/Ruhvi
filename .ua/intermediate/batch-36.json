@@ -1,0 +1,3243 @@
+{
+  "batchIndex": 36,
+  "batchFiles": [
+    {
+      "path": "src/components/ai/motion-engine/WorkerDisplayWindow.tsx",
+      "language": "typescript",
+      "sizeLines": 354,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/components/ai/motion-engine/WorkforceSwarm3D.tsx",
+      "language": "typescript",
+      "sizeLines": 425,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/components/ai/motion-engine/nodes-data.ts",
+      "language": "typescript",
+      "sizeLines": 608,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/components/ai/motion-engine/types.ts",
+      "language": "typescript",
+      "sizeLines": 56,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/components/chat/AutoLinkText.tsx",
+      "language": "typescript",
+      "sizeLines": 201,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/components/chat/FloatingStaffMessenger.tsx",
+      "language": "typescript",
+      "sizeLines": 1163,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/components/co-founder/CoFounderCharacter.tsx",
+      "language": "typescript",
+      "sizeLines": 266,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/components/co-founder/CoWorkerAvatar.tsx",
+      "language": "typescript",
+      "sizeLines": 358,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/components/co-founder/CoWorkerShowcase.tsx",
+      "language": "typescript",
+      "sizeLines": 218,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/components/co-founder/LiveVoiceVisualizer.tsx",
+      "language": "typescript",
+      "sizeLines": 223,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/components/co-founder/PlaywrightBrowserWindow.tsx",
+      "language": "typescript",
+      "sizeLines": 501,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/components/co-founder/VoiceTranscriptWindow.tsx",
+      "language": "typescript",
+      "sizeLines": 211,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/components/co-founder/swarm/swarmTypes.tsx",
+      "language": "typescript",
+      "sizeLines": 261,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/components/co-founder/workforce/WorkerGrid.tsx",
+      "language": "typescript",
+      "sizeLines": 500,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/components/co-founder/workspace/LiveWorkspace.tsx",
+      "language": "typescript",
+      "sizeLines": 723,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/components/dashboard/posthog/EventCountsBar.tsx",
+      "language": "typescript",
+      "sizeLines": 62,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/components/dashboard/posthog/FunnelStrip.tsx",
+      "language": "typescript",
+      "sizeLines": 68,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/components/dashboard/posthog/PostHogHealthBadge.tsx",
+      "language": "typescript",
+      "sizeLines": 39,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/components/dashboard/posthog/ProductPerformanceTable.tsx",
+      "language": "typescript",
+      "sizeLines": 76,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/components/dashboard/posthog/SessionReplayList.tsx",
+      "language": "typescript",
+      "sizeLines": 77,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/components/dashboard/posthog/SignupMethodDonut.tsx",
+      "language": "typescript",
+      "sizeLines": 80,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/components/dashboard/posthog/TopPagesTable.tsx",
+      "language": "typescript",
+      "sizeLines": 72,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/components/dashboard/posthog/TrafficOverview.tsx",
+      "language": "typescript",
+      "sizeLines": 141,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/components/dashboard/posthog/TrafficSourcesPanel.tsx",
+      "language": "typescript",
+      "sizeLines": 52,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/components/design-system/BotMascot.tsx",
+      "language": "typescript",
+      "sizeLines": 253,
+      "fileCategory": "code"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "file:src/components/ai/motion-engine/WorkerDisplayWindow.tsx",
+      "name": "WorkerDisplayWindow.tsx",
+      "type": "file",
+      "filePath": "src/components/ai/motion-engine/WorkerDisplayWindow.tsx",
+      "summary": "typescript code file (354 lines)",
+      "complexity": "complex",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/components/ai/motion-engine/WorkerDisplayWindow.tsx:WorkerDisplayWindow",
+      "name": "WorkerDisplayWindow",
+      "type": "function",
+      "filePath": "src/components/ai/motion-engine/WorkerDisplayWindow.tsx",
+      "parentId": "file:src/components/ai/motion-engine/WorkerDisplayWindow.tsx",
+      "summary": "Function WorkerDisplayWindow",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/components/ai/motion-engine/WorkforceSwarm3D.tsx",
+      "name": "WorkforceSwarm3D.tsx",
+      "type": "file",
+      "filePath": "src/components/ai/motion-engine/WorkforceSwarm3D.tsx",
+      "summary": "typescript code file (425 lines)",
+      "complexity": "complex",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:WorkforceSwarm3D",
+      "name": "WorkforceSwarm3D",
+      "type": "function",
+      "filePath": "src/components/ai/motion-engine/WorkforceSwarm3D.tsx",
+      "parentId": "file:src/components/ai/motion-engine/WorkforceSwarm3D.tsx",
+      "summary": "Function WorkforceSwarm3D",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/components/ai/motion-engine/nodes-data.ts",
+      "name": "nodes-data.ts",
+      "type": "file",
+      "filePath": "src/components/ai/motion-engine/nodes-data.ts",
+      "summary": "typescript code file (608 lines)",
+      "complexity": "complex",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:src/components/ai/motion-engine/types.ts",
+      "name": "types.ts",
+      "type": "file",
+      "filePath": "src/components/ai/motion-engine/types.ts",
+      "summary": "typescript code file (56 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:src/components/chat/AutoLinkText.tsx",
+      "name": "AutoLinkText.tsx",
+      "type": "file",
+      "filePath": "src/components/chat/AutoLinkText.tsx",
+      "summary": "typescript code file (201 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/components/chat/AutoLinkText.tsx:parseAutoLinks",
+      "name": "parseAutoLinks",
+      "type": "function",
+      "filePath": "src/components/chat/AutoLinkText.tsx",
+      "parentId": "file:src/components/chat/AutoLinkText.tsx",
+      "summary": "Function parseAutoLinks",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/components/chat/AutoLinkText.tsx:AutoLinkText",
+      "name": "AutoLinkText",
+      "type": "function",
+      "filePath": "src/components/chat/AutoLinkText.tsx",
+      "parentId": "file:src/components/chat/AutoLinkText.tsx",
+      "summary": "Function AutoLinkText",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/components/chat/FloatingStaffMessenger.tsx",
+      "name": "FloatingStaffMessenger.tsx",
+      "type": "file",
+      "filePath": "src/components/chat/FloatingStaffMessenger.tsx",
+      "summary": "typescript code file (1163 lines)",
+      "complexity": "complex",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/components/chat/FloatingStaffMessenger.tsx:formatTime",
+      "name": "formatTime",
+      "type": "function",
+      "filePath": "src/components/chat/FloatingStaffMessenger.tsx",
+      "parentId": "file:src/components/chat/FloatingStaffMessenger.tsx",
+      "summary": "Function formatTime",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/components/chat/FloatingStaffMessenger.tsx:getInitials",
+      "name": "getInitials",
+      "type": "function",
+      "filePath": "src/components/chat/FloatingStaffMessenger.tsx",
+      "parentId": "file:src/components/chat/FloatingStaffMessenger.tsx",
+      "summary": "Function getInitials",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/components/chat/FloatingStaffMessenger.tsx:avatarColor",
+      "name": "avatarColor",
+      "type": "function",
+      "filePath": "src/components/chat/FloatingStaffMessenger.tsx",
+      "parentId": "file:src/components/chat/FloatingStaffMessenger.tsx",
+      "summary": "Function avatarColor",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "name": "FloatingStaffMessenger",
+      "type": "function",
+      "filePath": "src/components/chat/FloatingStaffMessenger.tsx",
+      "parentId": "file:src/components/chat/FloatingStaffMessenger.tsx",
+      "summary": "Function FloatingStaffMessenger",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/components/co-founder/CoFounderCharacter.tsx",
+      "name": "CoFounderCharacter.tsx",
+      "type": "file",
+      "filePath": "src/components/co-founder/CoFounderCharacter.tsx",
+      "summary": "typescript code file (266 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/components/co-founder/CoFounderCharacter.tsx:CoFounderCharacter",
+      "name": "CoFounderCharacter",
+      "type": "function",
+      "filePath": "src/components/co-founder/CoFounderCharacter.tsx",
+      "parentId": "file:src/components/co-founder/CoFounderCharacter.tsx",
+      "summary": "Function CoFounderCharacter",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/components/co-founder/CoWorkerAvatar.tsx",
+      "name": "CoWorkerAvatar.tsx",
+      "type": "file",
+      "filePath": "src/components/co-founder/CoWorkerAvatar.tsx",
+      "summary": "typescript code file (358 lines)",
+      "complexity": "complex",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/components/co-founder/CoWorkerAvatar.tsx:CoWorkerAvatar",
+      "name": "CoWorkerAvatar",
+      "type": "function",
+      "filePath": "src/components/co-founder/CoWorkerAvatar.tsx",
+      "parentId": "file:src/components/co-founder/CoWorkerAvatar.tsx",
+      "summary": "Function CoWorkerAvatar",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/components/co-founder/CoWorkerShowcase.tsx",
+      "name": "CoWorkerShowcase.tsx",
+      "type": "file",
+      "filePath": "src/components/co-founder/CoWorkerShowcase.tsx",
+      "summary": "typescript code file (218 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/components/co-founder/CoWorkerShowcase.tsx:CoWorkerCharactersBanner",
+      "name": "CoWorkerCharactersBanner",
+      "type": "function",
+      "filePath": "src/components/co-founder/CoWorkerShowcase.tsx",
+      "parentId": "file:src/components/co-founder/CoWorkerShowcase.tsx",
+      "summary": "Function CoWorkerCharactersBanner",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/components/co-founder/CoWorkerShowcase.tsx:CoWorkerShowcase",
+      "name": "CoWorkerShowcase",
+      "type": "function",
+      "filePath": "src/components/co-founder/CoWorkerShowcase.tsx",
+      "parentId": "file:src/components/co-founder/CoWorkerShowcase.tsx",
+      "summary": "Function CoWorkerShowcase",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/components/co-founder/LiveVoiceVisualizer.tsx",
+      "name": "LiveVoiceVisualizer.tsx",
+      "type": "file",
+      "filePath": "src/components/co-founder/LiveVoiceVisualizer.tsx",
+      "summary": "typescript code file (223 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/components/co-founder/LiveVoiceVisualizer.tsx:LiveVoiceVisualizer",
+      "name": "LiveVoiceVisualizer",
+      "type": "function",
+      "filePath": "src/components/co-founder/LiveVoiceVisualizer.tsx",
+      "parentId": "file:src/components/co-founder/LiveVoiceVisualizer.tsx",
+      "summary": "Function LiveVoiceVisualizer",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/components/co-founder/PlaywrightBrowserWindow.tsx",
+      "name": "PlaywrightBrowserWindow.tsx",
+      "type": "file",
+      "filePath": "src/components/co-founder/PlaywrightBrowserWindow.tsx",
+      "summary": "typescript code file (501 lines)",
+      "complexity": "complex",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/components/co-founder/PlaywrightBrowserWindow.tsx:PlaywrightBrowserWindow",
+      "name": "PlaywrightBrowserWindow",
+      "type": "function",
+      "filePath": "src/components/co-founder/PlaywrightBrowserWindow.tsx",
+      "parentId": "file:src/components/co-founder/PlaywrightBrowserWindow.tsx",
+      "summary": "Function PlaywrightBrowserWindow",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/components/co-founder/VoiceTranscriptWindow.tsx",
+      "name": "VoiceTranscriptWindow.tsx",
+      "type": "file",
+      "filePath": "src/components/co-founder/VoiceTranscriptWindow.tsx",
+      "summary": "typescript code file (211 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/components/co-founder/VoiceTranscriptWindow.tsx:VoiceTranscriptWindow",
+      "name": "VoiceTranscriptWindow",
+      "type": "function",
+      "filePath": "src/components/co-founder/VoiceTranscriptWindow.tsx",
+      "parentId": "file:src/components/co-founder/VoiceTranscriptWindow.tsx",
+      "summary": "Function VoiceTranscriptWindow",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/components/co-founder/swarm/swarmTypes.tsx",
+      "name": "swarmTypes.tsx",
+      "type": "file",
+      "filePath": "src/components/co-founder/swarm/swarmTypes.tsx",
+      "summary": "typescript code file (261 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/components/co-founder/swarm/swarmTypes.tsx:getRoleTheme",
+      "name": "getRoleTheme",
+      "type": "function",
+      "filePath": "src/components/co-founder/swarm/swarmTypes.tsx",
+      "parentId": "file:src/components/co-founder/swarm/swarmTypes.tsx",
+      "summary": "Function getRoleTheme",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/components/co-founder/swarm/swarmTypes.tsx:getWorkerIcon",
+      "name": "getWorkerIcon",
+      "type": "function",
+      "filePath": "src/components/co-founder/swarm/swarmTypes.tsx",
+      "parentId": "file:src/components/co-founder/swarm/swarmTypes.tsx",
+      "summary": "Function getWorkerIcon",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/components/co-founder/workforce/WorkerGrid.tsx",
+      "name": "WorkerGrid.tsx",
+      "type": "file",
+      "filePath": "src/components/co-founder/workforce/WorkerGrid.tsx",
+      "summary": "typescript code file (500 lines)",
+      "complexity": "complex",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/components/co-founder/workforce/WorkerGrid.tsx:WorkerGrid",
+      "name": "WorkerGrid",
+      "type": "function",
+      "filePath": "src/components/co-founder/workforce/WorkerGrid.tsx",
+      "parentId": "file:src/components/co-founder/workforce/WorkerGrid.tsx",
+      "summary": "Function WorkerGrid",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/components/co-founder/workspace/LiveWorkspace.tsx",
+      "name": "LiveWorkspace.tsx",
+      "type": "file",
+      "filePath": "src/components/co-founder/workspace/LiveWorkspace.tsx",
+      "summary": "typescript code file (723 lines)",
+      "complexity": "complex",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/components/co-founder/workspace/LiveWorkspace.tsx:LiveWorkspace",
+      "name": "LiveWorkspace",
+      "type": "function",
+      "filePath": "src/components/co-founder/workspace/LiveWorkspace.tsx",
+      "parentId": "file:src/components/co-founder/workspace/LiveWorkspace.tsx",
+      "summary": "Function LiveWorkspace",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/components/dashboard/posthog/EventCountsBar.tsx",
+      "name": "EventCountsBar.tsx",
+      "type": "file",
+      "filePath": "src/components/dashboard/posthog/EventCountsBar.tsx",
+      "summary": "typescript code file (62 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/components/dashboard/posthog/EventCountsBar.tsx:EventCountsBar",
+      "name": "EventCountsBar",
+      "type": "function",
+      "filePath": "src/components/dashboard/posthog/EventCountsBar.tsx",
+      "parentId": "file:src/components/dashboard/posthog/EventCountsBar.tsx",
+      "summary": "Function EventCountsBar",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/components/dashboard/posthog/FunnelStrip.tsx",
+      "name": "FunnelStrip.tsx",
+      "type": "file",
+      "filePath": "src/components/dashboard/posthog/FunnelStrip.tsx",
+      "summary": "typescript code file (68 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/components/dashboard/posthog/FunnelStrip.tsx:FunnelStrip",
+      "name": "FunnelStrip",
+      "type": "function",
+      "filePath": "src/components/dashboard/posthog/FunnelStrip.tsx",
+      "parentId": "file:src/components/dashboard/posthog/FunnelStrip.tsx",
+      "summary": "Function FunnelStrip",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/components/dashboard/posthog/PostHogHealthBadge.tsx",
+      "name": "PostHogHealthBadge.tsx",
+      "type": "file",
+      "filePath": "src/components/dashboard/posthog/PostHogHealthBadge.tsx",
+      "summary": "typescript code file (39 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/components/dashboard/posthog/PostHogHealthBadge.tsx:PostHogHealthBadge",
+      "name": "PostHogHealthBadge",
+      "type": "function",
+      "filePath": "src/components/dashboard/posthog/PostHogHealthBadge.tsx",
+      "parentId": "file:src/components/dashboard/posthog/PostHogHealthBadge.tsx",
+      "summary": "Function PostHogHealthBadge",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/components/dashboard/posthog/ProductPerformanceTable.tsx",
+      "name": "ProductPerformanceTable.tsx",
+      "type": "file",
+      "filePath": "src/components/dashboard/posthog/ProductPerformanceTable.tsx",
+      "summary": "typescript code file (76 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/components/dashboard/posthog/ProductPerformanceTable.tsx:ProductPerformanceTable",
+      "name": "ProductPerformanceTable",
+      "type": "function",
+      "filePath": "src/components/dashboard/posthog/ProductPerformanceTable.tsx",
+      "parentId": "file:src/components/dashboard/posthog/ProductPerformanceTable.tsx",
+      "summary": "Function ProductPerformanceTable",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/components/dashboard/posthog/SessionReplayList.tsx",
+      "name": "SessionReplayList.tsx",
+      "type": "file",
+      "filePath": "src/components/dashboard/posthog/SessionReplayList.tsx",
+      "summary": "typescript code file (77 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/components/dashboard/posthog/SessionReplayList.tsx:formatDuration",
+      "name": "formatDuration",
+      "type": "function",
+      "filePath": "src/components/dashboard/posthog/SessionReplayList.tsx",
+      "parentId": "file:src/components/dashboard/posthog/SessionReplayList.tsx",
+      "summary": "Function formatDuration",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/components/dashboard/posthog/SessionReplayList.tsx:SessionReplayList",
+      "name": "SessionReplayList",
+      "type": "function",
+      "filePath": "src/components/dashboard/posthog/SessionReplayList.tsx",
+      "parentId": "file:src/components/dashboard/posthog/SessionReplayList.tsx",
+      "summary": "Function SessionReplayList",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/components/dashboard/posthog/SignupMethodDonut.tsx",
+      "name": "SignupMethodDonut.tsx",
+      "type": "file",
+      "filePath": "src/components/dashboard/posthog/SignupMethodDonut.tsx",
+      "summary": "typescript code file (80 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/components/dashboard/posthog/SignupMethodDonut.tsx:SignupMethodDonut",
+      "name": "SignupMethodDonut",
+      "type": "function",
+      "filePath": "src/components/dashboard/posthog/SignupMethodDonut.tsx",
+      "parentId": "file:src/components/dashboard/posthog/SignupMethodDonut.tsx",
+      "summary": "Function SignupMethodDonut",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/components/dashboard/posthog/TopPagesTable.tsx",
+      "name": "TopPagesTable.tsx",
+      "type": "file",
+      "filePath": "src/components/dashboard/posthog/TopPagesTable.tsx",
+      "summary": "typescript code file (72 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/components/dashboard/posthog/TopPagesTable.tsx:TopPagesTable",
+      "name": "TopPagesTable",
+      "type": "function",
+      "filePath": "src/components/dashboard/posthog/TopPagesTable.tsx",
+      "parentId": "file:src/components/dashboard/posthog/TopPagesTable.tsx",
+      "summary": "Function TopPagesTable",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/components/dashboard/posthog/TrafficOverview.tsx",
+      "name": "TrafficOverview.tsx",
+      "type": "file",
+      "filePath": "src/components/dashboard/posthog/TrafficOverview.tsx",
+      "summary": "typescript code file (141 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/components/dashboard/posthog/TrafficOverview.tsx:formatNumber",
+      "name": "formatNumber",
+      "type": "function",
+      "filePath": "src/components/dashboard/posthog/TrafficOverview.tsx",
+      "parentId": "file:src/components/dashboard/posthog/TrafficOverview.tsx",
+      "summary": "Function formatNumber",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/components/dashboard/posthog/TrafficOverview.tsx:TrafficOverview",
+      "name": "TrafficOverview",
+      "type": "function",
+      "filePath": "src/components/dashboard/posthog/TrafficOverview.tsx",
+      "parentId": "file:src/components/dashboard/posthog/TrafficOverview.tsx",
+      "summary": "Function TrafficOverview",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/components/dashboard/posthog/TrafficSourcesPanel.tsx",
+      "name": "TrafficSourcesPanel.tsx",
+      "type": "file",
+      "filePath": "src/components/dashboard/posthog/TrafficSourcesPanel.tsx",
+      "summary": "typescript code file (52 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/components/dashboard/posthog/TrafficSourcesPanel.tsx:TrafficSourcesPanel",
+      "name": "TrafficSourcesPanel",
+      "type": "function",
+      "filePath": "src/components/dashboard/posthog/TrafficSourcesPanel.tsx",
+      "parentId": "file:src/components/dashboard/posthog/TrafficSourcesPanel.tsx",
+      "summary": "Function TrafficSourcesPanel",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/components/design-system/BotMascot.tsx",
+      "name": "BotMascot.tsx",
+      "type": "file",
+      "filePath": "src/components/design-system/BotMascot.tsx",
+      "summary": "typescript code file (253 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/components/design-system/BotMascot.tsx:BotMascot",
+      "name": "BotMascot",
+      "type": "function",
+      "filePath": "src/components/design-system/BotMascot.tsx",
+      "parentId": "file:src/components/design-system/BotMascot.tsx",
+      "summary": "Function BotMascot",
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:src/components/ai/motion-engine/WorkerDisplayWindow.tsx",
+      "target": "function:src/components/ai/motion-engine/WorkerDisplayWindow.tsx:WorkerDisplayWindow",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkerDisplayWindow.tsx:WorkerDisplayWindow",
+      "target": "function:src/components/ai/motion-engine/WorkerDisplayWindow.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkerDisplayWindow.tsx:WorkerDisplayWindow",
+      "target": "function:src/components/ai/motion-engine/WorkerDisplayWindow.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkerDisplayWindow.tsx:WorkerDisplayWindow",
+      "target": "function:src/components/ai/motion-engine/WorkerDisplayWindow.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkerDisplayWindow.tsx:WorkerDisplayWindow",
+      "target": "function:src/components/ai/motion-engine/WorkerDisplayWindow.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkerDisplayWindow.tsx:handleTriggerWork",
+      "target": "function:src/components/ai/motion-engine/WorkerDisplayWindow.tsx:setSimulating",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkerDisplayWindow.tsx:handleTriggerWork",
+      "target": "function:src/components/ai/motion-engine/WorkerDisplayWindow.tsx:setLiveProgress",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkerDisplayWindow.tsx:handleTriggerWork",
+      "target": "function:src/components/ai/motion-engine/WorkerDisplayWindow.tsx:setLiveAction",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkerDisplayWindow.tsx:handleTriggerWork",
+      "target": "function:src/components/ai/motion-engine/WorkerDisplayWindow.tsx:toast.success",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkerDisplayWindow.tsx:handleTriggerWork",
+      "target": "function:src/components/ai/motion-engine/WorkerDisplayWindow.tsx:onSimulateWork",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkerDisplayWindow.tsx:handleTriggerWork",
+      "target": "function:src/components/ai/motion-engine/WorkerDisplayWindow.tsx:setTimeout",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkerDisplayWindow.tsx:handleTriggerWork",
+      "target": "function:src/components/ai/motion-engine/WorkerDisplayWindow.tsx:setLiveProgress",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkerDisplayWindow.tsx:handleTriggerWork",
+      "target": "function:src/components/ai/motion-engine/WorkerDisplayWindow.tsx:setLiveAction",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkerDisplayWindow.tsx:handleTriggerWork",
+      "target": "function:src/components/ai/motion-engine/WorkerDisplayWindow.tsx:setTimeout",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkerDisplayWindow.tsx:handleTriggerWork",
+      "target": "function:src/components/ai/motion-engine/WorkerDisplayWindow.tsx:setLiveProgress",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkerDisplayWindow.tsx:handleTriggerWork",
+      "target": "function:src/components/ai/motion-engine/WorkerDisplayWindow.tsx:setLiveAction",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkerDisplayWindow.tsx:handleTriggerWork",
+      "target": "function:src/components/ai/motion-engine/WorkerDisplayWindow.tsx:setTimeout",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkerDisplayWindow.tsx:handleTriggerWork",
+      "target": "function:src/components/ai/motion-engine/WorkerDisplayWindow.tsx:setLiveProgress",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkerDisplayWindow.tsx:handleTriggerWork",
+      "target": "function:src/components/ai/motion-engine/WorkerDisplayWindow.tsx:setLiveAction",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkerDisplayWindow.tsx:handleTriggerWork",
+      "target": "function:src/components/ai/motion-engine/WorkerDisplayWindow.tsx:setSimulating",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkerDisplayWindow.tsx:handleTriggerWork",
+      "target": "function:src/components/ai/motion-engine/WorkerDisplayWindow.tsx:toast.success",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkerDisplayWindow.tsx:WorkerDisplayWindow",
+      "target": "function:src/components/ai/motion-engine/WorkerDisplayWindow.tsx:getStatusBadge",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkerDisplayWindow.tsx:WorkerDisplayWindow",
+      "target": "function:src/components/ai/motion-engine/WorkerDisplayWindow.tsx:(['overview', 'logs', 'capabilities'] as const).map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkerDisplayWindow.tsx:WorkerDisplayWindow",
+      "target": "function:src/components/ai/motion-engine/WorkerDisplayWindow.tsx:setActiveTab",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkerDisplayWindow.tsx:WorkerDisplayWindow",
+      "target": "function:src/components/ai/motion-engine/WorkerDisplayWindow.tsx:[\r\n                  0.4, 0.9, 0.6, 1.2, 0.8, 1.4, 0.5, 1.1, 0.7, 1.3, 0.6, 1.0,\r\n                ].map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkerDisplayWindow.tsx:WorkerDisplayWindow",
+      "target": "function:src/components/ai/motion-engine/WorkerDisplayWindow.tsx:Math.max",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkerDisplayWindow.tsx:WorkerDisplayWindow",
+      "target": "function:src/components/ai/motion-engine/WorkerDisplayWindow.tsx:Math.sin",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkerDisplayWindow.tsx:WorkerDisplayWindow",
+      "target": "function:src/components/ai/motion-engine/WorkerDisplayWindow.tsx:Date.now",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkerDisplayWindow.tsx:WorkerDisplayWindow",
+      "target": "function:src/components/ai/motion-engine/WorkerDisplayWindow.tsx:node.telemetry.logLines.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkerDisplayWindow.tsx:WorkerDisplayWindow",
+      "target": "function:src/components/ai/motion-engine/WorkerDisplayWindow.tsx:node.capabilities.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkerDisplayWindow.tsx:WorkerDisplayWindow",
+      "target": "function:src/components/ai/motion-engine/WorkerDisplayWindow.tsx:node.name.split",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/components/ai/motion-engine/WorkforceSwarm3D.tsx",
+      "target": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:WorkforceSwarm3D",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:WorkforceSwarm3D",
+      "target": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:useRef",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:WorkforceSwarm3D",
+      "target": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:useRef",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:WorkforceSwarm3D",
+      "target": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:useRef",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:WorkforceSwarm3D",
+      "target": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:WorkforceSwarm3D",
+      "target": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:useRef",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:WorkforceSwarm3D",
+      "target": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:useRef",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:WorkforceSwarm3D",
+      "target": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:useRef",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:WorkforceSwarm3D",
+      "target": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:useRef",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:WorkforceSwarm3D",
+      "target": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:useEffect",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:WorkforceSwarm3D",
+      "target": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:renderer.setPixelRatio",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:WorkforceSwarm3D",
+      "target": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:Math.min",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:WorkforceSwarm3D",
+      "target": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:renderer.setSize",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:WorkforceSwarm3D",
+      "target": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:scene.add",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:WorkforceSwarm3D",
+      "target": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:keyLight.position.set",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:WorkforceSwarm3D",
+      "target": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:scene.add",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:WorkforceSwarm3D",
+      "target": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:fillLight.position.set",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:WorkforceSwarm3D",
+      "target": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:scene.add",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:WorkforceSwarm3D",
+      "target": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:rimLight.position.set",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:WorkforceSwarm3D",
+      "target": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:scene.add",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:WorkforceSwarm3D",
+      "target": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:mainPodiumGroup.add",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:WorkforceSwarm3D",
+      "target": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:mainPodiumGroup.add",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:WorkforceSwarm3D",
+      "target": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:scene.add",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:WorkforceSwarm3D",
+      "target": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:nodes.filter",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:WorkforceSwarm3D",
+      "target": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:nodes.forEach",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:WorkforceSwarm3D",
+      "target": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:coreWorkers.findIndex",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:WorkforceSwarm3D",
+      "target": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:Math.cos",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:WorkforceSwarm3D",
+      "target": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:Math.sin",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:WorkforceSwarm3D",
+      "target": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:Math.sin",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:WorkforceSwarm3D",
+      "target": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:nodes.find",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:WorkforceSwarm3D",
+      "target": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:coreWorkers.findIndex",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:WorkforceSwarm3D",
+      "target": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:parseInt",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:WorkforceSwarm3D",
+      "target": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:node.id.replace",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:WorkforceSwarm3D",
+      "target": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:Math.cos",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:WorkforceSwarm3D",
+      "target": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:Math.sin",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:WorkforceSwarm3D",
+      "target": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:podGroup.add",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:WorkforceSwarm3D",
+      "target": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:podGroup.add",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:WorkforceSwarm3D",
+      "target": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:podGroup.position.set",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:WorkforceSwarm3D",
+      "target": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:scene.add",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:WorkforceSwarm3D",
+      "target": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:createCharacter3D",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:WorkforceSwarm3D",
+      "target": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:bundle.group.position.set",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:WorkforceSwarm3D",
+      "target": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:scene.add",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:WorkforceSwarm3D",
+      "target": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:entries.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:WorkforceSwarm3D",
+      "target": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:entries.forEach",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:WorkforceSwarm3D",
+      "target": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:linePositions.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:WorkforceSwarm3D",
+      "target": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:linePositions.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:WorkforceSwarm3D",
+      "target": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:lineGeom.setAttribute",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:WorkforceSwarm3D",
+      "target": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:scene.add",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:animate",
+      "target": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:requestAnimationFrame",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:animate",
+      "target": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:clock.getElapsedTime",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:animate",
+      "target": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:clock.getDelta",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:animate",
+      "target": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:Math.sin",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:animate",
+      "target": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:Math.cos",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:animate",
+      "target": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:Math.sin",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:animate",
+      "target": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:Math.cos",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:animate",
+      "target": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:Math.cos",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:animate",
+      "target": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:camera.lookAt",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:animate",
+      "target": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:entries.forEach",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:animate",
+      "target": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:entry.bundle.update",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:animate",
+      "target": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:entry.bundle.group.scale.set",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:animate",
+      "target": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:entry.bundle.group.scale.set",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:animate",
+      "target": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:renderer.render",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:WorkforceSwarm3D",
+      "target": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:animate",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:handleResize",
+      "target": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:camera.updateProjectionMatrix",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:handleResize",
+      "target": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:renderer.setSize",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:WorkforceSwarm3D",
+      "target": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:window.addEventListener",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:WorkforceSwarm3D",
+      "target": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:cancelAnimationFrame",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:WorkforceSwarm3D",
+      "target": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:window.removeEventListener",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:WorkforceSwarm3D",
+      "target": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:entries.forEach",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:WorkforceSwarm3D",
+      "target": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:e.bundle.dispose",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:WorkforceSwarm3D",
+      "target": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:renderer.dispose",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:handleMouseMove",
+      "target": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:Math.max",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:handleMouseMove",
+      "target": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:Math.min",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:handleWheel",
+      "target": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:Math.max",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:handleWheel",
+      "target": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:Math.min",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:WorkforceSwarm3D",
+      "target": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:nodes.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:WorkforceSwarm3D",
+      "target": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:onSelectNode",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:WorkforceSwarm3D",
+      "target": "function:src/components/ai/motion-engine/WorkforceSwarm3D.tsx:node.name.replace",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/components/chat/AutoLinkText.tsx",
+      "target": "function:src/components/chat/AutoLinkText.tsx:parseAutoLinks",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/components/chat/AutoLinkText.tsx",
+      "target": "function:src/components/chat/AutoLinkText.tsx:AutoLinkText",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/components/chat/AutoLinkText.tsx:parseAutoLinks",
+      "target": "function:src/components/chat/AutoLinkText.tsx:urlRe.exec",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/AutoLinkText.tsx:parseAutoLinks",
+      "target": "function:src/components/chat/AutoLinkText.tsx:/[.,!?:;)\"'\\]]$/.test",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/AutoLinkText.tsx:parseAutoLinks",
+      "target": "function:src/components/chat/AutoLinkText.tsx:raw.slice",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/AutoLinkText.tsx:parseAutoLinks",
+      "target": "function:src/components/chat/AutoLinkText.tsx:href.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/AutoLinkText.tsx:parseAutoLinks",
+      "target": "function:src/components/chat/AutoLinkText.tsx:href.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/AutoLinkText.tsx:parseAutoLinks",
+      "target": "function:src/components/chat/AutoLinkText.tsx:matches.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/AutoLinkText.tsx:parseAutoLinks",
+      "target": "function:src/components/chat/AutoLinkText.tsx:emailRe.exec",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/AutoLinkText.tsx:parseAutoLinks",
+      "target": "function:src/components/chat/AutoLinkText.tsx:matches.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/AutoLinkText.tsx:parseAutoLinks",
+      "target": "function:src/components/chat/AutoLinkText.tsx:phoneRe.exec",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/AutoLinkText.tsx:parseAutoLinks",
+      "target": "function:src/components/chat/AutoLinkText.tsx:raw.replace",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/AutoLinkText.tsx:parseAutoLinks",
+      "target": "function:src/components/chat/AutoLinkText.tsx:matches.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/AutoLinkText.tsx:parseAutoLinks",
+      "target": "function:src/components/chat/AutoLinkText.tsx:raw.replace",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/AutoLinkText.tsx:parseAutoLinks",
+      "target": "function:src/components/chat/AutoLinkText.tsx:matches.sort",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/AutoLinkText.tsx:parseAutoLinks",
+      "target": "function:src/components/chat/AutoLinkText.tsx:nonOverlapping.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/AutoLinkText.tsx:parseAutoLinks",
+      "target": "function:src/components/chat/AutoLinkText.tsx:tokens.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/AutoLinkText.tsx:parseAutoLinks",
+      "target": "function:src/components/chat/AutoLinkText.tsx:text.slice",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/AutoLinkText.tsx:parseAutoLinks",
+      "target": "function:src/components/chat/AutoLinkText.tsx:tokens.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/AutoLinkText.tsx:parseAutoLinks",
+      "target": "function:src/components/chat/AutoLinkText.tsx:tokens.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/AutoLinkText.tsx:parseAutoLinks",
+      "target": "function:src/components/chat/AutoLinkText.tsx:text.slice",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/AutoLinkText.tsx:AutoLinkText",
+      "target": "function:src/components/chat/AutoLinkText.tsx:parseAutoLinks",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/AutoLinkText.tsx:AutoLinkText",
+      "target": "function:src/components/chat/AutoLinkText.tsx:tokens.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/AutoLinkText.tsx:AutoLinkText",
+      "target": "function:src/components/chat/AutoLinkText.tsx:e.stopPropagation",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/AutoLinkText.tsx:AutoLinkText",
+      "target": "function:src/components/chat/AutoLinkText.tsx:e.stopPropagation",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/AutoLinkText.tsx:AutoLinkText",
+      "target": "function:src/components/chat/AutoLinkText.tsx:e.stopPropagation",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/components/chat/FloatingStaffMessenger.tsx",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:formatTime",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/components/chat/FloatingStaffMessenger.tsx",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:getInitials",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/components/chat/FloatingStaffMessenger.tsx",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:avatarColor",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/components/chat/FloatingStaffMessenger.tsx",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:formatTime",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:now.getTime",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:formatTime",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:d.getTime",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:formatTime",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:Math.floor",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:formatTime",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:d.toLocaleTimeString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:formatTime",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:d.toLocaleDateString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:formatTime",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:d.toLocaleDateString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:getInitials",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:n.split(' ').filter",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:getInitials",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:n.split",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:getInitials",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:(parts[0][0] + parts[1][0]).toUpperCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:getInitials",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:n.slice(0, 2).toUpperCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:getInitials",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:n.slice",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:avatarColor",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:id.charCodeAt",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:avatarColor",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:Math.abs",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:useAuth",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:useSessionUserId",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:useUnreadChatCount",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:createClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:usePathname",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:pathname.split",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:useMemo",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:inChatSearchQuery.trim",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:inChatSearchQuery.trim().toLowerCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:inChatSearchQuery.trim",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:messages.filter",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:(m.text_content || '').toLowerCase().includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:(m.text_content || '').toLowerCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:useRef",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:useRef",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:useRef",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:['super_admin', 'admin'].includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:useEffect",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:supabase\r\n      .from('users')\r\n      .select('role')\r\n      .eq('id', supabaseUserId)\r\n      .maybeSingle()\r\n      .then",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:supabase\r\n      .from('users')\r\n      .select('role')\r\n      .eq('id', supabaseUserId)\r\n      .maybeSingle",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:supabase\r\n      .from('users')\r\n      .select('role')\r\n      .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:supabase\r\n      .from('users')\r\n      .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:supabase\r\n      .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:setUserRole",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:fetch('/api/internal-chat/staff')\r\n      .then((r) => r.json())\r\n      .then((d) => {\r\n        if (d.staff) setStaffList(d.staff);\r\n      })\r\n      .catch",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:fetch('/api/internal-chat/staff')\r\n      .then((r) => r.json())\r\n      .then",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:fetch('/api/internal-chat/staff')\r\n      .then",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:fetch",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:r.json",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:setStaffList",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:useEffect",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:handleToggle",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:setIsOpen",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:handleToggle",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:setIsMinimized",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:handleToggle",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:setIsMinimized",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:window.addEventListener",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:window.removeEventListener",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:useEffect",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:handleOpenChat",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:setIsOpen",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:handleOpenChat",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:setIsMinimized",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:handleOpenChat",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:fetch",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:handleOpenChat",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:res.json",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:handleOpenChat",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:setConversations",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:handleOpenChat",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:list.find",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:handleOpenChat",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:setActiveConv",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:handleOpenChat",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:setActiveConv",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:handleOpenChat",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:window.addEventListener",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:window.removeEventListener",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:useCallback",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:setLoadingConvs",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:fetch",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:res.json",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:setConversations",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:setLoadingConvs",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:useEffect",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:loadConversations",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:useCallback",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:setLoadingMsgs",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:fetch",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:res.json",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:setMessages",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:(data.messages || []).reverse",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:fetch('/api/internal-chat/reads', {\r\n          method: 'POST',\r\n          headers: { 'Content-Type': 'application/json' },\r\n          body: JSON.stringify({ conversation_id: convId }),\r\n        }).catch",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:fetch",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:JSON.stringify",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:setLoadingMsgs",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:useEffect",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:loadMessages",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:useEffect",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:supabase\r\n      .channel(`floating_chat_${activeConv.id}`)\r\n      .on(\r\n        'postgres_changes',\r\n        {\r\n          event: 'INSERT',\r\n          schema: 'public',\r\n          table: 'chat_messages',\r\n          filter: `conversation_id=eq.${activeConv.id}`,\r\n        },\r\n        async () => {\r\n          loadMessages(activeConv.id);\r\n        }\r\n      )\r\n      .on(\r\n        'postgres_changes',\r\n        {\r\n          event: 'UPDATE',\r\n          schema: 'public',\r\n          table: 'chat_messages',\r\n          filter: `conversation_id=eq.${activeConv.id}`,\r\n        },\r\n        async () => {\r\n          loadMessages(activeConv.id);\r\n        }\r\n      )\r\n      .on(\r\n        'postgres_changes',\r\n        {\r\n          event: 'INSERT',\r\n          schema: 'public',\r\n          table: 'chat_message_reads',\r\n        },\r\n        async () => {\r\n          loadMessages(activeConv.id);\r\n        }\r\n      )\r\n      .subscribe",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:supabase\r\n      .channel(`floating_chat_${activeConv.id}`)\r\n      .on(\r\n        'postgres_changes',\r\n        {\r\n          event: 'INSERT',\r\n          schema: 'public',\r\n          table: 'chat_messages',\r\n          filter: `conversation_id=eq.${activeConv.id}`,\r\n        },\r\n        async () => {\r\n          loadMessages(activeConv.id);\r\n        }\r\n      )\r\n      .on(\r\n        'postgres_changes',\r\n        {\r\n          event: 'UPDATE',\r\n          schema: 'public',\r\n          table: 'chat_messages',\r\n          filter: `conversation_id=eq.${activeConv.id}`,\r\n        },\r\n        async () => {\r\n          loadMessages(activeConv.id);\r\n        }\r\n      )\r\n      .on",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:supabase\r\n      .channel(`floating_chat_${activeConv.id}`)\r\n      .on(\r\n        'postgres_changes',\r\n        {\r\n          event: 'INSERT',\r\n          schema: 'public',\r\n          table: 'chat_messages',\r\n          filter: `conversation_id=eq.${activeConv.id}`,\r\n        },\r\n        async () => {\r\n          loadMessages(activeConv.id);\r\n        }\r\n      )\r\n      .on",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:supabase\r\n      .channel(`floating_chat_${activeConv.id}`)\r\n      .on",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:supabase\r\n      .channel",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:loadMessages",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:loadMessages",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:loadMessages",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:supabase.removeChannel",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:useEffect",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:messagesEndRef.current?.scrollIntoView",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:handleInputChange",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:setInputText",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:handleInputChange",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:val.match",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:handleInputChange",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:setMentionQuery",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:insertMention",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:u.full_name?.replace",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:insertMention",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:u.email?.split",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:insertMention",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:inputText.replace",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:insertMention",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:setInputText",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:insertMention",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:u.id.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:insertMention",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:setPendingMentions",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:insertMention",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:prev.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:insertMention",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:setMentionQuery",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:insertMention",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:textInputRef.current?.focus",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:handleAddEntityRef",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:entityId.trim",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:handleAddEntityRef",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:entityId.trim",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:handleAddEntityRef",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:entityId.trim",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:handleAddEntityRef",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:setPendingEntityRefs",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:handleAddEntityRef",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:setEntityId",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:handleAddEntityRef",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:setShowEntityPicker",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:handleSendMessage",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:e.preventDefault",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:handleSendMessage",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:inputText.trim",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:handleSendMessage",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:inputText.trim",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:handleSendMessage",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:setInputText",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:handleSendMessage",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:setSendingMsg",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:handleSendMessage",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:fetch",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:handleSendMessage",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:JSON.stringify",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:handleSendMessage",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:setPendingMentions",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:handleSendMessage",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:setPendingEntityRefs",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:handleSendMessage",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:loadMessages",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:handleSendMessage",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:handleSendMessage",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:setSendingMsg",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:handleFileUpload",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:setUploadingFile",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:handleFileUpload",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:formData.append",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:handleFileUpload",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:formData.append",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:handleFileUpload",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:fetch",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:handleFileUpload",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:res.json",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:handleFileUpload",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:fetch",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:handleFileUpload",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:JSON.stringify",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:handleFileUpload",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:loadMessages",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:handleFileUpload",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:handleFileUpload",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:setUploadingFile",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:conversations.filter",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:searchQuery.trim",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:searchQuery.toLowerCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:(\r\n      c.group_name ||\r\n      c.other_user?.full_name ||\r\n      c.other_user?.email ||\r\n      ''\r\n    ).toLowerCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:name.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:[...DEPARTMENTS, ...staffList]\r\n    .filter((u) => {\r\n      if (!mentionQuery) return false;\r\n      const q = mentionQuery.toLowerCase();\r\n      return (\r\n        (u.full_name || '').toLowerCase().includes(q) ||\r\n        (u.email || '').toLowerCase().includes(q) ||\r\n        (u.role || '').toLowerCase().includes(q)\r\n      );\r\n    })\r\n    .slice",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:[...DEPARTMENTS, ...staffList]\r\n    .filter",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:mentionQuery.toLowerCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:(u.full_name || '').toLowerCase().includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:(u.full_name || '').toLowerCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:(u.email || '').toLowerCase().includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:(u.email || '').toLowerCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:(u.role || '').toLowerCase().includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:(u.role || '').toLowerCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:setIsMinimized",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:getConvTitle",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:e.stopPropagation",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:setIsOpen",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:setIsOpen",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:setIsMinimized",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:setActiveConv",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:getConvTitle",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:setShowInChatSearch",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:setInChatSearchQuery",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:setIsMinimized",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:setIsOpen",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:setInChatSearchQuery",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:setShowInChatSearch",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:setInChatSearchQuery",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:setSearchQuery",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:filteredConversations.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:getConvTitle",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:setActiveConv",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:avatarColor",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:getInitials",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:formatTime",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:displayedMessages.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:attachments.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:entityRefs.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:encodeURIComponent",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:encodeURIComponent",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:formatTime",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:pendingEntityRefs.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:setPendingEntityRefs",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:prev.filter",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:mentionList.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:e.preventDefault",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:insertMention",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:u.id.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:getInitials",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:setShowEntityPicker",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:(['order', 'support_ticket', 'product'] as const).map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:setEntityType",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:t.charAt(0).toUpperCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:t.charAt",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:t.slice",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:setEntityId",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:e.preventDefault",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:handleAddEntityRef",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:entityId.trim",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:fileInputRef.current?.click",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:setShowEntityPicker",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/chat/FloatingStaffMessenger.tsx:FloatingStaffMessenger",
+      "target": "function:src/components/chat/FloatingStaffMessenger.tsx:inputText.trim",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/components/co-founder/CoFounderCharacter.tsx",
+      "target": "function:src/components/co-founder/CoFounderCharacter.tsx:CoFounderCharacter",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/components/co-founder/CoFounderCharacter.tsx:CoFounderCharacter",
+      "target": "function:src/components/co-founder/CoFounderCharacter.tsx:Math.min",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/co-founder/CoFounderCharacter.tsx:CoFounderCharacter",
+      "target": "function:src/components/co-founder/CoFounderCharacter.tsx:Math.max",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/co-founder/CoFounderCharacter.tsx:CoFounderCharacter",
+      "target": "function:src/components/co-founder/CoFounderCharacter.tsx:[0.6, 1.0, 0.7].map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/co-founder/CoFounderCharacter.tsx:CoFounderCharacter",
+      "target": "function:src/components/co-founder/CoFounderCharacter.tsx:[0.7, 1.0, 0.6].map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/co-founder/CoFounderCharacter.tsx:CoFounderCharacter",
+      "target": "function:src/components/co-founder/CoFounderCharacter.tsx:[0.6, 1.0, 0.5].map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/co-founder/CoFounderCharacter.tsx:CoFounderCharacter",
+      "target": "function:src/components/co-founder/CoFounderCharacter.tsx:e.stopPropagation",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/co-founder/CoFounderCharacter.tsx:CoFounderCharacter",
+      "target": "function:src/components/co-founder/CoFounderCharacter.tsx:onMicToggle",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/components/co-founder/CoWorkerAvatar.tsx",
+      "target": "function:src/components/co-founder/CoWorkerAvatar.tsx:CoWorkerAvatar",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/components/co-founder/CoWorkerAvatar.tsx:CoWorkerAvatar",
+      "target": "function:src/components/co-founder/CoWorkerAvatar.tsx:status.toUpperCase",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/components/co-founder/CoWorkerShowcase.tsx",
+      "target": "function:src/components/co-founder/CoWorkerShowcase.tsx:CoWorkerCharactersBanner",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/components/co-founder/CoWorkerShowcase.tsx",
+      "target": "function:src/components/co-founder/CoWorkerShowcase.tsx:CoWorkerShowcase",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/components/co-founder/CoWorkerShowcase.tsx:CoWorkerCharactersBanner",
+      "target": "function:src/components/co-founder/CoWorkerShowcase.tsx:workerRoles.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/co-founder/CoWorkerShowcase.tsx:CoWorkerCharactersBanner",
+      "target": "function:src/components/co-founder/CoWorkerShowcase.tsx:onSelectRole",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/co-founder/CoWorkerShowcase.tsx:CoWorkerShowcase",
+      "target": "function:src/components/co-founder/CoWorkerShowcase.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/co-founder/CoWorkerShowcase.tsx:CoWorkerShowcase",
+      "target": "function:src/components/co-founder/CoWorkerShowcase.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/co-founder/CoWorkerShowcase.tsx:CoWorkerShowcase",
+      "target": "function:src/components/co-founder/CoWorkerShowcase.tsx:Object.keys",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/co-founder/CoWorkerShowcase.tsx:CoWorkerShowcase",
+      "target": "function:src/components/co-founder/CoWorkerShowcase.tsx:setSelectedRole",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/co-founder/CoWorkerShowcase.tsx:CoWorkerShowcase",
+      "target": "function:src/components/co-founder/CoWorkerShowcase.tsx:statuses.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/co-founder/CoWorkerShowcase.tsx:CoWorkerShowcase",
+      "target": "function:src/components/co-founder/CoWorkerShowcase.tsx:setActiveStatus",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/components/co-founder/LiveVoiceVisualizer.tsx",
+      "target": "function:src/components/co-founder/LiveVoiceVisualizer.tsx:LiveVoiceVisualizer",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/components/co-founder/LiveVoiceVisualizer.tsx:LiveVoiceVisualizer",
+      "target": "function:src/components/co-founder/LiveVoiceVisualizer.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/co-founder/LiveVoiceVisualizer.tsx:LiveVoiceVisualizer",
+      "target": "function:src/components/co-founder/LiveVoiceVisualizer.tsx:useEffect",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/co-founder/LiveVoiceVisualizer.tsx:updateSize",
+      "target": "function:src/components/co-founder/LiveVoiceVisualizer.tsx:setCharSize",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/co-founder/LiveVoiceVisualizer.tsx:updateSize",
+      "target": "function:src/components/co-founder/LiveVoiceVisualizer.tsx:setCharSize",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/co-founder/LiveVoiceVisualizer.tsx:updateSize",
+      "target": "function:src/components/co-founder/LiveVoiceVisualizer.tsx:setCharSize",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/co-founder/LiveVoiceVisualizer.tsx:LiveVoiceVisualizer",
+      "target": "function:src/components/co-founder/LiveVoiceVisualizer.tsx:updateSize",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/co-founder/LiveVoiceVisualizer.tsx:LiveVoiceVisualizer",
+      "target": "function:src/components/co-founder/LiveVoiceVisualizer.tsx:window.addEventListener",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/co-founder/LiveVoiceVisualizer.tsx:LiveVoiceVisualizer",
+      "target": "function:src/components/co-founder/LiveVoiceVisualizer.tsx:window.removeEventListener",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/co-founder/LiveVoiceVisualizer.tsx:LiveVoiceVisualizer",
+      "target": "function:src/components/co-founder/LiveVoiceVisualizer.tsx:roomName.split('-').slice(0, 3).join",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/co-founder/LiveVoiceVisualizer.tsx:LiveVoiceVisualizer",
+      "target": "function:src/components/co-founder/LiveVoiceVisualizer.tsx:roomName.split('-').slice",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/co-founder/LiveVoiceVisualizer.tsx:LiveVoiceVisualizer",
+      "target": "function:src/components/co-founder/LiveVoiceVisualizer.tsx:roomName.split",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/components/co-founder/PlaywrightBrowserWindow.tsx",
+      "target": "function:src/components/co-founder/PlaywrightBrowserWindow.tsx:PlaywrightBrowserWindow",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/components/co-founder/PlaywrightBrowserWindow.tsx:PlaywrightBrowserWindow",
+      "target": "function:src/components/co-founder/PlaywrightBrowserWindow.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/co-founder/PlaywrightBrowserWindow.tsx:PlaywrightBrowserWindow",
+      "target": "function:src/components/co-founder/PlaywrightBrowserWindow.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/co-founder/PlaywrightBrowserWindow.tsx:PlaywrightBrowserWindow",
+      "target": "function:src/components/co-founder/PlaywrightBrowserWindow.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/co-founder/PlaywrightBrowserWindow.tsx:PlaywrightBrowserWindow",
+      "target": "function:src/components/co-founder/PlaywrightBrowserWindow.tsx:data.url.replace",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/co-founder/PlaywrightBrowserWindow.tsx:handleSubmit",
+      "target": "function:src/components/co-founder/PlaywrightBrowserWindow.tsx:e.preventDefault",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/co-founder/PlaywrightBrowserWindow.tsx:handleSubmit",
+      "target": "function:src/components/co-founder/PlaywrightBrowserWindow.tsx:inputUrl.trim",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/co-founder/PlaywrightBrowserWindow.tsx:handleSubmit",
+      "target": "function:src/components/co-founder/PlaywrightBrowserWindow.tsx:onBrowseUrl",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/co-founder/PlaywrightBrowserWindow.tsx:handleSubmit",
+      "target": "function:src/components/co-founder/PlaywrightBrowserWindow.tsx:inputUrl.trim",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/co-founder/PlaywrightBrowserWindow.tsx:PlaywrightBrowserWindow",
+      "target": "function:src/components/co-founder/PlaywrightBrowserWindow.tsx:setIsExpanded",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/co-founder/PlaywrightBrowserWindow.tsx:PlaywrightBrowserWindow",
+      "target": "function:src/components/co-founder/PlaywrightBrowserWindow.tsx:setInputUrl",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/co-founder/PlaywrightBrowserWindow.tsx:PlaywrightBrowserWindow",
+      "target": "function:src/components/co-founder/PlaywrightBrowserWindow.tsx:inputUrl.trim",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/co-founder/PlaywrightBrowserWindow.tsx:PlaywrightBrowserWindow",
+      "target": "function:src/components/co-founder/PlaywrightBrowserWindow.tsx:onBrowseUrl",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/co-founder/PlaywrightBrowserWindow.tsx:PlaywrightBrowserWindow",
+      "target": "function:src/components/co-founder/PlaywrightBrowserWindow.tsx:data.url.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/co-founder/PlaywrightBrowserWindow.tsx:PlaywrightBrowserWindow",
+      "target": "function:src/components/co-founder/PlaywrightBrowserWindow.tsx:setIsExpanded",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/co-founder/PlaywrightBrowserWindow.tsx:PlaywrightBrowserWindow",
+      "target": "function:src/components/co-founder/PlaywrightBrowserWindow.tsx:setActiveTab",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/co-founder/PlaywrightBrowserWindow.tsx:PlaywrightBrowserWindow",
+      "target": "function:src/components/co-founder/PlaywrightBrowserWindow.tsx:setActiveTab",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/co-founder/PlaywrightBrowserWindow.tsx:PlaywrightBrowserWindow",
+      "target": "function:src/components/co-founder/PlaywrightBrowserWindow.tsx:setActiveTab",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/co-founder/PlaywrightBrowserWindow.tsx:PlaywrightBrowserWindow",
+      "target": "function:src/components/co-founder/PlaywrightBrowserWindow.tsx:setActiveTab",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/co-founder/PlaywrightBrowserWindow.tsx:PlaywrightBrowserWindow",
+      "target": "function:src/components/co-founder/PlaywrightBrowserWindow.tsx:onBrowseUrl",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/co-founder/PlaywrightBrowserWindow.tsx:PlaywrightBrowserWindow",
+      "target": "function:src/components/co-founder/PlaywrightBrowserWindow.tsx:data.detectedPrices.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/co-founder/PlaywrightBrowserWindow.tsx:PlaywrightBrowserWindow",
+      "target": "function:src/components/co-founder/PlaywrightBrowserWindow.tsx:data.keyHighlights?.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/co-founder/PlaywrightBrowserWindow.tsx:PlaywrightBrowserWindow",
+      "target": "function:src/components/co-founder/PlaywrightBrowserWindow.tsx:data.headings.map",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/components/co-founder/VoiceTranscriptWindow.tsx",
+      "target": "function:src/components/co-founder/VoiceTranscriptWindow.tsx:VoiceTranscriptWindow",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/components/co-founder/VoiceTranscriptWindow.tsx:VoiceTranscriptWindow",
+      "target": "function:src/components/co-founder/VoiceTranscriptWindow.tsx:React.useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/co-founder/VoiceTranscriptWindow.tsx:VoiceTranscriptWindow",
+      "target": "function:src/components/co-founder/VoiceTranscriptWindow.tsx:useRef",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/co-founder/VoiceTranscriptWindow.tsx:VoiceTranscriptWindow",
+      "target": "function:src/components/co-founder/VoiceTranscriptWindow.tsx:useEffect",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/co-founder/VoiceTranscriptWindow.tsx:VoiceTranscriptWindow",
+      "target": "function:src/components/co-founder/VoiceTranscriptWindow.tsx:messagesEndRef.current?.scrollIntoView",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/co-founder/VoiceTranscriptWindow.tsx:handleSubmit",
+      "target": "function:src/components/co-founder/VoiceTranscriptWindow.tsx:e.preventDefault",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/co-founder/VoiceTranscriptWindow.tsx:handleSubmit",
+      "target": "function:src/components/co-founder/VoiceTranscriptWindow.tsx:inputText.trim",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/co-founder/VoiceTranscriptWindow.tsx:handleSubmit",
+      "target": "function:src/components/co-founder/VoiceTranscriptWindow.tsx:onSendMessage",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/co-founder/VoiceTranscriptWindow.tsx:handleSubmit",
+      "target": "function:src/components/co-founder/VoiceTranscriptWindow.tsx:inputText.trim",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/co-founder/VoiceTranscriptWindow.tsx:handleSubmit",
+      "target": "function:src/components/co-founder/VoiceTranscriptWindow.tsx:setInputText",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/co-founder/VoiceTranscriptWindow.tsx:VoiceTranscriptWindow",
+      "target": "function:src/components/co-founder/VoiceTranscriptWindow.tsx:messages.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/co-founder/VoiceTranscriptWindow.tsx:VoiceTranscriptWindow",
+      "target": "function:src/components/co-founder/VoiceTranscriptWindow.tsx:getRoleTheme",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/co-founder/VoiceTranscriptWindow.tsx:VoiceTranscriptWindow",
+      "target": "function:src/components/co-founder/VoiceTranscriptWindow.tsx:getWorkerIcon",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/co-founder/VoiceTranscriptWindow.tsx:VoiceTranscriptWindow",
+      "target": "function:src/components/co-founder/VoiceTranscriptWindow.tsx:setInputText",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/co-founder/VoiceTranscriptWindow.tsx:VoiceTranscriptWindow",
+      "target": "function:src/components/co-founder/VoiceTranscriptWindow.tsx:inputText.trim",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/components/co-founder/swarm/swarmTypes.tsx",
+      "target": "function:src/components/co-founder/swarm/swarmTypes.tsx:getRoleTheme",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/components/co-founder/swarm/swarmTypes.tsx",
+      "target": "function:src/components/co-founder/swarm/swarmTypes.tsx:getWorkerIcon",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/components/co-founder/workforce/WorkerGrid.tsx",
+      "target": "function:src/components/co-founder/workforce/WorkerGrid.tsx:WorkerGrid",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/components/co-founder/workforce/WorkerGrid.tsx:WorkerGrid",
+      "target": "function:src/components/co-founder/workforce/WorkerGrid.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/co-founder/workforce/WorkerGrid.tsx:WorkerGrid",
+      "target": "function:src/components/co-founder/workforce/WorkerGrid.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/co-founder/workforce/WorkerGrid.tsx:toggleExpand",
+      "target": "function:src/components/co-founder/workforce/WorkerGrid.tsx:setExpandedWorkerId",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/co-founder/workforce/WorkerGrid.tsx:handleUpdateStatus",
+      "target": "function:src/components/co-founder/workforce/WorkerGrid.tsx:setWorkerList",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/co-founder/workforce/WorkerGrid.tsx:handleUpdateStatus",
+      "target": "function:src/components/co-founder/workforce/WorkerGrid.tsx:prev.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/co-founder/workforce/WorkerGrid.tsx:WorkerGrid",
+      "target": "function:src/components/co-founder/workforce/WorkerGrid.tsx:workerList.filter",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/co-founder/workforce/WorkerGrid.tsx:WorkerGrid",
+      "target": "function:src/components/co-founder/workforce/WorkerGrid.tsx:workerList.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/co-founder/workforce/WorkerGrid.tsx:WorkerGrid",
+      "target": "function:src/components/co-founder/workforce/WorkerGrid.tsx:onSelectWorker",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/co-founder/workforce/WorkerGrid.tsx:WorkerGrid",
+      "target": "function:src/components/co-founder/workforce/WorkerGrid.tsx:worker.role.toUpperCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/co-founder/workforce/WorkerGrid.tsx:WorkerGrid",
+      "target": "function:src/components/co-founder/workforce/WorkerGrid.tsx:onPromptWorker",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/co-founder/workforce/WorkerGrid.tsx:WorkerGrid",
+      "target": "function:src/components/co-founder/workforce/WorkerGrid.tsx:toggleExpand",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/co-founder/workforce/WorkerGrid.tsx:WorkerGrid",
+      "target": "function:src/components/co-founder/workforce/WorkerGrid.tsx:worker.subAgents.map",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/components/co-founder/workspace/LiveWorkspace.tsx",
+      "target": "function:src/components/co-founder/workspace/LiveWorkspace.tsx:LiveWorkspace",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/components/co-founder/workspace/LiveWorkspace.tsx:LiveWorkspace",
+      "target": "function:src/components/co-founder/workspace/LiveWorkspace.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/co-founder/workspace/LiveWorkspace.tsx:LiveWorkspace",
+      "target": "function:src/components/co-founder/workspace/LiveWorkspace.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/co-founder/workspace/LiveWorkspace.tsx:LiveWorkspace",
+      "target": "function:src/components/co-founder/workspace/LiveWorkspace.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/co-founder/workspace/LiveWorkspace.tsx:LiveWorkspace",
+      "target": "function:src/components/co-founder/workspace/LiveWorkspace.tsx:useEffect",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/co-founder/workspace/LiveWorkspace.tsx:LiveWorkspace",
+      "target": "function:src/components/co-founder/workspace/LiveWorkspace.tsx:setInterval",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/co-founder/workspace/LiveWorkspace.tsx:LiveWorkspace",
+      "target": "function:src/components/co-founder/workspace/LiveWorkspace.tsx:setCodeTypeIndex",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/co-founder/workspace/LiveWorkspace.tsx:LiveWorkspace",
+      "target": "function:src/components/co-founder/workspace/LiveWorkspace.tsx:clearInterval",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/co-founder/workspace/LiveWorkspace.tsx:LiveWorkspace",
+      "target": "function:src/components/co-founder/workspace/LiveWorkspace.tsx:DEMO_PRESET_ACTIVITIES.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/co-founder/workspace/LiveWorkspace.tsx:LiveWorkspace",
+      "target": "function:src/components/co-founder/workspace/LiveWorkspace.tsx:setSelectedPresetIndex",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/co-founder/workspace/LiveWorkspace.tsx:LiveWorkspace",
+      "target": "function:src/components/co-founder/workspace/LiveWorkspace.tsx:setCodeTypeIndex",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/co-founder/workspace/LiveWorkspace.tsx:LiveWorkspace",
+      "target": "function:src/components/co-founder/workspace/LiveWorkspace.tsx:setIsLiveSimulating",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/co-founder/workspace/LiveWorkspace.tsx:LiveWorkspace",
+      "target": "function:src/components/co-founder/workspace/LiveWorkspace.tsx:mockCodeSnippet.slice",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/co-founder/workspace/LiveWorkspace.tsx:LiveWorkspace",
+      "target": "function:src/components/co-founder/workspace/LiveWorkspace.tsx:onWorkerClick",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/co-founder/workspace/LiveWorkspace.tsx:LiveWorkspace",
+      "target": "function:src/components/co-founder/workspace/LiveWorkspace.tsx:onWorkerClick",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/co-founder/workspace/LiveWorkspace.tsx:LiveWorkspace",
+      "target": "function:src/components/co-founder/workspace/LiveWorkspace.tsx:workers.map",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/components/dashboard/posthog/EventCountsBar.tsx",
+      "target": "function:src/components/dashboard/posthog/EventCountsBar.tsx:EventCountsBar",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/components/dashboard/posthog/EventCountsBar.tsx:EventCountsBar",
+      "target": "function:src/components/dashboard/posthog/EventCountsBar.tsx:Math.max",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/dashboard/posthog/EventCountsBar.tsx:EventCountsBar",
+      "target": "function:src/components/dashboard/posthog/EventCountsBar.tsx:events.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/dashboard/posthog/EventCountsBar.tsx:EventCountsBar",
+      "target": "function:src/components/dashboard/posthog/EventCountsBar.tsx:events.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/dashboard/posthog/EventCountsBar.tsx:EventCountsBar",
+      "target": "function:src/components/dashboard/posthog/EventCountsBar.tsx:item.count.toLocaleString",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/components/dashboard/posthog/FunnelStrip.tsx",
+      "target": "function:src/components/dashboard/posthog/FunnelStrip.tsx:FunnelStrip",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/components/dashboard/posthog/FunnelStrip.tsx:FunnelStrip",
+      "target": "function:src/components/dashboard/posthog/FunnelStrip.tsx:funnel.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/dashboard/posthog/FunnelStrip.tsx:FunnelStrip",
+      "target": "function:src/components/dashboard/posthog/FunnelStrip.tsx:step.count.toLocaleString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/dashboard/posthog/FunnelStrip.tsx:FunnelStrip",
+      "target": "function:src/components/dashboard/posthog/FunnelStrip.tsx:Math.max",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/components/dashboard/posthog/PostHogHealthBadge.tsx",
+      "target": "function:src/components/dashboard/posthog/PostHogHealthBadge.tsx:PostHogHealthBadge",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/components/dashboard/posthog/ProductPerformanceTable.tsx",
+      "target": "function:src/components/dashboard/posthog/ProductPerformanceTable.tsx:ProductPerformanceTable",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/components/dashboard/posthog/ProductPerformanceTable.tsx:ProductPerformanceTable",
+      "target": "function:src/components/dashboard/posthog/ProductPerformanceTable.tsx:products.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/dashboard/posthog/ProductPerformanceTable.tsx:ProductPerformanceTable",
+      "target": "function:src/components/dashboard/posthog/ProductPerformanceTable.tsx:p.viewed.toLocaleString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/dashboard/posthog/ProductPerformanceTable.tsx:ProductPerformanceTable",
+      "target": "function:src/components/dashboard/posthog/ProductPerformanceTable.tsx:p.added_to_cart.toLocaleString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/dashboard/posthog/ProductPerformanceTable.tsx:ProductPerformanceTable",
+      "target": "function:src/components/dashboard/posthog/ProductPerformanceTable.tsx:Math.min",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/components/dashboard/posthog/SessionReplayList.tsx",
+      "target": "function:src/components/dashboard/posthog/SessionReplayList.tsx:formatDuration",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/components/dashboard/posthog/SessionReplayList.tsx",
+      "target": "function:src/components/dashboard/posthog/SessionReplayList.tsx:SessionReplayList",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/components/dashboard/posthog/SessionReplayList.tsx:formatDuration",
+      "target": "function:src/components/dashboard/posthog/SessionReplayList.tsx:Math.round",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/dashboard/posthog/SessionReplayList.tsx:formatDuration",
+      "target": "function:src/components/dashboard/posthog/SessionReplayList.tsx:Math.floor",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/dashboard/posthog/SessionReplayList.tsx:SessionReplayList",
+      "target": "function:src/components/dashboard/posthog/SessionReplayList.tsx:recordings.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/dashboard/posthog/SessionReplayList.tsx:SessionReplayList",
+      "target": "function:src/components/dashboard/posthog/SessionReplayList.tsx:formatDuration",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/dashboard/posthog/SessionReplayList.tsx:SessionReplayList",
+      "target": "function:src/components/dashboard/posthog/SessionReplayList.tsx:new Date(r.recorded_at).toLocaleDateString",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/components/dashboard/posthog/SignupMethodDonut.tsx",
+      "target": "function:src/components/dashboard/posthog/SignupMethodDonut.tsx:SignupMethodDonut",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/components/dashboard/posthog/SignupMethodDonut.tsx:SignupMethodDonut",
+      "target": "function:src/components/dashboard/posthog/SignupMethodDonut.tsx:data.map",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/components/dashboard/posthog/TopPagesTable.tsx",
+      "target": "function:src/components/dashboard/posthog/TopPagesTable.tsx:TopPagesTable",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/components/dashboard/posthog/TopPagesTable.tsx:TopPagesTable",
+      "target": "function:src/components/dashboard/posthog/TopPagesTable.tsx:Math.max",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/dashboard/posthog/TopPagesTable.tsx:TopPagesTable",
+      "target": "function:src/components/dashboard/posthog/TopPagesTable.tsx:pages.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/dashboard/posthog/TopPagesTable.tsx:TopPagesTable",
+      "target": "function:src/components/dashboard/posthog/TopPagesTable.tsx:pages.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/dashboard/posthog/TopPagesTable.tsx:TopPagesTable",
+      "target": "function:src/components/dashboard/posthog/TopPagesTable.tsx:page.views.toLocaleString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/dashboard/posthog/TopPagesTable.tsx:TopPagesTable",
+      "target": "function:src/components/dashboard/posthog/TopPagesTable.tsx:page.unique.toLocaleString",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/components/dashboard/posthog/TrafficOverview.tsx",
+      "target": "function:src/components/dashboard/posthog/TrafficOverview.tsx:formatNumber",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/components/dashboard/posthog/TrafficOverview.tsx",
+      "target": "function:src/components/dashboard/posthog/TrafficOverview.tsx:TrafficOverview",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/components/dashboard/posthog/TrafficOverview.tsx:formatNumber",
+      "target": "function:src/components/dashboard/posthog/TrafficOverview.tsx:new Intl.NumberFormat('en-IN').format",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/dashboard/posthog/TrafficOverview.tsx:TrafficOverview",
+      "target": "function:src/components/dashboard/posthog/TrafficOverview.tsx:(totalPageviews / totalUniqueVisitors).toFixed",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/dashboard/posthog/TrafficOverview.tsx:TrafficOverview",
+      "target": "function:src/components/dashboard/posthog/TrafficOverview.tsx:formatNumber",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/dashboard/posthog/TrafficOverview.tsx:TrafficOverview",
+      "target": "function:src/components/dashboard/posthog/TrafficOverview.tsx:formatNumber",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/components/dashboard/posthog/TrafficSourcesPanel.tsx",
+      "target": "function:src/components/dashboard/posthog/TrafficSourcesPanel.tsx:TrafficSourcesPanel",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/components/dashboard/posthog/TrafficSourcesPanel.tsx:TrafficSourcesPanel",
+      "target": "function:src/components/dashboard/posthog/TrafficSourcesPanel.tsx:Math.max",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/dashboard/posthog/TrafficSourcesPanel.tsx:TrafficSourcesPanel",
+      "target": "function:src/components/dashboard/posthog/TrafficSourcesPanel.tsx:sources.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/dashboard/posthog/TrafficSourcesPanel.tsx:TrafficSourcesPanel",
+      "target": "function:src/components/dashboard/posthog/TrafficSourcesPanel.tsx:sources.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/dashboard/posthog/TrafficSourcesPanel.tsx:TrafficSourcesPanel",
+      "target": "function:src/components/dashboard/posthog/TrafficSourcesPanel.tsx:s.count.toLocaleString",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/components/design-system/BotMascot.tsx",
+      "target": "function:src/components/design-system/BotMascot.tsx:BotMascot",
+      "type": "contains"
+    }
+  ]
+}

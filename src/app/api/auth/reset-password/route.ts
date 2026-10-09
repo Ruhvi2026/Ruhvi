@@ -62,9 +62,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (password.length < 6) {
+    if (password.length < 8) {
       return NextResponse.json(
-        { error: 'Password must be at least 6 characters long.' },
+        { error: 'Password must be at least 8 characters long.' },
         { status: 400 }
       );
     }
@@ -79,11 +79,11 @@ export async function POST(request: NextRequest) {
 
     // 1. Verify the signed password reset token
     const secretKey = new TextEncoder().encode(jwtSecret);
-    let payload;
+    let payload: any;
     try {
       const verified = await jwtVerify(token, secretKey);
       payload = verified.payload;
-    } catch (err: any) {
+    } catch {
       return NextResponse.json(
         {
           error:
@@ -100,6 +100,24 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // 2. Prevent replay attacks: verify single-use validity
+    const tokenId = (payload.jti as string) || (payload.uid as string);
+    try {
+      const { cacheGet } = await import('@/lib/redis');
+      const isRedeemed = await cacheGet(`pwd_reset_used:${tokenId}`);
+      if (isRedeemed) {
+        return NextResponse.json(
+          {
+            error:
+              'This password reset link has already been used. Please request a new one.',
+          },
+          { status: 400 }
+        );
+      }
+    } catch (redisErr) {
+      console.warn('[reset-password] Redis check skipped:', redisErr);
+    }
+
     const uid = payload.uid as string;
     const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
     const rawPrivateKey = process.env.FIREBASE_PRIVATE_KEY;
@@ -112,14 +130,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 2. Generate a custom Firebase token to act on behalf of the user
+    // 3. Generate a custom Firebase token to act on behalf of the user
     const customToken = createFirebaseCustomToken(
       uid,
       clientEmail,
       rawPrivateKey
     );
 
-    // 3. Exchange custom token for an ID token
+    // 4. Exchange custom token for an ID token
     const signInRes = await fetch(
       `https://identitytoolkit.googleapis.com/v1/accounts:signInWithCustomToken?key=${apiKey}`,
       {
@@ -141,7 +159,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 4. Update the user's password in Firebase Auth
+    // 5. Update the user's password in Firebase Auth
     const updateRes = await fetch(
       `https://identitytoolkit.googleapis.com/v1/accounts:update?key=${apiKey}`,
       {
@@ -155,7 +173,27 @@ export async function POST(request: NextRequest) {
       }
     );
 
-    // 5. Also synchronize password update with Supabase Auth if applicable
+    if (!updateRes.ok) {
+      const updateErr = await updateRes.text();
+      console.error('[reset-password] Firebase update failed:', updateErr);
+      return NextResponse.json(
+        { error: 'Failed to update password. Please try again.' },
+        { status: 500 }
+      );
+    }
+
+    // 6. Invalidate the reset token immediately to enforce single-use
+    try {
+      const { cacheSet } = await import('@/lib/redis');
+      await cacheSet(`pwd_reset_used:${tokenId}`, '1', 3600);
+    } catch (redisErr) {
+      console.warn(
+        '[reset-password] Failed to mark reset token as used:',
+        redisErr
+      );
+    }
+
+    // 7. Synchronize password update with Supabase Auth and touch updated_at
     try {
       const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
       const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -165,6 +203,13 @@ export async function POST(request: NextRequest) {
         const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
           auth: { autoRefreshToken: false, persistSession: false },
         });
+
+        // Touch updated_at on the user profile to record the security update
+        await supabaseAdmin
+          .from('users')
+          .update({ updated_at: new Date().toISOString() })
+          .eq('id', customerId);
+
         await supabaseAdmin.auth.admin.updateUserById(customerId, {
           password: password,
         });

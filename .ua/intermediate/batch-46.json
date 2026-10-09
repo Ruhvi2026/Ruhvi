@@ -1,0 +1,786 @@
+{
+  "batchIndex": 46,
+  "batchFiles": [
+    {
+      "path": "src/services/posthog-analytics.service.ts",
+      "language": "typescript",
+      "sizeLines": 479,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/types/chat.ts",
+      "language": "typescript",
+      "sizeLines": 162,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/types/database.ts",
+      "language": "typescript",
+      "sizeLines": 376,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/types/declarations.d.ts",
+      "language": "typescript",
+      "sizeLines": 4,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/types/posthog-analytics.ts",
+      "language": "typescript",
+      "sizeLines": 53,
+      "fileCategory": "code"
+    },
+    {
+      "path": "supabase/.temp/cli-latest",
+      "language": "unknown",
+      "sizeLines": 0,
+      "fileCategory": "code"
+    },
+    {
+      "path": "supabase/.temp/project-ref",
+      "language": "unknown",
+      "sizeLines": 1,
+      "fileCategory": "code"
+    },
+    {
+      "path": "supabase/seed_admin.sql",
+      "language": "sql",
+      "sizeLines": 50,
+      "fileCategory": "data"
+    },
+    {
+      "path": "tailwind.config.js",
+      "language": "javascript",
+      "sizeLines": 199,
+      "fileCategory": "code"
+    },
+    {
+      "path": "task-scheduler.mjs",
+      "language": "javascript",
+      "sizeLines": 73,
+      "fileCategory": "code"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "file:src/services/posthog-analytics.service.ts",
+      "name": "posthog-analytics.service.ts",
+      "type": "file",
+      "filePath": "src/services/posthog-analytics.service.ts",
+      "summary": "typescript code file (479 lines)",
+      "complexity": "complex",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/services/posthog-analytics.service.ts:fetchPostHogQuery",
+      "name": "fetchPostHogQuery",
+      "type": "function",
+      "filePath": "src/services/posthog-analytics.service.ts",
+      "parentId": "file:src/services/posthog-analytics.service.ts",
+      "summary": "Function fetchPostHogQuery",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/services/posthog-analytics.service.ts:getDailyPageviews",
+      "name": "getDailyPageviews",
+      "type": "function",
+      "filePath": "src/services/posthog-analytics.service.ts",
+      "parentId": "file:src/services/posthog-analytics.service.ts",
+      "summary": "Function getDailyPageviews",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/services/posthog-analytics.service.ts:fetchHogQL",
+      "name": "fetchHogQL",
+      "type": "function",
+      "filePath": "src/services/posthog-analytics.service.ts",
+      "parentId": "file:src/services/posthog-analytics.service.ts",
+      "summary": "Function fetchHogQL",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/services/posthog-analytics.service.ts:getDailyUniqueVisitors",
+      "name": "getDailyUniqueVisitors",
+      "type": "function",
+      "filePath": "src/services/posthog-analytics.service.ts",
+      "parentId": "file:src/services/posthog-analytics.service.ts",
+      "summary": "Function getDailyUniqueVisitors",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/services/posthog-analytics.service.ts:getDailyTraffic",
+      "name": "getDailyTraffic",
+      "type": "function",
+      "filePath": "src/services/posthog-analytics.service.ts",
+      "parentId": "file:src/services/posthog-analytics.service.ts",
+      "summary": "Function getDailyTraffic",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/services/posthog-analytics.service.ts:getTopPages",
+      "name": "getTopPages",
+      "type": "function",
+      "filePath": "src/services/posthog-analytics.service.ts",
+      "parentId": "file:src/services/posthog-analytics.service.ts",
+      "summary": "Function getTopPages",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/services/posthog-analytics.service.ts:getTrafficSources",
+      "name": "getTrafficSources",
+      "type": "function",
+      "filePath": "src/services/posthog-analytics.service.ts",
+      "parentId": "file:src/services/posthog-analytics.service.ts",
+      "summary": "Function getTrafficSources",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/services/posthog-analytics.service.ts:getPurchaseFunnel",
+      "name": "getPurchaseFunnel",
+      "type": "function",
+      "filePath": "src/services/posthog-analytics.service.ts",
+      "parentId": "file:src/services/posthog-analytics.service.ts",
+      "summary": "Function getPurchaseFunnel",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/services/posthog-analytics.service.ts:getEventCounts",
+      "name": "getEventCounts",
+      "type": "function",
+      "filePath": "src/services/posthog-analytics.service.ts",
+      "parentId": "file:src/services/posthog-analytics.service.ts",
+      "summary": "Function getEventCounts",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/services/posthog-analytics.service.ts:getSignupBreakdown",
+      "name": "getSignupBreakdown",
+      "type": "function",
+      "filePath": "src/services/posthog-analytics.service.ts",
+      "parentId": "file:src/services/posthog-analytics.service.ts",
+      "summary": "Function getSignupBreakdown",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/services/posthog-analytics.service.ts:getProductPerformance",
+      "name": "getProductPerformance",
+      "type": "function",
+      "filePath": "src/services/posthog-analytics.service.ts",
+      "parentId": "file:src/services/posthog-analytics.service.ts",
+      "summary": "Function getProductPerformance",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/services/posthog-analytics.service.ts:getRecentSessionRecordings",
+      "name": "getRecentSessionRecordings",
+      "type": "function",
+      "filePath": "src/services/posthog-analytics.service.ts",
+      "parentId": "file:src/services/posthog-analytics.service.ts",
+      "summary": "Function getRecentSessionRecordings",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/services/posthog-analytics.service.ts:getMarketingKpis",
+      "name": "getMarketingKpis",
+      "type": "function",
+      "filePath": "src/services/posthog-analytics.service.ts",
+      "parentId": "file:src/services/posthog-analytics.service.ts",
+      "summary": "Function getMarketingKpis",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/types/chat.ts",
+      "name": "chat.ts",
+      "type": "file",
+      "filePath": "src/types/chat.ts",
+      "summary": "typescript code file (162 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:src/types/database.ts",
+      "name": "database.ts",
+      "type": "file",
+      "filePath": "src/types/database.ts",
+      "summary": "typescript code file (376 lines)",
+      "complexity": "complex",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:src/types/declarations.d.ts",
+      "name": "declarations.d.ts",
+      "type": "file",
+      "filePath": "src/types/declarations.d.ts",
+      "summary": "typescript code file (4 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:src/types/posthog-analytics.ts",
+      "name": "posthog-analytics.ts",
+      "type": "file",
+      "filePath": "src/types/posthog-analytics.ts",
+      "summary": "typescript code file (53 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:supabase/.temp/cli-latest",
+      "name": "cli-latest",
+      "type": "file",
+      "filePath": "supabase/.temp/cli-latest",
+      "summary": "unknown code file (1 lines)",
+      "complexity": "simple",
+      "tags": [
+        "unknown",
+        "code"
+      ]
+    },
+    {
+      "id": "file:supabase/.temp/project-ref",
+      "name": "project-ref",
+      "type": "file",
+      "filePath": "supabase/.temp/project-ref",
+      "summary": "unknown code file (1 lines)",
+      "complexity": "simple",
+      "tags": [
+        "unknown",
+        "code"
+      ]
+    },
+    {
+      "id": "table:supabase/seed_admin.sql",
+      "name": "seed_admin.sql",
+      "type": "table",
+      "filePath": "supabase/seed_admin.sql",
+      "summary": "sql data file (50 lines)",
+      "complexity": "simple",
+      "tags": [
+        "sql",
+        "data"
+      ]
+    },
+    {
+      "id": "file:tailwind.config.js",
+      "name": "tailwind.config.js",
+      "type": "file",
+      "filePath": "tailwind.config.js",
+      "summary": "javascript code file (199 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "javascript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:task-scheduler.mjs",
+      "name": "task-scheduler.mjs",
+      "type": "file",
+      "filePath": "task-scheduler.mjs",
+      "summary": "javascript code file (73 lines)",
+      "complexity": "simple",
+      "tags": [
+        "javascript",
+        "code"
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:src/services/posthog-analytics.service.ts",
+      "target": "function:src/services/posthog-analytics.service.ts:fetchPostHogQuery",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/services/posthog-analytics.service.ts",
+      "target": "function:src/services/posthog-analytics.service.ts:getDailyPageviews",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/services/posthog-analytics.service.ts",
+      "target": "function:src/services/posthog-analytics.service.ts:fetchHogQL",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/services/posthog-analytics.service.ts",
+      "target": "function:src/services/posthog-analytics.service.ts:getDailyUniqueVisitors",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/services/posthog-analytics.service.ts",
+      "target": "function:src/services/posthog-analytics.service.ts:getDailyTraffic",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/services/posthog-analytics.service.ts",
+      "target": "function:src/services/posthog-analytics.service.ts:getTopPages",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/services/posthog-analytics.service.ts",
+      "target": "function:src/services/posthog-analytics.service.ts:getTrafficSources",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/services/posthog-analytics.service.ts",
+      "target": "function:src/services/posthog-analytics.service.ts:getPurchaseFunnel",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/services/posthog-analytics.service.ts",
+      "target": "function:src/services/posthog-analytics.service.ts:getEventCounts",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/services/posthog-analytics.service.ts",
+      "target": "function:src/services/posthog-analytics.service.ts:getSignupBreakdown",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/services/posthog-analytics.service.ts",
+      "target": "function:src/services/posthog-analytics.service.ts:getProductPerformance",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/services/posthog-analytics.service.ts",
+      "target": "function:src/services/posthog-analytics.service.ts:getRecentSessionRecordings",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/services/posthog-analytics.service.ts",
+      "target": "function:src/services/posthog-analytics.service.ts:getMarketingKpis",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/services/posthog-analytics.service.ts:fetchPostHogQuery",
+      "target": "function:src/services/posthog-analytics.service.ts:console.warn",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/posthog-analytics.service.ts:fetchPostHogQuery",
+      "target": "function:src/services/posthog-analytics.service.ts:fetch",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/posthog-analytics.service.ts:fetchPostHogQuery",
+      "target": "function:src/services/posthog-analytics.service.ts:JSON.stringify",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/posthog-analytics.service.ts:fetchPostHogQuery",
+      "target": "function:src/services/posthog-analytics.service.ts:res.text",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/posthog-analytics.service.ts:fetchPostHogQuery",
+      "target": "function:src/services/posthog-analytics.service.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/posthog-analytics.service.ts:fetchPostHogQuery",
+      "target": "function:src/services/posthog-analytics.service.ts:res.json",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/posthog-analytics.service.ts:fetchPostHogQuery",
+      "target": "function:src/services/posthog-analytics.service.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/posthog-analytics.service.ts:getDailyPageviews",
+      "target": "function:src/services/posthog-analytics.service.ts:fetchPostHogQuery",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/posthog-analytics.service.ts:getDailyPageviews",
+      "target": "function:src/services/posthog-analytics.service.ts:dates.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/posthog-analytics.service.ts:fetchHogQL",
+      "target": "function:src/services/posthog-analytics.service.ts:fetchPostHogQuery",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/posthog-analytics.service.ts:fetchHogQL",
+      "target": "function:src/services/posthog-analytics.service.ts:Array.isArray",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/posthog-analytics.service.ts:fetchHogQL",
+      "target": "function:src/services/posthog-analytics.service.ts:Array.isArray",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/posthog-analytics.service.ts:fetchHogQL",
+      "target": "function:src/services/posthog-analytics.service.ts:data.results.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/posthog-analytics.service.ts:fetchHogQL",
+      "target": "function:src/services/posthog-analytics.service.ts:columns.forEach",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/posthog-analytics.service.ts:getDailyUniqueVisitors",
+      "target": "function:src/services/posthog-analytics.service.ts:fetchHogQL",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/posthog-analytics.service.ts:getDailyUniqueVisitors",
+      "target": "function:src/services/posthog-analytics.service.ts:rows.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/posthog-analytics.service.ts:getDailyUniqueVisitors",
+      "target": "function:src/services/posthog-analytics.service.ts:String",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/posthog-analytics.service.ts:getDailyUniqueVisitors",
+      "target": "function:src/services/posthog-analytics.service.ts:Number",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/posthog-analytics.service.ts:getDailyTraffic",
+      "target": "function:src/services/posthog-analytics.service.ts:Promise.all",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/posthog-analytics.service.ts:getDailyTraffic",
+      "target": "function:src/services/posthog-analytics.service.ts:getDailyPageviews",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/posthog-analytics.service.ts:getDailyTraffic",
+      "target": "function:src/services/posthog-analytics.service.ts:getDailyUniqueVisitors",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/posthog-analytics.service.ts:getDailyTraffic",
+      "target": "function:src/services/posthog-analytics.service.ts:visitors.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/posthog-analytics.service.ts:getDailyTraffic",
+      "target": "function:src/services/posthog-analytics.service.ts:pageviews.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/posthog-analytics.service.ts:getDailyTraffic",
+      "target": "function:src/services/posthog-analytics.service.ts:pageviewMap.keys",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/posthog-analytics.service.ts:getDailyTraffic",
+      "target": "function:src/services/posthog-analytics.service.ts:visitorMap.keys",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/posthog-analytics.service.ts:getDailyTraffic",
+      "target": "function:src/services/posthog-analytics.service.ts:[...allDates].sort().map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/posthog-analytics.service.ts:getDailyTraffic",
+      "target": "function:src/services/posthog-analytics.service.ts:[...allDates].sort",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/posthog-analytics.service.ts:getDailyTraffic",
+      "target": "function:src/services/posthog-analytics.service.ts:pageviewMap.get",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/posthog-analytics.service.ts:getDailyTraffic",
+      "target": "function:src/services/posthog-analytics.service.ts:visitorMap.get",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/posthog-analytics.service.ts:getTopPages",
+      "target": "function:src/services/posthog-analytics.service.ts:fetchHogQL",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/posthog-analytics.service.ts:getTopPages",
+      "target": "function:src/services/posthog-analytics.service.ts:rows.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/posthog-analytics.service.ts:getTopPages",
+      "target": "function:src/services/posthog-analytics.service.ts:String",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/posthog-analytics.service.ts:getTopPages",
+      "target": "function:src/services/posthog-analytics.service.ts:Number",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/posthog-analytics.service.ts:getTopPages",
+      "target": "function:src/services/posthog-analytics.service.ts:Number",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/posthog-analytics.service.ts:getTrafficSources",
+      "target": "function:src/services/posthog-analytics.service.ts:fetchHogQL",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/posthog-analytics.service.ts:getTrafficSources",
+      "target": "function:src/services/posthog-analytics.service.ts:rows.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/posthog-analytics.service.ts:getTrafficSources",
+      "target": "function:src/services/posthog-analytics.service.ts:String",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/posthog-analytics.service.ts:getTrafficSources",
+      "target": "function:src/services/posthog-analytics.service.ts:Number",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/posthog-analytics.service.ts:getPurchaseFunnel",
+      "target": "function:src/services/posthog-analytics.service.ts:FUNNEL_EVENTS.map(\n    (evt, i) => `uniqExactIf(person_id, event = '${evt}') as stage_${i}`\n  ).join",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/posthog-analytics.service.ts:getPurchaseFunnel",
+      "target": "function:src/services/posthog-analytics.service.ts:FUNNEL_EVENTS.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/posthog-analytics.service.ts:getPurchaseFunnel",
+      "target": "function:src/services/posthog-analytics.service.ts:fetchHogQL",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/posthog-analytics.service.ts:getPurchaseFunnel",
+      "target": "function:src/services/posthog-analytics.service.ts:Number",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/posthog-analytics.service.ts:getPurchaseFunnel",
+      "target": "function:src/services/posthog-analytics.service.ts:FUNNEL_EVENTS.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/posthog-analytics.service.ts:getPurchaseFunnel",
+      "target": "function:src/services/posthog-analytics.service.ts:Number",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/posthog-analytics.service.ts:getPurchaseFunnel",
+      "target": "function:src/services/posthog-analytics.service.ts:Math.round",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/posthog-analytics.service.ts:getEventCounts",
+      "target": "function:src/services/posthog-analytics.service.ts:events.map((e) => `'${e}'`).join",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/posthog-analytics.service.ts:getEventCounts",
+      "target": "function:src/services/posthog-analytics.service.ts:events.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/posthog-analytics.service.ts:getEventCounts",
+      "target": "function:src/services/posthog-analytics.service.ts:fetchHogQL",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/posthog-analytics.service.ts:getEventCounts",
+      "target": "function:src/services/posthog-analytics.service.ts:rows.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/posthog-analytics.service.ts:getEventCounts",
+      "target": "function:src/services/posthog-analytics.service.ts:String",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/posthog-analytics.service.ts:getEventCounts",
+      "target": "function:src/services/posthog-analytics.service.ts:Number",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/posthog-analytics.service.ts:getSignupBreakdown",
+      "target": "function:src/services/posthog-analytics.service.ts:fetchHogQL",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/posthog-analytics.service.ts:getSignupBreakdown",
+      "target": "function:src/services/posthog-analytics.service.ts:rows.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/posthog-analytics.service.ts:getSignupBreakdown",
+      "target": "function:src/services/posthog-analytics.service.ts:String",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/posthog-analytics.service.ts:getSignupBreakdown",
+      "target": "function:src/services/posthog-analytics.service.ts:Number",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/posthog-analytics.service.ts:getProductPerformance",
+      "target": "function:src/services/posthog-analytics.service.ts:fetchHogQL",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/posthog-analytics.service.ts:getProductPerformance",
+      "target": "function:src/services/posthog-analytics.service.ts:rows\n    .filter((r) => r.product_id)\n    .map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/posthog-analytics.service.ts:getProductPerformance",
+      "target": "function:src/services/posthog-analytics.service.ts:rows\n    .filter",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/posthog-analytics.service.ts:getProductPerformance",
+      "target": "function:src/services/posthog-analytics.service.ts:Number",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/posthog-analytics.service.ts:getProductPerformance",
+      "target": "function:src/services/posthog-analytics.service.ts:Number",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/posthog-analytics.service.ts:getProductPerformance",
+      "target": "function:src/services/posthog-analytics.service.ts:String",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/posthog-analytics.service.ts:getProductPerformance",
+      "target": "function:src/services/posthog-analytics.service.ts:String",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/posthog-analytics.service.ts:getProductPerformance",
+      "target": "function:src/services/posthog-analytics.service.ts:Math.round",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/posthog-analytics.service.ts:getRecentSessionRecordings",
+      "target": "function:src/services/posthog-analytics.service.ts:fetch",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/posthog-analytics.service.ts:getRecentSessionRecordings",
+      "target": "function:src/services/posthog-analytics.service.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/posthog-analytics.service.ts:getRecentSessionRecordings",
+      "target": "function:src/services/posthog-analytics.service.ts:res.json",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/posthog-analytics.service.ts:getRecentSessionRecordings",
+      "target": "function:src/services/posthog-analytics.service.ts:Array.isArray",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/posthog-analytics.service.ts:getRecentSessionRecordings",
+      "target": "function:src/services/posthog-analytics.service.ts:results.slice(0, limit).map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/posthog-analytics.service.ts:getRecentSessionRecordings",
+      "target": "function:src/services/posthog-analytics.service.ts:results.slice",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/posthog-analytics.service.ts:getRecentSessionRecordings",
+      "target": "function:src/services/posthog-analytics.service.ts:String",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/posthog-analytics.service.ts:getRecentSessionRecordings",
+      "target": "function:src/services/posthog-analytics.service.ts:String",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/posthog-analytics.service.ts:getRecentSessionRecordings",
+      "target": "function:src/services/posthog-analytics.service.ts:Number",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/posthog-analytics.service.ts:getRecentSessionRecordings",
+      "target": "function:src/services/posthog-analytics.service.ts:String",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/posthog-analytics.service.ts:getRecentSessionRecordings",
+      "target": "function:src/services/posthog-analytics.service.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/posthog-analytics.service.ts:getMarketingKpis",
+      "target": "function:src/services/posthog-analytics.service.ts:getEventCounts",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/posthog-analytics.service.ts:countOf",
+      "target": "function:src/services/posthog-analytics.service.ts:eventCounts.find",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/posthog-analytics.service.ts:getMarketingKpis",
+      "target": "function:src/services/posthog-analytics.service.ts:countOf",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/posthog-analytics.service.ts:getMarketingKpis",
+      "target": "function:src/services/posthog-analytics.service.ts:countOf",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/posthog-analytics.service.ts:getMarketingKpis",
+      "target": "function:src/services/posthog-analytics.service.ts:countOf",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/posthog-analytics.service.ts:getMarketingKpis",
+      "target": "function:src/services/posthog-analytics.service.ts:countOf",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/posthog-analytics.service.ts:getMarketingKpis",
+      "target": "function:src/services/posthog-analytics.service.ts:Math.round",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/posthog-analytics.service.ts:getMarketingKpis",
+      "target": "function:src/services/posthog-analytics.service.ts:Math.round",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/services/posthog-analytics.service.ts:getMarketingKpis",
+      "target": "function:src/services/posthog-analytics.service.ts:Math.round",
+      "type": "calls"
+    }
+  ]
+}

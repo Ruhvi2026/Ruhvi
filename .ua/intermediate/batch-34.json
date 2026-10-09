@@ -1,0 +1,3318 @@
+{
+  "batchIndex": 34,
+  "batchFiles": [
+    {
+      "path": "src/app/tech/dashboard/page.tsx",
+      "language": "typescript",
+      "sizeLines": 247,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/tech/design/page.tsx",
+      "language": "typescript",
+      "sizeLines": 90,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/tech/feature-flags/page.tsx",
+      "language": "typescript",
+      "sizeLines": 54,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/tech/iam/page.tsx",
+      "language": "typescript",
+      "sizeLines": 229,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/tech/integrations/page.tsx",
+      "language": "typescript",
+      "sizeLines": 70,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/tech/layout.tsx",
+      "language": "typescript",
+      "sizeLines": 451,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/tech/notifications/page.tsx",
+      "language": "typescript",
+      "sizeLines": 285,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/tech/sentry/page.tsx",
+      "language": "typescript",
+      "sizeLines": 90,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/tech/seo/page.tsx",
+      "language": "typescript",
+      "sizeLines": 742,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/tech/task-manager/page.tsx",
+      "language": "typescript",
+      "sizeLines": 9,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/testimonials/page.tsx",
+      "language": "typescript",
+      "sizeLines": 140,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/tracking/[orderId]/page.tsx",
+      "language": "typescript",
+      "sizeLines": 305,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/unauthorized/page.tsx",
+      "language": "typescript",
+      "sizeLines": 25,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/wishlist/WishlistClient.tsx",
+      "language": "typescript",
+      "sizeLines": 114,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/wishlist/page.tsx",
+      "language": "typescript",
+      "sizeLines": 13,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/wishlist/share/[userId]/SharedWishlistClient.tsx",
+      "language": "typescript",
+      "sizeLines": 104,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/wishlist/share/[userId]/page.tsx",
+      "language": "typescript",
+      "sizeLines": 19,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/components/AddressTagSelector.tsx",
+      "language": "typescript",
+      "sizeLines": 81,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/components/AnalyticsScripts.tsx",
+      "language": "typescript",
+      "sizeLines": 21,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/components/CustomerSupportChat.tsx",
+      "language": "typescript",
+      "sizeLines": 640,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/components/CustomerSupportChatTrigger.tsx",
+      "language": "typescript",
+      "sizeLines": 59,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/components/FcmInit.tsx",
+      "language": "typescript",
+      "sizeLines": 125,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/components/LazyFcmInit.tsx",
+      "language": "typescript",
+      "sizeLines": 6,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/components/MetaPixel.tsx",
+      "language": "typescript",
+      "sizeLines": 71,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/components/NotFoundClient.tsx",
+      "language": "typescript",
+      "sizeLines": 113,
+      "fileCategory": "code"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "file:src/app/tech/dashboard/page.tsx",
+      "name": "page.tsx",
+      "type": "file",
+      "filePath": "src/app/tech/dashboard/page.tsx",
+      "summary": "typescript code file (247 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/app/tech/dashboard/page.tsx:TechDashboard",
+      "name": "TechDashboard",
+      "type": "function",
+      "filePath": "src/app/tech/dashboard/page.tsx",
+      "parentId": "file:src/app/tech/dashboard/page.tsx",
+      "summary": "Function TechDashboard",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app/tech/design/page.tsx",
+      "name": "page.tsx",
+      "type": "file",
+      "filePath": "src/app/tech/design/page.tsx",
+      "summary": "typescript code file (90 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/app/tech/design/page.tsx:DesignManagerPage",
+      "name": "DesignManagerPage",
+      "type": "function",
+      "filePath": "src/app/tech/design/page.tsx",
+      "parentId": "file:src/app/tech/design/page.tsx",
+      "summary": "Function DesignManagerPage",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app/tech/feature-flags/page.tsx",
+      "name": "page.tsx",
+      "type": "file",
+      "filePath": "src/app/tech/feature-flags/page.tsx",
+      "summary": "typescript code file (54 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/app/tech/feature-flags/page.tsx:FeatureFlagsPage",
+      "name": "FeatureFlagsPage",
+      "type": "function",
+      "filePath": "src/app/tech/feature-flags/page.tsx",
+      "parentId": "file:src/app/tech/feature-flags/page.tsx",
+      "summary": "Function FeatureFlagsPage",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app/tech/iam/page.tsx",
+      "name": "page.tsx",
+      "type": "file",
+      "filePath": "src/app/tech/iam/page.tsx",
+      "summary": "typescript code file (229 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/app/tech/iam/page.tsx:formatDate",
+      "name": "formatDate",
+      "type": "function",
+      "filePath": "src/app/tech/iam/page.tsx",
+      "parentId": "file:src/app/tech/iam/page.tsx",
+      "summary": "Function formatDate",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/tech/iam/page.tsx:IamPage",
+      "name": "IamPage",
+      "type": "function",
+      "filePath": "src/app/tech/iam/page.tsx",
+      "parentId": "file:src/app/tech/iam/page.tsx",
+      "summary": "Function IamPage",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app/tech/integrations/page.tsx",
+      "name": "page.tsx",
+      "type": "file",
+      "filePath": "src/app/tech/integrations/page.tsx",
+      "summary": "typescript code file (70 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/app/tech/integrations/page.tsx:IntegrationsPage",
+      "name": "IntegrationsPage",
+      "type": "function",
+      "filePath": "src/app/tech/integrations/page.tsx",
+      "parentId": "file:src/app/tech/integrations/page.tsx",
+      "summary": "Function IntegrationsPage",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app/tech/layout.tsx",
+      "name": "layout.tsx",
+      "type": "file",
+      "filePath": "src/app/tech/layout.tsx",
+      "summary": "typescript code file (451 lines)",
+      "complexity": "complex",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/app/tech/layout.tsx:NavLink",
+      "name": "NavLink",
+      "type": "function",
+      "filePath": "src/app/tech/layout.tsx",
+      "parentId": "file:src/app/tech/layout.tsx",
+      "summary": "Function NavLink",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/tech/layout.tsx:TechSidebarContent",
+      "name": "TechSidebarContent",
+      "type": "function",
+      "filePath": "src/app/tech/layout.tsx",
+      "parentId": "file:src/app/tech/layout.tsx",
+      "summary": "Function TechSidebarContent",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/tech/layout.tsx:TechLayout",
+      "name": "TechLayout",
+      "type": "function",
+      "filePath": "src/app/tech/layout.tsx",
+      "parentId": "file:src/app/tech/layout.tsx",
+      "summary": "Function TechLayout",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app/tech/notifications/page.tsx",
+      "name": "page.tsx",
+      "type": "file",
+      "filePath": "src/app/tech/notifications/page.tsx",
+      "summary": "typescript code file (285 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/app/tech/notifications/page.tsx:getIconForCategory",
+      "name": "getIconForCategory",
+      "type": "function",
+      "filePath": "src/app/tech/notifications/page.tsx",
+      "parentId": "file:src/app/tech/notifications/page.tsx",
+      "summary": "Function getIconForCategory",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/tech/notifications/page.tsx:formatTime",
+      "name": "formatTime",
+      "type": "function",
+      "filePath": "src/app/tech/notifications/page.tsx",
+      "parentId": "file:src/app/tech/notifications/page.tsx",
+      "summary": "Function formatTime",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/tech/notifications/page.tsx:getLinkForNotification",
+      "name": "getLinkForNotification",
+      "type": "function",
+      "filePath": "src/app/tech/notifications/page.tsx",
+      "parentId": "file:src/app/tech/notifications/page.tsx",
+      "summary": "Function getLinkForNotification",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/tech/notifications/page.tsx:TechNotifications",
+      "name": "TechNotifications",
+      "type": "function",
+      "filePath": "src/app/tech/notifications/page.tsx",
+      "parentId": "file:src/app/tech/notifications/page.tsx",
+      "summary": "Function TechNotifications",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app/tech/sentry/page.tsx",
+      "name": "page.tsx",
+      "type": "file",
+      "filePath": "src/app/tech/sentry/page.tsx",
+      "summary": "typescript code file (90 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/app/tech/sentry/page.tsx:SentryLogsPage",
+      "name": "SentryLogsPage",
+      "type": "function",
+      "filePath": "src/app/tech/sentry/page.tsx",
+      "parentId": "file:src/app/tech/sentry/page.tsx",
+      "summary": "Function SentryLogsPage",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app/tech/seo/page.tsx",
+      "name": "page.tsx",
+      "type": "file",
+      "filePath": "src/app/tech/seo/page.tsx",
+      "summary": "typescript code file (742 lines)",
+      "complexity": "complex",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/app/tech/seo/page.tsx:AdminSEOPage",
+      "name": "AdminSEOPage",
+      "type": "function",
+      "filePath": "src/app/tech/seo/page.tsx",
+      "parentId": "file:src/app/tech/seo/page.tsx",
+      "summary": "Function AdminSEOPage",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app/tech/task-manager/page.tsx",
+      "name": "page.tsx",
+      "type": "file",
+      "filePath": "src/app/tech/task-manager/page.tsx",
+      "summary": "typescript code file (9 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/app/tech/task-manager/page.tsx:TechTaskManagerPage",
+      "name": "TechTaskManagerPage",
+      "type": "function",
+      "filePath": "src/app/tech/task-manager/page.tsx",
+      "parentId": "file:src/app/tech/task-manager/page.tsx",
+      "summary": "Function TechTaskManagerPage",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app/testimonials/page.tsx",
+      "name": "page.tsx",
+      "type": "file",
+      "filePath": "src/app/testimonials/page.tsx",
+      "summary": "typescript code file (140 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/app/testimonials/page.tsx:TestimonialsPage",
+      "name": "TestimonialsPage",
+      "type": "function",
+      "filePath": "src/app/testimonials/page.tsx",
+      "parentId": "file:src/app/testimonials/page.tsx",
+      "summary": "Function TestimonialsPage",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app/tracking/[orderId]/page.tsx",
+      "name": "page.tsx",
+      "type": "file",
+      "filePath": "src/app/tracking/[orderId]/page.tsx",
+      "summary": "typescript code file (305 lines)",
+      "complexity": "complex",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/app/tracking/[orderId]/page.tsx:OrderTrackingPage",
+      "name": "OrderTrackingPage",
+      "type": "function",
+      "filePath": "src/app/tracking/[orderId]/page.tsx",
+      "parentId": "file:src/app/tracking/[orderId]/page.tsx",
+      "summary": "Function OrderTrackingPage",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app/unauthorized/page.tsx",
+      "name": "page.tsx",
+      "type": "file",
+      "filePath": "src/app/unauthorized/page.tsx",
+      "summary": "typescript code file (25 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/app/unauthorized/page.tsx:UnauthorizedPage",
+      "name": "UnauthorizedPage",
+      "type": "function",
+      "filePath": "src/app/unauthorized/page.tsx",
+      "parentId": "file:src/app/unauthorized/page.tsx",
+      "summary": "Function UnauthorizedPage",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app/wishlist/WishlistClient.tsx",
+      "name": "WishlistClient.tsx",
+      "type": "file",
+      "filePath": "src/app/wishlist/WishlistClient.tsx",
+      "summary": "typescript code file (114 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/app/wishlist/WishlistClient.tsx:WishlistPage",
+      "name": "WishlistPage",
+      "type": "function",
+      "filePath": "src/app/wishlist/WishlistClient.tsx",
+      "parentId": "file:src/app/wishlist/WishlistClient.tsx",
+      "summary": "Function WishlistPage",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app/wishlist/page.tsx",
+      "name": "page.tsx",
+      "type": "file",
+      "filePath": "src/app/wishlist/page.tsx",
+      "summary": "typescript code file (13 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/app/wishlist/page.tsx:Page",
+      "name": "Page",
+      "type": "function",
+      "filePath": "src/app/wishlist/page.tsx",
+      "parentId": "file:src/app/wishlist/page.tsx",
+      "summary": "Function Page",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app/wishlist/share/[userId]/SharedWishlistClient.tsx",
+      "name": "SharedWishlistClient.tsx",
+      "type": "file",
+      "filePath": "src/app/wishlist/share/[userId]/SharedWishlistClient.tsx",
+      "summary": "typescript code file (104 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/app/wishlist/share/[userId]/SharedWishlistClient.tsx:SharedWishlistPage",
+      "name": "SharedWishlistPage",
+      "type": "function",
+      "filePath": "src/app/wishlist/share/[userId]/SharedWishlistClient.tsx",
+      "parentId": "file:src/app/wishlist/share/[userId]/SharedWishlistClient.tsx",
+      "summary": "Function SharedWishlistPage",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app/wishlist/share/[userId]/page.tsx",
+      "name": "page.tsx",
+      "type": "file",
+      "filePath": "src/app/wishlist/share/[userId]/page.tsx",
+      "summary": "typescript code file (19 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/app/wishlist/share/[userId]/page.tsx:Page",
+      "name": "Page",
+      "type": "function",
+      "filePath": "src/app/wishlist/share/[userId]/page.tsx",
+      "parentId": "file:src/app/wishlist/share/[userId]/page.tsx",
+      "summary": "Function Page",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/components/AddressTagSelector.tsx",
+      "name": "AddressTagSelector.tsx",
+      "type": "file",
+      "filePath": "src/components/AddressTagSelector.tsx",
+      "summary": "typescript code file (81 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/components/AddressTagSelector.tsx:AddressTagSelector",
+      "name": "AddressTagSelector",
+      "type": "function",
+      "filePath": "src/components/AddressTagSelector.tsx",
+      "parentId": "file:src/components/AddressTagSelector.tsx",
+      "summary": "Function AddressTagSelector",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/components/AnalyticsScripts.tsx",
+      "name": "AnalyticsScripts.tsx",
+      "type": "file",
+      "filePath": "src/components/AnalyticsScripts.tsx",
+      "summary": "typescript code file (21 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/components/AnalyticsScripts.tsx:AnalyticsScripts",
+      "name": "AnalyticsScripts",
+      "type": "function",
+      "filePath": "src/components/AnalyticsScripts.tsx",
+      "parentId": "file:src/components/AnalyticsScripts.tsx",
+      "summary": "Function AnalyticsScripts",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/components/CustomerSupportChat.tsx",
+      "name": "CustomerSupportChat.tsx",
+      "type": "file",
+      "filePath": "src/components/CustomerSupportChat.tsx",
+      "summary": "typescript code file (640 lines)",
+      "complexity": "complex",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/components/CustomerSupportChat.tsx:BotMessage",
+      "name": "BotMessage",
+      "type": "function",
+      "filePath": "src/components/CustomerSupportChat.tsx",
+      "parentId": "file:src/components/CustomerSupportChat.tsx",
+      "summary": "Function BotMessage",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/components/CustomerSupportChat.tsx:CustomerSupportChat",
+      "name": "CustomerSupportChat",
+      "type": "function",
+      "filePath": "src/components/CustomerSupportChat.tsx",
+      "parentId": "file:src/components/CustomerSupportChat.tsx",
+      "summary": "Function CustomerSupportChat",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/components/CustomerSupportChatTrigger.tsx",
+      "name": "CustomerSupportChatTrigger.tsx",
+      "type": "file",
+      "filePath": "src/components/CustomerSupportChatTrigger.tsx",
+      "summary": "typescript code file (59 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/components/CustomerSupportChatTrigger.tsx:CustomerSupportChatTrigger",
+      "name": "CustomerSupportChatTrigger",
+      "type": "function",
+      "filePath": "src/components/CustomerSupportChatTrigger.tsx",
+      "parentId": "file:src/components/CustomerSupportChatTrigger.tsx",
+      "summary": "Function CustomerSupportChatTrigger",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/components/FcmInit.tsx",
+      "name": "FcmInit.tsx",
+      "type": "file",
+      "filePath": "src/components/FcmInit.tsx",
+      "summary": "typescript code file (125 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/components/FcmInit.tsx:removeFcmTokenFromBackend",
+      "name": "removeFcmTokenFromBackend",
+      "type": "function",
+      "filePath": "src/components/FcmInit.tsx",
+      "parentId": "file:src/components/FcmInit.tsx",
+      "summary": "Function removeFcmTokenFromBackend",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/components/FcmInit.tsx:FcmInit",
+      "name": "FcmInit",
+      "type": "function",
+      "filePath": "src/components/FcmInit.tsx",
+      "parentId": "file:src/components/FcmInit.tsx",
+      "summary": "Function FcmInit",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/components/LazyFcmInit.tsx",
+      "name": "LazyFcmInit.tsx",
+      "type": "file",
+      "filePath": "src/components/LazyFcmInit.tsx",
+      "summary": "typescript code file (6 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:src/components/MetaPixel.tsx",
+      "name": "MetaPixel.tsx",
+      "type": "file",
+      "filePath": "src/components/MetaPixel.tsx",
+      "summary": "typescript code file (71 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/components/MetaPixel.tsx:pageview",
+      "name": "pageview",
+      "type": "function",
+      "filePath": "src/components/MetaPixel.tsx",
+      "parentId": "file:src/components/MetaPixel.tsx",
+      "summary": "Function pageview",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/components/MetaPixel.tsx:event",
+      "name": "event",
+      "type": "function",
+      "filePath": "src/components/MetaPixel.tsx",
+      "parentId": "file:src/components/MetaPixel.tsx",
+      "summary": "Function event",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/components/MetaPixel.tsx:MetaPixel",
+      "name": "MetaPixel",
+      "type": "function",
+      "filePath": "src/components/MetaPixel.tsx",
+      "parentId": "file:src/components/MetaPixel.tsx",
+      "summary": "Function MetaPixel",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/components/NotFoundClient.tsx",
+      "name": "NotFoundClient.tsx",
+      "type": "file",
+      "filePath": "src/components/NotFoundClient.tsx",
+      "summary": "typescript code file (113 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/components/NotFoundClient.tsx:isPortalHostname",
+      "name": "isPortalHostname",
+      "type": "function",
+      "filePath": "src/components/NotFoundClient.tsx",
+      "parentId": "file:src/components/NotFoundClient.tsx",
+      "summary": "Function isPortalHostname",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/components/NotFoundClient.tsx:portalDashboardHref",
+      "name": "portalDashboardHref",
+      "type": "function",
+      "filePath": "src/components/NotFoundClient.tsx",
+      "parentId": "file:src/components/NotFoundClient.tsx",
+      "summary": "Function portalDashboardHref",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/components/NotFoundClient.tsx:NotFoundClient",
+      "name": "NotFoundClient",
+      "type": "function",
+      "filePath": "src/components/NotFoundClient.tsx",
+      "parentId": "file:src/components/NotFoundClient.tsx",
+      "summary": "Function NotFoundClient",
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:src/app/tech/dashboard/page.tsx",
+      "target": "function:src/app/tech/dashboard/page.tsx:TechDashboard",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/app/tech/design/page.tsx",
+      "target": "function:src/app/tech/design/page.tsx:DesignManagerPage",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/app/tech/design/page.tsx:DesignManagerPage",
+      "target": "function:src/app/tech/design/page.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/design/page.tsx:DesignManagerPage",
+      "target": "function:src/app/tech/design/page.tsx:setActiveTab",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/design/page.tsx:DesignManagerPage",
+      "target": "function:src/app/tech/design/page.tsx:setActiveTab",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/design/page.tsx:DesignManagerPage",
+      "target": "function:src/app/tech/design/page.tsx:setActiveTab",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/app/tech/feature-flags/page.tsx",
+      "target": "function:src/app/tech/feature-flags/page.tsx:FeatureFlagsPage",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/app/tech/iam/page.tsx",
+      "target": "function:src/app/tech/iam/page.tsx:formatDate",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/app/tech/iam/page.tsx",
+      "target": "function:src/app/tech/iam/page.tsx:IamPage",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/app/tech/iam/page.tsx:formatDate",
+      "target": "function:src/app/tech/iam/page.tsx:Number.isNaN",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/iam/page.tsx:formatDate",
+      "target": "function:src/app/tech/iam/page.tsx:date.getTime",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/iam/page.tsx:formatDate",
+      "target": "function:src/app/tech/iam/page.tsx:date.toLocaleDateString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/iam/page.tsx:IamPage",
+      "target": "function:src/app/tech/iam/page.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/iam/page.tsx:IamPage",
+      "target": "function:src/app/tech/iam/page.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/iam/page.tsx:IamPage",
+      "target": "function:src/app/tech/iam/page.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/iam/page.tsx:IamPage",
+      "target": "function:src/app/tech/iam/page.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/iam/page.tsx:IamPage",
+      "target": "function:src/app/tech/iam/page.tsx:useEffect",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/iam/page.tsx:loadStaff",
+      "target": "function:src/app/tech/iam/page.tsx:createClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/iam/page.tsx:loadStaff",
+      "target": "function:src/app/tech/iam/page.tsx:supabase\n          .from('users')\n          .select('id, full_name, email, role, created_at, updated_at')\n          .in('role', ['admin', 'manager', 'staff'])\n          .order",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/iam/page.tsx:loadStaff",
+      "target": "function:src/app/tech/iam/page.tsx:supabase\n          .from('users')\n          .select('id, full_name, email, role, created_at, updated_at')\n          .in",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/iam/page.tsx:loadStaff",
+      "target": "function:src/app/tech/iam/page.tsx:supabase\n          .from('users')\n          .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/iam/page.tsx:loadStaff",
+      "target": "function:src/app/tech/iam/page.tsx:supabase\n          .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/iam/page.tsx:loadStaff",
+      "target": "function:src/app/tech/iam/page.tsx:setStaff",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/iam/page.tsx:loadStaff",
+      "target": "function:src/app/tech/iam/page.tsx:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/iam/page.tsx:loadStaff",
+      "target": "function:src/app/tech/iam/page.tsx:setLoadError",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/iam/page.tsx:loadStaff",
+      "target": "function:src/app/tech/iam/page.tsx:setLoading",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/iam/page.tsx:IamPage",
+      "target": "function:src/app/tech/iam/page.tsx:loadStaff",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/iam/page.tsx:IamPage",
+      "target": "function:src/app/tech/iam/page.tsx:staff.filter",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/iam/page.tsx:IamPage",
+      "target": "function:src/app/tech/iam/page.tsx:searchQuery.trim().toLowerCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/iam/page.tsx:IamPage",
+      "target": "function:src/app/tech/iam/page.tsx:searchQuery.trim",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/iam/page.tsx:IamPage",
+      "target": "function:src/app/tech/iam/page.tsx:(member.full_name ?? '').toLowerCase().includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/iam/page.tsx:IamPage",
+      "target": "function:src/app/tech/iam/page.tsx:(member.full_name ?? '').toLowerCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/iam/page.tsx:IamPage",
+      "target": "function:src/app/tech/iam/page.tsx:(member.email ?? '').toLowerCase().includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/iam/page.tsx:IamPage",
+      "target": "function:src/app/tech/iam/page.tsx:(member.email ?? '').toLowerCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/iam/page.tsx:IamPage",
+      "target": "function:src/app/tech/iam/page.tsx:member.role.toLowerCase().includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/iam/page.tsx:IamPage",
+      "target": "function:src/app/tech/iam/page.tsx:member.role.toLowerCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/iam/page.tsx:IamPage",
+      "target": "function:src/app/tech/iam/page.tsx:setSearchQuery",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/iam/page.tsx:IamPage",
+      "target": "function:src/app/tech/iam/page.tsx:filteredStaff.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/iam/page.tsx:IamPage",
+      "target": "function:src/app/tech/iam/page.tsx:(member.full_name ?? '?').charAt(0).toUpperCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/iam/page.tsx:IamPage",
+      "target": "function:src/app/tech/iam/page.tsx:(member.full_name ?? '?').charAt",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/iam/page.tsx:IamPage",
+      "target": "function:src/app/tech/iam/page.tsx:formatDate",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/app/tech/integrations/page.tsx",
+      "target": "function:src/app/tech/integrations/page.tsx:IntegrationsPage",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/app/tech/layout.tsx",
+      "target": "function:src/app/tech/layout.tsx:NavLink",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/app/tech/layout.tsx",
+      "target": "function:src/app/tech/layout.tsx:TechSidebarContent",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/app/tech/layout.tsx",
+      "target": "function:src/app/tech/layout.tsx:TechLayout",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/app/tech/layout.tsx:NavLink",
+      "target": "function:src/app/tech/layout.tsx:usePathname",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/layout.tsx:NavLink",
+      "target": "function:src/app/tech/layout.tsx:item.children?.some",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/layout.tsx:NavLink",
+      "target": "function:src/app/tech/layout.tsx:pathname.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/layout.tsx:NavLink",
+      "target": "function:src/app/tech/layout.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/layout.tsx:NavLink",
+      "target": "function:src/app/tech/layout.tsx:pathname.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/layout.tsx:NavLink",
+      "target": "function:src/app/tech/layout.tsx:setOpen",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/layout.tsx:NavLink",
+      "target": "function:src/app/tech/layout.tsx:parseInt",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/layout.tsx:NavLink",
+      "target": "function:src/app/tech/layout.tsx:item.children.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/layout.tsx:NavLink",
+      "target": "function:src/app/tech/layout.tsx:pathname.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/layout.tsx:NavLink",
+      "target": "function:src/app/tech/layout.tsx:parseInt",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/layout.tsx:TechSidebarContent",
+      "target": "function:src/app/tech/layout.tsx:navGroups.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/layout.tsx:TechSidebarContent",
+      "target": "function:src/app/tech/layout.tsx:group.items.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/layout.tsx:TechLayout",
+      "target": "function:src/app/tech/layout.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/layout.tsx:TechLayout",
+      "target": "function:src/app/tech/layout.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/layout.tsx:TechLayout",
+      "target": "function:src/app/tech/layout.tsx:useAuth",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/layout.tsx:TechLayout",
+      "target": "function:src/app/tech/layout.tsx:useDepartmentNotifications",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/layout.tsx:TechLayout",
+      "target": "function:src/app/tech/layout.tsx:user?.email?.charAt(0).toUpperCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/layout.tsx:TechLayout",
+      "target": "function:src/app/tech/layout.tsx:user?.email?.charAt",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/layout.tsx:TechLayout",
+      "target": "function:src/app/tech/layout.tsx:NAV_GROUPS.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/layout.tsx:TechLayout",
+      "target": "function:src/app/tech/layout.tsx:group.items.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/layout.tsx:TechLayout",
+      "target": "function:src/app/tech/layout.tsx:unreadCount.toString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/layout.tsx:TechLayout",
+      "target": "function:src/app/tech/layout.tsx:setCollapsed",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/layout.tsx:TechLayout",
+      "target": "function:src/app/tech/layout.tsx:setMobileOpen",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/layout.tsx:TechLayout",
+      "target": "function:src/app/tech/layout.tsx:setMobileOpen",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/layout.tsx:TechLayout",
+      "target": "function:src/app/tech/layout.tsx:setMobileOpen",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/app/tech/notifications/page.tsx",
+      "target": "function:src/app/tech/notifications/page.tsx:getIconForCategory",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/app/tech/notifications/page.tsx",
+      "target": "function:src/app/tech/notifications/page.tsx:formatTime",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/app/tech/notifications/page.tsx",
+      "target": "function:src/app/tech/notifications/page.tsx:getLinkForNotification",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/app/tech/notifications/page.tsx",
+      "target": "function:src/app/tech/notifications/page.tsx:TechNotifications",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/app/tech/notifications/page.tsx:formatTime",
+      "target": "function:src/app/tech/notifications/page.tsx:Math.floor",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/notifications/page.tsx:formatTime",
+      "target": "function:src/app/tech/notifications/page.tsx:now.getTime",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/notifications/page.tsx:formatTime",
+      "target": "function:src/app/tech/notifications/page.tsx:date.getTime",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/notifications/page.tsx:formatTime",
+      "target": "function:src/app/tech/notifications/page.tsx:Math.floor",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/notifications/page.tsx:formatTime",
+      "target": "function:src/app/tech/notifications/page.tsx:Math.floor",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/notifications/page.tsx:TechNotifications",
+      "target": "function:src/app/tech/notifications/page.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/notifications/page.tsx:TechNotifications",
+      "target": "function:src/app/tech/notifications/page.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/notifications/page.tsx:TechNotifications",
+      "target": "function:src/app/tech/notifications/page.tsx:createClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/notifications/page.tsx:TechNotifications",
+      "target": "function:src/app/tech/notifications/page.tsx:useEffect",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/notifications/page.tsx:TechNotifications",
+      "target": "function:src/app/tech/notifications/page.tsx:fetchNotifications",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/notifications/page.tsx:TechNotifications",
+      "target": "function:src/app/tech/notifications/page.tsx:supabase\n      .channel('tech_notifications')\n      .on(\n        'postgres_changes',\n        {\n          event: 'INSERT',\n          schema: 'public',\n          table: 'notifications',\n          filter: 'target_department=eq.tech',\n        },\n        (payload: any) => {\n          setNotifications((prev) => [payload.new as Notification, ...prev]);\n        }\n      )\n      .on(\n        'postgres_changes',\n        {\n          event: 'UPDATE',\n          schema: 'public',\n          table: 'notifications',\n          filter: 'target_department=eq.tech',\n        },\n        (payload: any) => {\n          setNotifications((prev) =>\n            prev.map((n) =>\n              n.id === payload.new.id ? (payload.new as Notification) : n\n            )\n          );\n        }\n      )\n      .subscribe",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/notifications/page.tsx:TechNotifications",
+      "target": "function:src/app/tech/notifications/page.tsx:supabase\n      .channel('tech_notifications')\n      .on(\n        'postgres_changes',\n        {\n          event: 'INSERT',\n          schema: 'public',\n          table: 'notifications',\n          filter: 'target_department=eq.tech',\n        },\n        (payload: any) => {\n          setNotifications((prev) => [payload.new as Notification, ...prev]);\n        }\n      )\n      .on",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/notifications/page.tsx:TechNotifications",
+      "target": "function:src/app/tech/notifications/page.tsx:supabase\n      .channel('tech_notifications')\n      .on",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/notifications/page.tsx:TechNotifications",
+      "target": "function:src/app/tech/notifications/page.tsx:supabase\n      .channel",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/notifications/page.tsx:TechNotifications",
+      "target": "function:src/app/tech/notifications/page.tsx:setNotifications",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/notifications/page.tsx:TechNotifications",
+      "target": "function:src/app/tech/notifications/page.tsx:setNotifications",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/notifications/page.tsx:TechNotifications",
+      "target": "function:src/app/tech/notifications/page.tsx:prev.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/notifications/page.tsx:TechNotifications",
+      "target": "function:src/app/tech/notifications/page.tsx:supabase.removeChannel",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/notifications/page.tsx:fetchNotifications",
+      "target": "function:src/app/tech/notifications/page.tsx:supabase\n      .from('notifications')\n      .select('*')\n      .eq('target_department', 'tech')\n      .order",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/notifications/page.tsx:fetchNotifications",
+      "target": "function:src/app/tech/notifications/page.tsx:supabase\n      .from('notifications')\n      .select('*')\n      .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/notifications/page.tsx:fetchNotifications",
+      "target": "function:src/app/tech/notifications/page.tsx:supabase\n      .from('notifications')\n      .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/notifications/page.tsx:fetchNotifications",
+      "target": "function:src/app/tech/notifications/page.tsx:supabase\n      .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/notifications/page.tsx:fetchNotifications",
+      "target": "function:src/app/tech/notifications/page.tsx:setNotifications",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/notifications/page.tsx:TechNotifications",
+      "target": "function:src/app/tech/notifications/page.tsx:notifications.filter",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/notifications/page.tsx:markAsRead",
+      "target": "function:src/app/tech/notifications/page.tsx:supabase.from('notifications').update({ read: true }).eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/notifications/page.tsx:markAsRead",
+      "target": "function:src/app/tech/notifications/page.tsx:supabase.from('notifications').update",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/notifications/page.tsx:markAsRead",
+      "target": "function:src/app/tech/notifications/page.tsx:supabase.from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/notifications/page.tsx:markAsRead",
+      "target": "function:src/app/tech/notifications/page.tsx:setNotifications",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/notifications/page.tsx:markAsRead",
+      "target": "function:src/app/tech/notifications/page.tsx:notifications.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/notifications/page.tsx:markAllAsRead",
+      "target": "function:src/app/tech/notifications/page.tsx:notifications.filter((n) => !n.read).map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/notifications/page.tsx:markAllAsRead",
+      "target": "function:src/app/tech/notifications/page.tsx:notifications.filter",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/notifications/page.tsx:markAllAsRead",
+      "target": "function:src/app/tech/notifications/page.tsx:supabase\n        .from('notifications')\n        .update({ read: true })\n        .in",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/notifications/page.tsx:markAllAsRead",
+      "target": "function:src/app/tech/notifications/page.tsx:supabase\n        .from('notifications')\n        .update",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/notifications/page.tsx:markAllAsRead",
+      "target": "function:src/app/tech/notifications/page.tsx:supabase\n        .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/notifications/page.tsx:markAllAsRead",
+      "target": "function:src/app/tech/notifications/page.tsx:setNotifications",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/notifications/page.tsx:markAllAsRead",
+      "target": "function:src/app/tech/notifications/page.tsx:notifications.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/notifications/page.tsx:TechNotifications",
+      "target": "function:src/app/tech/notifications/page.tsx:['all', 'unread', 'mentions'].map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/notifications/page.tsx:TechNotifications",
+      "target": "function:src/app/tech/notifications/page.tsx:setActiveTab",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/notifications/page.tsx:TechNotifications",
+      "target": "function:src/app/tech/notifications/page.tsx:notifications.filter",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/notifications/page.tsx:TechNotifications",
+      "target": "function:src/app/tech/notifications/page.tsx:filteredNotifications.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/notifications/page.tsx:TechNotifications",
+      "target": "function:src/app/tech/notifications/page.tsx:getIconForCategory",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/notifications/page.tsx:TechNotifications",
+      "target": "function:src/app/tech/notifications/page.tsx:formatTime",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/notifications/page.tsx:TechNotifications",
+      "target": "function:src/app/tech/notifications/page.tsx:getLinkForNotification",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/notifications/page.tsx:TechNotifications",
+      "target": "function:src/app/tech/notifications/page.tsx:markAsRead",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/app/tech/sentry/page.tsx",
+      "target": "function:src/app/tech/sentry/page.tsx:SentryLogsPage",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/app/tech/seo/page.tsx",
+      "target": "function:src/app/tech/seo/page.tsx:AdminSEOPage",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:AdminSEOPage",
+      "target": "function:src/app/tech/seo/page.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:AdminSEOPage",
+      "target": "function:src/app/tech/seo/page.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:AdminSEOPage",
+      "target": "function:src/app/tech/seo/page.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:AdminSEOPage",
+      "target": "function:src/app/tech/seo/page.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:AdminSEOPage",
+      "target": "function:src/app/tech/seo/page.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:AdminSEOPage",
+      "target": "function:src/app/tech/seo/page.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:AdminSEOPage",
+      "target": "function:src/app/tech/seo/page.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:AdminSEOPage",
+      "target": "function:src/app/tech/seo/page.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:AdminSEOPage",
+      "target": "function:src/app/tech/seo/page.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:AdminSEOPage",
+      "target": "function:src/app/tech/seo/page.tsx:useEffect",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:loadProducts",
+      "target": "function:src/app/tech/seo/page.tsx:createClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:loadProducts",
+      "target": "function:src/app/tech/seo/page.tsx:supabase\n          .from('products')\n          .select('*, images:product_images(*), category:categories(*)')\n          .order",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:loadProducts",
+      "target": "function:src/app/tech/seo/page.tsx:supabase\n          .from('products')\n          .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:loadProducts",
+      "target": "function:src/app/tech/seo/page.tsx:supabase\n          .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:loadProducts",
+      "target": "function:src/app/tech/seo/page.tsx:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:loadProducts",
+      "target": "function:src/app/tech/seo/page.tsx:setLoadError",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:loadProducts",
+      "target": "function:src/app/tech/seo/page.tsx:setProducts",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:loadProducts",
+      "target": "function:src/app/tech/seo/page.tsx:setProducts",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:loadProducts",
+      "target": "function:src/app/tech/seo/page.tsx:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:loadProducts",
+      "target": "function:src/app/tech/seo/page.tsx:setLoadError",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:loadProducts",
+      "target": "function:src/app/tech/seo/page.tsx:setProducts",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:loadProducts",
+      "target": "function:src/app/tech/seo/page.tsx:setLoadingProducts",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:loadMetaSettings",
+      "target": "function:src/app/tech/seo/page.tsx:createClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:loadMetaSettings",
+      "target": "function:src/app/tech/seo/page.tsx:supabase\n          .from('settings')\n          .select('value')\n          .eq('key', 'seo_meta')\n          .maybeSingle",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:loadMetaSettings",
+      "target": "function:src/app/tech/seo/page.tsx:supabase\n          .from('settings')\n          .select('value')\n          .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:loadMetaSettings",
+      "target": "function:src/app/tech/seo/page.tsx:supabase\n          .from('settings')\n          .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:loadMetaSettings",
+      "target": "function:src/app/tech/seo/page.tsx:supabase\n          .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:loadMetaSettings",
+      "target": "function:src/app/tech/seo/page.tsx:setMetaSettings",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:loadMetaSettings",
+      "target": "function:src/app/tech/seo/page.tsx:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:AdminSEOPage",
+      "target": "function:src/app/tech/seo/page.tsx:loadProducts",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:AdminSEOPage",
+      "target": "function:src/app/tech/seo/page.tsx:loadMetaSettings",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:AdminSEOPage",
+      "target": "function:src/app/tech/seo/page.tsx:useEffect",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:AdminSEOPage",
+      "target": "function:src/app/tech/seo/page.tsx:setAltDrafts",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:AdminSEOPage",
+      "target": "function:src/app/tech/seo/page.tsx:products.forEach",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:AdminSEOPage",
+      "target": "function:src/app/tech/seo/page.tsx:(p.images || []).forEach",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:AdminSEOPage",
+      "target": "function:src/app/tech/seo/page.tsx:products.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:AdminSEOPage",
+      "target": "function:src/app/tech/seo/page.tsx:issues.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:AdminSEOPage",
+      "target": "function:src/app/tech/seo/page.tsx:issues.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:AdminSEOPage",
+      "target": "function:src/app/tech/seo/page.tsx:issues.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:AdminSEOPage",
+      "target": "function:src/app/tech/seo/page.tsx:Math.max",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:AdminSEOPage",
+      "target": "function:src/app/tech/seo/page.tsx:Math.round",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:AdminSEOPage",
+      "target": "function:src/app/tech/seo/page.tsx:productAudits.reduce",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:showMessage",
+      "target": "function:src/app/tech/seo/page.tsx:setMessage",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:showMessage",
+      "target": "function:src/app/tech/seo/page.tsx:setTimeout",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:showMessage",
+      "target": "function:src/app/tech/seo/page.tsx:setMessage",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:handleSaveMeta",
+      "target": "function:src/app/tech/seo/page.tsx:e.preventDefault",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:handleSaveMeta",
+      "target": "function:src/app/tech/seo/page.tsx:setSaving",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:handleSaveMeta",
+      "target": "function:src/app/tech/seo/page.tsx:createClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:handleSaveMeta",
+      "target": "function:src/app/tech/seo/page.tsx:supabase.from('settings').upsert",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:handleSaveMeta",
+      "target": "function:src/app/tech/seo/page.tsx:supabase.from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:handleSaveMeta",
+      "target": "function:src/app/tech/seo/page.tsx:new Date().toISOString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:handleSaveMeta",
+      "target": "function:src/app/tech/seo/page.tsx:showMessage",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:handleSaveMeta",
+      "target": "function:src/app/tech/seo/page.tsx:showMessage",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:handleSaveMeta",
+      "target": "function:src/app/tech/seo/page.tsx:setSaving",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:handleSaveAlt",
+      "target": "function:src/app/tech/seo/page.tsx:setSaving",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:handleSaveAlt",
+      "target": "function:src/app/tech/seo/page.tsx:createClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:handleSaveAlt",
+      "target": "function:src/app/tech/seo/page.tsx:supabase\n        .from('product_images')\n        .update({ alt: altDrafts[image.id]?.trim() || null })\n        .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:handleSaveAlt",
+      "target": "function:src/app/tech/seo/page.tsx:supabase\n        .from('product_images')\n        .update",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:handleSaveAlt",
+      "target": "function:src/app/tech/seo/page.tsx:supabase\n        .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:handleSaveAlt",
+      "target": "function:src/app/tech/seo/page.tsx:altDrafts[image.id]?.trim",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:handleSaveAlt",
+      "target": "function:src/app/tech/seo/page.tsx:showMessage",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:handleSaveAlt",
+      "target": "function:src/app/tech/seo/page.tsx:showMessage",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:handleSaveAlt",
+      "target": "function:src/app/tech/seo/page.tsx:setSaving",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:handleSaveAllAlts",
+      "target": "function:src/app/tech/seo/page.tsx:products.flatMap",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:handleSaveAllAlts",
+      "target": "function:src/app/tech/seo/page.tsx:setSaving",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:handleSaveAllAlts",
+      "target": "function:src/app/tech/seo/page.tsx:createClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:handleSaveAllAlts",
+      "target": "function:src/app/tech/seo/page.tsx:supabase\n          .from('product_images')\n          .update({ alt: altDrafts[img.id]?.trim() || null })\n          .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:handleSaveAllAlts",
+      "target": "function:src/app/tech/seo/page.tsx:supabase\n          .from('product_images')\n          .update",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:handleSaveAllAlts",
+      "target": "function:src/app/tech/seo/page.tsx:supabase\n          .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:handleSaveAllAlts",
+      "target": "function:src/app/tech/seo/page.tsx:altDrafts[img.id]?.trim",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:handleSaveAllAlts",
+      "target": "function:src/app/tech/seo/page.tsx:showMessage",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:handleSaveAllAlts",
+      "target": "function:src/app/tech/seo/page.tsx:showMessage",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:handleSaveAllAlts",
+      "target": "function:src/app/tech/seo/page.tsx:setSaving",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:AdminSEOPage",
+      "target": "function:src/app/tech/seo/page.tsx:products.filter",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:AdminSEOPage",
+      "target": "function:src/app/tech/seo/page.tsx:products.reduce",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:AdminSEOPage",
+      "target": "function:src/app/tech/seo/page.tsx:setReloadKey",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:AdminSEOPage",
+      "target": "function:src/app/tech/seo/page.tsx:setActiveTab",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:AdminSEOPage",
+      "target": "function:src/app/tech/seo/page.tsx:setActiveTab",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:AdminSEOPage",
+      "target": "function:src/app/tech/seo/page.tsx:setActiveTab",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:AdminSEOPage",
+      "target": "function:src/app/tech/seo/page.tsx:setActiveTab",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:AdminSEOPage",
+      "target": "function:src/app/tech/seo/page.tsx:productAudits.filter",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:AdminSEOPage",
+      "target": "function:src/app/tech/seo/page.tsx:productAudits.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:AdminSEOPage",
+      "target": "function:src/app/tech/seo/page.tsx:p.issues.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:AdminSEOPage",
+      "target": "function:src/app/tech/seo/page.tsx:setMetaSettings",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:AdminSEOPage",
+      "target": "function:src/app/tech/seo/page.tsx:setMetaSettings",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:AdminSEOPage",
+      "target": "function:src/app/tech/seo/page.tsx:setMetaSettings",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:AdminSEOPage",
+      "target": "function:src/app/tech/seo/page.tsx:setMetaSettings",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:AdminSEOPage",
+      "target": "function:src/app/tech/seo/page.tsx:productsWithImages.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:AdminSEOPage",
+      "target": "function:src/app/tech/seo/page.tsx:(p.images || []).map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:AdminSEOPage",
+      "target": "function:src/app/tech/seo/page.tsx:setAltDrafts",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tech/seo/page.tsx:AdminSEOPage",
+      "target": "function:src/app/tech/seo/page.tsx:handleSaveAlt",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/app/tech/task-manager/page.tsx",
+      "target": "function:src/app/tech/task-manager/page.tsx:TechTaskManagerPage",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/app/testimonials/page.tsx",
+      "target": "function:src/app/testimonials/page.tsx:TestimonialsPage",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/app/testimonials/page.tsx:TestimonialsPage",
+      "target": "function:src/app/testimonials/page.tsx:createClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/testimonials/page.tsx:TestimonialsPage",
+      "target": "function:src/app/testimonials/page.tsx:supabase\n    .from('testimonials')\n    .select(\n      'id, customer_name, rating, review_text, video_url, is_verified_purchase, created_at'\n    )\n    .eq('status', 'approved')\n    .order",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/testimonials/page.tsx:TestimonialsPage",
+      "target": "function:src/app/testimonials/page.tsx:supabase\n    .from('testimonials')\n    .select(\n      'id, customer_name, rating, review_text, video_url, is_verified_purchase, created_at'\n    )\n    .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/testimonials/page.tsx:TestimonialsPage",
+      "target": "function:src/app/testimonials/page.tsx:supabase\n    .from('testimonials')\n    .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/testimonials/page.tsx:TestimonialsPage",
+      "target": "function:src/app/testimonials/page.tsx:supabase\n    .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/testimonials/page.tsx:TestimonialsPage",
+      "target": "function:src/app/testimonials/page.tsx:testimonials.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/testimonials/page.tsx:TestimonialsPage",
+      "target": "function:src/app/testimonials/page.tsx:[...Array(5)].map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/testimonials/page.tsx:TestimonialsPage",
+      "target": "function:src/app/testimonials/page.tsx:Array",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/app/tracking/[orderId]/page.tsx",
+      "target": "function:src/app/tracking/[orderId]/page.tsx:OrderTrackingPage",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/app/tracking/[orderId]/page.tsx:OrderTrackingPage",
+      "target": "function:src/app/tracking/[orderId]/page.tsx:use",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tracking/[orderId]/page.tsx:OrderTrackingPage",
+      "target": "function:src/app/tracking/[orderId]/page.tsx:React.useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tracking/[orderId]/page.tsx:OrderTrackingPage",
+      "target": "function:src/app/tracking/[orderId]/page.tsx:React.useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tracking/[orderId]/page.tsx:OrderTrackingPage",
+      "target": "function:src/app/tracking/[orderId]/page.tsx:React.useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tracking/[orderId]/page.tsx:OrderTrackingPage",
+      "target": "function:src/app/tracking/[orderId]/page.tsx:React.useEffect",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tracking/[orderId]/page.tsx:OrderTrackingPage",
+      "target": "function:src/app/tracking/[orderId]/page.tsx:fetchTracking",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tracking/[orderId]/page.tsx:fetchTracking",
+      "target": "function:src/app/tracking/[orderId]/page.tsx:createClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tracking/[orderId]/page.tsx:fetchTracking",
+      "target": "function:src/app/tracking/[orderId]/page.tsx:supabase\n        .from('orders')\n        .select(\n          'id, order_number, status, awb_code, courier_name, created_at, shipped_at, out_for_delivery_at, delivered_at, estimated_delivery_date'\n        )\n        .eq('id', orderId)\n        .maybeSingle",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tracking/[orderId]/page.tsx:fetchTracking",
+      "target": "function:src/app/tracking/[orderId]/page.tsx:supabase\n        .from('orders')\n        .select(\n          'id, order_number, status, awb_code, courier_name, created_at, shipped_at, out_for_delivery_at, delivered_at, estimated_delivery_date'\n        )\n        .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tracking/[orderId]/page.tsx:fetchTracking",
+      "target": "function:src/app/tracking/[orderId]/page.tsx:supabase\n        .from('orders')\n        .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tracking/[orderId]/page.tsx:fetchTracking",
+      "target": "function:src/app/tracking/[orderId]/page.tsx:supabase\n        .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tracking/[orderId]/page.tsx:fetchTracking",
+      "target": "function:src/app/tracking/[orderId]/page.tsx:setError",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tracking/[orderId]/page.tsx:fetchTracking",
+      "target": "function:src/app/tracking/[orderId]/page.tsx:setLoading",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tracking/[orderId]/page.tsx:fetchTracking",
+      "target": "function:src/app/tracking/[orderId]/page.tsx:supabase\n        .from('tracking_updates')\n        .select('*')\n        .eq('order_id', orderId)\n        .order",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tracking/[orderId]/page.tsx:fetchTracking",
+      "target": "function:src/app/tracking/[orderId]/page.tsx:supabase\n        .from('tracking_updates')\n        .select('*')\n        .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tracking/[orderId]/page.tsx:fetchTracking",
+      "target": "function:src/app/tracking/[orderId]/page.tsx:supabase\n        .from('tracking_updates')\n        .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tracking/[orderId]/page.tsx:fetchTracking",
+      "target": "function:src/app/tracking/[orderId]/page.tsx:supabase\n        .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tracking/[orderId]/page.tsx:fetchTracking",
+      "target": "function:src/app/tracking/[orderId]/page.tsx:supabase\n        .from('shipments')\n        .select('*')\n        .eq('order_id', orderId)\n        .order('created_at', { ascending: false })\n        .limit(1)\n        .maybeSingle",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tracking/[orderId]/page.tsx:fetchTracking",
+      "target": "function:src/app/tracking/[orderId]/page.tsx:supabase\n        .from('shipments')\n        .select('*')\n        .eq('order_id', orderId)\n        .order('created_at', { ascending: false })\n        .limit",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tracking/[orderId]/page.tsx:fetchTracking",
+      "target": "function:src/app/tracking/[orderId]/page.tsx:supabase\n        .from('shipments')\n        .select('*')\n        .eq('order_id', orderId)\n        .order",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tracking/[orderId]/page.tsx:fetchTracking",
+      "target": "function:src/app/tracking/[orderId]/page.tsx:supabase\n        .from('shipments')\n        .select('*')\n        .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tracking/[orderId]/page.tsx:fetchTracking",
+      "target": "function:src/app/tracking/[orderId]/page.tsx:supabase\n        .from('shipments')\n        .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tracking/[orderId]/page.tsx:fetchTracking",
+      "target": "function:src/app/tracking/[orderId]/page.tsx:supabase\n        .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tracking/[orderId]/page.tsx:fetchTracking",
+      "target": "function:src/app/tracking/[orderId]/page.tsx:setTrackingData",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tracking/[orderId]/page.tsx:fetchTracking",
+      "target": "function:src/app/tracking/[orderId]/page.tsx:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tracking/[orderId]/page.tsx:fetchTracking",
+      "target": "function:src/app/tracking/[orderId]/page.tsx:setError",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tracking/[orderId]/page.tsx:fetchTracking",
+      "target": "function:src/app/tracking/[orderId]/page.tsx:setLoading",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tracking/[orderId]/page.tsx:OrderTrackingPage",
+      "target": "function:src/app/tracking/[orderId]/page.tsx:new Date(order.created_at).toLocaleString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tracking/[orderId]/page.tsx:OrderTrackingPage",
+      "target": "function:src/app/tracking/[orderId]/page.tsx:timelineSteps.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tracking/[orderId]/page.tsx:OrderTrackingPage",
+      "target": "function:src/app/tracking/[orderId]/page.tsx:new Date(order.shipped_at).toLocaleString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tracking/[orderId]/page.tsx:OrderTrackingPage",
+      "target": "function:src/app/tracking/[orderId]/page.tsx:(trackingData.updates || []).map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tracking/[orderId]/page.tsx:OrderTrackingPage",
+      "target": "function:src/app/tracking/[orderId]/page.tsx:new Date(u.timestamp).toLocaleString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tracking/[orderId]/page.tsx:OrderTrackingPage",
+      "target": "function:src/app/tracking/[orderId]/page.tsx:timelineSteps.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tracking/[orderId]/page.tsx:OrderTrackingPage",
+      "target": "function:src/app/tracking/[orderId]/page.tsx:timelineSteps.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tracking/[orderId]/page.tsx:OrderTrackingPage",
+      "target": "function:src/app/tracking/[orderId]/page.tsx:new Date(order.out_for_delivery_at).toLocaleString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tracking/[orderId]/page.tsx:OrderTrackingPage",
+      "target": "function:src/app/tracking/[orderId]/page.tsx:timelineSteps.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tracking/[orderId]/page.tsx:OrderTrackingPage",
+      "target": "function:src/app/tracking/[orderId]/page.tsx:new Date(order.delivered_at).toLocaleString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tracking/[orderId]/page.tsx:OrderTrackingPage",
+      "target": "function:src/app/tracking/[orderId]/page.tsx:['delivery_failed', 'rto_initiated', 'rto_received'].includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tracking/[orderId]/page.tsx:OrderTrackingPage",
+      "target": "function:src/app/tracking/[orderId]/page.tsx:timelineSteps.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tracking/[orderId]/page.tsx:OrderTrackingPage",
+      "target": "function:src/app/tracking/[orderId]/page.tsx:order.status.replace",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/tracking/[orderId]/page.tsx:OrderTrackingPage",
+      "target": "function:src/app/tracking/[orderId]/page.tsx:timelineSteps.map",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/app/unauthorized/page.tsx",
+      "target": "function:src/app/unauthorized/page.tsx:UnauthorizedPage",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/app/wishlist/WishlistClient.tsx",
+      "target": "function:src/app/wishlist/WishlistClient.tsx:WishlistPage",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/app/wishlist/WishlistClient.tsx:WishlistPage",
+      "target": "function:src/app/wishlist/WishlistClient.tsx:useWishlist",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/wishlist/WishlistClient.tsx:WishlistPage",
+      "target": "function:src/app/wishlist/WishlistClient.tsx:useCart",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/wishlist/WishlistClient.tsx:WishlistPage",
+      "target": "function:src/app/wishlist/WishlistClient.tsx:useAuth",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/wishlist/WishlistClient.tsx:WishlistPage",
+      "target": "function:src/app/wishlist/WishlistClient.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/wishlist/WishlistClient.tsx:handleShareWishlist",
+      "target": "function:src/app/wishlist/WishlistClient.tsx:toast.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/wishlist/WishlistClient.tsx:handleShareWishlist",
+      "target": "function:src/app/wishlist/WishlistClient.tsx:navigator.clipboard.writeText",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/wishlist/WishlistClient.tsx:handleShareWishlist",
+      "target": "function:src/app/wishlist/WishlistClient.tsx:setCopied",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/wishlist/WishlistClient.tsx:handleShareWishlist",
+      "target": "function:src/app/wishlist/WishlistClient.tsx:setTimeout",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/wishlist/WishlistClient.tsx:handleShareWishlist",
+      "target": "function:src/app/wishlist/WishlistClient.tsx:setCopied",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/wishlist/WishlistClient.tsx:handleMoveToCart",
+      "target": "function:src/app/wishlist/WishlistClient.tsx:addToCart",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/wishlist/WishlistClient.tsx:handleMoveToCart",
+      "target": "function:src/app/wishlist/WishlistClient.tsx:removeFromWishlist",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/wishlist/WishlistClient.tsx:WishlistPage",
+      "target": "function:src/app/wishlist/WishlistClient.tsx:items.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/wishlist/WishlistClient.tsx:WishlistPage",
+      "target": "function:src/app/wishlist/WishlistClient.tsx:handleMoveToCart",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/wishlist/WishlistClient.tsx:WishlistPage",
+      "target": "function:src/app/wishlist/WishlistClient.tsx:removeFromWishlist",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/app/wishlist/page.tsx",
+      "target": "function:src/app/wishlist/page.tsx:Page",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/app/wishlist/share/[userId]/SharedWishlistClient.tsx",
+      "target": "function:src/app/wishlist/share/[userId]/SharedWishlistClient.tsx:SharedWishlistPage",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/app/wishlist/share/[userId]/SharedWishlistClient.tsx:SharedWishlistPage",
+      "target": "function:src/app/wishlist/share/[userId]/SharedWishlistClient.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/wishlist/share/[userId]/SharedWishlistClient.tsx:SharedWishlistPage",
+      "target": "function:src/app/wishlist/share/[userId]/SharedWishlistClient.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/wishlist/share/[userId]/SharedWishlistClient.tsx:SharedWishlistPage",
+      "target": "function:src/app/wishlist/share/[userId]/SharedWishlistClient.tsx:useEffect",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/wishlist/share/[userId]/SharedWishlistClient.tsx:SharedWishlistPage",
+      "target": "function:src/app/wishlist/share/[userId]/SharedWishlistClient.tsx:setIsLoading",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/wishlist/share/[userId]/SharedWishlistClient.tsx:SharedWishlistPage",
+      "target": "function:src/app/wishlist/share/[userId]/SharedWishlistClient.tsx:(async () => {\n      try {\n        const supabase = createClient();\n        const { data, error } = await supabase\n          .from('wishlist')\n          .select(\n            'product:products(*, images:product_images(*), category:categories(*))'\n          )\n          .eq('user_id', userId);\n\n        if (!error && isMounted) {\n          setSharedProducts(\n            (data ?? [])\n              .map((row: any) => row.product)\n              .filter(Boolean) as Product[]\n          );\n        }\n      } catch (err) {\n        console.error('Failed to load shared wishlist', err);\n      } finally {\n        if (isMounted) setIsLoading(false);\n      }\n    })",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/wishlist/share/[userId]/SharedWishlistClient.tsx:SharedWishlistPage",
+      "target": "function:src/app/wishlist/share/[userId]/SharedWishlistClient.tsx:createClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/wishlist/share/[userId]/SharedWishlistClient.tsx:SharedWishlistPage",
+      "target": "function:src/app/wishlist/share/[userId]/SharedWishlistClient.tsx:supabase\n          .from('wishlist')\n          .select(\n            'product:products(*, images:product_images(*), category:categories(*))'\n          )\n          .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/wishlist/share/[userId]/SharedWishlistClient.tsx:SharedWishlistPage",
+      "target": "function:src/app/wishlist/share/[userId]/SharedWishlistClient.tsx:supabase\n          .from('wishlist')\n          .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/wishlist/share/[userId]/SharedWishlistClient.tsx:SharedWishlistPage",
+      "target": "function:src/app/wishlist/share/[userId]/SharedWishlistClient.tsx:supabase\n          .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/wishlist/share/[userId]/SharedWishlistClient.tsx:SharedWishlistPage",
+      "target": "function:src/app/wishlist/share/[userId]/SharedWishlistClient.tsx:setSharedProducts",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/wishlist/share/[userId]/SharedWishlistClient.tsx:SharedWishlistPage",
+      "target": "function:src/app/wishlist/share/[userId]/SharedWishlistClient.tsx:(data ?? [])\n              .map((row: any) => row.product)\n              .filter",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/wishlist/share/[userId]/SharedWishlistClient.tsx:SharedWishlistPage",
+      "target": "function:src/app/wishlist/share/[userId]/SharedWishlistClient.tsx:(data ?? [])\n              .map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/wishlist/share/[userId]/SharedWishlistClient.tsx:SharedWishlistPage",
+      "target": "function:src/app/wishlist/share/[userId]/SharedWishlistClient.tsx:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/wishlist/share/[userId]/SharedWishlistClient.tsx:SharedWishlistPage",
+      "target": "function:src/app/wishlist/share/[userId]/SharedWishlistClient.tsx:setIsLoading",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/app/wishlist/share/[userId]/SharedWishlistClient.tsx:SharedWishlistPage",
+      "target": "function:src/app/wishlist/share/[userId]/SharedWishlistClient.tsx:sharedProducts.map",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/app/wishlist/share/[userId]/page.tsx",
+      "target": "function:src/app/wishlist/share/[userId]/page.tsx:Page",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/components/AddressTagSelector.tsx",
+      "target": "function:src/components/AddressTagSelector.tsx:AddressTagSelector",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/components/AddressTagSelector.tsx:AddressTagSelector",
+      "target": "function:src/components/AddressTagSelector.tsx:value.trim",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/AddressTagSelector.tsx:AddressTagSelector",
+      "target": "function:src/components/AddressTagSelector.tsx:ADDRESS_TAG_SUGGESTIONS.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/AddressTagSelector.tsx:AddressTagSelector",
+      "target": "function:src/components/AddressTagSelector.tsx:value.trim",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/AddressTagSelector.tsx:AddressTagSelector",
+      "target": "function:src/components/AddressTagSelector.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/AddressTagSelector.tsx:AddressTagSelector",
+      "target": "function:src/components/AddressTagSelector.tsx:useEffect",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/AddressTagSelector.tsx:AddressTagSelector",
+      "target": "function:src/components/AddressTagSelector.tsx:value.trim",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/AddressTagSelector.tsx:AddressTagSelector",
+      "target": "function:src/components/AddressTagSelector.tsx:ADDRESS_TAG_SUGGESTIONS.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/AddressTagSelector.tsx:AddressTagSelector",
+      "target": "function:src/components/AddressTagSelector.tsx:value.trim",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/AddressTagSelector.tsx:AddressTagSelector",
+      "target": "function:src/components/AddressTagSelector.tsx:setCustomValue",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/AddressTagSelector.tsx:selectChip",
+      "target": "function:src/components/AddressTagSelector.tsx:setCustomValue",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/AddressTagSelector.tsx:selectChip",
+      "target": "function:src/components/AddressTagSelector.tsx:onChange",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/AddressTagSelector.tsx:AddressTagSelector",
+      "target": "function:src/components/AddressTagSelector.tsx:ADDRESS_TAG_SUGGESTIONS.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/AddressTagSelector.tsx:AddressTagSelector",
+      "target": "function:src/components/AddressTagSelector.tsx:selectChip",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/AddressTagSelector.tsx:AddressTagSelector",
+      "target": "function:src/components/AddressTagSelector.tsx:setCustomValue",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/AddressTagSelector.tsx:AddressTagSelector",
+      "target": "function:src/components/AddressTagSelector.tsx:onChange",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/AddressTagSelector.tsx:AddressTagSelector",
+      "target": "function:src/components/AddressTagSelector.tsx:e.target.value.trim",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/AddressTagSelector.tsx:AddressTagSelector",
+      "target": "function:src/components/AddressTagSelector.tsx:setCustomValue",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/AddressTagSelector.tsx:AddressTagSelector",
+      "target": "function:src/components/AddressTagSelector.tsx:onChange",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/components/AnalyticsScripts.tsx",
+      "target": "function:src/components/AnalyticsScripts.tsx:AnalyticsScripts",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/components/CustomerSupportChat.tsx",
+      "target": "function:src/components/CustomerSupportChat.tsx:BotMessage",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/components/CustomerSupportChat.tsx",
+      "target": "function:src/components/CustomerSupportChat.tsx:CustomerSupportChat",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:BotMessage",
+      "target": "function:src/components/CustomerSupportChat.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:BotMessage",
+      "target": "function:src/components/CustomerSupportChat.tsx:useEffect",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:BotMessage",
+      "target": "function:src/components/CustomerSupportChat.tsx:setDisplayed",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:BotMessage",
+      "target": "function:src/components/CustomerSupportChat.tsx:setInterval",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:BotMessage",
+      "target": "function:src/components/CustomerSupportChat.tsx:setDisplayed",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:BotMessage",
+      "target": "function:src/components/CustomerSupportChat.tsx:text.slice",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:BotMessage",
+      "target": "function:src/components/CustomerSupportChat.tsx:clearInterval",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:BotMessage",
+      "target": "function:src/components/CustomerSupportChat.tsx:clearInterval",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:CustomerSupportChat",
+      "target": "function:src/components/CustomerSupportChat.tsx:useAuth",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:CustomerSupportChat",
+      "target": "function:src/components/CustomerSupportChat.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:CustomerSupportChat",
+      "target": "function:src/components/CustomerSupportChat.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:CustomerSupportChat",
+      "target": "function:src/components/CustomerSupportChat.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:CustomerSupportChat",
+      "target": "function:src/components/CustomerSupportChat.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:CustomerSupportChat",
+      "target": "function:src/components/CustomerSupportChat.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:CustomerSupportChat",
+      "target": "function:src/components/CustomerSupportChat.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:CustomerSupportChat",
+      "target": "function:src/components/CustomerSupportChat.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:CustomerSupportChat",
+      "target": "function:src/components/CustomerSupportChat.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:CustomerSupportChat",
+      "target": "function:src/components/CustomerSupportChat.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:CustomerSupportChat",
+      "target": "function:src/components/CustomerSupportChat.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:CustomerSupportChat",
+      "target": "function:src/components/CustomerSupportChat.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:CustomerSupportChat",
+      "target": "function:src/components/CustomerSupportChat.tsx:useRef",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:CustomerSupportChat",
+      "target": "function:src/components/CustomerSupportChat.tsx:useEffect",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:handleResize",
+      "target": "function:src/components/CustomerSupportChat.tsx:setPosition",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:handleResize",
+      "target": "function:src/components/CustomerSupportChat.tsx:Math.max",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:handleResize",
+      "target": "function:src/components/CustomerSupportChat.tsx:Math.min",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:handleResize",
+      "target": "function:src/components/CustomerSupportChat.tsx:Math.max",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:handleResize",
+      "target": "function:src/components/CustomerSupportChat.tsx:Math.min",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:CustomerSupportChat",
+      "target": "function:src/components/CustomerSupportChat.tsx:window.addEventListener",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:CustomerSupportChat",
+      "target": "function:src/components/CustomerSupportChat.tsx:window.removeEventListener",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:onPointerDown",
+      "target": "function:src/components/CustomerSupportChat.tsx:el.setPointerCapture",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:onPointerDown",
+      "target": "function:src/components/CustomerSupportChat.tsx:el.getBoundingClientRect",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:onPointerDown",
+      "target": "function:src/components/CustomerSupportChat.tsx:setIsDragging",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:onPointerMove",
+      "target": "function:src/components/CustomerSupportChat.tsx:Math.abs",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:onPointerMove",
+      "target": "function:src/components/CustomerSupportChat.tsx:Math.abs",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:onPointerMove",
+      "target": "function:src/components/CustomerSupportChat.tsx:Math.max",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:onPointerMove",
+      "target": "function:src/components/CustomerSupportChat.tsx:Math.min",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:onPointerMove",
+      "target": "function:src/components/CustomerSupportChat.tsx:Math.max",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:onPointerMove",
+      "target": "function:src/components/CustomerSupportChat.tsx:Math.min",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:onPointerMove",
+      "target": "function:src/components/CustomerSupportChat.tsx:setPosition",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:onPointerMove",
+      "target": "function:src/components/CustomerSupportChat.tsx:Math.sqrt",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:onPointerMove",
+      "target": "function:src/components/CustomerSupportChat.tsx:Math.pow",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:onPointerMove",
+      "target": "function:src/components/CustomerSupportChat.tsx:Math.pow",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:onPointerMove",
+      "target": "function:src/components/CustomerSupportChat.tsx:setIsNearCloseZone",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:onPointerUp",
+      "target": "function:src/components/CustomerSupportChat.tsx:setIsDragging",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:onPointerUp",
+      "target": "function:src/components/CustomerSupportChat.tsx:e.currentTarget.releasePointerCapture",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:onPointerUp",
+      "target": "function:src/components/CustomerSupportChat.tsx:setIsOpen",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:onPointerUp",
+      "target": "function:src/components/CustomerSupportChat.tsx:setHasUnread",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:onPointerUp",
+      "target": "function:src/components/CustomerSupportChat.tsx:setIsClosed",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:onPointerUp",
+      "target": "function:src/components/CustomerSupportChat.tsx:setIsNearCloseZone",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:CustomerSupportChat",
+      "target": "function:src/components/CustomerSupportChat.tsx:useRef",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:CustomerSupportChat",
+      "target": "function:src/components/CustomerSupportChat.tsx:useRef",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:CustomerSupportChat",
+      "target": "function:src/components/CustomerSupportChat.tsx:useRef",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:onResizeStart",
+      "target": "function:src/components/CustomerSupportChat.tsx:e.preventDefault",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:onMove",
+      "target": "function:src/components/CustomerSupportChat.tsx:setWinSize",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:onMove",
+      "target": "function:src/components/CustomerSupportChat.tsx:Math.min",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:onMove",
+      "target": "function:src/components/CustomerSupportChat.tsx:Math.max",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:onMove",
+      "target": "function:src/components/CustomerSupportChat.tsx:Math.min",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:onMove",
+      "target": "function:src/components/CustomerSupportChat.tsx:Math.max",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:onUp",
+      "target": "function:src/components/CustomerSupportChat.tsx:window.removeEventListener",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:onUp",
+      "target": "function:src/components/CustomerSupportChat.tsx:window.removeEventListener",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:onResizeStart",
+      "target": "function:src/components/CustomerSupportChat.tsx:window.addEventListener",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:onResizeStart",
+      "target": "function:src/components/CustomerSupportChat.tsx:window.addEventListener",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:CustomerSupportChat",
+      "target": "function:src/components/CustomerSupportChat.tsx:useEffect",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:CustomerSupportChat",
+      "target": "function:src/components/CustomerSupportChat.tsx:useEffect",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:handleOpenChat",
+      "target": "function:src/components/CustomerSupportChat.tsx:setIsClosed",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:handleOpenChat",
+      "target": "function:src/components/CustomerSupportChat.tsx:setIsOpen",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:handleOpenChat",
+      "target": "function:src/components/CustomerSupportChat.tsx:setHasUnread",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:handleOpenChat",
+      "target": "function:src/components/CustomerSupportChat.tsx:setMessages",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:CustomerSupportChat",
+      "target": "function:src/components/CustomerSupportChat.tsx:window.addEventListener",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:CustomerSupportChat",
+      "target": "function:src/components/CustomerSupportChat.tsx:window.removeEventListener",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:handleSend",
+      "target": "function:src/components/CustomerSupportChat.tsx:input.trim",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:handleSend",
+      "target": "function:src/components/CustomerSupportChat.tsx:setInput",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:handleSend",
+      "target": "function:src/components/CustomerSupportChat.tsx:setMessages",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:handleSend",
+      "target": "function:src/components/CustomerSupportChat.tsx:setIsTyping",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:handleSend",
+      "target": "function:src/components/CustomerSupportChat.tsx:setThinkingStep",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:handleSend",
+      "target": "function:src/components/CustomerSupportChat.tsx:setInterval",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:handleSend",
+      "target": "function:src/components/CustomerSupportChat.tsx:setThinkingStep",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:handleSend",
+      "target": "function:src/components/CustomerSupportChat.tsx:newMsgs.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:handleSend",
+      "target": "function:src/components/CustomerSupportChat.tsx:fetch",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:handleSend",
+      "target": "function:src/components/CustomerSupportChat.tsx:JSON.stringify",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:handleSend",
+      "target": "function:src/components/CustomerSupportChat.tsx:res.json",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:handleSend",
+      "target": "function:src/components/CustomerSupportChat.tsx:clearInterval",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:handleSend",
+      "target": "function:src/components/CustomerSupportChat.tsx:setIsTyping",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:handleSend",
+      "target": "function:src/components/CustomerSupportChat.tsx:setMessages",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:handleSend",
+      "target": "function:src/components/CustomerSupportChat.tsx:setMessages",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:handleSend",
+      "target": "function:src/components/CustomerSupportChat.tsx:setHasUnread",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:handleSend",
+      "target": "function:src/components/CustomerSupportChat.tsx:clearInterval",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:handleSend",
+      "target": "function:src/components/CustomerSupportChat.tsx:setIsTyping",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:handleSend",
+      "target": "function:src/components/CustomerSupportChat.tsx:setMessages",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:handleKeyDown",
+      "target": "function:src/components/CustomerSupportChat.tsx:e.preventDefault",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:handleKeyDown",
+      "target": "function:src/components/CustomerSupportChat.tsx:handleSend",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:CustomerSupportChat",
+      "target": "function:src/components/CustomerSupportChat.tsx:setIsOpen",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:CustomerSupportChat",
+      "target": "function:src/components/CustomerSupportChat.tsx:messages.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:CustomerSupportChat",
+      "target": "function:src/components/CustomerSupportChat.tsx:[\n                  'Where is my order?',\n                  'Return/exchange a piece',\n                  'My product arrived damaged',\n                  'Payment issue',\n                ].map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:CustomerSupportChat",
+      "target": "function:src/components/CustomerSupportChat.tsx:setInput",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:CustomerSupportChat",
+      "target": "function:src/components/CustomerSupportChat.tsx:setTimeout",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:CustomerSupportChat",
+      "target": "function:src/components/CustomerSupportChat.tsx:setMessages",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:CustomerSupportChat",
+      "target": "function:src/components/CustomerSupportChat.tsx:setInput",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:CustomerSupportChat",
+      "target": "function:src/components/CustomerSupportChat.tsx:setIsTyping",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:CustomerSupportChat",
+      "target": "function:src/components/CustomerSupportChat.tsx:setThinkingStep",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:CustomerSupportChat",
+      "target": "function:src/components/CustomerSupportChat.tsx:setInterval",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:CustomerSupportChat",
+      "target": "function:src/components/CustomerSupportChat.tsx:setThinkingStep",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:CustomerSupportChat",
+      "target": "function:src/components/CustomerSupportChat.tsx:fetch('/api/support/chat', {\n                          method: 'POST',\n                          headers: { 'Content-Type': 'application/json' },\n                          body: JSON.stringify({\n                            messages: [\n                              { sender: 'bot', text: messages[0].text },\n                              { sender: 'user', text: q },\n                            ],\n                          }),\n                        })\n                          .then((r) => r.json())\n                          .then((data) => {\n                            clearInterval(stepInterval);\n                            setIsTyping(false);\n                            if (data.response) {\n                              const botMsg: ChatMessage = {\n                                sender: 'bot',\n                                text: data.response,\n                              };\n                              if (\n                                data.action === 'create_ticket' &&\n                                data.ticket_data?.ticket_number\n                              ) {\n                                botMsg.ticketInfo = {\n                                  ticket_number: data.ticket_data.ticket_number,\n                                  ticket_id: data.ticket_data.ticket_id,\n                                };\n                              }\n                              setMessages((prev) => [...prev, botMsg]);\n                            }\n                          })\n                          .catch",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:CustomerSupportChat",
+      "target": "function:src/components/CustomerSupportChat.tsx:fetch('/api/support/chat', {\n                          method: 'POST',\n                          headers: { 'Content-Type': 'application/json' },\n                          body: JSON.stringify({\n                            messages: [\n                              { sender: 'bot', text: messages[0].text },\n                              { sender: 'user', text: q },\n                            ],\n                          }),\n                        })\n                          .then((r) => r.json())\n                          .then",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:CustomerSupportChat",
+      "target": "function:src/components/CustomerSupportChat.tsx:fetch('/api/support/chat', {\n                          method: 'POST',\n                          headers: { 'Content-Type': 'application/json' },\n                          body: JSON.stringify({\n                            messages: [\n                              { sender: 'bot', text: messages[0].text },\n                              { sender: 'user', text: q },\n                            ],\n                          }),\n                        })\n                          .then",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:CustomerSupportChat",
+      "target": "function:src/components/CustomerSupportChat.tsx:fetch",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:CustomerSupportChat",
+      "target": "function:src/components/CustomerSupportChat.tsx:JSON.stringify",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:CustomerSupportChat",
+      "target": "function:src/components/CustomerSupportChat.tsx:r.json",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:CustomerSupportChat",
+      "target": "function:src/components/CustomerSupportChat.tsx:clearInterval",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:CustomerSupportChat",
+      "target": "function:src/components/CustomerSupportChat.tsx:setIsTyping",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:CustomerSupportChat",
+      "target": "function:src/components/CustomerSupportChat.tsx:setMessages",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:CustomerSupportChat",
+      "target": "function:src/components/CustomerSupportChat.tsx:clearInterval",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:CustomerSupportChat",
+      "target": "function:src/components/CustomerSupportChat.tsx:setIsTyping",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:CustomerSupportChat",
+      "target": "function:src/components/CustomerSupportChat.tsx:setMessages",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:CustomerSupportChat",
+      "target": "function:src/components/CustomerSupportChat.tsx:setInput",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChat.tsx:CustomerSupportChat",
+      "target": "function:src/components/CustomerSupportChat.tsx:input.trim",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/components/CustomerSupportChatTrigger.tsx",
+      "target": "function:src/components/CustomerSupportChatTrigger.tsx:CustomerSupportChatTrigger",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChatTrigger.tsx:CustomerSupportChatTrigger",
+      "target": "function:src/components/CustomerSupportChatTrigger.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChatTrigger.tsx:CustomerSupportChatTrigger",
+      "target": "function:src/components/CustomerSupportChatTrigger.tsx:useCallback",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChatTrigger.tsx:CustomerSupportChatTrigger",
+      "target": "function:src/components/CustomerSupportChatTrigger.tsx:setChatProps",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChatTrigger.tsx:CustomerSupportChatTrigger",
+      "target": "function:src/components/CustomerSupportChatTrigger.tsx:useEffect",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChatTrigger.tsx:handleOpenChat",
+      "target": "function:src/components/CustomerSupportChatTrigger.tsx:loadChat",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChatTrigger.tsx:CustomerSupportChatTrigger",
+      "target": "function:src/components/CustomerSupportChatTrigger.tsx:window.addEventListener",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChatTrigger.tsx:CustomerSupportChatTrigger",
+      "target": "function:src/components/CustomerSupportChatTrigger.tsx:window.removeEventListener",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChatTrigger.tsx:CustomerSupportChatTrigger",
+      "target": "function:src/components/CustomerSupportChatTrigger.tsx:loadChat",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/CustomerSupportChatTrigger.tsx:CustomerSupportChatTrigger",
+      "target": "function:src/components/CustomerSupportChatTrigger.tsx:loadChat",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/components/FcmInit.tsx",
+      "target": "function:src/components/FcmInit.tsx:removeFcmTokenFromBackend",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/components/FcmInit.tsx",
+      "target": "function:src/components/FcmInit.tsx:FcmInit",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/components/FcmInit.tsx:removeFcmTokenFromBackend",
+      "target": "function:src/components/FcmInit.tsx:createClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/FcmInit.tsx:removeFcmTokenFromBackend",
+      "target": "function:src/components/FcmInit.tsx:supabase.from('user_push_tokens').delete().eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/FcmInit.tsx:removeFcmTokenFromBackend",
+      "target": "function:src/components/FcmInit.tsx:supabase.from('user_push_tokens').delete",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/FcmInit.tsx:removeFcmTokenFromBackend",
+      "target": "function:src/components/FcmInit.tsx:supabase.from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/FcmInit.tsx:removeFcmTokenFromBackend",
+      "target": "function:src/components/FcmInit.tsx:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/FcmInit.tsx:FcmInit",
+      "target": "function:src/components/FcmInit.tsx:useAuth",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/FcmInit.tsx:FcmInit",
+      "target": "function:src/components/FcmInit.tsx:useNotifications",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/FcmInit.tsx:FcmInit",
+      "target": "function:src/components/FcmInit.tsx:useRouter",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/FcmInit.tsx:FcmInit",
+      "target": "function:src/components/FcmInit.tsx:useRef",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/FcmInit.tsx:FcmInit",
+      "target": "function:src/components/FcmInit.tsx:useRef",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/FcmInit.tsx:FcmInit",
+      "target": "function:src/components/FcmInit.tsx:useEffect",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/FcmInit.tsx:FcmInit",
+      "target": "function:src/components/FcmInit.tsx:removeFcmTokenFromBackend",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/FcmInit.tsx:setupFcm",
+      "target": "function:src/components/FcmInit.tsx:requestFcmToken",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/FcmInit.tsx:setupFcm",
+      "target": "function:src/components/FcmInit.tsx:console.log",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/FcmInit.tsx:setupFcm",
+      "target": "function:src/components/FcmInit.tsx:createClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/FcmInit.tsx:setupFcm",
+      "target": "function:src/components/FcmInit.tsx:supabase.from('user_push_tokens').upsert",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/FcmInit.tsx:setupFcm",
+      "target": "function:src/components/FcmInit.tsx:supabase.from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/FcmInit.tsx:setupFcm",
+      "target": "function:src/components/FcmInit.tsx:new Date().toISOString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/FcmInit.tsx:setupFcm",
+      "target": "function:src/components/FcmInit.tsx:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/FcmInit.tsx:setupFcm",
+      "target": "function:src/components/FcmInit.tsx:console.log",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/FcmInit.tsx:setupFcm",
+      "target": "function:src/components/FcmInit.tsx:onForegroundMessage",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/FcmInit.tsx:setupFcm",
+      "target": "function:src/components/FcmInit.tsx:console.log",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/FcmInit.tsx:setupFcm",
+      "target": "function:src/components/FcmInit.tsx:fetchNotifications",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/FcmInit.tsx:setupFcm",
+      "target": "function:src/components/FcmInit.tsx:toast.success",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/FcmInit.tsx:setupFcm",
+      "target": "function:src/components/FcmInit.tsx:toast.dismiss",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/FcmInit.tsx:setupFcm",
+      "target": "function:src/components/FcmInit.tsx:router.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/FcmInit.tsx:setupFcm",
+      "target": "function:src/components/FcmInit.tsx:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/FcmInit.tsx:FcmInit",
+      "target": "function:src/components/FcmInit.tsx:setupFcm",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/components/MetaPixel.tsx",
+      "target": "function:src/components/MetaPixel.tsx:pageview",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/components/MetaPixel.tsx",
+      "target": "function:src/components/MetaPixel.tsx:event",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/components/MetaPixel.tsx",
+      "target": "function:src/components/MetaPixel.tsx:MetaPixel",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/components/MetaPixel.tsx:pageview",
+      "target": "function:src/components/MetaPixel.tsx:window.fbq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/MetaPixel.tsx:event",
+      "target": "function:src/components/MetaPixel.tsx:window.fbq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/MetaPixel.tsx:MetaPixel",
+      "target": "function:src/components/MetaPixel.tsx:usePathname",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/MetaPixel.tsx:MetaPixel",
+      "target": "function:src/components/MetaPixel.tsx:useSearchParams",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/MetaPixel.tsx:MetaPixel",
+      "target": "function:src/components/MetaPixel.tsx:useEffect",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/MetaPixel.tsx:MetaPixel",
+      "target": "function:src/components/MetaPixel.tsx:pageview",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/components/NotFoundClient.tsx",
+      "target": "function:src/components/NotFoundClient.tsx:isPortalHostname",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/components/NotFoundClient.tsx",
+      "target": "function:src/components/NotFoundClient.tsx:portalDashboardHref",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/components/NotFoundClient.tsx",
+      "target": "function:src/components/NotFoundClient.tsx:NotFoundClient",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/components/NotFoundClient.tsx:isPortalHostname",
+      "target": "function:src/components/NotFoundClient.tsx:hostname.toLowerCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/NotFoundClient.tsx:isPortalHostname",
+      "target": "function:src/components/NotFoundClient.tsx:h.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/NotFoundClient.tsx:isPortalHostname",
+      "target": "function:src/components/NotFoundClient.tsx:h.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/NotFoundClient.tsx:isPortalHostname",
+      "target": "function:src/components/NotFoundClient.tsx:h.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/NotFoundClient.tsx:isPortalHostname",
+      "target": "function:src/components/NotFoundClient.tsx:h.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/NotFoundClient.tsx:isPortalHostname",
+      "target": "function:src/components/NotFoundClient.tsx:h.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/NotFoundClient.tsx:isPortalHostname",
+      "target": "function:src/components/NotFoundClient.tsx:h.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/NotFoundClient.tsx:portalDashboardHref",
+      "target": "function:src/components/NotFoundClient.tsx:hostname.toLowerCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/NotFoundClient.tsx:portalDashboardHref",
+      "target": "function:src/components/NotFoundClient.tsx:h.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/NotFoundClient.tsx:portalDashboardHref",
+      "target": "function:src/components/NotFoundClient.tsx:h.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/NotFoundClient.tsx:portalDashboardHref",
+      "target": "function:src/components/NotFoundClient.tsx:h.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/NotFoundClient.tsx:portalDashboardHref",
+      "target": "function:src/components/NotFoundClient.tsx:h.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/NotFoundClient.tsx:portalDashboardHref",
+      "target": "function:src/components/NotFoundClient.tsx:h.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/NotFoundClient.tsx:NotFoundClient",
+      "target": "function:src/components/NotFoundClient.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/NotFoundClient.tsx:NotFoundClient",
+      "target": "function:src/components/NotFoundClient.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/NotFoundClient.tsx:NotFoundClient",
+      "target": "function:src/components/NotFoundClient.tsx:useLayoutEffect",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/NotFoundClient.tsx:NotFoundClient",
+      "target": "function:src/components/NotFoundClient.tsx:setIsPortal",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/NotFoundClient.tsx:NotFoundClient",
+      "target": "function:src/components/NotFoundClient.tsx:isPortalHostname",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/NotFoundClient.tsx:NotFoundClient",
+      "target": "function:src/components/NotFoundClient.tsx:setDashboardHref",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/NotFoundClient.tsx:NotFoundClient",
+      "target": "function:src/components/NotFoundClient.tsx:portalDashboardHref",
+      "type": "calls"
+    }
+  ]
+}

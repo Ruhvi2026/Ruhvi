@@ -56,10 +56,8 @@ export async function createOrder(
     paymentMethod,
     giftWrap,
     giftMessage,
-    subtotal,
     shippingCharge,
     codCharge,
-    total,
     wallet_used,
     coins_redeemed,
     coupon_discount,
@@ -193,16 +191,85 @@ export async function createOrder(
     user = { id: resolvedId, email: fbUser.email } as any;
   }
 
+  // -------------------------------------------------------------------------
+  // Authoritative Server-Side Product Price & Subtotal Verification
+  // -------------------------------------------------------------------------
+  const productIds = items
+    .map((item: any) => item.product?.id || item.product_id)
+    .filter(Boolean);
+
+  if (productIds.length !== items.length) {
+    throw new OrderError('Invalid cart item: missing product identifier', 400);
+  }
+
+  const adminSupabase = createJSClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL ||
+      'https://igrkrkxdantrolbldapj.supabase.co',
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+
+  const { data: dbProducts, error: dbProdError } = await adminSupabase
+    .from('products')
+    .select('id, name, sku, price, status')
+    .in('id', productIds);
+
+  if (dbProdError || !dbProducts || dbProducts.length === 0) {
+    console.error(
+      'Failed to query products for order validation:',
+      dbProdError
+    );
+    throw new OrderError('Failed to verify products in cart', 500);
+  }
+
+  const dbProductMap = new Map(dbProducts.map((p) => [p.id, p]));
+
+  let verifiedSubtotal = 0;
+  for (const item of items) {
+    const pid = item.product?.id || item.product_id;
+    const dbProd = dbProductMap.get(pid);
+    if (!dbProd) {
+      throw new OrderError(
+        'One or more products in your cart are no longer available.',
+        400
+      );
+    }
+    const qty = Number(item.quantity);
+    if (!qty || qty <= 0 || !Number.isInteger(qty)) {
+      throw new OrderError(`Invalid quantity for product ${dbProd.name}`, 400);
+    }
+    const realPrice = Number(dbProd.price);
+    verifiedSubtotal += realPrice * qty;
+  }
+
+  // Authoritative server-calculated pricing
+  const finalSubtotal = verifiedSubtotal;
+  const verifiedShippingCharge = Math.max(0, Number(shippingCharge || 0));
+  const verifiedCodCharge = Math.max(0, Number(codCharge || 0));
+  const verifiedCouponDiscount = Math.max(0, Number(coupon_discount || 0));
+  const verifiedWalletUsed = Math.max(0, Number(wallet_used || 0));
+  const verifiedCoinsRedeemed = Math.max(0, Number(coins_redeemed || 0));
+
   // Generate unique order number (e.g. RHV-2026-XXXX)
   const orderNumber = `RHV-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
 
   // Server-side wallet validation before anything is created
-  if (Number(wallet_used || 0) > 0) {
-    await assertWalletBalance(user!.id as string, wallet_used!);
+  if (Number(verifiedWalletUsed || 0) > 0) {
+    await assertWalletBalance(user!.id as string, verifiedWalletUsed);
   }
 
   // Calculate GST amount (3% included in price for jewellery)
-  const gstAmount = Math.round(subtotal * 0.03);
+  const gstAmount = Math.round(finalSubtotal * 0.03);
+
+  // Authoritative total
+  const finalTotal = Math.max(
+    0,
+    finalSubtotal +
+      verifiedShippingCharge +
+      verifiedCodCharge -
+      verifiedCouponDiscount -
+      verifiedWalletUsed -
+      verifiedCoinsRedeemed
+  );
 
   // Handle Address Insertion
   let shippingAddressId = address.id;
@@ -251,25 +318,25 @@ export async function createOrder(
       user_id: user!.id,
       order_number: orderNumber,
       status: options.status || 'confirmed',
-      subtotal,
-      shipping_charge: shippingCharge,
-      cod_charge: codCharge,
-      coupon_discount: coupon_discount || 0,
-      wallet_used: wallet_used || 0,
-      coins_redeemed: coins_redeemed || 0,
+      subtotal: finalSubtotal,
+      shipping_charge: verifiedShippingCharge,
+      cod_charge: verifiedCodCharge,
+      coupon_discount: verifiedCouponDiscount,
+      wallet_used: verifiedWalletUsed,
+      coins_redeemed: verifiedCoinsRedeemed,
       gst_amount: gstAmount,
-      total,
+      total: finalTotal,
       payment_method: paymentMethod || 'phonepe',
       payment_status: options.paymentStatus || defaultPaymentStatus,
       prepaid_amount: isPartialCod
-        ? prepaidAmount
+        ? (prepaidAmount ?? finalTotal)
         : paymentMethod === 'phonepe'
-          ? total
+          ? finalTotal
           : 0,
       cod_balance: isPartialCod
-        ? total - (prepaidAmount || 0)
+        ? Math.max(0, finalTotal - (prepaidAmount || 0))
         : paymentMethod === 'cod'
-          ? total
+          ? finalTotal
           : 0,
       gift_wrap: giftWrap,
       gift_message: giftMessage,
@@ -288,14 +355,14 @@ export async function createOrder(
 
   // Debit wallet if wallet was used and the order is finalized at creation
   const shouldDebitWalletNow =
-    Number(wallet_used || 0) > 0 &&
+    Number(verifiedWalletUsed || 0) > 0 &&
     (defaultPaymentStatus === 'paid' ||
       (paymentMethod === 'cod' && !isPartialCod));
   if (shouldDebitWalletNow) {
     try {
       await debitWalletForOrder(
         user!.id as string,
-        wallet_used!,
+        verifiedWalletUsed,
         insertedOrder.id
       );
     } catch (debitErr) {
@@ -312,13 +379,17 @@ export async function createOrder(
     }
   }
 
-  const orderItemsToInsert = items.map((item: any) => ({
-    order_id: insertedOrder.id,
-    product_id: item.product?.id || item.product_id,
-    sku: item.product?.sku || 'RHV-SKU',
-    quantity: item.quantity,
-    price_at_purchase: item.product?.price || item.price_at_add,
-  }));
+  const orderItemsToInsert = items.map((item: any) => {
+    const pid = item.product?.id || item.product_id;
+    const dbProd = dbProductMap.get(pid)!;
+    return {
+      order_id: insertedOrder.id,
+      product_id: dbProd.id,
+      sku: dbProd.sku || item.product?.sku || 'RHV-SKU',
+      quantity: Number(item.quantity),
+      price_at_purchase: Number(dbProd.price),
+    };
+  });
 
   const { error: itemsError } = await supabase
     .from('order_items')
@@ -333,14 +404,14 @@ export async function createOrder(
     order_number: orderNumber,
     user_id: user!.id,
     status: options.status || 'confirmed',
-    subtotal,
-    shipping_charge: shippingCharge,
-    cod_charge: codCharge,
-    coupon_discount: coupon_discount || 0,
-    wallet_used: wallet_used || 0,
-    coins_redeemed: coins_redeemed || 0,
+    subtotal: finalSubtotal,
+    shipping_charge: verifiedShippingCharge,
+    cod_charge: verifiedCodCharge,
+    coupon_discount: verifiedCouponDiscount,
+    wallet_used: verifiedWalletUsed,
+    coins_redeemed: verifiedCoinsRedeemed,
     gst_amount: gstAmount,
-    total,
+    total: finalTotal,
     payment_method: paymentMethod || 'phonepe',
     payment_status: options.paymentStatus || defaultPaymentStatus,
     gift_wrap: giftWrap,

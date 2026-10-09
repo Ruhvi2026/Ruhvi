@@ -16,6 +16,8 @@ const eslintConfig = [
       'supabase/**',
       '.kilo/**',
       'ruhvi-mobile_DO_NOT_DELETE/**',
+      '.agents/**',
+      '.ua/**',
       'next-env.d.ts',
     ],
   },

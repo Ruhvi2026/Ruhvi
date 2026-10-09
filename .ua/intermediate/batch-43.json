@@ -1,0 +1,3720 @@
+{
+  "batchIndex": 43,
+  "batchFiles": [
+    {
+      "path": "src/lib/ai/providers/openai.ts",
+      "language": "typescript",
+      "sizeLines": 62,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/ai/providers/openrouter.ts",
+      "language": "typescript",
+      "sizeLines": 95,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/ai/tools/brevo.ts",
+      "language": "typescript",
+      "sizeLines": 98,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/ai/tools/index.ts",
+      "language": "typescript",
+      "sizeLines": 26,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/analytics.ts",
+      "language": "typescript",
+      "sizeLines": 46,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/api-errors.ts",
+      "language": "typescript",
+      "sizeLines": 88,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/api-keys/index.ts",
+      "language": "typescript",
+      "sizeLines": 343,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/audit.ts",
+      "language": "typescript",
+      "sizeLines": 59,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/auth/email-verification.ts",
+      "language": "typescript",
+      "sizeLines": 97,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/auth/rbac.ts",
+      "language": "typescript",
+      "sizeLines": 221,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/auth/require-admin-client.ts",
+      "language": "typescript",
+      "sizeLines": 41,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/auth/require-admin.ts",
+      "language": "typescript",
+      "sizeLines": 88,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/auth/server.ts",
+      "language": "typescript",
+      "sizeLines": 45,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/auth/task-auth.ts",
+      "language": "typescript",
+      "sizeLines": 19,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/auth/verify-session.ts",
+      "language": "typescript",
+      "sizeLines": 26,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/brevo.ts",
+      "language": "typescript",
+      "sizeLines": 700,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/brevo/mcp.ts",
+      "language": "typescript",
+      "sizeLines": 77,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/calculator.ts",
+      "language": "typescript",
+      "sizeLines": 130,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/catalog.ts",
+      "language": "typescript",
+      "sizeLines": 99,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/cron/blog-publisher.ts",
+      "language": "typescript",
+      "sizeLines": 44,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/cron/task-scheduler.ts",
+      "language": "typescript",
+      "sizeLines": 363,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/debounce.ts",
+      "language": "typescript",
+      "sizeLines": 10,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/env.ts",
+      "language": "typescript",
+      "sizeLines": 134,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/espo/client.ts",
+      "language": "typescript",
+      "sizeLines": 125,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/espo/config.ts",
+      "language": "typescript",
+      "sizeLines": 42,
+      "fileCategory": "code"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "file:src/lib/ai/providers/openai.ts",
+      "name": "openai.ts",
+      "type": "file",
+      "filePath": "src/lib/ai/providers/openai.ts",
+      "summary": "typescript code file (62 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "class:src/lib/ai/providers/openai.ts:OpenAIProvider",
+      "name": "OpenAIProvider",
+      "type": "class",
+      "filePath": "src/lib/ai/providers/openai.ts",
+      "parentId": "file:src/lib/ai/providers/openai.ts",
+      "summary": "Class OpenAIProvider",
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/lib/ai/providers/openrouter.ts",
+      "name": "openrouter.ts",
+      "type": "file",
+      "filePath": "src/lib/ai/providers/openrouter.ts",
+      "summary": "typescript code file (95 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "class:src/lib/ai/providers/openrouter.ts:OpenRouterProvider",
+      "name": "OpenRouterProvider",
+      "type": "class",
+      "filePath": "src/lib/ai/providers/openrouter.ts",
+      "parentId": "file:src/lib/ai/providers/openrouter.ts",
+      "summary": "Class OpenRouterProvider",
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/lib/ai/tools/brevo.ts",
+      "name": "brevo.ts",
+      "type": "file",
+      "filePath": "src/lib/ai/tools/brevo.ts",
+      "summary": "typescript code file (98 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:src/lib/ai/tools/index.ts",
+      "name": "index.ts",
+      "type": "file",
+      "filePath": "src/lib/ai/tools/index.ts",
+      "summary": "typescript code file (26 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:src/lib/analytics.ts",
+      "name": "analytics.ts",
+      "type": "file",
+      "filePath": "src/lib/analytics.ts",
+      "summary": "typescript code file (46 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/lib/analytics.ts:generateEventId",
+      "name": "generateEventId",
+      "type": "function",
+      "filePath": "src/lib/analytics.ts",
+      "parentId": "file:src/lib/analytics.ts",
+      "summary": "Function generateEventId",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/analytics.ts:getCookie",
+      "name": "getCookie",
+      "type": "function",
+      "filePath": "src/lib/analytics.ts",
+      "parentId": "file:src/lib/analytics.ts",
+      "summary": "Function getCookie",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/analytics.ts:trackEvent",
+      "name": "trackEvent",
+      "type": "function",
+      "filePath": "src/lib/analytics.ts",
+      "parentId": "file:src/lib/analytics.ts",
+      "summary": "Function trackEvent",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/api-errors.ts",
+      "name": "api-errors.ts",
+      "type": "file",
+      "filePath": "src/lib/api-errors.ts",
+      "summary": "typescript code file (88 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/lib/api-errors.ts:mapStatusCodeToUserMessage",
+      "name": "mapStatusCodeToUserMessage",
+      "type": "function",
+      "filePath": "src/lib/api-errors.ts",
+      "parentId": "file:src/lib/api-errors.ts",
+      "summary": "Function mapStatusCodeToUserMessage",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/api-errors.ts:parseApiError",
+      "name": "parseApiError",
+      "type": "function",
+      "filePath": "src/lib/api-errors.ts",
+      "parentId": "file:src/lib/api-errors.ts",
+      "summary": "Function parseApiError",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/api-errors.ts:logDevError",
+      "name": "logDevError",
+      "type": "function",
+      "filePath": "src/lib/api-errors.ts",
+      "parentId": "file:src/lib/api-errors.ts",
+      "summary": "Function logDevError",
+      "complexity": "simple"
+    },
+    {
+      "id": "class:src/lib/api-errors.ts:ApiError",
+      "name": "ApiError",
+      "type": "class",
+      "filePath": "src/lib/api-errors.ts",
+      "parentId": "file:src/lib/api-errors.ts",
+      "summary": "Class ApiError",
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/lib/api-keys/index.ts",
+      "name": "index.ts",
+      "type": "file",
+      "filePath": "src/lib/api-keys/index.ts",
+      "summary": "typescript code file (343 lines)",
+      "complexity": "complex",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/lib/api-keys/index.ts:hasPermission",
+      "name": "hasPermission",
+      "type": "function",
+      "filePath": "src/lib/api-keys/index.ts",
+      "parentId": "file:src/lib/api-keys/index.ts",
+      "summary": "Function hasPermission",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/api-keys/index.ts:hashApiKey",
+      "name": "hashApiKey",
+      "type": "function",
+      "filePath": "src/lib/api-keys/index.ts",
+      "parentId": "file:src/lib/api-keys/index.ts",
+      "summary": "Function hashApiKey",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/api-keys/index.ts:extractBearerToken",
+      "name": "extractBearerToken",
+      "type": "function",
+      "filePath": "src/lib/api-keys/index.ts",
+      "parentId": "file:src/lib/api-keys/index.ts",
+      "summary": "Function extractBearerToken",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/api-keys/index.ts:authenticateApiKey",
+      "name": "authenticateApiKey",
+      "type": "function",
+      "filePath": "src/lib/api-keys/index.ts",
+      "parentId": "file:src/lib/api-keys/index.ts",
+      "summary": "Function authenticateApiKey",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/api-keys/index.ts:touchLastUsed",
+      "name": "touchLastUsed",
+      "type": "function",
+      "filePath": "src/lib/api-keys/index.ts",
+      "parentId": "file:src/lib/api-keys/index.ts",
+      "summary": "Function touchLastUsed",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/api-keys/index.ts:generateApiKey",
+      "name": "generateApiKey",
+      "type": "function",
+      "filePath": "src/lib/api-keys/index.ts",
+      "parentId": "file:src/lib/api-keys/index.ts",
+      "summary": "Function generateApiKey",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/api-keys/index.ts:createApiKey",
+      "name": "createApiKey",
+      "type": "function",
+      "filePath": "src/lib/api-keys/index.ts",
+      "parentId": "file:src/lib/api-keys/index.ts",
+      "summary": "Function createApiKey",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/api-keys/index.ts:listApiKeys",
+      "name": "listApiKeys",
+      "type": "function",
+      "filePath": "src/lib/api-keys/index.ts",
+      "parentId": "file:src/lib/api-keys/index.ts",
+      "summary": "Function listApiKeys",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/api-keys/index.ts:revokeApiKey",
+      "name": "revokeApiKey",
+      "type": "function",
+      "filePath": "src/lib/api-keys/index.ts",
+      "parentId": "file:src/lib/api-keys/index.ts",
+      "summary": "Function revokeApiKey",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/api-keys/index.ts:deleteApiKey",
+      "name": "deleteApiKey",
+      "type": "function",
+      "filePath": "src/lib/api-keys/index.ts",
+      "parentId": "file:src/lib/api-keys/index.ts",
+      "summary": "Function deleteApiKey",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/audit.ts",
+      "name": "audit.ts",
+      "type": "file",
+      "filePath": "src/lib/audit.ts",
+      "summary": "typescript code file (59 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/lib/audit.ts:logAuditEvent",
+      "name": "logAuditEvent",
+      "type": "function",
+      "filePath": "src/lib/audit.ts",
+      "parentId": "file:src/lib/audit.ts",
+      "summary": "Function logAuditEvent",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/auth/email-verification.ts",
+      "name": "email-verification.ts",
+      "type": "file",
+      "filePath": "src/lib/auth/email-verification.ts",
+      "summary": "typescript code file (97 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/lib/auth/email-verification.ts:getSupabaseAdmin",
+      "name": "getSupabaseAdmin",
+      "type": "function",
+      "filePath": "src/lib/auth/email-verification.ts",
+      "parentId": "file:src/lib/auth/email-verification.ts",
+      "summary": "Function getSupabaseAdmin",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/auth/email-verification.ts:getSecretKey",
+      "name": "getSecretKey",
+      "type": "function",
+      "filePath": "src/lib/auth/email-verification.ts",
+      "parentId": "file:src/lib/auth/email-verification.ts",
+      "summary": "Function getSecretKey",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/auth/email-verification.ts:signEmailVerificationToken",
+      "name": "signEmailVerificationToken",
+      "type": "function",
+      "filePath": "src/lib/auth/email-verification.ts",
+      "parentId": "file:src/lib/auth/email-verification.ts",
+      "summary": "Function signEmailVerificationToken",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/auth/email-verification.ts:verifyEmailVerificationToken",
+      "name": "verifyEmailVerificationToken",
+      "type": "function",
+      "filePath": "src/lib/auth/email-verification.ts",
+      "parentId": "file:src/lib/auth/email-verification.ts",
+      "summary": "Function verifyEmailVerificationToken",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/auth/email-verification.ts:getSiteUrl",
+      "name": "getSiteUrl",
+      "type": "function",
+      "filePath": "src/lib/auth/email-verification.ts",
+      "parentId": "file:src/lib/auth/email-verification.ts",
+      "summary": "Function getSiteUrl",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/auth/rbac.ts",
+      "name": "rbac.ts",
+      "type": "file",
+      "filePath": "src/lib/auth/rbac.ts",
+      "summary": "typescript code file (221 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/lib/auth/rbac.ts:buildScopesFromPermissions",
+      "name": "buildScopesFromPermissions",
+      "type": "function",
+      "filePath": "src/lib/auth/rbac.ts",
+      "parentId": "file:src/lib/auth/rbac.ts",
+      "summary": "Function buildScopesFromPermissions",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/auth/rbac.ts:getUserScopes",
+      "name": "getUserScopes",
+      "type": "function",
+      "filePath": "src/lib/auth/rbac.ts",
+      "parentId": "file:src/lib/auth/rbac.ts",
+      "summary": "Function getUserScopes",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/auth/rbac.ts:hasPermission",
+      "name": "hasPermission",
+      "type": "function",
+      "filePath": "src/lib/auth/rbac.ts",
+      "parentId": "file:src/lib/auth/rbac.ts",
+      "summary": "Function hasPermission",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/auth/require-admin-client.ts",
+      "name": "require-admin-client.ts",
+      "type": "file",
+      "filePath": "src/lib/auth/require-admin-client.ts",
+      "summary": "typescript code file (41 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/lib/auth/require-admin-client.ts:requireAdminClient",
+      "name": "requireAdminClient",
+      "type": "function",
+      "filePath": "src/lib/auth/require-admin-client.ts",
+      "parentId": "file:src/lib/auth/require-admin-client.ts",
+      "summary": "Function requireAdminClient",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/auth/require-admin.ts",
+      "name": "require-admin.ts",
+      "type": "file",
+      "filePath": "src/lib/auth/require-admin.ts",
+      "summary": "typescript code file (88 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/lib/auth/require-admin.ts:requireAdmin",
+      "name": "requireAdmin",
+      "type": "function",
+      "filePath": "src/lib/auth/require-admin.ts",
+      "parentId": "file:src/lib/auth/require-admin.ts",
+      "summary": "Function requireAdmin",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/auth/server.ts",
+      "name": "server.ts",
+      "type": "file",
+      "filePath": "src/lib/auth/server.ts",
+      "summary": "typescript code file (45 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/lib/auth/server.ts:getServerUser",
+      "name": "getServerUser",
+      "type": "function",
+      "filePath": "src/lib/auth/server.ts",
+      "parentId": "file:src/lib/auth/server.ts",
+      "summary": "Function getServerUser",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/auth/task-auth.ts",
+      "name": "task-auth.ts",
+      "type": "file",
+      "filePath": "src/lib/auth/task-auth.ts",
+      "summary": "typescript code file (19 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/lib/auth/task-auth.ts:getAuthenticatedStaff",
+      "name": "getAuthenticatedStaff",
+      "type": "function",
+      "filePath": "src/lib/auth/task-auth.ts",
+      "parentId": "file:src/lib/auth/task-auth.ts",
+      "summary": "Function getAuthenticatedStaff",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/auth/verify-session.ts",
+      "name": "verify-session.ts",
+      "type": "file",
+      "filePath": "src/lib/auth/verify-session.ts",
+      "summary": "typescript code file (26 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/lib/auth/verify-session.ts:verifySessionToken",
+      "name": "verifySessionToken",
+      "type": "function",
+      "filePath": "src/lib/auth/verify-session.ts",
+      "parentId": "file:src/lib/auth/verify-session.ts",
+      "summary": "Function verifySessionToken",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/brevo.ts",
+      "name": "brevo.ts",
+      "type": "file",
+      "filePath": "src/lib/brevo.ts",
+      "summary": "typescript code file (700 lines)",
+      "complexity": "complex",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/lib/brevo.ts:resolveBrevoApiKey",
+      "name": "resolveBrevoApiKey",
+      "type": "function",
+      "filePath": "src/lib/brevo.ts",
+      "parentId": "file:src/lib/brevo.ts",
+      "summary": "Function resolveBrevoApiKey",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/brevo.ts:getHeaders",
+      "name": "getHeaders",
+      "type": "function",
+      "filePath": "src/lib/brevo.ts",
+      "parentId": "file:src/lib/brevo.ts",
+      "summary": "Function getHeaders",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/brevo.ts:getSender",
+      "name": "getSender",
+      "type": "function",
+      "filePath": "src/lib/brevo.ts",
+      "parentId": "file:src/lib/brevo.ts",
+      "summary": "Function getSender",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/brevo.ts:sendEmail",
+      "name": "sendEmail",
+      "type": "function",
+      "filePath": "src/lib/brevo.ts",
+      "parentId": "file:src/lib/brevo.ts",
+      "summary": "Function sendEmail",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/brevo.ts:sendAbandonedCartEmail",
+      "name": "sendAbandonedCartEmail",
+      "type": "function",
+      "filePath": "src/lib/brevo.ts",
+      "parentId": "file:src/lib/brevo.ts",
+      "summary": "Function sendAbandonedCartEmail",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/brevo.ts:sendWinBackEmail",
+      "name": "sendWinBackEmail",
+      "type": "function",
+      "filePath": "src/lib/brevo.ts",
+      "parentId": "file:src/lib/brevo.ts",
+      "summary": "Function sendWinBackEmail",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/brevo.ts:sendCelebrationEmail",
+      "name": "sendCelebrationEmail",
+      "type": "function",
+      "filePath": "src/lib/brevo.ts",
+      "parentId": "file:src/lib/brevo.ts",
+      "summary": "Function sendCelebrationEmail",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/brevo.ts:sendTransactionalEmail",
+      "name": "sendTransactionalEmail",
+      "type": "function",
+      "filePath": "src/lib/brevo.ts",
+      "parentId": "file:src/lib/brevo.ts",
+      "summary": "Function sendTransactionalEmail",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/brevo.ts:createOrUpdateContact",
+      "name": "createOrUpdateContact",
+      "type": "function",
+      "filePath": "src/lib/brevo.ts",
+      "parentId": "file:src/lib/brevo.ts",
+      "summary": "Function createOrUpdateContact",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/brevo.ts:getCampaignStats",
+      "name": "getCampaignStats",
+      "type": "function",
+      "filePath": "src/lib/brevo.ts",
+      "parentId": "file:src/lib/brevo.ts",
+      "summary": "Function getCampaignStats",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/brevo.ts:compileTemplate",
+      "name": "compileTemplate",
+      "type": "function",
+      "filePath": "src/lib/brevo.ts",
+      "parentId": "file:src/lib/brevo.ts",
+      "summary": "Function compileTemplate",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/brevo.ts:sendWelcomeEmail",
+      "name": "sendWelcomeEmail",
+      "type": "function",
+      "filePath": "src/lib/brevo.ts",
+      "parentId": "file:src/lib/brevo.ts",
+      "summary": "Function sendWelcomeEmail",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/brevo.ts:sendOrderConfirmationEmail",
+      "name": "sendOrderConfirmationEmail",
+      "type": "function",
+      "filePath": "src/lib/brevo.ts",
+      "parentId": "file:src/lib/brevo.ts",
+      "summary": "Function sendOrderConfirmationEmail",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/brevo.ts:sendOrderShippedEmail",
+      "name": "sendOrderShippedEmail",
+      "type": "function",
+      "filePath": "src/lib/brevo.ts",
+      "parentId": "file:src/lib/brevo.ts",
+      "summary": "Function sendOrderShippedEmail",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/brevo.ts:sendOrderOutForDeliveryEmail",
+      "name": "sendOrderOutForDeliveryEmail",
+      "type": "function",
+      "filePath": "src/lib/brevo.ts",
+      "parentId": "file:src/lib/brevo.ts",
+      "summary": "Function sendOrderOutForDeliveryEmail",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/brevo.ts:sendOrderDeliveredEmail",
+      "name": "sendOrderDeliveredEmail",
+      "type": "function",
+      "filePath": "src/lib/brevo.ts",
+      "parentId": "file:src/lib/brevo.ts",
+      "summary": "Function sendOrderDeliveredEmail",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/brevo.ts:sendOrderCancelledEmail",
+      "name": "sendOrderCancelledEmail",
+      "type": "function",
+      "filePath": "src/lib/brevo.ts",
+      "parentId": "file:src/lib/brevo.ts",
+      "summary": "Function sendOrderCancelledEmail",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/brevo.ts:sendPaymentReceivedEmail",
+      "name": "sendPaymentReceivedEmail",
+      "type": "function",
+      "filePath": "src/lib/brevo.ts",
+      "parentId": "file:src/lib/brevo.ts",
+      "summary": "Function sendPaymentReceivedEmail",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/brevo.ts:sendPaymentFailedEmail",
+      "name": "sendPaymentFailedEmail",
+      "type": "function",
+      "filePath": "src/lib/brevo.ts",
+      "parentId": "file:src/lib/brevo.ts",
+      "summary": "Function sendPaymentFailedEmail",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/brevo.ts:sendRefundProcessedEmail",
+      "name": "sendRefundProcessedEmail",
+      "type": "function",
+      "filePath": "src/lib/brevo.ts",
+      "parentId": "file:src/lib/brevo.ts",
+      "summary": "Function sendRefundProcessedEmail",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/brevo.ts:sendShippingUpdateEmail",
+      "name": "sendShippingUpdateEmail",
+      "type": "function",
+      "filePath": "src/lib/brevo.ts",
+      "parentId": "file:src/lib/brevo.ts",
+      "summary": "Function sendShippingUpdateEmail",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/brevo.ts:sendSupportTicketEmail",
+      "name": "sendSupportTicketEmail",
+      "type": "function",
+      "filePath": "src/lib/brevo.ts",
+      "parentId": "file:src/lib/brevo.ts",
+      "summary": "Function sendSupportTicketEmail",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/brevo.ts:sendPasswordResetEmail",
+      "name": "sendPasswordResetEmail",
+      "type": "function",
+      "filePath": "src/lib/brevo.ts",
+      "parentId": "file:src/lib/brevo.ts",
+      "summary": "Function sendPasswordResetEmail",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/brevo.ts:sendTicketCreatedEmail",
+      "name": "sendTicketCreatedEmail",
+      "type": "function",
+      "filePath": "src/lib/brevo.ts",
+      "parentId": "file:src/lib/brevo.ts",
+      "summary": "Function sendTicketCreatedEmail",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/brevo.ts:sendTicketResolvedEmail",
+      "name": "sendTicketResolvedEmail",
+      "type": "function",
+      "filePath": "src/lib/brevo.ts",
+      "parentId": "file:src/lib/brevo.ts",
+      "summary": "Function sendTicketResolvedEmail",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/brevo.ts:sendTicketUpdateEmail",
+      "name": "sendTicketUpdateEmail",
+      "type": "function",
+      "filePath": "src/lib/brevo.ts",
+      "parentId": "file:src/lib/brevo.ts",
+      "summary": "Function sendTicketUpdateEmail",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/brevo/mcp.ts",
+      "name": "mcp.ts",
+      "type": "file",
+      "filePath": "src/lib/brevo/mcp.ts",
+      "summary": "typescript code file (77 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/lib/brevo/mcp.ts:getBrevoMCPClient",
+      "name": "getBrevoMCPClient",
+      "type": "function",
+      "filePath": "src/lib/brevo/mcp.ts",
+      "parentId": "file:src/lib/brevo/mcp.ts",
+      "summary": "Function getBrevoMCPClient",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/brevo/mcp.ts:getMCPTools",
+      "name": "getMCPTools",
+      "type": "function",
+      "filePath": "src/lib/brevo/mcp.ts",
+      "parentId": "file:src/lib/brevo/mcp.ts",
+      "summary": "Function getMCPTools",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/brevo/mcp.ts:callMCPTool",
+      "name": "callMCPTool",
+      "type": "function",
+      "filePath": "src/lib/brevo/mcp.ts",
+      "parentId": "file:src/lib/brevo/mcp.ts",
+      "summary": "Function callMCPTool",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/calculator.ts",
+      "name": "calculator.ts",
+      "type": "file",
+      "filePath": "src/lib/calculator.ts",
+      "summary": "typescript code file (130 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/lib/calculator.ts:getProfitThresholds",
+      "name": "getProfitThresholds",
+      "type": "function",
+      "filePath": "src/lib/calculator.ts",
+      "parentId": "file:src/lib/calculator.ts",
+      "summary": "Function getProfitThresholds",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/calculator.ts:round2",
+      "name": "round2",
+      "type": "function",
+      "filePath": "src/lib/calculator.ts",
+      "parentId": "file:src/lib/calculator.ts",
+      "summary": "Function round2",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/calculator.ts:computeProfit",
+      "name": "computeProfit",
+      "type": "function",
+      "filePath": "src/lib/calculator.ts",
+      "parentId": "file:src/lib/calculator.ts",
+      "summary": "Function computeProfit",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/catalog.ts",
+      "name": "catalog.ts",
+      "type": "file",
+      "filePath": "src/lib/catalog.ts",
+      "summary": "typescript code file (99 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/lib/catalog.ts:queryCatalogPage",
+      "name": "queryCatalogPage",
+      "type": "function",
+      "filePath": "src/lib/catalog.ts",
+      "parentId": "file:src/lib/catalog.ts",
+      "summary": "Function queryCatalogPage",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/cron/blog-publisher.ts",
+      "name": "blog-publisher.ts",
+      "type": "file",
+      "filePath": "src/lib/cron/blog-publisher.ts",
+      "summary": "typescript code file (44 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/lib/cron/blog-publisher.ts:runBlogPublisher",
+      "name": "runBlogPublisher",
+      "type": "function",
+      "filePath": "src/lib/cron/blog-publisher.ts",
+      "parentId": "file:src/lib/cron/blog-publisher.ts",
+      "summary": "Function runBlogPublisher",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/cron/task-scheduler.ts",
+      "name": "task-scheduler.ts",
+      "type": "file",
+      "filePath": "src/lib/cron/task-scheduler.ts",
+      "summary": "typescript code file (363 lines)",
+      "complexity": "complex",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/lib/cron/task-scheduler.ts:getNowIST",
+      "name": "getNowIST",
+      "type": "function",
+      "filePath": "src/lib/cron/task-scheduler.ts",
+      "parentId": "file:src/lib/cron/task-scheduler.ts",
+      "summary": "Function getNowIST",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/cron/task-scheduler.ts:generateTaskIdText",
+      "name": "generateTaskIdText",
+      "type": "function",
+      "filePath": "src/lib/cron/task-scheduler.ts",
+      "parentId": "file:src/lib/cron/task-scheduler.ts",
+      "summary": "Function generateTaskIdText",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/cron/task-scheduler.ts:runTaskScheduler",
+      "name": "runTaskScheduler",
+      "type": "function",
+      "filePath": "src/lib/cron/task-scheduler.ts",
+      "parentId": "file:src/lib/cron/task-scheduler.ts",
+      "summary": "Function runTaskScheduler",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/cron/task-scheduler.ts:runSchedulerCore",
+      "name": "runSchedulerCore",
+      "type": "function",
+      "filePath": "src/lib/cron/task-scheduler.ts",
+      "parentId": "file:src/lib/cron/task-scheduler.ts",
+      "summary": "Function runSchedulerCore",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/debounce.ts",
+      "name": "debounce.ts",
+      "type": "file",
+      "filePath": "src/lib/debounce.ts",
+      "summary": "typescript code file (10 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/lib/debounce.ts:debounce",
+      "name": "debounce",
+      "type": "function",
+      "filePath": "src/lib/debounce.ts",
+      "parentId": "file:src/lib/debounce.ts",
+      "summary": "Function debounce",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/env.ts",
+      "name": "env.ts",
+      "type": "file",
+      "filePath": "src/lib/env.ts",
+      "summary": "typescript code file (134 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:src/lib/espo/client.ts",
+      "name": "client.ts",
+      "type": "file",
+      "filePath": "src/lib/espo/client.ts",
+      "summary": "typescript code file (125 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "class:src/lib/espo/client.ts:EspoClient",
+      "name": "EspoClient",
+      "type": "class",
+      "filePath": "src/lib/espo/client.ts",
+      "parentId": "file:src/lib/espo/client.ts",
+      "summary": "Class EspoClient",
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/lib/espo/config.ts",
+      "name": "config.ts",
+      "type": "file",
+      "filePath": "src/lib/espo/config.ts",
+      "summary": "typescript code file (42 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/lib/espo/config.ts:getEspoConfig",
+      "name": "getEspoConfig",
+      "type": "function",
+      "filePath": "src/lib/espo/config.ts",
+      "parentId": "file:src/lib/espo/config.ts",
+      "summary": "Function getEspoConfig",
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:src/lib/ai/providers/openai.ts",
+      "target": "class:src/lib/ai/providers/openai.ts:OpenAIProvider",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/ai/providers/openai.ts:generateStructuredProductContent",
+      "target": "function:src/lib/ai/providers/openai.ts:fetch",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/providers/openai.ts:generateStructuredProductContent",
+      "target": "function:src/lib/ai/providers/openai.ts:JSON.stringify",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/providers/openai.ts:generateStructuredProductContent",
+      "target": "function:src/lib/ai/providers/openai.ts:res.text",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/providers/openai.ts:generateStructuredProductContent",
+      "target": "function:src/lib/ai/providers/openai.ts:res.json",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/providers/openai.ts:generateStructuredProductContent",
+      "target": "function:src/lib/ai/providers/openai.ts:JSON.parse",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/lib/ai/providers/openrouter.ts",
+      "target": "class:src/lib/ai/providers/openrouter.ts:OpenRouterProvider",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/ai/providers/openrouter.ts:generateStructuredProductContent",
+      "target": "function:src/lib/ai/providers/openrouter.ts:fetch",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/providers/openrouter.ts:generateStructuredProductContent",
+      "target": "function:src/lib/ai/providers/openrouter.ts:JSON.stringify",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/providers/openrouter.ts:generateStructuredProductContent",
+      "target": "function:src/lib/ai/providers/openrouter.ts:res.text",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/providers/openrouter.ts:generateStructuredProductContent",
+      "target": "function:src/lib/ai/providers/openrouter.ts:res.json",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/providers/openrouter.ts:generateStructuredProductContent",
+      "target": "function:src/lib/ai/providers/openrouter.ts:this.extractJson",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/providers/openrouter.ts:extractJson",
+      "target": "function:src/lib/ai/providers/openrouter.ts:text.trim",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/providers/openrouter.ts:extractJson",
+      "target": "function:src/lib/ai/providers/openrouter.ts:jsonStr.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/providers/openrouter.ts:extractJson",
+      "target": "function:src/lib/ai/providers/openrouter.ts:jsonStr.replace(/^```json\\n?/, '').replace",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/providers/openrouter.ts:extractJson",
+      "target": "function:src/lib/ai/providers/openrouter.ts:jsonStr.replace",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/providers/openrouter.ts:extractJson",
+      "target": "function:src/lib/ai/providers/openrouter.ts:jsonStr.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/providers/openrouter.ts:extractJson",
+      "target": "function:src/lib/ai/providers/openrouter.ts:jsonStr.replace(/^```\\n?/, '').replace",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/providers/openrouter.ts:extractJson",
+      "target": "function:src/lib/ai/providers/openrouter.ts:jsonStr.replace",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/providers/openrouter.ts:extractJson",
+      "target": "function:src/lib/ai/providers/openrouter.ts:JSON.parse",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/providers/openrouter.ts:extractJson",
+      "target": "function:src/lib/ai/providers/openrouter.ts:jsonStr.indexOf",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/providers/openrouter.ts:extractJson",
+      "target": "function:src/lib/ai/providers/openrouter.ts:jsonStr.indexOf",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/providers/openrouter.ts:extractJson",
+      "target": "function:src/lib/ai/providers/openrouter.ts:JSON.parse",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/providers/openrouter.ts:extractJson",
+      "target": "function:src/lib/ai/providers/openrouter.ts:jsonStr.slice",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/ai/providers/openrouter.ts:extractJson",
+      "target": "function:src/lib/ai/providers/openrouter.ts:text.trim",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/lib/analytics.ts",
+      "target": "function:src/lib/analytics.ts:generateEventId",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/analytics.ts",
+      "target": "function:src/lib/analytics.ts:getCookie",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/analytics.ts",
+      "target": "function:src/lib/analytics.ts:trackEvent",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/analytics.ts:generateEventId",
+      "target": "function:src/lib/analytics.ts:Math.random().toString(36).substr",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/analytics.ts:generateEventId",
+      "target": "function:src/lib/analytics.ts:Math.random().toString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/analytics.ts:generateEventId",
+      "target": "function:src/lib/analytics.ts:Math.random",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/analytics.ts:generateEventId",
+      "target": "function:src/lib/analytics.ts:Date.now",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/analytics.ts:getCookie",
+      "target": "function:src/lib/analytics.ts:document.cookie.match",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/analytics.ts:trackEvent",
+      "target": "function:src/lib/analytics.ts:generateEventId",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/analytics.ts:trackEvent",
+      "target": "function:src/lib/analytics.ts:window.fbq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/analytics.ts:trackEvent",
+      "target": "function:src/lib/analytics.ts:getCookie",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/analytics.ts:trackEvent",
+      "target": "function:src/lib/analytics.ts:getCookie",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/analytics.ts:trackEvent",
+      "target": "function:src/lib/analytics.ts:fetch('/api/capi', {\n      method: 'POST',\n      headers: {\n        'Content-Type': 'application/json',\n      },\n      body: JSON.stringify({\n        eventName,\n        eventData,\n        eventId,\n        eventSourceUrl: typeof window !== 'undefined' ? window.location.href : '',\n        userAgent: typeof window !== 'undefined' ? navigator.userAgent : '',\n        fbp,\n        fbc,\n      }),\n      // Use keepalive so the request still goes through if the user navigates away\n      keepalive: true,\n    }).catch",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/analytics.ts:trackEvent",
+      "target": "function:src/lib/analytics.ts:fetch",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/analytics.ts:trackEvent",
+      "target": "function:src/lib/analytics.ts:JSON.stringify",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/analytics.ts:trackEvent",
+      "target": "function:src/lib/analytics.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/lib/api-errors.ts",
+      "target": "function:src/lib/api-errors.ts:mapStatusCodeToUserMessage",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/api-errors.ts",
+      "target": "function:src/lib/api-errors.ts:parseApiError",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/api-errors.ts",
+      "target": "function:src/lib/api-errors.ts:logDevError",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/api-errors.ts",
+      "target": "class:src/lib/api-errors.ts:ApiError",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/api-errors.ts:constructor",
+      "target": "function:src/lib/api-errors.ts:super",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/api-errors.ts:constructor",
+      "target": "function:src/lib/api-errors.ts:mapStatusCodeToUserMessage",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/api-errors.ts:parseApiError",
+      "target": "function:src/lib/api-errors.ts:supabaseError.message.toLowerCase().includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/api-errors.ts:parseApiError",
+      "target": "function:src/lib/api-errors.ts:supabaseError.message.toLowerCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/api-errors.ts:parseApiError",
+      "target": "function:src/lib/api-errors.ts:supabaseError.message.toLowerCase().includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/api-errors.ts:parseApiError",
+      "target": "function:src/lib/api-errors.ts:supabaseError.message.toLowerCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/api-errors.ts:logDevError",
+      "target": "function:src/lib/api-errors.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/lib/api-keys/index.ts",
+      "target": "function:src/lib/api-keys/index.ts:hasPermission",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/api-keys/index.ts",
+      "target": "function:src/lib/api-keys/index.ts:hashApiKey",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/api-keys/index.ts",
+      "target": "function:src/lib/api-keys/index.ts:extractBearerToken",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/api-keys/index.ts",
+      "target": "function:src/lib/api-keys/index.ts:authenticateApiKey",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/api-keys/index.ts",
+      "target": "function:src/lib/api-keys/index.ts:touchLastUsed",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/api-keys/index.ts",
+      "target": "function:src/lib/api-keys/index.ts:generateApiKey",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/api-keys/index.ts",
+      "target": "function:src/lib/api-keys/index.ts:createApiKey",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/api-keys/index.ts",
+      "target": "function:src/lib/api-keys/index.ts:listApiKeys",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/api-keys/index.ts",
+      "target": "function:src/lib/api-keys/index.ts:revokeApiKey",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/api-keys/index.ts",
+      "target": "function:src/lib/api-keys/index.ts:deleteApiKey",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/api-keys/index.ts:hasPermission",
+      "target": "function:src/lib/api-keys/index.ts:scopes.some",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/api-keys/index.ts:hasPermission",
+      "target": "function:src/lib/api-keys/index.ts:s.split",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/api-keys/index.ts:hashApiKey",
+      "target": "function:src/lib/api-keys/index.ts:crypto.createHash('sha256').update(rawKey).digest",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/api-keys/index.ts:hashApiKey",
+      "target": "function:src/lib/api-keys/index.ts:crypto.createHash('sha256').update",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/api-keys/index.ts:hashApiKey",
+      "target": "function:src/lib/api-keys/index.ts:crypto.createHash",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/api-keys/index.ts:extractBearerToken",
+      "target": "function:src/lib/api-keys/index.ts:authHeader.split",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/api-keys/index.ts:extractBearerToken",
+      "target": "function:src/lib/api-keys/index.ts:parts[0].toLowerCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/api-keys/index.ts:extractBearerToken",
+      "target": "function:src/lib/api-keys/index.ts:parts[1].trim",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/api-keys/index.ts:authenticateApiKey",
+      "target": "function:src/lib/api-keys/index.ts:extractBearerToken",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/api-keys/index.ts:authenticateApiKey",
+      "target": "function:src/lib/api-keys/index.ts:hashApiKey",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/api-keys/index.ts:authenticateApiKey",
+      "target": "function:src/lib/api-keys/index.ts:getServiceClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/api-keys/index.ts:authenticateApiKey",
+      "target": "function:src/lib/api-keys/index.ts:supabase\n      .from('api_keys')\n      .select('id, name, scopes, revoked_at')\n      .eq('key_hash', keyHash)\n      .maybeSingle",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/api-keys/index.ts:authenticateApiKey",
+      "target": "function:src/lib/api-keys/index.ts:supabase\n      .from('api_keys')\n      .select('id, name, scopes, revoked_at')\n      .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/api-keys/index.ts:authenticateApiKey",
+      "target": "function:src/lib/api-keys/index.ts:supabase\n      .from('api_keys')\n      .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/api-keys/index.ts:authenticateApiKey",
+      "target": "function:src/lib/api-keys/index.ts:supabase\n      .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/api-keys/index.ts:authenticateApiKey",
+      "target": "function:src/lib/api-keys/index.ts:Array.isArray",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/api-keys/index.ts:authenticateApiKey",
+      "target": "function:src/lib/api-keys/index.ts:scopes.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/api-keys/index.ts:authenticateApiKey",
+      "target": "function:src/lib/api-keys/index.ts:touchLastUsed",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/api-keys/index.ts:touchLastUsed",
+      "target": "function:src/lib/api-keys/index.ts:getServiceClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/api-keys/index.ts:touchLastUsed",
+      "target": "function:src/lib/api-keys/index.ts:supabase\n      .from('api_keys')\n      .update({ last_used_at: new Date().toISOString() })\n      .eq('id', keyId)\n      .then",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/api-keys/index.ts:touchLastUsed",
+      "target": "function:src/lib/api-keys/index.ts:supabase\n      .from('api_keys')\n      .update({ last_used_at: new Date().toISOString() })\n      .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/api-keys/index.ts:touchLastUsed",
+      "target": "function:src/lib/api-keys/index.ts:supabase\n      .from('api_keys')\n      .update",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/api-keys/index.ts:touchLastUsed",
+      "target": "function:src/lib/api-keys/index.ts:supabase\n      .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/api-keys/index.ts:touchLastUsed",
+      "target": "function:src/lib/api-keys/index.ts:new Date().toISOString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/api-keys/index.ts:generateApiKey",
+      "target": "function:src/lib/api-keys/index.ts:crypto.randomBytes(32).toString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/api-keys/index.ts:generateApiKey",
+      "target": "function:src/lib/api-keys/index.ts:crypto.randomBytes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/api-keys/index.ts:generateApiKey",
+      "target": "function:src/lib/api-keys/index.ts:hashApiKey",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/api-keys/index.ts:generateApiKey",
+      "target": "function:src/lib/api-keys/index.ts:rawKey.slice",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/api-keys/index.ts:createApiKey",
+      "target": "function:src/lib/api-keys/index.ts:generateApiKey",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/api-keys/index.ts:createApiKey",
+      "target": "function:src/lib/api-keys/index.ts:getServiceClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/api-keys/index.ts:createApiKey",
+      "target": "function:src/lib/api-keys/index.ts:supabase\n    .from('api_keys')\n    .insert({\n      name: input.name,\n      key_hash: keyHash,\n      key_prefix: keyPrefix,\n      scopes: input.scopes,\n      created_by: input.createdBy,\n    })\n    .select(\n      'id, name, key_prefix, scopes, created_at, created_by, revoked_at, last_used_at'\n    )\n    .single",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/api-keys/index.ts:createApiKey",
+      "target": "function:src/lib/api-keys/index.ts:supabase\n    .from('api_keys')\n    .insert({\n      name: input.name,\n      key_hash: keyHash,\n      key_prefix: keyPrefix,\n      scopes: input.scopes,\n      created_by: input.createdBy,\n    })\n    .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/api-keys/index.ts:createApiKey",
+      "target": "function:src/lib/api-keys/index.ts:supabase\n    .from('api_keys')\n    .insert",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/api-keys/index.ts:createApiKey",
+      "target": "function:src/lib/api-keys/index.ts:supabase\n    .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/api-keys/index.ts:listApiKeys",
+      "target": "function:src/lib/api-keys/index.ts:getServiceClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/api-keys/index.ts:listApiKeys",
+      "target": "function:src/lib/api-keys/index.ts:supabase\n    .from('api_keys')\n    .select(\n      'id, name, key_prefix, scopes, created_at, created_by, revoked_at, last_used_at'\n    )\n    .order",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/api-keys/index.ts:listApiKeys",
+      "target": "function:src/lib/api-keys/index.ts:supabase\n    .from('api_keys')\n    .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/api-keys/index.ts:listApiKeys",
+      "target": "function:src/lib/api-keys/index.ts:supabase\n    .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/api-keys/index.ts:revokeApiKey",
+      "target": "function:src/lib/api-keys/index.ts:getServiceClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/api-keys/index.ts:revokeApiKey",
+      "target": "function:src/lib/api-keys/index.ts:supabase\n    .from('api_keys')\n    .update({ revoked_at: new Date().toISOString() })\n    .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/api-keys/index.ts:revokeApiKey",
+      "target": "function:src/lib/api-keys/index.ts:supabase\n    .from('api_keys')\n    .update",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/api-keys/index.ts:revokeApiKey",
+      "target": "function:src/lib/api-keys/index.ts:supabase\n    .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/api-keys/index.ts:revokeApiKey",
+      "target": "function:src/lib/api-keys/index.ts:new Date().toISOString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/api-keys/index.ts:deleteApiKey",
+      "target": "function:src/lib/api-keys/index.ts:getServiceClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/api-keys/index.ts:deleteApiKey",
+      "target": "function:src/lib/api-keys/index.ts:supabase.from('api_keys').delete().eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/api-keys/index.ts:deleteApiKey",
+      "target": "function:src/lib/api-keys/index.ts:supabase.from('api_keys').delete",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/api-keys/index.ts:deleteApiKey",
+      "target": "function:src/lib/api-keys/index.ts:supabase.from",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/lib/audit.ts",
+      "target": "function:src/lib/audit.ts:logAuditEvent",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/audit.ts:logAuditEvent",
+      "target": "function:src/lib/audit.ts:console.log",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/audit.ts:logAuditEvent",
+      "target": "function:src/lib/audit.ts:portal.toUpperCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/audit.ts:logAuditEvent",
+      "target": "function:src/lib/audit.ts:createClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/audit.ts:logAuditEvent",
+      "target": "function:src/lib/audit.ts:supabase.from('audit_logs').insert",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/audit.ts:logAuditEvent",
+      "target": "function:src/lib/audit.ts:supabase.from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/audit.ts:logAuditEvent",
+      "target": "function:src/lib/audit.ts:action.toLowerCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/audit.ts:logAuditEvent",
+      "target": "function:src/lib/audit.ts:entityType.toLowerCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/audit.ts:logAuditEvent",
+      "target": "function:src/lib/audit.ts:new Date().toISOString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/audit.ts:logAuditEvent",
+      "target": "function:src/lib/audit.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/lib/auth/email-verification.ts",
+      "target": "function:src/lib/auth/email-verification.ts:getSupabaseAdmin",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/auth/email-verification.ts",
+      "target": "function:src/lib/auth/email-verification.ts:getSecretKey",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/auth/email-verification.ts",
+      "target": "function:src/lib/auth/email-verification.ts:signEmailVerificationToken",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/auth/email-verification.ts",
+      "target": "function:src/lib/auth/email-verification.ts:verifyEmailVerificationToken",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/auth/email-verification.ts",
+      "target": "function:src/lib/auth/email-verification.ts:getSiteUrl",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/auth/email-verification.ts:getSupabaseAdmin",
+      "target": "function:src/lib/auth/email-verification.ts:new TextEncoder().encode",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/email-verification.ts:getSupabaseAdmin",
+      "target": "function:src/lib/auth/email-verification.ts:new SignJWT({\n        iss: 'supabase',\n        ref: 'igrkrkxdantrolbldapj',\n        role: 'service_role',\n      })\n        .setProtectedHeader({ alg: 'HS256', typ: 'JWT' })\n        .setIssuedAt()\n        .setExpirationTime('10y')\n        .sign",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/email-verification.ts:getSupabaseAdmin",
+      "target": "function:src/lib/auth/email-verification.ts:new SignJWT({\n        iss: 'supabase',\n        ref: 'igrkrkxdantrolbldapj',\n        role: 'service_role',\n      })\n        .setProtectedHeader({ alg: 'HS256', typ: 'JWT' })\n        .setIssuedAt()\n        .setExpirationTime",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/email-verification.ts:getSupabaseAdmin",
+      "target": "function:src/lib/auth/email-verification.ts:new SignJWT({\n        iss: 'supabase',\n        ref: 'igrkrkxdantrolbldapj',\n        role: 'service_role',\n      })\n        .setProtectedHeader({ alg: 'HS256', typ: 'JWT' })\n        .setIssuedAt",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/email-verification.ts:getSupabaseAdmin",
+      "target": "function:src/lib/auth/email-verification.ts:new SignJWT({\n        iss: 'supabase',\n        ref: 'igrkrkxdantrolbldapj',\n        role: 'service_role',\n      })\n        .setProtectedHeader",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/email-verification.ts:getSupabaseAdmin",
+      "target": "function:src/lib/auth/email-verification.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/email-verification.ts:getSupabaseAdmin",
+      "target": "function:src/lib/auth/email-verification.ts:createClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/email-verification.ts:getSecretKey",
+      "target": "function:src/lib/auth/email-verification.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/email-verification.ts:getSecretKey",
+      "target": "function:src/lib/auth/email-verification.ts:new TextEncoder().encode",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/email-verification.ts:signEmailVerificationToken",
+      "target": "function:src/lib/auth/email-verification.ts:Math.floor",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/email-verification.ts:signEmailVerificationToken",
+      "target": "function:src/lib/auth/email-verification.ts:Date.now",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/email-verification.ts:signEmailVerificationToken",
+      "target": "function:src/lib/auth/email-verification.ts:new SignJWT({\n    type: 'email_verify',\n    email: params.email,\n    customer_id: params.customerId,\n    email_change: params.isEmailChange,\n  })\n    .setProtectedHeader({ alg: 'HS256', typ: 'JWT' })\n    .setSubject(params.customerId)\n    .setIssuedAt(now)\n    .setExpirationTime(now + 24 * 3600) // 24 hour validity\n    .sign",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/email-verification.ts:signEmailVerificationToken",
+      "target": "function:src/lib/auth/email-verification.ts:new SignJWT({\n    type: 'email_verify',\n    email: params.email,\n    customer_id: params.customerId,\n    email_change: params.isEmailChange,\n  })\n    .setProtectedHeader({ alg: 'HS256', typ: 'JWT' })\n    .setSubject(params.customerId)\n    .setIssuedAt(now)\n    .setExpirationTime",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/email-verification.ts:signEmailVerificationToken",
+      "target": "function:src/lib/auth/email-verification.ts:new SignJWT({\n    type: 'email_verify',\n    email: params.email,\n    customer_id: params.customerId,\n    email_change: params.isEmailChange,\n  })\n    .setProtectedHeader({ alg: 'HS256', typ: 'JWT' })\n    .setSubject(params.customerId)\n    .setIssuedAt",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/email-verification.ts:signEmailVerificationToken",
+      "target": "function:src/lib/auth/email-verification.ts:new SignJWT({\n    type: 'email_verify',\n    email: params.email,\n    customer_id: params.customerId,\n    email_change: params.isEmailChange,\n  })\n    .setProtectedHeader({ alg: 'HS256', typ: 'JWT' })\n    .setSubject",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/email-verification.ts:signEmailVerificationToken",
+      "target": "function:src/lib/auth/email-verification.ts:new SignJWT({\n    type: 'email_verify',\n    email: params.email,\n    customer_id: params.customerId,\n    email_change: params.isEmailChange,\n  })\n    .setProtectedHeader",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/email-verification.ts:signEmailVerificationToken",
+      "target": "function:src/lib/auth/email-verification.ts:getSecretKey",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/email-verification.ts:verifyEmailVerificationToken",
+      "target": "function:src/lib/auth/email-verification.ts:jwtVerify",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/email-verification.ts:verifyEmailVerificationToken",
+      "target": "function:src/lib/auth/email-verification.ts:getSecretKey",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/lib/auth/rbac.ts",
+      "target": "function:src/lib/auth/rbac.ts:buildScopesFromPermissions",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/auth/rbac.ts",
+      "target": "function:src/lib/auth/rbac.ts:getUserScopes",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/auth/rbac.ts",
+      "target": "function:src/lib/auth/rbac.ts:hasPermission",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/auth/rbac.ts:buildScopesFromPermissions",
+      "target": "function:src/lib/auth/rbac.ts:ALL_MODULES.forEach",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/rbac.ts:buildScopesFromPermissions",
+      "target": "function:src/lib/auth/rbac.ts:scopes.add",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/rbac.ts:buildScopesFromPermissions",
+      "target": "function:src/lib/auth/rbac.ts:scopes.add",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/rbac.ts:buildScopesFromPermissions",
+      "target": "function:src/lib/auth/rbac.ts:perm.split",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/rbac.ts:buildScopesFromPermissions",
+      "target": "function:src/lib/auth/rbac.ts:scopes.add",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/rbac.ts:buildScopesFromPermissions",
+      "target": "function:src/lib/auth/rbac.ts:scopes.add",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/rbac.ts:buildScopesFromPermissions",
+      "target": "function:src/lib/auth/rbac.ts:scopes.add",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/rbac.ts:buildScopesFromPermissions",
+      "target": "function:src/lib/auth/rbac.ts:Array.from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/rbac.ts:getUserScopes",
+      "target": "function:src/lib/auth/rbac.ts:createClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/rbac.ts:getUserScopes",
+      "target": "function:src/lib/auth/rbac.ts:supabase\r\n      .from('users')\r\n      .select('role, role_id')\r\n      .eq('id', userId)\r\n      .maybeSingle",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/rbac.ts:getUserScopes",
+      "target": "function:src/lib/auth/rbac.ts:supabase\r\n      .from('users')\r\n      .select('role, role_id')\r\n      .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/rbac.ts:getUserScopes",
+      "target": "function:src/lib/auth/rbac.ts:supabase\r\n      .from('users')\r\n      .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/rbac.ts:getUserScopes",
+      "target": "function:src/lib/auth/rbac.ts:supabase\r\n      .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/rbac.ts:getUserScopes",
+      "target": "function:src/lib/auth/rbac.ts:buildScopesFromPermissions",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/rbac.ts:getUserScopes",
+      "target": "function:src/lib/auth/rbac.ts:String(user.role || '').toUpperCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/rbac.ts:getUserScopes",
+      "target": "function:src/lib/auth/rbac.ts:String",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/rbac.ts:getUserScopes",
+      "target": "function:src/lib/auth/rbac.ts:supabase\r\n        .from('roles')\r\n        .select('id')\r\n        .eq('name', roleName)\r\n        .maybeSingle",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/rbac.ts:getUserScopes",
+      "target": "function:src/lib/auth/rbac.ts:supabase\r\n        .from('roles')\r\n        .select('id')\r\n        .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/rbac.ts:getUserScopes",
+      "target": "function:src/lib/auth/rbac.ts:supabase\r\n        .from('roles')\r\n        .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/rbac.ts:getUserScopes",
+      "target": "function:src/lib/auth/rbac.ts:supabase\r\n        .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/rbac.ts:getUserScopes",
+      "target": "function:src/lib/auth/rbac.ts:supabase\r\n      .from('role_permissions')\r\n      .select('permission')\r\n      .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/rbac.ts:getUserScopes",
+      "target": "function:src/lib/auth/rbac.ts:supabase\r\n      .from('role_permissions')\r\n      .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/rbac.ts:getUserScopes",
+      "target": "function:src/lib/auth/rbac.ts:supabase\r\n      .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/rbac.ts:getUserScopes",
+      "target": "function:src/lib/auth/rbac.ts:buildScopesFromPermissions",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/rbac.ts:getUserScopes",
+      "target": "function:src/lib/auth/rbac.ts:permissions.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/rbac.ts:hasPermission",
+      "target": "function:src/lib/auth/rbac.ts:createClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/rbac.ts:hasPermission",
+      "target": "function:src/lib/auth/rbac.ts:supabase\r\n      .from('users')\r\n      .select('role, role_id')\r\n      .eq('id', userId)\r\n      .maybeSingle",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/rbac.ts:hasPermission",
+      "target": "function:src/lib/auth/rbac.ts:supabase\r\n      .from('users')\r\n      .select('role, role_id')\r\n      .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/rbac.ts:hasPermission",
+      "target": "function:src/lib/auth/rbac.ts:supabase\r\n      .from('users')\r\n      .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/rbac.ts:hasPermission",
+      "target": "function:src/lib/auth/rbac.ts:supabase\r\n      .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/rbac.ts:hasPermission",
+      "target": "function:src/lib/auth/rbac.ts:String(user.role || '').toUpperCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/rbac.ts:hasPermission",
+      "target": "function:src/lib/auth/rbac.ts:String",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/rbac.ts:hasPermission",
+      "target": "function:src/lib/auth/rbac.ts:supabase\r\n        .from('roles')\r\n        .select('id')\r\n        .eq('name', roleName)\r\n        .maybeSingle",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/rbac.ts:hasPermission",
+      "target": "function:src/lib/auth/rbac.ts:supabase\r\n        .from('roles')\r\n        .select('id')\r\n        .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/rbac.ts:hasPermission",
+      "target": "function:src/lib/auth/rbac.ts:supabase\r\n        .from('roles')\r\n        .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/rbac.ts:hasPermission",
+      "target": "function:src/lib/auth/rbac.ts:supabase\r\n        .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/rbac.ts:hasPermission",
+      "target": "function:src/lib/auth/rbac.ts:supabase\r\n      .from('role_permissions')\r\n      .select('permission')\r\n      .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/rbac.ts:hasPermission",
+      "target": "function:src/lib/auth/rbac.ts:supabase\r\n      .from('role_permissions')\r\n      .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/rbac.ts:hasPermission",
+      "target": "function:src/lib/auth/rbac.ts:supabase\r\n      .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/rbac.ts:hasPermission",
+      "target": "function:src/lib/auth/rbac.ts:permissions.some",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/rbac.ts:hasPermission",
+      "target": "function:src/lib/auth/rbac.ts:requiredPermission.split",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/rbac.ts:hasPermission",
+      "target": "function:src/lib/auth/rbac.ts:permissions.some",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/rbac.ts:hasPermission",
+      "target": "function:src/lib/auth/rbac.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/lib/auth/require-admin-client.ts",
+      "target": "function:src/lib/auth/require-admin-client.ts:requireAdminClient",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/auth/require-admin-client.ts:requireAdminClient",
+      "target": "function:src/lib/auth/require-admin-client.ts:requireAdmin",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/require-admin-client.ts:requireAdminClient",
+      "target": "function:src/lib/auth/require-admin-client.ts:createClient",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/lib/auth/require-admin.ts",
+      "target": "function:src/lib/auth/require-admin.ts:requireAdmin",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/auth/require-admin.ts:requireAdmin",
+      "target": "function:src/lib/auth/require-admin.ts:cookies",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/require-admin.ts:requireAdmin",
+      "target": "function:src/lib/auth/require-admin.ts:cookieStore.get",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/require-admin.ts:requireAdmin",
+      "target": "function:src/lib/auth/require-admin.ts:verifySessionToken",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/require-admin.ts:requireAdmin",
+      "target": "function:src/lib/auth/require-admin.ts:createServerClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/require-admin.ts:getAll",
+      "target": "function:src/lib/auth/require-admin.ts:cookieStore.getAll",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/require-admin.ts:requireAdmin",
+      "target": "function:src/lib/auth/require-admin.ts:supabase\n      .from('users')\n      .select('role')\n      .eq('id', uid)\n      .maybeSingle",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/require-admin.ts:requireAdmin",
+      "target": "function:src/lib/auth/require-admin.ts:supabase\n      .from('users')\n      .select('role')\n      .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/require-admin.ts:requireAdmin",
+      "target": "function:src/lib/auth/require-admin.ts:supabase\n      .from('users')\n      .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/require-admin.ts:requireAdmin",
+      "target": "function:src/lib/auth/require-admin.ts:supabase\n      .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/require-admin.ts:requireAdmin",
+      "target": "function:src/lib/auth/require-admin.ts:INTERNAL_ADMIN_ROLES.includes",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/lib/auth/server.ts",
+      "target": "function:src/lib/auth/server.ts:getServerUser",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/auth/server.ts:getServerUser",
+      "target": "function:src/lib/auth/server.ts:cookies",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/server.ts:getServerUser",
+      "target": "function:src/lib/auth/server.ts:cookieStore.get",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/server.ts:getServerUser",
+      "target": "function:src/lib/auth/server.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/server.ts:getServerUser",
+      "target": "function:src/lib/auth/server.ts:new TextEncoder().encode",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/server.ts:getServerUser",
+      "target": "function:src/lib/auth/server.ts:jwtVerify",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/server.ts:getServerUser",
+      "target": "function:src/lib/auth/server.ts:(payload.email as string | undefined)?.split",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/lib/auth/task-auth.ts",
+      "target": "function:src/lib/auth/task-auth.ts:getAuthenticatedStaff",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/auth/task-auth.ts:getAuthenticatedStaff",
+      "target": "function:src/lib/auth/task-auth.ts:cookies",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/task-auth.ts:getAuthenticatedStaff",
+      "target": "function:src/lib/auth/task-auth.ts:cookieStore.get",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/task-auth.ts:getAuthenticatedStaff",
+      "target": "function:src/lib/auth/task-auth.ts:verifySessionToken",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/task-auth.ts:getAuthenticatedStaff",
+      "target": "function:src/lib/auth/task-auth.ts:getServiceClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/task-auth.ts:getAuthenticatedStaff",
+      "target": "function:src/lib/auth/task-auth.ts:supabase\r\n    .from('users')\r\n    .select('id, role, account_status, department_id, full_name, email')\r\n    .eq('id', decoded.sub as string)\r\n    .maybeSingle",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/task-auth.ts:getAuthenticatedStaff",
+      "target": "function:src/lib/auth/task-auth.ts:supabase\r\n    .from('users')\r\n    .select('id, role, account_status, department_id, full_name, email')\r\n    .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/task-auth.ts:getAuthenticatedStaff",
+      "target": "function:src/lib/auth/task-auth.ts:supabase\r\n    .from('users')\r\n    .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/task-auth.ts:getAuthenticatedStaff",
+      "target": "function:src/lib/auth/task-auth.ts:supabase\r\n    .from",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/lib/auth/verify-session.ts",
+      "target": "function:src/lib/auth/verify-session.ts:verifySessionToken",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/auth/verify-session.ts:verifySessionToken",
+      "target": "function:src/lib/auth/verify-session.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/verify-session.ts:verifySessionToken",
+      "target": "function:src/lib/auth/verify-session.ts:new TextEncoder().encode",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/auth/verify-session.ts:verifySessionToken",
+      "target": "function:src/lib/auth/verify-session.ts:jwtVerify",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/lib/brevo.ts",
+      "target": "function:src/lib/brevo.ts:resolveBrevoApiKey",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/brevo.ts",
+      "target": "function:src/lib/brevo.ts:getHeaders",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/brevo.ts",
+      "target": "function:src/lib/brevo.ts:getSender",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/brevo.ts",
+      "target": "function:src/lib/brevo.ts:sendEmail",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/brevo.ts",
+      "target": "function:src/lib/brevo.ts:sendAbandonedCartEmail",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/brevo.ts",
+      "target": "function:src/lib/brevo.ts:sendWinBackEmail",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/brevo.ts",
+      "target": "function:src/lib/brevo.ts:sendCelebrationEmail",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/brevo.ts",
+      "target": "function:src/lib/brevo.ts:sendTransactionalEmail",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/brevo.ts",
+      "target": "function:src/lib/brevo.ts:createOrUpdateContact",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/brevo.ts",
+      "target": "function:src/lib/brevo.ts:getCampaignStats",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/brevo.ts",
+      "target": "function:src/lib/brevo.ts:compileTemplate",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/brevo.ts",
+      "target": "function:src/lib/brevo.ts:sendWelcomeEmail",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/brevo.ts",
+      "target": "function:src/lib/brevo.ts:sendOrderConfirmationEmail",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/brevo.ts",
+      "target": "function:src/lib/brevo.ts:sendOrderShippedEmail",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/brevo.ts",
+      "target": "function:src/lib/brevo.ts:sendOrderOutForDeliveryEmail",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/brevo.ts",
+      "target": "function:src/lib/brevo.ts:sendOrderDeliveredEmail",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/brevo.ts",
+      "target": "function:src/lib/brevo.ts:sendOrderCancelledEmail",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/brevo.ts",
+      "target": "function:src/lib/brevo.ts:sendPaymentReceivedEmail",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/brevo.ts",
+      "target": "function:src/lib/brevo.ts:sendPaymentFailedEmail",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/brevo.ts",
+      "target": "function:src/lib/brevo.ts:sendRefundProcessedEmail",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/brevo.ts",
+      "target": "function:src/lib/brevo.ts:sendShippingUpdateEmail",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/brevo.ts",
+      "target": "function:src/lib/brevo.ts:sendSupportTicketEmail",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/brevo.ts",
+      "target": "function:src/lib/brevo.ts:sendPasswordResetEmail",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/brevo.ts",
+      "target": "function:src/lib/brevo.ts:sendTicketCreatedEmail",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/brevo.ts",
+      "target": "function:src/lib/brevo.ts:sendTicketResolvedEmail",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/brevo.ts",
+      "target": "function:src/lib/brevo.ts:sendTicketUpdateEmail",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/brevo.ts:resolveBrevoApiKey",
+      "target": "function:src/lib/brevo.ts:rawKey.trim",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo.ts:resolveBrevoApiKey",
+      "target": "function:src/lib/brevo.ts:trimmed.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo.ts:resolveBrevoApiKey",
+      "target": "function:src/lib/brevo.ts:Buffer.from(trimmed, 'base64').toString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo.ts:resolveBrevoApiKey",
+      "target": "function:src/lib/brevo.ts:Buffer.from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo.ts:resolveBrevoApiKey",
+      "target": "function:src/lib/brevo.ts:JSON.parse",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo.ts:getHeaders",
+      "target": "function:src/lib/brevo.ts:resolveBrevoApiKey",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo.ts:getHeaders",
+      "target": "function:src/lib/brevo.ts:console.warn",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo.ts:sendEmail",
+      "target": "function:src/lib/brevo.ts:getHeaders",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo.ts:sendEmail",
+      "target": "function:src/lib/brevo.ts:getSender",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo.ts:sendEmail",
+      "target": "function:src/lib/brevo.ts:fetch",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo.ts:sendEmail",
+      "target": "function:src/lib/brevo.ts:JSON.stringify",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo.ts:sendEmail",
+      "target": "function:src/lib/brevo.ts:response.text",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo.ts:sendEmail",
+      "target": "function:src/lib/brevo.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo.ts:sendEmail",
+      "target": "function:src/lib/brevo.ts:response.json",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo.ts:sendEmail",
+      "target": "function:src/lib/brevo.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo.ts:sendAbandonedCartEmail",
+      "target": "function:src/lib/brevo.ts:sendEmail",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo.ts:sendWinBackEmail",
+      "target": "function:src/lib/brevo.ts:sendEmail",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo.ts:sendCelebrationEmail",
+      "target": "function:src/lib/brevo.ts:sendEmail",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo.ts:sendTransactionalEmail",
+      "target": "function:src/lib/brevo.ts:sendEmail",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo.ts:createOrUpdateContact",
+      "target": "function:src/lib/brevo.ts:getHeaders",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo.ts:createOrUpdateContact",
+      "target": "function:src/lib/brevo.ts:fetch",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo.ts:createOrUpdateContact",
+      "target": "function:src/lib/brevo.ts:JSON.stringify",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo.ts:createOrUpdateContact",
+      "target": "function:src/lib/brevo.ts:response.text",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo.ts:createOrUpdateContact",
+      "target": "function:src/lib/brevo.ts:response.json",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo.ts:createOrUpdateContact",
+      "target": "function:src/lib/brevo.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo.ts:getCampaignStats",
+      "target": "function:src/lib/brevo.ts:getHeaders",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo.ts:getCampaignStats",
+      "target": "function:src/lib/brevo.ts:fetch",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo.ts:getCampaignStats",
+      "target": "function:src/lib/brevo.ts:response.json",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo.ts:getCampaignStats",
+      "target": "function:src/lib/brevo.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo.ts:compileTemplate",
+      "target": "function:src/lib/brevo.ts:path.join",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo.ts:compileTemplate",
+      "target": "function:src/lib/brevo.ts:process.cwd",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo.ts:compileTemplate",
+      "target": "function:src/lib/brevo.ts:fs.existsSync",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo.ts:compileTemplate",
+      "target": "function:src/lib/brevo.ts:console.warn",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo.ts:compileTemplate",
+      "target": "function:src/lib/brevo.ts:fs.readFileSync",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo.ts:compileTemplate",
+      "target": "function:src/lib/brevo.ts:Handlebars.compile",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo.ts:compileTemplate",
+      "target": "function:src/lib/brevo.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo.ts:sendWelcomeEmail",
+      "target": "function:src/lib/brevo.ts:compileTemplate",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo.ts:sendWelcomeEmail",
+      "target": "function:src/lib/brevo.ts:template",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo.ts:sendWelcomeEmail",
+      "target": "function:src/lib/brevo.ts:sendEmail",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo.ts:sendWelcomeEmail",
+      "target": "function:src/lib/brevo.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo.ts:sendOrderConfirmationEmail",
+      "target": "function:src/lib/brevo.ts:compileTemplate",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo.ts:sendOrderConfirmationEmail",
+      "target": "function:src/lib/brevo.ts:template",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo.ts:sendOrderConfirmationEmail",
+      "target": "function:src/lib/brevo.ts:sendEmail",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo.ts:sendOrderConfirmationEmail",
+      "target": "function:src/lib/brevo.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo.ts:sendOrderShippedEmail",
+      "target": "function:src/lib/brevo.ts:compileTemplate",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo.ts:sendOrderShippedEmail",
+      "target": "function:src/lib/brevo.ts:template",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo.ts:sendOrderShippedEmail",
+      "target": "function:src/lib/brevo.ts:sendEmail",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo.ts:sendOrderShippedEmail",
+      "target": "function:src/lib/brevo.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo.ts:sendOrderOutForDeliveryEmail",
+      "target": "function:src/lib/brevo.ts:compileTemplate",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo.ts:sendOrderOutForDeliveryEmail",
+      "target": "function:src/lib/brevo.ts:template",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo.ts:sendOrderOutForDeliveryEmail",
+      "target": "function:src/lib/brevo.ts:sendEmail",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo.ts:sendOrderOutForDeliveryEmail",
+      "target": "function:src/lib/brevo.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo.ts:sendOrderDeliveredEmail",
+      "target": "function:src/lib/brevo.ts:compileTemplate",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo.ts:sendOrderDeliveredEmail",
+      "target": "function:src/lib/brevo.ts:template",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo.ts:sendOrderDeliveredEmail",
+      "target": "function:src/lib/brevo.ts:sendEmail",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo.ts:sendOrderDeliveredEmail",
+      "target": "function:src/lib/brevo.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo.ts:sendOrderCancelledEmail",
+      "target": "function:src/lib/brevo.ts:compileTemplate",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo.ts:sendOrderCancelledEmail",
+      "target": "function:src/lib/brevo.ts:template",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo.ts:sendOrderCancelledEmail",
+      "target": "function:src/lib/brevo.ts:sendEmail",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo.ts:sendOrderCancelledEmail",
+      "target": "function:src/lib/brevo.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo.ts:sendPaymentReceivedEmail",
+      "target": "function:src/lib/brevo.ts:compileTemplate",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo.ts:sendPaymentReceivedEmail",
+      "target": "function:src/lib/brevo.ts:template",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo.ts:sendPaymentReceivedEmail",
+      "target": "function:src/lib/brevo.ts:sendEmail",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo.ts:sendPaymentReceivedEmail",
+      "target": "function:src/lib/brevo.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo.ts:sendPaymentFailedEmail",
+      "target": "function:src/lib/brevo.ts:compileTemplate",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo.ts:sendPaymentFailedEmail",
+      "target": "function:src/lib/brevo.ts:template",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo.ts:sendPaymentFailedEmail",
+      "target": "function:src/lib/brevo.ts:sendEmail",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo.ts:sendPaymentFailedEmail",
+      "target": "function:src/lib/brevo.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo.ts:sendRefundProcessedEmail",
+      "target": "function:src/lib/brevo.ts:sendEmail",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo.ts:sendRefundProcessedEmail",
+      "target": "function:src/lib/brevo.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo.ts:sendShippingUpdateEmail",
+      "target": "function:src/lib/brevo.ts:sendOrderShippedEmail",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo.ts:sendSupportTicketEmail",
+      "target": "function:src/lib/brevo.ts:sendEmail",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo.ts:sendSupportTicketEmail",
+      "target": "function:src/lib/brevo.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo.ts:sendPasswordResetEmail",
+      "target": "function:src/lib/brevo.ts:sendEmail",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo.ts:sendPasswordResetEmail",
+      "target": "function:src/lib/brevo.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo.ts:sendTicketCreatedEmail",
+      "target": "function:src/lib/brevo.ts:sendEmail",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo.ts:sendTicketCreatedEmail",
+      "target": "function:src/lib/brevo.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo.ts:sendTicketResolvedEmail",
+      "target": "function:src/lib/brevo.ts:sendEmail",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo.ts:sendTicketResolvedEmail",
+      "target": "function:src/lib/brevo.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo.ts:sendTicketUpdateEmail",
+      "target": "function:src/lib/brevo.ts:sendEmail",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo.ts:sendTicketUpdateEmail",
+      "target": "function:src/lib/brevo.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/lib/brevo/mcp.ts",
+      "target": "function:src/lib/brevo/mcp.ts:getBrevoMCPClient",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/brevo/mcp.ts",
+      "target": "function:src/lib/brevo/mcp.ts:getMCPTools",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/brevo/mcp.ts",
+      "target": "function:src/lib/brevo/mcp.ts:callMCPTool",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/brevo/mcp.ts:getBrevoMCPClient",
+      "target": "function:src/lib/brevo/mcp.ts:apiKey?.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo/mcp.ts:getBrevoMCPClient",
+      "target": "function:src/lib/brevo/mcp.ts:Buffer.from(apiKey.trim(), 'base64').toString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo/mcp.ts:getBrevoMCPClient",
+      "target": "function:src/lib/brevo/mcp.ts:Buffer.from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo/mcp.ts:getBrevoMCPClient",
+      "target": "function:src/lib/brevo/mcp.ts:apiKey.trim",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo/mcp.ts:getBrevoMCPClient",
+      "target": "function:src/lib/brevo/mcp.ts:JSON.parse",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo/mcp.ts:getBrevoMCPClient",
+      "target": "function:src/lib/brevo/mcp.ts:client.connect",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo/mcp.ts:getMCPTools",
+      "target": "function:src/lib/brevo/mcp.ts:getBrevoMCPClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo/mcp.ts:getMCPTools",
+      "target": "function:src/lib/brevo/mcp.ts:client.listTools",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo/mcp.ts:callMCPTool",
+      "target": "function:src/lib/brevo/mcp.ts:getBrevoMCPClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/brevo/mcp.ts:callMCPTool",
+      "target": "function:src/lib/brevo/mcp.ts:client.callTool",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/lib/calculator.ts",
+      "target": "function:src/lib/calculator.ts:getProfitThresholds",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/calculator.ts",
+      "target": "function:src/lib/calculator.ts:round2",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/calculator.ts",
+      "target": "function:src/lib/calculator.ts:computeProfit",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/calculator.ts:getProfitThresholds",
+      "target": "function:src/lib/calculator.ts:supabase\n      .from('settings')\n      .select('value')\n      .eq('key', 'operations_thresholds')\n      .single",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/calculator.ts:getProfitThresholds",
+      "target": "function:src/lib/calculator.ts:supabase\n      .from('settings')\n      .select('value')\n      .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/calculator.ts:getProfitThresholds",
+      "target": "function:src/lib/calculator.ts:supabase\n      .from('settings')\n      .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/calculator.ts:getProfitThresholds",
+      "target": "function:src/lib/calculator.ts:supabase\n      .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/calculator.ts:getProfitThresholds",
+      "target": "function:src/lib/calculator.ts:Number",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/calculator.ts:getProfitThresholds",
+      "target": "function:src/lib/calculator.ts:Number",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/calculator.ts:round2",
+      "target": "function:src/lib/calculator.ts:Math.round",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/calculator.ts:computeProfit",
+      "target": "function:src/lib/calculator.ts:Math.max",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/calculator.ts:computeProfit",
+      "target": "function:src/lib/calculator.ts:round2",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/calculator.ts:computeProfit",
+      "target": "function:src/lib/calculator.ts:round2",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/calculator.ts:computeProfit",
+      "target": "function:src/lib/calculator.ts:round2",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/calculator.ts:computeProfit",
+      "target": "function:src/lib/calculator.ts:round2",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/calculator.ts:computeProfit",
+      "target": "function:src/lib/calculator.ts:round2",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/calculator.ts:computeProfit",
+      "target": "function:src/lib/calculator.ts:round2",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/calculator.ts:computeProfit",
+      "target": "function:src/lib/calculator.ts:round2",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/calculator.ts:computeProfit",
+      "target": "function:src/lib/calculator.ts:round2",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/calculator.ts:computeProfit",
+      "target": "function:src/lib/calculator.ts:round2",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/calculator.ts:computeProfit",
+      "target": "function:src/lib/calculator.ts:round2",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/calculator.ts:computeProfit",
+      "target": "function:src/lib/calculator.ts:round2",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/calculator.ts:computeProfit",
+      "target": "function:src/lib/calculator.ts:round2",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/calculator.ts:computeProfit",
+      "target": "function:src/lib/calculator.ts:round2",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/lib/catalog.ts",
+      "target": "function:src/lib/catalog.ts:queryCatalogPage",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/catalog.ts:queryCatalogPage",
+      "target": "function:src/lib/catalog.ts:JSON.stringify",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/catalog.ts:queryCatalogPage",
+      "target": "function:src/lib/catalog.ts:cacheWrap",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/catalog.ts:queryCatalogPage",
+      "target": "function:src/lib/catalog.ts:createPublicClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/catalog.ts:queryCatalogPage",
+      "target": "function:src/lib/catalog.ts:supabase\n      .from('products')\n      .select('*, images:product_images(*), category:categories(*)', {\n        count: 'exact',\n      })\n      .neq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/catalog.ts:queryCatalogPage",
+      "target": "function:src/lib/catalog.ts:supabase\n      .from('products')\n      .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/catalog.ts:queryCatalogPage",
+      "target": "function:src/lib/catalog.ts:supabase\n      .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/catalog.ts:queryCatalogPage",
+      "target": "function:src/lib/catalog.ts:query.eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/catalog.ts:queryCatalogPage",
+      "target": "function:src/lib/catalog.ts:query.neq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/catalog.ts:queryCatalogPage",
+      "target": "function:src/lib/catalog.ts:query.eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/catalog.ts:queryCatalogPage",
+      "target": "function:src/lib/catalog.ts:query.lte",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/catalog.ts:queryCatalogPage",
+      "target": "function:src/lib/catalog.ts:filters.search?.trim",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/catalog.ts:queryCatalogPage",
+      "target": "function:src/lib/catalog.ts:trimmedSearch.toLowerCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/catalog.ts:queryCatalogPage",
+      "target": "function:src/lib/catalog.ts:supabase\n        .from('categories')\n        .select('id')\n        .ilike",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/catalog.ts:queryCatalogPage",
+      "target": "function:src/lib/catalog.ts:supabase\n        .from('categories')\n        .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/catalog.ts:queryCatalogPage",
+      "target": "function:src/lib/catalog.ts:supabase\n        .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/catalog.ts:queryCatalogPage",
+      "target": "function:src/lib/catalog.ts:(matchingCats || []).map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/catalog.ts:queryCatalogPage",
+      "target": "function:src/lib/catalog.ts:catIds.join",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/catalog.ts:queryCatalogPage",
+      "target": "function:src/lib/catalog.ts:query.or",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/catalog.ts:queryCatalogPage",
+      "target": "function:src/lib/catalog.ts:query.order",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/catalog.ts:queryCatalogPage",
+      "target": "function:src/lib/catalog.ts:query.order",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/catalog.ts:queryCatalogPage",
+      "target": "function:src/lib/catalog.ts:query.order",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/catalog.ts:queryCatalogPage",
+      "target": "function:src/lib/catalog.ts:query.range",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/lib/cron/blog-publisher.ts",
+      "target": "function:src/lib/cron/blog-publisher.ts:runBlogPublisher",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/cron/blog-publisher.ts:runBlogPublisher",
+      "target": "function:src/lib/cron/blog-publisher.ts:createClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/blog-publisher.ts:runBlogPublisher",
+      "target": "function:src/lib/cron/blog-publisher.ts:new Date().toISOString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/blog-publisher.ts:runBlogPublisher",
+      "target": "function:src/lib/cron/blog-publisher.ts:supabase\r\n    .from('blog_posts')\r\n    .select('id, slug, scheduled_publish_at')\r\n    .eq('status', 'scheduled')\r\n    .lte('scheduled_publish_at', now)\r\n    .limit",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/blog-publisher.ts:runBlogPublisher",
+      "target": "function:src/lib/cron/blog-publisher.ts:supabase\r\n    .from('blog_posts')\r\n    .select('id, slug, scheduled_publish_at')\r\n    .eq('status', 'scheduled')\r\n    .lte",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/blog-publisher.ts:runBlogPublisher",
+      "target": "function:src/lib/cron/blog-publisher.ts:supabase\r\n    .from('blog_posts')\r\n    .select('id, slug, scheduled_publish_at')\r\n    .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/blog-publisher.ts:runBlogPublisher",
+      "target": "function:src/lib/cron/blog-publisher.ts:supabase\r\n    .from('blog_posts')\r\n    .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/blog-publisher.ts:runBlogPublisher",
+      "target": "function:src/lib/cron/blog-publisher.ts:supabase\r\n    .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/blog-publisher.ts:runBlogPublisher",
+      "target": "function:src/lib/cron/blog-publisher.ts:(due || []).map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/blog-publisher.ts:runBlogPublisher",
+      "target": "function:src/lib/cron/blog-publisher.ts:supabase\r\n      .from('blog_posts')\r\n      .update({\r\n        status: 'published',\r\n        is_published: true,\r\n        published_at: now,\r\n        scheduled_publish_at: null,\r\n        updated_at: now,\r\n      })\r\n      .in",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/blog-publisher.ts:runBlogPublisher",
+      "target": "function:src/lib/cron/blog-publisher.ts:supabase\r\n      .from('blog_posts')\r\n      .update",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/blog-publisher.ts:runBlogPublisher",
+      "target": "function:src/lib/cron/blog-publisher.ts:supabase\r\n      .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/blog-publisher.ts:runBlogPublisher",
+      "target": "function:src/lib/cron/blog-publisher.ts:(due || []).map",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/lib/cron/task-scheduler.ts",
+      "target": "function:src/lib/cron/task-scheduler.ts:getNowIST",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/cron/task-scheduler.ts",
+      "target": "function:src/lib/cron/task-scheduler.ts:generateTaskIdText",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/cron/task-scheduler.ts",
+      "target": "function:src/lib/cron/task-scheduler.ts:runTaskScheduler",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/lib/cron/task-scheduler.ts",
+      "target": "function:src/lib/cron/task-scheduler.ts:runSchedulerCore",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:getNowIST",
+      "target": "function:src/lib/cron/task-scheduler.ts:istFormatter.formatToParts",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:findPart",
+      "target": "function:src/lib/cron/task-scheduler.ts:parts.find",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:getNowIST",
+      "target": "function:src/lib/cron/task-scheduler.ts:findPart",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:getNowIST",
+      "target": "function:src/lib/cron/task-scheduler.ts:findPart",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:getNowIST",
+      "target": "function:src/lib/cron/task-scheduler.ts:findPart",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:getNowIST",
+      "target": "function:src/lib/cron/task-scheduler.ts:findPart",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:getNowIST",
+      "target": "function:src/lib/cron/task-scheduler.ts:findPart",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:getNowIST",
+      "target": "function:src/lib/cron/task-scheduler.ts:findPart",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:getNowIST",
+      "target": "function:src/lib/cron/task-scheduler.ts:findPart('weekday').toLowerCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:getNowIST",
+      "target": "function:src/lib/cron/task-scheduler.ts:findPart",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:getNowIST",
+      "target": "function:src/lib/cron/task-scheduler.ts:parseInt",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:generateTaskIdText",
+      "target": "function:src/lib/cron/task-scheduler.ts:Array.from({ length: 3 }, () =>\r\n    letters.charAt(Math.floor(Math.random() * letters.length))\r\n  ).join",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:generateTaskIdText",
+      "target": "function:src/lib/cron/task-scheduler.ts:Array.from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:generateTaskIdText",
+      "target": "function:src/lib/cron/task-scheduler.ts:letters.charAt",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:generateTaskIdText",
+      "target": "function:src/lib/cron/task-scheduler.ts:Math.floor",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:generateTaskIdText",
+      "target": "function:src/lib/cron/task-scheduler.ts:Math.random",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:generateTaskIdText",
+      "target": "function:src/lib/cron/task-scheduler.ts:Math.floor",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:generateTaskIdText",
+      "target": "function:src/lib/cron/task-scheduler.ts:Math.random",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:runTaskScheduler",
+      "target": "function:src/lib/cron/task-scheduler.ts:runSchedulerCore",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:runSchedulerCore",
+      "target": "function:src/lib/cron/task-scheduler.ts:getServiceClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:runSchedulerCore",
+      "target": "function:src/lib/cron/task-scheduler.ts:getNowIST",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:runSchedulerCore",
+      "target": "function:src/lib/cron/task-scheduler.ts:supabase\r\n      .from('task_recurrences')\r\n      .select(\r\n        `\r\n        *,\r\n        task:tasks!task_recurrences_task_id_fkey(\r\n          id,\r\n          task_id_text,\r\n          title,\r\n          description,\r\n          created_by,\r\n          assignee_id,\r\n          department_id,\r\n          priority_id,\r\n          type_id,\r\n          expected_duration,\r\n          related_order_id,\r\n          related_product_id,\r\n          related_ticket_id,\r\n          tags,\r\n          checklists:task_checklists(title, sort_order)\r\n        )\r\n      `\r\n      )\r\n      .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:runSchedulerCore",
+      "target": "function:src/lib/cron/task-scheduler.ts:supabase\r\n      .from('task_recurrences')\r\n      .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:runSchedulerCore",
+      "target": "function:src/lib/cron/task-scheduler.ts:supabase\r\n      .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:runSchedulerCore",
+      "target": "function:src/lib/cron/task-scheduler.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:runSchedulerCore",
+      "target": "function:src/lib/cron/task-scheduler.ts:results.errors.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:runSchedulerCore",
+      "target": "function:src/lib/cron/task-scheduler.ts:(rec.recurrence_pattern || '').toLowerCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:runSchedulerCore",
+      "target": "function:src/lib/cron/task-scheduler.ts:(rec.recurrence_days || []).map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:runSchedulerCore",
+      "target": "function:src/lib/cron/task-scheduler.ts:d.toLowerCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:runSchedulerCore",
+      "target": "function:src/lib/cron/task-scheduler.ts:days.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:runSchedulerCore",
+      "target": "function:src/lib/cron/task-scheduler.ts:new Date(rec.last_run_at).toLocaleDateString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:runSchedulerCore",
+      "target": "function:src/lib/cron/task-scheduler.ts:new Date().toLocaleDateString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:runSchedulerCore",
+      "target": "function:src/lib/cron/task-scheduler.ts:supabase\r\n          .from('task_statuses')\r\n          .select('id')\r\n          .eq('name', 'Open')\r\n          .maybeSingle",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:runSchedulerCore",
+      "target": "function:src/lib/cron/task-scheduler.ts:supabase\r\n          .from('task_statuses')\r\n          .select('id')\r\n          .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:runSchedulerCore",
+      "target": "function:src/lib/cron/task-scheduler.ts:supabase\r\n          .from('task_statuses')\r\n          .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:runSchedulerCore",
+      "target": "function:src/lib/cron/task-scheduler.ts:supabase\r\n          .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:runSchedulerCore",
+      "target": "function:src/lib/cron/task-scheduler.ts:supabase\r\n            .from('users')\r\n            .select('id')\r\n            .eq('department_id', baseTask.department_id)\r\n            .eq('role', 'manager')\r\n            .eq('account_status', 'active')\r\n            .limit(1)\r\n            .maybeSingle",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:runSchedulerCore",
+      "target": "function:src/lib/cron/task-scheduler.ts:supabase\r\n            .from('users')\r\n            .select('id')\r\n            .eq('department_id', baseTask.department_id)\r\n            .eq('role', 'manager')\r\n            .eq('account_status', 'active')\r\n            .limit",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:runSchedulerCore",
+      "target": "function:src/lib/cron/task-scheduler.ts:supabase\r\n            .from('users')\r\n            .select('id')\r\n            .eq('department_id', baseTask.department_id)\r\n            .eq('role', 'manager')\r\n            .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:runSchedulerCore",
+      "target": "function:src/lib/cron/task-scheduler.ts:supabase\r\n            .from('users')\r\n            .select('id')\r\n            .eq('department_id', baseTask.department_id)\r\n            .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:runSchedulerCore",
+      "target": "function:src/lib/cron/task-scheduler.ts:supabase\r\n            .from('users')\r\n            .select('id')\r\n            .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:runSchedulerCore",
+      "target": "function:src/lib/cron/task-scheduler.ts:supabase\r\n            .from('users')\r\n            .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:runSchedulerCore",
+      "target": "function:src/lib/cron/task-scheduler.ts:supabase\r\n            .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:runSchedulerCore",
+      "target": "function:src/lib/cron/task-scheduler.ts:generateTaskIdText",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:runSchedulerCore",
+      "target": "function:src/lib/cron/task-scheduler.ts:supabase\r\n          .from('tasks')\r\n          .insert(newTaskPayload)\r\n          .select('id, task_id_text, title')\r\n          .single",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:runSchedulerCore",
+      "target": "function:src/lib/cron/task-scheduler.ts:supabase\r\n          .from('tasks')\r\n          .insert(newTaskPayload)\r\n          .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:runSchedulerCore",
+      "target": "function:src/lib/cron/task-scheduler.ts:supabase\r\n          .from('tasks')\r\n          .insert",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:runSchedulerCore",
+      "target": "function:src/lib/cron/task-scheduler.ts:supabase\r\n          .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:runSchedulerCore",
+      "target": "function:src/lib/cron/task-scheduler.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:runSchedulerCore",
+      "target": "function:src/lib/cron/task-scheduler.ts:results.errors.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:runSchedulerCore",
+      "target": "function:src/lib/cron/task-scheduler.ts:baseTask.checklists.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:runSchedulerCore",
+      "target": "function:src/lib/cron/task-scheduler.ts:supabase.from('task_checklists').insert",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:runSchedulerCore",
+      "target": "function:src/lib/cron/task-scheduler.ts:supabase.from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:runSchedulerCore",
+      "target": "function:src/lib/cron/task-scheduler.ts:supabase.from('task_activity').insert",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:runSchedulerCore",
+      "target": "function:src/lib/cron/task-scheduler.ts:supabase.from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:runSchedulerCore",
+      "target": "function:src/lib/cron/task-scheduler.ts:new Date().toISOString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:runSchedulerCore",
+      "target": "function:src/lib/cron/task-scheduler.ts:supabase\r\n          .from('task_recurrences')\r\n          .update({ last_run_at: new Date().toISOString() })\r\n          .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:runSchedulerCore",
+      "target": "function:src/lib/cron/task-scheduler.ts:supabase\r\n          .from('task_recurrences')\r\n          .update",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:runSchedulerCore",
+      "target": "function:src/lib/cron/task-scheduler.ts:supabase\r\n          .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:runSchedulerCore",
+      "target": "function:src/lib/cron/task-scheduler.ts:new Date().toISOString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:runSchedulerCore",
+      "target": "function:src/lib/cron/task-scheduler.ts:createAndSendNotification({\r\n            userId: assigneeId,\r\n            title: `📋 Scheduled Task: ${baseTask.title}`,\r\n            message: `Your scheduled task \"${baseTask.title}\" has been assigned for today. Due by ${rec.due_time || '9:00 PM'}.`,\r\n            category: 'TASK',\r\n            type: 'system',\r\n            link: `/admin/task-manager/${createdTask.id}`,\r\n            referenceType: 'task',\r\n            referenceId: createdTask.id,\r\n            idempotencyKey: `sched-${createdTask.id}-${ist.dateStr}`,\r\n          }).catch",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:runSchedulerCore",
+      "target": "function:src/lib/cron/task-scheduler.ts:createAndSendNotification",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:runSchedulerCore",
+      "target": "function:src/lib/cron/task-scheduler.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:runSchedulerCore",
+      "target": "function:src/lib/cron/task-scheduler.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:runSchedulerCore",
+      "target": "function:src/lib/cron/task-scheduler.ts:results.errors.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:runSchedulerCore",
+      "target": "function:src/lib/cron/task-scheduler.ts:supabase\r\n      .from('tasks')\r\n      .select(\r\n        `\r\n        id,\r\n        task_id_text,\r\n        title,\r\n        assignee_id,\r\n        department_id,\r\n        due_date,\r\n        due_time,\r\n        status:task_statuses(name)\r\n      `\r\n      )\r\n      .is('deleted_at', null)\r\n      .is('reminder_sent_at', null)\r\n      .lte",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:runSchedulerCore",
+      "target": "function:src/lib/cron/task-scheduler.ts:supabase\r\n      .from('tasks')\r\n      .select(\r\n        `\r\n        id,\r\n        task_id_text,\r\n        title,\r\n        assignee_id,\r\n        department_id,\r\n        due_date,\r\n        due_time,\r\n        status:task_statuses(name)\r\n      `\r\n      )\r\n      .is('deleted_at', null)\r\n      .is",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:runSchedulerCore",
+      "target": "function:src/lib/cron/task-scheduler.ts:supabase\r\n      .from('tasks')\r\n      .select(\r\n        `\r\n        id,\r\n        task_id_text,\r\n        title,\r\n        assignee_id,\r\n        department_id,\r\n        due_date,\r\n        due_time,\r\n        status:task_statuses(name)\r\n      `\r\n      )\r\n      .is",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:runSchedulerCore",
+      "target": "function:src/lib/cron/task-scheduler.ts:supabase\r\n      .from('tasks')\r\n      .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:runSchedulerCore",
+      "target": "function:src/lib/cron/task-scheduler.ts:supabase\r\n      .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:runSchedulerCore",
+      "target": "function:src/lib/cron/task-scheduler.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:runSchedulerCore",
+      "target": "function:src/lib/cron/task-scheduler.ts:results.errors.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:runSchedulerCore",
+      "target": "function:src/lib/cron/task-scheduler.ts:supabase\r\n            .from('users')\r\n            .select('id')\r\n            .eq('department_id', t.department_id)\r\n            .eq('role', 'manager')\r\n            .eq('account_status', 'active')\r\n            .limit(1)\r\n            .maybeSingle",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:runSchedulerCore",
+      "target": "function:src/lib/cron/task-scheduler.ts:supabase\r\n            .from('users')\r\n            .select('id')\r\n            .eq('department_id', t.department_id)\r\n            .eq('role', 'manager')\r\n            .eq('account_status', 'active')\r\n            .limit",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:runSchedulerCore",
+      "target": "function:src/lib/cron/task-scheduler.ts:supabase\r\n            .from('users')\r\n            .select('id')\r\n            .eq('department_id', t.department_id)\r\n            .eq('role', 'manager')\r\n            .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:runSchedulerCore",
+      "target": "function:src/lib/cron/task-scheduler.ts:supabase\r\n            .from('users')\r\n            .select('id')\r\n            .eq('department_id', t.department_id)\r\n            .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:runSchedulerCore",
+      "target": "function:src/lib/cron/task-scheduler.ts:supabase\r\n            .from('users')\r\n            .select('id')\r\n            .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:runSchedulerCore",
+      "target": "function:src/lib/cron/task-scheduler.ts:supabase\r\n            .from('users')\r\n            .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:runSchedulerCore",
+      "target": "function:src/lib/cron/task-scheduler.ts:supabase\r\n            .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:runSchedulerCore",
+      "target": "function:src/lib/cron/task-scheduler.ts:createAndSendNotification({\r\n            userId: targetUserId,\r\n            title: `⚠️ Task Reminder: ${t.title}`,\r\n            message: `Task \"${t.title}\" (${t.task_id_text || 'Task'}) is overdue or pending completion. Please complete and mark it done!`,\r\n            category: 'TASK',\r\n            type: 'system',\r\n            link: `/admin/task-manager/${t.id}`,\r\n            referenceType: 'task',\r\n            referenceId: t.id,\r\n            idempotencyKey: `remind-${t.id}-${ist.dateStr}`,\r\n          }).catch",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:runSchedulerCore",
+      "target": "function:src/lib/cron/task-scheduler.ts:createAndSendNotification",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:runSchedulerCore",
+      "target": "function:src/lib/cron/task-scheduler.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:runSchedulerCore",
+      "target": "function:src/lib/cron/task-scheduler.ts:supabase\r\n            .from('tasks')\r\n            .update({ reminder_sent_at: new Date().toISOString() })\r\n            .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:runSchedulerCore",
+      "target": "function:src/lib/cron/task-scheduler.ts:supabase\r\n            .from('tasks')\r\n            .update",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:runSchedulerCore",
+      "target": "function:src/lib/cron/task-scheduler.ts:supabase\r\n            .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:runSchedulerCore",
+      "target": "function:src/lib/cron/task-scheduler.ts:new Date().toISOString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:runSchedulerCore",
+      "target": "function:src/lib/cron/task-scheduler.ts:supabase.from('task_activity').insert",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:runSchedulerCore",
+      "target": "function:src/lib/cron/task-scheduler.ts:supabase.from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:runSchedulerCore",
+      "target": "function:src/lib/cron/task-scheduler.ts:new Date().toISOString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:runSchedulerCore",
+      "target": "function:src/lib/cron/task-scheduler.ts:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/cron/task-scheduler.ts:runSchedulerCore",
+      "target": "function:src/lib/cron/task-scheduler.ts:results.errors.push",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/lib/debounce.ts",
+      "target": "function:src/lib/debounce.ts:debounce",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/debounce.ts:debounce",
+      "target": "function:src/lib/debounce.ts:clearTimeout",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/debounce.ts:debounce",
+      "target": "function:src/lib/debounce.ts:setTimeout",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/debounce.ts:debounce",
+      "target": "function:src/lib/debounce.ts:fn",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/lib/espo/client.ts",
+      "target": "class:src/lib/espo/client.ts:EspoClient",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/espo/client.ts:constructor",
+      "target": "function:src/lib/espo/client.ts:opts.baseUrl.replace",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/espo/client.ts:request",
+      "target": "function:src/lib/espo/client.ts:fetch",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/espo/client.ts:request",
+      "target": "function:src/lib/espo/client.ts:JSON.stringify",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/espo/client.ts:request",
+      "target": "function:src/lib/espo/client.ts:res.text().catch",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/espo/client.ts:request",
+      "target": "function:src/lib/espo/client.ts:res.text",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/espo/client.ts:request",
+      "target": "function:src/lib/espo/client.ts:res.json",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/espo/client.ts:request",
+      "target": "function:src/lib/espo/client.ts:String",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/espo/client.ts:createCase",
+      "target": "function:src/lib/espo/client.ts:this.request",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/espo/client.ts:updateCase",
+      "target": "function:src/lib/espo/client.ts:this.request",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/espo/client.ts:findCaseByTicketId",
+      "target": "function:src/lib/espo/client.ts:encodeURIComponent",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/espo/client.ts:findCaseByTicketId",
+      "target": "function:src/lib/espo/client.ts:await this.request",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/espo/client.ts:addNote",
+      "target": "function:src/lib/espo/client.ts:this.request",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/espo/client.ts:getCase",
+      "target": "function:src/lib/espo/client.ts:this.request",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/lib/espo/config.ts",
+      "target": "function:src/lib/espo/config.ts:getEspoConfig",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/lib/espo/config.ts:getEspoConfig",
+      "target": "function:src/lib/espo/config.ts:(\n      process.env.ESPO_BASE_URL || 'https://crm.support.ruhvi.in'\n    ).replace",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/lib/espo/config.ts:getEspoConfig",
+      "target": "function:src/lib/espo/config.ts:(process.env.RUHVI_BASE_URL || DEFAULT_RUHVI_BASE).replace",
+      "type": "calls"
+    }
+  ]
+}

@@ -2,7 +2,10 @@ const path = require('path');
 
 const batchCommands = (filenames, cmd) => {
   const validFiles = filenames.filter(
-    (f) => !f.includes('ruhvi-mobile_DO_NOT_DELETE')
+    (f) =>
+      !f.includes('ruhvi-mobile_DO_NOT_DELETE') &&
+      !f.includes('.agents') &&
+      !f.includes('.ua')
   );
   if (validFiles.length === 0) return [];
   const batchSize = 40;

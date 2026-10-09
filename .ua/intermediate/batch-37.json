@@ -1,0 +1,3112 @@
+{
+  "batchIndex": 37,
+  "batchFiles": [
+    {
+      "path": "src/components/design-system/Carousel3D.tsx",
+      "language": "typescript",
+      "sizeLines": 70,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/components/design-system/DepthButton.tsx",
+      "language": "typescript",
+      "sizeLines": 45,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/components/design-system/DepthCard.tsx",
+      "language": "typescript",
+      "sizeLines": 24,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/components/design-system/GlassPanel.tsx",
+      "language": "typescript",
+      "sizeLines": 33,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/components/design-system/SpatialPage.tsx",
+      "language": "typescript",
+      "sizeLines": 23,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/components/design-system/index.ts",
+      "language": "typescript",
+      "sizeLines": 5,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/components/layout/AccountDrawer.tsx",
+      "language": "typescript",
+      "sizeLines": 501,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/components/layout/Footer.tsx",
+      "language": "typescript",
+      "sizeLines": 452,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/components/layout/Navbar.tsx",
+      "language": "typescript",
+      "sizeLines": 452,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/components/layout/OfflineDetector.tsx",
+      "language": "typescript",
+      "sizeLines": 35,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/components/layout/StorefrontChrome.tsx",
+      "language": "typescript",
+      "sizeLines": 60,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/components/layout/ToastProvider.tsx",
+      "language": "typescript",
+      "sizeLines": 38,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/components/marketing/ai-studio/CampaignReviewCard.tsx",
+      "language": "typescript",
+      "sizeLines": 227,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/components/marketing/ai-studio/CoWorkerStatusPanel.tsx",
+      "language": "typescript",
+      "sizeLines": 151,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/components/marketing/ai-studio/CreativeMediaStudio.tsx",
+      "language": "typescript",
+      "sizeLines": 571,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/components/portal-orders/OrderNotificationCenter.tsx",
+      "language": "typescript",
+      "sizeLines": 510,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/components/portal/PortalSwitcherDropdown.tsx",
+      "language": "typescript",
+      "sizeLines": 187,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/components/portal/ThemeToggle.tsx",
+      "language": "typescript",
+      "sizeLines": 85,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/components/products/Product360Button.tsx",
+      "language": "typescript",
+      "sizeLines": 51,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/components/products/Product360Modal.tsx",
+      "language": "typescript",
+      "sizeLines": 88,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/components/products/Product360Viewer.tsx",
+      "language": "typescript",
+      "sizeLines": 254,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/components/products/ProductCard.tsx",
+      "language": "typescript",
+      "sizeLines": 166,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/components/products/ProductImageGallery.tsx",
+      "language": "typescript",
+      "sizeLines": 155,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/components/products/ProductReviews.tsx",
+      "language": "typescript",
+      "sizeLines": 216,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/components/products/StockNotificationModal.tsx",
+      "language": "typescript",
+      "sizeLines": 129,
+      "fileCategory": "code"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "file:src/components/design-system/Carousel3D.tsx",
+      "name": "Carousel3D.tsx",
+      "type": "file",
+      "filePath": "src/components/design-system/Carousel3D.tsx",
+      "summary": "typescript code file (70 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/components/design-system/Carousel3D.tsx:Carousel3D",
+      "name": "Carousel3D",
+      "type": "function",
+      "filePath": "src/components/design-system/Carousel3D.tsx",
+      "parentId": "file:src/components/design-system/Carousel3D.tsx",
+      "summary": "Function Carousel3D",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/components/design-system/DepthButton.tsx",
+      "name": "DepthButton.tsx",
+      "type": "file",
+      "filePath": "src/components/design-system/DepthButton.tsx",
+      "summary": "typescript code file (45 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/components/design-system/DepthButton.tsx:DepthButton",
+      "name": "DepthButton",
+      "type": "function",
+      "filePath": "src/components/design-system/DepthButton.tsx",
+      "parentId": "file:src/components/design-system/DepthButton.tsx",
+      "summary": "Function DepthButton",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/components/design-system/DepthCard.tsx",
+      "name": "DepthCard.tsx",
+      "type": "file",
+      "filePath": "src/components/design-system/DepthCard.tsx",
+      "summary": "typescript code file (24 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/components/design-system/DepthCard.tsx:DepthCard",
+      "name": "DepthCard",
+      "type": "function",
+      "filePath": "src/components/design-system/DepthCard.tsx",
+      "parentId": "file:src/components/design-system/DepthCard.tsx",
+      "summary": "Function DepthCard",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/components/design-system/GlassPanel.tsx",
+      "name": "GlassPanel.tsx",
+      "type": "file",
+      "filePath": "src/components/design-system/GlassPanel.tsx",
+      "summary": "typescript code file (33 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/components/design-system/GlassPanel.tsx:GlassPanel",
+      "name": "GlassPanel",
+      "type": "function",
+      "filePath": "src/components/design-system/GlassPanel.tsx",
+      "parentId": "file:src/components/design-system/GlassPanel.tsx",
+      "summary": "Function GlassPanel",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/components/design-system/SpatialPage.tsx",
+      "name": "SpatialPage.tsx",
+      "type": "file",
+      "filePath": "src/components/design-system/SpatialPage.tsx",
+      "summary": "typescript code file (23 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/components/design-system/SpatialPage.tsx:SpatialPage",
+      "name": "SpatialPage",
+      "type": "function",
+      "filePath": "src/components/design-system/SpatialPage.tsx",
+      "parentId": "file:src/components/design-system/SpatialPage.tsx",
+      "summary": "Function SpatialPage",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/components/design-system/index.ts",
+      "name": "index.ts",
+      "type": "file",
+      "filePath": "src/components/design-system/index.ts",
+      "summary": "typescript code file (5 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:src/components/layout/AccountDrawer.tsx",
+      "name": "AccountDrawer.tsx",
+      "type": "file",
+      "filePath": "src/components/layout/AccountDrawer.tsx",
+      "summary": "typescript code file (501 lines)",
+      "complexity": "complex",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/components/layout/AccountDrawer.tsx:AccountDrawer",
+      "name": "AccountDrawer",
+      "type": "function",
+      "filePath": "src/components/layout/AccountDrawer.tsx",
+      "parentId": "file:src/components/layout/AccountDrawer.tsx",
+      "summary": "Function AccountDrawer",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/components/layout/Footer.tsx",
+      "name": "Footer.tsx",
+      "type": "file",
+      "filePath": "src/components/layout/Footer.tsx",
+      "summary": "typescript code file (452 lines)",
+      "complexity": "complex",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/components/layout/Footer.tsx:Footer",
+      "name": "Footer",
+      "type": "function",
+      "filePath": "src/components/layout/Footer.tsx",
+      "parentId": "file:src/components/layout/Footer.tsx",
+      "summary": "Function Footer",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/components/layout/Navbar.tsx",
+      "name": "Navbar.tsx",
+      "type": "file",
+      "filePath": "src/components/layout/Navbar.tsx",
+      "summary": "typescript code file (452 lines)",
+      "complexity": "complex",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/components/layout/Navbar.tsx:Navbar",
+      "name": "Navbar",
+      "type": "function",
+      "filePath": "src/components/layout/Navbar.tsx",
+      "parentId": "file:src/components/layout/Navbar.tsx",
+      "summary": "Function Navbar",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/components/layout/OfflineDetector.tsx",
+      "name": "OfflineDetector.tsx",
+      "type": "file",
+      "filePath": "src/components/layout/OfflineDetector.tsx",
+      "summary": "typescript code file (35 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/components/layout/OfflineDetector.tsx:OfflineDetector",
+      "name": "OfflineDetector",
+      "type": "function",
+      "filePath": "src/components/layout/OfflineDetector.tsx",
+      "parentId": "file:src/components/layout/OfflineDetector.tsx",
+      "summary": "Function OfflineDetector",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/components/layout/StorefrontChrome.tsx",
+      "name": "StorefrontChrome.tsx",
+      "type": "file",
+      "filePath": "src/components/layout/StorefrontChrome.tsx",
+      "summary": "typescript code file (60 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/components/layout/StorefrontChrome.tsx:isPortalHostname",
+      "name": "isPortalHostname",
+      "type": "function",
+      "filePath": "src/components/layout/StorefrontChrome.tsx",
+      "parentId": "file:src/components/layout/StorefrontChrome.tsx",
+      "summary": "Function isPortalHostname",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/components/layout/StorefrontChrome.tsx:StorefrontChrome",
+      "name": "StorefrontChrome",
+      "type": "function",
+      "filePath": "src/components/layout/StorefrontChrome.tsx",
+      "parentId": "file:src/components/layout/StorefrontChrome.tsx",
+      "summary": "Function StorefrontChrome",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/components/layout/ToastProvider.tsx",
+      "name": "ToastProvider.tsx",
+      "type": "file",
+      "filePath": "src/components/layout/ToastProvider.tsx",
+      "summary": "typescript code file (38 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/components/layout/ToastProvider.tsx:ToastProvider",
+      "name": "ToastProvider",
+      "type": "function",
+      "filePath": "src/components/layout/ToastProvider.tsx",
+      "parentId": "file:src/components/layout/ToastProvider.tsx",
+      "summary": "Function ToastProvider",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/components/marketing/ai-studio/CampaignReviewCard.tsx",
+      "name": "CampaignReviewCard.tsx",
+      "type": "file",
+      "filePath": "src/components/marketing/ai-studio/CampaignReviewCard.tsx",
+      "summary": "typescript code file (227 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/components/marketing/ai-studio/CampaignReviewCard.tsx:CampaignReviewCard",
+      "name": "CampaignReviewCard",
+      "type": "function",
+      "filePath": "src/components/marketing/ai-studio/CampaignReviewCard.tsx",
+      "parentId": "file:src/components/marketing/ai-studio/CampaignReviewCard.tsx",
+      "summary": "Function CampaignReviewCard",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/components/marketing/ai-studio/CoWorkerStatusPanel.tsx",
+      "name": "CoWorkerStatusPanel.tsx",
+      "type": "file",
+      "filePath": "src/components/marketing/ai-studio/CoWorkerStatusPanel.tsx",
+      "summary": "typescript code file (151 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/components/marketing/ai-studio/CoWorkerStatusPanel.tsx:CoWorkerStatusPanel",
+      "name": "CoWorkerStatusPanel",
+      "type": "function",
+      "filePath": "src/components/marketing/ai-studio/CoWorkerStatusPanel.tsx",
+      "parentId": "file:src/components/marketing/ai-studio/CoWorkerStatusPanel.tsx",
+      "summary": "Function CoWorkerStatusPanel",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/components/marketing/ai-studio/CreativeMediaStudio.tsx",
+      "name": "CreativeMediaStudio.tsx",
+      "type": "file",
+      "filePath": "src/components/marketing/ai-studio/CreativeMediaStudio.tsx",
+      "summary": "typescript code file (571 lines)",
+      "complexity": "complex",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:CreativeMediaStudio",
+      "name": "CreativeMediaStudio",
+      "type": "function",
+      "filePath": "src/components/marketing/ai-studio/CreativeMediaStudio.tsx",
+      "parentId": "file:src/components/marketing/ai-studio/CreativeMediaStudio.tsx",
+      "summary": "Function CreativeMediaStudio",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/components/portal-orders/OrderNotificationCenter.tsx",
+      "name": "OrderNotificationCenter.tsx",
+      "type": "file",
+      "filePath": "src/components/portal-orders/OrderNotificationCenter.tsx",
+      "summary": "typescript code file (510 lines)",
+      "complexity": "complex",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/components/portal-orders/OrderNotificationCenter.tsx:OrderNotificationCenter",
+      "name": "OrderNotificationCenter",
+      "type": "function",
+      "filePath": "src/components/portal-orders/OrderNotificationCenter.tsx",
+      "parentId": "file:src/components/portal-orders/OrderNotificationCenter.tsx",
+      "summary": "Function OrderNotificationCenter",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/components/portal/PortalSwitcherDropdown.tsx",
+      "name": "PortalSwitcherDropdown.tsx",
+      "type": "file",
+      "filePath": "src/components/portal/PortalSwitcherDropdown.tsx",
+      "summary": "typescript code file (187 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/components/portal/PortalSwitcherDropdown.tsx:PortalSwitcherDropdown",
+      "name": "PortalSwitcherDropdown",
+      "type": "function",
+      "filePath": "src/components/portal/PortalSwitcherDropdown.tsx",
+      "parentId": "file:src/components/portal/PortalSwitcherDropdown.tsx",
+      "summary": "Function PortalSwitcherDropdown",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/components/portal/ThemeToggle.tsx",
+      "name": "ThemeToggle.tsx",
+      "type": "file",
+      "filePath": "src/components/portal/ThemeToggle.tsx",
+      "summary": "typescript code file (85 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/components/portal/ThemeToggle.tsx:ThemeToggle",
+      "name": "ThemeToggle",
+      "type": "function",
+      "filePath": "src/components/portal/ThemeToggle.tsx",
+      "parentId": "file:src/components/portal/ThemeToggle.tsx",
+      "summary": "Function ThemeToggle",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/components/products/Product360Button.tsx",
+      "name": "Product360Button.tsx",
+      "type": "file",
+      "filePath": "src/components/products/Product360Button.tsx",
+      "summary": "typescript code file (51 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/components/products/Product360Button.tsx:Product360Button",
+      "name": "Product360Button",
+      "type": "function",
+      "filePath": "src/components/products/Product360Button.tsx",
+      "parentId": "file:src/components/products/Product360Button.tsx",
+      "summary": "Function Product360Button",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/components/products/Product360Modal.tsx",
+      "name": "Product360Modal.tsx",
+      "type": "file",
+      "filePath": "src/components/products/Product360Modal.tsx",
+      "summary": "typescript code file (88 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/components/products/Product360Modal.tsx:Product360Modal",
+      "name": "Product360Modal",
+      "type": "function",
+      "filePath": "src/components/products/Product360Modal.tsx",
+      "parentId": "file:src/components/products/Product360Modal.tsx",
+      "summary": "Function Product360Modal",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/components/products/Product360Viewer.tsx",
+      "name": "Product360Viewer.tsx",
+      "type": "file",
+      "filePath": "src/components/products/Product360Viewer.tsx",
+      "summary": "typescript code file (254 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/components/products/Product360Viewer.tsx:Product360Viewer",
+      "name": "Product360Viewer",
+      "type": "function",
+      "filePath": "src/components/products/Product360Viewer.tsx",
+      "parentId": "file:src/components/products/Product360Viewer.tsx",
+      "summary": "Function Product360Viewer",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/components/products/ProductCard.tsx",
+      "name": "ProductCard.tsx",
+      "type": "file",
+      "filePath": "src/components/products/ProductCard.tsx",
+      "summary": "typescript code file (166 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/components/products/ProductCard.tsx:ProductCard",
+      "name": "ProductCard",
+      "type": "function",
+      "filePath": "src/components/products/ProductCard.tsx",
+      "parentId": "file:src/components/products/ProductCard.tsx",
+      "summary": "Function ProductCard",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/components/products/ProductImageGallery.tsx",
+      "name": "ProductImageGallery.tsx",
+      "type": "file",
+      "filePath": "src/components/products/ProductImageGallery.tsx",
+      "summary": "typescript code file (155 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/components/products/ProductImageGallery.tsx:ProductImageGallery",
+      "name": "ProductImageGallery",
+      "type": "function",
+      "filePath": "src/components/products/ProductImageGallery.tsx",
+      "parentId": "file:src/components/products/ProductImageGallery.tsx",
+      "summary": "Function ProductImageGallery",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/components/products/ProductReviews.tsx",
+      "name": "ProductReviews.tsx",
+      "type": "file",
+      "filePath": "src/components/products/ProductReviews.tsx",
+      "summary": "typescript code file (216 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/components/products/ProductReviews.tsx:Stars",
+      "name": "Stars",
+      "type": "function",
+      "filePath": "src/components/products/ProductReviews.tsx",
+      "parentId": "file:src/components/products/ProductReviews.tsx",
+      "summary": "Function Stars",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/components/products/ProductReviews.tsx:formatDate",
+      "name": "formatDate",
+      "type": "function",
+      "filePath": "src/components/products/ProductReviews.tsx",
+      "parentId": "file:src/components/products/ProductReviews.tsx",
+      "summary": "Function formatDate",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/components/products/ProductReviews.tsx:ProductReviews",
+      "name": "ProductReviews",
+      "type": "function",
+      "filePath": "src/components/products/ProductReviews.tsx",
+      "parentId": "file:src/components/products/ProductReviews.tsx",
+      "summary": "Function ProductReviews",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/components/products/StockNotificationModal.tsx",
+      "name": "StockNotificationModal.tsx",
+      "type": "file",
+      "filePath": "src/components/products/StockNotificationModal.tsx",
+      "summary": "typescript code file (129 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:src/components/products/StockNotificationModal.tsx:StockNotificationModal",
+      "name": "StockNotificationModal",
+      "type": "function",
+      "filePath": "src/components/products/StockNotificationModal.tsx",
+      "parentId": "file:src/components/products/StockNotificationModal.tsx",
+      "summary": "Function StockNotificationModal",
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:src/components/design-system/Carousel3D.tsx",
+      "target": "function:src/components/design-system/Carousel3D.tsx:Carousel3D",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/components/design-system/Carousel3D.tsx:Carousel3D",
+      "target": "function:src/components/design-system/Carousel3D.tsx:React.useRef",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/design-system/Carousel3D.tsx:scroll",
+      "target": "function:src/components/design-system/Carousel3D.tsx:scrollRef.current.scrollBy",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/design-system/Carousel3D.tsx:Carousel3D",
+      "target": "function:src/components/design-system/Carousel3D.tsx:scroll",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/design-system/Carousel3D.tsx:Carousel3D",
+      "target": "function:src/components/design-system/Carousel3D.tsx:scroll",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/components/design-system/DepthButton.tsx",
+      "target": "function:src/components/design-system/DepthButton.tsx:DepthButton",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/components/design-system/DepthCard.tsx",
+      "target": "function:src/components/design-system/DepthCard.tsx:DepthCard",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/components/design-system/GlassPanel.tsx",
+      "target": "function:src/components/design-system/GlassPanel.tsx:GlassPanel",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/components/design-system/GlassPanel.tsx:GlassPanel",
+      "target": "function:src/components/design-system/GlassPanel.tsx:Math.min",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/components/design-system/SpatialPage.tsx",
+      "target": "function:src/components/design-system/SpatialPage.tsx:SpatialPage",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/components/layout/AccountDrawer.tsx",
+      "target": "function:src/components/layout/AccountDrawer.tsx:AccountDrawer",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/components/layout/AccountDrawer.tsx:AccountDrawer",
+      "target": "function:src/components/layout/AccountDrawer.tsx:usePathname",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/AccountDrawer.tsx:AccountDrawer",
+      "target": "function:src/components/layout/AccountDrawer.tsx:useRouter",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/AccountDrawer.tsx:AccountDrawer",
+      "target": "function:src/components/layout/AccountDrawer.tsx:useAuth",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/AccountDrawer.tsx:AccountDrawer",
+      "target": "function:src/components/layout/AccountDrawer.tsx:useWishlist",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/AccountDrawer.tsx:AccountDrawer",
+      "target": "function:src/components/layout/AccountDrawer.tsx:useNotifications",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/AccountDrawer.tsx:AccountDrawer",
+      "target": "function:src/components/layout/AccountDrawer.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/AccountDrawer.tsx:AccountDrawer",
+      "target": "function:src/components/layout/AccountDrawer.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/AccountDrawer.tsx:AccountDrawer",
+      "target": "function:src/components/layout/AccountDrawer.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/AccountDrawer.tsx:AccountDrawer",
+      "target": "function:src/components/layout/AccountDrawer.tsx:useRef",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/AccountDrawer.tsx:AccountDrawer",
+      "target": "function:src/components/layout/AccountDrawer.tsx:useEffect",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/AccountDrawer.tsx:AccountDrawer",
+      "target": "function:src/components/layout/AccountDrawer.tsx:setMounted",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/AccountDrawer.tsx:AccountDrawer",
+      "target": "function:src/components/layout/AccountDrawer.tsx:useEffect",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/AccountDrawer.tsx:handleKeyDown",
+      "target": "function:src/components/layout/AccountDrawer.tsx:setShowLogoutModal",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/AccountDrawer.tsx:handleKeyDown",
+      "target": "function:src/components/layout/AccountDrawer.tsx:onClose",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/AccountDrawer.tsx:AccountDrawer",
+      "target": "function:src/components/layout/AccountDrawer.tsx:document.addEventListener",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/AccountDrawer.tsx:AccountDrawer",
+      "target": "function:src/components/layout/AccountDrawer.tsx:setTimeout",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/AccountDrawer.tsx:AccountDrawer",
+      "target": "function:src/components/layout/AccountDrawer.tsx:drawerRef.current?.querySelector",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/AccountDrawer.tsx:AccountDrawer",
+      "target": "function:src/components/layout/AccountDrawer.tsx:closeBtn?.focus",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/AccountDrawer.tsx:AccountDrawer",
+      "target": "function:src/components/layout/AccountDrawer.tsx:clearTimeout",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/AccountDrawer.tsx:AccountDrawer",
+      "target": "function:src/components/layout/AccountDrawer.tsx:document.removeEventListener",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/AccountDrawer.tsx:AccountDrawer",
+      "target": "function:src/components/layout/AccountDrawer.tsx:document.removeEventListener",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/AccountDrawer.tsx:AccountDrawer",
+      "target": "function:src/components/layout/AccountDrawer.tsx:useEffect",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/AccountDrawer.tsx:AccountDrawer",
+      "target": "function:src/components/layout/AccountDrawer.tsx:onClose",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/AccountDrawer.tsx:AccountDrawer",
+      "target": "function:src/components/layout/AccountDrawer.tsx:useEffect",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/AccountDrawer.tsx:handleTab",
+      "target": "function:src/components/layout/AccountDrawer.tsx:Array.from(\n        drawer.querySelectorAll<HTMLElement>(\n          'a[href], button:not([disabled]), input, select, textarea, [tabindex]:not([tabindex=\"-1\"])'\n        )\n      ).filter",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/AccountDrawer.tsx:handleTab",
+      "target": "function:src/components/layout/AccountDrawer.tsx:Array.from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/AccountDrawer.tsx:handleTab",
+      "target": "function:src/components/layout/AccountDrawer.tsx:drawer.querySelectorAll",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/AccountDrawer.tsx:handleTab",
+      "target": "function:src/components/layout/AccountDrawer.tsx:e.preventDefault",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/AccountDrawer.tsx:handleTab",
+      "target": "function:src/components/layout/AccountDrawer.tsx:last.focus",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/AccountDrawer.tsx:handleTab",
+      "target": "function:src/components/layout/AccountDrawer.tsx:e.preventDefault",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/AccountDrawer.tsx:handleTab",
+      "target": "function:src/components/layout/AccountDrawer.tsx:first.focus",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/AccountDrawer.tsx:AccountDrawer",
+      "target": "function:src/components/layout/AccountDrawer.tsx:document.addEventListener",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/AccountDrawer.tsx:AccountDrawer",
+      "target": "function:src/components/layout/AccountDrawer.tsx:document.removeEventListener",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/AccountDrawer.tsx:AccountDrawer",
+      "target": "function:src/components/layout/AccountDrawer.tsx:previouslyFocused?.focus",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/AccountDrawer.tsx:handleLogoutConfirm",
+      "target": "function:src/components/layout/AccountDrawer.tsx:setLoggingOut",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/AccountDrawer.tsx:handleLogoutConfirm",
+      "target": "function:src/components/layout/AccountDrawer.tsx:signOut",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/AccountDrawer.tsx:handleLogoutConfirm",
+      "target": "function:src/components/layout/AccountDrawer.tsx:setShowLogoutModal",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/AccountDrawer.tsx:handleLogoutConfirm",
+      "target": "function:src/components/layout/AccountDrawer.tsx:onClose",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/AccountDrawer.tsx:handleLogoutConfirm",
+      "target": "function:src/components/layout/AccountDrawer.tsx:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/AccountDrawer.tsx:handleLogoutConfirm",
+      "target": "function:src/components/layout/AccountDrawer.tsx:setLoggingOut",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/AccountDrawer.tsx:AccountDrawer",
+      "target": "function:src/components/layout/AccountDrawer.tsx:user?.email?.split",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/AccountDrawer.tsx:AccountDrawer",
+      "target": "function:src/components/layout/AccountDrawer.tsx:userDisplayName\n        .split(' ')\n        .map((n: string) => n[0])\n        .slice(0, 2)\n        .join('')\n        .toUpperCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/AccountDrawer.tsx:AccountDrawer",
+      "target": "function:src/components/layout/AccountDrawer.tsx:userDisplayName\n        .split(' ')\n        .map((n: string) => n[0])\n        .slice(0, 2)\n        .join",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/AccountDrawer.tsx:AccountDrawer",
+      "target": "function:src/components/layout/AccountDrawer.tsx:userDisplayName\n        .split(' ')\n        .map((n: string) => n[0])\n        .slice",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/AccountDrawer.tsx:AccountDrawer",
+      "target": "function:src/components/layout/AccountDrawer.tsx:userDisplayName\n        .split(' ')\n        .map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/AccountDrawer.tsx:AccountDrawer",
+      "target": "function:src/components/layout/AccountDrawer.tsx:userDisplayName\n        .split",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/AccountDrawer.tsx:AccountDrawer",
+      "target": "function:src/components/layout/AccountDrawer.tsx:Number",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/AccountDrawer.tsx:AccountDrawer",
+      "target": "function:src/components/layout/AccountDrawer.tsx:walletBalance.toLocaleString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/AccountDrawer.tsx:AccountDrawer",
+      "target": "function:src/components/layout/AccountDrawer.tsx:createPortal",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/AccountDrawer.tsx:AccountDrawer",
+      "target": "function:src/components/layout/AccountDrawer.tsx:primaryNavItems.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/AccountDrawer.tsx:AccountDrawer",
+      "target": "function:src/components/layout/AccountDrawer.tsx:helpNavItems.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/AccountDrawer.tsx:AccountDrawer",
+      "target": "function:src/components/layout/AccountDrawer.tsx:setShowLogoutModal",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/AccountDrawer.tsx:AccountDrawer",
+      "target": "function:src/components/layout/AccountDrawer.tsx:setShowLogoutModal",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/components/layout/Footer.tsx",
+      "target": "function:src/components/layout/Footer.tsx:Footer",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/components/layout/Footer.tsx:Footer",
+      "target": "function:src/components/layout/Footer.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/Footer.tsx:Footer",
+      "target": "function:src/components/layout/Footer.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/Footer.tsx:Footer",
+      "target": "function:src/components/layout/Footer.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/Footer.tsx:handleSubscribe",
+      "target": "function:src/components/layout/Footer.tsx:e.preventDefault",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/Footer.tsx:handleSubscribe",
+      "target": "function:src/components/layout/Footer.tsx:email.trim",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/Footer.tsx:handleSubscribe",
+      "target": "function:src/components/layout/Footer.tsx:setStatus",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/Footer.tsx:handleSubscribe",
+      "target": "function:src/components/layout/Footer.tsx:setMessage",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/Footer.tsx:handleSubscribe",
+      "target": "function:src/components/layout/Footer.tsx:fetch",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/Footer.tsx:handleSubscribe",
+      "target": "function:src/components/layout/Footer.tsx:JSON.stringify",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/Footer.tsx:handleSubscribe",
+      "target": "function:src/components/layout/Footer.tsx:res.json",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/Footer.tsx:handleSubscribe",
+      "target": "function:src/components/layout/Footer.tsx:setStatus",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/Footer.tsx:handleSubscribe",
+      "target": "function:src/components/layout/Footer.tsx:setMessage",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/Footer.tsx:handleSubscribe",
+      "target": "function:src/components/layout/Footer.tsx:setEmail",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/Footer.tsx:handleSubscribe",
+      "target": "function:src/components/layout/Footer.tsx:setStatus",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/Footer.tsx:handleSubscribe",
+      "target": "function:src/components/layout/Footer.tsx:setMessage",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/Footer.tsx:handleSubscribe",
+      "target": "function:src/components/layout/Footer.tsx:setStatus",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/Footer.tsx:handleSubscribe",
+      "target": "function:src/components/layout/Footer.tsx:setMessage",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/Footer.tsx:Footer",
+      "target": "function:src/components/layout/Footer.tsx:SOCIAL_LINKS.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/Footer.tsx:Footer",
+      "target": "function:src/components/layout/Footer.tsx:setEmail",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/Footer.tsx:Footer",
+      "target": "function:src/components/layout/Footer.tsx:new Date().getFullYear",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/components/layout/Navbar.tsx",
+      "target": "function:src/components/layout/Navbar.tsx:Navbar",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/components/layout/Navbar.tsx:Navbar",
+      "target": "function:src/components/layout/Navbar.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/Navbar.tsx:Navbar",
+      "target": "function:src/components/layout/Navbar.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/Navbar.tsx:Navbar",
+      "target": "function:src/components/layout/Navbar.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/Navbar.tsx:Navbar",
+      "target": "function:src/components/layout/Navbar.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/Navbar.tsx:Navbar",
+      "target": "function:src/components/layout/Navbar.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/Navbar.tsx:Navbar",
+      "target": "function:src/components/layout/Navbar.tsx:usePathname",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/Navbar.tsx:Navbar",
+      "target": "function:src/components/layout/Navbar.tsx:useCart",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/Navbar.tsx:Navbar",
+      "target": "function:src/components/layout/Navbar.tsx:useWishlist",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/Navbar.tsx:Navbar",
+      "target": "function:src/components/layout/Navbar.tsx:useNotifications",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/Navbar.tsx:Navbar",
+      "target": "function:src/components/layout/Navbar.tsx:useAuth",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/Navbar.tsx:Navbar",
+      "target": "function:src/components/layout/Navbar.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/Navbar.tsx:Navbar",
+      "target": "function:src/components/layout/Navbar.tsx:useTaxonomy",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/Navbar.tsx:Navbar",
+      "target": "function:src/components/layout/Navbar.tsx:React.useEffect",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/Navbar.tsx:fetchBanner",
+      "target": "function:src/components/layout/Navbar.tsx:getStoreSettings",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/Navbar.tsx:fetchBanner",
+      "target": "function:src/components/layout/Navbar.tsx:setBannerSettings",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/Navbar.tsx:Navbar",
+      "target": "function:src/components/layout/Navbar.tsx:fetchBanner",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/Navbar.tsx:Navbar",
+      "target": "function:src/components/layout/Navbar.tsx:React.useEffect",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/Navbar.tsx:handleScroll",
+      "target": "function:src/components/layout/Navbar.tsx:window.requestAnimationFrame",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/Navbar.tsx:handleScroll",
+      "target": "function:src/components/layout/Navbar.tsx:setIsScrolled",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/Navbar.tsx:handleScroll",
+      "target": "function:src/components/layout/Navbar.tsx:setIsScrollingDown",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/Navbar.tsx:handleScroll",
+      "target": "function:src/components/layout/Navbar.tsx:setIsScrollingDown",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/Navbar.tsx:handleScroll",
+      "target": "function:src/components/layout/Navbar.tsx:setIsSearchExpanded",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/Navbar.tsx:Navbar",
+      "target": "function:src/components/layout/Navbar.tsx:window.addEventListener",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/Navbar.tsx:Navbar",
+      "target": "function:src/components/layout/Navbar.tsx:window.removeEventListener",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/Navbar.tsx:Navbar",
+      "target": "function:src/components/layout/Navbar.tsx:React.useEffect",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/Navbar.tsx:handleKeyDown",
+      "target": "function:src/components/layout/Navbar.tsx:setMobileMenuOpen",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/Navbar.tsx:Navbar",
+      "target": "function:src/components/layout/Navbar.tsx:document.addEventListener",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/Navbar.tsx:Navbar",
+      "target": "function:src/components/layout/Navbar.tsx:document.removeEventListener",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/Navbar.tsx:Navbar",
+      "target": "function:src/components/layout/Navbar.tsx:React.useEffect",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/Navbar.tsx:Navbar",
+      "target": "function:src/components/layout/Navbar.tsx:setMobileMenuOpen",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/Navbar.tsx:Navbar",
+      "target": "function:src/components/layout/Navbar.tsx:user?.email?.split",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/Navbar.tsx:Navbar",
+      "target": "function:src/components/layout/Navbar.tsx:userDisplayName[0].toUpperCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/Navbar.tsx:Navbar",
+      "target": "function:src/components/layout/Navbar.tsx:setMobileMenuOpen",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/Navbar.tsx:Navbar",
+      "target": "function:src/components/layout/Navbar.tsx:setMobileMenuOpen",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/Navbar.tsx:Navbar",
+      "target": "function:src/components/layout/Navbar.tsx:setIsSearchExpanded",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/Navbar.tsx:Navbar",
+      "target": "function:src/components/layout/Navbar.tsx:(profile?.wallet_balance ?? 0).toLocaleString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/Navbar.tsx:Navbar",
+      "target": "function:src/components/layout/Navbar.tsx:setAccountDrawerOpen",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/Navbar.tsx:Navbar",
+      "target": "function:src/components/layout/Navbar.tsx:setMobileMenuOpen",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/Navbar.tsx:Navbar",
+      "target": "function:src/components/layout/Navbar.tsx:setMobileMenuOpen",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/Navbar.tsx:Navbar",
+      "target": "function:src/components/layout/Navbar.tsx:categories.map",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/components/layout/OfflineDetector.tsx",
+      "target": "function:src/components/layout/OfflineDetector.tsx:OfflineDetector",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/components/layout/OfflineDetector.tsx:OfflineDetector",
+      "target": "function:src/components/layout/OfflineDetector.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/OfflineDetector.tsx:OfflineDetector",
+      "target": "function:src/components/layout/OfflineDetector.tsx:useEffect",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/OfflineDetector.tsx:OfflineDetector",
+      "target": "function:src/components/layout/OfflineDetector.tsx:setIsOffline",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/OfflineDetector.tsx:handleOffline",
+      "target": "function:src/components/layout/OfflineDetector.tsx:setIsOffline",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/OfflineDetector.tsx:handleOnline",
+      "target": "function:src/components/layout/OfflineDetector.tsx:setIsOffline",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/OfflineDetector.tsx:OfflineDetector",
+      "target": "function:src/components/layout/OfflineDetector.tsx:window.addEventListener",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/OfflineDetector.tsx:OfflineDetector",
+      "target": "function:src/components/layout/OfflineDetector.tsx:window.addEventListener",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/OfflineDetector.tsx:OfflineDetector",
+      "target": "function:src/components/layout/OfflineDetector.tsx:window.removeEventListener",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/OfflineDetector.tsx:OfflineDetector",
+      "target": "function:src/components/layout/OfflineDetector.tsx:window.removeEventListener",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/components/layout/StorefrontChrome.tsx",
+      "target": "function:src/components/layout/StorefrontChrome.tsx:isPortalHostname",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/components/layout/StorefrontChrome.tsx",
+      "target": "function:src/components/layout/StorefrontChrome.tsx:StorefrontChrome",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/components/layout/StorefrontChrome.tsx:isPortalHostname",
+      "target": "function:src/components/layout/StorefrontChrome.tsx:hostname.toLowerCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/StorefrontChrome.tsx:isPortalHostname",
+      "target": "function:src/components/layout/StorefrontChrome.tsx:h.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/StorefrontChrome.tsx:isPortalHostname",
+      "target": "function:src/components/layout/StorefrontChrome.tsx:h.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/StorefrontChrome.tsx:isPortalHostname",
+      "target": "function:src/components/layout/StorefrontChrome.tsx:h.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/StorefrontChrome.tsx:isPortalHostname",
+      "target": "function:src/components/layout/StorefrontChrome.tsx:h.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/StorefrontChrome.tsx:isPortalHostname",
+      "target": "function:src/components/layout/StorefrontChrome.tsx:h.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/StorefrontChrome.tsx:isPortalHostname",
+      "target": "function:src/components/layout/StorefrontChrome.tsx:h.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/StorefrontChrome.tsx:isPortalHostname",
+      "target": "function:src/components/layout/StorefrontChrome.tsx:h.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/StorefrontChrome.tsx:isPortalHostname",
+      "target": "function:src/components/layout/StorefrontChrome.tsx:h.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/StorefrontChrome.tsx:StorefrontChrome",
+      "target": "function:src/components/layout/StorefrontChrome.tsx:usePathname",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/StorefrontChrome.tsx:StorefrontChrome",
+      "target": "function:src/components/layout/StorefrontChrome.tsx:PORTAL_PATHS.some",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/StorefrontChrome.tsx:StorefrontChrome",
+      "target": "function:src/components/layout/StorefrontChrome.tsx:pathname.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/StorefrontChrome.tsx:StorefrontChrome",
+      "target": "function:src/components/layout/StorefrontChrome.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/StorefrontChrome.tsx:StorefrontChrome",
+      "target": "function:src/components/layout/StorefrontChrome.tsx:useLayoutEffect",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/StorefrontChrome.tsx:StorefrontChrome",
+      "target": "function:src/components/layout/StorefrontChrome.tsx:isPortalHostname",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/layout/StorefrontChrome.tsx:StorefrontChrome",
+      "target": "function:src/components/layout/StorefrontChrome.tsx:setIsPortal",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/components/layout/ToastProvider.tsx",
+      "target": "function:src/components/layout/ToastProvider.tsx:ToastProvider",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/components/marketing/ai-studio/CampaignReviewCard.tsx",
+      "target": "function:src/components/marketing/ai-studio/CampaignReviewCard.tsx:CampaignReviewCard",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CampaignReviewCard.tsx:CampaignReviewCard",
+      "target": "function:src/components/marketing/ai-studio/CampaignReviewCard.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CampaignReviewCard.tsx:CampaignReviewCard",
+      "target": "function:src/components/marketing/ai-studio/CampaignReviewCard.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CampaignReviewCard.tsx:handleDecision",
+      "target": "function:src/components/marketing/ai-studio/CampaignReviewCard.tsx:setLoading",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CampaignReviewCard.tsx:handleDecision",
+      "target": "function:src/components/marketing/ai-studio/CampaignReviewCard.tsx:fetch",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CampaignReviewCard.tsx:handleDecision",
+      "target": "function:src/components/marketing/ai-studio/CampaignReviewCard.tsx:JSON.stringify",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CampaignReviewCard.tsx:handleDecision",
+      "target": "function:src/components/marketing/ai-studio/CampaignReviewCard.tsx:Date.now",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CampaignReviewCard.tsx:handleDecision",
+      "target": "function:src/components/marketing/ai-studio/CampaignReviewCard.tsx:res.json",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CampaignReviewCard.tsx:handleDecision",
+      "target": "function:src/components/marketing/ai-studio/CampaignReviewCard.tsx:setDecisionState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CampaignReviewCard.tsx:handleDecision",
+      "target": "function:src/components/marketing/ai-studio/CampaignReviewCard.tsx:toast.success",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CampaignReviewCard.tsx:handleDecision",
+      "target": "function:src/components/marketing/ai-studio/CampaignReviewCard.tsx:onStatusChange",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CampaignReviewCard.tsx:handleDecision",
+      "target": "function:src/components/marketing/ai-studio/CampaignReviewCard.tsx:setDecisionState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CampaignReviewCard.tsx:handleDecision",
+      "target": "function:src/components/marketing/ai-studio/CampaignReviewCard.tsx:toast.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CampaignReviewCard.tsx:handleDecision",
+      "target": "function:src/components/marketing/ai-studio/CampaignReviewCard.tsx:onStatusChange",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CampaignReviewCard.tsx:handleDecision",
+      "target": "function:src/components/marketing/ai-studio/CampaignReviewCard.tsx:toast.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CampaignReviewCard.tsx:handleDecision",
+      "target": "function:src/components/marketing/ai-studio/CampaignReviewCard.tsx:setLoading",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CampaignReviewCard.tsx:CampaignReviewCard",
+      "target": "function:src/components/marketing/ai-studio/CampaignReviewCard.tsx:draft.adSets[0]?.targeting.locations.join",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CampaignReviewCard.tsx:CampaignReviewCard",
+      "target": "function:src/components/marketing/ai-studio/CampaignReviewCard.tsx:draft.totalDailyBudgetInr.toLocaleString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CampaignReviewCard.tsx:CampaignReviewCard",
+      "target": "function:src/components/marketing/ai-studio/CampaignReviewCard.tsx:handleDecision",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CampaignReviewCard.tsx:CampaignReviewCard",
+      "target": "function:src/components/marketing/ai-studio/CampaignReviewCard.tsx:handleDecision",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/components/marketing/ai-studio/CoWorkerStatusPanel.tsx",
+      "target": "function:src/components/marketing/ai-studio/CoWorkerStatusPanel.tsx:CoWorkerStatusPanel",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CoWorkerStatusPanel.tsx:CoWorkerStatusPanel",
+      "target": "function:src/components/marketing/ai-studio/CoWorkerStatusPanel.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CoWorkerStatusPanel.tsx:CoWorkerStatusPanel",
+      "target": "function:src/components/marketing/ai-studio/CoWorkerStatusPanel.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CoWorkerStatusPanel.tsx:CoWorkerStatusPanel",
+      "target": "function:src/components/marketing/ai-studio/CoWorkerStatusPanel.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CoWorkerStatusPanel.tsx:fetchStatuses",
+      "target": "function:src/components/marketing/ai-studio/CoWorkerStatusPanel.tsx:fetch",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CoWorkerStatusPanel.tsx:fetchStatuses",
+      "target": "function:src/components/marketing/ai-studio/CoWorkerStatusPanel.tsx:res.json",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CoWorkerStatusPanel.tsx:fetchStatuses",
+      "target": "function:src/components/marketing/ai-studio/CoWorkerStatusPanel.tsx:setCoWorkers",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CoWorkerStatusPanel.tsx:fetchStatuses",
+      "target": "function:src/components/marketing/ai-studio/CoWorkerStatusPanel.tsx:setLoading",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CoWorkerStatusPanel.tsx:CoWorkerStatusPanel",
+      "target": "function:src/components/marketing/ai-studio/CoWorkerStatusPanel.tsx:useEffect",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CoWorkerStatusPanel.tsx:CoWorkerStatusPanel",
+      "target": "function:src/components/marketing/ai-studio/CoWorkerStatusPanel.tsx:fetchStatuses",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CoWorkerStatusPanel.tsx:handleToggle",
+      "target": "function:src/components/marketing/ai-studio/CoWorkerStatusPanel.tsx:setTogglingId",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CoWorkerStatusPanel.tsx:handleToggle",
+      "target": "function:src/components/marketing/ai-studio/CoWorkerStatusPanel.tsx:fetch",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CoWorkerStatusPanel.tsx:handleToggle",
+      "target": "function:src/components/marketing/ai-studio/CoWorkerStatusPanel.tsx:JSON.stringify",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CoWorkerStatusPanel.tsx:handleToggle",
+      "target": "function:src/components/marketing/ai-studio/CoWorkerStatusPanel.tsx:res.json",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CoWorkerStatusPanel.tsx:handleToggle",
+      "target": "function:src/components/marketing/ai-studio/CoWorkerStatusPanel.tsx:setCoWorkers",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CoWorkerStatusPanel.tsx:handleToggle",
+      "target": "function:src/components/marketing/ai-studio/CoWorkerStatusPanel.tsx:prev.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CoWorkerStatusPanel.tsx:handleToggle",
+      "target": "function:src/components/marketing/ai-studio/CoWorkerStatusPanel.tsx:toast.success",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CoWorkerStatusPanel.tsx:handleToggle",
+      "target": "function:src/components/marketing/ai-studio/CoWorkerStatusPanel.tsx:toast.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CoWorkerStatusPanel.tsx:handleToggle",
+      "target": "function:src/components/marketing/ai-studio/CoWorkerStatusPanel.tsx:setTogglingId",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CoWorkerStatusPanel.tsx:CoWorkerStatusPanel",
+      "target": "function:src/components/marketing/ai-studio/CoWorkerStatusPanel.tsx:coWorkers.filter",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CoWorkerStatusPanel.tsx:CoWorkerStatusPanel",
+      "target": "function:src/components/marketing/ai-studio/CoWorkerStatusPanel.tsx:coWorkers.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CoWorkerStatusPanel.tsx:CoWorkerStatusPanel",
+      "target": "function:src/components/marketing/ai-studio/CoWorkerStatusPanel.tsx:handleToggle",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/components/marketing/ai-studio/CreativeMediaStudio.tsx",
+      "target": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:CreativeMediaStudio",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:CreativeMediaStudio",
+      "target": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:CreativeMediaStudio",
+      "target": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:CreativeMediaStudio",
+      "target": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:CreativeMediaStudio",
+      "target": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:CreativeMediaStudio",
+      "target": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:CreativeMediaStudio",
+      "target": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:CreativeMediaStudio",
+      "target": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:CreativeMediaStudio",
+      "target": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:CreativeMediaStudio",
+      "target": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:CreativeMediaStudio",
+      "target": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:CreativeMediaStudio",
+      "target": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:CreativeMediaStudio",
+      "target": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:CreativeMediaStudio",
+      "target": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:copyToClipboard",
+      "target": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:navigator.clipboard.writeText",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:copyToClipboard",
+      "target": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:setCopiedPrompt",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:copyToClipboard",
+      "target": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:toast.success",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:copyToClipboard",
+      "target": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:setTimeout",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:copyToClipboard",
+      "target": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:setCopiedPrompt",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:handleUploadVideo",
+      "target": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:setUploading1",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:handleUploadVideo",
+      "target": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:setUploading2",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:handleUploadVideo",
+      "target": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:formData.append",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:handleUploadVideo",
+      "target": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:formData.append",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:handleUploadVideo",
+      "target": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:clipIndex.toString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:handleUploadVideo",
+      "target": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:formData.append",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:handleUploadVideo",
+      "target": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:fetch",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:handleUploadVideo",
+      "target": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:res.json",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:handleUploadVideo",
+      "target": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:setVideo1Url",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:handleUploadVideo",
+      "target": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:toast.success",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:handleUploadVideo",
+      "target": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:setVideo2Url",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:handleUploadVideo",
+      "target": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:toast.success",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:handleUploadVideo",
+      "target": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:toast.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:handleUploadVideo",
+      "target": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:setUploading1",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:handleUploadVideo",
+      "target": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:setUploading2",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:handleDispatchProcessing",
+      "target": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:toast.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:handleDispatchProcessing",
+      "target": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:setProcessingJob",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:handleDispatchProcessing",
+      "target": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:fetch",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:handleDispatchProcessing",
+      "target": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:JSON.stringify",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:handleDispatchProcessing",
+      "target": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:res.json",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:handleDispatchProcessing",
+      "target": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:setMediaJob",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:handleDispatchProcessing",
+      "target": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:toast.success",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:handleDispatchProcessing",
+      "target": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:setTimeout",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:handleDispatchProcessing",
+      "target": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:fetch",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:handleDispatchProcessing",
+      "target": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:JSON.stringify",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:handleDispatchProcessing",
+      "target": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:callbackRes.json",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:handleDispatchProcessing",
+      "target": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:setFinalVideoUrl",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:handleDispatchProcessing",
+      "target": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:setFinalAnalysis",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:handleDispatchProcessing",
+      "target": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:setMediaJob",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:handleDispatchProcessing",
+      "target": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:onMediaJobCompleted",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:handleDispatchProcessing",
+      "target": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:toast.success",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:handleDispatchProcessing",
+      "target": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:toast.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:handleDispatchProcessing",
+      "target": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:setProcessingJob",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:CreativeMediaStudio",
+      "target": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:copyToClipboard",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:CreativeMediaStudio",
+      "target": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:copyToClipboard",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:CreativeMediaStudio",
+      "target": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:(['bengali', 'hindi', 'english'] as const).map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:CreativeMediaStudio",
+      "target": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:setSelectedLanguage",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:CreativeMediaStudio",
+      "target": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:setN8nWebhookUrl",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:CreativeMediaStudio",
+      "target": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:setN8nWebhookUrl",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:CreativeMediaStudio",
+      "target": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:toast.success",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:CreativeMediaStudio",
+      "target": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:setVideo1File",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:CreativeMediaStudio",
+      "target": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:handleUploadVideo",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:CreativeMediaStudio",
+      "target": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:setVideo2File",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:CreativeMediaStudio",
+      "target": "function:src/components/marketing/ai-studio/CreativeMediaStudio.tsx:handleUploadVideo",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/components/portal-orders/OrderNotificationCenter.tsx",
+      "target": "function:src/components/portal-orders/OrderNotificationCenter.tsx:OrderNotificationCenter",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/components/portal-orders/OrderNotificationCenter.tsx:OrderNotificationCenter",
+      "target": "function:src/components/portal-orders/OrderNotificationCenter.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/portal-orders/OrderNotificationCenter.tsx:OrderNotificationCenter",
+      "target": "function:src/components/portal-orders/OrderNotificationCenter.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/portal-orders/OrderNotificationCenter.tsx:OrderNotificationCenter",
+      "target": "function:src/components/portal-orders/OrderNotificationCenter.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/portal-orders/OrderNotificationCenter.tsx:OrderNotificationCenter",
+      "target": "function:src/components/portal-orders/OrderNotificationCenter.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/portal-orders/OrderNotificationCenter.tsx:OrderNotificationCenter",
+      "target": "function:src/components/portal-orders/OrderNotificationCenter.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/portal-orders/OrderNotificationCenter.tsx:OrderNotificationCenter",
+      "target": "function:src/components/portal-orders/OrderNotificationCenter.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/portal-orders/OrderNotificationCenter.tsx:OrderNotificationCenter",
+      "target": "function:src/components/portal-orders/OrderNotificationCenter.tsx:useRef",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/portal-orders/OrderNotificationCenter.tsx:OrderNotificationCenter",
+      "target": "function:src/components/portal-orders/OrderNotificationCenter.tsx:createClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/portal-orders/OrderNotificationCenter.tsx:fetchNotifications",
+      "target": "function:src/components/portal-orders/OrderNotificationCenter.tsx:setLoading",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/portal-orders/OrderNotificationCenter.tsx:fetchNotifications",
+      "target": "function:src/components/portal-orders/OrderNotificationCenter.tsx:fetch",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/portal-orders/OrderNotificationCenter.tsx:fetchNotifications",
+      "target": "function:src/components/portal-orders/OrderNotificationCenter.tsx:res.json",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/portal-orders/OrderNotificationCenter.tsx:fetchNotifications",
+      "target": "function:src/components/portal-orders/OrderNotificationCenter.tsx:setNotifications",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/portal-orders/OrderNotificationCenter.tsx:fetchNotifications",
+      "target": "function:src/components/portal-orders/OrderNotificationCenter.tsx:setSummary",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/portal-orders/OrderNotificationCenter.tsx:fetchNotifications",
+      "target": "function:src/components/portal-orders/OrderNotificationCenter.tsx:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/portal-orders/OrderNotificationCenter.tsx:fetchNotifications",
+      "target": "function:src/components/portal-orders/OrderNotificationCenter.tsx:setLoading",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/portal-orders/OrderNotificationCenter.tsx:OrderNotificationCenter",
+      "target": "function:src/components/portal-orders/OrderNotificationCenter.tsx:useEffect",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/portal-orders/OrderNotificationCenter.tsx:OrderNotificationCenter",
+      "target": "function:src/components/portal-orders/OrderNotificationCenter.tsx:fetchNotifications",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/portal-orders/OrderNotificationCenter.tsx:OrderNotificationCenter",
+      "target": "function:src/components/portal-orders/OrderNotificationCenter.tsx:supabase\n      .channel('order_notifications_realtime')\n      .on(\n        'postgres_changes',\n        { event: '*', schema: 'public', table: 'orders' },\n        (payload: any) => {\n          fetchNotifications(false);\n          const newStatus = (payload.new as any)?.status;\n          const orderNum = (payload.new as any)?.order_number || 'Order';\n\n          if (payload.eventType === 'INSERT') {\n            toast(`📦 New Order #${orderNum} received!`, {\n              icon: '🎉',\n              style: {\n                borderRadius: '12px',\n                background: '#1c1917',\n                color: '#f59e0b',\n                border: '1px solid rgba(245, 158, 11, 0.3)',\n              },\n            });\n          } else if (payload.eventType === 'UPDATE') {\n            toast(\n              `Order #${orderNum} status updated to ${newStatus?.toUpperCase()}`,\n              {\n                icon: '🔔',\n                style: {\n                  borderRadius: '12px',\n                  background: '#1c1917',\n                  color: '#fff',\n                  border: '1px solid rgba(255, 255, 255, 0.1)',\n                },\n              }\n            );\n          }\n        }\n      )\n      .subscribe",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/portal-orders/OrderNotificationCenter.tsx:OrderNotificationCenter",
+      "target": "function:src/components/portal-orders/OrderNotificationCenter.tsx:supabase\n      .channel('order_notifications_realtime')\n      .on",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/portal-orders/OrderNotificationCenter.tsx:OrderNotificationCenter",
+      "target": "function:src/components/portal-orders/OrderNotificationCenter.tsx:supabase\n      .channel",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/portal-orders/OrderNotificationCenter.tsx:OrderNotificationCenter",
+      "target": "function:src/components/portal-orders/OrderNotificationCenter.tsx:fetchNotifications",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/portal-orders/OrderNotificationCenter.tsx:OrderNotificationCenter",
+      "target": "function:src/components/portal-orders/OrderNotificationCenter.tsx:toast",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/portal-orders/OrderNotificationCenter.tsx:OrderNotificationCenter",
+      "target": "function:src/components/portal-orders/OrderNotificationCenter.tsx:toast",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/portal-orders/OrderNotificationCenter.tsx:OrderNotificationCenter",
+      "target": "function:src/components/portal-orders/OrderNotificationCenter.tsx:newStatus?.toUpperCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/portal-orders/OrderNotificationCenter.tsx:OrderNotificationCenter",
+      "target": "function:src/components/portal-orders/OrderNotificationCenter.tsx:setInterval",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/portal-orders/OrderNotificationCenter.tsx:OrderNotificationCenter",
+      "target": "function:src/components/portal-orders/OrderNotificationCenter.tsx:fetchNotifications",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/portal-orders/OrderNotificationCenter.tsx:OrderNotificationCenter",
+      "target": "function:src/components/portal-orders/OrderNotificationCenter.tsx:supabase.removeChannel",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/portal-orders/OrderNotificationCenter.tsx:OrderNotificationCenter",
+      "target": "function:src/components/portal-orders/OrderNotificationCenter.tsx:clearInterval",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/portal-orders/OrderNotificationCenter.tsx:OrderNotificationCenter",
+      "target": "function:src/components/portal-orders/OrderNotificationCenter.tsx:useEffect",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/portal-orders/OrderNotificationCenter.tsx:handleOutsideClick",
+      "target": "function:src/components/portal-orders/OrderNotificationCenter.tsx:drawerRef.current.contains",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/portal-orders/OrderNotificationCenter.tsx:handleOutsideClick",
+      "target": "function:src/components/portal-orders/OrderNotificationCenter.tsx:setIsOpen",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/portal-orders/OrderNotificationCenter.tsx:OrderNotificationCenter",
+      "target": "function:src/components/portal-orders/OrderNotificationCenter.tsx:document.addEventListener",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/portal-orders/OrderNotificationCenter.tsx:OrderNotificationCenter",
+      "target": "function:src/components/portal-orders/OrderNotificationCenter.tsx:document.removeEventListener",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/portal-orders/OrderNotificationCenter.tsx:markAsRead",
+      "target": "function:src/components/portal-orders/OrderNotificationCenter.tsx:setReadIds",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/portal-orders/OrderNotificationCenter.tsx:markAsRead",
+      "target": "function:src/components/portal-orders/OrderNotificationCenter.tsx:new Set(prev).add",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/portal-orders/OrderNotificationCenter.tsx:markAllAsRead",
+      "target": "function:src/components/portal-orders/OrderNotificationCenter.tsx:notifications.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/portal-orders/OrderNotificationCenter.tsx:markAllAsRead",
+      "target": "function:src/components/portal-orders/OrderNotificationCenter.tsx:setReadIds",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/portal-orders/OrderNotificationCenter.tsx:markAllAsRead",
+      "target": "function:src/components/portal-orders/OrderNotificationCenter.tsx:toast.success",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/portal-orders/OrderNotificationCenter.tsx:isNotificationRead",
+      "target": "function:src/components/portal-orders/OrderNotificationCenter.tsx:readIds.has",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/portal-orders/OrderNotificationCenter.tsx:OrderNotificationCenter",
+      "target": "function:src/components/portal-orders/OrderNotificationCenter.tsx:notifications.filter",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/portal-orders/OrderNotificationCenter.tsx:OrderNotificationCenter",
+      "target": "function:src/components/portal-orders/OrderNotificationCenter.tsx:isNotificationRead",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/portal-orders/OrderNotificationCenter.tsx:OrderNotificationCenter",
+      "target": "function:src/components/portal-orders/OrderNotificationCenter.tsx:notifications.filter",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/portal-orders/OrderNotificationCenter.tsx:formatTimeAgo",
+      "target": "function:src/components/portal-orders/OrderNotificationCenter.tsx:Date.now",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/portal-orders/OrderNotificationCenter.tsx:formatTimeAgo",
+      "target": "function:src/components/portal-orders/OrderNotificationCenter.tsx:new Date(isoDate).getTime",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/portal-orders/OrderNotificationCenter.tsx:formatTimeAgo",
+      "target": "function:src/components/portal-orders/OrderNotificationCenter.tsx:Math.floor",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/portal-orders/OrderNotificationCenter.tsx:formatTimeAgo",
+      "target": "function:src/components/portal-orders/OrderNotificationCenter.tsx:Math.floor",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/portal-orders/OrderNotificationCenter.tsx:formatTimeAgo",
+      "target": "function:src/components/portal-orders/OrderNotificationCenter.tsx:Math.floor",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/portal-orders/OrderNotificationCenter.tsx:OrderNotificationCenter",
+      "target": "function:src/components/portal-orders/OrderNotificationCenter.tsx:setIsOpen",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/portal-orders/OrderNotificationCenter.tsx:OrderNotificationCenter",
+      "target": "function:src/components/portal-orders/OrderNotificationCenter.tsx:fetchNotifications",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/portal-orders/OrderNotificationCenter.tsx:OrderNotificationCenter",
+      "target": "function:src/components/portal-orders/OrderNotificationCenter.tsx:setIsOpen",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/portal-orders/OrderNotificationCenter.tsx:OrderNotificationCenter",
+      "target": "function:src/components/portal-orders/OrderNotificationCenter.tsx:[\n              { id: 'ALL', label: 'All', count: notifications.length },\n              {\n                id: 'SLA_ALERT',\n                label: 'SLA (>3 Days)',\n                count: summary.slaBreachCount,\n                color: 'text-rose-400',\n              },\n              {\n                id: 'NEW_ORDER',\n                label: 'New Orders',\n                count: summary.newOrdersCount,\n                color: 'text-amber-400',\n              },\n              {\n                id: 'RETURN_RTO',\n                label: 'Returns & RTO',\n                count: summary.returnsCount + summary.rtoCount,\n                color: 'text-orange-400',\n              },\n              {\n                id: 'CANCELLATION',\n                label: 'Cancelled',\n                count: summary.cancellationCount,\n              },\n              { id: 'REFUND', label: 'Refunds', count: summary.refundsCount },\n            ].map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/portal-orders/OrderNotificationCenter.tsx:OrderNotificationCenter",
+      "target": "function:src/components/portal-orders/OrderNotificationCenter.tsx:setActiveTab",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/portal-orders/OrderNotificationCenter.tsx:OrderNotificationCenter",
+      "target": "function:src/components/portal-orders/OrderNotificationCenter.tsx:filteredNotifications.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/portal-orders/OrderNotificationCenter.tsx:OrderNotificationCenter",
+      "target": "function:src/components/portal-orders/OrderNotificationCenter.tsx:isNotificationRead",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/portal-orders/OrderNotificationCenter.tsx:OrderNotificationCenter",
+      "target": "function:src/components/portal-orders/OrderNotificationCenter.tsx:getCategoryIcon",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/portal-orders/OrderNotificationCenter.tsx:OrderNotificationCenter",
+      "target": "function:src/components/portal-orders/OrderNotificationCenter.tsx:getSeverityBadge",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/portal-orders/OrderNotificationCenter.tsx:OrderNotificationCenter",
+      "target": "function:src/components/portal-orders/OrderNotificationCenter.tsx:formatTimeAgo",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/portal-orders/OrderNotificationCenter.tsx:OrderNotificationCenter",
+      "target": "function:src/components/portal-orders/OrderNotificationCenter.tsx:markAsRead",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/portal-orders/OrderNotificationCenter.tsx:OrderNotificationCenter",
+      "target": "function:src/components/portal-orders/OrderNotificationCenter.tsx:setIsOpen",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/portal-orders/OrderNotificationCenter.tsx:OrderNotificationCenter",
+      "target": "function:src/components/portal-orders/OrderNotificationCenter.tsx:markAsRead",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/portal-orders/OrderNotificationCenter.tsx:OrderNotificationCenter",
+      "target": "function:src/components/portal-orders/OrderNotificationCenter.tsx:setIsOpen",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/components/portal/PortalSwitcherDropdown.tsx",
+      "target": "function:src/components/portal/PortalSwitcherDropdown.tsx:PortalSwitcherDropdown",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/components/portal/PortalSwitcherDropdown.tsx:PortalSwitcherDropdown",
+      "target": "function:src/components/portal/PortalSwitcherDropdown.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/portal/PortalSwitcherDropdown.tsx:PortalSwitcherDropdown",
+      "target": "function:src/components/portal/PortalSwitcherDropdown.tsx:useRef",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/portal/PortalSwitcherDropdown.tsx:PortalSwitcherDropdown",
+      "target": "function:src/components/portal/PortalSwitcherDropdown.tsx:useEffect",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/portal/PortalSwitcherDropdown.tsx:handleClickOutside",
+      "target": "function:src/components/portal/PortalSwitcherDropdown.tsx:ref.current.contains",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/portal/PortalSwitcherDropdown.tsx:handleClickOutside",
+      "target": "function:src/components/portal/PortalSwitcherDropdown.tsx:setOpen",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/portal/PortalSwitcherDropdown.tsx:PortalSwitcherDropdown",
+      "target": "function:src/components/portal/PortalSwitcherDropdown.tsx:document.addEventListener",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/portal/PortalSwitcherDropdown.tsx:PortalSwitcherDropdown",
+      "target": "function:src/components/portal/PortalSwitcherDropdown.tsx:document.removeEventListener",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/portal/PortalSwitcherDropdown.tsx:PortalSwitcherDropdown",
+      "target": "function:src/components/portal/PortalSwitcherDropdown.tsx:setOpen",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/portal/PortalSwitcherDropdown.tsx:PortalSwitcherDropdown",
+      "target": "function:src/components/portal/PortalSwitcherDropdown.tsx:PORTAL_OPTIONS.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/portal/PortalSwitcherDropdown.tsx:PortalSwitcherDropdown",
+      "target": "function:src/components/portal/PortalSwitcherDropdown.tsx:setOpen",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/components/portal/ThemeToggle.tsx",
+      "target": "function:src/components/portal/ThemeToggle.tsx:ThemeToggle",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/components/portal/ThemeToggle.tsx:ThemeToggle",
+      "target": "function:src/components/portal/ThemeToggle.tsx:usePortalTheme",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/portal/ThemeToggle.tsx:ThemeToggle",
+      "target": "function:src/components/portal/ThemeToggle.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/portal/ThemeToggle.tsx:ThemeToggle",
+      "target": "function:src/components/portal/ThemeToggle.tsx:useRef",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/portal/ThemeToggle.tsx:ThemeToggle",
+      "target": "function:src/components/portal/ThemeToggle.tsx:useEffect",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/portal/ThemeToggle.tsx:handleClickOutside",
+      "target": "function:src/components/portal/ThemeToggle.tsx:ref.current.contains",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/portal/ThemeToggle.tsx:handleClickOutside",
+      "target": "function:src/components/portal/ThemeToggle.tsx:setOpen",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/portal/ThemeToggle.tsx:ThemeToggle",
+      "target": "function:src/components/portal/ThemeToggle.tsx:document.addEventListener",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/portal/ThemeToggle.tsx:ThemeToggle",
+      "target": "function:src/components/portal/ThemeToggle.tsx:document.removeEventListener",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/portal/ThemeToggle.tsx:ThemeToggle",
+      "target": "function:src/components/portal/ThemeToggle.tsx:THEME_OPTIONS.find",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/portal/ThemeToggle.tsx:ThemeToggle",
+      "target": "function:src/components/portal/ThemeToggle.tsx:setOpen",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/portal/ThemeToggle.tsx:ThemeToggle",
+      "target": "function:src/components/portal/ThemeToggle.tsx:THEME_OPTIONS.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/portal/ThemeToggle.tsx:ThemeToggle",
+      "target": "function:src/components/portal/ThemeToggle.tsx:setTheme",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/portal/ThemeToggle.tsx:ThemeToggle",
+      "target": "function:src/components/portal/ThemeToggle.tsx:setOpen",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/components/products/Product360Button.tsx",
+      "target": "function:src/components/products/Product360Button.tsx:Product360Button",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/components/products/Product360Modal.tsx",
+      "target": "function:src/components/products/Product360Modal.tsx:Product360Modal",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/components/products/Product360Modal.tsx:Product360Modal",
+      "target": "function:src/components/products/Product360Modal.tsx:useRef",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/Product360Modal.tsx:Product360Modal",
+      "target": "function:src/components/products/Product360Modal.tsx:useEffect",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/Product360Modal.tsx:Product360Modal",
+      "target": "function:src/components/products/Product360Modal.tsx:modalRef.current?.focus",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/Product360Modal.tsx:handleKeyDown",
+      "target": "function:src/components/products/Product360Modal.tsx:onClose",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/Product360Modal.tsx:Product360Modal",
+      "target": "function:src/components/products/Product360Modal.tsx:window.addEventListener",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/Product360Modal.tsx:Product360Modal",
+      "target": "function:src/components/products/Product360Modal.tsx:window.removeEventListener",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/components/products/Product360Viewer.tsx",
+      "target": "function:src/components/products/Product360Viewer.tsx:Product360Viewer",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/components/products/Product360Viewer.tsx:Product360Viewer",
+      "target": "function:src/components/products/Product360Viewer.tsx:useRef",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/Product360Viewer.tsx:Product360Viewer",
+      "target": "function:src/components/products/Product360Viewer.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/Product360Viewer.tsx:Product360Viewer",
+      "target": "function:src/components/products/Product360Viewer.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/Product360Viewer.tsx:Product360Viewer",
+      "target": "function:src/components/products/Product360Viewer.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/Product360Viewer.tsx:Product360Viewer",
+      "target": "function:src/components/products/Product360Viewer.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/Product360Viewer.tsx:Product360Viewer",
+      "target": "function:src/components/products/Product360Viewer.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/Product360Viewer.tsx:Product360Viewer",
+      "target": "function:src/components/products/Product360Viewer.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/Product360Viewer.tsx:Product360Viewer",
+      "target": "function:src/components/products/Product360Viewer.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/Product360Viewer.tsx:Product360Viewer",
+      "target": "function:src/components/products/Product360Viewer.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/Product360Viewer.tsx:Product360Viewer",
+      "target": "function:src/components/products/Product360Viewer.tsx:useEffect",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/Product360Viewer.tsx:preloadFrame",
+      "target": "function:src/components/products/Product360Viewer.tsx:loadedFrames.has",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/Product360Viewer.tsx:preloadFrame",
+      "target": "function:src/components/products/Product360Viewer.tsx:setLoadedFrames",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/Product360Viewer.tsx:preloadFrame",
+      "target": "function:src/components/products/Product360Viewer.tsx:new Set(prev).add",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/Product360Viewer.tsx:Product360Viewer",
+      "target": "function:src/components/products/Product360Viewer.tsx:preloadFrame",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/Product360Viewer.tsx:loadAdjacent",
+      "target": "function:src/components/products/Product360Viewer.tsx:Math.ceil",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/Product360Viewer.tsx:loadAdjacent",
+      "target": "function:src/components/products/Product360Viewer.tsx:preloadFrame",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/Product360Viewer.tsx:loadAdjacent",
+      "target": "function:src/components/products/Product360Viewer.tsx:preloadFrame",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/Product360Viewer.tsx:Product360Viewer",
+      "target": "function:src/components/products/Product360Viewer.tsx:setTimeout",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/Product360Viewer.tsx:Product360Viewer",
+      "target": "function:src/components/products/Product360Viewer.tsx:clearTimeout",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/Product360Viewer.tsx:handlePointerDown",
+      "target": "function:src/components/products/Product360Viewer.tsx:setIsZooming",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/Product360Viewer.tsx:handlePointerDown",
+      "target": "function:src/components/products/Product360Viewer.tsx:setIsDragging",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/Product360Viewer.tsx:handlePointerDown",
+      "target": "function:src/components/products/Product360Viewer.tsx:setStartX",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/Product360Viewer.tsx:handlePointerDown",
+      "target": "function:src/components/products/Product360Viewer.tsx:containerRef.current?.setPointerCapture",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/Product360Viewer.tsx:handlePointerMove",
+      "target": "function:src/components/products/Product360Viewer.tsx:Math.abs",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/Product360Viewer.tsx:handlePointerMove",
+      "target": "function:src/components/products/Product360Viewer.tsx:Math.floor",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/Product360Viewer.tsx:handlePointerMove",
+      "target": "function:src/components/products/Product360Viewer.tsx:Math.abs",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/Product360Viewer.tsx:handlePointerMove",
+      "target": "function:src/components/products/Product360Viewer.tsx:Math.sign",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/Product360Viewer.tsx:handlePointerMove",
+      "target": "function:src/components/products/Product360Viewer.tsx:setCurrentIndex",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/Product360Viewer.tsx:handlePointerMove",
+      "target": "function:src/components/products/Product360Viewer.tsx:setStartX",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/Product360Viewer.tsx:handlePointerMove",
+      "target": "function:src/components/products/Product360Viewer.tsx:setTranslateX",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/Product360Viewer.tsx:handlePointerMove",
+      "target": "function:src/components/products/Product360Viewer.tsx:setTranslateY",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/Product360Viewer.tsx:handlePointerUp",
+      "target": "function:src/components/products/Product360Viewer.tsx:setIsDragging",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/Product360Viewer.tsx:handlePointerUp",
+      "target": "function:src/components/products/Product360Viewer.tsx:setIsZooming",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/Product360Viewer.tsx:handlePointerUp",
+      "target": "function:src/components/products/Product360Viewer.tsx:containerRef.current?.releasePointerCapture",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/Product360Viewer.tsx:handleWheel",
+      "target": "function:src/components/products/Product360Viewer.tsx:e.preventDefault",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/Product360Viewer.tsx:handleWheel",
+      "target": "function:src/components/products/Product360Viewer.tsx:setScale",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/Product360Viewer.tsx:handleWheel",
+      "target": "function:src/components/products/Product360Viewer.tsx:Math.min",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/Product360Viewer.tsx:handleWheel",
+      "target": "function:src/components/products/Product360Viewer.tsx:Math.max",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/Product360Viewer.tsx:handleWheel",
+      "target": "function:src/components/products/Product360Viewer.tsx:setTranslateX",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/Product360Viewer.tsx:handleWheel",
+      "target": "function:src/components/products/Product360Viewer.tsx:setTranslateY",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/Product360Viewer.tsx:zoomIn",
+      "target": "function:src/components/products/Product360Viewer.tsx:setScale",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/Product360Viewer.tsx:zoomIn",
+      "target": "function:src/components/products/Product360Viewer.tsx:Math.min",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/Product360Viewer.tsx:zoomOut",
+      "target": "function:src/components/products/Product360Viewer.tsx:setScale",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/Product360Viewer.tsx:zoomOut",
+      "target": "function:src/components/products/Product360Viewer.tsx:Math.max",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/Product360Viewer.tsx:zoomOut",
+      "target": "function:src/components/products/Product360Viewer.tsx:setTranslateX",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/Product360Viewer.tsx:zoomOut",
+      "target": "function:src/components/products/Product360Viewer.tsx:setTranslateY",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/Product360Viewer.tsx:resetZoom",
+      "target": "function:src/components/products/Product360Viewer.tsx:setScale",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/Product360Viewer.tsx:resetZoom",
+      "target": "function:src/components/products/Product360Viewer.tsx:setTranslateX",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/Product360Viewer.tsx:resetZoom",
+      "target": "function:src/components/products/Product360Viewer.tsx:setTranslateY",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/Product360Viewer.tsx:Product360Viewer",
+      "target": "function:src/components/products/Product360Viewer.tsx:loadedFrames.has",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/components/products/ProductCard.tsx",
+      "target": "function:src/components/products/ProductCard.tsx:ProductCard",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/components/products/ProductCard.tsx:ProductCard",
+      "target": "function:src/components/products/ProductCard.tsx:useCart",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/ProductCard.tsx:ProductCard",
+      "target": "function:src/components/products/ProductCard.tsx:useWishlist",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/ProductCard.tsx:ProductCard",
+      "target": "function:src/components/products/ProductCard.tsx:isInWishlist",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/ProductCard.tsx:ProductCard",
+      "target": "function:src/components/products/ProductCard.tsx:cartItems.some",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/ProductCard.tsx:handleAddToCart",
+      "target": "function:src/components/products/ProductCard.tsx:e.preventDefault",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/ProductCard.tsx:handleAddToCart",
+      "target": "function:src/components/products/ProductCard.tsx:e.stopPropagation",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/ProductCard.tsx:handleAddToCart",
+      "target": "function:src/components/products/ProductCard.tsx:addToCart",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/ProductCard.tsx:handleAddToCart",
+      "target": "function:src/components/products/ProductCard.tsx:trackEvent",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/ProductCard.tsx:handleToggleWishlist",
+      "target": "function:src/components/products/ProductCard.tsx:e.preventDefault",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/ProductCard.tsx:handleToggleWishlist",
+      "target": "function:src/components/products/ProductCard.tsx:e.stopPropagation",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/ProductCard.tsx:handleToggleWishlist",
+      "target": "function:src/components/products/ProductCard.tsx:toggleWishlist",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/ProductCard.tsx:ProductCard",
+      "target": "function:src/components/products/ProductCard.tsx:ecommerceEvent",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/ProductCard.tsx:ProductCard",
+      "target": "function:src/components/products/ProductCard.tsx:ecommerceEvent",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/ProductCard.tsx:ProductCard",
+      "target": "function:src/components/products/ProductCard.tsx:(product.price ?? 0).toLocaleString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/ProductCard.tsx:ProductCard",
+      "target": "function:src/components/products/ProductCard.tsx:product.mrp.toLocaleString",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/components/products/ProductImageGallery.tsx",
+      "target": "function:src/components/products/ProductImageGallery.tsx:ProductImageGallery",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/components/products/ProductImageGallery.tsx:ProductImageGallery",
+      "target": "function:src/components/products/ProductImageGallery.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/ProductImageGallery.tsx:ProductImageGallery",
+      "target": "function:src/components/products/ProductImageGallery.tsx:getZoomImage",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/ProductImageGallery.tsx:ProductImageGallery",
+      "target": "function:src/components/products/ProductImageGallery.tsx:getThumbnailImage",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/ProductImageGallery.tsx:ProductImageGallery",
+      "target": "function:src/components/products/ProductImageGallery.tsx:getProductImage",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/ProductImageGallery.tsx:ProductImageGallery",
+      "target": "function:src/components/products/ProductImageGallery.tsx:images.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/ProductImageGallery.tsx:ProductImageGallery",
+      "target": "function:src/components/products/ProductImageGallery.tsx:getZoomImage",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/ProductImageGallery.tsx:ProductImageGallery",
+      "target": "function:src/components/products/ProductImageGallery.tsx:getThumbnailImage",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/ProductImageGallery.tsx:ProductImageGallery",
+      "target": "function:src/components/products/ProductImageGallery.tsx:getProductImage",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/ProductImageGallery.tsx:ProductImageGallery",
+      "target": "function:src/components/products/ProductImageGallery.tsx:images.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/ProductImageGallery.tsx:ProductImageGallery",
+      "target": "function:src/components/products/ProductImageGallery.tsx:setActiveImageIndex",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/ProductImageGallery.tsx:ProductImageGallery",
+      "target": "function:src/components/products/ProductImageGallery.tsx:getThumbnailImage",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/components/products/ProductReviews.tsx",
+      "target": "function:src/components/products/ProductReviews.tsx:Stars",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/components/products/ProductReviews.tsx",
+      "target": "function:src/components/products/ProductReviews.tsx:formatDate",
+      "type": "contains"
+    },
+    {
+      "source": "file:src/components/products/ProductReviews.tsx",
+      "target": "function:src/components/products/ProductReviews.tsx:ProductReviews",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/components/products/ProductReviews.tsx:Stars",
+      "target": "function:src/components/products/ProductReviews.tsx:[...Array(5)].map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/ProductReviews.tsx:Stars",
+      "target": "function:src/components/products/ProductReviews.tsx:Array",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/ProductReviews.tsx:formatDate",
+      "target": "function:src/components/products/ProductReviews.tsx:new Date(iso).toLocaleDateString",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/ProductReviews.tsx:ProductReviews",
+      "target": "function:src/components/products/ProductReviews.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/ProductReviews.tsx:ProductReviews",
+      "target": "function:src/components/products/ProductReviews.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/ProductReviews.tsx:ProductReviews",
+      "target": "function:src/components/products/ProductReviews.tsx:useEffect",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/ProductReviews.tsx:loadReviews",
+      "target": "function:src/components/products/ProductReviews.tsx:setLoading",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/ProductReviews.tsx:loadReviews",
+      "target": "function:src/components/products/ProductReviews.tsx:createClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/ProductReviews.tsx:loadReviews",
+      "target": "function:src/components/products/ProductReviews.tsx:supabase\n          .from('testimonials')\n          .select(\n            'id, customer_name, rating, review_text, is_verified_purchase, created_at'\n          )\n          .eq('status', 'approved')\n          .eq('product_id', productId)\n          .order",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/ProductReviews.tsx:loadReviews",
+      "target": "function:src/components/products/ProductReviews.tsx:supabase\n          .from('testimonials')\n          .select(\n            'id, customer_name, rating, review_text, is_verified_purchase, created_at'\n          )\n          .eq('status', 'approved')\n          .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/ProductReviews.tsx:loadReviews",
+      "target": "function:src/components/products/ProductReviews.tsx:supabase\n          .from('testimonials')\n          .select(\n            'id, customer_name, rating, review_text, is_verified_purchase, created_at'\n          )\n          .eq",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/ProductReviews.tsx:loadReviews",
+      "target": "function:src/components/products/ProductReviews.tsx:supabase\n          .from('testimonials')\n          .select",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/ProductReviews.tsx:loadReviews",
+      "target": "function:src/components/products/ProductReviews.tsx:supabase\n          .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/ProductReviews.tsx:loadReviews",
+      "target": "function:src/components/products/ProductReviews.tsx:setReviews",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/ProductReviews.tsx:loadReviews",
+      "target": "function:src/components/products/ProductReviews.tsx:setLoading",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/ProductReviews.tsx:ProductReviews",
+      "target": "function:src/components/products/ProductReviews.tsx:loadReviews",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/ProductReviews.tsx:ProductReviews",
+      "target": "function:src/components/products/ProductReviews.tsx:reviews.reduce",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/ProductReviews.tsx:ProductReviews",
+      "target": "function:src/components/products/ProductReviews.tsx:reviews.filter",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/ProductReviews.tsx:ProductReviews",
+      "target": "function:src/components/products/ProductReviews.tsx:[5, 4, 3, 2, 1].map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/ProductReviews.tsx:ProductReviews",
+      "target": "function:src/components/products/ProductReviews.tsx:reviews.filter",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/ProductReviews.tsx:ProductReviews",
+      "target": "function:src/components/products/ProductReviews.tsx:[...Array(3)].map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/ProductReviews.tsx:ProductReviews",
+      "target": "function:src/components/products/ProductReviews.tsx:Array",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/ProductReviews.tsx:ProductReviews",
+      "target": "function:src/components/products/ProductReviews.tsx:average.toFixed",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/ProductReviews.tsx:ProductReviews",
+      "target": "function:src/components/products/ProductReviews.tsx:Math.round",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/ProductReviews.tsx:ProductReviews",
+      "target": "function:src/components/products/ProductReviews.tsx:distribution.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/ProductReviews.tsx:ProductReviews",
+      "target": "function:src/components/products/ProductReviews.tsx:reviews.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/ProductReviews.tsx:ProductReviews",
+      "target": "function:src/components/products/ProductReviews.tsx:formatDate",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/components/products/StockNotificationModal.tsx",
+      "target": "function:src/components/products/StockNotificationModal.tsx:StockNotificationModal",
+      "type": "contains"
+    },
+    {
+      "source": "function:src/components/products/StockNotificationModal.tsx:StockNotificationModal",
+      "target": "function:src/components/products/StockNotificationModal.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/StockNotificationModal.tsx:StockNotificationModal",
+      "target": "function:src/components/products/StockNotificationModal.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/StockNotificationModal.tsx:StockNotificationModal",
+      "target": "function:src/components/products/StockNotificationModal.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/StockNotificationModal.tsx:StockNotificationModal",
+      "target": "function:src/components/products/StockNotificationModal.tsx:useState",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/StockNotificationModal.tsx:handleSubmit",
+      "target": "function:src/components/products/StockNotificationModal.tsx:e.preventDefault",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/StockNotificationModal.tsx:handleSubmit",
+      "target": "function:src/components/products/StockNotificationModal.tsx:email.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/StockNotificationModal.tsx:handleSubmit",
+      "target": "function:src/components/products/StockNotificationModal.tsx:setLoading",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/StockNotificationModal.tsx:handleSubmit",
+      "target": "function:src/components/products/StockNotificationModal.tsx:setError",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/StockNotificationModal.tsx:handleSubmit",
+      "target": "function:src/components/products/StockNotificationModal.tsx:createClient",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/StockNotificationModal.tsx:handleSubmit",
+      "target": "function:src/components/products/StockNotificationModal.tsx:supabase\n      .from('stock_notifications')\n      .insert",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/StockNotificationModal.tsx:handleSubmit",
+      "target": "function:src/components/products/StockNotificationModal.tsx:supabase\n      .from",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/StockNotificationModal.tsx:handleSubmit",
+      "target": "function:src/components/products/StockNotificationModal.tsx:email.trim().toLowerCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/StockNotificationModal.tsx:handleSubmit",
+      "target": "function:src/components/products/StockNotificationModal.tsx:email.trim",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/StockNotificationModal.tsx:handleSubmit",
+      "target": "function:src/components/products/StockNotificationModal.tsx:setLoading",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/StockNotificationModal.tsx:handleSubmit",
+      "target": "function:src/components/products/StockNotificationModal.tsx:setError",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/StockNotificationModal.tsx:handleSubmit",
+      "target": "function:src/components/products/StockNotificationModal.tsx:setSubmitted",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/components/products/StockNotificationModal.tsx:StockNotificationModal",
+      "target": "function:src/components/products/StockNotificationModal.tsx:setEmail",
+      "type": "calls"
+    }
+  ]
+}

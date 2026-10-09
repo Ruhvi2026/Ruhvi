@@ -1,0 +1,1513 @@
+{
+  "batchIndex": 13,
+  "batchFiles": [
+    {
+      "path": ".agents/packages/core/src/languages/frameworks/gin.ts",
+      "language": "typescript",
+      "sizeLines": 19,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/languages/frameworks/index.ts",
+      "language": "typescript",
+      "sizeLines": 38,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/languages/frameworks/nextjs.ts",
+      "language": "typescript",
+      "sizeLines": 23,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/languages/frameworks/rails.ts",
+      "language": "typescript",
+      "sizeLines": 28,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/languages/frameworks/react.ts",
+      "language": "typescript",
+      "sizeLines": 19,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/languages/frameworks/spring.ts",
+      "language": "typescript",
+      "sizeLines": 27,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/languages/frameworks/vue.ts",
+      "language": "typescript",
+      "sizeLines": 19,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/languages/index.ts",
+      "language": "typescript",
+      "sizeLines": 22,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/languages/language-registry.ts",
+      "language": "typescript",
+      "sizeLines": 64,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/languages/types.ts",
+      "language": "typescript",
+      "sizeLines": 62,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/persistence/index.ts",
+      "language": "typescript",
+      "sizeLines": 197,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/persistence/persistence.test.ts",
+      "language": "typescript",
+      "sizeLines": 246,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/plugins/discovery.ts",
+      "language": "typescript",
+      "sizeLines": 68,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/plugins/extractors/__tests__/cpp-extractor.test.ts",
+      "language": "typescript",
+      "sizeLines": 709,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/plugins/extractors/__tests__/csharp-extractor.test.ts",
+      "language": "typescript",
+      "sizeLines": 704,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/plugins/extractors/__tests__/dart-extractor.test.ts",
+      "language": "typescript",
+      "sizeLines": 675,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/plugins/extractors/__tests__/go-extractor.test.ts",
+      "language": "typescript",
+      "sizeLines": 616,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/plugins/extractors/__tests__/java-extractor.test.ts",
+      "language": "typescript",
+      "sizeLines": 603,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/plugins/extractors/__tests__/kotlin-extractor.test.ts",
+      "language": "typescript",
+      "sizeLines": 364,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/plugins/extractors/__tests__/php-extractor.test.ts",
+      "language": "typescript",
+      "sizeLines": 676,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/plugins/extractors/__tests__/python-extractor.test.ts",
+      "language": "typescript",
+      "sizeLines": 659,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/plugins/extractors/__tests__/ruby-extractor.test.ts",
+      "language": "typescript",
+      "sizeLines": 688,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/plugins/extractors/__tests__/rust-extractor.test.ts",
+      "language": "typescript",
+      "sizeLines": 771,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/plugins/extractors/__tests__/scala-extractor.test.ts",
+      "language": "typescript",
+      "sizeLines": 537,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/plugins/extractors/__tests__/swift-extractor.test.ts",
+      "language": "typescript",
+      "sizeLines": 464,
+      "fileCategory": "code"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "file:.agents/packages/core/src/languages/frameworks/gin.ts",
+      "name": "gin.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/languages/frameworks/gin.ts",
+      "summary": "typescript code file (19 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:.agents/packages/core/src/languages/frameworks/index.ts",
+      "name": "index.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/languages/frameworks/index.ts",
+      "summary": "typescript code file (38 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:.agents/packages/core/src/languages/frameworks/nextjs.ts",
+      "name": "nextjs.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/languages/frameworks/nextjs.ts",
+      "summary": "typescript code file (23 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:.agents/packages/core/src/languages/frameworks/rails.ts",
+      "name": "rails.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/languages/frameworks/rails.ts",
+      "summary": "typescript code file (28 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:.agents/packages/core/src/languages/frameworks/react.ts",
+      "name": "react.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/languages/frameworks/react.ts",
+      "summary": "typescript code file (19 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:.agents/packages/core/src/languages/frameworks/spring.ts",
+      "name": "spring.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/languages/frameworks/spring.ts",
+      "summary": "typescript code file (27 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:.agents/packages/core/src/languages/frameworks/vue.ts",
+      "name": "vue.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/languages/frameworks/vue.ts",
+      "summary": "typescript code file (19 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:.agents/packages/core/src/languages/index.ts",
+      "name": "index.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/languages/index.ts",
+      "summary": "typescript code file (22 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:.agents/packages/core/src/languages/language-registry.ts",
+      "name": "language-registry.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/languages/language-registry.ts",
+      "summary": "typescript code file (64 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "class:.agents/packages/core/src/languages/language-registry.ts:LanguageRegistry",
+      "name": "LanguageRegistry",
+      "type": "class",
+      "filePath": ".agents/packages/core/src/languages/language-registry.ts",
+      "parentId": "file:.agents/packages/core/src/languages/language-registry.ts",
+      "summary": "Class LanguageRegistry",
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:.agents/packages/core/src/languages/types.ts",
+      "name": "types.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/languages/types.ts",
+      "summary": "typescript code file (62 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:.agents/packages/core/src/persistence/index.ts",
+      "name": "index.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/persistence/index.ts",
+      "summary": "typescript code file (197 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:.agents/packages/core/src/persistence/index.ts:resolveUaDirName",
+      "name": "resolveUaDirName",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/persistence/index.ts",
+      "parentId": "file:.agents/packages/core/src/persistence/index.ts",
+      "summary": "Function resolveUaDirName",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:.agents/packages/core/src/persistence/index.ts:resolveUaDir",
+      "name": "resolveUaDir",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/persistence/index.ts",
+      "parentId": "file:.agents/packages/core/src/persistence/index.ts",
+      "summary": "Function resolveUaDir",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:.agents/packages/core/src/persistence/index.ts:ensureDir",
+      "name": "ensureDir",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/persistence/index.ts",
+      "parentId": "file:.agents/packages/core/src/persistence/index.ts",
+      "summary": "Function ensureDir",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:.agents/packages/core/src/persistence/index.ts:sanitiseFilePaths",
+      "name": "sanitiseFilePaths",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/persistence/index.ts",
+      "parentId": "file:.agents/packages/core/src/persistence/index.ts",
+      "summary": "Function sanitiseFilePaths",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:.agents/packages/core/src/persistence/index.ts:saveGraph",
+      "name": "saveGraph",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/persistence/index.ts",
+      "parentId": "file:.agents/packages/core/src/persistence/index.ts",
+      "summary": "Function saveGraph",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:.agents/packages/core/src/persistence/index.ts:loadGraph",
+      "name": "loadGraph",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/persistence/index.ts",
+      "parentId": "file:.agents/packages/core/src/persistence/index.ts",
+      "summary": "Function loadGraph",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:.agents/packages/core/src/persistence/index.ts:saveMeta",
+      "name": "saveMeta",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/persistence/index.ts",
+      "parentId": "file:.agents/packages/core/src/persistence/index.ts",
+      "summary": "Function saveMeta",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:.agents/packages/core/src/persistence/index.ts:loadMeta",
+      "name": "loadMeta",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/persistence/index.ts",
+      "parentId": "file:.agents/packages/core/src/persistence/index.ts",
+      "summary": "Function loadMeta",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:.agents/packages/core/src/persistence/index.ts:saveFingerprints",
+      "name": "saveFingerprints",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/persistence/index.ts",
+      "parentId": "file:.agents/packages/core/src/persistence/index.ts",
+      "summary": "Function saveFingerprints",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:.agents/packages/core/src/persistence/index.ts:loadFingerprints",
+      "name": "loadFingerprints",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/persistence/index.ts",
+      "parentId": "file:.agents/packages/core/src/persistence/index.ts",
+      "summary": "Function loadFingerprints",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:.agents/packages/core/src/persistence/index.ts:saveConfig",
+      "name": "saveConfig",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/persistence/index.ts",
+      "parentId": "file:.agents/packages/core/src/persistence/index.ts",
+      "summary": "Function saveConfig",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:.agents/packages/core/src/persistence/index.ts:loadConfig",
+      "name": "loadConfig",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/persistence/index.ts",
+      "parentId": "file:.agents/packages/core/src/persistence/index.ts",
+      "summary": "Function loadConfig",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:.agents/packages/core/src/persistence/index.ts:saveDomainGraph",
+      "name": "saveDomainGraph",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/persistence/index.ts",
+      "parentId": "file:.agents/packages/core/src/persistence/index.ts",
+      "summary": "Function saveDomainGraph",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:.agents/packages/core/src/persistence/index.ts:loadDomainGraph",
+      "name": "loadDomainGraph",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/persistence/index.ts",
+      "parentId": "file:.agents/packages/core/src/persistence/index.ts",
+      "summary": "Function loadDomainGraph",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:.agents/packages/core/src/persistence/persistence.test.ts",
+      "name": "persistence.test.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/persistence/persistence.test.ts",
+      "summary": "typescript code file (246 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:.agents/packages/core/src/plugins/discovery.ts",
+      "name": "discovery.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/plugins/discovery.ts",
+      "summary": "typescript code file (68 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:.agents/packages/core/src/plugins/discovery.ts:parsePluginConfig",
+      "name": "parsePluginConfig",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/plugins/discovery.ts",
+      "parentId": "file:.agents/packages/core/src/plugins/discovery.ts",
+      "summary": "Function parsePluginConfig",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:.agents/packages/core/src/plugins/discovery.ts:serializePluginConfig",
+      "name": "serializePluginConfig",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/plugins/discovery.ts",
+      "parentId": "file:.agents/packages/core/src/plugins/discovery.ts",
+      "summary": "Function serializePluginConfig",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:.agents/packages/core/src/plugins/extractors/__tests__/cpp-extractor.test.ts",
+      "name": "cpp-extractor.test.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/plugins/extractors/__tests__/cpp-extractor.test.ts",
+      "summary": "typescript code file (709 lines)",
+      "complexity": "complex",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:.agents/packages/core/src/plugins/extractors/__tests__/cpp-extractor.test.ts:parse",
+      "name": "parse",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/plugins/extractors/__tests__/cpp-extractor.test.ts",
+      "parentId": "file:.agents/packages/core/src/plugins/extractors/__tests__/cpp-extractor.test.ts",
+      "summary": "Function parse",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:.agents/packages/core/src/plugins/extractors/__tests__/csharp-extractor.test.ts",
+      "name": "csharp-extractor.test.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/plugins/extractors/__tests__/csharp-extractor.test.ts",
+      "summary": "typescript code file (704 lines)",
+      "complexity": "complex",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:.agents/packages/core/src/plugins/extractors/__tests__/csharp-extractor.test.ts:parse",
+      "name": "parse",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/plugins/extractors/__tests__/csharp-extractor.test.ts",
+      "parentId": "file:.agents/packages/core/src/plugins/extractors/__tests__/csharp-extractor.test.ts",
+      "summary": "Function parse",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:.agents/packages/core/src/plugins/extractors/__tests__/dart-extractor.test.ts",
+      "name": "dart-extractor.test.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/plugins/extractors/__tests__/dart-extractor.test.ts",
+      "summary": "typescript code file (675 lines)",
+      "complexity": "complex",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:.agents/packages/core/src/plugins/extractors/__tests__/dart-extractor.test.ts:parse",
+      "name": "parse",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/plugins/extractors/__tests__/dart-extractor.test.ts",
+      "parentId": "file:.agents/packages/core/src/plugins/extractors/__tests__/dart-extractor.test.ts",
+      "summary": "Function parse",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:.agents/packages/core/src/plugins/extractors/__tests__/go-extractor.test.ts",
+      "name": "go-extractor.test.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/plugins/extractors/__tests__/go-extractor.test.ts",
+      "summary": "typescript code file (616 lines)",
+      "complexity": "complex",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:.agents/packages/core/src/plugins/extractors/__tests__/go-extractor.test.ts:parse",
+      "name": "parse",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/plugins/extractors/__tests__/go-extractor.test.ts",
+      "parentId": "file:.agents/packages/core/src/plugins/extractors/__tests__/go-extractor.test.ts",
+      "summary": "Function parse",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:.agents/packages/core/src/plugins/extractors/__tests__/java-extractor.test.ts",
+      "name": "java-extractor.test.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/plugins/extractors/__tests__/java-extractor.test.ts",
+      "summary": "typescript code file (603 lines)",
+      "complexity": "complex",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:.agents/packages/core/src/plugins/extractors/__tests__/java-extractor.test.ts:parse",
+      "name": "parse",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/plugins/extractors/__tests__/java-extractor.test.ts",
+      "parentId": "file:.agents/packages/core/src/plugins/extractors/__tests__/java-extractor.test.ts",
+      "summary": "Function parse",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:.agents/packages/core/src/plugins/extractors/__tests__/kotlin-extractor.test.ts",
+      "name": "kotlin-extractor.test.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/plugins/extractors/__tests__/kotlin-extractor.test.ts",
+      "summary": "typescript code file (364 lines)",
+      "complexity": "complex",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:.agents/packages/core/src/plugins/extractors/__tests__/kotlin-extractor.test.ts:parse",
+      "name": "parse",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/plugins/extractors/__tests__/kotlin-extractor.test.ts",
+      "parentId": "file:.agents/packages/core/src/plugins/extractors/__tests__/kotlin-extractor.test.ts",
+      "summary": "Function parse",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:.agents/packages/core/src/plugins/extractors/__tests__/php-extractor.test.ts",
+      "name": "php-extractor.test.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/plugins/extractors/__tests__/php-extractor.test.ts",
+      "summary": "typescript code file (676 lines)",
+      "complexity": "complex",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:.agents/packages/core/src/plugins/extractors/__tests__/php-extractor.test.ts:parse",
+      "name": "parse",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/plugins/extractors/__tests__/php-extractor.test.ts",
+      "parentId": "file:.agents/packages/core/src/plugins/extractors/__tests__/php-extractor.test.ts",
+      "summary": "Function parse",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:.agents/packages/core/src/plugins/extractors/__tests__/python-extractor.test.ts",
+      "name": "python-extractor.test.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/plugins/extractors/__tests__/python-extractor.test.ts",
+      "summary": "typescript code file (659 lines)",
+      "complexity": "complex",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:.agents/packages/core/src/plugins/extractors/__tests__/python-extractor.test.ts:parse",
+      "name": "parse",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/plugins/extractors/__tests__/python-extractor.test.ts",
+      "parentId": "file:.agents/packages/core/src/plugins/extractors/__tests__/python-extractor.test.ts",
+      "summary": "Function parse",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:.agents/packages/core/src/plugins/extractors/__tests__/ruby-extractor.test.ts",
+      "name": "ruby-extractor.test.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/plugins/extractors/__tests__/ruby-extractor.test.ts",
+      "summary": "typescript code file (688 lines)",
+      "complexity": "complex",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:.agents/packages/core/src/plugins/extractors/__tests__/ruby-extractor.test.ts:parse",
+      "name": "parse",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/plugins/extractors/__tests__/ruby-extractor.test.ts",
+      "parentId": "file:.agents/packages/core/src/plugins/extractors/__tests__/ruby-extractor.test.ts",
+      "summary": "Function parse",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:.agents/packages/core/src/plugins/extractors/__tests__/rust-extractor.test.ts",
+      "name": "rust-extractor.test.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/plugins/extractors/__tests__/rust-extractor.test.ts",
+      "summary": "typescript code file (771 lines)",
+      "complexity": "complex",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:.agents/packages/core/src/plugins/extractors/__tests__/rust-extractor.test.ts:parse",
+      "name": "parse",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/plugins/extractors/__tests__/rust-extractor.test.ts",
+      "parentId": "file:.agents/packages/core/src/plugins/extractors/__tests__/rust-extractor.test.ts",
+      "summary": "Function parse",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:.agents/packages/core/src/plugins/extractors/__tests__/scala-extractor.test.ts",
+      "name": "scala-extractor.test.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/plugins/extractors/__tests__/scala-extractor.test.ts",
+      "summary": "typescript code file (537 lines)",
+      "complexity": "complex",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:.agents/packages/core/src/plugins/extractors/__tests__/scala-extractor.test.ts:parse",
+      "name": "parse",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/plugins/extractors/__tests__/scala-extractor.test.ts",
+      "parentId": "file:.agents/packages/core/src/plugins/extractors/__tests__/scala-extractor.test.ts",
+      "summary": "Function parse",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:.agents/packages/core/src/plugins/extractors/__tests__/swift-extractor.test.ts",
+      "name": "swift-extractor.test.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/plugins/extractors/__tests__/swift-extractor.test.ts",
+      "summary": "typescript code file (464 lines)",
+      "complexity": "complex",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:.agents/packages/core/src/plugins/extractors/__tests__/swift-extractor.test.ts:parse",
+      "name": "parse",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/plugins/extractors/__tests__/swift-extractor.test.ts",
+      "parentId": "file:.agents/packages/core/src/plugins/extractors/__tests__/swift-extractor.test.ts",
+      "summary": "Function parse",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:.agents/packages/core/src/plugins/extractors/__tests__/swift-extractor.test.ts:withAnalysis",
+      "name": "withAnalysis",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/plugins/extractors/__tests__/swift-extractor.test.ts",
+      "parentId": "file:.agents/packages/core/src/plugins/extractors/__tests__/swift-extractor.test.ts",
+      "summary": "Function withAnalysis",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:.agents/packages/core/src/plugins/extractors/__tests__/swift-extractor.test.ts:withCalls",
+      "name": "withCalls",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/plugins/extractors/__tests__/swift-extractor.test.ts",
+      "parentId": "file:.agents/packages/core/src/plugins/extractors/__tests__/swift-extractor.test.ts",
+      "summary": "Function withCalls",
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:.agents/packages/core/src/languages/language-registry.ts",
+      "target": "class:.agents/packages/core/src/languages/language-registry.ts:LanguageRegistry",
+      "type": "contains"
+    },
+    {
+      "source": "function:.agents/packages/core/src/languages/language-registry.ts:register",
+      "target": "function:.agents/packages/core/src/languages/language-registry.ts:LanguageConfigSchema.parse",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/languages/language-registry.ts:register",
+      "target": "function:.agents/packages/core/src/languages/language-registry.ts:this.byId.set",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/languages/language-registry.ts:register",
+      "target": "function:.agents/packages/core/src/languages/language-registry.ts:ext.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/languages/language-registry.ts:register",
+      "target": "function:.agents/packages/core/src/languages/language-registry.ts:this.byExtension.set",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/languages/language-registry.ts:register",
+      "target": "function:.agents/packages/core/src/languages/language-registry.ts:this.byFilename.set",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/languages/language-registry.ts:register",
+      "target": "function:.agents/packages/core/src/languages/language-registry.ts:filename.toLowerCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/languages/language-registry.ts:getById",
+      "target": "function:.agents/packages/core/src/languages/language-registry.ts:this.byId.get",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/languages/language-registry.ts:getByExtension",
+      "target": "function:.agents/packages/core/src/languages/language-registry.ts:(ext.startsWith(\".\") ? ext : `.${ext}`).toLowerCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/languages/language-registry.ts:getByExtension",
+      "target": "function:.agents/packages/core/src/languages/language-registry.ts:ext.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/languages/language-registry.ts:getByExtension",
+      "target": "function:.agents/packages/core/src/languages/language-registry.ts:this.byExtension.get",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/languages/language-registry.ts:getForFile",
+      "target": "function:.agents/packages/core/src/languages/language-registry.ts:filePath.split(\"/\").pop",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/languages/language-registry.ts:getForFile",
+      "target": "function:.agents/packages/core/src/languages/language-registry.ts:filePath.split",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/languages/language-registry.ts:getForFile",
+      "target": "function:.agents/packages/core/src/languages/language-registry.ts:this.byFilename.get",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/languages/language-registry.ts:getForFile",
+      "target": "function:.agents/packages/core/src/languages/language-registry.ts:basename.toLowerCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/languages/language-registry.ts:getForFile",
+      "target": "function:.agents/packages/core/src/languages/language-registry.ts:filePath.lastIndexOf",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/languages/language-registry.ts:getForFile",
+      "target": "function:.agents/packages/core/src/languages/language-registry.ts:filePath.slice(lastDot).toLowerCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/languages/language-registry.ts:getForFile",
+      "target": "function:.agents/packages/core/src/languages/language-registry.ts:filePath.slice",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/languages/language-registry.ts:getForFile",
+      "target": "function:.agents/packages/core/src/languages/language-registry.ts:this.getByExtension",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/languages/language-registry.ts:getAllLanguages",
+      "target": "function:.agents/packages/core/src/languages/language-registry.ts:this.byId.values",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/languages/language-registry.ts:createDefault",
+      "target": "function:.agents/packages/core/src/languages/language-registry.ts:registry.register",
+      "type": "calls"
+    },
+    {
+      "source": "file:.agents/packages/core/src/persistence/index.ts",
+      "target": "function:.agents/packages/core/src/persistence/index.ts:resolveUaDirName",
+      "type": "contains"
+    },
+    {
+      "source": "file:.agents/packages/core/src/persistence/index.ts",
+      "target": "function:.agents/packages/core/src/persistence/index.ts:resolveUaDir",
+      "type": "contains"
+    },
+    {
+      "source": "file:.agents/packages/core/src/persistence/index.ts",
+      "target": "function:.agents/packages/core/src/persistence/index.ts:ensureDir",
+      "type": "contains"
+    },
+    {
+      "source": "file:.agents/packages/core/src/persistence/index.ts",
+      "target": "function:.agents/packages/core/src/persistence/index.ts:sanitiseFilePaths",
+      "type": "contains"
+    },
+    {
+      "source": "file:.agents/packages/core/src/persistence/index.ts",
+      "target": "function:.agents/packages/core/src/persistence/index.ts:saveGraph",
+      "type": "contains"
+    },
+    {
+      "source": "file:.agents/packages/core/src/persistence/index.ts",
+      "target": "function:.agents/packages/core/src/persistence/index.ts:loadGraph",
+      "type": "contains"
+    },
+    {
+      "source": "file:.agents/packages/core/src/persistence/index.ts",
+      "target": "function:.agents/packages/core/src/persistence/index.ts:saveMeta",
+      "type": "contains"
+    },
+    {
+      "source": "file:.agents/packages/core/src/persistence/index.ts",
+      "target": "function:.agents/packages/core/src/persistence/index.ts:loadMeta",
+      "type": "contains"
+    },
+    {
+      "source": "file:.agents/packages/core/src/persistence/index.ts",
+      "target": "function:.agents/packages/core/src/persistence/index.ts:saveFingerprints",
+      "type": "contains"
+    },
+    {
+      "source": "file:.agents/packages/core/src/persistence/index.ts",
+      "target": "function:.agents/packages/core/src/persistence/index.ts:loadFingerprints",
+      "type": "contains"
+    },
+    {
+      "source": "file:.agents/packages/core/src/persistence/index.ts",
+      "target": "function:.agents/packages/core/src/persistence/index.ts:saveConfig",
+      "type": "contains"
+    },
+    {
+      "source": "file:.agents/packages/core/src/persistence/index.ts",
+      "target": "function:.agents/packages/core/src/persistence/index.ts:loadConfig",
+      "type": "contains"
+    },
+    {
+      "source": "file:.agents/packages/core/src/persistence/index.ts",
+      "target": "function:.agents/packages/core/src/persistence/index.ts:saveDomainGraph",
+      "type": "contains"
+    },
+    {
+      "source": "file:.agents/packages/core/src/persistence/index.ts",
+      "target": "function:.agents/packages/core/src/persistence/index.ts:loadDomainGraph",
+      "type": "contains"
+    },
+    {
+      "source": "function:.agents/packages/core/src/persistence/index.ts:resolveUaDirName",
+      "target": "function:.agents/packages/core/src/persistence/index.ts:existsSync",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/persistence/index.ts:resolveUaDirName",
+      "target": "function:.agents/packages/core/src/persistence/index.ts:join",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/persistence/index.ts:resolveUaDir",
+      "target": "function:.agents/packages/core/src/persistence/index.ts:join",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/persistence/index.ts:resolveUaDir",
+      "target": "function:.agents/packages/core/src/persistence/index.ts:resolveUaDirName",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/persistence/index.ts:ensureDir",
+      "target": "function:.agents/packages/core/src/persistence/index.ts:resolveUaDir",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/persistence/index.ts:ensureDir",
+      "target": "function:.agents/packages/core/src/persistence/index.ts:existsSync",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/persistence/index.ts:ensureDir",
+      "target": "function:.agents/packages/core/src/persistence/index.ts:mkdirSync",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/persistence/index.ts:sanitiseFilePaths",
+      "target": "function:.agents/packages/core/src/persistence/index.ts:projectRoot.endsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/persistence/index.ts:sanitiseFilePaths",
+      "target": "function:.agents/packages/core/src/persistence/index.ts:graph.nodes.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/persistence/index.ts:sanitiseFilePaths",
+      "target": "function:.agents/packages/core/src/persistence/index.ts:isAbsolute",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/persistence/index.ts:sanitiseFilePaths",
+      "target": "function:.agents/packages/core/src/persistence/index.ts:fp.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/persistence/index.ts:sanitiseFilePaths",
+      "target": "function:.agents/packages/core/src/persistence/index.ts:fp.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/persistence/index.ts:sanitiseFilePaths",
+      "target": "function:.agents/packages/core/src/persistence/index.ts:relative",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/persistence/index.ts:sanitiseFilePaths",
+      "target": "function:.agents/packages/core/src/persistence/index.ts:basename",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/persistence/index.ts:saveGraph",
+      "target": "function:.agents/packages/core/src/persistence/index.ts:ensureDir",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/persistence/index.ts:saveGraph",
+      "target": "function:.agents/packages/core/src/persistence/index.ts:sanitiseFilePaths",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/persistence/index.ts:saveGraph",
+      "target": "function:.agents/packages/core/src/persistence/index.ts:writeFileSync",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/persistence/index.ts:saveGraph",
+      "target": "function:.agents/packages/core/src/persistence/index.ts:join",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/persistence/index.ts:saveGraph",
+      "target": "function:.agents/packages/core/src/persistence/index.ts:JSON.stringify",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/persistence/index.ts:loadGraph",
+      "target": "function:.agents/packages/core/src/persistence/index.ts:join",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/persistence/index.ts:loadGraph",
+      "target": "function:.agents/packages/core/src/persistence/index.ts:resolveUaDir",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/persistence/index.ts:loadGraph",
+      "target": "function:.agents/packages/core/src/persistence/index.ts:existsSync",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/persistence/index.ts:loadGraph",
+      "target": "function:.agents/packages/core/src/persistence/index.ts:JSON.parse",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/persistence/index.ts:loadGraph",
+      "target": "function:.agents/packages/core/src/persistence/index.ts:readFileSync",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/persistence/index.ts:loadGraph",
+      "target": "function:.agents/packages/core/src/persistence/index.ts:validateGraph",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/persistence/index.ts:saveMeta",
+      "target": "function:.agents/packages/core/src/persistence/index.ts:ensureDir",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/persistence/index.ts:saveMeta",
+      "target": "function:.agents/packages/core/src/persistence/index.ts:writeFileSync",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/persistence/index.ts:saveMeta",
+      "target": "function:.agents/packages/core/src/persistence/index.ts:join",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/persistence/index.ts:saveMeta",
+      "target": "function:.agents/packages/core/src/persistence/index.ts:JSON.stringify",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/persistence/index.ts:loadMeta",
+      "target": "function:.agents/packages/core/src/persistence/index.ts:join",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/persistence/index.ts:loadMeta",
+      "target": "function:.agents/packages/core/src/persistence/index.ts:resolveUaDir",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/persistence/index.ts:loadMeta",
+      "target": "function:.agents/packages/core/src/persistence/index.ts:existsSync",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/persistence/index.ts:loadMeta",
+      "target": "function:.agents/packages/core/src/persistence/index.ts:JSON.parse",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/persistence/index.ts:loadMeta",
+      "target": "function:.agents/packages/core/src/persistence/index.ts:readFileSync",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/persistence/index.ts:saveFingerprints",
+      "target": "function:.agents/packages/core/src/persistence/index.ts:ensureDir",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/persistence/index.ts:saveFingerprints",
+      "target": "function:.agents/packages/core/src/persistence/index.ts:writeFileSync",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/persistence/index.ts:saveFingerprints",
+      "target": "function:.agents/packages/core/src/persistence/index.ts:join",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/persistence/index.ts:saveFingerprints",
+      "target": "function:.agents/packages/core/src/persistence/index.ts:JSON.stringify",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/persistence/index.ts:loadFingerprints",
+      "target": "function:.agents/packages/core/src/persistence/index.ts:join",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/persistence/index.ts:loadFingerprints",
+      "target": "function:.agents/packages/core/src/persistence/index.ts:resolveUaDir",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/persistence/index.ts:loadFingerprints",
+      "target": "function:.agents/packages/core/src/persistence/index.ts:existsSync",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/persistence/index.ts:loadFingerprints",
+      "target": "function:.agents/packages/core/src/persistence/index.ts:JSON.parse",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/persistence/index.ts:loadFingerprints",
+      "target": "function:.agents/packages/core/src/persistence/index.ts:readFileSync",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/persistence/index.ts:saveConfig",
+      "target": "function:.agents/packages/core/src/persistence/index.ts:ensureDir",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/persistence/index.ts:saveConfig",
+      "target": "function:.agents/packages/core/src/persistence/index.ts:writeFileSync",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/persistence/index.ts:saveConfig",
+      "target": "function:.agents/packages/core/src/persistence/index.ts:join",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/persistence/index.ts:saveConfig",
+      "target": "function:.agents/packages/core/src/persistence/index.ts:JSON.stringify",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/persistence/index.ts:loadConfig",
+      "target": "function:.agents/packages/core/src/persistence/index.ts:join",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/persistence/index.ts:loadConfig",
+      "target": "function:.agents/packages/core/src/persistence/index.ts:resolveUaDir",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/persistence/index.ts:loadConfig",
+      "target": "function:.agents/packages/core/src/persistence/index.ts:existsSync",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/persistence/index.ts:loadConfig",
+      "target": "function:.agents/packages/core/src/persistence/index.ts:JSON.parse",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/persistence/index.ts:loadConfig",
+      "target": "function:.agents/packages/core/src/persistence/index.ts:readFileSync",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/persistence/index.ts:saveDomainGraph",
+      "target": "function:.agents/packages/core/src/persistence/index.ts:ensureDir",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/persistence/index.ts:saveDomainGraph",
+      "target": "function:.agents/packages/core/src/persistence/index.ts:sanitiseFilePaths",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/persistence/index.ts:saveDomainGraph",
+      "target": "function:.agents/packages/core/src/persistence/index.ts:writeFileSync",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/persistence/index.ts:saveDomainGraph",
+      "target": "function:.agents/packages/core/src/persistence/index.ts:join",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/persistence/index.ts:saveDomainGraph",
+      "target": "function:.agents/packages/core/src/persistence/index.ts:JSON.stringify",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/persistence/index.ts:loadDomainGraph",
+      "target": "function:.agents/packages/core/src/persistence/index.ts:join",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/persistence/index.ts:loadDomainGraph",
+      "target": "function:.agents/packages/core/src/persistence/index.ts:resolveUaDir",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/persistence/index.ts:loadDomainGraph",
+      "target": "function:.agents/packages/core/src/persistence/index.ts:existsSync",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/persistence/index.ts:loadDomainGraph",
+      "target": "function:.agents/packages/core/src/persistence/index.ts:JSON.parse",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/persistence/index.ts:loadDomainGraph",
+      "target": "function:.agents/packages/core/src/persistence/index.ts:readFileSync",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/persistence/index.ts:loadDomainGraph",
+      "target": "function:.agents/packages/core/src/persistence/index.ts:validateGraph",
+      "type": "calls"
+    },
+    {
+      "source": "file:.agents/packages/core/src/plugins/discovery.ts",
+      "target": "function:.agents/packages/core/src/plugins/discovery.ts:parsePluginConfig",
+      "type": "contains"
+    },
+    {
+      "source": "file:.agents/packages/core/src/plugins/discovery.ts",
+      "target": "function:.agents/packages/core/src/plugins/discovery.ts:serializePluginConfig",
+      "type": "contains"
+    },
+    {
+      "source": "function:.agents/packages/core/src/plugins/discovery.ts:parsePluginConfig",
+      "target": "function:.agents/packages/core/src/plugins/discovery.ts:jsonString.trim",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/plugins/discovery.ts:parsePluginConfig",
+      "target": "function:.agents/packages/core/src/plugins/discovery.ts:JSON.parse",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/plugins/discovery.ts:parsePluginConfig",
+      "target": "function:.agents/packages/core/src/plugins/discovery.ts:Array.isArray",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/plugins/discovery.ts:parsePluginConfig",
+      "target": "function:.agents/packages/core/src/plugins/discovery.ts:parsed.plugins\r\n      .filter((entry: unknown): entry is Record<string, unknown> => {\r\n        if (typeof entry !== \"object\" || entry === null) return false;\r\n        const e = entry as Record<string, unknown>;\r\n        return (\r\n          typeof e.name === \"string\" &&\r\n          e.name.length > 0 &&\r\n          Array.isArray(e.languages) &&\r\n          e.languages.length > 0\r\n        );\r\n      })\r\n      .map",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/plugins/discovery.ts:parsePluginConfig",
+      "target": "function:.agents/packages/core/src/plugins/discovery.ts:parsed.plugins\r\n      .filter",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/plugins/discovery.ts:parsePluginConfig",
+      "target": "function:.agents/packages/core/src/plugins/discovery.ts:Array.isArray",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/plugins/discovery.ts:serializePluginConfig",
+      "target": "function:.agents/packages/core/src/plugins/discovery.ts:JSON.stringify",
+      "type": "calls"
+    },
+    {
+      "source": "file:.agents/packages/core/src/plugins/extractors/__tests__/cpp-extractor.test.ts",
+      "target": "function:.agents/packages/core/src/plugins/extractors/__tests__/cpp-extractor.test.ts:parse",
+      "type": "contains"
+    },
+    {
+      "source": "function:.agents/packages/core/src/plugins/extractors/__tests__/cpp-extractor.test.ts:parse",
+      "target": "function:.agents/packages/core/src/plugins/extractors/__tests__/cpp-extractor.test.ts:parser.setLanguage",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/plugins/extractors/__tests__/cpp-extractor.test.ts:parse",
+      "target": "function:.agents/packages/core/src/plugins/extractors/__tests__/cpp-extractor.test.ts:parser.parse",
+      "type": "calls"
+    },
+    {
+      "source": "file:.agents/packages/core/src/plugins/extractors/__tests__/csharp-extractor.test.ts",
+      "target": "function:.agents/packages/core/src/plugins/extractors/__tests__/csharp-extractor.test.ts:parse",
+      "type": "contains"
+    },
+    {
+      "source": "function:.agents/packages/core/src/plugins/extractors/__tests__/csharp-extractor.test.ts:parse",
+      "target": "function:.agents/packages/core/src/plugins/extractors/__tests__/csharp-extractor.test.ts:parser.setLanguage",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/plugins/extractors/__tests__/csharp-extractor.test.ts:parse",
+      "target": "function:.agents/packages/core/src/plugins/extractors/__tests__/csharp-extractor.test.ts:parser.parse",
+      "type": "calls"
+    },
+    {
+      "source": "file:.agents/packages/core/src/plugins/extractors/__tests__/dart-extractor.test.ts",
+      "target": "function:.agents/packages/core/src/plugins/extractors/__tests__/dart-extractor.test.ts:parse",
+      "type": "contains"
+    },
+    {
+      "source": "function:.agents/packages/core/src/plugins/extractors/__tests__/dart-extractor.test.ts:parse",
+      "target": "function:.agents/packages/core/src/plugins/extractors/__tests__/dart-extractor.test.ts:parser.setLanguage",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/plugins/extractors/__tests__/dart-extractor.test.ts:parse",
+      "target": "function:.agents/packages/core/src/plugins/extractors/__tests__/dart-extractor.test.ts:parser.parse",
+      "type": "calls"
+    },
+    {
+      "source": "file:.agents/packages/core/src/plugins/extractors/__tests__/go-extractor.test.ts",
+      "target": "function:.agents/packages/core/src/plugins/extractors/__tests__/go-extractor.test.ts:parse",
+      "type": "contains"
+    },
+    {
+      "source": "function:.agents/packages/core/src/plugins/extractors/__tests__/go-extractor.test.ts:parse",
+      "target": "function:.agents/packages/core/src/plugins/extractors/__tests__/go-extractor.test.ts:parser.setLanguage",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/plugins/extractors/__tests__/go-extractor.test.ts:parse",
+      "target": "function:.agents/packages/core/src/plugins/extractors/__tests__/go-extractor.test.ts:parser.parse",
+      "type": "calls"
+    },
+    {
+      "source": "file:.agents/packages/core/src/plugins/extractors/__tests__/java-extractor.test.ts",
+      "target": "function:.agents/packages/core/src/plugins/extractors/__tests__/java-extractor.test.ts:parse",
+      "type": "contains"
+    },
+    {
+      "source": "function:.agents/packages/core/src/plugins/extractors/__tests__/java-extractor.test.ts:parse",
+      "target": "function:.agents/packages/core/src/plugins/extractors/__tests__/java-extractor.test.ts:parser.setLanguage",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/plugins/extractors/__tests__/java-extractor.test.ts:parse",
+      "target": "function:.agents/packages/core/src/plugins/extractors/__tests__/java-extractor.test.ts:parser.parse",
+      "type": "calls"
+    },
+    {
+      "source": "file:.agents/packages/core/src/plugins/extractors/__tests__/kotlin-extractor.test.ts",
+      "target": "function:.agents/packages/core/src/plugins/extractors/__tests__/kotlin-extractor.test.ts:parse",
+      "type": "contains"
+    },
+    {
+      "source": "function:.agents/packages/core/src/plugins/extractors/__tests__/kotlin-extractor.test.ts:parse",
+      "target": "function:.agents/packages/core/src/plugins/extractors/__tests__/kotlin-extractor.test.ts:parser.setLanguage",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/plugins/extractors/__tests__/kotlin-extractor.test.ts:parse",
+      "target": "function:.agents/packages/core/src/plugins/extractors/__tests__/kotlin-extractor.test.ts:parser.parse",
+      "type": "calls"
+    },
+    {
+      "source": "file:.agents/packages/core/src/plugins/extractors/__tests__/php-extractor.test.ts",
+      "target": "function:.agents/packages/core/src/plugins/extractors/__tests__/php-extractor.test.ts:parse",
+      "type": "contains"
+    },
+    {
+      "source": "function:.agents/packages/core/src/plugins/extractors/__tests__/php-extractor.test.ts:parse",
+      "target": "function:.agents/packages/core/src/plugins/extractors/__tests__/php-extractor.test.ts:parser.setLanguage",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/plugins/extractors/__tests__/php-extractor.test.ts:parse",
+      "target": "function:.agents/packages/core/src/plugins/extractors/__tests__/php-extractor.test.ts:parser.parse",
+      "type": "calls"
+    },
+    {
+      "source": "file:.agents/packages/core/src/plugins/extractors/__tests__/python-extractor.test.ts",
+      "target": "function:.agents/packages/core/src/plugins/extractors/__tests__/python-extractor.test.ts:parse",
+      "type": "contains"
+    },
+    {
+      "source": "function:.agents/packages/core/src/plugins/extractors/__tests__/python-extractor.test.ts:parse",
+      "target": "function:.agents/packages/core/src/plugins/extractors/__tests__/python-extractor.test.ts:parser.setLanguage",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/plugins/extractors/__tests__/python-extractor.test.ts:parse",
+      "target": "function:.agents/packages/core/src/plugins/extractors/__tests__/python-extractor.test.ts:parser.parse",
+      "type": "calls"
+    },
+    {
+      "source": "file:.agents/packages/core/src/plugins/extractors/__tests__/ruby-extractor.test.ts",
+      "target": "function:.agents/packages/core/src/plugins/extractors/__tests__/ruby-extractor.test.ts:parse",
+      "type": "contains"
+    },
+    {
+      "source": "function:.agents/packages/core/src/plugins/extractors/__tests__/ruby-extractor.test.ts:parse",
+      "target": "function:.agents/packages/core/src/plugins/extractors/__tests__/ruby-extractor.test.ts:parser.setLanguage",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/plugins/extractors/__tests__/ruby-extractor.test.ts:parse",
+      "target": "function:.agents/packages/core/src/plugins/extractors/__tests__/ruby-extractor.test.ts:parser.parse",
+      "type": "calls"
+    },
+    {
+      "source": "file:.agents/packages/core/src/plugins/extractors/__tests__/rust-extractor.test.ts",
+      "target": "function:.agents/packages/core/src/plugins/extractors/__tests__/rust-extractor.test.ts:parse",
+      "type": "contains"
+    },
+    {
+      "source": "function:.agents/packages/core/src/plugins/extractors/__tests__/rust-extractor.test.ts:parse",
+      "target": "function:.agents/packages/core/src/plugins/extractors/__tests__/rust-extractor.test.ts:parser.setLanguage",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/plugins/extractors/__tests__/rust-extractor.test.ts:parse",
+      "target": "function:.agents/packages/core/src/plugins/extractors/__tests__/rust-extractor.test.ts:parser.parse",
+      "type": "calls"
+    },
+    {
+      "source": "file:.agents/packages/core/src/plugins/extractors/__tests__/scala-extractor.test.ts",
+      "target": "function:.agents/packages/core/src/plugins/extractors/__tests__/scala-extractor.test.ts:parse",
+      "type": "contains"
+    },
+    {
+      "source": "function:.agents/packages/core/src/plugins/extractors/__tests__/scala-extractor.test.ts:parse",
+      "target": "function:.agents/packages/core/src/plugins/extractors/__tests__/scala-extractor.test.ts:parser.setLanguage",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/plugins/extractors/__tests__/scala-extractor.test.ts:parse",
+      "target": "function:.agents/packages/core/src/plugins/extractors/__tests__/scala-extractor.test.ts:parser.parse",
+      "type": "calls"
+    },
+    {
+      "source": "file:.agents/packages/core/src/plugins/extractors/__tests__/swift-extractor.test.ts",
+      "target": "function:.agents/packages/core/src/plugins/extractors/__tests__/swift-extractor.test.ts:parse",
+      "type": "contains"
+    },
+    {
+      "source": "file:.agents/packages/core/src/plugins/extractors/__tests__/swift-extractor.test.ts",
+      "target": "function:.agents/packages/core/src/plugins/extractors/__tests__/swift-extractor.test.ts:withAnalysis",
+      "type": "contains"
+    },
+    {
+      "source": "file:.agents/packages/core/src/plugins/extractors/__tests__/swift-extractor.test.ts",
+      "target": "function:.agents/packages/core/src/plugins/extractors/__tests__/swift-extractor.test.ts:withCalls",
+      "type": "contains"
+    },
+    {
+      "source": "function:.agents/packages/core/src/plugins/extractors/__tests__/swift-extractor.test.ts:parse",
+      "target": "function:.agents/packages/core/src/plugins/extractors/__tests__/swift-extractor.test.ts:parser.setLanguage",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/plugins/extractors/__tests__/swift-extractor.test.ts:parse",
+      "target": "function:.agents/packages/core/src/plugins/extractors/__tests__/swift-extractor.test.ts:parser.parse",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/plugins/extractors/__tests__/swift-extractor.test.ts:withAnalysis",
+      "target": "function:.agents/packages/core/src/plugins/extractors/__tests__/swift-extractor.test.ts:parse",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/plugins/extractors/__tests__/swift-extractor.test.ts:withAnalysis",
+      "target": "function:.agents/packages/core/src/plugins/extractors/__tests__/swift-extractor.test.ts:fn",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/plugins/extractors/__tests__/swift-extractor.test.ts:withAnalysis",
+      "target": "function:.agents/packages/core/src/plugins/extractors/__tests__/swift-extractor.test.ts:extractor.extractStructure",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/plugins/extractors/__tests__/swift-extractor.test.ts:withAnalysis",
+      "target": "function:.agents/packages/core/src/plugins/extractors/__tests__/swift-extractor.test.ts:tree.delete",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/plugins/extractors/__tests__/swift-extractor.test.ts:withAnalysis",
+      "target": "function:.agents/packages/core/src/plugins/extractors/__tests__/swift-extractor.test.ts:parser.delete",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/plugins/extractors/__tests__/swift-extractor.test.ts:withCalls",
+      "target": "function:.agents/packages/core/src/plugins/extractors/__tests__/swift-extractor.test.ts:parse",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/plugins/extractors/__tests__/swift-extractor.test.ts:withCalls",
+      "target": "function:.agents/packages/core/src/plugins/extractors/__tests__/swift-extractor.test.ts:fn",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/plugins/extractors/__tests__/swift-extractor.test.ts:withCalls",
+      "target": "function:.agents/packages/core/src/plugins/extractors/__tests__/swift-extractor.test.ts:extractor.extractCallGraph",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/plugins/extractors/__tests__/swift-extractor.test.ts:withCalls",
+      "target": "function:.agents/packages/core/src/plugins/extractors/__tests__/swift-extractor.test.ts:tree.delete",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/plugins/extractors/__tests__/swift-extractor.test.ts:withCalls",
+      "target": "function:.agents/packages/core/src/plugins/extractors/__tests__/swift-extractor.test.ts:parser.delete",
+      "type": "calls"
+    }
+  ]
+}

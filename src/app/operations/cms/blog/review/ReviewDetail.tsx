@@ -11,6 +11,7 @@ import {
   rejectPost,
 } from '../actions';
 import type { BlogPostRow, BlogRevisionRow } from '../actions';
+import { sanitizeHtml } from '@/lib/security/sanitize';
 
 interface ReviewDetailPageProps {
   postId: string;
@@ -122,7 +123,9 @@ export default function ReviewDetailPage({ postId }: ReviewDetailPageProps) {
           <div className="max-h-[60vh] overflow-y-auto p-5">
             <article
               className="prose prose-stone prose-invert max-w-none"
-              dangerouslySetInnerHTML={{ __html: revisionContent }}
+              dangerouslySetInnerHTML={{
+                __html: sanitizeHtml(revisionContent),
+              }}
             />
           </div>
         </div>
@@ -143,7 +146,7 @@ export default function ReviewDetailPage({ postId }: ReviewDetailPageProps) {
             {post.is_published && post.content ? (
               <article
                 className="prose prose-stone prose-invert max-w-none"
-                dangerouslySetInnerHTML={{ __html: post.content }}
+                dangerouslySetInnerHTML={{ __html: sanitizeHtml(post.content) }}
               />
             ) : (
               <div className="flex h-full min-h-[200px] items-center justify-center text-sm text-slate-500">

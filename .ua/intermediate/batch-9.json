@@ -1,0 +1,829 @@
+{
+  "batchIndex": 9,
+  "batchFiles": [
+    {
+      "path": ".agents/AGENTS.md",
+      "language": "markdown",
+      "sizeLines": 15,
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".agents/mcp_config.json",
+      "language": "json",
+      "sizeLines": 13,
+      "fileCategory": "config"
+    },
+    {
+      "path": ".agents/packages/core/package.json",
+      "language": "json",
+      "sizeLines": 64,
+      "fileCategory": "config"
+    },
+    {
+      "path": ".agents/packages/core/src/__tests__/change-classifier.test.ts",
+      "language": "typescript",
+      "sizeLines": 247,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/__tests__/config-schema.test.ts",
+      "language": "typescript",
+      "sizeLines": 518,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/__tests__/domain-normalize.test.ts",
+      "language": "typescript",
+      "sizeLines": 46,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/__tests__/domain-persistence.test.ts",
+      "language": "typescript",
+      "sizeLines": 64,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/__tests__/domain-types.test.ts",
+      "language": "typescript",
+      "sizeLines": 141,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/__tests__/embedding-search.test.ts",
+      "language": "typescript",
+      "sizeLines": 92,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/__tests__/fingerprint.test.ts",
+      "language": "typescript",
+      "sizeLines": 483,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/__tests__/framework-registry.test.ts",
+      "language": "typescript",
+      "sizeLines": 123,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/__tests__/graph-freshness-timeout.test.ts",
+      "language": "typescript",
+      "sizeLines": 56,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/__tests__/graph-freshness.integration.test.ts",
+      "language": "typescript",
+      "sizeLines": 485,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/__tests__/ignore-filter.test.ts",
+      "language": "typescript",
+      "sizeLines": 211,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/__tests__/ignore-generator.test.ts",
+      "language": "typescript",
+      "sizeLines": 474,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/__tests__/language-lesson.test.ts",
+      "language": "typescript",
+      "sizeLines": 157,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/__tests__/language-registry.test.ts",
+      "language": "typescript",
+      "sizeLines": 207,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/__tests__/layer-detector.test.ts",
+      "language": "typescript",
+      "sizeLines": 188,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/__tests__/normalize-graph.test.ts",
+      "language": "typescript",
+      "sizeLines": 498,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/__tests__/parsers.test.ts",
+      "language": "typescript",
+      "sizeLines": 629,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/__tests__/plugin-discovery.test.ts",
+      "language": "typescript",
+      "sizeLines": 119,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/__tests__/plugin-registry.test.ts",
+      "language": "typescript",
+      "sizeLines": 260,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/__tests__/schema.test.ts",
+      "language": "typescript",
+      "sizeLines": 836,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/__tests__/search.test.ts",
+      "language": "typescript",
+      "sizeLines": 158,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/__tests__/staleness.test.ts",
+      "language": "typescript",
+      "sizeLines": 257,
+      "fileCategory": "code"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "document:.agents/AGENTS.md",
+      "name": "AGENTS.md",
+      "type": "document",
+      "filePath": ".agents/AGENTS.md",
+      "summary": "markdown docs file (15 lines)",
+      "complexity": "simple",
+      "tags": [
+        "markdown",
+        "docs"
+      ]
+    },
+    {
+      "id": "config:.agents/mcp_config.json",
+      "name": "mcp_config.json",
+      "type": "config",
+      "filePath": ".agents/mcp_config.json",
+      "summary": "json config file (13 lines)",
+      "complexity": "simple",
+      "tags": [
+        "json",
+        "config"
+      ]
+    },
+    {
+      "id": "config:.agents/packages/core/package.json",
+      "name": "package.json",
+      "type": "config",
+      "filePath": ".agents/packages/core/package.json",
+      "summary": "json config file (64 lines)",
+      "complexity": "simple",
+      "tags": [
+        "json",
+        "config"
+      ]
+    },
+    {
+      "id": "file:.agents/packages/core/src/__tests__/change-classifier.test.ts",
+      "name": "change-classifier.test.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/__tests__/change-classifier.test.ts",
+      "summary": "typescript code file (247 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:.agents/packages/core/src/__tests__/change-classifier.test.ts:makeAnalysis",
+      "name": "makeAnalysis",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/__tests__/change-classifier.test.ts",
+      "parentId": "file:.agents/packages/core/src/__tests__/change-classifier.test.ts",
+      "summary": "Function makeAnalysis",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:.agents/packages/core/src/__tests__/config-schema.test.ts",
+      "name": "config-schema.test.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/__tests__/config-schema.test.ts",
+      "summary": "typescript code file (518 lines)",
+      "complexity": "complex",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:.agents/packages/core/src/__tests__/config-schema.test.ts:countConfigModules",
+      "name": "countConfigModules",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/__tests__/config-schema.test.ts",
+      "parentId": "file:.agents/packages/core/src/__tests__/config-schema.test.ts",
+      "summary": "Function countConfigModules",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:.agents/packages/core/src/__tests__/domain-normalize.test.ts",
+      "name": "domain-normalize.test.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/__tests__/domain-normalize.test.ts",
+      "summary": "typescript code file (46 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:.agents/packages/core/src/__tests__/domain-persistence.test.ts",
+      "name": "domain-persistence.test.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/__tests__/domain-persistence.test.ts",
+      "summary": "typescript code file (64 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:.agents/packages/core/src/__tests__/domain-types.test.ts",
+      "name": "domain-types.test.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/__tests__/domain-types.test.ts",
+      "summary": "typescript code file (141 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:.agents/packages/core/src/__tests__/embedding-search.test.ts",
+      "name": "embedding-search.test.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/__tests__/embedding-search.test.ts",
+      "summary": "typescript code file (92 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:.agents/packages/core/src/__tests__/fingerprint.test.ts",
+      "name": "fingerprint.test.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/__tests__/fingerprint.test.ts",
+      "summary": "typescript code file (483 lines)",
+      "complexity": "complex",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:.agents/packages/core/src/__tests__/framework-registry.test.ts",
+      "name": "framework-registry.test.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/__tests__/framework-registry.test.ts",
+      "summary": "typescript code file (123 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:.agents/packages/core/src/__tests__/graph-freshness-timeout.test.ts",
+      "name": "graph-freshness-timeout.test.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/__tests__/graph-freshness-timeout.test.ts",
+      "summary": "typescript code file (56 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:.agents/packages/core/src/__tests__/graph-freshness.integration.test.ts",
+      "name": "graph-freshness.integration.test.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/__tests__/graph-freshness.integration.test.ts",
+      "summary": "typescript code file (485 lines)",
+      "complexity": "complex",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:.agents/packages/core/src/__tests__/graph-freshness.integration.test.ts:git",
+      "name": "git",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/__tests__/graph-freshness.integration.test.ts",
+      "parentId": "file:.agents/packages/core/src/__tests__/graph-freshness.integration.test.ts",
+      "summary": "Function git",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:.agents/packages/core/src/__tests__/graph-freshness.integration.test.ts:createTemporaryDirectory",
+      "name": "createTemporaryDirectory",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/__tests__/graph-freshness.integration.test.ts",
+      "parentId": "file:.agents/packages/core/src/__tests__/graph-freshness.integration.test.ts",
+      "summary": "Function createTemporaryDirectory",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:.agents/packages/core/src/__tests__/graph-freshness.integration.test.ts:writeProjectFile",
+      "name": "writeProjectFile",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/__tests__/graph-freshness.integration.test.ts",
+      "parentId": "file:.agents/packages/core/src/__tests__/graph-freshness.integration.test.ts",
+      "summary": "Function writeProjectFile",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:.agents/packages/core/src/__tests__/graph-freshness.integration.test.ts:commitAll",
+      "name": "commitAll",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/__tests__/graph-freshness.integration.test.ts",
+      "parentId": "file:.agents/packages/core/src/__tests__/graph-freshness.integration.test.ts",
+      "summary": "Function commitAll",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:.agents/packages/core/src/__tests__/graph-freshness.integration.test.ts:createRepository",
+      "name": "createRepository",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/__tests__/graph-freshness.integration.test.ts",
+      "parentId": "file:.agents/packages/core/src/__tests__/graph-freshness.integration.test.ts",
+      "summary": "Function createRepository",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:.agents/packages/core/src/__tests__/ignore-filter.test.ts",
+      "name": "ignore-filter.test.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/__tests__/ignore-filter.test.ts",
+      "summary": "typescript code file (211 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:.agents/packages/core/src/__tests__/ignore-generator.test.ts",
+      "name": "ignore-generator.test.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/__tests__/ignore-generator.test.ts",
+      "summary": "typescript code file (474 lines)",
+      "complexity": "complex",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:.agents/packages/core/src/__tests__/language-lesson.test.ts",
+      "name": "language-lesson.test.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/__tests__/language-lesson.test.ts",
+      "summary": "typescript code file (157 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:.agents/packages/core/src/__tests__/language-registry.test.ts",
+      "name": "language-registry.test.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/__tests__/language-registry.test.ts",
+      "summary": "typescript code file (207 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:.agents/packages/core/src/__tests__/layer-detector.test.ts",
+      "name": "layer-detector.test.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/__tests__/layer-detector.test.ts",
+      "summary": "typescript code file (188 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:.agents/packages/core/src/__tests__/layer-detector.test.ts:makeNode",
+      "name": "makeNode",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/__tests__/layer-detector.test.ts",
+      "parentId": "file:.agents/packages/core/src/__tests__/layer-detector.test.ts",
+      "summary": "Function makeNode",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:.agents/packages/core/src/__tests__/layer-detector.test.ts:makeGraph",
+      "name": "makeGraph",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/__tests__/layer-detector.test.ts",
+      "parentId": "file:.agents/packages/core/src/__tests__/layer-detector.test.ts",
+      "summary": "Function makeGraph",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:.agents/packages/core/src/__tests__/normalize-graph.test.ts",
+      "name": "normalize-graph.test.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/__tests__/normalize-graph.test.ts",
+      "summary": "typescript code file (498 lines)",
+      "complexity": "complex",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:.agents/packages/core/src/__tests__/parsers.test.ts",
+      "name": "parsers.test.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/__tests__/parsers.test.ts",
+      "summary": "typescript code file (629 lines)",
+      "complexity": "complex",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:.agents/packages/core/src/__tests__/plugin-discovery.test.ts",
+      "name": "plugin-discovery.test.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/__tests__/plugin-discovery.test.ts",
+      "summary": "typescript code file (119 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:.agents/packages/core/src/__tests__/plugin-registry.test.ts",
+      "name": "plugin-registry.test.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/__tests__/plugin-registry.test.ts",
+      "summary": "typescript code file (260 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:.agents/packages/core/src/__tests__/plugin-registry.test.ts:createMockPlugin",
+      "name": "createMockPlugin",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/__tests__/plugin-registry.test.ts",
+      "parentId": "file:.agents/packages/core/src/__tests__/plugin-registry.test.ts",
+      "summary": "Function createMockPlugin",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:.agents/packages/core/src/__tests__/schema.test.ts",
+      "name": "schema.test.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/__tests__/schema.test.ts",
+      "summary": "typescript code file (836 lines)",
+      "complexity": "complex",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:.agents/packages/core/src/__tests__/schema.test.ts:designGraph",
+      "name": "designGraph",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/__tests__/schema.test.ts",
+      "parentId": "file:.agents/packages/core/src/__tests__/schema.test.ts",
+      "summary": "Function designGraph",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:.agents/packages/core/src/__tests__/search.test.ts",
+      "name": "search.test.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/__tests__/search.test.ts",
+      "summary": "typescript code file (158 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:.agents/packages/core/src/__tests__/search.test.ts:makeNode",
+      "name": "makeNode",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/__tests__/search.test.ts",
+      "parentId": "file:.agents/packages/core/src/__tests__/search.test.ts",
+      "summary": "Function makeNode",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:.agents/packages/core/src/__tests__/staleness.test.ts",
+      "name": "staleness.test.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/__tests__/staleness.test.ts",
+      "summary": "typescript code file (257 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:.agents/packages/core/src/__tests__/staleness.test.ts:makeNode",
+      "name": "makeNode",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/__tests__/staleness.test.ts",
+      "parentId": "file:.agents/packages/core/src/__tests__/staleness.test.ts",
+      "summary": "Function makeNode",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:.agents/packages/core/src/__tests__/staleness.test.ts:makeEdge",
+      "name": "makeEdge",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/__tests__/staleness.test.ts",
+      "parentId": "file:.agents/packages/core/src/__tests__/staleness.test.ts",
+      "summary": "Function makeEdge",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:.agents/packages/core/src/__tests__/staleness.test.ts:makeGraph",
+      "name": "makeGraph",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/__tests__/staleness.test.ts",
+      "parentId": "file:.agents/packages/core/src/__tests__/staleness.test.ts",
+      "summary": "Function makeGraph",
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:.agents/packages/core/src/__tests__/change-classifier.test.ts",
+      "target": "function:.agents/packages/core/src/__tests__/change-classifier.test.ts:makeAnalysis",
+      "type": "contains"
+    },
+    {
+      "source": "file:.agents/packages/core/src/__tests__/config-schema.test.ts",
+      "target": "function:.agents/packages/core/src/__tests__/config-schema.test.ts:countConfigModules",
+      "type": "contains"
+    },
+    {
+      "source": "function:.agents/packages/core/src/__tests__/config-schema.test.ts:countConfigModules",
+      "target": "function:.agents/packages/core/src/__tests__/config-schema.test.ts:fileURLToPath",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/__tests__/config-schema.test.ts:countConfigModules",
+      "target": "function:.agents/packages/core/src/__tests__/config-schema.test.ts:readdirSync(dir).filter",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/__tests__/config-schema.test.ts:countConfigModules",
+      "target": "function:.agents/packages/core/src/__tests__/config-schema.test.ts:readdirSync",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/__tests__/config-schema.test.ts:countConfigModules",
+      "target": "function:.agents/packages/core/src/__tests__/config-schema.test.ts:file.endsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/__tests__/fingerprint.test.ts:fingerprint",
+      "target": "function:.agents/packages/core/src/__tests__/fingerprint.test.ts:extractFileFingerprint",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/__tests__/fingerprint.test.ts:fingerprint",
+      "target": "function:.agents/packages/core/src/__tests__/fingerprint.test.ts:extractFileFingerprint",
+      "type": "calls"
+    },
+    {
+      "source": "file:.agents/packages/core/src/__tests__/graph-freshness.integration.test.ts",
+      "target": "function:.agents/packages/core/src/__tests__/graph-freshness.integration.test.ts:git",
+      "type": "contains"
+    },
+    {
+      "source": "file:.agents/packages/core/src/__tests__/graph-freshness.integration.test.ts",
+      "target": "function:.agents/packages/core/src/__tests__/graph-freshness.integration.test.ts:createTemporaryDirectory",
+      "type": "contains"
+    },
+    {
+      "source": "file:.agents/packages/core/src/__tests__/graph-freshness.integration.test.ts",
+      "target": "function:.agents/packages/core/src/__tests__/graph-freshness.integration.test.ts:writeProjectFile",
+      "type": "contains"
+    },
+    {
+      "source": "file:.agents/packages/core/src/__tests__/graph-freshness.integration.test.ts",
+      "target": "function:.agents/packages/core/src/__tests__/graph-freshness.integration.test.ts:commitAll",
+      "type": "contains"
+    },
+    {
+      "source": "file:.agents/packages/core/src/__tests__/graph-freshness.integration.test.ts",
+      "target": "function:.agents/packages/core/src/__tests__/graph-freshness.integration.test.ts:createRepository",
+      "type": "contains"
+    },
+    {
+      "source": "function:.agents/packages/core/src/__tests__/graph-freshness.integration.test.ts:git",
+      "target": "function:.agents/packages/core/src/__tests__/graph-freshness.integration.test.ts:execFileSync(\"git\", args, {\r\n    cwd,\r\n    encoding: \"utf8\",\r\n  }).trim",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/__tests__/graph-freshness.integration.test.ts:git",
+      "target": "function:.agents/packages/core/src/__tests__/graph-freshness.integration.test.ts:execFileSync",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/__tests__/graph-freshness.integration.test.ts:createTemporaryDirectory",
+      "target": "function:.agents/packages/core/src/__tests__/graph-freshness.integration.test.ts:mkdtempSync",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/__tests__/graph-freshness.integration.test.ts:createTemporaryDirectory",
+      "target": "function:.agents/packages/core/src/__tests__/graph-freshness.integration.test.ts:join",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/__tests__/graph-freshness.integration.test.ts:createTemporaryDirectory",
+      "target": "function:.agents/packages/core/src/__tests__/graph-freshness.integration.test.ts:tmpdir",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/__tests__/graph-freshness.integration.test.ts:createTemporaryDirectory",
+      "target": "function:.agents/packages/core/src/__tests__/graph-freshness.integration.test.ts:temporaryDirectories.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/__tests__/graph-freshness.integration.test.ts:writeProjectFile",
+      "target": "function:.agents/packages/core/src/__tests__/graph-freshness.integration.test.ts:join",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/__tests__/graph-freshness.integration.test.ts:writeProjectFile",
+      "target": "function:.agents/packages/core/src/__tests__/graph-freshness.integration.test.ts:relativePath.split",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/__tests__/graph-freshness.integration.test.ts:writeProjectFile",
+      "target": "function:.agents/packages/core/src/__tests__/graph-freshness.integration.test.ts:mkdirSync",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/__tests__/graph-freshness.integration.test.ts:writeProjectFile",
+      "target": "function:.agents/packages/core/src/__tests__/graph-freshness.integration.test.ts:dirname",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/__tests__/graph-freshness.integration.test.ts:writeProjectFile",
+      "target": "function:.agents/packages/core/src/__tests__/graph-freshness.integration.test.ts:writeFileSync",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/__tests__/graph-freshness.integration.test.ts:commitAll",
+      "target": "function:.agents/packages/core/src/__tests__/graph-freshness.integration.test.ts:git",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/__tests__/graph-freshness.integration.test.ts:commitAll",
+      "target": "function:.agents/packages/core/src/__tests__/graph-freshness.integration.test.ts:git",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/__tests__/graph-freshness.integration.test.ts:commitAll",
+      "target": "function:.agents/packages/core/src/__tests__/graph-freshness.integration.test.ts:git",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/__tests__/graph-freshness.integration.test.ts:createRepository",
+      "target": "function:.agents/packages/core/src/__tests__/graph-freshness.integration.test.ts:createTemporaryDirectory",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/__tests__/graph-freshness.integration.test.ts:createRepository",
+      "target": "function:.agents/packages/core/src/__tests__/graph-freshness.integration.test.ts:git",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/__tests__/graph-freshness.integration.test.ts:createRepository",
+      "target": "function:.agents/packages/core/src/__tests__/graph-freshness.integration.test.ts:git",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/__tests__/graph-freshness.integration.test.ts:createRepository",
+      "target": "function:.agents/packages/core/src/__tests__/graph-freshness.integration.test.ts:git",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/__tests__/graph-freshness.integration.test.ts:createRepository",
+      "target": "function:.agents/packages/core/src/__tests__/graph-freshness.integration.test.ts:Object.entries",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/__tests__/graph-freshness.integration.test.ts:createRepository",
+      "target": "function:.agents/packages/core/src/__tests__/graph-freshness.integration.test.ts:writeProjectFile",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/__tests__/graph-freshness.integration.test.ts:createRepository",
+      "target": "function:.agents/packages/core/src/__tests__/graph-freshness.integration.test.ts:commitAll",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/__tests__/graph-freshness.integration.test.ts:prepare",
+      "target": "function:.agents/packages/core/src/__tests__/graph-freshness.integration.test.ts:writeProjectFile",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/__tests__/graph-freshness.integration.test.ts:prepare",
+      "target": "function:.agents/packages/core/src/__tests__/graph-freshness.integration.test.ts:writeProjectFile",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/__tests__/graph-freshness.integration.test.ts:prepare",
+      "target": "function:.agents/packages/core/src/__tests__/graph-freshness.integration.test.ts:git",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/__tests__/graph-freshness.integration.test.ts:prepare",
+      "target": "function:.agents/packages/core/src/__tests__/graph-freshness.integration.test.ts:writeProjectFile",
+      "type": "calls"
+    },
+    {
+      "source": "file:.agents/packages/core/src/__tests__/layer-detector.test.ts",
+      "target": "function:.agents/packages/core/src/__tests__/layer-detector.test.ts:makeNode",
+      "type": "contains"
+    },
+    {
+      "source": "file:.agents/packages/core/src/__tests__/layer-detector.test.ts",
+      "target": "function:.agents/packages/core/src/__tests__/layer-detector.test.ts:makeGraph",
+      "type": "contains"
+    },
+    {
+      "source": "function:.agents/packages/core/src/__tests__/layer-detector.test.ts:makeGraph",
+      "target": "function:.agents/packages/core/src/__tests__/layer-detector.test.ts:new Date().toISOString",
+      "type": "calls"
+    },
+    {
+      "source": "file:.agents/packages/core/src/__tests__/plugin-registry.test.ts",
+      "target": "function:.agents/packages/core/src/__tests__/plugin-registry.test.ts:createMockPlugin",
+      "type": "contains"
+    },
+    {
+      "source": "file:.agents/packages/core/src/__tests__/schema.test.ts",
+      "target": "function:.agents/packages/core/src/__tests__/schema.test.ts:designGraph",
+      "type": "contains"
+    },
+    {
+      "source": "file:.agents/packages/core/src/__tests__/search.test.ts",
+      "target": "function:.agents/packages/core/src/__tests__/search.test.ts:makeNode",
+      "type": "contains"
+    },
+    {
+      "source": "file:.agents/packages/core/src/__tests__/staleness.test.ts",
+      "target": "function:.agents/packages/core/src/__tests__/staleness.test.ts:makeNode",
+      "type": "contains"
+    },
+    {
+      "source": "file:.agents/packages/core/src/__tests__/staleness.test.ts",
+      "target": "function:.agents/packages/core/src/__tests__/staleness.test.ts:makeEdge",
+      "type": "contains"
+    },
+    {
+      "source": "file:.agents/packages/core/src/__tests__/staleness.test.ts",
+      "target": "function:.agents/packages/core/src/__tests__/staleness.test.ts:makeGraph",
+      "type": "contains"
+    }
+  ]
+}

@@ -2,18 +2,33 @@ import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 import { verifySessionToken } from '@/lib/auth/verify-session';
 
+function applySecurityHeaders(res: NextResponse, isPortal = false) {
+  res.headers.set('X-Content-Type-Options', 'nosniff');
+  res.headers.set('X-Frame-Options', 'DENY');
+  res.headers.set(
+    'Strict-Transport-Security',
+    'max-age=31536000; includeSubDomains; preload'
+  );
+  res.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.headers.set(
+    'Permissions-Policy',
+    'camera=(), microphone=(), geolocation=(), payment=(self)'
+  );
+  // Safe base CSP: strictly HTTPS for scripts (no unencrypted http:)
+  res.headers.set(
+    'Content-Security-Policy',
+    "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https: blob:; font-src 'self' data: https:; connect-src 'self' https: wss:; object-src 'none'; base-uri 'self'; frame-ancestors 'none';"
+  );
+  if (isPortal) {
+    res.headers.set('X-Robots-Tag', 'noindex, nofollow');
+  }
+  return res;
+}
+
 export async function middleware(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
     request,
   });
-
-  // 0. Inject Global Security Headers
-  supabaseResponse.headers.set('X-Content-Type-Options', 'nosniff');
-  supabaseResponse.headers.set('X-Frame-Options', 'DENY');
-  supabaseResponse.headers.set(
-    'Strict-Transport-Security',
-    'max-age=31536000; includeSubDomains'
-  );
 
   const hostname = request.headers.get('host') || '';
   supabaseResponse.headers.set('x-ruhvi-host', hostname);
@@ -49,6 +64,9 @@ export async function middleware(request: NextRequest) {
     isCoFounderHost;
   const path = request.nextUrl.pathname;
 
+  // 0. Inject Global Security Headers
+  applySecurityHeaders(supabaseResponse, isAnyPortalHost);
+
   // Save referral code from URL to cookie
   const refCode = request.nextUrl.searchParams.get('ref');
   if (refCode) {
@@ -60,28 +78,21 @@ export async function middleware(request: NextRequest) {
 
   // 1. Root redirect on portal hosts
   if (path === '/') {
-    if (isAdminHost)
-      return NextResponse.redirect(new URL('/admin/dashboard', request.url));
-    if (isOperationsHost)
-      return NextResponse.redirect(
-        new URL('/operations/dashboard', request.url)
-      );
-    if (isOrdersHost)
-      return NextResponse.redirect(
-        new URL('/portal-orders/dashboard', request.url)
-      );
-    if (isSupportHost)
-      return NextResponse.redirect(new URL('/support/dashboard', request.url));
-    if (isMarketingHost)
-      return NextResponse.redirect(
-        new URL('/marketing/dashboard', request.url)
-      );
-    if (isTechHost)
-      return NextResponse.redirect(new URL('/tech/dashboard', request.url));
-    if (isCoFounderHost)
-      return NextResponse.redirect(new URL('/co-founder', request.url));
-    if (isAuthHost)
-      return NextResponse.redirect(new URL('/login', request.url));
+    const rootRedirects = [
+      { condition: isAdminHost, dest: '/admin/dashboard' },
+      { condition: isOperationsHost, dest: '/operations/dashboard' },
+      { condition: isOrdersHost, dest: '/portal-orders/dashboard' },
+      { condition: isSupportHost, dest: '/support/dashboard' },
+      { condition: isMarketingHost, dest: '/marketing/dashboard' },
+      { condition: isTechHost, dest: '/tech/dashboard' },
+      { condition: isCoFounderHost, dest: '/co-founder' },
+      { condition: isAuthHost, dest: '/login' },
+    ];
+
+    const match = rootRedirects.find((route) => route.condition);
+    if (match) {
+      return NextResponse.redirect(new URL(match.dest, request.url));
+    }
   }
 
   // Block signup on portal hosts
@@ -225,16 +236,14 @@ export async function middleware(request: NextRequest) {
               supabaseResponse = NextResponse.next({
                 request,
               });
-              if (isAnyPortalHost) {
-                supabaseResponse.headers.set(
-                  'X-Robots-Tag',
-                  'noindex, nofollow'
-                );
-              }
+              applySecurityHeaders(supabaseResponse, isAnyPortalHost);
+              supabaseResponse.headers.set('x-ruhvi-host', hostname);
+              const isProduction = process.env.NODE_ENV === 'production';
               cookiesToSet.forEach(({ name, value, options }) =>
                 supabaseResponse.cookies.set(name, value, {
                   ...options,
-                  secure: false,
+                  secure: isProduction ? true : (options.secure ?? false),
+                  sameSite: options.sameSite ?? 'lax',
                 })
               );
             },

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { SignJWT } from 'jose';
+import crypto from 'crypto';
 import { sendPasswordResetEmail } from '@/lib/resend';
 
 // Initialize service-role Supabase client
@@ -37,16 +38,25 @@ const getSupabaseAdmin = async () => {
 
 export async function POST(request: NextRequest) {
   try {
-    const { email } = await request.json();
+    const body = await request.json().catch(() => null);
+    const email = body?.email;
 
-    if (!email) {
+    if (!email || typeof email !== 'string') {
       return NextResponse.json(
-        { error: 'Email address is required.' },
+        { error: 'Valid email address is required.' },
         { status: 400 }
       );
     }
 
     const normalizedEmail = email.trim().toLowerCase();
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(normalizedEmail) || normalizedEmail.length > 254) {
+      return NextResponse.json(
+        { error: 'Please enter a valid email address.' },
+        { status: 400 }
+      );
+    }
+
     const supabase = await getSupabaseAdmin();
 
     // 1. Verify user profile exists in Supabase
@@ -59,12 +69,7 @@ export async function POST(request: NextRequest) {
     if (dbError) {
       console.error('[forgot-password] Database error:', dbError);
       return NextResponse.json(
-        {
-          error: 'Failed to look up user account. Please try again.',
-          details: dbError.message,
-          hasServiceKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
-          hasJwtSecret: !!process.env.SUPABASE_JWT_SECRET,
-        },
+        { error: 'Unable to process your request. Please try again later.' },
         { status: 500 }
       );
     }
@@ -72,11 +77,10 @@ export async function POST(request: NextRequest) {
     const userProfile =
       userProfiles && userProfiles.length > 0 ? userProfiles[0] : null;
 
+    // Defense against User Enumeration:
+    // If no registered user exists, return generic success without revealing account status
     if (!userProfile) {
-      return NextResponse.json(
-        { error: 'No registered user found with this email address.' },
-        { status: 400 }
-      );
+      return NextResponse.json({ success: true });
     }
 
     // Look up firebase_uid from customer_identities if available
@@ -100,7 +104,7 @@ export async function POST(request: NextRequest) {
     if (!jwtSecret) {
       console.error('[forgot-password] SUPABASE_JWT_SECRET is missing');
       return NextResponse.json(
-        { error: 'Authentication service is misconfigured.' },
+        { error: 'Authentication service is temporarily unavailable.' },
         { status: 500 }
       );
     }
@@ -108,6 +112,7 @@ export async function POST(request: NextRequest) {
     // 2. Generate a secure, time-limited password reset token (1 hour)
     const secretKey = new TextEncoder().encode(jwtSecret);
     const now = Math.floor(Date.now() / 1000);
+    const jti = crypto.randomUUID();
 
     const resetToken = await new SignJWT({
       email: normalizedEmail,
@@ -117,6 +122,7 @@ export async function POST(request: NextRequest) {
     })
       .setProtectedHeader({ alg: 'HS256', typ: 'JWT' })
       .setSubject(targetUid)
+      .setJti(jti)
       .setIssuedAt(now)
       .setExpirationTime(now + 3600) // 1 hour validity
       .sign(secretKey);
@@ -140,7 +146,7 @@ export async function POST(request: NextRequest) {
       console.error('[forgot-password] Failed to dispatch Resend email');
       return NextResponse.json(
         {
-          error: 'Failed to send password reset email. Please try again later.',
+          error: 'Failed to dispatch reset email. Please try again later.',
         },
         { status: 500 }
       );
@@ -150,8 +156,8 @@ export async function POST(request: NextRequest) {
   } catch (error: any) {
     console.error('[Forgot Password API Error]', error);
     return NextResponse.json(
-      { error: error.message || 'An unexpected error occurred.' },
-      { status: 400 }
+      { error: 'An unexpected error occurred. Please try again later.' },
+      { status: 500 }
     );
   }
 }

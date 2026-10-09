@@ -1,0 +1,188 @@
+{
+  "batchIndex": 2,
+  "batchFiles": [
+    {
+      "path": ".agents/skills/understand/frameworks/django.md",
+      "language": "markdown",
+      "sizeLines": 67,
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".agents/skills/understand/frameworks/express.md",
+      "language": "markdown",
+      "sizeLines": 57,
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".agents/skills/understand/frameworks/fastapi.md",
+      "language": "markdown",
+      "sizeLines": 58,
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".agents/skills/understand/frameworks/flask.md",
+      "language": "markdown",
+      "sizeLines": 53,
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".agents/skills/understand/frameworks/gin.md",
+      "language": "markdown",
+      "sizeLines": 59,
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".agents/skills/understand/frameworks/nextjs.md",
+      "language": "markdown",
+      "sizeLines": 59,
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".agents/skills/understand/frameworks/rails.md",
+      "language": "markdown",
+      "sizeLines": 65,
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".agents/skills/understand/frameworks/react.md",
+      "language": "markdown",
+      "sizeLines": 55,
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".agents/skills/understand/frameworks/spring.md",
+      "language": "markdown",
+      "sizeLines": 59,
+      "fileCategory": "docs"
+    },
+    {
+      "path": ".agents/skills/understand/frameworks/vue.md",
+      "language": "markdown",
+      "sizeLines": 59,
+      "fileCategory": "docs"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "document:.agents/skills/understand/frameworks/django.md",
+      "name": "django.md",
+      "type": "document",
+      "filePath": ".agents/skills/understand/frameworks/django.md",
+      "summary": "markdown docs file (67 lines)",
+      "complexity": "simple",
+      "tags": [
+        "markdown",
+        "docs"
+      ]
+    },
+    {
+      "id": "document:.agents/skills/understand/frameworks/express.md",
+      "name": "express.md",
+      "type": "document",
+      "filePath": ".agents/skills/understand/frameworks/express.md",
+      "summary": "markdown docs file (57 lines)",
+      "complexity": "simple",
+      "tags": [
+        "markdown",
+        "docs"
+      ]
+    },
+    {
+      "id": "document:.agents/skills/understand/frameworks/fastapi.md",
+      "name": "fastapi.md",
+      "type": "document",
+      "filePath": ".agents/skills/understand/frameworks/fastapi.md",
+      "summary": "markdown docs file (58 lines)",
+      "complexity": "simple",
+      "tags": [
+        "markdown",
+        "docs"
+      ]
+    },
+    {
+      "id": "document:.agents/skills/understand/frameworks/flask.md",
+      "name": "flask.md",
+      "type": "document",
+      "filePath": ".agents/skills/understand/frameworks/flask.md",
+      "summary": "markdown docs file (53 lines)",
+      "complexity": "simple",
+      "tags": [
+        "markdown",
+        "docs"
+      ]
+    },
+    {
+      "id": "document:.agents/skills/understand/frameworks/gin.md",
+      "name": "gin.md",
+      "type": "document",
+      "filePath": ".agents/skills/understand/frameworks/gin.md",
+      "summary": "markdown docs file (59 lines)",
+      "complexity": "simple",
+      "tags": [
+        "markdown",
+        "docs"
+      ]
+    },
+    {
+      "id": "document:.agents/skills/understand/frameworks/nextjs.md",
+      "name": "nextjs.md",
+      "type": "document",
+      "filePath": ".agents/skills/understand/frameworks/nextjs.md",
+      "summary": "markdown docs file (59 lines)",
+      "complexity": "simple",
+      "tags": [
+        "markdown",
+        "docs"
+      ]
+    },
+    {
+      "id": "document:.agents/skills/understand/frameworks/rails.md",
+      "name": "rails.md",
+      "type": "document",
+      "filePath": ".agents/skills/understand/frameworks/rails.md",
+      "summary": "markdown docs file (65 lines)",
+      "complexity": "simple",
+      "tags": [
+        "markdown",
+        "docs"
+      ]
+    },
+    {
+      "id": "document:.agents/skills/understand/frameworks/react.md",
+      "name": "react.md",
+      "type": "document",
+      "filePath": ".agents/skills/understand/frameworks/react.md",
+      "summary": "markdown docs file (55 lines)",
+      "complexity": "simple",
+      "tags": [
+        "markdown",
+        "docs"
+      ]
+    },
+    {
+      "id": "document:.agents/skills/understand/frameworks/spring.md",
+      "name": "spring.md",
+      "type": "document",
+      "filePath": ".agents/skills/understand/frameworks/spring.md",
+      "summary": "markdown docs file (59 lines)",
+      "complexity": "simple",
+      "tags": [
+        "markdown",
+        "docs"
+      ]
+    },
+    {
+      "id": "document:.agents/skills/understand/frameworks/vue.md",
+      "name": "vue.md",
+      "type": "document",
+      "filePath": ".agents/skills/understand/frameworks/vue.md",
+      "summary": "markdown docs file (59 lines)",
+      "complexity": "simple",
+      "tags": [
+        "markdown",
+        "docs"
+      ]
+    }
+  ],
+  "edges": []
+}

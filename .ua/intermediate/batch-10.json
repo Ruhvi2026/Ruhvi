@@ -1,0 +1,3650 @@
+{
+  "batchIndex": 10,
+  "batchFiles": [
+    {
+      "path": ".agents/packages/core/src/__tests__/tour-generator.test.ts",
+      "language": "typescript",
+      "sizeLines": 269,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/analyzer/graph-builder.test.ts",
+      "language": "typescript",
+      "sizeLines": 404,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/analyzer/graph-builder.ts",
+      "language": "typescript",
+      "sizeLines": 337,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/analyzer/language-lesson.ts",
+      "language": "typescript",
+      "sizeLines": 210,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/analyzer/layer-detector.ts",
+      "language": "typescript",
+      "sizeLines": 288,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/analyzer/llm-analyzer.test.ts",
+      "language": "typescript",
+      "sizeLines": 248,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/analyzer/llm-analyzer.ts",
+      "language": "typescript",
+      "sizeLines": 186,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/analyzer/normalize-graph.ts",
+      "language": "typescript",
+      "sizeLines": 329,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/analyzer/tour-generator.ts",
+      "language": "typescript",
+      "sizeLines": 301,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/change-classifier.ts",
+      "language": "typescript",
+      "sizeLines": 165,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/embedding-search.ts",
+      "language": "typescript",
+      "sizeLines": 118,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/figma/__tests__/api-source.test.ts",
+      "language": "typescript",
+      "sizeLines": 45,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/figma/__tests__/merge.test.ts",
+      "language": "typescript",
+      "sizeLines": 42,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/figma/__tests__/parse-document.test.ts",
+      "language": "typescript",
+      "sizeLines": 60,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/figma/__tests__/thumbnails.test.ts",
+      "language": "typescript",
+      "sizeLines": 35,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/figma/__tests__/tokens.test.ts",
+      "language": "typescript",
+      "sizeLines": 94,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/figma/index.ts",
+      "language": "typescript",
+      "sizeLines": 6,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/figma/merge.ts",
+      "language": "typescript",
+      "sizeLines": 84,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/figma/parse/parse-document.ts",
+      "language": "typescript",
+      "sizeLines": 100,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/figma/parse/tokens.ts",
+      "language": "typescript",
+      "sizeLines": 72,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/figma/source/api-source.ts",
+      "language": "typescript",
+      "sizeLines": 50,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/figma/source/types.ts",
+      "language": "typescript",
+      "sizeLines": 30,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/figma/thumbnails.ts",
+      "language": "typescript",
+      "sizeLines": 29,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/fingerprint.ts",
+      "language": "typescript",
+      "sizeLines": 420,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/ignore-filter.ts",
+      "language": "typescript",
+      "sizeLines": 120,
+      "fileCategory": "code"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "file:.agents/packages/core/src/__tests__/tour-generator.test.ts",
+      "name": "tour-generator.test.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/__tests__/tour-generator.test.ts",
+      "summary": "typescript code file (269 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:.agents/packages/core/src/analyzer/graph-builder.test.ts",
+      "name": "graph-builder.test.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/analyzer/graph-builder.test.ts",
+      "summary": "typescript code file (404 lines)",
+      "complexity": "complex",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:.agents/packages/core/src/analyzer/graph-builder.ts",
+      "name": "graph-builder.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/analyzer/graph-builder.ts",
+      "summary": "typescript code file (337 lines)",
+      "complexity": "complex",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "class:.agents/packages/core/src/analyzer/graph-builder.ts:GraphBuilder",
+      "name": "GraphBuilder",
+      "type": "class",
+      "filePath": ".agents/packages/core/src/analyzer/graph-builder.ts",
+      "parentId": "file:.agents/packages/core/src/analyzer/graph-builder.ts",
+      "summary": "Class GraphBuilder",
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:.agents/packages/core/src/analyzer/language-lesson.ts",
+      "name": "language-lesson.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/analyzer/language-lesson.ts",
+      "summary": "typescript code file (210 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:.agents/packages/core/src/analyzer/language-lesson.ts:buildConceptPatterns",
+      "name": "buildConceptPatterns",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/analyzer/language-lesson.ts",
+      "parentId": "file:.agents/packages/core/src/analyzer/language-lesson.ts",
+      "summary": "Function buildConceptPatterns",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:.agents/packages/core/src/analyzer/language-lesson.ts:detectLanguageConcepts",
+      "name": "detectLanguageConcepts",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/analyzer/language-lesson.ts",
+      "parentId": "file:.agents/packages/core/src/analyzer/language-lesson.ts",
+      "summary": "Function detectLanguageConcepts",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:.agents/packages/core/src/analyzer/language-lesson.ts:getLanguageDisplayName",
+      "name": "getLanguageDisplayName",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/analyzer/language-lesson.ts",
+      "parentId": "file:.agents/packages/core/src/analyzer/language-lesson.ts",
+      "summary": "Function getLanguageDisplayName",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:.agents/packages/core/src/analyzer/language-lesson.ts:buildLanguageLessonPrompt",
+      "name": "buildLanguageLessonPrompt",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/analyzer/language-lesson.ts",
+      "parentId": "file:.agents/packages/core/src/analyzer/language-lesson.ts",
+      "summary": "Function buildLanguageLessonPrompt",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:.agents/packages/core/src/analyzer/language-lesson.ts:extractJson",
+      "name": "extractJson",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/analyzer/language-lesson.ts",
+      "parentId": "file:.agents/packages/core/src/analyzer/language-lesson.ts",
+      "summary": "Function extractJson",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:.agents/packages/core/src/analyzer/language-lesson.ts:parseLanguageLessonResponse",
+      "name": "parseLanguageLessonResponse",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/analyzer/language-lesson.ts",
+      "parentId": "file:.agents/packages/core/src/analyzer/language-lesson.ts",
+      "summary": "Function parseLanguageLessonResponse",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:.agents/packages/core/src/analyzer/layer-detector.ts",
+      "name": "layer-detector.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/analyzer/layer-detector.ts",
+      "summary": "typescript code file (288 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:.agents/packages/core/src/analyzer/layer-detector.ts:toLayerId",
+      "name": "toLayerId",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/analyzer/layer-detector.ts",
+      "parentId": "file:.agents/packages/core/src/analyzer/layer-detector.ts",
+      "summary": "Function toLayerId",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:.agents/packages/core/src/analyzer/layer-detector.ts:matchFileToLayer",
+      "name": "matchFileToLayer",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/analyzer/layer-detector.ts",
+      "parentId": "file:.agents/packages/core/src/analyzer/layer-detector.ts",
+      "summary": "Function matchFileToLayer",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:.agents/packages/core/src/analyzer/layer-detector.ts:detectLayers",
+      "name": "detectLayers",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/analyzer/layer-detector.ts",
+      "parentId": "file:.agents/packages/core/src/analyzer/layer-detector.ts",
+      "summary": "Function detectLayers",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:.agents/packages/core/src/analyzer/layer-detector.ts:buildLayerDetectionPrompt",
+      "name": "buildLayerDetectionPrompt",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/analyzer/layer-detector.ts",
+      "parentId": "file:.agents/packages/core/src/analyzer/layer-detector.ts",
+      "summary": "Function buildLayerDetectionPrompt",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:.agents/packages/core/src/analyzer/layer-detector.ts:parseLayerDetectionResponse",
+      "name": "parseLayerDetectionResponse",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/analyzer/layer-detector.ts",
+      "parentId": "file:.agents/packages/core/src/analyzer/layer-detector.ts",
+      "summary": "Function parseLayerDetectionResponse",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:.agents/packages/core/src/analyzer/layer-detector.ts:applyLLMLayers",
+      "name": "applyLLMLayers",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/analyzer/layer-detector.ts",
+      "parentId": "file:.agents/packages/core/src/analyzer/layer-detector.ts",
+      "summary": "Function applyLLMLayers",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:.agents/packages/core/src/analyzer/llm-analyzer.test.ts",
+      "name": "llm-analyzer.test.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/analyzer/llm-analyzer.test.ts",
+      "summary": "typescript code file (248 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:.agents/packages/core/src/analyzer/llm-analyzer.ts",
+      "name": "llm-analyzer.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/analyzer/llm-analyzer.ts",
+      "summary": "typescript code file (186 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:.agents/packages/core/src/analyzer/llm-analyzer.ts:buildFileAnalysisPrompt",
+      "name": "buildFileAnalysisPrompt",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/analyzer/llm-analyzer.ts",
+      "parentId": "file:.agents/packages/core/src/analyzer/llm-analyzer.ts",
+      "summary": "Function buildFileAnalysisPrompt",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:.agents/packages/core/src/analyzer/llm-analyzer.ts:buildProjectSummaryPrompt",
+      "name": "buildProjectSummaryPrompt",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/analyzer/llm-analyzer.ts",
+      "parentId": "file:.agents/packages/core/src/analyzer/llm-analyzer.ts",
+      "summary": "Function buildProjectSummaryPrompt",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:.agents/packages/core/src/analyzer/llm-analyzer.ts:extractJson",
+      "name": "extractJson",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/analyzer/llm-analyzer.ts",
+      "parentId": "file:.agents/packages/core/src/analyzer/llm-analyzer.ts",
+      "summary": "Function extractJson",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:.agents/packages/core/src/analyzer/llm-analyzer.ts:parseFileAnalysisResponse",
+      "name": "parseFileAnalysisResponse",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/analyzer/llm-analyzer.ts",
+      "parentId": "file:.agents/packages/core/src/analyzer/llm-analyzer.ts",
+      "summary": "Function parseFileAnalysisResponse",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:.agents/packages/core/src/analyzer/llm-analyzer.ts:parseProjectSummaryResponse",
+      "name": "parseProjectSummaryResponse",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/analyzer/llm-analyzer.ts",
+      "parentId": "file:.agents/packages/core/src/analyzer/llm-analyzer.ts",
+      "summary": "Function parseProjectSummaryResponse",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:.agents/packages/core/src/analyzer/normalize-graph.ts",
+      "name": "normalize-graph.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/analyzer/normalize-graph.ts",
+      "summary": "typescript code file (329 lines)",
+      "complexity": "complex",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:stripToValidPrefix",
+      "name": "stripToValidPrefix",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/analyzer/normalize-graph.ts",
+      "parentId": "file:.agents/packages/core/src/analyzer/normalize-graph.ts",
+      "summary": "Function stripToValidPrefix",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:normalizeNodeId",
+      "name": "normalizeNodeId",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/analyzer/normalize-graph.ts",
+      "parentId": "file:.agents/packages/core/src/analyzer/normalize-graph.ts",
+      "summary": "Function normalizeNodeId",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:normalizeComplexity",
+      "name": "normalizeComplexity",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/analyzer/normalize-graph.ts",
+      "parentId": "file:.agents/packages/core/src/analyzer/normalize-graph.ts",
+      "summary": "Function normalizeComplexity",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:inferTypeFromId",
+      "name": "inferTypeFromId",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/analyzer/normalize-graph.ts",
+      "parentId": "file:.agents/packages/core/src/analyzer/normalize-graph.ts",
+      "summary": "Function inferTypeFromId",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:normalizeBatchOutput",
+      "name": "normalizeBatchOutput",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/analyzer/normalize-graph.ts",
+      "parentId": "file:.agents/packages/core/src/analyzer/normalize-graph.ts",
+      "summary": "Function normalizeBatchOutput",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:.agents/packages/core/src/analyzer/tour-generator.ts",
+      "name": "tour-generator.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/analyzer/tour-generator.ts",
+      "summary": "typescript code file (301 lines)",
+      "complexity": "complex",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:.agents/packages/core/src/analyzer/tour-generator.ts:buildTourGenerationPrompt",
+      "name": "buildTourGenerationPrompt",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/analyzer/tour-generator.ts",
+      "parentId": "file:.agents/packages/core/src/analyzer/tour-generator.ts",
+      "summary": "Function buildTourGenerationPrompt",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:.agents/packages/core/src/analyzer/tour-generator.ts:parseTourGenerationResponse",
+      "name": "parseTourGenerationResponse",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/analyzer/tour-generator.ts",
+      "parentId": "file:.agents/packages/core/src/analyzer/tour-generator.ts",
+      "summary": "Function parseTourGenerationResponse",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:.agents/packages/core/src/analyzer/tour-generator.ts:generateHeuristicTour",
+      "name": "generateHeuristicTour",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/analyzer/tour-generator.ts",
+      "parentId": "file:.agents/packages/core/src/analyzer/tour-generator.ts",
+      "summary": "Function generateHeuristicTour",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:.agents/packages/core/src/change-classifier.ts",
+      "name": "change-classifier.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/change-classifier.ts",
+      "summary": "typescript code file (165 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:.agents/packages/core/src/change-classifier.ts:classifyUpdate",
+      "name": "classifyUpdate",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/change-classifier.ts",
+      "parentId": "file:.agents/packages/core/src/change-classifier.ts",
+      "summary": "Function classifyUpdate",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:.agents/packages/core/src/change-classifier.ts:detectDirectoryChanges",
+      "name": "detectDirectoryChanges",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/change-classifier.ts",
+      "parentId": "file:.agents/packages/core/src/change-classifier.ts",
+      "summary": "Function detectDirectoryChanges",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:.agents/packages/core/src/change-classifier.ts:topDirectories",
+      "name": "topDirectories",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/change-classifier.ts",
+      "parentId": "file:.agents/packages/core/src/change-classifier.ts",
+      "summary": "Function topDirectories",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:.agents/packages/core/src/change-classifier.ts:topDirectory",
+      "name": "topDirectory",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/change-classifier.ts",
+      "parentId": "file:.agents/packages/core/src/change-classifier.ts",
+      "summary": "Function topDirectory",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:.agents/packages/core/src/change-classifier.ts:summarizeChanges",
+      "name": "summarizeChanges",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/change-classifier.ts",
+      "parentId": "file:.agents/packages/core/src/change-classifier.ts",
+      "summary": "Function summarizeChanges",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:.agents/packages/core/src/embedding-search.ts",
+      "name": "embedding-search.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/embedding-search.ts",
+      "summary": "typescript code file (118 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:.agents/packages/core/src/embedding-search.ts:cosineSimilarity",
+      "name": "cosineSimilarity",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/embedding-search.ts",
+      "parentId": "file:.agents/packages/core/src/embedding-search.ts",
+      "summary": "Function cosineSimilarity",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:.agents/packages/core/src/embedding-search.ts:cosineSimilarityWithQueryMag",
+      "name": "cosineSimilarityWithQueryMag",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/embedding-search.ts",
+      "parentId": "file:.agents/packages/core/src/embedding-search.ts",
+      "summary": "Function cosineSimilarityWithQueryMag",
+      "complexity": "simple"
+    },
+    {
+      "id": "class:.agents/packages/core/src/embedding-search.ts:SemanticSearchEngine",
+      "name": "SemanticSearchEngine",
+      "type": "class",
+      "filePath": ".agents/packages/core/src/embedding-search.ts",
+      "parentId": "file:.agents/packages/core/src/embedding-search.ts",
+      "summary": "Class SemanticSearchEngine",
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:.agents/packages/core/src/figma/__tests__/api-source.test.ts",
+      "name": "api-source.test.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/figma/__tests__/api-source.test.ts",
+      "summary": "typescript code file (45 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:.agents/packages/core/src/figma/__tests__/merge.test.ts",
+      "name": "merge.test.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/figma/__tests__/merge.test.ts",
+      "summary": "typescript code file (42 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:.agents/packages/core/src/figma/__tests__/parse-document.test.ts",
+      "name": "parse-document.test.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/figma/__tests__/parse-document.test.ts",
+      "summary": "typescript code file (60 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:.agents/packages/core/src/figma/__tests__/thumbnails.test.ts",
+      "name": "thumbnails.test.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/figma/__tests__/thumbnails.test.ts",
+      "summary": "typescript code file (35 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:.agents/packages/core/src/figma/__tests__/thumbnails.test.ts:node",
+      "name": "node",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/figma/__tests__/thumbnails.test.ts",
+      "parentId": "file:.agents/packages/core/src/figma/__tests__/thumbnails.test.ts",
+      "summary": "Function node",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:.agents/packages/core/src/figma/__tests__/tokens.test.ts",
+      "name": "tokens.test.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/figma/__tests__/tokens.test.ts",
+      "summary": "typescript code file (94 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:.agents/packages/core/src/figma/index.ts",
+      "name": "index.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/figma/index.ts",
+      "summary": "typescript code file (6 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:.agents/packages/core/src/figma/merge.ts",
+      "name": "merge.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/figma/merge.ts",
+      "summary": "typescript code file (84 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:.agents/packages/core/src/figma/merge.ts:mergeDesignGraph",
+      "name": "mergeDesignGraph",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/figma/merge.ts",
+      "parentId": "file:.agents/packages/core/src/figma/merge.ts",
+      "summary": "Function mergeDesignGraph",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:.agents/packages/core/src/figma/parse/parse-document.ts",
+      "name": "parse-document.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/figma/parse/parse-document.ts",
+      "summary": "typescript code file (100 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:.agents/packages/core/src/figma/parse/parse-document.ts:mkNode",
+      "name": "mkNode",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/figma/parse/parse-document.ts",
+      "parentId": "file:.agents/packages/core/src/figma/parse/parse-document.ts",
+      "summary": "Function mkNode",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:.agents/packages/core/src/figma/parse/parse-document.ts:parseDocument",
+      "name": "parseDocument",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/figma/parse/parse-document.ts",
+      "parentId": "file:.agents/packages/core/src/figma/parse/parse-document.ts",
+      "summary": "Function parseDocument",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:.agents/packages/core/src/figma/parse/tokens.ts",
+      "name": "tokens.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/figma/parse/tokens.ts",
+      "summary": "typescript code file (72 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:.agents/packages/core/src/figma/parse/tokens.ts:slug",
+      "name": "slug",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/figma/parse/tokens.ts",
+      "parentId": "file:.agents/packages/core/src/figma/parse/tokens.ts",
+      "summary": "Function slug",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:.agents/packages/core/src/figma/parse/tokens.ts:extractTokens",
+      "name": "extractTokens",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/figma/parse/tokens.ts",
+      "parentId": "file:.agents/packages/core/src/figma/parse/tokens.ts",
+      "summary": "Function extractTokens",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:.agents/packages/core/src/figma/source/api-source.ts",
+      "name": "api-source.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/figma/source/api-source.ts",
+      "summary": "typescript code file (50 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:.agents/packages/core/src/figma/source/api-source.ts:parseFileKey",
+      "name": "parseFileKey",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/figma/source/api-source.ts",
+      "parentId": "file:.agents/packages/core/src/figma/source/api-source.ts",
+      "summary": "Function parseFileKey",
+      "complexity": "simple"
+    },
+    {
+      "id": "class:.agents/packages/core/src/figma/source/api-source.ts:FigmaApiSource",
+      "name": "FigmaApiSource",
+      "type": "class",
+      "filePath": ".agents/packages/core/src/figma/source/api-source.ts",
+      "parentId": "file:.agents/packages/core/src/figma/source/api-source.ts",
+      "summary": "Class FigmaApiSource",
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:.agents/packages/core/src/figma/source/types.ts",
+      "name": "types.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/figma/source/types.ts",
+      "summary": "typescript code file (30 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:.agents/packages/core/src/figma/thumbnails.ts",
+      "name": "thumbnails.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/figma/thumbnails.ts",
+      "summary": "typescript code file (29 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:.agents/packages/core/src/figma/thumbnails.ts:applyScreenThumbnails",
+      "name": "applyScreenThumbnails",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/figma/thumbnails.ts",
+      "parentId": "file:.agents/packages/core/src/figma/thumbnails.ts",
+      "summary": "Function applyScreenThumbnails",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:.agents/packages/core/src/fingerprint.ts",
+      "name": "fingerprint.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/fingerprint.ts",
+      "summary": "typescript code file (420 lines)",
+      "complexity": "complex",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:.agents/packages/core/src/fingerprint.ts:contentHash",
+      "name": "contentHash",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/fingerprint.ts",
+      "parentId": "file:.agents/packages/core/src/fingerprint.ts",
+      "summary": "Function contentHash",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:.agents/packages/core/src/fingerprint.ts:extractFileFingerprint",
+      "name": "extractFileFingerprint",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/fingerprint.ts",
+      "parentId": "file:.agents/packages/core/src/fingerprint.ts",
+      "summary": "Function extractFileFingerprint",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:.agents/packages/core/src/fingerprint.ts:compareFingerprints",
+      "name": "compareFingerprints",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/fingerprint.ts",
+      "parentId": "file:.agents/packages/core/src/fingerprint.ts",
+      "summary": "Function compareFingerprints",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:.agents/packages/core/src/fingerprint.ts:buildFingerprintStore",
+      "name": "buildFingerprintStore",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/fingerprint.ts",
+      "parentId": "file:.agents/packages/core/src/fingerprint.ts",
+      "summary": "Function buildFingerprintStore",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:.agents/packages/core/src/fingerprint.ts:analyzeChanges",
+      "name": "analyzeChanges",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/fingerprint.ts",
+      "parentId": "file:.agents/packages/core/src/fingerprint.ts",
+      "summary": "Function analyzeChanges",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:.agents/packages/core/src/ignore-filter.ts",
+      "name": "ignore-filter.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/ignore-filter.ts",
+      "summary": "typescript code file (120 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:.agents/packages/core/src/ignore-filter.ts:createIgnoreFilter",
+      "name": "createIgnoreFilter",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/ignore-filter.ts",
+      "parentId": "file:.agents/packages/core/src/ignore-filter.ts",
+      "summary": "Function createIgnoreFilter",
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:.agents/packages/core/src/analyzer/graph-builder.ts",
+      "target": "class:.agents/packages/core/src/analyzer/graph-builder.ts:GraphBuilder",
+      "type": "contains"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/graph-builder.ts:constructor",
+      "target": "function:.agents/packages/core/src/analyzer/graph-builder.ts:LanguageRegistry.createDefault",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/graph-builder.ts:detectLanguage",
+      "target": "function:.agents/packages/core/src/analyzer/graph-builder.ts:this.languageRegistry.getForFile",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/graph-builder.ts:basename",
+      "target": "function:.agents/packages/core/src/analyzer/graph-builder.ts:filePath.split(\"/\").pop",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/graph-builder.ts:basename",
+      "target": "function:.agents/packages/core/src/analyzer/graph-builder.ts:filePath.split",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/graph-builder.ts:addFile",
+      "target": "function:.agents/packages/core/src/analyzer/graph-builder.ts:this.detectLanguage",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/graph-builder.ts:addFile",
+      "target": "function:.agents/packages/core/src/analyzer/graph-builder.ts:this.languages.add",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/graph-builder.ts:addFile",
+      "target": "function:.agents/packages/core/src/analyzer/graph-builder.ts:GraphBuilder.basename",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/graph-builder.ts:addFile",
+      "target": "function:.agents/packages/core/src/analyzer/graph-builder.ts:this.nodeIds.add",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/graph-builder.ts:addFile",
+      "target": "function:.agents/packages/core/src/analyzer/graph-builder.ts:this.nodes.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/graph-builder.ts:addFileWithAnalysis",
+      "target": "function:.agents/packages/core/src/analyzer/graph-builder.ts:this.detectLanguage",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/graph-builder.ts:addFileWithAnalysis",
+      "target": "function:.agents/packages/core/src/analyzer/graph-builder.ts:this.languages.add",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/graph-builder.ts:addFileWithAnalysis",
+      "target": "function:.agents/packages/core/src/analyzer/graph-builder.ts:GraphBuilder.basename",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/graph-builder.ts:addFileWithAnalysis",
+      "target": "function:.agents/packages/core/src/analyzer/graph-builder.ts:this.nodeIds.add",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/graph-builder.ts:addFileWithAnalysis",
+      "target": "function:.agents/packages/core/src/analyzer/graph-builder.ts:this.nodes.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/graph-builder.ts:addFileWithAnalysis",
+      "target": "function:.agents/packages/core/src/analyzer/graph-builder.ts:this.nodeIds.add",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/graph-builder.ts:addFileWithAnalysis",
+      "target": "function:.agents/packages/core/src/analyzer/graph-builder.ts:this.nodes.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/graph-builder.ts:addFileWithAnalysis",
+      "target": "function:.agents/packages/core/src/analyzer/graph-builder.ts:this.edges.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/graph-builder.ts:addFileWithAnalysis",
+      "target": "function:.agents/packages/core/src/analyzer/graph-builder.ts:this.nodeIds.add",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/graph-builder.ts:addFileWithAnalysis",
+      "target": "function:.agents/packages/core/src/analyzer/graph-builder.ts:this.nodes.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/graph-builder.ts:addFileWithAnalysis",
+      "target": "function:.agents/packages/core/src/analyzer/graph-builder.ts:this.edges.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/graph-builder.ts:addImportEdge",
+      "target": "function:.agents/packages/core/src/analyzer/graph-builder.ts:this.edgeKeys.has",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/graph-builder.ts:addImportEdge",
+      "target": "function:.agents/packages/core/src/analyzer/graph-builder.ts:this.edgeKeys.add",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/graph-builder.ts:addImportEdge",
+      "target": "function:.agents/packages/core/src/analyzer/graph-builder.ts:this.edges.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/graph-builder.ts:addCallEdge",
+      "target": "function:.agents/packages/core/src/analyzer/graph-builder.ts:this.edgeKeys.has",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/graph-builder.ts:addCallEdge",
+      "target": "function:.agents/packages/core/src/analyzer/graph-builder.ts:this.edgeKeys.add",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/graph-builder.ts:addCallEdge",
+      "target": "function:.agents/packages/core/src/analyzer/graph-builder.ts:this.edges.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/graph-builder.ts:addNonCodeFile",
+      "target": "function:.agents/packages/core/src/analyzer/graph-builder.ts:this.detectLanguage",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/graph-builder.ts:addNonCodeFile",
+      "target": "function:.agents/packages/core/src/analyzer/graph-builder.ts:this.languages.add",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/graph-builder.ts:addNonCodeFile",
+      "target": "function:.agents/packages/core/src/analyzer/graph-builder.ts:GraphBuilder.basename",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/graph-builder.ts:addNonCodeFile",
+      "target": "function:.agents/packages/core/src/analyzer/graph-builder.ts:this.nodeIds.add",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/graph-builder.ts:addNonCodeFile",
+      "target": "function:.agents/packages/core/src/analyzer/graph-builder.ts:this.nodes.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/graph-builder.ts:addNonCodeFileWithAnalysis",
+      "target": "function:.agents/packages/core/src/analyzer/graph-builder.ts:this.addNonCodeFile",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/graph-builder.ts:addNonCodeFileWithAnalysis",
+      "target": "function:.agents/packages/core/src/analyzer/graph-builder.ts:this.addChildNode",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/graph-builder.ts:addNonCodeFileWithAnalysis",
+      "target": "function:.agents/packages/core/src/analyzer/graph-builder.ts:this.mapKindToNodeType",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/graph-builder.ts:addNonCodeFileWithAnalysis",
+      "target": "function:.agents/packages/core/src/analyzer/graph-builder.ts:this.addChildNode",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/graph-builder.ts:addNonCodeFileWithAnalysis",
+      "target": "function:.agents/packages/core/src/analyzer/graph-builder.ts:`${ep.method ?? \"\"} ${ep.path}`.trim",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/graph-builder.ts:addNonCodeFileWithAnalysis",
+      "target": "function:.agents/packages/core/src/analyzer/graph-builder.ts:this.addChildNode",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/graph-builder.ts:addNonCodeFileWithAnalysis",
+      "target": "function:.agents/packages/core/src/analyzer/graph-builder.ts:this.addChildNode",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/graph-builder.ts:addNonCodeFileWithAnalysis",
+      "target": "function:.agents/packages/core/src/analyzer/graph-builder.ts:this.addChildNode",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/graph-builder.ts:addChildNode",
+      "target": "function:.agents/packages/core/src/analyzer/graph-builder.ts:this.nodeIds.has",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/graph-builder.ts:addChildNode",
+      "target": "function:.agents/packages/core/src/analyzer/graph-builder.ts:console.warn",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/graph-builder.ts:addChildNode",
+      "target": "function:.agents/packages/core/src/analyzer/graph-builder.ts:this.nodeIds.add",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/graph-builder.ts:addChildNode",
+      "target": "function:.agents/packages/core/src/analyzer/graph-builder.ts:this.nodes.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/graph-builder.ts:addChildNode",
+      "target": "function:.agents/packages/core/src/analyzer/graph-builder.ts:this.edges.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/graph-builder.ts:mapKindToNodeType",
+      "target": "function:.agents/packages/core/src/analyzer/graph-builder.ts:console.warn",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/graph-builder.ts:build",
+      "target": "function:.agents/packages/core/src/analyzer/graph-builder.ts:[...this.languages].sort",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/graph-builder.ts:build",
+      "target": "function:.agents/packages/core/src/analyzer/graph-builder.ts:a.localeCompare",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/graph-builder.ts:build",
+      "target": "function:.agents/packages/core/src/analyzer/graph-builder.ts:new Date().toISOString",
+      "type": "calls"
+    },
+    {
+      "source": "file:.agents/packages/core/src/analyzer/language-lesson.ts",
+      "target": "function:.agents/packages/core/src/analyzer/language-lesson.ts:buildConceptPatterns",
+      "type": "contains"
+    },
+    {
+      "source": "file:.agents/packages/core/src/analyzer/language-lesson.ts",
+      "target": "function:.agents/packages/core/src/analyzer/language-lesson.ts:detectLanguageConcepts",
+      "type": "contains"
+    },
+    {
+      "source": "file:.agents/packages/core/src/analyzer/language-lesson.ts",
+      "target": "function:.agents/packages/core/src/analyzer/language-lesson.ts:getLanguageDisplayName",
+      "type": "contains"
+    },
+    {
+      "source": "file:.agents/packages/core/src/analyzer/language-lesson.ts",
+      "target": "function:.agents/packages/core/src/analyzer/language-lesson.ts:buildLanguageLessonPrompt",
+      "type": "contains"
+    },
+    {
+      "source": "file:.agents/packages/core/src/analyzer/language-lesson.ts",
+      "target": "function:.agents/packages/core/src/analyzer/language-lesson.ts:extractJson",
+      "type": "contains"
+    },
+    {
+      "source": "file:.agents/packages/core/src/analyzer/language-lesson.ts",
+      "target": "function:.agents/packages/core/src/analyzer/language-lesson.ts:parseLanguageLessonResponse",
+      "type": "contains"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/language-lesson.ts:buildConceptPatterns",
+      "target": "function:.agents/packages/core/src/analyzer/language-lesson.ts:concept.toLowerCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/language-lesson.ts:detectLanguageConcepts",
+      "target": "function:.agents/packages/core/src/analyzer/language-lesson.ts:[\r\n    ...node.tags,\r\n    node.summary.toLowerCase(),\r\n    node.languageNotes?.toLowerCase() ?? \"\",\r\n  ].join",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/language-lesson.ts:detectLanguageConcepts",
+      "target": "function:.agents/packages/core/src/analyzer/language-lesson.ts:node.summary.toLowerCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/language-lesson.ts:detectLanguageConcepts",
+      "target": "function:.agents/packages/core/src/analyzer/language-lesson.ts:node.languageNotes?.toLowerCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/language-lesson.ts:detectLanguageConcepts",
+      "target": "function:.agents/packages/core/src/analyzer/language-lesson.ts:buildConceptPatterns",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/language-lesson.ts:detectLanguageConcepts",
+      "target": "function:.agents/packages/core/src/analyzer/language-lesson.ts:Object.entries",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/language-lesson.ts:detectLanguageConcepts",
+      "target": "function:.agents/packages/core/src/analyzer/language-lesson.ts:keywords.some",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/language-lesson.ts:detectLanguageConcepts",
+      "target": "function:.agents/packages/core/src/analyzer/language-lesson.ts:text.toLowerCase().includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/language-lesson.ts:detectLanguageConcepts",
+      "target": "function:.agents/packages/core/src/analyzer/language-lesson.ts:text.toLowerCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/language-lesson.ts:detectLanguageConcepts",
+      "target": "function:.agents/packages/core/src/analyzer/language-lesson.ts:keyword.toLowerCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/language-lesson.ts:detectLanguageConcepts",
+      "target": "function:.agents/packages/core/src/analyzer/language-lesson.ts:detected.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/language-lesson.ts:getLanguageDisplayName",
+      "target": "function:.agents/packages/core/src/analyzer/language-lesson.ts:language.charAt(0).toUpperCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/language-lesson.ts:getLanguageDisplayName",
+      "target": "function:.agents/packages/core/src/analyzer/language-lesson.ts:language.charAt",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/language-lesson.ts:getLanguageDisplayName",
+      "target": "function:.agents/packages/core/src/analyzer/language-lesson.ts:language.slice",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/language-lesson.ts:buildLanguageLessonPrompt",
+      "target": "function:.agents/packages/core/src/analyzer/language-lesson.ts:getLanguageDisplayName",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/language-lesson.ts:buildLanguageLessonPrompt",
+      "target": "function:.agents/packages/core/src/analyzer/language-lesson.ts:detectLanguageConcepts",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/language-lesson.ts:buildLanguageLessonPrompt",
+      "target": "function:.agents/packages/core/src/analyzer/language-lesson.ts:edges\r\n    .map((edge) => {\r\n      const arrow = edge.direction === \"forward\" ? \"->\" : \"<-\";\r\n      const other =\r\n        edge.source === node.id ? edge.target : edge.source;\r\n      return `  ${arrow} ${edge.type} ${other}`;\r\n    })\r\n    .join",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/language-lesson.ts:buildLanguageLessonPrompt",
+      "target": "function:.agents/packages/core/src/analyzer/language-lesson.ts:edges\r\n    .map",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/language-lesson.ts:buildLanguageLessonPrompt",
+      "target": "function:.agents/packages/core/src/analyzer/language-lesson.ts:concepts.map((c) => `  - ${c}`).join",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/language-lesson.ts:buildLanguageLessonPrompt",
+      "target": "function:.agents/packages/core/src/analyzer/language-lesson.ts:concepts.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/language-lesson.ts:buildLanguageLessonPrompt",
+      "target": "function:.agents/packages/core/src/analyzer/language-lesson.ts:node.tags.join",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/language-lesson.ts:extractJson",
+      "target": "function:.agents/packages/core/src/analyzer/language-lesson.ts:response.match",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/language-lesson.ts:extractJson",
+      "target": "function:.agents/packages/core/src/analyzer/language-lesson.ts:fenceMatch[1].trim",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/language-lesson.ts:extractJson",
+      "target": "function:.agents/packages/core/src/analyzer/language-lesson.ts:response.match",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/language-lesson.ts:extractJson",
+      "target": "function:.agents/packages/core/src/analyzer/language-lesson.ts:objectMatch[0].trim",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/language-lesson.ts:extractJson",
+      "target": "function:.agents/packages/core/src/analyzer/language-lesson.ts:response.trim",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/language-lesson.ts:parseLanguageLessonResponse",
+      "target": "function:.agents/packages/core/src/analyzer/language-lesson.ts:extractJson",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/language-lesson.ts:parseLanguageLessonResponse",
+      "target": "function:.agents/packages/core/src/analyzer/language-lesson.ts:JSON.parse",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/language-lesson.ts:parseLanguageLessonResponse",
+      "target": "function:.agents/packages/core/src/analyzer/language-lesson.ts:Array.isArray",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/language-lesson.ts:parseLanguageLessonResponse",
+      "target": "function:.agents/packages/core/src/analyzer/language-lesson.ts:parsed.concepts\r\n          .filter(\r\n            (\r\n              c: unknown,\r\n            ): c is { name: string; explanation: string } =>\r\n              typeof c === \"object\" &&\r\n              c !== null &&\r\n              typeof (c as Record<string, unknown>).name === \"string\" &&\r\n              typeof (c as Record<string, unknown>).explanation ===\r\n                \"string\",\r\n          )\r\n          .map",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/language-lesson.ts:parseLanguageLessonResponse",
+      "target": "function:.agents/packages/core/src/analyzer/language-lesson.ts:parsed.concepts\r\n          .filter",
+      "type": "calls"
+    },
+    {
+      "source": "file:.agents/packages/core/src/analyzer/layer-detector.ts",
+      "target": "function:.agents/packages/core/src/analyzer/layer-detector.ts:toLayerId",
+      "type": "contains"
+    },
+    {
+      "source": "file:.agents/packages/core/src/analyzer/layer-detector.ts",
+      "target": "function:.agents/packages/core/src/analyzer/layer-detector.ts:matchFileToLayer",
+      "type": "contains"
+    },
+    {
+      "source": "file:.agents/packages/core/src/analyzer/layer-detector.ts",
+      "target": "function:.agents/packages/core/src/analyzer/layer-detector.ts:detectLayers",
+      "type": "contains"
+    },
+    {
+      "source": "file:.agents/packages/core/src/analyzer/layer-detector.ts",
+      "target": "function:.agents/packages/core/src/analyzer/layer-detector.ts:buildLayerDetectionPrompt",
+      "type": "contains"
+    },
+    {
+      "source": "file:.agents/packages/core/src/analyzer/layer-detector.ts",
+      "target": "function:.agents/packages/core/src/analyzer/layer-detector.ts:parseLayerDetectionResponse",
+      "type": "contains"
+    },
+    {
+      "source": "file:.agents/packages/core/src/analyzer/layer-detector.ts",
+      "target": "function:.agents/packages/core/src/analyzer/layer-detector.ts:applyLLMLayers",
+      "type": "contains"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/layer-detector.ts:toLayerId",
+      "target": "function:.agents/packages/core/src/analyzer/layer-detector.ts:name.toLowerCase().replace",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/layer-detector.ts:toLayerId",
+      "target": "function:.agents/packages/core/src/analyzer/layer-detector.ts:name.toLowerCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/layer-detector.ts:matchFileToLayer",
+      "target": "function:.agents/packages/core/src/analyzer/layer-detector.ts:filePath.replace(/\\\\/g, \"/\").toLowerCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/layer-detector.ts:matchFileToLayer",
+      "target": "function:.agents/packages/core/src/analyzer/layer-detector.ts:filePath.replace",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/layer-detector.ts:matchFileToLayer",
+      "target": "function:.agents/packages/core/src/analyzer/layer-detector.ts:normalizedPath.split",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/layer-detector.ts:detectLayers",
+      "target": "function:.agents/packages/core/src/analyzer/layer-detector.ts:corePathless.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/layer-detector.ts:detectLayers",
+      "target": "function:.agents/packages/core/src/analyzer/layer-detector.ts:matchFileToLayer",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/layer-detector.ts:detectLayers",
+      "target": "function:.agents/packages/core/src/analyzer/layer-detector.ts:layerMap.get",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/layer-detector.ts:detectLayers",
+      "target": "function:.agents/packages/core/src/analyzer/layer-detector.ts:existing.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/layer-detector.ts:detectLayers",
+      "target": "function:.agents/packages/core/src/analyzer/layer-detector.ts:layerMap.set",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/layer-detector.ts:detectLayers",
+      "target": "function:.agents/packages/core/src/analyzer/layer-detector.ts:layerMap.get",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/layer-detector.ts:detectLayers",
+      "target": "function:.agents/packages/core/src/analyzer/layer-detector.ts:existing.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/layer-detector.ts:detectLayers",
+      "target": "function:.agents/packages/core/src/analyzer/layer-detector.ts:layerMap.set",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/layer-detector.ts:detectLayers",
+      "target": "function:.agents/packages/core/src/analyzer/layer-detector.ts:LAYER_PATTERNS.find",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/layer-detector.ts:detectLayers",
+      "target": "function:.agents/packages/core/src/analyzer/layer-detector.ts:layers.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/layer-detector.ts:detectLayers",
+      "target": "function:.agents/packages/core/src/analyzer/layer-detector.ts:toLayerId",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/layer-detector.ts:buildLayerDetectionPrompt",
+      "target": "function:.agents/packages/core/src/analyzer/layer-detector.ts:graph.nodes\r\n    .filter((n) => n.type === \"file\" && n.filePath)\r\n    .map",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/layer-detector.ts:buildLayerDetectionPrompt",
+      "target": "function:.agents/packages/core/src/analyzer/layer-detector.ts:graph.nodes\r\n    .filter",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/layer-detector.ts:buildLayerDetectionPrompt",
+      "target": "function:.agents/packages/core/src/analyzer/layer-detector.ts:filePaths.map((f) => `  - ${f}`).join",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/layer-detector.ts:buildLayerDetectionPrompt",
+      "target": "function:.agents/packages/core/src/analyzer/layer-detector.ts:filePaths.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/layer-detector.ts:parseLayerDetectionResponse",
+      "target": "function:.agents/packages/core/src/analyzer/layer-detector.ts:response.trim",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/layer-detector.ts:parseLayerDetectionResponse",
+      "target": "function:.agents/packages/core/src/analyzer/layer-detector.ts:response.match",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/layer-detector.ts:parseLayerDetectionResponse",
+      "target": "function:.agents/packages/core/src/analyzer/layer-detector.ts:fenceMatch[1].trim",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/layer-detector.ts:parseLayerDetectionResponse",
+      "target": "function:.agents/packages/core/src/analyzer/layer-detector.ts:response.trim",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/layer-detector.ts:parseLayerDetectionResponse",
+      "target": "function:.agents/packages/core/src/analyzer/layer-detector.ts:jsonStr.match",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/layer-detector.ts:parseLayerDetectionResponse",
+      "target": "function:.agents/packages/core/src/analyzer/layer-detector.ts:JSON.parse",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/layer-detector.ts:parseLayerDetectionResponse",
+      "target": "function:.agents/packages/core/src/analyzer/layer-detector.ts:Array.isArray",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/layer-detector.ts:parseLayerDetectionResponse",
+      "target": "function:.agents/packages/core/src/analyzer/layer-detector.ts:layers.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/layer-detector.ts:parseLayerDetectionResponse",
+      "target": "function:.agents/packages/core/src/analyzer/layer-detector.ts:Array.isArray",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/layer-detector.ts:parseLayerDetectionResponse",
+      "target": "function:.agents/packages/core/src/analyzer/layer-detector.ts:item.filePatterns.filter",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/layer-detector.ts:applyLLMLayers",
+      "target": "function:.agents/packages/core/src/analyzer/layer-detector.ts:layerMap.set",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/layer-detector.ts:applyLLMLayers",
+      "target": "function:.agents/packages/core/src/analyzer/layer-detector.ts:layerMap.get",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/layer-detector.ts:applyLLMLayers",
+      "target": "function:.agents/packages/core/src/analyzer/layer-detector.ts:other.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/layer-detector.ts:applyLLMLayers",
+      "target": "function:.agents/packages/core/src/analyzer/layer-detector.ts:layerMap.set",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/layer-detector.ts:applyLLMLayers",
+      "target": "function:.agents/packages/core/src/analyzer/layer-detector.ts:node.filePath.replace",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/layer-detector.ts:applyLLMLayers",
+      "target": "function:.agents/packages/core/src/analyzer/layer-detector.ts:normalizedPath.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/layer-detector.ts:applyLLMLayers",
+      "target": "function:.agents/packages/core/src/analyzer/layer-detector.ts:normalizedPath.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/layer-detector.ts:applyLLMLayers",
+      "target": "function:.agents/packages/core/src/analyzer/layer-detector.ts:layerMap.get",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/layer-detector.ts:applyLLMLayers",
+      "target": "function:.agents/packages/core/src/analyzer/layer-detector.ts:existing.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/layer-detector.ts:applyLLMLayers",
+      "target": "function:.agents/packages/core/src/analyzer/layer-detector.ts:layerMap.get",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/layer-detector.ts:applyLLMLayers",
+      "target": "function:.agents/packages/core/src/analyzer/layer-detector.ts:other.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/layer-detector.ts:applyLLMLayers",
+      "target": "function:.agents/packages/core/src/analyzer/layer-detector.ts:layerMap.set",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/layer-detector.ts:applyLLMLayers",
+      "target": "function:.agents/packages/core/src/analyzer/layer-detector.ts:llmLayers.find",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/layer-detector.ts:applyLLMLayers",
+      "target": "function:.agents/packages/core/src/analyzer/layer-detector.ts:layers.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/layer-detector.ts:applyLLMLayers",
+      "target": "function:.agents/packages/core/src/analyzer/layer-detector.ts:toLayerId",
+      "type": "calls"
+    },
+    {
+      "source": "file:.agents/packages/core/src/analyzer/llm-analyzer.ts",
+      "target": "function:.agents/packages/core/src/analyzer/llm-analyzer.ts:buildFileAnalysisPrompt",
+      "type": "contains"
+    },
+    {
+      "source": "file:.agents/packages/core/src/analyzer/llm-analyzer.ts",
+      "target": "function:.agents/packages/core/src/analyzer/llm-analyzer.ts:buildProjectSummaryPrompt",
+      "type": "contains"
+    },
+    {
+      "source": "file:.agents/packages/core/src/analyzer/llm-analyzer.ts",
+      "target": "function:.agents/packages/core/src/analyzer/llm-analyzer.ts:extractJson",
+      "type": "contains"
+    },
+    {
+      "source": "file:.agents/packages/core/src/analyzer/llm-analyzer.ts",
+      "target": "function:.agents/packages/core/src/analyzer/llm-analyzer.ts:parseFileAnalysisResponse",
+      "type": "contains"
+    },
+    {
+      "source": "file:.agents/packages/core/src/analyzer/llm-analyzer.ts",
+      "target": "function:.agents/packages/core/src/analyzer/llm-analyzer.ts:parseProjectSummaryResponse",
+      "type": "contains"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/llm-analyzer.ts:buildProjectSummaryPrompt",
+      "target": "function:.agents/packages/core/src/analyzer/llm-analyzer.ts:fileList.map((f) => `  - ${f}`).join",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/llm-analyzer.ts:buildProjectSummaryPrompt",
+      "target": "function:.agents/packages/core/src/analyzer/llm-analyzer.ts:fileList.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/llm-analyzer.ts:extractJson",
+      "target": "function:.agents/packages/core/src/analyzer/llm-analyzer.ts:response.match",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/llm-analyzer.ts:extractJson",
+      "target": "function:.agents/packages/core/src/analyzer/llm-analyzer.ts:fenceMatch[1].trim",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/llm-analyzer.ts:extractJson",
+      "target": "function:.agents/packages/core/src/analyzer/llm-analyzer.ts:response.match",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/llm-analyzer.ts:extractJson",
+      "target": "function:.agents/packages/core/src/analyzer/llm-analyzer.ts:objectMatch[0].trim",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/llm-analyzer.ts:extractJson",
+      "target": "function:.agents/packages/core/src/analyzer/llm-analyzer.ts:response.trim",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/llm-analyzer.ts:parseFileAnalysisResponse",
+      "target": "function:.agents/packages/core/src/analyzer/llm-analyzer.ts:extractJson",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/llm-analyzer.ts:parseFileAnalysisResponse",
+      "target": "function:.agents/packages/core/src/analyzer/llm-analyzer.ts:JSON.parse",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/llm-analyzer.ts:parseFileAnalysisResponse",
+      "target": "function:.agents/packages/core/src/analyzer/llm-analyzer.ts:VALID_COMPLEXITIES.has",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/llm-analyzer.ts:parseFileAnalysisResponse",
+      "target": "function:.agents/packages/core/src/analyzer/llm-analyzer.ts:Array.isArray",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/llm-analyzer.ts:parseFileAnalysisResponse",
+      "target": "function:.agents/packages/core/src/analyzer/llm-analyzer.ts:parsed.tags.filter",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/llm-analyzer.ts:parseProjectSummaryResponse",
+      "target": "function:.agents/packages/core/src/analyzer/llm-analyzer.ts:extractJson",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/llm-analyzer.ts:parseProjectSummaryResponse",
+      "target": "function:.agents/packages/core/src/analyzer/llm-analyzer.ts:JSON.parse",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/llm-analyzer.ts:parseProjectSummaryResponse",
+      "target": "function:.agents/packages/core/src/analyzer/llm-analyzer.ts:Array.isArray",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/llm-analyzer.ts:parseProjectSummaryResponse",
+      "target": "function:.agents/packages/core/src/analyzer/llm-analyzer.ts:parsed.frameworks.filter",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/llm-analyzer.ts:parseProjectSummaryResponse",
+      "target": "function:.agents/packages/core/src/analyzer/llm-analyzer.ts:Array.isArray",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/llm-analyzer.ts:parseProjectSummaryResponse",
+      "target": "function:.agents/packages/core/src/analyzer/llm-analyzer.ts:parsed.layers\r\n            .filter(\r\n              (l: unknown): l is { name: string; description: string; filePatterns: string[] } =>\r\n                typeof l === \"object\" &&\r\n                l !== null &&\r\n                typeof (l as Record<string, unknown>).name === \"string\",\r\n            )\r\n            .map",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/llm-analyzer.ts:parseProjectSummaryResponse",
+      "target": "function:.agents/packages/core/src/analyzer/llm-analyzer.ts:parsed.layers\r\n            .filter",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/llm-analyzer.ts:parseProjectSummaryResponse",
+      "target": "function:.agents/packages/core/src/analyzer/llm-analyzer.ts:Array.isArray",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/llm-analyzer.ts:parseProjectSummaryResponse",
+      "target": "function:.agents/packages/core/src/analyzer/llm-analyzer.ts:l.filePatterns.filter",
+      "type": "calls"
+    },
+    {
+      "source": "file:.agents/packages/core/src/analyzer/normalize-graph.ts",
+      "target": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:stripToValidPrefix",
+      "type": "contains"
+    },
+    {
+      "source": "file:.agents/packages/core/src/analyzer/normalize-graph.ts",
+      "target": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:normalizeNodeId",
+      "type": "contains"
+    },
+    {
+      "source": "file:.agents/packages/core/src/analyzer/normalize-graph.ts",
+      "target": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:normalizeComplexity",
+      "type": "contains"
+    },
+    {
+      "source": "file:.agents/packages/core/src/analyzer/normalize-graph.ts",
+      "target": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:inferTypeFromId",
+      "type": "contains"
+    },
+    {
+      "source": "file:.agents/packages/core/src/analyzer/normalize-graph.ts",
+      "target": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:normalizeBatchOutput",
+      "type": "contains"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:stripToValidPrefix",
+      "target": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:remaining.indexOf",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:stripToValidPrefix",
+      "target": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:remaining.slice",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:stripToValidPrefix",
+      "target": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:VALID_PREFIXES.has",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:stripToValidPrefix",
+      "target": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:remaining.slice",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:stripToValidPrefix",
+      "target": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:rest.indexOf",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:stripToValidPrefix",
+      "target": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:VALID_PREFIXES.has",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:stripToValidPrefix",
+      "target": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:rest.slice",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:stripToValidPrefix",
+      "target": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:remaining.slice",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:normalizeNodeId",
+      "target": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:id.trim",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:normalizeNodeId",
+      "target": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:stripToValidPrefix",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:normalizeNodeId",
+      "target": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:path.split",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:normalizeNodeId",
+      "target": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:path.toLowerCase().replace",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:normalizeNodeId",
+      "target": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:path.toLowerCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:normalizeComplexity",
+      "target": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:value.toLowerCase().trim",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:normalizeComplexity",
+      "target": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:value.toLowerCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:normalizeComplexity",
+      "target": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:VALID_COMPLEXITIES.has",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:normalizeComplexity",
+      "target": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:Number.isFinite",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:inferTypeFromId",
+      "target": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:id.indexOf",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:inferTypeFromId",
+      "target": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:id.slice",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:normalizeBatchOutput",
+      "target": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:String",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:normalizeBatchOutput",
+      "target": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:flowNodeNames.set",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:normalizeBatchOutput",
+      "target": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:String",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:normalizeBatchOutput",
+      "target": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:String(raw.name).toLowerCase().replace",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:normalizeBatchOutput",
+      "target": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:String(raw.name).toLowerCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:normalizeBatchOutput",
+      "target": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:String",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:normalizeBatchOutput",
+      "target": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:String",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:normalizeBatchOutput",
+      "target": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:flowNodeNames.get",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:normalizeBatchOutput",
+      "target": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:String",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:normalizeBatchOutput",
+      "target": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:stepToFlowSlug.set",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:normalizeBatchOutput",
+      "target": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:String",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:normalizeBatchOutput",
+      "target": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:data.nodes.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:normalizeBatchOutput",
+      "target": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:String",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:normalizeBatchOutput",
+      "target": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:String",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:normalizeBatchOutput",
+      "target": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:normalizeNodeId",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:normalizeBatchOutput",
+      "target": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:stepToFlowSlug.get",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:normalizeBatchOutput",
+      "target": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:idMap.set",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:normalizeBatchOutput",
+      "target": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:normalizeComplexity",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:normalizeBatchOutput",
+      "target": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:seenIds.set",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:normalizeBatchOutput",
+      "target": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:String",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:normalizeBatchOutput",
+      "target": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:nodes.filter",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:normalizeBatchOutput",
+      "target": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:seenIds.get",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:normalizeBatchOutput",
+      "target": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:String",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:normalizeBatchOutput",
+      "target": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:deduped.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:normalizeBatchOutput",
+      "target": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:String",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:normalizeBatchOutput",
+      "target": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:String",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:normalizeBatchOutput",
+      "target": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:String",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:normalizeBatchOutput",
+      "target": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:idMap.get",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:normalizeBatchOutput",
+      "target": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:idMap.get",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:normalizeBatchOutput",
+      "target": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:validNodeIds.has",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:normalizeBatchOutput",
+      "target": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:inferTypeFromId",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:normalizeBatchOutput",
+      "target": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:normalizeNodeId",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:normalizeBatchOutput",
+      "target": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:validNodeIds.has",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:normalizeBatchOutput",
+      "target": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:validNodeIds.has",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:normalizeBatchOutput",
+      "target": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:inferTypeFromId",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:normalizeBatchOutput",
+      "target": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:normalizeNodeId",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:normalizeBatchOutput",
+      "target": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:validNodeIds.has",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:normalizeBatchOutput",
+      "target": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:validNodeIds.has",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:normalizeBatchOutput",
+      "target": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:validNodeIds.has",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:normalizeBatchOutput",
+      "target": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:validNodeIds.has",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:normalizeBatchOutput",
+      "target": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:validNodeIds.has",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:normalizeBatchOutput",
+      "target": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:stats.droppedEdges.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:normalizeBatchOutput",
+      "target": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:String",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:normalizeBatchOutput",
+      "target": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:String",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:normalizeBatchOutput",
+      "target": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:seenEdges.has",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:normalizeBatchOutput",
+      "target": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:seenEdges.add",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:normalizeBatchOutput",
+      "target": "function:.agents/packages/core/src/analyzer/normalize-graph.ts:edges.push",
+      "type": "calls"
+    },
+    {
+      "source": "file:.agents/packages/core/src/analyzer/tour-generator.ts",
+      "target": "function:.agents/packages/core/src/analyzer/tour-generator.ts:buildTourGenerationPrompt",
+      "type": "contains"
+    },
+    {
+      "source": "file:.agents/packages/core/src/analyzer/tour-generator.ts",
+      "target": "function:.agents/packages/core/src/analyzer/tour-generator.ts:parseTourGenerationResponse",
+      "type": "contains"
+    },
+    {
+      "source": "file:.agents/packages/core/src/analyzer/tour-generator.ts",
+      "target": "function:.agents/packages/core/src/analyzer/tour-generator.ts:generateHeuristicTour",
+      "type": "contains"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/tour-generator.ts:buildTourGenerationPrompt",
+      "target": "function:.agents/packages/core/src/analyzer/tour-generator.ts:nodes\r\n    .map(\r\n      (n) =>\r\n        `  - [${n.type}] ${n.name}${n.filePath ? ` (${n.filePath})` : \"\"}: ${n.summary}`,\r\n    )\r\n    .join",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/tour-generator.ts:buildTourGenerationPrompt",
+      "target": "function:.agents/packages/core/src/analyzer/tour-generator.ts:nodes\r\n    .map",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/tour-generator.ts:buildTourGenerationPrompt",
+      "target": "function:.agents/packages/core/src/analyzer/tour-generator.ts:edges\r\n    .slice(0, 50)\r\n    .map((e) => `  - ${e.source} --${e.type}--> ${e.target}`)\r\n    .join",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/tour-generator.ts:buildTourGenerationPrompt",
+      "target": "function:.agents/packages/core/src/analyzer/tour-generator.ts:edges\r\n    .slice(0, 50)\r\n    .map",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/tour-generator.ts:buildTourGenerationPrompt",
+      "target": "function:.agents/packages/core/src/analyzer/tour-generator.ts:edges\r\n    .slice",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/tour-generator.ts:buildTourGenerationPrompt",
+      "target": "function:.agents/packages/core/src/analyzer/tour-generator.ts:layers\r\n          .map(\r\n            (l) =>\r\n              `  - ${l.name}: ${l.description} (nodes: ${l.nodeIds.join(\", \")})`,\r\n          )\r\n          .join",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/tour-generator.ts:buildTourGenerationPrompt",
+      "target": "function:.agents/packages/core/src/analyzer/tour-generator.ts:layers\r\n          .map",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/tour-generator.ts:buildTourGenerationPrompt",
+      "target": "function:.agents/packages/core/src/analyzer/tour-generator.ts:l.nodeIds.join",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/tour-generator.ts:buildTourGenerationPrompt",
+      "target": "function:.agents/packages/core/src/analyzer/tour-generator.ts:project.languages.join",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/tour-generator.ts:buildTourGenerationPrompt",
+      "target": "function:.agents/packages/core/src/analyzer/tour-generator.ts:project.frameworks.join",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/tour-generator.ts:parseTourGenerationResponse",
+      "target": "function:.agents/packages/core/src/analyzer/tour-generator.ts:response.trim",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/tour-generator.ts:parseTourGenerationResponse",
+      "target": "function:.agents/packages/core/src/analyzer/tour-generator.ts:response.match",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/tour-generator.ts:parseTourGenerationResponse",
+      "target": "function:.agents/packages/core/src/analyzer/tour-generator.ts:fenceMatch[1].trim",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/tour-generator.ts:parseTourGenerationResponse",
+      "target": "function:.agents/packages/core/src/analyzer/tour-generator.ts:response.trim",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/tour-generator.ts:parseTourGenerationResponse",
+      "target": "function:.agents/packages/core/src/analyzer/tour-generator.ts:jsonStr.match",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/tour-generator.ts:parseTourGenerationResponse",
+      "target": "function:.agents/packages/core/src/analyzer/tour-generator.ts:JSON.parse",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/tour-generator.ts:parseTourGenerationResponse",
+      "target": "function:.agents/packages/core/src/analyzer/tour-generator.ts:Array.isArray",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/tour-generator.ts:parseTourGenerationResponse",
+      "target": "function:.agents/packages/core/src/analyzer/tour-generator.ts:Array.isArray",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/tour-generator.ts:parseTourGenerationResponse",
+      "target": "function:.agents/packages/core/src/analyzer/tour-generator.ts:item.nodeIds.filter",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/tour-generator.ts:parseTourGenerationResponse",
+      "target": "function:.agents/packages/core/src/analyzer/tour-generator.ts:steps.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/tour-generator.ts:generateHeuristicTour",
+      "target": "function:.agents/packages/core/src/analyzer/tour-generator.ts:nodes.filter",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/tour-generator.ts:generateHeuristicTour",
+      "target": "function:.agents/packages/core/src/analyzer/tour-generator.ts:nodes.filter",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/tour-generator.ts:generateHeuristicTour",
+      "target": "function:.agents/packages/core/src/analyzer/tour-generator.ts:codeNodes.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/tour-generator.ts:generateHeuristicTour",
+      "target": "function:.agents/packages/core/src/analyzer/tour-generator.ts:inDegree.set",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/tour-generator.ts:generateHeuristicTour",
+      "target": "function:.agents/packages/core/src/analyzer/tour-generator.ts:adjacency.set",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/tour-generator.ts:generateHeuristicTour",
+      "target": "function:.agents/packages/core/src/analyzer/tour-generator.ts:codeNodeIds.has",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/tour-generator.ts:generateHeuristicTour",
+      "target": "function:.agents/packages/core/src/analyzer/tour-generator.ts:codeNodeIds.has",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/tour-generator.ts:generateHeuristicTour",
+      "target": "function:.agents/packages/core/src/analyzer/tour-generator.ts:inDegree.set",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/tour-generator.ts:generateHeuristicTour",
+      "target": "function:.agents/packages/core/src/analyzer/tour-generator.ts:inDegree.get",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/tour-generator.ts:generateHeuristicTour",
+      "target": "function:.agents/packages/core/src/analyzer/tour-generator.ts:adjacency.get(edge.source)!.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/tour-generator.ts:generateHeuristicTour",
+      "target": "function:.agents/packages/core/src/analyzer/tour-generator.ts:adjacency.get",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/tour-generator.ts:generateHeuristicTour",
+      "target": "function:.agents/packages/core/src/analyzer/tour-generator.ts:queue.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/tour-generator.ts:generateHeuristicTour",
+      "target": "function:.agents/packages/core/src/analyzer/tour-generator.ts:topoOrder.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/tour-generator.ts:generateHeuristicTour",
+      "target": "function:.agents/packages/core/src/analyzer/tour-generator.ts:adjacency.get",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/tour-generator.ts:generateHeuristicTour",
+      "target": "function:.agents/packages/core/src/analyzer/tour-generator.ts:inDegree.get",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/tour-generator.ts:generateHeuristicTour",
+      "target": "function:.agents/packages/core/src/analyzer/tour-generator.ts:inDegree.set",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/tour-generator.ts:generateHeuristicTour",
+      "target": "function:.agents/packages/core/src/analyzer/tour-generator.ts:queue.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/tour-generator.ts:generateHeuristicTour",
+      "target": "function:.agents/packages/core/src/analyzer/tour-generator.ts:inTopo.has",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/tour-generator.ts:generateHeuristicTour",
+      "target": "function:.agents/packages/core/src/analyzer/tour-generator.ts:topoOrder.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/tour-generator.ts:generateHeuristicTour",
+      "target": "function:.agents/packages/core/src/analyzer/tour-generator.ts:inTopo.add",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/tour-generator.ts:generateHeuristicTour",
+      "target": "function:.agents/packages/core/src/analyzer/tour-generator.ts:nodes.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/tour-generator.ts:generateHeuristicTour",
+      "target": "function:.agents/packages/core/src/analyzer/tour-generator.ts:nodeToLayer.set",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/tour-generator.ts:generateHeuristicTour",
+      "target": "function:.agents/packages/core/src/analyzer/tour-generator.ts:nodeToLayer.get",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/tour-generator.ts:generateHeuristicTour",
+      "target": "function:.agents/packages/core/src/analyzer/tour-generator.ts:layerNodes.has",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/tour-generator.ts:generateHeuristicTour",
+      "target": "function:.agents/packages/core/src/analyzer/tour-generator.ts:layerNodes.set",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/tour-generator.ts:generateHeuristicTour",
+      "target": "function:.agents/packages/core/src/analyzer/tour-generator.ts:layerOrder.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/tour-generator.ts:generateHeuristicTour",
+      "target": "function:.agents/packages/core/src/analyzer/tour-generator.ts:layerNodes.get(layerId)!.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/tour-generator.ts:generateHeuristicTour",
+      "target": "function:.agents/packages/core/src/analyzer/tour-generator.ts:layerNodes.get",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/tour-generator.ts:generateHeuristicTour",
+      "target": "function:.agents/packages/core/src/analyzer/tour-generator.ts:layers.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/tour-generator.ts:generateHeuristicTour",
+      "target": "function:.agents/packages/core/src/analyzer/tour-generator.ts:layerMap.get",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/tour-generator.ts:generateHeuristicTour",
+      "target": "function:.agents/packages/core/src/analyzer/tour-generator.ts:layerNodes.get",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/tour-generator.ts:generateHeuristicTour",
+      "target": "function:.agents/packages/core/src/analyzer/tour-generator.ts:nodeIds\r\n          .map((id) => nodeMap.get(id)?.name)\r\n          .filter(Boolean)\r\n          .join",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/tour-generator.ts:generateHeuristicTour",
+      "target": "function:.agents/packages/core/src/analyzer/tour-generator.ts:nodeIds\r\n          .map((id) => nodeMap.get(id)?.name)\r\n          .filter",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/tour-generator.ts:generateHeuristicTour",
+      "target": "function:.agents/packages/core/src/analyzer/tour-generator.ts:nodeIds\r\n          .map",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/tour-generator.ts:generateHeuristicTour",
+      "target": "function:.agents/packages/core/src/analyzer/tour-generator.ts:nodeMap.get",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/tour-generator.ts:generateHeuristicTour",
+      "target": "function:.agents/packages/core/src/analyzer/tour-generator.ts:steps.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/tour-generator.ts:generateHeuristicTour",
+      "target": "function:.agents/packages/core/src/analyzer/tour-generator.ts:layers.flatMap",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/tour-generator.ts:generateHeuristicTour",
+      "target": "function:.agents/packages/core/src/analyzer/tour-generator.ts:topoOrder.filter",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/tour-generator.ts:generateHeuristicTour",
+      "target": "function:.agents/packages/core/src/analyzer/tour-generator.ts:layeredNodeIds.has",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/tour-generator.ts:generateHeuristicTour",
+      "target": "function:.agents/packages/core/src/analyzer/tour-generator.ts:unlayeredNodes\r\n        .map((id) => nodeMap.get(id)?.name)\r\n        .filter(Boolean)\r\n        .join",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/tour-generator.ts:generateHeuristicTour",
+      "target": "function:.agents/packages/core/src/analyzer/tour-generator.ts:unlayeredNodes\r\n        .map((id) => nodeMap.get(id)?.name)\r\n        .filter",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/tour-generator.ts:generateHeuristicTour",
+      "target": "function:.agents/packages/core/src/analyzer/tour-generator.ts:unlayeredNodes\r\n        .map",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/tour-generator.ts:generateHeuristicTour",
+      "target": "function:.agents/packages/core/src/analyzer/tour-generator.ts:nodeMap.get",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/tour-generator.ts:generateHeuristicTour",
+      "target": "function:.agents/packages/core/src/analyzer/tour-generator.ts:steps.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/tour-generator.ts:generateHeuristicTour",
+      "target": "function:.agents/packages/core/src/analyzer/tour-generator.ts:topoOrder.slice",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/tour-generator.ts:generateHeuristicTour",
+      "target": "function:.agents/packages/core/src/analyzer/tour-generator.ts:batch\r\n        .map((id) => {\r\n          const node = nodeMap.get(id);\r\n          return node ? `${node.name} (${node.summary})` : id;\r\n        })\r\n        .join",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/tour-generator.ts:generateHeuristicTour",
+      "target": "function:.agents/packages/core/src/analyzer/tour-generator.ts:batch\r\n        .map",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/tour-generator.ts:generateHeuristicTour",
+      "target": "function:.agents/packages/core/src/analyzer/tour-generator.ts:nodeMap.get",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/tour-generator.ts:generateHeuristicTour",
+      "target": "function:.agents/packages/core/src/analyzer/tour-generator.ts:Math.floor",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/tour-generator.ts:generateHeuristicTour",
+      "target": "function:.agents/packages/core/src/analyzer/tour-generator.ts:steps.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/tour-generator.ts:generateHeuristicTour",
+      "target": "function:.agents/packages/core/src/analyzer/tour-generator.ts:conceptNodes\r\n      .map((n) => `${n.name} (${n.summary})`)\r\n      .join",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/tour-generator.ts:generateHeuristicTour",
+      "target": "function:.agents/packages/core/src/analyzer/tour-generator.ts:conceptNodes\r\n      .map",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/tour-generator.ts:generateHeuristicTour",
+      "target": "function:.agents/packages/core/src/analyzer/tour-generator.ts:steps.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/analyzer/tour-generator.ts:generateHeuristicTour",
+      "target": "function:.agents/packages/core/src/analyzer/tour-generator.ts:conceptNodes.map",
+      "type": "calls"
+    },
+    {
+      "source": "file:.agents/packages/core/src/change-classifier.ts",
+      "target": "function:.agents/packages/core/src/change-classifier.ts:classifyUpdate",
+      "type": "contains"
+    },
+    {
+      "source": "file:.agents/packages/core/src/change-classifier.ts",
+      "target": "function:.agents/packages/core/src/change-classifier.ts:detectDirectoryChanges",
+      "type": "contains"
+    },
+    {
+      "source": "file:.agents/packages/core/src/change-classifier.ts",
+      "target": "function:.agents/packages/core/src/change-classifier.ts:topDirectories",
+      "type": "contains"
+    },
+    {
+      "source": "file:.agents/packages/core/src/change-classifier.ts",
+      "target": "function:.agents/packages/core/src/change-classifier.ts:topDirectory",
+      "type": "contains"
+    },
+    {
+      "source": "file:.agents/packages/core/src/change-classifier.ts",
+      "target": "function:.agents/packages/core/src/change-classifier.ts:summarizeChanges",
+      "type": "contains"
+    },
+    {
+      "source": "function:.agents/packages/core/src/change-classifier.ts:classifyUpdate",
+      "target": "function:.agents/packages/core/src/change-classifier.ts:detectDirectoryChanges",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/change-classifier.ts:classifyUpdate",
+      "target": "function:.agents/packages/core/src/change-classifier.ts:summarizeChanges",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/change-classifier.ts:detectDirectoryChanges",
+      "target": "function:.agents/packages/core/src/change-classifier.ts:before.add",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/change-classifier.ts:detectDirectoryChanges",
+      "target": "function:.agents/packages/core/src/change-classifier.ts:previousFiles.filter",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/change-classifier.ts:detectDirectoryChanges",
+      "target": "function:.agents/packages/core/src/change-classifier.ts:deletedFiles.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/change-classifier.ts:detectDirectoryChanges",
+      "target": "function:.agents/packages/core/src/change-classifier.ts:after.add",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/change-classifier.ts:detectDirectoryChanges",
+      "target": "function:.agents/packages/core/src/change-classifier.ts:topDirectories",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/change-classifier.ts:detectDirectoryChanges",
+      "target": "function:.agents/packages/core/src/change-classifier.ts:topDirectories",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/change-classifier.ts:detectDirectoryChanges",
+      "target": "function:.agents/packages/core/src/change-classifier.ts:afterDirs.has",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/change-classifier.ts:topDirectories",
+      "target": "function:.agents/packages/core/src/change-classifier.ts:file.replaceAll",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/change-classifier.ts:topDirectories",
+      "target": "function:.agents/packages/core/src/change-classifier.ts:topDirectory",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/change-classifier.ts:topDirectories",
+      "target": "function:.agents/packages/core/src/change-classifier.ts:dirs.add",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/change-classifier.ts:topDirectory",
+      "target": "function:.agents/packages/core/src/change-classifier.ts:dirname",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/change-classifier.ts:topDirectory",
+      "target": "function:.agents/packages/core/src/change-classifier.ts:dir.split",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/change-classifier.ts:summarizeChanges",
+      "target": "function:.agents/packages/core/src/change-classifier.ts:parts.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/change-classifier.ts:summarizeChanges",
+      "target": "function:.agents/packages/core/src/change-classifier.ts:parts.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/change-classifier.ts:summarizeChanges",
+      "target": "function:.agents/packages/core/src/change-classifier.ts:parts.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/change-classifier.ts:summarizeChanges",
+      "target": "function:.agents/packages/core/src/change-classifier.ts:parts.join",
+      "type": "calls"
+    },
+    {
+      "source": "file:.agents/packages/core/src/embedding-search.ts",
+      "target": "function:.agents/packages/core/src/embedding-search.ts:cosineSimilarity",
+      "type": "contains"
+    },
+    {
+      "source": "file:.agents/packages/core/src/embedding-search.ts",
+      "target": "function:.agents/packages/core/src/embedding-search.ts:cosineSimilarityWithQueryMag",
+      "type": "contains"
+    },
+    {
+      "source": "file:.agents/packages/core/src/embedding-search.ts",
+      "target": "class:.agents/packages/core/src/embedding-search.ts:SemanticSearchEngine",
+      "type": "contains"
+    },
+    {
+      "source": "function:.agents/packages/core/src/embedding-search.ts:cosineSimilarity",
+      "target": "function:.agents/packages/core/src/embedding-search.ts:Math.sqrt",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/embedding-search.ts:cosineSimilarity",
+      "target": "function:.agents/packages/core/src/embedding-search.ts:Math.sqrt",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/embedding-search.ts:cosineSimilarityWithQueryMag",
+      "target": "function:.agents/packages/core/src/embedding-search.ts:Math.sqrt",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/embedding-search.ts:constructor",
+      "target": "function:.agents/packages/core/src/embedding-search.ts:Object.entries",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/embedding-search.ts:addEmbedding",
+      "target": "function:.agents/packages/core/src/embedding-search.ts:this.embeddings.set",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/embedding-search.ts:search",
+      "target": "function:.agents/packages/core/src/embedding-search.ts:Math.sqrt",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/embedding-search.ts:search",
+      "target": "function:.agents/packages/core/src/embedding-search.ts:typeFilter.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/embedding-search.ts:search",
+      "target": "function:.agents/packages/core/src/embedding-search.ts:this.embeddings.get",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/embedding-search.ts:search",
+      "target": "function:.agents/packages/core/src/embedding-search.ts:cosineSimilarityWithQueryMag",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/embedding-search.ts:search",
+      "target": "function:.agents/packages/core/src/embedding-search.ts:scored.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/embedding-search.ts:search",
+      "target": "function:.agents/packages/core/src/embedding-search.ts:scored.sort",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/embedding-search.ts:search",
+      "target": "function:.agents/packages/core/src/embedding-search.ts:scored.slice",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/figma/__tests__/parse-document.test.ts:has",
+      "target": "function:.agents/packages/core/src/figma/__tests__/parse-document.test.ts:edges.some",
+      "type": "calls"
+    },
+    {
+      "source": "file:.agents/packages/core/src/figma/__tests__/thumbnails.test.ts",
+      "target": "function:.agents/packages/core/src/figma/__tests__/thumbnails.test.ts:node",
+      "type": "contains"
+    },
+    {
+      "source": "file:.agents/packages/core/src/figma/merge.ts",
+      "target": "function:.agents/packages/core/src/figma/merge.ts:mergeDesignGraph",
+      "type": "contains"
+    },
+    {
+      "source": "function:.agents/packages/core/src/figma/merge.ts:mergeDesignGraph",
+      "target": "function:.agents/packages/core/src/figma/merge.ts:byId.set",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/figma/merge.ts:mergeDesignGraph",
+      "target": "function:.agents/packages/core/src/figma/merge.ts:byId.get",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/figma/merge.ts:mergeDesignGraph",
+      "target": "function:.agents/packages/core/src/figma/merge.ts:edges.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/figma/merge.ts:mergeDesignGraph",
+      "target": "function:.agents/packages/core/src/figma/merge.ts:byId.values",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/figma/merge.ts:mergeDesignGraph",
+      "target": "function:.agents/packages/core/src/figma/merge.ts:parent.set",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/figma/merge.ts:pageOf",
+      "target": "function:.agents/packages/core/src/figma/merge.ts:guard.has",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/figma/merge.ts:pageOf",
+      "target": "function:.agents/packages/core/src/figma/merge.ts:guard.add",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/figma/merge.ts:pageOf",
+      "target": "function:.agents/packages/core/src/figma/merge.ts:byId.get",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/figma/merge.ts:pageOf",
+      "target": "function:.agents/packages/core/src/figma/merge.ts:parent.get",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/figma/merge.ts:mergeDesignGraph",
+      "target": "function:.agents/packages/core/src/figma/merge.ts:DS_TYPES.has",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/figma/merge.ts:mergeDesignGraph",
+      "target": "function:.agents/packages/core/src/figma/merge.ts:ds.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/figma/merge.ts:mergeDesignGraph",
+      "target": "function:.agents/packages/core/src/figma/merge.ts:pageOf",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/figma/merge.ts:mergeDesignGraph",
+      "target": "function:.agents/packages/core/src/figma/merge.ts:layerMap.has",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/figma/merge.ts:mergeDesignGraph",
+      "target": "function:.agents/packages/core/src/figma/merge.ts:layerMap.set",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/figma/merge.ts:mergeDesignGraph",
+      "target": "function:.agents/packages/core/src/figma/merge.ts:layerMap.get(key)!.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/figma/merge.ts:mergeDesignGraph",
+      "target": "function:.agents/packages/core/src/figma/merge.ts:layerMap.get",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/figma/merge.ts:mergeDesignGraph",
+      "target": "function:.agents/packages/core/src/figma/merge.ts:byId.get",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/figma/merge.ts:mergeDesignGraph",
+      "target": "function:.agents/packages/core/src/figma/merge.ts:layers.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/figma/merge.ts:mergeDesignGraph",
+      "target": "function:.agents/packages/core/src/figma/merge.ts:layers.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/figma/merge.ts:mergeDesignGraph",
+      "target": "function:.agents/packages/core/src/figma/merge.ts:tour.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/figma/merge.ts:mergeDesignGraph",
+      "target": "function:.agents/packages/core/src/figma/merge.ts:ds.slice",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/figma/merge.ts:mergeDesignGraph",
+      "target": "function:.agents/packages/core/src/figma/merge.ts:tour.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/figma/merge.ts:mergeDesignGraph",
+      "target": "function:.agents/packages/core/src/figma/merge.ts:l.nodeIds.slice",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/figma/merge.ts:mergeDesignGraph",
+      "target": "function:.agents/packages/core/src/figma/merge.ts:validateGraph",
+      "type": "calls"
+    },
+    {
+      "source": "file:.agents/packages/core/src/figma/parse/parse-document.ts",
+      "target": "function:.agents/packages/core/src/figma/parse/parse-document.ts:mkNode",
+      "type": "contains"
+    },
+    {
+      "source": "file:.agents/packages/core/src/figma/parse/parse-document.ts",
+      "target": "function:.agents/packages/core/src/figma/parse/parse-document.ts:parseDocument",
+      "type": "contains"
+    },
+    {
+      "source": "function:.agents/packages/core/src/figma/parse/parse-document.ts:add",
+      "target": "function:.agents/packages/core/src/figma/parse/parse-document.ts:seen.has",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/figma/parse/parse-document.ts:add",
+      "target": "function:.agents/packages/core/src/figma/parse/parse-document.ts:seen.add",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/figma/parse/parse-document.ts:add",
+      "target": "function:.agents/packages/core/src/figma/parse/parse-document.ts:nodes.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/figma/parse/parse-document.ts:link",
+      "target": "function:.agents/packages/core/src/figma/parse/parse-document.ts:edges.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/figma/parse/parse-document.ts:collectInstances",
+      "target": "function:.agents/packages/core/src/figma/parse/parse-document.ts:mkNode",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/figma/parse/parse-document.ts:collectInstances",
+      "target": "function:.agents/packages/core/src/figma/parse/parse-document.ts:add",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/figma/parse/parse-document.ts:collectInstances",
+      "target": "function:.agents/packages/core/src/figma/parse/parse-document.ts:link",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/figma/parse/parse-document.ts:collectInstances",
+      "target": "function:.agents/packages/core/src/figma/parse/parse-document.ts:link",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/figma/parse/parse-document.ts:collectInstances",
+      "target": "function:.agents/packages/core/src/figma/parse/parse-document.ts:collectInstances",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/figma/parse/parse-document.ts:handlePageChild",
+      "target": "function:.agents/packages/core/src/figma/parse/parse-document.ts:mkNode",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/figma/parse/parse-document.ts:handlePageChild",
+      "target": "function:.agents/packages/core/src/figma/parse/parse-document.ts:add",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/figma/parse/parse-document.ts:handlePageChild",
+      "target": "function:.agents/packages/core/src/figma/parse/parse-document.ts:link",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/figma/parse/parse-document.ts:handlePageChild",
+      "target": "function:.agents/packages/core/src/figma/parse/parse-document.ts:collectInstances",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/figma/parse/parse-document.ts:handlePageChild",
+      "target": "function:.agents/packages/core/src/figma/parse/parse-document.ts:mkNode",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/figma/parse/parse-document.ts:handlePageChild",
+      "target": "function:.agents/packages/core/src/figma/parse/parse-document.ts:add",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/figma/parse/parse-document.ts:handlePageChild",
+      "target": "function:.agents/packages/core/src/figma/parse/parse-document.ts:link",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/figma/parse/parse-document.ts:handlePageChild",
+      "target": "function:.agents/packages/core/src/figma/parse/parse-document.ts:mkNode",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/figma/parse/parse-document.ts:handlePageChild",
+      "target": "function:.agents/packages/core/src/figma/parse/parse-document.ts:add",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/figma/parse/parse-document.ts:handlePageChild",
+      "target": "function:.agents/packages/core/src/figma/parse/parse-document.ts:link",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/figma/parse/parse-document.ts:handlePageChild",
+      "target": "function:.agents/packages/core/src/figma/parse/parse-document.ts:mkNode",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/figma/parse/parse-document.ts:handlePageChild",
+      "target": "function:.agents/packages/core/src/figma/parse/parse-document.ts:add",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/figma/parse/parse-document.ts:handlePageChild",
+      "target": "function:.agents/packages/core/src/figma/parse/parse-document.ts:link",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/figma/parse/parse-document.ts:handlePageChild",
+      "target": "function:.agents/packages/core/src/figma/parse/parse-document.ts:handlePageChild",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/figma/parse/parse-document.ts:parseDocument",
+      "target": "function:.agents/packages/core/src/figma/parse/parse-document.ts:mkNode",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/figma/parse/parse-document.ts:parseDocument",
+      "target": "function:.agents/packages/core/src/figma/parse/parse-document.ts:add",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/figma/parse/parse-document.ts:parseDocument",
+      "target": "function:.agents/packages/core/src/figma/parse/parse-document.ts:handlePageChild",
+      "type": "calls"
+    },
+    {
+      "source": "file:.agents/packages/core/src/figma/parse/tokens.ts",
+      "target": "function:.agents/packages/core/src/figma/parse/tokens.ts:slug",
+      "type": "contains"
+    },
+    {
+      "source": "file:.agents/packages/core/src/figma/parse/tokens.ts",
+      "target": "function:.agents/packages/core/src/figma/parse/tokens.ts:extractTokens",
+      "type": "contains"
+    },
+    {
+      "source": "function:.agents/packages/core/src/figma/parse/tokens.ts:slug",
+      "target": "function:.agents/packages/core/src/figma/parse/tokens.ts:s.toLowerCase().replace(/[^a-z0-9]+/g, \"-\").replace",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/figma/parse/tokens.ts:slug",
+      "target": "function:.agents/packages/core/src/figma/parse/tokens.ts:s.toLowerCase().replace",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/figma/parse/tokens.ts:slug",
+      "target": "function:.agents/packages/core/src/figma/parse/tokens.ts:s.toLowerCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/figma/parse/tokens.ts:extractTokens",
+      "target": "function:.agents/packages/core/src/figma/parse/tokens.ts:slug",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/figma/parse/tokens.ts:extractTokens",
+      "target": "function:.agents/packages/core/src/figma/parse/tokens.ts:tokenByStyleKey.has",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/figma/parse/tokens.ts:extractTokens",
+      "target": "function:.agents/packages/core/src/figma/parse/tokens.ts:tokenByStyleKey.set",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/figma/parse/tokens.ts:extractTokens",
+      "target": "function:.agents/packages/core/src/figma/parse/tokens.ts:nodes.some",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/figma/parse/tokens.ts:extractTokens",
+      "target": "function:.agents/packages/core/src/figma/parse/tokens.ts:nodes.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/figma/parse/tokens.ts:extractTokens",
+      "target": "function:.agents/packages/core/src/figma/parse/tokens.ts:graphIdByFigmaId.set",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/figma/parse/tokens.ts:walk",
+      "target": "function:.agents/packages/core/src/figma/parse/tokens.ts:graphIdByFigmaId.get",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/figma/parse/tokens.ts:walk",
+      "target": "function:.agents/packages/core/src/figma/parse/tokens.ts:Object.values",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/figma/parse/tokens.ts:walk",
+      "target": "function:.agents/packages/core/src/figma/parse/tokens.ts:tokenByStyleKey.get",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/figma/parse/tokens.ts:walk",
+      "target": "function:.agents/packages/core/src/figma/parse/tokens.ts:usesSeen.has",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/figma/parse/tokens.ts:walk",
+      "target": "function:.agents/packages/core/src/figma/parse/tokens.ts:usesSeen.add",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/figma/parse/tokens.ts:walk",
+      "target": "function:.agents/packages/core/src/figma/parse/tokens.ts:edges.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/figma/parse/tokens.ts:walk",
+      "target": "function:.agents/packages/core/src/figma/parse/tokens.ts:walk",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/figma/parse/tokens.ts:extractTokens",
+      "target": "function:.agents/packages/core/src/figma/parse/tokens.ts:walk",
+      "type": "calls"
+    },
+    {
+      "source": "file:.agents/packages/core/src/figma/source/api-source.ts",
+      "target": "function:.agents/packages/core/src/figma/source/api-source.ts:parseFileKey",
+      "type": "contains"
+    },
+    {
+      "source": "file:.agents/packages/core/src/figma/source/api-source.ts",
+      "target": "class:.agents/packages/core/src/figma/source/api-source.ts:FigmaApiSource",
+      "type": "contains"
+    },
+    {
+      "source": "function:.agents/packages/core/src/figma/source/api-source.ts:parseFileKey",
+      "target": "function:.agents/packages/core/src/figma/source/api-source.ts:urlOrKey.match",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/figma/source/api-source.ts:parseFileKey",
+      "target": "function:.agents/packages/core/src/figma/source/api-source.ts:/^[A-Za-z0-9]+$/.test",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/figma/source/api-source.ts:parseFileKey",
+      "target": "function:.agents/packages/core/src/figma/source/api-source.ts:urlOrKey.trim",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/figma/source/api-source.ts:parseFileKey",
+      "target": "function:.agents/packages/core/src/figma/source/api-source.ts:urlOrKey.trim",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/figma/source/api-source.ts:get",
+      "target": "function:.agents/packages/core/src/figma/source/api-source.ts:fetch",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/figma/source/api-source.ts:get",
+      "target": "function:.agents/packages/core/src/figma/source/api-source.ts:res.json",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/figma/source/api-source.ts:fetchDocument",
+      "target": "function:.agents/packages/core/src/figma/source/api-source.ts:this.get",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/figma/source/api-source.ts:fetchStyles",
+      "target": "function:.agents/packages/core/src/figma/source/api-source.ts:this.get",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/figma/source/api-source.ts:renderImages",
+      "target": "function:.agents/packages/core/src/figma/source/api-source.ts:encodeURIComponent",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/figma/source/api-source.ts:renderImages",
+      "target": "function:.agents/packages/core/src/figma/source/api-source.ts:nodeIds.join",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/figma/source/api-source.ts:renderImages",
+      "target": "function:.agents/packages/core/src/figma/source/api-source.ts:await this.get",
+      "type": "calls"
+    },
+    {
+      "source": "file:.agents/packages/core/src/figma/thumbnails.ts",
+      "target": "function:.agents/packages/core/src/figma/thumbnails.ts:applyScreenThumbnails",
+      "type": "contains"
+    },
+    {
+      "source": "file:.agents/packages/core/src/fingerprint.ts",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:contentHash",
+      "type": "contains"
+    },
+    {
+      "source": "file:.agents/packages/core/src/fingerprint.ts",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:extractFileFingerprint",
+      "type": "contains"
+    },
+    {
+      "source": "file:.agents/packages/core/src/fingerprint.ts",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:compareFingerprints",
+      "type": "contains"
+    },
+    {
+      "source": "file:.agents/packages/core/src/fingerprint.ts",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:buildFingerprintStore",
+      "type": "contains"
+    },
+    {
+      "source": "file:.agents/packages/core/src/fingerprint.ts",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:analyzeChanges",
+      "type": "contains"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:contentHash",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:createHash(\"sha256\").update(content).digest",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:contentHash",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:createHash(\"sha256\").update",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:contentHash",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:createHash",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:extractFileFingerprint",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:contentHash",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:extractFileFingerprint",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:analysis.exports.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:extractFileFingerprint",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:analysis.functions.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:extractFileFingerprint",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:exportedNames.has",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:extractFileFingerprint",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:analysis.classes.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:extractFileFingerprint",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:exportedNames.has",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:extractFileFingerprint",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:analysis.imports.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:extractFileFingerprint",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:analysis.exports.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:extractFileFingerprint",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:content.split",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:compareFingerprints",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:[...oldFp.functions, ...newFp.functions].some",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:ownership",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:functions\r\n    .map(fn => JSON.stringify([fn.name, fn.owner])).sort",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:ownership",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:functions\r\n    .map",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:ownership",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:JSON.stringify",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:compareFingerprints",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:JSON.stringify",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:compareFingerprints",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:ownership",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:compareFingerprints",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:JSON.stringify",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:compareFingerprints",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:ownership",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:compareFingerprints",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:details.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:compareFingerprints",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:oldFp.functions.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:compareFingerprints",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:newFp.functions.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:compareFingerprints",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:oldFuncNames.has",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:compareFingerprints",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:details.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:compareFingerprints",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:newFuncNames.has",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:compareFingerprints",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:details.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:compareFingerprints",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:oldFp.functions.find",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:compareFingerprints",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:JSON.stringify",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:compareFingerprints",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:JSON.stringify",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:compareFingerprints",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:details.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:compareFingerprints",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:details.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:compareFingerprints",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:details.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:compareFingerprints",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:details.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:compareFingerprints",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:oldFp.classes.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:compareFingerprints",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:newFp.classes.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:compareFingerprints",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:oldClassNames.has",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:compareFingerprints",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:details.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:compareFingerprints",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:newClassNames.has",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:compareFingerprints",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:details.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:compareFingerprints",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:oldFp.classes.find",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:compareFingerprints",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:JSON.stringify",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:compareFingerprints",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:[...oldCls.methods].sort",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:compareFingerprints",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:JSON.stringify",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:compareFingerprints",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:[...newCls.methods].sort",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:compareFingerprints",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:details.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:compareFingerprints",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:JSON.stringify",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:compareFingerprints",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:[...oldCls.properties].sort",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:compareFingerprints",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:JSON.stringify",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:compareFingerprints",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:[...newCls.properties].sort",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:compareFingerprints",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:details.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:compareFingerprints",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:details.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:compareFingerprints",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:oldFp.imports.map((i) => `${i.source}:${[...i.specifiers].sort().join(\",\")}`).sort",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:compareFingerprints",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:oldFp.imports.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:compareFingerprints",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:[...i.specifiers].sort().join",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:compareFingerprints",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:[...i.specifiers].sort",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:compareFingerprints",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:newFp.imports.map((i) => `${i.source}:${[...i.specifiers].sort().join(\",\")}`).sort",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:compareFingerprints",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:newFp.imports.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:compareFingerprints",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:[...i.specifiers].sort().join",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:compareFingerprints",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:[...i.specifiers].sort",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:compareFingerprints",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:JSON.stringify",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:compareFingerprints",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:JSON.stringify",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:compareFingerprints",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:details.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:compareFingerprints",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:[...oldFp.exports].sort",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:compareFingerprints",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:[...newFp.exports].sort",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:compareFingerprints",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:JSON.stringify",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:compareFingerprints",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:JSON.stringify",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:compareFingerprints",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:details.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:buildFingerprintStore",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:join",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:buildFingerprintStore",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:existsSync",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:buildFingerprintStore",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:readFileSync",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:buildFingerprintStore",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:registry.analyzeFile",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:buildFingerprintStore",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:registry.getLanguageForFile",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:buildFingerprintStore",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:options.structuralFingerprintLanguages.has",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:buildFingerprintStore",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:extractFileFingerprint",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:buildFingerprintStore",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:contentHash",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:buildFingerprintStore",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:content.split",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:buildFingerprintStore",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:new Date().toISOString",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:analyzeChanges",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:join",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:analyzeChanges",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:existsSync",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:analyzeChanges",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:deletedFiles.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:analyzeChanges",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:fileChanges.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:analyzeChanges",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:newFiles.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:analyzeChanges",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:fileChanges.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:analyzeChanges",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:readFileSync",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:analyzeChanges",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:registry.analyzeFile",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:analyzeChanges",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:extractFileFingerprint",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:analyzeChanges",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:contentHash",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:analyzeChanges",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:content.split",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:analyzeChanges",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:compareFingerprints",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:analyzeChanges",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:fileChanges.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:analyzeChanges",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:unchangedFiles.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:analyzeChanges",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:cosmeticOnlyFiles.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/fingerprint.ts:analyzeChanges",
+      "target": "function:.agents/packages/core/src/fingerprint.ts:structurallyChangedFiles.push",
+      "type": "calls"
+    },
+    {
+      "source": "file:.agents/packages/core/src/ignore-filter.ts",
+      "target": "function:.agents/packages/core/src/ignore-filter.ts:createIgnoreFilter",
+      "type": "contains"
+    },
+    {
+      "source": "function:.agents/packages/core/src/ignore-filter.ts:createIgnoreFilter",
+      "target": "function:.agents/packages/core/src/ignore-filter.ts:ignore",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/ignore-filter.ts:createIgnoreFilter",
+      "target": "function:.agents/packages/core/src/ignore-filter.ts:ig.add",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/ignore-filter.ts:createIgnoreFilter",
+      "target": "function:.agents/packages/core/src/ignore-filter.ts:join",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/ignore-filter.ts:createIgnoreFilter",
+      "target": "function:.agents/packages/core/src/ignore-filter.ts:resolveUaDir",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/ignore-filter.ts:createIgnoreFilter",
+      "target": "function:.agents/packages/core/src/ignore-filter.ts:existsSync",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/ignore-filter.ts:createIgnoreFilter",
+      "target": "function:.agents/packages/core/src/ignore-filter.ts:readFileSync",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/ignore-filter.ts:createIgnoreFilter",
+      "target": "function:.agents/packages/core/src/ignore-filter.ts:ig.add",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/ignore-filter.ts:createIgnoreFilter",
+      "target": "function:.agents/packages/core/src/ignore-filter.ts:join",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/ignore-filter.ts:createIgnoreFilter",
+      "target": "function:.agents/packages/core/src/ignore-filter.ts:existsSync",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/ignore-filter.ts:createIgnoreFilter",
+      "target": "function:.agents/packages/core/src/ignore-filter.ts:readFileSync",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/ignore-filter.ts:createIgnoreFilter",
+      "target": "function:.agents/packages/core/src/ignore-filter.ts:ig.add",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/ignore-filter.ts:createIgnoreFilter",
+      "target": "function:.agents/packages/core/src/ignore-filter.ts:ig.add",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/ignore-filter.ts:isIgnored",
+      "target": "function:.agents/packages/core/src/ignore-filter.ts:ig.ignores",
+      "type": "calls"
+    }
+  ]
+}

@@ -1,0 +1,690 @@
+{
+  "batchIndex": 11,
+  "batchFiles": [
+    {
+      "path": ".agents/packages/core/src/ignore-generator.ts",
+      "language": "typescript",
+      "sizeLines": 301,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/index.ts",
+      "language": "typescript",
+      "sizeLines": 131,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/languages/configs/batch.ts",
+      "language": "typescript",
+      "sizeLines": 14,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/languages/configs/c.ts",
+      "language": "typescript",
+      "sizeLines": 27,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/languages/configs/cpp.ts",
+      "language": "typescript",
+      "sizeLines": 29,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/languages/configs/csharp.ts",
+      "language": "typescript",
+      "sizeLines": 29,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/languages/configs/css.ts",
+      "language": "typescript",
+      "sizeLines": 14,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/languages/configs/csv.ts",
+      "language": "typescript",
+      "sizeLines": 14,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/languages/configs/dart.ts",
+      "language": "typescript",
+      "sizeLines": 29,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/languages/configs/docker-compose.ts",
+      "language": "typescript",
+      "sizeLines": 15,
+      "fileCategory": "infra"
+    },
+    {
+      "path": ".agents/packages/core/src/languages/configs/dockerfile.ts",
+      "language": "typescript",
+      "sizeLines": 15,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/languages/configs/env.ts",
+      "language": "typescript",
+      "sizeLines": 15,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/languages/configs/github-actions.ts",
+      "language": "typescript",
+      "sizeLines": 14,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/languages/configs/go.ts",
+      "language": "typescript",
+      "sizeLines": 28,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/languages/configs/graphql.ts",
+      "language": "typescript",
+      "sizeLines": 14,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/languages/configs/html.ts",
+      "language": "typescript",
+      "sizeLines": 14,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/languages/configs/index.ts",
+      "language": "typescript",
+      "sizeLines": 138,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/languages/configs/java.ts",
+      "language": "typescript",
+      "sizeLines": 33,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/languages/configs/javascript.ts",
+      "language": "typescript",
+      "sizeLines": 29,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/languages/configs/jenkinsfile.ts",
+      "language": "typescript",
+      "sizeLines": 15,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/languages/configs/json-config.ts",
+      "language": "typescript",
+      "sizeLines": 14,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/languages/configs/json-schema.ts",
+      "language": "typescript",
+      "sizeLines": 18,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/languages/configs/kotlin.ts",
+      "language": "typescript",
+      "sizeLines": 29,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/languages/configs/kubernetes.ts",
+      "language": "typescript",
+      "sizeLines": 19,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".agents/packages/core/src/languages/configs/lua.ts",
+      "language": "typescript",
+      "sizeLines": 23,
+      "fileCategory": "code"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "file:.agents/packages/core/src/ignore-generator.ts",
+      "name": "ignore-generator.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/ignore-generator.ts",
+      "summary": "typescript code file (301 lines)",
+      "complexity": "complex",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "function:.agents/packages/core/src/ignore-generator.ts:parseGitignorePatterns",
+      "name": "parseGitignorePatterns",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/ignore-generator.ts",
+      "parentId": "file:.agents/packages/core/src/ignore-generator.ts",
+      "summary": "Function parseGitignorePatterns",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:.agents/packages/core/src/ignore-generator.ts:isCoveredByDefaults",
+      "name": "isCoveredByDefaults",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/ignore-generator.ts",
+      "parentId": "file:.agents/packages/core/src/ignore-generator.ts",
+      "summary": "Function isCoveredByDefaults",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:.agents/packages/core/src/ignore-generator.ts:detectDirectories",
+      "name": "detectDirectories",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/ignore-generator.ts",
+      "parentId": "file:.agents/packages/core/src/ignore-generator.ts",
+      "summary": "Function detectDirectories",
+      "complexity": "simple"
+    },
+    {
+      "id": "function:.agents/packages/core/src/ignore-generator.ts:generateStarterIgnoreFile",
+      "name": "generateStarterIgnoreFile",
+      "type": "function",
+      "filePath": ".agents/packages/core/src/ignore-generator.ts",
+      "parentId": "file:.agents/packages/core/src/ignore-generator.ts",
+      "summary": "Function generateStarterIgnoreFile",
+      "complexity": "simple"
+    },
+    {
+      "id": "file:.agents/packages/core/src/index.ts",
+      "name": "index.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/index.ts",
+      "summary": "typescript code file (131 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:.agents/packages/core/src/languages/configs/batch.ts",
+      "name": "batch.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/languages/configs/batch.ts",
+      "summary": "typescript code file (14 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:.agents/packages/core/src/languages/configs/c.ts",
+      "name": "c.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/languages/configs/c.ts",
+      "summary": "typescript code file (27 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:.agents/packages/core/src/languages/configs/cpp.ts",
+      "name": "cpp.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/languages/configs/cpp.ts",
+      "summary": "typescript code file (29 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:.agents/packages/core/src/languages/configs/csharp.ts",
+      "name": "csharp.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/languages/configs/csharp.ts",
+      "summary": "typescript code file (29 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:.agents/packages/core/src/languages/configs/css.ts",
+      "name": "css.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/languages/configs/css.ts",
+      "summary": "typescript code file (14 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:.agents/packages/core/src/languages/configs/csv.ts",
+      "name": "csv.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/languages/configs/csv.ts",
+      "summary": "typescript code file (14 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:.agents/packages/core/src/languages/configs/dart.ts",
+      "name": "dart.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/languages/configs/dart.ts",
+      "summary": "typescript code file (29 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "pipeline:.agents/packages/core/src/languages/configs/docker-compose.ts",
+      "name": "docker-compose.ts",
+      "type": "pipeline",
+      "filePath": ".agents/packages/core/src/languages/configs/docker-compose.ts",
+      "summary": "typescript infra file (15 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "infra"
+      ]
+    },
+    {
+      "id": "file:.agents/packages/core/src/languages/configs/dockerfile.ts",
+      "name": "dockerfile.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/languages/configs/dockerfile.ts",
+      "summary": "typescript code file (15 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:.agents/packages/core/src/languages/configs/env.ts",
+      "name": "env.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/languages/configs/env.ts",
+      "summary": "typescript code file (15 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:.agents/packages/core/src/languages/configs/github-actions.ts",
+      "name": "github-actions.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/languages/configs/github-actions.ts",
+      "summary": "typescript code file (14 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:.agents/packages/core/src/languages/configs/go.ts",
+      "name": "go.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/languages/configs/go.ts",
+      "summary": "typescript code file (28 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:.agents/packages/core/src/languages/configs/graphql.ts",
+      "name": "graphql.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/languages/configs/graphql.ts",
+      "summary": "typescript code file (14 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:.agents/packages/core/src/languages/configs/html.ts",
+      "name": "html.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/languages/configs/html.ts",
+      "summary": "typescript code file (14 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:.agents/packages/core/src/languages/configs/index.ts",
+      "name": "index.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/languages/configs/index.ts",
+      "summary": "typescript code file (138 lines)",
+      "complexity": "moderate",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:.agents/packages/core/src/languages/configs/java.ts",
+      "name": "java.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/languages/configs/java.ts",
+      "summary": "typescript code file (33 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:.agents/packages/core/src/languages/configs/javascript.ts",
+      "name": "javascript.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/languages/configs/javascript.ts",
+      "summary": "typescript code file (29 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:.agents/packages/core/src/languages/configs/jenkinsfile.ts",
+      "name": "jenkinsfile.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/languages/configs/jenkinsfile.ts",
+      "summary": "typescript code file (15 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:.agents/packages/core/src/languages/configs/json-config.ts",
+      "name": "json-config.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/languages/configs/json-config.ts",
+      "summary": "typescript code file (14 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:.agents/packages/core/src/languages/configs/json-schema.ts",
+      "name": "json-schema.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/languages/configs/json-schema.ts",
+      "summary": "typescript code file (18 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:.agents/packages/core/src/languages/configs/kotlin.ts",
+      "name": "kotlin.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/languages/configs/kotlin.ts",
+      "summary": "typescript code file (29 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:.agents/packages/core/src/languages/configs/kubernetes.ts",
+      "name": "kubernetes.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/languages/configs/kubernetes.ts",
+      "summary": "typescript code file (19 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    },
+    {
+      "id": "file:.agents/packages/core/src/languages/configs/lua.ts",
+      "name": "lua.ts",
+      "type": "file",
+      "filePath": ".agents/packages/core/src/languages/configs/lua.ts",
+      "summary": "typescript code file (23 lines)",
+      "complexity": "simple",
+      "tags": [
+        "typescript",
+        "code"
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:.agents/packages/core/src/ignore-generator.ts",
+      "target": "function:.agents/packages/core/src/ignore-generator.ts:parseGitignorePatterns",
+      "type": "contains"
+    },
+    {
+      "source": "file:.agents/packages/core/src/ignore-generator.ts",
+      "target": "function:.agents/packages/core/src/ignore-generator.ts:isCoveredByDefaults",
+      "type": "contains"
+    },
+    {
+      "source": "file:.agents/packages/core/src/ignore-generator.ts",
+      "target": "function:.agents/packages/core/src/ignore-generator.ts:detectDirectories",
+      "type": "contains"
+    },
+    {
+      "source": "file:.agents/packages/core/src/ignore-generator.ts",
+      "target": "function:.agents/packages/core/src/ignore-generator.ts:generateStarterIgnoreFile",
+      "type": "contains"
+    },
+    {
+      "source": "function:.agents/packages/core/src/ignore-generator.ts:parseGitignorePatterns",
+      "target": "function:.agents/packages/core/src/ignore-generator.ts:existsSync",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/ignore-generator.ts:parseGitignorePatterns",
+      "target": "function:.agents/packages/core/src/ignore-generator.ts:readFileSync",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/ignore-generator.ts:parseGitignorePatterns",
+      "target": "function:.agents/packages/core/src/ignore-generator.ts:content\r\n    .split(\"\\n\")\r\n    .map((line) => line.trim())\r\n    .filter",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/ignore-generator.ts:parseGitignorePatterns",
+      "target": "function:.agents/packages/core/src/ignore-generator.ts:content\r\n    .split(\"\\n\")\r\n    .map",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/ignore-generator.ts:parseGitignorePatterns",
+      "target": "function:.agents/packages/core/src/ignore-generator.ts:content\r\n    .split",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/ignore-generator.ts:parseGitignorePatterns",
+      "target": "function:.agents/packages/core/src/ignore-generator.ts:line.trim",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/ignore-generator.ts:parseGitignorePatterns",
+      "target": "function:.agents/packages/core/src/ignore-generator.ts:line.startsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/ignore-generator.ts:normalize",
+      "target": "function:.agents/packages/core/src/ignore-generator.ts:p.replace",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/ignore-generator.ts:isCoveredByDefaults",
+      "target": "function:.agents/packages/core/src/ignore-generator.ts:normalize",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/ignore-generator.ts:isCoveredByDefaults",
+      "target": "function:.agents/packages/core/src/ignore-generator.ts:DEFAULT_IGNORE_PATTERNS.some",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/ignore-generator.ts:isCoveredByDefaults",
+      "target": "function:.agents/packages/core/src/ignore-generator.ts:normalize",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/ignore-generator.ts:detectDirectories",
+      "target": "function:.agents/packages/core/src/ignore-generator.ts:readdirSync",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/ignore-generator.ts:detectDirectories",
+      "target": "function:.agents/packages/core/src/ignore-generator.ts:entry.isDirectory",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/ignore-generator.ts:detectDirectories",
+      "target": "function:.agents/packages/core/src/ignore-generator.ts:entry.name.toLowerCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/ignore-generator.ts:detectDirectories",
+      "target": "function:.agents/packages/core/src/ignore-generator.ts:EXACT_DIR_NAMES.includes",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/ignore-generator.ts:detectDirectories",
+      "target": "function:.agents/packages/core/src/ignore-generator.ts:matches.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/ignore-generator.ts:detectDirectories",
+      "target": "function:.agents/packages/core/src/ignore-generator.ts:SUFFIX_DIR_GLOBS.some",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/ignore-generator.ts:detectDirectories",
+      "target": "function:.agents/packages/core/src/ignore-generator.ts:lower.endsWith",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/ignore-generator.ts:detectDirectories",
+      "target": "function:.agents/packages/core/src/ignore-generator.ts:matches.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/ignore-generator.ts:generateStarterIgnoreFile",
+      "target": "function:.agents/packages/core/src/ignore-generator.ts:join",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/ignore-generator.ts:generateStarterIgnoreFile",
+      "target": "function:.agents/packages/core/src/ignore-generator.ts:parseGitignorePatterns(gitignorePath).filter",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/ignore-generator.ts:generateStarterIgnoreFile",
+      "target": "function:.agents/packages/core/src/ignore-generator.ts:parseGitignorePatterns",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/ignore-generator.ts:generateStarterIgnoreFile",
+      "target": "function:.agents/packages/core/src/ignore-generator.ts:isCoveredByDefaults",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/ignore-generator.ts:generateStarterIgnoreFile",
+      "target": "function:.agents/packages/core/src/ignore-generator.ts:sections.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/ignore-generator.ts:generateStarterIgnoreFile",
+      "target": "function:.agents/packages/core/src/ignore-generator.ts:sections.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/ignore-generator.ts:generateStarterIgnoreFile",
+      "target": "function:.agents/packages/core/src/ignore-generator.ts:sections.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/ignore-generator.ts:generateStarterIgnoreFile",
+      "target": "function:.agents/packages/core/src/ignore-generator.ts:detectDirectories",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/ignore-generator.ts:generateStarterIgnoreFile",
+      "target": "function:.agents/packages/core/src/ignore-generator.ts:sections.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/ignore-generator.ts:generateStarterIgnoreFile",
+      "target": "function:.agents/packages/core/src/ignore-generator.ts:sections.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/ignore-generator.ts:generateStarterIgnoreFile",
+      "target": "function:.agents/packages/core/src/ignore-generator.ts:sections.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/ignore-generator.ts:generateStarterIgnoreFile",
+      "target": "function:.agents/packages/core/src/ignore-generator.ts:sections.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/ignore-generator.ts:generateStarterIgnoreFile",
+      "target": "function:.agents/packages/core/src/ignore-generator.ts:sections.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/ignore-generator.ts:generateStarterIgnoreFile",
+      "target": "function:.agents/packages/core/src/ignore-generator.ts:sections.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/ignore-generator.ts:generateStarterIgnoreFile",
+      "target": "function:.agents/packages/core/src/ignore-generator.ts:sections.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:.agents/packages/core/src/ignore-generator.ts:generateStarterIgnoreFile",
+      "target": "function:.agents/packages/core/src/ignore-generator.ts:sections.join",
+      "type": "calls"
+    }
+  ]
+}

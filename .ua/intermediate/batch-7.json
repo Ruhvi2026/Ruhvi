@@ -1,0 +1,152 @@
+{
+  "batchIndex": 7,
+  "batchFiles": [
+    {
+      "path": "Resend_Templates/Payment Failed — Action Needed for Ruhvi Order #{{order.number}}.html",
+      "language": "html",
+      "sizeLines": 451,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "Resend_Templates/Payment Received — Ruhvi Order #{{order.number}}.html",
+      "language": "html",
+      "sizeLines": 384,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "Resend_Templates/Welcome to Ruhvi, {{customer.name}} ✨.html",
+      "language": "html",
+      "sizeLines": 433,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "Resend_Templates/Your Ruhvi Order #{{order.number}} Has Been Cancelled.html",
+      "language": "html",
+      "sizeLines": 437,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "Resend_Templates/Your Ruhvi Order #{{order.number}} Has Been Delivered.html",
+      "language": "html",
+      "sizeLines": 459,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "Resend_Templates/Your Ruhvi Order #{{order.number}} Has Shipped.html",
+      "language": "html",
+      "sizeLines": 537,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "Resend_Templates/Your Ruhvi Order #{{order.number}} Is Out for Delivery.html",
+      "language": "html",
+      "sizeLines": 356,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "Resend_Templates/Your Ruhvi Order #{{order.number}} is Confirmed.html",
+      "language": "html",
+      "sizeLines": 513,
+      "fileCategory": "markup"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "file:Resend_Templates/Payment Failed — Action Needed for Ruhvi Order #{{order.number}}.html",
+      "name": "Payment Failed — Action Needed for Ruhvi Order #{{order.number}}.html",
+      "type": "file",
+      "filePath": "Resend_Templates/Payment Failed — Action Needed for Ruhvi Order #{{order.number}}.html",
+      "summary": "html markup file (452 lines)",
+      "complexity": "complex",
+      "tags": [
+        "html",
+        "markup"
+      ]
+    },
+    {
+      "id": "file:Resend_Templates/Payment Received — Ruhvi Order #{{order.number}}.html",
+      "name": "Payment Received — Ruhvi Order #{{order.number}}.html",
+      "type": "file",
+      "filePath": "Resend_Templates/Payment Received — Ruhvi Order #{{order.number}}.html",
+      "summary": "html markup file (385 lines)",
+      "complexity": "complex",
+      "tags": [
+        "html",
+        "markup"
+      ]
+    },
+    {
+      "id": "file:Resend_Templates/Welcome to Ruhvi, {{customer.name}} ✨.html",
+      "name": "Welcome to Ruhvi, {{customer.name}} ✨.html",
+      "type": "file",
+      "filePath": "Resend_Templates/Welcome to Ruhvi, {{customer.name}} ✨.html",
+      "summary": "html markup file (434 lines)",
+      "complexity": "complex",
+      "tags": [
+        "html",
+        "markup"
+      ]
+    },
+    {
+      "id": "file:Resend_Templates/Your Ruhvi Order #{{order.number}} Has Been Cancelled.html",
+      "name": "Your Ruhvi Order #{{order.number}} Has Been Cancelled.html",
+      "type": "file",
+      "filePath": "Resend_Templates/Your Ruhvi Order #{{order.number}} Has Been Cancelled.html",
+      "summary": "html markup file (438 lines)",
+      "complexity": "complex",
+      "tags": [
+        "html",
+        "markup"
+      ]
+    },
+    {
+      "id": "file:Resend_Templates/Your Ruhvi Order #{{order.number}} Has Been Delivered.html",
+      "name": "Your Ruhvi Order #{{order.number}} Has Been Delivered.html",
+      "type": "file",
+      "filePath": "Resend_Templates/Your Ruhvi Order #{{order.number}} Has Been Delivered.html",
+      "summary": "html markup file (460 lines)",
+      "complexity": "complex",
+      "tags": [
+        "html",
+        "markup"
+      ]
+    },
+    {
+      "id": "file:Resend_Templates/Your Ruhvi Order #{{order.number}} Has Shipped.html",
+      "name": "Your Ruhvi Order #{{order.number}} Has Shipped.html",
+      "type": "file",
+      "filePath": "Resend_Templates/Your Ruhvi Order #{{order.number}} Has Shipped.html",
+      "summary": "html markup file (538 lines)",
+      "complexity": "complex",
+      "tags": [
+        "html",
+        "markup"
+      ]
+    },
+    {
+      "id": "file:Resend_Templates/Your Ruhvi Order #{{order.number}} Is Out for Delivery.html",
+      "name": "Your Ruhvi Order #{{order.number}} Is Out for Delivery.html",
+      "type": "file",
+      "filePath": "Resend_Templates/Your Ruhvi Order #{{order.number}} Is Out for Delivery.html",
+      "summary": "html markup file (357 lines)",
+      "complexity": "complex",
+      "tags": [
+        "html",
+        "markup"
+      ]
+    },
+    {
+      "id": "file:Resend_Templates/Your Ruhvi Order #{{order.number}} is Confirmed.html",
+      "name": "Your Ruhvi Order #{{order.number}} is Confirmed.html",
+      "type": "file",
+      "filePath": "Resend_Templates/Your Ruhvi Order #{{order.number}} is Confirmed.html",
+      "summary": "html markup file (514 lines)",
+      "complexity": "complex",
+      "tags": [
+        "html",
+        "markup"
+      ]
+    }
+  ],
+  "edges": []
+}
