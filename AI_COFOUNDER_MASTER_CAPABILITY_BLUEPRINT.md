@@ -167,8 +167,10 @@ All classifications are based on direct inspection of:
 | Worker 12: Monitoring and Verification | IMPLEMENTED | `worker-12-monitoring.ts` | |
 | Worker state truthfulness | NEEDS_VERIFY | `dispatcher.ts:131` hardcodes `status: 'ACTIVE_AND_VERIFIED'` for all workers | Status is never dynamically computed |
 | Worker execution monitoring | PARTIAL | `worker-12-monitoring.ts` exists but no real-time tracking | Workers are fire-and-forget |
-| Worker dependency ordering | MISSING | No dependency graph between workers | |
-| Parallel worker execution | MISSING | Workers run sequentially, one at a time | |
+| Worker dependency ordering | IMPLEMENTED | `intelligent-planner.ts:decomposeGoalIntoPlan()`, `dispatcher.ts:executeMultiWorkerPlan()` | DAG stage ordering with `dependsOn` |
+| Parallel worker execution | IMPLEMENTED | `dispatcher.ts:executeMultiWorkerPlan()` | Runs parallel-safe stages concurrently via `Promise.allSettled()` |
+| Intent classification & decomposition | IMPLEMENTED | `intelligent-planner.ts:classifyGoalIntent()` | 12 single domains + 5 composite initiatives |
+| Multi-worker conflict detection | IMPLEMENTED | `intelligent-planner.ts:detectPlanConflicts()` | Circular dependency and unapproved mutation interception |
 | Marketing Co-workers (6) | IMPLEMENTED | `workers/marketing/` - strategy, ads-execution, creative-media, email, influencer, social-media | 3 enabled, 3 production-only disabled |
 
 ---
