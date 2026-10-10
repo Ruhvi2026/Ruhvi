@@ -11,11 +11,11 @@
 
 | Field | Value |
 |---|---|
-| Current Phase | Phase 1 — Autonomous Tool-Calling Brain |
-| Current Step | COMPLETE |
-| Overall Progress | Phase 1 of 10 COMPLETE |
+| Current Phase | Phase 2 — Intelligent Orchestrator |
+| Current Step | Step 2.1 — Intent Understanding & Worker Decomposition |
+| Overall Progress | Phase 1 Complete, Phase 2 in progress |
 | Implementation Started | 2026-10-11 |
-| Report Version | 1.4 |
+| Report Version | 2.0 |
 
 ---
 
@@ -25,7 +25,7 @@
 |---|---|---|
 | Phase 0 | Master Capability Audit | COMPLETE |
 | Phase 1 | Autonomous Tool-Calling Brain | COMPLETE |
-| Phase 2 | Intelligent Orchestrator | READY |
+| Phase 2 | Intelligent Orchestrator | IN_PROGRESS |
 | Phase 3 | Closed-Loop Execution | NOT_STARTED |
 | Phase 4 | Business Intelligence Expansion | NOT_STARTED |
 | Phase 5 | Memory 2.0 | NOT_STARTED |
@@ -263,23 +263,38 @@ Phase 0: No code changes. No rollback needed.
 | Step 1.3 permission | APPROVED (2026-10-11) |
 | Step 1.4 permission | APPROVED (2026-10-11) |
 | Phase 1 completion | COMPLETE (2026-10-11) |
-| Phase 2 permission | PENDING |
+| Phase 2 permission | APPROVED (2026-10-11) |
+| Step 2.1 permission | APPROVAL_REQUIRED |
+
+---
+
+## PHASE 2 — INTELLIGENT ORCHESTRATOR EXECUTION PLAN
+
+| Step | Description | Status |
+|---|---|---|
+| 2.1 | Implement `intelligent-planner.ts` (Intent classification, task decomposition, dependency graph, worker capability matching) | APPROVAL_REQUIRED |
+| 2.2 | Create comprehensive unit & integration tests (`intelligent-planner.test.ts`) | NOT_STARTED |
+| 2.3 | Wire multi-worker plan orchestration into `dispatcher.ts` and `orchestrator.ts` | NOT_STARTED |
+| 2.4 | Multi-worker integration test, regression verification, report update | NOT_STARTED |
 
 ---
 
 ## NEXT STEP
 
-**Phase 2 — Intelligent Orchestrator**
+**Step 2.1 — Implement `intelligent-planner.ts` (Intent Classification & Worker Decomposition Engine)**
 
 **What it entails:**
-- Move from simple keyword-based execution toward context-aware orchestration:
-  `User Goal → Intent Understanding → Capability Selection → Worker Selection → Tool Selection → Execution Plan → Approval Check → Execution`
-- Capabilities: intent classification, worker capability matching, multi-worker orchestration, dependency ordering, parallel work where safe, conflict detection, task decomposition, and failure recovery.
-- Do not remove existing worker routing until replacement is proven; preserve fallback compatibility.
+- Create `src/lib/ai/co-founder/workers/intelligent-planner.ts` as an additive, zero-breakage module.
+- Intent classification: Maps high-level user goals into structured intents across all 12 worker domains and composite cross-domain initiatives (e.g. store growth audit, promotional campaign, checkout drop recovery).
+- Task decomposition & dependency graph: Breaks composite goals into sequential or parallel worker steps (`dependsOn`, `stageIndex`, `isParallelSafe`).
+- Human approval boundary detection: Identifies steps requiring human approval before dispatch.
+- Conflict detection: Prevents simultaneous conflicting writes or unverified mutations.
+- Fallback preservation: Guaranteed fallback to existing keyword router (`findWorkerForTask()`) for simple or unrecognized queries.
 
 ---
 
 ## PERMISSION REQUIRED
 
-**Phase 1 complete. Approve Phase 2 — Intelligent Orchestrator?**
+**PERMISSION REQUIRED: Approve Step 2.1 — Create intelligent-planner.ts (Context-Aware Intent & Worker Decomposition)?**
+
 
