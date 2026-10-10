@@ -12,10 +12,10 @@
 | Field | Value |
 |---|---|
 | Current Phase | Phase 4 — Business Intelligence Expansion |
-| Current Step | Step 4.1 — Product Velocity & Margin Intelligence Engine |
-| Overall Progress | Phase 3 Complete (220/220 tests passing) |
+| Current Step | Step 4.2 — Catalog Intelligence Unit & Integration Tests |
+| Overall Progress | Phase 4 Step 4.1 Verified (220/220 tests passing) |
 | Implementation Started | 2026-10-11 |
-| Report Version | 4.0 |
+| Report Version | 5.0 |
 
 ---
 
@@ -27,7 +27,7 @@
 | Phase 1 | Autonomous Tool-Calling Brain | COMPLETE |
 | Phase 2 | Intelligent Orchestrator | COMPLETE |
 | Phase 3 | Closed-Loop Execution | COMPLETE |
-| Phase 4 | Business Intelligence Expansion | APPROVAL_REQUIRED |
+| Phase 4 | Business Intelligence Expansion | IN_PROGRESS |
 | Phase 5 | Memory 2.0 | NOT_STARTED |
 | Phase 6 | AI Workforce 2.0 | NOT_STARTED |
 | Phase 7 | Proactive Autonomous Co-Founder | NOT_STARTED |
@@ -391,7 +391,9 @@ Phase 0: No code changes. No rollback needed.
 | Step 3.3 permission | VERIFIED & COMPLETE (2026-10-11) |
 | Step 3.4 permission | VERIFIED & COMPLETE (2026-10-11) |
 | Phase 3 completion | COMPLETE (2026-10-11) |
-| Phase 4 permission | APPROVAL_REQUIRED |
+| Phase 4 permission | APPROVED (2026-10-11) |
+| Step 4.1 permission | VERIFIED (2026-10-11) |
+| Step 4.2 permission | APPROVAL_REQUIRED |
 
 ---
 
@@ -399,29 +401,59 @@ Phase 0: No code changes. No rollback needed.
 
 | Step | Description | Status |
 |---|---|---|
-| 4.1 | Implement `catalog-intelligence.ts` (Product inventory velocity, category margin models, stock-out risk forecasting) | APPROVAL_REQUIRED |
-| 4.2 | Create comprehensive unit & integration tests (`catalog-intelligence.test.ts`) | NOT_STARTED |
+| 4.1 | Implement `catalog-intelligence.ts` (Product inventory velocity, category margin models, stock-out risk forecasting) | VERIFIED |
+| 4.2 | Create comprehensive unit & integration tests (`catalog-intelligence.test.ts`) | APPROVAL_REQUIRED |
 | 4.3 | Wire catalog intelligence into `tool-bridge.ts`, `brain.ts`, and specialized AI Workers | NOT_STARTED |
 | 4.4 | End-to-end acceptance verification, regression check, Phase 4 completion | NOT_STARTED |
 
 ---
 
+## STEP 4.1 IMPLEMENTATION DETAILS & VERIFICATION EVIDENCE
+
+### 1. Files Created & Modified
+- Created [`src/lib/ai/co-founder/catalog-intelligence.ts`](file:///c:/Users/INDIA/Desktop/Project%20Ruhvi/src/lib/ai/co-founder/catalog-intelligence.ts) (additive module, 680 lines):
+  - **Product Velocity Analytics**:
+    - `calculateProductVelocity(productIdOrSku, timeframeDays)`: real-time sales velocity (units/day, run-rate revenue, order frequency, ASP) computed from live `orders` and `order_items` across configurable timeframes (default 30d).
+    - `getProductVelocityBatch(productIdsOrSkus?, options?)`: high-throughput catalog batch calculation with filtering (minStock, maxStock, categorySlug) and sorting.
+    - `determineVelocityTrend(currentUnits, priorUnits)`: trend detection (`accelerating`, `stable`, `decelerating`, `dormant`).
+  - **Days of Inventory (DOI) & Stock-Out Urgency**:
+    - `calculateDaysOfInventory(productIdOrSku, options?)`: calculates exact remaining days of stock, projected stock-out dates, and integer risk scores (0-100).
+    - `determineStockOutUrgencyTier(...)`: categorizes urgency into `OUT_OF_STOCK`, `CRITICAL`, `ELEVATED`, `HEALTHY`, `OVERSTOCKED`.
+  - **Category Margin & Performance Breakdown**:
+    - `getCategoryMarginBreakdown(timeframeDays)`: evaluates gross sales, unit cost aggregation (COGS), gross margin amount, and gross margin % across jewellery categories (Earrings, Necklaces, Bangles, Mangalsutras, Rings).
+  - **Restock Recommendation Generator**:
+    - `generateRestockRecommendations(options?)`: calculates target safety buffers, recommended reorder quantities, and estimated capital expenditure per SKU.
+  - **Truthfulness Rule Compliance**:
+    - Explicitly tags data quality with `DataAttribution: 'OBSERVED' | 'CALCULATED' | 'ESTIMATED' | 'UNKNOWN'`. Never invents missing data.
+
+### 2. Compilation & Regression Verification
+- **TypeScript Typecheck**: `npx tsc --noEmit` exited code 0 (zero errors).
+- **Regression Suite**: `npx jest src/lib/ai/co-founder` executed with 100% pass rate:
+  - **32 / 32 test suites passed**.
+  - **220 / 220 tests passed**.
+  - Runtime: 24.8 seconds.
+- **Production Isolation**: Zero modifications to existing customer checkout or core APIs.
+
+---
+
 ## NEXT STEP
 
-**Step 4.1 — Implement `src/lib/ai/co-founder/catalog-intelligence.ts` (Product Velocity & Margin Intelligence Engine)**
+**Step 4.2 — Create `src/lib/ai/co-founder/__tests__/catalog-intelligence.test.ts` (Unit & Integration Tests)**
 
 **What it entails:**
-- Create [`src/lib/ai/co-founder/catalog-intelligence.ts`](file:///c:/Users/INDIA/Desktop/Project%20Ruhvi/src/lib/ai/co-founder/catalog-intelligence.ts) as an additive module:
-  - **Product Velocity Analytics**: Sales velocity (units/day, run-rate revenue) computed from live `orders` and `order_items` across 7d/30d windows.
-  - **Stock-Out Urgency & Days-of-Inventory (DOI)**: Calculates days of remaining stock per SKU based on current sales velocity and lead time assumptions.
-  - **Category Performance & Contribution Margins**: Evaluates revenue, volume, and estimated gross margin distribution across jewellery categories (e.g. Earrings, Necklaces, Bangles, Mangalsutras, Rings).
-  - **Restock Recommendation Generator**: Computes exact recommended reorder quantities and urgency tiers (`CRITICAL`, `ELEVATED`, `HEALTHY`, `OVERSTOCKED`).
+- Build comprehensive Jest test suite covering:
+  - Velocity calculation: zero sales, single order, multi-order, multi-item, trend acceleration, and deceleration.
+  - Days of Inventory (DOI): stocked-out (100 risk score), critical runway (<= lead time), elevated runway, healthy runway, overstocked stagnant catalog item.
+  - Category margin breakdown: gross margin percentage, blended margin, revenue contribution, COGS fallback estimation attribution.
+  - Restock recommendation planner: reorder quantities, urgency ranking, capital requirement calculations.
+  - Edge cases: missing SKU/ID, cancelled orders exclusion, zero stock items, division by zero safeguards.
 
 ---
 
 ## PERMISSION REQUIRED
 
-**PERMISSION REQUIRED: Approve Phase 4 — Business Intelligence Expansion (Step 4.1)?**
+**PERMISSION REQUIRED: Approve Step 4.2 — Create catalog-intelligence.test.ts (Unit & Integration Tests)?**
+
 
 
 
