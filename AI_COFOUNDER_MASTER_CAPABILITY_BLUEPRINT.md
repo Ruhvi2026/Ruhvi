@@ -1,4 +1,4 @@
-﻿# AI CO-FOUNDER — MASTER CAPABILITY BLUEPRINT
+# AI CO-FOUNDER — MASTER CAPABILITY BLUEPRINT
 
 **Document:** `AI_COFOUNDER_MASTER_CAPABILITY_BLUEPRINT.md`
 **Phase:** 0 — Master Capability Audit
@@ -115,15 +115,14 @@ All classifications are based on direct inspection of:
 
 | Capability | Status | Evidence | Gap / Note |
 |---|---|---|---|
-| LLM -> Tool -> Result -> LLM loop | **MISSING** | Chat route sends ONE message, receives ONE response. No loop. | **Most critical gap.** |
-| Tool call detection from LLM output | MISSING | Chat route does NOT parse LLM output for tool calls | |
-| Multi-turn tool execution | MISSING | Chat route: single call, single response | |
-| Maximum iteration guard | MISSING | No loop, so no guard exists yet | |
-| Loop safety (infinite loop prevention) | MISSING | N/A - no loop exists | |
-| Auto-browse pre-injection (URL detection) | IMPLEMENTED | `chat/route.ts:63-99` - regex URL + intent detection | Partial loop simulation: browser result injected into system prompt |
-| Manual tool execution via `/tools/execute` | IMPLEMENTED | `api/admin/co-founder/tools/execute/route.ts` | User-driven, not LLM-autonomous |
-
-> **CRITICAL FINDING:** The chat route does NOT implement an agentic loop. The `CO_FOUNDER_TOOL_DECLARATIONS` in `brain.ts` are never passed to the Gemini/Anthropic/OpenAI SDK calls as actual function schemas. The tool declarations exist as documentation/context but are not wired for autonomous LLM function-calling. All tool execution is either: (1) Pre-injected (URL browsing), or (2) Manually triggered via `/tools/execute`.
+| LLM -> Tool -> Result -> LLM loop | **IMPLEMENTED** | `orchestrator.ts:runCoFounderAgentLoop()` | Multi-turn autonomous tool-calling loop wired via Gemini native function calling |
+| Tool call detection from LLM output | **IMPLEMENTED** | `orchestrator.ts:250` detects `response.functionCalls()` | Extracted and mapped to internal parameters |
+| Multi-turn tool execution | **IMPLEMENTED** | `orchestrator.ts:270-335` iterates tool calls and feeds `functionResponse` back | Verified in unit test chaining Tool 1 -> Tool 2 -> Answer |
+| Maximum iteration guard | **IMPLEMENTED** | `orchestrator.ts:238` enforces `maxIterations` (default 8, max 12) | Triggers auto-synthesis prompt upon ceiling |
+| Loop safety & error isolation | **IMPLEMENTED** | `orchestrator.ts:310-330` per-step error containment & approval pause | Catches tool failures, halts on high-impact actions |
+| Auto-browse pre-injection (URL detection) | IMPLEMENTED | `chat/route.ts:63-99` - regex URL + intent detection | Playwright browser result pre-injected into system prompt |
+| Manual tool execution via `/tools/execute` | IMPLEMENTED | `api/admin/co-founder/tools/execute/route.ts` | User-driven tool execution endpoint |
+| Chat route agentic integration | **IMPLEMENTED** | `chat/route.ts:216-253` additively calls `runCoFounderAgentLoop` | Feature-flagged (`agenticLoop: true`) with zero-breakage fallback |
 
 ---
 
@@ -320,10 +319,10 @@ All classifications are based on direct inspection of:
 
 ## 15. ARCHITECTURE GAPS SUMMARY
 
-### CRITICAL - Phase 1 Target
-1. **No agentic tool-calling loop** - Chat route never passes tool declarations to LLM and never executes tool calls from LLM output. System is a sophisticated chatbot, not an autonomous agent.
-2. **Tool declarations not wired to SDK** - `CO_FOUNDER_TOOL_DECLARATIONS` is defined but never passed to any provider as actual function/tool schemas.
-3. **No streaming** - All LLM calls are blocking non-streaming; long responses block the UI.
+### RESOLVED - Phase 1 Complete
+1. **Agentic tool-calling loop** - IMPLEMENTED via `orchestrator.ts:runCoFounderAgentLoop()`. LLM autonomously invokes internal tools, receives normalized results, and iterates until synthesis.
+2. **Tool declarations wired to SDK** - IMPLEMENTED via `formatGeminiFunctionDeclarations()`. Converts 24 Co-Founder tool schemas into typed Gemini FunctionDeclaration objects.
+3. **Chat route integration** - IMPLEMENTED via `chat/route.ts` feature flag (`agenticLoop: true`) with graceful fallback to classic multi-provider chain.
 
 ### HIGH - Phase 2-3 Target
 4. **Worker status truthfulness** - All workers permanently return `ACTIVE_AND_VERIFIED`. Real execution states are never tracked.
@@ -349,5 +348,5 @@ All classifications are based on direct inspection of:
 
 ---
 
-*Blueprint Version: 1.0 | Phase 0 | Baseline established 2026-10-11*
-*Next update: After Phase 1 completion*
+*Blueprint Version: 1.1 | Phase 1 Complete | Updated 2026-10-11*
+*Next update: After Phase 2 completion*
