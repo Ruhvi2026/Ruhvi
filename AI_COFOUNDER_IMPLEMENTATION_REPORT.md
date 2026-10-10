@@ -12,10 +12,10 @@
 | Field | Value |
 |---|---|
 | Current Phase | Phase 3 — Closed-Loop Execution |
-| Current Step | Step 3.3 — Wire Closed-Loop Tracking into Action Engine, Tool Bridge, and Brain |
-| Overall Progress | Phase 2 Complete, Phase 3 Step 3.2 Complete |
+| Current Step | Step 3.4 — Multi-Worker & Closed-Loop Verification, Regression Check, Phase 3 Completion |
+| Overall Progress | Phase 2 Complete, Phase 3 Step 3.3 Complete |
 | Implementation Started | 2026-10-11 |
-| Report Version | 3.3 |
+| Report Version | 3.4 |
 
 ---
 
@@ -284,8 +284,8 @@ Phase 0: No code changes. No rollback needed.
 |---|---|---|
 | 3.1 | Implement `closed-loop.ts` (Unified Operational Traceability Engine) | VERIFIED |
 | 3.2 | Create comprehensive unit & integration tests (`closed-loop.test.ts`) | VERIFIED |
-| 3.3 | Wire closed-loop tracking into `action-engine.ts`, `tool-bridge.ts`, and `brain.ts` | APPROVAL_REQUIRED |
-| 3.4 | Multi-worker and closed-loop verification, regression check, Phase 3 completion | NOT_STARTED |
+| 3.3 | Wire closed-loop tracking into `action-engine.ts`, `tool-bridge.ts`, and `brain.ts` | VERIFIED |
+| 3.4 | Multi-worker and closed-loop verification, regression check, Phase 3 completion | APPROVAL_REQUIRED |
 
 ### Step 3.1 Details
 
@@ -312,22 +312,7 @@ Phase 0: No code changes. No rollback needed.
 ### Step 3.2 Details
 
 - **File Created**: `src/lib/ai/co-founder/__tests__/closed-loop.test.ts` (673 lines)
-- **What Changed**: Implemented 27 exhaustive unit and integration tests across 9 suites covering:
-  1. `isValidLifecycleTransition`: Valid forward transitions across all 11 lifecycle states, self-transitions, and illegal transition rejections.
-  2. `registerActionProposal`: Parameter persistence, window calculation (~14 days in future), initial `PROPOSED` state, and pending verification status.
-  3. `recordActionApproval` & `recordActionRejection`: Transition enforcement, rejection reasoning, and illegal transition error handling.
-  4. `recordActionExecutionResult`: Runtime failure marking (`EXECUTION_FAILED`), operational immediate verification (`OUTCOME_VERIFIED`), lagging metric expectation retention (`OUTCOME_EXPECTED`), and JIT tracked action initialization.
-  5. `measureAuthoritativeMetric`: Live metric aggregation for `order_revenue` (excluding cancelled/refunded), `order_count`, `inventory_stock`, and `support_ticket_count`.
-  6. `verifyActionOutcome`:
-     - Refusal of false success while measurement window is active (`isWindowActive && !forceImmediate`).
-     - Target attainment verification (`OUTCOME_ACHIEVED`).
-     - Regression detection (`OUTCOME_REGRESSED`).
-     - Conflict detection when shortfall exceeds 25% tolerance (`OUTCOME_CONFLICTED`).
-     - Direction = `decrease` verification.
-     - Forced immediate verification override (`forceImmediate: true`).
-  7. `commitOutcomeLearning`: Memory creation across achieved (decision), regressed (correction), and conflicted (operational rule) outcomes.
-  8. `scanAndVerifyDueActions`: Batch scanning and processing of due items with zero-records fallback.
-  9. `getActionLifecycle` & `getClosedLoopAnalytics`: Single entity lifecycle retrieval, KPI rate calculation, and executive voice summary.
+- **What Changed**: Implemented 27 exhaustive unit and integration tests across 9 suites covering state transitions, proposal registration, execution result recording, authoritative database metric measurements, window-guarded outcome verification (false-success refusal, regression detection, conflict detection), continuous learning feedback loop, batch scanner, and closed-loop analytics.
 - **Verification Evidence**:
   - `npx jest src/lib/ai/co-founder/__tests__/closed-loop.test.ts` — 27 passed, 27 total (100% pass in 2.048s).
   - `npx jest --testPathPatterns="co-founder"` — **32 test suites passed, 32 total; 216 tests passed, 216 total (100% pass in 47.146s)**.
@@ -335,6 +320,38 @@ Phase 0: No code changes. No rollback needed.
 - **Existing Functionality Regression Check**: PASS (Zero existing files modified).
 - **Security/RBAC Check**: PASS.
 - **Git Commit**: `test(co-founder): phase-3 step-2 unit and integration tests for closed-loop engine`
+
+### Step 3.3 Details
+
+- **Files Modified**:
+  - `src/lib/ai/co-founder/action-engine.ts`
+  - `src/lib/ai/co-founder/tool-bridge.ts`
+  - `src/lib/ai/co-founder/brain.ts`
+  - `src/lib/ai/mcp-auth.ts`
+  - `src/lib/ai/co-founder/__tests__/closed-loop.test.ts`
+  - `src/lib/ai/co-founder/__tests__/action-engine.test.ts`
+- **What Changed**:
+  - **In `action-engine.ts`**:
+    - Wired `executeApprovedBusinessAction` to automatically record closed-loop action execution outcomes via `recordActionExecutionResult` non-blockingly on every executed mutation.
+    - Added optional `metricExpectation` support to `BusinessActionRequest`.
+  - **In `tool-bridge.ts`**:
+    - Added execution handlers for `verify_action_outcome`, `get_action_lifecycle_status`, and `get_closed_loop_analytics`.
+  - **In `brain.ts`**:
+    - Added tool declarations for `verify_action_outcome`, `get_action_lifecycle_status`, and `get_closed_loop_analytics`.
+    - Enriched Rule 8 of the AI Co-Founder system prompt with closed-loop execution & truthful outcome verification awareness.
+  - **In `mcp-auth.ts`**:
+    - Mapped RBAC tool permission scopes: `verify_action_outcome` (write), `get_action_lifecycle_status` (read), `get_closed_loop_analytics` (read).
+  - **In `closed-loop.test.ts`**:
+    - Added Tool Bridge integration tests covering all 3 new tools and permission gating (31/31 tests passing).
+- **Verification Evidence**:
+  - `npx tsc --noEmit` — Exited code 0 (Zero type errors).
+  - `npx jest src/lib/ai/co-founder/__tests__/action-engine.test.ts` — 7 passed, 7 total (100% pass).
+  - `npx jest src/lib/ai/co-founder/__tests__/brain.test.ts` — 8 passed, 8 total (100% pass).
+  - `npx jest src/lib/ai/co-founder/__tests__/orchestrator.test.ts` — 13 passed, 13 total (100% pass).
+  - `npx jest src/lib/ai/co-founder/__tests__/closed-loop.test.ts` — 31 passed, 31 total (100% pass).
+- **Existing Functionality Regression Check**: PASS (Existing action executions and permissions intact).
+- **Security/RBAC Check**: PASS (Scope boundary assertions in `assertToolPermission` verified).
+- **Git Commit**: `feat(co-founder): phase-3 step-3 wire closed-loop tracking into action-engine, tool-bridge, and brain`
 
 ---
 
@@ -358,34 +375,30 @@ Phase 0: No code changes. No rollback needed.
 | Phase 3 permission | APPROVED (2026-10-11) |
 | Step 3.1 permission | VERIFIED & COMPLETE (2026-10-11) |
 | Step 3.2 permission | VERIFIED & COMPLETE (2026-10-11) |
-| Step 3.3 permission | APPROVAL_REQUIRED |
+| Step 3.3 permission | VERIFIED & COMPLETE (2026-10-11) |
+| Step 3.4 permission | APPROVAL_REQUIRED |
 
 ---
 
 ## NEXT STEP
 
-**Step 3.3 — Wire Closed-Loop Tracking into `action-engine.ts`, `tool-bridge.ts`, and `brain.ts`**
+**Step 3.4 — End-to-End Multi-Worker & Closed-Loop Verification, Regression Check, and Phase 3 Completion**
 
 **What it entails:**
-- **In `action-engine.ts`**:
-  - Automatically call `recordActionExecutionResult` whenever a business action mutation finishes execution.
-  - Ensure execution success/failure is recorded in `co_founder_outcomes` with the unified closed-loop lifecycle state.
-  - Add optional `metricExpectation` support to `BusinessActionRequest` so action callers can pass expected metric impact.
-- **In `tool-bridge.ts`**:
-  - Expose `verify_action_outcome`: calls `verifyActionOutcome(actionId, options)` allowing the Co-Founder to verify business metrics on demand.
-  - Expose `get_action_lifecycle_status`: calls `getActionLifecycle(actionId)` allowing the Co-Founder to inspect status.
-  - Expose `get_closed_loop_analytics`: calls `getClosedLoopAnalytics(days)` allowing the Co-Founder to provide executive summaries of closed-loop action performance.
-- **In `brain.ts`**:
-  - Declare the tool schemas for `verify_action_outcome`, `get_action_lifecycle_status`, and `get_closed_loop_analytics`.
-  - Add closed-loop instructions to the AI Co-Founder system prompt explaining that execution success does not equal business success and actions must be verified against live database metrics.
-- **In `mcp-auth.ts`**:
-  - Register tool permission scopes for `verify_action_outcome`, `get_action_lifecycle_status`, and `get_closed_loop_analytics`.
+- Run full Co-Founder test suite across all 32 test suites.
+- Perform clean typecheck across entire codebase (`npx tsc --noEmit`).
+- Verify that Phase 3 deliverables fulfill all capability blueprint criteria:
+  - Unified lifecycle state machine: `PROPOSED` → `APPROVED` / `REJECTED` → `EXECUTING` → `EXECUTION_SUCCEEDED` / `EXECUTION_FAILED` → `OUTCOME_EXPECTED` → `OUTCOME_ACHIEVED` / `OUTCOME_REGRESSED` / `OUTCOME_CONFLICTED` → `OUTCOME_VERIFIED`.
+  - Truthful outcome verification against authoritative database tables.
+  - Refusal of false success prior to measurement window expiration.
+  - Integration with `action-engine.ts`, `tool-bridge.ts`, and `brain.ts`.
+- Update `AI_COFOUNDER_MASTER_CAPABILITY_BLUEPRINT.md` and `AI_COFOUNDER_IMPLEMENTATION_REPORT.md` to mark Phase 3 COMPLETE.
 
 ---
 
 ## PERMISSION REQUIRED
 
-**PERMISSION REQUIRED: Approve Step 3.3 — Wire closed-loop tracking into action-engine.ts, tool-bridge.ts, and brain.ts?**
+**PERMISSION REQUIRED: Approve Step 3.4 — Multi-Worker & Closed-Loop Verification, Regression Check, and Phase 3 Completion?**
 
 
 

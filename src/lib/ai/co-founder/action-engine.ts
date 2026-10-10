@@ -5,6 +5,10 @@ import { logAuditEvent } from '@/lib/audit';
 import { assertToolPermission } from '@/lib/ai/mcp-auth';
 import { acknowledgeSignal } from './proactive';
 import { executeActionPlanToTaskManager } from './action-planner';
+import {
+  recordActionExecutionResult,
+  type MetricExpectation,
+} from './closed-loop';
 
 export type ActionStatus =
   'pending' | 'validating' | 'executing' | 'completed' | 'failed';
@@ -16,6 +20,7 @@ export interface BusinessActionRequest {
   userId: string;
   userScopes: string[];
   idempotencyKey?: string;
+  metricExpectation?: MetricExpectation;
 }
 
 export interface BusinessActionResult {
@@ -59,7 +64,7 @@ async function validateTargetEntity(
  * Sits strictly after Brain, Analytics, Proactive Intelligence, Recommendations,
  * and Server-side Approval validation.
  */
-export async function executeApprovedBusinessAction(
+async function executeApprovedBusinessActionInternal(
   request: BusinessActionRequest
 ): Promise<BusinessActionResult> {
   const timestamp = new Date().toISOString();
@@ -498,4 +503,35 @@ export async function executeApprovedBusinessAction(
       timestamp,
     };
   }
+}
+
+/**
+ * Core Business Action Execution Engine (Stage 7 & Phase 3 Closed-Loop).
+ *
+ * Sits strictly after Brain, Analytics, Proactive Intelligence, Recommendations,
+ * and Server-side Approval validation.
+ * Automatically tracks execution outcomes in co_founder_outcomes for closed-loop learning.
+ */
+export async function executeApprovedBusinessAction(
+  request: BusinessActionRequest
+): Promise<BusinessActionResult> {
+  const result = await executeApprovedBusinessActionInternal(request);
+
+  // Closed-loop operational traceability (Phase 3)
+  await recordActionExecutionResult({
+    actionId: result.actionId,
+    approvalId: request.approvalId,
+    actionType: request.actionType,
+    success: result.success,
+    resultData: result.resultData,
+    error: result.error,
+    userId: request.userId,
+  }).catch((err) => {
+    console.error(
+      'Non-blocking closed-loop tracking error in action engine:',
+      err
+    );
+  });
+
+  return result;
 }

@@ -16,6 +16,7 @@ import {
   type MetricExpectation,
   type ActionLifecycleState,
 } from '../closed-loop';
+import { executeCoFounderTool } from '../tool-bridge';
 
 // In-memory mock databases
 const mockOutcomes: any[] = [];
@@ -1008,6 +1009,104 @@ describe('Closed-Loop Operational Traceability Engine (Phase 3)', () => {
       expect(analytics.executiveSummary).toContain(
         '1 regressions were identified'
       );
+    });
+  });
+
+  describe('10. Tool Bridge Integration for Closed-Loop Tools', () => {
+    it('executes verify_action_outcome via tool bridge with permission', async () => {
+      mockOutcomes.push({
+        id: 'out_bridge_1',
+        entity_id: 'act_bridge_1',
+        verification_status: 'pending',
+        measurement_window_end: new Date(
+          Date.now() - 3600 * 1000
+        ).toISOString(),
+        evidence: {
+          actionId: 'act_bridge_1',
+          actionType: 'restock_bangles',
+          metricExpectation: {
+            metricKey: 'inventory_stock',
+            baselineValue: 5,
+            targetValue: 20,
+            direction: 'increase',
+            measurementWindowDays: 7,
+          },
+        },
+        created_at: new Date(Date.now() - 8 * 24 * 3600 * 1000).toISOString(),
+      });
+
+      mockProducts.push({
+        id: 'p_bangles',
+        name: 'Gold Bangles',
+        stock_quantity: 25,
+      });
+
+      const res = await executeCoFounderTool(
+        'verify_action_outcome',
+        { action_id: 'act_bridge_1' },
+        ['analytics:write']
+      );
+
+      expect(res.success).toBe(true);
+      expect(res.summaryForVoice).toContain('Target reached or exceeded');
+      expect(res.data.state).toBe('OUTCOME_ACHIEVED');
+    });
+
+    it('blocks verify_action_outcome when user lacks write permission', async () => {
+      const res = await executeCoFounderTool(
+        'verify_action_outcome',
+        { action_id: 'act_bridge_1' },
+        ['orders:read'] // Missing analytics:write or admin:full
+      );
+
+      expect(res.success).toBe(false);
+      expect(res.summaryForVoice).toContain('permission');
+    });
+
+    it('executes get_action_lifecycle_status via tool bridge', async () => {
+      mockOutcomes.push({
+        id: 'out_bridge_2',
+        entity_id: 'act_bridge_2',
+        verification_status: 'pending',
+        evidence: {
+          actionId: 'act_bridge_2',
+          lifecycleState: 'OUTCOME_EXPECTED' as ActionLifecycleState,
+        },
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      });
+
+      const res = await executeCoFounderTool(
+        'get_action_lifecycle_status',
+        { action_id: 'act_bridge_2' },
+        ['analytics:read']
+      );
+
+      expect(res.success).toBe(true);
+      expect(res.data.lifecycleState).toBe('OUTCOME_EXPECTED');
+      expect(res.summaryForVoice).toContain(
+        'Action act_bridge_2 is in OUTCOME_EXPECTED state'
+      );
+    });
+
+    it('executes get_closed_loop_analytics via tool bridge', async () => {
+      mockOutcomes.push({
+        id: 'out_bridge_3',
+        evidence: {
+          lifecycleState: 'OUTCOME_ACHIEVED' as ActionLifecycleState,
+        },
+        created_at: new Date().toISOString(),
+      });
+
+      const res = await executeCoFounderTool(
+        'get_closed_loop_analytics',
+        { days: 30 },
+        ['analytics:read']
+      );
+
+      expect(res.success).toBe(true);
+      expect(res.data.totalTracked).toBe(1);
+      expect(res.summaryForVoice).toContain('Over the past 30 days');
     });
   });
 });

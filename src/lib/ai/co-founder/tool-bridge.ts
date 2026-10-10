@@ -14,6 +14,11 @@ import {
 } from './engineering';
 import { recordUserFeedback, getOutcomeAnalytics } from './outcomes';
 import {
+  verifyActionOutcome,
+  getActionLifecycle,
+  getClosedLoopAnalytics,
+} from './closed-loop';
+import {
   getCompetitors,
   addCompetitor,
   analyzeCompetitor,
@@ -286,6 +291,50 @@ export async function executeCoFounderTool(
           success: true,
           data: analytics,
           summaryForVoice: analytics.executiveVoiceSummary,
+        };
+      }
+
+      case 'verify_action_outcome': {
+        const actionId = args.action_id || args.actionId;
+        if (!actionId) {
+          throw new Error('action_id is required to verify business outcome');
+        }
+        const forceImmediate = Boolean(
+          args.force_immediate ?? args.forceImmediate
+        );
+        const result = await verifyActionOutcome(actionId, { forceImmediate });
+        return {
+          toolName,
+          success: result.verified,
+          data: result,
+          summaryForVoice: result.reason,
+        };
+      }
+
+      case 'get_action_lifecycle_status': {
+        const actionId = args.action_id || args.actionId;
+        if (!actionId) {
+          throw new Error('action_id is required to get lifecycle status');
+        }
+        const status = await getActionLifecycle(actionId);
+        return {
+          toolName,
+          success: Boolean(status),
+          data: status,
+          summaryForVoice: status
+            ? `Action ${actionId} is in ${status.lifecycleState} state (verification: ${status.verificationStatus}).`
+            : `No tracked lifecycle record found for action ${actionId}.`,
+        };
+      }
+
+      case 'get_closed_loop_analytics': {
+        const days = typeof args.days === 'number' ? args.days : 30;
+        const analytics = await getClosedLoopAnalytics(days);
+        return {
+          toolName,
+          success: true,
+          data: analytics,
+          summaryForVoice: analytics.executiveSummary,
         };
       }
 

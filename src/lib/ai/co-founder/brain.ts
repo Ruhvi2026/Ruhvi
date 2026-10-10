@@ -148,7 +148,11 @@ CO-FOUNDER ADVISOR, ANALYST, STRATEGIST & EXECUTION AGENT PROTOCOL:
 6. TASK EXECUTION: Execute approved plans directly into Ruhvi Task Manager with checklists and metrics using 'execute_action_plan'.
 7. PROACTIVE ADVISOR MODE: When reporting proactively, structure insights as:
    Problem/Opportunity → Evidence → Recommended Solution → Action Plan → Priority
-8. MEASURE & LEARN: Track closed-loop outcomes and persist validated findings to business memory.
+8. CLOSED-LOOP EXECUTION & TRUTHFUL OUTCOME VERIFICATION:
+   - Core Principle: "Execution Success != Business Success". An action returning 200 OK only proves mutation completed; business success requires measured metric improvement in authoritative store tables after an elapsed measurement window.
+   - Use 'get_action_lifecycle_status' to inspect operational status.
+   - Use 'verify_action_outcome' to evaluate post-execution performance against live database metrics. Strictly refuse premature declarations of victory while measurement windows remain active.
+   - Use 'get_closed_loop_analytics' to review aggregate execution success rates, regressions, and conflicts across the organization.
 9. AI WORKER ORCHESTRATION (THE 12 SPECIALIZED AI AGENT WORKERS):
    - You are the Owner, Manager, and Orchestrator of 12 specialized AI Agent Workers:
      1. Analytics & Performance Worker ('worker_analytics_performance')
@@ -642,6 +646,57 @@ export const CO_FOUNDER_TOOL_DECLARATIONS = [
           type: 'OBJECT',
           description:
             'Optional structured parameters or context for the workers',
+        },
+      },
+    },
+  },
+  {
+    name: 'verify_action_outcome',
+    description:
+      'Truthfully verify whether an executed strategic action reached its business metric target against live authoritative database tables (orders, products, support tickets). Refuses false success if measurement window has not yet elapsed.',
+    parameters: {
+      type: 'OBJECT',
+      required: ['action_id'],
+      properties: {
+        action_id: {
+          type: 'STRING',
+          description:
+            'The action ID, approval ID, or outcome record ID to verify',
+        },
+        force_immediate: {
+          type: 'BOOLEAN',
+          description:
+            'Optional override to bypass measurement window check for testing or immediate verification',
+        },
+      },
+    },
+  },
+  {
+    name: 'get_action_lifecycle_status',
+    description:
+      'Inspect the unified closed-loop lifecycle state of a strategic action (e.g. PROPOSED, APPROVED, EXECUTING, OUTCOME_EXPECTED, OUTCOME_ACHIEVED, OUTCOME_REGRESSED, OUTCOME_CONFLICTED).',
+    parameters: {
+      type: 'OBJECT',
+      required: ['action_id'],
+      properties: {
+        action_id: {
+          type: 'STRING',
+          description:
+            'The action ID, approval ID, or outcome record ID to inspect',
+        },
+      },
+    },
+  },
+  {
+    name: 'get_closed_loop_analytics',
+    description:
+      'Retrieve high-level closed-loop KPIs, verified outcome success rates, detected business regressions, and an executive voice summary.',
+    parameters: {
+      type: 'OBJECT',
+      properties: {
+        days: {
+          type: 'NUMBER',
+          description: 'Lookback timeframe in days (default: 30)',
         },
       },
     },

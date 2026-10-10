@@ -126,6 +126,32 @@ jest.mock('@/lib/supabase/service', () => ({
           })),
         };
       }
+      if (table === 'co_founder_outcomes') {
+        return {
+          select: jest.fn().mockReturnThis(),
+          eq: jest.fn().mockReturnThis(),
+          order: jest.fn().mockReturnThis(),
+          limit: jest.fn().mockReturnThis(),
+          maybeSingle: jest.fn().mockResolvedValue({ data: null, error: null }),
+          single: jest.fn().mockResolvedValue({ data: null, error: null }),
+          insert: jest.fn().mockReturnValue({
+            select: jest.fn().mockReturnValue({
+              single: jest
+                .fn()
+                .mockResolvedValue({ data: { id: 'out_mock' }, error: null }),
+            }),
+          }),
+          update: jest.fn().mockReturnValue({
+            eq: jest.fn().mockReturnValue({
+              select: jest.fn().mockReturnValue({
+                single: jest
+                  .fn()
+                  .mockResolvedValue({ data: { id: 'out_mock' }, error: null }),
+              }),
+            }),
+          }),
+        };
+      }
       return {
         select: jest.fn().mockReturnThis(),
         limit: jest.fn().mockResolvedValue({ data: [], error: null }),
