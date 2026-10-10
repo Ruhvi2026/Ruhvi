@@ -3,6 +3,7 @@ import 'server-only';
 export * from './types';
 export * from './registry';
 export * from './dispatcher';
+export * from './intelligent-planner';
 
 export { analyticsWorker } from './worker-1-analytics';
 export { marketingWorker } from './worker-2-marketing';
