@@ -327,7 +327,7 @@ export async function runCoFounderAgentLoop(
         // If high-impact action requires founder approval, pause loop immediately
         if (pausedForApproval) {
           finalResponseText =
-            'A high-impact business action has been proposed by the Co-Founder and is paused awaiting your explicit approval.';
+            'A high-impact business action has been proposed by the Co-Founder and is paused awaiting founder approval.';
           break;
         }
 
