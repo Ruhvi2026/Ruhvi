@@ -338,14 +338,22 @@ All classifications are based on direct inspection of:
 ### RESOLVED - Phase 3 Complete
 5. **Closed-loop execution & operational traceability** - IMPLEMENTED via `closed-loop.ts`. 11-state unified lifecycle state machine (`ActionLifecycleState`), truthful authoritative database metric measurement, refusal of false success while measurement windows remain active (`Execution Success != Business Success`), continuous organizational learning loop committing findings to memory, and full wiring into `action-engine.ts`, `tool-bridge.ts`, `brain.ts`, and `mcp-auth.ts`.
 
-### HIGH - Phase 4-6 Target
-6. **No automatic memory extraction** - System cannot learn from conversations automatically.
-7. **No semantic memory retrieval** - Memory is only sorted by recency; no embedding-based relevance.
-8. **Tool rate limiting absent** - No rate limits on any co-founder API route.
+### RESOLVED - Phase 4 Complete
+6. **Catalog & Inventory Business Intelligence Engine** - IMPLEMENTED via `catalog-intelligence.ts`.
+   - **Product Velocity Analytics**: `calculateProductVelocity()` & `getProductVelocityBatch()`. Real-time units/day, run-rate revenue, ASP, order frequency, and trend classification (`accelerating`, `stable`, `decelerating`, `dormant`) computed from live `orders` and `order_items`.
+   - **Days of Inventory (DOI) & Run-Out Modeling**: `calculateDaysOfInventory()`. Stockout run-out dates, risk scores (0–100), and urgency tier categorization (`OUT_OF_STOCK`, `CRITICAL`, `ELEVATED`, `HEALTHY`, `OVERSTOCKED`).
+   - **Category Performance & Contribution Margins**: `getCategoryMarginBreakdown()`. Gross revenue, COGS tracking (actual unit costs + 38% jewellery craft fallback estimation), blended gross margin, and revenue contribution percentages across jewellery categories.
+   - **Restock Recommendation Generator**: `generateRestockRecommendations()`. Reorder quantity calculations, urgency ranking, and estimated capital expenditure per SKU.
+   - **Tool Bridge, Brain & Worker Integration**: Wired into `tool-bridge.ts`, declared in `brain.ts` (Rule 10), and integrated non-blockingly into Worker 4 (Product Worker) and Worker 9 (Inventory Worker).
+
+### HIGH - Phase 5-6 Target
+7. **No automatic memory extraction** - System cannot learn from conversations automatically.
+8. **No semantic memory retrieval** - Memory is only sorted by recency; no embedding-based relevance.
+9. **Tool rate limiting absent** - No rate limits on any co-founder API route.
 
 ### MEDIUM - Phase 7-8 Target
-9. **Incomplete proactive signal coverage** - Only 5 signal types; competitor, SEO, conversion signals missing.
-10. **OpenRouter provider unreachable** - `openrouter.ts` exists but not in the fallback chain.
+10. **Incomplete proactive signal coverage** - Only 5 signal types; competitor, SEO, conversion signals missing.
+11. **OpenRouter provider unreachable** - `openrouter.ts` exists but not in the fallback chain.
 
 ---
 
@@ -357,9 +365,9 @@ All classifications are based on direct inspection of:
 - `co_founder_approvals`
 - `co_founder_recommendations`
 - `co_founder_action_plans`
-- `orders`, `products`, `support_tickets`, `users`, `notifications`, `tasks`, `settings`
+- `orders`, `order_items`, `products`, `categories`, `support_tickets`, `users`, `notifications`, `tasks`, `settings`
 
 ---
 
-*Blueprint Version: 3.0 | Phase 3 Complete | Updated 2026-10-11*
-*Next update: After Phase 4 completion*
+*Blueprint Version: 4.0 | Phase 4 Complete | Updated 2026-10-11*
+*Next update: After Phase 5 completion*
