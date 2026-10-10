@@ -12,10 +12,10 @@
 | Field | Value |
 |---|---|
 | Current Phase | Phase 1 — Autonomous Tool-Calling Brain |
-| Current Step | Step 1.1 COMPLETE |
-| Overall Progress | Phase 1 (Step 1.1 of 4) |
+| Current Step | Step 1.2 COMPLETE |
+| Overall Progress | Phase 1 (Step 1.2 of 4) |
 | Implementation Started | 2026-10-11 |
-| Report Version | 1.1 |
+| Report Version | 1.2 |
 
 ---
 
@@ -113,8 +113,8 @@ None — audit only.
 | Step | Description | Status |
 |---|---|---|
 | 1.1 | Create orchestrator.ts (Autonomous reasoning loop engine) | VERIFIED |
-| 1.2 | Unit and integration tests for orchestrator | READY |
-| 1.3 | Wire orchestrator into chat route behind feature flag | NOT_STARTED |
+| 1.2 | Unit and integration tests for orchestrator | VERIFIED |
+| 1.3 | Wire orchestrator into chat route behind feature flag | READY |
 | 1.4 | End-to-end acceptance verification & regression check | NOT_STARTED |
 
 ### Step 1.1 Details
@@ -128,6 +128,27 @@ None — audit only.
 - **Existing Functionality Regression Check**: PASS (New file is purely additive, zero existing production files modified).
 - **Security/RBAC Check**: PASS (Preserves userScopes permission checks via executeCoFounderTool).
 - **Git Commit**: `8318f7f` (`feat(co-founder): phase-1 step-1 autonomous tool-calling loop engine`)
+
+### Step 1.2 Details
+
+- **File Created**: `src/lib/ai/co-founder/__tests__/orchestrator.test.ts` (438 lines)
+- **What Changed**: Implemented 13 comprehensive unit and integration tests for the reasoning orchestrator covering:
+  - `formatGeminiFunctionDeclarations`: JSON schema to SchemaType enum mapping and parameter normalization.
+  - `normalizeGeminiHistory`: Leading assistant drop, strict user ↔ model role alternation, and empty message sanitization.
+  - `runCoFounderAgentLoop`: Empty prompt & missing API key error handling.
+  - Single-turn direct answers (0 tools executed, 1 iteration).
+  - Autonomous tool execution with live function response feedback (1 tool executed, 2 iterations).
+  - Multi-turn tool chaining (Tool 1 -> Result -> Tool 2 -> Result -> Answer: 2 tools executed, 3 iterations).
+  - Loop limit boundary guard (enforces maxIterations ceiling and final synthesis).
+  - Tool execution failure resilience (tool exceptions fed back as errors, loop does not crash).
+  - Human-in-the-loop approval interception (detects pendingApprovalId, halts loop immediately, surfaces details to founder).
+- **Verification Evidence**:
+  - `npx jest src/lib/ai/co-founder/__tests__/orchestrator.test.ts` — 13 passed, 13 total (100% pass in 2.786s).
+  - `npx jest --testPathPatterns=brain` — 8 passed, 8 total (100% pass in 4.051s).
+  - `npx tsc --noEmit` — Exited code 0 (Zero type errors).
+- **Existing Functionality Regression Check**: PASS (Zero existing files modified).
+- **Security/RBAC Check**: PASS.
+- **Git Commit**: `96f2d0a` (`test(co-founder): phase-1 step-2 unit and integration tests for orchestrator`)
 
 ---
 
@@ -167,9 +188,9 @@ None — audit only.
 | Field | Value |
 |---|---|
 | Branch | main |
-| Commit | 8318f7f |
+| Commit | 96f2d0a |
 | Working Tree | CLEAN |
-| Last Commit Message | feat(co-founder): phase-1 step-1 autonomous tool-calling loop engine |
+| Last Commit Message | test(co-founder): phase-1 step-2 unit and integration tests for orchestrator |
 
 ---
 
@@ -204,29 +225,26 @@ Phase 0: No code changes. No rollback needed.
 | Phase 0 permission | APPROVED (2026-10-11) |
 | Phase 1 permission | APPROVED (2026-10-11) |
 | Step 1.1 permission | APPROVED (2026-10-11) |
-| Step 1.2 permission | PENDING |
+| Step 1.2 permission | APPROVED (2026-10-11) |
+| Step 1.3 permission | PENDING |
 
 ---
 
 ## NEXT STEP
 
-**Step 1.2: Unit & Integration Tests for `orchestrator.ts`**
+**Step 1.3: Non-Breaking Additive Integration into Chat Route**
 
 **What it entails:**
-- Create `src/lib/ai/co-founder/__tests__/orchestrator.test.ts`
-- Test `formatGeminiFunctionDeclarations` schema normalization
-- Test `normalizeGeminiHistory` role alternation compliance
-- Test single-tool reasoning loop execution
-- Test multi-turn tool chaining (Tool A -> Result -> Tool B -> Result -> Answer)
-- Test maximum iteration boundary guard (terminates and forces final summary)
-- Test tool execution failure resilience (error passed to model, loop continues)
-- Test human approval pause interception (halts loop when action requires approval)
-- Execute with `npx jest orchestrator.test.ts` and verify 100% pass
+- In `src/app/api/admin/co-founder/chat/route.ts`, check for `coFounderConfig.agenticLoop === true` or explicit request flag.
+- When enabled, delegate to `runCoFounderAgentLoop()` with candidate models, scopes, and system instructions.
+- Surface tool execution steps, thoughts, and approval pauses in the chat API response payload.
+- When disabled or when provider fallback is required, preserve 100% of the existing non-agentic fallback chain (`startChat` / DeepSeek / Custom / OpenAI / Anthropic).
+- Zero breaking changes to existing API contracts, cookies, or client consumers.
 
 ---
 
 ## PERMISSION REQUIRED
 
 **PERMISSION REQUIRED: Approve the next step?**
-(Step 1.2: Unit & Integration Tests for `orchestrator.ts`)
+(Step 1.3: Wire orchestrator into chat route behind feature flag)
 
