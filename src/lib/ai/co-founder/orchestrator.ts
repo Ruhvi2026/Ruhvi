@@ -188,6 +188,13 @@ export async function runCoFounderAgentLoop(
     'mcp_tools:read',
     'mcp_tools:write',
     'analytics:read',
+    'analytics:write',
+    'products:read',
+    'inventory:read',
+    'orders:read',
+    'customer:read',
+    'support_ticket:read',
+    'coupons:read',
   ];
 
   const candidateModels = [

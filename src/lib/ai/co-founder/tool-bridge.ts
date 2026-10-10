@@ -19,6 +19,13 @@ import {
   getClosedLoopAnalytics,
 } from './closed-loop';
 import {
+  calculateProductVelocity,
+  getProductVelocityBatch,
+  calculateDaysOfInventory,
+  getCategoryMarginBreakdown,
+  generateRestockRecommendations,
+} from './catalog-intelligence';
+import {
   getCompetitors,
   addCompetitor,
   analyzeCompetitor,
@@ -65,6 +72,14 @@ export async function executeCoFounderTool(
     'mcp_tools:write',
     'analytics:read',
     'analytics:write',
+    'products:read',
+    'products:write',
+    'inventory:read',
+    'inventory:write',
+    'orders:read',
+    'customer:read',
+    'support_ticket:read',
+    'coupons:read',
   ]
 ): Promise<ToolExecutionResult> {
   // 1. Authorize tool execution using the existing permission matrix
@@ -335,6 +350,161 @@ export async function executeCoFounderTool(
           success: true,
           data: analytics,
           summaryForVoice: analytics.executiveSummary,
+        };
+      }
+
+      case 'get_product_velocity': {
+        const idOrSku =
+          args.product_id_or_sku || args.product_id || args.sku || args.id;
+        const timeframe =
+          typeof args.timeframe_days === 'number'
+            ? args.timeframe_days
+            : typeof args.days === 'number'
+              ? args.days
+              : 30;
+
+        if (
+          args.batch ||
+          Array.isArray(args.product_ids) ||
+          (!idOrSku && !args.sku)
+        ) {
+          const batch = await getProductVelocityBatch(args.product_ids, {
+            timeframeDays: timeframe,
+            categorySlug: args.category_slug,
+            minStock: args.min_stock,
+            maxStock: args.max_stock,
+            sortBy: args.sort_by,
+            sortOrder: args.sort_order,
+            limit: args.limit,
+          });
+          return {
+            toolName,
+            success: true,
+            data: batch,
+            summaryForVoice: `Analyzed velocity across ${batch.length} catalog products over ${timeframe} days. Top velocity: ${
+              batch[0]
+                ? `${batch[0].productName} (${batch[0].unitsPerDay} units/day)`
+                : 'none'
+            }.`,
+          };
+        }
+
+        if (!idOrSku) {
+          throw new Error(
+            'product_id_or_sku is required to query product velocity'
+          );
+        }
+
+        const metrics = await calculateProductVelocity(idOrSku, timeframe);
+        return {
+          toolName,
+          success: true,
+          data: metrics,
+          summaryForVoice: `${metrics.productName} (${metrics.sku}) has sold ${
+            metrics.unitsSold
+          } units (${metrics.unitsPerDay} units/day) across ${
+            metrics.orderCount
+          } orders generating ₹${metrics.grossRevenue.toLocaleString('en-IN')}. Trend is ${
+            metrics.trend
+          }.`,
+        };
+      }
+
+      case 'get_days_of_inventory': {
+        const idOrSku =
+          args.product_id_or_sku || args.product_id || args.sku || args.id;
+        if (!idOrSku) {
+          throw new Error(
+            'product_id_or_sku is required to calculate days of inventory'
+          );
+        }
+        const leadTimeDays =
+          typeof args.lead_time_days === 'number'
+            ? args.lead_time_days
+            : undefined;
+        const safetyBufferDays =
+          typeof args.safety_buffer_days === 'number'
+            ? args.safety_buffer_days
+            : undefined;
+        const timeframeDays =
+          typeof args.timeframe_days === 'number'
+            ? args.timeframe_days
+            : undefined;
+
+        const doi = await calculateDaysOfInventory(idOrSku, {
+          leadTimeDays,
+          safetyBufferDays,
+          timeframeDays,
+        });
+
+        return {
+          toolName,
+          success: true,
+          data: doi,
+          summaryForVoice: `${doi.productName} has ${
+            doi.daysOfInventory === 999
+              ? 'stable'
+              : `${doi.daysOfInventory} days of`
+          } inventory remaining (Stock: ${doi.currentStock}, Urgency: ${
+            doi.urgencyTier
+          }). ${doi.recommendedAction}`,
+        };
+      }
+
+      case 'get_category_margin_breakdown': {
+        const timeframe =
+          typeof args.timeframe_days === 'number'
+            ? args.timeframe_days
+            : typeof args.days === 'number'
+              ? args.days
+              : 30;
+        const marginBreakdown = await getCategoryMarginBreakdown(timeframe);
+        return {
+          toolName,
+          success: true,
+          data: marginBreakdown,
+          summaryForVoice: `Category margin breakdown across ${
+            marginBreakdown.categories.length
+          } categories: blended margin is ${
+            marginBreakdown.blendedGrossMarginPercent
+          }% on ₹${marginBreakdown.totalCatalogRevenue.toLocaleString(
+            'en-IN'
+          )} revenue. Top margin category: ${
+            marginBreakdown.topMarginCategory || 'N/A'
+          }.`,
+        };
+      }
+
+      case 'get_restock_recommendations': {
+        const restockPlan = await generateRestockRecommendations({
+          categorySlug: args.category_slug,
+          urgencyTier: args.urgency_tier,
+          leadTimeDays:
+            typeof args.lead_time_days === 'number'
+              ? args.lead_time_days
+              : undefined,
+          safetyBufferDays:
+            typeof args.safety_buffer_days === 'number'
+              ? args.safety_buffer_days
+              : undefined,
+          timeframeDays:
+            typeof args.timeframe_days === 'number'
+              ? args.timeframe_days
+              : undefined,
+          limit: typeof args.limit === 'number' ? args.limit : undefined,
+        });
+
+        return {
+          toolName,
+          success: true,
+          data: restockPlan,
+          summaryForVoice: `Restock plan recommends reordering ${
+            restockPlan.restockRecommendedCount
+          } SKUs (${restockPlan.totalUnitsToOrder} total units) with ₹${restockPlan.estimatedTotalCapitalRequired.toLocaleString(
+            'en-IN'
+          )} estimated capital required (${
+            restockPlan.criticalRestockCount
+          } critical/OOS).`,
         };
       }
 

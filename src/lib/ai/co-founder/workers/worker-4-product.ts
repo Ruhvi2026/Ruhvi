@@ -66,7 +66,9 @@ export class ProductWorker implements AIWorkerInterface {
       // 1. Ingest products from Supabase
       const { data: products, error } = await supabase
         .from('products')
-        .select('id, name, sku, slug, price, mrp, stock_quantity, status, description, created_at')
+        .select(
+          'id, name, sku, slug, price, mrp, stock_quantity, status, description, created_at'
+        )
         .limit(100);
 
       if (error) {
@@ -81,8 +83,12 @@ export class ProductWorker implements AIWorkerInterface {
       );
       const outOfStockList = productList.filter((p) => p.stock_quantity === 0);
 
-      const totalPrice = productList.reduce((acc, p) => acc + (Number(p.price) || 0), 0);
-      const averagePrice = totalCount > 0 ? Math.round(totalPrice / totalCount) : 0;
+      const totalPrice = productList.reduce(
+        (acc, p) => acc + (Number(p.price) || 0),
+        0
+      );
+      const averagePrice =
+        totalCount > 0 ? Math.round(totalPrice / totalCount) : 0;
 
       // Identify underperforming / poorly described products
       const thinDescriptionList = productList.filter(
@@ -104,6 +110,20 @@ export class ProductWorker implements AIWorkerInterface {
         `Catalog review complete across ${totalCount} products (${activeList.length} active). Average retail price is ₹${averagePrice.toLocaleString('en-IN')}.`
       );
 
+      // Non-blocking enrichment from Catalog Intelligence
+      try {
+        const { getCategoryMarginBreakdown } =
+          await import('../catalog-intelligence');
+        const marginBreakdown = await getCategoryMarginBreakdown(30);
+        if (marginBreakdown && marginBreakdown.categories.length > 0) {
+          findings.push(
+            `Catalog Intelligence analyzed ${marginBreakdown.categories.length} categories: blended gross margin is ${marginBreakdown.blendedGrossMarginPercent}% (Top margin category: ${marginBreakdown.topMarginCategory || 'N/A'}).`
+          );
+        }
+      } catch {
+        // Fallback to baseline metrics when live orders are not present
+      }
+
       evidence.push(
         `Database audit: ${lowStockList.length} SKUs in low-stock status (<= 5 units), ${outOfStockList.length} SKUs out of stock.`
       );
@@ -113,7 +133,10 @@ export class ProductWorker implements AIWorkerInterface {
           `${thinDescriptionList.length} products have thin descriptions (< 80 characters) missing luxury craft specifications (22K gold plating, e-coating, dimensions).`
         );
         evidence.push(
-          `Sample SKUs needing enrichment: ${thinDescriptionList.slice(0, 3).map((p) => p.sku || p.name).join(', ')}.`
+          `Sample SKUs needing enrichment: ${thinDescriptionList
+            .slice(0, 3)
+            .map((p) => p.sku || p.name)
+            .join(', ')}.`
         );
       }
 
@@ -150,7 +173,8 @@ export class ProductWorker implements AIWorkerInterface {
 
       let requiredApproval = false;
       let executionStatus: 'not_required' | 'pending_approval' = 'not_required';
-      let requiredAction = 'Review catalog description quality and restock alerts';
+      let requiredAction =
+        'Review catalog description quality and restock alerts';
 
       // Check if task requested direct modification/publish
       if (
@@ -161,21 +185,26 @@ export class ProductWorker implements AIWorkerInterface {
       ) {
         requiredApproval = true;
         executionStatus = 'pending_approval';
-        requiredAction = 'Publish enriched descriptions and update product pricing in production catalog';
+        requiredAction =
+          'Publish enriched descriptions and update product pricing in production catalog';
         recommendations.push(
           'Submit description and price updates to Co-Founder Approvals for founder review.'
         );
       }
 
       const priority =
-        outOfStockList.length > 5 || thinDescriptionList.length > 10 ? 'high' : 'medium';
+        outOfStockList.length > 5 || thinDescriptionList.length > 10
+          ? 'high'
+          : 'medium';
 
       const voiceSummary =
         `Product catalog analysis complete for ${totalCount} items. Average price is ₹${averagePrice.toLocaleString('en-IN')}. ` +
         (thinDescriptionList.length > 0
           ? `${thinDescriptionList.length} items need description enrichment with our 22K gold and anti-tarnish guarantees.`
           : 'All product descriptions satisfy luxury craft guidelines.') +
-        (outOfStockList.length > 0 ? ` Note: ${outOfStockList.length} items are currently out of stock.` : '');
+        (outOfStockList.length > 0
+          ? ` Note: ${outOfStockList.length} items are currently out of stock.`
+          : '');
 
       return {
         workerId: this.id,

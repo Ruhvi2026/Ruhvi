@@ -170,6 +170,11 @@ CO-FOUNDER ADVISOR, ANALYST, STRATEGIST & EXECUTION AGENT PROTOCOL:
    - Dynamically assign tasks to these workers using 'dispatch_worker_task'.
    - Receive worker results, evaluate findings, and present clear recommendations to the founder.
    - Any business-impacting operational mutation MUST obtain founder approval before dispatching to the Execution Worker.
+10. CATALOG & INVENTORY INTELLIGENCE:
+   - Real-Time Product Velocity: Use 'get_product_velocity' to query live unit run-rates, ASP, order frequency, and sales trajectory. Distinguish OBSERVED sales from CALCULATED velocities. Never invent sales numbers.
+   - Days of Inventory (DOI): Use 'get_days_of_inventory' to calculate real inventory depletion dates and stock-out risk scores (0-100).
+   - Margin & Category Intelligence: Use 'get_category_margin_breakdown' to analyze gross margin % and contribution margins across jewellery categories (Earrings, Necklaces, Rings, etc.).
+   - Automated Restock Planning: Use 'get_restock_recommendations' to compute exact replenishment batches covering supplier lead time and safety buffers.
 
 ${memoryBlock}
 
@@ -697,6 +702,109 @@ export const CO_FOUNDER_TOOL_DECLARATIONS = [
         days: {
           type: 'NUMBER',
           description: 'Lookback timeframe in days (default: 30)',
+        },
+      },
+    },
+  },
+  {
+    name: 'get_product_velocity',
+    description:
+      'Calculate real-time sales velocity (units/day, run-rate revenue, order count, ASP, and velocity trend) for a single SKU or across catalog batches from live order items.',
+    parameters: {
+      type: 'OBJECT',
+      properties: {
+        product_id_or_sku: {
+          type: 'STRING',
+          description: 'Product UUID or SKU code to analyze',
+        },
+        timeframe_days: {
+          type: 'NUMBER',
+          description: 'Lookback window in days (default: 30)',
+        },
+        batch: {
+          type: 'BOOLEAN',
+          description:
+            'Set to true to calculate velocity across the entire catalog or filtered SKUs',
+        },
+        category_slug: {
+          type: 'STRING',
+          description: 'Optional category slug filter for batch calculation',
+        },
+        sort_by: {
+          type: 'STRING',
+          description: 'Sort order: "velocity", "revenue", "stock", or "name"',
+        },
+      },
+    },
+  },
+  {
+    name: 'get_days_of_inventory',
+    description:
+      'Calculate Days-of-Inventory (DOI) run-out runway, stock-out risk score (0-100), projected run-out dates, and urgency tier for a product SKU.',
+    parameters: {
+      type: 'OBJECT',
+      required: ['product_id_or_sku'],
+      properties: {
+        product_id_or_sku: {
+          type: 'STRING',
+          description: 'Product UUID or SKU code',
+        },
+        lead_time_days: {
+          type: 'NUMBER',
+          description: 'Supplier replenishment lead time in days (default: 10)',
+        },
+        safety_buffer_days: {
+          type: 'NUMBER',
+          description: 'Target safety buffer stock in days (default: 20)',
+        },
+        timeframe_days: {
+          type: 'NUMBER',
+          description: 'Sales velocity lookback window in days (default: 30)',
+        },
+      },
+    },
+  },
+  {
+    name: 'get_category_margin_breakdown',
+    description:
+      'Analyze gross revenue, COGS, gross margin %, and revenue contribution across jewellery categories (Earrings, Necklaces, Bangles, Mangalsutras, Rings).',
+    parameters: {
+      type: 'OBJECT',
+      properties: {
+        timeframe_days: {
+          type: 'NUMBER',
+          description: 'Timeframe in days (default: 30)',
+        },
+      },
+    },
+  },
+  {
+    name: 'get_restock_recommendations',
+    description:
+      'Generate prioritized inventory replenishment recommendations with calculated reorder quantities, estimated capital expenditure, and urgency tiers.',
+    parameters: {
+      type: 'OBJECT',
+      properties: {
+        category_slug: {
+          type: 'STRING',
+          description: 'Optional category filter',
+        },
+        urgency_tier: {
+          type: 'STRING',
+          description:
+            'Filter by urgency: "OUT_OF_STOCK", "CRITICAL", "ELEVATED", "HEALTHY", "OVERSTOCKED"',
+        },
+        lead_time_days: {
+          type: 'NUMBER',
+          description: 'Supplier lead time in days (default: 10)',
+        },
+        safety_buffer_days: {
+          type: 'NUMBER',
+          description: 'Target safety buffer in days (default: 20)',
+        },
+        limit: {
+          type: 'NUMBER',
+          description: 'Maximum recommendations to return (default: 50)',
         },
       },
     },

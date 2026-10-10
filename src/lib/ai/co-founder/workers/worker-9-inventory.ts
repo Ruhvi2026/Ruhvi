@@ -97,7 +97,8 @@ export class InventoryWorker implements AIWorkerInterface {
           sku: p.sku || 'SKU-PENDING',
           stockQuantity: qty,
           price: Number(p.price) || 0,
-          status: qty === 0 ? 'out_of_stock' : qty <= 5 ? 'low_stock' : 'in_stock',
+          status:
+            qty === 0 ? 'out_of_stock' : qty <= 5 ? 'low_stock' : 'in_stock',
           estimatedDaysRemaining: daysRemaining,
           recommendedRestockUnits,
         };
@@ -121,12 +122,32 @@ export class InventoryWorker implements AIWorkerInterface {
         `Audited ${totalSkus} catalog SKUs: ${healthyList.length} adequately stocked, ${lowStockList.length} in low-stock status (<= 5 units), and ${criticalOutList.length} completely out of stock.`
       );
 
+      // Non-blocking enrichment from Catalog Intelligence
+      try {
+        const { generateRestockRecommendations } =
+          await import('../catalog-intelligence');
+        const restockPlan = await generateRestockRecommendations({ limit: 20 });
+        if (restockPlan && restockPlan.recommendations.length > 0) {
+          findings.push(
+            `Catalog Intelligence calculated an automated restock plan: ${restockPlan.restockRecommendedCount} SKUs requiring ₹${restockPlan.estimatedTotalCapitalRequired.toLocaleString('en-IN')} in working capital.`
+          );
+        }
+      } catch {
+        // Fallback to baseline metrics when live orders are not present
+      }
+
       if (criticalOutList.length > 0) {
         problems.push(
-          `Emergency: ${criticalOutList.length} SKUs are out of stock (${criticalOutList.slice(0, 3).map((i) => i.name).join(', ')}). Immediate revenue loss on active product pages.`
+          `Emergency: ${criticalOutList.length} SKUs are out of stock (${criticalOutList
+            .slice(0, 3)
+            .map((i) => i.name)
+            .join(', ')}). Immediate revenue loss on active product pages.`
         );
         evidence.push(
-          `Zero inventory recorded for SKUs: ${criticalOutList.slice(0, 3).map((i) => i.sku).join(', ')}.`
+          `Zero inventory recorded for SKUs: ${criticalOutList
+            .slice(0, 3)
+            .map((i) => i.sku)
+            .join(', ')}.`
         );
       }
 
@@ -135,7 +156,13 @@ export class InventoryWorker implements AIWorkerInterface {
           `Imminent Stockout Risk: ${lowStockList.length} SKUs will exhaust inventory within 2–10 days at current run-rate.`
         );
         evidence.push(
-          `Low stock items: ${lowStockList.slice(0, 3).map((i) => `${i.name} (${i.stockQuantity} units left, ~${i.estimatedDaysRemaining}d)`).join('; ')}.`
+          `Low stock items: ${lowStockList
+            .slice(0, 3)
+            .map(
+              (i) =>
+                `${i.name} (${i.stockQuantity} units left, ~${i.estimatedDaysRemaining}d)`
+            )
+            .join('; ')}.`
         );
       }
 
@@ -164,7 +191,8 @@ export class InventoryWorker implements AIWorkerInterface {
 
       let requiredApproval = false;
       let executionStatus: 'not_required' | 'pending_approval' = 'not_required';
-      let requiredAction = 'Review low-stock alerts and authorize artisan workshop reorder';
+      let requiredAction =
+        'Review low-stock alerts and authorize artisan workshop reorder';
 
       if (
         taskLower.includes('update stock') ||
@@ -174,14 +202,19 @@ export class InventoryWorker implements AIWorkerInterface {
       ) {
         requiredApproval = true;
         executionStatus = 'pending_approval';
-        requiredAction = 'Apply inventory stock adjustment in Supabase production database';
+        requiredAction =
+          'Apply inventory stock adjustment in Supabase production database';
         recommendations.push(
           'Submit stock quantity modifications to Co-Founder Approvals.'
         );
       }
 
       const priority =
-        criticalOutList.length > 0 ? 'critical' : lowStockList.length > 3 ? 'high' : 'medium';
+        criticalOutList.length > 0
+          ? 'critical'
+          : lowStockList.length > 3
+            ? 'high'
+            : 'medium';
 
       const voiceSummary =
         `Inventory health check complete for ${totalSkus} SKUs. ` +

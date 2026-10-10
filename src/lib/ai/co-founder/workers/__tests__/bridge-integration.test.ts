@@ -43,6 +43,49 @@ jest.mock('@/lib/ai/co-founder/analytics', () => ({
   }),
 }));
 
+jest.mock('@/lib/ai/co-founder/catalog-intelligence', () => ({
+  calculateProductVelocity: jest.fn().mockResolvedValue({
+    productId: 'p_mock',
+    sku: 'SKU-001',
+    productName: 'Mock Choker',
+    unitsSold: 12,
+    unitsPerDay: 0.4,
+    orderCount: 8,
+    grossRevenue: 48000,
+    trend: 'accelerating',
+    dataQuality: 'CALCULATED',
+  }),
+  getProductVelocityBatch: jest.fn().mockResolvedValue([
+    {
+      productId: 'p_mock',
+      productName: 'Mock Choker',
+      unitsPerDay: 0.4,
+      grossRevenue: 48000,
+    },
+  ]),
+  calculateDaysOfInventory: jest.fn().mockResolvedValue({
+    productId: 'p_mock',
+    productName: 'Mock Choker',
+    daysOfInventory: 15,
+    currentStock: 6,
+    urgencyTier: 'ELEVATED',
+    recommendedAction: 'Queue restock order with suppliers.',
+  }),
+  getCategoryMarginBreakdown: jest.fn().mockResolvedValue({
+    categories: [{ categorySlug: 'necklaces', name: 'Necklaces' }],
+    totalCatalogRevenue: 150000,
+    blendedGrossMarginPercent: 62.5,
+    topMarginCategory: 'Necklaces',
+  }),
+  generateRestockRecommendations: jest.fn().mockResolvedValue({
+    restockRecommendedCount: 3,
+    totalUnitsToOrder: 35,
+    estimatedTotalCapitalRequired: 85000,
+    criticalRestockCount: 1,
+    recommendations: [],
+  }),
+}));
+
 import { executeCoFounderTool } from '@/lib/ai/co-founder/tool-bridge';
 
 describe('AI Co-Founder Tool Bridge: Worker Integration', () => {
@@ -75,5 +118,48 @@ describe('AI Co-Founder Tool Bridge: Worker Integration', () => {
     expect(res.data.intent).toBe('GROWTH_AUDIT');
     expect(res.data.stepsExecuted.length).toBeGreaterThanOrEqual(1);
     expect(res.summaryForVoice).toBeTruthy();
+  });
+
+  it('successfully executes get_product_velocity through executeCoFounderTool', async () => {
+    const res = await executeCoFounderTool('get_product_velocity', {
+      product_id_or_sku: 'SKU-001',
+    });
+
+    expect(res.success).toBe(true);
+    expect(res.data.sku).toBe('SKU-001');
+    expect(res.summaryForVoice).toContain('Mock Choker');
+    expect(res.summaryForVoice).toContain('12 units');
+  });
+
+  it('successfully executes get_days_of_inventory through executeCoFounderTool', async () => {
+    const res = await executeCoFounderTool('get_days_of_inventory', {
+      product_id_or_sku: 'SKU-001',
+    });
+
+    expect(res.success).toBe(true);
+    expect(res.data.daysOfInventory).toBe(15);
+    expect(res.summaryForVoice).toContain(
+      'Mock Choker has 15 days of inventory remaining'
+    );
+  });
+
+  it('successfully executes get_category_margin_breakdown through executeCoFounderTool', async () => {
+    const res = await executeCoFounderTool('get_category_margin_breakdown', {
+      timeframe_days: 30,
+    });
+
+    expect(res.success).toBe(true);
+    expect(res.data.blendedGrossMarginPercent).toBe(62.5);
+    expect(res.summaryForVoice).toContain('62.5%');
+  });
+
+  it('successfully executes get_restock_recommendations through executeCoFounderTool', async () => {
+    const res = await executeCoFounderTool('get_restock_recommendations', {
+      urgency_tier: 'CRITICAL',
+    });
+
+    expect(res.success).toBe(true);
+    expect(res.data.restockRecommendedCount).toBe(3);
+    expect(res.summaryForVoice).toContain('3 SKUs');
   });
 });

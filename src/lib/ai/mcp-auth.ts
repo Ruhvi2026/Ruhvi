@@ -134,6 +134,7 @@ export const TOOL_PERMISSION_MAP: Record<
 
   // Products (Read & Write)
   get_products: { module: 'products', action: 'read' },
+  get_product_velocity: { module: 'products', action: 'read' },
   create_product: { module: 'products', action: 'write' },
   update_product: { module: 'products', action: 'write' },
 
@@ -143,6 +144,8 @@ export const TOOL_PERMISSION_MAP: Record<
 
   // Inventory (Read & Write)
   get_inventory_levels: { module: 'inventory', action: 'read' },
+  get_days_of_inventory: { module: 'inventory', action: 'read' },
+  get_restock_recommendations: { module: 'inventory', action: 'read' },
   update_inventory_stock: { module: 'inventory', action: 'write' },
 
   // Customers (Read Only)
@@ -210,6 +213,7 @@ export const TOOL_PERMISSION_MAP: Record<
   browse_website: { module: 'analytics', action: 'read' },
   get_business_context: { module: 'analytics', action: 'read' },
   run_business_intelligence_scan: { module: 'analytics', action: 'read' },
+  get_category_margin_breakdown: { module: 'analytics', action: 'read' },
   investigate_root_cause: { module: 'analytics', action: 'read' },
   formulate_strategy: { module: 'analytics', action: 'read' },
   generate_action_plan: { module: 'analytics', action: 'write' },
