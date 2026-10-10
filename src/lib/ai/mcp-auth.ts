@@ -231,6 +231,11 @@ export const TOOL_PERMISSION_MAP: Record<
   get_coupons: { module: 'coupons', action: 'read' },
   create_coupon: { module: 'coupons', action: 'write' },
   update_coupon_status: { module: 'coupons', action: 'write' },
+
+  // Memory 2.0 (Read & Write)
+  search_co_founder_memory: { module: 'analytics', action: 'read' },
+  store_co_founder_memory: { module: 'analytics', action: 'write' },
+  extract_session_learnings: { module: 'analytics', action: 'read' },
 };
 
 export function assertSpecificScope(

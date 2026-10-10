@@ -931,6 +931,104 @@ export async function executeCoFounderTool(
         };
       }
 
+      case 'search_co_founder_memory': {
+        const query = args.query;
+        if (!query) {
+          throw new Error('query is required to search memories');
+        }
+        const { searchSemanticMemories } =
+          await import('@/lib/ai/co-founder/memory-engine');
+        const userId = args.user_id || '00000000-0000-0000-0000-000000000000';
+        const limit = typeof args.limit === 'number' ? args.limit : 8;
+        const layer = args.layer;
+        const memories = await searchSemanticMemories(userId, query, {
+          limit,
+          layer,
+        });
+        return {
+          toolName,
+          success: true,
+          data: memories,
+          summaryForVoice:
+            memories.length === 0
+              ? `No long-term memories found matching "${query}".`
+              : `Retrieved ${memories.length} relevant memories. Top match: [${memories[0].taxonomyLayer.toUpperCase()}] ${memories[0].key}: ${memories[0].value}.`,
+        };
+      }
+
+      case 'store_co_founder_memory': {
+        if (!args.key || !args.value) {
+          throw new Error('key and value are required to store a memory');
+        }
+        const { storeMemoryWithContradictionCheck } =
+          await import('@/lib/ai/co-founder/memory-engine');
+        const userId = args.user_id || '00000000-0000-0000-0000-000000000000';
+        const storeRes = await storeMemoryWithContradictionCheck({
+          userId,
+          key: args.key,
+          value: args.value,
+          taxonomyLayer: args.taxonomy_layer,
+          importance:
+            typeof args.importance === 'number' ? args.importance : undefined,
+          topics: Array.isArray(args.topics) ? args.topics : undefined,
+        });
+        const supersededNote =
+          storeRes.supersededIds && storeRes.supersededIds.length > 0
+            ? ` (superseded ${storeRes.supersededIds.length} previous conflicting records)`
+            : '';
+        return {
+          toolName,
+          success: storeRes.success,
+          data: storeRes,
+          error: storeRes.error,
+          summaryForVoice: storeRes.success
+            ? `Stored memory "${args.key}" successfully${supersededNote}.`
+            : `Failed to store memory: ${storeRes.error}`,
+        };
+      }
+
+      case 'extract_session_learnings': {
+        const {
+          extractMemoriesFromConversation,
+          storeMemoryWithContradictionCheck,
+        } = await import('@/lib/ai/co-founder/memory-engine');
+        const messages = Array.isArray(args.messages) ? args.messages : [];
+        const extracted = extractMemoriesFromConversation(messages);
+        const persist = Boolean(args.persist_to_memory);
+        const persistedIds: string[] = [];
+
+        if (persist && extracted.length > 0) {
+          const userId = args.user_id || '00000000-0000-0000-0000-000000000000';
+          for (const cand of extracted) {
+            const saveRes = await storeMemoryWithContradictionCheck({
+              userId,
+              key: cand.key,
+              value: cand.value,
+              taxonomyLayer: cand.taxonomyLayer,
+              importance: cand.importance,
+              source: cand.source,
+              topics: cand.topics,
+            });
+            if (saveRes.success && saveRes.memoryId) {
+              persistedIds.push(saveRes.memoryId);
+            }
+          }
+        }
+
+        return {
+          toolName,
+          success: true,
+          data: {
+            extractedCount: extracted.length,
+            candidates: extracted,
+            persistedIds,
+          },
+          summaryForVoice: `Distilled ${extracted.length} high-signal learnings from conversation${
+            persist ? ` and saved ${persistedIds.length} to memory` : ''
+          }.`,
+        };
+      }
+
       default:
         return {
           toolName,

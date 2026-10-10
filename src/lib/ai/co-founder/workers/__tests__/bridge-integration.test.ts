@@ -86,6 +86,36 @@ jest.mock('@/lib/ai/co-founder/catalog-intelligence', () => ({
   }),
 }));
 
+jest.mock('@/lib/ai/co-founder/memory-engine', () => ({
+  searchSemanticMemories: jest.fn().mockResolvedValue([
+    {
+      id: 'mem_mock_1',
+      userId: 'u_1',
+      key: 'shipping_carrier',
+      value: 'Blue Dart Express Air for luxury parcels',
+      taxonomyLayer: 'preference',
+      similarity: 0.88,
+      hybridScore: 0.91,
+    },
+  ]),
+  storeMemoryWithContradictionCheck: jest.fn().mockResolvedValue({
+    success: true,
+    memoryId: 'mem_new_123',
+    supersededIds: ['mem_old_001'],
+  }),
+  extractMemoriesFromConversation: jest.fn().mockReturnValue([
+    {
+      key: 'rule_choker_buffer',
+      value: 'Keep 10 units in stock',
+      taxonomyLayer: 'operational_rule',
+      importance: 5,
+      confidence: 0.95,
+      source: 'user_explicit',
+      topics: ['inventory'],
+    },
+  ]),
+}));
+
 import { executeCoFounderTool } from '@/lib/ai/co-founder/tool-bridge';
 
 describe('AI Co-Founder Tool Bridge: Worker Integration', () => {
@@ -161,5 +191,51 @@ describe('AI Co-Founder Tool Bridge: Worker Integration', () => {
     expect(res.success).toBe(true);
     expect(res.data.restockRecommendedCount).toBe(3);
     expect(res.summaryForVoice).toContain('3 SKUs');
+  });
+
+  it('successfully executes search_co_founder_memory through executeCoFounderTool', async () => {
+    const res = await executeCoFounderTool('search_co_founder_memory', {
+      query: 'What is our primary shipping carrier?',
+    });
+
+    expect(res.success).toBe(true);
+    expect(res.data).toHaveLength(1);
+    expect(res.data[0].key).toBe('shipping_carrier');
+    expect(res.summaryForVoice).toContain('Retrieved 1 relevant memories');
+    expect(res.summaryForVoice).toContain('shipping_carrier');
+  });
+
+  it('successfully executes store_co_founder_memory through executeCoFounderTool', async () => {
+    const res = await executeCoFounderTool('store_co_founder_memory', {
+      key: 'choker_buffer_stock',
+      value: 'Keep minimum 15 choker units in buffer',
+      taxonomy_layer: 'operational_rule',
+      importance: 5,
+    });
+
+    expect(res.success).toBe(true);
+    expect(res.data.memoryId).toBe('mem_new_123');
+    expect(res.summaryForVoice).toContain(
+      'Stored memory "choker_buffer_stock" successfully'
+    );
+    expect(res.summaryForVoice).toContain(
+      'superseded 1 previous conflicting records'
+    );
+  });
+
+  it('successfully executes extract_session_learnings through executeCoFounderTool', async () => {
+    const res = await executeCoFounderTool('extract_session_learnings', {
+      messages: [
+        {
+          role: 'user',
+          content: 'Always keep 10 units in stock for choker collections.',
+        },
+      ],
+      persist_to_memory: true,
+    });
+
+    expect(res.success).toBe(true);
+    expect(res.data.extractedCount).toBe(1);
+    expect(res.summaryForVoice).toContain('Distilled 1 high-signal learnings');
   });
 });

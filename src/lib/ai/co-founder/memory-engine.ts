@@ -762,9 +762,12 @@ export async function searchSemanticMemories(
       dbQuery = dbQuery.eq('category', options.category);
     }
 
-    const { data: rows, error } = await dbQuery.order('created_at', {
-      ascending: false,
-    });
+    const candidateLimit = Math.max(limit * 4, 30);
+    const { data: rows, error } = await dbQuery
+      .order('created_at', {
+        ascending: false,
+      })
+      .limit(candidateLimit);
 
     if (error || !rows || rows.length === 0) {
       return [];

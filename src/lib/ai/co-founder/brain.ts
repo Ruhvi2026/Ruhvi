@@ -5,6 +5,10 @@ import {
   RUHVI_BUSINESS_KNOWLEDGE,
 } from '@/lib/ai/knowledge';
 import { getRelevantMemories, CoFounderMemoryItem } from './memory';
+import {
+  searchSemanticMemories,
+  synthesizePrioritizedMemoryContext,
+} from './memory-engine';
 import { getActiveProactiveSignals } from './proactive';
 
 export interface CoFounderContextOptions {
@@ -39,10 +43,54 @@ export async function getCoFounderSystemPrompt(
     options.sessionGoal || 'business overview products catalog orders'
   );
 
-  // 2. Fetch relevant long-term memories from Supabase
-  let memories: CoFounderMemoryItem[] = [];
+  // 2. Fetch relevant long-term memories using Memory 2.0 Semantic Engine
+  let memoryBlock = 'LONG-TERM MEMORIES & CONTEXT: None recorded yet.';
   if (options.userId) {
-    memories = await getRelevantMemories(options.userId, undefined, 5);
+    try {
+      const searchQuery =
+        options.sessionGoal ||
+        'business strategy operational rules goals preferences';
+      const scoredMemories = await searchSemanticMemories(
+        options.userId,
+        searchQuery,
+        { limit: 8 }
+      );
+      if (scoredMemories && scoredMemories.length > 0) {
+        memoryBlock = synthesizePrioritizedMemoryContext(scoredMemories);
+      } else {
+        const legacyMemories = await getRelevantMemories(
+          options.userId,
+          undefined,
+          5
+        );
+        if (legacyMemories.length > 0) {
+          memoryBlock =
+            `LONG-TERM STRATEGIC MEMORIES & PREFERENCES:\n` +
+            legacyMemories
+              .map(
+                (m) => `- [${m.category.toUpperCase()}] ${m.key}: ${m.value}`
+              )
+              .join('\n');
+        }
+      }
+    } catch {
+      try {
+        const legacyMemories = await getRelevantMemories(
+          options.userId,
+          undefined,
+          5
+        );
+        if (legacyMemories.length > 0) {
+          memoryBlock =
+            `LONG-TERM STRATEGIC MEMORIES & PREFERENCES:\n` +
+            legacyMemories
+              .map(
+                (m) => `- [${m.category.toUpperCase()}] ${m.key}: ${m.value}`
+              )
+              .join('\n');
+        }
+      } catch {}
+    }
   }
 
   let proactiveSignals: any[] = [];
@@ -60,14 +108,6 @@ export async function getCoFounderSystemPrompt(
           )
           .join('\n')
       : `ACTIVE PROACTIVE SIGNALS: All systems and metrics within normal parameters.`;
-
-  const memoryBlock =
-    memories.length > 0
-      ? `LONG-TERM STRATEGIC MEMORIES & PREFERENCES:\n` +
-        memories
-          .map((m) => `- [${m.category.toUpperCase()}] ${m.key}: ${m.value}`)
-          .join('\n')
-      : `LONG-TERM STRATEGIC MEMORIES: None recorded yet.`;
 
   return `
 You are the AI Co-Founder of "Ruhvi", an exquisite, high-growth fine jewellery brand based in India (ruhvi.in).
@@ -175,6 +215,12 @@ CO-FOUNDER ADVISOR, ANALYST, STRATEGIST & EXECUTION AGENT PROTOCOL:
    - Days of Inventory (DOI): Use 'get_days_of_inventory' to calculate real inventory depletion dates and stock-out risk scores (0-100).
    - Margin & Category Intelligence: Use 'get_category_margin_breakdown' to analyze gross margin % and contribution margins across jewellery categories (Earrings, Necklaces, Rings, etc.).
    - Automated Restock Planning: Use 'get_restock_recommendations' to compute exact replenishment batches covering supplier lead time and safety buffers.
+11. HIERARCHICAL MEMORY 2.0 & TRUTH HIERARCHY:
+   - Priority Order: Live Store Verified Data > Approved Operational Rules > Strategic Goals > Founder Preferences > Historical Memory.
+   - Use 'search_co_founder_memory' to perform hybrid semantic retrieval across operational constraints, strategic milestones, brand preferences, and outcome learnings.
+   - Use 'store_co_founder_memory' to record explicit founder decisions, policies, and targets with automated semantic contradiction detection and superseding.
+   - Use 'extract_session_learnings' to distill high-signal business takeaways and corrections from the conversation turn history.
+   - Never violate active operational rules without explicit founder authorization.
 
 ${memoryBlock}
 
@@ -805,6 +851,82 @@ export const CO_FOUNDER_TOOL_DECLARATIONS = [
         limit: {
           type: 'NUMBER',
           description: 'Maximum recommendations to return (default: 50)',
+        },
+      },
+    },
+  },
+  {
+    name: 'search_co_founder_memory',
+    description:
+      'Search long-term episodic, strategic, operational, and preference memories using hybrid semantic vector retrieval.',
+    parameters: {
+      type: 'OBJECT',
+      required: ['query'],
+      properties: {
+        query: {
+          type: 'STRING',
+          description:
+            'The semantic question or topic to search across memories',
+        },
+        layer: {
+          type: 'STRING',
+          description:
+            'Optional taxonomy layer filter: "conversation", "decision", "preference", "operational_rule", "strategic_goal", "correction", "outcome_learning"',
+        },
+        limit: {
+          type: 'NUMBER',
+          description: 'Maximum number of memories to return (default: 8)',
+        },
+      },
+    },
+  },
+  {
+    name: 'store_co_founder_memory',
+    description:
+      'Store a new long-term business rule, strategic goal, founder preference, or decision. Automatically detects contradictions and supersedes outdated memories.',
+    parameters: {
+      type: 'OBJECT',
+      required: ['key', 'value'],
+      properties: {
+        key: {
+          type: 'STRING',
+          description:
+            'Unique identifier or slug for this memory item (e.g. "choker_buffer_stock")',
+        },
+        value: {
+          type: 'STRING',
+          description: 'The memory text or factual rule statement',
+        },
+        taxonomy_layer: {
+          type: 'STRING',
+          description:
+            'Taxonomy layer: "operational_rule", "strategic_goal", "preference", "decision", "correction", "conversation"',
+        },
+        importance: {
+          type: 'NUMBER',
+          description:
+            'Importance rating from 1 (minor) to 5 (critical policy/rule)',
+        },
+        topics: {
+          type: 'ARRAY',
+          description:
+            'Optional semantic topic tags (e.g. ["inventory", "safety_stock"])',
+          items: { type: 'STRING' },
+        },
+      },
+    },
+  },
+  {
+    name: 'extract_session_learnings',
+    description:
+      'Analyze recent conversation turns to extract and summarize high-signal founder rules, goals, preferences, or corrections.',
+    parameters: {
+      type: 'OBJECT',
+      properties: {
+        persist_to_memory: {
+          type: 'BOOLEAN',
+          description:
+            'Whether to automatically persist extracted high-confidence candidates to long-term memory (default: false)',
         },
       },
     },
