@@ -189,16 +189,22 @@ All classifications are based on direct inspection of:
 
 ---
 
-## 8. EXECUTION ENGINE
+## 8. EXECUTION ENGINE & CLOSED-LOOP OPERATIONAL TRACEABILITY
 
 | Capability | Status | Evidence | Gap / Note |
 |---|---|---|---|
-| Approved action executor | IMPLEMENTED | `action-engine.ts:executeApprovedBusinessAction()` | |
-| Permission validation before execution | IMPLEMENTED | `action-engine.ts` calls `assertToolPermission()` | |
-| Audit logging on execution | IMPLEMENTED | `action-engine.ts` calls `logAuditEvent()` | |
+| Approved action executor | IMPLEMENTED | `action-engine.ts:executeApprovedBusinessAction()` | Executes validated business mutations |
+| Permission validation before execution | IMPLEMENTED | `action-engine.ts` calls `assertToolPermission()` | RBAC scope checks enforced |
+| Audit logging on execution | IMPLEMENTED | `action-engine.ts` calls `logAuditEvent()` | Security audit records created |
 | Target entity validation | IMPLEMENTED | `action-engine.ts:validateTargetEntity()` | Checks DB before mutating |
-| Execution status tracking | PARTIAL | `ActionStatus` type exists but not persisted after response | |
-| Action type coverage | NEEDS_VERIFY | Supported action types need verification | |
+| Closed-loop lifecycle state machine | **IMPLEMENTED** | `closed-loop.ts:ActionLifecycleState` | 11 states: PROPOSED → APPROVED/REJECTED → EXECUTING → EXECUTION_SUCCEEDED/FAILED → OUTCOME_EXPECTED → OUTCOME_ACHIEVED/REGRESSED/CONFLICTED → OUTCOME_VERIFIED |
+| Execution status tracking | **IMPLEMENTED** | `closed-loop.ts:recordActionExecutionResult()` | Wired into `action-engine.ts`; records mutation results in `co_founder_outcomes` |
+| Separation of execution & business outcome | **IMPLEMENTED** | `closed-loop.ts:460-520` | Strict rule: Execution Success != Business Success; keeps state `OUTCOME_EXPECTED` until window elapses |
+| Truthful database metric measurement | **IMPLEMENTED** | `closed-loop.ts:measureAuthoritativeMetric()` | Directly queries live `orders`, `products`, and `support_tickets` tables |
+| Window-guarded outcome verification | **IMPLEMENTED** | `closed-loop.ts:verifyActionOutcome()` | Refuses false success while window is active; detects regressions & conflicts (>25% shortfall) |
+| Organizational learning loop | **IMPLEMENTED** | `closed-loop.ts:commitOutcomeLearning()` | Auto-commits verified success, regression warnings, and conflicts into `co_founder_memories` |
+| Batch scanner for due outcomes | **IMPLEMENTED** | `closed-loop.ts:scanAndVerifyDueActions()` | Scans expired measurement windows and verifies business results |
+| Closed-loop tool bridge integration | **IMPLEMENTED** | `tool-bridge.ts`, `brain.ts`, `mcp-auth.ts` | Tools: `verify_action_outcome`, `get_action_lifecycle_status`, `get_closed_loop_analytics` |
 
 ---
 
@@ -326,21 +332,26 @@ All classifications are based on direct inspection of:
 2. **Tool declarations wired to SDK** - IMPLEMENTED via `formatGeminiFunctionDeclarations()`. Converts 24 Co-Founder tool schemas into typed Gemini FunctionDeclaration objects.
 3. **Chat route integration** - IMPLEMENTED via `chat/route.ts` feature flag (`agenticLoop: true`) with graceful fallback to classic multi-provider chain.
 
-### HIGH - Phase 2-3 Target
-4. **Worker status truthfulness** - All workers permanently return `ACTIVE_AND_VERIFIED`. Real execution states are never tracked.
-5. **No automatic memory extraction** - System cannot learn from conversations automatically.
-6. **No semantic memory retrieval** - Memory is only sorted by recency; no embedding-based relevance.
-7. **Tool rate limiting absent** - No rate limits on any co-founder API route.
+### RESOLVED - Phase 2 Complete
+4. **Intelligent multi-worker planning** - IMPLEMENTED via `intelligent-planner.ts` & `dispatcher.ts:executeMultiWorkerPlan()`. Multi-stage DAG decomposition (`stages`, `dependsOn`, `isParallelSafe`), intent classification across 12 worker domains, plan conflict detection, and concurrent execution of safe stages.
 
-### MEDIUM - Phase 4-6 Target
-8. **Incomplete proactive signal coverage** - Only 5 signal types; competitor, SEO, conversion signals missing.
-9. **No real-time worker status** - Worker execution is fire-and-forget; no real execution state machine.
+### RESOLVED - Phase 3 Complete
+5. **Closed-loop execution & operational traceability** - IMPLEMENTED via `closed-loop.ts`. 11-state unified lifecycle state machine (`ActionLifecycleState`), truthful authoritative database metric measurement, refusal of false success while measurement windows remain active (`Execution Success != Business Success`), continuous organizational learning loop committing findings to memory, and full wiring into `action-engine.ts`, `tool-bridge.ts`, `brain.ts`, and `mcp-auth.ts`.
+
+### HIGH - Phase 4-6 Target
+6. **No automatic memory extraction** - System cannot learn from conversations automatically.
+7. **No semantic memory retrieval** - Memory is only sorted by recency; no embedding-based relevance.
+8. **Tool rate limiting absent** - No rate limits on any co-founder API route.
+
+### MEDIUM - Phase 7-8 Target
+9. **Incomplete proactive signal coverage** - Only 5 signal types; competitor, SEO, conversion signals missing.
 10. **OpenRouter provider unreachable** - `openrouter.ts` exists but not in the fallback chain.
 
 ---
 
 ## 16. DATABASE TABLES CONFIRMED IN USE
 
+- `co_founder_outcomes`
 - `co_founder_memories`
 - `co_founder_signals`
 - `co_founder_approvals`
@@ -350,5 +361,5 @@ All classifications are based on direct inspection of:
 
 ---
 
-*Blueprint Version: 1.1 | Phase 1 Complete | Updated 2026-10-11*
-*Next update: After Phase 2 completion*
+*Blueprint Version: 3.0 | Phase 3 Complete | Updated 2026-10-11*
+*Next update: After Phase 4 completion*
