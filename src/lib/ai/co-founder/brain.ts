@@ -620,4 +620,30 @@ export const CO_FOUNDER_TOOL_DECLARATIONS = [
       properties: {},
     },
   },
+  {
+    name: 'execute_multi_worker_plan',
+    description:
+      'Plan and execute a multi-worker coordinated initiative across specialized AI Agent Workers with stage dependencies, parallel execution for safe investigative steps, and automatic human approval gating for mutations.',
+    parameters: {
+      type: 'OBJECT',
+      required: ['goal'],
+      properties: {
+        goal: {
+          type: 'STRING',
+          description:
+            'The comprehensive business goal or initiative to decompose and execute across workers (e.g. "Run a full store growth audit", "Plan a festive campaign launch", "Execute checkout conversion recovery")',
+        },
+        timeframe: {
+          type: 'STRING',
+          description:
+            'Optional timeframe filter: "today", "yesterday", "7d", "30d", "this_month"',
+        },
+        parameters: {
+          type: 'OBJECT',
+          description:
+            'Optional structured parameters or context for the workers',
+        },
+      },
+    },
+  },
 ];

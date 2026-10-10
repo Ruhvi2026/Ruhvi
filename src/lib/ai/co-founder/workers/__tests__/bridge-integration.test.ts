@@ -65,4 +65,15 @@ describe('AI Co-Founder Tool Bridge: Worker Integration', () => {
     expect(res.data.result.findings.length).toBeGreaterThan(0);
     expect(res.summaryForVoice).toBeTruthy();
   });
+
+  it('successfully executes execute_multi_worker_plan tool through executeCoFounderTool', async () => {
+    const res = await executeCoFounderTool('execute_multi_worker_plan', {
+      goal: 'Run a full store growth audit and inspect metrics',
+    });
+
+    expect(res.success).toBe(true);
+    expect(res.data.intent).toBe('GROWTH_AUDIT');
+    expect(res.data.stepsExecuted.length).toBeGreaterThanOrEqual(1);
+    expect(res.summaryForVoice).toBeTruthy();
+  });
 });

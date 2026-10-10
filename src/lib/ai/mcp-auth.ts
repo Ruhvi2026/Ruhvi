@@ -170,9 +170,15 @@ export const TOOL_PERMISSION_MAP: Record<
   get_campaign_status: { module: 'marketing_campaign', action: 'read' },
   trigger_marketing_campaign: { module: 'marketing_campaign', action: 'write' },
   dispatch_marketing_coworker: { module: 'marketing_campaign', action: 'read' },
-  get_marketing_coworker_statuses: { module: 'marketing_campaign', action: 'read' },
+  get_marketing_coworker_statuses: {
+    module: 'marketing_campaign',
+    action: 'read',
+  },
   toggle_marketing_coworker: { module: 'marketing_campaign', action: 'write' },
-  trigger_media_processing_job: { module: 'marketing_campaign', action: 'write' },
+  trigger_media_processing_job: {
+    module: 'marketing_campaign',
+    action: 'write',
+  },
   get_media_job_status: { module: 'marketing_campaign', action: 'read' },
   publish_ad_campaign: { module: 'marketing_campaign', action: 'write' },
 
@@ -207,6 +213,7 @@ export const TOOL_PERMISSION_MAP: Record<
   execute_action_plan: { module: 'analytics', action: 'write' },
   dispatch_worker_task: { module: 'mcp_tools', action: 'read' },
   get_worker_statuses: { module: 'mcp_tools', action: 'read' },
+  execute_multi_worker_plan: { module: 'mcp_tools', action: 'read' },
 
   // Support Tickets (Read & Write)
   get_support_tickets: { module: 'support_ticket', action: 'read' },

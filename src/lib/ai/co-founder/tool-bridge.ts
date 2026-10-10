@@ -34,6 +34,7 @@ import {
 import {
   dispatchWorkerTask,
   getWorkerRegistryStatus,
+  executeMultiWorkerPlan,
 } from './workers';
 
 export interface ToolExecutionResult {
@@ -585,11 +586,29 @@ export async function executeCoFounderTool(
         };
       }
 
+      case 'execute_multi_worker_plan': {
+        if (!args.goal) {
+          throw new Error('goal is required to execute multi-worker plan');
+        }
+        const planResult = await executeMultiWorkerPlan(args.goal, {
+          timeframe: args.timeframe,
+          parameters: args.parameters,
+        });
+
+        return {
+          toolName,
+          success: planResult.status !== 'FAILED',
+          data: planResult,
+          summaryForVoice: planResult.summaryForVoice,
+        };
+      }
+
       case 'dispatch_marketing_coworker': {
         if (!args.task) {
           throw new Error('task is required to dispatch marketing co-worker');
         }
-        const { executeCoWorkerById } = await import('@/lib/ai/co-founder/workers/marketing');
+        const { executeCoWorkerById } =
+          await import('@/lib/ai/co-founder/workers/marketing');
         const coWorkerId = args.coworker_id || 'marketing_strategy';
         const result = await executeCoWorkerById(coWorkerId, {
           task: args.task,
@@ -605,7 +624,8 @@ export async function executeCoFounderTool(
       }
 
       case 'get_marketing_coworker_statuses': {
-        const { getAllCoWorkerStatuses } = await import('@/lib/ai/co-founder/workers/marketing');
+        const { getAllCoWorkerStatuses } =
+          await import('@/lib/ai/co-founder/workers/marketing');
         const statuses = getAllCoWorkerStatuses();
         return {
           toolName,
@@ -617,9 +637,12 @@ export async function executeCoFounderTool(
 
       case 'toggle_marketing_coworker': {
         if (!args.coworker_id || !args.status) {
-          throw new Error('coworker_id and status ("ENABLED" | "DISABLED") are required');
+          throw new Error(
+            'coworker_id and status ("ENABLED" | "DISABLED") are required'
+          );
         }
-        const { setCoWorkerStatus } = await import('@/lib/ai/co-founder/workers/marketing');
+        const { setCoWorkerStatus } =
+          await import('@/lib/ai/co-founder/workers/marketing');
         setCoWorkerStatus(args.coworker_id, args.status);
         return {
           toolName,
@@ -631,9 +654,12 @@ export async function executeCoFounderTool(
 
       case 'trigger_media_processing_job': {
         if (!args.video_1_url || !args.video_2_url) {
-          throw new Error('video_1_url and video_2_url are required to trigger media processing');
+          throw new Error(
+            'video_1_url and video_2_url are required to trigger media processing'
+          );
         }
-        const { createAndDispatchMediaJob } = await import('@/lib/ai/co-founder/workers/marketing');
+        const { createAndDispatchMediaJob } =
+          await import('@/lib/ai/co-founder/workers/marketing');
         const job = await createAndDispatchMediaJob({
           campaignId: args.campaign_id || `cmp_${Date.now()}`,
           taskId: args.task_id || `task_${Date.now()}`,
@@ -654,7 +680,8 @@ export async function executeCoFounderTool(
         if (!args.job_id) {
           throw new Error('job_id is required');
         }
-        const { getMediaJob } = await import('@/lib/ai/co-founder/workers/marketing');
+        const { getMediaJob } =
+          await import('@/lib/ai/co-founder/workers/marketing');
         const job = getMediaJob(args.job_id);
         return {
           toolName,
@@ -670,7 +697,8 @@ export async function executeCoFounderTool(
         if (!args.campaign_id) {
           throw new Error('campaign_id is required to publish ad campaign');
         }
-        const { metaAdsService } = await import('@/lib/ai/co-founder/workers/marketing');
+        const { metaAdsService } =
+          await import('@/lib/ai/co-founder/workers/marketing');
         const pubResult = await metaAdsService.activateApprovedCampaign({
           metaCampaignId: args.campaign_id,
           approvalId: args.approval_id || `app_override_${Date.now()}`,
