@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { requireAdmin } from '@/lib/auth/require-admin';
 import { getCoFounderSystemPrompt } from '@/lib/ai/co-founder/brain';
+import { runCoFounderAgentLoop } from '@/lib/ai/co-founder/orchestrator';
+import { getUserScopes } from '@/lib/auth/rbac';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { createServerClient } from '@supabase/ssr';
 import { resolveEffectiveApiKey } from '@/lib/ai/keys';
@@ -30,6 +32,8 @@ export async function POST(req: NextRequest) {
       model: requestedModel,
       language,
       voiceStyle,
+      agenticLoop: requestedAgenticLoop,
+      maxIterations: requestedMaxIterations,
     } = body;
 
     if (!messages || !Array.isArray(messages) || messages.length === 0) {
@@ -130,6 +134,10 @@ export async function POST(req: NextRequest) {
       ? settingsMap.ai_providers
       : [];
     const coFounderConfig = settingsMap.ai_features?.co_founder || {};
+    const useAgenticLoop =
+      requestedAgenticLoop !== undefined
+        ? Boolean(requestedAgenticLoop)
+        : Boolean(coFounderConfig.agenticLoop ?? true);
 
     // 3. Determine Primary Provider and Model
     const primaryProvider =
@@ -179,6 +187,7 @@ export async function POST(req: NextRequest) {
     let responseText = '';
     let answeredProvider = primaryProvider;
     let answeredModel = primaryModel;
+    let agentExecutionMeta: any = null;
     const errors: string[] = [];
 
     const maxTokens = channel === 'voice' ? 350 : 1200;
@@ -213,6 +222,46 @@ export async function POST(req: NextRequest) {
           if (!apiKey) {
             errors.push('Gemini: API key missing');
             continue;
+          }
+
+          // ==========================================
+          // AGENTIC TOOL-CALLING REASONING LOOP
+          // ==========================================
+          if (useAgenticLoop) {
+            try {
+              const scopes = await getUserScopes(auth.uid);
+              const agentResult = await runCoFounderAgentLoop(messages, {
+                apiKey,
+                modelName:
+                  primaryProvider === 'gemini' && primaryModel
+                    ? primaryModel
+                    : 'gemini-2.0-flash',
+                systemInstruction: systemPrompt,
+                scopes,
+                userId: auth.uid,
+                maxIterations: Number(requestedMaxIterations) || 8,
+              });
+
+              if (agentResult.success && agentResult.responseText) {
+                responseText = agentResult.responseText;
+                answeredProvider = 'gemini';
+                answeredModel = agentResult.modelUsed;
+                agentExecutionMeta = {
+                  toolCallsExecuted: agentResult.toolCallsExecuted,
+                  steps: agentResult.steps,
+                  iterations: agentResult.iterations,
+                  pausedForApproval: agentResult.pausedForApproval,
+                  pendingApproval: agentResult.pendingApproval,
+                };
+                break;
+              }
+            } catch (agentErr: any) {
+              errors.push(`Gemini Agentic Loop: ${agentErr?.message}`);
+              console.warn(
+                '[Co-Founder Chat] Agentic loop failover to classic single-turn chat:',
+                agentErr?.message
+              );
+            }
           }
 
           const genAI = new GoogleGenerativeAI(apiKey);
@@ -556,6 +605,7 @@ export async function POST(req: NextRequest) {
       fallbackUsed: answeredProvider !== primaryProvider,
       browsingResult: browsingResult || undefined,
       timestamp: Date.now(),
+      ...(agentExecutionMeta ? { agent: agentExecutionMeta } : {}),
     });
   } catch (error: any) {
     console.error('[Co-Founder Chat Error]', error);
