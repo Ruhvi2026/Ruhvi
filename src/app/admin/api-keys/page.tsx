@@ -482,8 +482,8 @@ function ApiDocsTab() {
       <section className="space-y-3">
         <h2 className="text-lg font-bold text-white">Base URL</h2>
         <div className="flex items-center justify-between rounded-lg border border-white/5 bg-[#0d1117] p-3 font-mono text-xs text-emerald-400">
-          <span>https://ruhvi.vercel.app/api/external</span>
-          <CopyButton text="https://ruhvi.vercel.app/api/external" />
+          <span>https://ruhvi.in/api/external</span>
+          <CopyButton text="https://ruhvi.in/api/external" />
         </div>
         <p className="text-xs text-slate-500">
           Every resource is accessed by appending its name to this base URL,
@@ -572,12 +572,12 @@ function ApiDocsTab() {
         <div className="relative overflow-hidden rounded-lg border border-white/5 bg-[#0d1117] p-4">
           <div className="absolute right-2 top-2">
             <CopyButton
-              text={`curl -X GET "https://ruhvi.vercel.app/api/external/orders" \\\n  -H "Authorization: Bearer YOUR_API_KEY"`}
+              text={`curl -X GET "https://ruhvi.in/api/external/orders" \\\n  -H "Authorization: Bearer YOUR_API_KEY"`}
             />
           </div>
           <pre className="overflow-x-auto whitespace-pre font-mono text-xs leading-relaxed text-emerald-400">
             <code>
-              {`curl -X GET "https://ruhvi.vercel.app/api/external/orders" \\
+              {`curl -X GET "https://ruhvi.in/api/external/orders" \\
   -H "Authorization: Bearer YOUR_API_KEY"`}
             </code>
           </pre>
@@ -799,10 +799,10 @@ export default function ApiKeysPage() {
             </div>
             <div className="mt-2 flex items-center gap-1">
               <code className="text-xs text-slate-300">
-                POST https://ruhvi.vercel.app/api/external/{selectedEndpoint}
+                POST https://ruhvi.in/api/external/{selectedEndpoint}
               </code>
               <CopyButton
-                text={`https://ruhvi.vercel.app/api/external/${selectedEndpoint}`}
+                text={`https://ruhvi.in/api/external/${selectedEndpoint}`}
               />
             </div>
             <p className="mt-1.5 text-[10px] text-slate-500">

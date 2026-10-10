@@ -51,8 +51,8 @@ The same app serves multiple portals, switched on the `Host` header (see `src/ap
 
 ## Environment Variables
 
-Every environment variable is documented in `vercel.env` (name + purpose), with values in `.env.local` (dev) and the Vercel project dashboard (production). See [PROJECT_INTEGRATIONS_AUDIT.md](PROJECT_INTEGRATIONS_AUDIT.md) for the full integration matrix, env-variable ownership, and the source of truth for what each service does.
+Every environment variable is documented in `vercel.env` (name + purpose), with values in `.env.local` (dev) and the Vercel project dashboard (production). See [PROJECT_SYSTEM_TOOLS_AND_SERVICES.md](PROJECT_SYSTEM_TOOLS_AND_SERVICES.md) for the full integration matrix, env-variable ownership, and the source of truth for what each service does.
 
 ## Integrations
 
-The authoritative integration reference lives in [PROJECT_INTEGRATIONS_AUDIT.md](PROJECT_INTEGRATIONS_AUDIT.md) — service-by-service status, file locations, and env vars. Read it before adding, changing, or removing an integration.
+The authoritative integration reference lives in [PROJECT_SYSTEM_TOOLS_AND_SERVICES.md](PROJECT_SYSTEM_TOOLS_AND_SERVICES.md) — service-by-service status, file locations, and env vars. Read it before adding, changing, or removing an integration.

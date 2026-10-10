@@ -131,7 +131,7 @@ export async function POST(request: NextRequest) {
     const siteUrl =
       process.env.NEXT_PUBLIC_SITE_URL ||
       process.env.NEXT_PUBLIC_APP_URL ||
-      'https://ruhvi.vercel.app';
+      'https://ruhvi.in';
     const resetUrl = `${siteUrl}/reset-password?token=${encodeURIComponent(resetToken)}`;
 
     // 4. Dispatch branded email via Resend

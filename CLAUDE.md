@@ -3,7 +3,7 @@
 Project memory so a fresh session doesn't need to re-analyze the whole tree. Keep this high-signal.
 
 > **📌 Maintenance policy (standing instruction).** After making any change that affects what's written here, **update this file in the same task** — before considering the work done. Update when you:
-> - add/remove/change an **integration or dependency** (also update `PROJECT_INTEGRATIONS_AUDIT.md`),
+> - add/remove/change an **integration or dependency** (also update `PROJECT_SYSTEM_TOOLS_AND_SERVICES.md`),
 > - add/rename/remove an **env var**, **script/command**, or **route/subdomain**,
 > - resolve or introduce a **Known issue** (edit the list + the "as of" date below),
 > - change **auth, DB, payments, or build** behavior.
@@ -65,7 +65,7 @@ A full remediation plan with exact diffs is in **`fix.md`**. Summary:
 6. Thin test coverage; no README.
 
 ## Source-of-truth docs (project root)
-- `PROJECT_INTEGRATIONS_AUDIT.md` — **the integration register** (well-maintained; update when adding/removing services). Note: it lists a few vars as "unused" that are actually still referenced in code — verify against source before acting.
+- `PROJECT_SYSTEM_TOOLS_AND_SERVICES.md` — **the integration register** (well-maintained; update when adding/removing services). Note: it lists a few vars as "unused" that are actually still referenced in code — verify against source before acting.
 - `fix.md` — health-fix implementation plan.
 - `ESPOCRM_INTEGRATION.md` — EspoCRM agent console integration (architecture, flows, setup).
 - `SCHEMA.md` — DB schema. `Operations and Orders.md` — ops/orders flows. `ticket.md`, `issues.md`, `phase 17 implementation_plan.md`, UI/UX docs.
