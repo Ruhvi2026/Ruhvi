@@ -1054,6 +1054,7 @@ export function extractMemoriesFromConversation(
           reason: `Matched strategic goal pattern: "${match[0]}"`,
           topics: ['strategy', 'revenue'],
         });
+        break;
       }
     }
 
@@ -1080,6 +1081,7 @@ export function extractMemoriesFromConversation(
           reason: `Matched founder preference pattern: "${match[0]}"`,
           topics: ['brand', 'preference'],
         });
+        break;
       }
     }
 
@@ -1104,6 +1106,7 @@ export function extractMemoriesFromConversation(
           reason: `Matched correction pattern: "${match[0]}"`,
           topics: ['correction'],
         });
+        break;
       }
     }
   }
