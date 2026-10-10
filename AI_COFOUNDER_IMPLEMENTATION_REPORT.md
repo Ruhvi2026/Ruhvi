@@ -12,10 +12,10 @@
 | Field | Value |
 |---|---|
 | Current Phase | Phase 2 — Intelligent Orchestrator |
-| Current Step | Step 2.1 — Intent Understanding & Worker Decomposition |
-| Overall Progress | Phase 1 Complete, Phase 2 in progress |
+| Current Step | Step 2.2 — Test Suite for Intelligent Planner |
+| Overall Progress | Phase 1 Complete, Phase 2 Step 2.1 Complete |
 | Implementation Started | 2026-10-11 |
-| Report Version | 2.0 |
+| Report Version | 2.1 |
 
 ---
 
@@ -264,7 +264,8 @@ Phase 0: No code changes. No rollback needed.
 | Step 1.4 permission | APPROVED (2026-10-11) |
 | Phase 1 completion | COMPLETE (2026-10-11) |
 | Phase 2 permission | APPROVED (2026-10-11) |
-| Step 2.1 permission | APPROVAL_REQUIRED |
+| Step 2.1 permission | APPROVED (2026-10-11) |
+| Step 2.2 permission | APPROVAL_REQUIRED |
 
 ---
 
@@ -272,29 +273,47 @@ Phase 0: No code changes. No rollback needed.
 
 | Step | Description | Status |
 |---|---|---|
-| 2.1 | Implement `intelligent-planner.ts` (Intent classification, task decomposition, dependency graph, worker capability matching) | APPROVAL_REQUIRED |
-| 2.2 | Create comprehensive unit & integration tests (`intelligent-planner.test.ts`) | NOT_STARTED |
+| 2.1 | Implement `intelligent-planner.ts` (Intent classification, task decomposition, dependency graph, worker capability matching) | VERIFIED |
+| 2.2 | Create comprehensive unit & integration tests (`intelligent-planner.test.ts`) | APPROVAL_REQUIRED |
 | 2.3 | Wire multi-worker plan orchestration into `dispatcher.ts` and `orchestrator.ts` | NOT_STARTED |
 | 2.4 | Multi-worker integration test, regression verification, report update | NOT_STARTED |
 
 ---
 
+## STEP 2.1 VERIFICATION EVIDENCE
+
+- **What was built:** [`src/lib/ai/co-founder/workers/intelligent-planner.ts`](file:///c:/Users/INDIA/Desktop/Project%20Ruhvi/src/lib/ai/co-founder/workers/intelligent-planner.ts) (875 lines)
+  - Intent classification (`classifyGoalIntent`): 12 single-worker intents + 5 composite initiatives (`GROWTH_AUDIT`, `CAMPAIGN_LAUNCH`, `CONVERSION_RECOVERY`, `INVENTORY_DEFENSE`, `GENERAL_COMPOSITE`).
+  - Task decomposition (`decomposeGoalIntoPlan`): Generates strongly typed `CoFounderExecutionPlan` with stage-based execution DAGs (`stages`, `dependsOn`, `isParallelSafe`).
+  - Conflict detection (`detectPlanConflicts`): Circular dependency detection, unapproved execution detection, concurrent write/read stage conflict prevention.
+  - Fail-safe fallback (`resolveTargetWorker`): Falls back to legacy keyword router `findWorkerForTask()`.
+  - Re-exported via [`src/lib/ai/co-founder/workers/index.ts`](file:///c:/Users/INDIA/Desktop/Project%20Ruhvi/src/lib/ai/co-founder/workers/index.ts).
+- **Typecheck verification:** `npx tsc --noEmit` exited code 0 (clean).
+- **Regression verification:** Full Co-Founder test suite (`npm test -- src/lib/ai/co-founder`): **30 test suites passed, 155/155 tests passed** in 21.664s. Zero regressions.
+- **Git Commit:** `da873ad` (`feat(co-founder): phase-2 step-1 implement context-aware intelligent planner`).
+
+---
+
 ## NEXT STEP
 
-**Step 2.1 — Implement `intelligent-planner.ts` (Intent Classification & Worker Decomposition Engine)**
+**Step 2.2 — Create Comprehensive Unit & Integration Tests (`intelligent-planner.test.ts`)**
 
 **What it entails:**
-- Create `src/lib/ai/co-founder/workers/intelligent-planner.ts` as an additive, zero-breakage module.
-- Intent classification: Maps high-level user goals into structured intents across all 12 worker domains and composite cross-domain initiatives (e.g. store growth audit, promotional campaign, checkout drop recovery).
-- Task decomposition & dependency graph: Breaks composite goals into sequential or parallel worker steps (`dependsOn`, `stageIndex`, `isParallelSafe`).
-- Human approval boundary detection: Identifies steps requiring human approval before dispatch.
-- Conflict detection: Prevents simultaneous conflicting writes or unverified mutations.
-- Fallback preservation: Guaranteed fallback to existing keyword router (`findWorkerForTask()`) for simple or unrecognized queries.
+- Create [`src/lib/ai/co-founder/__tests__/intelligent-planner.test.ts`](file:///c:/Users/INDIA/Desktop/Project%20Ruhvi/src/lib/ai/co-founder/__tests__/intelligent-planner.test.ts).
+- Cover:
+  1. Single-domain intent classification across all 12 workers.
+  2. Composite intent detection (`GROWTH_AUDIT`, `CAMPAIGN_LAUNCH`, `CONVERSION_RECOVERY`, `INVENTORY_DEFENSE`, `GENERAL_COMPOSITE`).
+  3. Structured plan generation & dependency ordering (Stage 0 vs Stage 1 vs Stage 2).
+  4. Parallelism flags (`isParallelSafe`) on read-only vs sequential stages.
+  5. Human approval gating detection on `worker_execution` steps.
+  6. Conflict detection validation (circular deps, unapproved mutations, concurrent read/write stages).
+  7. Fallback resolution compatibility with legacy keyword router.
 
 ---
 
 ## PERMISSION REQUIRED
 
-**PERMISSION REQUIRED: Approve Step 2.1 — Create intelligent-planner.ts (Context-Aware Intent & Worker Decomposition)?**
+**PERMISSION REQUIRED: Approve Step 2.2 — Create intelligent-planner.test.ts (Unit & Integration Tests)?**
+
 
 
