@@ -177,14 +177,17 @@ const DOMAIN_RULES: KeywordRule[] = [
   {
     intent: 'REVIEW',
     keywords: [
-      'review',
-      'rating',
-      'feedback',
-      'star',
+      'customer review',
+      'product review',
+      'review feedback',
+      '1-star',
       'defect',
       'customer reviews',
       'product flaws',
       'unhappy customer',
+      'feedback',
+      'rating',
+      'star rating',
     ],
     weight: 2.0,
   },
@@ -235,7 +238,7 @@ const DOMAIN_RULES: KeywordRule[] = [
     intent: 'PRODUCT',
     keywords: [
       'catalog',
-      'description',
+      'product description',
       'product detail',
       'merchandis',
       'sku',
@@ -363,15 +366,28 @@ export function classifyGoalIntent(goal: string): {
   const matchedIntents = sortedMatches.map(([intent]) => intent);
   const matchedWorkers = matchedIntents.map((i) => INTENT_WORKER_MAP[i]);
 
-  // If 2 or more distinct strong domains matched with significant signals, it's composite
-  if (sortedMatches.length >= 2 && sortedMatches[1][1] >= 1.5) {
-    return {
-      intent: 'GENERAL_COMPOSITE',
-      confidence: 0.85,
-      matchedIntents,
-      matchedWorkers,
-      isComposite: true,
-    };
+  // If 2 or more distinct strong domains matched with significant signals, check for composite
+  if (sortedMatches.length >= 2) {
+    const [topIntent, topScore] = sortedMatches[0];
+    const [secondIntent, secondScore] = sortedMatches[1];
+
+    const isDominant = topScore >= 1.8 * secondScore;
+    const hasCoordinatingClause =
+      text.includes(' and ') ||
+      text.includes(' also ') ||
+      text.includes(' plus ') ||
+      text.includes(',') ||
+      text.includes(' as well as ');
+
+    if (!isDominant && secondScore >= 1.8 && hasCoordinatingClause) {
+      return {
+        intent: 'GENERAL_COMPOSITE',
+        confidence: 0.85,
+        matchedIntents,
+        matchedWorkers,
+        isComposite: true,
+      };
+    }
   }
 
   // Single dominant match
