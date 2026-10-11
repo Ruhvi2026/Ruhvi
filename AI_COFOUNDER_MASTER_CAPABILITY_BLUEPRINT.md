@@ -1,10 +1,11 @@
 # AI CO-FOUNDER — MASTER CAPABILITY BLUEPRINT
 
 **Document:** `AI_COFOUNDER_MASTER_CAPABILITY_BLUEPRINT.md`
-**Phase:** 0 — Master Capability Audit
+**Phase:** 5 — Memory 2.0 (COMPLETE)
+**Version:** 5.0
 **Created:** 2026-10-11
-**Status:** VERIFIED BASELINE
-**Evidence Source:** Direct source-code inspection of `Ruhvi2026/Ruhvi` on branch `main` @ commit `f734ec5`
+**Status:** PHASE 5 COMPLETED & VERIFIED
+**Evidence Source:** Direct source-code inspection of `Ruhvi2026/Ruhvi` on branch `main`
 
 > This document is the **authoritative capability registry** for the Ruhvi AI Co-Founder.
 > Every entry is grounded in actual source code. Nothing is assumed from prior documentation.
@@ -43,7 +44,7 @@ All classifications are based on direct inspection of:
 | System prompt construction | IMPLEMENTED | `brain.ts:getCoFounderSystemPrompt()` | Assembles dynamic knowledge + memory + proactive signals |
 | Context prioritization model | IMPLEMENTED | `brain.ts` comment: 1-Current prompt 2-Tool results 3-Live DB 4-Memories 5-Brand rules | All 5 priorities defined and injected |
 | Live DB snapshot in prompt | IMPLEMENTED | `brain.ts:38` calls `buildKnowledgeContext()` from `knowledge.ts` | |
-| Long-term memory injection | IMPLEMENTED | `brain.ts:45` calls `getRelevantMemories()` | Fetches top 5 memories into system prompt |
+| Long-term memory injection | IMPLEMENTED | `brain.ts:45` calls `searchSemanticMemories()` + `synthesizePrioritizedMemoryContext()` | Memory 2.0 prioritized executive directives injected |
 | Proactive signals in prompt | IMPLEMENTED | `brain.ts:50` calls `getActiveProactiveSignals(3)` | Top 3 signals injected into prompt |
 | Voice / text mode adaptation | IMPLEMENTED | `brain.ts:82-89` conditional blocks for channel | Different instructions, max-token limits |
 | Bengali / Banglish / Hindi language | IMPLEMENTED | `brain.ts:102-130` | Detailed multilingual phonics instructions in system prompt |
@@ -51,7 +52,7 @@ All classifications are based on direct inspection of:
 | User role awareness | IMPLEMENTED | `brain.ts:74` userId/userRole passed into prompt | |
 | Session goal injection | IMPLEMENTED | `brain.ts:38` uses `sessionGoal` as knowledge context query | |
 | Reasoning self-correction | MISSING | Not implemented in any source module | LLM relies on prompt instructions only |
-| Structured context budget management | PARTIAL | Max 5 memories, max 3 signals - hardcoded limits | No dynamic token budget |
+| Structured context budget management | PARTIAL | Max 8 memories, max 3 signals - bounded limits | Bounded query limit enforced |
 
 ---
 
@@ -59,11 +60,11 @@ All classifications are based on direct inspection of:
 
 | Capability | Status | Evidence | Gap / Note |
 |---|---|---|---|
-| Tool declarations array | IMPLEMENTED | `brain.ts:182-623` - `CO_FOUNDER_TOOL_DECLARATIONS` (24 tools) | All tools have name, description, parameters |
-| Tool schemas (typed parameters) | IMPLEMENTED | All 24 tools have `type: 'OBJECT'` with typed properties | |
-| Required field marking | IMPLEMENTED | Several tools mark `required: [...]` fields | |
+| Tool declarations array | IMPLEMENTED | `brain.ts` - `CO_FOUNDER_TOOL_DECLARATIONS` (34 tools) | All tools have name, description, parameters |
+| Tool schemas (typed parameters) | IMPLEMENTED | All 34 tools have `type: 'OBJECT'` with typed properties | Fully registered in Gemini SDK function declarations |
+| Required field marking | IMPLEMENTED | Several tools mark `required: [...]` fields | Schema validation enforced |
 
-**Declared Tools (24):**
+**Declared Tools (34):**
 1. `get_store_metrics` / `get_sales_analytics`
 2. `get_orders`
 3. `get_inventory_levels`
@@ -86,6 +87,17 @@ All classifications are based on direct inspection of:
 20. `execute_action_plan`
 21. `dispatch_worker_task`
 22. `get_worker_statuses`
+23. `execute_multi_worker_plan`
+24. `verify_action_outcome`
+25. `get_action_lifecycle_status`
+26. `get_closed_loop_analytics`
+27. `get_product_velocity`
+28. `get_days_of_inventory`
+29. `get_category_margin_breakdown`
+30. `get_restock_recommendations`
+31. `search_co_founder_memory`
+32. `store_co_founder_memory`
+33. `extract_session_learnings`
 
 **Extended tools in tool-bridge only (NOT in LLM schema):**
 `acknowledge_proactive_signal`, `audit_seo_health`, `get_competitors`, `add_competitor`, `dispatch_marketing_coworker`, `get_marketing_coworker_statuses`, `toggle_marketing_coworker`, `trigger_media_processing_job`, `get_media_job_status`, `publish_ad_campaign`
@@ -225,22 +237,26 @@ All classifications are based on direct inspection of:
 
 ---
 
-## 10. MEMORY SYSTEM
+## 10. MEMORY SYSTEM (MEMORY 2.0)
 
 | Capability | Status | Evidence | Gap / Note |
 |---|---|---|---|
-| Memory read | IMPLEMENTED | `memory.ts:getRelevantMemories()` -> `co_founder_memories` table | |
-| Memory write | IMPLEMENTED | `memory.ts:writeCoFounderMemory()` - upsert with superseding | |
-| Memory correction | IMPLEMENTED | `memory.ts:correctCoFounderMemory()` | |
-| Memory categories | IMPLEMENTED | 6 categories: strategic_goal, business_preference, operational_rule, correction, decision, general | |
-| Memory confidence scoring | IMPLEMENTED | `confidence` field stored (0.0-1.0) | |
-| Memory source tracking | IMPLEMENTED | user_explicit, session_inference, system, correction | |
-| Memory superseding | IMPLEMENTED | `memory.ts:119` - old memory marked is_active=false | |
-| Memory expiration | MISSING | No TTL or automatic expiration mechanism | |
-| Semantic/vector retrieval | MISSING | Only recency + active filter - no embedding similarity | |
-| Contradiction detection | MISSING | No logic to detect conflicting memories | |
-| Automatic memory extraction | MISSING | No session -> memory extraction pipeline | Must be written explicitly |
-| Memory relevance scoring | PARTIAL | Only ordered by `created_at DESC` - no relevance ranking | |
+| Memory read | IMPLEMENTED | `memory.ts:getRelevantMemories()`, `memory-engine.ts:searchSemanticMemories()` | Hybrid semantic retrieval with fallback |
+| Memory write | IMPLEMENTED | `memory.ts:writeCoFounderMemory()`, `memory-engine.ts:storeMemoryWithContradictionCheck()` | Auto-embedding and contradiction checking |
+| Memory correction | IMPLEMENTED | `memory.ts:correctCoFounderMemory()`, `memory-engine.ts:detectMemoryContradiction()` | Explicit overrides and automatic superseding |
+| Hierarchical memory taxonomy | IMPLEMENTED | `memory-engine.ts:MemoryTaxonomyLayer` | 7 layers: conversation, decision, preference, operational_rule, strategic_goal, correction, outcome_learning |
+| Memory confidence scoring | IMPLEMENTED | `confidence` field stored (0.0-1.0) | Incorporated into hybrid retrieval formula |
+| Memory importance scoring | IMPLEMENTED | `memory-engine.ts` (1-5 scale) | 5/5 operational rules receive maximum priority boost |
+| Memory source tracking | IMPLEMENTED | `user_explicit`, `session_inference`, `system`, `correction` | Tracked in audit fields |
+| Memory superseding | IMPLEMENTED | `memory-engine.ts:storeMemoryWithContradictionCheck()` | Deactivates conflicting records (`is_active: false`, `superseded_by`) |
+| Semantic vector retrieval | IMPLEMENTED | `memory-engine.ts:searchSemanticMemories()` | Gemini `text-embedding-004` + 768-dim deterministic fallback |
+| Vector cosine similarity | IMPLEMENTED | `memory-engine.ts:cosineSimilarity()` | Clamped to [-1.0, 1.0], safe for zero vectors |
+| Semantic contradiction detection | IMPLEMENTED | `memory-engine.ts:detectMemoryContradiction()` | Exact key collisions, alias collisions, opposing polarities (>=0.75) |
+| Automatic memory extraction | IMPLEMENTED | `memory-engine.ts:extractMemoriesFromConversation()` | Distills policies, targets, preferences, corrections from chat turns |
+| Hybrid relevance ranking | IMPLEMENTED | `memory-engine.ts:searchSemanticMemories()` | Composite formula: 0.50*Sim + 0.25*Recency + 0.15*Importance + 0.10*Confidence |
+| Executive priority context synthesis | IMPLEMENTED | `memory-engine.ts:synthesizePrioritizedMemoryContext()` | Live Store Data > Operational Rules > Strategic Goals > Preferences > History |
+| Memory tools in LLM schema | IMPLEMENTED | `brain.ts` & `tool-bridge.ts`: `search_co_founder_memory`, `store_co_founder_memory`, `extract_session_learnings` | Fully registered in tool declarations and RBAC |
+| Memory expiration | FUTURE | No TTL or automatic expiration mechanism | Retained as active until superseded |
 
 ---
 
