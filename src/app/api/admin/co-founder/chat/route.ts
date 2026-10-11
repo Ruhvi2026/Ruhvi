@@ -9,6 +9,10 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { createServerClient } from '@supabase/ssr';
 import { resolveEffectiveApiKey } from '@/lib/ai/keys';
 import { assertSafeOutboundUrl } from '@/lib/security/ssrf';
+import {
+  enforceCoFounderRateLimit,
+  createRateLimitHeaders,
+} from '@/lib/ai/co-founder/rate-limiter';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -55,6 +59,16 @@ export async function POST(req: NextRequest) {
         { error: 'Message text is required' },
         { status: 400 }
       );
+    }
+
+    // Enforce Co-Founder rate limiting per user/role & channel tier
+    const rateLimitTier = channel === 'voice' ? 'voice' : 'chat';
+    const rateLimitCheck = enforceCoFounderRateLimit(auth.uid, {
+      tier: rateLimitTier,
+      role: auth.role || 'founder',
+    });
+    if (!rateLimitCheck.success) {
+      return rateLimitCheck.response!;
     }
 
     // 1. Synthesize prioritized Co-Founder System Prompt
@@ -877,15 +891,22 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    return NextResponse.json({
-      response: responseText,
-      provider: answeredProvider,
-      model: answeredModel,
-      fallbackUsed: answeredProvider !== primaryProvider,
-      browsingResult: browsingResult || undefined,
-      timestamp: Date.now(),
-      ...(agentExecutionMeta ? { agent: agentExecutionMeta } : {}),
-    });
+    const rateHeaders = createRateLimitHeaders(rateLimitCheck.result);
+
+    return NextResponse.json(
+      {
+        response: responseText,
+        provider: answeredProvider,
+        model: answeredModel,
+        fallbackUsed: answeredProvider !== primaryProvider,
+        browsingResult: browsingResult || undefined,
+        timestamp: Date.now(),
+        ...(agentExecutionMeta ? { agent: agentExecutionMeta } : {}),
+      },
+      {
+        headers: rateHeaders,
+      }
+    );
   } catch (error: any) {
     console.error('[Co-Founder Chat Error]', error);
     return NextResponse.json(
