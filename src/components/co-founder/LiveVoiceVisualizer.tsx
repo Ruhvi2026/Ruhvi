@@ -34,6 +34,8 @@ interface LiveVoiceVisualizerProps {
   errorMessage?: string;
   roomName?: string;
   audioLevel?: number;
+  frequencyData?: Uint8Array;
+  onBargeIn?: () => void;
   interimTranscript?: string;
   messages?: ChatMessageItem[];
   onSendMessage?: (text: string) => void;
@@ -49,6 +51,8 @@ export function LiveVoiceVisualizer({
   errorMessage,
   roomName,
   audioLevel = 0,
+  frequencyData,
+  onBargeIn,
   interimTranscript = '',
   messages = [],
   onSendMessage,
@@ -178,6 +182,25 @@ export function LiveVoiceVisualizer({
         </p>
       </div>
 
+      {/* Dynamic Frequency Wave Spectrum */}
+      {isLive && frequencyData && frequencyData.length > 0 && (
+        <div className="relative z-10 my-1 flex h-6 items-center justify-center gap-1">
+          {Array.from(frequencyData.slice(0, 16)).map((val, idx) => {
+            const heightPercent = Math.max(
+              15,
+              Math.min(100, Math.round((val / 255) * 100))
+            );
+            return (
+              <span
+                key={idx}
+                className="w-1 rounded-full bg-violet-500/80 transition-all duration-75 dark:bg-amber-400/80"
+                style={{ height: `${heightPercent}%` }}
+              />
+            );
+          })}
+        </div>
+      )}
+
       {/* Control Buttons Bar */}
       <div className="relative z-10 mt-2 flex items-center gap-3">
         {!isLive ? (
@@ -206,6 +229,16 @@ export function LiveVoiceVisualizer({
                 <Mic className="h-4 w-4 text-violet-600 dark:text-amber-400" />
               )}
             </button>
+
+            {state === 'speaking' && onBargeIn && (
+              <button
+                onClick={onBargeIn}
+                className="flex items-center gap-1.5 rounded-2xl border border-amber-500/40 bg-amber-500/20 px-3.5 py-2.5 text-xs font-bold text-amber-700 shadow-nm-flat transition-all hover:bg-amber-500/30 active:scale-95 dark:text-amber-300 dark:shadow-nm-flat-dark"
+                title="Interrupt agent and speak immediately"
+              >
+                <span>Interrupt</span>
+              </button>
+            )}
 
             <button
               onClick={onDisconnect}

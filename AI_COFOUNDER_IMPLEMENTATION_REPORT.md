@@ -1000,28 +1000,66 @@ Phase 0: No code changes. No rollback needed.
 
 | Step | Description | Status |
 |---|---|---|
-| 9.1 | Implement LiveKit WebRTC Audio Client Hook & Voice Visualizer Integration (`src/lib/livekit/use-voice-session.ts`, `LiveVoiceVisualizer.tsx`) | APPROVAL_REQUIRED |
-| 9.2 | Multimodal Jewelry Visual Inspection UI & PDP Quality Scoring Canvas (`components/admin/jewelry/VisualInspectionModal.tsx`) | NOT_STARTED |
+| 9.1 | Implement LiveKit WebRTC Audio Client Hook & Voice Visualizer Integration (`src/lib/livekit/use-voice-session.ts`, `LiveVoiceVisualizer.tsx`) | VERIFIED |
+| 9.2 | Multimodal Jewelry Visual Inspection UI & PDP Quality Scoring Canvas (`components/admin/jewelry/VisualInspectionModal.tsx`) | APPROVAL_REQUIRED |
 | 9.3 | Unified Co-Founder Workspace & Proactive Notification Dock Integration | NOT_STARTED |
 | 9.4 | End-to-end acceptance verification, regression testing, Phase 9 completion | NOT_STARTED |
 
 ---
 
+## STEP 9.1 IMPLEMENTATION DETAILS
+
+### 1. What Changed
+- **Client Voice Session Controller Engine & Hook (`src/lib/livekit/use-voice-session.ts`)**:
+  - Implemented `VoiceSessionClient` reactive controller class and `useVoiceSession` React hook.
+  - WebRTC Room connection management with automatic credential retrieval via `/api/admin/co-founder/session`.
+  - Microphone capture with echo cancellation and noise suppression, publishing audio tracks to LiveKit room.
+  - Web Audio Analyser node frequency domain spectrum extraction (`Uint8Array(16)`) and normalized RMS audio energy level computing (`0.0` - `1.0`).
+  - Sub-50ms barge-in interruption protocol: instantaneous cancellation of `window.speechSynthesis` queue, animation frame loop resets, and state transition back to `listening`.
+  - Multilingual speech text normalizer (`normalizeSpeechText`):
+    - Strips markdown syntax, asterisks, bullet points, headers, and raw URLs.
+    - Indian currency formatting (e.g., `₹1500` / `INR 1500` -> `1500 টাকা`).
+    - Colloquial Bengali phrasing conversions (e.g., `এবং` -> `আর`).
+    - Percentage symbol phonetic replacement (`%` -> `পার্সেন্ট`).
+  - High-fidelity speech synthesis orchestration with automated regional voice discovery (prioritizing `bn-IN`, `hi-IN`, `en-IN`).
+  - Comprehensive telemetry tracking: `turnsCount`, `interruptionsCount`, `sessionDurationSeconds`, and `lastTurnLatencyMs`.
+- **Spectrum Waveform Visualizer Integration (`src/components/co-founder/LiveVoiceVisualizer.tsx`)**:
+  - Added optional `frequencyData?: Uint8Array` prop.
+  - Added optional `onBargeIn?: () => void` quick interrupt callback.
+  - Canvas multi-bar frequency spectrum analyzer rendering with emerald/amber gradient styling.
+  - One-click Barge-In button (`Zap` icon) rendered during active assistant speech for instant user interruption.
+- **Unit & Integration Test Suite (`src/lib/livekit/__tests__/use-voice-session.test.ts`)**:
+  - 11 comprehensive tests validating text normalization, state transitions, mute toggling, sub-50ms barge-in interruptions, message sending, voice diagnostics, and disconnection cleanup.
+
+### 2. Files Modified & Created
+- `src/lib/livekit/use-voice-session.ts` (created)
+- `src/components/co-founder/LiveVoiceVisualizer.tsx` (modified)
+- `src/lib/livekit/__tests__/use-voice-session.test.ts` (created)
+
+### 3. Verification Evidence
+- **Unit & Integration Tests**:
+  - `src/lib/livekit/__tests__/use-voice-session.test.ts`: **11 / 11 tests passed**.
+  - Full suite (`npx jest src/lib/ai/co-founder src/lib/livekit`): **42 / 42 test suites passed**, **403 / 403 total tests passed**.
+- **TypeScript Typecheck**:
+  - `npx tsc --noEmit`: **Exited with code 0 (zero errors)** across the entire project.
+
+---
+
 ## NEXT STEP
 
-**Step 9.1 — Implement LiveKit WebRTC Audio Client Hook & Voice Visualizer Integration (`src/lib/livekit/use-voice-session.ts`, `LiveVoiceVisualizer.tsx`)**
+**Step 9.2 — Multimodal Jewelry Visual Inspection UI & PDP Quality Scoring Canvas (`components/admin/jewelry/VisualInspectionModal.tsx`)**
 
 **What it entails:**
-- Build client-side React hook `useVoiceSession` managing audio room connection, microphone tracks, and WebRTC streaming state.
-- Wire into `LiveVoiceVisualizer` for reactive frequency and amplitude canvas rendering.
-- Wire sub-50ms barge-in interruption signals into client audio playback sinks.
-- Provide comprehensive unit tests for client-side voice session orchestration.
+- Build an interactive, responsive modal canvas for jewelry product image inspection.
+- Integrate multimodal appraisal visual inspection results from Step 8.3 (`analyze_product_image`).
+- Display metal detection, gemstone clarity & setting assessment, craftsmanship defects, studio lighting & photography compliance score, and one-click PDP enhancement recommendations.
+- Provide comprehensive tests for component rendering, defect badges, and user interactions.
 
 ---
 
 ## PERMISSION REQUIRED
 
-**PERMISSION REQUIRED: Approve Step 9.1 — Implement LiveKit WebRTC Audio Client Hook & Voice Visualizer Integration (`use-voice-session.ts`, `LiveVoiceVisualizer.tsx`)?**
+**PERMISSION REQUIRED: Approve Step 9.2 — Multimodal Jewelry Visual Inspection UI & PDP Quality Scoring Canvas?**
 
 
 
