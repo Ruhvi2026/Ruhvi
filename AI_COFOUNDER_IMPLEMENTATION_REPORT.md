@@ -1002,8 +1002,8 @@ Phase 0: No code changes. No rollback needed.
 |---|---|---|
 | 9.1 | Implement LiveKit WebRTC Audio Client Hook & Voice Visualizer Integration (`src/lib/livekit/use-voice-session.ts`, `LiveVoiceVisualizer.tsx`) | VERIFIED |
 | 9.2 | Multimodal Jewelry Visual Inspection UI & PDP Quality Scoring Canvas (`components/admin/jewelry/VisualInspectionModal.tsx`) | VERIFIED |
-| 9.3 | Unified Co-Founder Workspace & Proactive Notification Dock Integration | APPROVAL_REQUIRED |
-| 9.4 | End-to-end acceptance verification, regression testing, Phase 9 completion | NOT_STARTED |
+| 9.3 | Unified Co-Founder Workspace & Proactive Notification Dock Integration | VERIFIED |
+| 9.4 | End-to-end acceptance verification, regression testing, Phase 9 completion | APPROVAL_REQUIRED |
 
 ---
 
@@ -1096,20 +1096,54 @@ Phase 0: No code changes. No rollback needed.
 
 ---
 
+## STEP 9.3 IMPLEMENTATION DETAILS
+
+### 1. What Changed
+- **Unified Co-Founder Workspace Expansion (`src/components/co-founder/workspace/LiveWorkspace.tsx`)**:
+  - Expanded `DEMO_PRESET_ACTIVITIES` with a 4th dedicated visual inspection workflow: `Jewelry Multimodal QC` (`visual_inspection`), assigning Co-Workers `designer` and `analyst`.
+  - Added interactive jewelry inspection preview card showcasing high-resolution piece photography, metal composition (`22K Yellow Gold Mirror Polish`), pavé gemstone details, composite quality benchmark (`Grade A+ • 94/100`), and lighting compliance scores.
+  - One-click `"Launch Visual Inspection"` action button wired directly to the embedded modal.
+- **Ambient Proactive Intelligence Notification Dock (`DEFAULT_PROACTIVE_SIGNALS`)**:
+  - Built an expandable/collapsible glassmorphic notification dock integrated seamlessly above the workspace footer.
+  - Displays ambient real-time signals across `RISK` (competitor price drops), `OPPORTUNITY` (PDP image appraisal audits), and `BUSINESS` (low stock inventory velocity warnings).
+  - Action buttons on each signal allow 1-click modal triggers (e.g. launching visual inspection on flagged jewelry items) or custom callbacks (`onSignalAction`).
+  - Dismissible alert cards via `onSignalDismiss`.
+- **Integrated Voice Audio Control**:
+  - Voice session status chip in the workspace header dynamically reflecting `idle`, `connecting`, `listening`, and `speaking` states with pulsing indicators.
+  - "Talk with Co-Founder" audio trigger button invoking `onStartVoice`.
+- **Embedded Visual Inspection Modal**:
+  - Embedded `VisualInspectionModal` with local state management (`isInspectionOpen`, `inspectedImageUrl`, `inspectedProductName`), callable from signals, preset cards, or external `onInspectImage` props.
+- **Unit & Component Test Suite (`src/components/co-founder/workspace/__tests__/LiveWorkspace.test.ts`)**:
+  - 8 comprehensive tests validating the 4 preset activities, default proactive signals, static markup rendering, dock expanding/collapsing, custom signals, voice triggers, and worker footer badges.
+
+### 2. Files Modified & Created
+- `src/components/co-founder/workspace/LiveWorkspace.tsx` (modified)
+- `src/components/co-founder/workspace/__tests__/LiveWorkspace.test.ts` (created)
+
+### 3. Verification Evidence
+- **Unit & Component Tests**:
+  - `src/components/co-founder/workspace/__tests__/LiveWorkspace.test.ts`: **8 / 8 tests passed**.
+  - Full suite (`npx jest src/lib/ai/co-founder src/lib/livekit src/components/admin/jewelry src/components/co-founder/workspace src/app/api/admin/co-founder`): **46 / 46 test suites passed**, **432 / 432 total tests passed**.
+- **TypeScript Typecheck**:
+  - `npx tsc --noEmit`: **Exited with code 0 (zero errors)** across the entire project.
+
+---
+
 ## NEXT STEP
 
-**Step 9.3 — Unified Co-Founder Workspace & Proactive Notification Dock Integration (`src/components/co-founder/workspace/LiveWorkspace.tsx`)**
+**Step 9.4 — End-to-end acceptance verification, regression testing, Phase 9 completion & Capability Blueprint Synchronization**
 
 **What it entails:**
-- Integrate the voice visualizer, multimodal visual inspection modal, and real-time proactive notification dock into the unified Co-Founder live workspace.
-- Provide ambient proactive alerts (competitor price shifts, low stock warnings, PDP photo quality alerts) directly within the Co-Founder action center.
-- Provide comprehensive unit tests for workspace event handling and dock interactions.
+- Run full regression testing across all 46+ test suites in the repository.
+- Verify zero functional regressions on customer routes, auth, payments, checkout, and admin tools.
+- Synchronize `AI_COFOUNDER_MASTER_CAPABILITY_BLUEPRINT.md` bumping to Version 9.0 (documenting client WebRTC voice session hook, multimodal appraisal visual modal, and proactive notification dock).
+- Mark Phase 9 as 100% complete in `AI_COFOUNDER_IMPLEMENTATION_REPORT.md`.
 
 ---
 
 ## PERMISSION REQUIRED
 
-**PERMISSION REQUIRED: Approve Step 9.3 — Unified Co-Founder Workspace & Proactive Notification Dock Integration?**
+**PERMISSION REQUIRED: Approve Step 9.4 — End-to-end acceptance verification, regression testing, Phase 9 completion & Capability Blueprint Synchronization?**
 
 
 

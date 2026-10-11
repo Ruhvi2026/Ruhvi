@@ -24,7 +24,20 @@ import {
   SlidersHorizontal,
   Play,
   Pause,
+  Gem,
+  Camera,
+  Bell,
+  ShieldAlert,
+  ShieldCheck,
+  Mic,
+  Volume2,
+  AlertTriangle,
+  X,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react';
+import { VisualInspectionModal } from '@/components/admin/jewelry/VisualInspectionModal';
+import { LiveVoiceVisualizer } from '@/components/co-founder/LiveVoiceVisualizer';
 
 export interface LiveActivity {
   id: string;
@@ -34,18 +47,37 @@ export interface LiveActivity {
   type: 'browsing' | 'typing' | 'analyzing';
 }
 
+export interface ProactiveWorkspaceSignal {
+  id: string;
+  category: 'BUSINESS' | 'RISK' | 'OPPORTUNITY' | 'FOLLOW_UP' | 'SYSTEM';
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  title: string;
+  summary: string;
+  actionLabel?: string;
+  imageUrl?: string;
+  productName?: string;
+}
+
 export interface LiveWorkspaceProps {
   activeWorkers?: CoWorkerRole[];
   currentActivity?: LiveActivity;
   className?: string;
   onWorkerClick?: (role: CoWorkerRole) => void;
+  // Step 9.3 Additions
+  proactiveSignals?: ProactiveWorkspaceSignal[];
+  onSignalAction?: (signal: ProactiveWorkspaceSignal) => void;
+  onSignalDismiss?: (signalId: string) => void;
+  onInspectImage?: (imageUrl: string, productName?: string) => void;
+  onStartVoice?: () => void;
+  voiceState?: 'idle' | 'listening' | 'speaking' | 'connecting';
+  frequencyData?: Uint8Array;
 }
 
-// Preset interactive demonstration tasks matching the reference image specs
+// Preset interactive demonstration tasks
 export const DEMO_PRESET_ACTIVITIES: Array<{
   id: string;
   title: string;
-  category: 'Website Research' | 'Code in Progress' | 'Growth & Analytics';
+  category: string;
   type: 'browsing' | 'typing' | 'analyzing';
   activeWorkers: CoWorkerRole[];
   activity: LiveActivity;
@@ -100,6 +132,53 @@ export const DEMO_PRESET_ACTIVITIES: Array<{
     url: 'supabase://metrics/cohort-aov',
     statusBadge: 'AOV ₹3,850 • Gross Margin 44.2%',
   },
+  {
+    id: 'visual_inspection',
+    title: 'Jewelry Multimodal QC',
+    category: 'Visual Appraisal',
+    type: 'analyzing',
+    activeWorkers: ['designer', 'analyst'],
+    activity: {
+      id: 'act_visual',
+      workerRole: 'designer',
+      actionText: 'Appraising Gemstones...',
+      url: 'catalog://sku-ruhvi-peacock-ring',
+      type: 'analyzing',
+    },
+    url: 'catalog://sku-ruhvi-peacock-ring',
+    statusBadge: 'Grade A+ • 22K Mirror Polish Verified',
+  },
+];
+
+export const DEFAULT_PROACTIVE_SIGNALS: ProactiveWorkspaceSignal[] = [
+  {
+    id: 'sig-comp-1',
+    category: 'RISK',
+    severity: 'high',
+    title: 'Competitor Price Shift Detected',
+    summary: 'GIVA slashed prices by 15% on fine jewellery ring category.',
+    actionLabel: 'Analyze Price Beat',
+    productName: 'Romance Solitaire Ring',
+  },
+  {
+    id: 'sig-vision-1',
+    category: 'OPPORTUNITY',
+    severity: 'medium',
+    title: 'PDP Image Quality Audit Required',
+    summary: 'Peacock Filigree Ring needs gemological appraisal & photography QC.',
+    actionLabel: 'Inspect Jewelry Image',
+    imageUrl: 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=800&q=80',
+    productName: 'Peacock Filigree Ring',
+  },
+  {
+    id: 'sig-stock-1',
+    category: 'BUSINESS',
+    severity: 'critical',
+    title: 'Low Stock Velocity Warning',
+    summary: 'Only 2 units remaining for 22K Bengali Choker with high surge demand.',
+    actionLabel: 'Reorder Stock',
+    productName: '22K Bengali Choker',
+  },
 ];
 
 export function LiveWorkspace({
@@ -107,10 +186,39 @@ export function LiveWorkspace({
   currentActivity,
   className = '',
   onWorkerClick,
+  proactiveSignals,
+  onSignalAction,
+  onSignalDismiss,
+  onInspectImage,
+  onStartVoice,
+  voiceState = 'idle',
+  frequencyData,
 }: LiveWorkspaceProps) {
   const [selectedPresetIndex, setSelectedPresetIndex] = useState(0);
   const [isLiveSimulating, setIsLiveSimulating] = useState(true);
   const [codeTypeIndex, setCodeTypeIndex] = useState(0);
+
+  // Proactive Signals Dock state
+  const [activeSignals, setActiveSignals] = useState<ProactiveWorkspaceSignal[]>(
+    proactiveSignals || DEFAULT_PROACTIVE_SIGNALS
+  );
+  const [isDockExpanded, setIsDockExpanded] = useState(true);
+
+  // Visual Inspection Modal state
+  const [isInspectionOpen, setIsInspectionOpen] = useState(false);
+  const [inspectedImageUrl, setInspectedImageUrl] = useState<string>(
+    'https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=800&q=80'
+  );
+  const [inspectedProductName, setInspectedProductName] = useState<string>(
+    'Ruhvi 22K Peacock Filigree Ring'
+  );
+
+  // Sync external proactive signals if provided
+  useEffect(() => {
+    if (proactiveSignals) {
+      setActiveSignals(proactiveSignals);
+    }
+  }, [proactiveSignals]);
 
   // Active state derived from props or selected demo preset
   const preset = DEMO_PRESET_ACTIVITIES[selectedPresetIndex];
@@ -147,6 +255,40 @@ export function LiveWorkspace({
     return () => clearInterval(timer);
   }, [isLiveSimulating, activeType, mockCodeSnippet]);
 
+  // Handle open inspection modal
+  const handleOpenInspection = (imageUrl?: string, productName?: string) => {
+    const targetUrl =
+      imageUrl ||
+      'https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=800&q=80';
+    const targetName = productName || 'Ruhvi 22K Peacock Filigree Ring';
+
+    setInspectedImageUrl(targetUrl);
+    setInspectedProductName(targetName);
+    setIsInspectionOpen(true);
+
+    if (onInspectImage) {
+      onInspectImage(targetUrl, targetName);
+    }
+  };
+
+  // Handle signal dismiss
+  const handleDismissSignal = (id: string) => {
+    setActiveSignals((prev) => prev.filter((s) => s.id !== id));
+    if (onSignalDismiss) {
+      onSignalDismiss(id);
+    }
+  };
+
+  // Handle signal action click
+  const handleTriggerSignalAction = (signal: ProactiveWorkspaceSignal) => {
+    if (signal.imageUrl || signal.title.toLowerCase().includes('image') || signal.title.toLowerCase().includes('quality')) {
+      handleOpenInspection(signal.imageUrl, signal.productName);
+    }
+    if (onSignalAction) {
+      onSignalAction(signal);
+    }
+  };
+
   return (
     <div
       className={`relative flex flex-col overflow-hidden rounded-3xl border border-neutral-200/80 bg-nm-light-bg p-6 text-nm-light-textPrimary shadow-nm-flat backdrop-blur-2xl transition-all dark:border-neutral-800/90 dark:bg-nm-dark-bg dark:text-nm-dark-textPrimary dark:shadow-nm-flat-dark ${className}`}
@@ -177,8 +319,9 @@ export function LiveWorkspace({
           </div>
         </div>
 
-        {/* Preset Mode Switcher (Website Research | Code in Progress | Analytics) */}
+        {/* Preset Mode Switcher & Voice Audio Status */}
         <div className="flex flex-wrap items-center gap-2">
+          {/* Preset Switcher Tabs */}
           <div className="relative flex items-center rounded-2xl border border-neutral-300/70 bg-nm-light-bg p-1 shadow-nm-inset dark:border-neutral-800 dark:bg-nm-dark-bg dark:shadow-nm-inset-dark">
             {DEMO_PRESET_ACTIVITIES.map((item, idx) => {
               const isSelected = selectedPresetIndex === idx;
@@ -211,6 +354,8 @@ export function LiveWorkspace({
                       <Globe size={13} className="text-cyan-500" />
                     ) : item.type === 'typing' ? (
                       <Code2 size={13} className="text-orange-500" />
+                    ) : item.id === 'visual_inspection' ? (
+                      <Gem size={13} className="text-amber-500" />
                     ) : (
                       <TrendingUp size={13} className="text-emerald-500" />
                     )}
@@ -220,6 +365,29 @@ export function LiveWorkspace({
               );
             })}
           </div>
+
+          {/* Voice Session Trigger Button */}
+          {onStartVoice && (
+            <motion.button
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.96 }}
+              type="button"
+              onClick={onStartVoice}
+              className={`flex items-center gap-1.5 rounded-2xl border px-3 py-1.5 text-xs font-semibold shadow-nm-flat transition-all ${
+                voiceState === 'speaking' || voiceState === 'listening'
+                  ? 'border-emerald-500/50 bg-emerald-500/20 text-emerald-400 animate-pulse'
+                  : 'border-neutral-300 bg-nm-light-bg text-nm-light-textSecondary hover:text-nm-light-textPrimary dark:border-neutral-800 dark:bg-nm-dark-bg dark:text-neutral-300 dark:hover:text-white'
+              }`}
+              title="Speak with Co-Founder Brain"
+            >
+              {voiceState === 'speaking' ? (
+                <Volume2 size={13} className="text-emerald-400" />
+              ) : (
+                <Mic size={13} className="text-amber-400" />
+              )}
+              <span>{voiceState === 'speaking' ? 'Speaking' : voiceState === 'listening' ? 'Listening' : 'Voice Brain'}</span>
+            </motion.button>
+          )}
 
           {/* Pause / Play Live Simulation Button */}
           <motion.button
@@ -245,7 +413,7 @@ export function LiveWorkspace({
         {/* Soft Radial Ambient Lighting */}
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(139,92,246,0.06)_0%,transparent_75%)]" />
 
-        {/* Left Floating Satellite Widget Pill (Folder / Project asset) */}
+        {/* Left Floating Satellite Widget Pill (Catalog Asset) */}
         <motion.div
           animate={{ y: [0, -10, 0] }}
           transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
@@ -259,7 +427,7 @@ export function LiveWorkspace({
           </span>
         </motion.div>
 
-        {/* Right Floating Satellite Widget Pill (Globe / Scraper status) */}
+        {/* Right Floating Satellite Widget Pill (Globe Scraper / Gem) */}
         <motion.div
           animate={{ y: [0, 10, 0] }}
           transition={{
@@ -298,36 +466,32 @@ export function LiveWorkspace({
 
             {/* Window URL / File Breadcrumb Bar */}
             <div className="flex max-w-md flex-1 items-center justify-center px-4">
-              <div className="flex w-full items-center gap-2 rounded-xl border border-neutral-300/80 bg-nm-light-bg px-3 py-1 shadow-nm-inset dark:border-neutral-800 dark:bg-[#0E1015] dark:shadow-nm-inset-dark">
+              <div className="flex w-full items-center gap-2 rounded-xl border border-neutral-200/70 bg-nm-light-bg px-3 py-1 text-[11px] font-mono text-neutral-500 shadow-nm-inset dark:border-neutral-800/80 dark:bg-[#0E1015] dark:text-neutral-400 dark:shadow-nm-inset-dark">
                 {activeType === 'browsing' ? (
-                  <Search size={12} className="shrink-0 text-cyan-500" />
+                  <Globe size={11} className="text-cyan-500" />
                 ) : activeType === 'typing' ? (
-                  <Code2 size={12} className="shrink-0 text-orange-500" />
+                  <Code2 size={11} className="text-orange-500" />
+                ) : preset.id === 'visual_inspection' ? (
+                  <Gem size={11} className="text-amber-500" />
                 ) : (
-                  <Activity size={12} className="shrink-0 text-emerald-500" />
+                  <Terminal size={11} className="text-emerald-500" />
                 )}
-                <span className="truncate font-mono text-[11px] text-nm-light-textPrimary dark:text-neutral-300">
-                  {activity.url || preset.url}
-                </span>
-                <RefreshCw
-                  size={10}
-                  className={`ml-auto text-neutral-400 ${isLiveSimulating ? 'animate-spin' : ''}`}
-                />
+                <span className="truncate">{preset.url}</span>
               </div>
             </div>
 
             <div className="flex items-center gap-2 text-neutral-400">
-              <ExternalLink
-                size={13}
-                className="cursor-pointer transition-colors hover:text-violet-500"
+              <RefreshCw
+                size={12}
+                className={`transition-all ${isLiveSimulating ? 'animate-spin-slow text-violet-500' : ''}`}
               />
             </div>
           </div>
 
-          {/* Window Viewport Content with Fluid Animated Cross-Fade */}
-          <div className="relative min-h-[300px] p-5">
+          {/* Inner Stage Views Controlled by Presets */}
+          <div className="p-5">
             <AnimatePresence mode="wait">
-              {/* TYPE 1: WEBSITE RESEARCH BROWSER VIEW (Matches Reference Image Left) */}
+              {/* TYPE 1: WEBSITE RESEARCH BROWSER VIEW */}
               {activeType === 'browsing' && (
                 <motion.div
                   key="browsing"
@@ -337,7 +501,6 @@ export function LiveWorkspace({
                   transition={{ duration: 0.25, ease: 'easeOut' }}
                   className="space-y-4"
                 >
-                  {/* Browser Inner Header Banner */}
                   <div className="flex items-center justify-between rounded-2xl border border-neutral-200/80 bg-nm-light-bg p-3 shadow-nm-inset dark:border-neutral-800 dark:bg-[#181A24] dark:shadow-nm-inset-dark">
                     <div className="flex items-center gap-3">
                       <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-500/20 text-xs font-bold text-cyan-600 shadow-nm-flat dark:text-cyan-400 dark:shadow-nm-flat-dark">
@@ -360,7 +523,6 @@ export function LiveWorkspace({
                     </span>
                   </div>
 
-                  {/* Scraped Competitor Cards & Extraction Matrix */}
                   <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                     <motion.div
                       whileHover={{ y: -2 }}
@@ -413,7 +575,6 @@ export function LiveWorkspace({
                     </motion.div>
                   </div>
 
-                  {/* Animated Scanner Highlight Bar with Smooth Sliding Spring */}
                   <div className="relative h-1.5 w-full overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-800">
                     <motion.div
                       animate={{ x: ['-100%', '300%'] }}
@@ -428,7 +589,7 @@ export function LiveWorkspace({
                 </motion.div>
               )}
 
-              {/* TYPE 2: CODE IN PROGRESS IDE VIEW (Matches Reference Image Right) */}
+              {/* TYPE 2: CODE IN PROGRESS IDE VIEW */}
               {activeType === 'typing' && (
                 <motion.div
                   key="typing"
@@ -438,7 +599,6 @@ export function LiveWorkspace({
                   transition={{ duration: 0.25, ease: 'easeOut' }}
                   className="flex gap-4 font-mono text-xs"
                 >
-                  {/* File Tree Sidebar */}
                   <div className="hidden w-44 shrink-0 flex-col space-y-1 rounded-2xl border border-neutral-200/80 bg-nm-light-bg p-3 shadow-nm-inset dark:border-neutral-800/80 dark:bg-[#0E1015] dark:shadow-nm-inset-dark sm:flex">
                     <span className="mb-1 text-[10px] font-bold uppercase tracking-wider text-neutral-400">
                       project
@@ -452,47 +612,35 @@ export function LiveWorkspace({
                         <Folder size={11} className="text-amber-500" />
                         <span>services</span>
                       </div>
-                      <div className="ml-6 flex items-center gap-1.5 rounded bg-orange-500/10 px-1.5 py-0.5 font-bold text-orange-600 dark:text-orange-400">
+                      <div className="ml-6 flex items-center gap-1.5 font-bold text-orange-500">
                         <Code2 size={11} />
-                        <span className="truncate">pricingEngine.ts</span>
-                      </div>
-                      <div className="ml-3 flex items-center gap-1.5 text-neutral-500">
-                        <Code2 size={11} />
-                        <span>database.ts</span>
+                        <span>pricingEngine.ts</span>
                       </div>
                     </div>
                   </div>
 
-                  {/* Code Window with Syntax Highlighting & Typing Cursor */}
-                  <div className="flex-1 overflow-x-auto rounded-2xl border border-neutral-200/80 bg-nm-light-bg p-4 shadow-nm-inset dark:border-neutral-800/80 dark:bg-[#0A0C10] dark:shadow-nm-inset-dark">
-                    <div className="space-y-1 font-mono text-xs leading-relaxed text-neutral-300">
-                      <pre className="whitespace-pre-wrap font-semibold text-emerald-600 dark:text-emerald-400">
-                        {mockCodeSnippet.slice(
-                          0,
-                          codeTypeIndex || mockCodeSnippet.length
-                        )}
-                        <motion.span
-                          animate={{ opacity: [1, 0, 1] }}
-                          transition={{ duration: 0.8, repeat: Infinity }}
-                          className="ml-0.5 inline-block h-3.5 w-1.5 bg-orange-500 align-middle"
-                        />
-                      </pre>
-                    </div>
+                  <div className="relative flex-1 overflow-hidden rounded-2xl border border-neutral-200/80 bg-nm-light-bg p-4 font-mono text-[11px] leading-relaxed shadow-nm-inset dark:border-neutral-800/80 dark:bg-[#0B0D12] dark:shadow-nm-inset-dark">
+                    <pre className="overflow-x-auto text-neutral-800 dark:text-neutral-300">
+                      <code>
+                        {mockCodeSnippet.slice(0, codeTypeIndex)}
+                        <span className="inline-block h-3.5 w-1.5 animate-pulse bg-orange-500" />
+                      </code>
+                    </pre>
                   </div>
                 </motion.div>
               )}
 
-              {/* TYPE 3: GROWTH & ANALYTICS AUDIT VIEW */}
-              {activeType === 'analyzing' && (
+              {/* TYPE 3: GROWTH & ANALYTICS VIEW */}
+              {activeType === 'analyzing' && preset.id === 'analysis' && (
                 <motion.div
-                  key="analyzing"
+                  key="analysis"
                   initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -12 }}
                   transition={{ duration: 0.25, ease: 'easeOut' }}
                   className="space-y-4"
                 >
-                  <div className="grid grid-cols-1 gap-3 text-center sm:grid-cols-3">
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                     <motion.div
                       whileHover={{ y: -2 }}
                       className="rounded-2xl border border-neutral-200/80 bg-nm-light-bg p-3 shadow-nm-flat dark:border-neutral-800 dark:bg-[#151722] dark:shadow-nm-flat-dark"
@@ -555,10 +703,105 @@ export function LiveWorkspace({
                   </div>
                 </motion.div>
               )}
+
+              {/* TYPE 4: JEWELRY MULTIMODAL QC & VISUAL INSPECTION VIEW (Step 9.3) */}
+              {activeType === 'analyzing' && preset.id === 'visual_inspection' && (
+                <motion.div
+                  key="visual_inspection"
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -12 }}
+                  transition={{ duration: 0.25, ease: 'easeOut' }}
+                  className="space-y-4"
+                >
+                  <div className="flex flex-col sm:flex-row items-center justify-between gap-4 rounded-2xl border border-neutral-200/80 bg-nm-light-bg p-4 shadow-nm-inset dark:border-neutral-800 dark:bg-[#181A24] dark:shadow-nm-inset-dark">
+                    <div className="flex items-center gap-3.5">
+                      <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl border border-amber-500/30 bg-zinc-900 shadow-md">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src="https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=800&q=80"
+                          alt="Ruhvi 22K Peacock Filigree Ring"
+                          className="h-full w-full object-cover"
+                        />
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <h4 className="text-xs font-bold text-nm-light-textPrimary dark:text-white">
+                            Ruhvi 22K Peacock Filigree Ring
+                          </h4>
+                          <span className="rounded-full bg-emerald-500/15 border border-emerald-500/30 px-2 py-0.5 text-[9px] font-bold text-emerald-400">
+                            Grade A+ • 94/100
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-nm-light-textSecondary dark:text-neutral-400">
+                          22K Yellow Gold (Mirror Polish) • 14x VVS Round Pavé Diamonds
+                        </p>
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        handleOpenInspection(
+                          'https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=800&q=80',
+                          'Ruhvi 22K Peacock Filigree Ring'
+                        )
+                      }
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-zinc-950 font-bold text-xs shadow-md shadow-amber-500/20 hover:from-amber-400 hover:to-amber-500 transition-all shrink-0"
+                    >
+                      <Camera size={13} />
+                      <span>Launch Visual Inspection</span>
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div className="p-3 rounded-2xl border border-neutral-200/80 bg-nm-light-bg dark:border-neutral-800 dark:bg-[#151722] shadow-nm-flat dark:shadow-nm-flat-dark">
+                      <span className="text-[10px] font-bold uppercase text-neutral-400">
+                        Lighting & Studio Score
+                      </span>
+                      <h4 className="mt-1 text-base font-bold text-emerald-500">
+                        92% Compliant
+                      </h4>
+                      <span className="text-[10px] text-neutral-400">
+                        Zero harsh glare on shank
+                      </span>
+                    </div>
+
+                    <div className="p-3 rounded-2xl border border-neutral-200/80 bg-nm-light-bg dark:border-neutral-800 dark:bg-[#151722] shadow-nm-flat dark:shadow-nm-flat-dark">
+                      <span className="text-[10px] font-bold uppercase text-neutral-400">
+                        Craftsmanship Integrity
+                      </span>
+                      <h4 className="mt-1 text-base font-bold text-emerald-500">
+                        94 / 100
+                      </h4>
+                      <span className="text-[10px] text-neutral-400">
+                        0 high severity flaws detected
+                      </span>
+                    </div>
+
+                    <div className="p-3 rounded-2xl border border-neutral-200/80 bg-nm-light-bg dark:border-neutral-800 dark:bg-[#151722] shadow-nm-flat dark:shadow-nm-flat-dark">
+                      <span className="text-[10px] font-bold uppercase text-neutral-400">
+                        Generated Visual Tags
+                      </span>
+                      <div className="mt-1 flex flex-wrap gap-1">
+                        <span className="text-[9px] px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-300">
+                          #22kGold
+                        </span>
+                        <span className="text-[9px] px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-300">
+                          #Filigree
+                        </span>
+                        <span className="text-[9px] px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-300">
+                          #Bridal
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
             </AnimatePresence>
           </div>
 
-          {/* Bottom Window Test / Execution Status Pill (Matches Reference Image Right: "Running tests...") */}
+          {/* Bottom Window Test / Execution Status Pill */}
           <div className="flex items-center justify-between border-t border-neutral-200/80 bg-nm-light-bg px-5 py-2.5 dark:border-neutral-800 dark:bg-[#161822]">
             <div className="flex items-center gap-2">
               <span className="h-2 w-2 animate-ping rounded-full bg-emerald-500" />
@@ -576,8 +819,6 @@ export function LiveWorkspace({
         {/* ======================================================== */}
         {/* LAYER B: Foreground Stage Area with Active Co-Workers   */}
         {/* ======================================================== */}
-
-        {/* FOREGROUND WORKER 1: Primary Agent Floating with Physics */}
         {workers[0] && (
           <motion.div
             layout
@@ -596,52 +837,53 @@ export function LiveWorkspace({
             onClick={() => onWorkerClick?.(workers[0])}
             className={`absolute z-20 flex cursor-pointer items-center gap-3 ${
               activeType === 'typing'
-                ? 'right-12 top-4 md:right-16 md:top-8' // Perched playfully atop IDE like in Reference Image Right
-                : 'bottom-6 right-6 md:bottom-8 md:right-12' // Floating bottom-right like in Reference Image Left
+                ? 'right-12 top-4 md:right-16 md:top-8'
+                : 'bottom-6 right-6 md:bottom-8 md:right-12'
             }`}
           >
-            {/* The 3D Bot Character */}
-            <div className="drop-shadow-xl">
+            <div className="drop-shadow-lg">
               <CoWorkerAvatar
                 role={workers[0]}
                 status="working"
-                size={activeType === 'typing' ? 'sm' : 'md'}
+                size="md"
                 showBadge={true}
                 showDetails={false}
               />
             </div>
 
-            {/* Action Pill (Matches "Researching..." or "Writing code..." from Spec) */}
             <motion.div
-              initial={{ scale: 0.9, opacity: 0, x: -6 }}
-              animate={{ scale: 1, opacity: 1, x: 0 }}
+              initial={{ scale: 0.9, opacity: 0, y: 6 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
               transition={{
                 delay: 0.15,
                 type: 'spring',
                 stiffness: 400,
                 damping: 20,
               }}
-              className="flex items-center gap-2 rounded-2xl border border-neutral-200/90 bg-nm-light-bg px-3.5 py-1.5 text-xs font-bold text-nm-light-textPrimary shadow-nm-flat dark:border-neutral-800 dark:bg-[#181A24] dark:text-white dark:shadow-nm-flat-dark"
+              className="flex items-center gap-2 rounded-2xl border border-neutral-200/90 bg-nm-light-bg px-3.5 py-2 text-xs font-bold text-nm-light-textPrimary shadow-nm-flat dark:border-neutral-800 dark:bg-[#181A24] dark:text-white dark:shadow-nm-flat-dark"
             >
               <span
-                className="h-2 w-2 animate-ping rounded-full"
+                className="h-2 w-2 animate-pulse rounded-full"
                 style={{
                   backgroundColor: CO_WORKER_CONFIGS[workers[0]].baseHex,
                 }}
               />
-              <span>{activity.actionText}</span>
+              <span className="capitalize">{workers[0]}:</span>
+              <span className="font-normal text-neutral-400">
+                {activity.actionText}
+              </span>
             </motion.div>
           </motion.div>
         )}
 
-        {/* FOREGROUND WORKER 2: Secondary Collaborating Agent (If multi-agent presence) */}
         {workers[1] && (
           <motion.div
+            layout
             initial={{ scale: 0.85, opacity: 0 }}
             animate={{
               scale: 1,
               opacity: 1,
-              y: [0, -6, 0],
+              y: [0, 6, 0],
             }}
             transition={{
               y: {
@@ -667,7 +909,6 @@ export function LiveWorkspace({
               />
             </div>
 
-            {/* Secondary Action Bubble */}
             <motion.div
               initial={{ scale: 0.9, opacity: 0, x: 6 }}
               animate={{ scale: 1, opacity: 1, x: 0 }}
@@ -696,6 +937,111 @@ export function LiveWorkspace({
         )}
       </div>
 
+      {/* ======================================================== */}
+      {/* LAYER C: Proactive Intelligence Notification Dock (Step 9.3) */}
+      {/* ======================================================== */}
+      {activeSignals.length > 0 && (
+        <div className="mt-5 rounded-2xl border border-neutral-200/80 bg-nm-light-bg p-4 shadow-nm-flat dark:border-neutral-800/80 dark:bg-zinc-950 dark:shadow-nm-flat-dark">
+          {/* Dock Header */}
+          <div className="flex items-center justify-between pb-2 border-b border-neutral-200/60 dark:border-zinc-800/60">
+            <div className="flex items-center gap-2">
+              <div className="p-1.5 rounded-lg bg-amber-500/10 text-amber-500">
+                <Bell className="w-4 h-4" />
+              </div>
+              <span className="text-xs font-bold text-nm-light-textPrimary dark:text-zinc-200">
+                Co-Founder Ambient Proactive Signals ({activeSignals.length})
+              </span>
+              <span className="h-1.5 w-1.5 rounded-full bg-amber-500 animate-ping" />
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setIsDockExpanded(!isDockExpanded)}
+              className="flex items-center gap-1 text-[11px] text-neutral-400 hover:text-white transition-colors"
+            >
+              <span>{isDockExpanded ? 'Collapse' : 'Expand'}</span>
+              {isDockExpanded ? (
+                <ChevronUp className="w-3.5 h-3.5" />
+              ) : (
+                <ChevronDown className="w-3.5 h-3.5" />
+              )}
+            </button>
+          </div>
+
+          {/* Dock Content Signals List */}
+          {isDockExpanded && (
+            <div className="mt-3 grid grid-cols-1 md:grid-cols-3 gap-3">
+              {activeSignals.map((signal) => {
+                const isCritical = signal.severity === 'critical';
+                const isHigh = signal.severity === 'high';
+                const isMedium = signal.severity === 'medium';
+
+                return (
+                  <div
+                    key={signal.id}
+                    className={`relative p-3 rounded-xl border text-xs flex flex-col justify-between gap-2.5 transition-all ${
+                      isCritical
+                        ? 'bg-rose-500/10 border-rose-500/30 text-rose-200'
+                        : isHigh
+                          ? 'bg-amber-500/10 border-amber-500/30 text-amber-200'
+                          : 'bg-zinc-900/60 border-zinc-800/80 text-zinc-300'
+                    }`}
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex items-center gap-1.5">
+                        <span
+                          className={`px-1.5 py-0.5 rounded text-[9px] font-bold uppercase border ${
+                            isCritical
+                              ? 'bg-rose-500/20 text-rose-300 border-rose-500/40'
+                              : isHigh
+                                ? 'bg-amber-500/20 text-amber-300 border-amber-500/40'
+                                : 'bg-blue-500/20 text-blue-300 border-blue-500/40'
+                          }`}
+                        >
+                          {signal.category}
+                        </span>
+                        <span className="font-semibold text-zinc-100 text-[11px] truncate">
+                          {signal.title}
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleDismissSignal(signal.id)}
+                        className="text-zinc-500 hover:text-zinc-300 transition-colors p-0.5"
+                        title="Dismiss Signal"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+
+                    <p className="text-[11px] text-zinc-300/90 leading-tight">
+                      {signal.summary}
+                    </p>
+
+                    {signal.actionLabel && (
+                      <button
+                        type="button"
+                        onClick={() => handleTriggerSignalAction(signal)}
+                        className={`self-start px-2.5 py-1 rounded-lg text-[10px] font-bold border transition-colors flex items-center gap-1 ${
+                          isCritical
+                            ? 'bg-rose-950 border-rose-500/40 text-rose-200 hover:bg-rose-900'
+                            : isHigh
+                              ? 'bg-amber-950 border-amber-500/40 text-amber-200 hover:bg-amber-900'
+                              : 'bg-zinc-800 border-zinc-700 text-zinc-200 hover:bg-zinc-700'
+                        }`}
+                      >
+                        <span>{signal.actionLabel}</span>
+                        <ArrowRight className="w-2.5 h-2.5" />
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Bottom Summary Footer */}
       <div className="mt-4 flex flex-wrap items-center justify-between gap-3 text-xs text-nm-light-textSecondary dark:text-neutral-400">
         <div className="flex items-center gap-2">
@@ -718,6 +1064,14 @@ export function LiveWorkspace({
           <span>Realtime WebRTC & Live Browser Connected</span>
         </div>
       </div>
+
+      {/* Embedded Multimodal Visual Inspection Modal (Step 9.3) */}
+      <VisualInspectionModal
+        isOpen={isInspectionOpen}
+        onClose={() => setIsInspectionOpen(false)}
+        imageUrl={inspectedImageUrl}
+        productName={inspectedProductName}
+      />
     </div>
   );
 }
