@@ -5,6 +5,7 @@ import {
   calculateComparison,
   getStoreAnalytics,
 } from '../analytics';
+import { resetCoFounderCache, getCoFounderCacheStats } from '../cache';
 import { executeCoFounderTool } from '../tool-bridge';
 
 // In-memory mock storage for orders, products, and support tickets
@@ -85,6 +86,7 @@ jest.mock('@/lib/supabase/service', () => ({
 
 describe('Stage 4 — Analytics & Business Intelligence Engine', () => {
   beforeEach(() => {
+    resetCoFounderCache();
     mockOrders.length = 0;
     mockProducts.length = 0;
     mockSupportTickets.length = 0;
@@ -225,6 +227,24 @@ describe('Stage 4 — Analytics & Business Intelligence Engine', () => {
       expect(report.insights.executiveVoiceSummary).toContain(
         'net revenue is ₹0 across 0 orders'
       );
+    });
+
+    it('serves repeated requests from cache with isCached flag and hit tracking', async () => {
+      const first = await getStoreAnalytics({ timeframe: '30d' });
+      expect(first.evidence.isCached).toBe(false);
+
+      const second = await getStoreAnalytics({ timeframe: '30d' });
+      expect(second.evidence.isCached).toBe(true);
+
+      const stats = getCoFounderCacheStats();
+      expect(stats.hits).toBeGreaterThanOrEqual(1);
+
+      // bypassCache forces recalculation
+      const bypassed = await getStoreAnalytics({
+        timeframe: '30d',
+        bypassCache: true,
+      });
+      expect(bypassed.evidence.isCached).toBe(false);
     });
   });
 

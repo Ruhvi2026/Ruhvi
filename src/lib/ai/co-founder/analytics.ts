@@ -1,6 +1,7 @@
 import 'server-only';
 
 import { getServiceClient } from '@/lib/supabase/service';
+import { getOrSetCached, coFounderCache } from './cache';
 
 export type AnalyticsTimeframe =
   'today' | 'yesterday' | '7d' | '30d' | 'this_month' | 'last_month' | 'custom';
@@ -291,9 +292,9 @@ export function calculateComparison(
 }
 
 /**
- * Fetch and compute comprehensive Store Analytics using real Supabase tables.
+ * Compute comprehensive Store Analytics using real Supabase tables.
  */
-export async function getStoreAnalytics(params: {
+async function computeStoreAnalytics(params: {
   timeframe?: AnalyticsTimeframe;
   customFrom?: string;
   customTo?: string;
@@ -550,4 +551,48 @@ export async function getStoreAnalytics(params: {
       isCached: false,
     },
   };
+}
+
+/**
+ * Fetch and compute comprehensive Store Analytics using real Supabase tables.
+ * Leverages intelligent LRU caching with SWR and tag-based invalidation.
+ */
+export async function getStoreAnalytics(params: {
+  timeframe?: AnalyticsTimeframe;
+  customFrom?: string;
+  customTo?: string;
+  bypassCache?: boolean;
+}): Promise<AnalyticsReport> {
+  const timeframe = params.timeframe || '30d';
+  const cacheKey = `analytics:store:${timeframe}:${params.customFrom || ''}:${params.customTo || ''}`;
+
+  if (params.bypassCache) {
+    return computeStoreAnalytics(params);
+  }
+
+  const isAlreadyInCache = coFounderCache.has(cacheKey);
+
+  const report = await getOrSetCached(
+    cacheKey,
+    async () => {
+      return computeStoreAnalytics(params);
+    },
+    {
+      ttlMs: 45_000,
+      staleTtlMs: 90_000,
+      tags: ['analytics', 'orders'],
+    }
+  );
+
+  if (isAlreadyInCache) {
+    return {
+      ...report,
+      evidence: {
+        ...report.evidence,
+        isCached: true,
+      },
+    };
+  }
+
+  return report;
 }

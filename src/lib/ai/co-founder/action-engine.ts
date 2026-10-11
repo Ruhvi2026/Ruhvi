@@ -9,6 +9,7 @@ import {
   recordActionExecutionResult,
   type MetricExpectation,
 } from './closed-loop';
+import { invalidateCoFounderCacheTag } from './cache';
 
 export type ActionStatus =
   'pending' | 'validating' | 'executing' | 'completed' | 'failed';
@@ -532,6 +533,22 @@ export async function executeApprovedBusinessAction(
       err
     );
   });
+
+  // Invalidate cached reports on successful mutations (Phase 10: Cache Consistency)
+  if (result.success) {
+    if (
+      [
+        'refund_order',
+        'update_inventory_stock',
+        'update_product',
+        'create_coupon',
+        'update_coupon_status',
+      ].includes(request.actionType)
+    ) {
+      invalidateCoFounderCacheTag('analytics');
+      invalidateCoFounderCacheTag('orders');
+    }
+  }
 
   return result;
 }
