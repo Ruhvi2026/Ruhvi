@@ -198,7 +198,9 @@ describe('Streaming SSE & Real-Time Agentic Protocol (Phase 6)', () => {
 
     it('handles empty or blank text safely without error', async () => {
       const captured: string[] = [];
-      await streamTextInChunks('', (chunk) => captured.push(chunk));
+      await streamTextInChunks('', (chunk) => {
+        captured.push(chunk);
+      });
       expect(captured).toHaveLength(0);
     });
 
@@ -206,7 +208,9 @@ describe('Streaming SSE & Real-Time Agentic Protocol (Phase 6)', () => {
       const captured: string[] = [];
       await streamTextInChunks(
         'Congratulations!',
-        (chunk) => captured.push(chunk),
+        (chunk) => {
+          captured.push(chunk);
+        },
         { delayMs: 0 }
       );
       expect(captured).toEqual(['Congratulations!']);
@@ -273,7 +277,7 @@ describe('Streaming SSE & Real-Time Agentic Protocol (Phase 6)', () => {
               {
                 toolName: 'get_store_metrics',
                 success: true,
-                summary: 'Today revenue is ₹50,000',
+                summaryForVoice: 'Today revenue is ₹50,000',
                 data: { revenue: 50000 },
               },
             ],

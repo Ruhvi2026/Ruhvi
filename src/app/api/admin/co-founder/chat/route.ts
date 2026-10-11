@@ -3,6 +3,7 @@ import { cookies } from 'next/headers';
 import { requireAdmin } from '@/lib/auth/require-admin';
 import { getCoFounderSystemPrompt } from '@/lib/ai/co-founder/brain';
 import { runCoFounderAgentLoop } from '@/lib/ai/co-founder/orchestrator';
+import { runAgenticStreamingSession } from '@/lib/ai/co-founder/streamer';
 import { getUserScopes } from '@/lib/auth/rbac';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { createServerClient } from '@supabase/ssr';
@@ -34,7 +35,12 @@ export async function POST(req: NextRequest) {
       voiceStyle,
       agenticLoop: requestedAgenticLoop,
       maxIterations: requestedMaxIterations,
+      stream: requestedStream,
     } = body;
+
+    const wantsStream =
+      Boolean(requestedStream) ||
+      req.headers.get('accept')?.includes('text/event-stream') === true;
 
     if (!messages || !Array.isArray(messages) || messages.length === 0) {
       return NextResponse.json(
@@ -173,6 +179,7 @@ export async function POST(req: NextRequest) {
     // Default safety fallback sequence if DB is empty or missing providers
     const safetySequence = [
       'gemini',
+      'openrouter',
       'deepseek',
       'custom',
       'openai',
@@ -181,6 +188,83 @@ export async function POST(req: NextRequest) {
     for (const seqId of safetySequence) {
       if (!chainProviderIds.includes(seqId)) {
         chainProviderIds.push(seqId);
+      }
+    }
+
+    // Pre-resolve fallback chain for agentic loop degradation
+    const fallbackChain = chainProviderIds
+      .filter((id) => id !== primaryProvider)
+      .map((id) => {
+        const pConfig = dbProviders.find((p) => p.id === id || p.type === id);
+        const pType = pConfig?.type || id;
+        let k = '';
+        if (pType === 'gemini') {
+          k =
+            process.env.GEMINI_LIVE_API_KEY ||
+            resolveEffectiveApiKey('gemini', null, pConfig?.apiKey).apiKey ||
+            process.env.GEMINI_API_KEY ||
+            '';
+        } else {
+          k =
+            resolveEffectiveApiKey(pType, null, pConfig?.apiKey).apiKey || '';
+        }
+        return {
+          provider: pType,
+          apiKey: k,
+          modelName: pConfig?.models?.[0],
+          baseUrl: pConfig?.baseUrl,
+        };
+      })
+      .filter((fb) => Boolean(fb.apiKey));
+
+    // ==========================================
+    // STREAMING SSE AGENTIC EXECUTION (STEP 6.3)
+    // ==========================================
+    if (wantsStream && useAgenticLoop) {
+      const primaryConfig = dbProviders.find(
+        (p) => p.id === primaryProvider || p.type === primaryProvider
+      );
+      const primaryType = primaryConfig?.type || primaryProvider;
+      let primaryApiKey = '';
+      if (primaryType === 'gemini') {
+        primaryApiKey =
+          process.env.GEMINI_LIVE_API_KEY ||
+          resolveEffectiveApiKey('gemini', null, primaryConfig?.apiKey).apiKey ||
+          process.env.GEMINI_API_KEY ||
+          '';
+      } else {
+        primaryApiKey =
+          resolveEffectiveApiKey(primaryType, null, primaryConfig?.apiKey).apiKey ||
+          '';
+      }
+
+      const effectiveProvider = primaryApiKey
+        ? primaryType
+        : fallbackChain[0]?.provider || primaryType;
+      const effectiveApiKey =
+        primaryApiKey || fallbackChain[0]?.apiKey || '';
+
+      if (effectiveApiKey) {
+        const scopes = await getUserScopes(auth.uid);
+        return await runAgenticStreamingSession(messages, {
+          apiKey: effectiveApiKey,
+          provider: effectiveProvider,
+          modelName:
+            primaryModel ||
+            (effectiveProvider === 'gemini'
+              ? 'gemini-2.0-flash'
+              : effectiveProvider === 'openrouter'
+                ? 'google/gemini-2.0-flash-001'
+                : undefined),
+          systemInstruction: systemPrompt,
+          scopes,
+          userId: auth.uid,
+          maxIterations: Number(requestedMaxIterations) || 8,
+          fallbackChain: fallbackChain.filter(
+            (fb) => fb.provider !== effectiveProvider
+          ),
+          baseUrl: primaryConfig?.baseUrl,
+        });
       }
     }
 
@@ -335,6 +419,101 @@ export async function POST(req: NextRequest) {
         }
 
         // ==========================================
+        // PROVIDER: OPENROUTER GATEWAY
+        // ==========================================
+        else if (providerType === 'openrouter') {
+          if (!apiKey) {
+            errors.push('OpenRouter: API key missing');
+            continue;
+          }
+
+          const openrouterModel =
+            primaryProvider === 'openrouter' && primaryModel
+              ? primaryModel
+              : providerConfig?.models?.[0] || 'google/gemini-2.0-flash-001';
+
+          // AGENTIC TOOL-CALLING REASONING LOOP (STEP 6.2/6.3)
+          if (useAgenticLoop) {
+            try {
+              const scopes = await getUserScopes(auth.uid);
+              const agentResult = await runCoFounderAgentLoop(messages, {
+                apiKey,
+                provider: 'openrouter',
+                modelName: openrouterModel,
+                systemInstruction: systemPrompt,
+                scopes,
+                userId: auth.uid,
+                maxIterations: Number(requestedMaxIterations) || 8,
+              });
+
+              if (agentResult.success && agentResult.responseText) {
+                responseText = agentResult.responseText;
+                answeredProvider = 'openrouter';
+                answeredModel = agentResult.modelUsed || openrouterModel;
+                agentExecutionMeta = {
+                  toolCallsExecuted: agentResult.toolCallsExecuted,
+                  steps: agentResult.steps,
+                  iterations: agentResult.iterations,
+                  pausedForApproval: agentResult.pausedForApproval,
+                  pendingApproval: agentResult.pendingApproval,
+                };
+                break;
+              }
+            } catch (agentErr: any) {
+              errors.push(`OpenRouter Agentic Loop: ${agentErr?.message}`);
+              console.warn(
+                '[Co-Founder Chat] OpenRouter Agentic loop failover to single-turn:',
+                agentErr?.message
+              );
+            }
+          }
+
+          // Single-turn fallback
+          const formattedMessages = [
+            { role: 'system', content: systemPrompt },
+            ...messages.slice(0, -1).map((m: ChatHistoryItem) => ({
+              role: m.sender === 'user' ? 'user' : 'assistant',
+              content: m.text,
+            })),
+            { role: 'user', content: latest.text },
+          ];
+
+          const res = await fetch(
+            'https://openrouter.ai/api/v1/chat/completions',
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${apiKey}`,
+                'HTTP-Referer': 'https://ruhvi.in',
+                'X-Title': 'Ruhvi AI',
+              },
+              body: JSON.stringify({
+                model: openrouterModel,
+                messages: formattedMessages,
+                temperature: 0.3,
+                max_tokens: maxTokens,
+              }),
+            }
+          );
+
+          if (!res.ok) {
+            const errText = await res.text();
+            errors.push(`OpenRouter (${res.status}): ${errText}`);
+            continue;
+          }
+
+          const data = await res.json();
+          const text = data.choices?.[0]?.message?.content?.trim();
+          if (text) {
+            responseText = text;
+            answeredProvider = 'openrouter';
+            answeredModel = openrouterModel;
+            break;
+          }
+        }
+
+        // ==========================================
         // PROVIDER: DEEPSEEK AI
         // ==========================================
         else if (providerType === 'deepseek') {
@@ -347,6 +526,38 @@ export async function POST(req: NextRequest) {
             primaryProvider === 'deepseek' && primaryModel
               ? primaryModel
               : providerConfig?.models?.[0] || 'deepseek-chat';
+
+          // AGENTIC TOOL-CALLING REASONING LOOP (STEP 6.2/6.3)
+          if (useAgenticLoop) {
+            try {
+              const scopes = await getUserScopes(auth.uid);
+              const agentResult = await runCoFounderAgentLoop(messages, {
+                apiKey,
+                provider: 'deepseek',
+                modelName: deepseekModel,
+                systemInstruction: systemPrompt,
+                scopes,
+                userId: auth.uid,
+                maxIterations: Number(requestedMaxIterations) || 8,
+              });
+
+              if (agentResult.success && agentResult.responseText) {
+                responseText = agentResult.responseText;
+                answeredProvider = 'deepseek';
+                answeredModel = agentResult.modelUsed || deepseekModel;
+                agentExecutionMeta = {
+                  toolCallsExecuted: agentResult.toolCallsExecuted,
+                  steps: agentResult.steps,
+                  iterations: agentResult.iterations,
+                  pausedForApproval: agentResult.pausedForApproval,
+                  pendingApproval: agentResult.pendingApproval,
+                };
+                break;
+              }
+            } catch (agentErr: any) {
+              errors.push(`DeepSeek Agentic Loop: ${agentErr?.message}`);
+            }
+          }
 
           const formattedMessages = [
             { role: 'system', content: systemPrompt },
@@ -431,6 +642,42 @@ export async function POST(req: NextRequest) {
             } catch {}
           }
 
+          // AGENTIC TOOL-CALLING REASONING LOOP (STEP 6.2/6.3)
+          if (useAgenticLoop) {
+            try {
+              const scopes = await getUserScopes(auth.uid);
+              const agentResult = await runCoFounderAgentLoop(messages, {
+                apiKey,
+                provider: 'custom',
+                modelName: customModel,
+                baseUrl,
+                customHeaders: providerConfig?.customHeaders
+                  ? JSON.parse(providerConfig.customHeaders)
+                  : undefined,
+                systemInstruction: systemPrompt,
+                scopes,
+                userId: auth.uid,
+                maxIterations: Number(requestedMaxIterations) || 8,
+              });
+
+              if (agentResult.success && agentResult.responseText) {
+                responseText = agentResult.responseText;
+                answeredProvider = 'custom';
+                answeredModel = agentResult.modelUsed || customModel;
+                agentExecutionMeta = {
+                  toolCallsExecuted: agentResult.toolCallsExecuted,
+                  steps: agentResult.steps,
+                  iterations: agentResult.iterations,
+                  pausedForApproval: agentResult.pausedForApproval,
+                  pendingApproval: agentResult.pendingApproval,
+                };
+                break;
+              }
+            } catch (agentErr: any) {
+              errors.push(`Custom Gateway Agentic Loop: ${agentErr?.message}`);
+            }
+          }
+
           const formattedMessages = [
             { role: 'system', content: systemPrompt },
             ...messages.slice(0, -1).map((m: ChatHistoryItem) => ({
@@ -480,6 +727,38 @@ export async function POST(req: NextRequest) {
             primaryProvider === 'openai' && primaryModel
               ? primaryModel
               : providerConfig?.models?.[0] || 'gpt-4o-mini';
+
+          // AGENTIC TOOL-CALLING REASONING LOOP (STEP 6.2/6.3)
+          if (useAgenticLoop) {
+            try {
+              const scopes = await getUserScopes(auth.uid);
+              const agentResult = await runCoFounderAgentLoop(messages, {
+                apiKey,
+                provider: 'openai',
+                modelName: openaiModel,
+                systemInstruction: systemPrompt,
+                scopes,
+                userId: auth.uid,
+                maxIterations: Number(requestedMaxIterations) || 8,
+              });
+
+              if (agentResult.success && agentResult.responseText) {
+                responseText = agentResult.responseText;
+                answeredProvider = 'openai';
+                answeredModel = agentResult.modelUsed || openaiModel;
+                agentExecutionMeta = {
+                  toolCallsExecuted: agentResult.toolCallsExecuted,
+                  steps: agentResult.steps,
+                  iterations: agentResult.iterations,
+                  pausedForApproval: agentResult.pausedForApproval,
+                  pendingApproval: agentResult.pendingApproval,
+                };
+                break;
+              }
+            } catch (agentErr: any) {
+              errors.push(`OpenAI Agentic Loop: ${agentErr?.message}`);
+            }
+          }
 
           const formattedMessages = [
             { role: 'system', content: systemPrompt },
