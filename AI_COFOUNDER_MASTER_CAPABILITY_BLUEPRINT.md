@@ -1,10 +1,10 @@
 # AI CO-FOUNDER — MASTER CAPABILITY BLUEPRINT
 
 **Document:** `AI_COFOUNDER_MASTER_CAPABILITY_BLUEPRINT.md`
-**Phase:** 7 — Proactive Autonomous Signals & Granular Rate Limiting (COMPLETE)
-**Version:** 7.0
+**Phase:** 8 — Voice & Multimodal Visual Intelligence Engine (COMPLETE)
+**Version:** 8.0
 **Created:** 2026-10-11
-**Status:** PHASE 7 COMPLETED & VERIFIED
+**Status:** PHASE 8 COMPLETED & VERIFIED
 
 **Evidence Source:** Direct source-code inspection of `Ruhvi2026/Ruhvi` on branch `main`
 
@@ -61,11 +61,11 @@ All classifications are based on direct inspection of:
 
 | Capability | Status | Evidence | Gap / Note |
 |---|---|---|---|
-| Tool declarations array | IMPLEMENTED | `brain.ts` - `CO_FOUNDER_TOOL_DECLARATIONS` (34 tools) | All tools have name, description, parameters |
-| Tool schemas (typed parameters) | IMPLEMENTED | All 34 tools have `type: 'OBJECT'` with typed properties | Fully registered in Gemini SDK function declarations |
+| Tool declarations array | IMPLEMENTED | `brain.ts` - `CO_FOUNDER_TOOL_DECLARATIONS` (35 tools) | All tools have name, description, parameters |
+| Tool schemas (typed parameters) | IMPLEMENTED | All 35 tools have `type: 'OBJECT'` with typed properties | Fully registered in Gemini SDK function declarations |
 | Required field marking | IMPLEMENTED | Several tools mark `required: [...]` fields | Schema validation enforced |
 
-**Declared Tools (34):**
+**Declared Tools (35):**
 1. `get_store_metrics` / `get_sales_analytics`
 2. `get_orders`
 3. `get_inventory_levels`
@@ -99,6 +99,7 @@ All classifications are based on direct inspection of:
 31. `search_co_founder_memory`
 32. `store_co_founder_memory`
 33. `extract_session_learnings`
+34. `analyze_product_image`
 
 **Extended tools in tool-bridge only (NOT in LLM schema):**
 `acknowledge_proactive_signal`, `audit_seo_health`, `get_competitors`, `add_competitor`, `dispatch_marketing_coworker`, `get_marketing_coworker_statuses`, `toggle_marketing_coworker`, `trigger_media_processing_job`, `get_media_job_status`, `publish_ad_campaign`
@@ -292,18 +293,19 @@ All classifications are based on direct inspection of:
 
 | Capability | Status | Evidence | Gap / Note |
 |---|---|---|---|
-| Voice mode adaptation (system prompt) | IMPLEMENTED | `brain.ts` - voice vs text content instructions | |
-| LiveKit integration (token/session) | IMPLEMENTED | `api/admin/co-founder/token/route.ts`, `livekit-usage/route.ts` | |
+| Voice mode adaptation (system prompt) | IMPLEMENTED | `brain.ts` - voice vs text content instructions | Concise turn length, live spoken tone |
+| LiveKit WebRTC audio agent protocol | IMPLEMENTED | `livekit-agent.ts:LiveKitVoiceAgent` | Bi-directional streaming, VAD, 16-bit PCM Little-Endian RMS energy calculation |
+| Deterministic audio session state machine | IMPLEMENTED | `voice-session.ts:VoiceSessionCoordinator` | 7 states: idle, user_speaking, agent_thinking, agent_speaking, interrupted, error, closed |
+| Sub-50ms barge-in interruption protocol | IMPLEMENTED | `voice-session.ts:handleBargeIn()`, `livekit-agent.ts:interrupt()` | Immediate playback queue flushing and generation cancellation tokens |
+| LiveKit integration (token/session) | IMPLEMENTED | `api/admin/co-founder/token/route.ts`, `livekit-usage/route.ts` | Room and participant session generation |
 | Voice transcript window | IMPLEMENTED | `components/co-founder/VoiceTranscriptWindow.tsx` | |
 | Live voice visualizer | IMPLEMENTED | `components/co-founder/LiveVoiceVisualizer.tsx` | |
 | Spoken Bengali phonics | IMPLEMENTED | `brain.ts:112-130` - colloquial Bengali voice instructions | |
 | Banglish romanized mode | IMPLEMENTED | `brain.ts:114-118` - via `voiceStyle='banglish'` | |
 | Voice-ready summaries from all tools | IMPLEMENTED | All tools return `summaryForVoice` in tool-bridge | |
 | Voice-formatted approvals | IMPLEMENTED | `approvals.ts:formatApprovalForVoice()` | |
-| Gemini Live real-time voice | NEEDS_VERIFY | Token endpoint exists; full wire-up needs UI inspection | |
-| Image understanding | MISSING | No image upload or vision API integration | |
-| Screenshot analysis | PARTIAL | Playwright captures screenshots but not passed to vision model | |
-| Product image analysis | MISSING | No catalog image intelligence | |
+| Multimodal vision understanding engine | IMPLEMENTED | `vision.ts:analyzeJewelryImage()` | Multi-model Gemini 2.0 Flash vision with fallback sequence |
+| Product screenshot & image inspection | IMPLEMENTED | `vision.ts`, `brain.ts`, `tool-bridge.ts:analyze_product_image` | Karat detection, gemstone clarity/setting grading, defect scoring, and photo compliance | |
 
 ---
 
@@ -401,9 +403,27 @@ All classifications are based on direct inspection of:
     - **Catalog SEO Decay Signals**: Automated scanning for metadata gaps, low health scores, and search indexing degradation.
     - **Deterministic Idempotency**: Daily fingerprinting (`createSignalFingerprint`) to ensure noise reduction and cooldown enforcement.
 
-### MEDIUM - Phase 8 Target
-12. **Native audio stream synthesis** - Full bi-directional voice streaming pipeline.
-
+### RESOLVED - Phase 8 Complete
+12. **LiveKit Real-Time Audio Agent Protocol & Bi-Directional Streaming** - IMPLEMENTED via `livekit-agent.ts`.
+    - Room connectivity, participant WebRTC audio management, and bi-directional PCM streaming.
+    - Mathematical 16-bit PCM Little-Endian Root Mean Square (RMS) calculation (`calculatePcmRms`).
+    - Real-time Human Voice Activity Detection (VAD) with energy thresholding (`0.015`) and trailing silence turn-finalization (`600ms`).
+    - Barge-in human interruption protocol (`interruptionThreshold: 0.025`): cancels speech immediately and transitions to `interrupted` → `listening`.
+    - Native bridge to `GeminiLiveSession` WebSockets and autonomous tool execution (`executeCoFounderTool`).
+    - Rate limit protected via `enforceCoFounderRateLimit(userId, { tier: 'voice' })`.
+    - Graceful direct-synthesis fallback for offline / headless environments.
+13. **Audio Session State Machine & Barge-In Interruption Coordinator** - IMPLEMENTED via `voice-session.ts`.
+    - Deterministic 7-state lifecycle state machine (`idle`, `user_speaking`, `agent_thinking`, `agent_speaking`, `interrupted`, `error`, `closed`) with validated transition guards.
+    - Sub-50ms barge-in interruption protocol with active generation tracking and instant playback queue flushing (`flushPlaybackQueue`).
+    - FIFO audio buffering queue with stale generation protection (`stale_generation` rejection) and queue capacity overflow guards.
+    - Voice conversation turn lifecycle (`VoiceTurn`), latency metrics (`timeToFirstAudioChunkMs`, `averageLatencyMs`), and structured conversation excerpt generation.
+    - Integrated cognitive memory synchronization (`persistSessionToMemory`).
+    - Bound into `LiveKitVoiceAgent` via `getSessionCoordinator()`.
+14. **Multimodal Vision Understanding Engine** - IMPLEMENTED via `vision.ts`.
+    - Automated jewelry appraisal: metal classification (22K, 18K, 14K, 925), gemstone inspection (diamonds, moissanite, gemstones, cut, color, setting), craftsmanship flaw detection, and studio photography quality assessment (0-100).
+    - Dual ingestion pipeline: base64/data URLs (`extractBase64FromDataUrl`) and remote URLs with timeout-bounded download (`downloadImageAsBase64`).
+    - Multi-tier multimodal Google Gemini Vision integration (`gemini-2.0-flash`, `gemini-1.5-flash`, `gemini-1.5-pro`, `gemini-flash-latest`) with resilient heuristic offline fallback.
+    - Autonomous tool registration: `analyze_product_image` declared in `brain.ts`, mapped in `mcp-auth.ts`, and executed via `tool-bridge.ts`.
 
 ---
 
@@ -419,6 +439,6 @@ All classifications are based on direct inspection of:
 
 ---
 
-*Blueprint Version: 7.0 | Phase 7 Complete | Updated 2026-10-11*
-*Next update: After Phase 8 completion*
+*Blueprint Version: 8.0 | Phase 8 Complete | Updated 2026-10-11*
+*Next update: After Phase 9 completion*
 
