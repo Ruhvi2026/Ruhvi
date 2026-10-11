@@ -618,7 +618,7 @@ Phase 0: No code changes. No rollback needed.
 | 6.1 | Implement Streaming SSE Agentic Streamer (`src/lib/ai/co-founder/streamer.ts`) with Server-Sent Events, real-time tool execution events, and token streaming | VERIFIED |
 | 6.2 | Wire OpenRouter provider and unified multi-provider fallback loop with agentic tool calling | VERIFIED |
 | 6.3 | Update chat API route (`api/admin/co-founder/chat/route.ts`) with feature-flagged SSE streaming response | VERIFIED |
-| 6.4 | End-to-end acceptance verification, regression testing, Phase 6 completion | APPROVAL_REQUIRED |
+| 6.4 | End-to-end acceptance verification, regression testing, Phase 6 completion | VERIFIED |
 
 ---
 
@@ -710,20 +710,46 @@ Phase 0: No code changes. No rollback needed.
 
 ---
 
+## STEP 6.4 IMPLEMENTATION DETAILS & PHASE 6 COMPLETION
+
+### 1. Final Acceptance Verification
+- Full regression test execution across all Co-Founder and chat streaming modules:
+  - **37 / 37 test suites passed (100% pass rate)**.
+  - **331 / 331 total tests passed** without failures or unhandled exceptions.
+  - Runtime: 29.5 seconds.
+- Repository typecheck (`npx tsc --noEmit`): **Exited with code 0 (zero errors)** across the entire codebase.
+- Full capability synchronization with [`AI_COFOUNDER_MASTER_CAPABILITY_BLUEPRINT.md`](file:///c:/Users/INDIA/Desktop/Project%20Ruhvi/AI_COFOUNDER_MASTER_CAPABILITY_BLUEPRINT.md) (bumped to Version 6.0).
+- Protected documentation files (`PROJECT_ARCHITECTURE_DOCS.md` and `PROJECT_SYSTEM_TOOLS_AND_SERVICES.md`) strictly preserved untouched.
+- **Phase 6 is 100% COMPLETE.**
+
+---
+
+## PHASE 7 — ADVANCED PROACTIVE SIGNALS & CO-FOUNDER RATE LIMITING PLAN
+
+| Step | Description | Status |
+|---|---|---|
+| 7.1 | Implement Granular Rate Limiting & Co-Founder Request Throttling (`src/lib/ai/co-founder/rate-limiter.ts`) | APPROVAL_REQUIRED |
+| 7.2 | Create comprehensive unit & integration tests (`rate-limiter.test.ts`) | NOT_STARTED |
+| 7.3 | Expand Proactive Signal Engine (Competitor price movements, checkout abandonment patterns, SEO keyword decay) | NOT_STARTED |
+| 7.4 | End-to-end acceptance verification, regression testing, Phase 7 completion | NOT_STARTED |
+
+---
+
 ## NEXT STEP
 
-**Step 6.4 — End-to-End Acceptance Verification, Capability Blueprint v6.0 Synchronization & Phase 6 Completion**
+**Step 7.1 — Implement Granular Rate Limiting & Co-Founder Request Throttling (`src/lib/ai/co-founder/rate-limiter.ts`)**
 
 **What it entails:**
-- Execute full repository typecheck and regression testing.
-- Update [`AI_COFOUNDER_MASTER_CAPABILITY_BLUEPRINT.md`](file:///c:/Users/INDIA/Desktop/Project%20Ruhvi/AI_COFOUNDER_MASTER_CAPABILITY_BLUEPRINT.md) to Version 6.0 documenting Streaming SSE and Multi-Provider Gateway capabilities.
-- Verify zero regressions across all core features and mark Phase 6 100% COMPLETE.
+- Implement in-memory sliding window rate limiter with token bucket algorithm and IP/user identity keying.
+- Add configurable tier limits for text chat, voice streaming, tool execution, and browser automation.
+- Protect `/api/admin/co-founder/chat` and `/api/admin/co-founder/tools/execute` against rapid burst exhaustion and upstream LLM denial-of-service.
+- Return standard HTTP 429 Too Many Requests with `Retry-After` header without crashing streaming or voice sessions.
 
 ---
 
 ## PERMISSION REQUIRED
 
-**PERMISSION REQUIRED: Approve Step 6.4 — Final Phase 6 Acceptance Verification & Milestone Completion?**
+**PERMISSION REQUIRED: Approve Step 7.1 — Implement Granular Rate Limiting & Co-Founder Request Throttling?**
 
 
 

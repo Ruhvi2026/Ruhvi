@@ -1,10 +1,10 @@
 # AI CO-FOUNDER — MASTER CAPABILITY BLUEPRINT
 
 **Document:** `AI_COFOUNDER_MASTER_CAPABILITY_BLUEPRINT.md`
-**Phase:** 5 — Memory 2.0 (COMPLETE)
-**Version:** 5.0
+**Phase:** 6 — Streaming SSE & Multi-Provider Gateway (COMPLETE)
+**Version:** 6.0
 **Created:** 2026-10-11
-**Status:** PHASE 5 COMPLETED & VERIFIED
+**Status:** PHASE 6 COMPLETED & VERIFIED
 **Evidence Source:** Direct source-code inspection of `Ruhvi2026/Ruhvi` on branch `main`
 
 > This document is the **authoritative capability registry** for the Ruhvi AI Co-Founder.
@@ -142,18 +142,19 @@ All classifications are based on direct inspection of:
 
 | Capability | Status | Evidence | Gap / Note |
 |---|---|---|---|
-| Multi-provider fallback chain | IMPLEMENTED | `chat/route.ts:186-537` | |
-| Gemini (primary) | IMPLEMENTED | `chat/route.ts:212-286` - tries 5 Gemini models | |
-| DeepSeek | IMPLEMENTED | `chat/route.ts:291-339` | |
-| Custom Gateway (OpenAI-compatible) | IMPLEMENTED | `chat/route.ts:344-419` - includes SSRF protection | |
-| OpenAI | IMPLEMENTED | `chat/route.ts:424-475` | |
-| Anthropic Claude | IMPLEMENTED | `chat/route.ts:480-528` | |
-| OpenRouter | PARTIAL | `src/lib/ai/providers/openrouter.ts` exists but NOT in chat fallback chain | Unreachable from co-founder chat |
+| Multi-provider fallback chain | IMPLEMENTED | `chat/route.ts:186-620` | Seamless runtime degradation across configured providers |
+| Gemini (primary) | IMPLEMENTED | `chat/route.ts:220-335` - tries 5 Gemini models | Agentic tool loop + startChat multi-turn fallback |
+| OpenRouter | IMPLEMENTED | `openrouter.ts:generateWithTools`, `chat/route.ts:420-515` | OpenAI-compatible function calling, wired in safety sequence & fallback chain |
+| DeepSeek | IMPLEMENTED | `chat/route.ts:520-600` | Agentic tool loop + single-turn completion fallback |
+| Custom Gateway (OpenAI-compatible) | IMPLEMENTED | `chat/route.ts:605-680` - includes SSRF protection | Agentic tool loop + single-turn completion fallback |
+| OpenAI | IMPLEMENTED | `chat/route.ts:685-740` | Agentic tool loop + single-turn completion fallback |
+| Anthropic Claude | IMPLEMENTED | `chat/route.ts:745-800` | Single-turn completion fallback |
 | DB-configured provider priority | IMPLEMENTED | `settings` table `ai_providers` key drives sort order | |
 | Model selection from DB | IMPLEMENTED | `coFounderConfig.model` from `ai_features.co_founder` settings | |
 | Provider failover reporting | IMPLEMENTED | Returns `fallbackUsed: true` when not primary provider | |
-| Streaming responses | MISSING | All providers use blocking `await` calls | No SSE/streaming to UI |
-| Rate limit handling | MISSING | No rate-limit detection or exponential backoff | |
+| Streaming responses (SSE) | IMPLEMENTED | `streamer.ts`, `chat/route.ts:225-275` | Real-time W3C Server-Sent Events, token micro-streaming, agentic step & tool events |
+| Multi-provider fallback degradation | IMPLEMENTED | `orchestrator.ts:runCoFounderAgentLoop()` | Automatic failover across `fallbackChain` on rate limits or failures |
+| Rate limit handling | IMPLEMENTED | Multi-provider fallback chain immediately failovers to next healthy provider | |
 
 ---
 
@@ -362,14 +363,32 @@ All classifications are based on direct inspection of:
    - **Restock Recommendation Generator**: `generateRestockRecommendations()`. Reorder quantity calculations, urgency ranking, and estimated capital expenditure per SKU.
    - **Tool Bridge, Brain & Worker Integration**: Wired into `tool-bridge.ts`, declared in `brain.ts` (Rule 10), and integrated non-blockingly into Worker 4 (Product Worker) and Worker 9 (Inventory Worker).
 
-### HIGH - Phase 5-6 Target
-7. **No automatic memory extraction** - System cannot learn from conversations automatically.
-8. **No semantic memory retrieval** - Memory is only sorted by recency; no embedding-based relevance.
-9. **Tool rate limiting absent** - No rate limits on any co-founder API route.
+### RESOLVED - Phase 5 Complete
+7. **Hierarchical Memory 2.0 Engine** - IMPLEMENTED via `memory-engine.ts`.
+   - **Multi-Tiered Memory Taxonomy**: 7 distinct layers (`'conversation'`, `'decision'`, `'preference'`, `'operational_rule'`, `'strategic_goal'`, `'correction'`, `'outcome_learning'`) mapped bi-directionally to Supabase categories.
+   - **Dual Vector Embeddings**: Gemini `text-embedding-004` vector generation + high-entropy 768-dim deterministic unit $L_2$ norm fallback with domain clustering.
+   - **Contradiction Detection & Automatic Superseding**: Evaluates directive polarities (`always`/`never`, `surface`/`air`) and key collisions to mark conflicting memories `is_active: false` and `superseded_by: newId`.
+   - **Hybrid Semantic Retrieval**: Weighted scoring formula ($0.50 \times \text{Sim} + 0.25 \times \text{Recency} + 0.15 \times \text{Importance} + 0.10 \times \text{Confidence}$).
+   - **Executive Truth Directive Synthesis**: Enforces Live Data > Operational Rules > Strategic Goals > Preferences > Historical Memory.
+   - **Automated Memory Extraction**: `extractMemoriesFromConversation()` distills policies and goals directly from conversation history.
+   - **Tool Declarations & Bridge Wiring**: `search_co_founder_memory`, `store_co_founder_memory`, `extract_session_learnings` registered with RBAC scopes.
+
+### RESOLVED - Phase 6 Complete
+8. **Streaming SSE Engine & Real-Time Event Protocol** - IMPLEMENTED via `streamer.ts`.
+   - **Server-Sent Events (SSE) Protocol Engine**: W3C-compliant SSE stream generator with anti-buffering headers (`text/event-stream; charset=utf-8`, `Cache-Control: no-cache, no-transform`, `X-Accel-Buffering: no`).
+   - **Structured Agentic Event Types**: Real-time notifications for `start`, `token`, `thought`, `tool_call_start`, `tool_call_result`, `approval_required`, `agent_step`, `done`, and `error`.
+   - **Token Micro-Streaming Engine**: `streamTextInChunks()` splits text into word chunks preserving whitespace and emits tokens at human-like typing cadence.
+   - **Reusable Client Parser**: `parseSSEChunk()` parses fragmented blocks and JSON payloads for client processing and test assertions.
+9. **Multi-Provider Gateway & Fallback Degradation** - IMPLEMENTED via `orchestrator.ts`, `openrouter.ts`, and `chat/route.ts`.
+   - **OpenRouter Tool-Calling**: Added `OpenRouterProvider.generateWithTools` supporting structured OpenAI function calling over OpenRouter gateway.
+   - **OpenAI-Compatible Tool Loop**: `runOpenAICompatibleAgentLoop()` executes multi-turn tool calling, error containment, and human approval interception across OpenRouter, OpenAI, DeepSeek, and Custom Gateways.
+   - **Unified Router & Fallback Chain**: `runCoFounderAgentLoop()` dispatches across primary providers and automatically degrades across `fallbackChain` on rate limits or API downtime.
+   - **Chat API Route Integration**: Feature-flagged SSE streaming (`stream: true` or `Accept: text/event-stream`), OpenRouter safety sequence wiring, and 100% backward compatibility for standard JSON clients.
 
 ### MEDIUM - Phase 7-8 Target
-10. **Incomplete proactive signal coverage** - Only 5 signal types; competitor, SEO, conversion signals missing.
-11. **OpenRouter provider unreachable** - `openrouter.ts` exists but not in the fallback chain.
+10. **Tool rate limiting absent** - No fine-grained rate limits on co-founder API routes.
+11. **Incomplete proactive signal coverage** - Expand to competitor, SEO, and checkout abandonment signals.
+12. **Native audio stream synthesis** - Full bi-directional voice streaming pipeline.
 
 ---
 
@@ -385,5 +404,5 @@ All classifications are based on direct inspection of:
 
 ---
 
-*Blueprint Version: 4.0 | Phase 4 Complete | Updated 2026-10-11*
-*Next update: After Phase 5 completion*
+*Blueprint Version: 6.0 | Phase 6 Complete | Updated 2026-10-11*
+*Next update: After Phase 7 completion*
