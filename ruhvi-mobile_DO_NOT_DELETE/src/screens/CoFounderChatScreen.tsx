@@ -50,6 +50,7 @@ export default function CoFounderChatScreen({ navigation }: any) {
   const [authToken, setAuthToken] = useState<string | null>(null);
   const [attachedImage, setAttachedImage] = useState<{ uri: string; url?: string } | null>(null);
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [activeAlerts, setActiveAlerts] = useState<any[]>([]);
 
   const flatListRef = useRef<FlatList>(null);
 
@@ -86,6 +87,74 @@ export default function CoFounderChatScreen({ navigation }: any) {
     });
   }, [navigation, loading]);
 
+  // Save chat history
+  const persistMessages = useCallback(async (newMsgs: ChatMessage[]) => {
+    try {
+      const uid = currentUserId || (await AsyncStorage.getItem('ruhvi_user_id'));
+      if (uid) {
+        await AsyncStorage.setItem(`ruhvi_co_founder_chat_${uid}`, JSON.stringify(newMsgs));
+      }
+    } catch (e) {
+      console.warn('Failed to persist messages:', e);
+    }
+  }, [currentUserId]);
+
+  // Check for proactive store alerts (tickets, low stock, anomaly signals)
+  const checkForProactiveAlerts = useCallback(async () => {
+    try {
+      let token = authToken || (await AsyncStorage.getItem('ruhvi_mobile_jwt'));
+      if (!token) return;
+
+      for (const endpoint of API_ENDPOINTS) {
+        try {
+          const res = await fetch(endpoint, {
+            method: 'GET',
+            headers: {
+              ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            },
+          });
+          if (res.ok) {
+            const data = await res.json();
+            if (data.hasAlerts && data.proactiveMessage) {
+              setActiveAlerts(data.alerts || []);
+
+              // Check if top alert was already posted in this chat
+              const lastAlertId = await AsyncStorage.getItem('ruhvi_last_proactive_alert_id');
+              const currentAlertId = data.alerts?.[0]?.id || 'alert_active';
+
+              if (lastAlertId !== currentAlertId) {
+                await AsyncStorage.setItem('ruhvi_last_proactive_alert_id', currentAlertId);
+
+                const alertMsg: ChatMessage = {
+                  id: `proactive_${Date.now()}`,
+                  sender: 'assistant',
+                  text: data.proactiveMessage,
+                  timestamp: Date.now(),
+                  provider: 'Ruhvi Proactive System',
+                  toolExecuted: true,
+                };
+
+                setMessages((prev) => {
+                  if (prev.some((m) => m.text === data.proactiveMessage)) return prev;
+                  const next = [...prev, alertMsg];
+                  persistMessages(next);
+                  return next;
+                });
+              }
+            } else {
+              setActiveAlerts([]);
+            }
+            break;
+          }
+        } catch {
+          // ignore network glitch on GET
+        }
+      }
+    } catch (err) {
+      console.warn('Error checking proactive alerts:', err);
+    }
+  }, [authToken, persistMessages]);
+
   // Load user session & stored chat history
   useEffect(() => {
     const loadSession = async () => {
@@ -111,17 +180,14 @@ export default function CoFounderChatScreen({ navigation }: any) {
     loadSession();
   }, []);
 
-  // Save chat history
-  const persistMessages = useCallback(async (newMsgs: ChatMessage[]) => {
-    try {
-      const uid = currentUserId || (await AsyncStorage.getItem('ruhvi_user_id'));
-      if (uid) {
-        await AsyncStorage.setItem(`ruhvi_co_founder_chat_${uid}`, JSON.stringify(newMsgs));
-      }
-    } catch (e) {
-      console.warn('Failed to persist messages:', e);
-    }
-  }, [currentUserId]);
+  // Poll for proactive alerts on mount and every 45s
+  useEffect(() => {
+    checkForProactiveAlerts();
+    const interval = setInterval(() => {
+      checkForProactiveAlerts();
+    }, 45000);
+    return () => clearInterval(interval);
+  }, [checkForProactiveAlerts]);
 
   const handleClearChat = () => {
     Alert.alert(
@@ -136,6 +202,7 @@ export default function CoFounderChatScreen({ navigation }: any) {
             const reset = [INITIAL_WELCOME];
             setMessages(reset);
             persistMessages(reset);
+            setActiveAlerts([]);
           },
         },
       ]
@@ -268,8 +335,8 @@ export default function CoFounderChatScreen({ navigation }: any) {
           body: JSON.stringify({
             messages: payloadMessages,
             channel: 'text',
-            provider: 'auto',
-            model: 'auto',
+            provider: 'gemini',
+            model: 'gemini-3.5-flash-lite',
             agenticLoop: true,
           }),
         });
@@ -370,6 +437,28 @@ export default function CoFounderChatScreen({ navigation }: any) {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
       >
+        {/* Proactive Live Alert Banner */}
+        {activeAlerts.length > 0 && (
+          <TouchableOpacity
+            style={styles.alertBanner}
+            activeOpacity={0.8}
+            onPress={() => {
+              setInputText(`Explain details of alert: ${activeAlerts[0]?.title}`);
+            }}
+          >
+            <MaterialIcons name="notifications-active" size={18} color="#C2410C" style={{ marginRight: 8 }} />
+            <View style={{ flex: 1 }}>
+              <Text style={styles.alertBannerTitle} numberOfLines={1}>
+                {activeAlerts[0]?.title}
+              </Text>
+              <Text style={styles.alertBannerText} numberOfLines={1}>
+                {activeAlerts[0]?.message}
+              </Text>
+            </View>
+            <MaterialIcons name="chevron-right" size={20} color="#C2410C" />
+          </TouchableOpacity>
+        )}
+
         {/* Chat message list */}
         <FlatList
           ref={flatListRef}
@@ -693,5 +782,24 @@ const styles = StyleSheet.create({
   },
   sendBtnDisabled: {
     backgroundColor: '#A0B4B0',
+  },
+  alertBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFF7ED',
+    borderBottomWidth: 1,
+    borderBottomColor: '#FED7AA',
+    paddingHorizontal: 12,
+    paddingVertical: 9,
+  },
+  alertBannerTitle: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#9A3412',
+  },
+  alertBannerText: {
+    fontSize: 11,
+    color: '#C2410C',
+    marginTop: 1,
   },
 });

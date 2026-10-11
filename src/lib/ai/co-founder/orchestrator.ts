@@ -39,7 +39,8 @@ export interface OrchestrationOptions {
   userId?: string;
   customTools?: any[];
   onStep?: (step: OrchestrationStep) => void | Promise<void>;
-  provider?: 'gemini' | 'openrouter' | 'openai' | 'deepseek' | 'custom' | string;
+  provider?:
+    'gemini' | 'openrouter' | 'openai' | 'deepseek' | 'custom' | string;
   baseUrl?: string;
   customHeaders?: Record<string, string>;
   fallbackChain?: FallbackProviderConfig[];
@@ -398,7 +399,9 @@ export async function runOpenAICompatibleAgentLoop(
     const assistantMessage = data.choices?.[0]?.message;
 
     if (!assistantMessage) {
-      throw new Error(`${provider.toUpperCase()} returned empty response choices.`);
+      throw new Error(
+        `${provider.toUpperCase()} returned empty response choices.`
+      );
     }
 
     const toolCalls = assistantMessage.tool_calls;
@@ -583,14 +586,14 @@ export async function runGeminiAgentLoop(
 
   const candidateModels = [
     options.modelName,
-    'gemini-2.0-flash',
-    'gemini-1.5-flash',
-    'gemini-1.5-pro',
+    'gemini-3.5-flash-lite',
+    'gemini-flash-latest',
+    'gemini-3.5-flash',
+    'gemini-3.8-flash',
   ].filter(Boolean) as string[];
 
   const uniqueModels = Array.from(new Set(candidateModels));
   const validHistory = normalizeGeminiHistory(messages);
-  const genAI = new GoogleGenerativeAI(options.apiKey);
   const functionDeclarations = formatGeminiFunctionDeclarations(
     options.customTools || CO_FOUNDER_TOOL_DECLARATIONS
   );
@@ -599,18 +602,12 @@ export async function runGeminiAgentLoop(
 
   for (const modelName of uniqueModels) {
     try {
-      const model = genAI.getGenerativeModel({
-        model: modelName,
-        systemInstruction: options.systemInstruction,
-        generationConfig: {
-          temperature: 0.3,
-          maxOutputTokens: 2048,
-        },
-        tools: [{ functionDeclarations }],
-      });
+      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${options.apiKey}`;
+      const conversationContents: any[] = [
+        ...validHistory,
+        { role: 'user', parts: [{ text: userPrompt }] },
+      ];
 
-      const chat = model.startChat({ history: validHistory });
-      let currentInput: any = userPrompt;
       let iteration = 0;
       let totalToolsExecuted = 0;
       const steps: OrchestrationStep[] = [];
@@ -621,13 +618,51 @@ export async function runGeminiAgentLoop(
       while (iteration < maxIterations) {
         iteration++;
 
-        const responseResult = await chat.sendMessage(currentInput);
-        const response = responseResult.response;
-        const functionCalls = response.functionCalls();
+        const requestBody: any = {
+          contents: conversationContents,
+          tools: [{ function_declarations: functionDeclarations }],
+          generationConfig: {
+            temperature: 0.3,
+            maxOutputTokens: 2048,
+          },
+        };
+
+        if (options.systemInstruction) {
+          requestBody.system_instruction = {
+            parts: [{ text: options.systemInstruction }],
+          };
+        }
+
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(requestBody),
+        });
+
+        if (!res.ok) {
+          const errText = await res.text();
+          throw new Error(`Gemini API Error (${res.status}): ${errText}`);
+        }
+
+        const data = await res.json();
+        const candidate = data.candidates?.[0];
+        const candidateContent = candidate?.content;
+
+        if (!candidateContent) {
+          throw new Error('Gemini returned empty candidate content');
+        }
+
+        // Look for any functionCall in the parts
+        const functionCalls = (candidateContent.parts || [])
+          .filter((p: any) => Boolean(p.functionCall))
+          .map((p: any) => p.functionCall);
 
         // If no tool call was requested, model returned its final answer
         if (!functionCalls || functionCalls.length === 0) {
-          finalResponseText = response.text();
+          finalResponseText = (candidateContent.parts || [])
+            .map((p: any) => p.text || '')
+            .join('')
+            .trim();
           steps.push({
             iteration,
             thought: finalResponseText,
@@ -635,10 +670,13 @@ export async function runGeminiAgentLoop(
           break;
         }
 
+        // Keep model's candidate content in history (preserves thoughtSignature)
+        conversationContents.push(candidateContent);
+
         // Process requested function calls
         const currentStep: OrchestrationStep = {
           iteration,
-          toolCalls: functionCalls.map((fc) => ({
+          toolCalls: functionCalls.map((fc: any) => ({
             name: fc.name,
             args: (fc.args as Record<string, any>) || {},
           })),
@@ -722,17 +760,41 @@ export async function runGeminiAgentLoop(
           break;
         }
 
-        // Feed tool results back into the conversation for next iteration
-        currentInput = functionResponseParts;
+        // Append tool results to conversation with role 'user'
+        conversationContents.push({
+          role: 'user',
+          parts: functionResponseParts,
+        });
       }
 
       // If loop exited due to maxIterations without final text, request quick synthesis
       if (!finalResponseText && iteration >= maxIterations) {
         try {
-          const synthesisResult = await chat.sendMessage(
-            'Maximum tool iterations reached. Please summarize your final response and findings for the founder based on the tool outputs gathered above.'
-          );
-          finalResponseText = synthesisResult.response.text();
+          conversationContents.push({
+            role: 'user',
+            parts: [
+              {
+                text: 'Maximum tool iterations reached. Please summarize your final response and findings for the founder based on the tool outputs gathered above.',
+              },
+            ],
+          });
+          const synthRes = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: conversationContents,
+              generationConfig: { temperature: 0.3, maxOutputTokens: 1024 },
+            }),
+          });
+          if (synthRes.ok) {
+            const synthData = await synthRes.json();
+            finalResponseText = (
+              synthData.candidates?.[0]?.content?.parts || []
+            )
+              .map((p: any) => p.text || '')
+              .join('')
+              .trim();
+          }
         } catch {
           finalResponseText =
             'Tool execution limit reached. Please review the executed steps.';
@@ -860,9 +922,7 @@ export async function runCoFounderAgentLoop(
     if (res.success) {
       const tokensConsumed = Math.max(
         10,
-        Math.round(
-          (userPrompt.length + (res.responseText?.length || 0)) / 4
-        )
+        Math.round((userPrompt.length + (res.responseText?.length || 0)) / 4)
       );
       tokenBudgetManager.consumeTokens(sessionId, tokensConsumed);
     }

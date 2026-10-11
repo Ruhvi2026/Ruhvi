@@ -575,22 +575,34 @@ async function executeCoFounderToolInternal(
       case 'get_support_tickets': {
         let query = supabase
           .from('support_tickets')
-          .select('id, ticket_number, subject, status, priority, created_at')
+          .select(
+            'id, ticket_number, title, description, status, priority, created_at'
+          )
           .order('created_at', { ascending: false })
-          .limit(5);
+          .limit(10);
 
         if (args.status) {
-          query = query.eq('status', args.status);
+          const s = String(args.status).toLowerCase();
+          if (s === 'pending' || s === 'open' || s === 'unresolved') {
+            query = query.in('status', ['open', 'pending', 'in_progress']);
+          } else {
+            query = query.eq('status', s);
+          }
         }
 
         const { data: tickets, error } = await query;
         if (error) throw error;
 
-        const count = tickets?.length || 0;
+        const mappedTickets = (tickets || []).map((t: any) => ({
+          ...t,
+          subject: t.title || t.subject || 'Support Ticket',
+        }));
+
+        const count = mappedTickets.length;
         return {
           toolName,
           success: true,
-          data: tickets,
+          data: mappedTickets,
           summaryForVoice: `There are ${count} support tickets currently active.`,
         };
       }

@@ -288,7 +288,7 @@ export async function POST(req: NextRequest) {
           modelName:
             primaryModel ||
             (effectiveProvider === 'gemini'
-              ? 'gemini-2.0-flash'
+              ? 'gemini-3.5-flash-lite'
               : effectiveProvider === 'openrouter'
                 ? 'google/gemini-2.0-flash-001'
                 : undefined),
@@ -355,7 +355,7 @@ export async function POST(req: NextRequest) {
                 modelName:
                   primaryProvider === 'gemini' && primaryModel
                     ? primaryModel
-                    : 'gemini-2.0-flash',
+                    : 'gemini-3.5-flash-lite',
                 systemInstruction: systemPrompt,
                 scopes,
                 userId: auth.uid,
@@ -936,6 +936,108 @@ export async function POST(req: NextRequest) {
         error: error?.message || 'Co-Founder service temporarily unavailable',
         response: `I encountered an issue processing that: ${error?.message || 'Please try again.'}`,
       },
+      { status: 500 }
+    );
+  }
+}
+
+export async function GET(req: NextRequest) {
+  try {
+    const auth = await requireAdmin();
+    if (!auth.ok || !auth.uid) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { getActiveProactiveSignals } =
+      await import('@/lib/ai/co-founder/proactive');
+    const { getServiceClient } = await import('@/lib/supabase/service');
+    const supabase = getServiceClient();
+
+    // Fetch real-time operational signals
+    const [ticketsRes, lowStockRes, rawSignals] = await Promise.all([
+      supabase
+        .from('support_tickets')
+        .select('id, ticket_number, title, status, priority, created_at')
+        .in('status', ['open', 'pending', 'in_progress'])
+        .order('created_at', { ascending: false })
+        .limit(5),
+      supabase
+        .from('products')
+        .select('id, name, stock_quantity')
+        .eq('is_active', true)
+        .lte('stock_quantity', 5)
+        .limit(5),
+      getActiveProactiveSignals(5),
+    ]);
+
+    const openTickets = ticketsRes.data || [];
+    const lowStockItems = lowStockRes.data || [];
+    const signals = rawSignals || [];
+
+    const alerts: Array<{
+      id: string;
+      type: 'ticket' | 'stock' | 'signal';
+      title: string;
+      message: string;
+      severity: 'high' | 'critical' | 'medium';
+    }> = [];
+
+    if (openTickets.length > 0) {
+      alerts.push({
+        id: `ticket_${openTickets[0].id}`,
+        type: 'ticket',
+        title: 'Pending Support Ticket Alert',
+        message: `${openTickets.length}টি পেন্ডিং সাপোর্ট টিকিট পর্যালোচনার অপেক্ষায়। (${openTickets.map((t) => `#${t.ticket_number || t.id.slice(0, 8)} - ${t.title}`).join(', ')})`,
+        severity: openTickets.some(
+          (t) => t.priority === 'urgent' || t.priority === 'high'
+        )
+          ? 'critical'
+          : 'high',
+      });
+    }
+
+    if (lowStockItems.length > 0) {
+      alerts.push({
+        id: `stock_${lowStockItems[0].id}`,
+        type: 'stock',
+        title: 'Low Inventory Alert',
+        message: `${lowStockItems.length}টি প্রডাক্টের স্টক আশঙ্কাজনকভাবে কম (≤ 5 units): ${lowStockItems.map((p) => p.name).join(', ')}`,
+        severity: 'high',
+      });
+    }
+
+    signals.forEach((s) => {
+      alerts.push({
+        id: s.id || s.fingerprint,
+        type: 'signal',
+        title: s.title,
+        message: s.summary,
+        severity: s.severity === 'critical' ? 'critical' : 'medium',
+      });
+    });
+
+    let proactiveMessage = '';
+    if (alerts.length > 0) {
+      const topAlerts = alerts.slice(0, 3);
+      proactiveMessage =
+        `🔔 **প্রোঅ্যাকটিভ আপডেট (Ruhvi AI Co-Founder):**\n` +
+        topAlerts.map((a) => `• **${a.title}**: ${a.message}`).join('\n\n') +
+        `\n\nআপনি চাইলে এখনই যেকোনো অ্যাকশন নিতে বা বিস্তারিত দেখতে আমাকে নির্দেশ দিন।`;
+    }
+
+    return NextResponse.json({
+      success: true,
+      hasAlerts: alerts.length > 0,
+      alerts,
+      proactiveMessage,
+      openTicketsCount: openTickets.length,
+      lowStockCount: lowStockItems.length,
+      timestamp: Date.now(),
+    });
+  } catch (error: any) {
+    console.error('[Co-Founder Proactive Alert Error]', error);
+    return NextResponse.json(
+      { error: error?.message || 'Failed to scan proactive alerts' },
       { status: 500 }
     );
   }
