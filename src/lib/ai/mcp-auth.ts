@@ -239,6 +239,9 @@ export const TOOL_PERMISSION_MAP: Record<
 
   // Multimodal Vision Engine (Read)
   analyze_product_image: { module: 'analytics', action: 'read' },
+
+  // AI Studio Photography Engine (Write — triggers billable Imagen 3 generation)
+  generate_product_studio_photos: { module: 'products', action: 'write' },
 };
 
 export function assertSpecificScope(

@@ -1031,7 +1031,8 @@ async function executeCoFounderToolInternal(
       }
 
       case 'analyze_product_image': {
-        const { analyzeJewelryImage } = await import('@/lib/ai/co-founder/vision');
+        const { analyzeJewelryImage } =
+          await import('@/lib/ai/co-founder/vision');
         const analysis = await analyzeJewelryImage({
           imageUrl: args.image_url,
           imageBase64: args.image_base64,
@@ -1045,6 +1046,27 @@ async function executeCoFounderToolInternal(
           data: analysis,
           error: analysis.error,
           summaryForVoice: analysis.summaryForVoice,
+        };
+      }
+
+      case 'generate_product_studio_photos': {
+        const { generateStudioPhotos } =
+          await import('@/lib/ai/co-founder/studio-photography');
+        const result = await generateStudioPhotos({
+          imageUrl: args.image_url,
+          imageBase64: args.image_base64,
+          mimeType: args.mime_type,
+          productName: args.product_name,
+          categoryHint: args.category_hint,
+          uploadToCloudinary: args.upload_to_cloudinary === true,
+        });
+
+        return {
+          toolName,
+          success: result.success,
+          data: result,
+          error: result.error,
+          summaryForVoice: result.summaryForVoice,
         };
       }
 
@@ -1092,11 +1114,7 @@ export async function executeCoFounderTool(
   ]
 ): Promise<ToolExecutionResult> {
   const startTime = Date.now();
-  const result = await executeCoFounderToolInternal(
-    toolName,
-    args,
-    userScopes
-  );
+  const result = await executeCoFounderToolInternal(toolName, args, userScopes);
 
   try {
     recordToolTelemetry({
@@ -1105,9 +1123,7 @@ export async function executeCoFounderTool(
       toolName,
       durationMs: Date.now() - startTime,
       success: result.success,
-      errorCategory: result.success
-        ? undefined
-        : classifyError(result.error),
+      errorCategory: result.success ? undefined : classifyError(result.error),
       errorMessage: result.error,
       userId: args.userId || args.user_id,
     });

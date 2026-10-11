@@ -959,4 +959,43 @@ export const CO_FOUNDER_TOOL_DECLARATIONS = [
       },
     },
   },
+  {
+    name: 'generate_product_studio_photos',
+    description:
+      'AI Studio Photography Engine: generates a complete 6-frame e-commerce catalog photo shoot for a jewelry product. Accepts the real product image (URL or base64), extracts gemological specs via Gemini Vision, produces 6 hyper-realistic art-directed frames (2 model wears, studio hero, flat-lay unboxing, 45° side profile, extreme macro texture) using Google Imagen 3, and optionally uploads all renders to Cloudinary. Use when the founder asks to generate product photos, studio shots, catalog images, model wears, or e-commerce photos for any jewelry item.',
+    parameters: {
+      type: 'OBJECT',
+      properties: {
+        image_url: {
+          type: 'STRING',
+          description:
+            'Public URL of the existing real product image to base the shoot on.',
+        },
+        image_base64: {
+          type: 'STRING',
+          description:
+            'Base64-encoded product image data (alternative to image_url).',
+        },
+        mime_type: {
+          type: 'STRING',
+          description: 'MIME type of the base64 image (default: image/jpeg).',
+        },
+        product_name: {
+          type: 'STRING',
+          description:
+            'Product name or SKU used for file naming and prompt context.',
+        },
+        category_hint: {
+          type: 'STRING',
+          description:
+            'Optional product category hint to accelerate spec extraction (e.g. "necklace", "earrings", "ring", "choker").',
+        },
+        upload_to_cloudinary: {
+          type: 'BOOLEAN',
+          description:
+            'Whether to automatically upload all generated renders to Cloudinary CDN (default: false — returns base64 only).',
+        },
+      },
+    },
+  },
 ];

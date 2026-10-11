@@ -54,9 +54,14 @@ export async function POST(req: NextRequest) {
     }
 
     const latest = messages[messages.length - 1];
+    if (!latest?.text && (latest?.imageUrl || latest?.imageBase64)) {
+      latest.text =
+        'Please review this attached image and share your analysis and thoughts.';
+    }
+
     if (!latest?.text) {
       return NextResponse.json(
-        { error: 'Message text is required' },
+        { error: 'Message text or image is required' },
         { status: 400 }
       );
     }
@@ -81,6 +86,24 @@ export async function POST(req: NextRequest) {
       language,
       voiceStyle,
     });
+
+    // Inject Intent-Aware Image Handling Instructions if image is present
+    if (latest.imageUrl || latest.imageBase64) {
+      const imgRef = latest.imageUrl || latest.imageBase64;
+      systemPrompt +=
+        `\n\n[USER ATTACHED IMAGE CONTEXT]:\n` +
+        `The founder has attached an image (${latest.imageUrl ? `URL: "${latest.imageUrl}"` : 'Base64 image data'}).\n` +
+        `CRITICAL INTENT RULES FOR IMAGE HANDLING:\n` +
+        `1. ALWAYS prioritize the founder's specific message: "${latest.text}".\n` +
+        `2. IF the founder uploaded this image for DISCUSSION, FEEDBACK, ADVICE, COMPETITOR ANALYSIS, OR QUESTIONS (e.g. competitor ad, chart, invoice, design idea, packaging, or casual discussion):\n` +
+        `   - Answer their query directly using multimodal visual comprehension and co-founder business judgment.\n` +
+        `   - DO NOT invoke 'generate_product_studio_photos' for discussion/inquiry queries.\n` +
+        `3. IF AND ONLY IF the founder asks for PRODUCT STUDIO PHOTOS, CATALOG SHOOT, OR FULL PRODUCT ONBOARDING:\n` +
+        `   - Call 'analyze_product_image' with ${latest.imageUrl ? `{ imageUrl: "${latest.imageUrl}" }` : `{ imageBase64: "${imgRef}" }`} to inspect metal karat, craftsmanship, and gemstones.\n` +
+        `   - Draft high-converting SEO copy (Title, Keywords, PDP Description, Care instructions).\n` +
+        `   - Call 'generate_product_studio_photos' with ${latest.imageUrl ? `{ imageUrl: "${latest.imageUrl}" }` : `{ imageBase64: "${imgRef}" }`} to generate the 6-frame catalog shoot.\n` +
+        `4. Never run billable image generation ('generate_product_studio_photos') without the founder either asking for product photo generation or selecting catalog creation.`;
+    }
 
     // Check if user is asking to browse a URL or mentioned a website
     let browsingResult: any = null;
@@ -219,8 +242,7 @@ export async function POST(req: NextRequest) {
             process.env.GEMINI_API_KEY ||
             '';
         } else {
-          k =
-            resolveEffectiveApiKey(pType, null, pConfig?.apiKey).apiKey || '';
+          k = resolveEffectiveApiKey(pType, null, pConfig?.apiKey).apiKey || '';
         }
         return {
           provider: pType,
@@ -243,20 +265,20 @@ export async function POST(req: NextRequest) {
       if (primaryType === 'gemini') {
         primaryApiKey =
           process.env.GEMINI_LIVE_API_KEY ||
-          resolveEffectiveApiKey('gemini', null, primaryConfig?.apiKey).apiKey ||
+          resolveEffectiveApiKey('gemini', null, primaryConfig?.apiKey)
+            .apiKey ||
           process.env.GEMINI_API_KEY ||
           '';
       } else {
         primaryApiKey =
-          resolveEffectiveApiKey(primaryType, null, primaryConfig?.apiKey).apiKey ||
-          '';
+          resolveEffectiveApiKey(primaryType, null, primaryConfig?.apiKey)
+            .apiKey || '';
       }
 
       const effectiveProvider = primaryApiKey
         ? primaryType
         : fallbackChain[0]?.provider || primaryType;
-      const effectiveApiKey =
-        primaryApiKey || fallbackChain[0]?.apiKey || '';
+      const effectiveApiKey = primaryApiKey || fallbackChain[0]?.apiKey || '';
 
       if (effectiveApiKey) {
         const scopes = await getUserScopes(auth.uid);

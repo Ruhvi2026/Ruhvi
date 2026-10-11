@@ -36,6 +36,9 @@ import {
   Info,
   Layers,
   Orbit,
+  Image as ImageIcon,
+  Camera,
+  UploadCloud,
 } from 'lucide-react';
 import { LiveVoiceVisualizer } from '@/components/co-founder/LiveVoiceVisualizer';
 import { PlaywrightBrowserWindow } from '@/components/co-founder/PlaywrightBrowserWindow';
@@ -80,6 +83,8 @@ interface ChatMessage {
     | 'analyst'
     | 'marketer';
   workerName?: string;
+  imageUrl?: string;
+  imageBase64?: string;
 }
 
 export default function CoFounderPortalPage() {
@@ -89,6 +94,14 @@ export default function CoFounderPortalPage() {
   const [selectedWorkerId, setSelectedWorkerId] =
     useState<string>('co_founder');
   const [input, setInput] = useState('');
+  const [attachedImage, setAttachedImage] = useState<{
+    url: string;
+    base64?: string;
+    name: string;
+    size?: number;
+  } | null>(null);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const genId = () => crypto.randomUUID();
 
   // Responsive character sizes for the 3D swarm view
@@ -541,16 +554,24 @@ export default function CoFounderPortalPage() {
       }
     }
 
+    const currentAttached = attachedImage;
     const userMsg: ChatMessage = {
       id: genId(),
       sender: 'user',
-      text: rawInput,
+      text:
+        rawInput ||
+        (currentAttached
+          ? 'Please review this attached image and share your analysis and thoughts.'
+          : ''),
+      imageUrl: currentAttached?.url,
+      imageBase64: currentAttached?.base64,
       timestamp: Date.now(),
     };
 
     const newMessages = [...messages, userMsg];
     setMessages(newMessages);
     setInput('');
+    setAttachedImage(null);
     setIsLoading(true);
 
     try {
@@ -561,6 +582,8 @@ export default function CoFounderPortalPage() {
           messages: newMessages.map((m) => ({
             sender: m.sender,
             text: m.text,
+            imageUrl: m.imageUrl,
+            imageBase64: m.imageBase64,
           })),
           channel: 'text',
           provider: selectedProvider,
@@ -618,8 +641,59 @@ export default function CoFounderPortalPage() {
     }
   };
 
+  const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please upload an image file (JPEG, PNG, WebP).');
+      return;
+    }
+
+    if (file.size > 15 * 1024 * 1024) {
+      toast.error('File size exceeds 15 MB limit.');
+      return;
+    }
+
+    setIsUploadingImage(true);
+    const toastId = toast.loading('Uploading product image...');
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const res = await fetch('/api/admin/co-founder/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Failed to upload image');
+      }
+
+      setAttachedImage({
+        url: data.url,
+        base64: data.base64,
+        name: file.name,
+        size: file.size,
+      });
+
+      toast.success(
+        'Product image attached! Click Send or ask Co-Founder to generate photos & description.',
+        { id: toastId, icon: '📸' }
+      );
+    } catch (err: any) {
+      toast.error(`Image upload failed: ${err.message}`, { id: toastId });
+    } finally {
+      setIsUploadingImage(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!input.trim() && !attachedImage) return;
     executeChatMessage(input);
   };
 
@@ -2221,6 +2295,22 @@ export default function CoFounderPortalPage() {
                           </span>
                         )}
                       </div>
+                      {m.imageUrl && (
+                        <div className="mb-2 mt-1">
+                          <div className="relative inline-block overflow-hidden rounded-xl border border-violet-500/30 bg-black/5 shadow-sm dark:bg-black/20">
+                            <img
+                              src={m.imageUrl}
+                              alt="Attached product"
+                              className="max-h-56 max-w-full cursor-pointer rounded-lg object-contain transition-transform hover:scale-[1.02]"
+                              onClick={() => window.open(m.imageUrl, '_blank')}
+                            />
+                            <div className="absolute bottom-1.5 left-1.5 flex items-center gap-1 rounded bg-black/70 px-2 py-0.5 text-[10px] font-bold text-white backdrop-blur-sm">
+                              <Camera size={10} className="text-violet-400" />
+                              <span>Product Photo</span>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                       <p className="whitespace-pre-wrap text-xs leading-relaxed sm:text-sm">
                         {m.text}
                       </p>
@@ -2268,8 +2358,72 @@ export default function CoFounderPortalPage() {
                 })}
               </div>
 
+              {/* Attached Image Preview Bar */}
+              {attachedImage && (
+                <div className="flex items-center justify-between gap-2 rounded-2xl border border-violet-500/30 bg-violet-500/10 p-2.5 text-xs backdrop-blur-sm dark:bg-violet-950/30">
+                  <div className="flex items-center gap-2.5 overflow-hidden">
+                    <img
+                      src={attachedImage.url}
+                      alt="Preview"
+                      className="h-10 w-10 shrink-0 rounded-lg border border-violet-500/40 object-cover"
+                    />
+                    <div className="truncate">
+                      <p className="truncate font-semibold text-violet-900 dark:text-violet-200">
+                        {attachedImage.name}
+                      </p>
+                      <p className="text-[10px] text-violet-700/80 dark:text-violet-400">
+                        Attached — ask anything or choose an action:
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex shrink-0 items-center gap-1.5">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setInput(
+                          'Inspect this product image, extract metal & gemstone specifications, write high-converting SEO copy, and produce the 6-frame studio catalog photos.'
+                        );
+                      }}
+                      className="rounded-lg bg-violet-600 px-2 py-1 text-[10px] font-bold text-white shadow-sm transition hover:bg-violet-700"
+                      title="Generate complete 6-frame e-commerce catalog photos"
+                    >
+                      ✨ 6-Frame Shoot
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setInput(
+                          'Analyze this image, point out key observations and insights, and let me know your thoughts.'
+                        );
+                      }}
+                      className="rounded-lg border border-violet-500/30 bg-violet-500/10 px-2 py-1 text-[10px] font-bold text-violet-700 transition hover:bg-violet-500/20 dark:text-violet-300"
+                      title="Open discussion and visual analysis"
+                    >
+                      💬 Discuss & Review
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setAttachedImage(null)}
+                      className="rounded-lg p-1 text-neutral-500 transition hover:bg-rose-500/20 hover:text-rose-600 dark:hover:text-rose-400"
+                      title="Remove attached image"
+                    >
+                      <X size={14} />
+                    </button>
+                  </div>
+                </div>
+              )}
+
               {/* Form Input */}
               <form onSubmit={handleSubmit} className="flex gap-2">
+                {/* Hidden File Input */}
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  accept="image/*"
+                  onChange={handleImageSelect}
+                  className="hidden"
+                />
+
                 <input
                   type="text"
                   value={
@@ -2280,10 +2434,40 @@ export default function CoFounderPortalPage() {
                       : input
                   }
                   onChange={(e) => setInput(e.target.value)}
-                  placeholder="Ask your AI Co-Founder or tag @worker (e.g. @coder, @researcher)..."
+                  placeholder={
+                    attachedImage
+                      ? 'Ask Co-Founder about this product (or click Auto Complete / Send)...'
+                      : 'Ask your AI Co-Founder or tag @worker (e.g. @coder, @researcher)...'
+                  }
                   className="flex-1 rounded-2xl border border-neutral-300/80 bg-nm-light-bg px-4 py-2.5 text-xs text-nm-light-textPrimary placeholder-neutral-400 shadow-nm-inset focus:border-violet-500/50 focus:outline-none dark:border-neutral-800 dark:bg-nm-dark-bg dark:text-white dark:placeholder-neutral-500 dark:shadow-nm-inset-dark"
                   disabled={isLoading}
                 />
+
+                {/* Photo / Image Upload Button */}
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={isLoading || isUploadingImage}
+                  title={
+                    isUploadingImage
+                      ? 'Uploading image...'
+                      : 'Upload product photo for Vision & Studio Shoot'
+                  }
+                  className={`flex shrink-0 items-center justify-center rounded-2xl px-3.5 py-2.5 text-xs font-bold shadow-nm-flat transition-all hover:opacity-90 active:scale-95 disabled:opacity-50 ${
+                    attachedImage
+                      ? 'bg-violet-600 text-white'
+                      : isUploadingImage
+                        ? 'animate-pulse bg-violet-500/20 text-violet-600'
+                        : 'bg-nm-gradient-light text-violet-700 dark:bg-nm-gradient-dark dark:text-amber-400'
+                  }`}
+                  aria-label="Upload product photo"
+                >
+                  <ImageIcon size={14} />
+                  {isUploadingImage && (
+                    <RefreshCw size={12} className="ml-1 animate-spin" />
+                  )}
+                </button>
+
                 {/* Browser Speech Recognition Microphone Button */}
                 <button
                   type="button"
@@ -2316,7 +2500,7 @@ export default function CoFounderPortalPage() {
                 </button>
                 <button
                   type="submit"
-                  disabled={isLoading || !input.trim()}
+                  disabled={isLoading || (!input.trim() && !attachedImage)}
                   className="flex shrink-0 items-center justify-center rounded-2xl bg-nm-gradient-light px-5 py-2.5 text-xs font-bold text-violet-700 shadow-nm-flat transition-all hover:opacity-90 active:scale-95 disabled:opacity-50 dark:bg-nm-gradient-dark dark:text-amber-400 dark:shadow-nm-flat-dark"
                 >
                   <Send size={14} />
