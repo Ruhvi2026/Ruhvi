@@ -11,6 +11,7 @@ import 'server-only';
 import { getCoFounderSystemPrompt } from './brain';
 import { enforceCoFounderRateLimit } from './rate-limiter';
 import { executeCoFounderTool } from './tool-bridge';
+import { VoiceSessionCoordinator } from './voice-session';
 import { getUserScopes } from '@/lib/auth/rbac';
 import { getLiveKitConfig, LIVEKIT_ROOM_SETTINGS } from '@/lib/livekit/config';
 import { createLiveKitToken } from '@/lib/livekit/token';
@@ -101,6 +102,7 @@ export class LiveKitVoiceAgent {
   private state: VoiceAgentState = 'idle';
   private agentManager: LiveKitAgentManager | null = null;
   private geminiLive: GeminiLiveSession | null = null;
+  private sessionCoordinator: VoiceSessionCoordinator;
   private metrics: VoiceAgentMetrics;
 
   // Voice Activity Detection (VAD) tracking
@@ -125,6 +127,14 @@ export class LiveKitVoiceAgent {
     };
     this.events = events;
 
+    this.sessionCoordinator = new VoiceSessionCoordinator({
+      userId: this.config.userId,
+      roomName: this.config.roomName,
+      userRole: this.config.userRole,
+      adminName: this.config.adminName,
+      language: this.config.language,
+    });
+
     this.metrics = {
       state: 'idle',
       turnsCompleted: 0,
@@ -135,6 +145,13 @@ export class LiveKitVoiceAgent {
       lastTurnLatencyMs: 0,
       speechDurationMs: 0,
     };
+  }
+
+  /**
+   * Underlying Voice Session Coordinator managing deterministic state machine and audio queue.
+   */
+  getSessionCoordinator(): VoiceSessionCoordinator {
+    return this.sessionCoordinator;
   }
 
   /**
@@ -382,6 +399,7 @@ export class LiveKitVoiceAgent {
 
   private handleInterruption(): void {
     this.metrics.interruptionsCount++;
+    this.sessionCoordinator.handleBargeIn('barge_in');
     this.setState('interrupted');
     this.events.onInterrupted?.();
     this.setState('listening');
@@ -441,6 +459,7 @@ export class LiveKitVoiceAgent {
 
     this.accumulatedUserPcm = [];
     this.isUserSpeaking = false;
+    this.sessionCoordinator.close();
     this.setState('disconnected');
   }
 }
