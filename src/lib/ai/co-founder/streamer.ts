@@ -7,6 +7,7 @@ import {
   type OrchestrationResult,
   type ChatHistoryMessage,
 } from './orchestrator';
+import { recordLLMTelemetry, classifyError } from './telemetry';
 
 /**
  * ============================================================================
@@ -279,6 +280,10 @@ export async function runAgenticStreamingSession(
 
   // Run asynchronously without blocking HTTP response return
   (async () => {
+    const sessionStart = Date.now();
+    const lastUserMsg =
+      [...messages].reverse().find((m) => m.role === 'user')?.content || '';
+
     try {
       writer.sendStart({
         model: options.modelName || 'gemini-2.0-flash',
@@ -330,6 +335,22 @@ export async function runAgenticStreamingSession(
 
       if (!agentResult.success && agentResult.error) {
         writer.sendError({ message: agentResult.error });
+        try {
+          recordLLMTelemetry({
+            traceId: options.sessionId || 'tr_stream',
+            spanId: 'sp_stream',
+            provider: (agentResult.provider as any) || 'gemini',
+            model: agentResult.modelUsed || 'gemini-2.0-flash',
+            channel: 'chat',
+            promptTokens: Math.max(1, Math.round(lastUserMsg.length / 4)),
+            completionTokens: 0,
+            totalTokens: Math.max(1, Math.round(lastUserMsg.length / 4)),
+            durationMs: Date.now() - sessionStart,
+            success: false,
+            errorCategory: classifyError(agentResult.error),
+            errorMessage: agentResult.error,
+          });
+        } catch {}
       } else {
         // Stream text tokens if requested
         if (options.streamTokens !== false && agentResult.responseText) {
@@ -354,11 +375,53 @@ export async function runAgenticStreamingSession(
           pausedForApproval: agentResult.pausedForApproval,
           pendingApproval: agentResult.pendingApproval,
         });
+
+        // Non-blocking telemetry tracking (Phase 10)
+        try {
+          recordLLMTelemetry({
+            traceId: options.sessionId || 'tr_stream',
+            spanId: 'sp_stream',
+            provider: (agentResult.provider as any) || 'gemini',
+            model: agentResult.modelUsed || 'gemini-2.0-flash',
+            channel: 'chat',
+            promptTokens: Math.max(1, Math.round(lastUserMsg.length / 4)),
+            completionTokens: Math.max(
+              1,
+              Math.round((agentResult.responseText?.length || 0) / 4)
+            ),
+            totalTokens: Math.max(
+              2,
+              Math.round(
+                (lastUserMsg.length +
+                  (agentResult.responseText?.length || 0)) /
+                  4
+              )
+            ),
+            durationMs: Date.now() - sessionStart,
+            success: true,
+          });
+        } catch {}
       }
     } catch (err: any) {
       writer.sendError({
         message: err?.message || 'Agentic streaming failed unexpectedly',
       });
+      try {
+        recordLLMTelemetry({
+          traceId: options.sessionId || 'tr_stream',
+          spanId: 'sp_stream',
+          provider: 'fallback',
+          model: options.modelName || 'gemini-2.0-flash',
+          channel: 'chat',
+          promptTokens: Math.max(1, Math.round(lastUserMsg.length / 4)),
+          completionTokens: 0,
+          totalTokens: Math.max(1, Math.round(lastUserMsg.length / 4)),
+          durationMs: Date.now() - sessionStart,
+          success: false,
+          errorCategory: classifyError(err),
+          errorMessage: err?.message,
+        });
+      } catch {}
     } finally {
       writer.close();
     }

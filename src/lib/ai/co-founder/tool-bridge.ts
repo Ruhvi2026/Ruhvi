@@ -48,6 +48,7 @@ import {
   getWorkerRegistryStatus,
   executeMultiWorkerPlan,
 } from './workers';
+import { recordToolTelemetry, classifyError } from './telemetry';
 
 export interface ToolExecutionResult {
   toolName: string;
@@ -63,7 +64,7 @@ export interface ToolExecutionResult {
  * Executes existing domain tools on behalf of the AI Co-Founder with
  * permission validation and concise voice-ready summaries.
  */
-export async function executeCoFounderTool(
+async function executeCoFounderToolInternal(
   toolName: string,
   args: Record<string, any> = {},
   userScopes: string[] = [
@@ -1063,4 +1064,54 @@ export async function executeCoFounderTool(
       summaryForVoice: `Error querying ${toolName}: ${err.message}`,
     };
   }
+}
+
+/**
+ * Co-Founder Internal Tool Bridge (Exported with telemetry instrumentation)
+ *
+ * Executes existing domain tools on behalf of the AI Co-Founder with
+ * permission validation, latency tracking, and error attribution.
+ */
+export async function executeCoFounderTool(
+  toolName: string,
+  args: Record<string, any> = {},
+  userScopes: string[] = [
+    'admin:full',
+    'mcp_tools:read',
+    'mcp_tools:write',
+    'analytics:read',
+    'analytics:write',
+    'products:read',
+    'products:write',
+    'inventory:read',
+    'inventory:write',
+    'orders:read',
+    'customer:read',
+    'support_ticket:read',
+    'coupons:read',
+  ]
+): Promise<ToolExecutionResult> {
+  const startTime = Date.now();
+  const result = await executeCoFounderToolInternal(
+    toolName,
+    args,
+    userScopes
+  );
+
+  try {
+    recordToolTelemetry({
+      traceId: args._traceId || 'tr_tool',
+      spanId: 'sp_' + toolName,
+      toolName,
+      durationMs: Date.now() - startTime,
+      success: result.success,
+      errorCategory: result.success
+        ? undefined
+        : classifyError(result.error),
+      errorMessage: result.error,
+      userId: args.userId || args.user_id,
+    });
+  } catch {}
+
+  return result;
 }
