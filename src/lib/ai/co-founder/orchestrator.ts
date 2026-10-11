@@ -7,6 +7,7 @@ import {
 } from '@google/generative-ai';
 import { CO_FOUNDER_TOOL_DECLARATIONS } from './brain';
 import { executeCoFounderTool, ToolExecutionResult } from './tool-bridge';
+import { validatePromptSecurity, tokenBudgetManager } from './security';
 
 export interface OrchestrationStep {
   iteration: number;
@@ -804,6 +805,44 @@ export async function runCoFounderAgentLoop(
     };
   }
 
+  // 1. Prompt Injection & Jailbreak Guard (Phase 10: Security Hardening)
+  const securityCheck = validatePromptSecurity(userPrompt);
+  if (!securityCheck.safe && securityCheck.threatLevel === 'high') {
+    return {
+      success: false,
+      responseText:
+        'I am unable to process prompts that attempt to override system security guidelines or extract confidential instructions.',
+      toolCallsExecuted: 0,
+      steps: [],
+      iterations: 0,
+      modelUsed: 'security-guard',
+      provider,
+      error: `Security violation: ${securityCheck.reason}`,
+    };
+  }
+
+  // 2. Token Budget Guard (Phase 10: Runaway Session Prevention)
+  const sessionId =
+    (options as any).sessionId || options.userId || 'session_default';
+  const estimatedTokens = Math.max(10, Math.round(userPrompt.length / 4));
+  const budgetStatus = tokenBudgetManager.checkBudget(
+    sessionId,
+    estimatedTokens
+  );
+  if (!budgetStatus.allowed) {
+    return {
+      success: false,
+      responseText:
+        'Your session token budget has been exhausted. Please start a new session or contact the administrator.',
+      toolCallsExecuted: 0,
+      steps: [],
+      iterations: 0,
+      modelUsed: 'budget-guard',
+      provider,
+      error: budgetStatus.reason || 'Token budget exceeded',
+    };
+  }
+
   if (!options.apiKey) {
     return {
       success: false,
@@ -817,17 +856,36 @@ export async function runCoFounderAgentLoop(
     };
   }
 
+  const recordConsumedBudget = (res: OrchestrationResult) => {
+    if (res.success) {
+      const tokensConsumed = Math.max(
+        10,
+        Math.round(
+          (userPrompt.length + (res.responseText?.length || 0)) / 4
+        )
+      );
+      tokenBudgetManager.consumeTokens(sessionId, tokensConsumed);
+    }
+  };
+
   let primaryError: string | undefined;
 
   // 1. Attempt Primary Provider Loop
   try {
     if (['openrouter', 'openai', 'deepseek', 'custom'].includes(provider)) {
       const res = await runOpenAICompatibleAgentLoop(messages, options);
-      if (res.success) return res;
-      primaryError = res.error || 'Primary provider agentic loop returned failure';
+      if (res.success) {
+        recordConsumedBudget(res);
+        return res;
+      }
+      primaryError =
+        res.error || 'Primary provider agentic loop returned failure';
     } else {
       const res = await runGeminiAgentLoop(messages, options);
-      if (res.success) return res;
+      if (res.success) {
+        recordConsumedBudget(res);
+        return res;
+      }
       primaryError = res.error || 'Gemini agentic loop returned failure';
     }
   } catch (err: any) {

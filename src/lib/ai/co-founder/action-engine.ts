@@ -10,6 +10,11 @@ import {
   type MetricExpectation,
 } from './closed-loop';
 import { invalidateCoFounderCacheTag } from './cache';
+import {
+  checkActionIdempotency,
+  recordActionIdempotency,
+  validateActionPayloadSanity,
+} from './security';
 
 export type ActionStatus =
   'pending' | 'validating' | 'executing' | 'completed' | 'failed';
@@ -72,7 +77,15 @@ async function executeApprovedBusinessActionInternal(
   const actionId = `act_${Date.now()}`;
   const supabase = getServiceClient();
 
-  // 1. Permission Validation (Phase 6)
+  // 1. Idempotency Key Validation (Phase 10: Duplicate Mutation Safeguards)
+  if (request.idempotencyKey) {
+    const cachedResult = checkActionIdempotency(request.idempotencyKey);
+    if (cachedResult) {
+      return cachedResult;
+    }
+  }
+
+  // 2. Permission Validation (Phase 6)
   const permissionError = assertToolPermission(
     request.userScopes,
     request.actionType
@@ -200,7 +213,25 @@ async function executeApprovedBusinessActionInternal(
     approvalRecord = approval;
   }
 
-  // 3. Execution Router (Phase 7-8)
+  // 3. Action Payload Sanity Validation (Phase 10: Value Guardrails)
+  const sanityCheck = validateActionPayloadSanity(
+    request.actionType,
+    request.actionPayload
+  );
+  if (!sanityCheck.valid) {
+    return {
+      actionId,
+      actionType: request.actionType,
+      status: 'failed',
+      success: false,
+      affectedEntities: [],
+      error: sanityCheck.error,
+      voiceSummary: `Action rejected: ${sanityCheck.error}`,
+      timestamp,
+    };
+  }
+
+  // 4. Execution Router (Phase 7-8)
   try {
     switch (request.actionType) {
       // ── Inventory Stock Update ───────────────────────────────────────────
@@ -547,6 +578,10 @@ export async function executeApprovedBusinessAction(
     ) {
       invalidateCoFounderCacheTag('analytics');
       invalidateCoFounderCacheTag('orders');
+    }
+
+    if (request.idempotencyKey) {
+      recordActionIdempotency(request.idempotencyKey, result);
     }
   }
 
