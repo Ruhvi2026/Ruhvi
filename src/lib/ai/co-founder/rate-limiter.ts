@@ -127,9 +127,11 @@ export function resolveRateLimitKey(
   identifier: string,
   tier: RateLimitTier = 'chat'
 ): string {
-  const sanitizedId = (identifier || 'anonymous').trim().replace(/[:\s]+/g, '_');
+  const trimmed = (identifier || '').trim();
+  const sanitizedId = (trimmed || 'anonymous').replace(/[:\s]+/g, '_');
   return `cofounder:rl:${tier}:${sanitizedId}`;
 }
+
 
 /**
  * Refills tokens for an existing bucket entry based on elapsed time.
