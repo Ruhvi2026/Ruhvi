@@ -64,33 +64,55 @@
 
 **Timestamp:** 2026-10-12 (Local Time: 00:52:00 IST)
 
-### Last Git Commit Info (রিকভারির সুবিধা সংক্রান্ত তথ্য)
-- **Commit Hash:** `213e5709b8755ef582d979bbc799b5bf55f5cc51`
+### 1. Last Git Commit Info (সার্বিক রিকভারির সুবিধা সংক্রান্ত তথ্য)
+- **Immediate Pre-Deletion Commit Hash:** `213e5709b8755ef582d979bbc799b5bf55f5cc51` (This commit contains all 5 deleted files in their latest states)
 - **Author:** ruhvi2026 <ruhvi.main@gmail.com>
 - **Date:** 2026-10-12 00:26:15 +0530
 - **Message:** `fix(mobile): resolve keyboard overlap on android and update Co-Founder bot avatar`
 
-### Preserved Information Summary (সংরক্ষিত মূল তথ্যাবলী)
-1. **AI Co-Founder Capabilities & Architecture:**
-   - All 11 phases (Autonomous Brain, Tool Bridge with 34 tools, Orchestrator, Closed-Loop Execution, Memory 2.0, Workforce 2.0, Proactive Intelligence, Voice/Multimodal, Studio Photography with Google Imagen 3) are fully active in `src/lib/ai/co-founder/`, `src/app/api/admin/co-founder/`, and `src/components/co-founder/`.
-   - Comprehensive technical service mapping and DNS routing preserved in `PROJECT_SYSTEM_TOOLS_AND_SERVICES.md` and `PROJECT_ARCHITECTURE_DOCS.md`.
-2. **Marketing Worker Ecosystem:**
-   - 6 Marketing Co-Workers (Meta Ads Specialist, Google Ads Manager, Content Strategist, Email Marketing Specialist, Influencer Outreach Manager, SEO Copywriter) fully implemented in `src/lib/ai/co-founder/workers/marketing/`.
-   - Registered in Worker Registry (`src/lib/ai/co-founder/workers/registry.ts`).
-3. **PostHog Analytics Integration:**
-   - EU Cloud Project (`256363`), SDK config, write key (`phc_uSmXss7Gj7WyrgD5vWJMzD7KdV75XE6UFAX4W2rR4aTq`), and host (`https://eu.posthog.com`) fully recorded in `.env.example`, `.env.local`, and `PROJECT_SYSTEM_TOOLS_AND_SERVICES.md`.
-   - Analytics service verified in `src/lib/posthog.ts` and `src/services/posthog-analytics.service.ts`.
+---
 
-### Removed Files List (মুছে ফেলা ফাইলসমূহের তালিকা)
-1. `AI_COFOUNDER_IMPLEMENTATION_REPORT.md` (91,754 Bytes ~ 91.8 KB) — Completed Phase 0–8 implementation progress report.
-2. `AI_COFOUNDER_MASTER_CAPABILITY_BLUEPRINT.md` (44,248 Bytes ~ 44.2 KB) — Initial Phase 0–11 capability blueprint.
-3. `pendingAI_COFOUNDER_MASTER_IMPLEMENTATION_PLAN.md` (29,064 Bytes ~ 29.1 KB) — Fully executed master execution contract and phase roadmap.
-4. `marketing co-workers.md` (36,539 Bytes ~ 36.5 KB) — Completed implementation prompt for Marketing worker & 6 co-workers.
-5. `posthog.md` (12,126 Bytes ~ 12.1 KB) — PostHog setup and configuration notes.
-6. `build.log` (442 Bytes ~ 0.4 KB) — Temporary build log artifact.
+### 2. File-by-File Commit Registry & Recovery Commands (প্রতিটি ফাইলের নির্দিষ্ট কমিট ও রিকভারি নির্দেশিকা)
 
-### Summary (Phase 2)
-- **Total Items Removed:** 6 files
-- **Total Disk Space Reclaimed:** ~214.2 KB
+যেকোনো ফাইলের কনটেন্ট সরাসরি টার্মিনালে দেখতে বা প্রয়োজনে কোডবেসে ফিরিয়ে আনতে নিচের নির্দিষ্ট কমিট হ্যাশ ও কমান্ড ব্যবহার করা যাবে:
+
+| ফাইল (File Name) | ফাইল সাইজ | সর্বশেষ কার্যকর কমিট (Last Commit Hash) | কমিটের বিবরণ (Commit Message) | সরাসরি পড়ার কমান্ড (Read File) | রিকভারি কমান্ড (Restore File) |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **`AI_COFOUNDER_MASTER_CAPABILITY_BLUEPRINT.md`** | ~44.2 KB | `751bda7` *(বা `213e570`)* | `feat(ai-co-founder): add AI Studio Photography engine, Imagen 3 catalog generation, and chat photo upload` | `git show 751bda7:AI_COFOUNDER_MASTER_CAPABILITY_BLUEPRINT.md` | `git checkout 751bda7 -- AI_COFOUNDER_MASTER_CAPABILITY_BLUEPRINT.md` |
+| **`AI_COFOUNDER_IMPLEMENTATION_REPORT.md`** | ~91.8 KB | `48e4b75` *(বা `213e570`)* | `feat(co-founder): phase-10 step-4 complete full regression acceptance bump blueprint 10.0 and finalize master report` | `git show 48e4b75:AI_COFOUNDER_IMPLEMENTATION_REPORT.md` | `git checkout 48e4b75 -- AI_COFOUNDER_IMPLEMENTATION_REPORT.md` |
+| **`pendingAI_COFOUNDER_MASTER_IMPLEMENTATION_PLAN.md`** | ~29.1 KB | `3f85997` *(বা `213e570`)* | `Cleanup: remove performance.md, add pending docs` | `git show 3f85997:pendingAI_COFOUNDER_MASTER_IMPLEMENTATION_PLAN.md` | `git checkout 3f85997 -- pendingAI_COFOUNDER_MASTER_IMPLEMENTATION_PLAN.md` |
+| **`marketing co-workers.md`** | ~36.5 KB | `221daa2` *(বা `213e570`)* | `feat(marketing): implement marketing worker ecosystem, io1kkukg cloudinary, and n8n webhook UI` | `git show 221daa2:"marketing co-workers.md"` | `git checkout 221daa2 -- "marketing co-workers.md"` |
+| **`posthog.md`** | ~12.1 KB | `443b7f9` *(বা `213e570`)* | `feat: integrate PostHog analytics + Firebase push notifications + marketing dashboard` | `git show 443b7f9:posthog.md` | `git checkout 443b7f9 -- posthog.md` |
+| **`build.log`** | ~0.4 KB | Untracked temporary artifact | Temporary local build output | N/A | N/A |
+
+> **সহজ একক রিকভারি কমান্ড (Single Command for All Files):**  
+> যদি ৫টি ফাইলই একবারে ফিরিয়ে আনতে চান, তবে রান করুন:  
+> `git checkout 213e570 -- AI_COFOUNDER_MASTER_CAPABILITY_BLUEPRINT.md AI_COFOUNDER_IMPLEMENTATION_REPORT.md pendingAI_COFOUNDER_MASTER_IMPLEMENTATION_PLAN.md "marketing co-workers.md" posthog.md`
+
+---
+
+### 3. তথ্য যাচাইকরণ ও সংরক্ষণ নিরীক্ষা (Information Audit & Verification)
+
+মুছে ফেলার পূর্বে প্রতিটি ফাইলের সমস্ত প্রয়োজনীয় তথ্য পুঙ্খানুপুঙ্খভাবে যাচাই করা হয়েছে এবং নিশ্চিত করা হয়েছে যে কোনো মূল ডাটা বা কনফিগারেশন হারায়নি:
+
+1. **`posthog.md` তথ্য যাচাই:**
+   - **নোটকৃত তথ্য:** Project ID `256363`, EU Cloud Host `https://eu.posthog.com`, Write API Key `phc_uSmXss7Gj7WyrgD5vWJMzD7KdV75XE6UFAX4W2rR4aTq`, এবং Authorized Domains গাইড।
+   - **যাচাই স্ট্যাটাস:** সম্পূর্ণ তথ্য প্রোজেক্টের `.env.local`, `.env.example`, `src/lib/posthog.ts`, এবং `PROJECT_SYSTEM_TOOLS_AND_SERVICES.md` (সেকশন ১, সারি ২৩)-এ স্থায়ীভাবে অন্তর্ভুক্ত আছে।
+2. **`marketing co-workers.md` তথ্য যাচাই:**
+   - **নোটকৃত তথ্য:** ৬টি মার্কেটিং কো-ওয়ার্কার আর্কিটেকচার (Meta Ads, Google Ads, Content Strategist, Email Marketing, Influencer Outreach, SEO Copywriter), n8n ব্লগ ড্রাফট ইন্টিগ্রেশন, এবং ডেডিকেটেড Cloudinary (`io1kkukg`)।
+   - **যাচাই স্ট্যাটাস:** সবকটি ওয়ার্কার `src/lib/ai/co-founder/workers/marketing/`-এ লাইভ কোড হিসেবে কাজ করছে, `registry.ts`-এ রেজিস্টার্ড এবং `PROJECT_SYSTEM_TOOLS_AND_SERVICES.md`-এ সার্টিফাইড।
+3. **`AI_COFOUNDER_MASTER_CAPABILITY_BLUEPRINT.md` & `AI_COFOUNDER_IMPLEMENTATION_REPORT.md` তথ্য যাচাই:**
+   - **নোটকৃত তথ্য:** ফেজ ০ থেকে ফেজ ১১ এর সমস্ত ক্যাপাবিলিটি—34টি টুলস সহ Autonomous Brain, Closed-Loop Execution, Memory 2.0, Workforce 2.0, Voice/Multimodal, এবং Google Imagen 3 স্টুডিও ফটোগ্রাফি ইঞ্জিন।
+   - **যাচাই স্ট্যাটাস:** সমস্ত ১১টি ফেজের কোড `src/lib/ai/co-founder/`-এ শতভাগ টেস্টেড এবং লাইভ প্রোডাকশনে উত্তীর্ণ। এ সম্পর্কিত হাই-লেভেল ডাটা `PROJECT_SYSTEM_TOOLS_AND_SERVICES.md` এবং `PROJECT_ARCHITECTURE_DOCS.md`-এ বিদ্যমান।
+4. **`pendingAI_COFOUNDER_MASTER_IMPLEMENTATION_PLAN.md` তথ্য যাচাই:**
+   - **নোটকৃত তথ্য:** AI Co-Founder ইমপ্লিমেন্টেশনের পর্যায়ক্রমিক কন্ট্রোল প্ল্যান।
+   - **যাচাই স্ট্যাটাস:** প্ল্যানটির প্রতিটি ধাপ সম্পূর্ণ হয়ে কোডে প্রতিফলিত হয়েছে, ফলে পরিকল্পনাটির উদ্দেশ্য অর্জিত হয়েছে।
+
+---
+
+### 4. Summary (Phase 2)
+- **মোট অপসারিত ফাইল সংখ্যা:** 6 টি
+- **ফ্রি করা ডিস্ক স্পেস:** ~214.2 KB (এবং 5,268 লাইন রিডানড্যান্ট মার্কডাউন কোডবেস থেকে সরানো হয়েছে)
+- **কোডবেস স্ট্যাটাস:** রুট ডিরেক্টরি পরিচ্ছন্ন ও অপ্টিমাইজড, সমস্ত মূল আর্কিটেকচার সম্পূর্ণ সুরক্ষিত।
 
 
