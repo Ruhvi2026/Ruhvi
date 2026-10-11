@@ -20,6 +20,14 @@ export interface OrchestrationStep {
   approvalDetails?: any;
 }
 
+export interface FallbackProviderConfig {
+  provider: string;
+  apiKey: string;
+  modelName?: string;
+  baseUrl?: string;
+  customHeaders?: Record<string, string>;
+}
+
 export interface OrchestrationOptions {
   apiKey: string;
   modelName?: string;
@@ -30,6 +38,10 @@ export interface OrchestrationOptions {
   userId?: string;
   customTools?: any[];
   onStep?: (step: OrchestrationStep) => void | Promise<void>;
+  provider?: 'gemini' | 'openrouter' | 'openai' | 'deepseek' | 'custom' | string;
+  baseUrl?: string;
+  customHeaders?: Record<string, string>;
+  fallbackChain?: FallbackProviderConfig[];
 }
 
 export interface OrchestrationResult {
@@ -136,16 +148,413 @@ export function normalizeGeminiHistory(
 }
 
 /**
- * Executes the Autonomous Tool-Calling reasoning loop using Google Gemini SDK.
- *
- * Loop:
- * 1. User message sent to Gemini with native function declarations.
- * 2. If model requests function calls, execute them via executeCoFounderTool.
- * 3. If any tool requires approval, pause loop and surface pending approval.
- * 4. Feed function responses back into Gemini chat session.
- * 5. Repeat until model synthesizes a final text answer, or maxIterations is reached.
+ * Normalizes tool declarations to standard OpenAI/OpenRouter Function Calling schemas.
  */
-export async function runCoFounderAgentLoop(
+export function formatOpenAITools(declarations: any[]): Array<{
+  type: 'function';
+  function: {
+    name: string;
+    description?: string;
+    parameters: Record<string, any>;
+  };
+}> {
+  if (!Array.isArray(declarations)) return [];
+
+  return declarations.map((decl) => {
+    const rawParams = decl.parameters || { type: 'object', properties: {} };
+
+    const normalizeProperty = (prop: any): any => {
+      if (!prop || typeof prop !== 'object') return prop;
+      const copy: any = { ...prop };
+
+      if (typeof copy.type === 'string') {
+        copy.type = copy.type.toLowerCase();
+      }
+
+      if (copy.properties && typeof copy.properties === 'object') {
+        const nextProps: Record<string, any> = {};
+        for (const [k, v] of Object.entries(copy.properties)) {
+          nextProps[k] = normalizeProperty(v);
+        }
+        copy.properties = nextProps;
+      }
+
+      if (copy.items && typeof copy.items === 'object') {
+        copy.items = normalizeProperty(copy.items);
+      }
+
+      return copy;
+    };
+
+    return {
+      type: 'function',
+      function: {
+        name: decl.name,
+        description: decl.description,
+        parameters: {
+          type: 'object',
+          ...normalizeProperty(rawParams),
+        },
+      },
+    };
+  });
+}
+
+/**
+ * Normalizes chat history for OpenAI / OpenRouter / DeepSeek / Custom endpoints.
+ */
+export function normalizeOpenAIMessages(
+  messages: ChatHistoryMessage[],
+  systemInstruction?: string
+): Array<any> {
+  const result: any[] = [];
+
+  if (systemInstruction?.trim()) {
+    result.push({
+      role: 'system',
+      content: systemInstruction.trim(),
+    });
+  }
+
+  if (!Array.isArray(messages)) return result;
+
+  for (const m of messages) {
+    const rawRole = (
+      m.role || (m.sender === 'assistant' ? 'assistant' : 'user')
+    ).toLowerCase();
+    const role =
+      rawRole === 'model' || rawRole === 'assistant' ? 'assistant' : 'user';
+    const content = (m.text || m.content || '').trim();
+
+    if (content) {
+      result.push({ role, content });
+    }
+  }
+
+  return result;
+}
+
+/**
+ * Resolves API endpoint and authentication headers for OpenAI-compatible providers.
+ */
+export function resolveOpenAIProviderEndpoint(
+  provider: string,
+  apiKey: string,
+  options?: { baseUrl?: string; customHeaders?: Record<string, string> }
+): { endpoint: string; headers: Record<string, string>; defaultModel: string } {
+  const p = (provider || 'openrouter').toLowerCase();
+
+  if (p === 'openrouter') {
+    return {
+      endpoint: 'https://openrouter.ai/api/v1/chat/completions',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${apiKey}`,
+        'HTTP-Referer': 'https://ruhvi.in',
+        'X-Title': 'Ruhvi AI Co-Founder',
+        ...(options?.customHeaders || {}),
+      },
+      defaultModel: 'google/gemini-2.0-flash-001',
+    };
+  }
+
+  if (p === 'openai') {
+    return {
+      endpoint: 'https://api.openai.com/v1/chat/completions',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${apiKey}`,
+        ...(options?.customHeaders || {}),
+      },
+      defaultModel: 'gpt-4o-mini',
+    };
+  }
+
+  if (p === 'deepseek') {
+    return {
+      endpoint: 'https://api.deepseek.com/chat/completions',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${apiKey}`,
+        ...(options?.customHeaders || {}),
+      },
+      defaultModel: 'deepseek-chat',
+    };
+  }
+
+  // Custom Gateway / Ollama / LMStudio
+  const rawBase =
+    options?.baseUrl ||
+    process.env.CUSTOM_GATEWAY_URL ||
+    'http://localhost:11434/v1';
+  const base = rawBase.replace(/\/$/, '');
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...(options?.customHeaders || {}),
+  };
+  if (apiKey && apiKey !== 'dummy-key') {
+    headers['Authorization'] = `Bearer ${apiKey}`;
+  }
+
+  return {
+    endpoint: `${base}/chat/completions`,
+    headers,
+    defaultModel: 'auto/best-fast',
+  };
+}
+
+/**
+ * Helper to safely parse tool call arguments.
+ */
+function tryParseJson(args: any): Record<string, any> {
+  if (!args) return {};
+  if (typeof args === 'object') return args;
+  if (typeof args === 'string') {
+    try {
+      return JSON.parse(args);
+    } catch {
+      return {};
+    }
+  }
+  return {};
+}
+
+/**
+ * Executes the Autonomous Tool-Calling reasoning loop using OpenAI-compatible APIs
+ * (OpenRouter, OpenAI, DeepSeek, Custom Gateway).
+ */
+export async function runOpenAICompatibleAgentLoop(
+  messages: ChatHistoryMessage[],
+  options: OrchestrationOptions
+): Promise<OrchestrationResult> {
+  const provider = (options.provider || 'openrouter').toLowerCase();
+  const { endpoint, headers, defaultModel } = resolveOpenAIProviderEndpoint(
+    provider,
+    options.apiKey,
+    { baseUrl: options.baseUrl, customHeaders: options.customHeaders }
+  );
+
+  const modelName = options.modelName || defaultModel;
+  const maxIterations = Math.min(Math.max(options.maxIterations || 8, 1), 12);
+  const userScopes = options.scopes || [
+    'admin:full',
+    'mcp_tools:read',
+    'mcp_tools:write',
+    'analytics:read',
+    'analytics:write',
+    'products:read',
+    'inventory:read',
+    'orders:read',
+    'customer:read',
+    'support_ticket:read',
+    'coupons:read',
+  ];
+
+  const tools = formatOpenAITools(
+    options.customTools || CO_FOUNDER_TOOL_DECLARATIONS
+  );
+  const conversationMessages = normalizeOpenAIMessages(
+    messages,
+    options.systemInstruction
+  );
+
+  let iteration = 0;
+  let totalToolsExecuted = 0;
+  const steps: OrchestrationStep[] = [];
+  let finalResponseText = '';
+  let pausedForApproval = false;
+  let pendingApproval: any = null;
+
+  while (iteration < maxIterations) {
+    iteration++;
+
+    const payload: any = {
+      model: modelName,
+      messages: conversationMessages,
+      temperature: 0.3,
+      max_tokens: 2048,
+    };
+
+    if (tools.length > 0) {
+      payload.tools = tools;
+      payload.tool_choice = 'auto';
+    }
+
+    const res = await fetch(endpoint, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(payload),
+    });
+
+    if (!res.ok) {
+      const errText = await res.text();
+      throw new Error(
+        `${provider.toUpperCase()} API Error (${res.status}): ${errText}`
+      );
+    }
+
+    const data = await res.json();
+    const assistantMessage = data.choices?.[0]?.message;
+
+    if (!assistantMessage) {
+      throw new Error(`${provider.toUpperCase()} returned empty response choices.`);
+    }
+
+    const toolCalls = assistantMessage.tool_calls;
+
+    // If no tool call was requested, model returned its final answer
+    if (!toolCalls || !Array.isArray(toolCalls) || toolCalls.length === 0) {
+      finalResponseText = (assistantMessage.content || '').trim();
+      steps.push({
+        iteration,
+        thought: finalResponseText,
+      });
+      break;
+    }
+
+    // Append assistant tool-calling message to history
+    conversationMessages.push(assistantMessage);
+
+    const currentStep: OrchestrationStep = {
+      iteration,
+      toolCalls: toolCalls.map((tc: any) => ({
+        name: tc.function?.name,
+        args: tryParseJson(tc.function?.arguments),
+      })),
+      toolResults: [],
+    };
+
+    for (const tc of toolCalls) {
+      totalToolsExecuted++;
+      const toolName = tc.function?.name;
+      const toolArgs = tryParseJson(tc.function?.arguments);
+
+      try {
+        const execResult = await executeCoFounderTool(
+          toolName,
+          toolArgs,
+          userScopes
+        );
+        currentStep.toolResults!.push(execResult);
+
+        // Check if human approval is required
+        const isApprovalRequired =
+          execResult.data?.pendingApprovalId ||
+          execResult.data?.requiresApproval ||
+          execResult.data?.requires_approval ||
+          execResult.data?.workerResult?.requiredApproval;
+
+        if (isApprovalRequired) {
+          pausedForApproval = true;
+          pendingApproval = {
+            toolName,
+            args: toolArgs,
+            result: execResult.data,
+            pendingApprovalId:
+              execResult.data?.pendingApprovalId || execResult.data?.approvalId,
+          };
+          currentStep.requiresApproval = true;
+          currentStep.approvalDetails = pendingApproval;
+        }
+
+        conversationMessages.push({
+          role: 'tool',
+          tool_call_id: tc.id,
+          name: toolName,
+          content: JSON.stringify({
+            success: execResult.success,
+            data: execResult.data ?? null,
+            summary: execResult.summaryForVoice,
+            error: execResult.error ?? null,
+          }),
+        });
+      } catch (toolErr: any) {
+        const errResult: ToolExecutionResult = {
+          toolName,
+          success: false,
+          error: toolErr?.message || 'Tool execution error',
+          summaryForVoice: `Failed to execute ${toolName}`,
+        };
+        currentStep.toolResults!.push(errResult);
+
+        conversationMessages.push({
+          role: 'tool',
+          tool_call_id: tc.id,
+          name: toolName,
+          content: JSON.stringify({
+            success: false,
+            error: toolErr?.message || 'Tool execution error',
+          }),
+        });
+      }
+    }
+
+    steps.push(currentStep);
+    if (options.onStep) {
+      await options.onStep(currentStep);
+    }
+
+    // If high-impact action requires founder approval, pause loop immediately
+    if (pausedForApproval) {
+      finalResponseText =
+        'A high-impact business action has been proposed by the Co-Founder and is paused awaiting founder approval.';
+      break;
+    }
+  }
+
+  // If loop exited due to maxIterations without final text, request quick synthesis
+  if (!finalResponseText && iteration >= maxIterations) {
+    try {
+      conversationMessages.push({
+        role: 'user',
+        content:
+          'Maximum tool iterations reached. Please summarize your final response and findings for the founder based on the tool outputs gathered above.',
+      });
+
+      const synthRes = await fetch(endpoint, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          model: modelName,
+          messages: conversationMessages,
+          temperature: 0.3,
+          max_tokens: 1024,
+        }),
+      });
+
+      if (synthRes.ok) {
+        const synthData = await synthRes.json();
+        finalResponseText =
+          synthData.choices?.[0]?.message?.content?.trim() || '';
+      }
+    } catch {
+      finalResponseText =
+        'Tool execution limit reached. Please review the executed steps.';
+    }
+
+    if (!finalResponseText) {
+      finalResponseText =
+        'Tool execution limit reached. Please review the executed steps.';
+    }
+  }
+
+  return {
+    success: true,
+    responseText: finalResponseText,
+    toolCallsExecuted: totalToolsExecuted,
+    steps,
+    iterations: iteration,
+    modelUsed: modelName,
+    provider,
+    pausedForApproval,
+    pendingApproval,
+  };
+}
+
+/**
+ * Executes the Autonomous Tool-Calling reasoning loop using Google Gemini SDK.
+ */
+export async function runGeminiAgentLoop(
   messages: ChatHistoryMessage[],
   options: OrchestrationOptions
 ): Promise<OrchestrationResult> {
@@ -155,32 +564,6 @@ export async function runCoFounderAgentLoop(
     latestMessage?.content ||
     ''
   ).trim();
-
-  if (!userPrompt) {
-    return {
-      success: false,
-      responseText: 'Empty user prompt provided.',
-      toolCallsExecuted: 0,
-      steps: [],
-      iterations: 0,
-      modelUsed: 'none',
-      provider: 'gemini',
-      error: 'Empty prompt',
-    };
-  }
-
-  if (!options.apiKey) {
-    return {
-      success: false,
-      responseText: 'Gemini API key is not configured.',
-      toolCallsExecuted: 0,
-      steps: [],
-      iterations: 0,
-      modelUsed: 'none',
-      provider: 'gemini',
-      error: 'Missing API key',
-    };
-  }
 
   const maxIterations = Math.min(Math.max(options.maxIterations || 8, 1), 12);
   const userScopes = options.scopes || [
@@ -381,5 +764,117 @@ export async function runCoFounderAgentLoop(
     modelUsed: 'none',
     provider: 'gemini',
     error: lastError,
+  };
+}
+
+/**
+ * Universal Unified Entry Point for Co-Founder Autonomous Tool-Calling reasoning loop.
+ *
+ * Supports:
+ * - Google Gemini (native function declarations)
+ * - OpenRouter (OpenAI-compatible tools & multi-model gateway)
+ * - OpenAI (gpt-4o, gpt-4o-mini)
+ * - DeepSeek (deepseek-chat)
+ * - Custom Gateways (vLLM, Ollama, LMStudio)
+ * - Automatic multi-provider fallback degradation
+ */
+export async function runCoFounderAgentLoop(
+  messages: ChatHistoryMessage[],
+  options: OrchestrationOptions
+): Promise<OrchestrationResult> {
+  const latestMessage = messages[messages.length - 1];
+  const userPrompt = (
+    latestMessage?.text ||
+    latestMessage?.content ||
+    ''
+  ).trim();
+
+  const provider = (options.provider || 'gemini').toLowerCase();
+
+  if (!userPrompt) {
+    return {
+      success: false,
+      responseText: 'Empty user prompt provided.',
+      toolCallsExecuted: 0,
+      steps: [],
+      iterations: 0,
+      modelUsed: 'none',
+      provider,
+      error: 'Empty prompt',
+    };
+  }
+
+  if (!options.apiKey) {
+    return {
+      success: false,
+      responseText: `${provider === 'gemini' ? 'Gemini' : provider.toUpperCase()} API key is not configured.`,
+      toolCallsExecuted: 0,
+      steps: [],
+      iterations: 0,
+      modelUsed: 'none',
+      provider,
+      error: 'Missing API key',
+    };
+  }
+
+  let primaryError: string | undefined;
+
+  // 1. Attempt Primary Provider Loop
+  try {
+    if (['openrouter', 'openai', 'deepseek', 'custom'].includes(provider)) {
+      const res = await runOpenAICompatibleAgentLoop(messages, options);
+      if (res.success) return res;
+      primaryError = res.error || 'Primary provider agentic loop returned failure';
+    } else {
+      const res = await runGeminiAgentLoop(messages, options);
+      if (res.success) return res;
+      primaryError = res.error || 'Gemini agentic loop returned failure';
+    }
+  } catch (err: any) {
+    primaryError = err?.message || String(err);
+  }
+
+  // 2. Multi-Provider Fallback Degradation (if configured)
+  if (options.fallbackChain && options.fallbackChain.length > 0) {
+    for (const fb of options.fallbackChain) {
+      if (!fb.apiKey) continue;
+      const fbProvider = fb.provider.toLowerCase();
+      try {
+        const fbOptions: OrchestrationOptions = {
+          ...options,
+          provider: fbProvider,
+          apiKey: fb.apiKey,
+          modelName: fb.modelName,
+          baseUrl: fb.baseUrl,
+          customHeaders: fb.customHeaders,
+          fallbackChain: undefined, // prevent infinite recursion
+        };
+
+        if (fbProvider === 'gemini') {
+          const fbRes = await runGeminiAgentLoop(messages, fbOptions);
+          if (fbRes.success) return fbRes;
+        } else {
+          const fbRes = await runOpenAICompatibleAgentLoop(messages, fbOptions);
+          if (fbRes.success) return fbRes;
+        }
+      } catch (fbErr: any) {
+        console.warn(
+          `[Co-Founder Orchestrator] Fallback to ${fbProvider} failed:`,
+          fbErr?.message
+        );
+        continue;
+      }
+    }
+  }
+
+  return {
+    success: false,
+    responseText: `Agentic reasoning loop failed across providers: ${primaryError}`,
+    toolCallsExecuted: 0,
+    steps: [],
+    iterations: 0,
+    modelUsed: 'none',
+    provider,
+    error: primaryError,
   };
 }

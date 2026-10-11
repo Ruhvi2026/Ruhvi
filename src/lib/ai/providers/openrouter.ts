@@ -67,6 +67,90 @@ export class OpenRouterProvider implements AIProvider {
     };
   }
 
+  async generateWithTools(
+    prompt: string,
+    modelName: string,
+    tools: import('../tools/index').AITool[],
+    config?: { temperature?: number; maxTokens?: number }
+  ): Promise<{
+    content: string;
+    toolCalls?: any[];
+    usage: { tokens: number; cost: number };
+  }> {
+    if (!this.apiKey) {
+      throw new Error('OpenRouter API is not initialized.');
+    }
+
+    const openAITools = (tools || []).map((t) => ({
+      type: 'function',
+      function: {
+        name: t.name,
+        description: t.description,
+        parameters: t.parameters as any,
+      },
+    }));
+
+    const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${this.apiKey}`,
+        'HTTP-Referer': 'https://ruhvi.in',
+        'X-Title': 'Ruhvi AI',
+      },
+      body: JSON.stringify({
+        model: modelName || 'google/gemini-2.0-flash-001',
+        messages: [{ role: 'user', content: prompt }],
+        ...(openAITools.length > 0 && {
+          tools: openAITools,
+          tool_choice: 'auto',
+        }),
+        ...(config?.temperature !== undefined && {
+          temperature: config.temperature,
+        }),
+        ...(config?.maxTokens !== undefined && {
+          max_tokens: config.maxTokens,
+        }),
+      }),
+    });
+
+    if (!res.ok) {
+      const err = await res.text();
+      throw new Error(`OpenRouter API Error: ${err}`);
+    }
+
+    const data = await res.json();
+    const message = data.choices?.[0]?.message;
+    const content = message?.content || '';
+    const rawToolCalls = message?.tool_calls;
+    const tokens = data.usage?.total_tokens || 0;
+    const cost = tokens * 0.000005;
+
+    const toolCalls = Array.isArray(rawToolCalls)
+      ? rawToolCalls.map((tc: any) => {
+          let parsedArgs = tc.function?.arguments;
+          if (typeof parsedArgs === 'string') {
+            try {
+              parsedArgs = JSON.parse(parsedArgs);
+            } catch {
+              parsedArgs = {};
+            }
+          }
+          return {
+            id: tc.id,
+            name: tc.function?.name,
+            args: parsedArgs || {},
+          };
+        })
+      : undefined;
+
+    return {
+      content,
+      toolCalls,
+      usage: { tokens, cost },
+    };
+  }
+
   private extractJson(text: string): Record<string, any> {
     if (!text) throw new Error('OpenRouter returned an empty response.');
     let jsonStr = text.trim();

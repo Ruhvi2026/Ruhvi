@@ -104,11 +104,13 @@ export interface StreamingSessionOptions extends OrchestrationOptions {
  * Standard HTTP headers for Server-Sent Events (SSE).
  * Disables buffering across Nginx, Cloudflare, and CDN proxies.
  */
-export function getSSEHeaders(options?: SSEHeadersOptions): Record<string, string> {
+export function getSSEHeaders(
+  options?: SSEHeadersOptions
+): Record<string, string> {
   return {
     'Content-Type': 'text/event-stream; charset=utf-8',
     'Cache-Control': 'no-cache, no-transform, no-store, must-revalidate',
-    'Connection': 'keep-alive',
+    Connection: 'keep-alive',
     'X-Accel-Buffering': 'no',
     ...(options?.customHeaders || {}),
   };
@@ -131,8 +133,7 @@ export function formatSSEMessage(
   }
   parts.push(`event: ${event}`);
 
-  const payload =
-    typeof data === 'string' ? data : JSON.stringify(data ?? {});
+  const payload = typeof data === 'string' ? data : JSON.stringify(data ?? {});
   parts.push(`data: ${payload}`);
 
   return parts.join('\n') + '\n\n';
@@ -147,7 +148,8 @@ export function createSSEStream(): {
   response: Response;
 } {
   const encoder = new TextEncoder();
-  let streamController: ReadableStreamDefaultController<Uint8Array> | null = null;
+  let streamController: ReadableStreamDefaultController<Uint8Array> | null =
+    null;
   let isClosed = false;
 
   const stream = new ReadableStream<Uint8Array>({
@@ -369,9 +371,7 @@ export async function runAgenticStreamingSession(
  * Reusable SSE Parser for client-side processing, automated testing,
  * and gateway verification.
  */
-export function parseSSEChunk(
-  rawText: string
-): Array<SSEStreamEvent> {
+export function parseSSEChunk(rawText: string): Array<SSEStreamEvent> {
   const events: Array<SSEStreamEvent> = [];
   if (!rawText) return events;
 
