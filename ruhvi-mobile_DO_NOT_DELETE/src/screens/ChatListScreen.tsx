@@ -83,7 +83,10 @@ export default function ChatListScreen({ navigation }: any) {
         .single();
       if (data) {
         setCurrentUserProfile(data);
-        if (data.role) setUserRole(data.role);
+        if (data.role) {
+          setUserRole(data.role);
+          AsyncStorage.setItem('ruhvi_user_role', data.role);
+        }
         setEditFullName(data.full_name || '');
         setEditBio(data.bio || 'Hey there! I am using RuhChat.');
       }
@@ -469,6 +472,7 @@ export default function ChatListScreen({ navigation }: any) {
         onPress: async () => {
           await AsyncStorage.removeItem('ruhvi_user_id');
           await AsyncStorage.removeItem('ruhvi_auth_token');
+          await AsyncStorage.removeItem('ruhvi_user_role');
           setSupabaseToken(null);
           navigation.reset({ index: 0, routes: [{ name: 'Login' }] });
         },
@@ -607,10 +611,7 @@ export default function ChatListScreen({ navigation }: any) {
   const isAdmin = 
     rawRole === 'admin' ||
     rawRole === 'super_admin' ||
-    rawRole === 'manager' ||
-    userEmail === 'rovi.main@gmail.com' ||
-    userEmail.includes('admin') ||
-    userEmail.includes('ruhvi');
+    userEmail === 'ruhvi.main@gmail.com';
 
   const activeConversations = conversations.filter(c => !c.archived_at);
   const archivedConversations = conversations.filter(c => !!c.archived_at);

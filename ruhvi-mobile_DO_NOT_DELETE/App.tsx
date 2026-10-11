@@ -88,6 +88,7 @@ export default function App() {
                         onPress: async () => {
                           await AsyncStorage.removeItem('ruhvi_mobile_jwt');
                           await AsyncStorage.removeItem('ruhvi_user_id');
+                          await AsyncStorage.removeItem('ruhvi_user_role');
                           setSupabaseToken(null);
                           setIsAuthenticated(false);
                         },
