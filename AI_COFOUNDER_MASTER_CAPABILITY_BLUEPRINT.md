@@ -1,10 +1,10 @@
 # AI CO-FOUNDER — MASTER CAPABILITY BLUEPRINT
 
 **Document:** `AI_COFOUNDER_MASTER_CAPABILITY_BLUEPRINT.md`
-**Phase:** 8 — Voice & Multimodal Visual Intelligence Engine (COMPLETE)
-**Version:** 8.0
+**Phase:** 9 — Voice & Multimodal Interactive Client Plan (COMPLETE)
+**Version:** 9.0
 **Created:** 2026-10-11
-**Status:** PHASE 8 COMPLETED & VERIFIED
+**Status:** PHASE 9 COMPLETED & VERIFIED
 
 **Evidence Source:** Direct source-code inspection of `Ruhvi2026/Ruhvi` on branch `main`
 
@@ -425,6 +425,22 @@ All classifications are based on direct inspection of:
     - Multi-tier multimodal Google Gemini Vision integration (`gemini-2.0-flash`, `gemini-1.5-flash`, `gemini-1.5-pro`, `gemini-flash-latest`) with resilient heuristic offline fallback.
     - Autonomous tool registration: `analyze_product_image` declared in `brain.ts`, mapped in `mcp-auth.ts`, and executed via `tool-bridge.ts`.
 
+### RESOLVED - Phase 9 Complete
+15. **LiveKit WebRTC Audio Client Hook & Frequency Waveform Visualizer** - IMPLEMENTED via `use-voice-session.ts` and `LiveVoiceVisualizer.tsx`.
+    - **`VoiceSessionClient` & `useVoiceSession` Hook**: Reactive client-side WebRTC controller managing audio publishing, room lifecycle, and session token discovery.
+    - **Sub-50ms Barge-In Interruption**: Cancels client-side `window.speechSynthesis` audio playback sinks instantaneously upon human speech detection.
+    - **Multilingual Speech Text Normalizer (`normalizeSpeechText`)**: Formats Indian currencies (`₹1500` -> `1500 টাকা`), cleans Markdown artifacts, and applies natural Bengali phonetic rules.
+    - **Real-Time Spectrum Waveform Visualizer**: Integrated frequency domain analysis (`Uint8Array(16)`) with dynamic bar canvas and instant barge-in button.
+16. **Multimodal Jewelry Visual Inspection UI & PDP Quality Scoring Canvas** - IMPLEMENTED via `VisualInspectionModal.tsx` and `/api/admin/co-founder/vision/inspect`.
+    - **Standardized Quality Benchmark Engine (`calculateQualityBenchmark`)**: Automated grading awarding `Grade A+ • E-Commerce Ready`, `Grade B`, or `Needs Attention • Retake / Reject` with defect severity weighting.
+    - **Interactive Canvas Inspection**: Pan/zoom viewer (`1x` to `2.5x`), gemological breakdown (metal karat, gemstone cut & clarity, pavé settings), craftsmanship flaw list, and 4-metric studio photo compliance progress bars.
+    - **One-Click PDP Enhancements & Voice Preview**: Hashtag visual tag generation, selling points extraction, and integrated `summaryForVoice` audio playback.
+    - **Dedicated Inspection API Route**: Authenticated (`requireAdmin`) and rate-limited (`enforceCoFounderRateLimit`) endpoint `/api/admin/co-founder/vision/inspect`.
+17. **Unified Live Workspace & Proactive Intelligence Notification Dock** - IMPLEMENTED via `LiveWorkspace.tsx`.
+    - **Gemological QC Stage Preset**: 4th execution workflow (`visual_inspection`) dedicated to jewelry visual appraisals.
+    - **Ambient Proactive Signals Dock**: Expandable dock displaying real-time competitor price movements, PDP quality alerts, and stock velocity warnings with 1-click modal actions.
+    - **Embedded Voice & Visual Modal Triggering**: Direct integration with voice audio controls and seamless visual modal invocation.
+
 ---
 
 ## 16. DATABASE TABLES CONFIRMED IN USE
@@ -439,6 +455,7 @@ All classifications are based on direct inspection of:
 
 ---
 
-*Blueprint Version: 8.0 | Phase 8 Complete | Updated 2026-10-11*
-*Next update: After Phase 9 completion*
+*Blueprint Version: 9.0 | Phase 9 Complete | Updated 2026-10-11*
+*Next update: After Phase 10 completion*
+
 
