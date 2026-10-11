@@ -1029,6 +1029,24 @@ export async function executeCoFounderTool(
         };
       }
 
+      case 'analyze_product_image': {
+        const { analyzeJewelryImage } = await import('@/lib/ai/co-founder/vision');
+        const analysis = await analyzeJewelryImage({
+          imageUrl: args.image_url,
+          imageBase64: args.image_base64,
+          productNameHint: args.product_name_hint,
+          categoryHint: args.category_hint,
+        });
+
+        return {
+          toolName,
+          success: analysis.success,
+          data: analysis,
+          error: analysis.error,
+          summaryForVoice: analysis.summaryForVoice,
+        };
+      }
+
       default:
         return {
           toolName,

@@ -931,4 +931,32 @@ export const CO_FOUNDER_TOOL_DECLARATIONS = [
       },
     },
   },
+  {
+    name: 'analyze_product_image',
+    description:
+      'Perform multimodal AI vision inspection on a jewelry product image (URL or base64). Analyzes metal type, karat, gemstone settings, craftsmanship quality, flaws, and catalog photography compliance.',
+    parameters: {
+      type: 'OBJECT',
+      properties: {
+        image_url: {
+          type: 'STRING',
+          description: 'Public URL of the product or catalog image to inspect.',
+        },
+        image_base64: {
+          type: 'STRING',
+          description:
+            'Optional base64 encoded image data if inspecting a direct upload or screenshot.',
+        },
+        product_name_hint: {
+          type: 'STRING',
+          description: 'Optional hint for product name or SKU.',
+        },
+        category_hint: {
+          type: 'STRING',
+          description:
+            'Optional hint for product category (e.g. "necklace", "ring", "earrings").',
+        },
+      },
+    },
+  },
 ];

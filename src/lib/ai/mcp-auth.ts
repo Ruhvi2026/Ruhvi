@@ -236,6 +236,9 @@ export const TOOL_PERMISSION_MAP: Record<
   search_co_founder_memory: { module: 'analytics', action: 'read' },
   store_co_founder_memory: { module: 'analytics', action: 'write' },
   extract_session_learnings: { module: 'analytics', action: 'read' },
+
+  // Multimodal Vision Engine (Read)
+  analyze_product_image: { module: 'analytics', action: 'read' },
 };
 
 export function assertSpecificScope(
