@@ -1,10 +1,11 @@
 # AI CO-FOUNDER — MASTER CAPABILITY BLUEPRINT
 
 **Document:** `AI_COFOUNDER_MASTER_CAPABILITY_BLUEPRINT.md`
-**Phase:** 6 — Streaming SSE & Multi-Provider Gateway (COMPLETE)
-**Version:** 6.0
+**Phase:** 7 — Proactive Autonomous Signals & Granular Rate Limiting (COMPLETE)
+**Version:** 7.0
 **Created:** 2026-10-11
-**Status:** PHASE 6 COMPLETED & VERIFIED
+**Status:** PHASE 7 COMPLETED & VERIFIED
+
 **Evidence Source:** Direct source-code inspection of `Ruhvi2026/Ruhvi` on branch `main`
 
 > This document is the **authoritative capability registry** for the Ruhvi AI Co-Founder.
@@ -277,7 +278,10 @@ All classifications are based on direct inspection of:
 | Admin notification dispatch | IMPLEMENTED | `proactive.ts:477-503` - inserts into `notifications` table | |
 | Proactive cron job | IMPLEMENTED | `api/cron/co-founder/proactive/route.ts` | |
 | Executive advisor briefing | IMPLEMENTED | `proactive.ts:generateExecutiveAdvisorBriefing()` | |
-| Competitor movement detection | MISSING | No automated competitor monitoring | |
+| Competitor movement detection | IMPLEMENTED | `proactive.ts:detectCompetitorPriceSignals()` | Detects price undercuts, discounting >=15%, and flash campaigns from competitor intelligence |
+| Checkout abandonment surge detection | IMPLEMENTED | `proactive.ts:detectCheckoutAbandonmentSignals()` | Detects cart abandonment surges >=3 carts and high unrealized GMV from live `cart_items` |
+| Catalog SEO decay detection | IMPLEMENTED | `proactive.ts:detectSeoDecaySignals()` | Audits catalog health drops (<80%) and missing meta descriptions; recommends Worker 3 dispatch |
+
 | SEO signal detection | MISSING | No automated SEO regression alerting | |
 | Conversion drop detection | MISSING | No funnel drop signal | |
 | Marketing opportunity detection | MISSING | Not in proactive scan | |
@@ -385,10 +389,21 @@ All classifications are based on direct inspection of:
    - **Unified Router & Fallback Chain**: `runCoFounderAgentLoop()` dispatches across primary providers and automatically degrades across `fallbackChain` on rate limits or API downtime.
    - **Chat API Route Integration**: Feature-flagged SSE streaming (`stream: true` or `Accept: text/event-stream`), OpenRouter safety sequence wiring, and 100% backward compatibility for standard JSON clients.
 
-### MEDIUM - Phase 7-8 Target
-10. **Tool rate limiting absent** - No fine-grained rate limits on co-founder API routes.
-11. **Incomplete proactive signal coverage** - Expand to competitor, SEO, and checkout abandonment signals.
+### RESOLVED - Phase 7 Complete
+10. **Granular Co-Founder Rate Limiting & Throttling Engine** - IMPLEMENTED via `rate-limiter.ts`.
+    - **In-Memory Token Bucket & Sliding Window Engine**: Sliding window rate limiter with microsecond-level token refills and burst capacity enforcement.
+    - **Tiered Quota Hierarchy**: Granular limits for `chat` (60 rpm founder/admin), `voice` (40 rpm), `tool_execution` (120 rpm), `browser_automation` (15 rpm), and `proactive` (30 rpm).
+    - **RFC-Compliant Headers & 429 Responses**: Automatically injects `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset`, and `Retry-After` headers; returns structured 429 payloads without breaking streaming clients.
+    - **API Route Protection**: Fully wired into `/api/admin/co-founder/chat/route.ts` and `/api/admin/co-founder/tools/execute/route.ts`.
+11. **Expanded Autonomous Proactive Signal Engine** - IMPLEMENTED via `proactive.ts`.
+    - **Competitor Price Movements**: Real-time analysis of competitor discounts, clearance sales, and undercut pressure.
+    - **Checkout Abandonment Spikes**: 24-hour cart funnel scan detecting abandonment surges and calculating unrealized GMV.
+    - **Catalog SEO Decay Signals**: Automated scanning for metadata gaps, low health scores, and search indexing degradation.
+    - **Deterministic Idempotency**: Daily fingerprinting (`createSignalFingerprint`) to ensure noise reduction and cooldown enforcement.
+
+### MEDIUM - Phase 8 Target
 12. **Native audio stream synthesis** - Full bi-directional voice streaming pipeline.
+
 
 ---
 
@@ -404,5 +419,6 @@ All classifications are based on direct inspection of:
 
 ---
 
-*Blueprint Version: 6.0 | Phase 6 Complete | Updated 2026-10-11*
-*Next update: After Phase 7 completion*
+*Blueprint Version: 7.0 | Phase 7 Complete | Updated 2026-10-11*
+*Next update: After Phase 8 completion*
+
