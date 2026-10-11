@@ -4,6 +4,7 @@ import {
   calculatePcmRms,
   VoiceAgentState,
 } from '../livekit-agent';
+import { enforceCoFounderRateLimit } from '../rate-limiter';
 
 // Mock dependencies
 jest.mock('server-only', () => ({}));
@@ -22,7 +23,10 @@ jest.mock('../rate-limiter', () => ({
 }));
 
 jest.mock('../tool-bridge', () => ({
-  executeCoFounderTool: jest.fn(async () => ({ success: true, summaryForVoice: 'Done' })),
+  executeCoFounderTool: jest.fn(async () => ({
+    success: true,
+    summaryForVoice: 'Done',
+  })),
 }));
 
 jest.mock('@/lib/auth/rbac', () => ({
@@ -131,8 +135,7 @@ describe('LiveKit Real-Time Audio Agent Protocol (livekit-agent.ts)', () => {
     });
 
     it('enforces voice tier rate limiting on connection', async () => {
-      const { enforceCoFounderRateLimit } = require('../rate-limiter');
-      enforceCoFounderRateLimit.mockReturnValueOnce({
+      (enforceCoFounderRateLimit as jest.Mock).mockReturnValueOnce({
         success: false,
         result: { allowed: false, retryAfterSeconds: 30 },
       });
@@ -218,7 +221,11 @@ describe('LiveKit Real-Time Audio Agent Protocol (livekit-agent.ts)', () => {
       let interrupted = false;
       const agent = await createLiveKitVoiceAgent(
         { roomName: 'manual-barge', userId: 'user_1' },
-        { onInterrupted: () => { interrupted = true; } }
+        {
+          onInterrupted: () => {
+            interrupted = true;
+          },
+        }
       );
 
       (agent as any).setState('speaking');
@@ -285,11 +292,12 @@ describe('LiveKit Real-Time Audio Agent Protocol (livekit-agent.ts)', () => {
 
       agent.pushUserText('Check inventory for royal choker');
 
-      expect(responseTextReceived).toContain('Check inventory for royal choker');
+      expect(responseTextReceived).toContain(
+        'Check inventory for royal choker'
+      );
       expect(audioReceived).toBe(true);
 
       agent.disconnect();
     });
   });
 });
-

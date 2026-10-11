@@ -3,6 +3,7 @@ import {
   VoiceSessionState,
   AudioChunk,
 } from '../voice-session';
+import { writeCoFounderMemory } from '../memory';
 
 // Mock dependencies
 jest.mock('server-only', () => ({}));
@@ -23,7 +24,9 @@ describe('VoiceSessionCoordinator (Step 8.2)', () => {
 
   describe('1. Initial State & Configuration', () => {
     it('initializes with idle state and default config', () => {
-      const coordinator = new VoiceSessionCoordinator({ userId: defaultUserId });
+      const coordinator = new VoiceSessionCoordinator({
+        userId: defaultUserId,
+      });
 
       expect(coordinator.getState()).toBe('idle');
       expect(coordinator.getSessionId()).toMatch(/^voice-sess-/);
@@ -96,7 +99,9 @@ describe('VoiceSessionCoordinator (Step 8.2)', () => {
       expect(coordinator.getState()).toBe('idle');
       expect(onError).toHaveBeenCalledWith(
         expect.objectContaining({
-          message: expect.stringContaining("Cannot transition from 'idle' to 'interrupted'"),
+          message: expect.stringContaining(
+            "Cannot transition from 'idle' to 'interrupted'"
+          ),
         })
       );
     });
@@ -112,14 +117,19 @@ describe('VoiceSessionCoordinator (Step 8.2)', () => {
       );
 
       // 1. User starts speaking
-      const { interrupted, turn } = coordinator.startUserSpeaking('turn-user-1');
+      const { interrupted, turn } =
+        coordinator.startUserSpeaking('turn-user-1');
       expect(interrupted).toBe(false);
       expect(turn.role).toBe('user');
       expect(coordinator.getState()).toBe('user_speaking');
-      expect(onTurnStart).toHaveBeenCalledWith(expect.objectContaining({ id: 'turn-user-1' }));
+      expect(onTurnStart).toHaveBeenCalledWith(
+        expect.objectContaining({ id: 'turn-user-1' })
+      );
 
       // 2. User finishes speaking
-      const completedTurn = coordinator.stopUserSpeaking('What are our top revenue drivers?');
+      const completedTurn = coordinator.stopUserSpeaking(
+        'What are our top revenue drivers?'
+      );
       expect(completedTurn).toBeDefined();
       expect(completedTurn?.state).toBe('completed');
       expect(completedTurn?.text).toBe('What are our top revenue drivers?');
@@ -186,7 +196,8 @@ describe('VoiceSessionCoordinator (Step 8.2)', () => {
       expect(coordinator.getQueueLength()).toBe(2);
 
       // User interrupts
-      const { interrupted, turn } = coordinator.startUserSpeaking('Wait, stop!');
+      const { interrupted, turn } =
+        coordinator.startUserSpeaking('Wait, stop!');
 
       expect(interrupted).toBe(true);
       expect(turn.role).toBe('user');
@@ -220,7 +231,9 @@ describe('VoiceSessionCoordinator (Step 8.2)', () => {
 
   describe('5. Audio Buffer Queue Operations', () => {
     it('enqueues and dequeues audio chunks in FIFO order', () => {
-      const coordinator = new VoiceSessionCoordinator({ userId: defaultUserId });
+      const coordinator = new VoiceSessionCoordinator({
+        userId: defaultUserId,
+      });
       coordinator.transitionTo('agent_thinking');
       coordinator.startAgentSpeaking('Test');
 
@@ -240,7 +253,9 @@ describe('VoiceSessionCoordinator (Step 8.2)', () => {
     });
 
     it('rejects stale generation chunks from past cancelled turns', () => {
-      const coordinator = new VoiceSessionCoordinator({ userId: defaultUserId });
+      const coordinator = new VoiceSessionCoordinator({
+        userId: defaultUserId,
+      });
 
       // Gen 1
       coordinator.transitionTo('agent_thinking');
@@ -275,7 +290,10 @@ describe('VoiceSessionCoordinator (Step 8.2)', () => {
       coordinator.enqueueAudioChunk({ id: 'c1', data: '1' });
       coordinator.enqueueAudioChunk({ id: 'c2', data: '2' });
 
-      const overflowRes = coordinator.enqueueAudioChunk({ id: 'c3', data: '3' });
+      const overflowRes = coordinator.enqueueAudioChunk({
+        id: 'c3',
+        data: '3',
+      });
       expect(overflowRes.enqueued).toBe(false);
       expect(overflowRes.reason).toBe('queue_overflow');
       expect(coordinator.getQueueLength()).toBe(2);
@@ -303,14 +321,17 @@ describe('VoiceSessionCoordinator (Step 8.2)', () => {
       const summary = coordinator.getSummary();
       expect(summary.totalTurns).toBe(2);
       expect(summary.conversationExcerpt).toContain('USER: First question');
-      expect(summary.conversationExcerpt).toContain('AGENT: First answer completed');
+      expect(summary.conversationExcerpt).toContain(
+        'AGENT: First answer completed'
+      );
     });
   });
 
   describe('7. Long-Term Memory Integration', () => {
     it('persists session summary to co-founder memory', async () => {
-      const { writeCoFounderMemory } = require('../memory');
-      const coordinator = new VoiceSessionCoordinator({ userId: defaultUserId });
+      const coordinator = new VoiceSessionCoordinator({
+        userId: defaultUserId,
+      });
 
       coordinator.startUserSpeaking();
       coordinator.stopUserSpeaking('Let us review inventory.');
@@ -329,10 +350,13 @@ describe('VoiceSessionCoordinator (Step 8.2)', () => {
     });
 
     it('handles memory persistence errors gracefully', async () => {
-      const { writeCoFounderMemory } = require('../memory');
-      writeCoFounderMemory.mockRejectedValueOnce(new Error('DB failure'));
+      (writeCoFounderMemory as jest.Mock).mockRejectedValueOnce(
+        new Error('DB failure')
+      );
 
-      const coordinator = new VoiceSessionCoordinator({ userId: defaultUserId });
+      const coordinator = new VoiceSessionCoordinator({
+        userId: defaultUserId,
+      });
       coordinator.startUserSpeaking();
       coordinator.stopUserSpeaking('Hello');
 
@@ -343,7 +367,9 @@ describe('VoiceSessionCoordinator (Step 8.2)', () => {
 
   describe('8. Session Closure', () => {
     it('flushes queue and marks session closed', () => {
-      const coordinator = new VoiceSessionCoordinator({ userId: defaultUserId });
+      const coordinator = new VoiceSessionCoordinator({
+        userId: defaultUserId,
+      });
       coordinator.transitionTo('agent_thinking');
       coordinator.startAgentSpeaking('Speech');
       coordinator.enqueueAudioChunk({ id: 'c1', data: 'pcm' });
