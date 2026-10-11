@@ -11,11 +11,11 @@ import {
   ActivityIndicator,
   Image,
   Alert,
-  SafeAreaView,
   StatusBar,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MaterialIcons } from '@expo/vector-icons';
+import { useHeaderHeight } from '@react-navigation/elements';
 import * as ImagePicker from 'expo-image-picker';
 import { uploadToCloudinary } from '../lib/cloudinary';
 
@@ -43,6 +43,7 @@ const INITIAL_WELCOME: ChatMessage = {
 };
 
 export default function CoFounderChatScreen({ navigation }: any) {
+  const headerHeight = useHeaderHeight();
   const [messages, setMessages] = useState<ChatMessage[]>([INITIAL_WELCOME]);
   const [inputText, setInputText] = useState('');
   const [loading, setLoading] = useState(false);
@@ -64,7 +65,7 @@ export default function CoFounderChatScreen({ navigation }: any) {
       headerTitle: () => (
         <View style={styles.headerTitleContainer}>
           <View style={styles.headerAvatar}>
-            <MaterialIcons name="auto-awesome" size={18} color="#fff" />
+            <MaterialIcons name="smart-toy" size={20} color="#fff" />
             <View style={styles.onlineBadge} />
           </View>
           <View style={styles.headerTextWrap}>
@@ -390,7 +391,7 @@ export default function CoFounderChatScreen({ navigation }: any) {
       <View style={[styles.messageRow, isUser ? styles.userRow : styles.aiRow]}>
         {!isUser && (
           <View style={styles.bubbleAvatar}>
-            <MaterialIcons name="auto-awesome" size={12} color="#fff" />
+            <MaterialIcons name="smart-toy" size={13} color="#fff" />
           </View>
         )}
         <View style={[styles.bubble, isUser ? styles.userBubble : styles.aiBubble]}>
@@ -430,13 +431,12 @@ export default function CoFounderChatScreen({ navigation }: any) {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={headerHeight}
+    >
       <StatusBar barStyle="light-content" backgroundColor="#075E54" />
-      <KeyboardAvoidingView
-        style={styles.container}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
-      >
         {/* Proactive Live Alert Banner */}
         {activeAlerts.length > 0 && (
           <TouchableOpacity
@@ -466,6 +466,7 @@ export default function CoFounderChatScreen({ navigation }: any) {
           keyExtractor={(m) => m.id}
           renderItem={renderItem}
           contentContainerStyle={styles.listContent}
+          keyboardShouldPersistTaps="handled"
           onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
           onLayout={() => flatListRef.current?.scrollToEnd({ animated: false })}
           ListHeaderComponent={
@@ -538,28 +539,25 @@ export default function CoFounderChatScreen({ navigation }: any) {
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
-    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: '#075E54',
-  },
   container: {
     flex: 1,
-    backgroundColor: '#E5DDD5', // WhatsApp background tone
+    backgroundColor: '#ECE5DD', // WhatsApp background tone
   },
   headerTitleContainer: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   headerAvatar: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
-    backgroundColor: '#6A1B9A', // Regal Co-Founder purple
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#7C3AED', // Premium AI Violet
+    borderWidth: 1.5,
+    borderColor: '#C4B5FD',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 10,
@@ -627,7 +625,9 @@ const styles = StyleSheet.create({
     width: 22,
     height: 22,
     borderRadius: 11,
-    backgroundColor: '#6A1B9A',
+    backgroundColor: '#7C3AED',
+    borderWidth: 1,
+    borderColor: '#C4B5FD',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 6,

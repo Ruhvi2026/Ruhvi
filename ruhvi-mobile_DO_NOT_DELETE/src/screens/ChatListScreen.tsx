@@ -726,7 +726,7 @@ export default function ChatListScreen({ navigation }: any) {
                 onPress={() => navigation.navigate('CoFounderChat')}
               >
                 <View style={styles.coFounderAvatar}>
-                  <MaterialIcons name="auto-awesome" size={24} color="#fff" />
+                  <MaterialIcons name="smart-toy" size={24} color="#fff" />
                   <View style={styles.coFounderOnlineDot} />
                 </View>
 
@@ -911,8 +911,8 @@ export default function ChatListScreen({ navigation }: any) {
                   }}
                   activeOpacity={0.7}
                 >
-                  <View style={[styles.newGroupIcon, { backgroundColor: '#6A1B9A' }]}>
-                    <MaterialIcons name="auto-awesome" size={24} color="#fff" />
+                  <View style={[styles.newGroupIcon, { backgroundColor: '#7C3AED', borderWidth: 1, borderColor: '#C4B5FD' }]}>
+                    <MaterialIcons name="smart-toy" size={24} color="#fff" />
                   </View>
                   <View style={styles.contactDetails}>
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -1883,12 +1883,14 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 25,
-    backgroundColor: '#6A1B9A',
+    backgroundColor: '#7C3AED',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 14,
     position: 'relative',
-    shadowColor: '#6A1B9A',
+    borderWidth: 1.5,
+    borderColor: '#C4B5FD',
+    shadowColor: '#7C3AED',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3,
