@@ -10,6 +10,7 @@ import { registerForPushNotificationsAsync } from './src/lib/notifications';
 import LoginScreen from './src/screens/LoginScreen';
 import ChatListScreen from './src/screens/ChatListScreen';
 import ChatRoomScreen from './src/screens/ChatRoomScreen';
+import CoFounderChatScreen from './src/screens/CoFounderChatScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -105,6 +106,11 @@ export default function App() {
           name="ChatRoom" 
           component={ChatRoomScreen} 
           options={({ route }: any) => ({ title: route.params?.title || 'Chat' })} 
+        />
+        <Stack.Screen 
+          name="CoFounderChat" 
+          component={CoFounderChatScreen} 
+          options={{ title: 'Ruhvi AI Co-Founder' }} 
         />
       </Stack.Navigator>
     </NavigationContainer>

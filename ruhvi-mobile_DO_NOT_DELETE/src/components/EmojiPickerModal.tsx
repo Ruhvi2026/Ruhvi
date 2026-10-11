@@ -1,4 +1,4 @@
-﻿import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   Modal,
   View,
@@ -234,7 +234,7 @@ export default function EmojiPickerModal({
                       onPress={() => setActiveTab(cat.id)}
                     >
                       <MaterialIcons
-                        name={cat.icon}
+                        name={cat.icon as any}
                         size={20}
                         color={isActive ? '#075E54' : '#888'}
                       />

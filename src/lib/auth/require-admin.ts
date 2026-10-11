@@ -1,4 +1,4 @@
-import { cookies } from 'next/headers';
+import { cookies, headers } from 'next/headers';
 import { createServerClient } from '@supabase/ssr';
 import { verifySessionToken } from '@/lib/auth/verify-session';
 
@@ -18,14 +18,26 @@ export interface RequireAdminResult {
 }
 
 /**
- * Verifies the __session JWT and checks the user's role in the `users` table.
+ * Verifies the __session JWT (via cookie or Bearer authorization header)
+ * and checks the user's role in the `users` table.
  * Returns ok=true only for authenticated users whose role is in
  * INTERNAL_ADMIN_ROLES. Fails closed on any error.
  */
 export async function requireAdmin(): Promise<RequireAdminResult> {
   const cookieStore = await cookies();
-  const sessionCookie = cookieStore.get('__session')?.value;
-  if (!sessionCookie)
+  let token = cookieStore.get('__session')?.value;
+
+  if (!token) {
+    try {
+      const headerStore = await headers();
+      const authHeader = headerStore.get('authorization');
+      if (authHeader && authHeader.toLowerCase().startsWith('bearer ')) {
+        token = authHeader.substring(7).trim();
+      }
+    } catch {}
+  }
+
+  if (!token)
     return {
       ok: false,
       uid: '',
@@ -35,7 +47,7 @@ export async function requireAdmin(): Promise<RequireAdminResult> {
     };
 
   try {
-    const decoded = await verifySessionToken(sessionCookie);
+    const decoded = await verifySessionToken(token);
     // `sub` is always the Supabase `users.id` UUID minted by /api/auth/session.
     // Do NOT fall back to `firebase_uid` — it lives in a different namespace
     // (customer_identities) and must never be used to look up users.id.

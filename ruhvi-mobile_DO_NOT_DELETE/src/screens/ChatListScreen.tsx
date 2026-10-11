@@ -48,11 +48,31 @@ export default function ChatListScreen({ navigation }: any) {
 
   // Staff Profile Modal state
   const [currentUserProfile, setCurrentUserProfile] = useState<any>(null);
+  const [userRole, setUserRole] = useState<string | null>(null);
+  const [coFounderSnippet, setCoFounderSnippet] = useState<string>('Tap to collaborate, delegate tasks & analyze store');
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [editFullName, setEditFullName] = useState('');
   const [editBio, setEditBio] = useState('');
   const [savingProfile, setSavingProfile] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
+
+  const loadCoFounderSnippet = async (uid?: string | null) => {
+    try {
+      const activeUid = uid || currentUserId || (await AsyncStorage.getItem('ruhvi_user_id'));
+      if (activeUid) {
+        const stored = await AsyncStorage.getItem(`ruhvi_co_founder_chat_${activeUid}`);
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            const last = parsed[parsed.length - 1];
+            if (last?.text) {
+              setCoFounderSnippet(last.text.replace(/\n/g, ' ').substring(0, 75));
+            }
+          }
+        }
+      }
+    } catch {}
+  };
 
   const fetchUserProfile = async (uid: string) => {
     try {
@@ -63,6 +83,7 @@ export default function ChatListScreen({ navigation }: any) {
         .single();
       if (data) {
         setCurrentUserProfile(data);
+        if (data.role) setUserRole(data.role);
         setEditFullName(data.full_name || '');
         setEditBio(data.bio || 'Hey there! I am using RuhChat.');
       }
@@ -102,7 +123,12 @@ export default function ChatListScreen({ navigation }: any) {
         uid = await AsyncStorage.getItem('ruhvi_user_id');
       }
       setCurrentUserIdState(uid);
+      const cachedRole = await AsyncStorage.getItem('ruhvi_user_role');
+      if (cachedRole) {
+        setUserRole(cachedRole);
+      }
       fetchChats(uid);
+      loadCoFounderSnippet(uid);
       if (uid) {
         fetchUserProfile(uid);
       }
@@ -182,6 +208,7 @@ export default function ChatListScreen({ navigation }: any) {
   useFocusEffect(
     useCallback(() => {
       fetchChats();
+      loadCoFounderSnippet();
     }, [currentUserId])
   );
 
@@ -209,6 +236,7 @@ export default function ChatListScreen({ navigation }: any) {
   const onRefresh = useCallback(() => {
     setRefreshing(true);
     fetchChats();
+    loadCoFounderSnippet();
     if (currentUserId) fetchUserProfile(currentUserId);
   }, [currentUserId]);
 
@@ -574,6 +602,11 @@ export default function ChatListScreen({ navigation }: any) {
     return name.includes(q) || email.includes(q);
   });
 
+  const isAdmin = currentUserProfile?.role === 'admin' ||
+    currentUserProfile?.role === 'super_admin' ||
+    userRole === 'admin' ||
+    userRole === 'super_admin';
+
   const activeConversations = conversations.filter(c => !c.archived_at);
   const archivedConversations = conversations.filter(c => !!c.archived_at);
   const baseConversations = chatTab === 'active' ? activeConversations : archivedConversations;
@@ -679,6 +712,49 @@ export default function ChatListScreen({ navigation }: any) {
           data={displayConversations}
           keyExtractor={item => item.id}
           renderItem={renderItem}
+          ListHeaderComponent={
+            isAdmin && chatTab === 'active' && (!globalSearch.trim() || 'ai co-founder cofounder partner'.includes(globalSearch.toLowerCase())) ? (
+              <TouchableOpacity 
+                style={[styles.chatItem, styles.coFounderCard]}
+                activeOpacity={0.7}
+                onPress={() => navigation.navigate('CoFounderChat')}
+              >
+                <View style={styles.coFounderAvatar}>
+                  <MaterialIcons name="auto-awesome" size={24} color="#fff" />
+                  <View style={styles.coFounderOnlineDot} />
+                </View>
+
+                <View style={styles.chatDetails}>
+                  <View style={styles.chatHeader}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, marginRight: 8 }}>
+                      <Text style={[styles.chatName, styles.coFounderName]} numberOfLines={1}>
+                        Ruhvi AI Co-Founder
+                      </Text>
+                      <View style={styles.aiPartnerBadge}>
+                        <MaterialIcons name="verified" size={11} color="#6A1B9A" style={{ marginRight: 2 }} />
+                        <Text style={styles.aiPartnerBadgeText}>AI Partner</Text>
+                      </View>
+                    </View>
+                    <Text style={styles.coFounderTime}>Active</Text>
+                  </View>
+
+                  <View style={styles.chatSubRow}>
+                    <Text style={styles.coFounderSnippet} numberOfLines={1}>
+                      {coFounderSnippet}
+                    </Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 6 }}>
+                      <MaterialIcons 
+                        name="push-pin" 
+                        size={13} 
+                        color="#6A1B9A" 
+                        style={{ transform: [{ rotate: '45deg' }] }} 
+                      />
+                    </View>
+                  </View>
+                </View>
+              </TouchableOpacity>
+            ) : null
+          }
           refreshControl={
             <RefreshControl 
               refreshing={refreshing} 
@@ -1765,6 +1841,67 @@ const styles = StyleSheet.create({
     color: '#DC2626',
     fontSize: 14,
     fontWeight: '700',
+  },
+  coFounderCard: {
+    backgroundColor: '#FAF5FF',
+    borderBottomWidth: 1,
+    borderBottomColor: '#F3E8FF',
+  },
+  coFounderAvatar: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: '#6A1B9A',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 14,
+    position: 'relative',
+    shadowColor: '#6A1B9A',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3,
+    elevation: 3,
+  },
+  coFounderOnlineDot: {
+    position: 'absolute',
+    bottom: 1,
+    right: 1,
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: '#25D366',
+    borderWidth: 2,
+    borderColor: '#FAF5FF',
+  },
+  coFounderName: {
+    color: '#4A148C',
+    fontWeight: '700',
+  },
+  aiPartnerBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F3E8FF',
+    borderColor: '#E9D5FF',
+    borderWidth: 1,
+    paddingHorizontal: 6,
+    paddingVertical: 1,
+    borderRadius: 6,
+    marginLeft: 6,
+  },
+  aiPartnerBadgeText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#6A1B9A',
+  },
+  coFounderTime: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#6A1B9A',
+  },
+  coFounderSnippet: {
+    fontSize: 13,
+    color: '#6B7280',
+    flex: 1,
   },
 });
 
