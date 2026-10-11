@@ -602,10 +602,15 @@ export default function ChatListScreen({ navigation }: any) {
     return name.includes(q) || email.includes(q);
   });
 
-  const isAdmin = currentUserProfile?.role === 'admin' ||
-    currentUserProfile?.role === 'super_admin' ||
-    userRole === 'admin' ||
-    userRole === 'super_admin';
+  const userEmail = (currentUserProfile?.email || '').toLowerCase();
+  const rawRole = (currentUserProfile?.role || userRole || '').toLowerCase();
+  const isAdmin = 
+    rawRole === 'admin' ||
+    rawRole === 'super_admin' ||
+    rawRole === 'manager' ||
+    userEmail === 'rovi.main@gmail.com' ||
+    userEmail.includes('admin') ||
+    userEmail.includes('ruhvi');
 
   const activeConversations = conversations.filter(c => !c.archived_at);
   const archivedConversations = conversations.filter(c => !!c.archived_at);
@@ -895,6 +900,32 @@ export default function ChatListScreen({ navigation }: any) {
 
           {modalMode === 'contacts' ? (
             <>
+              {/* Option to Chat with Ruhvi AI Co-Founder */}
+              {isAdmin && (
+                <TouchableOpacity 
+                  style={[styles.newGroupRow, { borderBottomColor: '#F3E8FF', backgroundColor: '#FAF5FF' }]}
+                  onPress={() => {
+                    setIsModalVisible(false);
+                    navigation.navigate('CoFounderChat');
+                  }}
+                  activeOpacity={0.7}
+                >
+                  <View style={[styles.newGroupIcon, { backgroundColor: '#6A1B9A' }]}>
+                    <MaterialIcons name="auto-awesome" size={24} color="#fff" />
+                  </View>
+                  <View style={styles.contactDetails}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                      <Text style={[styles.newGroupText, { color: '#4A148C' }]}>Ruhvi AI Co-Founder</Text>
+                      <View style={styles.aiPartnerBadge}>
+                        <MaterialIcons name="verified" size={11} color="#6A1B9A" style={{ marginRight: 2 }} />
+                        <Text style={styles.aiPartnerBadgeText}>AI Partner</Text>
+                      </View>
+                    </View>
+                    <Text style={styles.contactRole}>Ask anything, execute tasks & analyze store</Text>
+                  </View>
+                </TouchableOpacity>
+              )}
+
               {/* Option to Create New Group */}
               <TouchableOpacity 
                 style={styles.newGroupRow}
