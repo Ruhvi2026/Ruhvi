@@ -48,6 +48,173 @@ export function createSignalFingerprint(
 }
 
 /**
+ * Detect competitor discounting pressure, price undercut, or aggressive promotional movements.
+ */
+export async function detectCompetitorPriceSignals(
+  dateBucket: string
+): Promise<ProactiveSignal[]> {
+  const signals: ProactiveSignal[] = [];
+  try {
+    const { getCompetitors } = await import('./competitors');
+    const competitors = await getCompetitors();
+
+    for (const comp of competitors) {
+      const insights = comp.latest_insights;
+      const promotions = insights?.promotions || '';
+      const notes = comp.notes || '';
+      const combinedText = `${promotions} ${notes}`.toLowerCase();
+
+      // Look for aggressive discount patterns (e.g. 20% off, clearance, price drop, flash sale)
+      const hasDiscountMention =
+        /(?:sale|discount|off|drop|clearance|promo|deal|underpriced|slash)/i.test(
+          combinedText
+        );
+      const discountMatch = combinedText.match(/(\d+)%\s*(?:off|discount)/i);
+      const discountPercent = discountMatch ? parseInt(discountMatch[1], 10) : null;
+
+      if (hasDiscountMention || (discountPercent && discountPercent >= 15)) {
+        signals.push({
+          fingerprint: createSignalFingerprint(
+            'competitor_discount_alert',
+            comp.id,
+            dateBucket
+          ),
+          signalType: 'competitor_discount_alert',
+          category: 'RISK',
+          severity: discountPercent && discountPercent >= 25 ? 'high' : 'medium',
+          confidence: 'strong',
+          title: `Competitor Pricing Pressure: ${comp.name}`,
+          summary: `Competitor ${comp.name} launched aggressive promotional discounts${discountPercent ? ` (${discountPercent}% off)` : ''} in the ${comp.category || 'jewelry'} category.`,
+          detail: `Competitor intelligence report for ${comp.name} indicates promotional campaign: "${promotions || notes}". Counter-strategy: ${insights?.strategicCounterMove || 'Review category margins and feature handcrafted artisan differentiators.'}`,
+          metrics: {
+            competitorId: comp.id,
+            competitorName: comp.name,
+            discountPercent: discountPercent ?? undefined,
+            category: comp.category,
+          },
+          recommendedAction:
+            insights?.strategicCounterMove ||
+            `Launch targeted WhatsApp/email campaign highlighting artisan heritage and purity for matching ${comp.category || 'catalog'} pieces.`,
+          requiresApproval: true,
+        });
+      }
+    }
+  } catch (err: any) {
+    console.warn('[Proactive] Error detecting competitor price signals:', err?.message);
+  }
+  return signals;
+}
+
+/**
+ * Detect checkout abandonment spikes and cart dropoff surges.
+ */
+export async function detectCheckoutAbandonmentSignals(
+  dateBucket: string
+): Promise<ProactiveSignal[]> {
+  const signals: ProactiveSignal[] = [];
+  try {
+    const supabase = getServiceClient();
+    const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+
+    // Query pending cart items created or updated within the last 24h
+    const { data: cartItems, error } = await supabase
+      .from('cart_items')
+      .select('id, quantity, created_at, product:products(name, price)')
+      .gte('created_at', twentyFourHoursAgo)
+      .limit(100);
+
+    if (!error && cartItems && cartItems.length >= 3) {
+      const totalUnits = cartItems.reduce(
+        (acc: number, item: any) => acc + (Number(item.quantity) || 1),
+        0
+      );
+      const estimatedValue = cartItems.reduce((acc: number, item: any) => {
+        const price = Number(item.product?.price) || 0;
+        const qty = Number(item.quantity) || 1;
+        return acc + price * qty;
+      }, 0);
+
+      const isHighDropoff = cartItems.length >= 8 || estimatedValue >= 15000;
+
+      signals.push({
+        fingerprint: createSignalFingerprint(
+          'checkout_abandonment_spike',
+          'cart_funnel_24h',
+          dateBucket
+        ),
+        signalType: 'checkout_abandonment_spike',
+        category: 'RISK',
+        severity: isHighDropoff ? 'high' : 'medium',
+        confidence: 'confirmed',
+        title: 'Elevated Checkout Abandonment Spike Detected',
+        summary: `There are ${cartItems.length} uncompleted checkout carts (${totalUnits} items) totaling ~₹${estimatedValue.toLocaleString('en-IN')} pending in the last 24 hours.`,
+        detail: `Checkout funnel scan identified ${cartItems.length} abandoned checkout sessions. Estimated unrealized GMV: ₹${estimatedValue.toLocaleString('en-IN')}. Potential drop-off friction at payment step or shipping calculation.`,
+        metrics: {
+          abandonedCartsCount: cartItems.length,
+          totalUnits,
+          estimatedUnrealizedGmv: estimatedValue,
+        },
+        recommendedAction:
+          'Trigger automated WhatsApp & Email cart recovery sequence and test payment gateway latency.',
+        requiresApproval: true,
+      });
+    }
+  } catch (err: any) {
+    console.warn('[Proactive] Error detecting checkout abandonment signals:', err?.message);
+  }
+  return signals;
+}
+
+/**
+ * Detect SEO score degradation, missing catalog meta descriptions, and ranking risks.
+ */
+export async function detectSeoDecaySignals(
+  dateBucket: string
+): Promise<ProactiveSignal[]> {
+  const signals: ProactiveSignal[] = [];
+  try {
+    const { auditCatalogSeoHealth } = await import('./seo-health');
+    const seoReport = await auditCatalogSeoHealth();
+
+    if (
+      seoReport &&
+      seoReport.totalProductsScanned > 0 &&
+      (seoReport.healthScore < 80 || seoReport.missingMetaDescriptions > 2)
+    ) {
+      const isCritical = seoReport.healthScore < 60;
+
+      signals.push({
+        fingerprint: createSignalFingerprint(
+          'seo_decay_warning',
+          'catalog_seo_health',
+          dateBucket
+        ),
+        signalType: 'seo_decay_warning',
+        category: 'OPPORTUNITY',
+        severity: isCritical ? 'high' : 'medium',
+        confidence: 'confirmed',
+        title: 'Catalog SEO Health & Meta Description Alert',
+        summary: `Catalog SEO health score dropped to ${seoReport.healthScore}%. ${seoReport.missingMetaDescriptions} active products are missing meta descriptions.`,
+        detail: `SEO audit scanned ${seoReport.totalProductsScanned} catalog items. Findings: ${seoReport.missingMetaDescriptions} missing meta descriptions, ${seoReport.missingAltText} missing image alt tags, ${seoReport.weakKeywordCount} products with weak keyword density. ${seoReport.executiveVoiceSummary}`,
+        metrics: {
+          healthScore: seoReport.healthScore,
+          productsScanned: seoReport.totalProductsScanned,
+          missingMetaDescriptions: seoReport.missingMetaDescriptions,
+          missingAltText: seoReport.missingAltText,
+          weakKeywordCount: seoReport.weakKeywordCount,
+        },
+        recommendedAction:
+          'Dispatch Worker 3 (SEO Specialist) to generate search-optimized titles and rich meta descriptions targeting high-intent jewelry keywords.',
+        requiresApproval: true,
+      });
+    }
+  } catch (err: any) {
+    console.warn('[Proactive] Error detecting SEO decay signals:', err?.message);
+  }
+  return signals;
+}
+
+/**
  * Scan real Ruhvi data, evaluate baselines, and detect high-conviction proactive signals.
  */
 export async function scanProactiveSignals(
@@ -205,6 +372,18 @@ export async function scanProactiveSignals(
         });
       }
     }
+
+    // F. Competitor Pricing Pressure & Undercut Detection (Step 7.3)
+    const competitorSignals = await detectCompetitorPriceSignals(dateBucket);
+    candidateSignals.push(...competitorSignals);
+
+    // G. Checkout Abandonment Spike Detection (Step 7.3)
+    const abandonmentSignals = await detectCheckoutAbandonmentSignals(dateBucket);
+    candidateSignals.push(...abandonmentSignals);
+
+    // H. SEO Keyword Rank Decay & Catalog Indexing Dips (Step 7.3)
+    const seoSignals = await detectSeoDecaySignals(dateBucket);
+    candidateSignals.push(...seoSignals);
   } catch (err: any) {
     console.error(
       'Error calculating candidate signals in scanProactiveSignals:',

@@ -5,10 +5,16 @@ import {
   scanProactiveSignals,
   acknowledgeSignal,
   getActiveProactiveSignals,
+  detectCompetitorPriceSignals,
+  detectCheckoutAbandonmentSignals,
+  detectSeoDecaySignals,
 } from '../proactive';
 import { executeCoFounderTool } from '../tool-bridge';
 
 const mockSignalsTable: any[] = [];
+let mockCompetitorsData: any[] = [];
+let mockCartItemsData: any[] = [];
+let mockProductsData: any[] = [];
 
 // Mock getStoreAnalytics
 jest.mock('../analytics', () => ({
@@ -142,17 +148,50 @@ jest.mock('@/lib/supabase/service', () => ({
           })),
         };
       }
+
+      if (table === 'co_founder_competitors') {
+        return {
+          select: jest.fn().mockReturnThis(),
+          order: jest.fn().mockResolvedValue({ data: mockCompetitorsData, error: null }),
+        };
+      }
+
+      if (table === 'cart_items') {
+        return {
+          select: jest.fn().mockReturnThis(),
+          gte: jest.fn().mockReturnThis(),
+          limit: jest.fn().mockResolvedValue({ data: mockCartItemsData, error: null }),
+        };
+      }
+
+      if (table === 'products') {
+        return {
+          select: jest.fn().mockReturnThis(),
+          limit: jest.fn().mockResolvedValue({ data: mockProductsData, error: null }),
+        };
+      }
+
       return {
         select: jest.fn().mockReturnThis(),
+        eq: jest.fn().mockReturnThis(),
+        gte: jest.fn().mockReturnThis(),
+        order: jest.fn().mockReturnThis(),
+        limit: jest.fn().mockResolvedValue({ data: [], error: null }),
         insert: jest.fn().mockResolvedValue({ data: null, error: null }),
+        maybeSingle: jest.fn().mockResolvedValue({ data: null, error: null }),
+        single: jest.fn().mockResolvedValue({ data: null, error: null }),
       };
     }),
   })),
 }));
 
+
 describe('Stage 5 — Proactive Intelligence System', () => {
   beforeEach(() => {
     mockSignalsTable.length = 0;
+    mockCompetitorsData = [];
+    mockCartItemsData = [];
+    mockProductsData = [];
   });
 
   describe('Signal Fingerprint & Detection', () => {
@@ -270,4 +309,66 @@ describe('Stage 5 — Proactive Intelligence System', () => {
       expect(blockedRes.success).toBe(false);
     });
   });
+
+  describe('Advanced Autonomous Proactive Signals (Step 7.3)', () => {
+    it('detects competitor price drops and aggressive discount pressure', async () => {
+      mockCompetitorsData = [
+        {
+          id: 'comp_1',
+          name: 'Zaveri & Co',
+          category: 'bridal_jewelry',
+          notes: 'Running 30% discount on all gold plated jewelry',
+          latest_insights: {
+            promotions: 'Flat 30% off festive flash sale',
+            strategicCounterMove: 'Highlight artisanal hallmark craftsmanship',
+          },
+        },
+        {
+          id: 'comp_2',
+          name: 'Minimalist Jewels',
+          category: 'dailywear',
+          notes: 'Standard catalog',
+          latest_insights: null,
+        },
+      ];
+
+      const signals = await detectCompetitorPriceSignals('2026-10-11');
+      expect(signals.length).toBe(1);
+      expect(signals[0].signalType).toBe('competitor_discount_alert');
+      expect(signals[0].severity).toBe('high');
+      expect(signals[0].title).toContain('Zaveri & Co');
+      expect(signals[0].metrics?.discountPercent).toBe(30);
+      expect(signals[0].requiresApproval).toBe(true);
+    });
+
+    it('detects checkout abandonment surges with estimated unrealized GMV', async () => {
+      mockCartItemsData = [
+        { id: 'c1', quantity: 1, created_at: new Date().toISOString(), product: { name: 'Kundan Choker', price: 6500 } },
+        { id: 'c2', quantity: 2, created_at: new Date().toISOString(), product: { name: 'Polki Earrings', price: 4200 } },
+        { id: 'c3', quantity: 1, created_at: new Date().toISOString(), product: { name: 'Bridal Set', price: 12000 } },
+      ];
+
+      const signals = await detectCheckoutAbandonmentSignals('2026-10-11');
+      expect(signals.length).toBe(1);
+      expect(signals[0].signalType).toBe('checkout_abandonment_spike');
+      expect(signals[0].metrics?.abandonedCartsCount).toBe(3);
+      expect(signals[0].metrics?.estimatedUnrealizedGmv).toBe(26900);
+      expect(signals[0].severity).toBe('high');
+    });
+
+    it('detects SEO health decay when products lack meta descriptions', async () => {
+      mockProductsData = [
+        { id: 'p1', name: 'Ring 1', title: 'Ring 1', description: 'desc', seo_title: 'Ring 1', seo_description: '', images: [], status: 'published' },
+        { id: 'p2', name: 'Ring 2', title: 'Ring 2', description: 'desc', seo_title: 'Ring 2', seo_description: '', images: [], status: 'published' },
+        { id: 'p3', name: 'Ring 3', title: 'Ring 3', description: 'desc', seo_title: 'Ring 3', seo_description: '', images: [], status: 'published' },
+      ];
+
+      const signals = await detectSeoDecaySignals('2026-10-11');
+      expect(signals.length).toBe(1);
+      expect(signals[0].signalType).toBe('seo_decay_warning');
+      expect(signals[0].metrics?.missingMetaDescriptions).toBe(3);
+      expect(signals[0].recommendedAction).toContain('Worker 3 (SEO Specialist)');
+    });
+  });
 });
+
