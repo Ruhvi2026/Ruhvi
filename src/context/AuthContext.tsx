@@ -2,8 +2,6 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { auth } from '@/lib/firebase';
-import { onAuthStateChanged, signOut as firebaseSignOut } from 'firebase/auth';
 import toast from 'react-hot-toast';
 import { parseApiError } from '@/lib/api-errors';
 import { useRouter } from 'next/navigation';
@@ -137,12 +135,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signOut = async () => {
     try {
-      if (auth) {
-        try {
+      try {
+        const { auth } = await import('@/lib/firebase');
+        const { signOut: firebaseSignOut } = await import('firebase/auth');
+        if (auth) {
           await firebaseSignOut(auth);
-        } catch (e) {
-          console.error('Firebase signout error:', e);
         }
+      } catch (e) {
+        console.error('Firebase signout error:', e);
       }
 
       try {
@@ -273,15 +273,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     };
 
-    const startAuthListener = () => {
+    const startAuthListener = async () => {
       if (hasInitialized || !isMounted) return;
       hasInitialized = true;
       cleanupTriggers();
 
-      if (auth) {
-        unsubscribe = onAuthStateChanged(auth, handleFirebaseUser);
-      } else {
-        setLoading(false);
+      try {
+        const { auth } = await import('@/lib/firebase');
+        const { onAuthStateChanged } = await import('firebase/auth');
+        if (auth && isMounted) {
+          unsubscribe = onAuthStateChanged(auth, handleFirebaseUser);
+        } else if (isMounted) {
+          setLoading(false);
+        }
+      } catch (err) {
+        console.error('Failed to initialize Firebase Auth:', err);
+        if (isMounted) setLoading(false);
       }
     };
 
@@ -322,13 +329,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           passive: true,
         });
 
-        // Or trigger during idle period / fallback timeout
+        // Or trigger during idle period after initial render & LCP have settled
         if ('requestIdleCallback' in window) {
           idleId = (window as any).requestIdleCallback(startAuthListener, {
-            timeout: 2500,
+            timeout: 6000,
           });
         } else {
-          timeoutId = setTimeout(startAuthListener, 1500);
+          timeoutId = setTimeout(startAuthListener, 5000);
         }
       } else {
         startAuthListener();

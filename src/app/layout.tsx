@@ -150,22 +150,19 @@ export default function RootLayout({
       className={`${cormorant.variable} ${jost.variable} ${marcellus.variable}`}
       suppressHydrationWarning
     >
-      <body className="bg-cream text-ink font-jost flex min-h-screen flex-col antialiased">
+      <head>
         {/* Preconnect to critical first-paint asset origins */}
         <link rel="preconnect" href="https://res.cloudinary.com" />
+        <link rel="dns-prefetch" href="https://res.cloudinary.com" />
         <link
           rel="preconnect"
           href="https://igrkrkxdantrolbldapj.supabase.co"
           crossOrigin="anonymous"
         />
-        {/* DNS prefetch for critical and secondary domains to eliminate TLS socket contention on mobile load */}
-        <link rel="dns-prefetch" href="https://res.cloudinary.com" />
         <link
           rel="dns-prefetch"
           href="https://igrkrkxdantrolbldapj.supabase.co"
         />
-        <link rel="dns-prefetch" href="https://apis.google.com" />
-        <link rel="dns-prefetch" href="https://ruhvi-f707c.firebaseapp.com" />
         <link rel="dns-prefetch" href="https://checkout.razorpay.com" />
         <link rel="dns-prefetch" href="https://api.razorpay.com" />
         <link rel="dns-prefetch" href="https://eu-assets.i.posthog.com" />
@@ -174,6 +171,8 @@ export default function RootLayout({
           href="https://o4511965411606528.ingest.de.sentry.io"
         />
         <link rel="dns-prefetch" href="https://static.cloudflareinsights.com" />
+      </head>
+      <body className="bg-cream text-ink font-jost flex min-h-screen flex-col antialiased">
         <a
           href="#main-content"
           className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-charcoal-900 focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-white focus:shadow-lg focus:outline-2 focus:outline-offset-2 focus:outline-charcoal-900"

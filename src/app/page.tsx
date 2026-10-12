@@ -45,8 +45,29 @@ export default async function HomePage() {
     },
   };
 
+  const heroRawUrl =
+    hp.hero_image_url ||
+    'https://res.cloudinary.com/tfelmupe/image/upload/v1787781771/timeless_elegance_efj5j3.jpg';
+  const heroMobileUrl = getOptimizedImageUrl(heroRawUrl, 'w_600');
+  const heroTabletUrl = getOptimizedImageUrl(heroRawUrl, 'w_1000');
+  const heroDesktopUrl = getOptimizedImageUrl(heroRawUrl, 'w_1200');
+
   return (
     <>
+      <link
+        rel="preload"
+        as="image"
+        href={heroMobileUrl}
+        media="(max-width: 640px)"
+        fetchPriority="high"
+      />
+      <link
+        rel="preload"
+        as="image"
+        href={heroDesktopUrl}
+        media="(min-width: 641px)"
+        fetchPriority="high"
+      />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
@@ -56,21 +77,19 @@ export default async function HomePage() {
           {/* HERO */}
           <section className="hero">
             <div className="hero-img">
-              <Image
-                src={getOptimizedImageUrl(
-                  hp.hero_image_url ||
-                    'https://res.cloudinary.com/tfelmupe/image/upload/v1787781771/timeless_elegance_efj5j3.jpg',
-                  'w_1200'
-                )}
-                alt={hp.hero_title || 'Woman wearing gold-plated jewellery'}
-                fill
-                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 1340px"
-                className="object-cover"
-                style={{ objectPosition: '78% 30%' }}
-                priority
-                fetchPriority="high"
-                unoptimized
-              />
+              <picture>
+                <source media="(max-width: 640px)" srcSet={heroMobileUrl} />
+                <source media="(max-width: 1024px)" srcSet={heroTabletUrl} />
+                <img
+                  src={heroDesktopUrl}
+                  alt={hp.hero_title || 'Woman wearing gold-plated jewellery'}
+                  fetchPriority="high"
+                  loading="eager"
+                  decoding="async"
+                  className="absolute inset-0 h-full w-full object-cover"
+                  style={{ objectPosition: '78% 30%' }}
+                />
+              </picture>
             </div>
             <div className="hero-content">
               <div className="eyebrow">
