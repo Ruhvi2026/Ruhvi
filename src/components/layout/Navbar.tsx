@@ -136,7 +136,6 @@ export function Navbar() {
                 width={48}
                 height={48}
                 className={`h-10 w-auto origin-left object-contain transition-transform duration-300 group-hover:opacity-90 sm:h-12 ${isScrolled && !isSearchExpanded ? 'scale-75' : 'scale-100'}`}
-                priority
               />
             </Link>
 

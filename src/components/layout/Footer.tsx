@@ -157,8 +157,9 @@ export function Footer() {
               <Image
                 src="/logo.png"
                 alt="Ruhvi Jewels"
-                fill
-                className="object-cover"
+                width={40}
+                height={40}
+                className="h-full w-full object-cover"
               />
             </div>
             <h3

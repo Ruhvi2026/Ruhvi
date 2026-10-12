@@ -59,7 +59,8 @@ export default async function HomePage() {
               <Image
                 src={getOptimizedImageUrl(
                   hp.hero_image_url ||
-                    'https://res.cloudinary.com/tfelmupe/image/upload/v1787781771/timeless_elegance_efj5j3.jpg'
+                    'https://res.cloudinary.com/tfelmupe/image/upload/v1787781771/timeless_elegance_efj5j3.jpg',
+                  'w_1200'
                 )}
                 alt={hp.hero_title || 'Woman wearing gold-plated jewellery'}
                 fill
@@ -68,6 +69,7 @@ export default async function HomePage() {
                 style={{ objectPosition: '78% 30%' }}
                 priority
                 fetchPriority="high"
+                unoptimized
               />
             </div>
             <div className="hero-content">
