@@ -178,7 +178,11 @@ export function Footer() {
               className="h-3.5 w-3.5"
               style={{ color: 'var(--gold-pale)' }}
             />{' '}
-            support@ruhvi.in
+            <span
+              dangerouslySetInnerHTML={{
+                __html: '<!--email_off-->support@ruhvi.in<!--/email_off-->',
+              }}
+            />
           </p>
 
           {/* Follow Us */}
