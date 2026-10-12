@@ -1,6 +1,50 @@
 import type { Metadata, Viewport } from 'next';
+import {
+  Cormorant_Garamond,
+  Inter,
+  Jost,
+  Marcellus,
+  Playfair_Display,
+} from 'next/font/google';
 import './globals.css';
 import '@/lib/env'; // Validate env variables on boot
+
+const cormorant = Cormorant_Garamond({
+  subsets: ['latin'],
+  weight: ['400', '500', '600'],
+  style: ['normal', 'italic'],
+  variable: '--font-cormorant',
+  display: 'swap',
+});
+
+const inter = Inter({
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '600', '700'],
+  variable: '--font-inter',
+  display: 'swap',
+});
+
+const jost = Jost({
+  subsets: ['latin'],
+  weight: ['400', '500', '600'],
+  variable: '--font-jost',
+  display: 'swap',
+});
+
+const marcellus = Marcellus({
+  subsets: ['latin'],
+  weight: '400',
+  variable: '--font-marcellus',
+  display: 'swap',
+});
+
+const playfair = Playfair_Display({
+  subsets: ['latin'],
+  weight: ['400', '600', '700'],
+  style: ['normal', 'italic'],
+  variable: '--font-playfair',
+  display: 'swap',
+});
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { CartProvider } from '@/context/CartContext';
@@ -120,21 +164,20 @@ export default function RootLayout({
   };
 
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html
+      lang="en"
+      className={`${cormorant.variable} ${inter.variable} ${jost.variable} ${marcellus.variable} ${playfair.variable}`}
+      suppressHydrationWarning
+    >
       <body className="bg-cream text-ink font-jost flex min-h-screen flex-col antialiased">
         {/* Preconnect to critical third-party origins to cut connection setup off the LCP critical path */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link
-          rel="preconnect"
-          href="https://fonts.gstatic.com"
-          crossOrigin="anonymous"
-        />
         <link rel="preconnect" href="https://ruhvi-f707c.firebaseapp.com" />
         <link rel="preconnect" href="https://eu-assets.i.posthog.com" />
         <link
           rel="preconnect"
           href="https://igrkrkxdantrolbldapj.supabase.co"
         />
+        <link rel="preconnect" href="https://res.cloudinary.com" />
         <link
           rel="preconnect"
           href="https://o4511965411606528.ingest.de.sentry.io"

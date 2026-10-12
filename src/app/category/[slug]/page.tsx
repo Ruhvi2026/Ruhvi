@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { cache } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import type { Metadata } from 'next';
@@ -13,17 +13,21 @@ interface CategoryPageProps {
   }>;
 }
 
-export async function generateMetadata({
-  params,
-}: CategoryPageProps): Promise<Metadata> {
-  const { slug } = await params;
+const getCategoryBySlug = cache(async (slug: string) => {
   const supabase = await createClient();
-
   const { data: category } = await supabase
     .from('categories')
     .select('*')
     .eq('slug', slug)
     .single();
+  return category;
+});
+
+export async function generateMetadata({
+  params,
+}: CategoryPageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const category = await getCategoryBySlug(slug);
 
   if (!category || category.is_hidden) {
     return { title: 'Category Not Found | Ruhvi' };
@@ -53,13 +57,8 @@ export async function generateMetadata({
 
 export default async function CategoryPage({ params }: CategoryPageProps) {
   const { slug } = await params;
+  const category = await getCategoryBySlug(slug);
   const supabase = await createClient();
-
-  const { data: category } = await supabase
-    .from('categories')
-    .select('*')
-    .eq('slug', slug)
-    .single();
 
   if (!category) {
     notFound();

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { cache } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import type { Metadata } from 'next';
@@ -25,35 +25,7 @@ interface BlogPost {
   author: string;
 }
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}): Promise<Metadata> {
-  const { slug } = await params;
-  const post = await fetchPost(slug);
-
-  if (!post) {
-    return { title: 'Article Not Found | Ruhvi' };
-  }
-
-  return {
-    title: post.meta_title || `${post.title} | Ruhvi Journal`,
-    description: post.meta_description || post.excerpt,
-    keywords: post.seo_keywords,
-    alternates: { canonical: post.canonical_url || `/blog/${slug}` },
-    openGraph: {
-      title: post.meta_title || post.title,
-      description: post.meta_description || post.excerpt,
-      url: `/blog/${slug}`,
-      images: post.cover_image ? [post.cover_image] : [],
-      type: 'article',
-      publishedTime: post.published_at,
-    },
-  };
-}
-
-async function fetchPost(slug: string): Promise<BlogPost | null> {
+const fetchPost = cache(async (slug: string): Promise<BlogPost | null> => {
   try {
     const supabase = await createClient();
     const { data } = await supabase
@@ -86,6 +58,34 @@ async function fetchPost(slug: string): Promise<BlogPost | null> {
   }
 
   return null;
+});
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const post = await fetchPost(slug);
+
+  if (!post) {
+    return { title: 'Article Not Found | Ruhvi' };
+  }
+
+  return {
+    title: post.meta_title || `${post.title} | Ruhvi Journal`,
+    description: post.meta_description || post.excerpt,
+    keywords: post.seo_keywords,
+    alternates: { canonical: post.canonical_url || `/blog/${slug}` },
+    openGraph: {
+      title: post.meta_title || post.title,
+      description: post.meta_description || post.excerpt,
+      url: `/blog/${slug}`,
+      images: post.cover_image ? [post.cover_image] : [],
+      type: 'article',
+      publishedTime: post.published_at,
+    },
+  };
 }
 
 export default async function BlogPostPage({

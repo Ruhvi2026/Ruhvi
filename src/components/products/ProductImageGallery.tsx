@@ -79,6 +79,8 @@ export function ProductImageGallery({
                     alt={`${productName} | Ruhvi Fine Jewellery`}
                     fill
                     sizes="(max-width: 768px) 100vw, 50vw"
+                    priority={activeImageIndex === 0}
+                    fetchPriority={activeImageIndex === 0 ? 'high' : 'auto'}
                     className="object-cover transition-transform duration-500 group-hover:scale-105"
                   />
                   <div className="absolute bottom-4 right-4 flex items-center space-x-1 rounded-full bg-white/90 p-2 text-xs text-slate-800 shadow-md transition-colors hover:bg-white">

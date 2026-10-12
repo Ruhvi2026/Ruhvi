@@ -24,7 +24,8 @@ export function getProductImage(sourceUrl: string): string {
  * @returns Optimized URL
  */
 export function getThumbnailImage(sourceUrl: string): string {
-  return sourceUrl;
+  if (!sourceUrl) return '';
+  return getOptimizedImageUrl(sourceUrl, 'w_160,h_160,c_fill');
 }
 
 /**
@@ -90,9 +91,7 @@ export async function uploadAttachment(
  * @param file The file to upload
  * @returns The secure URL and public ID
  */
-export async function uploadProductImage(
-  file: File
-): Promise<{
+export async function uploadProductImage(file: File): Promise<{
   secure_url: string;
   public_id: string;
   format: string;

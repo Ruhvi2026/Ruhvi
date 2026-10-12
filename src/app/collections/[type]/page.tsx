@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { cache } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
@@ -7,19 +7,23 @@ import { ArrowLeft, Sparkles, Filter } from 'lucide-react';
 import { createClient } from '@/lib/supabase/server';
 import { getOptimizedImageUrl } from '@/lib/imageService';
 
+const getCollectionBySlug = cache(async (type: string) => {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from('collections')
+    .select('*')
+    .eq('slug', type)
+    .single();
+  return data;
+});
+
 export async function generateMetadata({
   params,
 }: {
   params: Promise<{ type: string }>;
 }): Promise<Metadata> {
   const { type } = await params;
-
-  const supabase = await createClient();
-  const { data } = await supabase
-    .from('collections')
-    .select('title, subtitle')
-    .eq('slug', type)
-    .single();
+  const data = await getCollectionBySlug(type);
   const title = data?.title;
   const description = data?.subtitle;
 
@@ -45,12 +49,8 @@ export default async function CollectionPage({
   const resolvedParams = await params;
   const type = resolvedParams.type;
 
+  const dbCollection = await getCollectionBySlug(type);
   const supabase = await createClient();
-  const { data: dbCollection } = await supabase
-    .from('collections')
-    .select('*')
-    .eq('slug', type)
-    .single();
 
   let collection = null;
 
