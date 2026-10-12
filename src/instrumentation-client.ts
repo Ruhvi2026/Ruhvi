@@ -2,11 +2,13 @@
 // The added config here will be used whenever a users loads a page in their browser.
 // https://docs.sentry.io/platforms/javascript/guides/nextjs/
 
-import * as Sentry from '@sentry/nextjs';
+import {
+  init as initSentry,
+  captureRouterTransitionStart,
+} from '@sentry/nextjs';
 import { beforeSendSentry } from '@/lib/sentry-ignore';
-import posthog from 'posthog-js/dist/module.slim';
 
-Sentry.init({
+initSentry({
   dsn: 'https://eecdeac600c80b3f7838f9f38c5d3192@o4511965411606528.ingest.de.sentry.io/4511965422288976',
 
   // Sample 10% of traces in production to reduce client performance overhead
@@ -83,12 +85,14 @@ function redactValue(value: unknown, depth = 0): unknown {
 
 if (typeof window !== 'undefined' && POSTHOG_KEY) {
   let isPostHogInitialized = false;
-  const startPostHog = () => {
+  const startPostHog = async () => {
     if (isPostHogInitialized) return;
     isPostHogInitialized = true;
     window.removeEventListener('pointerdown', startPostHog);
     window.removeEventListener('touchstart', startPostHog);
     window.removeEventListener('keydown', startPostHog);
+
+    const { default: posthog } = await import('posthog-js/dist/module.slim');
 
     posthog.init(POSTHOG_KEY, {
       api_host: POSTHOG_HOST,
@@ -168,4 +172,4 @@ if (typeof window !== 'undefined' && POSTHOG_KEY) {
   }
 }
 
-export const onRouterTransitionStart = Sentry.captureRouterTransitionStart;
+export const onRouterTransitionStart = captureRouterTransitionStart;

@@ -4,7 +4,6 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Product, CartItem } from '@/types/database';
 import toast from 'react-hot-toast';
 import { ecommerceEvent } from '@/lib/gtag';
-import posthog from 'posthog-js/dist/module.slim';
 
 interface CartContextType {
   items: CartItem[];
@@ -192,7 +191,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       });
 
       // PostHog product_added_to_cart event
-      posthog.capture('product_added_to_cart', {
+      ecommerceEvent('product_added_to_cart', {
         product_id: product.id,
         name: product.name,
         price: product.price || 0,

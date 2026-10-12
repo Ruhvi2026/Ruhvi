@@ -12,6 +12,8 @@ const nextConfig = {
       'motion',
       'photoswipe',
       'react-hot-toast',
+      'posthog-js',
+      '@sentry/nextjs',
     ],
   },
   compiler: {

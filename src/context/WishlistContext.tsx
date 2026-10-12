@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Product } from '@/types/database';
 import toast from 'react-hot-toast';
-import posthog from 'posthog-js/dist/module.slim';
+import { ecommerceEvent } from '@/lib/gtag';
 
 interface WishlistContextType {
   items: Product[];
@@ -54,7 +54,7 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
       } else {
         setItems((prev) => [...prev, product]);
         toast.success('Added to wishlist');
-        posthog.capture('product_added_to_wishlist', {
+        ecommerceEvent('product_added_to_wishlist', {
           product_id: product.id,
           name: product.name,
         });

@@ -1,13 +1,22 @@
-import posthog from 'posthog-js/dist/module.slim';
-
 // GA4 was removed in the analytics consolidation (Fix 13). These helpers are
 // kept so call sites keep working, but events are captured by PostHog — the
 // primary analytics tool — so the e-commerce funnel is not lost.
 
-export const pageview = (url: string) => {
-  if (typeof window !== 'undefined') {
-    posthog.capture('$pageview', { $current_url: url });
+let posthogPromise: Promise<any> | null = null;
+function getPostHog() {
+  if (typeof window === 'undefined') return null;
+  if (!posthogPromise) {
+    posthogPromise = import('posthog-js/dist/module.slim').then(
+      (m) => m.default
+    );
   }
+  return posthogPromise;
+}
+
+export const pageview = (url: string) => {
+  getPostHog()?.then((ph) => {
+    ph.capture('$pageview', { $current_url: url });
+  });
 };
 
 export const event = ({
@@ -21,16 +30,16 @@ export const event = ({
   label?: string;
   value?: number;
 }) => {
-  if (typeof window !== 'undefined') {
-    posthog.capture(action, { category, label, value });
-  }
+  getPostHog()?.then((ph) => {
+    ph.capture(action, { category, label, value });
+  });
 };
 
 export const ecommerceEvent = (
   eventName: string,
   params: Record<string, any>
 ) => {
-  if (typeof window !== 'undefined') {
-    posthog.capture(eventName, params);
-  }
+  getPostHog()?.then((ph) => {
+    ph.capture(eventName, params);
+  });
 };
