@@ -7,6 +7,7 @@ import {
   User,
   Mic,
   MessageSquare,
+  Headphones,
   Sparkles,
   AlertTriangle,
   CheckCircle,
@@ -22,6 +23,8 @@ import {
   ExternalLink,
   Plus,
   BarChart3,
+  ChevronDown,
+  Square,
   Target,
   Zap,
   Activity,
@@ -64,6 +67,8 @@ import {
 } from '@/lib/ai/co-founder/workers/client-status';
 import { useLiveKitVoice } from '@/hooks/useLiveKitVoice';
 import { useBrowserVoice } from '@/hooks/useBrowserVoice';
+import { useVoiceNoteRecorder } from '@/hooks/useVoiceNoteRecorder';
+import { VoiceNotePlayer } from '@/components/chat/VoiceNotePlayer';
 import toast from 'react-hot-toast';
 
 interface ChatMessage {
@@ -85,6 +90,10 @@ interface ChatMessage {
   workerName?: string;
   imageUrl?: string;
   imageBase64?: string;
+  audioUrl?: string;
+  audioBase64?: string;
+  audioMimeType?: string;
+  audioDuration?: number;
 }
 
 export default function CoFounderPortalPage() {
@@ -193,13 +202,35 @@ export default function CoFounderPortalPage() {
 
       const savedStyle = localStorage.getItem('ruhvi_co_founder_voice_style');
       if (savedStyle) setVoiceStyle(savedStyle as any);
+
+      const savedAvatar = localStorage.getItem('ruhvi_co_founder_avatar_url');
+      if (savedAvatar) setRuAvatarUrl(savedAvatar);
     }
   }, []);
 
+  // Co-Founder Ru Profile Avatar URL (Set to founder's uploaded 3D entity avatar)
+  const [ruAvatarUrl, setRuAvatarUrl] = useState<string>(
+    'https://res.cloudinary.com/io1kkukg/image/upload/v1791747660/ruhvi/chat_attachments/a8hcpjxwemamremtsbg4.jpg'
+  );
+
   // Quick Widget States
   const [proactiveSignals, setProactiveSignals] = useState<any[]>([]);
+  const [activeAlerts, setActiveAlerts] = useState<any[]>([]);
+  const [resolvedAlerts, setResolvedAlerts] = useState<any[]>([]);
+  const [alertsSubTab, setAlertsSubTab] = useState<'active' | 'resolved'>(
+    'active'
+  );
+  const [isUpdatingTicket, setIsUpdatingTicket] = useState(false);
   const [pendingApprovals, setPendingApprovals] = useState<any[]>([]);
   const [loadingWidgets, setLoadingWidgets] = useState(false);
+
+  // Chat scroll tracking
+  const chatScrollContainerRef = useRef<HTMLDivElement>(null);
+  const [isChatScrolledUp, setIsChatScrolledUp] = useState(false);
+
+  // Voice Note Recorder Hook
+  const voiceRecorder = useVoiceNoteRecorder();
+
   const [selectedWidgetTab, setSelectedWidgetTab] = useState<
     | 'alerts'
     | 'approvals'
@@ -300,7 +331,23 @@ export default function CoFounderPortalPage() {
     try {
       setLoadingWidgets(true);
 
-      // Fetch active proactive signals
+      // 1. Fetch real-time active & resolved alerts from chat route
+      try {
+        const alertRes = await fetch('/api/admin/co-founder/chat');
+        if (alertRes.ok) {
+          const alertData = await alertRes.json();
+          if (alertData.activeAlerts) {
+            setActiveAlerts(alertData.activeAlerts);
+          }
+          if (alertData.resolvedAlerts) {
+            setResolvedAlerts(alertData.resolvedAlerts);
+          }
+        }
+      } catch (alertErr) {
+        console.warn('[Co-Founder] Error loading real-time alerts:', alertErr);
+      }
+
+      // 2. Fetch active proactive signals
       const sigRes = await fetch('/api/admin/co-founder/tools/execute', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -316,7 +363,7 @@ export default function CoFounderPortalPage() {
         toast.error('Failed to load proactive signals');
       }
 
-      // Fetch pending approvals
+      // 3. Fetch pending approvals
       const appRes = await fetch('/api/admin/co-founder/tools/execute', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -329,7 +376,7 @@ export default function CoFounderPortalPage() {
         toast.error('Failed to load pending approvals');
       }
 
-      // Fetch repository architecture
+      // 4. Fetch repository architecture
       const archRes = await fetch('/api/admin/co-founder/tools/execute', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -350,6 +397,109 @@ export default function CoFounderPortalPage() {
     } finally {
       setLoadingWidgets(false);
     }
+  };
+
+  const handleResolveTicket = async (
+    ticketId: string,
+    ticketNumber?: string
+  ) => {
+    setIsUpdatingTicket(true);
+    try {
+      const res = await fetch('/api/admin/co-founder/tools/execute', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          toolName: 'update_support_ticket_status',
+          args: {
+            ticketId: ticketNumber || ticketId.replace(/^ticket_/, ''),
+            status: 'resolved',
+          },
+        }),
+      });
+      if (res.ok) {
+        toast.success(
+          `Support Ticket #${ticketNumber || ''} marked as resolved!`
+        );
+        setActiveAlerts((prev) => {
+          const target = prev.find(
+            (a) => a.id === ticketId || a.ticketNumber === ticketNumber
+          );
+          if (target) {
+            setResolvedAlerts((rPrev) => [
+              {
+                ...target,
+                status: 'resolved',
+                resolvedAt: new Date().toISOString(),
+              },
+              ...rPrev,
+            ]);
+          }
+          return prev.filter(
+            (a) => a.id !== ticketId && a.ticketNumber !== ticketNumber
+          );
+        });
+        setProactiveSignals((prev) =>
+          prev.filter(
+            (s) => s.id !== ticketId && s.ticketNumber !== ticketNumber
+          )
+        );
+      } else {
+        toast.error('Failed to update ticket status');
+      }
+    } catch {
+      toast.error('Failed to update ticket status');
+    } finally {
+      setIsUpdatingTicket(false);
+    }
+  };
+
+  const handleReopenTicket = async (
+    ticketId: string,
+    ticketNumber?: string
+  ) => {
+    setIsUpdatingTicket(true);
+    try {
+      const res = await fetch('/api/admin/co-founder/tools/execute', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          toolName: 'update_support_ticket_status',
+          args: {
+            ticketId: ticketNumber || ticketId.replace(/^ticket_/, ''),
+            status: 'open',
+          },
+        }),
+      });
+      if (res.ok) {
+        toast.success(`Ticket #${ticketNumber || ''} reopened`);
+        setResolvedAlerts((prev) => {
+          const target = prev.find(
+            (a) => a.id === ticketId || a.ticketNumber === ticketNumber
+          );
+          if (target) {
+            setActiveAlerts((aPrev) => [
+              { ...target, status: 'open' },
+              ...aPrev,
+            ]);
+          }
+          return prev.filter(
+            (a) => a.id !== ticketId && a.ticketNumber !== ticketNumber
+          );
+        });
+      } else {
+        toast.error('Failed to reopen ticket');
+      }
+    } catch {
+      toast.error('Failed to reopen ticket');
+    } finally {
+      setIsUpdatingTicket(false);
+    }
+  };
+
+  const handleDiscussItem = (item: any) => {
+    setActiveTab('chat');
+    const discussText = `Let's discuss and resolve ${item.title}: ${item.message}`;
+    setInput(discussText);
   };
 
   const fetchActionPlans = async () => {
@@ -519,9 +669,28 @@ export default function CoFounderPortalPage() {
     }
   }, [messages, browserVoice]);
 
-  // Handle Chat Submit
-  const executeChatMessage = async (rawText: string) => {
-    if (!rawText.trim() || isLoading) return;
+  // Controlled Auto-scroll for Chat Stream (avoids jumping when user is reading past history)
+  useEffect(() => {
+    if (chatScrollContainerRef.current && !isChatScrolledUp) {
+      chatScrollContainerRef.current.scrollTo({
+        top: chatScrollContainerRef.current.scrollHeight,
+        behavior: 'smooth',
+      });
+    }
+  }, [messages, isChatScrolledUp]);
+
+  // Handle Chat Submit (Text, Image or Audio Voice Note)
+  const executeChatMessage = async (
+    rawText: string,
+    audioAttachment?: {
+      audioUrl: string;
+      audioBase64: string;
+      audioMimeType: string;
+      audioDuration: number;
+    }
+  ) => {
+    if ((!rawText.trim() && !audioAttachment && !attachedImage) || isLoading)
+      return;
 
     const rawInput = rawText.trim();
     let targetedRole: any = 'cofounder';
@@ -560,11 +729,17 @@ export default function CoFounderPortalPage() {
       sender: 'user',
       text:
         rawInput ||
-        (currentAttached
-          ? 'Please review this attached image and share your analysis and thoughts.'
-          : ''),
+        (audioAttachment
+          ? `🎤 Voice Note (${audioAttachment.audioDuration}s)`
+          : currentAttached
+            ? 'Please review this attached image and share your analysis and thoughts.'
+            : ''),
       imageUrl: currentAttached?.url,
       imageBase64: currentAttached?.base64,
+      audioUrl: audioAttachment?.audioUrl,
+      audioBase64: audioAttachment?.audioBase64,
+      audioMimeType: audioAttachment?.audioMimeType,
+      audioDuration: audioAttachment?.audioDuration,
       timestamp: Date.now(),
     };
 
@@ -573,6 +748,15 @@ export default function CoFounderPortalPage() {
     setInput('');
     setAttachedImage(null);
     setIsLoading(true);
+
+    // Smooth scroll down when user sends a message
+    if (chatScrollContainerRef.current) {
+      chatScrollContainerRef.current.scrollTo({
+        top: chatScrollContainerRef.current.scrollHeight,
+        behavior: 'smooth',
+      });
+      setIsChatScrolledUp(false);
+    }
 
     try {
       const res = await fetch('/api/admin/co-founder/chat', {
@@ -584,6 +768,8 @@ export default function CoFounderPortalPage() {
             text: m.text,
             imageUrl: m.imageUrl,
             imageBase64: m.imageBase64,
+            audioBase64: m.audioBase64,
+            audioMimeType: m.audioMimeType,
           })),
           channel: 'text',
           provider: selectedProvider,
@@ -598,6 +784,20 @@ export default function CoFounderPortalPage() {
         setIsBrowserOpen(true);
         setIsBrowserMinimized(false);
         setSelectedWidgetTab('browser');
+      }
+
+      // If audio transcription was returned, enrich user message bubble
+      if (data.transcript && audioAttachment) {
+        setMessages((prev) =>
+          prev.map((m) =>
+            m.id === userMsg.id
+              ? {
+                  ...m,
+                  text: `🎤 Voice Note: "${data.transcript}"`,
+                }
+              : m
+          )
+        );
       }
 
       const assistantResponse = data.response || 'No response received.';
@@ -641,6 +841,17 @@ export default function CoFounderPortalPage() {
     }
   };
 
+  const handleSendRecordedVoiceNote = async () => {
+    const recorded = await voiceRecorder.stopRecording();
+    if (!recorded) return;
+    await executeChatMessage('', {
+      audioUrl: recorded.url,
+      audioBase64: recorded.base64,
+      audioMimeType: recorded.mimeType,
+      audioDuration: recorded.duration,
+    });
+  };
+
   const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -656,7 +867,7 @@ export default function CoFounderPortalPage() {
     }
 
     setIsUploadingImage(true);
-    const toastId = toast.loading('Uploading product image...');
+    const toastId = toast.loading('Uploading file...');
 
     try {
       const formData = new FormData();
@@ -680,8 +891,8 @@ export default function CoFounderPortalPage() {
       });
 
       toast.success(
-        'Product image attached! Click Send or ask Co-Founder to generate photos & description.',
-        { id: toastId, icon: '📸' }
+        'File attached! You can discuss, set as avatar, or ask Ru anything.',
+        { id: toastId, icon: '📎' }
       );
     } catch (err: any) {
       toast.error(`Image upload failed: ${err.message}`, { id: toastId });
@@ -1015,6 +1226,7 @@ export default function CoFounderPortalPage() {
                 size={isCompact ? compactSwarmCharSize : swarmCharSize}
                 onClick={() => setSelectedWorkerId(cofounderNode.id)}
                 interactive={true}
+                avatarUrl={ruAvatarUrl}
               />
             </div>
 
@@ -1162,12 +1374,20 @@ export default function CoFounderPortalPage() {
       {/* Top Header & Dark Neumorphic Controls */}
       <div className="flex flex-col justify-between gap-3 rounded-3xl border border-neutral-200/80 bg-nm-light-bg p-3 shadow-nm-flat backdrop-blur-2xl dark:border-neutral-800/90 dark:bg-nm-dark-bg dark:shadow-nm-flat-dark lg:flex-row lg:items-center lg:gap-4 lg:p-4">
         <div className="flex items-center gap-3.5">
-          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-nm-gradient-light shadow-nm-flat dark:bg-nm-gradient-dark dark:shadow-nm-flat-dark">
-            <Sparkles className="h-6 w-6 text-violet-600 dark:text-amber-400" />
+          <div className="relative flex h-11 w-11 shrink-0 overflow-hidden rounded-2xl bg-nm-gradient-light shadow-nm-flat ring-2 ring-violet-500/30 dark:bg-nm-gradient-dark dark:shadow-nm-flat-dark">
+            {ruAvatarUrl ? (
+              <img
+                src={ruAvatarUrl}
+                alt="AI Co-Founder Ru Avatar"
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <Sparkles className="h-6 w-6 text-violet-600 dark:text-amber-400" />
+            )}
           </div>
           <div>
             <h1 className="flex items-center gap-2 text-lg font-bold tracking-tight text-nm-light-textPrimary dark:text-white">
-              AI Co-Founder
+              AI Co-Founder (Ru)
               <span className="rounded-full border border-violet-500/30 bg-violet-500/20 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-widest text-violet-700 dark:text-violet-300">
                 Executive Command Center
               </span>
@@ -1505,7 +1725,7 @@ export default function CoFounderPortalPage() {
                       : 'text-nm-light-textSecondary hover:text-nm-light-textPrimary dark:text-neutral-400 dark:hover:text-neutral-200'
                   }`}
                 >
-                  Alerts ({proactiveSignals.length})
+                  Alerts ({activeAlerts.length})
                 </button>
                 <button
                   type="button"
@@ -1739,53 +1959,243 @@ export default function CoFounderPortalPage() {
                 selectedWidgetTab === 'browser' ||
                 selectedWidgetTab === 'plans' ||
                 selectedWidgetTab === 'swarm' ||
-                selectedWidgetTab === 'workspace'
+                selectedWidgetTab === 'workspace' ||
+                selectedWidgetTab === 'alerts'
                   ? 'max-h-[600px]'
                   : 'max-h-48'
               }`}
             >
               {selectedWidgetTab === 'alerts' && (
                 <div
-                  className="space-y-2"
+                  className="space-y-3"
                   aria-live="polite"
-                  aria-label="Proactive alerts"
+                  aria-label="Proactive alerts and support tickets"
                 >
-                  {proactiveSignals.length === 0 ? (
-                    <p className="flex items-center gap-1.5 py-1 text-[11px] text-nm-light-textSecondary dark:text-neutral-400">
-                      <ShieldCheck
-                        size={13}
-                        className="text-emerald-500 dark:text-emerald-400"
-                      />
-                      All inventory, support, and sales signals are normal.
-                    </p>
-                  ) : (
-                    proactiveSignals.map((sig) => (
-                      <div
-                        key={sig.id}
-                        className="flex items-start justify-between gap-2 rounded-xl border border-neutral-200/80 bg-nm-light-bg p-2.5 shadow-nm-flat dark:border-neutral-800 dark:bg-nm-dark-bg dark:shadow-nm-flat-dark"
+                  {/* Sub-tab Navigation: Active vs Resolved */}
+                  <div className="flex items-center justify-between border-b border-neutral-200/80 pb-2 dark:border-neutral-800">
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setAlertsSubTab('active')}
+                        className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-semibold transition-all ${
+                          alertsSubTab === 'active'
+                            ? 'border border-amber-500/30 bg-amber-500/10 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300'
+                            : 'text-nm-light-textSecondary hover:text-nm-light-textPrimary dark:text-neutral-400 dark:hover:text-neutral-200'
+                        }`}
                       >
-                        <div className="flex items-start gap-2">
-                          <AlertTriangle
-                            size={14}
-                            className="mt-0.5 shrink-0 text-amber-500 dark:text-amber-400"
-                          />
-                          <div>
-                            <p className="text-xs font-bold text-nm-light-textPrimary dark:text-white">
-                              {sig.title}
-                            </p>
-                            <p className="line-clamp-1 text-[11px] text-nm-light-textSecondary dark:text-neutral-400">
-                              {sig.summary}
-                            </p>
-                          </div>
+                        <AlertTriangle
+                          size={12}
+                          className={
+                            activeAlerts.length > 0
+                              ? 'text-amber-500'
+                              : 'text-neutral-400'
+                          }
+                        />
+                        <span>Active ({activeAlerts.length})</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setAlertsSubTab('resolved')}
+                        className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-semibold transition-all ${
+                          alertsSubTab === 'resolved'
+                            ? 'border border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300'
+                            : 'text-nm-light-textSecondary hover:text-nm-light-textPrimary dark:text-neutral-400 dark:hover:text-neutral-200'
+                        }`}
+                      >
+                        <CheckCircle size={12} className="text-emerald-500" />
+                        <span>Resolved ({resolvedAlerts.length})</span>
+                      </button>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={refreshStrategicWidgets}
+                      disabled={loadingWidgets}
+                      className="flex items-center gap-1 text-[11px] text-nm-light-textSecondary transition-colors hover:text-violet-600 dark:text-neutral-400 dark:hover:text-violet-400"
+                      title="Sync alerts"
+                    >
+                      <RefreshCw
+                        size={11}
+                        className={loadingWidgets ? 'animate-spin' : ''}
+                      />
+                      <span>Sync</span>
+                    </button>
+                  </div>
+
+                  {/* ACTIVE ALERTS VIEW */}
+                  {alertsSubTab === 'active' && (
+                    <div className="space-y-2">
+                      {activeAlerts.length === 0 ? (
+                        <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4 text-center">
+                          <p className="flex items-center justify-center gap-2 text-xs font-medium text-emerald-600 dark:text-emerald-400">
+                            <ShieldCheck size={16} />
+                            All support tickets & operational signals are
+                            normal.
+                          </p>
+                          <p className="mt-1 text-[11px] text-neutral-500 dark:text-neutral-400">
+                            Zero pending customer issues or inventory
+                            bottlenecks.
+                          </p>
                         </div>
-                        <button
-                          onClick={() => handleAcknowledgeSignal(sig.id)}
-                          className="rounded-lg bg-nm-light-bg px-2 py-0.5 text-[10px] text-nm-light-textSecondary shadow-nm-flat transition-colors hover:bg-neutral-200 dark:bg-nm-dark-bg dark:text-neutral-300 dark:shadow-nm-flat-dark dark:hover:bg-neutral-700"
-                        >
-                          Dismiss
-                        </button>
-                      </div>
-                    ))
+                      ) : (
+                        activeAlerts.map((item) => (
+                          <div
+                            key={item.id}
+                            className="group flex flex-col justify-between gap-2.5 rounded-2xl border border-neutral-200/80 bg-nm-light-bg p-3 shadow-nm-flat transition-all hover:border-amber-500/30 dark:border-neutral-800 dark:bg-nm-dark-bg dark:shadow-nm-flat-dark sm:flex-row sm:items-center"
+                          >
+                            <div className="flex min-w-0 items-start gap-2.5">
+                              <AlertTriangle
+                                size={15}
+                                className={`mt-0.5 shrink-0 ${
+                                  item.priority === 'critical'
+                                    ? 'animate-pulse text-rose-500'
+                                    : 'text-amber-500'
+                                }`}
+                              />
+                              <div className="min-w-0">
+                                <div className="flex flex-wrap items-center gap-2">
+                                  <p className="truncate text-xs font-bold text-nm-light-textPrimary dark:text-white">
+                                    {item.title}
+                                  </p>
+                                  {item.priority && (
+                                    <span
+                                      className={`rounded-full px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider ${
+                                        item.priority === 'critical'
+                                          ? 'bg-rose-500/20 text-rose-600 dark:text-rose-400'
+                                          : item.priority === 'high'
+                                            ? 'bg-amber-500/20 text-amber-600 dark:text-amber-400'
+                                            : 'bg-neutral-500/10 text-neutral-600 dark:text-neutral-400'
+                                      }`}
+                                    >
+                                      {item.priority}
+                                    </span>
+                                  )}
+                                  {item.type === 'ticket' && (
+                                    <span className="rounded-full bg-blue-500/10 px-1.5 py-0.5 text-[9px] font-bold text-blue-600 dark:text-blue-400">
+                                      Ticket
+                                    </span>
+                                  )}
+                                </div>
+                                <p className="mt-0.5 line-clamp-2 text-[11px] text-nm-light-textSecondary dark:text-neutral-300">
+                                  {item.message}
+                                </p>
+                              </div>
+                            </div>
+
+                            <div className="flex shrink-0 items-center gap-1.5 self-end sm:self-center">
+                              <button
+                                type="button"
+                                onClick={() => handleDiscussItem(item)}
+                                className="flex items-center gap-1 rounded-lg border border-violet-500/30 bg-violet-500/10 px-2.5 py-1 text-[11px] font-medium text-violet-700 transition-all hover:bg-violet-500/20 dark:text-violet-300"
+                                title="Open chat to discuss this issue with Ru"
+                              >
+                                <MessageSquare size={11} />
+                                <span>Discuss</span>
+                              </button>
+
+                              {item.type === 'ticket' ? (
+                                <button
+                                  type="button"
+                                  disabled={isUpdatingTicket}
+                                  onClick={() =>
+                                    handleResolveTicket(
+                                      item.id,
+                                      item.ticketNumber
+                                    )
+                                  }
+                                  className="flex items-center gap-1 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 text-[11px] font-semibold text-emerald-700 transition-all hover:bg-emerald-500/20 disabled:opacity-50 dark:text-emerald-300"
+                                  title="Mark support ticket as resolved"
+                                >
+                                  <CheckCircle size={11} />
+                                  <span>Mark Resolved</span>
+                                </button>
+                              ) : (
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    handleAcknowledgeSignal(item.id)
+                                  }
+                                  className="rounded-lg bg-nm-light-bg px-2.5 py-1 text-[11px] text-nm-light-textSecondary shadow-nm-flat transition-colors hover:bg-neutral-200 dark:bg-nm-dark-bg dark:text-neutral-300 dark:shadow-nm-flat-dark dark:hover:bg-neutral-700"
+                                >
+                                  Dismiss
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  )}
+
+                  {/* RESOLVED ALERTS VIEW */}
+                  {alertsSubTab === 'resolved' && (
+                    <div className="space-y-2">
+                      {resolvedAlerts.length === 0 ? (
+                        <div className="rounded-xl border border-neutral-200/80 bg-neutral-100/50 p-4 text-center dark:border-neutral-800 dark:bg-neutral-900/40">
+                          <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                            No resolved support tickets in recent history.
+                          </p>
+                        </div>
+                      ) : (
+                        resolvedAlerts.map((item) => (
+                          <div
+                            key={item.id}
+                            className="group flex flex-col justify-between gap-2.5 rounded-2xl border border-neutral-200/80 bg-nm-light-bg p-3 opacity-85 shadow-nm-flat transition-opacity hover:opacity-100 dark:border-neutral-800 dark:bg-nm-dark-bg dark:shadow-nm-flat-dark sm:flex-row sm:items-center"
+                          >
+                            <div className="flex min-w-0 items-start gap-2.5">
+                              <CheckCircle
+                                size={15}
+                                className="mt-0.5 shrink-0 text-emerald-500 dark:text-emerald-400"
+                              />
+                              <div className="min-w-0">
+                                <div className="flex flex-wrap items-center gap-2">
+                                  <p className="truncate text-xs font-bold text-nm-light-textPrimary line-through decoration-emerald-500/60 dark:text-white">
+                                    {item.title}
+                                  </p>
+                                  <span className="rounded-full bg-emerald-500/10 px-1.5 py-0.5 text-[9px] font-bold text-emerald-600 dark:text-emerald-400">
+                                    Resolved
+                                  </span>
+                                  {item.resolvedAt && (
+                                    <span className="text-[10px] text-neutral-400">
+                                      {new Date(
+                                        item.resolvedAt
+                                      ).toLocaleDateString()}
+                                    </span>
+                                  )}
+                                </div>
+                                <p className="mt-0.5 line-clamp-1 text-[11px] text-neutral-400 dark:text-neutral-400">
+                                  {item.message}
+                                </p>
+                              </div>
+                            </div>
+
+                            <div className="flex shrink-0 items-center gap-1.5 self-end sm:self-center">
+                              <button
+                                type="button"
+                                onClick={() => handleDiscussItem(item)}
+                                className="flex items-center gap-1 rounded-lg border border-neutral-300/80 bg-nm-light-bg px-2 py-0.5 text-[10px] font-medium text-nm-light-textSecondary shadow-nm-flat transition-colors hover:text-violet-600 dark:border-neutral-800 dark:bg-nm-dark-bg dark:text-neutral-300 dark:shadow-nm-flat-dark"
+                                title="Discuss in chat"
+                              >
+                                <MessageSquare size={10} />
+                                <span>Discuss</span>
+                              </button>
+                              <button
+                                type="button"
+                                disabled={isUpdatingTicket}
+                                onClick={() =>
+                                  handleReopenTicket(item.id, item.ticketNumber)
+                                }
+                                className="flex items-center gap-1 rounded-lg border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[10px] font-semibold text-amber-700 transition-all hover:bg-amber-500/20 disabled:opacity-50 dark:text-amber-300"
+                                title="Reopen this ticket"
+                              >
+                                <RefreshCw size={10} />
+                                <span>Reopen</span>
+                              </button>
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
                   )}
                 </div>
               )}
@@ -2243,7 +2653,16 @@ export default function CoFounderPortalPage() {
             </div>
 
             {/* Dedicated Conversation Messages Stream Panel */}
-            <div className="scrollbar-thin flex-1 space-y-3 overflow-y-auto p-4">
+            <div
+              ref={chatScrollContainerRef}
+              onScroll={(e) => {
+                const el = e.currentTarget;
+                const isAtBottom =
+                  el.scrollHeight - el.scrollTop - el.clientHeight < 60;
+                setIsChatScrolledUp(!isAtBottom);
+              }}
+              className="scrollbar-thin relative flex-1 space-y-3 overflow-y-auto p-4"
+            >
               {messages.map((m) => {
                 const isUser = m.sender === 'user';
                 const role = isUser ? undefined : m.role || 'cofounder';
@@ -2275,7 +2694,15 @@ export default function CoFounderPortalPage() {
                             <div
                               className={`flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-bold ${roleTheme?.badge}`}
                             >
-                              {getWorkerIcon(role || 'cofounder')}
+                              {role === 'cofounder' || !role ? (
+                                <img
+                                  src={ruAvatarUrl}
+                                  alt="Ru"
+                                  className="h-3.5 w-3.5 rounded-full object-cover ring-1 ring-violet-400/50"
+                                />
+                              ) : (
+                                getWorkerIcon(role || 'cofounder')
+                              )}
                               <span>{workerName}</span>
                             </div>
                           )}
@@ -2295,29 +2722,68 @@ export default function CoFounderPortalPage() {
                           </span>
                         )}
                       </div>
+
+                      {/* Attached Image / File */}
                       {m.imageUrl && (
                         <div className="mb-2 mt-1">
                           <div className="relative inline-block overflow-hidden rounded-xl border border-violet-500/30 bg-black/5 shadow-sm dark:bg-black/20">
                             <img
                               src={m.imageUrl}
-                              alt="Attached product"
+                              alt="Attached file"
                               className="max-h-56 max-w-full cursor-pointer rounded-lg object-contain transition-transform hover:scale-[1.02]"
                               onClick={() => window.open(m.imageUrl, '_blank')}
                             />
                             <div className="absolute bottom-1.5 left-1.5 flex items-center gap-1 rounded bg-black/70 px-2 py-0.5 text-[10px] font-bold text-white backdrop-blur-sm">
                               <Camera size={10} className="text-violet-400" />
-                              <span>Product Photo</span>
+                              <span>Attached Image</span>
                             </div>
                           </div>
                         </div>
                       )}
-                      <p className="whitespace-pre-wrap text-xs leading-relaxed sm:text-sm">
-                        {m.text}
-                      </p>
+
+                      {/* Voice Note Audio Playback */}
+                      {m.audioUrl && (
+                        <div className="mb-2.5 mt-1">
+                          <VoiceNotePlayer
+                            src={m.audioUrl}
+                            duration={m.audioDuration}
+                            isUser={isUser}
+                          />
+                        </div>
+                      )}
+
+                      {/* Text / Transcript */}
+                      {m.text && (
+                        <p className="whitespace-pre-wrap text-xs leading-relaxed sm:text-sm">
+                          {m.text}
+                        </p>
+                      )}
                     </div>
                   </div>
                 );
               })}
+
+              {/* Floating Jump to Latest Button when scrolled up */}
+              {isChatScrolledUp && (
+                <div className="pointer-events-none sticky bottom-2 left-0 right-0 z-20 flex justify-center">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (chatScrollContainerRef.current) {
+                        chatScrollContainerRef.current.scrollTo({
+                          top: chatScrollContainerRef.current.scrollHeight,
+                          behavior: 'smooth',
+                        });
+                        setIsChatScrolledUp(false);
+                      }
+                    }}
+                    className="pointer-events-auto flex animate-bounce items-center gap-1.5 rounded-full border border-violet-500/40 bg-violet-600/95 px-3.5 py-1.5 text-xs font-bold text-white shadow-lg backdrop-blur transition-all hover:bg-violet-700 active:scale-95"
+                  >
+                    <ChevronDown size={14} />
+                    <span>Latest messages</span>
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Message Input Box & Worker Quick Tags */}
@@ -2372,140 +2838,188 @@ export default function CoFounderPortalPage() {
                         {attachedImage.name}
                       </p>
                       <p className="text-[10px] text-violet-700/80 dark:text-violet-400">
-                        Attached — ask anything or choose an action:
+                        Attached file
                       </p>
                     </div>
                   </div>
-                  <div className="flex shrink-0 items-center gap-1.5">
+                  <div className="flex shrink-0 items-center gap-2">
                     <button
                       type="button"
                       onClick={() => {
                         setInput(
-                          'Inspect this product image, extract metal & gemstone specifications, write high-converting SEO copy, and produce the 6-frame studio catalog photos.'
+                          'Execute full Product Shoot: generate 6 studio photos with Imagen 3, write SEO description, slug, and product name, draft in product catalog, and request approval to publish.'
                         );
                       }}
-                      className="rounded-lg bg-violet-600 px-2 py-1 text-[10px] font-bold text-white shadow-sm transition hover:bg-violet-700"
-                      title="Generate complete 6-frame e-commerce catalog photos"
+                      className="flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 px-3 py-1.5 text-xs font-bold text-white shadow-sm transition hover:from-amber-600 hover:to-amber-700 active:scale-95"
+                      title="Generate 6 studio photos, write SEO copy & slug, draft product in catalog, and request publish approval"
                     >
-                      ✨ 6-Frame Shoot
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setInput(
-                          'Analyze this image, point out key observations and insights, and let me know your thoughts.'
-                        );
-                      }}
-                      className="rounded-lg border border-violet-500/30 bg-violet-500/10 px-2 py-1 text-[10px] font-bold text-violet-700 transition hover:bg-violet-500/20 dark:text-violet-300"
-                      title="Open discussion and visual analysis"
-                    >
-                      💬 Discuss & Review
+                      <Camera size={13} />
+                      <span>Product Shoot</span>
                     </button>
                     <button
                       type="button"
                       onClick={() => setAttachedImage(null)}
-                      className="rounded-lg p-1 text-neutral-500 transition hover:bg-rose-500/20 hover:text-rose-600 dark:hover:text-rose-400"
-                      title="Remove attached image"
+                      className="rounded-lg p-1.5 text-neutral-500 transition hover:bg-rose-500/20 hover:text-rose-600 dark:hover:text-rose-400"
+                      title="Remove attachment"
                     >
-                      <X size={14} />
+                      <X size={15} />
                     </button>
                   </div>
                 </div>
               )}
 
-              {/* Form Input */}
-              <form onSubmit={handleSubmit} className="flex gap-2">
-                {/* Hidden File Input */}
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  accept="image/*"
-                  onChange={handleImageSelect}
-                  className="hidden"
-                />
-
-                <input
-                  type="text"
-                  value={
-                    browserVoice.isRecording && browserVoice.interimTranscript
-                      ? input
-                        ? `${input} ${browserVoice.interimTranscript}`
-                        : browserVoice.interimTranscript
-                      : input
-                  }
-                  onChange={(e) => setInput(e.target.value)}
-                  placeholder={
-                    attachedImage
-                      ? 'Ask Co-Founder about this product (or click Auto Complete / Send)...'
-                      : 'Ask your AI Co-Founder or tag @worker (e.g. @coder, @researcher)...'
-                  }
-                  className="flex-1 rounded-2xl border border-neutral-300/80 bg-nm-light-bg px-4 py-2.5 text-xs text-nm-light-textPrimary placeholder-neutral-400 shadow-nm-inset focus:border-violet-500/50 focus:outline-none dark:border-neutral-800 dark:bg-nm-dark-bg dark:text-white dark:placeholder-neutral-500 dark:shadow-nm-inset-dark"
-                  disabled={isLoading}
-                />
-
-                {/* Photo / Image Upload Button */}
-                <button
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={isLoading || isUploadingImage}
-                  title={
-                    isUploadingImage
-                      ? 'Uploading image...'
-                      : 'Upload product photo for Vision & Studio Shoot'
-                  }
-                  className={`flex shrink-0 items-center justify-center rounded-2xl px-3.5 py-2.5 text-xs font-bold shadow-nm-flat transition-all hover:opacity-90 active:scale-95 disabled:opacity-50 ${
-                    attachedImage
-                      ? 'bg-violet-600 text-white'
-                      : isUploadingImage
-                        ? 'animate-pulse bg-violet-500/20 text-violet-600'
-                        : 'bg-nm-gradient-light text-violet-700 dark:bg-nm-gradient-dark dark:text-amber-400'
-                  }`}
-                  aria-label="Upload product photo"
-                >
-                  <ImageIcon size={14} />
-                  {isUploadingImage && (
-                    <RefreshCw size={12} className="ml-1 animate-spin" />
-                  )}
-                </button>
-
-                {/* Browser Speech Recognition Microphone Button */}
-                <button
-                  type="button"
-                  onClick={browserVoice.toggleRecording}
-                  disabled={isLoading}
-                  title={
-                    browserVoice.isRecording
-                      ? 'Stop voice input'
-                      : 'Start voice input'
-                  }
-                  className={`flex shrink-0 items-center justify-center rounded-2xl px-4 py-2.5 text-xs font-bold shadow-nm-flat transition-all hover:opacity-90 active:scale-95 disabled:opacity-50 ${
-                    browserVoice.isRecording
-                      ? 'animate-pulse bg-rose-500/20 text-rose-600 dark:bg-rose-500/20 dark:text-rose-400'
-                      : 'bg-nm-gradient-light text-violet-700 dark:bg-nm-gradient-dark dark:text-amber-400'
-                  }`}
-                  aria-label={
-                    browserVoice.isRecording
-                      ? 'Stop voice input'
-                      : 'Start voice input'
-                  }
-                  aria-pressed={browserVoice.isRecording}
-                >
-                  <Mic size={14} />
-                  {browserVoice.isRecording && (
-                    <span className="ml-1.5 flex items-center gap-1">
-                      <span className="h-2 w-2 animate-pulse rounded-full bg-rose-500" />
-                      <span className="font-mono text-[10px]">REC</span>
+              {/* Voice Note Recording Bar or Standard Form Input */}
+              {voiceRecorder.isRecording ? (
+                <div className="flex items-center justify-between gap-3 rounded-2xl border border-rose-500/40 bg-rose-500/10 p-2.5 backdrop-blur-sm dark:bg-rose-950/20">
+                  <div className="flex items-center gap-3 overflow-hidden">
+                    <span className="relative flex h-3.5 w-3.5 shrink-0 items-center justify-center">
+                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-rose-400 opacity-75" />
+                      <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-rose-600" />
                     </span>
-                  )}
-                </button>
-                <button
-                  type="submit"
-                  disabled={isLoading || (!input.trim() && !attachedImage)}
-                  className="flex shrink-0 items-center justify-center rounded-2xl bg-nm-gradient-light px-5 py-2.5 text-xs font-bold text-violet-700 shadow-nm-flat transition-all hover:opacity-90 active:scale-95 disabled:opacity-50 dark:bg-nm-gradient-dark dark:text-amber-400 dark:shadow-nm-flat-dark"
-                >
-                  <Send size={14} />
-                </button>
-              </form>
+                    <div className="flex flex-col">
+                      <div className="flex items-center gap-2">
+                        <span className="font-mono text-xs font-bold text-rose-700 dark:text-rose-300">
+                          {Math.floor(voiceRecorder.duration / 60)}:
+                          {String(voiceRecorder.duration % 60).padStart(2, '0')}
+                        </span>
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-rose-600/90 dark:text-rose-400">
+                          Recording Voice Note...
+                        </span>
+                      </div>
+                      {/* Dynamic Live Audio Level Visualizer */}
+                      <div className="mt-1 flex items-center gap-0.5">
+                        {Array.from({ length: 16 }).map((_, i) => {
+                          const barHeight = Math.max(
+                            3,
+                            Math.min(
+                              16,
+                              Math.round(
+                                voiceRecorder.audioLevel *
+                                  36 *
+                                  (0.5 + Math.sin(i * 0.7) * 0.5)
+                              )
+                            )
+                          );
+                          return (
+                            <span
+                              key={i}
+                              className="w-1 rounded-full bg-rose-500 transition-all duration-75"
+                              style={{ height: `${barHeight}px` }}
+                            />
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex shrink-0 items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={voiceRecorder.cancelRecording}
+                      className="flex items-center gap-1 rounded-xl border border-neutral-300/80 bg-nm-light-bg px-2.5 py-1.5 text-xs font-semibold text-neutral-600 shadow-nm-flat transition-all hover:bg-rose-50 hover:text-rose-600 dark:border-neutral-800 dark:bg-nm-dark-bg dark:text-neutral-300 dark:hover:text-rose-400"
+                      title="Discard voice recording"
+                    >
+                      <Trash2 size={13} />
+                      <span>Discard</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={handleSendRecordedVoiceNote}
+                      disabled={isLoading}
+                      className="flex items-center gap-1.5 rounded-xl bg-rose-600 px-3.5 py-1.5 text-xs font-bold text-white shadow-md transition-all hover:bg-rose-700 active:scale-95 disabled:opacity-50"
+                      title="Send voice note to Ru"
+                    >
+                      <Send size={13} />
+                      <span>Send Voice Note</span>
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <form onSubmit={handleSubmit} className="flex gap-2">
+                  {/* Hidden File Input */}
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    accept="image/*"
+                    onChange={handleImageSelect}
+                    className="hidden"
+                  />
+
+                  <input
+                    type="text"
+                    value={
+                      browserVoice.isRecording && browserVoice.interimTranscript
+                        ? input
+                          ? `${input} ${browserVoice.interimTranscript}`
+                          : browserVoice.interimTranscript
+                        : input
+                    }
+                    onChange={(e) => setInput(e.target.value)}
+                    placeholder={
+                      attachedImage
+                        ? 'Ask Ru about this attached file or type your message...'
+                        : 'Ask Ru or record a voice note (supports Bengali, English, Hindi)...'
+                    }
+                    className="flex-1 rounded-2xl border border-neutral-300/80 bg-nm-light-bg px-4 py-2.5 text-xs text-nm-light-textPrimary placeholder-neutral-400 shadow-nm-inset focus:border-violet-500/50 focus:outline-none dark:border-neutral-800 dark:bg-nm-dark-bg dark:text-white dark:placeholder-neutral-500 dark:shadow-nm-inset-dark"
+                    disabled={isLoading}
+                  />
+
+                  {/* Photo / Image Upload Button */}
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={isLoading || isUploadingImage}
+                    title={
+                      isUploadingImage
+                        ? 'Uploading image...'
+                        : 'Upload image (photo, avatar, document, chart, screenshot)'
+                    }
+                    className={`flex shrink-0 items-center justify-center rounded-2xl px-3.5 py-2.5 text-xs font-bold shadow-nm-flat transition-all hover:opacity-90 active:scale-95 disabled:opacity-50 ${
+                      attachedImage
+                        ? 'bg-violet-600 text-white'
+                        : isUploadingImage
+                          ? 'animate-pulse bg-violet-500/20 text-violet-600'
+                          : 'bg-nm-gradient-light text-violet-700 dark:bg-nm-gradient-dark dark:text-amber-400'
+                    }`}
+                    aria-label="Upload image"
+                  >
+                    <ImageIcon size={14} />
+                    {isUploadingImage && (
+                      <RefreshCw size={12} className="ml-1 animate-spin" />
+                    )}
+                  </button>
+
+                  {/* Voice Note Recording Microphone Button */}
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      if (browserVoice.isRecording) {
+                        browserVoice.toggleRecording();
+                      }
+                      const started = await voiceRecorder.startRecording();
+                      if (!started && voiceRecorder.error) {
+                        toast.error(voiceRecorder.error);
+                      }
+                    }}
+                    disabled={isLoading}
+                    title="Record voice note for Ru"
+                    className="flex shrink-0 items-center justify-center rounded-2xl bg-nm-gradient-light px-4 py-2.5 text-xs font-bold text-violet-700 shadow-nm-flat transition-all hover:opacity-90 active:scale-95 disabled:opacity-50 dark:bg-nm-gradient-dark dark:text-amber-400"
+                    aria-label="Record voice note"
+                  >
+                    <Mic size={14} />
+                  </button>
+
+                  {/* Send Button */}
+                  <button
+                    type="submit"
+                    disabled={isLoading || (!input.trim() && !attachedImage)}
+                    className="flex shrink-0 items-center justify-center rounded-2xl bg-nm-gradient-light px-5 py-2.5 text-xs font-bold text-violet-700 shadow-nm-flat transition-all hover:opacity-90 active:scale-95 disabled:opacity-50 dark:bg-nm-gradient-dark dark:text-amber-400 dark:shadow-nm-flat-dark"
+                  >
+                    <Send size={14} />
+                  </button>
+                </form>
+              )}
             </div>
           </div>
         </div>

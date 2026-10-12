@@ -173,6 +173,8 @@ export default function FloatingStaffMessenger() {
   }, [messages, inChatSearchQuery]);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
+  const [isChatScrolledUp, setIsChatScrolledUp] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const textInputRef = useRef<HTMLInputElement>(null);
 
@@ -354,12 +356,22 @@ export default function FloatingStaffMessenger() {
     };
   }, [activeConv, isOpen, isMinimized, supabase, loadMessages]);
 
-  // Scroll to bottom
-  useEffect(() => {
-    if (messages.length > 0) {
-      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  const scrollToBottom = useCallback((smooth = true) => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTo({
+        top: chatContainerRef.current.scrollHeight,
+        behavior: smooth ? 'smooth' : 'auto',
+      });
+      setIsChatScrolledUp(false);
     }
-  }, [messages]);
+  }, []);
+
+  // Scroll to bottom only if user hasn't scrolled up to read history
+  useEffect(() => {
+    if (messages.length > 0 && !isChatScrolledUp) {
+      scrollToBottom(true);
+    }
+  }, [messages, isChatScrolledUp, scrollToBottom]);
 
   // Handle typing to detect @mention
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -822,7 +834,16 @@ export default function FloatingStaffMessenger() {
         // VIEW B: ACTIVE CHAT ROOM
         <div className="relative flex flex-1 flex-col overflow-hidden bg-[#0D111E]">
           {/* Messages Feed */}
-          <div className="flex-1 space-y-2.5 overflow-y-auto p-3">
+          <div
+            ref={chatContainerRef}
+            onScroll={(e) => {
+              const el = e.currentTarget;
+              const isAtBottom =
+                el.scrollHeight - el.scrollTop - el.clientHeight < 60;
+              setIsChatScrolledUp(!isAtBottom);
+            }}
+            className="flex-1 space-y-2.5 overflow-y-auto p-3"
+          >
             {loadingMsgs ? (
               <div className="flex h-48 items-center justify-center">
                 <Loader2 className="h-5 w-5 animate-spin text-emerald-400" />
@@ -952,6 +973,17 @@ export default function FloatingStaffMessenger() {
             )}
             <div ref={messagesEndRef} />
           </div>
+
+          {/* Jump to latest messages button */}
+          {isChatScrolledUp && (
+            <button
+              type="button"
+              onClick={() => scrollToBottom(true)}
+              className="absolute bottom-16 right-4 z-20 flex items-center gap-1 rounded-full border border-emerald-500/40 bg-emerald-600 px-3 py-1 text-[11px] font-bold text-white shadow-lg backdrop-blur transition hover:bg-emerald-500 active:scale-95"
+            >
+              <span>↓ Latest</span>
+            </button>
+          )}
 
           {/* Pending Entity Reference Badges */}
           {pendingEntityRefs.length > 0 && (

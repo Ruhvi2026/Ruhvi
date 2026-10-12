@@ -5,7 +5,11 @@ import { assertToolPermission } from '@/lib/ai/mcp-auth';
 
 import { getStoreAnalytics, type AnalyticsTimeframe } from './analytics';
 import { getActiveProactiveSignals, acknowledgeSignal } from './proactive';
-import { getPendingApprovals, reviewApproval } from './approvals';
+import {
+  getPendingApprovals,
+  reviewApproval,
+  createApprovalRequest,
+} from './approvals';
 import { executeApprovedBusinessAction } from './action-engine';
 import {
   getRepositoryArchitecture,
@@ -80,6 +84,7 @@ async function executeCoFounderToolInternal(
     'orders:read',
     'customer:read',
     'support_ticket:read',
+    'support_ticket:write',
     'coupons:read',
   ]
 ): Promise<ToolExecutionResult> {
@@ -607,6 +612,44 @@ async function executeCoFounderToolInternal(
         };
       }
 
+      case 'update_support_ticket_status': {
+        const ticketId = args.ticketId || args.ticket_id;
+        const status = args.status;
+        if (!ticketId || !status) {
+          throw new Error('ticketId and status are required');
+        }
+
+        const isNumber =
+          String(ticketId).startsWith('RUV-') ||
+          !String(ticketId).includes('-');
+        let query = supabase.from('support_tickets').update({
+          status,
+          updated_at: new Date().toISOString(),
+          ...(status === 'resolved'
+            ? { resolved_at: new Date().toISOString() }
+            : {}),
+          ...(status === 'closed'
+            ? { closed_at: new Date().toISOString() }
+            : {}),
+        });
+
+        if (isNumber) {
+          query = query.eq('ticket_number', ticketId);
+        } else {
+          query = query.eq('id', ticketId);
+        }
+
+        const { data: updated, error } = await query.select();
+        if (error) throw error;
+
+        return {
+          toolName,
+          success: true,
+          data: updated,
+          summaryForVoice: `Support ticket ${ticketId} has been updated to ${status}.`,
+        };
+      }
+
       case 'audit_seo_health': {
         const report = await auditCatalogSeoHealth();
         return {
@@ -1079,6 +1122,124 @@ async function executeCoFounderToolInternal(
           data: result,
           error: result.error,
           summaryForVoice: result.summaryForVoice,
+        };
+      }
+
+      case 'create_draft_product': {
+        const {
+          name,
+          slug,
+          description,
+          category_name,
+          price,
+          mrp,
+          cost_price,
+          sku,
+          meta_title,
+          meta_description,
+          seo_keywords,
+          image_urls,
+          base_metal,
+          stone_type,
+        } = args;
+
+        if (!name || price === undefined) {
+          throw new Error(
+            'Product name and price are required to create a draft product'
+          );
+        }
+
+        const supabase = getServiceClient();
+
+        // 1. Resolve Category ID if category_name is provided
+        let categoryId: string | null = null;
+        if (category_name) {
+          const { data: cat } = await supabase
+            .from('categories')
+            .select('id, name')
+            .ilike('name', `%${category_name}%`)
+            .limit(1)
+            .maybeSingle();
+          if (cat) categoryId = cat.id;
+        }
+
+        // 2. Generate slug and SKU if missing
+        const generatedSlug =
+          slug ||
+          name
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/(^-|-$)/g, '');
+
+        const generatedSku =
+          sku ||
+          `RUH-${(category_name || 'JEW').slice(0, 3).toUpperCase()}-${Date.now().toString().slice(-4)}`;
+
+        // 3. Insert Product with status: 'draft'
+        const { data: product, error: insertErr } = await supabase
+          .from('products')
+          .insert({
+            name,
+            sku: generatedSku,
+            slug: generatedSlug,
+            category_id: categoryId,
+            price: Number(price),
+            mrp: Number(mrp || price * 1.5),
+            cost_price: Number(cost_price || price * 0.4),
+            description: description || '',
+            meta_title: meta_title || name,
+            meta_description:
+              meta_description || description?.slice(0, 160) || name,
+            seo_keywords: Array.isArray(seo_keywords) ? seo_keywords : [],
+            status: 'draft',
+            base_metal: base_metal || null,
+            stone_type: stone_type || null,
+          })
+          .select('id, name, slug, price, status')
+          .single();
+
+        if (insertErr || !product) {
+          throw new Error(
+            `Failed to create product draft: ${insertErr?.message || 'Unknown database error'}`
+          );
+        }
+
+        // 4. Attach image URLs to product_images table
+        const validUrls = Array.isArray(image_urls)
+          ? image_urls.filter(Boolean)
+          : [];
+        if (validUrls.length > 0) {
+          const imgRows = validUrls.map((url: string, idx: number) => ({
+            product_id: product.id,
+            url,
+            sort_order: idx,
+          }));
+          await supabase.from('product_images').insert(imgRows);
+        }
+
+        // 5. Submit an approval request for the founder to publish
+        const approvalRes = await createApprovalRequest({
+          actionType: 'publish_product',
+          actionPayload: {
+            product_id: product.id,
+            product_name: product.name,
+            slug: product.slug,
+            price: product.price,
+            image_urls: validUrls,
+          },
+          scopeDescription: `Publish new draft product "${product.name}" (₹${product.price}) with ${validUrls.length} studio photos to the live customer catalog.`,
+          riskLevel: 'high',
+        });
+
+        return {
+          toolName,
+          success: true,
+          data: {
+            product,
+            approvalId: approvalRes.approvalId,
+            imageCount: validUrls.length,
+          },
+          summaryForVoice: `Product "${product.name}" has been drafted with ${validUrls.length} studio photos and SEO copy. A publish approval request is awaiting your authorization.`,
         };
       }
 

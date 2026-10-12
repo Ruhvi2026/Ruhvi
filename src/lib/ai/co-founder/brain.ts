@@ -300,6 +300,32 @@ export const CO_FOUNDER_TOOL_DECLARATIONS = [
     },
   },
   {
+    name: 'update_support_ticket_status',
+    description:
+      'Update the status of a customer support ticket (e.g. resolve, close, or set to in_progress). Automatically syncs with database.',
+    parameters: {
+      type: 'OBJECT',
+      properties: {
+        ticketId: {
+          type: 'STRING',
+          description:
+            'The support ticket ID or ticket number (e.g., RUV-2026-000015)',
+        },
+        status: {
+          type: 'STRING',
+          description:
+            'New status: "resolved", "closed", "in_progress", or "open"',
+        },
+        resolutionNote: {
+          type: 'STRING',
+          description:
+            'Optional note explaining why the ticket was resolved/closed',
+        },
+      },
+      required: ['ticketId', 'status'],
+    },
+  },
+  {
     name: 'get_sales_analytics',
     description:
       'Deep business intelligence query: revenue, orders, AOV, cancellations, trends, period-over-period comparisons, and anomalies.',
@@ -997,6 +1023,84 @@ export const CO_FOUNDER_TOOL_DECLARATIONS = [
             'Whether to automatically upload all generated renders to Cloudinary CDN (default: false — returns base64 only).',
         },
       },
+    },
+  },
+  {
+    name: 'create_draft_product',
+    description:
+      'Creates a new product draft in the store catalog with up to 6 studio photos, high-converting SEO copy, slug, product name, category, pricing, metadata, and immediately creates a formal approval request for the founder to review and publish it to the live store.',
+    parameters: {
+      type: 'OBJECT',
+      properties: {
+        name: {
+          type: 'STRING',
+          description:
+            'High-converting luxury product name (e.g. "Royal Kundan Floral Choker Necklace").',
+        },
+        slug: {
+          type: 'STRING',
+          description:
+            'URL-friendly product slug (e.g. "royal-kundan-floral-choker-necklace").',
+        },
+        description: {
+          type: 'STRING',
+          description:
+            'SEO-optimized product description highlighting design, craftsmanship, materials, styling occasions, and care.',
+        },
+        category_name: {
+          type: 'STRING',
+          description:
+            'Product category name (e.g. "Necklaces", "Chokers", "Earrings", "Rings", "Bangles", "Bridal Sets").',
+        },
+        price: {
+          type: 'NUMBER',
+          description: 'Selling price in INR (e.g. 2499).',
+        },
+        mrp: {
+          type: 'NUMBER',
+          description:
+            'Maximum Retail Price / strike price in INR (e.g. 4999).',
+        },
+        cost_price: {
+          type: 'NUMBER',
+          description:
+            'Estimated production or procurement cost in INR (optional).',
+        },
+        sku: {
+          type: 'STRING',
+          description: 'Optional unique SKU code (e.g. "RUH-NECK-1042").',
+        },
+        meta_title: {
+          type: 'STRING',
+          description: 'SEO meta title under 60 characters.',
+        },
+        meta_description: {
+          type: 'STRING',
+          description: 'SEO meta description under 160 characters.',
+        },
+        seo_keywords: {
+          type: 'ARRAY',
+          description: 'High-intent search keywords for SEO.',
+          items: { type: 'STRING' },
+        },
+        image_urls: {
+          type: 'ARRAY',
+          description:
+            'Array of 6 generated studio photo URLs to attach to this product.',
+          items: { type: 'STRING' },
+        },
+        base_metal: {
+          type: 'STRING',
+          description:
+            'Base metal material (e.g. "Brass", "Sterling Silver", "Copper Alloy").',
+        },
+        stone_type: {
+          type: 'STRING',
+          description:
+            'Gemstones or stones used (e.g. "Kundan", "Moissanite", "Cubic Zirconia", "Pearls").',
+        },
+      },
+      required: ['name', 'description', 'price', 'image_urls'],
     },
   },
 ];

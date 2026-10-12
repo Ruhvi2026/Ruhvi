@@ -70,7 +70,9 @@ export async function detectCompetitorPriceSignals(
           combinedText
         );
       const discountMatch = combinedText.match(/(\d+)%\s*(?:off|discount)/i);
-      const discountPercent = discountMatch ? parseInt(discountMatch[1], 10) : null;
+      const discountPercent = discountMatch
+        ? parseInt(discountMatch[1], 10)
+        : null;
 
       if (hasDiscountMention || (discountPercent && discountPercent >= 15)) {
         signals.push({
@@ -81,7 +83,8 @@ export async function detectCompetitorPriceSignals(
           ),
           signalType: 'competitor_discount_alert',
           category: 'RISK',
-          severity: discountPercent && discountPercent >= 25 ? 'high' : 'medium',
+          severity:
+            discountPercent && discountPercent >= 25 ? 'high' : 'medium',
           confidence: 'strong',
           title: `Competitor Pricing Pressure: ${comp.name}`,
           summary: `Competitor ${comp.name} launched aggressive promotional discounts${discountPercent ? ` (${discountPercent}% off)` : ''} in the ${comp.category || 'jewelry'} category.`,
@@ -100,7 +103,10 @@ export async function detectCompetitorPriceSignals(
       }
     }
   } catch (err: any) {
-    console.warn('[Proactive] Error detecting competitor price signals:', err?.message);
+    console.warn(
+      '[Proactive] Error detecting competitor price signals:',
+      err?.message
+    );
   }
   return signals;
 }
@@ -114,7 +120,9 @@ export async function detectCheckoutAbandonmentSignals(
   const signals: ProactiveSignal[] = [];
   try {
     const supabase = getServiceClient();
-    const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+    const twentyFourHoursAgo = new Date(
+      Date.now() - 24 * 60 * 60 * 1000
+    ).toISOString();
 
     // Query pending cart items created or updated within the last 24h
     const { data: cartItems, error } = await supabase
@@ -160,7 +168,10 @@ export async function detectCheckoutAbandonmentSignals(
       });
     }
   } catch (err: any) {
-    console.warn('[Proactive] Error detecting checkout abandonment signals:', err?.message);
+    console.warn(
+      '[Proactive] Error detecting checkout abandonment signals:',
+      err?.message
+    );
   }
   return signals;
 }
@@ -209,7 +220,10 @@ export async function detectSeoDecaySignals(
       });
     }
   } catch (err: any) {
-    console.warn('[Proactive] Error detecting SEO decay signals:', err?.message);
+    console.warn(
+      '[Proactive] Error detecting SEO decay signals:',
+      err?.message
+    );
   }
   return signals;
 }
@@ -378,7 +392,8 @@ export async function scanProactiveSignals(
     candidateSignals.push(...competitorSignals);
 
     // G. Checkout Abandonment Spike Detection (Step 7.3)
-    const abandonmentSignals = await detectCheckoutAbandonmentSignals(dateBucket);
+    const abandonmentSignals =
+      await detectCheckoutAbandonmentSignals(dateBucket);
     candidateSignals.push(...abandonmentSignals);
 
     // H. SEO Keyword Rank Decay & Catalog Indexing Dips (Step 7.3)
@@ -513,6 +528,23 @@ export async function getActiveProactiveSignals(
   const supabase = getServiceClient();
 
   try {
+    // 1. Auto-reconcile support ticket signals: if all tickets are resolved, auto-acknowledge stale ticket signals
+    const { count: openCount } = await supabase
+      .from('support_tickets')
+      .select('id', { count: 'exact', head: true })
+      .in('status', ['open', 'in_progress', 'pending']);
+
+    if (openCount === 0) {
+      await supabase
+        .from('co_founder_signals')
+        .update({
+          is_acknowledged: true,
+          acknowledged_at: new Date().toISOString(),
+        })
+        .eq('signal_type', 'urgent_tickets')
+        .eq('is_acknowledged', false);
+    }
+
     const { data, error } = await supabase
       .from('co_founder_signals')
       .select('*')

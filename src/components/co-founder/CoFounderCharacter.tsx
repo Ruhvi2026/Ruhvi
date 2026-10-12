@@ -16,6 +16,7 @@ export interface CoFounderCharacterProps {
   interactive?: boolean;
   onClick?: () => void;
   className?: string;
+  avatarUrl?: string;
 }
 
 export function CoFounderCharacter({
@@ -28,6 +29,7 @@ export function CoFounderCharacter({
   interactive = true,
   onClick,
   className = '',
+  avatarUrl = 'https://res.cloudinary.com/io1kkukg/image/upload/v1791747660/ruhvi/chat_attachments/a8hcpjxwemamremtsbg4.jpg',
 }: CoFounderCharacterProps) {
   const isSpeaking = state === 'speaking';
   const isListening = state === 'listening';
@@ -156,76 +158,114 @@ export function CoFounderCharacter({
         {/* Outer 3D Soft Shell Container */}
         <div
           className="relative flex items-center justify-center overflow-hidden rounded-full p-2 shadow-[0_20px_50px_rgba(139,92,246,0.35)] shadow-nm-convex ring-1 ring-white/30 transition-all duration-300 dark:shadow-nm-convex-dark"
-           style={{
-             width: `${size * 0.85}px`,
-             height: `${size * 0.85}px`,
-             background:
-               'radial-gradient(circle at 35% 25%, theme(colors.role.cofounder.light) 0%, theme(colors.role.cofounder.DEFAULT) 55%, theme(colors.role.cofounder.dark) 100%)',
-           }}
+          style={{
+            width: `${size * 0.85}px`,
+            height: `${size * 0.85}px`,
+            background:
+              'radial-gradient(circle at 35% 25%, theme(colors.role.cofounder.light) 0%, theme(colors.role.cofounder.DEFAULT) 55%, theme(colors.role.cofounder.dark) 100%)',
+          }}
         >
-          {/* Top-Down Studio Overhead Specular Bounce Light */}
-          <div className="pointer-events-none absolute inset-0 rounded-full bg-gradient-to-b from-white/40 via-white/10 to-transparent" />
-
-          {/* Inner Volumetric Depth Gradient */}
-          <div className="pointer-events-none absolute inset-0 rounded-full bg-gradient-to-tr from-[theme(colors.role.cofounder.dark)]/40 via-transparent to-white/30" />
-
-          {/* Rim Light Flare Accent */}
-          <div className="pointer-events-none absolute left-6 top-2 h-12 w-24 -rotate-12 rounded-full bg-white/35 blur-sm" />
-
-          {/* 4. Expressive Inset Visor Screen */}
-          <div
-            className="relative flex items-center justify-center rounded-full border border-violet-400/40 bg-midnight-bg p-4 shadow-[inset_0_6px_20px_rgba(0,0,0,0.95)]"
-            style={{
-              width: `${size * 0.58}px`,
-              height: `${size * 0.42}px`,
-            }}
-          >
-            {/* Visor Specular Curve Glass Reflection */}
-            <div className="pointer-events-none absolute inset-0 rounded-full bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-80" />
-
-            {/* Visor Inner Content: Digital Animated Eyes */}
-            <div className="relative z-10 flex items-center justify-center space-x-6">
-              {/* Left Eye */}
-              <div
-                className={`rounded-full transition-all duration-200 ${eyeColorClass} ${
-                  isThinking ? 'animate-pulse' : ''
-                }`}
-                style={{
-                  width: `${isSpeaking ? 16 + audioPulse * 8 : isListening ? 18 : 14}px`,
-                  height: `${isSpeaking ? 22 + audioPulse * 10 : isListening ? 24 : 18}px`,
-                  borderRadius: isSpeaking ? '9999px' : '50%',
-                  transform: isThinking ? 'translateY(-2px)' : 'none',
-                }}
+          {avatarUrl ? (
+            <div className="relative h-full w-full overflow-hidden rounded-full ring-2 ring-white/50">
+              <img
+                src={avatarUrl}
+                alt="AI Co-Founder Ru"
+                className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
               />
+              {/* Top specular shine overlay */}
+              <div className="pointer-events-none absolute inset-0 rounded-full bg-gradient-to-b from-white/30 via-transparent to-black/40" />
 
-              {/* Right Eye */}
-              <div
-                className={`rounded-full transition-all duration-200 ${eyeColorClass} ${
-                  isThinking ? 'animate-pulse' : ''
-                }`}
-                style={{
-                  width: `${isSpeaking ? 16 + audioPulse * 8 : isListening ? 18 : 14}px`,
-                  height: `${isSpeaking ? 22 + audioPulse * 10 : isListening ? 24 : 18}px`,
-                  borderRadius: isSpeaking ? '9999px' : '50%',
-                  transform: isThinking ? 'translateY(2px)' : 'none',
-                  animationDelay: '100ms',
-                }}
-              />
-            </div>
-
-            {/* Subtle Soundwave Mouth Line when Speaking */}
-            {isSpeaking && (
-              <div className="absolute bottom-2 flex h-2 items-center justify-center gap-1">
-                {[0.6, 1.0, 0.5].map((h, i) => (
-                  <span
-                    key={i}
-                    className="w-1 rounded-full bg-violet-300"
-                    style={{ height: `${6 + audioPulse * 10 * h}px` }}
-                  />
-                ))}
+              {/* Status Glow Badge Overlay */}
+              <div className="absolute bottom-2 left-1/2 flex -translate-x-1/2 items-center gap-1.5 rounded-full border border-violet-400/50 bg-black/75 px-3 py-1 backdrop-blur-md">
+                <span
+                  className={`h-2 w-2 rounded-full ${
+                    isSpeaking
+                      ? 'animate-ping bg-violet-400'
+                      : isListening
+                        ? 'animate-pulse bg-cyan-400'
+                        : isThinking
+                          ? 'animate-spin bg-amber-400'
+                          : 'bg-emerald-400'
+                  }`}
+                />
+                <span className="font-mono text-[10px] font-bold tracking-wider text-white">
+                  {isSpeaking
+                    ? 'SPEAKING'
+                    : isListening
+                      ? 'LISTENING'
+                      : isThinking
+                        ? 'THINKING'
+                        : 'RU • READY'}
+                </span>
               </div>
-            )}
-          </div>
+            </div>
+          ) : (
+            <>
+              {/* Top-Down Studio Overhead Specular Bounce Light */}
+              <div className="pointer-events-none absolute inset-0 rounded-full bg-gradient-to-b from-white/40 via-white/10 to-transparent" />
+
+              {/* Inner Volumetric Depth Gradient */}
+              <div className="from-[theme(colors.role.cofounder.dark)]/40 pointer-events-none absolute inset-0 rounded-full bg-gradient-to-tr via-transparent to-white/30" />
+
+              {/* Rim Light Flare Accent */}
+              <div className="pointer-events-none absolute left-6 top-2 h-12 w-24 -rotate-12 rounded-full bg-white/35 blur-sm" />
+
+              {/* 4. Expressive Inset Visor Screen */}
+              <div
+                className="relative flex items-center justify-center rounded-full border border-violet-400/40 bg-midnight-bg p-4 shadow-[inset_0_6px_20px_rgba(0,0,0,0.95)]"
+                style={{
+                  width: `${size * 0.58}px`,
+                  height: `${size * 0.42}px`,
+                }}
+              >
+                {/* Visor Specular Curve Glass Reflection */}
+                <div className="pointer-events-none absolute inset-0 rounded-full bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-80" />
+
+                {/* Visor Inner Content: Digital Animated Eyes */}
+                <div className="relative z-10 flex items-center justify-center space-x-6">
+                  {/* Left Eye */}
+                  <div
+                    className={`rounded-full transition-all duration-200 ${eyeColorClass} ${
+                      isThinking ? 'animate-pulse' : ''
+                    }`}
+                    style={{
+                      width: `${isSpeaking ? 16 + audioPulse * 8 : isListening ? 18 : 14}px`,
+                      height: `${isSpeaking ? 22 + audioPulse * 10 : isListening ? 24 : 18}px`,
+                      borderRadius: isSpeaking ? '9999px' : '50%',
+                      transform: isThinking ? 'translateY(-2px)' : 'none',
+                    }}
+                  />
+
+                  {/* Right Eye */}
+                  <div
+                    className={`rounded-full transition-all duration-200 ${eyeColorClass} ${
+                      isThinking ? 'animate-pulse' : ''
+                    }`}
+                    style={{
+                      width: `${isSpeaking ? 16 + audioPulse * 8 : isListening ? 18 : 14}px`,
+                      height: `${isSpeaking ? 22 + audioPulse * 10 : isListening ? 24 : 18}px`,
+                      borderRadius: isSpeaking ? '9999px' : '50%',
+                      transform: isThinking ? 'translateY(2px)' : 'none',
+                      animationDelay: '100ms',
+                    }}
+                  />
+                </div>
+
+                {/* Subtle Soundwave Mouth Line when Speaking */}
+                {isSpeaking && (
+                  <div className="absolute bottom-2 flex h-2 items-center justify-center gap-1">
+                    {[0.6, 1.0, 0.5].map((h, i) => (
+                      <span
+                        key={i}
+                        className="w-1 rounded-full bg-violet-300"
+                        style={{ height: `${6 + audioPulse * 10 * h}px` }}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+            </>
+          )}
         </div>
 
         {/* 5. Integrated Mic Toggle Button (if handler provided) */}

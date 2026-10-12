@@ -64,6 +64,10 @@ export interface ChatHistoryMessage {
   role?: string;
   text?: string;
   content?: string;
+  imageUrl?: string;
+  imageBase64?: string;
+  audioBase64?: string;
+  audioMimeType?: string;
 }
 
 /**
@@ -603,9 +607,27 @@ export async function runGeminiAgentLoop(
   for (const modelName of uniqueModels) {
     try {
       const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${options.apiKey}`;
+      const userParts: any[] = [];
+      if (latestMessage?.imageBase64) {
+        const cleanBase64 = latestMessage.imageBase64.replace(
+          /^data:[^;]+;base64,/,
+          ''
+        );
+        const mime =
+          latestMessage.imageBase64.match(/^data:([^;]+);base64,/)?.[1] ||
+          'image/jpeg';
+        userParts.push({
+          inline_data: {
+            mime_type: mime,
+            data: cleanBase64,
+          },
+        });
+      }
+      userParts.push({ text: userPrompt });
+
       const conversationContents: any[] = [
         ...validHistory,
-        { role: 'user', parts: [{ text: userPrompt }] },
+        { role: 'user', parts: userParts },
       ];
 
       let iteration = 0;

@@ -40,12 +40,32 @@ export function VoiceTranscriptWindow({
   className = '',
 }: VoiceTranscriptWindowProps) {
   const [inputText, setInputText] = React.useState('');
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [isScrolledUp, setIsScrolledUp] = React.useState(false);
 
-  // Auto-scroll to latest speech or message transcript
+  const handleScroll = () => {
+    const el = scrollContainerRef.current;
+    if (!el) return;
+    const isAtBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 50;
+    setIsScrolledUp(!isAtBottom);
+  };
+
+  const scrollToBottom = (smooth = true) => {
+    const el = scrollContainerRef.current;
+    if (!el) return;
+    el.scrollTo({
+      top: el.scrollHeight,
+      behavior: smooth ? 'smooth' : 'auto',
+    });
+    setIsScrolledUp(false);
+  };
+
+  // Auto-scroll to latest speech or transcript ONLY if user is already at the bottom
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, interimTranscript]);
+    if (!isScrolledUp) {
+      scrollToBottom(true);
+    }
+  }, [messages, interimTranscript, isScrolledUp]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -53,6 +73,8 @@ export function VoiceTranscriptWindow({
     if (onSendMessage) {
       onSendMessage(inputText.trim());
       setInputText('');
+      // User sent a message, scroll to bottom
+      scrollToBottom(true);
     }
   };
 
@@ -97,7 +119,11 @@ export function VoiceTranscriptWindow({
       </div>
 
       {/* Transcript Messages Thread Panel */}
-      <div className="scrollbar-thin max-h-[240px] min-h-[180px] flex-1 space-y-3.5 overflow-y-auto py-3 pr-1 sm:max-h-[360px] sm:min-h-[220px]">
+      <div
+        ref={scrollContainerRef}
+        onScroll={handleScroll}
+        className="scrollbar-thin relative max-h-[240px] min-h-[180px] flex-1 space-y-3.5 overflow-y-auto py-3 pr-1 sm:max-h-[360px] sm:min-h-[220px]"
+      >
         {messages.length === 0 && !interimTranscript ? (
           <div className="flex h-full min-h-[180px] flex-col items-center justify-center text-center">
             <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-2xl bg-nm-light-bg shadow-nm-inset dark:bg-nm-dark-bg dark:shadow-nm-inset-dark">
@@ -179,9 +205,18 @@ export function VoiceTranscriptWindow({
             </div>
           </div>
         )}
-
-        <div ref={messagesEndRef} />
       </div>
+
+      {/* Floating Jump-to-Latest Button */}
+      {isScrolledUp && (
+        <button
+          type="button"
+          onClick={() => scrollToBottom(true)}
+          className="absolute bottom-16 right-4 z-30 flex items-center gap-1 rounded-full border border-violet-500/30 bg-violet-600 px-2.5 py-1 text-[10px] font-bold text-white shadow-lg backdrop-blur-sm transition-all hover:bg-violet-700 active:scale-95"
+        >
+          <span>↓ Latest</span>
+        </button>
+      )}
 
       {/* Input Bar */}
       {onSendMessage && (

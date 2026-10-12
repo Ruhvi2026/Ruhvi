@@ -226,6 +226,7 @@ export const TOOL_PERMISSION_MAP: Record<
   get_support_tickets: { module: 'support_ticket', action: 'read' },
   create_support_ticket: { module: 'support_ticket', action: 'write' },
   update_ticket_status: { module: 'support_ticket', action: 'write' },
+  update_support_ticket_status: { module: 'support_ticket', action: 'write' },
 
   // Coupons (Read & Write)
   get_coupons: { module: 'coupons', action: 'read' },
@@ -242,6 +243,10 @@ export const TOOL_PERMISSION_MAP: Record<
 
   // AI Studio Photography Engine (Write — triggers billable Imagen 3 generation)
   generate_product_studio_photos: { module: 'products', action: 'write' },
+
+  // E-commerce Catalog Drafting & Publishing (Write)
+  create_draft_product: { module: 'products', action: 'write' },
+  publish_product: { module: 'products', action: 'write' },
 };
 
 export function assertSpecificScope(

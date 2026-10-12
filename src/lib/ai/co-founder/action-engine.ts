@@ -505,6 +505,74 @@ async function executeApprovedBusinessActionInternal(
         };
       }
 
+      // ── Publish Draft Product ───────────────────────────────────────────
+      case 'publish_product': {
+        const { product_id } = request.actionPayload;
+        if (!product_id) {
+          throw new Error('product_id is required to publish product');
+        }
+
+        const { data: product, error: fetchErr } = await supabase
+          .from('products')
+          .select('id, name, sku, status')
+          .eq('id', product_id)
+          .single();
+
+        if (fetchErr || !product) {
+          throw new Error('Target draft product not found in catalog.');
+        }
+
+        const { error: pubErr } = await supabase
+          .from('products')
+          .update({
+            status: 'active',
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', product_id);
+
+        if (pubErr) throw pubErr;
+
+        const affectedEntities = [{ type: 'product', id: product_id }];
+
+        if (approvalRecord) {
+          await supabase
+            .from('co_founder_approvals')
+            .update({
+              status: 'executed',
+              execution_result: {
+                productId: product.id,
+                name: product.name,
+                publishedAt: new Date().toISOString(),
+              },
+              updated_at: new Date().toISOString(),
+            })
+            .eq('id', approvalRecord.id);
+        }
+
+        await logAuditEvent({
+          portal: 'admin',
+          action: 'co_founder_execute_publish_product',
+          entityType: 'product',
+          entityId: product_id,
+          changes: { previous: product.status, current: 'active' },
+        }).catch(() => {});
+
+        return {
+          actionId,
+          actionType: request.actionType,
+          status: 'completed',
+          success: true,
+          affectedEntities,
+          resultData: {
+            productId: product.id,
+            name: product.name,
+            status: 'active',
+          },
+          voiceSummary: `Product "${product.name}" has been approved and published to the live store.`,
+          timestamp,
+        };
+      }
+
       default:
         throw new Error(
           `Action type '${request.actionType}' is not supported by the Business Action Layer.`

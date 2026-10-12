@@ -31,6 +31,7 @@ export interface SwarmWorkerNode {
     'active' | 'thinking' | 'idle' | 'executing' | 'analyzing' | 'generating';
   latencyMs: number;
   tokensPerSec: number;
+  avatarUrl?: string;
 }
 
 export const SWARM_NODES: SwarmWorkerNode[] = [
@@ -50,6 +51,8 @@ export const SWARM_NODES: SwarmWorkerNode[] = [
     status: 'active',
     latencyMs: 142,
     tokensPerSec: 68.4,
+    avatarUrl:
+      'https://res.cloudinary.com/io1kkukg/image/upload/v1791747660/ruhvi/chat_attachments/a8hcpjxwemamremtsbg4.jpg',
   },
   {
     id: 'researcher',
