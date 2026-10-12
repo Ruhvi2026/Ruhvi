@@ -9,6 +9,9 @@ const nextConfig = {
       '@tiptap/react',
       'recharts',
       'three',
+      'motion',
+      'photoswipe',
+      'react-hot-toast',
     ],
   },
   compiler: {
