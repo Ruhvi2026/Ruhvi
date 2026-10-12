@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import '@/app/portal.css';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
@@ -31,7 +32,12 @@ import {
 import toast from 'react-hot-toast';
 import { PortalThemeProvider } from '@/context/PortalThemeContext';
 import { ThemeToggle } from '@/components/portal/ThemeToggle';
-import FloatingStaffMessenger from '@/components/chat/FloatingStaffMessenger';
+import dynamic from 'next/dynamic';
+
+const FloatingStaffMessenger = dynamic(
+  () => import('@/components/chat/FloatingStaffMessenger'),
+  { ssr: false }
+);
 
 interface NavChild {
   label: string;

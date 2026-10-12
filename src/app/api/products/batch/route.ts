@@ -35,7 +35,15 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    return NextResponse.json({ products: data ?? [] });
+    return NextResponse.json(
+      { products: data ?? [] },
+      {
+        headers: {
+          'Cache-Control':
+            'public, max-age=60, s-maxage=120, stale-while-revalidate=600',
+        },
+      }
+    );
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

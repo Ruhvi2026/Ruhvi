@@ -82,60 +82,90 @@ function redactValue(value: unknown, depth = 0): unknown {
 }
 
 if (typeof window !== 'undefined' && POSTHOG_KEY) {
-  posthog.init(POSTHOG_KEY, {
-    api_host: POSTHOG_HOST,
-    ui_host: POSTHOG_UI_HOST,
-    // With `defaults: '2026-01-30'` the SDK captures pageviews via the History
-    // API ('history_change'), which covers Next.js App Router client-side
-    // navigations automatically.
-    defaults: '2026-01-30',
-    person_profiles: 'identified_only',
-    capture_pageview: false, // We handle it manually in PostHogPageView
-    capture_pageleave: true,
-    disable_session_recording: true,
-    disable_surveys: true,
-    session_recording: {
-      maskAllInputs: true,
-      maskInputOptions: {
-        password: true,
-        email: true,
-        tel: true,
-        number: true,
-        date: true,
-        textarea: true,
-        select: true,
+  let isPostHogInitialized = false;
+  const startPostHog = () => {
+    if (isPostHogInitialized) return;
+    isPostHogInitialized = true;
+    window.removeEventListener('pointerdown', startPostHog);
+    window.removeEventListener('touchstart', startPostHog);
+    window.removeEventListener('keydown', startPostHog);
+
+    posthog.init(POSTHOG_KEY, {
+      api_host: POSTHOG_HOST,
+      ui_host: POSTHOG_UI_HOST,
+      // With `defaults: '2026-01-30'` the SDK captures pageviews via the History
+      // API ('history_change'), which covers Next.js App Router client-side
+      // navigations automatically.
+      defaults: '2026-01-30',
+      person_profiles: 'identified_only',
+      capture_pageview: false, // We handle it manually in PostHogPageView
+      capture_pageleave: true,
+      disable_session_recording: true,
+      disable_surveys: true,
+      session_recording: {
+        maskAllInputs: true,
+        maskInputOptions: {
+          password: true,
+          email: true,
+          tel: true,
+          number: true,
+          date: true,
+          textarea: true,
+          select: true,
+        },
+        maskTextFn: (text, element) => {
+          if (!element) return text;
+          const autocomplete =
+            element.getAttribute?.('autocomplete')?.toLowerCase() ?? '';
+          if (autocomplete.startsWith('cc-')) return '*'.repeat(text.length);
+          if (
+            element.closest?.(
+              '[data-sensitive], [data-pii], [data-sensitive-text]'
+            )
+          ) {
+            return '*'.repeat(text.length);
+          }
+          return text;
+        },
+        blockSelector: '[data-ph-block]',
+        maskTextSelector: '[data-sensitive-text], [data-pii]',
       },
-      maskTextFn: (text, element) => {
-        if (!element) return text;
-        const autocomplete =
-          element.getAttribute?.('autocomplete')?.toLowerCase() ?? '';
-        if (autocomplete.startsWith('cc-')) return '*'.repeat(text.length);
-        if (
-          element.closest?.(
-            '[data-sensitive], [data-pii], [data-sensitive-text]'
-          )
-        ) {
-          return '*'.repeat(text.length);
+      before_send: (cr) => {
+        if (!cr) return cr;
+        if (cr.properties) {
+          cr.properties = redactValue(cr.properties) as Record<string, unknown>;
         }
-        return text;
+        if (cr.$set) {
+          cr.$set = redactValue(cr.$set) as Record<string, unknown>;
+        }
+        if (cr.$set_once) {
+          cr.$set_once = redactValue(cr.$set_once) as Record<string, unknown>;
+        }
+        return cr;
       },
-      blockSelector: '[data-ph-block]',
-      maskTextSelector: '[data-sensitive-text], [data-pii]',
-    },
-    before_send: (cr) => {
-      if (!cr) return cr;
-      if (cr.properties) {
-        cr.properties = redactValue(cr.properties) as Record<string, unknown>;
-      }
-      if (cr.$set) {
-        cr.$set = redactValue(cr.$set) as Record<string, unknown>;
-      }
-      if (cr.$set_once) {
-        cr.$set_once = redactValue(cr.$set_once) as Record<string, unknown>;
-      }
-      return cr;
-    },
+    });
+  };
+
+  // Immediate initialize on user interaction
+  window.addEventListener('pointerdown', startPostHog, {
+    passive: true,
+    once: true,
   });
+  window.addEventListener('touchstart', startPostHog, {
+    passive: true,
+    once: true,
+  });
+  window.addEventListener('keydown', startPostHog, {
+    passive: true,
+    once: true,
+  });
+
+  // Or initialize during browser idle time (fallback 2000ms)
+  if ('requestIdleCallback' in window) {
+    (window as any).requestIdleCallback(startPostHog, { timeout: 3000 });
+  } else {
+    setTimeout(startPostHog, 2000);
+  }
 }
 
 export const onRouterTransitionStart = Sentry.captureRouterTransitionStart;

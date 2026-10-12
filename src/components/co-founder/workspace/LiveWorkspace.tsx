@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import dynamic from 'next/dynamic';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   CoWorkerAvatar,
@@ -36,7 +37,13 @@ import {
   ChevronDown,
   ChevronUp,
 } from 'lucide-react';
-import { VisualInspectionModal } from '@/components/admin/jewelry/VisualInspectionModal';
+const VisualInspectionModal = dynamic(
+  () =>
+    import('@/components/admin/jewelry/VisualInspectionModal').then(
+      (m) => m.VisualInspectionModal
+    ),
+  { ssr: false }
+);
 import { LiveVoiceVisualizer } from '@/components/co-founder/LiveVoiceVisualizer';
 
 export interface LiveActivity {
@@ -165,9 +172,11 @@ export const DEFAULT_PROACTIVE_SIGNALS: ProactiveWorkspaceSignal[] = [
     category: 'OPPORTUNITY',
     severity: 'medium',
     title: 'PDP Image Quality Audit Required',
-    summary: 'Peacock Filigree Ring needs gemological appraisal & photography QC.',
+    summary:
+      'Peacock Filigree Ring needs gemological appraisal & photography QC.',
     actionLabel: 'Inspect Jewelry Image',
-    imageUrl: 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=800&q=80',
+    imageUrl:
+      'https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=800&q=80',
     productName: 'Peacock Filigree Ring',
   },
   {
@@ -175,7 +184,8 @@ export const DEFAULT_PROACTIVE_SIGNALS: ProactiveWorkspaceSignal[] = [
     category: 'BUSINESS',
     severity: 'critical',
     title: 'Low Stock Velocity Warning',
-    summary: 'Only 2 units remaining for 22K Bengali Choker with high surge demand.',
+    summary:
+      'Only 2 units remaining for 22K Bengali Choker with high surge demand.',
     actionLabel: 'Reorder Stock',
     productName: '22K Bengali Choker',
   },
@@ -199,9 +209,9 @@ export function LiveWorkspace({
   const [codeTypeIndex, setCodeTypeIndex] = useState(0);
 
   // Proactive Signals Dock state
-  const [activeSignals, setActiveSignals] = useState<ProactiveWorkspaceSignal[]>(
-    proactiveSignals || DEFAULT_PROACTIVE_SIGNALS
-  );
+  const [activeSignals, setActiveSignals] = useState<
+    ProactiveWorkspaceSignal[]
+  >(proactiveSignals || DEFAULT_PROACTIVE_SIGNALS);
   const [isDockExpanded, setIsDockExpanded] = useState(true);
 
   // Visual Inspection Modal state
@@ -281,7 +291,11 @@ export function LiveWorkspace({
 
   // Handle signal action click
   const handleTriggerSignalAction = (signal: ProactiveWorkspaceSignal) => {
-    if (signal.imageUrl || signal.title.toLowerCase().includes('image') || signal.title.toLowerCase().includes('quality')) {
+    if (
+      signal.imageUrl ||
+      signal.title.toLowerCase().includes('image') ||
+      signal.title.toLowerCase().includes('quality')
+    ) {
       handleOpenInspection(signal.imageUrl, signal.productName);
     }
     if (onSignalAction) {
@@ -375,7 +389,7 @@ export function LiveWorkspace({
               onClick={onStartVoice}
               className={`flex items-center gap-1.5 rounded-2xl border px-3 py-1.5 text-xs font-semibold shadow-nm-flat transition-all ${
                 voiceState === 'speaking' || voiceState === 'listening'
-                  ? 'border-emerald-500/50 bg-emerald-500/20 text-emerald-400 animate-pulse'
+                  ? 'animate-pulse border-emerald-500/50 bg-emerald-500/20 text-emerald-400'
                   : 'border-neutral-300 bg-nm-light-bg text-nm-light-textSecondary hover:text-nm-light-textPrimary dark:border-neutral-800 dark:bg-nm-dark-bg dark:text-neutral-300 dark:hover:text-white'
               }`}
               title="Speak with Co-Founder Brain"
@@ -385,7 +399,13 @@ export function LiveWorkspace({
               ) : (
                 <Mic size={13} className="text-amber-400" />
               )}
-              <span>{voiceState === 'speaking' ? 'Speaking' : voiceState === 'listening' ? 'Listening' : 'Voice Brain'}</span>
+              <span>
+                {voiceState === 'speaking'
+                  ? 'Speaking'
+                  : voiceState === 'listening'
+                    ? 'Listening'
+                    : 'Voice Brain'}
+              </span>
             </motion.button>
           )}
 
@@ -466,7 +486,7 @@ export function LiveWorkspace({
 
             {/* Window URL / File Breadcrumb Bar */}
             <div className="flex max-w-md flex-1 items-center justify-center px-4">
-              <div className="flex w-full items-center gap-2 rounded-xl border border-neutral-200/70 bg-nm-light-bg px-3 py-1 text-[11px] font-mono text-neutral-500 shadow-nm-inset dark:border-neutral-800/80 dark:bg-[#0E1015] dark:text-neutral-400 dark:shadow-nm-inset-dark">
+              <div className="flex w-full items-center gap-2 rounded-xl border border-neutral-200/70 bg-nm-light-bg px-3 py-1 font-mono text-[11px] text-neutral-500 shadow-nm-inset dark:border-neutral-800/80 dark:bg-[#0E1015] dark:text-neutral-400 dark:shadow-nm-inset-dark">
                 {activeType === 'browsing' ? (
                   <Globe size={11} className="text-cyan-500" />
                 ) : activeType === 'typing' ? (
@@ -705,99 +725,101 @@ export function LiveWorkspace({
               )}
 
               {/* TYPE 4: JEWELRY MULTIMODAL QC & VISUAL INSPECTION VIEW (Step 9.3) */}
-              {activeType === 'analyzing' && preset.id === 'visual_inspection' && (
-                <motion.div
-                  key="visual_inspection"
-                  initial={{ opacity: 0, y: 12 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -12 }}
-                  transition={{ duration: 0.25, ease: 'easeOut' }}
-                  className="space-y-4"
-                >
-                  <div className="flex flex-col sm:flex-row items-center justify-between gap-4 rounded-2xl border border-neutral-200/80 bg-nm-light-bg p-4 shadow-nm-inset dark:border-neutral-800 dark:bg-[#181A24] dark:shadow-nm-inset-dark">
-                    <div className="flex items-center gap-3.5">
-                      <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl border border-amber-500/30 bg-zinc-900 shadow-md">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src="https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=800&q=80"
-                          alt="Ruhvi 22K Peacock Filigree Ring"
-                          className="h-full w-full object-cover"
-                        />
+              {activeType === 'analyzing' &&
+                preset.id === 'visual_inspection' && (
+                  <motion.div
+                    key="visual_inspection"
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -12 }}
+                    transition={{ duration: 0.25, ease: 'easeOut' }}
+                    className="space-y-4"
+                  >
+                    <div className="flex flex-col items-center justify-between gap-4 rounded-2xl border border-neutral-200/80 bg-nm-light-bg p-4 shadow-nm-inset dark:border-neutral-800 dark:bg-[#181A24] dark:shadow-nm-inset-dark sm:flex-row">
+                      <div className="flex items-center gap-3.5">
+                        <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl border border-amber-500/30 bg-zinc-900 shadow-md">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src="https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=800&q=80"
+                            alt="Ruhvi 22K Peacock Filigree Ring"
+                            className="h-full w-full object-cover"
+                          />
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <h4 className="text-xs font-bold text-nm-light-textPrimary dark:text-white">
+                              Ruhvi 22K Peacock Filigree Ring
+                            </h4>
+                            <span className="rounded-full border border-emerald-500/30 bg-emerald-500/15 px-2 py-0.5 text-[9px] font-bold text-emerald-400">
+                              Grade A+ • 94/100
+                            </span>
+                          </div>
+                          <p className="text-[11px] text-nm-light-textSecondary dark:text-neutral-400">
+                            22K Yellow Gold (Mirror Polish) • 14x VVS Round Pavé
+                            Diamonds
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <h4 className="text-xs font-bold text-nm-light-textPrimary dark:text-white">
-                            Ruhvi 22K Peacock Filigree Ring
-                          </h4>
-                          <span className="rounded-full bg-emerald-500/15 border border-emerald-500/30 px-2 py-0.5 text-[9px] font-bold text-emerald-400">
-                            Grade A+ • 94/100
+
+                      <button
+                        type="button"
+                        onClick={() =>
+                          handleOpenInspection(
+                            'https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=800&q=80',
+                            'Ruhvi 22K Peacock Filigree Ring'
+                          )
+                        }
+                        className="flex shrink-0 items-center gap-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 px-3 py-1.5 text-xs font-bold text-zinc-950 shadow-md shadow-amber-500/20 transition-all hover:from-amber-400 hover:to-amber-500"
+                      >
+                        <Camera size={13} />
+                        <span>Launch Visual Inspection</span>
+                      </button>
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                      <div className="rounded-2xl border border-neutral-200/80 bg-nm-light-bg p-3 shadow-nm-flat dark:border-neutral-800 dark:bg-[#151722] dark:shadow-nm-flat-dark">
+                        <span className="text-[10px] font-bold uppercase text-neutral-400">
+                          Lighting & Studio Score
+                        </span>
+                        <h4 className="mt-1 text-base font-bold text-emerald-500">
+                          92% Compliant
+                        </h4>
+                        <span className="text-[10px] text-neutral-400">
+                          Zero harsh glare on shank
+                        </span>
+                      </div>
+
+                      <div className="rounded-2xl border border-neutral-200/80 bg-nm-light-bg p-3 shadow-nm-flat dark:border-neutral-800 dark:bg-[#151722] dark:shadow-nm-flat-dark">
+                        <span className="text-[10px] font-bold uppercase text-neutral-400">
+                          Craftsmanship Integrity
+                        </span>
+                        <h4 className="mt-1 text-base font-bold text-emerald-500">
+                          94 / 100
+                        </h4>
+                        <span className="text-[10px] text-neutral-400">
+                          0 high severity flaws detected
+                        </span>
+                      </div>
+
+                      <div className="rounded-2xl border border-neutral-200/80 bg-nm-light-bg p-3 shadow-nm-flat dark:border-neutral-800 dark:bg-[#151722] dark:shadow-nm-flat-dark">
+                        <span className="text-[10px] font-bold uppercase text-neutral-400">
+                          Generated Visual Tags
+                        </span>
+                        <div className="mt-1 flex flex-wrap gap-1">
+                          <span className="rounded bg-zinc-800 px-1.5 py-0.5 text-[9px] text-zinc-300">
+                            #22kGold
+                          </span>
+                          <span className="rounded bg-zinc-800 px-1.5 py-0.5 text-[9px] text-zinc-300">
+                            #Filigree
+                          </span>
+                          <span className="rounded bg-zinc-800 px-1.5 py-0.5 text-[9px] text-zinc-300">
+                            #Bridal
                           </span>
                         </div>
-                        <p className="text-[11px] text-nm-light-textSecondary dark:text-neutral-400">
-                          22K Yellow Gold (Mirror Polish) • 14x VVS Round Pavé Diamonds
-                        </p>
                       </div>
                     </div>
-
-                    <button
-                      type="button"
-                      onClick={() =>
-                        handleOpenInspection(
-                          'https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=800&q=80',
-                          'Ruhvi 22K Peacock Filigree Ring'
-                        )
-                      }
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-zinc-950 font-bold text-xs shadow-md shadow-amber-500/20 hover:from-amber-400 hover:to-amber-500 transition-all shrink-0"
-                    >
-                      <Camera size={13} />
-                      <span>Launch Visual Inspection</span>
-                    </button>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <div className="p-3 rounded-2xl border border-neutral-200/80 bg-nm-light-bg dark:border-neutral-800 dark:bg-[#151722] shadow-nm-flat dark:shadow-nm-flat-dark">
-                      <span className="text-[10px] font-bold uppercase text-neutral-400">
-                        Lighting & Studio Score
-                      </span>
-                      <h4 className="mt-1 text-base font-bold text-emerald-500">
-                        92% Compliant
-                      </h4>
-                      <span className="text-[10px] text-neutral-400">
-                        Zero harsh glare on shank
-                      </span>
-                    </div>
-
-                    <div className="p-3 rounded-2xl border border-neutral-200/80 bg-nm-light-bg dark:border-neutral-800 dark:bg-[#151722] shadow-nm-flat dark:shadow-nm-flat-dark">
-                      <span className="text-[10px] font-bold uppercase text-neutral-400">
-                        Craftsmanship Integrity
-                      </span>
-                      <h4 className="mt-1 text-base font-bold text-emerald-500">
-                        94 / 100
-                      </h4>
-                      <span className="text-[10px] text-neutral-400">
-                        0 high severity flaws detected
-                      </span>
-                    </div>
-
-                    <div className="p-3 rounded-2xl border border-neutral-200/80 bg-nm-light-bg dark:border-neutral-800 dark:bg-[#151722] shadow-nm-flat dark:shadow-nm-flat-dark">
-                      <span className="text-[10px] font-bold uppercase text-neutral-400">
-                        Generated Visual Tags
-                      </span>
-                      <div className="mt-1 flex flex-wrap gap-1">
-                        <span className="text-[9px] px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-300">
-                          #22kGold
-                        </span>
-                        <span className="text-[9px] px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-300">
-                          #Filigree
-                        </span>
-                        <span className="text-[9px] px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-300">
-                          #Bridal
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </motion.div>
-              )}
+                  </motion.div>
+                )}
             </AnimatePresence>
           </div>
 
@@ -943,34 +965,34 @@ export function LiveWorkspace({
       {activeSignals.length > 0 && (
         <div className="mt-5 rounded-2xl border border-neutral-200/80 bg-nm-light-bg p-4 shadow-nm-flat dark:border-neutral-800/80 dark:bg-zinc-950 dark:shadow-nm-flat-dark">
           {/* Dock Header */}
-          <div className="flex items-center justify-between pb-2 border-b border-neutral-200/60 dark:border-zinc-800/60">
+          <div className="flex items-center justify-between border-b border-neutral-200/60 pb-2 dark:border-zinc-800/60">
             <div className="flex items-center gap-2">
-              <div className="p-1.5 rounded-lg bg-amber-500/10 text-amber-500">
-                <Bell className="w-4 h-4" />
+              <div className="rounded-lg bg-amber-500/10 p-1.5 text-amber-500">
+                <Bell className="h-4 w-4" />
               </div>
               <span className="text-xs font-bold text-nm-light-textPrimary dark:text-zinc-200">
                 Co-Founder Ambient Proactive Signals ({activeSignals.length})
               </span>
-              <span className="h-1.5 w-1.5 rounded-full bg-amber-500 animate-ping" />
+              <span className="h-1.5 w-1.5 animate-ping rounded-full bg-amber-500" />
             </div>
 
             <button
               type="button"
               onClick={() => setIsDockExpanded(!isDockExpanded)}
-              className="flex items-center gap-1 text-[11px] text-neutral-400 hover:text-white transition-colors"
+              className="flex items-center gap-1 text-[11px] text-neutral-400 transition-colors hover:text-white"
             >
               <span>{isDockExpanded ? 'Collapse' : 'Expand'}</span>
               {isDockExpanded ? (
-                <ChevronUp className="w-3.5 h-3.5" />
+                <ChevronUp className="h-3.5 w-3.5" />
               ) : (
-                <ChevronDown className="w-3.5 h-3.5" />
+                <ChevronDown className="h-3.5 w-3.5" />
               )}
             </button>
           </div>
 
           {/* Dock Content Signals List */}
           {isDockExpanded && (
-            <div className="mt-3 grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-3">
               {activeSignals.map((signal) => {
                 const isCritical = signal.severity === 'critical';
                 const isHigh = signal.severity === 'high';
@@ -979,42 +1001,42 @@ export function LiveWorkspace({
                 return (
                   <div
                     key={signal.id}
-                    className={`relative p-3 rounded-xl border text-xs flex flex-col justify-between gap-2.5 transition-all ${
+                    className={`relative flex flex-col justify-between gap-2.5 rounded-xl border p-3 text-xs transition-all ${
                       isCritical
-                        ? 'bg-rose-500/10 border-rose-500/30 text-rose-200'
+                        ? 'border-rose-500/30 bg-rose-500/10 text-rose-200'
                         : isHigh
-                          ? 'bg-amber-500/10 border-amber-500/30 text-amber-200'
-                          : 'bg-zinc-900/60 border-zinc-800/80 text-zinc-300'
+                          ? 'border-amber-500/30 bg-amber-500/10 text-amber-200'
+                          : 'border-zinc-800/80 bg-zinc-900/60 text-zinc-300'
                     }`}
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex items-center gap-1.5">
                         <span
-                          className={`px-1.5 py-0.5 rounded text-[9px] font-bold uppercase border ${
+                          className={`rounded border px-1.5 py-0.5 text-[9px] font-bold uppercase ${
                             isCritical
-                              ? 'bg-rose-500/20 text-rose-300 border-rose-500/40'
+                              ? 'border-rose-500/40 bg-rose-500/20 text-rose-300'
                               : isHigh
-                                ? 'bg-amber-500/20 text-amber-300 border-amber-500/40'
-                                : 'bg-blue-500/20 text-blue-300 border-blue-500/40'
+                                ? 'border-amber-500/40 bg-amber-500/20 text-amber-300'
+                                : 'border-blue-500/40 bg-blue-500/20 text-blue-300'
                           }`}
                         >
                           {signal.category}
                         </span>
-                        <span className="font-semibold text-zinc-100 text-[11px] truncate">
+                        <span className="truncate text-[11px] font-semibold text-zinc-100">
                           {signal.title}
                         </span>
                       </div>
                       <button
                         type="button"
                         onClick={() => handleDismissSignal(signal.id)}
-                        className="text-zinc-500 hover:text-zinc-300 transition-colors p-0.5"
+                        className="p-0.5 text-zinc-500 transition-colors hover:text-zinc-300"
                         title="Dismiss Signal"
                       >
-                        <X className="w-3.5 h-3.5" />
+                        <X className="h-3.5 w-3.5" />
                       </button>
                     </div>
 
-                    <p className="text-[11px] text-zinc-300/90 leading-tight">
+                    <p className="text-[11px] leading-tight text-zinc-300/90">
                       {signal.summary}
                     </p>
 
@@ -1022,16 +1044,16 @@ export function LiveWorkspace({
                       <button
                         type="button"
                         onClick={() => handleTriggerSignalAction(signal)}
-                        className={`self-start px-2.5 py-1 rounded-lg text-[10px] font-bold border transition-colors flex items-center gap-1 ${
+                        className={`flex items-center gap-1 self-start rounded-lg border px-2.5 py-1 text-[10px] font-bold transition-colors ${
                           isCritical
-                            ? 'bg-rose-950 border-rose-500/40 text-rose-200 hover:bg-rose-900'
+                            ? 'border-rose-500/40 bg-rose-950 text-rose-200 hover:bg-rose-900'
                             : isHigh
-                              ? 'bg-amber-950 border-amber-500/40 text-amber-200 hover:bg-amber-900'
-                              : 'bg-zinc-800 border-zinc-700 text-zinc-200 hover:bg-zinc-700'
+                              ? 'border-amber-500/40 bg-amber-950 text-amber-200 hover:bg-amber-900'
+                              : 'border-zinc-700 bg-zinc-800 text-zinc-200 hover:bg-zinc-700'
                         }`}
                       >
                         <span>{signal.actionLabel}</span>
-                        <ArrowRight className="w-2.5 h-2.5" />
+                        <ArrowRight className="h-2.5 w-2.5" />
                       </button>
                     )}
                   </div>

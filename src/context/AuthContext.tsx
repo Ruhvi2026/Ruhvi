@@ -174,6 +174,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     let isMounted = true;
     let unsubscribe: (() => void) | null = null;
+    let idleId: number | null = null;
+    let timeoutId: NodeJS.Timeout | null = null;
+    let hasInitialized = false;
 
     const handleFirebaseUser = async (fbUser: any) => {
       if (!isMounted) return;
@@ -250,14 +253,91 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     };
 
-    if (auth) {
-      unsubscribe = onAuthStateChanged(auth, handleFirebaseUser);
+    const cleanupTriggers = () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+        timeoutId = null;
+      }
+      if (
+        idleId &&
+        typeof window !== 'undefined' &&
+        'cancelIdleCallback' in window
+      ) {
+        (window as any).cancelIdleCallback(idleId);
+        idleId = null;
+      }
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('pointerdown', startAuthListener);
+        window.removeEventListener('keydown', startAuthListener);
+        window.removeEventListener('touchstart', startAuthListener);
+      }
+    };
+
+    const startAuthListener = () => {
+      if (hasInitialized || !isMounted) return;
+      hasInitialized = true;
+      cleanupTriggers();
+
+      if (auth) {
+        unsubscribe = onAuthStateChanged(auth, handleFirebaseUser);
+      } else {
+        setLoading(false);
+      }
+    };
+
+    // Fast-path detection: Check if immediate auth initialization is required
+    // 1. User has an active __session cookie or auth token in storage
+    // 2. User is navigating on an authenticated, checkout, or staff/admin route
+    const hasExistingSession =
+      typeof document !== 'undefined' &&
+      (document.cookie.includes('__session') ||
+        !!localStorage.getItem('supabaseToken') ||
+        !!localStorage.getItem('ruhvi_auth'));
+
+    const isProtectedOrAuthRoute =
+      typeof window !== 'undefined' &&
+      /^\/(admin|co-founder|portal-orders|support|marketing|tech|operations|account|checkout|orders|wishlist|login|signup)(\/|$)/i.test(
+        window.location.pathname
+      );
+
+    if (hasExistingSession || isProtectedOrAuthRoute) {
+      // Immediate execution for active sessions or protected routes
+      startAuthListener();
     } else {
+      // Public guest storefront: Defer auth script execution to free main-thread CPU
       setLoading(false);
+
+      if (typeof window !== 'undefined') {
+        // Trigger on earliest user interaction
+        window.addEventListener('pointerdown', startAuthListener, {
+          once: true,
+          passive: true,
+        });
+        window.addEventListener('keydown', startAuthListener, {
+          once: true,
+          passive: true,
+        });
+        window.addEventListener('touchstart', startAuthListener, {
+          once: true,
+          passive: true,
+        });
+
+        // Or trigger during idle period / fallback timeout
+        if ('requestIdleCallback' in window) {
+          idleId = (window as any).requestIdleCallback(startAuthListener, {
+            timeout: 2500,
+          });
+        } else {
+          timeoutId = setTimeout(startAuthListener, 1500);
+        }
+      } else {
+        startAuthListener();
+      }
     }
 
     return () => {
       isMounted = false;
+      cleanupTriggers();
       if (unsubscribe) unsubscribe();
     };
   }, []);

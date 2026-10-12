@@ -8,6 +8,7 @@ const nextConfig = {
       'firebase/app',
       '@tiptap/react',
       'recharts',
+      'three',
     ],
   },
   compiler: {
@@ -23,13 +24,17 @@ const nextConfig = {
       value:
         'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800',
     };
+    const publicApiCache = {
+      key: 'Cache-Control',
+      value: 'public, max-age=60, s-maxage=120, stale-while-revalidate=600',
+    };
     const noStore = {
       key: 'Cache-Control',
       value: 'no-store',
     };
 
     return [
-      // Personalized / authenticated routes — never cache, so no stale
+      // Personalized / authenticated routes & APIs — never cache, so no stale
       // personalized content leaks between users.
       { source: '/account/:path*', headers: [noStore] },
       { source: '/admin/:path*', headers: [noStore] },
@@ -50,6 +55,26 @@ const nextConfig = {
       { source: '/reset-password', headers: [noStore] },
       { source: '/forgot-password', headers: [noStore] },
       { source: '/complete-profile', headers: [noStore] },
+
+      // Private & transactional APIs — strict no-store
+      { source: '/api/admin/:path*', headers: [noStore] },
+      { source: '/api/auth/:path*', headers: [noStore] },
+      { source: '/api/checkout/:path*', headers: [noStore] },
+      { source: '/api/wallet/:path*', headers: [noStore] },
+      { source: '/api/support/:path*', headers: [noStore] },
+      { source: '/api/internal-chat/:path*', headers: [noStore] },
+      { source: '/api/task-manager/:path*', headers: [noStore] },
+      { source: '/api/operations/:path*', headers: [noStore] },
+      { source: '/api/marketing/:path*', headers: [noStore] },
+      { source: '/api/portal-orders/:path*', headers: [noStore] },
+      { source: '/api/notifications/:path*', headers: [noStore] },
+      { source: '/api/capi', headers: [noStore] },
+      { source: '/api/webhooks/:path*', headers: [noStore] },
+
+      // Public API endpoints — Edge CDN cacheable
+      { source: '/api/products', headers: [publicApiCache] },
+      { source: '/api/products/batch', headers: [publicApiCache] },
+      { source: '/api/firebase-config', headers: [publicPageCache] },
 
       // Public, non-personalized pages — CDN-cacheable.
       { source: '/', headers: [publicPageCache] },

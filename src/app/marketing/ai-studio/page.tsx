@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import dynamic from 'next/dynamic';
 import {
   Sparkles,
   Send,
@@ -17,12 +18,22 @@ import toast from 'react-hot-toast';
 import { CoWorkerStatusPanel } from '@/lib/../components/marketing/ai-studio/CoWorkerStatusPanel';
 import { CreativeMediaStudio } from '@/lib/../components/marketing/ai-studio/CreativeMediaStudio';
 import { CampaignReviewCard } from '@/lib/../components/marketing/ai-studio/CampaignReviewCard';
-import { AiHierarchyVisualizer } from '@/components/ai/motion-engine/AiHierarchyVisualizer';
+const AiHierarchyVisualizer = dynamic(
+  () =>
+    import('@/components/ai/motion-engine/AiHierarchyVisualizer').then(
+      (m) => m.AiHierarchyVisualizer
+    ),
+  { ssr: false }
+);
 
 export default function MarketingAiStudioPage() {
-  const [prompt, setPrompt] = useState('Create an ad campaign for 22K Gold Plated Choker');
+  const [prompt, setPrompt] = useState(
+    'Create an ad campaign for 22K Gold Plated Choker'
+  );
   const [loading, setLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState<'creative_studio' | 'campaign_review' | 'coworkers' | 'motion_3d'>('creative_studio');
+  const [activeTab, setActiveTab] = useState<
+    'creative_studio' | 'campaign_review' | 'coworkers' | 'motion_3d'
+  >('creative_studio');
   const [executionResult, setExecutionResult] = useState<any>(null);
 
   const samplePrompts = [
@@ -68,29 +79,30 @@ export default function MarketingAiStudioPage() {
   const strategyData = executionResult?.data?.strategy;
 
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-8">
+    <div className="mx-auto max-w-7xl space-y-8 p-6">
       {/* Top Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
         <div>
-          <div className="flex items-center gap-2 text-xs font-semibold text-amber-400 uppercase tracking-wider mb-1">
-            <Bot className="w-4 h-4" />
+          <div className="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-amber-400">
+            <Bot className="h-4 w-4" />
             <span>AI Co-Founder • Marketing Worker Ecosystem</span>
           </div>
-          <h1 className="text-3xl font-extrabold text-stone-100 tracking-tight">
+          <h1 className="text-3xl font-extrabold tracking-tight text-stone-100">
             Marketing AI Studio & Co-Workers
           </h1>
-          <p className="text-stone-400 text-sm mt-1">
-            Orchestrate Strategy, Creative Media (Google Flow 2-Video Prompts), and Approval-Gated Ads Execution.
+          <p className="mt-1 text-sm text-stone-400">
+            Orchestrate Strategy, Creative Media (Google Flow 2-Video Prompts),
+            and Approval-Gated Ads Execution.
           </p>
         </div>
 
         {/* View Switcher Tabs */}
-        <div className="flex items-center gap-1.5 p-1 bg-stone-900 border border-stone-800 rounded-xl">
+        <div className="flex items-center gap-1.5 rounded-xl border border-stone-800 bg-stone-900 p-1">
           <button
             onClick={() => setActiveTab('creative_studio')}
-            className={`px-3.5 py-1.5 text-xs font-medium rounded-lg transition ${
+            className={`rounded-lg px-3.5 py-1.5 text-xs font-medium transition ${
               activeTab === 'creative_studio'
-                ? 'bg-amber-500 text-stone-950 font-bold shadow'
+                ? 'bg-amber-500 font-bold text-stone-950 shadow'
                 : 'text-stone-400 hover:text-stone-200'
             }`}
           >
@@ -98,9 +110,9 @@ export default function MarketingAiStudioPage() {
           </button>
           <button
             onClick={() => setActiveTab('campaign_review')}
-            className={`px-3.5 py-1.5 text-xs font-medium rounded-lg transition ${
+            className={`rounded-lg px-3.5 py-1.5 text-xs font-medium transition ${
               activeTab === 'campaign_review'
-                ? 'bg-amber-500 text-stone-950 font-bold shadow'
+                ? 'bg-amber-500 font-bold text-stone-950 shadow'
                 : 'text-stone-400 hover:text-stone-200'
             }`}
           >
@@ -108,9 +120,9 @@ export default function MarketingAiStudioPage() {
           </button>
           <button
             onClick={() => setActiveTab('coworkers')}
-            className={`px-3.5 py-1.5 text-xs font-medium rounded-lg transition ${
+            className={`rounded-lg px-3.5 py-1.5 text-xs font-medium transition ${
               activeTab === 'coworkers'
-                ? 'bg-amber-500 text-stone-950 font-bold shadow'
+                ? 'bg-amber-500 font-bold text-stone-950 shadow'
                 : 'text-stone-400 hover:text-stone-200'
             }`}
           >
@@ -118,30 +130,30 @@ export default function MarketingAiStudioPage() {
           </button>
           <button
             onClick={() => setActiveTab('motion_3d')}
-            className={`flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-medium rounded-lg transition ${
+            className={`flex items-center gap-1.5 rounded-lg px-3.5 py-1.5 text-xs font-medium transition ${
               activeTab === 'motion_3d'
-                ? 'bg-amber-500 text-stone-950 font-bold shadow'
+                ? 'bg-amber-500 font-bold text-stone-950 shadow'
                 : 'text-stone-400 hover:text-stone-200'
             }`}
           >
-            <Orbit className="w-3.5 h-3.5" />
+            <Orbit className="h-3.5 w-3.5" />
             <span>3D Swarm Motion</span>
           </button>
         </div>
       </div>
 
       {/* Natural Language Prompt Bar */}
-      <div className="bg-stone-900 border border-stone-800 rounded-2xl p-5 shadow-2xl space-y-3">
-        <label className="text-xs font-semibold text-stone-200 uppercase tracking-wider block">
+      <div className="space-y-3 rounded-2xl border border-stone-800 bg-stone-900 p-5 shadow-2xl">
+        <label className="block text-xs font-semibold uppercase tracking-wider text-stone-200">
           Ask Marketing Worker / Dispatch Co-Workers
         </label>
-        <div className="flex flex-col sm:flex-row gap-2.5">
+        <div className="flex flex-col gap-2.5 sm:flex-row">
           <input
             type="text"
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
             placeholder="e.g. Create a Facebook ad campaign for 22K Gold Plated Choker"
-            className="flex-1 bg-stone-950 border border-stone-800 rounded-xl px-4 py-3 text-sm text-stone-100 placeholder-stone-500 focus:outline-none focus:border-amber-500 transition"
+            className="flex-1 rounded-xl border border-stone-800 bg-stone-950 px-4 py-3 text-sm text-stone-100 placeholder-stone-500 transition focus:border-amber-500 focus:outline-none"
             onKeyDown={(e) => {
               if (e.key === 'Enter' && !loading) {
                 handleRunTask(prompt);
@@ -151,16 +163,20 @@ export default function MarketingAiStudioPage() {
           <button
             onClick={() => handleRunTask(prompt)}
             disabled={loading || !prompt.trim()}
-            className="px-6 py-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-stone-950 font-bold text-xs rounded-xl transition flex items-center justify-center gap-2 shadow-lg disabled:opacity-50"
+            className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 px-6 py-3 text-xs font-bold text-stone-950 shadow-lg transition hover:from-amber-400 hover:to-amber-500 disabled:opacity-50"
           >
-            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+            {loading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Send className="h-4 w-4" />
+            )}
             <span>{loading ? 'Orchestrating...' : 'Generate Campaign'}</span>
           </button>
         </div>
 
         {/* Preset quick pills */}
         <div className="flex flex-wrap gap-2 pt-1">
-          <span className="text-[11px] text-stone-500 self-center">Try:</span>
+          <span className="self-center text-[11px] text-stone-500">Try:</span>
           {samplePrompts.map((sample, idx) => (
             <button
               key={idx}
@@ -168,7 +184,7 @@ export default function MarketingAiStudioPage() {
                 setPrompt(sample);
                 handleRunTask(sample);
               }}
-              className="text-[11px] px-2.5 py-1 bg-stone-950 hover:bg-stone-800 text-stone-400 hover:text-stone-200 rounded-lg border border-stone-800 transition"
+              className="rounded-lg border border-stone-800 bg-stone-950 px-2.5 py-1 text-[11px] text-stone-400 transition hover:bg-stone-800 hover:text-stone-200"
             >
               {sample}
             </button>
@@ -187,7 +203,10 @@ export default function MarketingAiStudioPage() {
 
       {activeTab === 'creative_studio' && (
         <div className="space-y-6">
-          <CreativeMediaStudio creativeData={creativeData} campaignId="cmp_active_flight" />
+          <CreativeMediaStudio
+            creativeData={creativeData}
+            campaignId="cmp_active_flight"
+          />
         </div>
       )}
 
@@ -199,20 +218,25 @@ export default function MarketingAiStudioPage() {
 
       {/* Strategy Summary & Executive Voice readout if available */}
       {strategyData && (
-        <div className="bg-stone-900 border border-stone-800 rounded-2xl p-6 shadow-xl space-y-4">
-          <div className="flex items-center gap-2 text-xs font-semibold text-amber-400 uppercase tracking-wider">
-            <Sparkles className="w-4 h-4" />
+        <div className="space-y-4 rounded-2xl border border-stone-800 bg-stone-900 p-6 shadow-xl">
+          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-amber-400">
+            <Sparkles className="h-4 w-4" />
             <span>Active Strategy Summary</span>
           </div>
-          <p className="text-sm text-stone-200 leading-relaxed font-sans">
+          <p className="font-sans text-sm leading-relaxed text-stone-200">
             {executionResult?.executiveVoiceSummary}
           </p>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-2">
+          <div className="grid grid-cols-1 gap-3 pt-2 md:grid-cols-3">
             {strategyData.angles.map((angle: any, idx: number) => (
-              <div key={idx} className="p-3.5 bg-stone-950 rounded-xl border border-stone-800 text-xs">
-                <span className="text-amber-400 font-semibold block mb-1">Hook #{idx + 1}</span>
-                <p className="text-stone-200 font-medium">{angle.hook}</p>
+              <div
+                key={idx}
+                className="rounded-xl border border-stone-800 bg-stone-950 p-3.5 text-xs"
+              >
+                <span className="mb-1 block font-semibold text-amber-400">
+                  Hook #{idx + 1}
+                </span>
+                <p className="font-medium text-stone-200">{angle.hook}</p>
               </div>
             ))}
           </div>

@@ -15,6 +15,7 @@ const cormorant = Cormorant_Garamond({
   style: ['normal', 'italic'],
   variable: '--font-cormorant',
   display: 'swap',
+  adjustFontFallback: true,
 });
 
 const inter = Inter({
@@ -22,6 +23,7 @@ const inter = Inter({
   weight: ['300', '400', '500', '600', '700'],
   variable: '--font-inter',
   display: 'swap',
+  adjustFontFallback: true,
 });
 
 const jost = Jost({
@@ -29,6 +31,7 @@ const jost = Jost({
   weight: ['400', '500', '600'],
   variable: '--font-jost',
   display: 'swap',
+  adjustFontFallback: true,
 });
 
 const marcellus = Marcellus({
@@ -36,6 +39,7 @@ const marcellus = Marcellus({
   weight: '400',
   variable: '--font-marcellus',
   display: 'swap',
+  adjustFontFallback: true,
 });
 
 const playfair = Playfair_Display({
@@ -44,6 +48,7 @@ const playfair = Playfair_Display({
   style: ['normal', 'italic'],
   variable: '--font-playfair',
   display: 'swap',
+  adjustFontFallback: true,
 });
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
@@ -170,19 +175,29 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="bg-cream text-ink font-jost flex min-h-screen flex-col antialiased">
-        {/* Preconnect to critical third-party origins to cut connection setup off the LCP critical path */}
-        <link rel="preconnect" href="https://ruhvi-f707c.firebaseapp.com" />
-        <link rel="preconnect" href="https://eu-assets.i.posthog.com" />
-        <link
-          rel="preconnect"
-          href="https://igrkrkxdantrolbldapj.supabase.co"
-        />
+        {/* Preconnect to critical first-paint asset origins */}
         <link rel="preconnect" href="https://res.cloudinary.com" />
         <link
           rel="preconnect"
-          href="https://o4511965411606528.ingest.de.sentry.io"
+          href="https://igrkrkxdantrolbldapj.supabase.co"
           crossOrigin="anonymous"
         />
+        {/* DNS prefetch for critical and secondary domains to eliminate TLS socket contention on mobile load */}
+        <link rel="dns-prefetch" href="https://res.cloudinary.com" />
+        <link
+          rel="dns-prefetch"
+          href="https://igrkrkxdantrolbldapj.supabase.co"
+        />
+        <link rel="dns-prefetch" href="https://apis.google.com" />
+        <link rel="dns-prefetch" href="https://ruhvi-f707c.firebaseapp.com" />
+        <link rel="dns-prefetch" href="https://checkout.razorpay.com" />
+        <link rel="dns-prefetch" href="https://api.razorpay.com" />
+        <link rel="dns-prefetch" href="https://eu-assets.i.posthog.com" />
+        <link
+          rel="dns-prefetch"
+          href="https://o4511965411606528.ingest.de.sentry.io"
+        />
+        <link rel="dns-prefetch" href="https://static.cloudflareinsights.com" />
         <a
           href="#main-content"
           className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-charcoal-900 focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-white focus:shadow-lg focus:outline-2 focus:outline-offset-2 focus:outline-charcoal-900"
@@ -240,7 +255,10 @@ export default function RootLayout({
                     {/* Add spacing here so it only applies to the storefront, not portals */}
                     <div className="h-[104px] w-full flex-shrink-0 sm:h-[116px]" />
                   </StorefrontChrome>
-                  <main id="main-content" className="flex-1">
+                  <main
+                    id="main-content"
+                    className="min-h-[calc(100vh-120px)] flex-1"
+                  >
                     {children}
                   </main>
                   <StorefrontChrome>

@@ -14,7 +14,12 @@ import {
   LogOut,
   ChevronDown,
 } from 'lucide-react';
-import FloatingStaffMessenger from '@/components/chat/FloatingStaffMessenger';
+import dynamic from 'next/dynamic';
+
+const FloatingStaffMessenger = dynamic(
+  () => import('@/components/chat/FloatingStaffMessenger'),
+  { ssr: false }
+);
 import { PortalSwitcherDropdown } from '@/components/portal/PortalSwitcherDropdown';
 import { PortalThemeProvider } from '@/context/PortalThemeContext';
 import { ThemeToggle } from '@/components/portal/ThemeToggle';

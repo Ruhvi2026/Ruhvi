@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import dynamic from 'next/dynamic';
 import {
   Send,
   Bot,
@@ -52,7 +53,13 @@ import {
   WorkerGrid,
   WorkerNodeData,
 } from '@/components/co-founder/workforce/WorkerGrid';
-import { AiHierarchyVisualizer } from '@/components/ai/motion-engine/AiHierarchyVisualizer';
+const AiHierarchyVisualizer = dynamic(
+  () =>
+    import('@/components/ai/motion-engine/AiHierarchyVisualizer').then(
+      (m) => m.AiHierarchyVisualizer
+    ),
+  { ssr: false }
+);
 import { LiveWorkspace } from '@/components/co-founder/workspace/LiveWorkspace';
 import {
   SwarmWorkerNode,

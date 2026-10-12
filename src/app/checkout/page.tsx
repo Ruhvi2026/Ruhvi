@@ -3,7 +3,6 @@
 import React, { useState, useRef, useEffect, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import Script from 'next/script';
 import { Turnstile, TurnstileInstance } from '@marsidev/react-turnstile';
 import {
   ShieldCheck,

@@ -12,8 +12,13 @@ import { useWishlist } from '@/context/WishlistContext';
 import { useNotifications } from '@/context/NotificationContext';
 import { useAuth } from '@/context/AuthContext';
 import { usePathname } from 'next/navigation';
-import { getStoreSettings, StoreSettings } from '@/app/admin/actions/settings';
-import { AccountDrawer } from '@/components/layout/AccountDrawer';
+import dynamic from 'next/dynamic';
+
+const AccountDrawer = dynamic(
+  () =>
+    import('@/components/layout/AccountDrawer').then((m) => m.AccountDrawer),
+  { ssr: false }
+);
 
 export function Navbar() {
   const [accountDrawerOpen, setAccountDrawerOpen] = useState(false);
@@ -27,19 +32,7 @@ export function Navbar() {
   const { wishlistCount } = useWishlist();
   const { unreadCount } = useNotifications();
   const { user, profile, signOut } = useAuth();
-
-  const [bannerSettings, setBannerSettings] = useState<StoreSettings | null>(
-    null
-  );
   const { categories } = useTaxonomy();
-
-  React.useEffect(() => {
-    async function fetchBanner() {
-      const data = await getStoreSettings();
-      if (data) setBannerSettings(data);
-    }
-    fetchBanner();
-  }, []);
 
   React.useEffect(() => {
     let ticking = false;

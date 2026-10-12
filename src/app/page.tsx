@@ -51,7 +51,7 @@ export default async function HomePage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
       />
-      <main className="pt-6 lg:pt-10">
+      <div className="pt-6 lg:pt-10">
         <div className="wrap">
           {/* HERO */}
           <section className="hero">
@@ -63,7 +63,7 @@ export default async function HomePage() {
                 )}
                 alt={hp.hero_title || 'Woman wearing gold-plated jewellery'}
                 fill
-                sizes="100vw"
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 1340px"
                 className="object-cover"
                 style={{ objectPosition: '78% 30%' }}
                 priority
@@ -124,7 +124,7 @@ export default async function HomePage() {
                   )}
                   alt="New Arrivals"
                   fill
-                  sizes="(max-width: 768px) 100vw, 50vw"
+                  sizes="(max-width: 680px) 100vw, (max-width: 1024px) 50vw, 650px"
                   className="object-cover"
                 />
               </div>
@@ -164,7 +164,7 @@ export default async function HomePage() {
                   )}
                   alt="Best Sellers"
                   fill
-                  sizes="(max-width: 768px) 100vw, 50vw"
+                  sizes="(max-width: 680px) 100vw, (max-width: 1024px) 50vw, 650px"
                   className="object-cover"
                 />
               </div>
@@ -289,7 +289,7 @@ export default async function HomePage() {
                 )}
                 alt="Occasion Split"
                 fill
-                sizes="(max-width: 768px) 100vw, 50vw"
+                sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 650px"
                 className="object-cover"
                 style={{ objectPosition: '50% 22%' }}
               />
@@ -305,7 +305,7 @@ export default async function HomePage() {
                 )}
                 alt="Limited Collection"
                 fill
-                sizes="(max-width: 768px) 100vw, 50vw"
+                sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 650px"
                 className="object-cover"
               />
             </div>
@@ -344,7 +344,7 @@ export default async function HomePage() {
                 )}
                 alt="Explore Collection"
                 fill
-                sizes="100vw"
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 1340px"
                 className="object-cover"
                 style={{ objectPosition: '50% 18%' }}
               />
@@ -448,7 +448,7 @@ export default async function HomePage() {
             </div>
           </section>
         </div>
-      </main>
+      </div>
     </>
   );
 }

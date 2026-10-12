@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import '@/app/portal.css';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
@@ -43,8 +44,13 @@ import {
   ClipboardList,
   Sparkles,
 } from 'lucide-react';
+import dynamic from 'next/dynamic';
 import { AdminNotificationCenter } from '@/components/admin/AdminNotificationCenter';
-import FloatingStaffMessenger from '@/components/chat/FloatingStaffMessenger';
+
+const FloatingStaffMessenger = dynamic(
+  () => import('@/components/chat/FloatingStaffMessenger'),
+  { ssr: false }
+);
 import { PortalThemeProvider } from '@/context/PortalThemeContext';
 import { ThemeToggle } from '@/components/portal/ThemeToggle';
 import { PortalSwitcherDropdown } from '@/components/portal/PortalSwitcherDropdown';

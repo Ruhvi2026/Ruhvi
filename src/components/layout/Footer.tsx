@@ -60,7 +60,11 @@ export function Footer() {
   return (
     <footer
       className="border-t border-[var(--line)] pb-8 pt-12 text-[var(--cream)]"
-      style={{ backgroundColor: 'var(--ink)' }}
+      style={{
+        backgroundColor: 'var(--ink)',
+        contentVisibility: 'auto',
+        containIntrinsicSize: '1px 650px',
+      }}
     >
       {/* Brand Reassurance Bar */}
       <div className="mx-auto mb-12 max-w-7xl px-4 sm:px-6 lg:px-8">
