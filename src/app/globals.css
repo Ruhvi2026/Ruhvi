@@ -24,6 +24,8 @@
     --brown-mid: #2e2115;
     --line: rgba(42, 33, 24, 0.12);
     --maxw: 1340px;
+    --font-inter: 'Inter', system-ui, -apple-system, sans-serif;
+    --font-playfair: 'Playfair Display', Georgia, serif;
   }
 
   * {

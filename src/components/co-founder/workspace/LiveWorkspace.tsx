@@ -1087,13 +1087,15 @@ export function LiveWorkspace({
         </div>
       </div>
 
-      {/* Embedded Multimodal Visual Inspection Modal (Step 9.3) */}
-      <VisualInspectionModal
-        isOpen={isInspectionOpen}
-        onClose={() => setIsInspectionOpen(false)}
-        imageUrl={inspectedImageUrl}
-        productName={inspectedProductName}
-      />
+      {/* Embedded Multimodal Visual Inspection Modal (Step 9.3) — lazy loaded on demand */}
+      {isInspectionOpen && (
+        <VisualInspectionModal
+          isOpen={isInspectionOpen}
+          onClose={() => setIsInspectionOpen(false)}
+          imageUrl={inspectedImageUrl}
+          productName={inspectedProductName}
+        />
+      )}
     </div>
   );
 }

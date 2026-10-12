@@ -1,27 +1,12 @@
 import type { Metadata, Viewport } from 'next';
-import {
-  Cormorant_Garamond,
-  Inter,
-  Jost,
-  Marcellus,
-  Playfair_Display,
-} from 'next/font/google';
+import { Cormorant_Garamond, Jost, Marcellus } from 'next/font/google';
 import './globals.css';
 import '@/lib/env'; // Validate env variables on boot
 
 const cormorant = Cormorant_Garamond({
   subsets: ['latin'],
-  weight: ['400', '500', '600'],
-  style: ['normal', 'italic'],
+  weight: ['400', '600'],
   variable: '--font-cormorant',
-  display: 'swap',
-  adjustFontFallback: true,
-});
-
-const inter = Inter({
-  subsets: ['latin'],
-  weight: ['300', '400', '500', '600', '700'],
-  variable: '--font-inter',
   display: 'swap',
   adjustFontFallback: true,
 });
@@ -38,15 +23,6 @@ const marcellus = Marcellus({
   subsets: ['latin'],
   weight: '400',
   variable: '--font-marcellus',
-  display: 'swap',
-  adjustFontFallback: true,
-});
-
-const playfair = Playfair_Display({
-  subsets: ['latin'],
-  weight: ['400', '600', '700'],
-  style: ['normal', 'italic'],
-  variable: '--font-playfair',
   display: 'swap',
   adjustFontFallback: true,
 });
@@ -171,7 +147,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${cormorant.variable} ${inter.variable} ${jost.variable} ${marcellus.variable} ${playfair.variable}`}
+      className={`${cormorant.variable} ${jost.variable} ${marcellus.variable}`}
       suppressHydrationWarning
     >
       <body className="bg-cream text-ink font-jost flex min-h-screen flex-col antialiased">

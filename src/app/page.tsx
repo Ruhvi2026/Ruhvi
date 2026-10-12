@@ -6,7 +6,7 @@ import { Category } from '@/types/database';
 import { getHomepageSettings, getHomepageCategories } from '@/lib/storefront';
 import { getOptimizedImageUrl } from '@/lib/imageService';
 
-export const revalidate = 3600;
+export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: 'Ruhvi Fine Jewellery: Everyday Elegance, Crafted for You',

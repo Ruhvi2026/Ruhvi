@@ -260,11 +260,13 @@ export function Navbar() {
           </div>
         </div>
 
-        {/* Account Side Drawer Component */}
-        <AccountDrawer
-          isOpen={accountDrawerOpen}
-          onClose={() => setAccountDrawerOpen(false)}
-        />
+        {/* Account Side Drawer Component — lazy loaded on demand */}
+        {accountDrawerOpen && (
+          <AccountDrawer
+            isOpen={accountDrawerOpen}
+            onClose={() => setAccountDrawerOpen(false)}
+          />
+        )}
 
         {/* Unified Search Bar Row */}
         <div
