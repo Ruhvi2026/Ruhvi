@@ -143,8 +143,9 @@ export function Navbar() {
             {isScrolled && (
               <button
                 onClick={() => setIsSearchExpanded(!isSearchExpanded)}
-                className="text-ink-soft relative ml-1 p-2 transition-colors duration-300 hover:text-gold-600 sm:ml-3 sm:p-2"
+                className="text-ink-soft relative ml-1 inline-flex min-h-[36px] min-w-[36px] items-center justify-center rounded-full p-2 transition-colors duration-300 hover:text-gold-600 sm:ml-3"
                 title="Search"
+                aria-label="Search"
               >
                 <Search
                   className="h-5 w-5 transition-transform duration-300 hover:scale-105"
@@ -189,7 +190,7 @@ export function Navbar() {
             {/* Wishlist Link */}
             <Link
               href="/wishlist"
-              className="text-ink-soft relative p-2 transition-colors duration-300 hover:text-gold-600 sm:p-2"
+              className="text-ink-soft relative inline-flex min-h-[36px] min-w-[36px] items-center justify-center rounded-full p-2 transition-colors duration-300 hover:text-gold-600"
               aria-label={`Wishlist${wishlistCount > 0 ? `, ${wishlistCount} items` : ''}`}
               title="Wishlist"
             >
@@ -210,7 +211,7 @@ export function Navbar() {
             {/* Cart Link */}
             <Link
               href="/cart"
-              className="text-ink-soft relative p-2 transition-colors duration-300 hover:text-gold-600 sm:p-2"
+              className="text-ink-soft relative inline-flex min-h-[36px] min-w-[36px] items-center justify-center rounded-full p-2 transition-colors duration-300 hover:text-gold-600"
               aria-label={`Shopping cart${cartCount > 0 ? `, ${cartCount} items` : ''}`}
               title="Cart"
             >
@@ -233,8 +234,9 @@ export function Navbar() {
               {user ? (
                 <Link
                   href="/account"
-                  className="group flex items-center focus:outline-none"
+                  className="group flex min-h-[36px] min-w-[36px] items-center justify-center focus:outline-none"
                   title="My Profile"
+                  aria-label="My Profile"
                 >
                   <div className="flex h-7 w-7 items-center justify-center rounded-full border border-gold-200 bg-gold-50/60 font-serif text-[10px] font-semibold text-gold-700 shadow-sm transition-all duration-300 group-hover:border-gold-300 group-hover:bg-gold-100/50 group-hover:shadow-md sm:h-[34px] sm:w-[34px] sm:text-[11px]">
                     {userInitials}
@@ -243,8 +245,9 @@ export function Navbar() {
               ) : (
                 <Link
                   href="/login"
-                  className="text-ink-soft p-2 transition-colors duration-300 hover:text-gold-600 sm:p-2"
+                  className="text-ink-soft inline-flex min-h-[36px] min-w-[36px] items-center justify-center rounded-full p-2 transition-colors duration-300 hover:text-gold-600"
                   title="Login"
+                  aria-label="Login"
                 >
                   <User
                     className="h-5 w-5 transition-transform duration-300 hover:scale-105"

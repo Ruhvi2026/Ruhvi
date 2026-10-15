@@ -18,7 +18,7 @@
     --ink: #2a2118;
     --ink-soft: #4a3f33;
     --gold: #c79a4b;
-    --gold-deep: #a87c2e;
+    --gold-deep: #85641b;
     --gold-pale: #e9c989;
     --brown-dark: #1c140d;
     --brown-mid: #2e2115;
@@ -490,7 +490,8 @@ html.dark .hover\:text-\[\#121110\]:hover {
 /* Accent texts */
 html.dark .text-gold-600,
 html.dark .text-gold-500,
-html.dark .text-gold-700 {
+html.dark .text-gold-700,
+html.dark .brand .word {
   color: #d6b36a !important;
 }
 
@@ -720,6 +721,17 @@ html.dark .glow-card-focus {
   .nav-right {
     justify-content: flex-end;
     gap: 6px;
+  }
+
+  .nav-right a.text-ink-soft,
+  .nav-left button.text-ink-soft,
+  .nav-right a,
+  .nav-right button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 36px;
+    min-height: 36px;
   }
 
   .brand {

@@ -72,9 +72,9 @@ export function Footer() {
           <div className="flex items-center space-x-3">
             <Award className="h-8 w-8 flex-shrink-0 text-gold-400" />
             <div>
-              <h4 className="text-xs font-bold uppercase tracking-wider text-cream-50">
+              <span className="block text-xs font-bold uppercase tracking-wider text-cream-50">
                 22K Gold Plated
-              </h4>
+              </span>
               <p className="text-[11px] text-cream-200/60">
                 Anti-Tarnish & Water Resistant
               </p>
@@ -84,9 +84,9 @@ export function Footer() {
           <div className="flex items-center space-x-3">
             <Truck className="h-8 w-8 flex-shrink-0 text-gold-400" />
             <div>
-              <h4 className="text-xs font-bold uppercase tracking-wider text-cream-50">
+              <span className="block text-xs font-bold uppercase tracking-wider text-cream-50">
                 Insured Shipping
-              </h4>
+              </span>
               <p className="text-[11px] text-cream-200/60">
                 Tamper-proof transit packaging
               </p>
@@ -96,9 +96,9 @@ export function Footer() {
           <div className="flex items-center space-x-3">
             <RotateCcw className="h-8 w-8 flex-shrink-0 text-gold-400" />
             <div>
-              <h4 className="text-xs font-bold uppercase tracking-wider text-cream-50">
+              <span className="block text-xs font-bold uppercase tracking-wider text-cream-50">
                 Easy Returns
-              </h4>
+              </span>
               <p className="text-[11px] text-cream-200/60">
                 7-day hassle-free return policy
               </p>
@@ -108,9 +108,9 @@ export function Footer() {
           <div className="flex items-center space-x-3">
             <ShieldCheck className="h-8 w-8 flex-shrink-0 text-gold-400" />
             <div>
-              <h4 className="text-xs font-bold uppercase tracking-wider text-cream-50">
+              <span className="block text-xs font-bold uppercase tracking-wider text-cream-50">
                 6-Month Color Guarantee
-              </h4>
+              </span>
               <p className="text-[11px] text-cream-200/60">
                 On all gold plated pieces
               </p>
