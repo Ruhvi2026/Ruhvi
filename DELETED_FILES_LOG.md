@@ -115,4 +115,77 @@
 - **ফ্রি করা ডিস্ক স্পেস:** ~214.2 KB (এবং 5,268 লাইন রিডানড্যান্ট মার্কডাউন কোডবেস থেকে সরানো হয়েছে)
 - **কোডবেস স্ট্যাটাস:** রুট ডিরেক্টরি পরিচ্ছন্ন ও অপ্টিমাইজড, সমস্ত মূল আর্কিটেকচার সম্পূর্ণ সুরক্ষিত।
 
+---
+
+## Cleanup Phase 3 (সম্পন্ন ও অপ্রয়োজনীয় ফাইল ক্লিনআপ — সিকিউরিটি রিপোর্ট, পারফরম্যান্স ড্রাফট, ডোমেন মাইগ্রেশন প্ল্যান ও বিল্ড ক্যাশ)
+
+**Timestamp:** 2026-10-15 (Local Time: 14:20:00 IST)
+
+### 1. Last Git Commit Info (সার্বিক রিকভারির সুবিধা সংক্রান্ত তথ্য)
+- **Immediate Pre-Deletion Commit Hash:** `65a6f72c1203fbb877ed2b9a34781f49ba461129` (বা `65a6f72`)
+- **Author:** ruhvi2026 <ruhvi.main@gmail.com>
+- **Date:** 2026-10-15 13:47:07 +0530
+- **Message:** `fix(a11y): resolve color contrast, touch targets, heading hierarchy, and CSP frame-src`
+
+---
+
+### 2. File-by-File Commit Registry & Recovery Commands (প্রতিটি ফাইলের নির্দিষ্ট কমিট ও রিকভারি নির্দেশিকা)
+
+যেকোনো ফাইলের কনটেন্ট সরাসরি টার্মিনালে দেখতে বা প্রয়োজনে কোডবেসে ফিরিয়ে আনতে নিচের নির্দিষ্ট কমিট হ্যাশ ও কমান্ড ব্যবহার করা যাবে:
+
+| ফাইল (File Name) | ফাইল সাইজ | সর্বশেষ কার্যকর কমিট (Last Commit Hash) | কমিটের বিবরণ (Commit Message) | সরাসরি পড়ার কমান্ড (Read File) | রিকভারি কমান্ড (Restore File) |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **`security_report.md`** | ~8.6 KB | `8e1f6bd` *(বা `65a6f72`)* | `fix(security): resolve security findings, harden CAPI and session auth, consolidate security report` | `git show 8e1f6bd:security_report.md` | `git checkout 8e1f6bd -- security_report.md` |
+| **`DOMAIN_MIGRATION_PLAN.md`** | ~4.6 KB | `c24f464` *(বা `65a6f72`)* | `docs: update system tools and services doc with DNS records & domain migration plan` | `git show c24f464:DOMAIN_MIGRATION_PLAN.md` | `git checkout c24f464 -- DOMAIN_MIGRATION_PLAN.md` |
+| **`performance.md`** | ~19.3 KB | `254b52e` *(বা `65a6f72`)* | `perf: complete master performance optimization roadmap (Phases 1-10)` | `git show 254b52e:performance.md` | `git checkout 254b52e -- performance.md` |
+| **`pending_performance.md`** | ~30.9 KB | `3f85997` *(বা `65a6f72`)* | `Cleanup: remove performance.md, add pending docs` | `git show 3f85997:pending_performance.md` | `git checkout 3f85997 -- pending_performance.md` |
+| **`ANALYSIS_MASTER_REPORT.md`** | ~15.1 KB | `1cbc2c6` *(বা `65a6f72`)* | `Commit all changes` | `git show 1cbc2c6:ANALYSIS_MASTER_REPORT.md` | `git checkout 1cbc2c6 -- ANALYSIS_MASTER_REPORT.md` |
+| **`tsconfig.tsbuildinfo`** | ~826 KB | Untracked temporary artifact | TypeScript build cache | N/A | N/A |
+| **`.next/cache/webpack/*.old`** | ~118 MB | Untracked build cache | Webpack production old cache packs | N/A | N/A |
+| **`temp_skill/`** | ~0 KB | Empty local folder | Residual git directory | N/A | N/A |
+| **`scratch/`** | ~0 KB | Empty directory | Workspace scratch directory | N/A | N/A |
+
+> **সহজ একক রিকভারি কমান্ড (Single Command for All Files):**  
+> যদি ৫টি ফাইলই একবারে ফিরিয়ে আনতে চান, তবে রান করুন:  
+> `git checkout 65a6f72 -- security_report.md DOMAIN_MIGRATION_PLAN.md performance.md pending_performance.md ANALYSIS_MASTER_REPORT.md`
+
+---
+
+### 3. তথ্য সংরক্ষণ ও স্থানান্তর নিশ্চয়তা (Information Preservation & Transfer Verification)
+
+মুছে ফেলার পূর্বে প্রতিটি ফাইলের সমস্ত প্রয়োজনীয় ও ক্রিটিক্যাল তথ্য পুঙ্খানুপুঙ্খভাবে `PROJECT_SYSTEM_TOOLS_AND_SERVICES.md` এবং সংশ্লিষ্ট মাস্টার ডকুমেন্টে স্থানান্তর করে স্থায়ীভাবে সংরক্ষণ করা হয়েছে:
+
+1. **`security_report.md` তথ্য স্থানান্তর ও সংরক্ষণ:**
+   - **সংরক্ষিত তথ্য:** 
+     - Fail-closed Session JWT নীতি (`src/lib/auth/verify-session.ts`)।
+     - Meta CAPI অরিজিন ভ্যালিডেশন, স্লাইডিং উইন্ডো রেট লিমিটিং (৬০ রিকোয়েস্ট/মিনিট) এবং আইপি স্পুফিং প্রোটেকশন (`src/app/api/capi/route.ts`)।
+     - Content Security Policy (CSP) ডিরেক্টিভস (`form-action 'self'`, `upgrade-insecure-requests;`, এবং `frame-src 'self' https://*.firebaseapp.com https://accounts.google.com https://*.google.com https://www.facebook.com;`) (`src/middleware.ts`)।
+     - পোর্টাল সাবডোমেন আইসোলেশন ও `X-Robots-Tag: noindex, nofollow`।
+   - **স্থানান্তরিত স্থান:** `PROJECT_SYSTEM_TOOLS_AND_SERVICES.md` এর **Section 5: Security Architecture & Hardening Baseline**-এ স্থায়ীভাবে সংরক্ষণ করা হয়েছে।
+
+2. **`DOMAIN_MIGRATION_PLAN.md` তথ্য স্থানান্তর ও সংরক্ষণ:**
+   - **সংরক্ষিত তথ্য:** 
+     - Firebase Authentication Authorized Domains (`ruhvi.in`, `www.ruhvi.in`)।
+     - Google Cloud OAuth Authorized JS Origins (`https://ruhvi.in`, `https://www.ruhvi.in`) ও Redirect URI (`https://ruhvi-f707c.firebaseapp.com/__/auth/handler`)।
+     - Meta Developers App Domains, Site URL, এবং Privacy/Data Deletion URLs।
+     - Cloudflare Turnstile Widget Domains (`ruhvi.in`, `www.ruhvi.in`)।
+     - PhonePe & Paytm Webhook/Callback URLs (`https://ruhvi.in/api/webhooks/phonepe`)।
+     - PostHog Authorized Domains ও Google Search Console sitemap লিঙ্ক।
+   - **স্থানান্তরিত স্থান:** `PROJECT_SYSTEM_TOOLS_AND_SERVICES.md` এর **Section 6: Domain Whitelist & Provider Integration Registry**-তে স্থায়ীভাবে সংরক্ষণ করা হয়েছে।
+
+3. **`performance.md` & `pending_performance.md` তথ্য স্থানান্তর ও সংরক্ষণ:**
+   - **সংরক্ষিত তথ্য:** সমস্ত পারফরম্যান্স ফেজ (ফেজ ১ থেকে ১০), Core Web Vitals বেঞ্চমার্ক, সেলফ-হোস্টেড ফন্ট, ক্লাউডিনারি প্রি-কানেক্ট, সার্ভার-সাইড ক্যাশ ও টেলিমেট্রি টিউনিং।
+   - **স্থানান্তরিত স্থান:** সম্পূর্ণ লাইভ কোডে বাস্তবায়িত এবং `RUHVI_PERFORMANCE_MASTER_REPORT.md` ও `PROJECT_SYSTEM_TOOLS_AND_SERVICES.md` এর **Section 7**-এ স্থায়ীভাবে রেফারেন্সড।
+
+4. **`ANALYSIS_MASTER_REPORT.md` তথ্য স্থানান্তর ও সংরক্ষণ:**
+   - **সংরক্ষিত তথ্য:** জানুয়ারি ২০২৬ এর প্রাথমিক সিস্টেম রিকন-এর সমস্ত প্রাসঙ্গিক আর্কিটেকচার তথ্য বর্তমানে `PROJECT_ARCHITECTURE_DOCS.md`, `PROJECT_SYSTEM_TOOLS_AND_SERVICES.md` এবং `RUHVI_A_TO_Z_PROJECT_GUIDE.md`-এ আরও বিস্তারিত ও আপ-টু-ডেটভাবে সংরক্ষিত আছে।
+
+---
+
+### 4. Summary (Phase 3)
+- **মোট অপসারিত ফাইল ও ফোল্ডার সংখ্যা:** ৯ টি
+- **ফ্রি করা ডিস্ক স্পেস:** ~119 MB (Webpack cache + Build artifacts + Obsolete markdown files)
+- **কোডবেস স্ট্যাটাস:** রুট ডিরেক্টরি পরিচ্ছন্ন, সমস্ত তথ্য স্থায়ীভাবে `PROJECT_SYSTEM_TOOLS_AND_SERVICES.md`-এ সংরক্ষিত, শূন্য ফাংশনাল ক্ষতি।
+
+
 

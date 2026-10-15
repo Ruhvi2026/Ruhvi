@@ -126,3 +126,47 @@
 8. **modern-web-guidance**: Search tool for modern HTML/CSS/JS web APIs, View Transitions, and container queries.
 9. **chrome-extensions**: Manifest V3 browser extension development and Chrome Web Store publishing workflows.
 10. **google-antigravity-sdk**: SDK guide for designing, implementations, and debugging autonomous AI multi-agent systems.
+
+---
+
+## 5. Security Architecture & Hardening Baseline (নিরাপত্তা ও হার্ডেনিং নীতিমালা)
+
+Consolidated authoritative record of security assessments, surface hardening, and vulnerability resolutions:
+
+| Subsystem / Surface | Policy / Implemented Hardening | Key Config / Implementation File |
+| :--- | :--- | :--- |
+| **Fail-Closed Session JWT** | Eliminated fallback JWT signing keys. `verifySessionToken` strictly requires `process.env.SUPABASE_JWT_SECRET`. If undefined, verification immediately fails closed (`return null`). | `src/lib/auth/verify-session.ts` |
+| **Meta CAPI Security** | Enforced origin/CSRF verification (`403 Forbidden` for untrusted origins), sliding-window rate limiting (60 req/min per IP via `cf-connecting-ip`/`x-real-ip`), and payload schema validation. | `src/app/api/capi/route.ts` |
+| **Content Security Policy (CSP)** | Enforces HTTPS script loading, `form-action 'self'`, `upgrade-insecure-requests;`, `frame-ancestors 'none'`, and explicit `frame-src 'self' https://*.firebaseapp.com https://accounts.google.com https://*.google.com https://www.facebook.com;` to support Firebase Auth & social logins. | `src/middleware.ts` |
+| **Subdomain Host Isolation** | Dynamic `x-ruhvi-host` routing enforcing strict portal boundaries. Non-storefront administrative and portal subdomains automatically receive `X-Robots-Tag: noindex, nofollow` to prevent search indexing. | `src/middleware.ts` |
+| **Turnstile Anti-Bot** | Cloudflare Turnstile token validation active on checkout and sensitive authentication routes to eliminate bot spam. | `src/app/checkout/page.tsx` |
+| **Credential Encryption** | AES-256-GCM symmetric encryption for external worker API keys stored in PostgreSQL. | `src/lib/ai/co-founder/credential-crypto.ts` |
+
+---
+
+## 6. Domain Whitelist & Provider Integration Registry (ডোমেন হোয়াইটলিস্টিং রেজিস্ট্রি)
+
+Permanent registry of authorized domains, origins, and callback webhooks across all integrated third-party platforms for `ruhvi.in`:
+
+| Platform | Navigation / Settings Location | Whitelisted Values / Callbacks |
+| :--- | :--- | :--- |
+| **Firebase Auth** | Firebase Console ➔ Authentication ➔ Settings ➔ Authorized Domains | `ruhvi.in`, `www.ruhvi.in` |
+| **Google Cloud OAuth** | Google Cloud Console ➔ APIs & Services ➔ Credentials ➔ OAuth 2.0 Web Client | Authorized JS Origins: `https://ruhvi.in`, `https://www.ruhvi.in`<br>Authorized Redirect URIs: `https://ruhvi-f707c.firebaseapp.com/__/auth/handler` |
+| **Meta Developers** | Facebook App Dashboard ➔ App Settings ➔ Basic | App Domains: `ruhvi.in`<br>Site URL: `https://ruhvi.in`<br>Privacy Policy: `https://ruhvi.in/privacy-policy`<br>Data Deletion: `https://ruhvi.in/data-deletion` |
+| **Cloudflare Turnstile** | Cloudflare Dashboard ➔ Turnstile ➔ Manage Widget Settings | Widget Domains: `ruhvi.in`, `www.ruhvi.in` |
+| **PhonePe Merchant** | PhonePe Merchant Portal ➔ Developer Settings | Webhook / Callback URL: `https://ruhvi.in/api/webhooks/phonepe` |
+| **Paytm Merchant** | Paytm Merchant Portal ➔ API Keys / Callbacks | Callback URL: `https://ruhvi.in/api/checkout/paytm/callback` |
+| **PostHog Analytics** | PostHog Project Settings ➔ Authorized Domains | `https://ruhvi.in`, `https://www.ruhvi.in` |
+| **Google Search Console** | Search Console Property Settings | Property: `https://ruhvi.in`<br>Sitemap: `https://ruhvi.in/sitemap.xml` |
+
+---
+
+## 7. Performance Architecture Reference (পারফরম্যান্স নীতিমালা ও স্ট্যান্ডার্ড)
+
+Full optimization details, Core Web Vitals baselines, and verification benchmarks are permanently recorded in [`RUHVI_PERFORMANCE_MASTER_REPORT.md`](file:///c:/Users/INDIA/Desktop/Project%20Ruhvi/RUHVI_PERFORMANCE_MASTER_REPORT.md):
+- **Web Fonts**: Zero external font waterfalls; 5 Google Fonts self-hosted via `next/font/google` (`display: swap`).
+- **CDN Preconnect**: Root `<head>` preconnects to `res.cloudinary.com`.
+- **SSR Deduplication**: Supabase taxonomy and metadata queries wrapped in React `cache()`.
+- **Client Cache**: 5-minute memory cache in `useTaxonomy.ts`.
+- **Telemetry**: Sentry/OTel client traces sample rate capped at 10% in production.
+- **Image Formats**: Automatic AVIF + WebP multi-format conversion via Next.js image optimization.
