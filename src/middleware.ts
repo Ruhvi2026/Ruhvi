@@ -10,6 +10,7 @@ function applySecurityHeaders(res: NextResponse, isPortal = false) {
     'max-age=31536000; includeSubDomains; preload'
   );
   res.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.headers.set('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
   res.headers.set(
     'Permissions-Policy',
     'camera=(), microphone=(), geolocation=(), payment=(self)'

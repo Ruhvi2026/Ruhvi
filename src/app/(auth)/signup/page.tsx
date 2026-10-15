@@ -213,6 +213,14 @@ export default function SignUpPage() {
       window.location.href = '/complete-profile';
     } catch (err: any) {
       console.error('Firebase Google sign in error:', err);
+      if (
+        err?.code === 'auth/popup-closed-by-user' ||
+        err?.message?.includes('auth/popup-closed-by-user')
+      ) {
+        setError('Google sign-in was cancelled. Please try again.');
+        setLoading(false);
+        return;
+      }
       setError(err?.message || 'Failed to sign in with Google.');
       setLoading(false);
     }
@@ -230,6 +238,14 @@ export default function SignUpPage() {
       window.location.href = '/complete-profile';
     } catch (err: any) {
       console.error('Firebase Facebook sign in error:', err);
+      if (
+        err?.code === 'auth/popup-closed-by-user' ||
+        err?.message?.includes('auth/popup-closed-by-user')
+      ) {
+        setError('Facebook sign-in was cancelled. Please try again.');
+        setLoading(false);
+        return;
+      }
       setError(err?.message || 'Failed to sign in with Facebook.');
       setLoading(false);
     }

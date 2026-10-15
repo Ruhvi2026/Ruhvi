@@ -64,7 +64,13 @@ function LoginForm() {
     } catch (err: any) {
       console.error('Email login error:', err);
       let msg = 'Invalid email or password. Please check your credentials.';
-      if (err?.message) {
+      if (
+        err?.code === 'auth/invalid-credential' ||
+        err?.message?.includes('auth/invalid-credential')
+      ) {
+        msg =
+          'Invalid email or password. Please check your credentials and try again.';
+      } else if (err?.message) {
         msg = err.message;
       }
       setError(msg);
@@ -138,6 +144,14 @@ function LoginForm() {
       window.location.href = targetUrl;
     } catch (err: any) {
       console.error('Google sign in error:', err);
+      if (
+        err?.code === 'auth/popup-closed-by-user' ||
+        err?.message?.includes('auth/popup-closed-by-user')
+      ) {
+        setError('Google sign-in was cancelled. Please try again.');
+        setLoading(false);
+        return;
+      }
       setError(err?.message || 'Failed to sign in with Google.');
       setLoading(false);
     }
@@ -153,6 +167,14 @@ function LoginForm() {
       window.location.href = targetUrl;
     } catch (err: any) {
       console.error('Facebook sign in error:', err);
+      if (
+        err?.code === 'auth/popup-closed-by-user' ||
+        err?.message?.includes('auth/popup-closed-by-user')
+      ) {
+        setError('Facebook sign-in was cancelled. Please try again.');
+        setLoading(false);
+        return;
+      }
       setError(err?.message || 'Failed to sign in with Facebook.');
       setLoading(false);
     }
