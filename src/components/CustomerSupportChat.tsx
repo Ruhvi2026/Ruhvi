@@ -27,14 +27,18 @@ function BotMessage({
   useEffect(() => {
     let i = 0;
     setDisplayed('');
+    // Dynamically scale step so messages render smoothly within ~500ms
+    const step = Math.max(1, Math.ceil(text.length / 50));
     const interval = setInterval(() => {
-      i += 1;
-      setDisplayed(text.slice(0, i));
+      i += step;
+      if (i >= text.length) {
+        setDisplayed(text);
+        clearInterval(interval);
+      } else {
+        setDisplayed(text.slice(0, i));
+      }
       if (feedRef.current) {
         feedRef.current.scrollTop = feedRef.current.scrollHeight;
-      }
-      if (i >= text.length) {
-        clearInterval(interval);
       }
     }, TYPE_SPEED_MS);
     return () => clearInterval(interval);

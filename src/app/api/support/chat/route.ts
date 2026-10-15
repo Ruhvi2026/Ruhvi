@@ -706,129 +706,132 @@ async function getAuthenticatedUser(cookieStore: any) {
 }
 
 async function getCustomerContext(supabase: any, userId: string) {
-  // Fetch recent orders
-  const { data: orders, error: ordersError } = await supabase
-    .from('orders')
-    .select(
+  // Fetch orders, wallet ledger, reward coins, returns, and tickets concurrently in parallel
+  const [
+    { data: orders, error: ordersError },
+    { data: walletTxns, error: walletError },
+    { data: rewardTxns, error: rewardError },
+    { data: returns, error: returnsError },
+    { data: tickets, error: ticketsError },
+  ] = await Promise.all([
+    supabase
+      .from('orders')
+      .select(
+        `
+        id, order_number, status, total, subtotal, shipping_charge, wallet_used, coins_redeemed,
+        payment_status, payment_method, awb_code, courier_name,
+        created_at, updated_at
       `
-      id, order_number, status, total, subtotal, shipping_charge, wallet_used, coins_redeemed,
-      payment_status, payment_method, awb_code, courier_name,
-      created_at, updated_at
-    `
-    )
-    .eq('user_id', userId)
-    .order('created_at', { ascending: false })
-    .limit(8);
+      )
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(8),
+    supabase
+      .from('wallet_ledger')
+      .select('id, amount, type, order_id, created_at')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(8),
+    supabase
+      .from('reward_coin_ledger')
+      .select('id, amount, type, order_id, expiry_date, created_at')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(8),
+    supabase
+      .from('returns')
+      .select(
+        'id, order_id, reason, status, refund_method, requested_at, resolved_at, order:orders!inner(order_number)'
+      )
+      .eq('order.user_id', userId)
+      .order('requested_at', { ascending: false })
+      .limit(5),
+    supabase
+      .from('support_tickets')
+      .select(
+        'id, ticket_number, title, status, priority, order_id, created_at, updated_at'
+      )
+      .eq('customer_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(10),
+  ]);
 
   if (ordersError) {
     console.warn('[Support Chat] orders query error:', ordersError.message);
   }
-
-  // Fetch order items for recent orders
-  let orderItems: any[] = [];
-  if (orders && orders.length > 0) {
-    const orderIds = orders.map((o: any) => o.id);
-    const { data: items, error: itemsError } = await supabase
-      .from('order_items')
-      .select(
-        `
-        id, order_id, sku, quantity, price_at_purchase,
-        product_id, products(name, slug)
-      `
-      )
-      .in('order_id', orderIds);
-    if (itemsError) {
-      console.warn(
-        '[Support Chat] order_items query error:',
-        itemsError.message
-      );
-    }
-    orderItems = items || [];
-  }
-
-  // Fetch tracking updates for in-transit orders (shipped / out for delivery)
-  let trackingUpdates: any[] = [];
-  const inTransitOrders = (orders || []).filter(
-    (o: any) =>
-      o.awb_code &&
-      ['shipped', 'out_for_delivery'].includes(String(o.status).toLowerCase())
-  );
-  if (inTransitOrders.length > 0) {
-    const inTransitIds = inTransitOrders.map((o: any) => o.id);
-    const { data: tracking, error: trackingError } = await supabase
-      .from('tracking_updates')
-      .select('id, order_id, status, location, activity, timestamp')
-      .in('order_id', inTransitIds)
-      .order('timestamp', { ascending: false })
-      .limit(15);
-    if (trackingError) {
-      console.warn(
-        '[Support Chat] tracking_updates query error:',
-        trackingError.message
-      );
-    }
-    trackingUpdates = tracking || [];
-  }
-
-  // Fetch recent wallet ledger transactions (transaction records)
-  const { data: walletTxns, error: walletError } = await supabase
-    .from('wallet_ledger')
-    .select('id, amount, type, order_id, created_at')
-    .eq('user_id', userId)
-    .order('created_at', { ascending: false })
-    .limit(8);
-
   if (walletError) {
     console.warn(
       '[Support Chat] wallet_ledger query error:',
       walletError.message
     );
   }
-
-  // Fetch recent reward coin ledger entries (reward points history)
-  const { data: rewardTxns, error: rewardError } = await supabase
-    .from('reward_coin_ledger')
-    .select('id, amount, type, order_id, expiry_date, created_at')
-    .eq('user_id', userId)
-    .order('created_at', { ascending: false })
-    .limit(8);
-
   if (rewardError) {
     console.warn(
       '[Support Chat] reward_coin_ledger query error:',
       rewardError.message
     );
   }
-
-  // Fetch returns / refund requests for recent orders
-  const { data: returns, error: returnsError } = await supabase
-    .from('returns')
-    .select(
-      'id, order_id, reason, status, refund_method, requested_at, resolved_at, order:orders!inner(order_number)'
-    )
-    .eq('order.user_id', userId)
-    .order('requested_at', { ascending: false })
-    .limit(5);
-
   if (returnsError) {
     console.warn('[Support Chat] returns query error:', returnsError.message);
   }
-
-  // Fetch recent support tickets across all statuses (to answer status queries)
-  const { data: tickets, error: ticketsError } = await supabase
-    .from('support_tickets')
-    .select(
-      'id, ticket_number, title, status, priority, order_id, created_at, updated_at'
-    )
-    .eq('customer_id', userId)
-    .order('created_at', { ascending: false })
-    .limit(10);
-
   if (ticketsError) {
     console.warn(
       '[Support Chat] support_tickets query error:',
       ticketsError.message
     );
+  }
+
+  // Fetch order items and tracking updates concurrently if orders exist
+  let orderItems: any[] = [];
+  let trackingUpdates: any[] = [];
+  if (orders && orders.length > 0) {
+    const orderIds = orders.map((o: any) => o.id);
+    const inTransitOrders = orders.filter(
+      (o: any) =>
+        o.awb_code &&
+        ['shipped', 'out_for_delivery'].includes(String(o.status).toLowerCase())
+    );
+
+    const subQueries: Promise<any>[] = [
+      supabase
+        .from('order_items')
+        .select(
+          `
+          id, order_id, sku, quantity, price_at_purchase,
+          product_id, products(name, slug)
+        `
+        )
+        .in('order_id', orderIds),
+    ];
+
+    if (inTransitOrders.length > 0) {
+      const inTransitIds = inTransitOrders.map((o: any) => o.id);
+      subQueries.push(
+        supabase
+          .from('tracking_updates')
+          .select('id, order_id, status, location, activity, timestamp')
+          .in('order_id', inTransitIds)
+          .order('timestamp', { ascending: false })
+          .limit(15)
+      );
+    }
+
+    const [itemsRes, trackingRes] = await Promise.all(subQueries);
+    if (itemsRes?.error) {
+      console.warn(
+        '[Support Chat] order_items query error:',
+        itemsRes.error.message
+      );
+    }
+    orderItems = itemsRes?.data || [];
+
+    if (trackingRes?.error) {
+      console.warn(
+        '[Support Chat] tracking_updates query error:',
+        trackingRes.error.message
+      );
+    }
+    trackingUpdates = trackingRes?.data || [];
   }
 
   return {

@@ -422,7 +422,7 @@ export async function generateAIContent(
   const primaryProviderId = featureConfig.provider;
   let primaryModel = featureConfig.model;
   if (primaryProviderId === 'gemini' && !primaryModel) {
-    primaryModel = 'gemini-3.6-flash';
+    primaryModel = 'gemini-3.5-flash-lite';
   }
 
   const executionChain: Array<{ id: string; model: string; config: any }> = [];
@@ -447,7 +447,7 @@ export async function generateAIContent(
       fp.models && fp.models.length > 0
         ? fp.models[0]
         : fp.type === 'gemini'
-          ? 'gemini-3.6-flash'
+          ? 'gemini-3.5-flash-lite'
           : fp.type === 'custom'
             ? 'auto/best-fast'
             : fp.type === 'deepseek'
@@ -798,7 +798,11 @@ export async function generateAIContent(
                 error.message,
                 supabaseAdmin
               );
-            } else if (classified.category === 'MODEL_ERROR') {
+            } else if (
+              classified.category === 'MODEL_ERROR' ||
+              (classified.category === 'SERVER_ERROR' &&
+                classified.httpStatus === 503)
+            ) {
               // Don't rotate credential — rotate model
               console.log(
                 `[AI_MODEL_ERROR] correlationId=${correlationId} model=${currentModelForProvider} → triggering model fallback`

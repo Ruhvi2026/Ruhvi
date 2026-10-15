@@ -1505,7 +1505,9 @@ export default function CoFounderPortalPage() {
                     <option value="gemini-3.5-flash-lite">
                       gemini-3.5-flash-lite (Ultra Fast)
                     </option>
-                    <option value="gemini-3.6-flash">gemini-3.6-flash</option>
+                    <option value="gemini-3.8-flash">
+                      gemini-3.8-flash (Reasoning & Code)
+                    </option>
                     <option value="gemini-1.5-pro">
                       gemini-1.5-pro (Deep Reasoning)
                     </option>

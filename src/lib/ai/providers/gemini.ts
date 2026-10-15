@@ -12,12 +12,16 @@ export class GeminiProvider implements AIProvider {
   }
 
   private resolveModelName(modelName?: string): string {
-    if (!modelName) return 'gemini-3.6-flash';
+    if (!modelName) return 'gemini-3.5-flash-lite';
 
-    // Current active models
+    // Current active models in Google AI Studio / Gemini API
     const ACTIVE_MODELS = [
-      'gemini-3.6-flash',
-      'gemini-2.0-flash',
+      'gemini-3.5-flash-lite',
+      'gemini-3.8-flash',
+      'gemini-3.1-flash-lite',
+      'gemini-3.7-flash',
+      'gemini-2.5-flash',
+      'gemini-2.5-pro',
       'gemini-1.5-flash',
       'gemini-1.5-pro',
     ];
@@ -25,18 +29,21 @@ export class GeminiProvider implements AIProvider {
       return modelName;
     }
 
-    // Map deprecated, removed, or non-existent model names to current equivalents
+    // Map deprecated, removed, or decommissioned preview model names to current equivalents
     const MODEL_ALIASES: Record<string, string> = {
-      'gemini-pro-latest': 'gemini-1.5-pro',
-      'gemini-1.5-pro-latest': 'gemini-1.5-pro',
-      'gemini-3.5-flash': 'gemini-3.6-flash',
-      'gemini-3.5-flash-lite': 'gemini-3.6-flash',
-      'gemini-3.7-flash': 'gemini-3.6-flash',
-      'gemini-2.5-flash': 'gemini-3.6-flash',
-      'gemini-2.5-pro': 'gemini-3.6-flash',
+      'gemini-3.6-flash': 'gemini-3.5-flash-lite',
+      'gemini-3.5-flash': 'gemini-3.5-flash-lite',
+      'gemini-2.0-flash': 'gemini-3.5-flash-lite',
+      'gemini-2.0-flash-lite': 'gemini-3.5-flash-lite',
+      'gemini-2.0-flash-001': 'gemini-3.5-flash-lite',
+      'gemini-2.0-flash-lite-001': 'gemini-3.5-flash-lite',
+      'gemini-flash-latest': 'gemini-3.5-flash-lite',
+      'gemini-flash-lite-latest': 'gemini-3.5-flash-lite',
+      'gemini-pro-latest': 'gemini-2.5-pro',
+      'gemini-1.5-pro-latest': 'gemini-2.5-pro',
     };
 
-    return MODEL_ALIASES[modelName] || 'gemini-3.6-flash';
+    return MODEL_ALIASES[modelName] || 'gemini-3.5-flash-lite';
   }
 
   async generateStructuredProductContent(
