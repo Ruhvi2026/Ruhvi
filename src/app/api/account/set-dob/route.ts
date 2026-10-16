@@ -104,12 +104,12 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 5. Anti-Fraud Lock Verification: Ensure DOB cannot be changed once submitted
+    // 5. One-time Registration Check: Ensure DOB cannot be changed once submitted
     if (userProfile.is_dob_locked || userProfile.date_of_birth) {
       return NextResponse.json(
         {
           error:
-            'Your date of birth is permanently locked and cannot be changed online. Please contact Ruhvi Customer Care with valid government ID verification.',
+            'Your date of birth is already registered and cannot be changed online. Please contact Ruhvi Customer Care if you need assistance.',
         },
         { status: 409 }
       );
