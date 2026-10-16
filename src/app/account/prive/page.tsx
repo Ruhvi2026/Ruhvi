@@ -426,7 +426,7 @@ export default function RuhviPriveHubPage() {
                     className="inline-flex items-center gap-1.5 rounded-xl border border-amber-400/40 bg-amber-500/20 px-3.5 py-1.5 text-xs font-bold text-amber-200 transition hover:bg-amber-500/30"
                   >
                     <AlertCircle className="h-4 w-4 text-amber-300" />
-                    <span>Lock Birthday in Profile →</span>
+                    <span>Set Birthday in Profile →</span>
                   </Link>
                 )}
               </div>
@@ -554,7 +554,7 @@ export default function RuhviPriveHubPage() {
                       href="/account"
                       className="mt-3 inline-flex items-center gap-1.5 rounded-xl bg-amber-400 px-4 py-2 text-xs font-bold text-amber-950 transition hover:bg-amber-300"
                     >
-                      <span>Lock Date of Birth Now</span>
+                      <span>Set Your Birthday</span>
                       <ArrowRight className="h-3.5 w-3.5" />
                     </Link>
                   </div>

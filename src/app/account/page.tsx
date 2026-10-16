@@ -31,6 +31,7 @@ import {
   Gift,
   Calendar,
   Cake,
+  Crown,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -445,81 +446,189 @@ export default function AccountOverviewPage() {
     !!profile?.phone_verified ||
     !!user?.phone;
 
+  // VIP Membership Status & Calculations
+  const isVip = Boolean(profile?.is_vip);
+  let daysRemaining = 0;
+  if (isVip && profile?.vip_expires_at) {
+    const expiry = new Date(profile.vip_expires_at);
+    daysRemaining = Math.max(
+      0,
+      Math.ceil((expiry.getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+    );
+  }
+
   return (
     <SpatialPage showParticles showOrbs>
       <div className="mx-auto max-w-7xl space-y-10 px-4 py-10 sm:px-6 lg:px-8">
-        {/* Profile Banner Card */}
-        <div className="gold-gradient-bg relative flex flex-col items-center justify-between gap-6 overflow-hidden rounded-3xl border border-gold-300/40 p-8 text-white shadow-xl sm:p-10 md:flex-row">
-          <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-2xl" />
-          <div className="flex flex-col items-center gap-6 text-center sm:flex-row sm:items-start sm:text-left">
-            <div className="flex h-20 w-20 flex-shrink-0 items-center justify-center rounded-full border-2 border-gold-100/50 bg-white/20 font-serif text-3xl font-bold text-gold-100 shadow-inner">
-              {getInitials(displayName, userEmail)}
-            </div>
-            <div className="space-y-1.5">
-              <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-start">
-                <h1 className="font-serif text-2xl font-bold sm:text-3xl">
-                  {displayName}
-                </h1>
-                <span className="flex items-center gap-1 rounded-md border border-gold-100/40 bg-white/20 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-gold-50">
-                  <Sparkles className="h-3 w-3 text-gold-100" />
-                  {userRole === 'admin'
-                    ? 'Admin / Managing Director'
-                    : 'Gold Club Member'}
-                </span>
-              </div>
+        {/* Profile Banner Card: Dynamic VIP (Royal Black & Gold) vs Standard (Clean Pearl White) */}
+        {isVip ? (
+          <div className="relative flex flex-col items-center justify-between gap-6 overflow-hidden rounded-3xl border-2 border-amber-400/50 bg-gradient-to-br from-stone-950 via-[#1A140E] to-amber-950 p-8 text-white shadow-2xl sm:p-10 md:flex-row">
+            <div className="pointer-events-none absolute -right-10 -top-10 h-56 w-56 rounded-full bg-amber-500/15 blur-3xl" />
+            <div className="pointer-events-none absolute -bottom-10 -left-10 h-56 w-56 rounded-full bg-amber-400/10 blur-3xl" />
 
-              <div className="flex flex-wrap items-center justify-center gap-3 font-mono text-xs text-gold-50 sm:justify-start">
-                <span className="flex items-center gap-1">
-                  <Mail className="h-3.5 w-3.5 text-gold-100" />
-                  {userEmail}
-                </span>
-                {(profile?.phone || user.phone) && (
-                  <span className="ph-no-capture flex items-center gap-1">
-                    <Phone className="h-3.5 w-3.5 text-gold-100" />
-                    {profile?.phone || user.phone}
+            <div className="relative z-10 flex flex-col items-center gap-6 text-center sm:flex-row sm:items-start sm:text-left">
+              <div className="relative flex h-20 w-20 flex-shrink-0 items-center justify-center rounded-full border-2 border-amber-300/80 bg-gradient-to-tr from-amber-900 to-amber-600 font-serif text-3xl font-bold text-amber-100 shadow-xl shadow-amber-900/40">
+                {getInitials(displayName, userEmail)}
+                <div className="absolute -bottom-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-amber-400 text-stone-950 shadow-md">
+                  <Crown className="h-3.5 w-3.5 fill-stone-950 text-stone-950" />
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-start">
+                  <h1 className="font-serif text-2xl font-bold tracking-tight text-white sm:text-3xl">
+                    {displayName}
+                  </h1>
+                  <span className="flex items-center gap-1.5 rounded-full border border-amber-300/60 bg-gradient-to-r from-amber-500/20 to-amber-400/30 px-3 py-1 text-[11px] font-extrabold uppercase tracking-widest text-amber-200 shadow-sm">
+                    <Crown className="h-3.5 w-3.5 text-amber-300" />
+                    {userRole === 'admin'
+                      ? 'Admin / Managing Director'
+                      : 'Ruhvi Privé Member'}
                   </span>
-                )}
-              </div>
+                </div>
 
-              <div className="flex items-center justify-center gap-2 pt-0.5 text-[11px] text-gold-100/90 sm:justify-start">
-                {profile?.email_verified ? (
-                  <>
-                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-300" />
-                    <span>
-                      Email Verified • Member since{' '}
-                      {formatDate(profile?.created_at || user.created_at)}
+                <div className="flex flex-wrap items-center justify-center gap-3 font-mono text-xs text-amber-100/70 sm:justify-start">
+                  <span className="flex items-center gap-1">
+                    <Mail className="h-3.5 w-3.5 text-amber-300" />
+                    {userEmail}
+                  </span>
+                  {(profile?.phone || user.phone) && (
+                    <span className="ph-no-capture flex items-center gap-1">
+                      <Phone className="h-3.5 w-3.5 text-amber-300" />
+                      {profile?.phone || user.phone}
                     </span>
-                  </>
-                ) : (
-                  <>
-                    <AlertTriangle className="h-3.5 w-3.5 text-amber-300" />
-                    <span>
-                      Email Unverified • Member since{' '}
-                      {formatDate(profile?.created_at || user.created_at)}
+                  )}
+                </div>
+
+                <div className="flex flex-wrap items-center justify-center gap-2 pt-0.5 text-[11px] sm:justify-start">
+                  {profile?.email_verified ? (
+                    <>
+                      <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
+                      <span className="text-amber-100/80">
+                        Email Verified • Member since{' '}
+                        {formatDate(profile?.created_at || user.created_at)}
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <AlertTriangle className="h-3.5 w-3.5 text-amber-300" />
+                      <span className="text-amber-200/90">
+                        Email Unverified • Member since{' '}
+                        {formatDate(profile?.created_at || user.created_at)}
+                      </span>
+                    </>
+                  )}
+                  {daysRemaining > 0 && (
+                    <span className="ml-1 inline-flex items-center rounded-md border border-amber-400/40 bg-amber-400/10 px-2 py-0.5 font-mono text-[10px] font-bold text-amber-300">
+                      {daysRemaining} Days Left
                     </span>
-                  </>
-                )}
+                  )}
+                </div>
               </div>
             </div>
-          </div>
 
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => setIsEditingProfile(!isEditingProfile)}
-              className="rounded-xl bg-white px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-gold-800 shadow transition-all hover:scale-105 hover:bg-gold-50"
-            >
-              {isEditingProfile ? 'Close Editor' : 'Edit Profile'}
-            </button>
-            <button
-              onClick={signOut}
-              className="flex items-center gap-1.5 rounded-xl border border-gold-200/30 bg-white/10 px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-white/20 hover:text-white"
-              title="Sign Out"
-            >
-              <LogOut className="h-4 w-4" />
-              <span className="hidden sm:inline">Sign Out</span>
-            </button>
+            <div className="relative z-10 flex items-center gap-3">
+              <Link
+                href="/account/prive"
+                className="flex items-center gap-1.5 rounded-xl border border-amber-400/40 bg-amber-400/10 px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-amber-200 shadow-sm transition hover:bg-amber-400/20"
+              >
+                <Crown className="h-3.5 w-3.5 text-amber-300" />
+                <span>Privé Benefits</span>
+              </Link>
+              <button
+                onClick={() => setIsEditingProfile(!isEditingProfile)}
+                className="rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-stone-950 shadow transition-all hover:scale-105 hover:from-amber-300 hover:to-amber-400"
+              >
+                {isEditingProfile ? 'Close Editor' : 'Edit Profile'}
+              </button>
+              <button
+                onClick={signOut}
+                className="flex items-center gap-1.5 rounded-xl border border-white/20 bg-white/5 px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-white/15"
+                title="Sign Out"
+              >
+                <LogOut className="h-4 w-4" />
+                <span className="hidden sm:inline">Sign Out</span>
+              </button>
+            </div>
           </div>
-        </div>
+        ) : (
+          <div className="relative flex flex-col items-center justify-between gap-6 overflow-hidden rounded-3xl border border-stone-200/80 bg-white p-8 text-stone-900 shadow-sm sm:p-10 md:flex-row">
+            <div className="flex flex-col items-center gap-6 text-center sm:flex-row sm:items-start sm:text-left">
+              <div className="flex h-20 w-20 flex-shrink-0 items-center justify-center rounded-full border border-stone-200 bg-stone-100 font-serif text-3xl font-bold text-amber-900 shadow-inner">
+                {getInitials(displayName, userEmail)}
+              </div>
+              <div className="space-y-1.5">
+                <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-start">
+                  <h1 className="font-serif text-2xl font-bold text-stone-900 sm:text-3xl">
+                    {displayName}
+                  </h1>
+                  <span className="flex items-center gap-1 rounded-md border border-stone-200 bg-stone-100 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-stone-700">
+                    <Sparkles className="h-3 w-3 text-amber-700" />
+                    {userRole === 'admin'
+                      ? 'Admin / Managing Director'
+                      : 'Ruhvi Member'}
+                  </span>
+                </div>
+
+                <div className="flex flex-wrap items-center justify-center gap-3 font-mono text-xs text-stone-500 sm:justify-start">
+                  <span className="flex items-center gap-1">
+                    <Mail className="h-3.5 w-3.5 text-stone-400" />
+                    {userEmail}
+                  </span>
+                  {(profile?.phone || user.phone) && (
+                    <span className="ph-no-capture flex items-center gap-1">
+                      <Phone className="h-3.5 w-3.5 text-stone-400" />
+                      {profile?.phone || user.phone}
+                    </span>
+                  )}
+                </div>
+
+                <div className="flex items-center justify-center gap-2 pt-0.5 text-[11px] text-stone-500 sm:justify-start">
+                  {profile?.email_verified ? (
+                    <>
+                      <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
+                      <span>
+                        Email Verified • Member since{' '}
+                        {formatDate(profile?.created_at || user.created_at)}
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <AlertTriangle className="h-3.5 w-3.5 text-amber-600" />
+                      <span className="text-amber-700">
+                        Email Unverified • Member since{' '}
+                        {formatDate(profile?.created_at || user.created_at)}
+                      </span>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-3">
+              <Link
+                href="/account/prive"
+                className="flex items-center gap-1.5 rounded-xl border border-amber-300 bg-gradient-to-r from-amber-500/10 via-amber-100 to-amber-500/10 px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-amber-950 shadow-sm transition hover:bg-amber-200"
+              >
+                <Crown className="h-3.5 w-3.5 text-amber-700" />
+                <span>Join Privé VIP</span>
+              </Link>
+              <button
+                onClick={() => setIsEditingProfile(!isEditingProfile)}
+                className="rounded-xl border border-stone-200 bg-stone-900 px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-white shadow transition-all hover:bg-black"
+              >
+                {isEditingProfile ? 'Close Editor' : 'Edit Profile'}
+              </button>
+              <button
+                onClick={signOut}
+                className="flex items-center gap-1.5 rounded-xl border border-stone-200 bg-stone-100 px-4 py-2.5 text-xs font-semibold text-stone-700 transition hover:bg-stone-200"
+                title="Sign Out"
+              >
+                <LogOut className="h-4 w-4" />
+                <span className="hidden sm:inline">Sign Out</span>
+              </button>
+            </div>
+          </div>
+        )}
 
         {profileSuccessMsg && (
           <div className="animate-fade-in flex items-center space-x-2 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-xs font-semibold text-emerald-800">
@@ -746,7 +855,7 @@ export default function AccountOverviewPage() {
                         }}
                         className="flex-shrink-0 rounded-xl bg-amber-950 px-4 py-2.5 text-[11px] font-bold text-gold-50 shadow transition hover:bg-black"
                       >
-                        Lock Birthday
+                        Set Your Birthday
                       </button>
                     </div>
                   </div>
@@ -929,6 +1038,33 @@ export default function AccountOverviewPage() {
 
         {/* Quick Navigation Cards Grid */}
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <Link
+            href="/account/prive"
+            className="group relative overflow-hidden rounded-2xl border-2 border-amber-400/80 bg-gradient-to-br from-stone-900 via-stone-950 to-amber-950 p-6 text-white shadow-md transition-all duration-300 hover:-translate-y-1 hover:border-amber-400 hover:shadow-xl hover:shadow-amber-500/20"
+          >
+            <div className="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full bg-amber-400/20 blur-xl" />
+            <div className="mb-4 flex items-center justify-between">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 text-stone-950 shadow-md">
+                <Crown className="h-6 w-6 fill-stone-950 text-stone-950" />
+              </div>
+              <span className="rounded-full border border-amber-300/40 bg-amber-400/10 px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-widest text-amber-300">
+                {isVip ? 'ACTIVE VIP' : 'VIP CIRCLE'}
+              </span>
+            </div>
+            <h2 className="text-sm font-bold text-amber-100 group-hover:text-amber-300">
+              Ruhvi Privé (VIP)
+            </h2>
+            <p className="mt-1 text-xs text-stone-300">
+              {isVip
+                ? `Active membership • ${daysRemaining} days left`
+                : 'Unlock ₹0 express delivery, 20% cashback & ₹500 birthday gift'}
+            </p>
+            <div className="mt-4 flex items-center space-x-1 text-xs font-bold text-amber-300">
+              <span>{isVip ? 'Manage Privé Status' : 'Get Privé Membership'}</span>
+              <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
+            </div>
+          </Link>
+
           <Link
             href="/orders"
             className="group rounded-2xl border border-gold-200/60 bg-white/70 p-6 shadow-sm backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:border-gold-400 hover:shadow-xl hover:shadow-gold-500/15"
@@ -1178,7 +1314,7 @@ export default function AccountOverviewPage() {
               </div>
               <div className="space-y-2 text-center">
                 <h3 className="font-serif text-xl font-bold text-stone-900">
-                  Lock Your Birthday
+                  Set Your Birthday
                 </h3>
                 <p className="text-xs leading-relaxed text-stone-600">
                   You are registering your date of birth as:{' '}
@@ -1190,10 +1326,8 @@ export default function AccountOverviewPage() {
                   <div className="flex items-start gap-2">
                     <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0 text-amber-700" />
                     <p>
-                      <strong>Permanent Anti-Fraud Lock:</strong> Once
-                      confirmed, this date of birth is permanently locked and
-                      cannot be changed online without contacting customer
-                      support and providing valid government ID proof.
+                      <strong>Birthday Verification:</strong> Once
+                      confirmed, your date of birth is securely registered for your annual ₹500 Ruhvi Privé gift credit and cannot be modified online to prevent abuse.
                     </p>
                   </div>
                 </div>
@@ -1213,7 +1347,7 @@ export default function AccountOverviewPage() {
                   onClick={handleSaveDob}
                   className="rounded-xl bg-amber-950 px-5 py-2.5 font-bold text-gold-50 shadow transition hover:bg-black disabled:opacity-50"
                 >
-                  {savingDob ? 'Locking...' : 'Confirm & Lock Birthday'}
+                  {savingDob ? 'Saving...' : 'Confirm & Set Birthday'}
                 </button>
               </div>
             </div>
