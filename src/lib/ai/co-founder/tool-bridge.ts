@@ -118,6 +118,151 @@ async function executeCoFounderToolInternal(
         };
       }
 
+      case 'get_prive_membership_status': {
+        const nowIso = new Date().toISOString();
+        const thirtyDaysAgoIso = new Date(
+          Date.now() - 30 * 24 * 60 * 60 * 1000
+        ).toISOString();
+        const thirtyDaysAheadIso = new Date(
+          Date.now() + 30 * 24 * 60 * 60 * 1000
+        ).toISOString();
+
+        // Check if customer-specific lookup is requested
+        if (args.search_customer) {
+          const searchVal = String(args.search_customer).trim().toLowerCase();
+          const { data: customerRow } = await supabase
+            .from('users')
+            .select(
+              'id, email, phone, full_name, is_vip, vip_joined_at, vip_expires_at, vip_source, reward_coins, wallet_balance'
+            )
+            .or(
+              `email.ilike.%${searchVal}%,phone.ilike.%${searchVal}%,full_name.ilike.%${searchVal}%`
+            )
+            .limit(1)
+            .maybeSingle();
+
+          if (!customerRow) {
+            return {
+              toolName,
+              success: true,
+              data: { found: false, search: args.search_customer },
+              summaryForVoice: `No customer record found matching "${args.search_customer}".`,
+            };
+          }
+
+          const isVip =
+            Boolean(customerRow.is_vip) &&
+            Boolean(
+              customerRow.vip_expires_at &&
+                new Date(customerRow.vip_expires_at).getTime() > Date.now()
+            );
+
+          const daysLeft = customerRow.vip_expires_at
+            ? Math.max(
+                0,
+                Math.ceil(
+                  (new Date(customerRow.vip_expires_at).getTime() -
+                    Date.now()) /
+                    (1000 * 60 * 60 * 24)
+                )
+              )
+            : 0;
+
+          return {
+            toolName,
+            success: true,
+            data: {
+              found: true,
+              customer: customerRow,
+              is_active_vip: isVip,
+              days_remaining: daysLeft,
+            },
+            summaryForVoice: isVip
+              ? `${customerRow.full_name || 'Customer'} is an active Ruhvi Privé VIP member with ${daysLeft} days remaining on their membership.`
+              : `${customerRow.full_name || 'Customer'} does not have an active Ruhvi Privé VIP membership.`,
+          };
+        }
+
+        // Aggregate program-wide live metrics
+        const [activeRes, recentRes, expiringRes, vipOrdersRes] =
+          await Promise.all([
+            supabase
+              .from('users')
+              .select('id, vip_source', { count: 'exact' })
+              .eq('is_vip', true)
+              .gt('vip_expires_at', nowIso),
+            supabase
+              .from('users')
+              .select('id', { count: 'exact', head: true })
+              .eq('is_vip', true)
+              .gte('vip_joined_at', thirtyDaysAgoIso),
+            supabase
+              .from('users')
+              .select('id, full_name, email, vip_expires_at')
+              .eq('is_vip', true)
+              .gt('vip_expires_at', nowIso)
+              .lte('vip_expires_at', thirtyDaysAheadIso)
+              .limit(10),
+            supabase
+              .from('orders')
+              .select('id', { count: 'exact', head: true })
+              .eq('is_vip', true),
+          ]);
+
+        const activeCount =
+          activeRes.count ?? (activeRes.data ? activeRes.data.length : 0);
+        const recentCount = recentRes.count ?? 0;
+        const expiringList = expiringRes.data || [];
+        const expiringCount = expiringList.length;
+        const vipOrdersCount = vipOrdersRes.count ?? 0;
+
+        const sourceMap: Record<string, number> = {};
+        if (activeRes.data && Array.isArray(activeRes.data)) {
+          activeRes.data.forEach((u: any) => {
+            const src = u.vip_source || 'direct';
+            sourceMap[src] = (sourceMap[src] || 0) + 1;
+          });
+        }
+
+        const metricsData = {
+          program_name: 'RUHVI PRIVÉ (VIP Membership)',
+          total_active_vip_members: activeCount,
+          new_members_last_30_days: recentCount,
+          expiring_in_next_30_days_count: expiringCount,
+          expiring_members_preview: expiringList,
+          total_vip_orders_fulfilled: vipOrdersCount,
+          acquisition_by_source: sourceMap,
+          pricing_rules: {
+            coins_redemption: 1500,
+            direct_buyin_inr: 500,
+            validity_days: 365,
+            non_refundable: true,
+          },
+          entitlements: {
+            express_shipping: '100% Free on all orders (₹0 min order value)',
+            cod_fee: 'Waived (₹0 COD fee vs standard ₹49)',
+            reward_coins: '2X rate (20% coin back vs standard 10%)',
+            birthday_perk:
+              '₹500 wallet credit / signature surprise piece in birthday month',
+            early_access: '24-hour preview on new collection drops',
+            vault_access: 'Access to exclusive member-only designs',
+            unboxing: 'Black velvet pouch, gold wax seal, founder note',
+          },
+        };
+
+        const voiceSummary =
+          activeCount > 0
+            ? `We currently have ${activeCount} active Ruhvi Privé VIP members. ${recentCount} joined in the last 30 days, and ${vipOrdersCount} orders have been placed with VIP privileges.`
+            : `Ruhvi Privé VIP membership is active and operational at ₹500 or 1,500 coins. All VIP benefits, 2X coins, and shipping waivers are live in the store.`;
+
+        return {
+          toolName,
+          success: true,
+          data: metricsData,
+          summaryForVoice: voiceSummary,
+        };
+      }
+
       case 'get_proactive_signals': {
         const limit =
           typeof args.limit === 'number' ? Math.min(args.limit, 10) : 5;

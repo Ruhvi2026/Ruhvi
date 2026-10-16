@@ -151,6 +151,7 @@ export const TOOL_PERMISSION_MAP: Record<
   // Customers (Read Only)
   get_customers: { module: 'customer', action: 'read' },
   get_customer_details: { module: 'customer', action: 'read' },
+  get_prive_membership_status: { module: 'customer', action: 'read' },
 
   // Finances (Read Only)
   get_user_wallet_balance: { module: 'wallet', action: 'read' },

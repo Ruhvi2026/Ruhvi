@@ -37,7 +37,8 @@ export const RUHVI_BUSINESS_KNOWLEDGE = {
     deliveryTime: '2-5 business days (Estimated delivery: 2–5 days)',
     insurance: 'All shipments are fully insured',
     tracking: 'Tracking number provided via email after dispatch',
-    freeShippingThreshold: 'Free shipping on all orders',
+    freeShippingThreshold:
+      'Free shipping on orders above ₹1,000 (100% Free Express Insured Shipping on all orders for Ruhvi Privé VIP members)',
     packaging:
       'Premium gift-ready packaging with branded box, pouch, and care card',
   },
@@ -85,6 +86,47 @@ export const RUHVI_BUSINESS_KNOWLEDGE = {
       'Earn reward coins on every purchase. Coins can be redeemed on future orders.',
     referralProgram:
       'Refer friends to earn additional wallet credits when they make their first purchase.',
+  },
+
+  vipMembership: {
+    brandName: 'RUHVI PRIVÉ (Ruhvi Gold Circle)',
+    description:
+      'Premier handcrafted luxury VIP membership program offering year-round elevated privileges.',
+    pricingAndEntry: {
+      optionA:
+        'Option A (Loyalty Redemption): 1,500 Reward Coins (earned via cumulative store purchases).',
+      optionB:
+        'Option B (Direct Buy-In): ₹500 one-time fee via UPI, Cards, Netbanking, or Ruhvi Wallet balance with instant activation.',
+      checkoutUpsell:
+        'Checkout Inline Upsell: Shoppers with subtotal < ₹1,000 can add Privé for ₹500 at checkout, immediately eliminating shipping fees and unlocking 1-year privileges.',
+      validity: 'Exactly 365 days from activation timestamp.',
+      nonRefundable:
+        'Strictly non-refundable and non-cancellable once activated.',
+      noCashbackOnFee:
+        'No wallet cashback or coin rewards are granted on the ₹500 membership fee itself.',
+    },
+    activeBenefits: [
+      '100% Free Express Insured Shipping on EVERY order regardless of basket size (Standard non-VIP threshold is ₹1,000+).',
+      'Zero Cash on Delivery (COD) Convenience Fee (standard ₹49 fee completely waived).',
+      '2X Accelerated Reward Coins: Earn 20% back in Reward Coins on every jewellery purchase (standard rate is 10%).',
+      'Annual Birthday Perk: ₹500 Wallet Credit or signature surprise piece during their birthday month.',
+      '24-Hour Early Access to new collection drops & festive drops.',
+      'Exclusive Privé Vault Access: Early & private access to limited-edition member-only handcrafted pieces.',
+      'Signature Luxury Packaging: Black velvet pouch, gold wax seal, and personalized founder note in unboxing.',
+      'Digital VIP Identity: Gold Crown & Privé badge across header, drawer, and account dashboard with live days countdown.',
+      'Post-Purchase Priority Care Seal: Dedicated priority dispatch badge on order success and WhatsApp updates.',
+    ],
+    explicitExclusions: [
+      'No extended anti-tarnish guarantee (standard 6-month color guarantee applies to all pieces equally).',
+      'No extended return window (standard 7-day return policy remains unchanged).',
+      'No dedicated 1-on-1 personal human WhatsApp concierge (standard automated AI + support ticketing applies).',
+      'No anniversary perks (omitted to streamline operations; only annual birthday perk is active).',
+    ],
+    safeguards: [
+      'Date of Birth (DOB) Lock: DOB is locked upon submission; 30-day anti-fraud buffer before birthday month to prevent same-day exploit.',
+      '2X Coins Clawback: In case of order returns or cancellations, the 20% bonus coins earned from that order are automatically reversed in the ledger.',
+      '30-Day Expiry Notification: Automated renewal alerts 30 days prior to expiry via email and amber dashboard prompt.',
+    ],
   },
 
   jewelleryCare: [
@@ -299,6 +341,79 @@ export async function getActiveCoupons(supabaseAdmin?: any): Promise<string> {
 }
 
 /**
+ * Query live database metrics for Ruhvi Privé VIP Membership.
+ */
+export async function getLivePriveMetrics(
+  supabaseAdmin?: any
+): Promise<string> {
+  const db = supabaseAdmin || createAdminClient();
+  const nowIso = new Date().toISOString();
+  const thirtyDaysAgoIso = new Date(
+    Date.now() - 30 * 24 * 60 * 60 * 1000
+  ).toISOString();
+  const thirtyDaysAheadIso = new Date(
+    Date.now() + 30 * 24 * 60 * 60 * 1000
+  ).toISOString();
+
+  try {
+    const [activeRes, recentRes, expiringRes, vipOrdersRes] = await Promise.all(
+      [
+        db
+          .from('users')
+          .select('id, vip_source', { count: 'exact' })
+          .eq('is_vip', true)
+          .gt('vip_expires_at', nowIso),
+        db
+          .from('users')
+          .select('id', { count: 'exact', head: true })
+          .eq('is_vip', true)
+          .gte('vip_joined_at', thirtyDaysAgoIso),
+        db
+          .from('users')
+          .select('id', { count: 'exact', head: true })
+          .eq('is_vip', true)
+          .gt('vip_expires_at', nowIso)
+          .lte('vip_expires_at', thirtyDaysAheadIso),
+        db
+          .from('orders')
+          .select('id', { count: 'exact', head: true })
+          .eq('is_vip', true),
+      ]
+    );
+
+    const activeCount =
+      activeRes.count ?? (activeRes.data ? activeRes.data.length : 0);
+    const recentCount = recentRes.count ?? 0;
+    const expiringCount = expiringRes.count ?? 0;
+    const vipOrdersCount = vipOrdersRes.count ?? 0;
+
+    // Breakdown by source
+    const sourceMap: Record<string, number> = {};
+    if (activeRes.data && Array.isArray(activeRes.data)) {
+      activeRes.data.forEach((u: any) => {
+        const src = u.vip_source || 'direct';
+        sourceMap[src] = (sourceMap[src] || 0) + 1;
+      });
+    }
+
+    const sourceBreakdownStr =
+      Object.entries(sourceMap)
+        .map(([src, count]) => `${src}: ${count}`)
+        .join(', ') || 'None recorded';
+
+    return `LIVE DATABASE VIP PRIVÉ METRICS:
+- Total Active VIP Members: ${activeCount}
+- New VIP Members (Last 30 Days): ${recentCount}
+- Members Expiring in Next 30 Days: ${expiringCount}
+- Total Orders Placed with VIP Status: ${vipOrdersCount}
+- Acquisition Source Breakdown: ${sourceBreakdownStr}`;
+  } catch (err: any) {
+    console.error('Error fetching live Privé metrics:', err);
+    return 'LIVE DATABASE VIP PRIVÉ METRICS: Live metrics query temporarily unavailable.';
+  }
+}
+
+/**
  * Build the complete knowledge context for a chatbot prompt.
  * Intelligently selects which knowledge to include based on the user's query.
  */
@@ -378,6 +493,44 @@ export async function buildKnowledgeContext(
 - Methods: ${bk.payments.methods.join(', ')}
 - Wallet: ${bk.payments.walletInfo}
 - Security: ${bk.payments.securePayment}`);
+  }
+
+  // Include Ruhvi Privé VIP Membership info & live metrics if relevant
+  if (
+    msg.includes('prive') ||
+    msg.includes('privé') ||
+    msg.includes('vip') ||
+    msg.includes('gold circle') ||
+    msg.includes('membership') ||
+    msg.includes('member')
+  ) {
+    const vm = bk.vipMembership;
+    let liveMetrics = '';
+    try {
+      liveMetrics = await getLivePriveMetrics(db);
+    } catch {
+      liveMetrics =
+        'LIVE DATABASE VIP PRIVÉ METRICS: Live query skipped or unavailable.';
+    }
+
+    knowledgeParts.push(`RUHVI PRIVÉ (VIP MEMBERSHIP) KNOWLEDGE & LIVE METRICS:
+- Program: ${vm.brandName} (${vm.description})
+- Entry Pathways:
+  * ${vm.pricingAndEntry.optionA}
+  * ${vm.pricingAndEntry.optionB}
+  * ${vm.pricingAndEntry.checkoutUpsell}
+- Financial & Policy Rules:
+  * Validity: ${vm.pricingAndEntry.validity}
+  * Non-Refundable: ${vm.pricingAndEntry.nonRefundable}
+  * No Cashback on Fee: ${vm.pricingAndEntry.noCashbackOnFee}
+- Active VIP Benefits:
+${vm.activeBenefits.map((b) => `  * ${b}`).join('\n')}
+- Explicit Exclusions (What VIPs DO NOT GET):
+${vm.explicitExclusions.map((e) => `  * ${e}`).join('\n')}
+- System Safeguards & Anti-Fraud:
+${vm.safeguards.map((s) => `  * ${s}`).join('\n')}
+
+${liveMetrics}`);
   }
 
   // Include jewellery care if relevant

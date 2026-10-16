@@ -222,6 +222,35 @@ CO-FOUNDER ADVISOR, ANALYST, STRATEGIST & EXECUTION AGENT PROTOCOL:
    - Use 'store_co_founder_memory' to record explicit founder decisions, policies, and targets with automated semantic contradiction detection and superseding.
    - Use 'extract_session_learnings' to distill high-signal business takeaways and corrections from the conversation turn history.
    - Never violate active operational rules without explicit founder authorization.
+12. RUHVI PRIVÉ (VIP MEMBERSHIP) INTELLIGENCE & BUSINESS RULES:
+   - Program Name: "RUHVI PRIVÉ" (also known as Ruhvi Gold Circle) — our premier handcrafted luxury loyalty club.
+   - Entry Pathways (365-Day Membership):
+     * Option A (Coins): 1,500 Reward Coins (earned via cumulative store purchases).
+     * Option B (Direct Buy-In): ₹500 one-time fee (via UPI/Cards/Wallet) with instant activation.
+     * Checkout Upsell: Non-VIP shoppers with subtotal < ₹1,000 can add Privé for ₹500 at checkout, waiving the ₹49 shipping fee immediately.
+   - Financial Safeguards:
+     * Non-Refundable Policy: Pass fee (₹500 or 1,500 coins) is strictly non-refundable and non-cancellable once activated.
+     * No Cashback on Fee: No wallet cashback or coins are granted on the ₹500 membership fee itself.
+     * 2X Coins Clawback: If an order that earned 20% VIP coins is returned or cancelled, the 20% bonus coins are automatically reversed in the ledger.
+     * DOB Security & Anti-Fraud Lock: Date of Birth is permanently locked upon submission; 30-day anti-fraud buffer prevents same-day birthday perk exploitation. 1 claim per calendar year.
+   - Active Privé Privileges (What VIP Members GET):
+     1. 100% Free Express Insured Shipping on EVERY order regardless of basket size (Non-VIP threshold is ₹1,000+).
+     2. Zero COD Convenience Fee (standard ₹49 fee is waived).
+     3. 2X Accelerated Reward Coins: Earn 20% back in coins on every jewellery purchase (standard rate is 10%).
+     4. Annual Birthday Perk: ₹500 wallet credit or signature surprise piece during their birthday month.
+     5. 24-Hour Early Access to new collection drops & festive drops.
+     6. "Privé Vault" Access: Access to limited-edition member-only pieces.
+     7. Luxury Signature Packaging: Black velvet pouch, gold wax seal, and personalized founder note.
+     8. Digital VIP Identity: Gold Crown & Privé badge across header, drawer, and account with live days countdown.
+     9. Priority Dispatch Seal: "👑 Dispatched with Ruhvi Privé Priority Care" seal on order success and WhatsApp.
+   - Explicit Exclusions (What VIP Members DO NOT GET):
+     * NO extended anti-tarnish guarantee (standard 6-month color guarantee applies to all pieces equally).
+     * NO extended return window (standard 7-day return policy remains unchanged).
+     * NO dedicated 1-on-1 personal human WhatsApp concierge.
+     * NO anniversary perks (only the annual verified birthday perk is active).
+   - DYNAMIC LIVE DATA RETRIEVAL (STRICT ZERO HALLUCINATION):
+     * When the Founder asks about VIP Privé, membership numbers, renewal rates, or benefits, you have direct access to live database metrics via the current snapshot and the 'get_prive_membership_status' tool.
+     * Call 'get_prive_membership_status' whenever you need the most up-to-the-minute active member count, expiration cohort, or channel breakdown. Never invent member numbers.
 
 ${memoryBlock}
 
@@ -247,6 +276,26 @@ export const CO_FOUNDER_TOOL_DECLARATIONS = [
           type: 'STRING',
           description:
             'Time window: "today", "yesterday", "last_7_days", "this_month"',
+        },
+      },
+    },
+  },
+  {
+    name: 'get_prive_membership_status',
+    description:
+      'Retrieve live Ruhvi Privé VIP membership metrics and operational status: total active VIP members, VIP enrollment breakdown (coins vs ₹500 direct vs checkout upsell), upcoming expirations (next 30 days), total orders placed with VIP status, and optional customer-specific VIP status lookup.',
+    parameters: {
+      type: 'OBJECT',
+      properties: {
+        include_breakdown: {
+          type: 'BOOLEAN',
+          description:
+            'Whether to include acquisition source breakdown and upcoming 30-day expirations (default: true).',
+        },
+        search_customer: {
+          type: 'STRING',
+          description:
+            'Optional customer email, phone, or UUID to verify VIP membership status and validity days remaining for a specific user.',
         },
       },
     },

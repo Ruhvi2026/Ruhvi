@@ -2,12 +2,15 @@
 
 import { useState, Suspense } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Sparkles, KeyRound } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 
 function ResetPasswordForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const token = searchParams.get('token');
+
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -21,18 +24,41 @@ function ResetPasswordForm() {
       return;
     }
 
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters long.');
+      return;
+    }
+
     setLoading(true);
     setError(null);
     setMessage(null);
 
     try {
-      const supabase = createClient();
+      if (token) {
+        // Customer arrived via signed Ruhvi password reset link
+        const res = await fetch('/api/auth/reset-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token, password }),
+        });
 
-      const { error: updateError } = await supabase.auth.updateUser({
-        password: password,
-      });
+        const data = await res.json().catch(() => null);
 
-      if (updateError) throw updateError;
+        if (!res.ok) {
+          throw new Error(
+            data?.error ||
+              'Failed to update password. This link may have expired or already been used.'
+          );
+        }
+      } else {
+        // Fallback for Supabase Auth recovery session
+        const supabase = createClient();
+        const { error: updateError } = await supabase.auth.updateUser({
+          password: password,
+        });
+
+        if (updateError) throw updateError;
+      }
 
       setMessage(
         'Your password has been successfully updated! Redirecting to login...'
@@ -41,7 +67,7 @@ function ResetPasswordForm() {
         router.push('/login');
       }, 2000);
     } catch (err: any) {
-      console.error(err);
+      console.error('Password reset error:', err);
       setError(err.message || 'Failed to update password. Please try again.');
     } finally {
       setLoading(false);
