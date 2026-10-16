@@ -34,6 +34,7 @@ export interface OrderPayload {
   paytm_payment_state?: string;
   isPartialCod?: boolean;
   prepaidAmount?: number;
+  include_vip_membership?: boolean;
 }
 
 export interface CreateOrderOptions {
@@ -246,8 +247,37 @@ export async function createOrder(
 
   // Authoritative server-calculated pricing
   const finalSubtotal = verifiedSubtotal;
-  const verifiedShippingCharge = Math.max(0, Number(shippingCharge || 0));
-  const verifiedCodCharge = Math.max(0, Number(codCharge || 0));
+  const includeVipMembership = Boolean(payload.include_vip_membership);
+  const verifiedPriveMembershipFee = includeVipMembership ? 500 : 0;
+  let verifiedShippingCharge = Math.max(0, Number(shippingCharge || 0));
+  let verifiedCodCharge = Math.max(0, Number(codCharge || 0));
+  let isServerVip = false;
+
+  // Authoritative server-side VIP rule enforcement
+  if (user) {
+    const { data: vipUser } = await adminSupabase
+      .from('users')
+      .select('is_vip, vip_expires_at')
+      .eq('id', user.id)
+      .maybeSingle();
+
+    isServerVip =
+      Boolean(vipUser?.is_vip) &&
+      Boolean(
+        !vipUser?.vip_expires_at ||
+        new Date(vipUser.vip_expires_at).getTime() > Date.now()
+      );
+
+    if (isServerVip || includeVipMembership) {
+      verifiedShippingCharge = 0;
+      if (isServerVip) {
+        verifiedCodCharge = 0;
+      }
+    } else if (finalSubtotal >= 1000) {
+      verifiedShippingCharge = 0;
+    }
+  }
+
   const verifiedCouponDiscount = Math.max(0, Number(coupon_discount || 0));
   const verifiedWalletUsed = Math.max(0, Number(wallet_used || 0));
   const verifiedCoinsRedeemed = Math.max(0, Number(coins_redeemed || 0));
@@ -268,7 +298,8 @@ export async function createOrder(
     0,
     finalSubtotal +
       verifiedShippingCharge +
-      verifiedCodCharge -
+      verifiedCodCharge +
+      verifiedPriveMembershipFee -
       verifiedCouponDiscount -
       verifiedWalletUsed -
       verifiedCoinsRedeemed
@@ -315,41 +346,56 @@ export async function createOrder(
       ? 'paid'
       : 'pending';
 
-  const { data: insertedOrder, error: orderError } = await supabase
+  const orderPayloadToInsert: any = {
+    user_id: user!.id,
+    order_number: orderNumber,
+    status: options.status || 'confirmed',
+    subtotal: finalSubtotal,
+    shipping_charge: verifiedShippingCharge,
+    cod_charge: verifiedCodCharge,
+    coupon_discount: verifiedCouponDiscount,
+    wallet_used: verifiedWalletUsed,
+    coins_redeemed: verifiedCoinsRedeemed,
+    gst_amount: gstAmount,
+    total: finalTotal,
+    payment_method: paymentMethod || 'phonepe',
+    payment_status: options.paymentStatus || defaultPaymentStatus,
+    prepaid_amount: isPartialCod
+      ? (prepaidAmount ?? finalTotal)
+      : paymentMethod === 'phonepe' || paymentMethod === 'paytm'
+        ? finalTotal
+        : 0,
+    cod_balance: isPartialCod
+      ? Math.max(0, finalTotal - (prepaidAmount || 0))
+      : paymentMethod === 'cod'
+        ? finalTotal
+        : 0,
+    gift_wrap: giftWrap,
+    gift_message: giftMessage,
+    shipping_address_id: shippingAddressId,
+    phonepe_merchant_transaction_id: phonepe_merchant_transaction_id || null,
+    phonepe_transaction_id: phonepe_transaction_id || null,
+    phonepe_payment_state: phonepe_payment_state || null,
+    is_vip: Boolean(isServerVip || includeVipMembership),
+  };
+
+  let { data: insertedOrder, error: orderError } = await supabase
     .from('orders')
-    .insert({
-      user_id: user!.id,
-      order_number: orderNumber,
-      status: options.status || 'confirmed',
-      subtotal: finalSubtotal,
-      shipping_charge: verifiedShippingCharge,
-      cod_charge: verifiedCodCharge,
-      coupon_discount: verifiedCouponDiscount,
-      wallet_used: verifiedWalletUsed,
-      coins_redeemed: verifiedCoinsRedeemed,
-      gst_amount: gstAmount,
-      total: finalTotal,
-      payment_method: paymentMethod || 'phonepe',
-      payment_status: options.paymentStatus || defaultPaymentStatus,
-      prepaid_amount: isPartialCod
-        ? (prepaidAmount ?? finalTotal)
-        : paymentMethod === 'phonepe' || paymentMethod === 'paytm'
-          ? finalTotal
-          : 0,
-      cod_balance: isPartialCod
-        ? Math.max(0, finalTotal - (prepaidAmount || 0))
-        : paymentMethod === 'cod'
-          ? finalTotal
-          : 0,
-      gift_wrap: giftWrap,
-      gift_message: giftMessage,
-      shipping_address_id: shippingAddressId,
-      phonepe_merchant_transaction_id: phonepe_merchant_transaction_id || null,
-      phonepe_transaction_id: phonepe_transaction_id || null,
-      phonepe_payment_state: phonepe_payment_state || null,
-    })
+    .insert(orderPayloadToInsert)
     .select('id')
     .single();
+
+  if (orderError && orderError.code === '42703') {
+    // If column is_vip does not exist yet on orders table, fallback cleanly
+    delete orderPayloadToInsert.is_vip;
+    const retry = await supabase
+      .from('orders')
+      .insert(orderPayloadToInsert)
+      .select('id')
+      .single();
+    insertedOrder = retry.data;
+    orderError = retry.error;
+  }
 
   if (orderError || !insertedOrder) {
     console.error('Failed to create order:', orderError);
@@ -400,6 +446,30 @@ export async function createOrder(
 
   if (itemsError) {
     console.error('Failed to save order items:', itemsError);
+  }
+
+  // Authoritatively activate Ruhvi Privé VIP membership if purchased during checkout
+  if (includeVipMembership && user?.id) {
+    try {
+      const oneYearFromNow = new Date(
+        Date.now() + 365 * 24 * 60 * 60 * 1000
+      ).toISOString();
+      await adminSupabase
+        .from('users')
+        .update({
+          is_vip: true,
+          vip_joined_at: new Date().toISOString(),
+          vip_expires_at: oneYearFromNow,
+          vip_source: 'checkout_upsell',
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', user.id);
+    } catch (vipErr) {
+      console.error(
+        'Failed to activate VIP membership on order checkout:',
+        vipErr
+      );
+    }
   }
 
   const newOrder = {

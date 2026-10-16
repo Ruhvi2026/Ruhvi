@@ -13,6 +13,8 @@ import {
   Truck,
   CheckCircle2,
   ShieldCheck,
+  Crown,
+  Sparkles,
 } from 'lucide-react';
 import { Order } from '@/types/database';
 import { useCart } from '@/context/CartContext';
@@ -201,9 +203,17 @@ export default function OrderDetailsPage({
             <span className="block font-mono text-xs uppercase text-stone-400">
               Order Details
             </span>
-            <h1 className="font-serif text-2xl font-bold text-stone-900 sm:text-3xl">
-              {order.order_number}
-            </h1>
+            <div className="flex flex-wrap items-center gap-2.5">
+              <h1 className="font-serif text-2xl font-bold text-stone-900 sm:text-3xl">
+                {order.order_number}
+              </h1>
+              {order.is_vip && (
+                <span className="inline-flex items-center space-x-1.5 rounded-full border border-amber-300 bg-amber-500/10 px-3 py-0.5 text-xs font-bold uppercase tracking-wider text-amber-900">
+                  <Crown className="h-3.5 w-3.5 fill-amber-500 text-amber-600" />
+                  <span>Ruhvi Privé Order</span>
+                </span>
+              )}
+            </div>
           </div>
         </div>
 
@@ -219,6 +229,33 @@ export default function OrderDetailsPage({
       {actionMessage && (
         <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-xs font-medium text-amber-900">
           {actionMessage}
+        </div>
+      )}
+
+      {/* Ruhvi Privé VIP Priority Card */}
+      {order.is_vip && (
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-amber-300 bg-gradient-to-r from-amber-50 via-amber-100/40 to-stone-50 p-4 shadow-sm">
+          <div className="flex items-center space-x-3">
+            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500/20 text-amber-900 shadow-sm">
+              <Crown className="h-5 w-5 fill-amber-500 text-amber-700" />
+            </span>
+            <div>
+              <div className="text-xs font-bold uppercase tracking-wider text-amber-950">
+                Ruhvi Privé Priority Care Order
+              </div>
+              <div className="text-xs text-stone-600">
+                Dispatched with express courier handling, complimentary velvet
+                travel pouch packaging & 2X coins.
+              </div>
+            </div>
+          </div>
+          <Link
+            href="/account/prive"
+            className="inline-flex items-center space-x-1 rounded-lg border border-amber-300 bg-white/80 px-3 py-1.5 text-xs font-bold text-amber-900 shadow-sm hover:bg-white"
+          >
+            <span>Privé Hub</span>
+            <Sparkles className="h-3 w-3 text-amber-600" />
+          </Link>
         </div>
       )}
 

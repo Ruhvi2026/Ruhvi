@@ -28,10 +28,10 @@ export default function ShippingPolicyPage() {
             <li>
               We offer <strong>Free Standard Shipping</strong> on all prepaid
               and Cash on Delivery (COD) orders with a total cart value{' '}
-              <strong>above ₹500</strong>.
+              <strong>above ₹1,000</strong>.
             </li>
             <li>
-              For orders with a cart value <strong>below ₹500</strong>, a flat
+              For orders with a cart value <strong>below ₹1,000</strong>, a flat
               shipping fee of <strong>₹49</strong> applies.
             </li>
             <li>
@@ -56,9 +56,8 @@ export default function ShippingPolicyPage() {
               dispatched within 1-2 business days from the time of confirmation.
             </li>
             <li>
-              <strong>Delivery Time:</strong> Standard delivery usually takes
-              3-7 business days depending on your pin code. Remote locations may
-              take up to 10 business days.
+              <strong>Estimated Delivery Time:</strong> Standard delivery takes
+              2 to 5 business days across India depending on your pin code.
             </li>
           </ul>
           <p>

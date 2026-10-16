@@ -35,6 +35,14 @@ export interface User {
   referral_code?: string | null;
   created_at?: string;
   updated_at?: string;
+  // Ruhvi Privé VIP & DOB fields
+  is_vip?: boolean;
+  vip_joined_at?: string | null;
+  vip_expires_at?: string | null;
+  vip_source?: 'coins' | 'wallet' | 'gateway' | 'admin_grant' | string | null;
+  date_of_birth?: string | null;
+  is_dob_locked?: boolean;
+  dob_updated_at?: string | null;
 }
 
 export interface Category {
@@ -152,6 +160,7 @@ export interface Order {
   payment_status: PaymentStatus;
   gift_wrap: boolean;
   gift_message?: string | null;
+  is_vip?: boolean;
   shipping_address_id?: string | null;
   phonepe_merchant_transaction_id?: string | null;
   phonepe_transaction_id?: string | null;

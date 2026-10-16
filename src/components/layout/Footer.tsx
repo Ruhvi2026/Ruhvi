@@ -88,7 +88,7 @@ export function Footer() {
                 Insured Shipping
               </span>
               <p className="text-[11px] text-cream-200/60">
-                Tamper-proof transit packaging
+                Estimated 2–5 days delivery
               </p>
             </div>
           </div>

@@ -411,7 +411,7 @@ export default async function HomePage() {
               </div>
               <div>
                 <h3>FREE SHIPPING</h3>
-                <p>On orders above ₹999</p>
+                <p>Estimated 2–5 days delivery</p>
               </div>
             </div>
             <div className="trust-item">

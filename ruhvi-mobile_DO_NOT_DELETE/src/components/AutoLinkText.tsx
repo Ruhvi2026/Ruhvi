@@ -18,7 +18,7 @@ interface Token {
 }
 
 // Regex patterns
-// Matches http(s)://, www., or standard domain patterns (e.g. ruhvi.vercel.app, ruhvi.in, facebook.com)
+// Matches http(s)://, www., or standard domain patterns (e.g. ruhvi.in, facebook.com)
 const URL_REGEX = /(?:https?:\/\/|www\.)[^\s<>"'{}|\\^`[\]]+|(?:meet\.google\.com|zoom\.us\/j|teams\.microsoft\.com)\/[^\s<>"'{}|\\^`[\]]+|\b(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+(?:com|in|org|net|app|io|co|dev|store|shop|me|site|live|ai|tech|online|xyz|info|biz|edu|gov|us|uk|ca|au|de|fr|ru|jp|cn|club|pro|vip|space|website|agency|world|top|guru|link|news|cloud|mobi|tv|cc|to|global|solutions|digital|today|works|company|community|services|studio|group|design|media|social|network|center|systems|academy|fashion|beauty|care|fit|health|cafe|bar|pub|rest|hotel|travel|page|click|review|express|zone|email|chat)\b(?::\d+)?(?:\/[^\s<>"'{}|\\^`[\]]*)?/gi;
 const EMAIL_REGEX = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
 // Indian & International phone regex

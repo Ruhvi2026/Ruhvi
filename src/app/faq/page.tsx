@@ -19,7 +19,7 @@ export default function FAQPage() {
         name: 'How much does shipping cost?',
         acceptedAnswer: {
           '@type': 'Answer',
-          text: 'We offer free standard shipping on all orders above ₹500. For orders below ₹500, a flat shipping fee of ₹49 is applied. If you choose Cash on Delivery (COD), an additional COD convenience charge of ₹49 will apply.',
+          text: 'We offer free standard shipping on all orders above ₹1,000. For orders below ₹1,000, a flat shipping fee of ₹49 is applied. If you choose Cash on Delivery (COD), an additional COD convenience charge of ₹49 will apply.',
         },
       },
       {
@@ -27,7 +27,7 @@ export default function FAQPage() {
         name: 'How long does delivery take?',
         acceptedAnswer: {
           '@type': 'Answer',
-          text: 'Orders are dispatched within 1-2 business days. Standard delivery usually takes 3-7 business days depending on your location.',
+          text: 'Orders are dispatched within 1-2 business days. Standard estimated delivery takes 2-5 business days across India depending on your location.',
         },
       },
       {
@@ -108,9 +108,9 @@ export default function FAQPage() {
                 How much does shipping cost?
               </h3>
               <p>
-                We offer free standard shipping on all orders above ₹500. For
-                orders below ₹500, a flat shipping fee of ₹49 is applied. If you
-                choose Cash on Delivery (COD), an additional COD convenience
+                We offer free standard shipping on all orders above ₹1,000. For
+                orders below ₹1,000, a flat shipping fee of ₹49 is applied. If
+                you choose Cash on Delivery (COD), an additional COD convenience
                 charge of ₹49 will apply.
               </p>
             </div>
@@ -120,8 +120,8 @@ export default function FAQPage() {
               </h3>
               <p>
                 Orders are dispatched within 1-2 business days. Standard
-                delivery usually takes 3-7 business days depending on your
-                location.
+                estimated delivery takes 2-5 business days across India
+                depending on your location.
               </p>
             </div>
             <div>

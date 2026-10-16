@@ -29,11 +29,21 @@ export default function ProductAttributes() {
         <li>
           <strong>Shipping Region:</strong> All-India delivery
         </li>
+        <li>
+          <strong>Estimated Delivery Time:</strong> 2 to 5 business days
+        </li>
       </ul>
       <h3 className="mb-2 mt-4 text-lg font-bold">
         Frequently Asked Questions
       </h3>
       <div className="space-y-2">
+        <div>
+          <p className="font-semibold">How long does delivery take?</p>
+          <p>
+            Standard estimated delivery takes 2 to 5 business days across India.
+            All shipments are insured and dispatched quickly with tracking.
+          </p>
+        </div>
         <div>
           <p className="font-semibold">
             Is RUHVI gold plated jewellery anti-tarnish?

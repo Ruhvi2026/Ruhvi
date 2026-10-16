@@ -19,11 +19,17 @@ export const sendWhatsAppMessage = async (
   // Format phone number: remove any non-digit characters and leading zeros
   const formattedPhone = to.replace(/\D/g, '').replace(/^0+/, '');
   // Add 91 if not present for India, though in a real app you'd want proper country code parsing
-  const finalPhone = formattedPhone.length === 10 ? `91${formattedPhone}` : formattedPhone;
+  const finalPhone =
+    formattedPhone.length === 10 ? `91${formattedPhone}` : formattedPhone;
 
   if (!config) {
-    console.log(`[WhatsApp Sandbox] Message to ${finalPhone} using template '${templateName}'`);
-    console.log(`[WhatsApp Sandbox] Components:`, JSON.stringify(components, null, 2));
+    console.log(
+      `[WhatsApp Sandbox] Message to ${finalPhone} using template '${templateName}'`
+    );
+    console.log(
+      `[WhatsApp Sandbox] Components:`,
+      JSON.stringify(components, null, 2)
+    );
     return { success: true, sandbox: true };
   }
 
@@ -56,7 +62,9 @@ export const sendWhatsAppMessage = async (
 
     if (!response.ok) {
       console.error('WhatsApp API Error:', data);
-      throw new Error(`WhatsApp API Error: ${data.error?.message || 'Unknown error'}`);
+      throw new Error(
+        `WhatsApp API Error: ${data.error?.message || 'Unknown error'}`
+      );
     }
 
     return { success: true, data };
@@ -70,21 +78,55 @@ export const sendOrderConfirmation = async (
   orderNumber: string,
   customerPhone: string,
   customerName: string,
-  totalAmount: number
+  totalAmount: number,
+  isVip: boolean = false
 ) => {
   // Assuming a template named "order_confirmation" with 3 parameters: name, orderNumber, total
+  const displayName = isVip
+    ? `👑 Privé Member ${customerName || 'Customer'}`
+    : customerName || 'Customer';
+
   const components = [
     {
       type: 'body',
       parameters: [
-        { type: 'text', text: customerName || 'Customer' },
+        { type: 'text', text: displayName },
         { type: 'text', text: orderNumber },
         { type: 'text', text: `₹${totalAmount.toLocaleString('en-IN')}` },
       ],
     },
   ];
 
-  return sendWhatsAppMessage(customerPhone, 'order_confirmation', 'en', components);
+  return sendWhatsAppMessage(
+    customerPhone,
+    'order_confirmation',
+    'en',
+    components
+  );
+};
+
+export const sendVipWelcomeWhatsApp = async (
+  customerPhone: string,
+  customerName: string
+) => {
+  const components = [
+    {
+      type: 'body',
+      parameters: [
+        { type: 'text', text: customerName || 'Valued Privé Member' },
+      ],
+    },
+  ];
+
+  return sendWhatsAppMessage(
+    customerPhone,
+    'vip_welcome',
+    'en',
+    components
+  ).catch((err) => {
+    console.log('[WhatsApp] vip_welcome template notification fallback:', err);
+    return { success: false, error: err };
+  });
 };
 
 export const sendShippingUpdate = async (
@@ -105,5 +147,10 @@ export const sendShippingUpdate = async (
     },
   ];
 
-  return sendWhatsAppMessage(customerPhone, 'shipping_update', 'en', components);
+  return sendWhatsAppMessage(
+    customerPhone,
+    'shipping_update',
+    'en',
+    components
+  );
 };

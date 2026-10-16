@@ -108,6 +108,15 @@ const nextConfig = {
       { source: '/data-deletion', headers: [publicPageCache] },
     ];
   },
+  async redirects() {
+    return [
+      {
+        source: '/prive',
+        destination: '/account/prive',
+        permanent: true,
+      },
+    ];
+  },
   images: {
     formats: ['image/avif', 'image/webp'],
     remotePatterns: [

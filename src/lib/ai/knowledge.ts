@@ -34,7 +34,7 @@ export const RUHVI_BUSINESS_KNOWLEDGE = {
 
   shipping: {
     carrier: 'Blue Dart Air Transit',
-    deliveryTime: '3-5 business days',
+    deliveryTime: '2-5 business days (Estimated delivery: 2–5 days)',
     insurance: 'All shipments are fully insured',
     tracking: 'Tracking number provided via email after dispatch',
     freeShippingThreshold: 'Free shipping on all orders',

@@ -503,7 +503,7 @@ export function ProductDetailPageClient({
               </div>
               <div className="rounded-lg border border-gold-200/70 bg-cream-50 p-3 shadow-sm">
                 <Truck className="mx-auto mb-1 h-5 w-5 text-gold-600" />
-                <span>Insured Shipping</span>
+                <span>Insured Shipping • 2-5 Days</span>
               </div>
               <div className="rounded-lg border border-gold-200/70 bg-cream-50 p-3 shadow-sm">
                 <RotateCcw className="mx-auto mb-1 h-5 w-5 text-gold-600" />

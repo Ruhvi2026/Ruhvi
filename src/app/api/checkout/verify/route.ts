@@ -23,6 +23,9 @@ export async function POST(req: Request) {
 
     const { user, orderNumber, gstAmount, newOrder } = await createOrder(body);
     const total = newOrder.total;
+    const isVipOrder = Boolean(
+      newOrder?.is_vip || user?.is_vip || body.include_vip_membership
+    );
 
     // Send WhatsApp Order Confirmation asynchronously
     if (address.phone) {
@@ -31,7 +34,8 @@ export async function POST(req: Request) {
         address.phone,
         `${address.firstName || ''} ${address.lastName || ''}`.trim() ||
           'Valued Customer',
-        total
+        total,
+        isVipOrder
       ).catch((err) =>
         console.error('Failed to send WhatsApp confirmation:', err)
       );
@@ -97,8 +101,12 @@ export async function POST(req: Request) {
     if (user?.id) {
       createAndSendNotification({
         userId: user.id,
-        title: 'Order Confirmed 🎉',
-        message: `Your order ${orderNumber} has been successfully placed. Thank you for shopping with us!`,
+        title: isVipOrder
+          ? '👑 Privé Order Confirmed 🎉'
+          : 'Order Confirmed 🎉',
+        message: isVipOrder
+          ? `Your Ruhvi Privé order #${orderNumber} has been placed with Priority Dispatch & double coin benefits. Thank you!`
+          : `Your order ${orderNumber} has been successfully placed. Thank you for shopping with us!`,
         category: 'ORDERS',
         referenceType: 'order',
         referenceId: newOrder.id,

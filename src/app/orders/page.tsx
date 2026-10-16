@@ -10,6 +10,7 @@ import {
   CheckCircle,
   AlertCircle,
   ShoppingBag,
+  Crown,
 } from 'lucide-react';
 import { Order } from '@/types/database';
 import { useAuth } from '@/context/AuthContext';
@@ -152,9 +153,17 @@ export default function OrderHistoryPage() {
                     <span className="block text-xs font-medium uppercase tracking-wider text-stone-400">
                       Order Number
                     </span>
-                    <span className="font-mono font-bold text-stone-900">
-                      {order.order_number}
-                    </span>
+                    <div className="flex items-center space-x-2">
+                      <span className="font-mono font-bold text-stone-900">
+                        {order.order_number}
+                      </span>
+                      {order.is_vip && (
+                        <span className="inline-flex items-center space-x-1 rounded-full border border-amber-300 bg-amber-500/10 px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-amber-900">
+                          <Crown className="h-2.5 w-2.5 fill-amber-500 text-amber-600" />
+                          <span>Privé</span>
+                        </span>
+                      )}
+                    </div>
                   </div>
 
                   <div>

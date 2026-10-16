@@ -259,6 +259,9 @@ export default function CheckoutPage() {
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const turnstileRef = useRef<TurnstileInstance>(null);
 
+  // Ruhvi Privé Checkout Upsell State
+  const [includePriveMembership, setIncludePriveMembership] = useState(false);
+
   // OTP State
   const [showOtpModal, setShowOtpModal] = useState(false);
   const [otpCode, setOtpCode] = useState('');
@@ -350,9 +353,16 @@ export default function CheckoutPage() {
   const maxCoinsRedeemableValue = Math.floor(coinsBalance / 10);
 
   // Shipping & Cost calculations
-  const FREE_SHIPPING_THRESHOLD = 500;
+  const FREE_SHIPPING_THRESHOLD = 1000;
+  const isVipMember = Boolean(profile?.is_vip);
+  const priveMembershipFee = includePriveMembership && !isVipMember ? 500 : 0;
   const shippingCharge =
-    subtotal >= FREE_SHIPPING_THRESHOLD || items.length === 0 ? 0 : 49;
+    isVipMember ||
+    includePriveMembership ||
+    subtotal >= FREE_SHIPPING_THRESHOLD ||
+    items.length === 0
+      ? 0
+      : 49;
 
   // Coupon Math
   const couponDiscount = appliedCoupon ? appliedCoupon.discount : 0;
@@ -366,11 +376,12 @@ export default function CheckoutPage() {
   }
 
   // Pre-Wallet Total
-  const codCharge = paymentMethod === 'cod' ? 49 : 0;
+  const codCharge = paymentMethod === 'cod' ? (isVipMember ? 0 : 49) : 0;
   const preWalletTotal =
     Math.max(0, subtotalAfterCoupon - coinsDiscount) +
     shippingCharge +
-    codCharge;
+    codCharge +
+    priveMembershipFee;
 
   // Wallet Math
   let walletDiscount = 0;
@@ -404,7 +415,14 @@ export default function CheckoutPage() {
           code: code.toUpperCase(),
           discount: data.discount,
         });
-        toast.success('Coupon applied successfully!');
+        if (code.toUpperCase().startsWith('PRIVE-BDAY-') && useCoins) {
+          setUseCoins(false);
+          toast.success(
+            'Birthday voucher applied! (Coins unstacked as per voucher terms)'
+          );
+        } else {
+          toast.success('Coupon applied successfully!');
+        }
       } else {
         toast.error(data.error || 'Invalid or expired coupon code.');
         setAppliedCoupon(null);
@@ -415,6 +433,18 @@ export default function CheckoutPage() {
       setValidatingCoupon(false);
     }
   };
+
+  // Auto-apply coupon from URL query (e.g. redirected from Privé Hub)
+  useEffect(() => {
+    if (typeof window !== 'undefined' && subtotal > 0) {
+      const params = new URLSearchParams(window.location.search);
+      const urlCoupon = params.get('coupon');
+      if (urlCoupon && !appliedCoupon) {
+        setCouponCode(urlCoupon);
+        applyCouponCode(urlCoupon);
+      }
+    }
+  }, [subtotal]);
 
   const handleApplyCoupon = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -605,6 +635,7 @@ export default function CheckoutPage() {
             coupon_discount: couponDiscount,
             isPartialCod,
             prepaidAmount: isPartialCod ? onlineAmount : undefined,
+            include_vip_membership: includePriveMembership,
             idempotencyKey: pendingOrderId,
           }),
         });
@@ -748,6 +779,7 @@ export default function CheckoutPage() {
           coins_redeemed: coinsDiscount,
           coupon_discount: couponDiscount,
           total: totalPayable,
+          include_vip_membership: includePriveMembership,
           ...(orderIdempotencyKey
             ? { idempotencyKey: orderIdempotencyKey }
             : {}),
@@ -1539,6 +1571,24 @@ export default function CheckoutPage() {
                   )}
                 </form>
 
+                {/* Ruhvi Privé Birthday Voucher Banner */}
+                {appliedCoupon?.code?.startsWith('PRIVE-BDAY-') && (
+                  <div className="mt-2 rounded-xl border border-amber-300 bg-amber-50/80 p-3 text-xs">
+                    <div className="flex items-center gap-1.5 font-bold text-amber-950">
+                      <span>👑</span>
+                      <span>
+                        Ruhvi Privé Birthday Voucher Applied (-₹
+                        {appliedCoupon.discount})
+                      </span>
+                    </div>
+                    <p className="mt-1 text-[11px] text-stone-600">
+                      Minimum order spend: ₹1,000 on physical jewellery • Valid
+                      for 1 year • Strictly non-mergeable with other vouchers or
+                      Reward Coins.
+                    </p>
+                  </div>
+                )}
+
                 {/* Available Coupons Option List */}
                 {availableCoupons.length > 0 && !appliedCoupon && (
                   <div className="mt-2 space-y-2 border-b border-stone-100 pb-3">
@@ -1601,7 +1651,15 @@ export default function CheckoutPage() {
                     <input
                       type="checkbox"
                       checked={useCoins}
-                      onChange={(e) => setUseCoins(e.target.checked)}
+                      onChange={(e) => {
+                        if (appliedCoupon?.code?.startsWith('PRIVE-BDAY-')) {
+                          toast.error(
+                            'The birthday voucher cannot be merged with Reward Coins.'
+                          );
+                          return;
+                        }
+                        setUseCoins(e.target.checked);
+                      }}
                       className="h-4 w-4 rounded accent-yellow-600"
                     />
                   </label>
@@ -1665,12 +1723,65 @@ export default function CheckoutPage() {
                   </div>
                 )}
 
+                {/* Ruhvi Privé Checkout Upsell Toggle for Non-VIP */}
+                {!isVipMember && subtotal < FREE_SHIPPING_THRESHOLD && (
+                  <div className="rounded-xl border border-amber-300/80 bg-gradient-to-br from-amber-50 via-[#FAF6ED] to-amber-100/40 p-3 shadow-sm">
+                    <label className="flex cursor-pointer items-start gap-2.5">
+                      <input
+                        type="checkbox"
+                        checked={includePriveMembership}
+                        onChange={(e) =>
+                          setIncludePriveMembership(e.target.checked)
+                        }
+                        className="mt-0.5 h-4 w-4 rounded border-amber-400 text-amber-900 focus:ring-amber-500"
+                      />
+                      <div className="space-y-0.5">
+                        <div className="flex flex-wrap items-center gap-1.5 text-xs font-bold text-amber-950">
+                          <span>👑</span>
+                          <span>Add Ruhvi Privé for ₹500</span>
+                          <span className="rounded bg-amber-400/25 px-1.5 py-0.5 text-[9px] font-extrabold uppercase text-amber-900">
+                            Save ₹49 Today
+                          </span>
+                        </div>
+                        <p className="text-[11px] leading-relaxed text-stone-700">
+                          Get <strong>THIS delivery FREE today</strong> + 1 Full
+                          Year of ₹0 Express Delivery on all orders, 2X Reward
+                          Coins (20% cashback), and secret Privé Vault access!
+                        </p>
+                      </div>
+                    </label>
+                  </div>
+                )}
+
+                {/* VIP Membership Active Indicator */}
+                {isVipMember && (
+                  <div className="flex items-center gap-1.5 rounded-lg border border-amber-300/80 bg-amber-50/70 px-2.5 py-1 text-[11px] font-semibold text-amber-950">
+                    <span>👑</span>
+                    <span>
+                      Ruhvi Privé Active: Free Insured Express Delivery Applied
+                    </span>
+                  </div>
+                )}
+
+                {/* Privé Membership Fee Item if Selected */}
+                {includePriveMembership && !isVipMember && (
+                  <div className="flex justify-between text-amber-950">
+                    <span className="flex items-center gap-1.5 font-medium">
+                      <span>👑</span>
+                      <span>Ruhvi Privé 1-Year VIP Pass</span>
+                    </span>
+                    <span className="font-semibold">₹500</span>
+                  </div>
+                )}
+
                 <div className="flex justify-between text-stone-600">
                   <span>Shipping Fee</span>
                   <span>
                     {shippingCharge === 0 ? (
                       <span className="text-xs font-bold uppercase tracking-wider text-emerald-700">
-                        FREE
+                        {isVipMember || includePriveMembership
+                          ? 'FREE (Privé)'
+                          : 'FREE'}
                       </span>
                     ) : (
                       `₹${shippingCharge}`
@@ -1682,7 +1793,15 @@ export default function CheckoutPage() {
                   (!useWallet || walletBalance < preWalletTotal) && (
                     <div className="flex justify-between text-stone-600">
                       <span>COD Processing Fee</span>
-                      <span className="font-semibold text-amber-900">₹49</span>
+                      <span className="font-semibold text-amber-900">
+                        {codCharge === 0 ? (
+                          <span className="text-xs font-bold uppercase tracking-wider text-emerald-700">
+                            FREE (Privé)
+                          </span>
+                        ) : (
+                          `₹${codCharge}`
+                        )}
+                      </span>
                     </div>
                   )}
 

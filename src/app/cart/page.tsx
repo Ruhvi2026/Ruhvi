@@ -15,6 +15,7 @@ import {
   ImageOff,
 } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
+import { useAuth } from '@/context/AuthContext';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ImageWithFallback } from '@/components/ui/ImageWithFallback';
 import { ecommerceEvent } from '@/lib/gtag';
@@ -22,17 +23,18 @@ import { ecommerceEvent } from '@/lib/gtag';
 export default function CartPage() {
   const { items, updateQuantity, removeFromCart, subtotal, clearCart } =
     useCart();
+  const { profile } = useAuth();
+  const isVip = Boolean(profile?.is_vip);
 
-  const FREE_SHIPPING_THRESHOLD = 500;
-  const isFreeShipping = subtotal >= FREE_SHIPPING_THRESHOLD;
+  const FREE_SHIPPING_THRESHOLD = 1000;
+  const isFreeShipping = isVip || subtotal >= FREE_SHIPPING_THRESHOLD;
   const remainingForFreeShipping = Math.max(
     0,
     FREE_SHIPPING_THRESHOLD - subtotal
   );
-  const freeShippingProgress = Math.min(
-    100,
-    (subtotal / FREE_SHIPPING_THRESHOLD) * 100
-  );
+  const freeShippingProgress = isVip
+    ? 100
+    : Math.min(100, (subtotal / FREE_SHIPPING_THRESHOLD) * 100);
 
   const estimatedShipping = isFreeShipping || items.length === 0 ? 0 : 49;
   const grandTotal = subtotal + estimatedShipping;
@@ -87,26 +89,88 @@ export default function CartPage() {
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
           {/* Main Cart Items List */}
           <div className="space-y-6 lg:col-span-2">
-            {/* Free Shipping Progress Card */}
-            <div className="space-y-2 rounded-xl border border-amber-900/10 bg-amber-950/5 p-4">
-              <div className="flex items-center justify-between text-xs font-semibold text-amber-950">
-                <span className="flex items-center space-x-1.5">
-                  <Sparkles className="h-4 w-4 text-amber-600" />
-                  <span>
-                    {isFreeShipping
-                      ? 'Congratulations! You qualify for FREE Insured Express Shipping.'
-                      : `Add ₹${remainingForFreeShipping.toLocaleString('en-IN')} more to unlock FREE Insured Shipping`}
-                  </span>
-                </span>
-                <span>{Math.round(freeShippingProgress)}%</span>
+            {/* Free Shipping / Ruhvi Privé VIP Card */}
+            {isVip ? (
+              <div className="flex items-center justify-between rounded-2xl border border-amber-300/80 bg-gradient-to-r from-amber-950 via-stone-900 to-amber-950 p-4 text-amber-100 shadow-md">
+                <div className="flex items-start space-x-3.5">
+                  <span className="text-2xl">👑</span>
+                  <div className="space-y-0.5">
+                    <div className="flex items-center gap-2">
+                      <span className="font-serif text-sm font-bold tracking-wide text-amber-200">
+                        RUHVI PRIVÉ MEMBER ACTIVE
+                      </span>
+                      <span className="rounded bg-amber-400/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-amber-300">
+                        VIP PRIVILEGE
+                      </span>
+                    </div>
+                    <p className="text-xs text-amber-100/90">
+                      You qualify for{' '}
+                      <strong>FREE Insured Express Shipping</strong> on this
+                      order + <strong>2X Reward Coins (20% cashback)</strong>.
+                    </p>
+                  </div>
+                </div>
               </div>
-              <div className="h-2 w-full overflow-hidden rounded-full bg-stone-200">
-                <div
-                  className="h-full rounded-full bg-amber-800 transition-all duration-500"
-                  style={{ width: `${freeShippingProgress}%` }}
-                />
+            ) : (
+              <div className="space-y-3">
+                <div className="space-y-2 rounded-xl border border-amber-900/10 bg-amber-950/5 p-4">
+                  <div className="flex items-center justify-between text-xs font-semibold text-amber-950">
+                    <span className="flex items-center space-x-1.5">
+                      <Sparkles className="h-4 w-4 text-amber-600" />
+                      <span>
+                        {isFreeShipping
+                          ? 'Congratulations! You qualify for FREE Insured Express Shipping.'
+                          : `Add ₹${remainingForFreeShipping.toLocaleString('en-IN')} more to unlock FREE Insured Shipping`}
+                      </span>
+                    </span>
+                    <span>{Math.round(freeShippingProgress)}%</span>
+                  </div>
+                  <div className="h-2 w-full overflow-hidden rounded-full bg-stone-200">
+                    <div
+                      className="h-full rounded-full bg-amber-800 transition-all duration-500"
+                      style={{ width: `${freeShippingProgress}%` }}
+                    />
+                  </div>
+                </div>
+
+                {/* Ruhvi Privé Progress Teaser for Non-VIP */}
+                <div className="flex flex-col justify-between gap-3 rounded-xl border border-amber-200/80 bg-gradient-to-r from-amber-50/90 via-[#FAF6ED] to-amber-50/70 p-3.5 text-xs sm:flex-row sm:items-center">
+                  <div className="flex items-start space-x-2.5">
+                    <span className="text-lg">👑</span>
+                    <div>
+                      <span className="font-bold text-amber-950">
+                        Unlock Unlimited Free Shipping with Ruhvi Privé
+                      </span>
+                      <p className="mt-0.5 text-[11px] leading-relaxed text-stone-600">
+                        {profile?.reward_coins !== undefined ? (
+                          <>
+                            You have{' '}
+                            <strong className="text-amber-900">
+                              {profile.reward_coins} Coins
+                            </strong>
+                            . Earn {Math.max(0, 1500 - profile.reward_coins)}{' '}
+                            more or join for ₹500 to unlock 1 year of ₹0
+                            shipping, 2X coins & secret drops.
+                          </>
+                        ) : (
+                          <>
+                            Join for ₹500 or 1,500 coins to unlock 1 year of ₹0
+                            shipping on all orders, 2X reward coins & secret
+                            drops.
+                          </>
+                        )}
+                      </p>
+                    </div>
+                  </div>
+                  <Link
+                    href="/account/prive"
+                    className="flex-shrink-0 rounded-lg bg-amber-950 px-3 py-1.5 text-center text-[11px] font-bold text-amber-100 shadow transition hover:bg-black"
+                  >
+                    Explore Privé
+                  </Link>
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Item cards */}
             <div className="space-y-4">
@@ -234,11 +298,11 @@ export default function CartPage() {
                 </div>
 
                 <div className="flex justify-between text-stone-600">
-                  <span>Insured Shipping</span>
+                  <span>Insured Shipping (Est. 2–5 Days)</span>
                   <span className="font-semibold text-stone-900">
                     {estimatedShipping === 0 ? (
                       <span className="text-xs font-bold uppercase tracking-wider text-emerald-700">
-                        FREE
+                        {isVip ? 'FREE (Privé)' : 'FREE'}
                       </span>
                     ) : (
                       `₹${estimatedShipping}`
@@ -272,7 +336,7 @@ export default function CartPage() {
               <div className="grid grid-cols-3 gap-2 border-t border-stone-100 pt-4 text-center text-xs text-stone-500">
                 <div className="space-y-1">
                   <Truck className="mx-auto h-4 w-4 text-amber-800" />
-                  <span>Insured Delivery</span>
+                  <span>2–5 Days Delivery</span>
                 </div>
                 <div className="space-y-1">
                   <ShieldCheck className="mx-auto h-4 w-4 text-amber-800" />

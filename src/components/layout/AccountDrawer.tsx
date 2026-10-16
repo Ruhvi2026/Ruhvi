@@ -22,6 +22,7 @@ import {
   Sparkles,
   Shield,
   ArrowRight,
+  Crown,
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useWishlist } from '@/context/WishlistContext';
@@ -154,6 +155,17 @@ export function AccountDrawer({ isOpen, onClose }: AccountDrawerProps) {
 
   const walletBalance = Number(profile?.wallet_balance || 0);
 
+  // VIP Membership Status & Validity Days Calculation
+  const isVip = Boolean(profile?.is_vip);
+  let daysRemaining = 0;
+  if (isVip && profile?.vip_expires_at) {
+    const expiryTime = new Date(profile.vip_expires_at).getTime();
+    daysRemaining = Math.max(
+      0,
+      Math.ceil((expiryTime - Date.now()) / (1000 * 60 * 60 * 24))
+    );
+  }
+
   const primaryNavItems = [
     {
       name: 'My Profile',
@@ -161,6 +173,16 @@ export function AccountDrawer({ isOpen, onClose }: AccountDrawerProps) {
       icon: User,
       badge: null,
       description: 'Personal details & security',
+    },
+    {
+      name: 'Ruhvi Privé (VIP)',
+      href: '/account/prive',
+      icon: Crown,
+      badge: isVip ? `${daysRemaining}d left` : 'Join',
+      badgeType: isVip ? 'prive' : 'highlight',
+      description: isVip
+        ? 'Free express shipping & secret vault'
+        : 'Unlock ₹0 shipping & 2X coins',
     },
     {
       name: 'My Orders',
@@ -291,9 +313,51 @@ export function AccountDrawer({ isOpen, onClose }: AccountDrawerProps) {
                 <p className="truncate font-mono text-xs text-stone-500 dark:text-stone-300">
                   {userEmail}
                 </p>
+
+                {/* Ruhvi Privé VIP Status Badge & Live Days Countdown */}
+                {isVip ? (
+                  <div className="mt-1.5 space-y-1">
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <span className="inline-flex items-center gap-1 rounded border border-amber-300 bg-gradient-to-r from-amber-950 to-stone-900 px-2 py-0.5 text-[10px] font-bold tracking-wider text-amber-200 shadow-sm">
+                        <Crown className="h-3 w-3 text-amber-300" />
+                        <span>PRIVÉ MEMBER</span>
+                      </span>
+                      <span
+                        className={`inline-flex items-center rounded px-1.5 py-0.5 text-[10px] ${
+                          daysRemaining <= 30
+                            ? 'border border-amber-500/50 bg-amber-500/20 font-bold text-amber-700 dark:text-amber-300'
+                            : 'bg-stone-100 font-semibold text-stone-600 dark:bg-stone-800 dark:text-stone-300'
+                        }`}
+                      >
+                        {daysRemaining} {daysRemaining === 1 ? 'day' : 'days'}{' '}
+                        left
+                      </span>
+                    </div>
+
+                    {daysRemaining <= 30 && (
+                      <Link
+                        href="/account/prive"
+                        className="flex items-center justify-between rounded-lg border border-amber-300 bg-amber-50/90 px-2 py-1 text-[10px] font-semibold text-amber-950 transition hover:bg-amber-100 dark:border-amber-700/60 dark:bg-amber-950/40 dark:text-amber-200"
+                      >
+                        <span>⚠️ Expiring soon — Renew Privé</span>
+                        <ChevronRight className="h-3 w-3" />
+                      </Link>
+                    )}
+                  </div>
+                ) : (
+                  <Link
+                    href="/account/prive"
+                    className="mt-1 flex items-center gap-1 text-[11px] font-semibold text-amber-800 transition hover:text-amber-950 dark:text-amber-400 dark:hover:text-amber-300"
+                  >
+                    <Crown className="h-3 w-3 text-amber-700" />
+                    <span>Join Ruhvi Privé (Free Delivery)</span>
+                    <ChevronRight className="h-3 w-3" />
+                  </Link>
+                )}
+
                 <Link
                   href="/account"
-                  className="group mt-1 inline-flex items-center text-xs font-semibold text-gold-600 transition hover:text-gold-700 dark:text-gold-400 dark:hover:text-gold-300"
+                  className="group mt-1.5 inline-flex items-center text-xs font-semibold text-gold-600 transition hover:text-gold-700 dark:text-gold-400 dark:hover:text-gold-300"
                 >
                   <span>View Profile</span>
                   <ArrowRight className="ml-1 h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
@@ -362,13 +426,15 @@ export function AccountDrawer({ isOpen, onClose }: AccountDrawerProps) {
                   {item.badge !== null && item.badge !== undefined && (
                     <span
                       className={`rounded-full px-2.5 py-0.5 text-xs font-bold transition ${
-                        item.badgeType === 'wallet'
-                          ? 'border border-gold-300/60 bg-gold-100 font-mono text-gold-800 dark:border-gold-500/40 dark:bg-gold-950/60 dark:text-gold-300'
-                          : item.badgeType === 'highlight'
-                            ? 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300'
-                            : item.badgeType === 'alert'
-                              ? 'bg-rose-100 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300'
-                              : 'bg-stone-200/80 text-stone-700 dark:bg-stone-800 dark:text-stone-300'
+                        item.badgeType === 'prive'
+                          ? 'border border-amber-300 bg-gradient-to-r from-amber-950 to-stone-900 font-mono text-[11px] text-amber-200 shadow-sm'
+                          : item.badgeType === 'wallet'
+                            ? 'border border-gold-300/60 bg-gold-100 font-mono text-gold-800 dark:border-gold-500/40 dark:bg-gold-950/60 dark:text-gold-300'
+                            : item.badgeType === 'highlight'
+                              ? 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300'
+                              : item.badgeType === 'alert'
+                                ? 'bg-rose-100 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300'
+                                : 'bg-stone-200/80 text-stone-700 dark:bg-stone-800 dark:text-stone-300'
                       }`}
                     >
                       {item.badge}

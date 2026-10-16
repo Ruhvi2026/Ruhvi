@@ -9,8 +9,15 @@ import {
   ArrowRight,
   Sparkles,
   ShieldCheck,
+  Crown,
+  Gift,
+  Clock,
+  Coins,
+  MessageCircle,
 } from 'lucide-react';
 import { ecommerceEvent } from '@/lib/gtag';
+import { useAuth } from '@/context/AuthContext';
+import { createClient } from '@/lib/supabase/client';
 
 export default function OrderSuccessPage({
   params,
@@ -19,6 +26,7 @@ export default function OrderSuccessPage({
 }) {
   const resolvedParams = use(params);
   const orderId = resolvedParams.orderId;
+  const { user } = useAuth();
   const [currentOrder, setCurrentOrder] = useState<any>(null);
 
   const estimatedDeliveryDate = new Date(
@@ -30,38 +38,66 @@ export default function OrderSuccessPage({
     year: 'numeric',
   });
 
-  // Track GA4 purchase event
+  // Track GA4 purchase event & load order details
   useEffect(() => {
+    let isMounted = true;
     try {
       const existingOrders = JSON.parse(
         localStorage.getItem('ruhvi_orders_v1') || '[]'
       );
-      const order = existingOrders.find((o: any) => o.id === orderId);
-      setCurrentOrder(order || null);
+      const order = existingOrders.find(
+        (o: any) => o.id === orderId || o.order_number === orderId
+      );
+      if (order) {
+        setCurrentOrder(order);
 
-      if (order && !order.ga4_tracked) {
-        ecommerceEvent('purchase', {
-          transaction_id: order.id,
-          currency: 'INR',
-          value: order.total,
-          coupon: order.coupon_discount > 0 ? 'COUPON_APPLIED' : undefined,
-          items:
-            order.order_items?.map((item: any) => ({
-              item_id: item.product_id,
-              item_name: item.sku,
-              price: item.price_at_purchase,
-              quantity: item.quantity,
-            })) || [],
-        });
+        if (!order.ga4_tracked) {
+          ecommerceEvent('purchase', {
+            transaction_id: order.id,
+            currency: 'INR',
+            value: order.total,
+            coupon: order.coupon_discount > 0 ? 'COUPON_APPLIED' : undefined,
+            items:
+              order.order_items?.map((item: any) => ({
+                item_id: item.product_id,
+                item_name: item.sku,
+                price: item.price_at_purchase,
+                quantity: item.quantity,
+              })) || [],
+          });
 
-        // Mark as tracked to prevent duplicate events on refresh
-        order.ga4_tracked = true;
-        localStorage.setItem('ruhvi_orders_v1', JSON.stringify(existingOrders));
+          // Mark as tracked to prevent duplicate events on refresh
+          order.ga4_tracked = true;
+          localStorage.setItem(
+            'ruhvi_orders_v1',
+            JSON.stringify(existingOrders)
+          );
+        }
+      } else {
+        // Fallback fetch from Supabase
+        const supabase = createClient();
+        supabase
+          .from('orders')
+          .select('*, order_items(*)')
+          .or(`id.eq.${orderId},order_number.eq.${orderId}`)
+          .maybeSingle()
+          .then(({ data }: any) => {
+            if (isMounted && data) {
+              setCurrentOrder(data);
+            }
+          })
+          .catch(() => {});
       }
     } catch (e) {
-      console.error('Failed to track purchase', e);
+      console.error('Failed to track purchase or load order', e);
     }
+
+    return () => {
+      isMounted = false;
+    };
   }, [orderId]);
+
+  const isVip = Boolean(currentOrder?.is_vip || user?.is_vip);
 
   return (
     <div className="mx-auto max-w-3xl space-y-8 px-4 py-16 text-center">
@@ -126,6 +162,84 @@ export default function OrderSuccessPage({
           </div>
         </div>
       </div>
+
+      {/* Ruhvi Privé VIP Priority Care Seal */}
+      {isVip && (
+        <div className="relative overflow-hidden rounded-2xl border-2 border-amber-300 bg-gradient-to-br from-amber-50/90 via-amber-100/40 to-stone-50 p-6 text-left shadow-lg">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-amber-200/70 pb-4">
+            <div className="flex items-center space-x-2.5">
+              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-amber-600 to-amber-400 text-stone-950 shadow-md">
+                <Crown className="h-5 w-5 fill-current" />
+              </span>
+              <div>
+                <span className="text-[10px] font-extrabold uppercase tracking-widest text-amber-700">
+                  Exclusive Privilege
+                </span>
+                <h2 className="font-serif text-lg font-bold text-stone-900">
+                  Ruhvi Privé Priority Care Dispatch
+                </h2>
+              </div>
+            </div>
+            <span className="inline-flex items-center space-x-1.5 rounded-full border border-amber-300 bg-amber-500/10 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-amber-900">
+              <Sparkles className="h-3 w-3 text-amber-600" />
+              <span>VIP White-Glove Handled</span>
+            </span>
+          </div>
+
+          <div className="mt-4 grid grid-cols-1 gap-4 text-xs sm:grid-cols-3">
+            <div className="space-y-1 rounded-xl border border-amber-200/60 bg-white/70 p-3.5 backdrop-blur-sm">
+              <div className="flex items-center space-x-1.5 font-bold text-stone-900">
+                <Clock className="h-4 w-4 text-amber-700" />
+                <span>Priority Express Dispatch</span>
+              </div>
+              <p className="text-[11px] text-stone-600">
+                Fast-tracked queue. Dispatched with express courier partners
+                within 24 hours.
+              </p>
+            </div>
+
+            <div className="space-y-1 rounded-xl border border-amber-200/60 bg-white/70 p-3.5 backdrop-blur-sm">
+              <div className="flex items-center space-x-1.5 font-bold text-stone-900">
+                <Gift className="h-4 w-4 text-amber-700" />
+                <span>Luxury Velvet Keepsake</span>
+              </div>
+              <p className="text-[11px] text-stone-600">
+                Hand-inspected & packaged inside our signature Privé travel
+                velvet keepsake.
+              </p>
+            </div>
+
+            <div className="space-y-1 rounded-xl border border-amber-200/60 bg-white/70 p-3.5 backdrop-blur-sm">
+              <div className="flex items-center space-x-1.5 font-bold text-stone-900">
+                <Coins className="h-4 w-4 text-amber-700" />
+                <span>2X Double Coins</span>
+              </div>
+              <p className="text-[11px] text-stone-600">
+                10% cashback value in Reward Coins will be credited directly on
+                delivery.
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-amber-200/60 pt-3.5 text-xs">
+            <span className="text-stone-600">
+              Need custom packaging or express delivery tracking? Dedicated VIP
+              Concierge on WhatsApp:
+            </span>
+            <a
+              href={`https://wa.me/918240443056?text=${encodeURIComponent(
+                `Hello Ruhvi Privé Concierge, I placed VIP Order #${currentOrder?.order_number || orderId}. Please assist with my priority dispatch.`
+              )}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center space-x-1.5 rounded-lg bg-emerald-700 px-3.5 py-1.5 text-[11px] font-bold text-white shadow transition hover:bg-emerald-800"
+            >
+              <MessageCircle className="h-3.5 w-3.5" />
+              <span>Chat with VIP Concierge</span>
+            </a>
+          </div>
+        </div>
+      )}
 
       {/* Action Buttons */}
       <div className="flex flex-col items-center justify-center gap-4 pt-4 sm:flex-row">

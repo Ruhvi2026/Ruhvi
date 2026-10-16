@@ -12,7 +12,11 @@ import {
   Mail,
   Building2,
   CheckCircle2,
+  Crown,
+  Clock,
+  AlertTriangle,
 } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { createClient } from '@/lib/supabase/client';
 import {
   getAllUsers,
@@ -31,6 +35,12 @@ interface UserRecord {
   allowed_portals?: string[] | null;
   wallet_balance: number;
   reward_coins: number;
+  is_vip?: boolean;
+  vip_joined_at?: string | null;
+  vip_expires_at?: string | null;
+  vip_source?: string | null;
+  date_of_birth?: string | null;
+  is_dob_locked?: boolean;
   created_at: string;
 }
 
@@ -100,7 +110,7 @@ export default function AdminUsersPage() {
   const [error, setError] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState<
-    'all' | 'customer' | 'staff' | 'admin'
+    'all' | 'customer' | 'staff' | 'admin' | 'vip'
   >('all');
   const [deptFilter, setDeptFilter] = useState<string>('all');
 
@@ -123,6 +133,58 @@ export default function AdminUsersPage() {
   const [passwordUser, setPasswordUser] = useState<UserRecord | null>(null);
   const [newPassword, setNewPassword] = useState<string>('');
   const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
+
+  // Ruhvi Privé VIP Modal
+  const [vipModalUser, setVipModalUser] = useState<UserRecord | null>(null);
+  const [vipAction, setVipAction] = useState<'grant' | 'revoke' | 'extend'>(
+    'grant'
+  );
+  const [vipDays, setVipDays] = useState<number>(365);
+  const [vipReason, setVipReason] = useState<string>('');
+  const [isUpdatingVip, setIsUpdatingVip] = useState(false);
+
+  const handleUpdateVipStatus = async () => {
+    if (!vipModalUser) return;
+    setIsUpdatingVip(true);
+    try {
+      const res = await fetch('/api/admin/users/vip-status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user_id: vipModalUser.id,
+          action: vipAction,
+          days: vipDays,
+          reason: vipReason,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Failed to update VIP status.');
+      }
+
+      toast.success(data.message || 'VIP status updated successfully.');
+      setUsers((prev) =>
+        prev.map((u) =>
+          u.id === vipModalUser.id
+            ? {
+                ...u,
+                is_vip: data.is_vip,
+                vip_expires_at: data.vip_expires_at,
+                vip_source: data.vip_source,
+              }
+            : u
+        )
+      );
+      setVipModalUser(null);
+      setVipReason('');
+    } catch (err: any) {
+      console.error('Error updating VIP status:', err);
+      toast.error(err.message || 'Failed to update VIP status.');
+    } finally {
+      setIsUpdatingVip(false);
+    }
+  };
 
   useEffect(() => {
     fetchUsers();
@@ -302,6 +364,7 @@ export default function AdminUsersPage() {
 
     const matchesRole =
       roleFilter === 'all' ||
+      (roleFilter === 'vip' && Boolean(user.is_vip)) ||
       (roleFilter === 'customer' && user.role === 'customer') ||
       (roleFilter === 'staff' &&
         (user.role === 'staff' || user.role === 'manager')) ||
@@ -412,7 +475,7 @@ export default function AdminUsersPage() {
       )}
 
       {/* Stats Summary */}
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
         <div className="rounded-2xl border border-white/5 bg-[#131726] p-5">
           <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
             Total Registered Users
@@ -425,6 +488,14 @@ export default function AdminUsersPage() {
           </p>
           <p className="mt-1 text-2xl font-bold text-white">
             {users.filter((u) => u.role === 'customer').length}
+          </p>
+        </div>
+        <div className="rounded-2xl border border-amber-400/20 bg-[#131726] p-5">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-amber-300">
+            👑 Privé VIP Members
+          </p>
+          <p className="mt-1 text-2xl font-bold text-amber-400">
+            {users.filter((u) => u.is_vip).length}
           </p>
         </div>
         <div className="rounded-2xl border border-white/5 bg-[#131726] p-5">
@@ -487,6 +558,16 @@ export default function AdminUsersPage() {
               Customers ({users.filter((u) => u.role === 'customer').length})
             </button>
             <button
+              onClick={() => setRoleFilter('vip')}
+              className={`rounded-lg px-3 py-1.5 transition-colors ${
+                roleFilter === 'vip'
+                  ? 'bg-amber-500/20 font-bold text-amber-300'
+                  : 'text-slate-500 hover:text-slate-300'
+              }`}
+            >
+              👑 Privé VIP ({users.filter((u) => u.is_vip).length})
+            </button>
+            <button
               onClick={() => setRoleFilter('admin')}
               className={`rounded-lg px-3 py-1.5 transition-colors ${
                 roleFilter === 'admin'
@@ -542,6 +623,7 @@ export default function AdminUsersPage() {
                 <th className="p-4 pl-6">User</th>
                 <th className="p-4">Contact</th>
                 <th className="p-4">Role</th>
+                <th className="p-4">Privé VIP</th>
                 <th className="p-4">Department / Subdomain</th>
                 <th className="p-4 text-right">Wallet Balance</th>
                 <th className="p-4 text-right">Reward Coins</th>
@@ -567,6 +649,28 @@ export default function AdminUsersPage() {
                   </td>
                   <td className="p-4">{getRoleBadge(user.role)}</td>
                   <td className="p-4">
+                    {user.is_vip ? (
+                      <div className="space-y-0.5">
+                        <span className="inline-flex items-center gap-1 rounded-md border border-amber-400/30 bg-amber-400/10 px-2 py-0.5 text-[10px] font-bold text-amber-300">
+                          <Crown className="h-3 w-3 text-amber-400" /> Active
+                          VIP
+                        </span>
+                        {user.vip_expires_at && (
+                          <div className="font-mono text-[9px] text-slate-500">
+                            Exp:{' '}
+                            {new Date(user.vip_expires_at).toLocaleDateString(
+                              'en-IN'
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <span className="font-mono text-[10px] text-slate-600">
+                        Standard
+                      </span>
+                    )}
+                  </td>
+                  <td className="p-4">
                     {user.role === 'customer' ? (
                       <span className="font-mono text-slate-600">—</span>
                     ) : (
@@ -588,6 +692,18 @@ export default function AdminUsersPage() {
                     🪙 {Number(user.reward_coins || 0).toLocaleString('en-IN')}
                   </td>
                   <td className="space-x-2 whitespace-nowrap p-4 pr-6 text-right">
+                    <button
+                      onClick={() => {
+                        setVipModalUser(user);
+                        setVipAction(user.is_vip ? 'extend' : 'grant');
+                        setVipDays(365);
+                        setVipReason('');
+                      }}
+                      className="inline-flex items-center gap-1 rounded-lg border border-amber-500/30 bg-amber-500/10 px-2.5 py-1 font-semibold text-amber-300 transition-colors hover:bg-amber-500/20"
+                      title="Manage Ruhvi Privé VIP Status"
+                    >
+                      <Crown className="h-3 w-3 text-amber-400" /> VIP
+                    </button>
                     <button
                       onClick={() => handleSendResetLink(user.email)}
                       className="inline-flex items-center gap-1 rounded-lg border border-sky-500/20 bg-sky-500/10 px-2.5 py-1 font-semibold text-sky-400 transition-colors hover:bg-sky-500/20"
@@ -975,6 +1091,185 @@ export default function AdminUsersPage() {
                 className="rounded-xl bg-indigo-600 px-4 py-2 text-xs font-bold text-white hover:bg-indigo-500 disabled:opacity-50"
               >
                 {isUpdatingPassword ? 'Saving...' : 'Set Password'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Ruhvi Privé VIP Modal */}
+      {vipModalUser && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-md space-y-5 rounded-2xl border border-amber-400/30 bg-[#161a2b] p-6 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-white/5 pb-3">
+              <div className="flex items-center space-x-2">
+                <Crown className="h-5 w-5 text-amber-400" />
+                <h3 className="text-base font-bold text-white">
+                  Manage Ruhvi Privé VIP Status
+                </h3>
+              </div>
+              <button
+                onClick={() => setVipModalUser(null)}
+                className="text-slate-500 hover:text-slate-300"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            {/* Target User Info */}
+            <div className="space-y-1.5 rounded-xl border border-white/5 bg-white/5 p-3.5 text-xs text-slate-300">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-bold text-white">
+                  {vipModalUser.full_name || 'Anonymous User'}
+                </span>
+                {vipModalUser.is_vip ? (
+                  <span className="rounded-md border border-amber-400/40 bg-amber-400/10 px-2 py-0.5 text-[10px] font-bold text-amber-300">
+                    👑 VIP Active
+                  </span>
+                ) : (
+                  <span className="rounded-md border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] text-slate-400">
+                    Standard Customer
+                  </span>
+                )}
+              </div>
+              <p className="font-mono text-[11px] text-slate-400">
+                {vipModalUser.email}
+              </p>
+              {vipModalUser.is_vip && vipModalUser.vip_expires_at && (
+                <p className="text-[11px] text-amber-200/80">
+                  Current Expiry:{' '}
+                  <strong>
+                    {new Date(vipModalUser.vip_expires_at).toLocaleDateString(
+                      'en-IN',
+                      { day: 'numeric', month: 'long', year: 'numeric' }
+                    )}
+                  </strong>{' '}
+                  ({vipModalUser.vip_source || 'direct'})
+                </p>
+              )}
+              {vipModalUser.date_of_birth && (
+                <p className="text-[11px] text-slate-400">
+                  DOB: {vipModalUser.date_of_birth}{' '}
+                  {vipModalUser.is_dob_locked ? '(🔒 Locked)' : '(Unlocked)'}
+                </p>
+              )}
+            </div>
+
+            {/* Action Select */}
+            <div className="space-y-3">
+              <div>
+                <label className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                  Select Action
+                </label>
+                <div className="mt-1.5 grid grid-cols-3 gap-2 text-xs font-semibold">
+                  <button
+                    type="button"
+                    onClick={() => setVipAction('grant')}
+                    className={`rounded-xl border py-2 text-center transition ${
+                      vipAction === 'grant'
+                        ? 'border-amber-400 bg-amber-400/20 font-bold text-amber-200'
+                        : 'border-white/10 bg-white/5 text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    Grant VIP
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setVipAction('extend')}
+                    className={`rounded-xl border py-2 text-center transition ${
+                      vipAction === 'extend'
+                        ? 'border-amber-400 bg-amber-400/20 font-bold text-amber-200'
+                        : 'border-white/10 bg-white/5 text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    Extend (+1 Yr)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setVipAction('revoke')}
+                    className={`rounded-xl border py-2 text-center transition ${
+                      vipAction === 'revoke'
+                        ? 'border-rose-400 bg-rose-500/20 font-bold text-rose-300'
+                        : 'border-white/10 bg-white/5 text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    Revoke VIP
+                  </button>
+                </div>
+              </div>
+
+              {vipAction !== 'revoke' && (
+                <div>
+                  <label className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                    Duration (Days)
+                  </label>
+                  <div className="mt-1 flex items-center gap-2">
+                    <input
+                      type="number"
+                      value={vipDays}
+                      onChange={(e) =>
+                        setVipDays(Math.max(1, parseInt(e.target.value) || 365))
+                      }
+                      className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-white focus:outline-none focus:ring-1 focus:ring-amber-400"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setVipDays(365)}
+                      className="shrink-0 rounded-lg border border-white/10 bg-white/5 px-2.5 py-2 text-[11px] text-slate-300 hover:bg-white/10"
+                    >
+                      365 Days
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setVipDays(30)}
+                      className="shrink-0 rounded-lg border border-white/10 bg-white/5 px-2.5 py-2 text-[11px] text-slate-300 hover:bg-white/10"
+                    >
+                      30 Days
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              <div>
+                <label className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                  Admin Reason / Audit Note
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. VIP upgrade for high-value patron"
+                  value={vipReason}
+                  onChange={(e) => setVipReason(e.target.value)}
+                  className="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-amber-400"
+                />
+              </div>
+            </div>
+
+            {/* Footer Buttons */}
+            <div className="flex justify-end space-x-3 border-t border-white/5 pt-3">
+              <button
+                type="button"
+                onClick={() => setVipModalUser(null)}
+                className="rounded-xl border border-white/10 px-4 py-2 text-xs font-semibold text-slate-300 hover:bg-white/5"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleUpdateVipStatus}
+                disabled={isUpdatingVip}
+                className={`rounded-xl px-4 py-2 text-xs font-bold text-white shadow-lg transition disabled:opacity-50 ${
+                  vipAction === 'revoke'
+                    ? 'bg-rose-600 hover:bg-rose-500'
+                    : 'bg-amber-600 hover:bg-amber-500'
+                }`}
+              >
+                {isUpdatingVip
+                  ? 'Updating...'
+                  : vipAction === 'revoke'
+                    ? 'Revoke Membership'
+                    : vipAction === 'extend'
+                      ? 'Extend Membership'
+                      : 'Grant VIP Status'}
               </button>
             </div>
           </div>

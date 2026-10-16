@@ -50,7 +50,7 @@ export const metadata: Metadata = {
     template: '%s | Ruhvi Jewels',
   },
   description:
-    'Discover handcrafted premium gold-plated jewellery at Ruhvi. Anti-tarnish 22K gold plating with a 6-month color guarantee, and free insured shipping across India.',
+    'Discover handcrafted premium gold-plated jewellery at Ruhvi. Anti-tarnish 22K gold plating with a 6-month color guarantee, and free insured shipping across India (estimated 2–5 days delivery).',
   keywords: [
     'Fine Jewellery',
     'Gold Plated Jewellery',
@@ -68,7 +68,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Ruhvi — Exquisite Fine Jewellery & Gold-Plated Luxury',
     description:
-      'Discover handcrafted premium gold-plated jewellery at Ruhvi. Anti-tarnish 22K gold finish and free insured shipping across India.',
+      'Discover handcrafted premium gold-plated jewellery at Ruhvi. Anti-tarnish 22K gold finish, 6-month color guarantee, and fast 2–5 days insured shipping across India.',
     url: 'https://ruhvi.in',
     siteName: 'Ruhvi Fine Jewellery',
     images: [
@@ -131,10 +131,7 @@ export default function RootLayout({
     name: 'Ruhvi Fine Jewellery',
     url: 'https://ruhvi.in',
     logo: 'https://ruhvi.in/logo.png',
-    sameAs: [
-      'https://instagram.com/ruhvijewels',
-      'https://facebook.com/ruhvijewels',
-    ],
+    sameAs: ['https://instagram.com/ruhvi.in', 'https://facebook.com/ruhvi.in'],
     contactPoint: {
       '@type': 'ContactPoint',
       telephone: '+91-9876543210',

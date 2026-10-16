@@ -163,7 +163,7 @@ async function sendOrderNotifications(supabase: any, order: any) {
   const [userResult, addressResult, itemsResult] = await Promise.all([
     supabase
       .from('users')
-      .select('email, phone, full_name')
+      .select('email, phone, full_name, is_vip')
       .eq('id', order.user_id)
       .maybeSingle(),
     order.shipping_address_id
@@ -187,6 +187,7 @@ async function sendOrderNotifications(supabase: any, order: any) {
 
   const orderNumber = order.order_number;
   const total = Number(order.total) || 0;
+  const isVipOrder = Boolean(order.is_vip || user.is_vip);
   const customerName =
     address?.full_name || user.full_name || 'Valued Customer';
 
@@ -195,7 +196,8 @@ async function sendOrderNotifications(supabase: any, order: any) {
       orderNumber,
       address.phone,
       customerName,
-      total
+      total,
+      isVipOrder
     ).catch((err) =>
       console.error('Failed to send WhatsApp confirmation:', err)
     );

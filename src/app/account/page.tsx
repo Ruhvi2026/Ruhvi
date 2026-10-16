@@ -29,12 +29,20 @@ import {
   Coins,
   Wallet,
   Gift,
+  Calendar,
+  Cake,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function AccountOverviewPage() {
   const router = useRouter();
-  const { user, profile, loading: authLoading, signOut } = useAuth();
+  const {
+    user,
+    profile,
+    loading: authLoading,
+    signOut,
+    refreshProfile,
+  } = useAuth();
 
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
@@ -45,6 +53,11 @@ export default function AccountOverviewPage() {
     null
   );
   const [profileErrorMsg, setProfileErrorMsg] = useState<string | null>(null);
+
+  // Date of Birth (DOB) state
+  const [dobInput, setDobInput] = useState('');
+  const [savingDob, setSavingDob] = useState(false);
+  const [showDobModal, setShowDobModal] = useState(false);
 
   // Email verification state
   const [sendingVerification, setSendingVerification] = useState(false);
@@ -155,12 +168,75 @@ export default function AccountOverviewPage() {
       setFullName(profile.full_name || '');
       setPhone(profile.phone || '');
       setEmailInput(profile.email || user?.email || '');
+      if (profile.date_of_birth) {
+        setDobInput(profile.date_of_birth);
+      }
     } else if (user) {
       setFullName(user.user_metadata?.full_name || '');
       setPhone(user.user_metadata?.phone || user.phone || '');
       setEmailInput(user.email || '');
     }
   }, [profile, user]);
+
+  const maxAllowedDob = new Date(Date.now() - 13 * 365.25 * 24 * 60 * 60 * 1000)
+    .toISOString()
+    .split('T')[0];
+  const minAllowedDob = new Date(
+    Date.now() - 110 * 365.25 * 24 * 60 * 60 * 1000
+  )
+    .toISOString()
+    .split('T')[0];
+
+  const formatDobDisplay = (dateStr?: string | null) => {
+    if (!dateStr) return '';
+    try {
+      const parts = dateStr.split('-');
+      if (parts.length === 3) {
+        const y = Number(parts[0]);
+        const m = Number(parts[1]) - 1;
+        const d = Number(parts[2]);
+        const date = new Date(Date.UTC(y, m, d));
+        return date.toLocaleDateString('en-IN', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
+          timeZone: 'UTC',
+        });
+      }
+      return dateStr;
+    } catch {
+      return dateStr;
+    }
+  };
+
+  const handleSaveDob = async () => {
+    if (!dobInput) {
+      toast.error('Please choose your date of birth first.');
+      return;
+    }
+    try {
+      setSavingDob(true);
+      const res = await fetch('/api/account/set-dob', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ dob: dobInput }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Failed to save date of birth.');
+      }
+      toast.success('Birthday successfully registered and locked! 🎂');
+      setShowDobModal(false);
+      if (refreshProfile) {
+        await refreshProfile();
+      }
+    } catch (err: any) {
+      console.error('Error locking DOB:', err);
+      toast.error(err.message || 'Failed to lock date of birth.');
+    } finally {
+      setSavingDob(false);
+    }
+  };
 
   const getInitials = (
     name: string | null | undefined,
@@ -610,6 +686,98 @@ export default function AccountOverviewPage() {
                 )}
               </div>
 
+              {/* Date of Birth Field with Anti-Fraud Lock */}
+              <div>
+                <div className="mb-1 flex items-center justify-between">
+                  <label
+                    htmlFor="account-dob"
+                    className="flex items-center gap-1.5 font-semibold text-stone-700"
+                  >
+                    <Cake className="h-3.5 w-3.5 text-amber-800" />
+                    <span>Date of Birth (Birthday Reward)</span>
+                  </label>
+                  {profile?.is_dob_locked || profile?.date_of_birth ? (
+                    <span className="inline-flex items-center gap-1 rounded border border-amber-300 bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-900">
+                      <Lock className="h-3 w-3 text-amber-800" />
+                      LOCKED & VERIFIED
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 rounded bg-stone-100 px-2 py-0.5 text-[10px] font-bold text-stone-600">
+                      NOT REGISTERED
+                    </span>
+                  )}
+                </div>
+
+                {profile?.is_dob_locked || profile?.date_of_birth ? (
+                  <div className="relative">
+                    <input
+                      id="account-dob"
+                      type="text"
+                      disabled
+                      value={formatDobDisplay(
+                        profile?.date_of_birth || dobInput
+                      )}
+                      className="w-full cursor-not-allowed rounded-xl border border-stone-200 bg-stone-100 px-4 py-2.5 font-medium text-stone-700"
+                    />
+                    <Lock className="absolute right-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <div className="flex gap-2">
+                      <input
+                        id="account-dob"
+                        type="date"
+                        max={maxAllowedDob}
+                        min={minAllowedDob}
+                        value={dobInput}
+                        onChange={(e) => setDobInput(e.target.value)}
+                        className="w-full rounded-xl border border-stone-300 px-4 py-2.5 font-medium text-stone-900 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (!dobInput) {
+                            toast.error(
+                              'Please pick your date of birth first.'
+                            );
+                            return;
+                          }
+                          setShowDobModal(true);
+                        }}
+                        className="flex-shrink-0 rounded-xl bg-amber-950 px-4 py-2.5 text-[11px] font-bold text-gold-50 shadow transition hover:bg-black"
+                      >
+                        Lock Birthday
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                <div className="mt-1.5 text-[11px] leading-relaxed text-stone-500">
+                  {profile?.is_dob_locked || profile?.date_of_birth ? (
+                    <div className="flex items-start gap-1.5 text-stone-600">
+                      <Shield className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-amber-700" />
+                      <span>
+                        Verified and locked to protect your annual ₹500 Ruhvi
+                        Privé birthday credit. To update, contact support with
+                        government ID.
+                      </span>
+                    </div>
+                  ) : (
+                    <div className="rounded-lg border border-amber-200/80 bg-amber-50/70 p-2 text-stone-800">
+                      <p className="text-[11px] text-amber-900">
+                        🎂 Add your birthday to unlock your{' '}
+                        <strong>₹500 annual birthday credit</strong> (exclusive
+                        to Ruhvi Privé members).{' '}
+                        <em>
+                          Once locked, your date of birth cannot be modified
+                          online to prevent abuse.
+                        </em>
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
               {isEditingProfile && (
                 <div className="flex justify-end space-x-3 border-t border-stone-100 pt-4">
                   <button
@@ -997,6 +1165,57 @@ export default function AccountOverviewPage() {
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        )}
+
+        {/* Lock Date of Birth Confirmation Modal */}
+        {showDobModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+            <div className="w-full max-w-md space-y-4 rounded-3xl bg-white p-6 shadow-2xl sm:p-8">
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-amber-200 bg-amber-50 text-amber-700">
+                <Cake className="h-7 w-7" />
+              </div>
+              <div className="space-y-2 text-center">
+                <h3 className="font-serif text-xl font-bold text-stone-900">
+                  Lock Your Birthday
+                </h3>
+                <p className="text-xs leading-relaxed text-stone-600">
+                  You are registering your date of birth as:{' '}
+                  <span className="font-bold text-amber-900">
+                    {formatDobDisplay(dobInput)}
+                  </span>
+                </p>
+                <div className="rounded-xl border border-amber-200 bg-amber-50/70 p-3 text-left text-[11px] text-amber-950">
+                  <div className="flex items-start gap-2">
+                    <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0 text-amber-700" />
+                    <p>
+                      <strong>Permanent Anti-Fraud Lock:</strong> Once
+                      confirmed, this date of birth is permanently locked and
+                      cannot be changed online without contacting customer
+                      support and providing valid government ID proof.
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="flex justify-end space-x-3 border-t border-stone-100 pt-4 text-xs">
+                <button
+                  type="button"
+                  disabled={savingDob}
+                  onClick={() => setShowDobModal(false)}
+                  className="px-4 py-2.5 font-medium text-stone-600 hover:text-stone-900"
+                >
+                  Go Back
+                </button>
+                <button
+                  type="button"
+                  disabled={savingDob}
+                  onClick={handleSaveDob}
+                  className="rounded-xl bg-amber-950 px-5 py-2.5 font-bold text-gold-50 shadow transition hover:bg-black disabled:opacity-50"
+                >
+                  {savingDob ? 'Locking...' : 'Confirm & Lock Birthday'}
+                </button>
+              </div>
             </div>
           </div>
         )}

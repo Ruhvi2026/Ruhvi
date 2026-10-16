@@ -141,6 +141,22 @@ export async function POST(request: Request) {
       }
     }
 
+    // Process reward coin accrual (2X for VIP) or clawback reversal
+    try {
+      const {
+        awardCoinsForDeliveredOrder,
+        clawbackCoinsForCancelledOrReturnedOrder,
+      } = await import('@/lib/orders/coins');
+
+      if (newStatus === 'delivered') {
+        await awardCoinsForDeliveredOrder(orderId);
+      } else if (newStatus === 'cancelled' || newStatus === 'returned') {
+        await clawbackCoinsForCancelledOrReturnedOrder(orderId, newStatus);
+      }
+    } catch (coinErr) {
+      console.error('Failed to process order coin rewards/clawback:', coinErr);
+    }
+
     return NextResponse.json({ success: true });
   } catch (error: any) {
     console.error('Error updating order status:', error);

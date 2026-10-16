@@ -74,7 +74,7 @@ export async function getAllUsers() {
     const { data, error } = await adminClient
       .from('users')
       .select(
-        'id, full_name, email, phone, role, department_id, allowed_portals, wallet_balance, reward_coins, created_at'
+        'id, full_name, email, phone, role, department_id, allowed_portals, wallet_balance, reward_coins, is_vip, vip_joined_at, vip_expires_at, vip_source, date_of_birth, is_dob_locked, created_at'
       )
       .order('created_at', { ascending: false });
 

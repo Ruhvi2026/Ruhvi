@@ -20,6 +20,14 @@ export interface UserProfile {
   updated_at?: string;
   role_id?: string | null;
   permissions?: string[];
+  // Ruhvi Privé VIP & DOB fields
+  is_vip?: boolean;
+  vip_joined_at?: string | null;
+  vip_expires_at?: string | null;
+  vip_source?: 'coins' | 'wallet' | 'gateway' | 'admin_grant' | string | null;
+  date_of_birth?: string | null;
+  is_dob_locked?: boolean;
+  dob_updated_at?: string | null;
 }
 
 interface AuthContextType {
@@ -28,6 +36,7 @@ interface AuthContextType {
   profile: UserProfile | null;
   loading: boolean;
   signOut: () => Promise<void>;
+  refreshProfile?: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -36,6 +45,7 @@ const AuthContext = createContext<AuthContextType>({
   profile: null,
   loading: true,
   signOut: async () => {},
+  refreshProfile: async () => {},
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -105,6 +115,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           }
         }
 
+        const isVipActive =
+          Boolean(profileData.is_vip) &&
+          Boolean(
+            !profileData.vip_expires_at ||
+            new Date(profileData.vip_expires_at).getTime() > Date.now()
+          );
+
         setProfile({
           ...profileData,
           wallet_balance: Number(profileData.wallet_balance) || 0,
@@ -112,6 +129,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           email_verified: !!profileData.email_verified,
           phone_verified: !!profileData.phone_verified,
           permissions,
+          is_vip: isVipActive,
+          vip_joined_at: profileData.vip_joined_at || null,
+          vip_expires_at: profileData.vip_expires_at || null,
+          vip_source: profileData.vip_source || null,
+          date_of_birth: profileData.date_of_birth || null,
+          is_dob_locked: Boolean(profileData.is_dob_locked),
+          dob_updated_at: profileData.dob_updated_at || null,
         });
       } else {
         setProfile({
@@ -126,10 +150,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           phone_verified: false,
           created_at: authUser.created_at || new Date().toISOString(),
           permissions: [],
+          is_vip: false,
+          vip_joined_at: null,
+          vip_expires_at: null,
+          vip_source: null,
+          date_of_birth: null,
+          is_dob_locked: false,
+          dob_updated_at: null,
         });
       }
     } catch (err) {
       console.error('Error fetching profile:', err);
+    }
+  };
+
+  const refreshProfile = async () => {
+    if (user) {
+      await fetchProfile(user);
     }
   };
 
@@ -357,6 +394,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         profile,
         loading,
         signOut,
+        refreshProfile,
       }}
     >
       {children}

@@ -132,12 +132,13 @@ export async function finalizePaytmOrder(
     const { data: userProfile } = order.user_id
       ? await supabase
           .from('users')
-          .select('email, full_name')
+          .select('email, full_name, is_vip')
           .eq('id', order.user_id)
           .maybeSingle()
       : { data: null };
 
     const customerPhone = address?.phone;
+    const isVipOrder = Boolean(order.is_vip || userProfile?.is_vip);
     const customerName =
       address?.full_name || userProfile?.full_name || 'Valued Customer';
     const customerEmail = userProfile?.email;
@@ -148,7 +149,8 @@ export async function finalizePaytmOrder(
         order.order_number,
         customerPhone,
         customerName,
-        order.total
+        order.total,
+        isVipOrder
       ).catch((err) =>
         console.error('Failed to dispatch WhatsApp confirmation:', err)
       );
