@@ -11,6 +11,7 @@ import LoginScreen from './src/screens/LoginScreen';
 import ChatListScreen from './src/screens/ChatListScreen';
 import ChatRoomScreen from './src/screens/ChatRoomScreen';
 import CoFounderChatScreen from './src/screens/CoFounderChatScreen';
+import InventoryScanScreen from './src/screens/InventoryScanScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -66,10 +67,18 @@ export default function App() {
         <Stack.Screen 
           name="ChatList" 
           component={ChatListScreen} 
-          options={{ 
+          options={({ navigation }: any) => ({ 
             title: 'RuhChat',
             headerRight: () => (
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                <TouchableOpacity
+                  onPress={() => navigation.navigate('InventoryScan')}
+                  style={{ padding: 4 }}
+                  accessibilityLabel="Scan & Add Stock"
+                >
+                  <MaterialIcons name="qr-code-scanner" size={22} color="#fff" />
+                </TouchableOpacity>
+
                 <TouchableOpacity
                   onPress={() => Linking.openURL('https://admin.ruhvi.in/admin/task-manager')}
                   style={{ padding: 4 }}
@@ -101,6 +110,16 @@ export default function App() {
                 </TouchableOpacity>
               </View>
             )
+          })} 
+        />
+        <Stack.Screen 
+          name="InventoryScan" 
+          component={InventoryScanScreen} 
+          options={{ 
+            title: 'Scan & Add Stock',
+            headerStyle: { backgroundColor: '#075E54' },
+            headerTintColor: '#fff',
+            headerTitleStyle: { fontWeight: 'bold' }
           }} 
         />
         <Stack.Screen 

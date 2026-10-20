@@ -4,7 +4,15 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { createClient } from '@/lib/supabase/client';
-import { Plus, Search, Filter, Edit2, Trash2, Package } from 'lucide-react';
+import {
+  Plus,
+  Search,
+  Filter,
+  Edit2,
+  Trash2,
+  Package,
+  Printer,
+} from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function ProductsListingPage() {
@@ -19,7 +27,7 @@ export default function ProductsListingPage() {
         .from('products')
         .select(
           `
-          id, name, sku, slug, price, stock_quantity, status,
+          id, name, sku, barcode, slug, price, stock_quantity, status,
           categories ( name ),
           product_images ( url )
         `
@@ -189,6 +197,15 @@ export default function ProductsListingPage() {
                       )}
                     </td>
                     <td className="px-6 py-4 text-right">
+                      {product.sku && (
+                        <Link
+                          href={`/operations/inventory/barcode?sku=${encodeURIComponent(product.sku)}`}
+                          className="mr-2 inline-flex items-center justify-center rounded p-1.5 text-[#C5A880] transition-colors hover:bg-[#C5A880]/15 hover:text-white"
+                          title="Print Barcode Label"
+                        >
+                          <Printer className="h-4 w-4" />
+                        </Link>
+                      )}
                       <Link
                         href={`/operations/products/${product.id}`}
                         className="inline-flex items-center justify-center rounded p-1.5 text-slate-400 transition-colors hover:bg-white/10 hover:text-white"

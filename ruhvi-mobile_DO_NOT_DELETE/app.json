@@ -36,6 +36,12 @@
           "color": "#075E54",
           "sounds": []
         }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow RuhChat to access your camera to scan barcodes and inventory items."
+        }
       ]
     ]
   }

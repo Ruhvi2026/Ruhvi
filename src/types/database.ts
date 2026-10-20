@@ -99,6 +99,9 @@ export interface Product {
   updated_at?: string;
   seo_metadata?: Record<string, any> | null;
   ai_content?: Record<string, any> | null;
+  cost_price?: number;
+  weight_grams?: number | null;
+  barcode?: string | null;
   category?: Category | null;
   images?: ProductImage[];
   viewer360?: Product360Set | null;
@@ -385,4 +388,51 @@ export interface Product360Set {
   frames: Product360Frame[];
   created_at?: string;
   updated_at?: string;
+}
+
+export type InventoryStagingStatus =
+  'staged' | 'syncing' | 'synced' | 'failed' | 'skipped';
+
+export interface InventoryStagingItem {
+  id: string;
+  client_scan_id: string;
+  owner_id: string;
+  barcode: string;
+  sku: string;
+  weight_grams: number;
+  cost_price: number;
+  stock_quantity: number;
+  product_name?: string | null;
+  price?: number | null;
+  mrp?: number | null;
+  collection?: string | null;
+  category_id?: string | null;
+  notes?: string | null;
+  action_type: string;
+  status: InventoryStagingStatus;
+  sync_error?: string | null;
+  synced_product_id?: string | null;
+  synced_at?: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface StagedSyncResultItem {
+  client_scan_id: string;
+  staging_id: string;
+  sku: string;
+  barcode: string;
+  status: 'synced' | 'failed';
+  action_taken?: 'product_created' | 'stock_incremented' | 'barcode_registered';
+  product_id?: string;
+  new_stock?: number;
+  error?: string;
+}
+
+export interface StagedSyncResponse {
+  success: boolean;
+  total_processed: number;
+  synced_count: number;
+  failed_count: number;
+  results: StagedSyncResultItem[];
 }

@@ -35,6 +35,8 @@ import {
   BookOpen,
   Eye,
   ClipboardList,
+  QrCode,
+  Printer,
 } from 'lucide-react';
 import { PortalThemeProvider } from '@/context/PortalThemeContext';
 import { ThemeToggle } from '@/components/portal/ThemeToggle';
@@ -126,6 +128,18 @@ const getOperationsNavGroups = (): NavGroup[] => [
         href: '/operations/inventory/adjustment',
         icon: AlertCircle,
         requiredPermission: 'inventory.adjust',
+      },
+      {
+        label: 'Scan & Sync',
+        href: '/operations/inventory/scan-sync',
+        icon: QrCode,
+        requiredPermission: 'inventory.view',
+      },
+      {
+        label: 'Barcode Printing',
+        href: '/operations/inventory/barcode',
+        icon: Printer,
+        requiredPermission: 'inventory.view',
       },
       {
         label: 'Inventory Reports',

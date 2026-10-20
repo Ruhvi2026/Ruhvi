@@ -34,6 +34,8 @@
 | **Sentry** | Observability | Application performance monitoring, client/server error tracking, and MCP server instrumentation. | Active | `sentry.client.config.ts`, `sentry.server.config.ts` |
 | **n8n Workflow Engine** | Automation Engine | Self-hosted workflow automation engine (`n8n.ruhvi.in`) driving AI blog draft generation and background tasks. | Active | `src/app/api/operations/blog/generate-draft/route.ts` |
 | **Motion (Framer Motion)** | UI Animation | Hardware-accelerated 60fps animations, layout transitions, and micro-interactions for Live Worker Workspace. | Active | `src/components/co-founder/workspace/LiveWorkspace.tsx` |
+| **Expo Camera** | Mobile Scanning | High-performance native barcode scanning library powering the mobile Inventory Scan & Add workflow. | Active | `ruhvi-mobile_DO_NOT_DELETE/package.json`, `ruhvi-mobile_DO_NOT_DELETE/src/screens/InventoryScanScreen.tsx` |
+| **JsBarcode** | Barcode Generation | Industry-standard vector SVG barcode encoding engine powering A4 sheet and thermal roll barcode printing. | Active | `package.json`, `src/app/operations/inventory/barcode/page.tsx` |
 
 ---
 
