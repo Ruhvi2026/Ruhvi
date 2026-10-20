@@ -97,24 +97,38 @@ export default function ChatListScreen({ navigation }: any) {
     navigation.setOptions({
       headerTitle: 'RuhChat',
       headerRight: () => (
-        <TouchableOpacity
-          onPress={() => setShowProfileModal(true)}
-          style={{ marginRight: 8, padding: 4 }}
-          activeOpacity={0.8}
-        >
-          {currentUserProfile?.avatar_url ? (
-            <Image
-              source={{ uri: currentUserProfile.avatar_url }}
-              style={styles.headerAvatar}
-            />
-          ) : (
-            <View style={styles.headerAvatarFallback}>
-              <Text style={styles.headerAvatarText}>
-                {(currentUserProfile?.full_name || 'S').substring(0, 1).toUpperCase()}
-              </Text>
-            </View>
-          )}
-        </TouchableOpacity>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginRight: 8 }}>
+          <TouchableOpacity
+            onPress={() => navigation.navigate('InventoryScan')}
+            style={{ 
+              padding: 6, 
+              backgroundColor: 'rgba(255,255,255,0.18)', 
+              borderRadius: 20 
+            }}
+            accessibilityLabel="Scan & Add Stock"
+          >
+            <MaterialIcons name="qr-code-scanner" size={22} color="#fff" />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() => setShowProfileModal(true)}
+            style={{ padding: 2 }}
+            activeOpacity={0.8}
+          >
+            {currentUserProfile?.avatar_url ? (
+              <Image
+                source={{ uri: currentUserProfile.avatar_url }}
+                style={styles.headerAvatar}
+              />
+            ) : (
+              <View style={styles.headerAvatarFallback}>
+                <Text style={styles.headerAvatarText}>
+                  {(currentUserProfile?.full_name || 'S').substring(0, 1).toUpperCase()}
+                </Text>
+              </View>
+            )}
+          </TouchableOpacity>
+        </View>
       ),
     });
   }, [navigation, currentUserProfile]);
@@ -719,46 +733,87 @@ export default function ChatListScreen({ navigation }: any) {
           keyExtractor={item => item.id}
           renderItem={renderItem}
           ListHeaderComponent={
-            isAdmin && chatTab === 'active' && (!globalSearch.trim() || 'ai co-founder cofounder partner'.includes(globalSearch.toLowerCase())) ? (
-              <TouchableOpacity 
-                style={[styles.chatItem, styles.coFounderCard]}
-                activeOpacity={0.7}
-                onPress={() => navigation.navigate('CoFounderChat')}
-              >
-                <View style={styles.coFounderAvatar}>
-                  <MaterialIcons name="smart-toy" size={24} color="#fff" />
-                  <View style={styles.coFounderOnlineDot} />
-                </View>
+            chatTab === 'active' ? (
+              <View>
+                {/* Scan & Add Stock Quick Card */}
+                {(!globalSearch.trim() || 'scan stock inventory barcode add product'.includes(globalSearch.toLowerCase())) && (
+                  <TouchableOpacity 
+                    style={[styles.chatItem, styles.inventoryScanCard]}
+                    activeOpacity={0.7}
+                    onPress={() => navigation.navigate('InventoryScan')}
+                  >
+                    <View style={styles.inventoryScanAvatar}>
+                      <MaterialIcons name="qr-code-scanner" size={24} color="#fff" />
+                      <View style={styles.inventoryScanDot} />
+                    </View>
 
-                <View style={styles.chatDetails}>
-                  <View style={styles.chatHeader}>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, marginRight: 8 }}>
-                      <Text style={[styles.chatName, styles.coFounderName]} numberOfLines={1}>
-                        Ruhvi AI Co-Founder
-                      </Text>
-                      <View style={styles.aiPartnerBadge}>
-                        <MaterialIcons name="verified" size={11} color="#6A1B9A" style={{ marginRight: 2 }} />
-                        <Text style={styles.aiPartnerBadgeText}>AI Partner</Text>
+                    <View style={styles.chatDetails}>
+                      <View style={styles.chatHeader}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, marginRight: 8 }}>
+                          <Text style={[styles.chatName, styles.inventoryScanName]} numberOfLines={1}>
+                            Scan & Add Stock
+                          </Text>
+                          <View style={styles.inventoryScanBadge}>
+                            <MaterialIcons name="bolt" size={11} color="#075E54" style={{ marginRight: 2 }} />
+                            <Text style={styles.inventoryScanBadgeText}>Inventory</Text>
+                          </View>
+                        </View>
+                        <Text style={styles.inventoryScanActionText}>Tap to Scan</Text>
+                      </View>
+
+                      <View style={styles.chatSubRow}>
+                        <Text style={styles.inventoryScanSnippet} numberOfLines={1}>
+                          Scan jewellery barcodes, enter weight & cost, sync
+                        </Text>
+                        <MaterialIcons name="chevron-right" size={20} color="#075E54" />
                       </View>
                     </View>
-                    <Text style={styles.coFounderTime}>Active</Text>
-                  </View>
+                  </TouchableOpacity>
+                )}
 
-                  <View style={styles.chatSubRow}>
-                    <Text style={styles.coFounderSnippet} numberOfLines={1}>
-                      {coFounderSnippet}
-                    </Text>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 6 }}>
-                      <MaterialIcons 
-                        name="push-pin" 
-                        size={13} 
-                        color="#6A1B9A" 
-                        style={{ transform: [{ rotate: '45deg' }] }} 
-                      />
+                {/* AI Co-Founder Card */}
+                {isAdmin && (!globalSearch.trim() || 'ai co-founder cofounder partner'.includes(globalSearch.toLowerCase())) && (
+                  <TouchableOpacity 
+                    style={[styles.chatItem, styles.coFounderCard]}
+                    activeOpacity={0.7}
+                    onPress={() => navigation.navigate('CoFounderChat')}
+                  >
+                    <View style={styles.coFounderAvatar}>
+                      <MaterialIcons name="smart-toy" size={24} color="#fff" />
+                      <View style={styles.coFounderOnlineDot} />
                     </View>
-                  </View>
-                </View>
-              </TouchableOpacity>
+
+                    <View style={styles.chatDetails}>
+                      <View style={styles.chatHeader}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, marginRight: 8 }}>
+                          <Text style={[styles.chatName, styles.coFounderName]} numberOfLines={1}>
+                            Ruhvi AI Co-Founder
+                          </Text>
+                          <View style={styles.aiPartnerBadge}>
+                            <MaterialIcons name="verified" size={11} color="#6A1B9A" style={{ marginRight: 2 }} />
+                            <Text style={styles.aiPartnerBadgeText}>AI Partner</Text>
+                          </View>
+                        </View>
+                        <Text style={styles.coFounderTime}>Active</Text>
+                      </View>
+
+                      <View style={styles.chatSubRow}>
+                        <Text style={styles.coFounderSnippet} numberOfLines={1}>
+                          {coFounderSnippet}
+                        </Text>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 6 }}>
+                          <MaterialIcons 
+                            name="push-pin" 
+                            size={13} 
+                            color="#6A1B9A" 
+                            style={{ transform: [{ rotate: '45deg' }] }} 
+                          />
+                        </View>
+                      </View>
+                    </View>
+                  </TouchableOpacity>
+                )}
+              </View>
             ) : null
           }
           refreshControl={
@@ -850,6 +905,16 @@ export default function ChatListScreen({ navigation }: any) {
           contentContainerStyle={displayConversations.length === 0 ? styles.emptyListContent : undefined}
         />
       )}
+
+      {/* Inventory Scanner FAB */}
+      <TouchableOpacity 
+        style={styles.scannerFab}
+        activeOpacity={0.8}
+        onPress={() => navigation.navigate('InventoryScan')}
+        accessibilityLabel="Scan & Add Stock"
+      >
+        <MaterialIcons name="qr-code-scanner" size={24} color="#C5A880" />
+      </TouchableOpacity>
 
       {/* WhatsApp Style FAB */}
       <TouchableOpacity 
@@ -1935,6 +2000,87 @@ const styles = StyleSheet.create({
   coFounderSnippet: {
     fontSize: 13,
     color: '#6B7280',
+    flex: 1,
+  },
+  scannerFab: {
+    position: 'absolute',
+    width: 48,
+    height: 48,
+    alignItems: 'center',
+    justifyContent: 'center',
+    right: 24,
+    bottom: 92,
+    backgroundColor: '#075E54',
+    borderRadius: 24,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOpacity: 0.3,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 4,
+    borderWidth: 1.5,
+    borderColor: '#C5A880',
+  },
+  inventoryScanCard: {
+    backgroundColor: '#F0FDF4',
+    borderBottomWidth: 1,
+    borderBottomColor: '#DCFCE7',
+  },
+  inventoryScanAvatar: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: '#075E54',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 14,
+    position: 'relative',
+    borderWidth: 1.5,
+    borderColor: '#C5A880',
+    shadowColor: '#075E54',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3,
+    elevation: 3,
+  },
+  inventoryScanDot: {
+    position: 'absolute',
+    bottom: 1,
+    right: 1,
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: '#C5A880',
+    borderWidth: 2,
+    borderColor: '#F0FDF4',
+  },
+  inventoryScanName: {
+    color: '#075E54',
+    fontWeight: '700',
+  },
+  inventoryScanBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#DCFCE7',
+    borderColor: '#BBF7D0',
+    borderWidth: 1,
+    paddingHorizontal: 6,
+    paddingVertical: 1,
+    borderRadius: 6,
+    marginLeft: 6,
+  },
+  inventoryScanBadgeText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#075E54',
+  },
+  inventoryScanActionText: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#075E54',
+  },
+  inventoryScanSnippet: {
+    fontSize: 13,
+    color: '#166534',
     flex: 1,
   },
 });
