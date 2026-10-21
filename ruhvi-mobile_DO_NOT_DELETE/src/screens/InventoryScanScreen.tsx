@@ -13,7 +13,9 @@ import {
   SafeAreaView,
   StatusBar,
   Platform,
+  Image,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MaterialIcons, Ionicons } from '@expo/vector-icons';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { supabase, getCurrentUserId } from '../lib/supabase';
@@ -58,6 +60,17 @@ export default function InventoryScanScreen({ navigation }: any) {
   const [duplicateModalVisible, setDuplicateModalVisible] = useState(false);
   const [existingProductInfo, setExistingProductInfo] = useState<any>(null);
 
+  // Permission & Role state
+  const [canManageStock, setCanManageStock] = useState<boolean>(false);
+  const [userRole, setUserRole] = useState<string>('');
+  const [userDept, setUserDept] = useState<string>('');
+  const [isCheckingRole, setIsCheckingRole] = useState<boolean>(true);
+
+  // Non-operations viewer modal states
+  const [viewProductDetails, setViewProductDetails] = useState<any>(null);
+  const [notFoundModalVisible, setNotFoundModalVisible] = useState<boolean>(false);
+  const [notFoundCode, setNotFoundCode] = useState<string>('');
+
   // Queue state
   const [queue, setQueue] = useState<LocalScanItem[]>([]);
   const [summary, setSummary] = useState<QueueSummary>({
@@ -69,6 +82,53 @@ export default function InventoryScanScreen({ navigation }: any) {
   });
   const [isRefreshingQueue, setIsRefreshingQueue] = useState(false);
   const [successBanner, setSuccessBanner] = useState<string | null>(null);
+
+  useEffect(() => {
+    const checkRoleAndDept = async () => {
+      try {
+        let role = await AsyncStorage.getItem('ruhvi_user_role');
+        let dept = await AsyncStorage.getItem('ruhvi_user_dept');
+        const uid = getCurrentUserId() || (await AsyncStorage.getItem('ruhvi_user_id'));
+
+        let email = '';
+        if (uid) {
+          const { data: userRecord } = await supabase
+            .from('users')
+            .select('role, department, email')
+            .eq('id', uid)
+            .maybeSingle();
+
+          if (userRecord) {
+            role = userRecord.role || role;
+            dept = userRecord.department || dept;
+            email = userRecord.email || '';
+          }
+        }
+
+        const r = (role || '').toLowerCase();
+        const d = (dept || '').toLowerCase();
+        const em = email.toLowerCase();
+
+        const isAdmin = r === 'admin' || r === 'super_admin' || em === 'ruhvi.main@gmail.com';
+        const isOperations = d === 'operations' || d.includes('operation') || r === 'operations' || r === 'operation';
+        const allowed = isAdmin || isOperations;
+
+        setUserRole(role || '');
+        setUserDept(dept || '');
+        setCanManageStock(allowed);
+
+        navigation.setOptions({
+          title: allowed ? 'Scan & Add Stock' : 'Product Details Lookup',
+        });
+      } catch (e) {
+        console.error('Error checking user permissions:', e);
+      } finally {
+        setIsCheckingRole(false);
+      }
+    };
+
+    checkRoleAndDept();
+  }, [navigation]);
 
   useEffect(() => {
     loadQueue();
@@ -154,7 +214,12 @@ export default function InventoryScanScreen({ navigation }: any) {
       // 1. Check by barcode
       let { data: product } = await supabase
         .from('products')
-        .select('id, name, sku, barcode, cost_price, weight_grams, stock_quantity, price, mrp, collection')
+        .select(`
+          id, name, sku, barcode, cost_price, weight_grams, stock_quantity, 
+          price, mrp, collection, status, description,
+          categories ( name ),
+          product_images ( url )
+        `)
         .eq('barcode', code)
         .maybeSingle();
 
@@ -162,26 +227,47 @@ export default function InventoryScanScreen({ navigation }: any) {
       if (!product) {
         const { data: bySku } = await supabase
           .from('products')
-          .select('id, name, sku, barcode, cost_price, weight_grams, stock_quantity, price, mrp, collection')
+          .select(`
+            id, name, sku, barcode, cost_price, weight_grams, stock_quantity, 
+            price, mrp, collection, status, description,
+            categories ( name ),
+            product_images ( url )
+          `)
           .eq('sku', code.toUpperCase())
           .maybeSingle();
         if (bySku) product = bySku;
       }
 
       if (product) {
-        // Product exists! Prompt staff per User Requirement
-        setExistingProductInfo(product);
-        setDuplicateModalVisible(true);
+        if (!canManageStock) {
+          // Non-operations viewer: display rich product details modal
+          setViewProductDetails(product);
+        } else {
+          // Operations / Admin: prompt to update existing or add stock
+          setExistingProductInfo(product);
+          setDuplicateModalVisible(true);
+        }
       } else {
-        // Unregistered barcode
-        setSku(code.toUpperCase());
-        setActionType('create_product');
-        setSuccessBanner(`Scanned: ${code} (Unregistered)`);
-        setTimeout(() => setSuccessBanner(null), 3000);
+        if (!canManageStock) {
+          // Non-operations viewer: prompt that item is not registered
+          setNotFoundCode(code);
+          setNotFoundModalVisible(true);
+        } else {
+          // Operations / Admin: allow creating / staging new product
+          setSku(code.toUpperCase());
+          setActionType('create_product');
+          setSuccessBanner(`Scanned: ${code} (Unregistered)`);
+          setTimeout(() => setSuccessBanner(null), 3000);
+        }
       }
     } catch (err: any) {
       console.warn('Catalog lookup error:', err);
-      setSku(code.toUpperCase());
+      if (!canManageStock) {
+        setNotFoundCode(code);
+        setNotFoundModalVisible(true);
+      } else {
+        setSku(code.toUpperCase());
+      }
     } finally {
       setIsLookingUp(false);
     }
@@ -354,36 +440,48 @@ export default function InventoryScanScreen({ navigation }: any) {
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#075E54" />
 
-      {/* Top Tab Bar */}
-      <View style={styles.tabBar}>
-        <TouchableOpacity
-          style={[styles.tabButton, activeTab === 'scan' && styles.tabButtonActive]}
-          onPress={() => setActiveTab('scan')}
-        >
-          <MaterialIcons
-            name="qr-code-scanner"
-            size={20}
-            color={activeTab === 'scan' ? '#C5A880' : '#A8A29E'}
-          />
-          <Text style={[styles.tabText, activeTab === 'scan' && styles.tabTextActive]}>
-            Scan & Enter
-          </Text>
-        </TouchableOpacity>
+      {/* Top Mode Indicator / Tab Bar */}
+      {canManageStock ? (
+        <View style={styles.tabBar}>
+          <TouchableOpacity
+            style={[styles.tabButton, activeTab === 'scan' && styles.tabButtonActive]}
+            onPress={() => setActiveTab('scan')}
+          >
+            <MaterialIcons
+              name="qr-code-scanner"
+              size={20}
+              color={activeTab === 'scan' ? '#C5A880' : '#A8A29E'}
+            />
+            <Text style={[styles.tabText, activeTab === 'scan' && styles.tabTextActive]}>
+              Scan & Enter
+            </Text>
+          </TouchableOpacity>
 
-        <TouchableOpacity
-          style={[styles.tabButton, activeTab === 'queue' && styles.tabButtonActive]}
-          onPress={() => setActiveTab('queue')}
-        >
-          <MaterialIcons
-            name="view-list"
-            size={20}
-            color={activeTab === 'queue' ? '#C5A880' : '#A8A29E'}
-          />
-          <Text style={[styles.tabText, activeTab === 'queue' && styles.tabTextActive]}>
-            Queue ({summary.total})
+          <TouchableOpacity
+            style={[styles.tabButton, activeTab === 'queue' && styles.tabButtonActive]}
+            onPress={() => setActiveTab('queue')}
+          >
+            <MaterialIcons
+              name="view-list"
+              size={20}
+              color={activeTab === 'queue' ? '#C5A880' : '#A8A29E'}
+            />
+            <Text style={[styles.tabText, activeTab === 'queue' && styles.tabTextActive]}>
+              Queue ({summary.total})
+            </Text>
+          </TouchableOpacity>
+        </View>
+      ) : (
+        <View style={styles.viewerBanner}>
+          <View style={styles.viewerBadge}>
+            <MaterialIcons name="visibility" size={13} color="#075E54" />
+            <Text style={styles.viewerBadgeText}>Product Details Viewer</Text>
+          </View>
+          <Text style={styles.viewerSubText}>
+            Point at any barcode to inspect live product specs & price
           </Text>
-        </TouchableOpacity>
-      </View>
+        </View>
+      )}
 
       {/* Success Notification Banner */}
       {successBanner && (
@@ -471,9 +569,10 @@ export default function InventoryScanScreen({ navigation }: any) {
             )}
           </View>
 
-          {/* Form Card */}
-          <View style={styles.formCard}>
-            <Text style={styles.sectionTitle}>Product Inventory Details</Text>
+          {canManageStock ? (
+            /* Form Card (Operations / Stock Manager Mode) */
+            <View style={styles.formCard}>
+              <Text style={styles.sectionTitle}>Product Inventory Details</Text>
 
             {isLookingUp && (
               <View style={styles.loadingRow}>
@@ -690,7 +789,72 @@ export default function InventoryScanScreen({ navigation }: any) {
               </TouchableOpacity>
             </View>
           </View>
-        </ScrollView>
+        ) : (
+          /* Viewer Info & Manual Search Card (Non-Operations Viewer Mode) */
+          <View style={styles.viewerContainer}>
+            {/* Manual Barcode / SKU input */}
+            <View style={styles.viewerInputCard}>
+              <Text style={styles.viewerInputTitle}>Manual Barcode or SKU Search</Text>
+              <View style={styles.viewerInputRow}>
+                <TextInput
+                  style={styles.viewerTextInput}
+                  placeholder="Enter barcode or SKU (e.g. RUH-...)"
+                  placeholderTextColor="#A8A29E"
+                  value={barcodeInput}
+                  onChangeText={setBarcodeInput}
+                  autoCapitalize="characters"
+                  returnKeyType="search"
+                  onSubmitEditing={() => {
+                    if (barcodeInput.trim()) {
+                      lookupProductByBarcodeOrSku(barcodeInput.trim());
+                    }
+                  }}
+                />
+                <TouchableOpacity
+                  style={styles.viewerSearchBtn}
+                  onPress={() => {
+                    if (barcodeInput.trim()) {
+                      lookupProductByBarcodeOrSku(barcodeInput.trim());
+                    }
+                  }}
+                  disabled={isLookingUp}
+                >
+                  {isLookingUp ? (
+                    <ActivityIndicator size="small" color="#FFF" />
+                  ) : (
+                    <MaterialIcons name="search" size={20} color="#FFF" />
+                  )}
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            {/* Informational Guidance Card */}
+            <View style={styles.viewerInfoCard}>
+              <View style={styles.viewerInfoIconCircle}>
+                <MaterialIcons name="qr-code-scanner" size={28} color="#075E54" />
+              </View>
+              <Text style={styles.viewerInfoTitle}>Live Product Inspector</Text>
+              <Text style={styles.viewerInfoDesc}>
+                Point the camera at any Ruhvi jewelry tag or box barcode to instantly inspect retail price, MRP, gold/silver weight, collection, and live store inventory.
+              </Text>
+              <View style={styles.viewerFeatureList}>
+                <View style={styles.viewerFeatureRow}>
+                  <MaterialIcons name="check-circle" size={16} color="#075E54" />
+                  <Text style={styles.viewerFeatureText}>Live stock availability & status</Text>
+                </View>
+                <View style={styles.viewerFeatureRow}>
+                  <MaterialIcons name="check-circle" size={16} color="#075E54" />
+                  <Text style={styles.viewerFeatureText}>Current retail pricing & MRP discount</Text>
+                </View>
+                <View style={styles.viewerFeatureRow}>
+                  <MaterialIcons name="check-circle" size={16} color="#075E54" />
+                  <Text style={styles.viewerFeatureText}>Certified weight & collection details</Text>
+                </View>
+              </View>
+            </View>
+          </View>
+        )}
+      </ScrollView>
       ) : (
         /* ===================== TAB 2: QUEUE & RECENT SCANS ===================== */
         <View style={styles.queueContainer}>
@@ -868,6 +1032,201 @@ export default function InventoryScanScreen({ navigation }: any) {
                 <Text style={styles.modalSecondaryBtnText}>Skip This Item</Text>
               </TouchableOpacity>
             </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* ===================== VIEW PRODUCT DETAILS MODAL (VIEWER MODE) ===================== */}
+      <Modal
+        visible={!!viewProductDetails}
+        transparent
+        animationType="slide"
+        onRequestClose={() => {
+          setViewProductDetails(null);
+          setScannedBarcode('');
+          setCameraActive(true);
+        }}
+      >
+        <View style={styles.modalBackdrop}>
+          <View style={styles.productDetailModalCard}>
+            {/* Modal Header */}
+            <View style={styles.detailHeader}>
+              <View style={{ flex: 1, paddingRight: 8 }}>
+                <Text style={styles.detailTitle} numberOfLines={2}>
+                  {viewProductDetails?.name || 'Jewellery Product'}
+                </Text>
+                <View style={styles.detailSkuRow}>
+                  <Text style={styles.detailSku}>SKU: {viewProductDetails?.sku}</Text>
+                  {viewProductDetails?.barcode && (
+                    <Text style={styles.detailBarcode}>• Barcode: {viewProductDetails?.barcode}</Text>
+                  )}
+                </View>
+              </View>
+              <TouchableOpacity
+                style={styles.detailCloseBtn}
+                onPress={() => {
+                  setViewProductDetails(null);
+                  setScannedBarcode('');
+                  setCameraActive(true);
+                }}
+              >
+                <MaterialIcons name="close" size={20} color="#78716C" />
+              </TouchableOpacity>
+            </View>
+
+            <ScrollView style={{ maxHeight: 420 }} showsVerticalScrollIndicator={false}>
+              {/* Product Image if available */}
+              {viewProductDetails?.product_images && viewProductDetails.product_images.length > 0 && viewProductDetails.product_images[0]?.url ? (
+                <Image
+                  source={{ uri: viewProductDetails.product_images[0].url }}
+                  style={styles.productDetailImage}
+                  resizeMode="cover"
+                />
+              ) : null}
+
+              {/* Price & Stock Strip */}
+              <View style={styles.priceStockStrip}>
+                <View>
+                  <Text style={styles.priceLabel}>Retail Price</Text>
+                  <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 6 }}>
+                    <Text style={styles.priceValue}>
+                      ₹{(viewProductDetails?.price ?? 0).toLocaleString('en-IN')}
+                    </Text>
+                    {viewProductDetails?.mrp && viewProductDetails.mrp > (viewProductDetails?.price ?? 0) && (
+                      <Text style={styles.mrpValue}>
+                        ₹{viewProductDetails.mrp.toLocaleString('en-IN')}
+                      </Text>
+                    )}
+                  </View>
+                </View>
+
+                {/* Stock Badge */}
+                <View
+                  style={[
+                    styles.stockStatusBadge,
+                    (viewProductDetails?.stock_quantity ?? 0) > 0
+                      ? styles.stockInBadge
+                      : styles.stockOutBadge,
+                  ]}
+                >
+                  <MaterialIcons
+                    name={(viewProductDetails?.stock_quantity ?? 0) > 0 ? "inventory" : "remove-shopping-cart"}
+                    size={14}
+                    color={(viewProductDetails?.stock_quantity ?? 0) > 0 ? "#065F46" : "#991B1B"}
+                  />
+                  <Text
+                    style={[
+                      styles.stockStatusText,
+                      { color: (viewProductDetails?.stock_quantity ?? 0) > 0 ? "#065F46" : "#991B1B" },
+                    ]}
+                  >
+                    {(viewProductDetails?.stock_quantity ?? 0) > 0
+                      ? `${viewProductDetails.stock_quantity} in stock`
+                      : 'Out of stock'}
+                  </Text>
+                </View>
+              </View>
+
+              {/* Specs Grid */}
+              <View style={styles.specsGrid}>
+                <View style={styles.specBox}>
+                  <Text style={styles.specLabel}>WEIGHT</Text>
+                  <Text style={styles.specVal}>
+                    {viewProductDetails?.weight_grams ? `${viewProductDetails.weight_grams} g` : 'N/A'}
+                  </Text>
+                </View>
+                <View style={styles.specBox}>
+                  <Text style={styles.specLabel}>CATEGORY</Text>
+                  <Text style={styles.specVal} numberOfLines={1}>
+                    {viewProductDetails?.categories?.name || viewProductDetails?.collection || 'Jewellery'}
+                  </Text>
+                </View>
+                {viewProductDetails?.collection && (
+                  <View style={styles.specBox}>
+                    <Text style={styles.specLabel}>COLLECTION</Text>
+                    <Text style={styles.specVal} numberOfLines={1}>
+                      {viewProductDetails.collection}
+                    </Text>
+                  </View>
+                )}
+                <View style={styles.specBox}>
+                  <Text style={styles.specLabel}>STATUS</Text>
+                  <Text style={styles.specVal} numberOfLines={1}>
+                    {(viewProductDetails?.status || 'Active').toUpperCase()}
+                  </Text>
+                </View>
+              </View>
+
+              {/* Description */}
+              {viewProductDetails?.description ? (
+                <View style={styles.descSection}>
+                  <Text style={styles.descHeading}>Description</Text>
+                  <Text style={styles.descText}>{viewProductDetails.description}</Text>
+                </View>
+              ) : null}
+            </ScrollView>
+
+            {/* Modal Bottom CTA */}
+            <TouchableOpacity
+              style={styles.scanNextBtn}
+              onPress={() => {
+                setViewProductDetails(null);
+                setScannedBarcode('');
+                setCameraActive(true);
+              }}
+            >
+              <MaterialIcons name="qr-code-scanner" size={18} color="#FFF" />
+              <Text style={styles.scanNextBtnText}>Scan Another Tag</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* ===================== NOT FOUND MODAL (VIEWER MODE) ===================== */}
+      <Modal
+        visible={notFoundModalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => {
+          setNotFoundModalVisible(false);
+          setNotFoundCode('');
+          setScannedBarcode('');
+          setCameraActive(true);
+        }}
+      >
+        <View style={styles.modalBackdrop}>
+          <View style={styles.modalCard}>
+            <View style={[styles.modalIconBox, { backgroundColor: '#FEE2E2' }]}>
+              <MaterialIcons name="search-off" size={32} color="#DC2626" />
+            </View>
+
+            <Text style={styles.modalTitle}>Product Not Found</Text>
+            <Text style={styles.modalDesc}>
+              No product found matching barcode or SKU:
+            </Text>
+
+            <View style={[styles.existingInfoBox, { backgroundColor: '#FEF2F2', borderColor: '#FECACA' }]}>
+              <Text style={[styles.infoRow, { textAlign: 'center', fontWeight: '700', color: '#991B1B' }]}>
+                {notFoundCode}
+              </Text>
+            </View>
+
+            <Text style={[styles.modalDesc, { fontSize: 12, marginTop: -6, marginBottom: 16 }]}>
+              This item may not be registered in the catalog yet or may have an incorrect barcode tag. Please contact Operations if stock was recently received.
+            </Text>
+
+            <TouchableOpacity
+              style={[styles.modalPrimaryBtn, { width: '100%' }]}
+              onPress={() => {
+                setNotFoundModalVisible(false);
+                setNotFoundCode('');
+                setScannedBarcode('');
+                setCameraActive(true);
+              }}
+            >
+              <MaterialIcons name="refresh" size={18} color="#FFF" />
+              <Text style={styles.modalPrimaryBtnText}>Scan Again</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </Modal>
@@ -1406,5 +1765,288 @@ const styles = StyleSheet.create({
     color: '#57534E',
     fontSize: 13,
     fontWeight: '600',
+  },
+
+  // Viewer Mode Top Bar Styles
+  viewerBanner: {
+    backgroundColor: '#E7F2F0',
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#B8DBD6',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  viewerBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: '#DCFCE7',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: '#BBF7D0',
+  },
+  viewerBadgeText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#075E54',
+  },
+  viewerSubText: {
+    fontSize: 12,
+    color: '#57534E',
+    flex: 1,
+    marginLeft: 10,
+  },
+  viewerContainer: {
+    paddingHorizontal: 12,
+    paddingBottom: 24,
+  },
+  viewerInputCard: {
+    backgroundColor: '#FFF',
+    borderRadius: 12,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#E7E5E4',
+    marginBottom: 12,
+  },
+  viewerInputTitle: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#44403C',
+    marginBottom: 8,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  viewerInputRow: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  viewerTextInput: {
+    flex: 1,
+    backgroundColor: '#FAF8F5',
+    borderWidth: 1,
+    borderColor: '#D6D3D1',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    fontSize: 14,
+    color: '#1C1917',
+  },
+  viewerSearchBtn: {
+    backgroundColor: '#075E54',
+    width: 44,
+    height: 44,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  viewerInfoCard: {
+    backgroundColor: '#FFF',
+    borderRadius: 12,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: '#E7E5E4',
+    alignItems: 'center',
+  },
+  viewerInfoIconCircle: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: '#E7F2F0',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 12,
+  },
+  viewerInfoTitle: {
+    fontSize: 17,
+    fontWeight: 'bold',
+    color: '#1C1917',
+    marginBottom: 6,
+  },
+  viewerInfoDesc: {
+    fontSize: 13,
+    color: '#78716C',
+    textAlign: 'center',
+    lineHeight: 18,
+    marginBottom: 16,
+    paddingHorizontal: 8,
+  },
+  viewerFeatureList: {
+    width: '100%',
+    backgroundColor: '#FAF8F5',
+    borderRadius: 8,
+    padding: 12,
+    gap: 10,
+    borderWidth: 1,
+    borderColor: '#F5F5F4',
+  },
+  viewerFeatureRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  viewerFeatureText: {
+    fontSize: 12,
+    color: '#44403C',
+    fontWeight: '500',
+  },
+
+  // Rich Product Details Modal
+  productDetailModalCard: {
+    backgroundColor: '#FFF',
+    borderRadius: 16,
+    padding: 18,
+    width: '100%',
+    maxWidth: 360,
+  },
+  detailHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    borderBottomWidth: 1,
+    borderBottomColor: '#F5F5F4',
+    paddingBottom: 10,
+    marginBottom: 12,
+  },
+  detailTitle: {
+    fontSize: 17,
+    fontWeight: 'bold',
+    color: '#1C1917',
+  },
+  detailSkuRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginTop: 3,
+  },
+  detailSku: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#075E54',
+  },
+  detailBarcode: {
+    fontSize: 11,
+    color: '#78716C',
+  },
+  detailCloseBtn: {
+    padding: 4,
+    borderRadius: 16,
+    backgroundColor: '#F5F5F4',
+  },
+  productDetailImage: {
+    width: '100%',
+    height: 180,
+    borderRadius: 10,
+    marginBottom: 12,
+    backgroundColor: '#F5F5F4',
+  },
+  priceStockStrip: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#FAF8F5',
+    padding: 12,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#E7E5E4',
+    marginBottom: 12,
+  },
+  priceLabel: {
+    fontSize: 11,
+    color: '#78716C',
+    fontWeight: '600',
+    textTransform: 'uppercase',
+  },
+  priceValue: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#075E54',
+  },
+  mrpValue: {
+    fontSize: 13,
+    color: '#A8A29E',
+    textDecorationLine: 'line-through',
+  },
+  stockStatusBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 5,
+    borderRadius: 8,
+    borderWidth: 1,
+  },
+  stockInBadge: {
+    backgroundColor: '#D1FAE5',
+    borderColor: '#A7F3D0',
+  },
+  stockOutBadge: {
+    backgroundColor: '#FEE2E2',
+    borderColor: '#FECACA',
+  },
+  stockStatusText: {
+    fontSize: 11,
+    fontWeight: '700',
+    textTransform: 'capitalize',
+  },
+  specsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginBottom: 12,
+  },
+  specBox: {
+    flex: 1,
+    minWidth: '45%',
+    backgroundColor: '#F5F5F4',
+    padding: 8,
+    borderRadius: 6,
+  },
+  specLabel: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#78716C',
+    letterSpacing: 0.5,
+  },
+  specVal: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#1C1917',
+    marginTop: 2,
+  },
+  descSection: {
+    borderTopWidth: 1,
+    borderTopColor: '#F5F5F4',
+    paddingTop: 10,
+    marginBottom: 12,
+  },
+  descHeading: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#57534E',
+    marginBottom: 4,
+  },
+  descText: {
+    fontSize: 12,
+    color: '#78716C',
+    lineHeight: 17,
+  },
+  scanNextBtn: {
+    backgroundColor: '#075E54',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    paddingVertical: 12,
+    borderRadius: 8,
+    marginTop: 8,
+  },
+  scanNextBtnText: {
+    color: '#FFF',
+    fontSize: 14,
+    fontWeight: 'bold',
   },
 });

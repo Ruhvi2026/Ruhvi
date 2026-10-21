@@ -622,10 +622,17 @@ export default function ChatListScreen({ navigation }: any) {
 
   const userEmail = (currentUserProfile?.email || '').toLowerCase();
   const rawRole = (currentUserProfile?.role || userRole || '').toLowerCase();
+  const rawDept = (currentUserProfile?.department || '').toLowerCase();
   const isAdmin = 
     rawRole === 'admin' ||
     rawRole === 'super_admin' ||
     userEmail === 'ruhvi.main@gmail.com';
+  const isOperations = 
+    rawDept === 'operations' ||
+    rawDept.includes('operation') ||
+    rawRole === 'operations' ||
+    rawRole === 'operation';
+  const canManageStock = isAdmin || isOperations;
 
   const activeConversations = conversations.filter(c => !c.archived_at);
   const archivedConversations = conversations.filter(c => !!c.archived_at);
@@ -751,11 +758,13 @@ export default function ChatListScreen({ navigation }: any) {
                       <View style={styles.chatHeader}>
                         <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, marginRight: 8 }}>
                           <Text style={[styles.chatName, styles.inventoryScanName]} numberOfLines={1}>
-                            Scan & Add Stock
+                            {canManageStock ? 'Scan & Add Stock' : 'Product Details Lookup'}
                           </Text>
                           <View style={styles.inventoryScanBadge}>
-                            <MaterialIcons name="bolt" size={11} color="#075E54" style={{ marginRight: 2 }} />
-                            <Text style={styles.inventoryScanBadgeText}>Inventory</Text>
+                            <MaterialIcons name={canManageStock ? "bolt" : "visibility"} size={11} color="#075E54" style={{ marginRight: 2 }} />
+                            <Text style={styles.inventoryScanBadgeText}>
+                              {canManageStock ? 'Inventory' : 'Lookup'}
+                            </Text>
                           </View>
                         </View>
                         <Text style={styles.inventoryScanActionText}>Tap to Scan</Text>
@@ -763,7 +772,9 @@ export default function ChatListScreen({ navigation }: any) {
 
                       <View style={styles.chatSubRow}>
                         <Text style={styles.inventoryScanSnippet} numberOfLines={1}>
-                          Scan jewellery barcodes, enter weight & cost, sync
+                          {canManageStock
+                            ? 'Scan jewellery barcodes, enter weight & cost, sync'
+                            : 'Scan jewellery barcode to view live retail specs & price'}
                         </Text>
                         <MaterialIcons name="chevron-right" size={20} color="#075E54" />
                       </View>
