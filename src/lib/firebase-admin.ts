@@ -233,5 +233,44 @@ export function getAdminAuth() {
         displayName: data.displayName || params.displayName,
       };
     },
+
+    async updateUserPassword(
+      email: string,
+      newPassword: string
+    ): Promise<void> {
+      let accessToken: string | null = null;
+      if (clientEmail && rawPrivateKey) {
+        accessToken = await getGoogleAuthToken(clientEmail, rawPrivateKey);
+      }
+
+      const user = await this.getUserByEmail(email);
+
+      const url = accessToken
+        ? `https://identitytoolkit.googleapis.com/v1/projects/${projectId}/accounts:update`
+        : `https://identitytoolkit.googleapis.com/v1/accounts:update?key=${apiKey}`;
+
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+      if (accessToken) {
+        headers['Authorization'] = `Bearer ${accessToken}`;
+      }
+
+      const res = await fetch(url, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          localId: user.uid,
+          password: newPassword,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(
+          data.error?.message || 'Failed to update user password in Firebase'
+        );
+      }
+    },
   };
 }

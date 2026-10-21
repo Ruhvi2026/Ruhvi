@@ -102,11 +102,48 @@ export async function setAuthPassword(userId: string, newPassword: string) {
     }
 
     const adminClient = getAdminClient();
-    const { error } = await adminClient.auth.admin.updateUserById(userId, {
-      password: newPassword,
-    });
 
-    if (error) throw error;
+    // 1. Fetch user email from database
+    const { data: userRec, error: userFetchError } = await adminClient
+      .from('users')
+      .select('email, id')
+      .eq('id', userId)
+      .maybeSingle();
+
+    if (userFetchError || !userRec?.email) {
+      return {
+        success: false,
+        error: 'User not found in system or email is missing.',
+      };
+    }
+
+    // 2. Synchronize password with Firebase Auth (primary auth provider for login)
+    try {
+      const { getAdminAuth } = await import('@/lib/firebase-admin');
+      const adminAuth = getAdminAuth();
+      await adminAuth.updateUserPassword(userRec.email, newPassword);
+    } catch (fbErr: any) {
+      console.error('Error updating Firebase password:', fbErr);
+      return {
+        success: false,
+        error: fbErr?.message || 'Failed to update password in Firebase Auth.',
+      };
+    }
+
+    // 3. Synchronize password with Supabase Auth
+    try {
+      await adminClient.auth.admin.updateUserById(userId, {
+        password: newPassword,
+      });
+    } catch (supaErr) {
+      console.warn('Supabase Auth password sync warning:', supaErr);
+    }
+
+    // 4. Touch updated_at in users table
+    await adminClient
+      .from('users')
+      .update({ updated_at: new Date().toISOString() })
+      .eq('id', userId);
 
     return { success: true };
   } catch (err: any) {
