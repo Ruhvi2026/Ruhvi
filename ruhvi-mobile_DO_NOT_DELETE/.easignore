@@ -1,0 +1,22 @@
+# Dependencies
+node_modules/
+
+# Expo
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+
+# Version Control
+.git/
+
+# Debug
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# System
+.DS_Store
+
+# TypeScript
+*.tsbuildinfo
