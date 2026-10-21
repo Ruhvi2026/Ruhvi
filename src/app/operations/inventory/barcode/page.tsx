@@ -21,12 +21,20 @@ import {
   Copy,
   Layers,
   Sparkles,
+  Zap,
+  RefreshCw,
+  Check,
+  Link2,
 } from 'lucide-react';
 import {
   BarcodeSvg,
   generateBarcodeSvgHtml,
 } from '@/components/inventory/BarcodeSvg';
 import toast from 'react-hot-toast';
+import {
+  linkBarcodeToProductSku,
+  batchGenerateMissingBarcodes,
+} from './actions';
 
 // ============================================================================
 // Layout Preset Types & Definitions
@@ -274,6 +282,93 @@ function BarcodePrintingContent() {
   const [loadingProducts, setLoadingProducts] = useState(true);
   const [productSearch, setProductSearch] = useState(initialSku);
   const [selectedProduct, setSelectedProduct] = useState<any | null>(null);
+
+  // Barcode Generation & Sync State
+  const [activeSelectorTab, setActiveSelectorTab] = useState<
+    'search' | 'direct_sku'
+  >('search');
+  const [directSkuInput, setDirectSkuInput] = useState('');
+  const [customBarcodeInput, setCustomBarcodeInput] = useState('');
+  const [isLinkingBarcode, setIsLinkingBarcode] = useState(false);
+  const [isEditingBarcode, setIsEditingBarcode] = useState(false);
+  const [isBatchGenerating, setIsBatchGenerating] = useState(false);
+
+  // Generate & Link Barcode to SKU
+  const handleGenerateAndLinkBarcode = async (
+    sku: string,
+    customBarcode?: string
+  ) => {
+    const clean = (sku || '').trim();
+    if (!clean) {
+      toast.error('Please specify an SKU first.');
+      return;
+    }
+
+    setIsLinkingBarcode(true);
+    try {
+      const res = await linkBarcodeToProductSku({
+        sku: clean,
+        barcode: customBarcode?.trim() || undefined,
+      });
+
+      if (!res.success || !res.product) {
+        throw new Error(res.error || 'Failed to generate barcode.');
+      }
+
+      // Update selected product state
+      setSelectedProduct(res.product);
+
+      // Update in products list
+      setProducts((prev) =>
+        prev.map((p) =>
+          p.id === res.product!.id ? { ...p, barcode: res.barcode } : p
+        )
+      );
+
+      toast.success(
+        `Barcode "${res.barcode}" generated & linked to SKU "${res.product.sku}"!`
+      );
+      setCustomBarcodeInput('');
+      setIsEditingBarcode(false);
+      setDirectSkuInput('');
+    } catch (err: any) {
+      toast.error(err.message || 'Error linking barcode.');
+    } finally {
+      setIsLinkingBarcode(false);
+    }
+  };
+
+  // Batch generate missing barcodes
+  const handleBatchGenerate = async () => {
+    if (
+      !confirm(
+        'This will automatically assign standard barcodes (RHV-[SKU]) to all products without one. Proceed?'
+      )
+    ) {
+      return;
+    }
+    setIsBatchGenerating(true);
+    try {
+      const res = await batchGenerateMissingBarcodes();
+      if (!res.success) throw new Error(res.error);
+      toast.success(`Generated barcodes for ${res.count} products!`);
+
+      // Refresh products from database
+      const supabase = createClient();
+      const { data } = await supabase
+        .from('products')
+        .select(
+          'id, name, sku, barcode, price, mrp, stock_quantity, weight_grams, collection'
+        )
+        .order('name', { ascending: true })
+        .limit(200);
+      if (data) setProducts(data);
+    } catch (err: any) {
+      toast.error(err.message || 'Batch generation failed.');
+    } finally {
+      setIsBatchGenerating(false);
+    }
+  };
 
   // Printing Mode State: 'a4' | 'thermal'
   const [printMode, setPrintMode] = useState<'a4' | 'thermal'>('a4');
@@ -787,8 +882,105 @@ function BarcodePrintingContent() {
               )}
             </div>
 
-            {/* Product Search & Dropdown */}
-            {!selectedProduct ? (
+            {/* Selector Mode Tabs */}
+            {!selectedProduct && (
+              <div className="mb-3 flex rounded-xl border border-slate-200 bg-slate-100 p-1 dark:border-white/10 dark:bg-black/40">
+                <button
+                  type="button"
+                  onClick={() => setActiveSelectorTab('search')}
+                  className={`flex flex-1 items-center justify-center gap-1.5 rounded-lg py-1.5 text-xs font-semibold transition ${
+                    activeSelectorTab === 'search'
+                      ? 'bg-white text-slate-900 shadow-sm dark:bg-[#1f1f2e] dark:text-white'
+                      : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
+                  }`}
+                >
+                  <Search className="h-3.5 w-3.5" />
+                  Search Catalogue
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveSelectorTab('direct_sku')}
+                  className={`flex flex-1 items-center justify-center gap-1.5 rounded-lg py-1.5 text-xs font-semibold transition ${
+                    activeSelectorTab === 'direct_sku'
+                      ? 'bg-white text-emerald-600 shadow-sm dark:bg-[#1f1f2e] dark:text-emerald-400'
+                      : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
+                  }`}
+                >
+                  <Zap className="h-3.5 w-3.5" />
+                  Enter SKU & Generate
+                </button>
+              </div>
+            )}
+
+            {/* Direct SKU Input & Instant Generate Form */}
+            {!selectedProduct && activeSelectorTab === 'direct_sku' && (
+              <div className="space-y-3 rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4 dark:border-emerald-500/20 dark:bg-emerald-950/20">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-200">
+                    Product SKU
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. RNG-000725, CHN-000621..."
+                    value={directSkuInput}
+                    onChange={(e) =>
+                      setDirectSkuInput(e.target.value.toUpperCase())
+                    }
+                    className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 font-mono text-sm uppercase text-slate-900 placeholder-slate-400 focus:border-emerald-500 focus:outline-none dark:border-white/10 dark:bg-black/30 dark:text-white"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-slate-500 dark:text-slate-400">
+                    Custom Barcode{' '}
+                    <span className="text-[10px] text-slate-400">
+                      (Optional — defaults to RHV-[SKU])
+                    </span>
+                  </label>
+                  <input
+                    type="text"
+                    placeholder={`e.g. RHV-${directSkuInput.trim() || 'SKU'}`}
+                    value={customBarcodeInput}
+                    onChange={(e) =>
+                      setCustomBarcodeInput(e.target.value.toUpperCase())
+                    }
+                    className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2 font-mono text-xs uppercase text-slate-900 placeholder-slate-400 focus:border-emerald-500 focus:outline-none dark:border-white/10 dark:bg-black/30 dark:text-white"
+                  />
+                </div>
+
+                <button
+                  type="button"
+                  disabled={!directSkuInput.trim() || isLinkingBarcode}
+                  onClick={() =>
+                    handleGenerateAndLinkBarcode(
+                      directSkuInput,
+                      customBarcodeInput
+                    )
+                  }
+                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 py-2.5 text-xs font-bold text-white shadow-md shadow-emerald-600/20 transition hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {isLinkingBarcode ? (
+                    <>
+                      <RefreshCw className="h-4 w-4 animate-spin" />
+                      Syncing Barcode to SKU...
+                    </>
+                  ) : (
+                    <>
+                      <Zap className="h-4 w-4" />
+                      Generate & Sync Barcode
+                    </>
+                  )}
+                </button>
+
+                <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                  ⚡ Generates a Code 128 barcode, links it to this product in
+                  the catalog, and prepares label stickers for printing.
+                </p>
+              </div>
+            )}
+
+            {/* Product Search & Dropdown (Search Catalogue Tab) */}
+            {!selectedProduct && activeSelectorTab === 'search' && (
               <div className="space-y-2">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
@@ -812,38 +1004,69 @@ function BarcodePrintingContent() {
                     </div>
                   ) : (
                     searchedProducts.map((p) => (
-                      <button
+                      <div
                         key={p.id}
-                        onClick={() => setSelectedProduct(p)}
                         className="flex w-full items-center justify-between px-3 py-2 text-left text-xs transition hover:bg-slate-100 dark:hover:bg-white/5"
                       >
-                        <div>
+                        <button
+                          type="button"
+                          onClick={() => setSelectedProduct(p)}
+                          className="flex-1 text-left"
+                        >
                           <div className="font-bold text-slate-900 dark:text-white">
                             {p.sku}
                           </div>
-                          <div className="max-w-[200px] truncate text-slate-500 dark:text-slate-400">
+                          <div className="max-w-[180px] truncate text-slate-500 dark:text-slate-400">
                             {p.name}
                           </div>
-                        </div>
-                        <div>
+                        </button>
+                        <div className="flex items-center gap-2">
                           {p.barcode ? (
-                            <span className="inline-flex items-center gap-1 rounded bg-emerald-50 px-2 py-0.5 font-mono text-[10px] text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400">
+                            <button
+                              type="button"
+                              onClick={() => setSelectedProduct(p)}
+                              className="inline-flex items-center gap-1 rounded bg-emerald-50 px-2 py-0.5 font-mono text-[10px] text-emerald-600 transition hover:bg-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-400 dark:hover:bg-emerald-500/20"
+                            >
                               <QrCode className="h-3 w-3" /> {p.barcode}
-                            </span>
+                            </button>
                           ) : (
-                            <span className="rounded bg-amber-50 px-2 py-0.5 text-[10px] text-amber-500 dark:bg-amber-500/10">
-                              No Barcode
-                            </span>
+                            <button
+                              type="button"
+                              disabled={isLinkingBarcode}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleGenerateAndLinkBarcode(p.sku);
+                              }}
+                              className="inline-flex items-center gap-1 rounded bg-emerald-600 px-2.5 py-1 text-[11px] font-bold text-white shadow-sm transition hover:bg-emerald-500 disabled:opacity-50"
+                              title="Generate standard barcode and link to this SKU"
+                            >
+                              <Zap className="h-3 w-3" /> Link Barcode
+                            </button>
                           )}
                         </div>
-                      </button>
+                      </div>
                     ))
                   )}
                 </div>
+
+                <div className="flex items-center justify-between pt-1 text-[11px] text-slate-500 dark:text-slate-400">
+                  <span>Showing {searchedProducts.length} products</span>
+                  <button
+                    type="button"
+                    disabled={isBatchGenerating}
+                    onClick={handleBatchGenerate}
+                    className="inline-flex items-center gap-1 font-semibold text-emerald-600 hover:underline disabled:opacity-50 dark:text-emerald-400"
+                  >
+                    <Sparkles className="h-3.5 w-3.5" />
+                    Auto-link all missing barcodes
+                  </button>
+                </div>
               </div>
-            ) : (
-              /* Selected Product Details Banner */
-              <div className="space-y-3 rounded-xl border border-slate-200 bg-slate-50 p-3.5 dark:border-white/10 dark:bg-black/20">
+            )}
+
+            {/* Selected Product Details Banner */}
+            {selectedProduct && (
+              <div className="space-y-3 rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-white/10 dark:bg-black/20">
                 <div className="flex items-start justify-between">
                   <div>
                     <h4 className="text-sm font-bold text-slate-900 dark:text-white">
@@ -851,7 +1074,9 @@ function BarcodePrintingContent() {
                     </h4>
                     <p className="mt-0.5 font-mono text-xs text-slate-600 dark:text-slate-300">
                       SKU:{' '}
-                      <span className="font-bold">{selectedProduct.sku}</span>
+                      <span className="font-bold text-emerald-600 dark:text-emerald-400">
+                        {selectedProduct.sku}
+                      </span>
                     </p>
                   </div>
                   {selectedProduct.price && (
@@ -861,42 +1086,124 @@ function BarcodePrintingContent() {
                   )}
                 </div>
 
-                {/* Existing Barcode Validation */}
+                {/* Existing Barcode Display */}
                 {selectedProduct.barcode ? (
-                  <div className="flex items-center justify-between rounded-lg border border-emerald-500/20 bg-emerald-500/10 px-3 py-2">
-                    <div className="flex items-center gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-                      <div>
-                        <span className="text-[10px] font-semibold uppercase text-emerald-700 dark:text-emerald-300">
-                          Existing Barcode Registered
-                        </span>
-                        <div className="font-mono text-xs font-bold text-emerald-900 dark:text-emerald-100">
-                          {selectedProduct.barcode}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between rounded-lg border border-emerald-500/20 bg-emerald-500/10 px-3 py-2">
+                      <div className="flex items-center gap-2">
+                        <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                        <div>
+                          <span className="text-[10px] font-semibold uppercase text-emerald-700 dark:text-emerald-300">
+                            Barcode Linked & Active
+                          </span>
+                          <div className="font-mono text-xs font-bold text-emerald-900 dark:text-emerald-100">
+                            {selectedProduct.barcode}
+                          </div>
                         </div>
                       </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsEditingBarcode(!isEditingBarcode);
+                          setCustomBarcodeInput(selectedProduct.barcode);
+                        }}
+                        className="text-[11px] font-semibold text-emerald-700 underline hover:text-emerald-900 dark:text-emerald-300 dark:hover:text-white"
+                      >
+                        {isEditingBarcode ? 'Cancel' : 'Change'}
+                      </button>
                     </div>
-                    <span className="text-[10px] text-slate-400">Code 128</span>
+
+                    {/* Edit/Change Barcode Drawer */}
+                    {isEditingBarcode && (
+                      <div className="flex gap-2 pt-1">
+                        <input
+                          type="text"
+                          placeholder="Enter new barcode..."
+                          value={customBarcodeInput}
+                          onChange={(e) =>
+                            setCustomBarcodeInput(e.target.value.toUpperCase())
+                          }
+                          className="flex-1 rounded-lg border border-slate-200 bg-white px-3 py-1.5 font-mono text-xs uppercase text-slate-900 focus:border-emerald-500 focus:outline-none dark:border-white/10 dark:bg-black/30 dark:text-white"
+                        />
+                        <button
+                          type="button"
+                          disabled={
+                            !customBarcodeInput.trim() || isLinkingBarcode
+                          }
+                          onClick={() =>
+                            handleGenerateAndLinkBarcode(
+                              selectedProduct.sku,
+                              customBarcodeInput
+                            )
+                          }
+                          className="rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-emerald-500 disabled:opacity-50"
+                        >
+                          {isLinkingBarcode ? 'Updating...' : 'Update'}
+                        </button>
+                      </div>
+                    )}
                   </div>
                 ) : (
-                  <div className="rounded-lg border border-rose-500/30 bg-rose-50 p-3 dark:bg-rose-950/20">
+                  /* NO BARCODE: Instant Generate & Link Card */
+                  <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 dark:border-amber-500/20 dark:bg-amber-950/20">
                     <div className="flex items-start gap-2">
-                      <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-rose-600 dark:text-rose-400" />
-                      <div>
-                        <p className="text-xs font-bold text-rose-800 dark:text-rose-200">
-                          No Barcode Registered
+                      <Zap className="mt-0.5 h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400" />
+                      <div className="flex-1">
+                        <p className="text-xs font-bold text-amber-900 dark:text-amber-200">
+                          No Barcode Assigned to this SKU
                         </p>
-                        <p className="mt-0.5 text-[11px] text-rose-700 dark:text-rose-300">
-                          This product does not have a registered barcode in the
-                          database. Every printed label must contain an existing
-                          barcode. Please assign one via the{' '}
-                          <Link
-                            href="/operations/inventory/scan-sync"
-                            className="font-semibold underline hover:text-white"
+                        <p className="mt-0.5 text-[11px] text-amber-800 dark:text-amber-300">
+                          Click below to automatically generate and link an
+                          official Code 128 barcode to{' '}
+                          <span className="font-mono font-bold">
+                            {selectedProduct.sku}
+                          </span>
+                          :
+                        </p>
+
+                        <div className="mt-3 flex gap-2">
+                          <input
+                            type="text"
+                            value={
+                              customBarcodeInput ||
+                              (selectedProduct.sku.startsWith('RHV-')
+                                ? selectedProduct.sku
+                                : `RHV-${selectedProduct.sku.toUpperCase()}`)
+                            }
+                            onChange={(e) =>
+                              setCustomBarcodeInput(
+                                e.target.value.toUpperCase()
+                              )
+                            }
+                            className="flex-1 rounded-lg border border-amber-300 bg-white px-3 py-2 font-mono text-xs font-bold uppercase text-slate-900 focus:border-emerald-500 focus:outline-none dark:border-amber-600/40 dark:bg-black/40 dark:text-white"
+                          />
+                          <button
+                            type="button"
+                            disabled={isLinkingBarcode}
+                            onClick={() =>
+                              handleGenerateAndLinkBarcode(
+                                selectedProduct.sku,
+                                customBarcodeInput ||
+                                  (selectedProduct.sku.startsWith('RHV-')
+                                    ? selectedProduct.sku
+                                    : `RHV-${selectedProduct.sku.toUpperCase()}`)
+                              )
+                            }
+                            className="flex items-center gap-1.5 rounded-lg bg-emerald-600 px-4 py-2 text-xs font-bold text-white shadow-md shadow-emerald-600/20 transition hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-50"
                           >
-                            Mobile Scan & Add
-                          </Link>{' '}
-                          workflow before printing.
-                        </p>
+                            {isLinkingBarcode ? (
+                              <>
+                                <RefreshCw className="h-3.5 w-3.5 animate-spin" />
+                                Syncing...
+                              </>
+                            ) : (
+                              <>
+                                <Zap className="h-3.5 w-3.5" />
+                                Generate & Sync
+                              </>
+                            )}
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
