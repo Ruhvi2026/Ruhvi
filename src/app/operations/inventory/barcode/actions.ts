@@ -26,6 +26,28 @@ export interface LinkBarcodeResult {
 }
 
 /**
+ * Generates an ultra-compact 6-digit numeric barcode (e.g. 260725).
+ * Code 128 subset C automatically pairs digits, creating a very short/narrow barcode
+ * that fits perfectly on miniature jewellery tags and labels.
+ */
+export function generateCompactNumericBarcode(sku: string): string {
+  const digits = sku.replace(/\D/g, '');
+  let numPart = '';
+  if (digits.length >= 4) {
+    numPart = digits.slice(-4);
+  } else if (digits.length > 0) {
+    numPart = digits.padStart(4, '0');
+  } else {
+    let hash = 0;
+    for (let i = 0; i < sku.length; i++) {
+      hash = (hash * 31 + sku.charCodeAt(i)) % 10000;
+    }
+    numPart = Math.abs(hash).toString().padStart(4, '0');
+  }
+  return `26${numPart}`;
+}
+
+/**
  * Automatically generates or assigns a barcode to a product by SKU,
  * saving the mapping directly into canonical products in Supabase.
  */
@@ -62,20 +84,40 @@ export async function linkBarcodeToProductSku({
       };
     }
 
-    // 2. Generate or sanitize barcode
+    // 2. Generate or sanitize barcode (Default: 6-digit compact numeric)
     let targetBarcode = (barcode || '').trim().toUpperCase();
     if (!targetBarcode) {
-      // Clean SKU into standard alphanumeric uppercase
-      const skuCode = cleanSku.toUpperCase().replace(/[^A-Z0-9_-]/g, '');
-      targetBarcode = skuCode.startsWith('RHV-') ? skuCode : `RHV-${skuCode}`;
+      targetBarcode = generateCompactNumericBarcode(cleanSku);
     }
 
     // 3. Ensure uniqueness of barcode across catalog
-    const { data: existingProductWithBarcode } = await supabase
+    let { data: existingProductWithBarcode } = await supabase
       .from('products')
       .select('id, sku, name')
       .eq('barcode', targetBarcode)
       .maybeSingle();
+
+    // If auto-generated barcode has collision, increment until unique
+    if (
+      !barcode &&
+      existingProductWithBarcode &&
+      existingProductWithBarcode.id !== product.id
+    ) {
+      const baseNum = parseInt(targetBarcode, 10) || 260000;
+      for (let attempt = 1; attempt <= 100; attempt++) {
+        const candidate = (baseNum + attempt).toString();
+        const { data: col } = await supabase
+          .from('products')
+          .select('id')
+          .eq('barcode', candidate)
+          .maybeSingle();
+        if (!col) {
+          targetBarcode = candidate;
+          existingProductWithBarcode = null;
+          break;
+        }
+      }
+    }
 
     if (
       existingProductWithBarcode &&
@@ -122,7 +164,7 @@ export async function linkBarcodeToProductSku({
 }
 
 /**
- * Batch generate default barcodes for all products that currently lack one.
+ * Batch generate default compact 6-digit barcodes for all products that currently lack one.
  */
 export async function batchGenerateMissingBarcodes(): Promise<{
   success: boolean;
@@ -146,10 +188,30 @@ export async function batchGenerateMissingBarcodes(): Promise<{
     let updatedCount = 0;
     for (const item of unassignedProducts) {
       if (!item.sku) continue;
-      const cleanSku = item.sku.toUpperCase().replace(/[^A-Z0-9_-]/g, '');
-      const genBarcode = cleanSku.startsWith('RHV-')
-        ? cleanSku
-        : `RHV-${cleanSku}`;
+      let genBarcode = generateCompactNumericBarcode(item.sku);
+
+      // Check collision
+      const { data: existing } = await supabase
+        .from('products')
+        .select('id')
+        .eq('barcode', genBarcode)
+        .maybeSingle();
+
+      if (existing && existing.id !== item.id) {
+        const baseNum = parseInt(genBarcode, 10) || 260000;
+        for (let att = 1; att <= 100; att++) {
+          const candidate = (baseNum + att).toString();
+          const { data: col } = await supabase
+            .from('products')
+            .select('id')
+            .eq('barcode', candidate)
+            .maybeSingle();
+          if (!col) {
+            genBarcode = candidate;
+            break;
+          }
+        }
+      }
 
       const { error: updErr } = await supabase
         .from('products')

@@ -34,6 +34,7 @@ import toast from 'react-hot-toast';
 import {
   linkBarcodeToProductSku,
   batchGenerateMissingBarcodes,
+  generateCompactNumericBarcode,
 } from './actions';
 
 // ============================================================================
@@ -342,7 +343,7 @@ function BarcodePrintingContent() {
   const handleBatchGenerate = async () => {
     if (
       !confirm(
-        'This will automatically assign standard barcodes (RHV-[SKU]) to all products without one. Proceed?'
+        'This will automatically assign 6-digit compact numeric barcodes (e.g. 26XXXX) to all products without one. Proceed?'
       )
     ) {
       return;
@@ -934,12 +935,17 @@ function BarcodePrintingContent() {
                   <label className="block text-xs font-medium text-slate-500 dark:text-slate-400">
                     Custom Barcode{' '}
                     <span className="text-[10px] text-slate-400">
-                      (Optional — defaults to RHV-[SKU])
+                      (Optional — defaults to compact 6-digit numeric e.g.
+                      260725)
                     </span>
                   </label>
                   <input
                     type="text"
-                    placeholder={`e.g. RHV-${directSkuInput.trim() || 'SKU'}`}
+                    placeholder={
+                      directSkuInput.trim()
+                        ? `e.g. ${generateCompactNumericBarcode(directSkuInput.trim())} (6-digit compact)`
+                        : 'e.g. 260725 (6-digit compact)'
+                    }
                     value={customBarcodeInput}
                     onChange={(e) =>
                       setCustomBarcodeInput(e.target.value.toUpperCase())
@@ -1166,9 +1172,7 @@ function BarcodePrintingContent() {
                             type="text"
                             value={
                               customBarcodeInput ||
-                              (selectedProduct.sku.startsWith('RHV-')
-                                ? selectedProduct.sku
-                                : `RHV-${selectedProduct.sku.toUpperCase()}`)
+                              generateCompactNumericBarcode(selectedProduct.sku)
                             }
                             onChange={(e) =>
                               setCustomBarcodeInput(
@@ -1184,9 +1188,9 @@ function BarcodePrintingContent() {
                               handleGenerateAndLinkBarcode(
                                 selectedProduct.sku,
                                 customBarcodeInput ||
-                                  (selectedProduct.sku.startsWith('RHV-')
-                                    ? selectedProduct.sku
-                                    : `RHV-${selectedProduct.sku.toUpperCase()}`)
+                                  generateCompactNumericBarcode(
+                                    selectedProduct.sku
+                                  )
                               )
                             }
                             className="flex items-center gap-1.5 rounded-lg bg-emerald-600 px-4 py-2 text-xs font-bold text-white shadow-md shadow-emerald-600/20 transition hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-50"
