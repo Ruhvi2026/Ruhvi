@@ -37,7 +37,8 @@ const TASK_SELECT = `
   order:orders(id, order_number, status, total, payment_method, payment_status, created_at, user_id),
   product:products(id, name, slug, sku, price, mrp, stock_quantity, status),
   ticket:support_tickets(id, ticket_number, title, description, status, priority, customer_email, guest_name, created_at),
-  recurrence:task_recurrences(*)
+  recurrence:task_recurrences(*),
+  checklists:task_checklists(id, title, completed, sort_order)
 `;
 
 // Fall back to default priority ('Normal'/'Medium' or lowest level)
@@ -563,6 +564,16 @@ export async function POST(req: Request) {
       );
     }
 
+    const startTime =
+      typeof body.start_time === 'string' && body.start_time
+        ? body.start_time.trim()
+        : null;
+
+    const dueTime =
+      typeof body.due_time === 'string' && body.due_time
+        ? body.due_time.trim()
+        : null;
+
     if (!priorityId) priorityId = await resolveDefaultPriorityId(supabase);
     if (!priorityId) {
       return NextResponse.json(
@@ -626,26 +637,38 @@ export async function POST(req: Request) {
           ? 'department'
           : 'direct_user';
 
-    const payload: Record<string, unknown> = {
+    const rawTags = Array.isArray(body.tags)
+      ? body.tags.filter((t: unknown) => typeof t === 'string' && t.trim())
+      : [];
+    const sopUrl =
+      typeof body.sop_url === 'string' && body.sop_url.trim()
+        ? body.sop_url.trim()
+        : null;
+    if (
+      sopUrl &&
+      !rawTags.some(
+        (t: string) =>
+          typeof t === 'string' && t.toLowerCase().startsWith('sop:')
+      )
+    ) {
+      rawTags.push(`sop:${sopUrl}`);
+    }
+
+    const payload: Record<string, any> = {
       task_id_text: generateTaskIdText(),
       title,
       description,
+      sop_url: sopUrl,
       created_by: staffUser.id,
-      priority_id: priorityId,
-      status_id: statusId,
-      department_id: departmentId ?? staffUser.department_id ?? null,
       assignee_id: assigneeId,
       assigned_type: assignedType,
+      department_id: departmentId,
+      priority_id: priorityId,
       type_id: typeId,
+      start_time: startTime,
       due_date: dueDate,
-      due_time:
-        typeof body.due_time === 'string' && body.due_time
-          ? body.due_time.slice(0, 5)
-          : null,
-      start_time:
-        typeof body.start_time === 'string' && body.start_time
-          ? body.start_time.slice(0, 10)
-          : null,
+      due_time: dueTime,
+      status_id: statusId,
       expected_duration:
         typeof body.expected_duration === 'string' && body.expected_duration
           ? body.expected_duration.trim()
@@ -653,9 +676,7 @@ export async function POST(req: Request) {
       related_order_id: relatedOrderId,
       related_product_id: relatedProductId,
       related_ticket_id: relatedTicketId,
-      tags: Array.isArray(body.tags)
-        ? body.tags.filter((t: unknown) => typeof t === 'string' && t.trim())
-        : [],
+      tags: rawTags,
       is_recurring: Boolean(
         body.is_recurring ||
         (body.schedule_type &&
@@ -670,11 +691,26 @@ export async function POST(req: Request) {
           : null,
     };
 
-    const { data: firstRow, error: insertError } = await supabase
+    let { data: firstRow, error: insertError } = await supabase
       .from('tasks')
       .insert(payload)
       .select(TASK_SELECT)
       .single();
+
+    // If sop_url column does not exist in DB yet, fallback without sop_url (it is stored in tags)
+    if (
+      insertError &&
+      (insertError.code === '42703' || insertError.message?.includes('sop_url'))
+    ) {
+      delete payload.sop_url;
+      const fallbackInsert = await supabase
+        .from('tasks')
+        .insert(payload)
+        .select(TASK_SELECT)
+        .single();
+      firstRow = fallbackInsert.data;
+      insertError = fallbackInsert.error;
+    }
 
     let createdTask: any = firstRow;
 

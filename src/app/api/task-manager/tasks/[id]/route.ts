@@ -137,6 +137,12 @@ export async function PUT(
       updates.related_product_id = body.related_product_id;
     if (body.related_ticket_id !== undefined)
       updates.related_ticket_id = body.related_ticket_id;
+    if (body.sop_url !== undefined) {
+      updates.sop_url =
+        typeof body.sop_url === 'string' && body.sop_url.trim()
+          ? body.sop_url.trim()
+          : null;
+    }
 
     if (Object.keys(updates).length === 0) {
       return NextResponse.json(
@@ -266,7 +272,7 @@ export async function PUT(
     }
 
     // Update task
-    const { data: updatedTask, error } = await supabase
+    let { data: updatedTask, error } = await supabase
       .from('tasks')
       .update(updates)
       .eq('id', id)
@@ -282,6 +288,31 @@ export async function PUT(
       `
       )
       .single();
+
+    if (
+      error &&
+      (error.code === '42703' || error.message?.includes('sop_url'))
+    ) {
+      delete updates.sop_url;
+      const retry = await supabase
+        .from('tasks')
+        .update(updates)
+        .eq('id', id)
+        .select(
+          `
+          *,
+          assignee:users!tasks_assignee_id_fkey(id, full_name, email, department, avatar_url),
+          creator:users!tasks_created_by_fkey(id, full_name, email),
+          priority_name:task_priorities(name, level, color),
+          status_name:task_statuses(name, display_order, color),
+          type_name:task_types(name, icon),
+          department_name:departments(name)
+        `
+        )
+        .single();
+      updatedTask = retry.data;
+      error = retry.error;
+    }
 
     if (error) {
       console.error('[Task PUT] Error:', error);

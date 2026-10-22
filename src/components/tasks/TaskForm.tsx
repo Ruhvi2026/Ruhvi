@@ -20,6 +20,7 @@ import {
   Ticket,
   Search,
   Eye,
+  FileText,
 } from 'lucide-react';
 import RelatedEntityModal from './RelatedEntityModal';
 import {
@@ -53,6 +54,7 @@ export default function TaskForm({
   const [formData, setFormData] = useState({
     title: '',
     description: '',
+    sop_url: '',
     assignee_id: '',
     department_id: '',
     priority_id: '',
@@ -118,9 +120,19 @@ export default function TaskForm({
           ? task.spectators[0].user_id || task.spectators[0].spectator?.id || ''
           : '';
 
+      const initialSopUrl =
+        task.sop_url ||
+        task.tags
+          ?.find(
+            (t) => typeof t === 'string' && t.toLowerCase().startsWith('sop:')
+          )
+          ?.replace(/^sop:/i, '') ||
+        '';
+
       setFormData({
         title: task.title || '',
         description: task.description || '',
+        sop_url: initialSopUrl,
         assignee_id: task.assignee_id || '',
         department_id: task.department_id || '',
         priority_id: task.priority_id || '',
@@ -579,6 +591,26 @@ export default function TaskForm({
             {errors.description && (
               <p className="mt-1 text-xs text-rose-400">{errors.description}</p>
             )}
+          </div>
+
+          {/* SOP Guide / Document Link (Optional) */}
+          <div className="lg:col-span-2">
+            <div className="mb-1 flex items-center justify-between">
+              <label className="flex items-center gap-1.5 text-sm font-medium text-slate-300">
+                <FileText className="h-4 w-4 text-cyan-400" />
+                <span>SOP Guide / Document Link (Optional)</span>
+              </label>
+              <span className="text-[11px] text-slate-400">
+                Standard Operating Procedure URL / guidelines
+              </span>
+            </div>
+            <input
+              type="url"
+              value={formData.sop_url}
+              onChange={(e) => handleChange('sop_url', e.target.value)}
+              className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              placeholder="https://docs.google.com/... or SOP document link"
+            />
           </div>
 
           {/* Priority */}

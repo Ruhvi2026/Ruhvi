@@ -214,6 +214,7 @@ export interface Task {
   task_id_text: string | null;
   title: string;
   description: string;
+  sop_url?: string | null;
   created_by: string;
   assignee_id: string | null;
   department_id: string | null;

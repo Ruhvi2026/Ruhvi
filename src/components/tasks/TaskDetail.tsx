@@ -34,9 +34,11 @@ import {
   X,
   Search,
   ArrowRightCircle,
+  FileText,
 } from 'lucide-react';
 import RelatedEntityModal from './RelatedEntityModal';
 import StaffAvatar from './StaffAvatar';
+import { getTaskSopUrl } from './TaskOperationsGrid';
 import {
   Task,
   TaskComment,
@@ -1193,6 +1195,35 @@ export default function TaskDetail({
                 </p>
               </div>
             </div>
+
+            {/* Standard Operating Procedure (SOP) Guide */}
+            {getTaskSopUrl(task) && (
+              <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-cyan-500/30 bg-cyan-500/10 p-4">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-cyan-500/20 text-cyan-300">
+                    <FileText className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-semibold text-white">
+                      Standard Operating Procedure (SOP) Guide
+                    </h4>
+                    <p className="text-xs text-cyan-200/80">
+                      Operational guidelines and step-by-step documentation for
+                      this task.
+                    </p>
+                  </div>
+                </div>
+                <a
+                  href={getTaskSopUrl(task)!}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1.5 rounded-lg bg-cyan-600 px-3.5 py-2 text-xs font-semibold text-white shadow transition-all hover:bg-cyan-500 hover:text-white"
+                >
+                  <span>Open SOP Guide</span>
+                  <ExternalLink className="h-3.5 w-3.5" />
+                </a>
+              </div>
+            )}
 
             {/* Related Entities */}
             {(task.related_order_id ||
