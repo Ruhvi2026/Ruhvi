@@ -34,8 +34,8 @@ import toast from 'react-hot-toast';
 import {
   linkBarcodeToProductSku,
   batchGenerateMissingBarcodes,
-  generateCompactNumericBarcode,
 } from './actions';
+import { generateCompactNumericBarcode } from './utils';
 
 // ============================================================================
 // Layout Preset Types & Definitions
