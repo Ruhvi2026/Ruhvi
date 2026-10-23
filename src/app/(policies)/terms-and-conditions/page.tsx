@@ -43,13 +43,13 @@ export default function TermsConditionsPage() {
           <ul className="list-disc space-y-1 pl-5">
             <li>
               <strong>Reward Coins:</strong> Earned on qualifying purchases
-              (usually 10% of product value). Coins are credited only after the
-              7-day return window expires. Coins expire 100 days from the date
-              of issue. 10 Coins = ₹1. A minimum order value of ₹250 is required
-              to redeem coins.
+              (standard 10% of product value, or 20% for Ruhvi Privé VIP
+              members). Coins are credited only after the 7-day return window
+              expires. Coins expire 100 days from the date of issue. 10 Coins =
+              ₹1. A minimum order value of ₹250 is required to redeem coins.
             </li>
             <li>
-              <strong>Wallet Cashback:</strong> You may receive 5% cashback on
+              <strong>Wallet Cashback:</strong> You may receive cashback on
               certain promotional orders when paid via Wallet. Wallet balances
               are strictly promotional and non-withdrawable to your bank
               account.
@@ -70,20 +70,67 @@ export default function TermsConditionsPage() {
 
         <section className="space-y-3">
           <h2 className="font-serif text-xl font-bold text-charcoal-900">
-            3. Pricing and Availability
+            3. Ruhvi Privé (VIP Membership)
           </h2>
           <p>
-            All prices are displayed in Indian Rupees (INR) and are final at the
-            time of checkout. We reserve the right to modify prices without
-            prior notice. While we strive to ensure stock accuracy, in rare
-            cases, an item may become out of stock after an order is placed. In
-            such instances, we will cancel the order and provide a full refund.
+            Ruhvi Privé (Ruhvi Gold Circle) is our premier luxury membership
+            program:
           </p>
+          <ul className="list-disc space-y-1.5 pl-5">
+            <li>
+              <strong>Enrollment:</strong> Membership can be activated via
+              direct buy-in for ₹500 or by redeeming 1,500 Reward Coins.
+            </li>
+            <li>
+              <strong>Validity & Refunds:</strong> Membership remains active for
+              exactly 365 days from activation. The membership fee is strictly
+              non-refundable and non-cancellable once activated.
+            </li>
+            <li>
+              <strong>Core Privileges:</strong> Privé members enjoy 100% Free
+              Express Insured Shipping on all orders (no minimum basket size
+              required), zero Cash on Delivery convenience fee, 2X Accelerated
+              Reward Coins (20% coin back), an Annual Birthday Perk during
+              birthday month, and 24-Hour early access to new collection drops
+              and the exclusive Privé Vault.
+            </li>
+            <li>
+              <strong>Safeguards:</strong> Date of Birth (DOB) is locked upon
+              registration with a 30-day anti-fraud buffer. If an order is
+              returned or cancelled, the 20% bonus coins earned from that order
+              are automatically reversed.
+            </li>
+          </ul>
         </section>
 
         <section className="space-y-3">
           <h2 className="font-serif text-xl font-bold text-charcoal-900">
-            4. Product Materials & Hallmarking
+            4. Pricing, Payments & 10% Partial-COD
+          </h2>
+          <p>
+            All prices are displayed in Indian Rupees (INR) and are final at
+            checkout. We accept payments through PhonePe, Paytm, UPI,
+            Credit/Debit cards, Net Banking, Ruhvi Wallet, Cash on Delivery
+            (COD), and 10% Partial-COD.
+          </p>
+          <ul className="list-disc space-y-1.5 pl-5">
+            <li>
+              <strong>10% Partial-COD:</strong> Under this option, customers pay
+              a 10% advance deposit online at checkout, and the remaining 90% is
+              collected in cash upon delivery. The 10% advance deposit is 100%
+              refundable if the order is cancelled prior to shipment.
+            </li>
+            <li>
+              <strong>Stock & Cancellations:</strong> While we strive to ensure
+              stock accuracy, if an item is out of stock, we will notify you and
+              issue an immediate full refund.
+            </li>
+          </ul>
+        </section>
+
+        <section className="space-y-3">
+          <h2 className="font-serif text-xl font-bold text-charcoal-900">
+            5. Product Materials & Hallmarking
           </h2>
           <p>
             Our products are premium gold-plated jewelry designed for durability
@@ -96,7 +143,7 @@ export default function TermsConditionsPage() {
 
         <section className="space-y-3">
           <h2 className="font-serif text-xl font-bold text-charcoal-900">
-            5. Coupons & Discounts
+            6. Coupons & Discounts
           </h2>
           <p>
             Only one coupon code can be applied per order. However, coupons can
@@ -108,7 +155,7 @@ export default function TermsConditionsPage() {
 
         <section className="space-y-3">
           <h2 className="font-serif text-xl font-bold text-charcoal-900">
-            6. Intellectual Property
+            7. Intellectual Property
           </h2>
           <p>
             Unless otherwise stated, Ruhvi owns the intellectual property rights
@@ -121,7 +168,7 @@ export default function TermsConditionsPage() {
 
         <section className="space-y-3">
           <h2 className="font-serif text-xl font-bold text-charcoal-900">
-            7. User Accounts & Data Rights
+            8. User Accounts & Data Rights
           </h2>
           <p>
             When creating an account via email, phone OTP, or third-party
@@ -149,7 +196,7 @@ export default function TermsConditionsPage() {
 
         <section className="space-y-3">
           <h2 className="font-serif text-xl font-bold text-charcoal-900">
-            8. Governing Law
+            9. Governing Law
           </h2>
           <p>
             These terms and conditions are governed by and construed in
@@ -161,7 +208,7 @@ export default function TermsConditionsPage() {
 
         <section className="space-y-3 border-t border-gold-200/50 pt-4">
           <h2 className="font-serif text-xl font-bold text-charcoal-900">
-            9. Grievance Officer
+            10. Grievance Officer
           </h2>
           <p>
             In accordance with the Information Technology Act, 2000 and rules

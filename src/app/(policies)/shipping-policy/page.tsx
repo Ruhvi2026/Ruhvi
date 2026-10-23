@@ -22,22 +22,36 @@ export default function ShippingPolicyPage() {
 
         <section className="space-y-3">
           <h2 className="font-serif text-xl font-bold text-charcoal-900">
-            1. Shipping Charges
+            1. Shipping Charges & VIP Benefits
           </h2>
-          <ul className="list-disc space-y-1 pl-5">
+          <ul className="list-disc space-y-1.5 pl-5">
             <li>
-              We offer <strong>Free Standard Shipping</strong> on all prepaid
-              and Cash on Delivery (COD) orders with a total cart value{' '}
-              <strong>above ₹1,000</strong>.
+              <strong>Standard Orders:</strong> We offer{' '}
+              <strong>Free Standard Insured Shipping</strong> on all prepaid,
+              Partial-COD, and Cash on Delivery (COD) orders with a total cart
+              value <strong>above ₹1,000</strong>.
             </li>
             <li>
               For orders with a cart value <strong>below ₹1,000</strong>, a flat
               shipping fee of <strong>₹49</strong> applies.
             </li>
             <li>
-              If you choose Cash on Delivery (COD) as your payment method, an
-              additional COD convenience charge of <strong>₹49</strong> is
-              applied to the order, regardless of the cart value.
+              <strong>Ruhvi Privé VIP Members:</strong> Enjoy{' '}
+              <strong>
+                100% Free Express Insured Shipping on every single order
+              </strong>
+              , with no minimum order value threshold, plus complete waiver of
+              the COD fee.
+            </li>
+            <li>
+              <strong>Cash on Delivery (COD):</strong> If you choose full Cash
+              on Delivery as your payment method, a convenience fee of{' '}
+              <strong>₹49</strong> is applied (waived for Privé VIPs).
+            </li>
+            <li>
+              <strong>10% Partial-COD Option:</strong> Pay 10% advance online,
+              and the remaining 90% in cash upon delivery. Standard shipping
+              rules apply.
             </li>
           </ul>
         </section>

@@ -1284,13 +1284,12 @@ export default function SupportTicketDetail() {
                   )}
 
                   <div className="flex justify-between">
-                    <span className="text-slate-500">Warranty (1-Year):</span>
+                    <span className="text-slate-500">Warranty (6-Month):</span>
                     <span className="font-medium text-emerald-400">
                       {(() => {
                         const orderDate = new Date(ticket.order.created_at);
-                        const warrantyExpiry = new Date(
-                          orderDate.setFullYear(orderDate.getFullYear() + 1)
-                        );
+                        const warrantyExpiry = new Date(orderDate);
+                        warrantyExpiry.setMonth(warrantyExpiry.getMonth() + 6);
                         const isExpired = warrantyExpiry < new Date();
                         return `Expires ${warrantyExpiry.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })} (${isExpired ? 'Expired' : 'Active'})`;
                       })()}

@@ -96,6 +96,17 @@ export default function ReturnPolicyPage() {
               opt for an instant refund to your Ruhvi Wallet.
             </li>
             <li>
+              <strong>
+                Partial-COD Orders (10% Advance + 90% at Delivery):
+              </strong>{' '}
+              The 10% online advance deposit will be refunded back to your
+              original payment method (via PhonePe, Paytm, card, or UPI) or
+              credited to your Ruhvi Wallet within 5-7 business days. The
+              remaining 90% collected on delivery will be refunded directly to
+              your provided Bank Account (via NEFT/UPI) or Ruhvi Wallet upon
+              warehouse QC clearance.
+            </li>
+            <li>
               <strong>COD Orders:</strong> Refunds for Cash on Delivery orders
               will be issued to your Ruhvi Wallet or your provided Bank Account
               (via NEFT/UPI).
@@ -106,8 +117,8 @@ export default function ReturnPolicyPage() {
             </li>
           </ul>
           <p className="mt-2 text-xs italic text-stone-500">
-            *Note: Shipping charges and COD convenience fees paid during the
-            original order are non-refundable.
+            *Note: Standard shipping charges and COD convenience fees paid
+            during the original order are non-refundable.
           </p>
         </section>
 

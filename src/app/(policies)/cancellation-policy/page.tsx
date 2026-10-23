@@ -56,7 +56,7 @@ export default function CancellationPolicyPage() {
           <h2 className="font-serif text-xl font-bold text-charcoal-900">
             3. Refunds for Cancelled Orders
           </h2>
-          <ul className="list-disc space-y-1 pl-5">
+          <ul className="list-disc space-y-1.5 pl-5">
             <li>
               <strong>Prepaid Orders:</strong> If you cancel a prepaid order
               before shipment, a full refund (including any shipping charges)
@@ -65,10 +65,16 @@ export default function CancellationPolicyPage() {
               business days.
             </li>
             <li>
-              <strong>COD Orders:</strong> No refund is required as no payment
-              has been made. However, frequent cancellations of COD orders may
-              result in restricted access to the COD payment method in the
-              future.
+              <strong>10% Partial-COD Orders:</strong> If you cancel a
+              Partial-COD order before dispatch, your 10% online advance deposit
+              will be 100% refunded to your original payment method or Ruhvi
+              Wallet within 3-5 business days.
+            </li>
+            <li>
+              <strong>Standard COD Orders:</strong> No refund is required as no
+              payment has been made. However, frequent cancellations of COD
+              orders may result in restricted access to the COD payment method
+              in the future.
             </li>
             <li>
               <strong>Coupons & Reward Coins:</strong> If you used Reward Coins

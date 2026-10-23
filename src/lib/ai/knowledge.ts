@@ -27,57 +27,80 @@ export const RUHVI_BUSINESS_KNOWLEDGE = {
     base: 'Nickel-free brass base',
     plating: 'Premium 22K gold-plated',
     coating: 'Anti-tarnish e-coating for lasting shine',
-    colorGuarantee: '6-month color guarantee on all pieces',
+    colorGuarantee: '6-month anti-tarnish color guarantee on all pieces',
     hallmarking:
-      'BIS hallmarking applies only to solid gold. Our gold-plated pieces are not hallmarked, which is standard for plated jewellery.',
+      'BIS hallmarking applies strictly to solid gold. Our gold-plated jewellery (18K/24K gold vermeil over 925 sterling silver and brass) is crafted with protective e-coating; hallmarking is legally not applicable for plated jewellery.',
   },
 
   shipping: {
-    carrier: 'Blue Dart Air Transit',
-    deliveryTime: '2-5 business days (Estimated delivery: 2–5 days)',
-    insurance: 'All shipments are fully insured',
-    tracking: 'Tracking number provided via email after dispatch',
+    carrier: 'Blue Dart / Shiprocket Logistics Network',
+    deliveryTime:
+      '2-5 business days across India (Dispatched within 1-2 business days)',
+    insurance:
+      'All shipments are 100% fully insured against transit loss or damage',
+    tracking:
+      'Live AWB tracking link sent via Email and WhatsApp immediately upon dispatch',
     freeShippingThreshold:
-      'Free shipping on orders above ₹1,000 (100% Free Express Insured Shipping on all orders for Ruhvi Privé VIP members)',
+      'Free standard shipping on orders above ₹1,000 (Orders below ₹1,000 have flat ₹49 shipping). 100% Free Express Insured Shipping on EVERY order for Ruhvi Privé VIP members.',
+    codFee:
+      'Standard COD orders have a ₹49 convenience charge. (Completely waived for Ruhvi Privé VIP members).',
     packaging:
-      'Premium gift-ready packaging with branded box, pouch, and care card',
+      'Eco-luxury gift-ready packaging with branded velvet pouch, protective box, and authenticity/care card.',
   },
 
   returns: {
-    window: '7 days from delivery',
+    window: '7 days from delivery date',
     condition:
-      'Piece must be unworn, undamaged, and in original packaging with all tags attached',
+      'Piece must be unworn, in original condition, and in original packaging with all certificates and pouches.',
+    securityTag:
+      'CRITICAL: Every item is fitted with a tamper-evident security tag. If the security tag is cut, removed, broken, or tampered with, return is STRICTLY NOT APPLICABLE.',
     process:
-      '1. Contact support or raise a ticket via chat. 2. Return pickup arranged. 3. Quality inspection. 4. Refund processed.',
-    refundTimeline: '7-10 business days after return approval',
-    refundMethods: 'Original payment method or store wallet credit',
+      '1. Go to My Account > Orders and click "Request Return", or ask Gia to raise a support ticket. 2. Reverse pickup arranged within 2-3 business days. 3. Quality inspection at warehouse. 4. Refund processed.',
+    refundTimeline:
+      '5-7 business days to original payment method, or instant credit to Ruhvi Wallet.',
+    refundMethods:
+      'Original payment method, bank account (NEFT/UPI for COD orders), or Ruhvi Wallet balance.',
     nonReturnable:
-      'Personalized/engraved pieces, sale items marked as final sale',
+      'Nose pins, nose rings (hygiene reasons), custom engraved or personalized jewellery, and clearance items explicitly marked as final sale.',
+  },
+
+  cancellation: {
+    window:
+      'Allowed anytime before the order is shipped (while status is Pending or Confirmed).',
+    afterShipment:
+      'Once marked as Shipped and handed to courier, cancellation is not possible; customer must receive the parcel and initiate a 7-day return.',
+    refund:
+      'Full refund including shipping and partial-COD advance processed within 3-5 business days to original payment method or Ruhvi Wallet.',
   },
 
   warranty: {
-    coverage: 'Manufacturing defects covered for 1 year from purchase',
+    coverage:
+      '6-Month Comprehensive Warranty (all warranties provided by Ruhvi are strictly valid for 6 months from delivery date, covering both manufacturing defects and the anti-tarnish color guarantee).',
     includes:
-      'Defective clasps, broken chains (not from misuse), plating defects within guarantee period',
+      'Defective clasps, broken chain links (non-accidental), loose stone prongs, craftsmanship flaws, and plating fading within the 6-month window under normal care.',
     excludes:
-      'Normal wear and tear, tarnishing beyond guarantee period, damage from chemicals/perfumes/water',
+      'Physical damage, chemical damage (perfumes, chlorine, soaps, lotions), accidental breakage, and natural wear and tear beyond guarantee.',
     claimProcess:
-      'Contact support with order number and photos of the defect. Our team will assess and arrange repair or replacement.',
+      'Contact support@ruhvi.in or chat with Gia with your order number and clear photos of the defect.',
   },
 
   payments: {
     methods: [
-      'UPI (PhonePe, Google Pay, Paytm)',
-      'Credit/Debit Cards',
-      'Net Banking',
-      'Cash on Delivery (COD)',
+      'UPI (PhonePe, Google Pay, Paytm, BHIM)',
+      '10% Partial-COD (Pay 10% advance online, remaining 90% in cash upon delivery)',
+      'Standard Cash on Delivery (COD)',
+      'Credit & Debit Cards (Visa, MasterCard, RuPay)',
+      'Net Banking (All major Indian banks)',
       'Ruhvi Wallet Balance',
     ],
-    codCharges: 'COD available on select orders',
+    partialCod:
+      '10% Partial-COD allows customers to pay 10% advance online via UPI/Card and the remaining 90% in cash to the courier. The 10% advance is 100% refundable if cancelled prior to dispatch.',
+    codCharges:
+      '₹49 COD fee on standard orders (waived for Ruhvi Privé VIP members).',
     walletInfo:
-      'Ruhvi Wallet can be used for purchases. Wallet balance is credited for returns if customer chooses wallet refund.',
+      'Ruhvi Wallet balance can be used directly for purchases or instant refunds. Includes promotional cashback and referral rewards.',
     securePayment:
-      'All payments are processed through secure, encrypted gateways.',
+      'All payments are processed through RBI-authorized, 256-bit SSL encrypted PhonePe and Paytm gateways.',
   },
 
   rewardProgram: {
@@ -160,7 +183,7 @@ export const RUHVI_BUSINESS_KNOWLEDGE = {
     },
     {
       q: 'How long will my jewellery last?',
-      a: 'With proper care, our pieces last for years. The anti-tarnish e-coating provides extra protection. We offer a 6-month color guarantee and 1-year warranty against manufacturing defects.',
+      a: 'With proper care, our pieces last for years. The anti-tarnish e-coating provides extra protection. All our jewellery is backed by our official 6-month comprehensive warranty covering both manufacturing defects and anti-tarnish color guarantee.',
     },
     {
       q: 'Can I return or exchange a piece?',
@@ -444,12 +467,15 @@ export async function buildKnowledgeContext(
   ) {
     knowledgeParts.push(`SHIPPING:
 - Carrier: ${bk.shipping.carrier}
-- Delivery: ${bk.shipping.deliveryTime}
+- Delivery Time: ${bk.shipping.deliveryTime}
 - Insurance: ${bk.shipping.insurance}
+- Tracking: ${bk.shipping.tracking}
+- Threshold: ${bk.shipping.freeShippingThreshold}
+- COD Fee: ${bk.shipping.codFee}
 - Packaging: ${bk.shipping.packaging}`);
   }
 
-  // Include return/refund info if relevant
+  // Include return/refund/cancellation info if relevant
   if (
     msg.includes('return') ||
     msg.includes('refund') ||
@@ -459,10 +485,17 @@ export async function buildKnowledgeContext(
   ) {
     knowledgeParts.push(`RETURNS & REFUNDS:
 - Window: ${bk.returns.window}
+- Security Tag Rule: ${bk.returns.securityTag}
 - Condition: ${bk.returns.condition}
 - Process: ${bk.returns.process}
 - Refund Timeline: ${bk.returns.refundTimeline}
-- Non-Returnable: ${bk.returns.nonReturnable}`);
+- Refund Methods: ${bk.returns.refundMethods}
+- Non-Returnable Items: ${bk.returns.nonReturnable}
+
+CANCELLATION:
+- Window: ${bk.cancellation.window}
+- Post-Dispatch: ${bk.cancellation.afterShipment}
+- Refund: ${bk.cancellation.refund}`);
   }
 
   // Include warranty info if relevant
@@ -471,9 +504,11 @@ export async function buildKnowledgeContext(
     msg.includes('defect') ||
     msg.includes('broken') ||
     msg.includes('damaged') ||
-    msg.includes('quality')
+    msg.includes('quality') ||
+    msg.includes('tarnish') ||
+    msg.includes('color')
   ) {
-    knowledgeParts.push(`WARRANTY:
+    knowledgeParts.push(`WARRANTY & COLOR GUARANTEE:
 - Coverage: ${bk.warranty.coverage}
 - Includes: ${bk.warranty.includes}
 - Excludes: ${bk.warranty.excludes}
@@ -487,10 +522,13 @@ export async function buildKnowledgeContext(
     msg.includes('cod') ||
     msg.includes('wallet') ||
     msg.includes('card') ||
-    msg.includes('net banking')
+    msg.includes('net banking') ||
+    msg.includes('partial')
   ) {
-    knowledgeParts.push(`PAYMENT:
+    knowledgeParts.push(`PAYMENTS & PARTIAL COD:
 - Methods: ${bk.payments.methods.join(', ')}
+- 10% Partial-COD: ${bk.payments.partialCod}
+- Standard COD Fee: ${bk.payments.codCharges}
 - Wallet: ${bk.payments.walletInfo}
 - Security: ${bk.payments.securePayment}`);
   }

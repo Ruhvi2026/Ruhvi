@@ -55,7 +55,8 @@ export default function PrivacyPolicyPage() {
               gateway transaction IDs.{' '}
               <em>
                 Note: We do not store your credit card or raw banking details.
-                All transactions are securely processed via PhonePe.
+                All transactions are securely processed via RBI-authorized
+                gateways (PhonePe and Paytm).
               </em>
             </li>
             <li>
@@ -88,17 +89,18 @@ export default function PrivacyPolicyPage() {
           <ul className="list-disc space-y-1 pl-5">
             <li>
               <strong>Order Fulfillment:</strong> To process and deliver your
-              order, including managing payments, fees, and charges via PhonePe,
-              and coordinating delivery via Shiprocket.
+              order, including managing payments, partial-COD deposits, fees,
+              and charges via PhonePe or Paytm, and coordinating delivery via
+              Shiprocket.
             </li>
             <li>
               <strong>Authentication:</strong> To manage your account and secure
               your login using Supabase and Firebase Auth (OTP verification).
             </li>
             <li>
-              <strong>Customer Support:</strong> To notify you about changes to
-              our terms or privacy policy, and to provide customer service via
-              WhatsApp.
+              <strong>Customer Support & AI Concierge:</strong> To resolve your
+              inquiries, track orders, process return requests, and assist you
+              via our AI Concierge (Gia) and official WhatsApp support channels.
             </li>
             <li>
               <strong>Marketing & Re-engagement:</strong> To deliver relevant
@@ -128,8 +130,8 @@ export default function PrivacyPolicyPage() {
               Vercel).
             </li>
             <li>
-              <strong>Payment Gateways:</strong> Such as PhonePe for secure
-              transaction processing.
+              <strong>Payment Gateways:</strong> Such as PhonePe and Paytm for
+              secure transaction processing and 10% Partial-COD payments.
             </li>
             <li>
               <strong>Logistics Partners:</strong> Such as Shiprocket to fulfill

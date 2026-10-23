@@ -323,22 +323,28 @@ export async function generateAIContent(
     `[AI_ROUTING_REQUEST] correlationId=${correlationId} feature=${featureKey}`
   );
 
-  // ── 1. Load Settings ─────────────────────────────────────────────────────
-  const { data: featuresData } = await supabaseAdmin
-    .from('settings')
-    .select('value')
-    .eq('key', 'ai_features')
-    .single();
-  const { data: providersData } = await supabaseAdmin
-    .from('settings')
-    .select('value')
-    .eq('key', 'ai_providers')
-    .single();
-  const { data: globalData } = await supabaseAdmin
-    .from('settings')
-    .select('value')
-    .eq('key', 'ai_global')
-    .single();
+  // ── 1. Load Settings (in parallel for minimum latency) ───────────────────
+  const [
+    { data: featuresData },
+    { data: providersData },
+    { data: globalData },
+  ] = await Promise.all([
+    supabaseAdmin
+      .from('settings')
+      .select('value')
+      .eq('key', 'ai_features')
+      .single(),
+    supabaseAdmin
+      .from('settings')
+      .select('value')
+      .eq('key', 'ai_providers')
+      .single(),
+    supabaseAdmin
+      .from('settings')
+      .select('value')
+      .eq('key', 'ai_global')
+      .single(),
+  ]);
 
   let featureConfig = featuresData?.value?.[featureKey];
   if (!featureConfig && featureKey === 'support_chat') {
@@ -419,10 +425,18 @@ export async function generateAIContent(
   const providersConfig: any[] = Array.isArray(providersData?.value)
     ? providersData.value
     : [];
-  const primaryProviderId = featureConfig.provider;
+  const isReasoningFeature = [
+    'product_description',
+    'co_founder',
+    'support_reply',
+  ].includes(featureKey);
+
+  const primaryProviderId = featureConfig.provider || 'gemini';
   let primaryModel = featureConfig.model;
   if (primaryProviderId === 'gemini' && !primaryModel) {
-    primaryModel = 'gemini-3.5-flash-lite';
+    primaryModel = isReasoningFeature
+      ? 'gemini-3.5-flash'
+      : 'gemini-3.5-flash-lite';
   }
 
   const executionChain: Array<{ id: string; model: string; config: any }> = [];
@@ -443,16 +457,20 @@ export async function generateAIContent(
     .sort((a, b) => (a.priority || 99) - (b.priority || 99));
 
   for (const fp of fallbackProviders) {
-    const fpModel =
-      fp.models && fp.models.length > 0
-        ? fp.models[0]
-        : fp.type === 'gemini'
-          ? 'gemini-3.5-flash-lite'
-          : fp.type === 'custom'
-            ? 'auto/best-fast'
-            : fp.type === 'deepseek'
-              ? 'deepseek-chat'
-              : 'gpt-4o-mini';
+    let fpModel: string;
+    if (fp.type === 'deepseek' || fp.id === 'deepseek') {
+      fpModel = isReasoningFeature ? 'deepseek-reasoner' : 'deepseek-chat';
+    } else if (fp.type === 'gemini' || fp.id === 'gemini') {
+      fpModel = isReasoningFeature
+        ? 'gemini-3.5-flash'
+        : 'gemini-3.5-flash-lite';
+    } else if (fp.models && fp.models.length > 0) {
+      fpModel = fp.models[0];
+    } else if (fp.type === 'custom') {
+      fpModel = 'auto/best-fast';
+    } else {
+      fpModel = 'gpt-4o-mini';
+    }
     executionChain.push({ id: fp.id, model: fpModel, config: fp });
   }
 
@@ -538,16 +556,18 @@ export async function generateAIContent(
     // ── Determine model for this provider ─────────────────────────────────
     // Try to get the configured default model from health records first
     let currentModel = chainItem.model;
-    try {
-      const defaultModelRecord = await getDefaultModel(
-        chainItem.id,
-        supabaseAdmin
-      );
-      if (defaultModelRecord) {
-        currentModel = defaultModelRecord.model_id;
+    if (!currentModel) {
+      try {
+        const defaultModelRecord = await getDefaultModel(
+          chainItem.id,
+          supabaseAdmin
+        );
+        if (defaultModelRecord) {
+          currentModel = defaultModelRecord.model_id;
+        }
+      } catch {
+        // If model health table not yet populated, use config model
       }
-    } catch {
-      // If model health table not yet populated, use config model
     }
 
     // ── Load credentials for this provider ────────────────────────────────
@@ -798,12 +818,8 @@ export async function generateAIContent(
                 error.message,
                 supabaseAdmin
               );
-            } else if (
-              classified.category === 'MODEL_ERROR' ||
-              (classified.category === 'SERVER_ERROR' &&
-                classified.httpStatus === 503)
-            ) {
-              // Don't rotate credential — rotate model
+            } else if (classified.category === 'MODEL_ERROR') {
+              // Model not found or deprecated: trigger model fallback
               console.log(
                 `[AI_MODEL_ERROR] correlationId=${correlationId} model=${currentModelForProvider} → triggering model fallback`
               );
