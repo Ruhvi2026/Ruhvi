@@ -1,26 +1,14 @@
 import { NextResponse } from 'next/server';
 
-// Sliding window rate limiter per client IP
-const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
-const WINDOW_MS = 60 * 1000; // 1 minute
-const MAX_REQUESTS_PER_WINDOW = 60; // 60 events/min per IP
+import {
+  checkApiRateLimit,
+  getClientIp,
+  createRateLimitResponse,
+  addRateLimitHeaders,
+} from '@/lib/rate-limit';
 
-function isRateLimited(ip: string): boolean {
-  const now = Date.now();
-  const entry = rateLimitMap.get(ip);
-  if (!entry || now > entry.resetAt) {
-    rateLimitMap.set(ip, { count: 1, resetAt: now + WINDOW_MS });
-    // Periodic pruning to avoid memory growth
-    if (rateLimitMap.size > 2000) {
-      for (const [k, v] of rateLimitMap.entries()) {
-        if (now > v.resetAt) rateLimitMap.delete(k);
-      }
-    }
-    return false;
-  }
-  entry.count++;
-  return entry.count > MAX_REQUESTS_PER_WINDOW;
-}
+const MAX_REQUESTS_PER_WINDOW = 60; // 60 events/min per IP
+const WINDOW_SECONDS = 60;
 
 function isValidOrigin(req: Request): boolean {
   const origin = req.headers.get('origin');
@@ -50,18 +38,18 @@ export async function POST(req: Request) {
       );
     }
 
-    // 2. Client IP extraction from trusted headers (Prevent IP spoofing)
-    const resolvedIp =
-      req.headers.get('cf-connecting-ip') ||
-      req.headers.get('x-real-ip') ||
-      req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
-      '127.0.0.1';
+    // 2. Client IP extraction and distributed rate limiting check
+    const resolvedIp = getClientIp(req);
+    const rateCheck = await checkApiRateLimit(
+      `capi:${resolvedIp}`,
+      MAX_REQUESTS_PER_WINDOW,
+      WINDOW_SECONDS
+    );
 
-    // 3. Rate limiting check
-    if (isRateLimited(resolvedIp)) {
-      return NextResponse.json(
-        { error: 'Too many requests. Please slow down.' },
-        { status: 429 }
+    if (!rateCheck.success) {
+      return createRateLimitResponse(
+        rateCheck,
+        'Too many requests. Please slow down.'
       );
     }
 
@@ -174,7 +162,8 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: result }, { status: response.status });
     }
 
-    return NextResponse.json({ success: true, result });
+    const res = NextResponse.json({ success: true, result });
+    return addRateLimitHeaders(res, rateCheck);
   } catch (error: any) {
     console.error('CAPI Request Error:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });

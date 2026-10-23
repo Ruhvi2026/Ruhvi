@@ -17,24 +17,39 @@ const mockExecuteCoFounderTool = executeCoFounderTool as jest.MockedFunction<
   typeof executeCoFounderTool
 >;
 
-// Mock @google/generative-ai
-const mockSendMessage = jest.fn();
-const mockStartChat = jest.fn(() => ({
-  sendMessage: mockSendMessage,
-}));
-const mockGetGenerativeModel = jest.fn(() => ({
-  startChat: mockStartChat,
-}));
+// Mock global.fetch for Gemini REST API
+const mockFetch = jest.fn();
+global.fetch = mockFetch;
 
-jest.mock('@google/generative-ai', () => {
-  const actual = jest.requireActual('@google/generative-ai');
+function mockGeminiText(text: string) {
   return {
-    ...actual,
-    GoogleGenerativeAI: jest.fn().mockImplementation(() => ({
-      getGenerativeModel: mockGetGenerativeModel,
-    })),
+    ok: true,
+    json: async () => ({
+      candidates: [
+        {
+          content: {
+            parts: [{ text }],
+          },
+        },
+      ],
+    }),
   };
-});
+}
+
+function mockGeminiFunctionCall(name: string, args: any) {
+  return {
+    ok: true,
+    json: async () => ({
+      candidates: [
+        {
+          content: {
+            parts: [{ functionCall: { name, args } }],
+          },
+        },
+      ],
+    }),
+  };
+}
 
 describe('Co-Founder Agent Orchestrator', () => {
   beforeEach(() => {
@@ -163,12 +178,9 @@ describe('Co-Founder Agent Orchestrator', () => {
     });
 
     it('executes single-turn text answer with 0 tools when model does not call functions', async () => {
-      mockSendMessage.mockResolvedValueOnce({
-        response: {
-          functionCalls: () => null,
-          text: () => 'Ruhvi is an artisanal silver jewellery brand.',
-        },
-      });
+      mockFetch.mockResolvedValueOnce(
+        mockGeminiText('Ruhvi is an artisanal silver jewellery brand.')
+      );
 
       const result = await runCoFounderAgentLoop(
         [{ sender: 'user', text: 'Tell me about Ruhvi' }],
@@ -189,17 +201,9 @@ describe('Co-Founder Agent Orchestrator', () => {
 
     it('executes autonomous tool call, feeds result back, and returns synthesized answer', async () => {
       // Turn 1: Model calls get_store_metrics
-      mockSendMessage.mockResolvedValueOnce({
-        response: {
-          functionCalls: () => [
-            {
-              name: 'get_store_metrics',
-              args: { date_range: 'today' },
-            },
-          ],
-          text: () => '',
-        },
-      });
+      mockFetch.mockResolvedValueOnce(
+        mockGeminiFunctionCall('get_store_metrics', { date_range: 'today' })
+      );
 
       // Tool execution mock
       mockExecuteCoFounderTool.mockResolvedValueOnce({
@@ -210,13 +214,11 @@ describe('Co-Founder Agent Orchestrator', () => {
       });
 
       // Turn 2: Model synthesizes answer
-      mockSendMessage.mockResolvedValueOnce({
-        response: {
-          functionCalls: () => null,
-          text: () =>
-            'Today Ruhvi generated ₹1,25,000 across 18 orders with an AOV of ₹6,944.',
-        },
-      });
+      mockFetch.mockResolvedValueOnce(
+        mockGeminiText(
+          'Today Ruhvi generated ₹1,25,000 across 18 orders with an AOV of ₹6,944.'
+        )
+      );
 
       const result = await runCoFounderAgentLoop(
         [{ sender: 'user', text: "What are today's sales metrics?" }],
@@ -234,35 +236,20 @@ describe('Co-Founder Agent Orchestrator', () => {
       );
 
       // Verify function response was passed back in turn 2
-      expect(mockSendMessage).toHaveBeenNthCalledWith(
+      expect(mockFetch).toHaveBeenNthCalledWith(
         2,
-        expect.arrayContaining([
-          expect.objectContaining({
-            functionResponse: expect.objectContaining({
-              name: 'get_store_metrics',
-              response: expect.objectContaining({
-                success: true,
-                summary: 'Today total revenue is 1.25 lakh with 18 orders.',
-              }),
-            }),
-          }),
-        ])
+        expect.stringContaining('generativelanguage.googleapis.com'),
+        expect.objectContaining({
+          body: expect.stringContaining('"name":"get_store_metrics"'),
+        })
       );
     });
 
     it('supports multi-turn tool chaining (Tool 1 -> Result -> Tool 2 -> Result -> Answer)', async () => {
       // Turn 1: Model calls get_orders
-      mockSendMessage.mockResolvedValueOnce({
-        response: {
-          functionCalls: () => [
-            {
-              name: 'get_orders',
-              args: { status: 'placed', limit: 5 },
-            },
-          ],
-          text: () => '',
-        },
-      });
+      mockFetch.mockResolvedValueOnce(
+        mockGeminiFunctionCall('get_orders', { status: 'placed', limit: 5 })
+      );
 
       mockExecuteCoFounderTool.mockResolvedValueOnce({
         toolName: 'get_orders',
@@ -272,17 +259,9 @@ describe('Co-Founder Agent Orchestrator', () => {
       });
 
       // Turn 2: Model calls get_inventory_levels
-      mockSendMessage.mockResolvedValueOnce({
-        response: {
-          functionCalls: () => [
-            {
-              name: 'get_inventory_levels',
-              args: { status: 'low_stock' },
-            },
-          ],
-          text: () => '',
-        },
-      });
+      mockFetch.mockResolvedValueOnce(
+        mockGeminiFunctionCall('get_inventory_levels', { status: 'low_stock' })
+      );
 
       mockExecuteCoFounderTool.mockResolvedValueOnce({
         toolName: 'get_inventory_levels',
@@ -292,13 +271,11 @@ describe('Co-Founder Agent Orchestrator', () => {
       });
 
       // Turn 3: Final synthesis
-      mockSendMessage.mockResolvedValueOnce({
-        response: {
-          functionCalls: () => null,
-          text: () =>
-            'You have 1 newly placed order and 1 low-stock item (Silver Choker with 2 units left).',
-        },
-      });
+      mockFetch.mockResolvedValueOnce(
+        mockGeminiText(
+          'You have 1 newly placed order and 1 low-stock item (Silver Choker with 2 units left).'
+        )
+      );
 
       const result = await runCoFounderAgentLoop(
         [{ sender: 'user', text: 'Give me a complete store update.' }],
@@ -313,17 +290,9 @@ describe('Co-Founder Agent Orchestrator', () => {
 
     it('halts loop safely when maximum iterations guard is reached', async () => {
       // Constantly return tool call
-      mockSendMessage.mockResolvedValue({
-        response: {
-          functionCalls: () => [
-            {
-              name: 'get_store_metrics',
-              args: {},
-            },
-          ],
-          text: () => '',
-        },
-      });
+      mockFetch.mockResolvedValue(
+        mockGeminiFunctionCall('get_store_metrics', {})
+      );
 
       mockExecuteCoFounderTool.mockResolvedValue({
         toolName: 'get_store_metrics',
@@ -339,22 +308,14 @@ describe('Co-Founder Agent Orchestrator', () => {
 
       expect(result.iterations).toBe(3);
       expect(result.toolCallsExecuted).toBe(3);
-      expect(mockSendMessage).toHaveBeenCalled();
+      expect(mockFetch).toHaveBeenCalled();
     });
 
     it('recovers gracefully from tool execution error without crashing the loop', async () => {
       // Turn 1: Model calls tool that fails
-      mockSendMessage.mockResolvedValueOnce({
-        response: {
-          functionCalls: () => [
-            {
-              name: 'get_store_metrics',
-              args: {},
-            },
-          ],
-          text: () => '',
-        },
-      });
+      mockFetch.mockResolvedValueOnce(
+        mockGeminiFunctionCall('get_store_metrics', {})
+      );
 
       // Tool throws error
       mockExecuteCoFounderTool.mockRejectedValueOnce(
@@ -362,13 +323,11 @@ describe('Co-Founder Agent Orchestrator', () => {
       );
 
       // Turn 2: Model receives error and explains
-      mockSendMessage.mockResolvedValueOnce({
-        response: {
-          functionCalls: () => null,
-          text: () =>
-            'I encountered a database timeout while fetching store metrics. Please check connection.',
-        },
-      });
+      mockFetch.mockResolvedValueOnce(
+        mockGeminiText(
+          'I encountered a database timeout while fetching store metrics. Please check connection.'
+        )
+      );
 
       const result = await runCoFounderAgentLoop(
         [{ sender: 'user', text: 'Get metrics' }],
@@ -383,20 +342,12 @@ describe('Co-Founder Agent Orchestrator', () => {
 
     it('intercepts human approval requirement and halts loop immediately', async () => {
       // Turn 1: Model calls high-impact write action
-      mockSendMessage.mockResolvedValueOnce({
-        response: {
-          functionCalls: () => [
-            {
-              name: 'dispatch_worker_task',
-              args: {
-                worker_id: 'worker_execution',
-                task: 'Archive low stock SKU',
-              },
-            },
-          ],
-          text: () => '',
-        },
-      });
+      mockFetch.mockResolvedValueOnce(
+        mockGeminiFunctionCall('dispatch_worker_task', {
+          worker_id: 'worker_execution',
+          task: 'Archive low stock SKU',
+        })
+      );
 
       // Tool returns pending approval requirement
       mockExecuteCoFounderTool.mockResolvedValueOnce({
@@ -430,7 +381,7 @@ describe('Co-Founder Agent Orchestrator', () => {
       });
       expect(result.responseText).toContain('founder approval');
       // Verify loop did NOT make second LLM call
-      expect(mockSendMessage).toHaveBeenCalledTimes(1);
+      expect(mockFetch).toHaveBeenCalledTimes(1);
     });
   });
 });

@@ -104,7 +104,10 @@ describe('Multi-Provider Gateway & OpenAI-Compatible Agent Loop (Step 6.2)', () 
 
   describe('resolveOpenAIProviderEndpoint', () => {
     it('resolves OpenRouter endpoint and headers with HTTP-Referer and title', () => {
-      const config = resolveOpenAIProviderEndpoint('openrouter', 'sk-or-test-key');
+      const config = resolveOpenAIProviderEndpoint(
+        'openrouter',
+        'sk-or-test-key'
+      );
 
       expect(config.endpoint).toBe(
         'https://openrouter.ai/api/v1/chat/completions'
@@ -118,17 +121,22 @@ describe('Multi-Provider Gateway & OpenAI-Compatible Agent Loop (Step 6.2)', () 
     it('resolves OpenAI endpoint and headers', () => {
       const config = resolveOpenAIProviderEndpoint('openai', 'sk-oai-test-key');
 
-      expect(config.endpoint).toBe('https://api.openai.com/v1/chat/completions');
+      expect(config.endpoint).toBe(
+        'https://api.openai.com/v1/chat/completions'
+      );
       expect(config.headers['Authorization']).toBe('Bearer sk-oai-test-key');
       expect(config.defaultModel).toBe('gpt-4o-mini');
     });
 
     it('resolves DeepSeek endpoint and headers', () => {
-      const config = resolveOpenAIProviderEndpoint('deepseek', 'sk-ds-test-key');
+      const config = resolveOpenAIProviderEndpoint(
+        'deepseek',
+        'sk-ds-test-key'
+      );
 
       expect(config.endpoint).toBe('https://api.deepseek.com/chat/completions');
       expect(config.headers['Authorization']).toBe('Bearer sk-ds-test-key');
-      expect(config.defaultModel).toBe('deepseek-chat');
+      expect(config.defaultModel).toBe('deepseek-reasoner');
     });
 
     it('resolves Custom Gateway endpoint with custom baseUrl', () => {
@@ -152,7 +160,8 @@ describe('Multi-Provider Gateway & OpenAI-Compatible Agent Loop (Step 6.2)', () 
             {
               message: {
                 role: 'assistant',
-                content: 'Ruhvi achieved ₹85,000 revenue today across 14 orders.',
+                content:
+                  'Ruhvi achieved ₹85,000 revenue today across 14 orders.',
               },
             },
           ],
@@ -207,7 +216,8 @@ describe('Multi-Provider Gateway & OpenAI-Compatible Agent Loop (Step 6.2)', () 
         toolName: 'get_days_of_inventory',
         success: true,
         data: { daysOfInventory: 18.5, depletionDate: '2026-10-29' },
-        summaryForVoice: 'Necklaces category has 18.5 days of inventory remaining.',
+        summaryForVoice:
+          'Necklaces category has 18.5 days of inventory remaining.',
       });
 
       // Turn 2: Model receives tool result and returns final answer
@@ -227,7 +237,12 @@ describe('Multi-Provider Gateway & OpenAI-Compatible Agent Loop (Step 6.2)', () 
       });
 
       const result = await runOpenAICompatibleAgentLoop(
-        [{ sender: 'user', text: 'How many days of necklace stock do we have?' }],
+        [
+          {
+            sender: 'user',
+            text: 'How many days of necklace stock do we have?',
+          },
+        ],
         {
           provider: 'openrouter',
           apiKey: 'sk-or-test',
@@ -266,7 +281,8 @@ describe('Multi-Provider Gateway & OpenAI-Compatible Agent Loop (Step 6.2)', () 
                     type: 'function',
                     function: {
                       name: 'dispatch_worker_task',
-                      arguments: '{"worker_id":"worker_execution","task":"Change price"}',
+                      arguments:
+                        '{"worker_id":"worker_execution","task":"Change price"}',
                     },
                   },
                 ],
@@ -340,7 +356,9 @@ describe('Multi-Provider Gateway & OpenAI-Compatible Agent Loop (Step 6.2)', () 
 
       expect(result.success).toBe(true);
       expect(result.provider).toBe('deepseek');
-      expect(result.responseText).toBe('Response delivered via DeepSeek fallback.');
+      expect(result.responseText).toBe(
+        'Response delivered via DeepSeek fallback.'
+      );
     });
   });
 

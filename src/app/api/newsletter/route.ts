@@ -3,24 +3,16 @@ import { z } from 'zod';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 
+import {
+  checkApiRateLimit,
+  getClientIp,
+  createRateLimitResponse,
+  addRateLimitHeaders,
+} from '@/lib/rate-limit';
+
 const subscribeSchema = z.object({
   email: z.string().trim().email().max(254),
 });
-
-const rateLimitStore = new Map<string, number[]>();
-
-function checkRateLimit(key: string, limit: number, windowMs: number): boolean {
-  const now = Date.now();
-  const timestamps = rateLimitStore.get(key) || [];
-  const recent = timestamps.filter((t) => now - t < windowMs);
-  if (recent.length >= limit) {
-    rateLimitStore.set(key, recent);
-    return false;
-  }
-  recent.push(now);
-  rateLimitStore.set(key, recent);
-  return true;
-}
 
 export async function POST(req: NextRequest) {
   try {
@@ -33,12 +25,12 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const ip =
-      req.headers.get('x-forwarded-for')?.split(',')[0].trim() || 'unknown';
-    if (!checkRateLimit(ip, 5, 60 * 60 * 1000)) {
-      return NextResponse.json(
-        { error: 'Too many requests. Please try again later.' },
-        { status: 429 }
+    const ip = getClientIp(req);
+    const rateCheck = await checkApiRateLimit(`newsletter:${ip}`, 5, 3600); // 5 subscriptions per hour
+    if (!rateCheck.success) {
+      return createRateLimitResponse(
+        rateCheck,
+        'Too many newsletter requests. Please try again later.'
       );
     }
 
@@ -75,10 +67,11 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    return NextResponse.json({
+    const res = NextResponse.json({
       success: true,
       message: 'Thanks for subscribing to Ruhvi!',
     });
+    return addRateLimitHeaders(res, rateCheck);
   } catch (err) {
     console.error('Newsletter subscribe error:', err);
     return NextResponse.json(

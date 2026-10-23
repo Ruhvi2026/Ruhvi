@@ -125,10 +125,18 @@ const _env = envSchema.safeParse({
 });
 
 if (!_env.success) {
+  if (process.env.NODE_ENV === 'production') {
+    console.error(
+      '❌ FATAL: Environment validation failed in production:',
+      _env.error.format()
+    );
+    throw new Error(
+      'Missing or invalid required environment variables in production. See server logs.'
+    );
+  }
   console.warn('⚠️ Environment variables warning:', _env.error.format());
 }
 
 export const env = _env.success
   ? _env.data
   : (process.env as unknown as z.infer<typeof envSchema>);
-

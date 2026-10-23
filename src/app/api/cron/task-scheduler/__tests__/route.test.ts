@@ -1,3 +1,5 @@
+jest.mock('server-only', () => ({}));
+
 import { GET, POST } from '../route';
 
 jest.mock('@/lib/auth/task-auth', () => ({

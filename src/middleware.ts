@@ -1,68 +1,39 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 import { verifySessionToken } from '@/lib/auth/verify-session';
-
-function applySecurityHeaders(res: NextResponse, isPortal = false) {
-  res.headers.set('X-Content-Type-Options', 'nosniff');
-  res.headers.set('X-Frame-Options', 'DENY');
-  res.headers.set(
-    'Strict-Transport-Security',
-    'max-age=31536000; includeSubDomains; preload'
-  );
-  res.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
-  res.headers.set('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
-  res.headers.set(
-    'Permissions-Policy',
-    'camera=(), microphone=(), geolocation=(), payment=(self)'
-  );
-  // Safe base CSP: strictly HTTPS for scripts (no unencrypted http:)
-  res.headers.set(
-    'Content-Security-Policy',
-    "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https: blob:; font-src 'self' data: https:; connect-src 'self' https: wss:; frame-src 'self' https://*.firebaseapp.com https://accounts.google.com https://*.google.com https://www.facebook.com; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'; upgrade-insecure-requests;"
-  );
-  if (isPortal) {
-    res.headers.set('X-Robots-Tag', 'noindex, nofollow');
-  }
-  return res;
-}
+import { applySecurityHeaders } from '@/lib/middleware/security-headers';
+import { resolveHost } from '@/lib/middleware/resolve-host';
+import {
+  INTERNAL_BASES,
+  COMMON_ALLOWED_PATHS,
+} from '@/lib/middleware/constants';
+import {
+  verifyCachedRbac,
+  signRbacProfile,
+  RBAC_COOKIE_NAME,
+  RBAC_CACHE_TTL_SECONDS,
+  type CachedRbacProfile,
+} from '@/lib/middleware/rbac-cache';
 
 export async function middleware(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
     request,
   });
 
-  const hostname = request.headers.get('host') || '';
+  const host = resolveHost(request.headers.get('host') || '');
+  const {
+    hostname,
+    isAdminHost,
+    isOperationsHost,
+    isOrdersHost,
+    isSupportHost,
+    isMarketingHost,
+    isAuthHost,
+    isTechHost,
+    isCoFounderHost,
+    isAnyPortalHost,
+  } = host;
   supabaseResponse.headers.set('x-ruhvi-host', hostname);
-  const isAdminHost =
-    hostname === 'admin.ruhvi.in' || hostname.startsWith('admin.localhost');
-  const isOperationsHost =
-    hostname === 'operation.ruhvi.in' ||
-    hostname.startsWith('operation.localhost');
-  const isOrdersHost =
-    hostname === 'orders.ruhvi.in' || hostname.startsWith('orders.localhost');
-  const isSupportHost =
-    hostname === 'support.ruhvi.in' || hostname.startsWith('support.localhost');
-  const isMarketingHost =
-    hostname === 'marketing.ruhvi.in' ||
-    hostname.startsWith('marketing.localhost');
-  const isAuthHost =
-    hostname === 'auth.ruhvi.in' || hostname.startsWith('auth.localhost');
-  const isTechHost =
-    hostname === 'tech.ruhvi.in' || hostname.startsWith('tech.localhost');
-  const isCoFounderHost =
-    hostname === 'co-founder.ruhvi.in' ||
-    hostname.startsWith('co-founder.localhost') ||
-    hostname === 'cofounder.ruhvi.in' ||
-    hostname.startsWith('cofounder.localhost');
-
-  const isAnyPortalHost =
-    isAdminHost ||
-    isOperationsHost ||
-    isOrdersHost ||
-    isSupportHost ||
-    isMarketingHost ||
-    isTechHost ||
-    isCoFounderHost;
   const path = request.nextUrl.pathname;
 
   // 0. Inject Global Security Headers
@@ -102,19 +73,8 @@ export async function middleware(request: NextRequest) {
   }
 
   // 2. Strict Subdomain Isolation
-  const commonAllowedPaths = [
-    '/login',
-    '/api',
-    '/auth/callback',
-    '/404',
-    '/_not-found',
-    '/unauthorized',
-    '/admin/task-manager',
-    '/admin/chat',
-    '/co-founder',
-  ];
   const isCommonAllowed =
-    commonAllowedPaths.some((p) => path.startsWith(p)) ||
+    COMMON_ALLOWED_PATHS.some((p) => path.startsWith(p)) ||
     path.endsWith('.js') ||
     path.endsWith('.json');
 
@@ -167,18 +127,7 @@ export async function middleware(request: NextRequest) {
     }
   } else {
     // Block internal routes on the main customer-facing domain
-    const internalBases = [
-      '/admin',
-      '/manager',
-      '/staff',
-      '/operations',
-      '/portal-orders',
-      '/support',
-      '/marketing',
-      '/tech',
-      '/co-founder',
-    ];
-    const isBlocked = internalBases.some(
+    const isBlocked = INTERNAL_BASES.some(
       (b) => path === b || path.startsWith(b + '/')
     );
     if (isBlocked) {
@@ -191,18 +140,7 @@ export async function middleware(request: NextRequest) {
     supabaseResponse.headers.set('X-Robots-Tag', 'noindex, nofollow');
   }
 
-  const internalBases = [
-    '/admin',
-    '/manager',
-    '/staff',
-    '/operations',
-    '/portal-orders',
-    '/support',
-    '/marketing',
-    '/tech',
-    '/co-founder',
-  ];
-  const isInternalRoute = internalBases.some(
+  const isInternalRoute = INTERNAL_BASES.some(
     (b) => path === b || path.startsWith(b + '/')
   );
 
@@ -215,42 +153,44 @@ export async function middleware(request: NextRequest) {
         );
       }
       const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+      if (!serviceKey) {
+        console.error(
+          '[Middleware] SUPABASE_SERVICE_ROLE_KEY is missing — failing closed.'
+        );
+        throw new Error('Missing SUPABASE_SERVICE_ROLE_KEY');
+      }
 
-      const supabase = createServerClient(
-        url,
-        serviceKey!, // Using Service Role Key to bypass RLS for role fetching since we don't have a Supabase session
-        {
-          cookies: {
-            getAll() {
-              return request.cookies.getAll();
-            },
-            setAll(
-              cookiesToSet: {
-                name: string;
-                value: string;
-                options: CookieOptions;
-              }[]
-            ) {
-              cookiesToSet.forEach(({ name, value }) =>
-                request.cookies.set(name, value)
-              );
-              supabaseResponse = NextResponse.next({
-                request,
-              });
-              applySecurityHeaders(supabaseResponse, isAnyPortalHost);
-              supabaseResponse.headers.set('x-ruhvi-host', hostname);
-              const isProduction = process.env.NODE_ENV === 'production';
-              cookiesToSet.forEach(({ name, value, options }) =>
-                supabaseResponse.cookies.set(name, value, {
-                  ...options,
-                  secure: isProduction ? true : (options.secure ?? false),
-                  sameSite: options.sameSite ?? 'lax',
-                })
-              );
-            },
+      const supabase = createServerClient(url, serviceKey, {
+        cookies: {
+          getAll() {
+            return request.cookies.getAll();
           },
-        }
-      );
+          setAll(
+            cookiesToSet: {
+              name: string;
+              value: string;
+              options: CookieOptions;
+            }[]
+          ) {
+            cookiesToSet.forEach(({ name, value }) =>
+              request.cookies.set(name, value)
+            );
+            supabaseResponse = NextResponse.next({
+              request,
+            });
+            applySecurityHeaders(supabaseResponse, isAnyPortalHost);
+            supabaseResponse.headers.set('x-ruhvi-host', hostname);
+            const isProduction = process.env.NODE_ENV === 'production';
+            cookiesToSet.forEach(({ name, value, options }) =>
+              supabaseResponse.cookies.set(name, value, {
+                ...options,
+                secure: isProduction ? true : (options.secure ?? false),
+                sameSite: options.sameSite ?? 'lax',
+              })
+            );
+          },
+        },
+      });
 
       // RBAC for internal routes
       const sessionCookie = request.cookies.get('__session')?.value;
@@ -285,20 +225,70 @@ export async function middleware(request: NextRequest) {
       const uid = decodedToken.sub;
       const email = decodedToken.email as string | undefined;
 
-      // Fetch user role, department and allowed portals directly from public.users
-      const { data: profile } = await supabase
-        .from('users')
-        .select('role, account_status, allowed_portals, department')
-        .eq('id', uid)
-        .maybeSingle();
+      if (!uid) {
+        const loginUrl = new URL('/login', request.url);
+        loginUrl.searchParams.set('redirectTo', path);
+        const redirectResponse = NextResponse.redirect(loginUrl);
+        if (isAnyPortalHost) {
+          redirectResponse.headers.set('X-Robots-Tag', 'noindex, nofollow');
+        }
+        supabaseResponse.cookies.getAll().forEach((c) => {
+          redirectResponse.cookies.set(c.name, c.value, c);
+        });
+        return redirectResponse;
+      }
 
-      const userProfile = profile;
-      const role = userProfile?.role || 'customer';
-      const accountStatus = userProfile?.account_status || 'active';
-      const allowedPortals = (userProfile as any)?.allowed_portals || [];
-      const department = userProfile?.department;
+      // 1. Check for valid cryptographically signed RBAC cache cookie to bypass remote DB query
+      const cachedRbacCookie = request.cookies.get(RBAC_COOKIE_NAME)?.value;
+      const cachedProfile = await verifyCachedRbac(cachedRbacCookie, uid);
+      let needsRbacCookieSet = false;
 
-      // 1. Check account status
+      let userProfile: CachedRbacProfile;
+
+      if (cachedProfile) {
+        userProfile = cachedProfile;
+      } else {
+        // Cache miss: fetch user role, department and allowed portals directly from public.users
+        const { data: profile } = await supabase
+          .from('users')
+          .select('role, account_status, allowed_portals, department')
+          .eq('id', uid)
+          .maybeSingle();
+
+        userProfile = {
+          uid,
+          role: profile?.role || 'customer',
+          accountStatus: profile?.account_status || 'active',
+          allowedPortals: (profile as any)?.allowed_portals || [],
+          department: profile?.department ?? null,
+        };
+        needsRbacCookieSet = true;
+      }
+
+      const role = userProfile.role;
+      const accountStatus = userProfile.accountStatus;
+      const allowedPortals = userProfile.allowedPortals;
+      const department = userProfile.department;
+
+      // 2. Set RBAC cache cookie on miss so subsequent navigation skips DB query
+      if (needsRbacCookieSet && accountStatus === 'active') {
+        const rbacToken = await signRbacProfile(userProfile);
+        if (rbacToken) {
+          const isProduction = process.env.NODE_ENV === 'production';
+          supabaseResponse.cookies.set({
+            name: RBAC_COOKIE_NAME,
+            value: rbacToken,
+            maxAge: RBAC_CACHE_TTL_SECONDS,
+            httpOnly: true,
+            secure: isProduction,
+            path: '/',
+            sameSite: 'lax',
+            ...(isProduction ? { domain: '.ruhvi.in' } : {}),
+          });
+        }
+      }
+
+      // 3. Check account status
       if (accountStatus !== 'active') {
         const redirectResponse = NextResponse.redirect(
           new URL('/unauthorized', request.url)

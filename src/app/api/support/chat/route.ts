@@ -5,6 +5,12 @@ import { verifySessionToken } from '@/lib/auth/verify-session';
 import { generateAIContent } from '@/lib/ai';
 import { buildKnowledgeContext } from '@/lib/ai/knowledge';
 import { syncTicketToEspo } from '@/lib/espo/sync';
+import {
+  checkApiRateLimit,
+  getClientIp,
+  createRateLimitResponse,
+  addRateLimitHeaders,
+} from '@/lib/rate-limit';
 
 /**
  * AI-First Support Chat Endpoint
@@ -16,11 +22,6 @@ import { syncTicketToEspo } from '@/lib/espo/sync';
  * Prompts: Loads system instructions from DB settings (ai_prompts.chatbot).
  * Security: Server-side output sanitization before sending responses.
  */
-
-// Rate limiting for support chat
-const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
-const RATE_LIMIT = 15;
-const WINDOW_MS = 60 * 1000;
 
 // ── Output Sanitization ─────────────────────────────────────────────────────
 // Patterns that MUST NEVER appear in chatbot responses sent to customers.
@@ -862,21 +863,14 @@ async function loadChatbotConfig(supabase: any) {
 
 export async function POST(req: NextRequest) {
   try {
-    // Rate limiting
-    const ip = req.headers.get('x-forwarded-for') || 'unknown';
-    const now = Date.now();
-    const userLimit = rateLimitMap.get(ip);
-
-    if (!userLimit || userLimit.resetTime < now) {
-      rateLimitMap.set(ip, { count: 1, resetTime: now + WINDOW_MS });
-    } else {
-      if (userLimit.count >= RATE_LIMIT) {
-        return NextResponse.json(
-          { error: 'Too many requests. Please wait a moment.' },
-          { status: 429 }
-        );
-      }
-      userLimit.count++;
+    // Distributed Redis sliding window rate limiting
+    const ip = getClientIp(req);
+    const rateCheck = await checkApiRateLimit(`support_chat:${ip}`, 15, 60); // 15 requests per minute
+    if (!rateCheck.success) {
+      return createRateLimitResponse(
+        rateCheck,
+        'Too many requests. Please wait a moment.'
+      );
     }
 
     const body = await req.json();

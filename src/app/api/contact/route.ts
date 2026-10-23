@@ -2,26 +2,18 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { sendEmail } from '@/lib/brevo';
 
+import {
+  checkApiRateLimit,
+  getClientIp,
+  createRateLimitResponse,
+  addRateLimitHeaders,
+} from '@/lib/rate-limit';
+
 const contactSchema = z.object({
   name: z.string().trim().min(2).max(120),
   email: z.string().trim().email().max(254),
   message: z.string().trim().min(10).max(5000),
 });
-
-const rateLimitStore = new Map<string, number[]>();
-
-function checkRateLimit(key: string, limit: number, windowMs: number): boolean {
-  const now = Date.now();
-  const timestamps = rateLimitStore.get(key) || [];
-  const recent = timestamps.filter((t) => now - t < windowMs);
-  if (recent.length >= limit) {
-    rateLimitStore.set(key, recent);
-    return false;
-  }
-  recent.push(now);
-  rateLimitStore.set(key, recent);
-  return true;
-}
 
 export async function POST(req: NextRequest) {
   try {
@@ -36,14 +28,12 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const ip =
-      req.headers.get('x-forwarded-for')?.split(',')[0].trim() || 'unknown';
-    if (!checkRateLimit(ip, 3, 60 * 60 * 1000)) {
-      return NextResponse.json(
-        {
-          error: 'Too many messages from this device. Please try again later.',
-        },
-        { status: 429 }
+    const ip = getClientIp(req);
+    const rateCheck = await checkApiRateLimit(`contact:${ip}`, 3, 3600); // 3 messages per hour
+    if (!rateCheck.success) {
+      return createRateLimitResponse(
+        rateCheck,
+        'Too many messages from this device. Please try again later.'
       );
     }
 
@@ -87,7 +77,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    return NextResponse.json({ success: true });
+    const res = NextResponse.json({ success: true });
+    return addRateLimitHeaders(res, rateCheck);
   } catch (err) {
     console.error('Contact form error:', err);
     return NextResponse.json(

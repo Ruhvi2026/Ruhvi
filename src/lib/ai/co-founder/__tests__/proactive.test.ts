@@ -152,7 +152,9 @@ jest.mock('@/lib/supabase/service', () => ({
       if (table === 'co_founder_competitors') {
         return {
           select: jest.fn().mockReturnThis(),
-          order: jest.fn().mockResolvedValue({ data: mockCompetitorsData, error: null }),
+          order: jest
+            .fn()
+            .mockResolvedValue({ data: mockCompetitorsData, error: null }),
         };
       }
 
@@ -160,20 +162,32 @@ jest.mock('@/lib/supabase/service', () => ({
         return {
           select: jest.fn().mockReturnThis(),
           gte: jest.fn().mockReturnThis(),
-          limit: jest.fn().mockResolvedValue({ data: mockCartItemsData, error: null }),
+          limit: jest
+            .fn()
+            .mockResolvedValue({ data: mockCartItemsData, error: null }),
         };
       }
 
       if (table === 'products') {
         return {
           select: jest.fn().mockReturnThis(),
-          limit: jest.fn().mockResolvedValue({ data: mockProductsData, error: null }),
+          limit: jest
+            .fn()
+            .mockResolvedValue({ data: mockProductsData, error: null }),
+        };
+      }
+
+      if (table === 'support_tickets') {
+        return {
+          select: jest.fn().mockReturnThis(),
+          in: jest.fn().mockResolvedValue({ count: 2, error: null }),
         };
       }
 
       return {
         select: jest.fn().mockReturnThis(),
         eq: jest.fn().mockReturnThis(),
+        in: jest.fn().mockReturnThis(),
         gte: jest.fn().mockReturnThis(),
         order: jest.fn().mockReturnThis(),
         limit: jest.fn().mockResolvedValue({ data: [], error: null }),
@@ -184,7 +198,6 @@ jest.mock('@/lib/supabase/service', () => ({
     }),
   })),
 }));
-
 
 describe('Stage 5 — Proactive Intelligence System', () => {
   beforeEach(() => {
@@ -343,9 +356,24 @@ describe('Stage 5 — Proactive Intelligence System', () => {
 
     it('detects checkout abandonment surges with estimated unrealized GMV', async () => {
       mockCartItemsData = [
-        { id: 'c1', quantity: 1, created_at: new Date().toISOString(), product: { name: 'Kundan Choker', price: 6500 } },
-        { id: 'c2', quantity: 2, created_at: new Date().toISOString(), product: { name: 'Polki Earrings', price: 4200 } },
-        { id: 'c3', quantity: 1, created_at: new Date().toISOString(), product: { name: 'Bridal Set', price: 12000 } },
+        {
+          id: 'c1',
+          quantity: 1,
+          created_at: new Date().toISOString(),
+          product: { name: 'Kundan Choker', price: 6500 },
+        },
+        {
+          id: 'c2',
+          quantity: 2,
+          created_at: new Date().toISOString(),
+          product: { name: 'Polki Earrings', price: 4200 },
+        },
+        {
+          id: 'c3',
+          quantity: 1,
+          created_at: new Date().toISOString(),
+          product: { name: 'Bridal Set', price: 12000 },
+        },
       ];
 
       const signals = await detectCheckoutAbandonmentSignals('2026-10-11');
@@ -358,17 +386,45 @@ describe('Stage 5 — Proactive Intelligence System', () => {
 
     it('detects SEO health decay when products lack meta descriptions', async () => {
       mockProductsData = [
-        { id: 'p1', name: 'Ring 1', title: 'Ring 1', description: 'desc', seo_title: 'Ring 1', seo_description: '', images: [], status: 'published' },
-        { id: 'p2', name: 'Ring 2', title: 'Ring 2', description: 'desc', seo_title: 'Ring 2', seo_description: '', images: [], status: 'published' },
-        { id: 'p3', name: 'Ring 3', title: 'Ring 3', description: 'desc', seo_title: 'Ring 3', seo_description: '', images: [], status: 'published' },
+        {
+          id: 'p1',
+          name: 'Ring 1',
+          title: 'Ring 1',
+          description: 'desc',
+          seo_title: 'Ring 1',
+          seo_description: '',
+          images: [],
+          status: 'published',
+        },
+        {
+          id: 'p2',
+          name: 'Ring 2',
+          title: 'Ring 2',
+          description: 'desc',
+          seo_title: 'Ring 2',
+          seo_description: '',
+          images: [],
+          status: 'published',
+        },
+        {
+          id: 'p3',
+          name: 'Ring 3',
+          title: 'Ring 3',
+          description: 'desc',
+          seo_title: 'Ring 3',
+          seo_description: '',
+          images: [],
+          status: 'published',
+        },
       ];
 
       const signals = await detectSeoDecaySignals('2026-10-11');
       expect(signals.length).toBe(1);
       expect(signals[0].signalType).toBe('seo_decay_warning');
       expect(signals[0].metrics?.missingMetaDescriptions).toBe(3);
-      expect(signals[0].recommendedAction).toContain('Worker 3 (SEO Specialist)');
+      expect(signals[0].recommendedAction).toContain(
+        'Worker 3 (SEO Specialist)'
+      );
     });
   });
 });
-

@@ -1,48 +1,29 @@
 import { NextResponse } from 'next/server';
 import { generateAIContent } from '@/lib/ai';
 
-// Rate Limiting Map
-const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
+import {
+  checkApiRateLimit,
+  getClientIp,
+  createRateLimitResponse,
+  addRateLimitHeaders,
+} from '@/lib/rate-limit';
+
 const RATE_LIMIT = 10; // max requests per minute
-const WINDOW_MS = 60 * 1000;
+const WINDOW_SECONDS = 60;
 
 export async function POST(req: Request) {
   try {
-    // IP based rate limiting using distributed Redis sliding window with in-memory fallback
-    const rawIp =
-      req.headers.get('x-forwarded-for') ||
-      req.headers.get('x-real-ip') ||
-      '127.0.0.1';
-    const clientIp = rawIp.split(',')[0].trim();
+    const clientIp = getClientIp(req);
+    const rateCheck = await checkApiRateLimit(
+      `chat:${clientIp}`,
+      RATE_LIMIT,
+      WINDOW_SECONDS
+    );
 
-    let allowed = true;
-    try {
-      const { rateLimitSliding } = await import('@/lib/redis');
-      const rateResult = await rateLimitSliding(
-        `ratelimit:chat:${clientIp}`,
-        RATE_LIMIT,
-        60
-      );
-      allowed = rateResult.success;
-    } catch {
-      // In-memory fallback if Redis is temporarily unavailable
-      const now = Date.now();
-      const userLimit = rateLimitMap.get(clientIp);
-      if (!userLimit || userLimit.resetTime < now) {
-        rateLimitMap.set(clientIp, { count: 1, resetTime: now + WINDOW_MS });
-      } else {
-        if (userLimit.count >= RATE_LIMIT) {
-          allowed = false;
-        } else {
-          userLimit.count++;
-        }
-      }
-    }
-
-    if (!allowed) {
-      return NextResponse.json(
-        { error: 'Too many requests. Please wait a moment.' },
-        { status: 429 }
+    if (!rateCheck.success) {
+      return createRateLimitResponse(
+        rateCheck,
+        'Too many requests. Please wait a moment.'
       );
     }
 
