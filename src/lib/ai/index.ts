@@ -194,14 +194,14 @@ async function enforceRateLimit(
   const limits =
     (globalConfig.rateLimits && globalConfig.rateLimits[roleKey]) ||
     (userRole === 'admin'
-      ? { rpm: 60, daily: 1000, tokens: 500000, maxPromptLength: 50000 }
+      ? { rpm: 100, daily: 1500, tokens: 500000, maxPromptLength: 50000 }
       : userRole === 'manager'
-        ? { rpm: 30, daily: 400, tokens: 200000, maxPromptLength: 25000 }
+        ? { rpm: 70, daily: 800, tokens: 300000, maxPromptLength: 25000 }
         : userRole === 'staff'
-          ? { rpm: 20, daily: 200, tokens: 100000, maxPromptLength: 25000 }
+          ? { rpm: 50, daily: 500, tokens: 150000, maxPromptLength: 25000 }
           : userRole === 'user' || userRole === 'customer'
-            ? { rpm: 10, daily: 100, tokens: 25000, maxPromptLength: 25000 }
-            : { rpm: 5, daily: 30, tokens: 10000, maxPromptLength: 25000 });
+            ? { rpm: 40, daily: 300, tokens: 80000, maxPromptLength: 25000 }
+            : { rpm: 15, daily: 100, tokens: 30000, maxPromptLength: 25000 });
 
   if (limits.maxPromptLength > 0 && prompt.length > limits.maxPromptLength) {
     throw new Error(

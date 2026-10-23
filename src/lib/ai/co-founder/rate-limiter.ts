@@ -13,11 +13,7 @@
 import { NextResponse } from 'next/server';
 
 export type RateLimitTier =
-  | 'chat'
-  | 'voice'
-  | 'tool_execution'
-  | 'browser_automation'
-  | 'proactive';
+  'chat' | 'voice' | 'tool_execution' | 'browser_automation' | 'proactive';
 
 export interface RateLimitConfig {
   limit: number; // Max requests allowed per window
@@ -64,39 +60,39 @@ export const DEFAULT_TIER_LIMITS: Record<
   Record<string, RateLimitConfig>
 > = {
   chat: {
-    founder: { limit: 60, windowSeconds: 60, burstLimit: 20 },
-    admin: { limit: 60, windowSeconds: 60, burstLimit: 20 },
-    manager: { limit: 45, windowSeconds: 60, burstLimit: 15 },
-    staff: { limit: 30, windowSeconds: 60, burstLimit: 10 },
-    default: { limit: 10, windowSeconds: 60, burstLimit: 3 },
+    founder: { limit: 120, windowSeconds: 60, burstLimit: 40 },
+    admin: { limit: 100, windowSeconds: 60, burstLimit: 30 },
+    manager: { limit: 70, windowSeconds: 60, burstLimit: 20 },
+    staff: { limit: 50, windowSeconds: 60, burstLimit: 15 },
+    default: { limit: 40, windowSeconds: 60, burstLimit: 10 },
   },
   voice: {
-    founder: { limit: 40, windowSeconds: 60, burstLimit: 12 },
-    admin: { limit: 40, windowSeconds: 60, burstLimit: 12 },
-    manager: { limit: 25, windowSeconds: 60, burstLimit: 8 },
-    staff: { limit: 15, windowSeconds: 60, burstLimit: 5 },
-    default: { limit: 5, windowSeconds: 60, burstLimit: 2 },
-  },
-  tool_execution: {
-    founder: { limit: 120, windowSeconds: 60, burstLimit: 30 },
-    admin: { limit: 120, windowSeconds: 60, burstLimit: 30 },
-    manager: { limit: 60, windowSeconds: 60, burstLimit: 15 },
-    staff: { limit: 40, windowSeconds: 60, burstLimit: 10 },
+    founder: { limit: 60, windowSeconds: 60, burstLimit: 20 },
+    admin: { limit: 50, windowSeconds: 60, burstLimit: 15 },
+    manager: { limit: 35, windowSeconds: 60, burstLimit: 10 },
+    staff: { limit: 25, windowSeconds: 60, burstLimit: 8 },
     default: { limit: 15, windowSeconds: 60, burstLimit: 5 },
   },
+  tool_execution: {
+    founder: { limit: 200, windowSeconds: 60, burstLimit: 50 },
+    admin: { limit: 150, windowSeconds: 60, burstLimit: 40 },
+    manager: { limit: 90, windowSeconds: 60, burstLimit: 25 },
+    staff: { limit: 60, windowSeconds: 60, burstLimit: 15 },
+    default: { limit: 30, windowSeconds: 60, burstLimit: 10 },
+  },
   browser_automation: {
-    founder: { limit: 15, windowSeconds: 60, burstLimit: 4 },
-    admin: { limit: 15, windowSeconds: 60, burstLimit: 4 },
-    manager: { limit: 8, windowSeconds: 60, burstLimit: 2 },
-    staff: { limit: 4, windowSeconds: 60, burstLimit: 1 },
-    default: { limit: 2, windowSeconds: 60, burstLimit: 1 },
+    founder: { limit: 30, windowSeconds: 60, burstLimit: 8 },
+    admin: { limit: 25, windowSeconds: 60, burstLimit: 6 },
+    manager: { limit: 15, windowSeconds: 60, burstLimit: 4 },
+    staff: { limit: 10, windowSeconds: 60, burstLimit: 2 },
+    default: { limit: 5, windowSeconds: 60, burstLimit: 2 },
   },
   proactive: {
-    founder: { limit: 30, windowSeconds: 60, burstLimit: 8 },
-    admin: { limit: 30, windowSeconds: 60, burstLimit: 8 },
-    manager: { limit: 20, windowSeconds: 60, burstLimit: 5 },
-    staff: { limit: 10, windowSeconds: 60, burstLimit: 3 },
-    default: { limit: 5, windowSeconds: 60, burstLimit: 2 },
+    founder: { limit: 60, windowSeconds: 60, burstLimit: 15 },
+    admin: { limit: 50, windowSeconds: 60, burstLimit: 12 },
+    manager: { limit: 30, windowSeconds: 60, burstLimit: 8 },
+    staff: { limit: 20, windowSeconds: 60, burstLimit: 5 },
+    default: { limit: 10, windowSeconds: 60, burstLimit: 3 },
   },
 };
 
@@ -131,7 +127,6 @@ export function resolveRateLimitKey(
   const sanitizedId = (trimmed || 'anonymous').replace(/[:\s]+/g, '_');
   return `cofounder:rl:${tier}:${sanitizedId}`;
 }
-
 
 /**
  * Refills tokens for an existing bucket entry based on elapsed time.
@@ -205,7 +200,9 @@ function evaluateRateLimit(
     retryAfterSeconds = Math.max(1, Math.ceil(msToWait / 1000));
   }
 
-  const resetAt = Math.ceil(now + ((entry.capacity - entry.tokens) / refillRatePerMs));
+  const resetAt = Math.ceil(
+    now + (entry.capacity - entry.tokens) / refillRatePerMs
+  );
 
   return {
     allowed,
