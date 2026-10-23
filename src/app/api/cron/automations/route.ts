@@ -8,7 +8,7 @@ import {
 import { runTaskScheduler } from '@/lib/cron/task-scheduler';
 import { runBlogPublisher } from '@/lib/cron/blog-publisher';
 import { runProactiveCronScan } from '@/lib/ai/co-founder/proactive';
-import { generateDailyMorningBriefing } from '@/app/api/cron/co-founder/morning-briefing/route';
+import { generateDailyMorningBriefing } from '@/lib/ai/co-founder/morning-briefing';
 
 export async function GET(request: Request) {
   try {
