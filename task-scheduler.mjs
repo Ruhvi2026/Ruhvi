@@ -51,9 +51,13 @@ const req = https.request(options, (res) => {
       const generated = json.tasksGenerated ?? 0;
       const reminders = json.remindersSent  ?? 0;
       const errors    = json.errors         ?? [];
-      console.log(`[${ts}] OK  tasks_generated=${generated}  reminders_sent=${reminders}`);
+      const proactive = json.proactiveScan?.activeSignalCount ?? json.proactiveScan?.signals?.length ?? 0;
+      console.log(`[${ts}] OK  tasks_generated=${generated}  reminders_sent=${reminders}  proactive_signals=${proactive}`);
       if (errors.length > 0) {
-        console.warn(`[${ts}] WARN  errors (${errors.length}): ${errors.join(' | ')}`);
+        console.warn(`[${ts}] WARN  task errors (${errors.length}): ${errors.join(' | ')}`);
+      }
+      if (json.proactiveScan?.error) {
+        console.warn(`[${ts}] WARN  proactive scan error: ${json.proactiveScan.error}`);
       }
     } catch {
       console.log(`[${ts}] OK  HTTP ${res.statusCode} (no JSON body)`);

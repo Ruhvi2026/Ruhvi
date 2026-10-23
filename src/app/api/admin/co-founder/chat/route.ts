@@ -238,11 +238,59 @@ export async function POST(req: NextRequest) {
         ? requestedProvider
         : coFounderConfig.provider || 'gemini';
 
+    // Dual-Tier Complexity Router:
+    // Strategic/Complex planning gets gemini-2.5-pro (Extended Thinking)
+    // Conversational/Voice queries get gemini-2.5-flash (<500ms latency)
+    const deepReasoningKeywords = [
+      'strategy',
+      'plan',
+      'campaign',
+      'budget',
+      'pricing',
+      'margin',
+      'forecast',
+      'rca',
+      'root cause',
+      'analysis',
+      'competitor',
+      'financial',
+      'quarter',
+      'audit',
+      'restock',
+      'velocity',
+      'roi',
+      'roas',
+      'deep',
+      'কেন',
+      'কীভাবে',
+      'পরিকল্পনা',
+      'স্ট্র্যাটেজি',
+      'বাজেট',
+      'মার্জিন',
+      'পূর্বাভাস',
+      'হিসেব',
+      'বিশ্লেষণ',
+      'লক্ষ্য',
+    ];
+    const isStrategicQuery =
+      channel !== 'voice' &&
+      deepReasoningKeywords.some((kw) =>
+        latest.text.toLowerCase().includes(kw)
+      );
+
+    const defaultGeminiModel = isStrategicQuery
+      ? 'gemini-2.5-pro'
+      : 'gemini-2.5-flash';
+
     const primaryModel =
       requestedModel && requestedModel !== 'auto'
         ? requestedModel
         : coFounderConfig.model ||
-          (primaryProvider === 'gemini' ? 'gemini-3.5-flash-lite' : '');
+          (primaryProvider === 'gemini'
+            ? defaultGeminiModel
+            : primaryProvider === 'deepseek'
+              ? 'deepseek-reasoner'
+              : '');
 
     // 4. Construct Fallback Execution Chain
     // Sort configured providers by priority: lower number = higher priority
@@ -611,7 +659,7 @@ export async function POST(req: NextRequest) {
           const deepseekModel =
             primaryProvider === 'deepseek' && primaryModel
               ? primaryModel
-              : providerConfig?.models?.[0] || 'deepseek-chat';
+              : providerConfig?.models?.[0] || 'deepseek-reasoner';
 
           // AGENTIC TOOL-CALLING REASONING LOOP (STEP 6.2/6.3)
           if (useAgenticLoop) {
@@ -654,18 +702,23 @@ export async function POST(req: NextRequest) {
             { role: 'user', content: latest.text },
           ];
 
+          const deepseekBody: Record<string, any> = {
+            model: deepseekModel,
+            messages: formattedMessages,
+            max_tokens: maxTokens,
+          };
+          // DeepSeek Reasoner does not accept temperature
+          if (!deepseekModel.includes('reasoner')) {
+            deepseekBody.temperature = 0.3;
+          }
+
           const res = await fetch('https://api.deepseek.com/chat/completions', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
               Authorization: `Bearer ${apiKey}`,
             },
-            body: JSON.stringify({
-              model: deepseekModel,
-              messages: formattedMessages,
-              temperature: 0.3,
-              max_tokens: maxTokens,
-            }),
+            body: JSON.stringify(deepseekBody),
           });
 
           if (!res.ok) {
@@ -675,7 +728,12 @@ export async function POST(req: NextRequest) {
           }
 
           const data = await res.json();
-          const text = data.choices?.[0]?.message?.content?.trim();
+          const choiceMsg = data.choices?.[0]?.message;
+          const text = (
+            choiceMsg?.content ||
+            choiceMsg?.reasoning_content ||
+            ''
+          ).trim();
           if (text) {
             responseText = text;
             answeredProvider = 'deepseek';

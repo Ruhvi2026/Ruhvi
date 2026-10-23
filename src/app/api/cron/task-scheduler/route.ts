@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { runTaskScheduler } from '@/lib/cron/task-scheduler';
 import { getAuthenticatedStaff } from '@/lib/auth/task-auth';
+import { runProactiveCronScan } from '@/lib/ai/co-founder/proactive';
 
 export async function GET(req: Request) {
   try {
@@ -16,8 +17,32 @@ export async function GET(req: Request) {
       }
     }
 
-    const results = await runTaskScheduler();
-    return NextResponse.json({ success: true, ...results });
+    // Run both staff recurring task scheduler and AI Co-Founder proactive scanner concurrently
+    const [taskRes, proactiveRes] = await Promise.allSettled([
+      runTaskScheduler(),
+      runProactiveCronScan(),
+    ]);
+
+    const taskData: any =
+      taskRes.status === 'fulfilled'
+        ? taskRes.value
+        : { error: taskRes.reason?.message || 'Task scheduler error' };
+
+    const proactiveData: any =
+      proactiveRes.status === 'fulfilled'
+        ? proactiveRes.value
+        : { error: proactiveRes.reason?.message || 'Proactive scan error' };
+
+    return NextResponse.json({
+      success: true,
+      // Retain flat backward-compatibility for task-scheduler.mjs
+      tasksGenerated: taskData.tasksGenerated ?? 0,
+      remindersSent: taskData.remindersSent ?? 0,
+      errors: taskData.errors ?? (taskData.error ? [taskData.error] : []),
+      // Detailed sub-objects
+      taskScheduler: taskData,
+      proactiveScan: proactiveData,
+    });
   } catch (err: any) {
     console.error('[task-scheduler GET] Fatal error:', err);
     return NextResponse.json(

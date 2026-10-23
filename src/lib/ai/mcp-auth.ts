@@ -222,6 +222,8 @@ export const TOOL_PERMISSION_MAP: Record<
   dispatch_worker_task: { module: 'mcp_tools', action: 'read' },
   get_worker_statuses: { module: 'mcp_tools', action: 'read' },
   execute_multi_worker_plan: { module: 'mcp_tools', action: 'read' },
+  forecast_festive_demand: { module: 'analytics', action: 'read' },
+  recommend_aov_bundles: { module: 'analytics', action: 'read' },
 
   // Support Tickets (Read & Write)
   get_support_tickets: { module: 'support_ticket', action: 'read' },

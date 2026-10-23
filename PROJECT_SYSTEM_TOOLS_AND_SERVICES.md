@@ -91,6 +91,7 @@
 | **firebase-mcp-server** | Manages Firebase projects, security rules, environment configs, and app deployments. | `.gemini/antigravity-ide/mcp/firebase-mcp-server` |
 | **chrome-devtools-mcp** | Automates headless browser testing, page inspection, accessibility audits, and network request monitoring. | `.gemini/antigravity-ide/mcp/chrome-devtools-mcp` |
 | **sentry** | Sentry MCP server integration (`@sentry/mcp-server`) scoped to `ruhvi-jewels/javascript-nextjs` for inspecting errors & stack traces. | `.agents/mcp_config.json` |
+| **Meta Ads MCP Server** | Direct first-party Meta remote MCP server for AI Co-Founder live ROAS analytics, ad set management, and draft creative uploads under App ID `1516695129765369`. | `https://mcp.facebook.com/ads`, `.env.local` |
 
 ---
 
@@ -172,3 +173,15 @@ Full optimization details, Core Web Vitals baselines, and verification benchmark
 - **Client Cache**: 5-minute memory cache in `useTaxonomy.ts`.
 - **Telemetry**: Sentry/OTel client traces sample rate capped at 10% in production.
 - **Image Formats**: Automatic AVIF + WebP multi-format conversion via Next.js image optimization.
+
+---
+
+## 8. Scheduled Crons & Background Automation Architecture (ক্রন ও ব্যাকগ্রাউন্ড অটোমেশন আর্কিটেকচার)
+
+To maintain 100% compliance with Vercel's Hobby (Free) tier limits (maximum 1 daily cron) while supporting high-frequency 15-minute AI intelligence scans, Ruhvi uses a hybrid VM + Vercel cron architecture:
+
+| Pipeline | Host / Trigger | Schedule | Endpoints & Tasks Executed |
+| :--- | :--- | :--- | :--- |
+| **Unified 15-Minute Sync** | VM Crontab (`task-scheduler.mjs`) | `*/15 * * * *` (Every 15 mins) | **Endpoint:** `GET /api/cron/task-scheduler`<br>• **Staff Task Scheduler:** Generates daily/weekly/monthly recurring task instances & sends overdue notifications.<br>• **AI Co-Founder Proactive Health:** Autonomous 15-minute scan of business telemetry, stock depletion alerts, cart drop-off anomalies, and competitor price tracking. |
+| **Master Daily Automation** | Vercel Cloud Cron (`vercel.json`) | `0 4 * * *` (Daily 9:30 AM IST) | **Endpoint:** `GET /api/cron/automations`<br>• Abandoned Cart Recovery emails (>24h)<br>• Customer Win-Back campaigns (`MISSYOU20`)<br>• Birthday & Anniversary automated offers<br>• Blog scheduled publishing automation<br>• Daily Executive Morning Briefing synthesis |
+| **Dedicated Morning Briefing** | Standalone / Idempotent | `30 3 * * *` (9:00 AM IST) | **Endpoint:** `GET /api/cron/co-founder/morning-briefing`<br>• Synthesizes 24h store metrics into spoken Bengali & English executive briefing registered in `co_founder_signals`. |

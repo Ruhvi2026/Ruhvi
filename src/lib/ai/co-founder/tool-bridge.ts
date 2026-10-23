@@ -28,6 +28,8 @@ import {
   calculateDaysOfInventory,
   getCategoryMarginBreakdown,
   generateRestockRecommendations,
+  forecastFestiveDemand,
+  recommendDynamicAovBundles,
 } from './catalog-intelligence';
 import {
   getCompetitors,
@@ -154,7 +156,7 @@ async function executeCoFounderToolInternal(
             Boolean(customerRow.is_vip) &&
             Boolean(
               customerRow.vip_expires_at &&
-                new Date(customerRow.vip_expires_at).getTime() > Date.now()
+              new Date(customerRow.vip_expires_at).getTime() > Date.now()
             );
 
           const daysLeft = customerRow.vip_expires_at
@@ -656,6 +658,27 @@ async function executeCoFounderToolInternal(
           )} estimated capital required (${
             restockPlan.criticalRestockCount
           } critical/OOS).`,
+        };
+      }
+
+      case 'forecast_festive_demand': {
+        const season = args.season || args.target_season || 'diwali_festive';
+        const forecast = await forecastFestiveDemand(season);
+        return {
+          toolName,
+          success: true,
+          data: forecast,
+          summaryForVoice: forecast.executiveVoiceSummary,
+        };
+      }
+
+      case 'recommend_aov_bundles': {
+        const bundleData = await recommendDynamicAovBundles();
+        return {
+          toolName,
+          success: true,
+          data: bundleData,
+          summaryForVoice: bundleData.executiveVoiceSummary,
         };
       }
 

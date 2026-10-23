@@ -711,6 +711,27 @@ export async function runProactiveCronScan() {
       if (notificationsToInsert.length > 0) {
         await supabase.from('notifications').insert(notificationsToInsert);
       }
+
+      // 3. Dispatch to RuhChat Official Broadcast Channel (Only for genuine critical/high anomalies)
+      try {
+        const superAdmin = adminUsers.find((u) => u.id);
+        if (superAdmin) {
+          for (const signal of highPrioritySignals) {
+            await supabase.rpc('send_staff_broadcast', {
+              p_sender_id: superAdmin.id,
+              p_title: `[AI Co-Founder Alert] ${signal.title}`,
+              p_message: `${signal.summary}\n\n👉 Recommended Action: ${signal.recommendedAction || 'Review on Co-Founder Dashboard'}`,
+              p_priority: signal.severity === 'critical' ? 'urgent' : 'high',
+              p_allow_replies: true,
+            });
+          }
+        }
+      } catch (chatErr) {
+        console.warn(
+          '[Proactive] RuhChat broadcast dispatch fallback:',
+          chatErr
+        );
+      }
     }
   }
 

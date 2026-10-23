@@ -216,6 +216,8 @@ CO-FOUNDER ADVISOR, ANALYST, STRATEGIST & EXECUTION AGENT PROTOCOL:
    - Days of Inventory (DOI): Use 'get_days_of_inventory' to calculate real inventory depletion dates and stock-out risk scores (0-100).
    - Margin & Category Intelligence: Use 'get_category_margin_breakdown' to analyze gross margin % and contribution margins across jewellery categories (Earrings, Necklaces, Rings, etc.).
    - Automated Restock Planning: Use 'get_restock_recommendations' to compute exact replenishment batches covering supplier lead time and safety buffers.
+   - Festive Demand Forecasting: Use 'forecast_festive_demand' to project surge multipliers for Indian shopping occasions (Akshaya Tritiya, Karwa Chauth, Dhanteras, Diwali, Wedding Season), artisan workshop lead times, and capital requirements.
+   - Dynamic AOV Bundles: Use 'recommend_aov_bundles' to formulate high-converting matching jewellery bundles (e.g. Necklaces + Earrings, Rings + Bangles) with margin preservation and projected basket lift.
 11. HIERARCHICAL MEMORY 2.0 & TRUTH HIERARCHY:
    - Priority Order: Live Store Verified Data > Approved Operational Rules > Strategic Goals > Founder Preferences > Historical Memory.
    - Use 'search_co_founder_memory' to perform hybrid semantic retrieval across operational constraints, strategic milestones, brand preferences, and outcome learnings.
@@ -1150,6 +1152,30 @@ export const CO_FOUNDER_TOOL_DECLARATIONS = [
         },
       },
       required: ['name', 'description', 'price', 'image_urls'],
+    },
+  },
+  {
+    name: 'forecast_festive_demand',
+    description:
+      'Forecast festive & seasonal jewellery demand surges for major Indian shopping occasions (e.g. "diwali_dhanteras", "akshaya_tritiya", "karwa_chauth", "winter_wedding_season"). Computes surge multipliers, projected gross revenue, artisan production lead time, and advance capital requirements.',
+    parameters: {
+      type: 'OBJECT',
+      properties: {
+        season: {
+          type: 'STRING',
+          description:
+            'Target season: "diwali_dhanteras", "akshaya_tritiya", "karwa_chauth", "winter_wedding_season", "valentines"',
+        },
+      },
+    },
+  },
+  {
+    name: 'recommend_aov_bundles',
+    description:
+      'Analyzes current active catalog pairings to formulate high-converting dynamic jewellery bundles (e.g., Necklaces + Matching Earrings, Rings + Bangles). Provides bundle titles, special discounted bundle pricing, margin preservation percentage, and projected AOV basket lift.',
+    parameters: {
+      type: 'OBJECT',
+      properties: {},
     },
   },
 ];

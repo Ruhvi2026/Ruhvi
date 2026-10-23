@@ -8,6 +8,7 @@ import {
 import { runTaskScheduler } from '@/lib/cron/task-scheduler';
 import { runBlogPublisher } from '@/lib/cron/blog-publisher';
 import { runProactiveCronScan } from '@/lib/ai/co-founder/proactive';
+import { generateDailyMorningBriefing } from '@/app/api/cron/co-founder/morning-briefing/route';
 
 export async function GET(request: Request) {
   try {
@@ -194,6 +195,15 @@ export async function GET(request: Request) {
     } catch (proactiveErr: any) {
       console.error('[cron/automations] Proactive scan error:', proactiveErr);
       (results as any).proactiveScanError = proactiveErr?.message;
+    }
+
+    // 7. Daily 9:00 AM Executive Morning Briefing
+    try {
+      const briefingResult = await generateDailyMorningBriefing();
+      (results as any).morningBriefing = briefingResult;
+    } catch (briefingErr: any) {
+      console.error('[cron/automations] Morning briefing error:', briefingErr);
+      (results as any).morningBriefingError = briefingErr?.message;
     }
 
     return NextResponse.json({ success: true, results });

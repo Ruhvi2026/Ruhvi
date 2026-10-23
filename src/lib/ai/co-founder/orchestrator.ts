@@ -284,7 +284,7 @@ export function resolveOpenAIProviderEndpoint(
         Authorization: `Bearer ${apiKey}`,
         ...(options?.customHeaders || {}),
       },
-      defaultModel: 'deepseek-chat',
+      defaultModel: 'deepseek-reasoner',
     };
   }
 
@@ -377,7 +377,7 @@ export async function runOpenAICompatibleAgentLoop(
     const payload: any = {
       model: modelName,
       messages: conversationMessages,
-      temperature: 0.3,
+      ...(modelName?.includes('reasoner') ? {} : { temperature: 0.3 }),
       max_tokens: 2048,
     };
 
@@ -590,10 +590,11 @@ export async function runGeminiAgentLoop(
 
   const candidateModels = [
     options.modelName,
-    'gemini-3.5-flash-lite',
-    'gemini-flash-latest',
-    'gemini-3.5-flash',
-    'gemini-3.8-flash',
+    'gemini-2.5-pro',
+    'gemini-2.5-flash',
+    'gemini-2.0-flash',
+    'gemini-1.5-pro',
+    'gemini-1.5-flash',
   ].filter(Boolean) as string[];
 
   const uniqueModels = Array.from(new Set(candidateModels));
