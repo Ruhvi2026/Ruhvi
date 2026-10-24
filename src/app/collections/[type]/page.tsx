@@ -13,8 +13,43 @@ const getCollectionBySlug = cache(async (type: string) => {
     .from('collections')
     .select('*')
     .eq('slug', type)
-    .single();
-  return data;
+    .maybeSingle();
+
+  if (data) return data;
+
+  // Graceful virtual fallback collections for high-traffic homepage banners
+  if (type === 'new-arrivals') {
+    return {
+      id: 'virtual_new_arrivals',
+      title: 'New Arrivals',
+      subtitle: 'Explore our latest handcrafted fine jewellery designs.',
+      image_url: '/images/categories/necklaces.jpg',
+      isVirtual: true,
+      virtualType: 'new_arrivals',
+    };
+  }
+  if (type === 'best-sellers') {
+    return {
+      id: 'virtual_best_sellers',
+      title: 'Best Sellers',
+      subtitle: 'Our most cherished and timeless jewellery creations.',
+      image_url: '/images/categories/pendants.jpg',
+      isVirtual: true,
+      virtualType: 'best_sellers',
+    };
+  }
+  if (type === 'limited') {
+    return {
+      id: 'virtual_limited',
+      title: 'Limited Edition',
+      subtitle: 'Exclusive handcrafted masterpieces in limited quantities.',
+      image_url: '/images/categories/bridal.jpg',
+      isVirtual: true,
+      virtualType: 'limited',
+    };
+  }
+
+  return null;
 });
 
 export async function generateMetadata({
@@ -49,22 +84,16 @@ export default async function CollectionPage({
   const resolvedParams = await params;
   const type = resolvedParams.type;
 
-  const dbCollection = await getCollectionBySlug(type);
+  const dbCollection: any = await getCollectionBySlug(type);
   const supabase = await createClient();
 
   let collection = null;
 
   if (dbCollection) {
-    // Fetch products for this collection
-    const { data: pcData } = await supabase
-      .from('product_collections')
-      .select('product_id')
-      .eq('collection_id', dbCollection.id);
+    let products: any[] = [];
 
-    let products = [];
-    if (pcData && pcData.length > 0) {
-      const productIds = pcData.map((pc: any) => pc.product_id);
-      const { data: prodData } = await supabase
+    if (dbCollection.isVirtual) {
+      let query = supabase
         .from('products')
         .select(
           `
@@ -72,15 +101,55 @@ export default async function CollectionPage({
           status, category:categories(name), images:product_images(url)
         `
         )
-        .in('id', productIds)
         .eq('status', 'active');
 
+      if (dbCollection.virtualType === 'new_arrivals') {
+        query = query
+          .order('is_new_arrival', { ascending: false })
+          .order('created_at', { ascending: false });
+      } else if (dbCollection.virtualType === 'best_sellers') {
+        query = query
+          .order('is_best_seller', { ascending: false })
+          .order('created_at', { ascending: false });
+      } else {
+        query = query.order('created_at', { ascending: false });
+      }
+
+      const { data: prodData } = await query.limit(24);
       if (prodData) {
         products = prodData.map((p: any) => ({
           ...p,
           price: p.price,
           image: p.images?.[0]?.url || '/images/categories/rings.jpg',
         }));
+      }
+    } else {
+      // Fetch products for this collection
+      const { data: pcData } = await supabase
+        .from('product_collections')
+        .select('product_id')
+        .eq('collection_id', dbCollection.id);
+
+      if (pcData && pcData.length > 0) {
+        const productIds = pcData.map((pc: any) => pc.product_id);
+        const { data: prodData } = await supabase
+          .from('products')
+          .select(
+            `
+            id, name, slug, description, price, mrp, is_new_arrival, is_best_seller, 
+            status, category:categories(name), images:product_images(url)
+          `
+          )
+          .in('id', productIds)
+          .eq('status', 'active');
+
+        if (prodData) {
+          products = prodData.map((p: any) => ({
+            ...p,
+            price: p.price,
+            image: p.images?.[0]?.url || '/images/categories/rings.jpg',
+          }));
+        }
       }
     }
 

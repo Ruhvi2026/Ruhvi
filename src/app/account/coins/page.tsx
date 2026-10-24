@@ -30,12 +30,18 @@ export default function RewardCoinsPage() {
         return;
       }
 
+      const targetUserId = profile?.id || user.id;
+      // Wait for profile UUID to resolve if authenticated
+      if (!profile?.id) {
+        return;
+      }
+
       try {
         const supabase = createClient();
         const { data, error } = await supabase
           .from('reward_coin_ledger')
           .select('*')
-          .eq('user_id', user.id)
+          .eq('user_id', targetUserId)
           .order('created_at', { ascending: false });
 
         if (error) throw error;
@@ -80,7 +86,7 @@ export default function RewardCoinsPage() {
     }
 
     fetchLedger();
-  }, [user]);
+  }, [user, profile?.id]);
 
   return (
     <div className="mx-auto max-w-4xl space-y-8 px-4 py-10 sm:px-6 lg:px-8">

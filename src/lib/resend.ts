@@ -17,8 +17,13 @@ const senderName = 'Ruhvi';
 
 export const getSender = () => `${senderName} <${senderEmail}>`;
 
+const templateCache = new Map<string, any>();
+
 // Helper to load and compile Handlebars templates
 const compileTemplate = (fileName: string) => {
+  if (templateCache.has(fileName)) {
+    return templateCache.get(fileName);
+  }
   try {
     const filePath = path.join(process.cwd(), 'Resend_Templates', fileName);
     if (!fs.existsSync(filePath)) {
@@ -26,7 +31,9 @@ const compileTemplate = (fileName: string) => {
       return () => '';
     }
     const source = fs.readFileSync(filePath, 'utf-8');
-    return Handlebars.compile(source);
+    const compiled = Handlebars.compile(source);
+    templateCache.set(fileName, compiled);
+    return compiled;
   } catch (error) {
     console.error(`Failed to load template ${fileName}:`, error);
     return () => '';

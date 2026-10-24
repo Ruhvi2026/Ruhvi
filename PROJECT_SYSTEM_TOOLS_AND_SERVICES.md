@@ -185,3 +185,40 @@ To maintain 100% compliance with Vercel's Hobby (Free) tier limits (maximum 1 da
 | **Unified 15-Minute Sync** | VM Crontab (`task-scheduler.mjs`) | `*/15 * * * *` (Every 15 mins) | **Endpoint:** `GET /api/cron/task-scheduler`<br>• **Staff Task Scheduler:** Generates daily/weekly/monthly recurring task instances & sends overdue notifications.<br>• **AI Co-Founder Proactive Health:** Autonomous 15-minute scan of business telemetry, stock depletion alerts, cart drop-off anomalies, and competitor price tracking. |
 | **Master Daily Automation** | Vercel Cloud Cron (`vercel.json`) | `0 4 * * *` (Daily 9:30 AM IST) | **Endpoint:** `GET /api/cron/automations`<br>• Abandoned Cart Recovery emails (>24h)<br>• Customer Win-Back campaigns (`MISSYOU20`)<br>• Birthday & Anniversary automated offers<br>• Blog scheduled publishing automation<br>• Daily Executive Morning Briefing synthesis |
 | **Dedicated Morning Briefing** | Standalone / Idempotent | `30 3 * * *` (9:00 AM IST) | **Endpoint:** `GET /api/cron/co-founder/morning-briefing`<br>• Synthesizes 24h store metrics into spoken Bengali & English executive briefing registered in `co_founder_signals`. |
+
+---
+
+## 9. Department AI Co-Workers, RuhChat Dispatch Engine & Anti-Collision System (ডিপার্টমেন্ট এআই ও কলিশন প্রতিরোধ আর্কিটেকচার)
+
+Authoritative architectural record of the department-specific AI Co-Workers, cross-channel proactive alerting pipeline, customer PII masking, and customer calling anti-collision engine:
+
+### A. Dedicated AI Co-Workers & Firewall Access Matrix
+
+| Department / Role | Dedicated AI Persona | Allowed Scopes & Tools | Secrecy Firewall Policy | Primary Implementation Files |
+| :--- | :--- | :--- | :--- | :--- |
+| **Orders & Logistics** | `Orders AI Worker` (`worker_orders_logistics`) | `get_order_pipeline_status`, `get_delivery_failed_and_rto_orders`, `get_courier_sla_delays`, `get_return_requests_and_reasons`, `get_order_call_remarks`, `add_order_call_remark` | **Strict Financial & PII Secrecy**: Gross sales, revenue values, profit margins, and GMV are strictly excluded from tool registry. Customer phone numbers masked (`+91 98301 ••••82`). | `src/lib/ai/co-founder/workers/worker-13-orders-logistics.ts`, `src/app/api/internal-chat/ai-worker/route.ts` |
+| **Customer Support** | `Support AI Worker` | `get_support_tickets`, `get_order_call_remarks`, `add_order_call_remark`, `get_return_requests_and_reasons`, `update_support_ticket_status` | **Strict Financial Secrecy**: No financial turnover access. Empathetic customer triage and dispute resolution only. | `src/app/api/internal-chat/ai-worker/route.ts`, `src/components/chat/FloatingStaffMessenger.tsx` |
+| **Operations & Inventory** | `Operations AI Worker` | `get_inventory_levels`, `get_days_of_inventory`, `get_restock_recommendations`, `get_products`, `get_categories` | **Draft Only Rule**: Can recommend restock quantities; adjustments must be confirmed inside Operations Portal. Financial GMV excluded. | `src/app/api/internal-chat/ai-worker/route.ts` |
+| **Marketing** | `Marketing AI Worker` | `get_products`, `get_categories`, `get_blog_posts`, `create_blog_post`, `get_offers`, `create_offer`, `audit_catalog_seo_health`, `generate_product_studio_photos` | **Draft Only Rule**: AI drafts blog posts, offers, and generates promo assets. Staff review and publish live from Marketing portal. Financial GMV excluded. | `src/app/api/internal-chat/ai-worker/route.ts` |
+| **Technology** | `Tech AI Worker` | `get_system_health`, `get_sentry_errors`, `get_api_logs`, `check_api_endpoint`, `get_db_connection_pool_stats` | **Infrastructure Only**: Diagnostic tools, Sentry 500 error traces, latency monitoring. Production DB mutations blocked. | `src/app/api/internal-chat/ai-worker/route.ts` |
+| **Founder / Executive** | `AI Co-Founder` | Full executive suite (`getHolisticBusinessContext`, `getRevenueMetrics`, `getProfitMargins`, `getExecutiveSignals`, competitive intelligence) | **Admin Only**: Exclusively accessible by Super Admin / Founder. Never accessible to department staff. | `src/lib/ai/co-founder/brain.ts`, `src/app/api/admin/co-founder/chat/route.ts` |
+
+### B. Universal Proactive Dispatch Engine (`/api/internal-chat/proactive-dispatch`)
+
+Autonomous real-time event dispatcher broadcasting markdown alert cards into department channels within RuhChat (`internal_chat_conversations`):
+
+| Department Channel | Channel Name | Trigger Events | Safety & Payload Guard |
+| :--- | :--- | :--- | :--- |
+| **Orders & Logistics** | `📦 Orders & Logistics Alerts` | • Courier delivery failure (`DELIVERY_FAILED`)<br>• RTO initiated by courier (`RTO_INITIATED`) | Customer phone numbers automatically masked (`maskPhoneNumber`). Deep links directly to `/portal-orders/[id]`. |
+| **Customer Support** | `🎧 Customer Support Alerts` | • New return request submitted (`RETURN_REQUESTED`) with customer reason (size, defect, delay) | Customer name masked (`maskCustomerName`). Embedded links to ticket and return claim views. |
+| **Operations & Catalog** | `⚙️ Operations Alerts` | • Critical low-stock warning (stock $\le 2$ units on active SKUs)<br>• Stockout risk | Displays SKU, current inventory, threshold, and link to reorder supplier flow. |
+| **Technology** | `💻 Tech Alerts` | • Sentry 500 error spikes<br>• 404 page-not-found spikes<br>• High server latency (> 2500ms) | Truncated error snippets, affected route, Sentry issue link. |
+| **Marketing** | `📣 Marketing Alerts` | • Flash sale / campaign triggers<br>• Campaign performance milestones | Promo asset preview and direct link to `/marketing`. |
+
+### C. Anti-Collision Call Center & Customer Activity Engine
+
+To eliminate customer annoyance caused by multiple staff members dialing the same phone number following delivery failures or RTOs:
+- **Authoritative Database Table**: `public.order_call_remarks` (`0114_order_call_remarks.sql`) storing `order_id`, `staff_id`, `staff_name`, `department`, `call_status`, `remark_text`, and `rescheduled_date`.
+- **API Endpoint**: `/api/portal-orders/call-remarks` (GET for history & active call collision check, POST with collision guard returning `409 Conflict` if another teammate initiated a call within the 20-minute window).
+- **Interactive UI Components**: `OrderCallRemarksPanel.tsx` & `OrderCallRemarksModal.tsx` embedded in order details and all-orders table.
+- **Zero-Dangling-Promise Guard**: `DANGLING_PROMISE_REGEX` in `src/lib/ai/co-founder/orchestrator.ts` automatically intercepts unfulfilled promise phrases (e.g., "আমি চেক করে জানাচ্ছি...") and forces automated iterative tool continuation to guarantee complete, data-backed answers.

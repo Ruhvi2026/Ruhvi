@@ -18,7 +18,7 @@ import { createClient } from '@/lib/supabase/client';
 import { ImageWithFallback } from '@/components/ui/ImageWithFallback';
 
 export default function OrderHistoryPage() {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -30,12 +30,18 @@ export default function OrderHistoryPage() {
         return;
       }
 
+      const targetUserId = profile?.id || user.id;
+      // Wait for profile UUID to resolve if authenticated
+      if (!profile?.id) {
+        return;
+      }
+
       try {
         const supabase = createClient();
         const { data, error } = await supabase
           .from('orders')
-          .select('*, order_items(*, product(*))')
-          .eq('user_id', user.id)
+          .select('*, order_items(*, product:products(*))')
+          .eq('user_id', targetUserId)
           .order('created_at', { ascending: false });
 
         if (error) throw error;
@@ -48,7 +54,7 @@ export default function OrderHistoryPage() {
     }
 
     fetchOrders();
-  }, [user]);
+  }, [user, profile?.id]);
 
   const getStatusBadge = (status: string) => {
     switch (status) {

@@ -29,7 +29,7 @@ interface ReturnRow {
 }
 
 export default function ReturnsHistoryPage() {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const [returns, setReturns] = useState<ReturnRequest[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -47,12 +47,17 @@ export default function ReturnsHistoryPage() {
         return;
       }
 
+      const targetUserId = profile?.id || user.id;
+      if (!profile?.id) {
+        return;
+      }
+
       try {
         const supabase = createClient();
         const { data, error } = await supabase
           .from('returns')
           .select('*, order:orders!inner(order_number)')
-          .eq('order.user_id', user.id)
+          .eq('order.user_id', targetUserId)
           .order('requested_at', { ascending: false });
 
         if (error) throw error;
@@ -81,7 +86,7 @@ export default function ReturnsHistoryPage() {
     }
 
     fetchReturns();
-  }, [user]);
+  }, [user, profile?.id]);
 
   const getStatusBadge = (status: string) => {
     switch (status) {

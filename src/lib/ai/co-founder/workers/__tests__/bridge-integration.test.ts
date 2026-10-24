@@ -123,8 +123,8 @@ describe('AI Co-Founder Tool Bridge: Worker Integration', () => {
     const res = await executeCoFounderTool('get_worker_statuses', {});
 
     expect(res.success).toBe(true);
-    expect(res.data.totalWorkers).toBe(12);
-    expect(res.summaryForVoice).toContain('All 12 AI Agent Workers');
+    expect(res.data.totalWorkers).toBe(13);
+    expect(res.summaryForVoice).toContain('All 13 AI Agent Workers');
   });
 
   it('successfully dispatches a task to worker via dispatch_worker_task tool', async () => {

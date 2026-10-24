@@ -42,7 +42,10 @@ export default function AboutPage() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 text-center md:grid-cols-3">
+      <div
+        id="philosophy"
+        className="grid grid-cols-1 gap-6 text-center md:grid-cols-3"
+      >
         <div className="space-y-3 rounded-2xl border border-taupe-200 bg-white p-6 shadow-sm">
           <Award className="mx-auto h-8 w-8 text-gold-600" />
           <h3 className="font-serif text-base font-bold text-charcoal-900">

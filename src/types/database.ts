@@ -233,6 +233,7 @@ export interface ReturnRequest {
   status: ReturnStatus;
   refund_method: string;
   comments?: string;
+  attachment_url?: string | null;
   requested_at: string;
   resolved_at?: string;
   order?: Order | null;
@@ -435,4 +436,28 @@ export interface StagedSyncResponse {
   synced_count: number;
   failed_count: number;
   results: StagedSyncResultItem[];
+}
+
+export type OrderCallStatus =
+  | 'calling_in_progress'
+  | 'connected_resolved'
+  | 'customer_unreachable'
+  | 'rescheduled'
+  | 'rto_confirmed'
+  | 'return_coordination_scheduled'
+  | 'cancelled'
+  | 'other';
+
+export interface OrderCallRemark {
+  id: string;
+  order_id: string;
+  return_id?: string | null;
+  staff_id?: string | null;
+  staff_name: string;
+  department: string;
+  call_status: OrderCallStatus;
+  remark_text: string;
+  rescheduled_date?: string | null;
+  created_at: string;
+  updated_at: string;
 }

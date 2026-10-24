@@ -1,10 +1,6 @@
 import 'server-only';
 
-import {
-  AIWorkerInterface,
-  WorkerDefinition,
-  WorkerId,
-} from './types';
+import { AIWorkerInterface, WorkerDefinition, WorkerId } from './types';
 
 import { analyticsWorker } from './worker-1-analytics';
 import { marketingWorker } from './worker-2-marketing';
@@ -18,6 +14,7 @@ import { inventoryWorker } from './worker-9-inventory';
 import { reviewWorker } from './worker-10-review';
 import { executionWorker } from './worker-11-execution';
 import { monitoringWorker } from './worker-12-monitoring';
+import { ordersLogisticsWorker } from './worker-13-orders-logistics';
 
 export class WorkerRegistry {
   private workers: Map<WorkerId, AIWorkerInterface> = new Map();
@@ -35,6 +32,7 @@ export class WorkerRegistry {
     this.register(reviewWorker);
     this.register(executionWorker);
     this.register(monitoringWorker);
+    this.register(ordersLogisticsWorker);
   }
 
   register(worker: AIWorkerInterface): void {
@@ -136,6 +134,26 @@ export class WorkerRegistry {
       text.includes('write post')
     ) {
       return contentWorker;
+    }
+
+    // Orders & Logistics keywords
+    if (
+      text.includes('order') ||
+      text.includes('delivery') ||
+      text.includes('rto') ||
+      text.includes('shiprocket') ||
+      text.includes('courier') ||
+      text.includes('logistics') ||
+      text.includes('dispatch') ||
+      text.includes('transit') ||
+      text.includes('return') ||
+      text.includes('call remark') ||
+      text.includes('ফেইল্ড') ||
+      text.includes('ডেলিভারি') ||
+      text.includes('অর্ডার') ||
+      text.includes('রিটার্ন')
+    ) {
+      return ordersLogisticsWorker;
     }
 
     // Analytics & storewide telemetry

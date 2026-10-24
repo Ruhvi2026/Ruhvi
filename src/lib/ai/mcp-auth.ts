@@ -128,9 +128,15 @@ export const TOOL_PERMISSION_MAP: Record<
   string,
   { module: string; action: 'read' | 'write' }
 > = {
-  // Orders (Read Only)
+  // Orders & Logistics (Read & Write)
   get_orders: { module: 'orders', action: 'read' },
   get_order_details: { module: 'orders', action: 'read' },
+  get_order_pipeline_status: { module: 'orders', action: 'read' },
+  get_delivery_failed_and_rto_orders: { module: 'orders', action: 'read' },
+  get_courier_sla_delays: { module: 'orders', action: 'read' },
+  get_return_requests_and_reasons: { module: 'orders', action: 'read' },
+  get_order_call_remarks: { module: 'orders', action: 'read' },
+  add_order_call_remark: { module: 'orders', action: 'write' },
 
   // Products (Read & Write)
   get_products: { module: 'products', action: 'read' },

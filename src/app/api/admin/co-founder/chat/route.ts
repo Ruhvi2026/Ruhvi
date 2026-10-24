@@ -2,7 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { requireAdmin } from '@/lib/auth/require-admin';
 import { getCoFounderSystemPrompt } from '@/lib/ai/co-founder/brain';
-import { runCoFounderAgentLoop } from '@/lib/ai/co-founder/orchestrator';
+import {
+  runCoFounderAgentLoop,
+  DANGLING_PROMISE_REGEX,
+} from '@/lib/ai/co-founder/orchestrator';
 import { runAgenticStreamingSession } from '@/lib/ai/co-founder/streamer';
 import { getUserScopes } from '@/lib/auth/rbac';
 import { GoogleGenerativeAI } from '@google/generative-ai';
@@ -1019,6 +1022,15 @@ export async function POST(req: NextRequest) {
         },
         { status: 502 }
       );
+    }
+
+    // Safety check: eliminate any unfulfilled dangling placeholder promises
+    if (
+      DANGLING_PROMISE_REGEX?.test(responseText) &&
+      !agentExecutionMeta?.toolCallsExecuted
+    ) {
+      responseText =
+        'আমি এই মুহূর্তে রিয়েল-টাইম তথ্যটি সরাসরি ফেচ করতে পারছি না। অনুগ্রহ করে ড্যাশবোর্ড থেকে বর্তমান স্ট্যাটাসটি দেখে নিন অথবা আপনার প্রশ্নটি পুনরায় স্পষ্ট করুন।';
     }
 
     const rateHeaders = createRateLimitHeaders(rateLimitCheck.result);

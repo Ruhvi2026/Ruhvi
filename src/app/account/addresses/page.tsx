@@ -65,7 +65,8 @@ function TagBadge({ tag }: { tag?: string }) {
 }
 
 export default function AddressBookPage() {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
+  const currentUserId = profile?.id || user?.id;
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [saving, setSaving] = useState<boolean>(false);
@@ -79,13 +80,17 @@ export default function AddressBookPage() {
       setLoading(false);
       return;
     }
+    const targetUserId = profile?.id || user.id;
+    if (!profile?.id) {
+      return;
+    }
     setLoading(true);
     try {
       const supabase = createClient();
       const { data, error } = await supabase
         .from('addresses')
         .select('*')
-        .eq('user_id', user.id)
+        .eq('user_id', targetUserId)
         .order('is_default', { ascending: false })
         .order('created_at', { ascending: true });
 
@@ -100,7 +105,7 @@ export default function AddressBookPage() {
     } finally {
       setLoading(false);
     }
-  }, [user]);
+  }, [user, profile?.id]);
 
   useEffect(() => {
     fetchAddresses();
@@ -124,14 +129,14 @@ export default function AddressBookPage() {
   };
 
   const handleSetDefault = async (id: string) => {
-    if (!user || saving) return;
+    if (!user || !currentUserId || saving) return;
     setSaving(true);
     try {
       const supabase = createClient();
       const { error: clearError } = await supabase
         .from('addresses')
         .update({ is_default: false })
-        .eq('user_id', user.id)
+        .eq('user_id', currentUserId)
         .neq('id', id);
       if (clearError) throw clearError;
 
@@ -139,7 +144,7 @@ export default function AddressBookPage() {
         .from('addresses')
         .update({ is_default: true })
         .eq('id', id)
-        .eq('user_id', user.id)
+        .eq('user_id', currentUserId)
         .select('*')
         .maybeSingle();
       if (error) throw error;
@@ -160,7 +165,7 @@ export default function AddressBookPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!user || saving) return;
+    if (!user || !currentUserId || saving) return;
     setSaving(true);
     try {
       const supabase = createClient();
@@ -169,7 +174,7 @@ export default function AddressBookPage() {
         .from('addresses')
         .delete()
         .eq('id', id)
-        .eq('user_id', user.id);
+        .eq('user_id', currentUserId);
       if (error) throw error;
 
       let remaining = addresses.filter((a) => a.id !== id);
@@ -181,7 +186,7 @@ export default function AddressBookPage() {
           .from('addresses')
           .update({ is_default: true })
           .eq('id', nextDefault.id)
-          .eq('user_id', user.id);
+          .eq('user_id', currentUserId);
         if (!promError) {
           remaining = remaining.map((a) => ({
             ...a,
@@ -270,7 +275,7 @@ export default function AddressBookPage() {
           .from('addresses')
           .update(payload)
           .eq('id', editingAddress.id)
-          .eq('user_id', user.id)
+          .eq('user_id', currentUserId)
           .select('*')
           .maybeSingle();
 
@@ -288,7 +293,7 @@ export default function AddressBookPage() {
         const { data, error } = await supabase
           .from('addresses')
           .insert({
-            user_id: user.id,
+            user_id: currentUserId,
             ...payload,
             is_default: addresses.length === 0,
           })

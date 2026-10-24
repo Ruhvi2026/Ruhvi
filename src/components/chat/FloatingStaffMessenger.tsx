@@ -39,7 +39,136 @@ import {
   AlertCircle,
   Hash,
   ClipboardList,
+  Sparkles,
+  ExternalLink,
+  Bot,
 } from 'lucide-react';
+
+export interface AIWorkerPersona {
+  id: string;
+  department: string;
+  name: string;
+  roleTitle: string;
+  avatarEmoji: string;
+  welcomeMessage: string;
+  capabilities: string[];
+}
+
+export const AI_WORKER_PERSONAS: Record<string, AIWorkerPersona> = {
+  orders: {
+    id: 'ai_worker_orders',
+    department: 'orders',
+    name: 'Orders AI Worker',
+    roleTitle: 'Fulfillment & Logistics Intelligence',
+    avatarEmoji: '📦',
+    welcomeMessage:
+      'নমস্কার! আমি রুহভি অর্ডার্স অ্যান্ড লজিস্টিকস এআই। ফুলফিলমেন্ট পাইপলাইন স্ট্যাটাস, কুরিয়ার ট্রানজিট ডিলে (Shiprocket), ডেলিভারি ফেইল্ড কেস, RTO ট্র্যাকিং এবং কাস্টমার রিটার্ন কারণ অ্যানালিসিসে আপনাকে সহায়তা করতে প্রস্তুত। টিমমেটদের কল রিমার্ক দেখে ডুপ্লিকেট কল এড়াতে সাহায্য করব। কীভাবে সাহায্য করতে পারি?',
+    capabilities: [
+      'Pipeline Status',
+      'Delivery Failed & RTO',
+      'Return Reasons Breakdown',
+      'Call Collision Guard',
+    ],
+  },
+  support: {
+    id: 'ai_worker_support',
+    department: 'support',
+    name: 'Support AI Worker',
+    roleTitle: 'Customer Care & Grievance Resolution',
+    avatarEmoji: '🎧',
+    welcomeMessage:
+      'হ্যালো! আমি রুহভি কাস্টমার সাপোর্ট এআই। ওপেন টিকেট ট্রায়াজিং, কাস্টমার রিটার্ন রিকোয়েস্ট (ডিফেক্ট ক্লেম/সাইজ মিসম্যাচ), সহানুভূতিশীল রিপ্লাই ড্রাফট এবং কাস্টমার কল রিমার্ক ট্র্যাকিংয়ে আপনাকে সাহায্য করতে পারি। কীভাবে সাহায্য করতে পারি?',
+    capabilities: [
+      'Return Claim Triage',
+      'Empathic Draft Replies',
+      'Ticket Priority',
+      'Call Remarks Log',
+    ],
+  },
+  operations: {
+    id: 'ai_worker_operations',
+    department: 'operations',
+    name: 'Operations AI Worker',
+    roleTitle: 'Inventory & Supply Chain Operations',
+    avatarEmoji: '⚙️',
+    welcomeMessage:
+      'হ্যালো! আমি রুহভি অপারেশনস এআই কো-ওয়ার্কার। রিয়েল-টাইম ক্যাটালগ স্টক ট্র্যাকিং, লো-স্টক অর্নামেন্টস অ্যালার্ট (<= 5 units), স্টকআউট প্রেডিকশন এবং সাপ্লায়ার রিঅর্ডার ড্রাফট তৈরিতে আপনাকে সহায়তা করতে পারি। আজ কী চেক করতে চান?',
+    capabilities: [
+      'Stockout Risk Tracking',
+      'Days of Inventory',
+      'Restock Drafts',
+      'Catalog Health',
+    ],
+  },
+  marketing: {
+    id: 'ai_worker_marketing',
+    department: 'marketing',
+    name: 'Marketing AI Worker',
+    roleTitle: 'Brand Marketing & Content Strategist',
+    avatarEmoji: '✨',
+    welcomeMessage:
+      'নমস্কার! আমি রুহভি মার্কেটিং এআই কো-ওয়ার্কার। সোশ্যাল মিডিয়া ক্যাম্পেইন, SEO ব্লগ ড্রাফট এবং ট্রেন্ডিং জুয়েলারি প্রমো ব্যানার তৈরিতে আমি সাহায্য করতে পারি। মনে রাখবেন—আমি ড্রাফট তৈরি করতে পারি, কিন্তু লাইভ পাবলিশ করার জন্য আপনাকে মার্কেটিং পোর্টালে গিয়ে রিভিউ করে পাবলিশ করতে হবে। আজ কোন ক্যাম্পেইন নিয়ে কাজ করব?',
+    capabilities: [
+      'Creative Promo Photos',
+      'SEO Blog Drafts',
+      'Offers & Coupons',
+      'Catalog SEO',
+    ],
+  },
+  tech: {
+    id: 'ai_worker_tech',
+    department: 'tech',
+    name: 'Tech AI Worker',
+    roleTitle: 'Systems Architecture & Monitoring',
+    avatarEmoji: '💻',
+    welcomeMessage:
+      'Hello! I am the Ruhvi Tech & Systems AI Worker. I can assist you with server 500 error log analysis, 404 broken route spikes, latency investigations, and system architectural troubleshooting.',
+    capabilities: [
+      'Sentry 500 Log Analysis',
+      '404 Broken Slug Spikes',
+      'Server Latency Audit',
+      'System Health',
+    ],
+  },
+};
+
+function extractImageUrls(text: string): {
+  cleanText: string;
+  imageUrls: string[];
+} {
+  const imageUrls: string[] = [];
+  const mdRegex = /!\[([^\]]*)\]\((https?:\/\/[^\s\)]+)\)/g;
+  let match;
+  while ((match = mdRegex.exec(text)) !== null) {
+    imageUrls.push(match[2]);
+  }
+  const cleanText = text.replace(mdRegex, '').trim();
+
+  const rawUrlRegex =
+    /(https:\/\/res\.cloudinary\.com\/[^\s<>"'\)]+\.(?:png|jpg|jpeg|webp))/gi;
+  while ((match = rawUrlRegex.exec(text)) !== null) {
+    if (!imageUrls.includes(match[1])) {
+      imageUrls.push(match[1]);
+    }
+  }
+
+  return { cleanText, imageUrls };
+}
+
+function hasDraftNotice(text: string): boolean {
+  const keywords = [
+    'ড্রাফট',
+    'draft',
+    'পাবলিশ করার জন্য',
+    'review and publish',
+    'marketing portal',
+    'operations portal',
+    'support portal',
+    'পোর্টালে লগইন করে',
+  ];
+  const lower = text.toLowerCase();
+  return keywords.some((k) => lower.includes(k));
+}
 
 function formatTime(iso: string) {
   const d = new Date(iso);
@@ -137,6 +266,12 @@ export default function FloatingStaffMessenger() {
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [userRole, setUserRole] = useState<string>('staff');
+  const [userDept, setUserDept] = useState<string>('orders');
+  const [selectedAiDept, setSelectedAiDept] = useState<string | null>(null);
+  const [aiMessages, setAiMessages] = useState<Record<string, ChatMessage[]>>(
+    {}
+  );
+  const [aiThinking, setAiThinking] = useState(false);
 
   const [conversations, setConversations] = useState<ChatConversation[]>([]);
   const [loadingConvs, setLoadingConvs] = useState(false);
@@ -164,13 +299,43 @@ export default function FloatingStaffMessenger() {
   const [showInChatSearch, setShowInChatSearch] = useState(false);
   const [inChatSearchQuery, setInChatSearchQuery] = useState('');
 
+  // Department & AI Worker resolution
+  const effectiveDept = useMemo(() => {
+    if (
+      userDept &&
+      ['marketing', 'operations', 'orders', 'support', 'tech'].includes(
+        userDept.toLowerCase()
+      )
+    ) {
+      return userDept.toLowerCase();
+    }
+    if (pathname.includes('/marketing')) return 'marketing';
+    if (pathname.includes('/operations')) return 'operations';
+    if (pathname.includes('/portal-orders')) return 'orders';
+    if (pathname.includes('/support')) return 'support';
+    if (pathname.includes('/tech')) return 'tech';
+    return 'orders';
+  }, [userDept, pathname]);
+
+  const currentAiDept = selectedAiDept || effectiveDept;
+  const currentAIWorker =
+    AI_WORKER_PERSONAS[currentAiDept] || AI_WORKER_PERSONAS['orders'];
+  const isAiActive = !!activeConv?.id.startsWith('ai_');
+
+  const activeMessages = useMemo(() => {
+    if (isAiActive) {
+      return aiMessages[currentAiDept] || [];
+    }
+    return messages;
+  }, [isAiActive, aiMessages, currentAiDept, messages]);
+
   const displayedMessages = useMemo(() => {
-    if (!inChatSearchQuery.trim()) return messages;
+    if (!inChatSearchQuery.trim()) return activeMessages;
     const q = inChatSearchQuery.trim().toLowerCase();
-    return messages.filter((m) =>
+    return activeMessages.filter((m) =>
       (m.text_content || '').toLowerCase().includes(q)
     );
-  }, [messages, inChatSearchQuery]);
+  }, [activeMessages, inChatSearchQuery]);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
@@ -180,16 +345,17 @@ export default function FloatingStaffMessenger() {
 
   const isAdmin = ['super_admin', 'admin'].includes(userRole);
 
-  // Fetch current user's role & staff list
+  // Fetch current user's role, department & staff list
   useEffect(() => {
     if (!supabaseUserId) return;
     supabase
       .from('users')
-      .select('role')
+      .select('role, department')
       .eq('id', supabaseUserId)
       .maybeSingle()
       .then(({ data }: { data: any }) => {
         if (data?.role) setUserRole(data.role);
+        if (data?.department) setUserDept(data.department);
       });
 
     fetch('/api/internal-chat/staff')
@@ -199,6 +365,70 @@ export default function FloatingStaffMessenger() {
       })
       .catch(() => {});
   }, [supabaseUserId, supabase]);
+
+  // Open AI Worker Chat Handler
+  const handleOpenAIWorkerChat = useCallback(
+    (persona: AIWorkerPersona) => {
+      const dept = persona.department;
+      setSelectedAiDept(dept);
+
+      let initialList: ChatMessage[] = [];
+      try {
+        if (typeof window !== 'undefined' && user?.uid) {
+          const saved = localStorage.getItem(`ruhchat_ai_${user.uid}_${dept}`);
+          if (saved) {
+            initialList = JSON.parse(saved);
+          }
+        }
+      } catch {}
+
+      if (initialList.length === 0) {
+        initialList = [
+          {
+            id: `welcome_${dept}`,
+            conversation_id: `ai_${dept}`,
+            sender_id: `ai_${dept}`,
+            message_type: 'text',
+            text_content: persona.welcomeMessage,
+            reply_to_id: null,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            deleted_at: null,
+            is_edited: false,
+            system_action: null,
+          },
+        ];
+      }
+
+      setAiMessages((prev) => ({
+        ...prev,
+        [dept]: prev[dept]?.length ? prev[dept] : initialList,
+      }));
+
+      const aiConvObj: ChatConversation = {
+        id: `ai_${dept}`,
+        type: 'direct',
+        group_name: persona.name,
+        group_topic: `${persona.roleTitle} (Draft Only)`,
+        created_by: 'system_ai',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        archived_at: null,
+        deleted_at: null,
+        group_avatar_url: null,
+        other_user: {
+          id: `ai_${dept}`,
+          full_name: persona.name,
+          email: `${dept}-ai@ruhvi.in`,
+          role: 'ai_worker',
+          department: dept,
+        },
+      };
+
+      setActiveConv(aiConvObj);
+    },
+    [user?.uid]
+  );
 
   // Global event listener to toggle widget from header
   useEffect(() => {
@@ -279,6 +509,9 @@ export default function FloatingStaffMessenger() {
 
   // Load messages when an active conversation is selected
   const loadMessages = useCallback(async (convId: string) => {
+    if (convId.startsWith('ai_')) {
+      return;
+    }
     setLoadingMsgs(true);
     try {
       const res = await fetch(
@@ -302,15 +535,20 @@ export default function FloatingStaffMessenger() {
   }, []);
 
   useEffect(() => {
-    if (activeConv) {
+    if (activeConv && !activeConv.id.startsWith('ai_')) {
       loadMessages(activeConv.id);
     }
   }, [activeConv, loadMessages]);
 
-  // Real-time subscription to active conversation messages
   // Real-time subscription to active conversation messages and read status
   useEffect(() => {
-    if (!activeConv || !isOpen || isMinimized) return;
+    if (
+      !activeConv ||
+      activeConv.id.startsWith('ai_') ||
+      !isOpen ||
+      isMinimized
+    )
+      return;
 
     const channel = supabase
       .channel(`floating_chat_${activeConv.id}`)
@@ -368,10 +606,10 @@ export default function FloatingStaffMessenger() {
 
   // Scroll to bottom only if user hasn't scrolled up to read history
   useEffect(() => {
-    if (messages.length > 0 && !isChatScrolledUp) {
+    if (displayedMessages.length > 0 && !isChatScrolledUp) {
       scrollToBottom(true);
     }
-  }, [messages, isChatScrolledUp, scrollToBottom]);
+  }, [displayedMessages, isChatScrolledUp, scrollToBottom]);
 
   // Handle typing to detect @mention
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -413,6 +651,101 @@ export default function FloatingStaffMessenger() {
     setShowEntityPicker(false);
   };
 
+  // AI Message Handler (Calls isolated Department AI endpoint)
+  const handleSendAiMessage = async (text: string) => {
+    if (!text.trim() || aiThinking) return;
+    const dept = currentAIWorker.department;
+    const userMsg: ChatMessage = {
+      id: `ai_user_${Date.now()}`,
+      conversation_id: `ai_${dept}`,
+      sender_id: user?.uid || 'user',
+      message_type: 'text',
+      text_content: text,
+      reply_to_id: null,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      deleted_at: null,
+      is_edited: false,
+      system_action: null,
+    };
+
+    const currentList = aiMessages[dept] || [];
+    const updatedWithUser = [...currentList, userMsg];
+    setAiMessages((prev) => ({ ...prev, [dept]: updatedWithUser }));
+    setAiThinking(true);
+    setTimeout(() => scrollToBottom(true), 50);
+
+    try {
+      const conversationPayload = updatedWithUser.map((m) => ({
+        role: m.sender_id === (user?.uid || 'user') ? 'user' : 'assistant',
+        content: m.text_content || '',
+      }));
+
+      const res = await fetch('/api/internal-chat/ai-worker', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          department: dept,
+          messages: conversationPayload,
+        }),
+      });
+
+      const data = await res.json();
+      const aiReply =
+        data.response ||
+        'আমি এই মুহূর্তে উত্তর দিতে পারছি না। অনুগ্রহ করে ডিপার্টমেন্ট পোর্টাল চেক করুন।';
+
+      const assistantMsg: ChatMessage = {
+        id: `ai_reply_${Date.now()}`,
+        conversation_id: `ai_${dept}`,
+        sender_id: `ai_${dept}`,
+        message_type: 'text',
+        text_content: aiReply,
+        reply_to_id: null,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        deleted_at: null,
+        is_edited: false,
+        system_action: null,
+      };
+
+      const finalHistory = [...updatedWithUser, assistantMsg];
+      setAiMessages((prev) => ({ ...prev, [dept]: finalHistory }));
+
+      try {
+        if (typeof window !== 'undefined' && user?.uid) {
+          localStorage.setItem(
+            `ruhchat_ai_${user.uid}_${dept}`,
+            JSON.stringify(finalHistory.slice(-40))
+          );
+        }
+      } catch {}
+    } catch (err) {
+      console.error('[AI Chat Error]', err);
+      const errorMsg: ChatMessage = {
+        id: `ai_err_${Date.now()}`,
+        conversation_id: `ai_${dept}`,
+        sender_id: `ai_${dept}`,
+        message_type: 'text',
+        text_content:
+          'আমি দুঃখিত, সংযোগের সমস্যার কারণে আপনার অনুরোধটি প্রসেস করা সম্ভব হয়নি। অনুগ্রহ করে কিছুক্ষণ পর আবার চেষ্টা করুন।',
+        reply_to_id: null,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        deleted_at: null,
+        is_edited: false,
+        system_action: null,
+      };
+      setAiMessages((prev) => ({
+        ...prev,
+        [dept]: [...updatedWithUser, errorMsg],
+      }));
+    } finally {
+      setAiThinking(false);
+      setTimeout(() => scrollToBottom(true), 50);
+    }
+  };
+
   // Send message
   const handleSendMessage = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -425,6 +758,13 @@ export default function FloatingStaffMessenger() {
 
     const text = inputText.trim();
     setInputText('');
+
+    // If chatting with Department AI Co-Worker, route to AI handler
+    if (activeConv.id.startsWith('ai_')) {
+      await handleSendAiMessage(text);
+      return;
+    }
+
     setSendingMsg(true);
 
     try {
@@ -632,10 +972,24 @@ export default function FloatingStaffMessenger() {
             <h3 className="flex items-center gap-1.5 truncate text-xs font-bold text-white">
               {activeConv ? (
                 <>
-                  {activeConv.type === 'broadcast' && (
-                    <Radio className="h-3.5 w-3.5 flex-shrink-0 text-orange-400" />
+                  {isAiActive ? (
+                    <span className="flex items-center gap-1.5">
+                      <span className="text-sm">
+                        {currentAIWorker.avatarEmoji}
+                      </span>
+                      <span>{currentAIWorker.name}</span>
+                      <span className="py-0.2 rounded bg-violet-500/20 px-1 text-[9px] font-semibold text-violet-300">
+                        AI Co-Worker
+                      </span>
+                    </span>
+                  ) : (
+                    <>
+                      {activeConv.type === 'broadcast' && (
+                        <Radio className="h-3.5 w-3.5 flex-shrink-0 text-orange-400" />
+                      )}
+                      {getConvTitle(activeConv)}
+                    </>
                   )}
-                  {getConvTitle(activeConv)}
                 </>
               ) : (
                 'RuhChat'
@@ -643,11 +997,14 @@ export default function FloatingStaffMessenger() {
             </h3>
             <p className="truncate text-[10px] text-slate-400">
               {activeConv
-                ? activeConv.type === 'broadcast'
-                  ? 'Official Announcements'
-                  : activeConv.type === 'group'
-                    ? 'Group Chat'
-                    : 'Direct Message'
+                ? isAiActive
+                  ? activeConv.group_topic ||
+                    `${currentAIWorker.roleTitle} (Draft Only)`
+                  : activeConv.type === 'broadcast'
+                    ? 'Official Announcements'
+                    : activeConv.type === 'group'
+                      ? 'Group Chat'
+                      : 'Direct Message'
                 : 'Internal Staff Messenger'}
             </p>
           </div>
@@ -753,6 +1110,78 @@ export default function FloatingStaffMessenger() {
             </div>
           </div>
 
+          {/* Pinned Department AI Co-Worker Card */}
+          <div className="border-b border-white/5 bg-[#101526] p-2.5">
+            <div className="mb-1.5 flex items-center justify-between px-1">
+              <span className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-violet-400">
+                <Sparkles className="h-3 w-3" /> Department AI Co-Worker
+              </span>
+              {isAdmin && (
+                <span className="text-[10px] font-medium text-slate-400">
+                  Founder/Admin Mode
+                </span>
+              )}
+            </div>
+
+            {/* Admin Department Switcher */}
+            {isAdmin && (
+              <div className="mb-2 flex gap-1 overflow-x-auto pb-1 text-[10px]">
+                {(
+                  [
+                    'orders',
+                    'support',
+                    'operations',
+                    'marketing',
+                    'tech',
+                  ] as const
+                ).map((d) => (
+                  <button
+                    key={d}
+                    type="button"
+                    onClick={() => setSelectedAiDept(d)}
+                    className={`rounded-lg px-2 py-0.5 font-medium capitalize transition ${
+                      (selectedAiDept || effectiveDept) === d
+                        ? 'bg-violet-600 text-white shadow'
+                        : 'bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white'
+                    }`}
+                  >
+                    {d}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            <div
+              onClick={() => handleOpenAIWorkerChat(currentAIWorker)}
+              className="group flex cursor-pointer select-none items-center gap-3 rounded-xl border border-violet-500/30 bg-gradient-to-r from-violet-950/60 via-purple-900/30 to-indigo-950/50 p-2.5 transition-all hover:border-violet-400/60 hover:from-violet-900/70 hover:to-indigo-900/60 hover:shadow-lg hover:shadow-violet-900/20"
+            >
+              <div className="relative flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr from-violet-600 to-indigo-500 text-lg shadow-md ring-1 ring-violet-400/40 transition group-hover:scale-105">
+                <span>{currentAIWorker.avatarEmoji}</span>
+                <span className="absolute -bottom-0.5 -right-0.5 flex h-3 w-3">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex h-3 w-3 rounded-full border border-violet-900 bg-emerald-500"></span>
+                </span>
+              </div>
+
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center justify-between">
+                  <h4 className="flex items-center gap-1.5 truncate text-xs font-bold text-white group-hover:text-violet-200">
+                    {currentAIWorker.name}
+                    <span className="py-0.2 rounded bg-violet-500/20 px-1 text-[9px] font-semibold text-violet-300">
+                      Active
+                    </span>
+                  </h4>
+                  <span className="text-[10px] font-medium text-emerald-400">
+                    Online
+                  </span>
+                </div>
+                <p className="truncate text-[11px] text-slate-300">
+                  {currentAIWorker.roleTitle}
+                </p>
+              </div>
+            </div>
+          </div>
+
           {/* List */}
           <div className="flex-1 divide-y divide-white/5 overflow-y-auto">
             {loadingConvs ? (
@@ -770,6 +1199,9 @@ export default function FloatingStaffMessenger() {
               filteredConversations.map((c) => {
                 const title = getConvTitle(c);
                 const isBroadcast = c.type === 'broadcast';
+                const isAlertChannel =
+                  (c.group_name || '').includes('Alerts') ||
+                  (c.group_name || '').includes('🚨');
                 const unread = c.unread_count || 0;
 
                 return (
@@ -782,6 +1214,10 @@ export default function FloatingStaffMessenger() {
                     {isBroadcast ? (
                       <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-tr from-amber-600 to-orange-500 text-white shadow">
                         <Radio className="h-5 w-5" />
+                      </div>
+                    ) : isAlertChannel ? (
+                      <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-tr from-amber-600 to-rose-600 text-white shadow ring-1 ring-amber-400/40">
+                        <AlertCircle className="h-5 w-5" />
                       </div>
                     ) : c.type === 'group' ? (
                       <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-emerald-600 text-xs font-bold text-white shadow">
@@ -867,24 +1303,45 @@ export default function FloatingStaffMessenger() {
                 const entityRefs =
                   (m as any).chat_entity_references || m.entity_refs || [];
 
+                const { cleanText, imageUrls } =
+                  isAiActive && !isMe
+                    ? extractImageUrls(m.text_content || '')
+                    : { cleanText: m.text_content || '', imageUrls: [] };
+
+                const showDraftAlert =
+                  isAiActive && !isMe && hasDraftNotice(m.text_content || '');
+
                 return (
                   <div
                     key={m.id}
                     className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}
                   >
-                    {!isMe && m.sender && activeConv.type !== 'direct' && (
-                      <span className="mb-0.5 ml-1 text-[10px] font-semibold text-emerald-400">
-                        {m.sender.department
-                          ? `${m.sender.full_name || m.sender.email} (${m.sender.department})`
-                          : m.sender.full_name || m.sender.email}
+                    {!isMe && (
+                      <span className="mb-0.5 ml-1 flex items-center gap-1 text-[10px] font-semibold text-emerald-400">
+                        {isAiActive ? (
+                          <>
+                            <Bot className="h-3 w-3 text-violet-400" />
+                            <span className="font-bold text-violet-300">
+                              {currentAIWorker.name}
+                            </span>
+                          </>
+                        ) : m.sender && activeConv.type !== 'direct' ? (
+                          m.sender.department ? (
+                            `${m.sender.full_name || m.sender.email} (${m.sender.department})`
+                          ) : (
+                            m.sender.full_name || m.sender.email
+                          )
+                        ) : null}
                       </span>
                     )}
 
                     <div
-                      className={`max-w-[85%] rounded-2xl px-3 py-2 text-xs shadow-sm ${
+                      className={`max-w-[88%] rounded-2xl px-3 py-2 text-xs shadow-sm ${
                         isMe
                           ? 'rounded-br-none bg-emerald-600 text-white'
-                          : 'rounded-bl-none border border-white/5 bg-[#182136] text-slate-200'
+                          : isAiActive
+                            ? 'rounded-bl-none border border-violet-500/20 bg-[#161B2E] text-slate-100 shadow-md shadow-violet-950/20'
+                            : 'rounded-bl-none border border-white/5 bg-[#182136] text-slate-200'
                       }`}
                     >
                       {/* Attachments */}
@@ -921,14 +1378,80 @@ export default function FloatingStaffMessenger() {
                         ))}
 
                       {/* Text content with clickable phone, email, and URLs */}
-                      {m.text_content && (
+                      {cleanText && (
                         <AutoLinkText
-                          text={m.text_content}
+                          text={cleanText}
                           className="whitespace-pre-wrap break-words leading-relaxed"
                           linkClassName={
-                            isMe ? 'text-white underline font-semibold' : ''
+                            isMe
+                              ? 'text-white underline font-semibold'
+                              : 'text-violet-300 hover:text-white underline'
                           }
                         />
+                      )}
+
+                      {/* AI Generated Images Preview Cards */}
+                      {imageUrls.length > 0 && (
+                        <div className="mt-2 space-y-2">
+                          {imageUrls.map((imgUrl, idx) => (
+                            <div
+                              key={idx}
+                              className="overflow-hidden rounded-xl border border-violet-500/40 bg-black/60 p-1.5 shadow-lg"
+                            >
+                              <a
+                                href={imgUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                <img
+                                  src={imgUrl}
+                                  alt="Generated Promo Asset"
+                                  className="max-h-60 w-full rounded-lg object-contain transition hover:scale-[1.01]"
+                                />
+                              </a>
+                              <div className="mt-1.5 flex items-center justify-between px-1">
+                                <span className="flex items-center gap-1 text-[10px] font-semibold text-violet-300">
+                                  <Sparkles className="h-3 w-3 text-violet-400" />{' '}
+                                  AI Generated Asset
+                                </span>
+                                <a
+                                  href={imgUrl}
+                                  download="ruhvi-promo-asset.png"
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center gap-1 rounded bg-violet-600/80 px-2.5 py-0.5 text-[10px] font-bold text-white shadow hover:bg-violet-500"
+                                >
+                                  <Download className="h-3 w-3" /> Download
+                                </a>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Draft Only Warning & Portal Deep Link Badge */}
+                      {showDraftAlert && (
+                        <div className="mt-2.5 flex items-center justify-between rounded-xl border border-amber-500/30 bg-amber-500/10 px-2.5 py-2 text-xs text-amber-200">
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-sm">📝</span>
+                            <div>
+                              <p className="text-[11px] font-bold text-white">
+                                Draft Saved in System
+                              </p>
+                              <p className="text-[10px] text-amber-300/80">
+                                Review in portal to publish live
+                              </p>
+                            </div>
+                          </div>
+                          <Link
+                            href={portalPrefix}
+                            target="_blank"
+                            className="inline-flex items-center gap-1 rounded-lg bg-amber-500/25 px-2 py-0.5 text-[10px] font-bold text-amber-100 transition hover:bg-amber-500/40 hover:text-white"
+                          >
+                            <span>Open Portal</span>
+                            <ExternalLink className="h-2.5 w-2.5" />
+                          </Link>
+                        </div>
                       )}
 
                       {/* Clickable Entity References (#Order, #Ticket, #Product) */}
@@ -937,7 +1460,7 @@ export default function FloatingStaffMessenger() {
                           {entityRefs.map((ref: any) => {
                             let href = '#';
                             if (ref.entity_type === 'order')
-                              href = `/admin/orders?search=${encodeURIComponent(ref.entity_id)}`;
+                              href = `/portal-orders?search=${encodeURIComponent(ref.entity_id)}`;
                             else if (ref.entity_type === 'support_ticket')
                               href = `/support/tickets/${ref.entity_id}`;
                             else if (ref.entity_type === 'product')
@@ -970,6 +1493,22 @@ export default function FloatingStaffMessenger() {
                   </div>
                 );
               })
+            )}
+
+            {/* AI Thinking Animation Indicator */}
+            {isAiActive && aiThinking && (
+              <div className="flex items-start gap-2 pt-1">
+                <div className="flex h-7 w-7 items-center justify-center rounded-xl border border-violet-500/40 bg-violet-600/30 text-xs shadow">
+                  {currentAIWorker.avatarEmoji}
+                </div>
+                <div className="flex items-center gap-2.5 rounded-2xl rounded-bl-none border border-violet-500/30 bg-[#161B2E] px-3.5 py-2 text-xs text-violet-300 shadow">
+                  <Loader2 className="h-3.5 w-3.5 animate-spin text-violet-400" />
+                  <span className="animate-pulse text-[11px] font-medium">
+                    {currentAIWorker.name} is checking department data &
+                    drafting response...
+                  </span>
+                </div>
+              </div>
             )}
             <div ref={messagesEndRef} />
           </div>
@@ -1167,26 +1706,50 @@ export default function FloatingStaffMessenger() {
                 type="text"
                 value={inputText}
                 onChange={handleInputChange}
-                placeholder="Message… (@ for staff/dept, # to reference)"
-                className="flex-1 rounded-xl border border-white/10 bg-[#0D111E] px-3 py-1.5 text-xs text-white placeholder-slate-500 focus:border-emerald-500 focus:outline-none"
+                placeholder={
+                  isAiActive
+                    ? `Ask ${currentAIWorker.name}… (e.g. check status, restock, ideas, draft notes)`
+                    : 'Message… (@ for staff/dept, # to reference)'
+                }
+                className={`flex-1 rounded-xl border bg-[#0D111E] px-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none ${
+                  isAiActive
+                    ? 'border-violet-500/30 focus:border-violet-400'
+                    : 'border-white/10 focus:border-emerald-500'
+                }`}
               />
 
               <button
                 type="submit"
                 disabled={
                   sendingMsg ||
+                  aiThinking ||
                   (!inputText.trim() && pendingEntityRefs.length === 0)
                 }
-                className="rounded-xl bg-emerald-600 p-1.5 text-white transition hover:bg-emerald-500 disabled:opacity-40"
+                className={`rounded-xl p-1.5 text-white transition disabled:opacity-40 ${
+                  isAiActive
+                    ? 'bg-violet-600 shadow-md shadow-violet-900/30 hover:bg-violet-500'
+                    : 'bg-emerald-600 hover:bg-emerald-500'
+                }`}
                 title="Send message"
               >
-                {sendingMsg ? (
+                {sendingMsg || (isAiActive && aiThinking) ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
                   <Send className="h-4 w-4" />
                 )}
               </button>
             </form>
+          )}
+
+          {/* AI Isolated Session Security Badge */}
+          {isAiActive && (
+            <div className="flex select-none items-center justify-center gap-1.5 border-t border-white/5 bg-[#0F1424] py-1 text-[10px] text-slate-400">
+              <Lock className="h-2.5 w-2.5 text-violet-400" />
+              <span>
+                Isolated Department Session • Strict Draft Only • Financial Data
+                Excluded
+              </span>
+            </div>
           )}
         </div>
       )}

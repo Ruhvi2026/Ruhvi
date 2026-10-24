@@ -357,6 +357,22 @@ export function Footer() {
             </li>
             <li>
               <Link
+                href="/cancellation-policy"
+                className="transition-colors hover:text-gold-400"
+              >
+                Cancellation Policy
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/warranty-policy"
+                className="transition-colors hover:text-gold-400"
+              >
+                6-Month Warranty
+              </Link>
+            </li>
+            <li>
+              <Link
                 href="/faq"
                 className="transition-colors hover:text-gold-400"
               >

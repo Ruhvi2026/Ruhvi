@@ -134,7 +134,7 @@ export default function RootLayout({
     sameAs: ['https://instagram.com/ruhvi.in', 'https://facebook.com/ruhvi.in'],
     contactPoint: {
       '@type': 'ContactPoint',
-      telephone: '+91-9876543210',
+      telephone: '+91-9153577651',
       contactType: 'customer service',
       areaServed: 'IN',
       availableLanguage: ['en', 'hi'],

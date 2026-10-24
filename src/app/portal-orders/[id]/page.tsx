@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { Order } from '@/types/database';
 import { createClient } from '@/lib/supabase/client';
+import OrderCallRemarksPanel from '@/components/orders/OrderCallRemarksPanel';
 
 interface OrderEvent {
   id: string;
@@ -289,7 +290,9 @@ export default function OrderDetailsPage({
   const [transitionStatus, setTransitionStatus] = useState('');
   const [transitioning, setTransitioning] = useState(false);
   const [refunding, setRefunding] = useState(false);
-  const [refundMethod, setRefundMethod] = useState<'original_payment' | 'wallet'>('original_payment');
+  const [refundMethod, setRefundMethod] = useState<
+    'original_payment' | 'wallet'
+  >('original_payment');
 
   React.useEffect(() => {
     fetchOrder();
@@ -393,7 +396,10 @@ export default function OrderDetailsPage({
       const res = await fetch('/api/admin/orders/transition', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ orderId: order.id, newStatus: transitionStatus }),
+        body: JSON.stringify({
+          orderId: order.id,
+          newStatus: transitionStatus,
+        }),
       });
       const data = await res.json();
       if (data.success) {
@@ -515,6 +521,14 @@ export default function OrderDetailsPage({
             )}
           </div>
 
+          {/* Customer Call Log & Anti-Collision Panel */}
+          <OrderCallRemarksPanel
+            orderId={order.id}
+            customerPhone={order.shipping_address?.phone}
+            customerName={order.shipping_address?.full_name}
+            onRemarkLogged={fetchEvents}
+          />
+
           {/* Order Event Timeline */}
           <div className="rounded-2xl border border-white/5 bg-[#131726] p-6">
             <div className="mb-6 flex items-center justify-between">
@@ -631,7 +645,9 @@ export default function OrderDetailsPage({
 
             {/* Status Transition */}
             <div className="space-y-3 border-t border-white/10 pt-4">
-              <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Update Status</p>
+              <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                Update Status
+              </p>
               <div className="flex items-center gap-2">
                 <select
                   value={transitionStatus}
@@ -659,28 +675,36 @@ export default function OrderDetailsPage({
             </div>
 
             {/* Refund Action */}
-            {['rto_received', 'returned', 'return_requested', 'return_approved'].includes(order.status) && order.payment_status !== 'refunded' && (
-              <div className="space-y-3 border-t border-white/10 pt-4">
-                <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Process Refund</p>
-                <div className="flex items-center gap-2">
-                  <select
-                    value={refundMethod}
-                    onChange={(e) => setRefundMethod(e.target.value as any)}
-                    className="flex-1 rounded-lg border border-white/10 bg-white/5 px-2 py-2 text-xs text-slate-300"
-                  >
-                    <option value="original_payment">Original Payment</option>
-                    <option value="wallet">Ruhvi Wallet</option>
-                  </select>
-                  <button
-                    onClick={handleRefund}
-                    disabled={refunding}
-                    className="rounded-lg bg-purple-600 px-3 py-2 text-xs font-bold text-white hover:bg-purple-500 disabled:opacity-50"
-                  >
-                    {refunding ? '...' : 'Refund'}
-                  </button>
+            {[
+              'rto_received',
+              'returned',
+              'return_requested',
+              'return_approved',
+            ].includes(order.status) &&
+              order.payment_status !== 'refunded' && (
+                <div className="space-y-3 border-t border-white/10 pt-4">
+                  <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                    Process Refund
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <select
+                      value={refundMethod}
+                      onChange={(e) => setRefundMethod(e.target.value as any)}
+                      className="flex-1 rounded-lg border border-white/10 bg-white/5 px-2 py-2 text-xs text-slate-300"
+                    >
+                      <option value="original_payment">Original Payment</option>
+                      <option value="wallet">Ruhvi Wallet</option>
+                    </select>
+                    <button
+                      onClick={handleRefund}
+                      disabled={refunding}
+                      className="rounded-lg bg-purple-600 px-3 py-2 text-xs font-bold text-white hover:bg-purple-500 disabled:opacity-50"
+                    >
+                      {refunding ? '...' : 'Refund'}
+                    </button>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
           </div>
         </div>
       </div>

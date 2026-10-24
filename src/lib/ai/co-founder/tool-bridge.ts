@@ -711,6 +711,169 @@ async function executeCoFounderToolInternal(
         };
       }
 
+      case 'get_order_pipeline_status': {
+        const { data: recentOrders, error } = await supabase
+          .from('orders')
+          .select('id, order_number, status, shipping_address, created_at')
+          .order('created_at', { ascending: false })
+          .limit(100);
+
+        if (error) throw error;
+        const counts: Record<string, number> = {};
+        (recentOrders || []).forEach((o: any) => {
+          counts[o.status] = (counts[o.status] || 0) + 1;
+        });
+
+        return {
+          toolName,
+          success: true,
+          data: { total: recentOrders?.length || 0, statusCounts: counts },
+          summaryForVoice: `Order pipeline: ${recentOrders?.length || 0} recent orders tracked. ${counts['out_for_delivery'] || 0} out for delivery, ${counts['shipped'] || 0} shipped, ${counts['delivery_failed'] || 0} delivery failed, and ${(counts['rto_initiated'] || 0) + (counts['rto_received'] || 0)} RTO.`,
+        };
+      }
+
+      case 'get_delivery_failed_and_rto_orders': {
+        const { data: failedOrders, error } = await supabase
+          .from('orders')
+          .select(
+            'id, order_number, status, shipping_address, created_at, updated_at'
+          )
+          .in('status', ['delivery_failed', 'rto_initiated', 'rto_received'])
+          .order('created_at', { ascending: false })
+          .limit(20);
+
+        if (error) throw error;
+
+        const orderIds = (failedOrders || []).map((o: any) => o.id);
+        const remarksMap: Record<string, any> = {};
+        if (orderIds.length > 0) {
+          const { data: remarks } = await supabase
+            .from('order_call_remarks')
+            .select(
+              'order_id, staff_name, department, call_status, remark_text, created_at'
+            )
+            .in('order_id', orderIds)
+            .order('created_at', { ascending: false });
+
+          (remarks || []).forEach((r: any) => {
+            if (!remarksMap[r.order_id]) remarksMap[r.order_id] = r;
+          });
+        }
+
+        const enriched = (failedOrders || []).map((o: any) => ({
+          id: o.id,
+          order_number: o.order_number,
+          status: o.status,
+          city: (o.shipping_address as any)?.city || 'Unknown',
+          latestRemark: remarksMap[o.id] || null,
+        }));
+
+        const count = enriched.length;
+        return {
+          toolName,
+          success: true,
+          data: enriched,
+          summaryForVoice:
+            count === 0
+              ? 'There are currently zero delivery failed or RTO orders.'
+              : `Found ${count} orders with delivery issues or RTO status. ${enriched.filter((e) => e.latestRemark).length} have staff follow-up remarks recorded.`,
+        };
+      }
+
+      case 'get_return_requests_and_reasons': {
+        const { data: returnsData, error } = await supabase
+          .from('returns')
+          .select(
+            'id, order_id, reason, status, item_condition, comments, created_at, requested_at'
+          )
+          .order('created_at', { ascending: false })
+          .limit(30);
+
+        if (error) throw error;
+
+        const reasonMap: Record<string, number> = {};
+        (returnsData || []).forEach((r: any) => {
+          const re = r.reason || 'Other';
+          reasonMap[re] = (reasonMap[re] || 0) + 1;
+        });
+
+        return {
+          toolName,
+          success: true,
+          data: {
+            totalReturns: returnsData?.length || 0,
+            reasonsBreakdown: reasonMap,
+            recentReturns: returnsData || [],
+          },
+          summaryForVoice: `Tracked ${returnsData?.length || 0} return requests. Most frequent reason: ${Object.keys(reasonMap)[0] || 'none'} (${Object.values(reasonMap)[0] || 0} cases).`,
+        };
+      }
+
+      case 'get_order_call_remarks': {
+        const orderId = args.order_id;
+        if (!orderId) {
+          throw new Error('order_id is required to fetch call remarks');
+        }
+
+        const { data: remarks, error } = await supabase
+          .from('order_call_remarks')
+          .select(
+            'id, order_id, staff_id, staff_name, department, call_status, remark_text, rescheduled_date, created_at'
+          )
+          .eq('order_id', orderId)
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        const count = remarks?.length || 0;
+        const latest = remarks?.[0];
+        return {
+          toolName,
+          success: true,
+          data: remarks || [],
+          summaryForVoice:
+            count === 0
+              ? `No customer call remarks recorded for order ${orderId}.`
+              : `Latest call on order ${orderId} by ${latest.staff_name} (${latest.department}): status is "${latest.call_status}" with note "${latest.remark_text}".`,
+        };
+      }
+
+      case 'add_order_call_remark': {
+        const orderId = args.order_id;
+        const staffName = args.staff_name || 'Staff';
+        const department = args.department || 'orders';
+        const callStatus = args.call_status || 'connected_resolved';
+        const remarkText = args.remark_text || args.remark;
+
+        if (!orderId || !remarkText) {
+          throw new Error(
+            'order_id and remark_text are required to log a call remark'
+          );
+        }
+
+        const { data: inserted, error } = await supabase
+          .from('order_call_remarks')
+          .insert({
+            order_id: orderId,
+            staff_name: staffName,
+            department: department,
+            call_status: callStatus,
+            remark_text: remarkText,
+            rescheduled_date: args.rescheduled_date || null,
+          })
+          .select()
+          .single();
+
+        if (error) throw error;
+
+        return {
+          toolName,
+          success: true,
+          data: inserted,
+          summaryForVoice: `Recorded call remark for order ${orderId}: "${remarkText}" with status ${callStatus}.`,
+        };
+      }
+
       case 'get_inventory_levels': {
         const { data: lowStockProducts, error } = await supabase
           .from('products')
@@ -1025,7 +1188,7 @@ async function executeCoFounderToolInternal(
           toolName,
           success: true,
           data: statuses,
-          summaryForVoice: `All 12 AI Agent Workers are active and operational under the AI Co-Founder.`,
+          summaryForVoice: `All ${statuses.totalWorkers} AI Agent Workers are active and operational under the AI Co-Founder.`,
         };
       }
 

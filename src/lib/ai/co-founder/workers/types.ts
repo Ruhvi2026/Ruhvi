@@ -12,7 +12,8 @@ export type WorkerId =
   | 'worker_inventory'
   | 'worker_review_feedback'
   | 'worker_execution'
-  | 'worker_monitoring_verification';
+  | 'worker_monitoring_verification'
+  | 'worker_orders_logistics';
 
 export type WorkerPriority = 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
 

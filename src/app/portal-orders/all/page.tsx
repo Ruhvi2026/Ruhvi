@@ -17,8 +17,10 @@ import {
   Clock,
   AlertCircle,
   RotateCcw,
+  PhoneCall,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
+import OrderCallRemarksModal from '@/components/orders/OrderCallRemarksModal';
 
 type OrderStatus =
   | 'all'
@@ -142,6 +144,9 @@ export default function AdminOrdersPage() {
     'all'
   );
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [selectedModalOrder, setSelectedModalOrder] = useState<Order | null>(
+    null
+  );
 
   useEffect(() => {
     fetchOrders();
@@ -409,13 +414,24 @@ export default function AdminOrdersPage() {
                         ₹{Number(order.total).toLocaleString('en-IN')}
                       </td>
                       <td className="px-4 py-3 text-right">
-                        <Link
-                          href={`/portal-orders/${order.id}`}
-                          className="inline-flex items-center gap-1 rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 text-slate-300 transition-colors hover:bg-white/10"
-                        >
-                          <Eye className="h-3 w-3" />
-                          View
-                        </Link>
+                        <div className="flex items-center justify-end gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => setSelectedModalOrder(order)}
+                            title="Call Customer & Anti-Collision Log"
+                            className="inline-flex items-center gap-1 rounded-lg border border-amber-500/30 bg-amber-500/10 px-2 py-1 text-[11px] font-semibold text-amber-300 transition-colors hover:bg-amber-500/20"
+                          >
+                            <PhoneCall className="h-3 w-3" />
+                            Call
+                          </button>
+                          <Link
+                            href={`/portal-orders/${order.id}`}
+                            className="inline-flex items-center gap-1 rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 text-[11px] text-slate-300 transition-colors hover:bg-white/10"
+                          >
+                            <Eye className="h-3 w-3" />
+                            View
+                          </Link>
+                        </div>
                       </td>
                     </tr>
                   );
@@ -425,6 +441,17 @@ export default function AdminOrdersPage() {
           </div>
         )}
       </div>
+
+      {/* Quick Call & Collision Remarks Modal */}
+      <OrderCallRemarksModal
+        isOpen={!!selectedModalOrder}
+        onClose={() => setSelectedModalOrder(null)}
+        orderId={selectedModalOrder?.id || ''}
+        orderNumber={selectedModalOrder?.order_number}
+        customerPhone={selectedModalOrder?.shipping_address?.phone}
+        customerName={selectedModalOrder?.shipping_address?.full_name}
+        onRemarkLogged={fetchOrders}
+      />
 
       {filteredOrders.length > 0 && (
         <p className="text-center text-xs text-slate-600">

@@ -19,12 +19,19 @@ export default async function ReferralsPage() {
     redirect('/login?redirectTo=/account/referrals');
   }
 
-  // Get user's referral code from public.users
-  const { data: profile } = await supabase
-    .from('users')
-    .select('referral_code')
-    .eq('id', user.id)
-    .single();
+  // Get user's referral code from public.users (handling both Supabase UUID and Firebase UID)
+  const isUuid =
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+      user.id || ''
+    );
+  let profileQuery = supabase.from('users').select('id, referral_code');
+  if (isUuid) {
+    profileQuery = profileQuery.eq('id', user.id);
+  } else {
+    profileQuery = profileQuery.eq('firebase_uid', user.id);
+  }
+  const { data: profile } = await profileQuery.maybeSingle();
+  const actualUserId = profile?.id || user.id;
 
   const referralCode = profile?.referral_code || null;
 
@@ -34,7 +41,7 @@ export default async function ReferralsPage() {
     .select(
       'id, status, coins_awarded, created_at, users!referred_user_id(full_name)'
     )
-    .eq('referrer_user_id', user.id)
+    .eq('referrer_user_id', actualUserId)
     .order('created_at', { ascending: false });
 
   const referrals = (referralsList || []).map((ref: any) => ({

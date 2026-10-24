@@ -59,6 +59,9 @@ export interface OrchestrationResult {
   error?: string;
 }
 
+export const DANGLING_PROMISE_REGEX =
+  /(?:আমি\s+চেক\s+করে\s+জানাচ্ছি|চেক\s+করে\s+জানাচ্ছি|চেক\s+করছি|আমি\s+দেখছি|একটু\s+দাঁড়ান|let\s+me\s+check|i\s+will\s+check|i\s*['’]?m\s+checking|checking\s+(?:on|this|into|now)|i\s*['’]?ll\s+check\s+and\s+let\s+you\s+know|i\s*['’]?ll\s+get\s+back\s+to\s+you|check\s+kore\s+janacchi|dekhe\s+bolchi)/i;
+
 export interface ChatHistoryMessage {
   sender?: string;
   role?: string;
@@ -412,7 +415,23 @@ export async function runOpenAICompatibleAgentLoop(
 
     // If no tool call was requested, model returned its final answer
     if (!toolCalls || !Array.isArray(toolCalls) || toolCalls.length === 0) {
-      finalResponseText = (assistantMessage.content || '').trim();
+      const candidateText = (assistantMessage.content || '').trim();
+
+      // Intercept dangling placeholder promises ("আমি চেক করে জানাচ্ছি") without tools
+      if (
+        DANGLING_PROMISE_REGEX.test(candidateText) &&
+        iteration < maxIterations - 1
+      ) {
+        conversationMessages.push(assistantMessage);
+        conversationMessages.push({
+          role: 'user',
+          content:
+            'CRITICAL INSTRUCTION: Do not output placeholder promises like "checking". You have active tools. Call the appropriate tool immediately to inspect the database, or return the actual verified findings in your response.',
+        });
+        continue;
+      }
+
+      finalResponseText = candidateText;
       steps.push({
         iteration,
         thought: finalResponseText,
@@ -544,6 +563,15 @@ export async function runOpenAICompatibleAgentLoop(
       finalResponseText =
         'Tool execution limit reached. Please review the executed steps.';
     }
+  }
+
+  // Safety guard against final unfulfilled promise
+  if (
+    DANGLING_PROMISE_REGEX.test(finalResponseText) &&
+    totalToolsExecuted === 0
+  ) {
+    finalResponseText =
+      'আমি এই মুহূর্তে রিয়েল-টাইম তথ্যটি সরাসরি ফেচ করতে পারছি না। অনুগ্রহ করে ড্যাশবোর্ড থেকে বর্তমান স্ট্যাটাসটি দেখে নিন অথবা আপনার প্রশ্নটি পুনরায় স্পষ্ট করুন।';
   }
 
   return {
@@ -682,10 +710,29 @@ export async function runGeminiAgentLoop(
 
         // If no tool call was requested, model returned its final answer
         if (!functionCalls || functionCalls.length === 0) {
-          finalResponseText = (candidateContent.parts || [])
+          const candidateText = (candidateContent.parts || [])
             .map((p: any) => p.text || '')
             .join('')
             .trim();
+
+          // Intercept dangling placeholder promises ("আমি চেক করে জানাচ্ছি") without tools
+          if (
+            DANGLING_PROMISE_REGEX.test(candidateText) &&
+            iteration < maxIterations - 1
+          ) {
+            conversationContents.push(candidateContent);
+            conversationContents.push({
+              role: 'user',
+              parts: [
+                {
+                  text: 'CRITICAL INSTRUCTION: Do not output placeholder promises like "checking". You have active tools. Call the appropriate tool immediately to inspect the database, or return the actual verified findings in your response.',
+                },
+              ],
+            });
+            continue;
+          }
+
+          finalResponseText = candidateText;
           steps.push({
             iteration,
             thought: finalResponseText,
@@ -822,6 +869,15 @@ export async function runGeminiAgentLoop(
           finalResponseText =
             'Tool execution limit reached. Please review the executed steps.';
         }
+      }
+
+      // Safety guard against final unfulfilled promise
+      if (
+        DANGLING_PROMISE_REGEX.test(finalResponseText) &&
+        totalToolsExecuted === 0
+      ) {
+        finalResponseText =
+          'আমি এই মুহূর্তে রিয়েল-টাইম তথ্যটি সরাসরি ফেচ করতে পারছি না। অনুগ্রহ করে ড্যাশবোর্ড থেকে বর্তমান স্ট্যাটাসটি দেখে নিন অথবা আপনার প্রশ্নটি পুনরায় স্পষ্ট করুন।';
       }
 
       return {

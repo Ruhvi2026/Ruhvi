@@ -131,7 +131,11 @@ ${
 DATA FRESHNESS & UNCERTAINTY HANDLING (STRICT):
 1. LIVE DATA PRECEDENCE: Fresh database queries and tool outputs ALWAYS supersede stale memories or general training knowledge.
 2. ZERO HALLUCINATION: Never invent order totals, revenue numbers, inventory levels, or customer details. If you don't know or don't have fresh data, explicitly state what is unknown and offer to run a tool to check.
-3. IMMEDIATE TOOL EXECUTION: When the Founder asks about tickets, orders, stock, sales, metrics, SEO, or tasks, you MUST call the respective tool in the same turn. NEVER output conversational placeholders like "আমি ডেটাবেস চেক করছি..." or "Let me check..." as your final answer without returning the real data from the tool execution.
+3. IMMEDIATE TOOL EXECUTION & ZERO DANGLING PROMISES:
+   - When the Founder asks about tickets, orders, stock, sales, metrics, SEO, RTO, or tasks, you MUST call the respective tool in the SAME turn.
+   - ABSOLUTE BAN on dangling promises: NEVER output conversational placeholders like "আমি চেক করে জানাচ্ছি...", "check kore janacchi", "আমি দেখছি...", "Let me check...", or "I will check and let you know" as your answer without executing the tool and returning the actual data.
+   - You MUST deliver the investigated facts and concrete numbers in the very same message.
+   - If a tool fails or is unavailable, never promise future follow-ups; state the immediate factual status or limitation transparently right now.
 
 APPROVAL BOUNDARIES & SAFETY GUARDRAILS:
 - READ ACTIONS (e.g. check metrics, view orders, check low stock): Perform automatically using tools.
@@ -319,6 +323,80 @@ export const CO_FOUNDER_TOOL_DECLARATIONS = [
           description: 'Number of orders to retrieve (default: 5)',
         },
       },
+    },
+  },
+  {
+    name: 'get_order_pipeline_status',
+    description:
+      'Retrieve fulfillment counts across order stages (Pending, Shipped, Out for Delivery, Delivered, Delivery Failed, RTO). Omits revenue.',
+    parameters: {
+      type: 'OBJECT',
+      properties: {},
+    },
+  },
+  {
+    name: 'get_delivery_failed_and_rto_orders',
+    description:
+      'Fetch orders with failed deliveries or RTO status, along with latest staff call remarks to prevent collision.',
+    parameters: {
+      type: 'OBJECT',
+      properties: {},
+    },
+  },
+  {
+    name: 'get_return_requests_and_reasons',
+    description:
+      'Analyze recent customer return requests and categorize return root causes (size mismatch, damaged piece, wrong item).',
+    parameters: {
+      type: 'OBJECT',
+      properties: {},
+    },
+  },
+  {
+    name: 'get_order_call_remarks',
+    description:
+      'Retrieve staff call remarks and customer contact history for a specific order to prevent duplicate customer calls.',
+    parameters: {
+      type: 'OBJECT',
+      properties: {
+        order_id: {
+          type: 'STRING',
+          description: 'UUID of the order to check call remarks for.',
+        },
+      },
+      required: ['order_id'],
+    },
+  },
+  {
+    name: 'add_order_call_remark',
+    description:
+      'Log a customer call remark on an order (e.g. calling in progress, customer unreachable, delivery rescheduled).',
+    parameters: {
+      type: 'OBJECT',
+      properties: {
+        order_id: {
+          type: 'STRING',
+          description: 'UUID of the order.',
+        },
+        remark_text: {
+          type: 'STRING',
+          description: 'Details of the conversation or customer notes.',
+        },
+        call_status: {
+          type: 'STRING',
+          description:
+            'Status: calling_in_progress, connected_resolved, customer_unreachable, rescheduled, rto_confirmed.',
+        },
+        staff_name: {
+          type: 'STRING',
+          description: 'Name of the staff member logging the call.',
+        },
+        department: {
+          type: 'STRING',
+          description: 'Department of the staff member (orders, support).',
+        },
+      },
+      required: ['order_id', 'remark_text'],
     },
   },
   {

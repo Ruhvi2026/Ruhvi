@@ -51,28 +51,34 @@ function computeRefundableAmount(order: any): number {
  * 3. The client-supplied `amount` is clamped to the server-computed
  *    refundable amount.
  */
-export async function executeRefund(
-  input: RefundInput
-): Promise<RefundResult> {
+export async function executeRefund(input: RefundInput): Promise<RefundResult> {
   const supabase = getServiceClient();
 
   const { data: order, error: orderError } = await supabase
     .from('orders')
-    .select('id, user_id, order_number, payment_method, payment_status, status, total, prepaid_amount, cod_balance')
+    .select(
+      'id, user_id, order_number, payment_method, payment_status, status, total, prepaid_amount, cod_balance, wallet_used'
+    )
     .eq('id', input.orderId)
     .maybeSingle();
 
-  if (orderError) return { ok: false, refunded: false, error: orderError.message };
+  if (orderError)
+    return { ok: false, refunded: false, error: orderError.message };
   if (!order) return { ok: false, refunded: false, error: 'Order not found' };
 
   // Server-authoritative amount: clamp client-supplied value to refundable.
   const refundable = computeRefundableAmount(order);
-  const amount = input.amount && Number(input.amount) > 0
-    ? Math.min(Number(input.amount), refundable)
-    : refundable;
+  const amount =
+    input.amount && Number(input.amount) > 0
+      ? Math.min(Number(input.amount), refundable)
+      : refundable;
 
   if (amount <= 0) {
-    return { ok: false, refunded: false, error: 'Nothing refundable for this order' };
+    return {
+      ok: false,
+      refunded: false,
+      error: 'Nothing refundable for this order',
+    };
   }
 
   // Shared idempotency guard: both paths check payment_status so the two
@@ -83,17 +89,30 @@ export async function executeRefund(
 
   // Wallet-specific guard: the unique index on (order_id) WHERE type='credit'
   // catches any concurrent duplicate at the DB level.
+  let creditedAmount = amount;
   if (input.method === 'wallet') {
+    // Anti-loop fraud guard: 5% bonus is calculated ONLY on the external cash/UPI/card portion
+    const walletUsed = Number(order.wallet_used) || 0;
+    const externalCashPaid = Math.max(0, amount - walletUsed);
+    const bonus5Percent =
+      externalCashPaid > 0 ? Math.floor(externalCashPaid * 0.05) : 0;
+    creditedAmount = amount + bonus5Percent;
+
     const { error: ledgerError } = await supabase.from('wallet_ledger').insert({
       user_id: order.user_id,
       order_id: order.id,
-      amount,
+      amount: creditedAmount,
       type: 'credit',
     });
     if (ledgerError) {
       // Unique violation (23505) means a concurrent caller already credited.
       if (ledgerError.code === '23505') {
-        return { ok: true, refunded: true, alreadyRefunded: true, amount };
+        return {
+          ok: true,
+          refunded: true,
+          alreadyRefunded: true,
+          amount: creditedAmount,
+        };
       }
       return { ok: false, refunded: false, error: ledgerError.message };
     }
@@ -118,11 +137,12 @@ export async function executeRefund(
     portal: 'orders',
     metadata: {
       refund_method: input.method,
-      refund_amount: amount,
+      refund_amount: creditedAmount,
+      base_amount: amount,
       reason: input.reason || null,
       refunded_at: new Date().toISOString(),
     },
   });
 
-  return { ok: true, refunded: true, amount };
+  return { ok: true, refunded: true, amount: creditedAmount };
 }

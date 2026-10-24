@@ -28,6 +28,7 @@ jest.mock('@/lib/ai/co-founder/brain', () => ({
 
 jest.mock('@/lib/ai/co-founder/orchestrator', () => ({
   runCoFounderAgentLoop: jest.fn(),
+  DANGLING_PROMISE_REGEX: /(checking|আমি চেক করে)/i,
 }));
 
 jest.mock('@/lib/ai/co-founder/streamer', () => ({
@@ -71,13 +72,16 @@ jest.mock('@supabase/ssr', () => ({
   })),
 }));
 
-const mockRequireAdmin = requireAdmin as jest.MockedFunction<typeof requireAdmin>;
+const mockRequireAdmin = requireAdmin as jest.MockedFunction<
+  typeof requireAdmin
+>;
 const mockRunAgenticStreamingSession =
   runAgenticStreamingSession as jest.MockedFunction<
     typeof runAgenticStreamingSession
   >;
-const mockRunCoFounderAgentLoop =
-  runCoFounderAgentLoop as jest.MockedFunction<typeof runCoFounderAgentLoop>;
+const mockRunCoFounderAgentLoop = runCoFounderAgentLoop as jest.MockedFunction<
+  typeof runCoFounderAgentLoop
+>;
 
 describe('Co-Founder Chat API Route (POST /api/admin/co-founder/chat)', () => {
   beforeEach(() => {
