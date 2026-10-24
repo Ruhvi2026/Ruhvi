@@ -119,10 +119,16 @@ STRICT RESTRICTION:
 
 export async function POST(req: NextRequest) {
   try {
-    // 1. Authenticate Staff via Session Cookie
+    // 1. Authenticate Staff via Session Cookie or Bearer Token (Mobile App)
     const cookieStore = await cookies();
-    const sessionCookie = cookieStore.get('__session')?.value;
-    const decoded = await verifySessionToken(sessionCookie);
+    let token = cookieStore.get('__session')?.value;
+    if (!token) {
+      const authHeader = req.headers.get('authorization');
+      if (authHeader && authHeader.toLowerCase().startsWith('bearer ')) {
+        token = authHeader.substring(7).trim();
+      }
+    }
+    const decoded = await verifySessionToken(token);
 
     if (!decoded || !decoded.sub) {
       return NextResponse.json(

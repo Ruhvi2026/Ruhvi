@@ -18,10 +18,20 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useHeaderHeight } from '@react-navigation/elements';
 import * as ImagePicker from 'expo-image-picker';
 import { uploadToCloudinary } from '../lib/cloudinary';
+import {
+  AI_WORKER_PERSONAS,
+  resolveAIWorkerForUser,
+  AIWorkerPersona,
+} from '../lib/personas';
 
-const API_ENDPOINTS = [
+const CO_FOUNDER_ENDPOINTS = [
   'https://admin.ruhvi.in/api/admin/co-founder/chat',
   'https://ruhvi.in/api/admin/co-founder/chat',
+];
+
+const AI_WORKER_ENDPOINTS = [
+  'https://admin.ruhvi.in/api/internal-chat/ai-worker',
+  'https://ruhvi.in/api/internal-chat/ai-worker',
 ];
 
 interface ChatMessage {
@@ -35,16 +45,27 @@ interface ChatMessage {
   toolExecuted?: boolean;
 }
 
-const INITIAL_WELCOME: ChatMessage = {
-  id: 'welcome',
-  sender: 'assistant',
-  text: 'Greetings Founder. I am your Ruhvi AI Co-Founder. I have real-time access to your store\'s live catalog, sales metrics, support tickets, inventory, SEO, and Task Manager.\n\nGive me any instruction, ask for status reports, or delegate execution tasks directly from here!',
-  timestamp: Date.now(),
-};
-
-export default function CoFounderChatScreen({ navigation }: any) {
+export default function CoFounderChatScreen({ navigation, route }: any) {
   const headerHeight = useHeaderHeight();
-  const [messages, setMessages] = useState<ChatMessage[]>([INITIAL_WELCOME]);
+  const routeParams = route?.params || {};
+
+  // Resolve initial persona from params or default to orders
+  const initialPersona: AIWorkerPersona =
+    routeParams.department && AI_WORKER_PERSONAS[routeParams.department]
+      ? AI_WORKER_PERSONAS[routeParams.department]
+      : routeParams.isCoFounder
+        ? AI_WORKER_PERSONAS.founder
+        : AI_WORKER_PERSONAS.orders;
+
+  const [activePersona, setActivePersona] = useState<AIWorkerPersona>(initialPersona);
+  const [messages, setMessages] = useState<ChatMessage[]>([
+    {
+      id: 'welcome',
+      sender: 'assistant',
+      text: initialPersona.welcomeMessage,
+      timestamp: Date.now(),
+    },
+  ]);
   const [inputText, setInputText] = useState('');
   const [loading, setLoading] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
@@ -64,14 +85,25 @@ export default function CoFounderChatScreen({ navigation }: any) {
       headerTintColor: '#fff',
       headerTitle: () => (
         <View style={styles.headerTitleContainer}>
-          <View style={styles.headerAvatar}>
-            <MaterialIcons name="smart-toy" size={20} color="#fff" />
+          <View style={[
+            styles.headerAvatar,
+            activePersona.department !== 'founder' && { backgroundColor: '#075E54' }
+          ]}>
+            {activePersona.avatarEmoji === '🤖' ? (
+              <MaterialIcons name="smart-toy" size={20} color="#fff" />
+            ) : (
+              <Text style={{ fontSize: 18 }}>{activePersona.avatarEmoji}</Text>
+            )}
             <View style={styles.onlineBadge} />
           </View>
           <View style={styles.headerTextWrap}>
-            <Text style={styles.headerName} numberOfLines={1}>Ruhvi AI Co-Founder</Text>
+            <Text style={styles.headerName} numberOfLines={1}>{activePersona.name}</Text>
             <Text style={styles.headerSubtitle} numberOfLines={1}>
-              {loading ? 'Thinking & executing...' : 'AI Partner • Online'}
+              {loading 
+                ? 'Thinking & executing...' 
+                : activePersona.department === 'founder'
+                  ? 'AI Partner • Online'
+                  : `${activePersona.roleTitle} • Online`}
             </Text>
           </View>
         </View>
@@ -86,19 +118,22 @@ export default function CoFounderChatScreen({ navigation }: any) {
         </TouchableOpacity>
       ),
     });
-  }, [navigation, loading]);
+  }, [navigation, loading, activePersona]);
 
   // Save chat history
   const persistMessages = useCallback(async (newMsgs: ChatMessage[]) => {
     try {
       const uid = currentUserId || (await AsyncStorage.getItem('ruhvi_user_id'));
       if (uid) {
-        await AsyncStorage.setItem(`ruhvi_co_founder_chat_${uid}`, JSON.stringify(newMsgs));
+        const storageKey = activePersona.department === 'founder'
+          ? `ruhvi_co_founder_chat_${uid}`
+          : `ruhvi_ai_worker_chat_${activePersona.department}_${uid}`;
+        await AsyncStorage.setItem(storageKey, JSON.stringify(newMsgs));
       }
     } catch (e) {
       console.warn('Failed to persist messages:', e);
     }
-  }, [currentUserId]);
+  }, [currentUserId, activePersona.department]);
 
   // Check for proactive store alerts (tickets, low stock, anomaly signals)
   const checkForProactiveAlerts = useCallback(async () => {
@@ -106,7 +141,7 @@ export default function CoFounderChatScreen({ navigation }: any) {
       let token = authToken || (await AsyncStorage.getItem('ruhvi_mobile_jwt'));
       if (!token) return;
 
-      for (const endpoint of API_ENDPOINTS) {
+      for (const endpoint of CO_FOUNDER_ENDPOINTS) {
         try {
           const res = await fetch(endpoint, {
             method: 'GET',
@@ -162,17 +197,37 @@ export default function CoFounderChatScreen({ navigation }: any) {
       try {
         const uid = await AsyncStorage.getItem('ruhvi_user_id');
         const token = await AsyncStorage.getItem('ruhvi_mobile_jwt');
+        const cachedRole = await AsyncStorage.getItem('ruhvi_user_role');
+        const cachedDept = await AsyncStorage.getItem('ruhvi_user_dept');
         setCurrentUserId(uid);
         setAuthToken(token);
 
+        let currentPersona = initialPersona;
+        if (!routeParams.department && routeParams.isCoFounder === undefined) {
+          currentPersona = resolveAIWorkerForUser(cachedRole, cachedDept);
+          setActivePersona(currentPersona);
+        }
+
         if (uid) {
-          const stored = await AsyncStorage.getItem(`ruhvi_co_founder_chat_${uid}`);
+          const storageKey = currentPersona.department === 'founder'
+            ? `ruhvi_co_founder_chat_${uid}`
+            : `ruhvi_ai_worker_chat_${currentPersona.department}_${uid}`;
+          const stored = await AsyncStorage.getItem(storageKey);
           if (stored) {
             const parsed = JSON.parse(stored);
             if (Array.isArray(parsed) && parsed.length > 0) {
               setMessages(parsed);
+              return;
             }
           }
+          setMessages([
+            {
+              id: 'welcome',
+              sender: 'assistant',
+              text: currentPersona.welcomeMessage,
+              timestamp: Date.now(),
+            },
+          ]);
         }
       } catch (err) {
         console.warn('Error loading chat session:', err);
@@ -181,26 +236,35 @@ export default function CoFounderChatScreen({ navigation }: any) {
     loadSession();
   }, []);
 
-  // Poll for proactive alerts on mount and every 45s
+  // Poll for proactive alerts on mount and every 45s (if co-founder)
   useEffect(() => {
-    checkForProactiveAlerts();
-    const interval = setInterval(() => {
+    if (activePersona.department === 'founder') {
       checkForProactiveAlerts();
-    }, 45000);
-    return () => clearInterval(interval);
-  }, [checkForProactiveAlerts]);
+      const interval = setInterval(() => {
+        checkForProactiveAlerts();
+      }, 45000);
+      return () => clearInterval(interval);
+    }
+  }, [checkForProactiveAlerts, activePersona.department]);
 
   const handleClearChat = () => {
     Alert.alert(
       'Clear Conversation',
-      'Are you sure you want to clear this Co-Founder conversation history?',
+      `Are you sure you want to clear this ${activePersona.name} conversation history?`,
       [
         { text: 'Cancel', style: 'cancel' },
         {
           text: 'Clear',
           style: 'destructive',
           onPress: async () => {
-            const reset = [INITIAL_WELCOME];
+            const reset: ChatMessage[] = [
+              {
+                id: 'welcome',
+                sender: 'assistant',
+                text: activePersona.welcomeMessage,
+                timestamp: Date.now(),
+              },
+            ];
             setMessages(reset);
             persistMessages(reset);
             setActiveAlerts([]);
@@ -255,8 +319,8 @@ export default function CoFounderChatScreen({ navigation }: any) {
 
   const showAttachmentOptions = () => {
     Alert.alert(
-      'Attach Image for Co-Founder',
-      'Share product photos, competitor screenshots, or documents for visual analysis:',
+      `Attach Image for ${activePersona.name}`,
+      'Share product photos, defect photos, or documents for visual analysis:',
       [
         { text: 'Take Photo', onPress: handleTakePhoto },
         { text: 'Choose from Gallery', onPress: handlePickImage },
@@ -283,7 +347,7 @@ export default function CoFounderChatScreen({ navigation }: any) {
         setUploadingImage(true);
         const uploadRes = await uploadToCloudinary(
           attachedImage.uri,
-          `co_founder_mobile_${Date.now()}.jpg`,
+          `ai_worker_mobile_${Date.now()}.jpg`,
           'image/jpeg'
         );
         if (uploadRes?.cloudinary_url) {
@@ -311,7 +375,7 @@ export default function CoFounderChatScreen({ navigation }: any) {
     setLoading(true);
     persistMessages(updatedList);
 
-    // Prepare history payload for Co-Founder Agent Loop
+    // Prepare history payload for Agent Loop
     const payloadMessages = updatedList.map((m) => ({
       sender: m.sender,
       text: m.text,
@@ -324,8 +388,24 @@ export default function CoFounderChatScreen({ navigation }: any) {
     let usedModel = '';
     let toolExecuted = false;
 
+    const isCoFounder = activePersona.department === 'founder';
+    const endpoints = isCoFounder ? CO_FOUNDER_ENDPOINTS : AI_WORKER_ENDPOINTS;
+
+    const requestBody = isCoFounder
+      ? {
+          messages: payloadMessages,
+          channel: 'text',
+          provider: 'gemini',
+          model: 'gemini-3.5-flash-lite',
+          agenticLoop: true,
+        }
+      : {
+          messages: payloadMessages,
+          department: activePersona.department,
+        };
+
     // Try primary then fallback endpoint
-    for (const endpoint of API_ENDPOINTS) {
+    for (const endpoint of endpoints) {
       try {
         const res = await fetch(endpoint, {
           method: 'POST',
@@ -333,13 +413,7 @@ export default function CoFounderChatScreen({ navigation }: any) {
             'Content-Type': 'application/json',
             ...(token ? { Authorization: `Bearer ${token}` } : {}),
           },
-          body: JSON.stringify({
-            messages: payloadMessages,
-            channel: 'text',
-            provider: 'gemini',
-            model: 'gemini-3.5-flash-lite',
-            agenticLoop: true,
-          }),
+          body: JSON.stringify(requestBody),
         });
 
         if (res.ok) {
@@ -347,11 +421,16 @@ export default function CoFounderChatScreen({ navigation }: any) {
           assistantReply = data.response || 'Action completed.';
           usedProvider = data.provider || '';
           usedModel = data.model || '';
-          toolExecuted = Boolean(data.agent?.toolCallsExecuted?.length);
+          toolExecuted = Boolean(
+            data.agent?.toolCallsExecuted?.length || data.toolCallsExecuted?.length
+          );
           responseReceived = true;
           break;
         } else if (res.status === 401 || res.status === 403) {
-          assistantReply = 'Authentication issue: Please log out and log back in as an Administrator.';
+          const errData = await res.json().catch(() => ({}));
+          assistantReply =
+            errData.error ||
+            'Authentication issue: Please verify your staff permissions or re-login.';
           responseReceived = true;
           break;
         }
@@ -361,7 +440,7 @@ export default function CoFounderChatScreen({ navigation }: any) {
     }
 
     if (!responseReceived) {
-      assistantReply = 'I could not connect to the Ruhvi Co-Founder server. Please ensure your internet connection is active.';
+      assistantReply = `I could not connect to the Ruhvi ${activePersona.name} server. Please ensure your internet connection is active.`;
     }
 
     const aiMsg: ChatMessage = {
@@ -390,14 +469,23 @@ export default function CoFounderChatScreen({ navigation }: any) {
     return (
       <View style={[styles.messageRow, isUser ? styles.userRow : styles.aiRow]}>
         {!isUser && (
-          <View style={styles.bubbleAvatar}>
-            <MaterialIcons name="smart-toy" size={13} color="#fff" />
+          <View style={[
+            styles.bubbleAvatar,
+            activePersona.department !== 'founder' && { backgroundColor: '#075E54', borderColor: '#A7F3D0' }
+          ]}>
+            {activePersona.avatarEmoji === '🤖' ? (
+              <MaterialIcons name="smart-toy" size={13} color="#fff" />
+            ) : (
+              <Text style={{ fontSize: 12 }}>{activePersona.avatarEmoji}</Text>
+            )}
           </View>
         )}
         <View style={[styles.bubble, isUser ? styles.userBubble : styles.aiBubble]}>
           {!isUser && (
             <View style={styles.aiSenderHeader}>
-              <Text style={styles.aiSenderTitle}>AI Co-Founder</Text>
+              <Text style={[styles.aiSenderTitle, activePersona.department !== 'founder' && { color: '#075E54' }]}>
+                {activePersona.name}
+              </Text>
               {item.toolExecuted && (
                 <View style={styles.toolBadge}>
                   <MaterialIcons name="bolt" size={10} color="#075E54" />

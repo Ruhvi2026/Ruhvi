@@ -20,6 +20,11 @@ import * as ImagePicker from 'expo-image-picker';
 import { supabase, getCurrentUserId, setSupabaseToken } from '../lib/supabase';
 import { triggerLocalNotification } from '../lib/notifications';
 import { uploadToCloudinary } from '../lib/cloudinary';
+import {
+  AI_WORKER_PERSONAS,
+  resolveAIWorkerForUser,
+  AIWorkerPersona,
+} from '../lib/personas';
 
 export default function ChatListScreen({ navigation }: any) {
   const [conversations, setConversations] = useState<any[]>([]);
@@ -49,6 +54,7 @@ export default function ChatListScreen({ navigation }: any) {
   // Staff Profile Modal state
   const [currentUserProfile, setCurrentUserProfile] = useState<any>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
+  const [userDept, setUserDept] = useState<string | null>(null);
   const [coFounderSnippet, setCoFounderSnippet] = useState<string>('Tap to collaborate, delegate tasks & analyze store');
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [editFullName, setEditFullName] = useState('');
@@ -60,16 +66,24 @@ export default function ChatListScreen({ navigation }: any) {
     try {
       const activeUid = uid || currentUserId || (await AsyncStorage.getItem('ruhvi_user_id'));
       if (activeUid) {
-        const stored = await AsyncStorage.getItem(`ruhvi_co_founder_chat_${activeUid}`);
+        const cachedR = await AsyncStorage.getItem('ruhvi_user_role');
+        const cachedD = await AsyncStorage.getItem('ruhvi_user_dept');
+        const worker = resolveAIWorkerForUser(cachedR, cachedD);
+        const storageKey = worker.department === 'founder'
+          ? `ruhvi_co_founder_chat_${activeUid}`
+          : `ruhvi_ai_worker_chat_${worker.department}_${activeUid}`;
+        const stored = await AsyncStorage.getItem(storageKey);
         if (stored) {
           const parsed = JSON.parse(stored);
           if (Array.isArray(parsed) && parsed.length > 0) {
             const last = parsed[parsed.length - 1];
             if (last?.text) {
               setCoFounderSnippet(last.text.replace(/\n/g, ' ').substring(0, 75));
+              return;
             }
           }
         }
+        setCoFounderSnippet(worker.roleTitle);
       }
     } catch {}
   };
@@ -86,6 +100,10 @@ export default function ChatListScreen({ navigation }: any) {
         if (data.role) {
           setUserRole(data.role);
           AsyncStorage.setItem('ruhvi_user_role', data.role);
+        }
+        if (data.department) {
+          setUserDept(data.department);
+          AsyncStorage.setItem('ruhvi_user_dept', data.department);
         }
         setEditFullName(data.full_name || '');
         setEditBio(data.bio || 'Hey there! I am using RuhChat.');
@@ -143,6 +161,10 @@ export default function ChatListScreen({ navigation }: any) {
       const cachedRole = await AsyncStorage.getItem('ruhvi_user_role');
       if (cachedRole) {
         setUserRole(cachedRole);
+      }
+      const cachedDept = await AsyncStorage.getItem('ruhvi_user_dept');
+      if (cachedDept) {
+        setUserDept(cachedDept);
       }
       fetchChats(uid);
       loadCoFounderSnippet(uid);
@@ -622,11 +644,12 @@ export default function ChatListScreen({ navigation }: any) {
 
   const userEmail = (currentUserProfile?.email || '').toLowerCase();
   const rawRole = (currentUserProfile?.role || userRole || '').toLowerCase();
-  const rawDept = (currentUserProfile?.department || '').toLowerCase();
+  const rawDept = (currentUserProfile?.department || userDept || '').toLowerCase();
   const isAdmin = 
     rawRole === 'admin' ||
     rawRole === 'super_admin' ||
     userEmail === 'ruhvi.main@gmail.com';
+  const activeAIWorker = resolveAIWorkerForUser(rawRole, rawDept, userEmail);
   const isOperations = 
     rawDept === 'operations' ||
     rawDept.includes('operation') ||
@@ -782,41 +805,65 @@ export default function ChatListScreen({ navigation }: any) {
                   </TouchableOpacity>
                 )}
 
-                {/* AI Co-Founder Card */}
-                {isAdmin && (!globalSearch.trim() || 'ai co-founder cofounder partner'.includes(globalSearch.toLowerCase())) && (
+                {/* Pinned AI Co-Worker / Co-Founder Card (Accessible to ALL Staff) */}
+                {(!globalSearch.trim() || 
+                  'ai co-founder cofounder partner worker assistant bot'.includes(globalSearch.toLowerCase()) || 
+                  activeAIWorker.name.toLowerCase().includes(globalSearch.toLowerCase())) && (
                   <TouchableOpacity 
-                    style={[styles.chatItem, styles.coFounderCard]}
+                    style={[
+                      styles.chatItem, 
+                      styles.coFounderCard, 
+                      !isAdmin && { backgroundColor: '#F0FDF4', borderLeftColor: '#059669' }
+                    ]}
                     activeOpacity={0.7}
-                    onPress={() => navigation.navigate('CoFounderChat')}
+                    onPress={() => navigation.navigate('CoFounderChat', {
+                      department: activeAIWorker.department,
+                      isCoFounder: isAdmin,
+                      name: activeAIWorker.name,
+                      roleTitle: activeAIWorker.roleTitle,
+                      avatarEmoji: activeAIWorker.avatarEmoji,
+                      welcomeMessage: activeAIWorker.welcomeMessage,
+                    })}
                   >
-                    <View style={styles.coFounderAvatar}>
-                      <MaterialIcons name="smart-toy" size={24} color="#fff" />
+                    <View style={[styles.coFounderAvatar, !isAdmin && { backgroundColor: '#075E54', borderColor: '#A7F3D0' }]}>
+                      {activeAIWorker.avatarEmoji === '🤖' ? (
+                        <MaterialIcons name="smart-toy" size={24} color="#fff" />
+                      ) : (
+                        <Text style={{ fontSize: 22 }}>{activeAIWorker.avatarEmoji}</Text>
+                      )}
                       <View style={styles.coFounderOnlineDot} />
                     </View>
 
                     <View style={styles.chatDetails}>
                       <View style={styles.chatHeader}>
                         <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, marginRight: 8 }}>
-                          <Text style={[styles.chatName, styles.coFounderName]} numberOfLines={1}>
-                            Ruhvi AI Co-Founder
+                          <Text style={[styles.chatName, styles.coFounderName, !isAdmin && { color: '#064E3B' }]} numberOfLines={1}>
+                            {activeAIWorker.name}
                           </Text>
-                          <View style={styles.aiPartnerBadge}>
-                            <MaterialIcons name="verified" size={11} color="#6A1B9A" style={{ marginRight: 2 }} />
-                            <Text style={styles.aiPartnerBadgeText}>AI Partner</Text>
+                          <View style={[styles.aiPartnerBadge, !isAdmin && { backgroundColor: '#E8F5E9', borderColor: '#C8E6C9' }]}>
+                            <MaterialIcons 
+                              name={isAdmin ? "verified" : "auto-awesome"} 
+                              size={11} 
+                              color={isAdmin ? "#6A1B9A" : "#075E54"} 
+                              style={{ marginRight: 2 }} 
+                            />
+                            <Text style={[styles.aiPartnerBadgeText, !isAdmin && { color: '#075E54' }]}>
+                              {isAdmin ? 'AI Partner' : 'AI Co-Worker'}
+                            </Text>
                           </View>
                         </View>
-                        <Text style={styles.coFounderTime}>Active</Text>
+                        <Text style={[styles.coFounderTime, !isAdmin && { color: '#059669' }]}>Active</Text>
                       </View>
 
                       <View style={styles.chatSubRow}>
                         <Text style={styles.coFounderSnippet} numberOfLines={1}>
-                          {coFounderSnippet}
+                          {coFounderSnippet || activeAIWorker.roleTitle}
                         </Text>
                         <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 6 }}>
                           <MaterialIcons 
                             name="push-pin" 
                             size={13} 
-                            color="#6A1B9A" 
+                            color={isAdmin ? "#6A1B9A" : "#059669"} 
                             style={{ transform: [{ rotate: '45deg' }] }} 
                           />
                         </View>
@@ -977,30 +1024,99 @@ export default function ChatListScreen({ navigation }: any) {
 
           {modalMode === 'contacts' ? (
             <>
-              {/* Option to Chat with Ruhvi AI Co-Founder */}
-              {isAdmin && (
-                <TouchableOpacity 
-                  style={[styles.newGroupRow, { borderBottomColor: '#F3E8FF', backgroundColor: '#FAF5FF' }]}
-                  onPress={() => {
-                    setIsModalVisible(false);
-                    navigation.navigate('CoFounderChat');
-                  }}
-                  activeOpacity={0.7}
-                >
-                  <View style={[styles.newGroupIcon, { backgroundColor: '#7C3AED', borderWidth: 1, borderColor: '#C4B5FD' }]}>
+              {/* Option to Chat with Active AI Worker or Co-Founder */}
+              <TouchableOpacity 
+                style={[
+                  styles.newGroupRow, 
+                  { 
+                    borderBottomColor: isAdmin ? '#F3E8FF' : '#DCFCE7', 
+                    backgroundColor: isAdmin ? '#FAF5FF' : '#F0FDF4' 
+                  }
+                ]}
+                onPress={() => {
+                  setIsModalVisible(false);
+                  navigation.navigate('CoFounderChat', {
+                    department: activeAIWorker.department,
+                    isCoFounder: isAdmin,
+                    name: activeAIWorker.name,
+                    roleTitle: activeAIWorker.roleTitle,
+                    avatarEmoji: activeAIWorker.avatarEmoji,
+                    welcomeMessage: activeAIWorker.welcomeMessage,
+                  });
+                }}
+                activeOpacity={0.7}
+              >
+                <View style={[
+                  styles.newGroupIcon, 
+                  { 
+                    backgroundColor: isAdmin ? '#7C3AED' : '#075E54', 
+                    borderWidth: 1, 
+                    borderColor: isAdmin ? '#C4B5FD' : '#A7F3D0' 
+                  }
+                ]}>
+                  {activeAIWorker.avatarEmoji === '🤖' ? (
                     <MaterialIcons name="smart-toy" size={24} color="#fff" />
-                  </View>
-                  <View style={styles.contactDetails}>
-                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                      <Text style={[styles.newGroupText, { color: '#4A148C' }]}>Ruhvi AI Co-Founder</Text>
-                      <View style={styles.aiPartnerBadge}>
-                        <MaterialIcons name="verified" size={11} color="#6A1B9A" style={{ marginRight: 2 }} />
-                        <Text style={styles.aiPartnerBadgeText}>AI Partner</Text>
-                      </View>
+                  ) : (
+                    <Text style={{ fontSize: 20 }}>{activeAIWorker.avatarEmoji}</Text>
+                  )}
+                </View>
+                <View style={styles.contactDetails}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <Text style={[styles.newGroupText, { color: isAdmin ? '#4A148C' : '#064E3B' }]}>
+                      {activeAIWorker.name}
+                    </Text>
+                    <View style={[styles.aiPartnerBadge, !isAdmin && { backgroundColor: '#E8F5E9', borderColor: '#C8E6C9' }]}>
+                      <MaterialIcons 
+                        name={isAdmin ? "verified" : "auto-awesome"} 
+                        size={11} 
+                        color={isAdmin ? "#6A1B9A" : "#075E54"} 
+                        style={{ marginRight: 2 }} 
+                      />
+                      <Text style={[styles.aiPartnerBadgeText, !isAdmin && { color: '#075E54' }]}>
+                        {isAdmin ? 'AI Partner' : 'AI Co-Worker'}
+                      </Text>
                     </View>
-                    <Text style={styles.contactRole}>Ask anything, execute tasks & analyze store</Text>
                   </View>
-                </TouchableOpacity>
+                  <Text style={styles.contactRole}>{activeAIWorker.roleTitle}</Text>
+                </View>
+              </TouchableOpacity>
+
+              {/* For Admins: Show All Department AI Workers to Test & Chat */}
+              {isAdmin && (
+                <View style={{ paddingVertical: 2 }}>
+                  <Text style={{ fontSize: 11, fontWeight: '700', color: '#667781', paddingHorizontal: 16, paddingTop: 6, paddingBottom: 2, textTransform: 'uppercase' }}>
+                    Department AI Workers
+                  </Text>
+                  {(['orders', 'support', 'operations', 'marketing', 'tech'] as const).map((deptKey) => {
+                    const worker = AI_WORKER_PERSONAS[deptKey];
+                    return (
+                      <TouchableOpacity
+                        key={deptKey}
+                        style={[styles.newGroupRow, { paddingVertical: 8, paddingLeft: 24, backgroundColor: '#FAFBFB' }]}
+                        onPress={() => {
+                          setIsModalVisible(false);
+                          navigation.navigate('CoFounderChat', {
+                            department: worker.department,
+                            isCoFounder: false,
+                            name: worker.name,
+                            roleTitle: worker.roleTitle,
+                            avatarEmoji: worker.avatarEmoji,
+                            welcomeMessage: worker.welcomeMessage,
+                          });
+                        }}
+                        activeOpacity={0.7}
+                      >
+                        <View style={[styles.newGroupIcon, { width: 34, height: 34, borderRadius: 17, backgroundColor: '#E8F5E9', borderWidth: 1, borderColor: '#C8E6C9' }]}>
+                          <Text style={{ fontSize: 16 }}>{worker.avatarEmoji}</Text>
+                        </View>
+                        <View style={styles.contactDetails}>
+                          <Text style={[styles.newGroupText, { fontSize: 14, color: '#075E54' }]}>{worker.name}</Text>
+                          <Text style={[styles.contactRole, { fontSize: 11 }]}>{worker.roleTitle}</Text>
+                        </View>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
               )}
 
               {/* Option to Create New Group */}
