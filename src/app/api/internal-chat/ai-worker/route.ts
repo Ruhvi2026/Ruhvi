@@ -19,7 +19,7 @@ interface DepartmentConfig {
   systemInstructions: string;
 }
 
-export const DEPARTMENT_CONFIGS: Record<string, DepartmentConfig> = {
+const DEPARTMENT_CONFIGS: Record<string, DepartmentConfig> = {
   marketing: {
     workerName: 'Marketing AI Worker',
     roleTitle: 'Brand Marketing & Editorial Content Strategist',
