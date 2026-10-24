@@ -616,13 +616,27 @@ export async function runGeminiAgentLoop(
     'coupons:read',
   ];
 
+  const resolveGeminiModel = (m?: string): string => {
+    if (!m) return 'gemini-3.8-flash';
+    const legacyMap: Record<string, string> = {
+      'gemini-2.5-flash': 'gemini-3.8-flash',
+      'gemini-2.5-pro': 'gemini-3.8-flash',
+      'gemini-2.5-flash-lite': 'gemini-3.5-flash-lite',
+      'gemini-1.5-flash': 'gemini-3.8-flash',
+      'gemini-1.5-pro': 'gemini-3.8-flash',
+      'gemini-2.0-flash': 'gemini-3.8-flash',
+      'gemini-2.0-flash-lite': 'gemini-3.5-flash-lite',
+      'gemini-2.0-flash-001': 'gemini-3.8-flash',
+    };
+    return legacyMap[m] || m;
+  };
+
   const candidateModels = [
-    options.modelName,
-    'gemini-2.5-pro',
-    'gemini-2.5-flash',
-    'gemini-2.0-flash',
-    'gemini-1.5-pro',
-    'gemini-1.5-flash',
+    resolveGeminiModel(options.modelName),
+    'gemini-3.8-flash',
+    'gemini-3.5-flash-lite',
+    'gemini-3.5-flash',
+    'gemini-flash-latest',
   ].filter(Boolean) as string[];
 
   const uniqueModels = Array.from(new Set(candidateModels));

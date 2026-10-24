@@ -282,8 +282,8 @@ export async function POST(req: NextRequest) {
       );
 
     const defaultGeminiModel = isStrategicQuery
-      ? 'gemini-2.5-pro'
-      : 'gemini-2.5-flash';
+      ? 'gemini-3.8-flash'
+      : 'gemini-3.5-flash-lite';
 
     const primaryModel =
       requestedModel && requestedModel !== 'auto'
@@ -515,12 +515,11 @@ export async function POST(req: NextRequest) {
           const candidateModels = [
             primaryProvider === 'gemini' && primaryModel
               ? primaryModel
-              : 'gemini-3.5-flash-lite',
-            'gemini-3.5-flash-lite',
+              : 'gemini-3.8-flash',
             'gemini-3.8-flash',
-            'gemini-3.1-flash-lite',
-            'gemini-2.5-flash',
-            'gemini-1.5-pro',
+            'gemini-3.5-flash-lite',
+            'gemini-3.5-flash',
+            'gemini-flash-latest',
           ];
 
           // Deduplicate

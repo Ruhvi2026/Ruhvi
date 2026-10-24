@@ -93,7 +93,9 @@ export function extractBase64FromDataUrl(input: string): {
 } {
   if (!input) return { base64: '', mimeType: 'image/jpeg' };
 
-  const matches = input.match(/^data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+);base64,(.+)$/);
+  const matches = input.match(
+    /^data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+);base64,(.+)$/
+  );
   if (matches) {
     return {
       mimeType: matches[1] || 'image/jpeg',
@@ -187,7 +189,10 @@ function generateHeuristicVisionAnalysis(
     karat = '925 Sterling Silver';
   }
 
-  const hasDiamond = text.includes('diamond') || text.includes('solitaire') || text.includes('cz');
+  const hasDiamond =
+    text.includes('diamond') ||
+    text.includes('solitaire') ||
+    text.includes('cz');
 
   return {
     success: true,
@@ -334,9 +339,9 @@ Category Hint: ${categoryHint || 'None'}`;
 
   // 4. Call Gemini Multimodal Vision API
   const visionModels = [
-    'gemini-2.0-flash',
-    'gemini-1.5-flash',
-    'gemini-1.5-pro',
+    'gemini-3.8-flash',
+    'gemini-3.5-flash',
+    'gemini-3.5-flash-lite',
     'gemini-flash-latest',
   ];
 

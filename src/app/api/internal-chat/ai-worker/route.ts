@@ -233,7 +233,7 @@ COMMUNICATION CADENCE:
 
     const agentResult = await runCoFounderAgentLoop(messages, {
       apiKey,
-      modelName: 'gemini-2.5-flash',
+      modelName: 'gemini-3.8-flash',
       systemInstruction: fullSystemInstruction,
       scopes,
       userId: staffUser.id,

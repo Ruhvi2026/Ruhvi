@@ -83,7 +83,7 @@ export async function generateDailyMorningBriefing() {
     if (geminiKey) {
       try {
         const genAI = new GoogleGenerativeAI(geminiKey);
-        const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+        const model = genAI.getGenerativeModel({ model: 'gemini-3.8-flash' });
         const prompt = `
 You are the AI Co-Founder of Ruhvi Fine Jewellery (ruhvi.in).
 Generate a crisp, high-craft 9:00 AM Morning Executive Briefing for the Founder.

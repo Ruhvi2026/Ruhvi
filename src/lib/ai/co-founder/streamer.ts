@@ -286,7 +286,7 @@ export async function runAgenticStreamingSession(
 
     try {
       writer.sendStart({
-        model: options.modelName || 'gemini-2.0-flash',
+        model: options.modelName || 'gemini-3.8-flash',
         sessionId: options.sessionId,
       });
 
@@ -340,7 +340,7 @@ export async function runAgenticStreamingSession(
             traceId: options.sessionId || 'tr_stream',
             spanId: 'sp_stream',
             provider: (agentResult.provider as any) || 'gemini',
-            model: agentResult.modelUsed || 'gemini-2.0-flash',
+            model: agentResult.modelUsed || 'gemini-3.8-flash',
             channel: 'chat',
             promptTokens: Math.max(1, Math.round(lastUserMsg.length / 4)),
             completionTokens: 0,
@@ -382,7 +382,7 @@ export async function runAgenticStreamingSession(
             traceId: options.sessionId || 'tr_stream',
             spanId: 'sp_stream',
             provider: (agentResult.provider as any) || 'gemini',
-            model: agentResult.modelUsed || 'gemini-2.0-flash',
+            model: agentResult.modelUsed || 'gemini-3.8-flash',
             channel: 'chat',
             promptTokens: Math.max(1, Math.round(lastUserMsg.length / 4)),
             completionTokens: Math.max(
@@ -392,8 +392,7 @@ export async function runAgenticStreamingSession(
             totalTokens: Math.max(
               2,
               Math.round(
-                (lastUserMsg.length +
-                  (agentResult.responseText?.length || 0)) /
+                (lastUserMsg.length + (agentResult.responseText?.length || 0)) /
                   4
               )
             ),
@@ -411,7 +410,7 @@ export async function runAgenticStreamingSession(
           traceId: options.sessionId || 'tr_stream',
           spanId: 'sp_stream',
           provider: 'fallback',
-          model: options.modelName || 'gemini-2.0-flash',
+          model: options.modelName || 'gemini-3.8-flash',
           channel: 'chat',
           promptTokens: Math.max(1, Math.round(lastUserMsg.length / 4)),
           completionTokens: 0,

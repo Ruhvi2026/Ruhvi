@@ -1508,8 +1508,8 @@ export default function CoFounderPortalPage() {
                     <option value="gemini-3.8-flash">
                       gemini-3.8-flash (Reasoning & Code)
                     </option>
-                    <option value="gemini-1.5-pro">
-                      gemini-1.5-pro (Deep Reasoning)
+                    <option value="gemini-3.5-flash">
+                      gemini-3.5-flash (Balanced Reasoning)
                     </option>
                     <option value="deepseek-chat">
                       deepseek-chat (DeepSeek V3)
