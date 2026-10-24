@@ -1,9 +1,20 @@
+import { getCircuitBreaker } from '@/lib/circuit-breaker';
+import { createScopedLogger } from '@/lib/logger';
+
 /**
  * Shiprocket API Client Utility
- * Handles token generation, order creation, and AWB assignment.
+ * Handles token generation, order creation, and AWB assignment protected by CircuitBreaker.
  */
 
 const BASE_URL = 'https://apiv2.shiprocket.in/v1/external';
+
+const shiprocketBreaker = getCircuitBreaker('shiprocket', {
+  failureThreshold: 5,
+  resetTimeoutMs: 30000,
+  timeoutMs: 15000,
+});
+
+const logger = createScopedLogger('Shiprocket');
 
 let cachedToken: string | null = null;
 let tokenExpiry: number | null = null;
@@ -33,55 +44,59 @@ export async function getShiprocketToken(): Promise<string> {
     return cachedToken;
   }
 
-  try {
-    const response = await fetch(`${BASE_URL}/auth/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
-    });
+  return shiprocketBreaker.execute(async () => {
+    try {
+      const response = await fetch(`${BASE_URL}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
 
-    if (!response.ok) {
-      throw new Error(`Shiprocket auth failed: ${response.statusText}`);
+      if (!response.ok) {
+        throw new Error(`Shiprocket auth failed: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      cachedToken = data.token;
+      // Cache for 9 days (milliseconds)
+      tokenExpiry = Date.now() + 9 * 24 * 60 * 60 * 1000;
+
+      return data.token;
+    } catch (error) {
+      logger.error('Error getting Shiprocket token:', error);
+      throw error;
     }
-
-    const data = await response.json();
-    cachedToken = data.token;
-    // Cache for 9 days (milliseconds)
-    tokenExpiry = Date.now() + 9 * 24 * 60 * 60 * 1000;
-
-    return data.token;
-  } catch (error) {
-    console.error('Error getting Shiprocket token:', error);
-    throw error;
-  }
+  });
 }
 
 /**
  * Create a Custom Order in Shiprocket
  */
-export async function createCustomOrder(orderData: any) {
+export async function createCustomOrder(orderData: unknown) {
   const token = await getShiprocketToken();
 
-  try {
-    const response = await fetch(`${BASE_URL}/orders/create/adhoc`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(orderData),
-    });
+  return shiprocketBreaker.execute(async () => {
+    try {
+      const response = await fetch(`${BASE_URL}/orders/create/adhoc`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(orderData),
+      });
 
-    const data = await response.json();
-    if (!response.ok) {
-      throw new Error(data.message || 'Failed to create Shiprocket order');
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to create Shiprocket order');
+      }
+
+      return data;
+    } catch (error) {
+      logger.error('Shiprocket Create Order Error:', error);
+      throw error;
     }
-
-    return data;
-  } catch (error) {
-    console.error('Shiprocket Create Order Error:', error);
-    throw error;
-  }
+  });
 }
 
 /**
@@ -90,27 +105,29 @@ export async function createCustomOrder(orderData: any) {
 export async function generateAWB(shipmentId: string, courierId?: string) {
   const token = await getShiprocketToken();
 
-  try {
-    const response = await fetch(`${BASE_URL}/courier/assign/awb`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        shipment_id: shipmentId,
-        courier_id: courierId, // Optional, Shiprocket will auto-assign if omitted
-      }),
-    });
+  return shiprocketBreaker.execute(async () => {
+    try {
+      const response = await fetch(`${BASE_URL}/courier/assign/awb`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          shipment_id: shipmentId,
+          courier_id: courierId, // Optional, Shiprocket will auto-assign if omitted
+        }),
+      });
 
-    const data = await response.json();
-    if (!response.ok) {
-      throw new Error(data.message || 'Failed to generate AWB');
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to generate AWB');
+      }
+
+      return data;
+    } catch (error) {
+      logger.error('Shiprocket Generate AWB Error:', error);
+      throw error;
     }
-
-    return data;
-  } catch (error) {
-    console.error('Shiprocket Generate AWB Error:', error);
-    throw error;
-  }
+  });
 }
