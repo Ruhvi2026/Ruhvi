@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getServerUser } from '@/lib/auth/server';
-import { getServiceClient } from '@/lib/supabase/service';
+import { OrderService } from '@/services/order.service';
 
 // ---------------------------------------------------------------------------
 // Lightweight COD eligibility check for the checkout page.
@@ -23,15 +23,8 @@ export async function GET() {
       return NextResponse.json({ cod_disabled: false });
     }
 
-    const supabase = getServiceClient();
-
-    const { data } = await supabase
-      .from('cod_eligibility')
-      .select('cod_disabled')
-      .eq('customer_id', user.id)
-      .maybeSingle();
-
-    return NextResponse.json({ cod_disabled: data?.cod_disabled ?? false });
+    const { cod_disabled } = await OrderService.getCodEligibility(user.id);
+    return NextResponse.json({ cod_disabled });
   } catch (error) {
     console.error('COD eligibility check error:', error);
     return NextResponse.json({ cod_disabled: false });

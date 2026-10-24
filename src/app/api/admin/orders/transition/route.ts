@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { getServerUser } from '@/lib/auth/server';
 import { getSupabaseAdminClient } from '@/lib/support/serverAuth';
 import { cookies } from 'next/headers';
-import { transitionOrder } from '@/lib/orders/status-engine';
+import { OrderService } from '@/services/order.service';
 
 export async function POST(request: Request) {
   try {
@@ -19,16 +19,22 @@ export async function POST(request: Request) {
       .select('role')
       .eq('id', user.id)
       .single();
-    if (!profile || !['super_admin', 'admin', 'manager', 'staff'].includes(profile.role)) {
+    if (
+      !profile ||
+      !['super_admin', 'admin', 'manager', 'staff'].includes(profile.role)
+    ) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
     const { orderId, newStatus, notes, metadata } = await request.json();
     if (!orderId || !newStatus) {
-      return NextResponse.json({ error: 'orderId and newStatus are required' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'orderId and newStatus are required' },
+        { status: 400 }
+      );
     }
 
-    const result = await transitionOrder({
+    const result = await OrderService.transitionStatus({
       orderId,
       newStatus,
       performedBy: user.id,
@@ -40,9 +46,16 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: result.error }, { status: 400 });
     }
 
-    return NextResponse.json({ success: true, status: result.status, alreadyInState: result.alreadyInState });
+    return NextResponse.json({
+      success: true,
+      status: result.status,
+      alreadyInState: result.alreadyInState,
+    });
   } catch (error: any) {
     console.error('Transition error:', error);
-    return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
+    return NextResponse.json(
+      { error: error.message || 'Internal Server Error' },
+      { status: 500 }
+    );
   }
 }

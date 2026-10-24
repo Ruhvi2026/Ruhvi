@@ -3,12 +3,12 @@ import crypto from 'crypto';
 import { sendOrderConfirmation } from '@/lib/whatsapp';
 import { sendOrderConfirmationEmail } from '@/lib/resend';
 import { createClient as createJSClient } from '@supabase/supabase-js';
-import { createOrder, OrderError } from '@/lib/orders/create-order';
 import {
-  finalizePhonePeOrder,
-  PAYED_STATES,
-  FAILED_STATES,
-} from '@/lib/orders/finalize-phonepe-order';
+  OrderService,
+  OrderError,
+  PHONEPE_PAYED_STATES as PAYED_STATES,
+  PHONEPE_FAILED_STATES as FAILED_STATES,
+} from '@/services/order.service';
 import { getSiteUrl } from '@/lib/utils/url';
 import { createAndSendNotification } from '@/lib/notifications/service';
 
@@ -21,7 +21,8 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { items, address } = body;
 
-    const { user, orderNumber, gstAmount, newOrder } = await createOrder(body);
+    const { user, orderNumber, gstAmount, newOrder } =
+      await OrderService.create(body);
     const total = newOrder.total;
     const isVipOrder = Boolean(
       newOrder?.is_vip || user?.is_vip || body.include_vip_membership
@@ -186,7 +187,7 @@ export async function GET(req: Request) {
     process.env.PHONEPE_SIMULATED === 'true' &&
     !process.env.PHONEPE_SALT_KEY
   ) {
-    const result = await finalizePhonePeOrder(merchantTransactionId, {
+    const result = await OrderService.finalizePhonePe(merchantTransactionId, {
       phonepeTransactionId: `T_SIM_${Date.now()}`,
       phonepePaymentState: 'COMPLETED',
     });
@@ -204,7 +205,7 @@ export async function GET(req: Request) {
       const status = await checkPhonePeStatus(merchantTransactionId);
 
       if (PAYED_STATES.includes(status.state)) {
-        await finalizePhonePeOrder(merchantTransactionId, {
+        await OrderService.finalizePhonePe(merchantTransactionId, {
           phonepeTransactionId: status.transactionId,
           phonepePaymentState: status.state,
         });
@@ -212,7 +213,7 @@ export async function GET(req: Request) {
       }
 
       if (FAILED_STATES.includes(status.state)) {
-        await finalizePhonePeOrder(merchantTransactionId, {
+        await OrderService.finalizePhonePe(merchantTransactionId, {
           phonepeTransactionId: status.transactionId,
           phonepePaymentState: status.state,
         });

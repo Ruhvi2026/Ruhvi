@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import crypto from 'crypto';
-import { finalizePhonePeOrder } from '@/lib/orders/finalize-phonepe-order';
+import { OrderService } from '@/services/order.service';
 
 function verifyPhonePeWebhook(
   response: string,
@@ -84,7 +84,7 @@ export async function POST(req: Request) {
       `[PhonePe Webhook] Transaction ${merchantTransactionId} -> state ${state} (tx: ${transactionId})`
     );
 
-    const result = await finalizePhonePeOrder(merchantTransactionId, {
+    const result = await OrderService.finalizePhonePe(merchantTransactionId, {
       phonepeTransactionId: transactionId,
       phonepePaymentState: state,
     });
