@@ -5,7 +5,7 @@ import { logAuditEvent } from '@/lib/audit';
 import { generateMerchantTransactionId } from '@/lib/wallet/topup';
 
 // Internal secret used in migration 0017 for secure RPC calls
-const INTERNAL_SECRET = 'ruhvi_wallet_secret_2026';
+const INTERNAL_SECRET = process.env.WALLET_INTERNAL_SECRET || '';
 
 // ---------------------------------------------------------------------------
 // Helper to authenticate request and check scopes
