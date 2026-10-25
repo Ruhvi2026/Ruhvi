@@ -224,6 +224,7 @@ export async function middleware(request: NextRequest) {
       }
       const uid = decodedToken.sub;
       const email = decodedToken.email as string | undefined;
+      const mfaVerified = (decodedToken as any).mfa_verified as boolean | undefined;
 
       if (!uid) {
         const loginUrl = new URL('/login', request.url);
@@ -251,7 +252,7 @@ export async function middleware(request: NextRequest) {
         // Cache miss: fetch user role, department and allowed portals directly from public.users
         const { data: profile } = await supabase
           .from('users')
-          .select('role, account_status, allowed_portals, department')
+          .select('role, account_status, allowed_portals, department, totp_enabled')
           .eq('id', uid)
           .maybeSingle();
 
@@ -261,6 +262,7 @@ export async function middleware(request: NextRequest) {
           accountStatus: profile?.account_status || 'active',
           allowedPortals: (profile as any)?.allowed_portals || [],
           department: profile?.department ?? null,
+          totpEnabled: !!profile?.totp_enabled,
         };
         needsRbacCookieSet = true;
       }
@@ -302,7 +304,21 @@ export async function middleware(request: NextRequest) {
         return redirectResponse;
       }
 
-      // 2. Authorize based on roles or explicit allowed_portals
+      // 4. Enforce 2FA verification for internal staff/portal access
+      if (userProfile.totpEnabled && !mfaVerified) {
+        const loginUrl = new URL('/login', request.url);
+        loginUrl.searchParams.set('redirectTo', path);
+        const redirectResponse = NextResponse.redirect(loginUrl);
+        if (isAnyPortalHost) {
+          redirectResponse.headers.set('X-Robots-Tag', 'noindex, nofollow');
+        }
+        supabaseResponse.cookies.getAll().forEach((c) => {
+          redirectResponse.cookies.set(c.name, c.value, c);
+        });
+        return redirectResponse;
+      }
+
+      // 5. Authorize based on roles or explicit allowed_portals
       // By default, super_admin has access to everything
       // Other roles need explicit allowed_portals OR fallback legacy logic
       const allowedRoles = ['super_admin', 'admin', 'manager', 'staff'];

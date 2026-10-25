@@ -614,3 +614,68 @@ export async function sendTicketUpdateEmail(
     return null;
   }
 }
+
+// -----------------------------------------------------------------------------
+// Emergency 2FA / TOTP Account Recovery Email
+// -----------------------------------------------------------------------------
+
+export async function sendMfaEmergencyRecoveryEmail({
+  email,
+  name = 'Staff Member',
+  recoveryLink,
+}: {
+  email: string;
+  name?: string;
+  recoveryLink: string;
+}) {
+  const resend = getResendClient();
+  if (!resend) return null;
+
+  const subject = '🚨 Emergency 2FA Account Recovery Request — Ruhvi Staff';
+  const htmlContent = `
+    <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #121110; background: #FDFAF3; border-radius: 12px; overflow: hidden; border: 1px solid #E8DFC6;">
+      <div style="background: #1C1B1A; padding: 24px 32px; text-align: center;">
+        <h1 style="color: #C29831; font-size: 20px; margin: 0; letter-spacing: 2px;">RUHVI</h1>
+        <p style="color: #A09080; font-size: 11px; margin: 4px 0 0; letter-spacing: 1px;">STAFF SECURITY &amp; ACCESS CONTROL</p>
+      </div>
+      <div style="padding: 32px;">
+        <h2 style="color: #1C1B1A; font-size: 18px; margin: 0 0 12px;">Hello ${name},</h2>
+        <p style="color: #4A4540; line-height: 1.6; font-size: 14px; margin: 0 0 16px;">
+          An emergency Two-Factor Authentication (2FA) recovery request was initiated for your Ruhvi staff account (<strong>${email}</strong>).
+        </p>
+        <p style="color: #4A4540; line-height: 1.6; font-size: 14px; margin: 0 0 24px;">
+          If you lost access to your Google Authenticator device, click the button below to verify your identity and restore access. For security, you will be prompted to re-enter your account password.
+        </p>
+        
+        <div style="text-align: center; margin: 32px 0;">
+          <a href="${recoveryLink}" style="display: inline-block; background-color: #991B1B; color: #FFFFFF; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 14px; letter-spacing: 0.5px;">Authorize Emergency Recovery</a>
+        </div>
+        
+        <div style="background: #FEE2E2; border-left: 4px solid #DC2626; border-radius: 6px; padding: 14px 18px; margin: 24px 0;">
+          <p style="color: #991B1B; font-size: 13px; font-weight: 600; margin: 0 0 4px;">Important Security Warning</p>
+          <p style="color: #7F1D1D; font-size: 12px; line-height: 1.5; margin: 0;">
+            This recovery link expires in <strong>15 minutes</strong>. If you did NOT initiate this recovery, someone may be attempting to access your account. Please alert the Super Admin immediately.
+          </p>
+        </div>
+        
+        <div style="margin-top: 32px; padding-top: 20px; border-top: 1px solid #E8DFC6;">
+          <p style="font-size: 12px; color: #8A7E6C; margin: 0;">Ruhvi Fine Jewellery Staff Security System</p>
+          <p style="font-size: 12px; color: #8A7E6C; margin: 6px 0 0;">admin@ruhvi.in</p>
+        </div>
+      </div>
+    </div>
+  `;
+
+  try {
+    return await resend.emails.send({
+      from: getSender(),
+      to: [email],
+      subject,
+      html: htmlContent,
+    });
+  } catch (error) {
+    console.error('[Resend Emergency MFA Recovery Error]:', error);
+    return null;
+  }
+}
+

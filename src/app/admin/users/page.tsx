@@ -15,6 +15,8 @@ import {
   Crown,
   Clock,
   AlertTriangle,
+  ShieldAlert,
+  ShieldCheck,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { createClient } from '@/lib/supabase/client';
@@ -22,6 +24,7 @@ import {
   getAllUsers,
   sendPasswordResetLink,
   setAuthPassword,
+  resetUserMfa,
 } from '../actions/auth';
 
 interface UserRecord {
@@ -41,6 +44,8 @@ interface UserRecord {
   vip_source?: string | null;
   date_of_birth?: string | null;
   is_dob_locked?: boolean;
+  totp_enabled?: boolean;
+  totp_enrolled_at?: string | null;
   created_at: string;
 }
 
@@ -351,6 +356,35 @@ export default function AdminUsersPage() {
       alert(`Error: ${err.message}`);
     } finally {
       setIsUpdatingPassword(false);
+    }
+  };
+
+  const handleResetUserMfa = async (targetUser: UserRecord) => {
+    if (
+      !confirm(
+        `Are you sure you want to reset 2FA for ${targetUser.full_name || targetUser.email}? They will be able to log in with password only and reconfigure their authenticator device.`
+      )
+    ) {
+      return;
+    }
+
+    const loadingToast = toast.loading('Resetting 2FA...');
+    try {
+      const res = await resetUserMfa(targetUser.id);
+      toast.dismiss(loadingToast);
+      if (res.success) {
+        toast.success('Two-Factor Authentication reset successfully.');
+        setUsers((prev) =>
+          prev.map((u) =>
+            u.id === targetUser.id ? { ...u, totp_enabled: false } : u
+          )
+        );
+      } else {
+        toast.error(res.error || 'Failed to reset 2FA.');
+      }
+    } catch (err: any) {
+      toast.dismiss(loadingToast);
+      toast.error(err?.message || 'Error resetting 2FA.');
     }
   };
 
@@ -675,7 +709,24 @@ export default function AdminUsersPage() {
                       <span className="font-mono text-slate-600">—</span>
                     ) : (
                       <div className="space-y-1">
-                        <div>{getDepartmentBadge(user.department)}</div>
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          {getDepartmentBadge(user.department)}
+                          {user.totp_enabled ? (
+                            <span
+                              className="inline-flex items-center gap-1 rounded bg-emerald-500/10 px-1.5 py-0.5 text-[9px] font-semibold text-emerald-400 border border-emerald-500/20"
+                              title="Google Authenticator 2FA Active"
+                            >
+                              <ShieldCheck className="h-2.5 w-2.5" /> 2FA
+                            </span>
+                          ) : (
+                            <span
+                              className="inline-flex items-center gap-1 rounded bg-slate-500/10 px-1.5 py-0.5 text-[9px] font-semibold text-slate-400 border border-slate-500/20"
+                              title="2FA Not Enabled"
+                            >
+                              2FA Off
+                            </span>
+                          )}
+                        </div>
                         {user.allowed_portals &&
                           user.allowed_portals.length > 0 && (
                             <div className="font-mono text-[9px] text-slate-500">
@@ -692,6 +743,15 @@ export default function AdminUsersPage() {
                     🪙 {Number(user.reward_coins || 0).toLocaleString('en-IN')}
                   </td>
                   <td className="space-x-2 whitespace-nowrap p-4 pr-6 text-right">
+                    {user.totp_enabled && (
+                      <button
+                        onClick={() => handleResetUserMfa(user)}
+                        className="inline-flex items-center gap-1 rounded-lg border border-red-500/30 bg-red-500/10 px-2.5 py-1 font-semibold text-red-400 transition-colors hover:bg-red-500/20"
+                        title="Reset Two-Factor Authentication"
+                      >
+                        <ShieldAlert className="h-3 w-3 text-red-400" /> Reset 2FA
+                      </button>
+                    )}
                     <button
                       onClick={() => {
                         setVipModalUser(user);

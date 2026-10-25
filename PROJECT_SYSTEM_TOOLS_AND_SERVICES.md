@@ -36,6 +36,7 @@
 | **Motion (Framer Motion)** | UI Animation | Hardware-accelerated 60fps animations, layout transitions, and micro-interactions for Live Worker Workspace. | Active | `src/components/co-founder/workspace/LiveWorkspace.tsx` |
 | **Expo Camera** | Mobile Scanning | High-performance native barcode scanning library powering the mobile Inventory Scan & Add workflow. | Active | `ruhvi-mobile_DO_NOT_DELETE/package.json`, `ruhvi-mobile_DO_NOT_DELETE/src/screens/InventoryScanScreen.tsx` |
 | **JsBarcode** | Barcode Generation | Industry-standard vector SVG barcode encoding engine powering A4 sheet and thermal roll barcode printing. | Active | `package.json`, `src/app/operations/inventory/barcode/page.tsx` |
+| **QRCode** | QR Code Generation | Zero-cloud offline QR code generation engine powering Google Authenticator TOTP 2FA enrollment. | Active | `package.json`, `src/app/api/auth/mfa/setup/route.ts` |
 
 ---
 
@@ -144,6 +145,7 @@ Consolidated authoritative record of security assessments, surface hardening, an
 | **Subdomain Host Isolation** | Dynamic `x-ruhvi-host` routing enforcing strict portal boundaries. Non-storefront administrative and portal subdomains automatically receive `X-Robots-Tag: noindex, nofollow` to prevent search indexing. | `src/middleware.ts` |
 | **Turnstile Anti-Bot** | Cloudflare Turnstile token validation active on checkout and sensitive authentication routes to eliminate bot spam. | `src/app/checkout/page.tsx` |
 | **Credential Encryption** | AES-256-GCM symmetric encryption for external worker API keys stored in PostgreSQL. | `src/lib/ai/co-founder/credential-crypto.ts` |
+| **Staff & Super Admin 2FA (TOTP)** | Self-hosted RFC 6238 TOTP two-factor authentication for all portal subdomains. Secrets AES-256-GCM encrypted at rest. Single-use hashed backup codes. Fail-closed edge middleware verification requiring `mfa_verified: true`. Emergency email recovery locked strictly to `subhasdas1996@gmail.com` with double-defense password re-verification. | `src/lib/auth/totp.ts`, `src/middleware.ts`, `src/app/api/auth/mfa/*` |
 
 ---
 

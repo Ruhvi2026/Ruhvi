@@ -74,7 +74,7 @@ export async function getAllUsers() {
     const { data, error } = await adminClient
       .from('users')
       .select(
-        'id, full_name, email, phone, role, department_id, allowed_portals, wallet_balance, reward_coins, is_vip, vip_joined_at, vip_expires_at, vip_source, date_of_birth, is_dob_locked, created_at'
+        'id, full_name, email, phone, role, department_id, allowed_portals, wallet_balance, reward_coins, is_vip, vip_joined_at, vip_expires_at, vip_source, date_of_birth, is_dob_locked, totp_enabled, totp_enrolled_at, created_at'
       )
       .order('created_at', { ascending: false });
 
@@ -154,3 +154,65 @@ export async function setAuthPassword(userId: string, newPassword: string) {
     };
   }
 }
+
+/**
+ * Resets Two-Factor Authentication (TOTP) for a user.
+ * Restricted to Super Admin and Admin roles.
+ */
+export async function resetUserMfa(targetUserId: string) {
+  try {
+    const auth = await requireAdmin();
+    if (!auth.ok) {
+      return {
+        success: false,
+        error: 'Unauthorized. Admin privileges are required.',
+      };
+    }
+
+    const adminClient = getAdminClient();
+
+    // 1. Reset MFA columns in public.users
+    const { error: resetErr } = await adminClient
+      .from('users')
+      .update({
+        totp_enabled: false,
+        totp_secret: null,
+        totp_backup_codes: null,
+        totp_enrolled_at: null,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', targetUserId);
+
+    if (resetErr) {
+      throw resetErr;
+    }
+
+    // 2. Insert audit log
+    try {
+      await adminClient.from('audit_logs').insert({
+        user_id: auth.uid || null,
+        action: 'ADMIN_RESET_USER_MFA',
+        entity: 'users',
+        entity_id: targetUserId,
+        details: {
+          reset_by_uid: auth.uid,
+          timestamp: new Date().toISOString(),
+        },
+      });
+    } catch (auditErr) {
+      console.warn('[resetUserMfa] Audit log insert warning:', auditErr);
+    }
+
+    return {
+      success: true,
+      message: 'Two-Factor Authentication has been successfully reset.',
+    };
+  } catch (err: any) {
+    console.error('[resetUserMfa Error]:', err);
+    return {
+      success: false,
+      error: err?.message || 'Failed to reset 2FA for this user.',
+    };
+  }
+}
+

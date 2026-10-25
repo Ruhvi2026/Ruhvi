@@ -1,0 +1,102 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { createRemoteJWKSet, jwtVerify, SignJWT } from 'jose';
+import { createClient } from '@supabase/supabase-js';
+
+const FIREBASE_JWKS = createRemoteJWKSet(
+  new URL(
+    'https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com'
+  )
+);
+
+export async function POST(request: NextRequest) {
+  try {
+    const { idToken } = await request.json();
+
+    if (!idToken) {
+      return NextResponse.json({ error: 'Missing ID token' }, { status: 400 });
+    }
+
+    const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
+    const jwtSecret = process.env.SUPABASE_JWT_SECRET;
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+    if (!projectId || !jwtSecret || !supabaseUrl || !supabaseServiceKey) {
+      return NextResponse.json(
+        { error: 'Server misconfiguration.' },
+        { status: 500 }
+      );
+    }
+
+    // 1. Verify Firebase ID token
+    const { payload } = await jwtVerify(idToken, FIREBASE_JWKS, {
+      audience: projectId,
+      issuer: `https://securetoken.google.com/${projectId}`,
+    });
+
+    const uid = payload.sub;
+    const email = (payload.email as string) || null;
+
+    if (!uid) {
+      return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
+    }
+
+    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: { autoRefreshToken: false, persistSession: false },
+    });
+
+    // 2. Query user profile and MFA status
+    const { data: user, error: userError } = await supabaseAdmin
+      .from('users')
+      .select('id, email, role, totp_enabled')
+      .or(`id.eq.${uid},email.eq.${email}`)
+      .maybeSingle();
+
+    if (userError || !user) {
+      return NextResponse.json({ error: 'User not found in system.' }, { status: 404 });
+    }
+
+    // 3. Check if user is staff/admin
+    const allowedRoles = ['super_admin', 'admin', 'manager', 'staff'];
+    if (!allowedRoles.includes(user.role)) {
+      return NextResponse.json(
+        { error: 'Access denied. You do not have admin privileges.' },
+        { status: 403 }
+      );
+    }
+
+    // 4. If 2FA is enabled, issue a 5-minute mfa_pending challenge token
+    if (user.totp_enabled) {
+      const secret = new TextEncoder().encode(jwtSecret);
+      const mfaToken = await new SignJWT({
+        sub: user.id,
+        email: user.email,
+        role: user.role,
+        purpose: 'mfa_pending',
+      })
+        .setProtectedHeader({ alg: 'HS256' })
+        .setIssuedAt()
+        .setExpirationTime('5m')
+        .sign(secret);
+
+      return NextResponse.json({
+        mfaRequired: true,
+        mfaToken,
+        email: user.email,
+      });
+    }
+
+    // If 2FA is not yet enabled for this staff member
+    return NextResponse.json({
+      mfaRequired: false,
+      userId: user.id,
+      email: user.email,
+    });
+  } catch (error: any) {
+    console.error('[MFA Challenge Error]:', error);
+    return NextResponse.json(
+      { error: error?.message || 'Failed to process authentication challenge.' },
+      { status: 500 }
+    );
+  }
+}

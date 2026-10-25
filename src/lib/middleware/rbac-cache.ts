@@ -6,6 +6,7 @@ export interface CachedRbacProfile {
   accountStatus: string;
   allowedPortals: string[];
   department?: string | null;
+  totpEnabled?: boolean;
 }
 
 export const RBAC_COOKIE_NAME = '__portal_rbac';
@@ -42,6 +43,7 @@ export async function verifyCachedRbac(
         ? (payload.portals as string[])
         : [],
       department: (payload.dept as string) || null,
+      totpEnabled: !!payload.totp,
     };
   } catch {
     return null;
@@ -68,6 +70,7 @@ export async function signRbacProfile(
       status: profile.accountStatus,
       portals: profile.allowedPortals,
       dept: profile.department ?? null,
+      totp: !!profile.totpEnabled,
     })
       .setProtectedHeader({ alg: 'HS256' })
       .setIssuedAt(now)
