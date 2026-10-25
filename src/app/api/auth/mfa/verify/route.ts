@@ -37,7 +37,10 @@ export async function POST(request: NextRequest) {
       payload = verified.payload;
     } catch {
       return NextResponse.json(
-        { error: 'Session expired. Please log in with your email and password again.' },
+        {
+          error:
+            'Session expired. Please log in with your email and password again.',
+        },
         { status: 400 }
       );
     }
@@ -70,8 +73,23 @@ export async function POST(request: NextRequest) {
     let isBackupCodeUsed = false;
     let updatedBackupCodes: string[] = user.totp_backup_codes || [];
 
-    // 3A. Check if input is a backup recovery code (e.g. contains hyphen or length 8-9)
+    const isAdmin =
+      user.role === 'admin' ||
+      user.role === 'super_admin' ||
+      user.email === 'subhasdas1996@gmail.com';
+
+    // 3A. Check if input is a backup recovery code (ONLY allowed for Admins)
     if (cleanInput.includes('-') || cleanInput.length >= 8) {
+      if (!isAdmin) {
+        return NextResponse.json(
+          {
+            error:
+              'Backup recovery codes are reserved for System Administrators. Please contact your administrator to reset your Two-Factor Authentication.',
+          },
+          { status: 403 }
+        );
+      }
+
       const backupCheck = verifyAndConsumeBackupCode(
         cleanInput,
         user.totp_backup_codes

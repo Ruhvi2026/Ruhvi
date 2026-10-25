@@ -126,6 +126,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const isAdmin =
+      user.role === 'admin' ||
+      user.role === 'super_admin' ||
+      user.email === 'subhasdas1996@gmail.com';
+
     // 4. If 2FA is enabled, issue a 5-minute mfa_pending challenge token
     if (user.totp_enabled) {
       const secret = new TextEncoder().encode(jwtSecret);
@@ -145,6 +150,7 @@ export async function POST(request: NextRequest) {
         enrollmentRequired: false,
         mfaToken,
         email: user.email,
+        isAdmin,
       });
     }
 
@@ -187,11 +193,14 @@ export async function POST(request: NextRequest) {
       qrCodeDataUrl,
       manualSecret: unverifiedSecret,
       accountEmail,
+      isAdmin,
     });
   } catch (error: any) {
     console.error('[MFA Challenge Error]:', error);
     return NextResponse.json(
-      { error: error?.message || 'Failed to process authentication challenge.' },
+      {
+        error: error?.message || 'Failed to process authentication challenge.',
+      },
       { status: 500 }
     );
   }

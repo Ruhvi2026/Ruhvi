@@ -20,6 +20,7 @@ import {
   Check,
   Download,
   CheckCircle2,
+  ShieldAlert,
 } from 'lucide-react';
 
 export default function AdminLogin({
@@ -55,6 +56,7 @@ export default function AdminLogin({
   const [copiedBackupCodes, setCopiedBackupCodes] = useState(false);
   const [totpCode, setTotpCode] = useState('');
   const [useBackupCode, setUseBackupCode] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   // Emergency recovery state
   const [recoveryPassword, setRecoveryPassword] = useState('');
@@ -98,11 +100,14 @@ export default function AdminLogin({
       const challengeData = await challengeRes.json();
 
       if (!challengeRes.ok) {
-        throw new Error(challengeData.error || 'Authentication challenge failed.');
+        throw new Error(
+          challengeData.error || 'Authentication challenge failed.'
+        );
       }
 
       // 3. If 2FA is required:
       if (challengeData.mfaRequired) {
+        setIsAdmin(Boolean(challengeData.isAdmin));
         if (challengeData.enrollmentRequired) {
           setSetupToken(challengeData.setupToken);
           setQrCodeDataUrl(challengeData.qrCodeDataUrl);
@@ -140,7 +145,8 @@ export default function AdminLogin({
         msg =
           'Too many failed login attempts. Please wait a few minutes before trying again.';
       } else if (code === 'auth/user-disabled') {
-        msg = 'This account has been disabled. Please contact the administrator.';
+        msg =
+          'This account has been disabled. Please contact the administrator.';
       } else if (err?.message && !err.message.includes('Firebase:')) {
         msg = err.message;
       }
@@ -219,9 +225,18 @@ export default function AdminLogin({
         await upsertUserProfile(auth.currentUser);
       }
 
-      setBackupCodes(data.backupCodes || []);
-      setMfaStep('enrollment_backup_codes');
-      setLoading(false);
+      // If user is Admin and has backup codes, show the backup codes screen
+      if (data.isAdmin && data.backupCodes && data.backupCodes.length > 0) {
+        setBackupCodes(data.backupCodes);
+        setMfaStep('enrollment_backup_codes');
+        setLoading(false);
+      } else {
+        // Regular staff: no backup codes given. Immediately redirect to portal
+        setInfoMessage('Authenticator configured successfully! Redirecting...');
+        router.refresh();
+        await new Promise((resolve) => setTimeout(resolve, 600));
+        window.location.href = redirectTo;
+      }
     } catch (err: any) {
       console.error('Enrollment activate error:', err);
       setError(
@@ -352,8 +367,8 @@ export default function AdminLogin({
                     Setup Google Authenticator
                   </h2>
                   <p className="mt-1 text-xs text-gray-500">
-                    Mandatory security: Scan this QR code in Google Authenticator on
-                    your phone.
+                    Mandatory security: Scan this QR code in Google
+                    Authenticator on your phone.
                   </p>
                 </>
               ) : mfaStep === 'enrollment_backup_codes' ? (
@@ -365,8 +380,8 @@ export default function AdminLogin({
                     2FA Activated!
                   </h2>
                   <p className="mt-1 text-xs text-gray-500">
-                    Save these 8 emergency backup codes. You will need them if you
-                    ever lose your phone.
+                    Save these 8 emergency backup codes. You will need them if
+                    you ever lose your phone.
                   </p>
                 </>
               ) : mfaStep === 'totp' ? (
@@ -392,13 +407,15 @@ export default function AdminLogin({
                     Authorize 2FA Recovery
                   </h2>
                   <p className="mt-1 text-xs text-gray-500">
-                    Confirm your account password to authorize emergency 2FA reset
-                    and restore portal access.
+                    Confirm your account password to authorize emergency 2FA
+                    reset and restore portal access.
                   </p>
                 </>
               ) : (
                 <>
-                  <h2 className="text-3xl font-bold text-gray-900">Staff Login</h2>
+                  <h2 className="text-3xl font-bold text-gray-900">
+                    Staff Login
+                  </h2>
                   <p className="mt-1 text-xs text-gray-500">
                     Ruhvi Operations &amp; Administration Portal
                   </p>
@@ -517,8 +534,8 @@ export default function AdminLogin({
                         }
                       }}
                       placeholder={useBackupCode ? 'e.g. A7B2-C9D4' : '••••••'}
-                      className={`w-full rounded-lg bg-[#F3F4F6] px-4 py-3.5 text-center text-lg font-mono tracking-widest text-gray-900 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500/50 ${
-                        !useBackupCode ? 'tracking-[0.4em] font-semibold' : ''
+                      className={`w-full rounded-lg bg-[#F3F4F6] px-4 py-3.5 text-center font-mono text-lg tracking-widest text-gray-900 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500/50 ${
+                        !useBackupCode ? 'font-semibold tracking-[0.4em]' : ''
                       }`}
                     />
                     <KeyRound className="absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
@@ -538,41 +555,57 @@ export default function AdminLogin({
                   {loading ? 'Verifying...' : 'Verify & Continue'}
                 </button>
 
-                {/* Option 1: Toggle Backup Code */}
-                <div className="pt-2 text-center">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setUseBackupCode(!useBackupCode);
-                      setTotpCode('');
-                      setError(null);
-                    }}
-                    className="text-xs font-medium text-blue-600 hover:underline"
-                  >
-                    {useBackupCode
-                      ? '← Use Google Authenticator app instead'
-                      : 'Lost phone? Use an emergency backup recovery code'}
-                  </button>
-                </div>
+                {/* Recovery & Reset Controls: Admins get Backup Codes + Email Reset, Staff must contact Admin */}
+                {!isAdmin ? (
+                  <div className="rounded-xl border border-amber-200/80 bg-amber-50/80 p-3 text-center text-xs text-amber-900 shadow-sm">
+                    <p className="flex items-center justify-center gap-1.5 font-semibold text-amber-900">
+                      <ShieldAlert className="h-4 w-4 flex-shrink-0 text-amber-600" />
+                      Lost your device or authenticator?
+                    </p>
+                    <p className="mt-1 text-[11px] leading-relaxed text-amber-800">
+                      Please contact your system Administrator to reset your
+                      Two-Factor Authentication.
+                    </p>
+                  </div>
+                ) : (
+                  <>
+                    {/* Option 1: Toggle Backup Code */}
+                    <div className="pt-2 text-center">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setUseBackupCode(!useBackupCode);
+                          setTotpCode('');
+                          setError(null);
+                        }}
+                        className="text-xs font-medium text-blue-600 hover:underline"
+                      >
+                        {useBackupCode
+                          ? '← Use Google Authenticator app instead'
+                          : 'Lost phone? Use an emergency backup recovery code'}
+                      </button>
+                    </div>
 
-                {/* Option 4: Emergency Email Recovery Link */}
-                <div className="border-t border-gray-100 pt-3 text-center">
-                  <button
-                    type="button"
-                    disabled={recoveryLoading || recoverySent}
-                    onClick={handleRequestRecoveryEmail}
-                    className="inline-flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-900 disabled:opacity-60"
-                  >
-                    {recoveryLoading ? (
-                      <RefreshCw className="h-3 w-3 animate-spin" />
-                    ) : (
-                      <Mail className="h-3 w-3" />
-                    )}
-                    {recoverySent
-                      ? 'Recovery link dispatched to emergency inbox'
-                      : 'Lost both phone & backup codes? Send emergency recovery email'}
-                  </button>
-                </div>
+                    {/* Option 4: Emergency Email Recovery Link */}
+                    <div className="border-t border-gray-100 pt-3 text-center">
+                      <button
+                        type="button"
+                        disabled={recoveryLoading || recoverySent}
+                        onClick={handleRequestRecoveryEmail}
+                        className="inline-flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-900 disabled:opacity-60"
+                      >
+                        {recoveryLoading ? (
+                          <RefreshCw className="h-3 w-3 animate-spin" />
+                        ) : (
+                          <Mail className="h-3 w-3" />
+                        )}
+                        {recoverySent
+                          ? 'Recovery link dispatched to emergency inbox'
+                          : 'Lost both phone & backup codes? Send emergency recovery email'}
+                      </button>
+                    </div>
+                  </>
+                )}
 
                 {/* Back to credentials */}
                 <div className="text-center">
@@ -585,7 +618,8 @@ export default function AdminLogin({
                     }}
                     className="inline-flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600"
                   >
-                    <ArrowLeft className="h-3 w-3" /> Back to email &amp; password
+                    <ArrowLeft className="h-3 w-3" /> Back to email &amp;
+                    password
                   </button>
                 </div>
               </form>
@@ -618,8 +652,8 @@ export default function AdminLogin({
                   </button>
 
                   {showManualKey && manualSecret && (
-                    <div className="mt-2 flex w-full items-center justify-between rounded-lg bg-gray-100 px-3 py-1.5 text-xs font-mono text-gray-800">
-                      <span className="truncate tracking-wider select-all">
+                    <div className="mt-2 flex w-full items-center justify-between rounded-lg bg-gray-100 px-3 py-1.5 font-mono text-xs text-gray-800">
+                      <span className="select-all truncate tracking-wider">
                         {manualSecret}
                       </span>
                       <button
@@ -659,7 +693,7 @@ export default function AdminLogin({
                       setTotpCode(e.target.value.replace(/\D/g, '').slice(0, 6))
                     }
                     placeholder="••••••"
-                    className="w-full rounded-lg bg-[#F3F4F6] px-4 py-3 text-center text-lg font-mono font-semibold tracking-[0.4em] text-gray-900 transition-all focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+                    className="w-full rounded-lg bg-[#F3F4F6] px-4 py-3 text-center font-mono text-lg font-semibold tracking-[0.4em] text-gray-900 transition-all focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
                   />
                 </div>
 
@@ -671,7 +705,7 @@ export default function AdminLogin({
                   {loading ? 'Activating 2FA...' : 'Activate 2FA & Continue'}
                 </button>
 
-                <div className="text-center pt-1">
+                <div className="pt-1 text-center">
                   <button
                     type="button"
                     onClick={() => {
@@ -779,7 +813,7 @@ export default function AdminLogin({
                   {loading ? 'Authorizing Recovery...' : 'Confirm & Reset 2FA'}
                 </button>
 
-                <div className="text-center pt-2">
+                <div className="pt-2 text-center">
                   <button
                     type="button"
                     onClick={() => {

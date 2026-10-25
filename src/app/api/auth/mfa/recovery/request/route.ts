@@ -37,13 +37,34 @@ export async function POST(request: NextRequest) {
       .ilike('email', cleanEmail)
       .maybeSingle();
 
-    const allowedRoles = ['super_admin', 'admin', 'manager', 'staff'];
+    const allowedAdminRoles = ['super_admin', 'admin'];
 
     // Master recovery recipient is strictly locked to subhasdas1996@gmail.com
     const LOCKED_MASTER_RECOVERY_EMAIL = 'subhasdas1996@gmail.com';
 
-    // Only dispatch if user is active staff and actually has 2FA enabled
-    if (!userError && user && allowedRoles.includes(user.role) && user.totp_enabled) {
+    // Staff cannot use emergency email recovery — they must contact admin
+    if (
+      user &&
+      !allowedAdminRoles.includes(user.role) &&
+      cleanEmail !== LOCKED_MASTER_RECOVERY_EMAIL
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            'Emergency email recovery is reserved for System Administrators. Please contact your administrator to reset your Two-Factor Authentication.',
+        },
+        { status: 403 }
+      );
+    }
+
+    // Only dispatch if user is active admin and actually has 2FA enabled
+    if (
+      !userError &&
+      user &&
+      (allowedAdminRoles.includes(user.role) ||
+        cleanEmail === LOCKED_MASTER_RECOVERY_EMAIL) &&
+      user.totp_enabled
+    ) {
       const secret = new TextEncoder().encode(jwtSecret);
       const recoveryToken = await new SignJWT({
         sub: user.id,

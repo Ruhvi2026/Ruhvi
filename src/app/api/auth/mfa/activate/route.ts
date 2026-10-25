@@ -42,7 +42,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (payload.purpose !== 'mfa_setup' || !payload.sub || !payload.temp_secret) {
+    if (
+      payload.purpose !== 'mfa_setup' ||
+      !payload.sub ||
+      !payload.temp_secret
+    ) {
       return NextResponse.json(
         { error: 'Invalid setup token purpose.' },
         { status: 400 }
@@ -77,8 +81,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Generate 8 single-use emergency backup recovery codes
-    const { plaintextCodes, hashedCodes } = generateBackupCodes(8);
+    // Generate 8 single-use emergency backup recovery codes ONLY if admin / super_admin
+    const isAdmin =
+      payload.role === 'admin' ||
+      payload.role === 'super_admin' ||
+      payload.email === 'subhasdas1996@gmail.com';
+
+    const { plaintextCodes, hashedCodes } = isAdmin
+      ? generateBackupCodes(8)
+      : { plaintextCodes: [] as string[], hashedCodes: null };
 
     const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
       auth: { autoRefreshToken: false, persistSession: false },
@@ -131,7 +142,8 @@ export async function POST(request: NextRequest) {
     const response = NextResponse.json({
       success: true,
       message: 'Two-Factor Authentication successfully activated.',
-      backupCodes: plaintextCodes,
+      isAdmin,
+      backupCodes: isAdmin ? plaintextCodes : [],
     });
 
     response.cookies.set({

@@ -225,3 +225,20 @@ To eliminate customer annoyance caused by multiple staff members dialing the sam
 - **API Endpoint**: `/api/portal-orders/call-remarks` (GET for history & active call collision check, POST with collision guard returning `409 Conflict` if another teammate initiated a call within the 20-minute window).
 - **Interactive UI Components**: `OrderCallRemarksPanel.tsx` & `OrderCallRemarksModal.tsx` embedded in order details and all-orders table.
 - **Zero-Dangling-Promise Guard**: `DANGLING_PROMISE_REGEX` in `src/lib/ai/co-founder/orchestrator.ts` automatically intercepts unfulfilled promise phrases (e.g., "আমি চেক করে জানাচ্ছি...") and forces automated iterative tool continuation to guarantee complete, data-backed answers.
+
+---
+## 10. Portal Two-Factor Authentication (RFC 6238 TOTP) Architecture & Role-Gated Recovery
+
+Comprehensive architectural specification of internal portal authentication security, mandatory first-login enrollment, and strict role-gated recovery controls:
+
+### A. Core Cryptography & MFA Verification Pipeline
+- **Algorithm**: RFC 6238 Time-based One-Time Password (TOTP) utilizing HMAC-SHA1 with 30-second time steps and 6-digit numeric codes. Includes $\pm 30$ second window tolerance for clock drift.
+- **Zero-Cloud Secrets & QR Code**: TOTP secrets are generated using native Node.js `crypto.randomBytes(20)` base32 encoded, encrypted via AES-256-GCM prior to persisting in `public.users.totp_secret`. QR codes are rendered strictly in-memory into Data URLs via `qrcode`, eliminating third-party cloud leaks.
+- **Session Elevation**: Successful 2FA verification mints the elevated `__session` JWT with claim `mfa_verified: true`, granting entry past internal route RBAC guards.
+
+### B. Strict Role-Gated Recovery & Backup Code Matrix
+
+| User Role | 2FA Setup Requirement | Backup Recovery Codes | Emergency Recovery Email | Device Loss Recovery Procedure |
+| :--- | :--- | :--- | :--- | :--- |
+| **System Administrators** (`super_admin`, `admin`, `subhasdas1996@gmail.com`) | Mandatory | **8 Single-Use Codes** (Hashed with SHA-256 in DB, consumed atomically). | **Enabled** (Dispatches signed single-use link strictly locked to master email). | Self-service using 8 backup recovery codes or master emergency recovery email. |
+| **Staff & Department Operators** (`staff`, `manager`, `operations`, etc.) | Mandatory upon first login | **Disabled** (No backup codes generated or displayed; redirects directly to portal). | **Forbidden** (API returns `403 Forbidden` with admin contact prompt). | Contact System Administrator. Admin clicks **"Reset 2FA"** inside Admin User Management (`/admin/users`), invoking `resetUserMfa` Server Action and logging to `audit_logs`. |
