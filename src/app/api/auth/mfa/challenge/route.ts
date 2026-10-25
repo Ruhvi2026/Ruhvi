@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createRemoteJWKSet, jwtVerify, SignJWT } from 'jose';
 import { createClient } from '@supabase/supabase-js';
+import {
+  generateTotpSecret,
+  encryptTotpSecret,
+  generateOtpAuthUri,
+} from '@/lib/auth/totp';
+import QRCode from 'qrcode';
 
 const FIREBASE_JWKS = createRemoteJWKSet(
   new URL(
@@ -136,16 +142,51 @@ export async function POST(request: NextRequest) {
 
       return NextResponse.json({
         mfaRequired: true,
+        enrollmentRequired: false,
         mfaToken,
         email: user.email,
       });
     }
 
-    // If 2FA is not yet enabled for this staff member
-    return NextResponse.json({
-      mfaRequired: false,
-      userId: user.id,
+    // 5. If 2FA is not yet enabled, ENFORCE MANDATORY FIRST-TIME 2FA SETUP
+    const unverifiedSecret = generateTotpSecret(20);
+    const encryptedSecret = encryptTotpSecret(unverifiedSecret);
+    const accountEmail = user.email || 'staff@ruhvi.in';
+    const otpAuthUri = generateOtpAuthUri({
+      secret: unverifiedSecret,
+      accountName: accountEmail,
+      issuer: 'Ruhvi',
+    });
+
+    const qrCodeDataUrl = await QRCode.toDataURL(otpAuthUri, {
+      width: 280,
+      margin: 2,
+      color: {
+        dark: '#000000',
+        light: '#ffffff',
+      },
+    });
+
+    const encodedJwtSecret = new TextEncoder().encode(jwtSecret);
+    const setupToken = await new SignJWT({
+      sub: user.id,
       email: user.email,
+      role: user.role,
+      temp_secret: encryptedSecret,
+      purpose: 'mfa_setup',
+    })
+      .setProtectedHeader({ alg: 'HS256' })
+      .setIssuedAt()
+      .setExpirationTime('15m')
+      .sign(encodedJwtSecret);
+
+    return NextResponse.json({
+      mfaRequired: true,
+      enrollmentRequired: true,
+      setupToken,
+      qrCodeDataUrl,
+      manualSecret: unverifiedSecret,
+      accountEmail,
     });
   } catch (error: any) {
     console.error('[MFA Challenge Error]:', error);

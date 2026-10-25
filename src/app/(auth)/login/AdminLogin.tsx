@@ -15,6 +15,11 @@ import {
   Mail,
   Lock,
   RefreshCw,
+  QrCode,
+  Copy,
+  Check,
+  Download,
+  CheckCircle2,
 } from 'lucide-react';
 
 export default function AdminLogin({
@@ -34,9 +39,20 @@ export default function AdminLogin({
 
   // 2FA state
   const [mfaStep, setMfaStep] = useState<
-    'credentials' | 'totp' | 'emergency_recovery'
+    | 'credentials'
+    | 'totp'
+    | 'enrollment_setup'
+    | 'enrollment_backup_codes'
+    | 'emergency_recovery'
   >(recoveryTokenParam ? 'emergency_recovery' : 'credentials');
   const [mfaToken, setMfaToken] = useState<string | null>(null);
+  const [setupToken, setSetupToken] = useState<string | null>(null);
+  const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string | null>(null);
+  const [manualSecret, setManualSecret] = useState<string | null>(null);
+  const [showManualKey, setShowManualKey] = useState(false);
+  const [copiedKey, setCopiedKey] = useState(false);
+  const [backupCodes, setBackupCodes] = useState<string[]>([]);
+  const [copiedBackupCodes, setCopiedBackupCodes] = useState(false);
   const [totpCode, setTotpCode] = useState('');
   const [useBackupCode, setUseBackupCode] = useState(false);
 
@@ -85,9 +101,20 @@ export default function AdminLogin({
         throw new Error(challengeData.error || 'Authentication challenge failed.');
       }
 
-      // 3. If 2FA is required, transition to Step 2
+      // 3. If 2FA is required:
       if (challengeData.mfaRequired) {
+        if (challengeData.enrollmentRequired) {
+          setSetupToken(challengeData.setupToken);
+          setQrCodeDataUrl(challengeData.qrCodeDataUrl);
+          setManualSecret(challengeData.manualSecret);
+          setTotpCode('');
+          setMfaStep('enrollment_setup');
+          setLoading(false);
+          return;
+        }
+
         setMfaToken(challengeData.mfaToken);
+        setTotpCode('');
         setMfaStep('totp');
         setLoading(false);
         return;
@@ -160,6 +187,73 @@ export default function AdminLogin({
       setError(err?.message || 'Invalid verification code.');
       setLoading(false);
     }
+  };
+
+  // Step 2B: Handle First-Time Mandatory 2FA Activation
+  const handleEnrollmentActivate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!setupToken || !totpCode) return;
+
+    setLoading(true);
+    setError(null);
+    setInfoMessage(null);
+
+    try {
+      const res = await fetch('/api/auth/mfa/activate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          setupToken,
+          code: totpCode,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to activate 2FA.');
+      }
+
+      // Sync user profile to Supabase client
+      if (auth.currentUser) {
+        await upsertUserProfile(auth.currentUser);
+      }
+
+      setBackupCodes(data.backupCodes || []);
+      setMfaStep('enrollment_backup_codes');
+      setLoading(false);
+    } catch (err: any) {
+      console.error('Enrollment activate error:', err);
+      setError(
+        err?.message ||
+          'Invalid 6-digit verification code. Please check your Google Authenticator app.'
+      );
+      setLoading(false);
+    }
+  };
+
+  const handleCopyBackupCodes = () => {
+    if (!backupCodes.length) return;
+    navigator.clipboard.writeText(backupCodes.join('\n'));
+    setCopiedBackupCodes(true);
+    setTimeout(() => setCopiedBackupCodes(false), 2000);
+  };
+
+  const handleDownloadBackupCodes = () => {
+    if (!backupCodes.length) return;
+    const content = `RUHVI 2FA EMERGENCY BACKUP CODES\nGenerated: ${new Date().toISOString()}\nAccount: ${email}\n\n${backupCodes.join('\n')}\n\nEach code can only be used once for emergency recovery. Store them securely.`;
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `ruhvi-2fa-backup-codes-${Date.now()}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleProceedToPortal = () => {
+    router.refresh();
+    window.location.href = redirectTo;
   };
 
   // Request Emergency Recovery Email
@@ -249,7 +343,33 @@ export default function AdminLogin({
           <div className="mx-auto w-full max-w-sm space-y-6">
             {/* Header */}
             <div className="text-center">
-              {mfaStep === 'totp' ? (
+              {mfaStep === 'enrollment_setup' ? (
+                <>
+                  <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">
+                    <QrCode className="h-6 w-6" />
+                  </div>
+                  <h2 className="text-2xl font-bold text-gray-900">
+                    Setup Google Authenticator
+                  </h2>
+                  <p className="mt-1 text-xs text-gray-500">
+                    Mandatory security: Scan this QR code in Google Authenticator on
+                    your phone.
+                  </p>
+                </>
+              ) : mfaStep === 'enrollment_backup_codes' ? (
+                <>
+                  <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">
+                    <CheckCircle2 className="h-6 w-6" />
+                  </div>
+                  <h2 className="text-2xl font-bold text-gray-900">
+                    2FA Activated!
+                  </h2>
+                  <p className="mt-1 text-xs text-gray-500">
+                    Save these 8 emergency backup codes. You will need them if you
+                    ever lose your phone.
+                  </p>
+                </>
+              ) : mfaStep === 'totp' ? (
                 <>
                   <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-blue-50 text-blue-600">
                     <ShieldCheck className="h-6 w-6" />
@@ -469,6 +589,149 @@ export default function AdminLogin({
                   </button>
                 </div>
               </form>
+            )}
+
+            {/* STEP 2B: First-Time Mandatory 2FA Setup */}
+            {mfaStep === 'enrollment_setup' && (
+              <form onSubmit={handleEnrollmentActivate} className="space-y-4">
+                <div className="flex flex-col items-center justify-center rounded-xl border border-gray-200 bg-white p-3 shadow-sm">
+                  {qrCodeDataUrl ? (
+                    <img
+                      src={qrCodeDataUrl}
+                      alt="Google Authenticator QR Code"
+                      className="h-44 w-44 rounded-lg"
+                    />
+                  ) : (
+                    <div className="flex h-44 w-44 items-center justify-center text-xs text-gray-400">
+                      Loading QR Code...
+                    </div>
+                  )}
+
+                  <button
+                    type="button"
+                    onClick={() => setShowManualKey(!showManualKey)}
+                    className="mt-2 text-[11px] font-medium text-blue-600 hover:underline"
+                  >
+                    {showManualKey
+                      ? 'Hide manual secret key'
+                      : 'Cannot scan? Enter key manually'}
+                  </button>
+
+                  {showManualKey && manualSecret && (
+                    <div className="mt-2 flex w-full items-center justify-between rounded-lg bg-gray-100 px-3 py-1.5 text-xs font-mono text-gray-800">
+                      <span className="truncate tracking-wider select-all">
+                        {manualSecret}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          navigator.clipboard.writeText(manualSecret);
+                          setCopiedKey(true);
+                          setTimeout(() => setCopiedKey(false), 2000);
+                        }}
+                        className="ml-2 text-gray-600 hover:text-black"
+                      >
+                        {copiedKey ? (
+                          <Check className="h-3.5 w-3.5 text-emerald-600" />
+                        ) : (
+                          <Copy className="h-3.5 w-3.5" />
+                        )}
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="enrollment-code-input"
+                    className="mb-1.5 block text-xs font-medium text-gray-700"
+                  >
+                    Enter 6-Digit Code from Authenticator
+                  </label>
+                  <input
+                    id="enrollment-code-input"
+                    type="text"
+                    required
+                    autoFocus
+                    maxLength={6}
+                    value={totpCode}
+                    onChange={(e) =>
+                      setTotpCode(e.target.value.replace(/\D/g, '').slice(0, 6))
+                    }
+                    placeholder="••••••"
+                    className="w-full rounded-lg bg-[#F3F4F6] px-4 py-3 text-center text-lg font-mono font-semibold tracking-[0.4em] text-gray-900 transition-all focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={loading || totpCode.length !== 6}
+                  className="w-full rounded-full bg-gradient-to-r from-emerald-600 to-teal-600 py-3 text-sm font-medium text-white shadow-md shadow-emerald-600/30 transition-all hover:from-emerald-700 hover:to-teal-700 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-70"
+                >
+                  {loading ? 'Activating 2FA...' : 'Activate 2FA & Continue'}
+                </button>
+
+                <div className="text-center pt-1">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMfaStep('credentials');
+                      setTotpCode('');
+                      setError(null);
+                    }}
+                    className="inline-flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600"
+                  >
+                    <ArrowLeft className="h-3 w-3" /> Cancel and return to login
+                  </button>
+                </div>
+              </form>
+            )}
+
+            {/* STEP 2C: Backup Codes Confirmation */}
+            {mfaStep === 'enrollment_backup_codes' && (
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-2 rounded-xl border border-gray-200 bg-gray-50 p-3 font-mono text-xs text-gray-800">
+                  {backupCodes.map((code, index) => (
+                    <div
+                      key={index}
+                      className="rounded border border-gray-200 bg-white px-2 py-1.5 text-center font-semibold"
+                    >
+                      {code}
+                    </div>
+                  ))}
+                </div>
+
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={handleCopyBackupCodes}
+                    className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-gray-300 bg-white py-2 text-xs font-medium text-gray-700 hover:bg-gray-50"
+                  >
+                    {copiedBackupCodes ? (
+                      <Check className="h-3.5 w-3.5 text-emerald-600" />
+                    ) : (
+                      <Copy className="h-3.5 w-3.5" />
+                    )}
+                    <span>{copiedBackupCodes ? 'Copied!' : 'Copy All'}</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleDownloadBackupCodes}
+                    className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-gray-300 bg-white py-2 text-xs font-medium text-gray-700 hover:bg-gray-50"
+                  >
+                    <Download className="h-3.5 w-3.5" />
+                    <span>Download (.txt)</span>
+                  </button>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handleProceedToPortal}
+                  className="w-full rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 py-3 text-sm font-medium text-white shadow-md shadow-blue-600/30 transition-all hover:from-blue-700 hover:to-indigo-700 active:scale-[0.98]"
+                >
+                  Done — Proceed to Portal →
+                </button>
+              </div>
             )}
 
             {/* STEP 3: Emergency Recovery Mode via Email Link */}

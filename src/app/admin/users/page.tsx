@@ -13,10 +13,12 @@ import {
   Building2,
   CheckCircle2,
   Crown,
-  Clock,
   AlertTriangle,
   ShieldAlert,
   ShieldCheck,
+  UserPlus,
+  UserX,
+  UserCheck,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { createClient } from '@/lib/supabase/client';
@@ -113,11 +115,17 @@ export default function AdminUsersPage() {
   const [users, setUsers] = useState<UserRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+
+  // Primary Tab: 'customers' or 'staff'
+  const [activeTab, setActiveTab] = useState<'customers' | 'staff'>('customers');
+
+  // Search & Sub-filters
   const [searchQuery, setSearchQuery] = useState('');
-  const [roleFilter, setRoleFilter] = useState<
-    'all' | 'customer' | 'staff' | 'admin' | 'vip'
+  const [customerFilter, setCustomerFilter] = useState<'all' | 'vip' | 'standard'>('all');
+  const [staffRoleFilter, setStaffRoleFilter] = useState<
+    'all' | 'staff' | 'manager' | 'admin' | 'super_admin'
   >('all');
-  const [deptFilter, setDeptFilter] = useState<string>('all');
+  const [staffDeptFilter, setStaffDeptFilter] = useState<string>('all');
 
   // Role & Department Edit Modal
   const [editingUser, setEditingUser] = useState<UserRecord | null>(null);
@@ -141,9 +149,7 @@ export default function AdminUsersPage() {
 
   // Ruhvi Privé VIP Modal
   const [vipModalUser, setVipModalUser] = useState<UserRecord | null>(null);
-  const [vipAction, setVipAction] = useState<'grant' | 'revoke' | 'extend'>(
-    'grant'
-  );
+  const [vipAction, setVipAction] = useState<'grant' | 'revoke' | 'extend'>('grant');
   const [vipDays, setVipDays] = useState<number>(365);
   const [vipReason, setVipReason] = useState<string>('');
   const [isUpdatingVip, setIsUpdatingVip] = useState(false);
@@ -238,6 +244,51 @@ export default function AdminUsersPage() {
     );
   };
 
+  const handlePromoteToStaff = (targetUser: UserRecord) => {
+    setEditingUser(targetUser);
+    setSelectedRole('staff');
+    setSelectedDepartment('Operations');
+    setSelectedPortals(['operations']);
+  };
+
+  const handleRevokeStaff = async (targetUser: UserRecord) => {
+    if (
+      !confirm(
+        `Are you sure you want to revoke all staff privileges for ${targetUser.full_name || targetUser.email}?\n\nThey will be demoted to a regular Customer and will immediately lose access to all backend portals.`
+      )
+    ) {
+      return;
+    }
+
+    const loadingToast = toast.loading('Revoking staff privileges...');
+    try {
+      const supabase = createClient();
+      const { error } = await supabase.rpc('admin_update_user_privileges', {
+        target_user_id: targetUser.id,
+        new_role: 'customer',
+        new_department: null,
+        new_allowed_portals: [],
+      });
+
+      if (error) throw error;
+
+      toast.dismiss(loadingToast);
+      toast.success(
+        `${targetUser.full_name || targetUser.email} has been demoted to Customer.`
+      );
+      setUsers((prev) =>
+        prev.map((u) =>
+          u.id === targetUser.id
+            ? { ...u, role: 'customer', department: null, allowed_portals: [] }
+            : u
+        )
+      );
+    } catch (err: any) {
+      toast.dismiss(loadingToast);
+      toast.error(err.message || 'Failed to revoke staff privileges.');
+    }
+  };
+
   const handleSavePrivileges = async () => {
     if (!editingUser) return;
     setIsUpdatingRole(true);
@@ -268,10 +319,23 @@ export default function AdminUsersPage() {
             : u
         )
       );
+
+      if (selectedRole !== 'customer' && editingUser.role === 'customer') {
+        toast.success(
+          `${editingUser.full_name || editingUser.email} has been promoted to Staff! They are now in the Staff & Operations Control tab.`
+        );
+      } else if (selectedRole === 'customer' && editingUser.role !== 'customer') {
+        toast.success(
+          `${editingUser.full_name || editingUser.email} has been demoted to Customer.`
+        );
+      } else {
+        toast.success('User privileges updated successfully.');
+      }
+
       setEditingUser(null);
     } catch (err: any) {
       console.error('Failed to update privileges:', err);
-      alert(
+      toast.error(
         'Failed to update user role and department. Make sure you have admin permissions.'
       );
     } finally {
@@ -308,13 +372,14 @@ export default function AdminUsersPage() {
             : u
         )
       );
+      toast.success('Balances updated successfully.');
       setAdjustingUser(null);
       setWalletAmount('');
       setCoinsAmount('');
       setIsUpdatingBalance(false);
     } catch (err: any) {
       console.error('Failed to adjust balances:', err);
-      alert('Failed to update user balances.');
+      toast.error('Failed to update user balances.');
       setIsUpdatingBalance(false);
     }
   };
@@ -329,17 +394,17 @@ export default function AdminUsersPage() {
     try {
       const res = await sendPasswordResetLink(email);
       if (res.error) throw new Error(res.error);
-      alert(`Password reset link sent to ${email} successfully!`);
+      toast.success(`Password reset link sent to ${email} successfully!`);
     } catch (err: any) {
       console.error('Failed to send reset link:', err);
-      alert(`Error: ${err.message}`);
+      toast.error(`Error: ${err.message}`);
     }
   };
 
   const handleSavePassword = async () => {
     if (!passwordUser || !newPassword) return;
     if (newPassword.length < 6) {
-      alert('Password must be at least 6 characters long.');
+      toast.error('Password must be at least 6 characters long.');
       return;
     }
 
@@ -348,12 +413,12 @@ export default function AdminUsersPage() {
       const res = await setAuthPassword(passwordUser.id, newPassword);
       if (res.error) throw new Error(res.error);
 
-      alert(`Password updated successfully for ${passwordUser.email}!`);
+      toast.success(`Password updated successfully for ${passwordUser.email}!`);
       setPasswordUser(null);
       setNewPassword('');
     } catch (err: any) {
       console.error('Failed to update password:', err);
-      alert(`Error: ${err.message}`);
+      toast.error(`Error: ${err.message}`);
     } finally {
       setIsUpdatingPassword(false);
     }
@@ -362,7 +427,7 @@ export default function AdminUsersPage() {
   const handleResetUserMfa = async (targetUser: UserRecord) => {
     if (
       !confirm(
-        `Are you sure you want to reset 2FA for ${targetUser.full_name || targetUser.email}? They will be able to log in with password only and reconfigure their authenticator device.`
+        `Are you sure you want to reset 2FA for ${targetUser.full_name || targetUser.email}?\n\nTheir current Google Authenticator key will be erased. On their next login, they will be required to scan a new QR code.`
       )
     ) {
       return;
@@ -373,7 +438,7 @@ export default function AdminUsersPage() {
       const res = await resetUserMfa(targetUser.id);
       toast.dismiss(loadingToast);
       if (res.success) {
-        toast.success('Two-Factor Authentication reset successfully.');
+        toast.success('Two-Factor Authentication reset. User will re-enroll on next login.');
         setUsers((prev) =>
           prev.map((u) =>
             u.id === targetUser.id ? { ...u, totp_enabled: false } : u
@@ -388,32 +453,40 @@ export default function AdminUsersPage() {
     }
   };
 
-  const filteredUsers = users.filter((user) => {
+  // Separation: Customers vs Staff
+  const customersList = users.filter((u) => u.role === 'customer');
+  const staffList = users.filter((u) => u.role !== 'customer');
+
+  // Customer Filtering
+  const filteredCustomers = customersList.filter((user) => {
     const matchesSearch =
-      (user.full_name?.toLowerCase() || '').includes(
-        searchQuery.toLowerCase()
-      ) ||
+      (user.full_name?.toLowerCase() || '').includes(searchQuery.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (user.phone || '').includes(searchQuery);
+
+    const matchesVip =
+      customerFilter === 'all' ||
+      (customerFilter === 'vip' && Boolean(user.is_vip)) ||
+      (customerFilter === 'standard' && !user.is_vip);
+
+    return matchesSearch && matchesVip;
+  });
+
+  // Staff Filtering
+  const filteredStaff = staffList.filter((user) => {
+    const matchesSearch =
+      (user.full_name?.toLowerCase() || '').includes(searchQuery.toLowerCase()) ||
       user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (user.phone || '').includes(searchQuery);
 
     const matchesRole =
-      roleFilter === 'all' ||
-      (roleFilter === 'vip' && Boolean(user.is_vip)) ||
-      (roleFilter === 'customer' && user.role === 'customer') ||
-      (roleFilter === 'staff' &&
-        (user.role === 'staff' || user.role === 'manager')) ||
-      (roleFilter === 'admin' &&
-        (user.role === 'admin' ||
-          user.role === 'manager' ||
-          user.role === 'staff' ||
-          user.role === 'super_admin'));
+      staffRoleFilter === 'all' || user.role === staffRoleFilter;
 
     const matchesDept =
-      deptFilter === 'all' ||
-      (deptFilter === 'unassigned' &&
-        user.role !== 'customer' &&
+      staffDeptFilter === 'all' ||
+      (staffDeptFilter === 'unassigned' &&
         (!user.department || user.department.trim() === '')) ||
-      user.department?.toLowerCase() === deptFilter.toLowerCase();
+      user.department?.toLowerCase() === staffDeptFilter.toLowerCase();
 
     return matchesSearch && matchesRole && matchesDept;
   });
@@ -422,31 +495,31 @@ export default function AdminUsersPage() {
     switch (role) {
       case 'super_admin':
         return (
-          <span className="rounded-full border border-fuchsia-500/20 bg-fuchsia-500/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-fuchsia-400">
+          <span className="rounded-full border border-fuchsia-500/30 bg-fuchsia-500/15 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-fuchsia-400">
             Super Admin
           </span>
         );
       case 'admin':
         return (
-          <span className="rounded-full border border-rose-500/20 bg-rose-500/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-rose-400">
+          <span className="rounded-full border border-rose-500/30 bg-rose-500/15 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-rose-400">
             Admin
           </span>
         );
       case 'manager':
         return (
-          <span className="rounded-full border border-amber-500/20 bg-amber-500/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-amber-400">
+          <span className="rounded-full border border-amber-500/30 bg-amber-500/15 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-amber-400">
             Manager
           </span>
         );
       case 'staff':
         return (
-          <span className="rounded-full border border-purple-500/20 bg-purple-500/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-purple-400">
+          <span className="rounded-full border border-purple-500/30 bg-purple-500/15 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-purple-400">
             Staff
           </span>
         );
       default:
         return (
-          <span className="rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+          <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-slate-400">
             Customer
           </span>
         );
@@ -455,7 +528,11 @@ export default function AdminUsersPage() {
 
   const getDepartmentBadge = (dept?: string | null) => {
     if (!dept) {
-      return <span className="font-mono text-[11px] text-slate-600">—</span>;
+      return (
+        <span className="inline-flex items-center gap-1 rounded-full border border-slate-700 bg-slate-800/60 px-2 py-0.5 text-[10px] font-medium text-slate-400">
+          Unassigned
+        </span>
+      );
     }
     const match = DEPARTMENTS_LIST.find(
       (d) => d.key.toLowerCase() === dept.toLowerCase()
@@ -478,18 +555,17 @@ export default function AdminUsersPage() {
   };
 
   return (
-    <div className="mx-auto max-w-7xl space-y-5">
+    <div className="mx-auto max-w-7xl space-y-6">
       {/* Page Title & Refresh */}
       <div className="flex flex-col items-start justify-between gap-4 border-b border-white/5 pb-4 sm:flex-row sm:items-end">
         <div>
           <div className="mb-2 inline-flex items-center space-x-2 rounded-full border border-amber-500/20 bg-amber-500/10 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-amber-400">
             <Users className="h-3.5 w-3.5" />
-            <span>User & Privilege Manager</span>
+            <span>Master User & Team Directory</span>
           </div>
-          <h1 className="text-2xl font-bold text-white">User Directory</h1>
-          <p className="mt-1 text-xs text-slate-500">
-            Manage customer accounts, staff permissions, wallets, and reward
-            coins.
+          <h1 className="text-2xl font-bold text-white">User Management</h1>
+          <p className="mt-1 text-xs text-slate-400">
+            Separate directories for Storefront Customers and Backend Staff & Operations Control.
           </p>
         </div>
 
@@ -508,318 +584,605 @@ export default function AdminUsersPage() {
         </div>
       )}
 
-      {/* Stats Summary */}
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
-        <div className="rounded-2xl border border-white/5 bg-[#131726] p-5">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
-            Total Registered Users
-          </p>
-          <p className="mt-1 text-2xl font-bold text-white">{users.length}</p>
-        </div>
-        <div className="rounded-2xl border border-white/5 bg-[#131726] p-5">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
-            Customers
-          </p>
-          <p className="mt-1 text-2xl font-bold text-white">
-            {users.filter((u) => u.role === 'customer').length}
-          </p>
-        </div>
-        <div className="rounded-2xl border border-amber-400/20 bg-[#131726] p-5">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-amber-300">
-            👑 Privé VIP Members
-          </p>
-          <p className="mt-1 text-2xl font-bold text-amber-400">
-            {users.filter((u) => u.is_vip).length}
-          </p>
-        </div>
-        <div className="rounded-2xl border border-white/5 bg-[#131726] p-5">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
-            Admins & Staff
-          </p>
-          <p className="mt-1 text-2xl font-bold text-purple-400">
-            {users.filter((u) => u.role !== 'customer').length}
-          </p>
-        </div>
-        <div className="rounded-2xl border border-white/5 bg-[#131726] p-5">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
-            Total User Wallets
-          </p>
-          <p className="mt-1 text-2xl font-bold text-emerald-400">
-            ₹
-            {users
-              .reduce((acc, u) => acc + (Number(u.wallet_balance) || 0), 0)
-              .toLocaleString('en-IN')}
-          </p>
-        </div>
+      {/* Primary Top-Level Tabs Switcher */}
+      <div className="flex border-b border-white/10">
+        <button
+          onClick={() => {
+            setActiveTab('customers');
+            setSearchQuery('');
+          }}
+          className={`flex items-center gap-2 border-b-2 px-6 py-3 text-sm font-bold transition-all ${
+            activeTab === 'customers'
+              ? 'border-emerald-400 text-emerald-400 bg-emerald-500/5'
+              : 'border-transparent text-slate-400 hover:text-slate-200'
+          }`}
+        >
+          <Users className="h-4 w-4" />
+          <span>👥 Customer Directory</span>
+          <span
+            className={`ml-1.5 rounded-full px-2 py-0.5 text-xs font-semibold ${
+              activeTab === 'customers'
+                ? 'bg-emerald-500/20 text-emerald-300'
+                : 'bg-white/5 text-slate-500'
+            }`}
+          >
+            {customersList.length}
+          </span>
+        </button>
+
+        <button
+          onClick={() => {
+            setActiveTab('staff');
+            setSearchQuery('');
+          }}
+          className={`flex items-center gap-2 border-b-2 px-6 py-3 text-sm font-bold transition-all ${
+            activeTab === 'staff'
+              ? 'border-purple-400 text-purple-400 bg-purple-500/5'
+              : 'border-transparent text-slate-400 hover:text-slate-200'
+          }`}
+        >
+          <Shield className="h-4 w-4" />
+          <span>🛡️ Staff & Operations Control</span>
+          <span
+            className={`ml-1.5 rounded-full px-2 py-0.5 text-xs font-semibold ${
+              activeTab === 'staff'
+                ? 'bg-purple-500/20 text-purple-300'
+                : 'bg-white/5 text-slate-500'
+            }`}
+          >
+            {staffList.length}
+          </span>
+        </button>
       </div>
 
-      {/* Controls: Search, Role & Department Filters */}
-      <div className="flex flex-col items-stretch justify-between gap-4 rounded-2xl border border-white/5 bg-[#131726] p-4 lg:flex-row lg:items-center">
-        {/* Search Bar */}
-        <div className="relative w-full lg:w-80">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
-          <input
-            type="text"
-            placeholder="Search by name, email or phone..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full rounded-xl border border-white/10 bg-white/5 py-2 pl-9 pr-4 text-xs text-slate-300 placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-emerald-500"
-          />
-        </div>
-
-        {/* Filter Controls: Role Tabs + Department Dropdown */}
-        <div className="flex flex-wrap items-center gap-2">
-          {/* Role Filter Tabs */}
-          <div className="flex items-center space-x-1 rounded-xl bg-white/5 p-1 text-xs font-semibold">
-            <button
-              onClick={() => setRoleFilter('all')}
-              className={`rounded-lg px-3 py-1.5 transition-colors ${
-                roleFilter === 'all'
-                  ? 'bg-emerald-500/10 text-emerald-400'
-                  : 'text-slate-500 hover:text-slate-300'
-              }`}
-            >
-              All Users ({users.length})
-            </button>
-            <button
-              onClick={() => setRoleFilter('customer')}
-              className={`rounded-lg px-3 py-1.5 transition-colors ${
-                roleFilter === 'customer'
-                  ? 'bg-emerald-500/10 text-emerald-400'
-                  : 'text-slate-500 hover:text-slate-300'
-              }`}
-            >
-              Customers ({users.filter((u) => u.role === 'customer').length})
-            </button>
-            <button
-              onClick={() => setRoleFilter('vip')}
-              className={`rounded-lg px-3 py-1.5 transition-colors ${
-                roleFilter === 'vip'
-                  ? 'bg-amber-500/20 font-bold text-amber-300'
-                  : 'text-slate-500 hover:text-slate-300'
-              }`}
-            >
-              👑 Privé VIP ({users.filter((u) => u.is_vip).length})
-            </button>
-            <button
-              onClick={() => setRoleFilter('admin')}
-              className={`rounded-lg px-3 py-1.5 transition-colors ${
-                roleFilter === 'admin'
-                  ? 'bg-emerald-500/10 text-emerald-400'
-                  : 'text-slate-500 hover:text-slate-300'
-              }`}
-            >
-              Staff & Admins (
-              {users.filter((u) => u.role !== 'customer').length})
-            </button>
-          </div>
-
-          {/* Department Filter Dropdown */}
-          <div className="flex items-center space-x-2">
-            <div className="relative">
-              <select
-                value={deptFilter}
-                onChange={(e) => setDeptFilter(e.target.value)}
-                className="appearance-none rounded-xl border border-white/10 bg-[#1e2235] py-2 pl-8 pr-8 text-xs font-semibold text-slate-200 focus:outline-none focus:ring-1 focus:ring-emerald-500"
-              >
-                <option value="all">All Departments</option>
-                {DEPARTMENTS_LIST.map((d) => (
-                  <option key={d.key} value={d.key}>
-                    {d.name} ({d.subdomain})
-                  </option>
-                ))}
-                <option value="unassigned">Staff (Unassigned)</option>
-              </select>
-              <Building2 className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
+      {/* ======================= TAB 1: CUSTOMER DIRECTORY ======================= */}
+      {activeTab === 'customers' && (
+        <div className="space-y-5">
+          {/* Customers Stats Row */}
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+            <div className="rounded-2xl border border-white/5 bg-[#131726] p-5">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+                Total Customers
+              </p>
+              <p className="mt-1 text-2xl font-bold text-white">
+                {customersList.length}
+              </p>
+              <p className="mt-1 text-[11px] text-slate-500">
+                Storefront accounts
+              </p>
+            </div>
+            <div className="rounded-2xl border border-amber-400/20 bg-[#131726] p-5">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-amber-300">
+                👑 Privé VIP Members
+              </p>
+              <p className="mt-1 text-2xl font-bold text-amber-400">
+                {customersList.filter((u) => u.is_vip).length}
+              </p>
+              <p className="mt-1 text-[11px] text-amber-400/70">
+                Exclusive benefits
+              </p>
+            </div>
+            <div className="rounded-2xl border border-white/5 bg-[#131726] p-5">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+                Total Customer Wallets
+              </p>
+              <p className="mt-1 text-2xl font-bold text-emerald-400">
+                ₹
+                {customersList
+                  .reduce((acc, u) => acc + (Number(u.wallet_balance) || 0), 0)
+                  .toLocaleString('en-IN')}
+              </p>
+              <p className="mt-1 text-[11px] text-slate-500">
+                Ruhvi store balances
+              </p>
+            </div>
+            <div className="rounded-2xl border border-white/5 bg-[#131726] p-5">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+                Reward Coins
+              </p>
+              <p className="mt-1 text-2xl font-bold text-amber-300">
+                🪙{' '}
+                {customersList
+                  .reduce((acc, u) => acc + (Number(u.reward_coins) || 0), 0)
+                  .toLocaleString('en-IN')}
+              </p>
+              <p className="mt-1 text-[11px] text-slate-500">
+                Customer loyalty points
+              </p>
             </div>
           </div>
-        </div>
-      </div>
 
-      {/* Users Table */}
-      {loading ? (
-        <div className="py-16 text-center text-sm text-slate-500">
-          Loading user directory from Supabase...
-        </div>
-      ) : filteredUsers.length === 0 ? (
-        <div className="rounded-2xl border border-white/5 bg-[#131726] py-16 text-center">
-          <Users className="mx-auto mb-3 h-12 w-12 text-slate-700" />
-          <p className="font-medium text-slate-400">No users found.</p>
-          <p className="mt-1 text-xs text-slate-600">
-            Try adjusting your search query, role filter, or department filter.
-          </p>
-        </div>
-      ) : (
-        <div className="overflow-x-auto rounded-2xl border border-white/5 bg-[#131726]">
-          <table className="w-full min-w-[800px] border-collapse text-left">
-            <thead>
-              <tr className="border-b border-white/5 text-xs font-semibold uppercase tracking-wider text-slate-500">
-                <th className="p-4 pl-6">User</th>
-                <th className="p-4">Contact</th>
-                <th className="p-4">Role</th>
-                <th className="p-4">Privé VIP</th>
-                <th className="p-4">Department / Subdomain</th>
-                <th className="p-4 text-right">Wallet Balance</th>
-                <th className="p-4 text-right">Reward Coins</th>
-                <th className="p-4 pr-6 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/5 text-xs text-slate-400">
-              {filteredUsers.map((user) => (
-                <tr
-                  key={user.id}
-                  className="transition-colors hover:bg-white/5"
-                >
-                  <td className="p-4 pl-6">
-                    <div className="font-semibold text-slate-200">
-                      {user.full_name || 'Anonymous User'}
-                    </div>
-                    <div className="font-mono text-[10px] text-slate-600">
-                      {user.email}
-                    </div>
-                  </td>
-                  <td className="p-4 font-mono text-slate-500">
-                    {user.phone || 'N/A'}
-                  </td>
-                  <td className="p-4">{getRoleBadge(user.role)}</td>
-                  <td className="p-4">
-                    {user.is_vip ? (
-                      <div className="space-y-0.5">
-                        <span className="inline-flex items-center gap-1 rounded-md border border-amber-400/30 bg-amber-400/10 px-2 py-0.5 text-[10px] font-bold text-amber-300">
-                          <Crown className="h-3 w-3 text-amber-400" /> Active
-                          VIP
-                        </span>
-                        {user.vip_expires_at && (
-                          <div className="font-mono text-[9px] text-slate-500">
-                            Exp:{' '}
-                            {new Date(user.vip_expires_at).toLocaleDateString(
-                              'en-IN'
+          {/* Search & Sub-Filter Bar */}
+          <div className="flex flex-col items-stretch justify-between gap-4 rounded-2xl border border-white/5 bg-[#131726] p-4 lg:flex-row lg:items-center">
+            <div className="relative w-full lg:w-96">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
+              <input
+                type="text"
+                placeholder="Search customers by name, email or phone..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full rounded-xl border border-white/10 bg-white/5 py-2 pl-9 pr-4 text-xs text-slate-300 placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+              />
+            </div>
+
+            <div className="flex items-center space-x-1 rounded-xl bg-white/5 p-1 text-xs font-semibold">
+              <button
+                onClick={() => setCustomerFilter('all')}
+                className={`rounded-lg px-3 py-1.5 transition-colors ${
+                  customerFilter === 'all'
+                    ? 'bg-emerald-500/10 text-emerald-400'
+                    : 'text-slate-500 hover:text-slate-300'
+                }`}
+              >
+                All Customers ({customersList.length})
+              </button>
+              <button
+                onClick={() => setCustomerFilter('vip')}
+                className={`rounded-lg px-3 py-1.5 transition-colors ${
+                  customerFilter === 'vip'
+                    ? 'bg-amber-500/20 font-bold text-amber-300'
+                    : 'text-slate-500 hover:text-slate-300'
+                }`}
+              >
+                👑 Privé VIP ({customersList.filter((u) => u.is_vip).length})
+              </button>
+              <button
+                onClick={() => setCustomerFilter('standard')}
+                className={`rounded-lg px-3 py-1.5 transition-colors ${
+                  customerFilter === 'standard'
+                    ? 'bg-emerald-500/10 text-emerald-400'
+                    : 'text-slate-500 hover:text-slate-300'
+                }`}
+              >
+                Standard ({customersList.filter((u) => !u.is_vip).length})
+              </button>
+            </div>
+          </div>
+
+          {/* Customers Table */}
+          {loading ? (
+            <div className="py-16 text-center text-sm text-slate-500">
+              Loading customer directory...
+            </div>
+          ) : filteredCustomers.length === 0 ? (
+            <div className="rounded-2xl border border-white/5 bg-[#131726] py-16 text-center">
+              <Users className="mx-auto mb-3 h-12 w-12 text-slate-700" />
+              <p className="font-medium text-slate-400">No customers found.</p>
+              <p className="mt-1 text-xs text-slate-600">
+                Try adjusting your search query or filter.
+              </p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto rounded-2xl border border-white/5 bg-[#131726]">
+              <table className="w-full min-w-[850px] border-collapse text-left">
+                <thead>
+                  <tr className="border-b border-white/5 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                    <th className="p-4 pl-6">Customer</th>
+                    <th className="p-4">Phone</th>
+                    <th className="p-4">VIP Status</th>
+                    <th className="p-4 text-right">Wallet Balance</th>
+                    <th className="p-4 text-right">Reward Coins</th>
+                    <th className="p-4 pr-6 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/5 text-xs text-slate-400">
+                  {filteredCustomers.map((user) => (
+                    <tr
+                      key={user.id}
+                      className="transition-colors hover:bg-white/5"
+                    >
+                      <td className="p-4 pl-6">
+                        <div className="font-semibold text-slate-200">
+                          {user.full_name || 'Anonymous User'}
+                        </div>
+                        <div className="font-mono text-[10px] text-slate-500">
+                          {user.email}
+                        </div>
+                      </td>
+                      <td className="p-4 font-mono text-slate-500">
+                        {user.phone || 'N/A'}
+                      </td>
+                      <td className="p-4">
+                        {user.is_vip ? (
+                          <div className="space-y-0.5">
+                            <span className="inline-flex items-center gap-1 rounded-md border border-amber-400/30 bg-amber-400/10 px-2 py-0.5 text-[10px] font-bold text-amber-300">
+                              <Crown className="h-3 w-3 text-amber-400" /> VIP Active
+                            </span>
+                            {user.vip_expires_at && (
+                              <div className="font-mono text-[9px] text-slate-500">
+                                Exp:{' '}
+                                {new Date(user.vip_expires_at).toLocaleDateString(
+                                  'en-IN'
+                                )}
+                              </div>
                             )}
                           </div>
+                        ) : (
+                          <span className="font-mono text-[10px] text-slate-600">
+                            Standard
+                          </span>
                         )}
-                      </div>
-                    ) : (
-                      <span className="font-mono text-[10px] text-slate-600">
-                        Standard
-                      </span>
-                    )}
-                  </td>
-                  <td className="p-4">
-                    {user.role === 'customer' ? (
-                      <span className="font-mono text-slate-600">—</span>
-                    ) : (
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-1.5 flex-wrap">
-                          {getDepartmentBadge(user.department)}
-                          {user.totp_enabled ? (
-                            <span
-                              className="inline-flex items-center gap-1 rounded bg-emerald-500/10 px-1.5 py-0.5 text-[9px] font-semibold text-emerald-400 border border-emerald-500/20"
-                              title="Google Authenticator 2FA Active"
-                            >
-                              <ShieldCheck className="h-2.5 w-2.5" /> 2FA
-                            </span>
-                          ) : (
-                            <span
-                              className="inline-flex items-center gap-1 rounded bg-slate-500/10 px-1.5 py-0.5 text-[9px] font-semibold text-slate-400 border border-slate-500/20"
-                              title="2FA Not Enabled"
-                            >
-                              2FA Off
-                            </span>
-                          )}
-                        </div>
-                        {user.allowed_portals &&
-                          user.allowed_portals.length > 0 && (
-                            <div className="font-mono text-[9px] text-slate-500">
-                              portals: {user.allowed_portals.join(', ')}
-                            </div>
-                          )}
-                      </div>
-                    )}
-                  </td>
-                  <td className="p-4 text-right font-bold text-white">
-                    ₹{Number(user.wallet_balance || 0).toLocaleString('en-IN')}
-                  </td>
-                  <td className="p-4 text-right font-bold text-amber-400">
-                    🪙 {Number(user.reward_coins || 0).toLocaleString('en-IN')}
-                  </td>
-                  <td className="space-x-2 whitespace-nowrap p-4 pr-6 text-right">
-                    {user.totp_enabled && (
-                      <button
-                        onClick={() => handleResetUserMfa(user)}
-                        className="inline-flex items-center gap-1 rounded-lg border border-red-500/30 bg-red-500/10 px-2.5 py-1 font-semibold text-red-400 transition-colors hover:bg-red-500/20"
-                        title="Reset Two-Factor Authentication"
-                      >
-                        <ShieldAlert className="h-3 w-3 text-red-400" /> Reset 2FA
-                      </button>
-                    )}
-                    <button
-                      onClick={() => {
-                        setVipModalUser(user);
-                        setVipAction(user.is_vip ? 'extend' : 'grant');
-                        setVipDays(365);
-                        setVipReason('');
-                      }}
-                      className="inline-flex items-center gap-1 rounded-lg border border-amber-500/30 bg-amber-500/10 px-2.5 py-1 font-semibold text-amber-300 transition-colors hover:bg-amber-500/20"
-                      title="Manage Ruhvi Privé VIP Status"
-                    >
-                      <Crown className="h-3 w-3 text-amber-400" /> VIP
-                    </button>
-                    <button
-                      onClick={() => handleSendResetLink(user.email)}
-                      className="inline-flex items-center gap-1 rounded-lg border border-sky-500/20 bg-sky-500/10 px-2.5 py-1 font-semibold text-sky-400 transition-colors hover:bg-sky-500/20"
-                      title="Send Password Reset Link"
-                    >
-                      <Mail className="h-3 w-3 text-sky-500" /> Link
-                    </button>
-                    <button
-                      onClick={() => {
-                        setPasswordUser(user);
-                        setNewPassword('');
-                      }}
-                      className="inline-flex items-center gap-1 rounded-lg border border-indigo-500/20 bg-indigo-500/10 px-2.5 py-1 font-semibold text-indigo-400 transition-colors hover:bg-indigo-500/20"
-                      title="Set Password Directly"
-                    >
-                      <Key className="h-3 w-3 text-indigo-400" /> Pass
-                    </button>
-                    <button
-                      onClick={() => {
-                        setEditingUser(user);
-                        setSelectedRole(user.role);
-                        setSelectedDepartment(user.department || '');
-                        setSelectedPortals(user.allowed_portals || []);
-                      }}
-                      className="inline-flex items-center gap-1 rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 font-semibold text-slate-300 transition-colors hover:bg-white/10"
-                      title="Edit Role, Department & Subdomain Permissions"
-                    >
-                      <Shield className="h-3 w-3 text-emerald-400" /> Privileges
-                    </button>
-                    <button
-                      onClick={() => {
-                        setAdjustingUser(user);
-                        setWalletAmount(user.wallet_balance.toString());
-                        setCoinsAmount(user.reward_coins.toString());
-                      }}
-                      className="inline-flex items-center gap-1 rounded-lg border border-amber-500/20 bg-amber-500/10 px-2.5 py-1 font-semibold text-amber-400 transition-colors hover:bg-amber-500/20"
-                    >
-                      <Wallet className="h-3 w-3 text-amber-500" /> Funds
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                      </td>
+                      <td className="p-4 text-right font-bold text-white">
+                        ₹{Number(user.wallet_balance || 0).toLocaleString('en-IN')}
+                      </td>
+                      <td className="p-4 text-right font-bold text-amber-400">
+                        🪙 {Number(user.reward_coins || 0).toLocaleString('en-IN')}
+                      </td>
+                      <td className="space-x-2 whitespace-nowrap p-4 pr-6 text-right">
+                        {/* Promote to Staff Button */}
+                        <button
+                          onClick={() => handlePromoteToStaff(user)}
+                          className="inline-flex items-center gap-1.5 rounded-lg border border-purple-500/30 bg-purple-500/10 px-2.5 py-1 text-xs font-bold text-purple-300 transition-colors hover:bg-purple-500/20"
+                          title="Promote this customer to backend staff with assigned department"
+                        >
+                          <UserPlus className="h-3 w-3 text-purple-400" /> Promote to Staff
+                        </button>
+
+                        {/* VIP Button */}
+                        <button
+                          onClick={() => {
+                            setVipModalUser(user);
+                            setVipAction(user.is_vip ? 'extend' : 'grant');
+                            setVipDays(365);
+                            setVipReason('');
+                          }}
+                          className="inline-flex items-center gap-1 rounded-lg border border-amber-500/30 bg-amber-500/10 px-2.5 py-1 font-semibold text-amber-300 transition-colors hover:bg-amber-500/20"
+                          title="Manage Ruhvi Privé VIP Status"
+                        >
+                          <Crown className="h-3 w-3 text-amber-400" /> VIP
+                        </button>
+
+                        {/* Adjust Funds */}
+                        <button
+                          onClick={() => {
+                            setAdjustingUser(user);
+                            setWalletAmount(user.wallet_balance.toString());
+                            setCoinsAmount(user.reward_coins.toString());
+                          }}
+                          className="inline-flex items-center gap-1 rounded-lg border border-amber-500/20 bg-amber-500/10 px-2.5 py-1 font-semibold text-amber-400 transition-colors hover:bg-amber-500/20"
+                          title="Adjust Wallet Balance & Reward Coins"
+                        >
+                          <Wallet className="h-3 w-3 text-amber-500" /> Funds
+                        </button>
+
+                        {/* Password */}
+                        <button
+                          onClick={() => {
+                            setPasswordUser(user);
+                            setNewPassword('');
+                          }}
+                          className="inline-flex items-center gap-1 rounded-lg border border-indigo-500/20 bg-indigo-500/10 px-2 py-1 font-semibold text-indigo-400 transition-colors hover:bg-indigo-500/20"
+                          title="Set Password Directly"
+                        >
+                          <Key className="h-3 w-3 text-indigo-400" /> Pass
+                        </button>
+
+                        {/* Reset Link */}
+                        <button
+                          onClick={() => handleSendResetLink(user.email)}
+                          className="inline-flex items-center gap-1 rounded-lg border border-sky-500/20 bg-sky-500/10 px-2 py-1 font-semibold text-sky-400 transition-colors hover:bg-sky-500/20"
+                          title="Send Password Reset Link"
+                        >
+                          <Mail className="h-3 w-3 text-sky-500" /> Link
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       )}
 
-      {/* Role & Department Edit Modal */}
+      {/* ======================= TAB 2: STAFF & OPERATIONS CONTROL ======================= */}
+      {activeTab === 'staff' && (
+        <div className="space-y-5">
+          {/* Staff Stats Row */}
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+            <div className="rounded-2xl border border-purple-500/20 bg-[#131726] p-5">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-purple-300">
+                Total Staff & Admins
+              </p>
+              <p className="mt-1 text-2xl font-bold text-white">
+                {staffList.length}
+              </p>
+              <p className="mt-1 text-[11px] text-slate-500">
+                Backend team members
+              </p>
+            </div>
+            <div className="rounded-2xl border border-emerald-500/20 bg-[#131726] p-5">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-emerald-300">
+                2FA Active (Google Auth)
+              </p>
+              <p className="mt-1 text-2xl font-bold text-emerald-400">
+                {staffList.filter((u) => u.totp_enabled).length} / {staffList.length}
+              </p>
+              <p className="mt-1 text-[11px] text-emerald-500">
+                {staffList.length > 0
+                  ? Math.round(
+                      (staffList.filter((u) => u.totp_enabled).length /
+                        staffList.length) *
+                        100
+                    )
+                  : 0}
+                % team compliance
+              </p>
+            </div>
+            <div className="rounded-2xl border border-amber-500/20 bg-[#131726] p-5">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-amber-300">
+                2FA Pending Setup
+              </p>
+              <p className="mt-1 text-2xl font-bold text-amber-400">
+                {staffList.filter((u) => !u.totp_enabled).length}
+              </p>
+              <p className="mt-1 text-[11px] text-amber-400/70">
+                Mandatory at next login
+              </p>
+            </div>
+            <div className="rounded-2xl border border-white/5 bg-[#131726] p-5">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+                Active Departments
+              </p>
+              <p className="mt-1 text-2xl font-bold text-cyan-400">
+                {new Set(staffList.map((u) => u.department).filter(Boolean)).size} / {DEPARTMENTS_LIST.length}
+              </p>
+              <p className="mt-1 text-[11px] text-slate-500">
+                Assigned portals
+              </p>
+            </div>
+          </div>
+
+          {/* Search, Role & Department Filter Bar */}
+          <div className="flex flex-col items-stretch justify-between gap-4 rounded-2xl border border-white/5 bg-[#131726] p-4 lg:flex-row lg:items-center">
+            <div className="relative w-full lg:w-80">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
+              <input
+                type="text"
+                placeholder="Search staff by name, email or phone..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full rounded-xl border border-white/10 bg-white/5 py-2 pl-9 pr-4 text-xs text-slate-300 placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-purple-500"
+              />
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2">
+              {/* Staff Role Filter Tabs */}
+              <div className="flex items-center space-x-1 rounded-xl bg-white/5 p-1 text-xs font-semibold">
+                <button
+                  onClick={() => setStaffRoleFilter('all')}
+                  className={`rounded-lg px-2.5 py-1.5 transition-colors ${
+                    staffRoleFilter === 'all'
+                      ? 'bg-purple-500/20 text-purple-300'
+                      : 'text-slate-500 hover:text-slate-300'
+                  }`}
+                >
+                  All ({staffList.length})
+                </button>
+                <button
+                  onClick={() => setStaffRoleFilter('staff')}
+                  className={`rounded-lg px-2.5 py-1.5 transition-colors ${
+                    staffRoleFilter === 'staff'
+                      ? 'bg-purple-500/20 text-purple-300'
+                      : 'text-slate-500 hover:text-slate-300'
+                  }`}
+                >
+                  Staff ({staffList.filter((u) => u.role === 'staff').length})
+                </button>
+                <button
+                  onClick={() => setStaffRoleFilter('manager')}
+                  className={`rounded-lg px-2.5 py-1.5 transition-colors ${
+                    staffRoleFilter === 'manager'
+                      ? 'bg-amber-500/20 text-amber-300'
+                      : 'text-slate-500 hover:text-slate-300'
+                  }`}
+                >
+                  Managers ({staffList.filter((u) => u.role === 'manager').length})
+                </button>
+                <button
+                  onClick={() => setStaffRoleFilter('admin')}
+                  className={`rounded-lg px-2.5 py-1.5 transition-colors ${
+                    staffRoleFilter === 'admin'
+                      ? 'bg-rose-500/20 text-rose-300'
+                      : 'text-slate-500 hover:text-slate-300'
+                  }`}
+                >
+                  Admins ({staffList.filter((u) => u.role === 'admin').length})
+                </button>
+                <button
+                  onClick={() => setStaffRoleFilter('super_admin')}
+                  className={`rounded-lg px-2.5 py-1.5 transition-colors ${
+                    staffRoleFilter === 'super_admin'
+                      ? 'bg-fuchsia-500/20 text-fuchsia-300'
+                      : 'text-slate-500 hover:text-slate-300'
+                  }`}
+                >
+                  Super Admin ({staffList.filter((u) => u.role === 'super_admin').length})
+                </button>
+              </div>
+
+              {/* Department Filter Dropdown */}
+              <div className="relative">
+                <select
+                  value={staffDeptFilter}
+                  onChange={(e) => setStaffDeptFilter(e.target.value)}
+                  className="appearance-none rounded-xl border border-white/10 bg-[#1e2235] py-2 pl-8 pr-8 text-xs font-semibold text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500"
+                >
+                  <option value="all">All Departments</option>
+                  {DEPARTMENTS_LIST.map((d) => (
+                    <option key={d.key} value={d.key}>
+                      {d.name} ({d.subdomain})
+                    </option>
+                  ))}
+                  <option value="unassigned">Unassigned Staff</option>
+                </select>
+                <Building2 className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
+              </div>
+            </div>
+          </div>
+
+          {/* Staff Table */}
+          {loading ? (
+            <div className="py-16 text-center text-sm text-slate-500">
+              Loading staff directory...
+            </div>
+          ) : filteredStaff.length === 0 ? (
+            <div className="rounded-2xl border border-white/5 bg-[#131726] py-16 text-center">
+              <Shield className="mx-auto mb-3 h-12 w-12 text-slate-700" />
+              <p className="font-medium text-slate-400">No staff members found.</p>
+              <p className="mt-1 text-xs text-slate-600">
+                You can promote any user to staff from the Customer Directory tab.
+              </p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto rounded-2xl border border-white/5 bg-[#131726]">
+              <table className="w-full min-w-[900px] border-collapse text-left">
+                <thead>
+                  <tr className="border-b border-white/5 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                    <th className="p-4 pl-6">Staff Member</th>
+                    <th className="p-4">Role</th>
+                    <th className="p-4">Department & Portals</th>
+                    <th className="p-4">Two-Factor Auth (2FA)</th>
+                    <th className="p-4">Phone</th>
+                    <th className="p-4 pr-6 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/5 text-xs text-slate-400">
+                  {filteredStaff.map((user) => (
+                    <tr
+                      key={user.id}
+                      className="transition-colors hover:bg-white/5"
+                    >
+                      <td className="p-4 pl-6">
+                        <div className="font-semibold text-slate-200">
+                          {user.full_name || 'Anonymous User'}
+                        </div>
+                        <div className="font-mono text-[10px] text-slate-400">
+                          {user.email}
+                        </div>
+                      </td>
+                      <td className="p-4">{getRoleBadge(user.role)}</td>
+                      <td className="p-4">
+                        <div className="space-y-1">
+                          <div>{getDepartmentBadge(user.department)}</div>
+                          {user.allowed_portals && user.allowed_portals.length > 0 && (
+                            <div className="flex flex-wrap gap-1">
+                              {user.allowed_portals.map((p) => (
+                                <span
+                                  key={p}
+                                  className="rounded bg-white/5 px-1.5 py-0.5 font-mono text-[9px] text-slate-400"
+                                >
+                                  {p}.ruhvi.in
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </td>
+                      <td className="p-4">
+                        {user.totp_enabled ? (
+                          <div className="space-y-0.5">
+                            <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-0.5 text-[10px] font-bold text-emerald-400">
+                              <ShieldCheck className="h-3 w-3 text-emerald-400" />
+                              2FA Active
+                            </span>
+                            {user.totp_enrolled_at && (
+                              <div className="font-mono text-[9px] text-slate-500">
+                                Enrolled:{' '}
+                                {new Date(user.totp_enrolled_at).toLocaleDateString('en-IN')}
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          <div className="space-y-0.5">
+                            <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 px-2.5 py-0.5 text-[10px] font-bold text-amber-300">
+                              <AlertTriangle className="h-3 w-3 text-amber-400" />
+                              Pending Setup
+                            </span>
+                            <div className="text-[9px] text-amber-400/70">
+                              Mandatory at next login
+                            </div>
+                          </div>
+                        )}
+                      </td>
+                      <td className="p-4 font-mono text-slate-500">
+                        {user.phone || 'N/A'}
+                      </td>
+                      <td className="space-x-2 whitespace-nowrap p-4 pr-6 text-right">
+                        {/* Reset 2FA (if enabled) */}
+                        {user.totp_enabled && (
+                          <button
+                            onClick={() => handleResetUserMfa(user)}
+                            className="inline-flex items-center gap-1 rounded-lg border border-red-500/30 bg-red-500/10 px-2.5 py-1 font-semibold text-red-400 transition-colors hover:bg-red-500/20"
+                            title="Reset Two-Factor Authentication so user can re-enroll"
+                          >
+                            <ShieldAlert className="h-3 w-3 text-red-400" /> Reset 2FA
+                          </button>
+                        )}
+
+                        {/* Edit Role & Portals */}
+                        <button
+                          onClick={() => {
+                            setEditingUser(user);
+                            setSelectedRole(user.role);
+                            setSelectedDepartment(user.department || '');
+                            setSelectedPortals(user.allowed_portals || []);
+                          }}
+                          className="inline-flex items-center gap-1 rounded-lg border border-purple-500/30 bg-purple-500/10 px-2.5 py-1 font-semibold text-purple-300 transition-colors hover:bg-purple-500/20"
+                          title="Edit Role, Department & Subdomain Permissions"
+                        >
+                          <Shield className="h-3 w-3 text-purple-400" /> Privileges
+                        </button>
+
+                        {/* Set Password */}
+                        <button
+                          onClick={() => {
+                            setPasswordUser(user);
+                            setNewPassword('');
+                          }}
+                          className="inline-flex items-center gap-1 rounded-lg border border-indigo-500/20 bg-indigo-500/10 px-2.5 py-1 font-semibold text-indigo-400 transition-colors hover:bg-indigo-500/20"
+                          title="Set Password Directly"
+                        >
+                          <Key className="h-3 w-3 text-indigo-400" /> Pass
+                        </button>
+
+                        {/* Reset Link */}
+                        <button
+                          onClick={() => handleSendResetLink(user.email)}
+                          className="inline-flex items-center gap-1 rounded-lg border border-sky-500/20 bg-sky-500/10 px-2.5 py-1 font-semibold text-sky-400 transition-colors hover:bg-sky-500/20"
+                          title="Send Password Reset Link"
+                        >
+                          <Mail className="h-3 w-3 text-sky-500" /> Link
+                        </button>
+
+                        {/* Revoke Privileges / Demote to Customer */}
+                        <button
+                          onClick={() => handleRevokeStaff(user)}
+                          className="inline-flex items-center gap-1 rounded-lg border border-rose-500/20 bg-rose-500/10 px-2.5 py-1 font-semibold text-rose-400 transition-colors hover:bg-rose-500/20"
+                          title="Revoke staff privileges and demote back to Customer"
+                        >
+                          <UserX className="h-3 w-3 text-rose-400" /> Revoke Staff
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ======================= MODAL: ROLE & DEPARTMENT ASSIGNMENT ======================= */}
       {editingUser && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
           <div className="w-full max-w-lg space-y-5 rounded-2xl border border-white/10 bg-[#161a2b] p-6 shadow-2xl">
             <div className="flex items-center justify-between border-b border-white/5 pb-3">
               <div className="flex items-center space-x-2">
-                <Shield className="h-5 w-5 text-emerald-400" />
+                <Shield className="h-5 w-5 text-purple-400" />
                 <h3 className="text-base font-bold text-white">
-                  User Role & Department Assignment
+                  Staff Role & Department Assignment
                 </h3>
               </div>
               <button
@@ -865,7 +1228,7 @@ export default function AdminUsersPage() {
                     setSelectedPortals(['operations']);
                   }
                 }}
-                className="w-full rounded-xl border border-white/10 bg-[#1e2235] px-3 py-2 text-xs font-semibold text-white focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                className="w-full rounded-xl border border-white/10 bg-[#1e2235] px-3 py-2 text-xs font-semibold text-white focus:outline-none focus:ring-1 focus:ring-purple-500"
               >
                 <option value="customer">
                   Customer (Storefront Access Only)
@@ -900,7 +1263,7 @@ export default function AdminUsersPage() {
                   <select
                     value={selectedDepartment}
                     onChange={(e) => handleDepartmentChange(e.target.value)}
-                    className="w-full rounded-xl border border-white/10 bg-[#1e2235] px-3 py-2 text-xs font-semibold text-white focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                    className="w-full rounded-xl border border-white/10 bg-[#1e2235] px-3 py-2 text-xs font-semibold text-white focus:outline-none focus:ring-1 focus:ring-purple-500"
                   >
                     <option value="">-- Unassigned --</option>
                     {DEPARTMENTS_LIST.map((dept) => (
@@ -977,28 +1340,26 @@ export default function AdminUsersPage() {
                           onClick={() => togglePortal(p.key)}
                           className={`flex items-center justify-between rounded-lg border p-2 text-left text-xs transition-colors ${
                             isChecked
-                              ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-300'
+                              ? 'border-purple-500/40 bg-purple-500/10 text-purple-300'
                               : 'border-white/5 bg-white/5 text-slate-400 hover:bg-white/10'
                           }`}
                         >
                           <span className="truncate">{p.label}</span>
                           {isChecked && (
-                            <CheckCircle2 className="ml-1 h-3.5 w-3.5 flex-shrink-0 text-emerald-400" />
+                            <CheckCircle2 className="ml-1 h-3.5 w-3.5 flex-shrink-0 text-purple-400" />
                           )}
                         </button>
                       );
                     })}
                   </div>
                   <p className="text-[10px] text-slate-500">
-                    Staff assigned to this department will receive
-                    department-routed notifications, orders, or support alerts.
+                    Staff assigned to this department will receive department-routed notifications and portal logins.
                   </p>
                 </div>
               </div>
             ) : (
               <div className="rounded-xl border border-white/5 bg-white/5 p-3 text-xs text-slate-500">
-                Customer accounts do not have staff departments or portal
-                permissions.
+                Customer accounts do not have staff departments or portal permissions.
               </div>
             )}
 
@@ -1012,7 +1373,7 @@ export default function AdminUsersPage() {
               <button
                 onClick={handleSavePrivileges}
                 disabled={isUpdatingRole}
-                className="rounded-xl bg-emerald-600 px-5 py-2 text-xs font-bold text-white hover:bg-emerald-500 disabled:opacity-50"
+                className="rounded-xl bg-purple-600 px-5 py-2 text-xs font-bold text-white hover:bg-purple-500 disabled:opacity-50"
               >
                 {isUpdatingRole ? 'Updating...' : 'Save Privileges'}
               </button>
@@ -1021,7 +1382,7 @@ export default function AdminUsersPage() {
         </div>
       )}
 
-      {/* Adjust Funds/Coins Modal */}
+      {/* ======================= MODAL: ADJUST FUNDS / COINS ======================= */}
       {adjustingUser && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div className="w-full max-w-md space-y-6 rounded-2xl bg-[#1e2235] p-6 shadow-2xl">
@@ -1094,7 +1455,7 @@ export default function AdminUsersPage() {
         </div>
       )}
 
-      {/* Set Password Modal */}
+      {/* ======================= MODAL: SET PASSWORD ======================= */}
       {passwordUser && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div className="w-full max-w-md space-y-6 rounded-2xl bg-[#1e2235] p-6 shadow-2xl">
@@ -1157,7 +1518,7 @@ export default function AdminUsersPage() {
         </div>
       )}
 
-      {/* Ruhvi Privé VIP Modal */}
+      {/* ======================= MODAL: RUHVI PRIVÉ VIP ======================= */}
       {vipModalUser && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
           <div className="w-full max-w-md space-y-5 rounded-2xl border border-amber-400/30 bg-[#161a2b] p-6 shadow-2xl">

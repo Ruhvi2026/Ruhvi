@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { jwtVerify } from 'jose';
+import { jwtVerify, SignJWT } from 'jose';
 import { createClient } from '@supabase/supabase-js';
 import {
   verifyTotpCode,
@@ -103,11 +103,49 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    return NextResponse.json({
+    // Mint official full __session cookie with mfa_verified: true
+    const expiresInSeconds = 60 * 60 * 24 * 5; // 5 days
+    const now = Math.floor(Date.now() / 1000);
+    const sessionSecret = new TextEncoder().encode(jwtSecret);
+
+    const { data: ident } = await supabaseAdmin
+      .from('customer_identities')
+      .select('firebase_uid')
+      .eq('customer_id', userId)
+      .maybeSingle();
+    const firebaseUid = ident?.firebase_uid || null;
+
+    const sessionToken = await new SignJWT({
+      sub: userId,
+      email: payload.email || null,
+      firebase_uid: firebaseUid,
+      mfa_verified: true,
+      auth_time: now,
+    })
+      .setProtectedHeader({ alg: 'HS256' })
+      .setIssuedAt(now)
+      .setExpirationTime(now + expiresInSeconds)
+      .sign(sessionSecret);
+
+    const isProduction = process.env.NODE_ENV === 'production';
+    const response = NextResponse.json({
       success: true,
       message: 'Two-Factor Authentication successfully activated.',
       backupCodes: plaintextCodes,
     });
+
+    response.cookies.set({
+      name: '__session',
+      value: sessionToken,
+      maxAge: expiresInSeconds,
+      httpOnly: true,
+      secure: isProduction,
+      path: '/',
+      sameSite: 'lax',
+      ...(isProduction ? { domain: '.ruhvi.in' } : {}),
+    });
+
+    return response;
   } catch (error: any) {
     console.error('[MFA Activate Error]:', error);
     return NextResponse.json(

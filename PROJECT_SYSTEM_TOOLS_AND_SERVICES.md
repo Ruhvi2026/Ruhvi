@@ -37,6 +37,7 @@
 | **Expo Camera** | Mobile Scanning | High-performance native barcode scanning library powering the mobile Inventory Scan & Add workflow. | Active | `ruhvi-mobile_DO_NOT_DELETE/package.json`, `ruhvi-mobile_DO_NOT_DELETE/src/screens/InventoryScanScreen.tsx` |
 | **JsBarcode** | Barcode Generation | Industry-standard vector SVG barcode encoding engine powering A4 sheet and thermal roll barcode printing. | Active | `package.json`, `src/app/operations/inventory/barcode/page.tsx` |
 | **QRCode** | QR Code Generation | Zero-cloud offline QR code generation engine powering Google Authenticator TOTP 2FA enrollment. | Active | `package.json`, `src/app/api/auth/mfa/setup/route.ts` |
+| **otplib (RFC 6238 TOTP)** | Two-Factor Authentication (2FA) | Cryptographic TOTP token generation, HMAC-SHA1 validation, master emergency email fallback, and backup code hashing for backend staff logins. | Active | `src/lib/auth/totp.ts`, `src/app/api/auth/mfa/*` |
 
 ---
 
