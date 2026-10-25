@@ -279,6 +279,7 @@ export async function middleware(request: NextRequest) {
       if (needsRbacCookieSet && accountStatus === 'active') {
         const rbacToken = await signRbacProfile(userProfile);
         if (rbacToken) {
+          const isProduction = process.env.NODE_ENV === 'production';
           const isRuhviDomain = hostname.endsWith('ruhvi.in');
           supabaseResponse.cookies.set({
             name: RBAC_COOKIE_NAME,
