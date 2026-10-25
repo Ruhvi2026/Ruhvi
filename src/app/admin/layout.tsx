@@ -43,9 +43,7 @@ import {
   MessageCircle,
   ClipboardList,
   Sparkles,
-  ShieldCheck,
 } from 'lucide-react';
-import MfaSetupModal from '@/components/auth/MfaSetupModal';
 import dynamic from 'next/dynamic';
 import { AdminNotificationCenter } from '@/components/admin/AdminNotificationCenter';
 
@@ -434,14 +432,12 @@ function AdminSidebarContent({
   userInitial,
   userEmail,
   signOut,
-  onOpenMfaModal,
 }: {
   collapsed: boolean;
   onToggleCollapsed: () => void;
   userInitial: string;
   userEmail: string;
   signOut: () => Promise<void>;
-  onOpenMfaModal: () => void;
 }) {
   return (
     <div className="flex h-full flex-col">
@@ -505,14 +501,6 @@ function AdminSidebarContent({
           {!collapsed && <span>View Store</span>}
         </Link>
         <button
-          onClick={onOpenMfaModal}
-          className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-xs text-slate-500 transition-colors hover:bg-emerald-500/10 hover:text-emerald-600 dark:hover:text-emerald-400"
-          title="Two-Factor Authentication (2FA)"
-        >
-          <ShieldCheck className="h-4 w-4 flex-shrink-0 text-emerald-500" />
-          {!collapsed && <span>Security & 2FA</span>}
-        </button>
-        <button
           onClick={signOut}
           className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-xs text-slate-500 transition-colors hover:bg-rose-500/5 hover:text-rose-500 dark:hover:text-rose-400"
           title="Sign out"
@@ -556,7 +544,6 @@ export default function AdminLayout({
 }) {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [showMfaModal, setShowMfaModal] = useState(false);
   const { user, signOut } = useAuth();
 
   const userInitial = user?.email?.charAt(0).toUpperCase() || 'A';
@@ -580,7 +567,6 @@ export default function AdminLayout({
             userInitial={userInitial}
             userEmail={userEmail}
             signOut={signOut}
-            onOpenMfaModal={() => setShowMfaModal(true)}
           />
         </aside>
 
@@ -604,7 +590,6 @@ export default function AdminLayout({
                 userInitial={userInitial}
                 userEmail={userEmail}
                 signOut={signOut}
-                onOpenMfaModal={() => setShowMfaModal(true)}
               />
             </aside>
           </div>
@@ -657,12 +642,6 @@ export default function AdminLayout({
 
         {/* Floating Staff Messenger Drawer / Popup Window */}
         <FloatingStaffMessenger />
-
-        {/* 2FA Setup Modal */}
-        <MfaSetupModal
-          isOpen={showMfaModal}
-          onClose={() => setShowMfaModal(false)}
-        />
       </div>
     </PortalThemeProvider>
   );
