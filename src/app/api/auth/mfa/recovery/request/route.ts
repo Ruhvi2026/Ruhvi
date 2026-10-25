@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
     const { data: user, error: userError } = await supabaseAdmin
       .from('users')
       .select('id, email, full_name, role, totp_enabled')
-      .eq('email', cleanEmail)
+      .ilike('email', cleanEmail)
       .maybeSingle();
 
     const allowedRoles = ['super_admin', 'admin', 'manager', 'staff'];

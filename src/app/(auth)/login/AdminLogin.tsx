@@ -64,9 +64,11 @@ export default function AdminLogin({
     setError(null);
     setInfoMessage(null);
 
+    const cleanEmail = email.trim().toLowerCase();
+
     try {
       // 1. Authenticate with Firebase
-      const userCred = await signInWithEmail(email, password);
+      const userCred = await signInWithEmail(cleanEmail, password);
       const fbUser = userCred.user;
       const idToken = await fbUser.getIdToken(true);
 
@@ -99,7 +101,20 @@ export default function AdminLogin({
     } catch (err: any) {
       console.error('Admin login error:', err);
       let msg = 'Invalid email or password.';
-      if (err?.message) {
+      const code = err?.code || '';
+      if (
+        code === 'auth/invalid-credential' ||
+        code === 'auth/user-not-found' ||
+        code === 'auth/wrong-password' ||
+        code === 'auth/invalid-email'
+      ) {
+        msg = 'Invalid email or password. Please verify your credentials.';
+      } else if (code === 'auth/too-many-requests') {
+        msg =
+          'Too many failed login attempts. Please wait a few minutes before trying again.';
+      } else if (code === 'auth/user-disabled') {
+        msg = 'This account has been disabled. Please contact the administrator.';
+      } else if (err?.message && !err.message.includes('Firebase:')) {
         msg = err.message;
       }
       setError(msg);
@@ -161,7 +176,7 @@ export default function AdminLogin({
       const res = await fetch('/api/auth/mfa/recovery/request', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email: email.trim().toLowerCase() }),
       });
 
       const data = await res.json();

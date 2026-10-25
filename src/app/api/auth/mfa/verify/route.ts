@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
     // 2. Fetch user MFA credentials
     const { data: user, error: userError } = await supabaseAdmin
       .from('users')
-      .select('id, email, role, totp_secret, totp_enabled, totp_backup_codes, firebase_uid')
+      .select('id, email, role, totp_secret, totp_enabled, totp_backup_codes')
       .eq('id', userId)
       .maybeSingle();
 
@@ -117,10 +117,17 @@ export async function POST(request: NextRequest) {
     const now = Math.floor(Date.now() / 1000);
     const secret = new TextEncoder().encode(jwtSecret);
 
+    const { data: ident } = await supabaseAdmin
+      .from('customer_identities')
+      .select('firebase_uid')
+      .eq('customer_id', user.id)
+      .maybeSingle();
+    const firebaseUid = ident?.firebase_uid || null;
+
     const sessionToken = await new SignJWT({
       sub: user.id,
       email: user.email,
-      firebase_uid: user.firebase_uid || null,
+      firebase_uid: firebaseUid,
       mfa_verified: true,
       auth_time: now,
     })

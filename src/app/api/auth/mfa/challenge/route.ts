@@ -46,14 +46,69 @@ export async function POST(request: NextRequest) {
     });
 
     // 2. Query user profile and MFA status
-    const { data: user, error: userError } = await supabaseAdmin
-      .from('users')
-      .select('id, email, role, totp_enabled')
-      .or(`id.eq.${uid},email.eq.${email}`)
-      .maybeSingle();
+    let user: {
+      id: string;
+      email: string | null;
+      role: string;
+      totp_enabled: boolean | null;
+    } | null = null;
 
-    if (userError || !user) {
-      return NextResponse.json({ error: 'User not found in system.' }, { status: 404 });
+    // A. Match by email (case-insensitive) if provided
+    if (email) {
+      const { data: uByEmail } = await supabaseAdmin
+        .from('users')
+        .select('id, email, role, totp_enabled')
+        .ilike('email', email.trim())
+        .maybeSingle();
+
+      if (uByEmail) {
+        user = uByEmail;
+      }
+    }
+
+    // B. Match by firebase_uid via customer_identities if not resolved yet
+    if (!user && uid) {
+      const { data: identity } = await supabaseAdmin
+        .from('customer_identities')
+        .select('customer_id')
+        .eq('firebase_uid', uid)
+        .maybeSingle();
+
+      if (identity?.customer_id) {
+        const { data: uByIdentity } = await supabaseAdmin
+          .from('users')
+          .select('id, email, role, totp_enabled')
+          .eq('id', identity.customer_id)
+          .maybeSingle();
+
+        if (uByIdentity) {
+          user = uByIdentity;
+        }
+      }
+    }
+
+    // C. Match by UUID directly if uid is a valid UUID
+    const isUuid =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+        uid
+      );
+    if (!user && isUuid) {
+      const { data: uById } = await supabaseAdmin
+        .from('users')
+        .select('id, email, role, totp_enabled')
+        .eq('id', uid)
+        .maybeSingle();
+
+      if (uById) {
+        user = uById;
+      }
+    }
+
+    if (!user) {
+      return NextResponse.json(
+        { error: 'User not found in system.' },
+        { status: 404 }
+      );
     }
 
     // 3. Check if user is staff/admin
