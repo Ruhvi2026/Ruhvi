@@ -22,19 +22,24 @@ import {
  * Mints the __session cookie for middleware and applies the Supabase JWT
  * so the browser client can read RLS-protected data.
  */
-export async function upsertUserProfile(user: User): Promise<string | null> {
+export async function upsertUserProfile(
+  user: User,
+  options?: { skipSessionCookie?: boolean }
+): Promise<string | null> {
   try {
     const idToken = await user.getIdToken(true);
 
     // 1. Mint the signed __session cookie for middleware/server-side auth
-    try {
-      await fetch('/api/auth/session', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ idToken }),
-      });
-    } catch (e) {
-      console.error('Failed to mint session cookie:', e);
+    if (!options?.skipSessionCookie) {
+      try {
+        await fetch('/api/auth/session', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ idToken }),
+        });
+      } catch (e) {
+        console.error('Failed to mint session cookie:', e);
+      }
     }
 
     // 2. Resolve Supabase identity and apply the custom JWT to the browser client
@@ -102,7 +107,9 @@ export function handleAuthCollision(error: any): never {
 
 function getValidAuth() {
   if (!auth) {
-    throw new Error('Firebase Auth is not initialized. Please ensure NEXT_PUBLIC_FIREBASE_API_KEY is configured.');
+    throw new Error(
+      'Firebase Auth is not initialized. Please ensure NEXT_PUBLIC_FIREBASE_API_KEY is configured.'
+    );
   }
   return auth;
 }
@@ -197,7 +204,8 @@ export async function verifyPhoneCode(
 
 export async function linkGoogleToSession() {
   const authInstance = getValidAuth();
-  if (!authInstance.currentUser) throw new Error('No user is currently signed in.');
+  if (!authInstance.currentUser)
+    throw new Error('No user is currently signed in.');
   const provider = new GoogleAuthProvider();
   const res = await linkWithPopup(authInstance.currentUser, provider);
   await upsertUserProfile(res.user);
@@ -206,7 +214,8 @@ export async function linkGoogleToSession() {
 
 export async function linkFacebookToSession() {
   const authInstance = getValidAuth();
-  if (!authInstance.currentUser) throw new Error('No user is currently signed in.');
+  if (!authInstance.currentUser)
+    throw new Error('No user is currently signed in.');
   const provider = new FacebookAuthProvider();
   const res = await linkWithPopup(authInstance.currentUser, provider);
   await upsertUserProfile(res.user);
@@ -215,7 +224,8 @@ export async function linkFacebookToSession() {
 
 export async function linkEmailPasswordToSession(email: string, pass: string) {
   const authInstance = getValidAuth();
-  if (!authInstance.currentUser) throw new Error('No user is currently signed in.');
+  if (!authInstance.currentUser)
+    throw new Error('No user is currently signed in.');
   const credential = EmailAuthProvider.credential(email, pass);
   const res = await linkWithCredential(authInstance.currentUser, credential);
   await upsertUserProfile(res.user);
@@ -227,7 +237,8 @@ export async function linkPhoneToSession(
   containerId: string
 ) {
   const authInstance = getValidAuth();
-  if (!authInstance.currentUser) throw new Error('No user is currently signed in.');
+  if (!authInstance.currentUser)
+    throw new Error('No user is currently signed in.');
   const verifier = setupRecaptcha(containerId);
 
   // Start linking phone number

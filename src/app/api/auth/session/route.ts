@@ -91,12 +91,40 @@ export async function POST(request: NextRequest) {
     const now = Math.floor(Date.now() / 1000);
     const secret = new TextEncoder().encode(jwtSecret);
 
-    // Mint a signed session JWT using SUPABASE_JWT_SECRET
-    const sessionToken = await new SignJWT({
+    // Preserve mfa_verified if the user already has a valid active session with MFA
+    let wasMfaVerified = false;
+    const existingCookie = request.cookies.get('__session')?.value;
+    if (existingCookie) {
+      try {
+        const { payload: prevPayload } = await jwtVerify(
+          existingCookie,
+          secret,
+          {
+            algorithms: ['HS256'],
+          }
+        );
+        if (
+          prevPayload.sub === supabaseUserId &&
+          (prevPayload as any).mfa_verified === true
+        ) {
+          wasMfaVerified = true;
+        }
+      } catch {
+        // Expired or invalid previous session
+      }
+    }
+
+    const sessionPayload: Record<string, any> = {
       sub: supabaseUserId,
       email,
       firebase_uid: uid,
-    })
+    };
+    if (wasMfaVerified) {
+      sessionPayload.mfa_verified = true;
+    }
+
+    // Mint a signed session JWT using SUPABASE_JWT_SECRET
+    const sessionToken = await new SignJWT(sessionPayload)
       .setProtectedHeader({ alg: 'HS256' })
       .setIssuedAt(now)
       .setExpirationTime(now + expiresInSeconds)
@@ -104,6 +132,9 @@ export async function POST(request: NextRequest) {
 
     const response = NextResponse.json({ status: 'success' }, { status: 200 });
     const isProduction = process.env.NODE_ENV === 'production';
+    const host = request.headers.get('host') || '';
+    const isRuhviDomain = host.endsWith('ruhvi.in');
+
     response.cookies.set({
       name: '__session',
       value: sessionToken,
@@ -112,7 +143,7 @@ export async function POST(request: NextRequest) {
       secure: isProduction,
       path: '/',
       sameSite: 'lax',
-      ...(isProduction ? { domain: '.ruhvi.in' } : {}),
+      ...(isProduction && isRuhviDomain ? { domain: '.ruhvi.in' } : {}),
     });
 
     return response;

@@ -224,7 +224,8 @@ export async function middleware(request: NextRequest) {
       }
       const uid = decodedToken.sub;
       const email = decodedToken.email as string | undefined;
-      const mfaVerified = (decodedToken as any).mfa_verified as boolean | undefined;
+      const mfaVerified = (decodedToken as any).mfa_verified as
+        boolean | undefined;
 
       if (!uid) {
         const loginUrl = new URL('/login', request.url);
@@ -252,7 +253,9 @@ export async function middleware(request: NextRequest) {
         // Cache miss: fetch user role, department and allowed portals directly from public.users
         const { data: profile } = await supabase
           .from('users')
-          .select('role, account_status, allowed_portals, department, totp_enabled')
+          .select(
+            'role, account_status, allowed_portals, department, totp_enabled'
+          )
           .eq('id', uid)
           .maybeSingle();
 
@@ -276,7 +279,7 @@ export async function middleware(request: NextRequest) {
       if (needsRbacCookieSet && accountStatus === 'active') {
         const rbacToken = await signRbacProfile(userProfile);
         if (rbacToken) {
-          const isProduction = process.env.NODE_ENV === 'production';
+          const isRuhviDomain = hostname.endsWith('ruhvi.in');
           supabaseResponse.cookies.set({
             name: RBAC_COOKIE_NAME,
             value: rbacToken,
@@ -285,7 +288,7 @@ export async function middleware(request: NextRequest) {
             secure: isProduction,
             path: '/',
             sameSite: 'lax',
-            ...(isProduction ? { domain: '.ruhvi.in' } : {}),
+            ...(isProduction && isRuhviDomain ? { domain: '.ruhvi.in' } : {}),
           });
         }
       }

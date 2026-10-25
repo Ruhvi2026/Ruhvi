@@ -146,6 +146,9 @@ export async function POST(request: NextRequest) {
       backupCodes: isAdmin ? plaintextCodes : [],
     });
 
+    const host = request.headers.get('host') || '';
+    const isRuhviDomain = host.endsWith('ruhvi.in');
+
     response.cookies.set({
       name: '__session',
       value: sessionToken,
@@ -154,7 +157,7 @@ export async function POST(request: NextRequest) {
       secure: isProduction,
       path: '/',
       sameSite: 'lax',
-      ...(isProduction ? { domain: '.ruhvi.in' } : {}),
+      ...(isProduction && isRuhviDomain ? { domain: '.ruhvi.in' } : {}),
     });
 
     return response;

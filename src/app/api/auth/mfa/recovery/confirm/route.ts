@@ -41,7 +41,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (payload.purpose !== 'mfa_emergency_recovery' || !payload.sub || !payload.email) {
+    if (
+      payload.purpose !== 'mfa_emergency_recovery' ||
+      !payload.sub ||
+      !payload.email
+    ) {
       return NextResponse.json(
         { error: 'Invalid recovery token purpose.' },
         { status: 400 }
@@ -65,7 +69,10 @@ export async function POST(request: NextRequest) {
 
     const fbData = await fbRes.json();
     if (!fbRes.ok) {
-      console.warn('[MFA Recovery] Password mismatch during recovery:', fbData?.error?.message);
+      console.warn(
+        '[MFA Recovery] Password mismatch during recovery:',
+        fbData?.error?.message
+      );
       return NextResponse.json(
         {
           error:
@@ -108,7 +115,10 @@ export async function POST(request: NextRequest) {
         details: {
           email: userEmail,
           timestamp: new Date().toISOString(),
-          ip: request.headers.get('x-forwarded-for') || request.headers.get('cf-connecting-ip') || 'unknown',
+          ip:
+            request.headers.get('x-forwarded-for') ||
+            request.headers.get('cf-connecting-ip') ||
+            'unknown',
         },
       });
     } catch (auditErr) {
@@ -143,6 +153,9 @@ export async function POST(request: NextRequest) {
       { status: 200 }
     );
 
+    const host = request.headers.get('host') || '';
+    const isRuhviDomain = host.endsWith('ruhvi.in');
+
     response.cookies.set({
       name: '__session',
       value: sessionToken,
@@ -151,7 +164,7 @@ export async function POST(request: NextRequest) {
       secure: isProduction,
       path: '/',
       sameSite: 'lax',
-      ...(isProduction ? { domain: '.ruhvi.in' } : {}),
+      ...(isProduction && isRuhviDomain ? { domain: '.ruhvi.in' } : {}),
     });
 
     return response;

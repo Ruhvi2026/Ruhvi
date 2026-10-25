@@ -180,9 +180,9 @@ export default function AdminLogin({
         throw new Error(verifyData.error || 'Verification code failed.');
       }
 
-      // Sync user profile to Supabase client
+      // Sync user profile to Supabase client without overwriting MFA session cookie
       if (auth.currentUser) {
-        await upsertUserProfile(auth.currentUser);
+        await upsertUserProfile(auth.currentUser, { skipSessionCookie: true });
       }
 
       router.refresh();
@@ -220,9 +220,9 @@ export default function AdminLogin({
         throw new Error(data.error || 'Failed to activate 2FA.');
       }
 
-      // Sync user profile to Supabase client
+      // Sync user profile to Supabase client without overwriting MFA session cookie
       if (auth.currentUser) {
-        await upsertUserProfile(auth.currentUser);
+        await upsertUserProfile(auth.currentUser, { skipSessionCookie: true });
       }
 
       // If user is Admin and has backup codes, show the backup codes screen
