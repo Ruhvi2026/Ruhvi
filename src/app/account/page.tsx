@@ -274,12 +274,29 @@ export default function AccountOverviewPage() {
     try {
       const supabase = createClient();
 
+      // Check if phone number is being changed and is already linked to another account
+      const trimmedPhone = phone.trim();
+      if (trimmedPhone && trimmedPhone !== (profile?.phone || '')) {
+        const { data: existingUsers, error: checkErr } = await supabase
+          .from('users')
+          .select('id')
+          .eq('phone', trimmedPhone)
+          .neq('id', user.id)
+          .limit(1);
+
+        if (!checkErr && existingUsers && existingUsers.length > 0) {
+          throw new Error(
+            'This phone number is already linked to another Ruhvi account. Please use a different one or contact support.'
+          );
+        }
+      }
+
       // 1. Update public.users table
       const { error: dbError } = await supabase
         .from('users')
         .update({
           full_name: fullName,
-          phone: phone,
+          phone: trimmedPhone || null,
           updated_at: new Date().toISOString(),
         })
         .eq('id', user.id);
@@ -1060,7 +1077,9 @@ export default function AccountOverviewPage() {
                 : 'Unlock ₹0 express delivery, 20% cashback & ₹500 birthday gift'}
             </p>
             <div className="mt-4 flex items-center space-x-1 text-xs font-bold text-amber-300">
-              <span>{isVip ? 'Manage Privé Status' : 'Get Privé Membership'}</span>
+              <span>
+                {isVip ? 'Manage Privé Status' : 'Get Privé Membership'}
+              </span>
               <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
             </div>
           </Link>
@@ -1326,8 +1345,10 @@ export default function AccountOverviewPage() {
                   <div className="flex items-start gap-2">
                     <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0 text-amber-700" />
                     <p>
-                      <strong>Birthday Verification:</strong> Once
-                      confirmed, your date of birth is securely registered for your annual ₹500 Ruhvi Privé gift credit and cannot be modified online to prevent abuse.
+                      <strong>Birthday Verification:</strong> Once confirmed,
+                      your date of birth is securely registered for your annual
+                      ₹500 Ruhvi Privé gift credit and cannot be modified online
+                      to prevent abuse.
                     </p>
                   </div>
                 </div>

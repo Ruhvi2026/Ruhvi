@@ -83,18 +83,28 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: true });
     }
 
-    // Look up firebase_uid from customer_identities if available
+    // Look up firebase_uid from customer_identities prioritizing password/email providers
     let targetUid = userProfile.id;
     try {
-      const { data: identity } = await supabase
+      // First try to find identity specifically registered with password or email provider
+      const { data: identities } = await supabase
         .from('customer_identities')
-        .select('firebase_uid')
-        .eq('customer_id', userProfile.id)
-        .limit(1)
-        .maybeSingle();
+        .select('firebase_uid, provider, provider_identifier')
+        .eq('customer_id', userProfile.id);
 
-      if (identity?.firebase_uid) {
-        targetUid = identity.firebase_uid;
+      if (identities && identities.length > 0) {
+        // Prioritize: 1) provider = 'password' 2) matching email identifier 3) any other
+        const preferred =
+          identities.find(
+            (id: any) =>
+              id.provider === 'password' ||
+              (id.provider_identifier &&
+                id.provider_identifier.toLowerCase() === normalizedEmail)
+          ) || identities[0];
+
+        if (preferred?.firebase_uid) {
+          targetUid = preferred.firebase_uid;
+        }
       }
     } catch {
       // ignore and use userProfile.id

@@ -118,7 +118,7 @@ export async function POST(request: NextRequest) {
       console.warn('[reset-password] Redis check skipped:', redisErr);
     }
 
-    const uid = payload.uid as string;
+    let uid = payload.uid as string;
     const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
     const rawPrivateKey = process.env.FIREBASE_PRIVATE_KEY;
     const apiKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
@@ -128,6 +128,23 @@ export async function POST(request: NextRequest) {
         { error: 'Firebase credentials misconfigured.' },
         { status: 500 }
       );
+    }
+
+    // Double-check UID via Firebase Auth getUserByEmail to ensure password updates on the exact email account
+    if (payload.email) {
+      try {
+        const { getAdminAuth } = await import('@/lib/firebase-admin');
+        const adminAuth = getAdminAuth();
+        const firebaseUser = await adminAuth.getUserByEmail(payload.email);
+        if (firebaseUser?.uid) {
+          uid = firebaseUser.uid;
+        }
+      } catch (lookupErr) {
+        console.warn(
+          '[reset-password] Firebase getUserByEmail lookup fallback to token UID:',
+          lookupErr
+        );
+      }
     }
 
     // 3. Generate a custom Firebase token to act on behalf of the user
