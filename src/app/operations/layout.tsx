@@ -38,6 +38,7 @@ import {
   QrCode,
   Printer,
 } from 'lucide-react';
+import MfaSetupModal from '@/components/auth/MfaSetupModal';
 import { PortalThemeProvider } from '@/context/PortalThemeContext';
 import { ThemeToggle } from '@/components/portal/ThemeToggle';
 import dynamic from 'next/dynamic';
@@ -389,6 +390,7 @@ function OperationsSidebarContent({
   userRoleDisplay,
   userEmail,
   signOut,
+  onOpenMfaModal,
 }: {
   collapsed: boolean;
   onToggleCollapsed: () => void;
@@ -397,6 +399,7 @@ function OperationsSidebarContent({
   userRoleDisplay: string;
   userEmail: string;
   signOut: () => Promise<void>;
+  onOpenMfaModal: () => void;
 }) {
   return (
     <div className="flex h-full flex-col">
@@ -448,6 +451,14 @@ function OperationsSidebarContent({
 
       <div className="flex-shrink-0 space-y-1 border-t border-slate-200 p-2 dark:border-white/5">
         <button
+          onClick={onOpenMfaModal}
+          className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-xs text-slate-500 transition-colors hover:bg-emerald-500/10 hover:text-emerald-600 dark:hover:text-emerald-400"
+          title="Two-Factor Authentication (2FA)"
+        >
+          <ShieldCheck className="h-4 w-4 flex-shrink-0 text-emerald-500" />
+          {!collapsed && <span>Security & 2FA</span>}
+        </button>
+        <button
           onClick={signOut}
           className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-xs text-slate-500 transition-colors hover:bg-rose-500/5 hover:text-rose-500 dark:hover:text-rose-400"
         >
@@ -481,6 +492,7 @@ export default function OperationsLayout({
 }) {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [showMfaModal, setShowMfaModal] = useState(false);
   const { user, profile, signOut } = useAuth();
   const { unreadCount } = useDepartmentNotifications('operations');
 
@@ -551,6 +563,7 @@ export default function OperationsLayout({
             userRoleDisplay={userRoleDisplay}
             userEmail={profile?.email || ''}
             signOut={signOut}
+            onOpenMfaModal={() => setShowMfaModal(true)}
           />
         </aside>
 
@@ -575,6 +588,7 @@ export default function OperationsLayout({
                 userRoleDisplay={userRoleDisplay}
                 userEmail={profile?.email || ''}
                 signOut={signOut}
+                onOpenMfaModal={() => setShowMfaModal(true)}
               />
             </aside>
           </div>
@@ -606,6 +620,12 @@ export default function OperationsLayout({
 
       {/* Floating Staff Messenger Drawer / Popup Window */}
       <FloatingStaffMessenger />
+
+      {/* 2FA Setup Modal */}
+      <MfaSetupModal
+        isOpen={showMfaModal}
+        onClose={() => setShowMfaModal(false)}
+      />
     </PortalThemeProvider>
   );
 }
