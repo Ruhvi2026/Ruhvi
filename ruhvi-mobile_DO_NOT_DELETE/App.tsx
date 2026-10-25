@@ -130,7 +130,9 @@ export default function App() {
         <Stack.Screen 
           name="CoFounderChat" 
           component={CoFounderChatScreen} 
-          options={{ title: 'Ruhvi AI Co-Founder' }} 
+          options={({ route }: any) => ({
+            title: route.params?.name || (route.params?.isCoFounder ? 'Ruhvi AI Co-Founder' : 'AI Worker'),
+          })} 
         />
       </Stack.Navigator>
     </NavigationContainer>

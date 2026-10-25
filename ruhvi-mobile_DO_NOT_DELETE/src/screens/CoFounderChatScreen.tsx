@@ -52,12 +52,22 @@ export default function CoFounderChatScreen({ navigation, route }: any) {
   // Resolve initial persona from params or default to orders
   const initialPersona: AIWorkerPersona =
     routeParams.department && AI_WORKER_PERSONAS[routeParams.department]
-      ? AI_WORKER_PERSONAS[routeParams.department]
+      ? {
+          ...AI_WORKER_PERSONAS[routeParams.department],
+          ...(routeParams.name ? { name: routeParams.name } : {}),
+          ...(routeParams.roleTitle ? { roleTitle: routeParams.roleTitle } : {}),
+          ...(routeParams.avatarEmoji ? { avatarEmoji: routeParams.avatarEmoji } : {}),
+          ...(routeParams.welcomeMessage ? { welcomeMessage: routeParams.welcomeMessage } : {}),
+        }
       : routeParams.isCoFounder
         ? AI_WORKER_PERSONAS.founder
         : AI_WORKER_PERSONAS.orders;
 
   const [activePersona, setActivePersona] = useState<AIWorkerPersona>(initialPersona);
+  const workerDisplayName =
+    activePersona.department === 'founder'
+      ? 'Co-Founder'
+      : (activePersona.name || 'AI Worker');
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: 'welcome',
@@ -205,8 +215,8 @@ export default function CoFounderChatScreen({ navigation, route }: any) {
         let currentPersona = initialPersona;
         if (!routeParams.department && routeParams.isCoFounder === undefined) {
           currentPersona = resolveAIWorkerForUser(cachedRole, cachedDept);
-          setActivePersona(currentPersona);
         }
+        setActivePersona(currentPersona);
 
         if (uid) {
           const storageKey = currentPersona.department === 'founder'
@@ -234,7 +244,7 @@ export default function CoFounderChatScreen({ navigation, route }: any) {
       }
     };
     loadSession();
-  }, []);
+  }, [routeParams.department, routeParams.isCoFounder, routeParams.name]);
 
   // Poll for proactive alerts on mount and every 45s (if co-founder)
   useEffect(() => {
@@ -569,7 +579,7 @@ export default function CoFounderChatScreen({ navigation, route }: any) {
               <View style={styles.typingContainer}>
                 <View style={[styles.bubble, styles.aiBubble, styles.typingBubble]}>
                   <ActivityIndicator size="small" color="#075E54" style={{ marginRight: 8 }} />
-                  <Text style={styles.typingText}>Co-Founder is executing...</Text>
+                  <Text style={styles.typingText}>{workerDisplayName} is executing...</Text>
                 </View>
               </View>
             ) : null
@@ -580,7 +590,7 @@ export default function CoFounderChatScreen({ navigation, route }: any) {
         {attachedImage && (
           <View style={styles.imagePreviewBar}>
             <Image source={{ uri: attachedImage.uri }} style={styles.imageThumbnail} />
-            <Text style={styles.imageLabel}>Image attached for Co-Founder</Text>
+            <Text style={styles.imageLabel}>Image attached for {workerDisplayName}</Text>
             <TouchableOpacity
               onPress={() => setAttachedImage(null)}
               style={styles.removeImageBtn}
@@ -602,7 +612,7 @@ export default function CoFounderChatScreen({ navigation, route }: any) {
 
           <TextInput
             style={styles.inputField}
-            placeholder="Ask Co-Founder or give instructions..."
+            placeholder={`Ask ${workerDisplayName} or give instructions...`}
             placeholderTextColor="#8696A0"
             value={inputText}
             onChangeText={setInputText}
