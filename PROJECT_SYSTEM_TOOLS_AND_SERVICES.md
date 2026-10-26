@@ -207,7 +207,7 @@ Authoritative architectural record of the department-specific AI Co-Workers, cro
 | **Orders & Logistics** | `Orders AI Worker` (`worker_orders_logistics`) | `get_order_pipeline_status`, `get_delivery_failed_and_rto_orders`, `get_courier_sla_delays`, `get_return_requests_and_reasons`, `get_order_call_remarks`, `add_order_call_remark` | **Strict Financial & PII Secrecy**: Gross sales, revenue values, profit margins, and GMV are strictly excluded from tool registry. Customer phone numbers masked (`+91 98301 ••••82`). | `src/lib/ai/co-founder/workers/worker-13-orders-logistics.ts`, `src/app/api/internal-chat/ai-worker/route.ts` |
 | **Customer Support** | `Support AI Worker` | `get_support_tickets`, `get_order_call_remarks`, `add_order_call_remark`, `get_return_requests_and_reasons`, `update_support_ticket_status` | **Strict Financial Secrecy**: No financial turnover access. Empathetic customer triage and dispute resolution only. | `src/app/api/internal-chat/ai-worker/route.ts`, `src/components/chat/FloatingStaffMessenger.tsx` |
 | **Operations & Inventory** | `Operations AI Worker` | `get_inventory_levels`, `get_days_of_inventory`, `get_restock_recommendations`, `get_products`, `get_categories` | **Draft Only Rule**: Can recommend restock quantities; adjustments must be confirmed inside Operations Portal. Financial GMV excluded. | `src/app/api/internal-chat/ai-worker/route.ts` |
-| **Marketing** | `Marketing AI Worker` | `get_products`, `get_categories`, `get_blog_posts`, `create_blog_post`, `get_offers`, `create_offer`, `audit_catalog_seo_health`, `generate_product_studio_photos` | **Draft Only Rule**: AI drafts blog posts, offers, and generates promo assets. Staff review and publish live from Marketing portal. Financial GMV excluded. | `src/app/api/internal-chat/ai-worker/route.ts` |
+| **Marketing** | `Marketing AI Worker` | `get_products`, `get_categories`, `get_blog_posts`, `create_blog_post`, `get_offers`, `create_offer`, `audit_catalog_seo_health`, `generate_product_studio_photos`, `scan_reddit_social_sentiment` | **Draft Only Rule**: AI drafts blog posts, offers, and generates promo assets. Staff review and publish live from Marketing portal. Financial GMV excluded. | `src/app/api/internal-chat/ai-worker/route.ts` |
 | **Technology** | `Tech AI Worker` | `get_system_health`, `get_sentry_errors`, `get_api_logs`, `check_api_endpoint`, `get_db_connection_pool_stats` | **Infrastructure Only**: Diagnostic tools, Sentry 500 error traces, latency monitoring. Production DB mutations blocked. | `src/app/api/internal-chat/ai-worker/route.ts` |
 | **Founder / Executive** | `AI Co-Founder` | Full executive suite (`getHolisticBusinessContext`, `getRevenueMetrics`, `getProfitMargins`, `getExecutiveSignals`, competitive intelligence) | **Admin Only**: Exclusively accessible by Super Admin / Founder. Never accessible to department staff. | `src/lib/ai/co-founder/brain.ts`, `src/app/api/admin/co-founder/chat/route.ts` |
 
@@ -247,3 +247,20 @@ Comprehensive architectural specification of internal portal authentication secu
 | :--- | :--- | :--- | :--- | :--- |
 | **System Administrators** (`super_admin`, `admin`, `subhasdas1996@gmail.com`) | Mandatory | **8 Single-Use Codes** (Hashed with SHA-256 in DB, consumed atomically). | **Enabled** (Dispatches signed single-use link strictly locked to master email). | Self-service using 8 backup recovery codes or master emergency recovery email. |
 | **Staff & Department Operators** (`staff`, `manager`, `operations`, etc.) | Mandatory upon first login | **Disabled** (No backup codes generated or displayed; redirects directly to portal). | **Forbidden** (API returns `403 Forbidden` with admin contact prompt). | Contact System Administrator. Admin clicks **"Reset 2FA"** inside Admin User Management (`/admin/users`), invoking `resetUserMfa` Server Action and logging to `audit_logs`. |
+
+---
+## 11. Social & Community Sentiment Intelligence Engine (Reddit Worker Engine)
+
+Authoritative architectural record of the real-time social listening and competitor sentiment pipeline powering Ruhvi's internal AI Workers:
+
+### A. Engine Architecture & Zero-Auth Footprint
+- **Native Implementation**: [`src/lib/ai/social/reddit.ts`](file:///c:/Users/INDIA/Desktop/Project%20Ruhvi/src/lib/ai/social/reddit.ts).
+- **Zero-Credential / Anti-Ban Architecture**: Utilizes public Subreddit XML/Atom feed endpoints (`/r/IndianFashionAddicts.rss`, `/r/Jewelry.rss`, `/r/indiasocial.rss`). Does not require Reddit developer credentials, OAuth tokens, API app keys, or browser session cookies.
+- **In-Memory TTL Cache**: 5-minute in-memory caching (`CACHE_TTL_MS = 5 * 60 * 1000`) prevents repeated network requests and strictly respects Reddit's public endpoint limits.
+- **Fail-Safe Resilience**: Returns gracefully structured empty or fallback datasets on any network failure or DNS disconnect without throwing or blocking worker execution.
+
+### B. Worker Access Matrix & Capabilities
+- **Worker 5 (`Competitor Research Worker`)**: Detects competitor grievances across D2C brands (Giva, Palmonas, Mia by Tanishq, Shaya) including tarnishing complaints, fading gold plating, and customer service delays. Auto-synthesizes these into Ruhvi competitive advantages (e.g., our 18K gold anti-tarnish warranty and authentic 925 sterling silver hallmarking).
+- **Worker 2 / Marketing AI Worker (`scan_reddit_social_sentiment`)**: Scans trending jewelry topics, price point conversations (₹1,000–₹3,000 everyday wear), and gifting recommendations to generate high-converting blog posts and marketing angles.
+- **AI Co-Founder Brain (`scan_reddit_social_sentiment`)**: Available to executive queries for real-time customer sentiment validation on pricing and market trends.
+

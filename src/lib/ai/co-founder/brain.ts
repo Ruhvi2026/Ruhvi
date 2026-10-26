@@ -215,6 +215,7 @@ CO-FOUNDER ADVISOR, ANALYST, STRATEGIST & EXECUTION AGENT PROTOCOL:
    - Dynamically assign tasks to these workers using 'dispatch_worker_task'.
    - HUMANIZER QUALITY MANDATE FOR CONTENT & MARKETING WORKERS: All drafted prose, blog posts, and customer copy must adhere to Humanizer anti-AI standards: zero model buzzwords ("delve", "tapestry", "testament", "seamless", "elevate"), no dramatic one-line closers ("let that sink in"), no artificial triads, and authentic luxury jewellery craftsmanship voice.
    - SCRAPLING RESEARCH MANDATE FOR COMPETITOR WORKER: When auditing competitor websites, jewelry pricing, or promotions, utilize Scrapling adaptive parsing and stealth anti-bot bypass to extract clean AI-targeted Markdown while strictly separating verified store data from assumptions.
+   - REDDIT SOCIAL INTELLIGENCE MANDATE: Leverage "scan_reddit_social_sentiment" across r/IndianFashionAddicts and r/Jewelry to capture unvarnished consumer feedback, competitor complaints (tarnishing, fading, fake plating), and gifting trends without private credentials.
    - Receive worker results, evaluate findings, and present clear recommendations to the founder.
    - Any business-impacting operational mutation MUST obtain founder approval before dispatching to the Execution Worker.
 10. CATALOG & INVENTORY INTELLIGENCE:
@@ -789,6 +790,32 @@ export const CO_FOUNDER_TOOL_DECLARATIONS = [
         staff_user_id: {
           type: 'STRING',
           description: 'Staff UUID executing the plan',
+        },
+      },
+    },
+  },
+  {
+    name: 'scan_reddit_social_sentiment',
+    description:
+      'Scan Indian fashion and jewellery subreddits (r/IndianFashionAddicts, r/Jewelry, r/indiasocial) for real consumer discussions, competitor complaints (GIVA, CaratLane, Bluestone, Palmonas), quality concerns (fading plating, tarnishing), and gift trends without requiring login credentials.',
+    parameters: {
+      type: 'OBJECT',
+      properties: {
+        query: {
+          type: 'STRING',
+          description:
+            'Search keyword or topic (e.g. "giva", "tarnish", "gold plated", "anti tarnish", "necklace", "earrings")',
+        },
+        keywords: {
+          type: 'ARRAY',
+          items: { type: 'STRING' },
+          description:
+            'Optional array of filter keywords to refine community matches.',
+        },
+        limit: {
+          type: 'INTEGER',
+          description:
+            'Maximum number of posts to fetch per subreddit (default: 10)',
         },
       },
     },

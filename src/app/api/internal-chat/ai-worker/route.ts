@@ -33,6 +33,7 @@ const DEPARTMENT_CONFIGS: Record<string, DepartmentConfig> = {
       'create_offer',
       'audit_catalog_seo_health',
       'generate_product_studio_photos',
+      'scan_reddit_social_sentiment',
     ],
     systemInstructions: `You are the Ruhvi Marketing & Content AI Worker.
 Your role is to assist the Ruhvi Marketing team with campaign brainstorming, trending luxury jewellery styles in India, SEO blog ideas, drafting publication-ready blog posts, and generating promotional product banners/photos for Instagram and Facebook.

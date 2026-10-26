@@ -9,13 +9,13 @@ describe('Marketing Co-Worker 2: Creative Media Co-Worker', () => {
     creative = new CreativeMediaCoWorker();
   });
 
-  it('declares identity, enabled status, and all 35 skills', () => {
+  it('declares identity, enabled status, and all 40 skills', () => {
     expect(creative.id).toBe('marketing_creative_media');
     expect(creative.name).toBe('Creative Media Co-worker');
 
     const def = creative.getDefinition();
     expect(def.status).toBe('ENABLED');
-    expect(def.skills.length).toBe(35);
+    expect(def.skills.length).toBe(40);
     expect(def.skills).toContain(
       'Two-video continuity planning'.toLowerCase()
         ? 'Video continuity planning'

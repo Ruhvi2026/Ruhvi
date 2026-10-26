@@ -1163,6 +1163,39 @@ async function executeCoFounderToolInternal(
         };
       }
 
+      case 'scan_reddit_social_sentiment': {
+        const {
+          searchRedditJewelleryDiscussions,
+          analyzeRedditJewellerySentiment,
+        } = await import('@/lib/ai/social/reddit');
+        const keywords =
+          Array.isArray(args.keywords) && args.keywords.length > 0
+            ? args.keywords
+            : [
+                args.query || 'jewellery',
+                'anti-tarnish',
+                'gold',
+                'giva',
+                'tarnish',
+              ];
+        const posts = await searchRedditJewelleryDiscussions(keywords, {
+          limitPerSubreddit: args.limit || 10,
+        });
+        const report = analyzeRedditJewellerySentiment(posts);
+        const topPainPoints = report.consumerPainPoints.slice(0, 2).join('; ');
+        const voiceSummary =
+          posts.length > 0
+            ? `Scanned ${report.analyzedPostCount} community discussions on Reddit across ${report.subredditsScanned.join(', ')}. Key consumer pain points: ${topPainPoints || 'tarnishing concerns'}.`
+            : `No recent Reddit discussions found for the specified keywords.`;
+
+        return {
+          toolName,
+          success: true,
+          data: report,
+          summaryForVoice: voiceSummary,
+        };
+      }
+
       case 'dispatch_worker_task': {
         if (!args.task) {
           throw new Error('task description is required to dispatch worker');

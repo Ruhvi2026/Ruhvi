@@ -65,7 +65,9 @@ describe('Multimodal Vision Understanding Engine (Step 8.3)', () => {
         arrayBuffer: async () => fakeBytes.buffer,
       });
 
-      const res = await downloadImageAsBase64('https://example.com/jewelry.webp');
+      const res = await downloadImageAsBase64(
+        'https://example.com/jewelry.webp'
+      );
       expect(res.mimeType).toBe('image/webp');
       expect(res.base64).toBe(Buffer.from(fakeBytes).toString('base64'));
     });
@@ -91,7 +93,9 @@ describe('Multimodal Vision Understanding Engine (Step 8.3)', () => {
     });
 
     it('handles remote image download failures gracefully', async () => {
-      global.fetch = jest.fn().mockRejectedValueOnce(new Error('Connection timed out'));
+      global.fetch = jest
+        .fn()
+        .mockRejectedValueOnce(new Error('Connection timed out'));
 
       const res = await analyzeJewelryImage({
         imageUrl: 'https://broken-cdn.com/product.jpg',
@@ -192,7 +196,8 @@ describe('Multimodal Vision Understanding Engine (Step 8.3)', () => {
       });
 
       const res = await analyzeJewelryImage({
-        imageBase64: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJ',
+        imageBase64:
+          'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJ',
         productNameHint: 'Celestial Halo Stud Earrings',
       });
 
@@ -202,11 +207,13 @@ describe('Multimodal Vision Understanding Engine (Step 8.3)', () => {
       expect(res.craftsmanshipScore).toBe(95);
       expect(res.photoQuality.sharpnessScore).toBe(98);
       expect(res.gemstones[0].settingType).toBe('halo');
-      expect(res.summaryForVoice).toBe('High quality halo earrings with score of 95.');
+      expect(res.summaryForVoice).toBe(
+        'High quality halo earrings with score of 95.'
+      );
 
       // Check Gemini API payload structure
       expect(global.fetch).toHaveBeenCalledWith(
-        expect.stringContaining('gemini-2.0-flash:generateContent'),
+        expect.stringContaining('gemini-3.8-flash:generateContent'),
         expect.objectContaining({
           method: 'POST',
           body: expect.stringContaining('"mime_type":"image/png"'),
