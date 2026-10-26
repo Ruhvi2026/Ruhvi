@@ -74,6 +74,11 @@ describe('GIA Human Conversation Skill & Sanitizer', () => {
       expect(cleanseGiaResponse(banglish)).toBe(banglish);
     });
 
+    it('should preserve text if input consists entirely of robotic boilerplate instead of returning empty', () => {
+      const pureBoilerplate = 'Thank you for reaching out to Ruhvi!';
+      expect(cleanseGiaResponse(pureBoilerplate)).toBe(pureBoilerplate);
+    });
+
     it('should handle empty or null values gracefully', () => {
       expect(cleanseGiaResponse('')).toBe('');
       expect(cleanseGiaResponse(null as any)).toBeNull();

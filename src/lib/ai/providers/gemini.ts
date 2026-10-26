@@ -18,11 +18,12 @@ export class GeminiProvider implements AIProvider {
     const ACTIVE_MODELS = [
       'gemini-3.8-flash',
       'gemini-3.5-flash-lite',
-      'gemini-3.5-flash',
       'gemini-3.1-flash-lite',
+      'gemini-3.5-flash',
+      'gemini-3.8-flash',
       'gemini-3.7-flash',
-      'gemini-flash-latest',
       'gemini-flash-lite-latest',
+      'gemini-flash-latest',
       'gemini-pro-latest',
     ];
     if (ACTIVE_MODELS.includes(modelName)) {
@@ -31,21 +32,21 @@ export class GeminiProvider implements AIProvider {
 
     // Map deprecated, removed, or decommissioned preview model names to current equivalents
     const MODEL_ALIASES: Record<string, string> = {
-      'gemini-2.5-flash': 'gemini-3.8-flash',
-      'gemini-2.5-pro': 'gemini-3.8-flash',
+      'gemini-2.5-flash': 'gemini-3.5-flash-lite',
+      'gemini-2.5-pro': 'gemini-3.5-flash',
       'gemini-2.5-flash-lite': 'gemini-3.5-flash-lite',
-      'gemini-1.5-flash': 'gemini-3.8-flash',
-      'gemini-1.5-pro': 'gemini-3.8-flash',
-      'gemini-1.5-flash-latest': 'gemini-3.8-flash',
-      'gemini-1.5-pro-latest': 'gemini-3.8-flash',
-      'gemini-2.0-flash': 'gemini-3.8-flash',
+      'gemini-1.5-flash': 'gemini-3.5-flash-lite',
+      'gemini-1.5-pro': 'gemini-3.5-flash',
+      'gemini-1.5-flash-latest': 'gemini-3.5-flash-lite',
+      'gemini-1.5-pro-latest': 'gemini-3.5-flash',
+      'gemini-2.0-flash': 'gemini-3.5-flash-lite',
       'gemini-2.0-flash-lite': 'gemini-3.5-flash-lite',
-      'gemini-2.0-flash-001': 'gemini-3.8-flash',
+      'gemini-2.0-flash-001': 'gemini-3.5-flash-lite',
       'gemini-2.0-flash-lite-001': 'gemini-3.5-flash-lite',
-      'gemini-3.6-flash': 'gemini-3.8-flash',
-      'gemini-flash-latest': 'gemini-3.8-flash',
+      'gemini-3.6-flash': 'gemini-3.5-flash',
+      'gemini-flash-latest': 'gemini-3.5-flash-lite',
       'gemini-flash-lite-latest': 'gemini-3.5-flash-lite',
-      'gemini-pro-latest': 'gemini-3.8-flash',
+      'gemini-pro-latest': 'gemini-3.5-flash',
     };
 
     return MODEL_ALIASES[modelName] || 'gemini-3.5-flash-lite';
@@ -92,6 +93,58 @@ export class GeminiProvider implements AIProvider {
         usage: { tokens, cost },
       };
     } catch (error: any) {
+      // If the primary model encounters 503 (high demand) or 404 (unavailable),
+      // retry with ultra-fast resilient models within the Gemini provider
+      const isRecoverable =
+        error.message?.includes('503') ||
+        error.message?.includes('high demand') ||
+        error.message?.includes('404') ||
+        error.message?.includes('not found') ||
+        error.message?.includes('aborted');
+
+      if (isRecoverable) {
+        const fallbacks = [
+          'gemini-3.5-flash-lite',
+          'gemini-3.1-flash-lite',
+        ].filter((m) => m !== effectiveModel);
+
+        for (const fallbackModel of fallbacks) {
+          try {
+            console.warn(
+              `[GeminiProvider] Model '${effectiveModel}' failed (${error.message}). Retrying with resilient fallback '${fallbackModel}'...`
+            );
+            const retryModel = this.genAI.getGenerativeModel({
+              model: fallbackModel,
+              generationConfig: {
+                responseMimeType: 'application/json',
+                ...(config?.temperature !== undefined && {
+                  temperature: config.temperature,
+                }),
+                ...(config?.maxTokens !== undefined && {
+                  maxOutputTokens: config.maxTokens,
+                }),
+              },
+            });
+            const retryResult = await retryModel.generateContent(prompt);
+            const retryResponse = await retryResult.response;
+            const retryText = retryResponse.text();
+            const usageMetadata = retryResponse.usageMetadata;
+            const tokens = usageMetadata?.totalTokenCount || 0;
+            const cost = tokens * 0.000000075;
+
+            return {
+              content: JSON.parse(retryText),
+              usage: { tokens, cost },
+            };
+          } catch (retryErr) {
+            console.warn(
+              `[GeminiProvider] Fallback '${fallbackModel}' also failed:`,
+              retryErr
+            );
+          }
+        }
+      }
+
       console.error('Gemini API generation failed:', error);
       throw new Error(`AI Generation failed: ${error.message}`);
     }
@@ -149,6 +202,58 @@ export class GeminiProvider implements AIProvider {
         usage: { tokens, cost },
       };
     } catch (error: any) {
+      const isRecoverable =
+        error.message?.includes('503') ||
+        error.message?.includes('high demand') ||
+        error.message?.includes('404') ||
+        error.message?.includes('not found') ||
+        error.message?.includes('aborted');
+
+      if (isRecoverable) {
+        const fallbacks = [
+          'gemini-3.5-flash-lite',
+          'gemini-3.1-flash-lite',
+        ].filter((m) => m !== effectiveModel);
+
+        for (const fallbackModel of fallbacks) {
+          try {
+            console.warn(
+              `[GeminiProvider] Tool model '${effectiveModel}' failed (${error.message}). Retrying with resilient fallback '${fallbackModel}'...`
+            );
+            const retryModel = this.genAI.getGenerativeModel({
+              model: fallbackModel,
+              tools: [{ functionDeclarations: geminiTools }],
+              generationConfig: {
+                ...(config?.temperature !== undefined && {
+                  temperature: config.temperature,
+                }),
+                ...(config?.maxTokens !== undefined && {
+                  maxOutputTokens: config.maxTokens,
+                }),
+              },
+            });
+            const retryResult = await retryModel.generateContent(prompt);
+            const retryResponse = await retryResult.response;
+            const functionCalls = retryResponse.functionCalls();
+            const text = retryResponse.text();
+            const usageMetadata = retryResponse.usageMetadata;
+            const tokens = usageMetadata?.totalTokenCount || 0;
+            const cost = tokens * 0.000000075;
+
+            return {
+              content: text,
+              toolCalls: functionCalls,
+              usage: { tokens, cost },
+            };
+          } catch (retryErr) {
+            console.warn(
+              `[GeminiProvider] Tool fallback '${fallbackModel}' also failed:`,
+              retryErr
+            );
+          }
+        }
+      }
+
       console.error('Gemini API tool generation failed:', error);
       throw new Error(`AI Tool Generation failed: ${error.message}`);
     }

@@ -24,7 +24,7 @@
  */
 
 import { createServerClient } from '@supabase/ssr';
-import { cookies } from 'next/headers';
+import { cookies, headers } from 'next/headers';
 import { verifySessionToken } from '@/lib/auth/verify-session';
 
 // ── Sub-modules ────────────────────────────────────────────────────────────
@@ -396,6 +396,21 @@ export async function generateAIContent(
     }
   } catch (e) {
     userRole = 'guest';
+  }
+
+  if (userId === 'anonymous') {
+    try {
+      const headerStore = await headers();
+      const clientIp =
+        headerStore.get('cf-connecting-ip') ||
+        headerStore.get('x-forwarded-for')?.split(',')[0].trim() ||
+        headerStore.get('x-real-ip');
+      if (clientIp) {
+        userId = `guest_${clientIp}`;
+      }
+    } catch {
+      // Keep 'anonymous'
+    }
   }
 
   try {

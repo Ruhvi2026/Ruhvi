@@ -158,10 +158,10 @@ Analyze this jewelry image and return ONLY a valid JSON object with this schema:
 Context: Product name hint: ${productName || 'None'}. Category hint: ${categoryHint || 'None'}.`;
 
   const visionModels = [
-    'gemini-3.8-flash',
     'gemini-3.5-flash',
     'gemini-3.5-flash-lite',
-    'gemini-flash-latest',
+    'gemini-3.8-flash',
+    'gemini-flash-lite-latest',
   ];
 
   for (const model of visionModels) {

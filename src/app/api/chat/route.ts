@@ -104,8 +104,15 @@ Example:
     // The chatbot uses the 'chatbot' feature key to route through the AI fallback engine
     const content = await generateAIContent('chatbot', prompt);
 
-    if (content && content.response) {
-      const sanitized = cleanseGiaResponse(content.response);
+    const candidateText =
+      content?.response ||
+      content?.reply ||
+      content?.message ||
+      content?.text ||
+      content?.answer;
+
+    if (candidateText && typeof candidateText === 'string') {
+      const sanitized = cleanseGiaResponse(candidateText);
       return NextResponse.json({ response: sanitized });
     } else {
       // Fallback if AI didn't return proper JSON structure

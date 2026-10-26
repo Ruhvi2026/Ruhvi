@@ -84,7 +84,8 @@ export function cleanseGiaResponse(text: string): string {
   // If opening cleanup resulted in lowercase start, capitalize first character
   if (cleaned.length > 0) {
     cleaned = cleaned.charAt(0).toUpperCase() + cleaned.slice(1);
+    return cleaned;
   }
 
-  return cleaned;
+  return text.trim();
 }

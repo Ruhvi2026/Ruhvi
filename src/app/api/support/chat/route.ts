@@ -861,7 +861,15 @@ async function loadChatbotConfig(supabase: any) {
     .eq('key', 'ai_prompts')
     .single();
 
-  const systemPrompt = promptsData?.value?.chatbot || DEFAULT_CHATBOT_PROMPT;
+  let systemPrompt = promptsData?.value?.chatbot || DEFAULT_CHATBOT_PROMPT;
+
+  // Guarantee GIA identity and human conversation rules are present even if DB has a legacy prompt
+  if (
+    !systemPrompt.includes('GIA, the Golden Concierge') &&
+    !systemPrompt.includes('Golden Concierge')
+  ) {
+    systemPrompt = `${GIA_SYSTEM_IDENTITY}\n\n${GIA_HUMAN_CONVERSATION_GUIDELINES}\n\n${systemPrompt}`;
+  }
 
   return { systemPrompt };
 }
@@ -1094,10 +1102,18 @@ Rules for action field (RESOLVE-FIRST ESCALATION PROTOCOL — follow in order):
     };
 
     if (content) {
-      if (content.response) {
-        aiResponse.response = cleanseGiaResponse(
-          sanitizeResponse(content.response)
-        );
+      const candidateText =
+        content.response ||
+        content.reply ||
+        content.message ||
+        content.text ||
+        content.answer;
+
+      if (candidateText && typeof candidateText === 'string') {
+        const cleaned = cleanseGiaResponse(sanitizeResponse(candidateText));
+        if (cleaned && cleaned.trim().length > 0) {
+          aiResponse.response = cleaned;
+        }
       }
       if (content.action) {
         aiResponse.action = content.action;
