@@ -14,6 +14,10 @@ import {
   CompetitorRecord,
 } from '@/lib/ai/co-founder/competitors';
 import { browseWebPageWithPlaywright } from '@/lib/ai/browser/playwright';
+import {
+  scrapeCompetitorWithScrapling,
+  ScraplingBrowseResult,
+} from '@/lib/ai/browser/scrapling';
 
 export class CompetitorResearchWorker implements AIWorkerInterface {
   readonly id: WorkerId = 'worker_competitor_research';
@@ -32,6 +36,8 @@ export class CompetitorResearchWorker implements AIWorkerInterface {
         'Research public competitor websites using real browser automation',
         'Extract live competitor headlines, promotional banners, and pricing hooks',
         'Track competitor catalog positioning, materials, and warranty promises',
+        'Execute Scrapling adaptive parsing and stealth scraping to bypass anti-bot and Cloudflare protections',
+        'Extract AI-targeted clean Markdown of competitor pricing and material claims',
         'Construct side-by-side feature and craftsmanship comparison matrices',
         'Identify market white spaces and acquisition opportunities for Ruhvi',
         'Strictly distinguish VERIFIED FACTS from INFERRED ASSUMPTIONS',
@@ -39,6 +45,8 @@ export class CompetitorResearchWorker implements AIWorkerInterface {
       requiredSkills: [
         'Competitive intelligence',
         'Web scraping & DOM analysis',
+        'Scrapling adaptive DOM tracking',
+        'Cloudflare Turnstile stealth bypass',
         'Pricing & offer benchmarking',
         'SWOT and market gap identification',
       ],
@@ -72,12 +80,14 @@ export class CompetitorResearchWorker implements AIWorkerInterface {
 
       let liveCrawlData: any = null;
 
-      // 2. If a specific URL was requested or found, perform real headless browser inspection
+      // 2. If a specific URL was requested or found, perform Scrapling stealth inspection (with Playwright fallback)
       if (targetUrl) {
         try {
-          liveCrawlData = await browseWebPageWithPlaywright({
+          liveCrawlData = await scrapeCompetitorWithScrapling({
             url: targetUrl,
             timeoutMs: 15000,
+            solveCloudflare: true,
+            aiTargeted: true,
           });
 
           verifiedInformation.push(
@@ -99,6 +109,15 @@ export class CompetitorResearchWorker implements AIWorkerInterface {
           if (liveCrawlData.detectedPricing?.length > 0) {
             verifiedInformation.push(
               `[VERIFIED] Live Extracted Price Points: ${liveCrawlData.detectedPricing.slice(0, 4).join(', ')}.`
+            );
+          }
+
+          if (
+            liveCrawlData.engine === 'scrapling_stealth' &&
+            liveCrawlData.antiBotBypassed
+          ) {
+            verifiedInformation.push(
+              `[VERIFIED] Stealth Scraping: Bypassed competitor anti-bot and Cloudflare Turnstile protection.`
             );
           }
         } catch (crawlErr: any) {

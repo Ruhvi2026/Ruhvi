@@ -37,6 +37,11 @@ export class CreativeMediaCoWorker {
         'Lighting direction',
         'Character consistency',
         'Product consistency',
+        'Product identity lock & geometry preservation',
+        'Commercial jewelry photography art direction',
+        'Multi-angle reference analysis (geometry, stone count, clasp integrity)',
+        'Ruhvi warm luxury palette & metallic reflection direction',
+        'Macro craft detail & stone setting fidelity review',
         'Environment consistency',
         'Visual style consistency',
         'Video continuity planning',
@@ -61,10 +66,7 @@ export class CreativeMediaCoWorker {
         'Creative consistency validation',
         'Ad-platform creative requirements',
       ],
-      tools: [
-        'browse_website',
-        'get_store_metrics',
-      ],
+      tools: ['browse_website', 'get_store_metrics'],
       mcpPermissions: ['mcp_tools:read', 'mcp_tools:write'],
       isProductionOnly: false,
     };
@@ -80,15 +82,20 @@ export class CreativeMediaCoWorker {
         coWorkerName: this.name,
         status: 'DISABLED',
         success: false,
-        findings: ['Creative Media Co-worker is currently disabled in configuration.'],
+        findings: [
+          'Creative Media Co-worker is currently disabled in configuration.',
+        ],
         evidence: [],
         problems: ['Cannot execute creative task on a disabled worker.'],
         opportunities: [],
-        recommendations: ['Enable marketing_creative_media via config or admin dashboard.'],
+        recommendations: [
+          'Enable marketing_creative_media via config or admin dashboard.',
+        ],
         data: {},
         requiredApproval: false,
         executionStatus: 'disabled',
-        executiveVoiceSummary: 'Creative Media co-worker is currently disabled.',
+        executiveVoiceSummary:
+          'Creative Media co-worker is currently disabled.',
         timestamp,
       };
     }
@@ -101,19 +108,23 @@ export class CreativeMediaCoWorker {
         (taskLower.includes('choker')
           ? 'Handcrafted 22K Gold-Plated Choker'
           : taskLower.includes('earring')
-          ? 'Royal Filigree 22K Gold-Plated Jhumkas'
-          : 'Ruhvi Anti-Tarnish 22K Gold-Plated Signature Necklace');
+            ? 'Royal Filigree 22K Gold-Plated Jhumkas'
+            : 'Ruhvi Anti-Tarnish 22K Gold-Plated Signature Necklace');
 
-      const isDiwali = taskLower.includes('diwali') || taskLower.includes('festive') || strategy?.campaignAngle?.includes('Festive');
-      const isWedding = taskLower.includes('wedding') || taskLower.includes('bridal');
+      const isDiwali =
+        taskLower.includes('diwali') ||
+        taskLower.includes('festive') ||
+        strategy?.campaignAngle?.includes('Festive');
+      const isWedding =
+        taskLower.includes('wedding') || taskLower.includes('bridal');
 
       const campaignTheme =
         strategy?.campaignAngle ||
         (isDiwali
           ? 'Diwali Radiance — Festive 22K Anti-Tarnish Elegance'
           : isWedding
-          ? 'Royal Bridal Demi-Fine — Heritage Bengal Craft'
-          : 'Everyday Luxury — Anti-Tarnish 22K Gold Plated Jewellery');
+            ? 'Royal Bridal Demi-Fine — Heritage Bengal Craft'
+            : 'Everyday Luxury — Anti-Tarnish 22K Gold Plated Jewellery');
 
       const targetAudience =
         strategy?.targetAudience ||
@@ -121,7 +132,8 @@ export class CreativeMediaCoWorker {
 
       // 2. Build Image Creative Direction
       const imagePrompt = {
-        artStyle: 'Warm luxury editorial chiaroscuro, cinematic jewellery macro photography, Hasselblad 100mm lens',
+        artStyle:
+          'Warm luxury editorial chiaroscuro, cinematic jewellery macro photography, Hasselblad 100mm lens',
         prompt: `High-end commercial macro photograph of ${productName} resting on a rich burgundy velvet unboxing cushion next to an Indian woman in a deep emerald raw silk blouse. Soft amber candlelight catches the mirror-polish 22K gold plating, highlighting intricate handcrafted Bengal filigree. Anti-tarnish e-coating sheen, ultra-sharp reflections, 8k resolution, Vogue India luxury editorial style.`,
         aspectRatio: '1:1 (Feed) / 9:16 (Story)',
       };
@@ -153,11 +165,14 @@ export class CreativeMediaCoWorker {
         durationSeconds: 7,
         aspectRatio: '9:16',
         visualPrompt: `Cinematic 9:16 vertical video. ${continuityInstructions.sharedCharacterDescription} Sitting at a sunlit wooden vanity table, holding ${continuityInstructions.sharedProductDescription}. She fastens the necklace clasp around her neck. The authentic 22K gold sparkles brilliantly under warm directional sunlight. She turns slightly towards the camera with a confident, radiant smile. ${continuityInstructions.sharedLighting}. Cinematic shallow depth of field, slow smooth push-in camera movement, 4K, 24fps.`,
-        cameraMovement: 'Slow steady push-in from medium close-up to necklace collarbone macro',
+        cameraMovement:
+          'Slow steady push-in from medium close-up to necklace collarbone macro',
         lightingInstruction: continuityInstructions.sharedLighting,
         characterDescription: continuityInstructions.sharedCharacterDescription,
-        productPlacement: 'Worn on neck, centered in frame, glinting under natural sunlight',
-        environmentDescription: continuityInstructions.sharedEnvironmentDescription,
+        productPlacement:
+          'Worn on neck, centered in frame, glinting under natural sunlight',
+        environmentDescription:
+          continuityInstructions.sharedEnvironmentDescription,
         negativePrompt:
           'blurry, low resolution, cheap brass look, flickering, sudden costume change, jittery camera, distorted hands',
         continuityAnchor: continuityInstructions.video1EndingAction,
@@ -169,11 +184,14 @@ export class CreativeMediaCoWorker {
         durationSeconds: 8,
         aspectRatio: '9:16',
         visualPrompt: `Cinematic 9:16 vertical video continuing directly from Clip 1. Exact match cut: ${continuityInstructions.sharedCharacterDescription} wearing ${continuityInstructions.sharedProductDescription}. She spritzes luxury perfume near her collarbone — the jewellery maintains its brilliant 22K mirror luster without fading. Cut to sleek overhead macro of the Ruhvi signature velvet unboxing box, 6-month warranty card, and Blue Dart express delivery package. ${continuityInstructions.sharedLighting}. Smooth pan down to product box, 4K, 24fps.`,
-        cameraMovement: 'Smooth eye-level tracking panning down to elegant table unboxing layout',
+        cameraMovement:
+          'Smooth eye-level tracking panning down to elegant table unboxing layout',
         lightingInstruction: continuityInstructions.sharedLighting,
         characterDescription: continuityInstructions.sharedCharacterDescription,
-        productPlacement: 'Shown on collarbone during perfume spray, then displayed in unboxing box',
-        environmentDescription: continuityInstructions.sharedEnvironmentDescription,
+        productPlacement:
+          'Shown on collarbone during perfume spray, then displayed in unboxing box',
+        environmentDescription:
+          continuityInstructions.sharedEnvironmentDescription,
         negativePrompt:
           'inconsistent face, different clothing color, tarnish stains, dull yellow paint look, noisy background',
         continuityAnchor: continuityInstructions.video2StartingAction,
@@ -220,8 +238,7 @@ export class CreativeMediaCoWorker {
           processingDispatched: false,
           finalVideoReady: false,
         },
-        executiveVoiceSummary:
-          `Creative Media ready for "${campaignTheme}". I've generated two connected Flow/Veo video prompts with matched lighting and character continuity, plus Bengali, Hindi, and English voiceover scripts. Upload controls are ready for Video 1 and Video 2 files.`,
+        executiveVoiceSummary: `Creative Media ready for "${campaignTheme}". I've generated two connected Flow/Veo video prompts with matched lighting and character continuity, plus Bengali, Hindi, and English voiceover scripts. Upload controls are ready for Video 1 and Video 2 files.`,
       };
 
       const findings = [
@@ -268,7 +285,9 @@ export class CreativeMediaCoWorker {
         evidence: [err.message],
         problems: [`Failed to generate creative media prompts: ${err.message}`],
         opportunities: [],
-        recommendations: ['Retry creative media generation with refreshed strategy context.'],
+        recommendations: [
+          'Retry creative media generation with refreshed strategy context.',
+        ],
         data: {},
         requiredApproval: false,
         executionStatus: 'failed',

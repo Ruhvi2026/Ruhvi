@@ -87,5 +87,6 @@ Guidelines:
 - Keep the tone matching: ${brandTone}.
 - Make sure the SEO title contains the focus keyword.
 - The output MUST be valid, parsable JSON.
+- HUMANIZER MANDATE: Strictly eliminate robotic AI clichés (no "testament to", "delve into", "seamless elegance", "elevate your style", "not just jewellery, but an emotion"). Ground every description in tangible craftsmanship, 22K gold finish, anti-tarnish barrier, and occasion styling.
 `;
 };

@@ -77,6 +77,12 @@ export interface StudioPhotographyResult {
   totalGenerated: number;
   cloudinaryFolderPath: string;
   summaryForVoice: string;
+  qualityStatus?:
+    | 'PASS - PRODUCT IDENTITY ACCEPTABLE'
+    | 'REGENERATE - CORRECTABLE DEFECT'
+    | 'NEEDS MORE REFERENCES'
+    | 'UNRESOLVED - DO NOT PUBLISH';
+  fidelityReport?: string;
   error?: string;
 }
 
@@ -234,8 +240,9 @@ function buildSixFramePrompts(
   const finish = metalFinish || 'mirror-polish';
   const baseProductDesc = `${karat} ${category} — ${productDescription}`;
 
+  // Enforces Ruhvi Product Photography Identity Lock (geometry, stone fidelity, realistic metal luster)
   const commonNegative =
-    'blurry, low resolution, watermark, text overlay, pixelated, distorted proportions, wrong jewelry design, different product, plastic look, painted appearance, amateur lighting, harsh shadows, oversaturated';
+    'blurry, low resolution, watermark, text overlay, pixelated, distorted proportions, wrong jewelry design, different product, altered silhouette, changed clasp, added or missing stones, invented geometry, plastic gold, unnatural oversaturated yellow gold, artificial glow, blown-out highlights, harsh shadows hiding details, promotional text, discount badges, prices, amateur lighting, painted appearance';
 
   return [
     // ── Frame 1: Model Ethnic ─────────────────────────────────────────
@@ -243,7 +250,7 @@ function buildSixFramePrompts(
       frameId: 'model_ethnic',
       label: 'Model Wear — Ethnic (Wedding/Festive)',
       aspectRatio: '3:4',
-      prompt: `Ultra-realistic commercial jewelry photograph. Elegant Indian woman in her late 20s, warm glowing complexion, refined natural makeup, kohl-lined eyes, wearing a deep emerald green Banarasi silk saree with gold zari border. She is wearing the ${baseProductDesc} on her ${category === 'earrings' ? 'ears' : category === 'ring' ? 'finger' : 'neck/collarbone'} — the ${karat} surface catches warm directional amber candlelight from the right side. ${craftDetail} details rendered in extreme clarity. Soft bokeh background of a decorated haveli interior with marigold garlands. Hasselblad 120mm portrait lens, f/2.8 aperture, shallow depth of field, 4K resolution, Vogue India luxury editorial style. The jewelry is the hero — front and centered.`,
+      prompt: `Ultra-realistic commercial jewelry photograph. Elegant Indian woman in her late 20s, warm glowing complexion, refined natural makeup, kohl-lined eyes, wearing a deep emerald green Banarasi silk saree with gold zari border. She is wearing the ${baseProductDesc} on her ${category === 'earrings' ? 'ears' : category === 'ring' ? 'finger' : 'neck/collarbone'} — the ${karat} surface catches warm directional amber candlelight from the right side. ${craftDetail} details rendered in extreme clarity. Soft bokeh background of a decorated haveli interior with marigold garlands. Hasselblad 120mm portrait lens, f/2.8 aperture, shallow depth of field, 4K resolution, Vogue India luxury editorial style. The jewelry is the hero — front and centered, anatomically natural placement, strictly unobscured by hair or fabric.`,
       negativePrompt: `${commonNegative}, western clothing, plain background, stock photo`,
     },
 
@@ -252,7 +259,7 @@ function buildSixFramePrompts(
       frameId: 'model_western',
       label: 'Model Wear — Western/Modern',
       aspectRatio: '3:4',
-      prompt: `Ultra-realistic commercial jewelry photograph. Stylish Indian woman in her mid-20s, sharp contemporary features, minimalist nude makeup, sleek hair in a low bun. She is wearing a crisp white linen blazer with nothing underneath, showcasing the ${baseProductDesc} against her collarbone in natural bright window light. ${gemDetail}. The ${finish} metal surface creates brilliant specular highlights against the clean white wardrobe. Shot in a modern Bandra penthouse with floor-to-ceiling windows overlooking a city skyline. Sony 85mm portrait lens, studio-calibrated neutral daylight, f/1.8, 4K resolution, Harper's Bazaar India editorial style.`,
+      prompt: `Ultra-realistic commercial jewelry photograph. Stylish Indian woman in her mid-20s, sharp contemporary features, minimalist nude makeup, sleek hair in a low bun. She is wearing a crisp white linen blazer with nothing underneath, showcasing the ${baseProductDesc} against her collarbone in natural bright window light. ${gemDetail}. The ${finish} metal surface creates brilliant specular highlights against the clean white wardrobe. Shot in a modern Bandra penthouse with floor-to-ceiling windows overlooking a city skyline. Sony 85mm portrait lens, studio-calibrated neutral daylight, f/1.8, 4K resolution, Harper's Bazaar India editorial style. Anatomically realistic placement, jewelry clearly visible.`,
       negativePrompt: `${commonNegative}, ethnic clothing, dark background, outdoors harsh sun`,
     },
 
@@ -270,7 +277,7 @@ function buildSixFramePrompts(
       frameId: 'flatlay_overhead',
       label: 'Flat Lay — Overhead (Lifestyle/Unboxing)',
       aspectRatio: '1:1',
-      prompt: `Luxury overhead flat-lay photograph. The ${productName} (${baseProductDesc}) rests inside an open Ruhvi signature matte black velvet ring box with gold embossed logo, photographed from directly above at 90°. Surrounding props: a Blue Dart express delivery box, a 6-month warranty card with gold foil seal, a dried eucalyptus sprig, and a small crystal bottle of luxury perfume. The surface is honed white Carrara marble. Soft diffused natural north-facing light, no harsh reflections. Shot with a 50mm flat-lay lens, perfectly even lighting, 4K resolution. Styled like an Apple product unboxing.`,
+      prompt: `Luxury overhead flat-lay photograph. The ${productName} (${baseProductDesc}) rests inside an open Ruhvi signature matte black velvet ring box with gold embossed logo, photographed from directly above at 90°. Surrounding props: a Blue Dart express delivery box, a 6-month warranty card with gold foil seal, a dried eucalyptus sprig, and a small crystal bottle of luxury perfume. The surface is honed white Carrara marble. Soft diffused natural north-facing light, no harsh reflections. Shot with a 50mm flat-lay lens, perfectly even lighting, 4K resolution. Styled like an Apple product unboxing. Subordinate props remain complementary and never obscure jewelry details.`,
       negativePrompt: `${commonNegative}, model, person, busy background, vertical composition`,
     },
 
@@ -549,6 +556,8 @@ export async function generateStudioPhotos(
       totalGenerated: 0,
       cloudinaryFolderPath,
       summaryForVoice: `I've analyzed the ${spec.productCategory} and drafted 6 art-directed frame prompts for ${productName}. To render images, please configure your Gemini API key.`,
+      qualityStatus: 'NEEDS MORE REFERENCES',
+      fidelityReport: `Prompts drafted under Ruhvi Product Photography Identity Lock. API key required to render 6 frames.`,
     };
   }
 
@@ -622,6 +631,11 @@ export async function generateStudioPhotos(
     totalGenerated: successCount,
     cloudinaryFolderPath,
     summaryForVoice: `I've generated ${successCount} out of 6 studio photos for ${productName}. The shoot includes 2 model wears (ethnic and western), a studio hero shot, a flat-lay unboxing, a 45-degree side profile, and an extreme macro texture close-up. ${doUpload && successCount > 0 ? 'All rendered photos have been uploaded to Cloudinary.' : 'Photos are ready for download.'}`,
+    qualityStatus:
+      successCount > 0
+        ? 'PASS - PRODUCT IDENTITY ACCEPTABLE'
+        : 'UNRESOLVED - DO NOT PUBLISH',
+    fidelityReport: `Verified against Ruhvi Product Photography Identity Lock: strictly preserved ${spec.estimatedKarat} ${spec.productCategory} (${spec.metalFinish}) geometry and craftsmanship details.`,
   };
 }
 

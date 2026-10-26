@@ -9,6 +9,10 @@ import {
   WorkerTaskInput,
 } from './types';
 import { RUHVI_BUSINESS_KNOWLEDGE } from '@/lib/ai/knowledge';
+import {
+  cleanseRoboticAIisms,
+  auditProseAgainstAITells,
+} from '@/lib/ai/humanizer';
 
 export interface GeneratedBlogArticle {
   title: string;
@@ -42,12 +46,14 @@ export class ContentBlogWorker implements AIWorkerInterface {
         'Embed contextual internal links to Ruhvi collections and best-selling SKUs',
         'Generate photorealistic image prompts for blog hero banners',
         'Review existing content readability and recommend editorial improvements',
+        'Enforce Humanizer quality mandate: strip out robotic AI tropes, banned buzzwords, staged openers, and artificial triads',
       ],
       requiredSkills: [
         'Luxury editorial copywriting',
         'SEO content strategy',
         'On-page keyword structuring',
         'Jewellery craft storytelling',
+        'Humanizer prose refinement & anti-AI cleanup',
       ],
       requiredTools: [
         'get_products',
@@ -85,8 +91,7 @@ export class ContentBlogWorker implements AIWorkerInterface {
         .replace(/(^-|-$)/g, '');
 
       const metaTitle = `${topic.slice(0, 52)} | Ruhvi Luxury`;
-      const metaDescription =
-        `Discover expert care tips and styling secrets for 22K gold-plated anti-tarnish jewellery. Handcrafted luxury backed by Ruhvi's 6-month color guarantee.`;
+      const metaDescription = `Discover expert care tips and styling secrets for 22K gold-plated anti-tarnish jewellery. Handcrafted luxury backed by Ruhvi's 6-month color guarantee.`;
 
       const markdownContent = `
 # ${topic}
@@ -143,10 +148,22 @@ Our anti-tarnish e-coating protects against water exposure and humidity. However
 All orders are packaged in tamper-evident velvet gift boxes and dispatched via **Blue Dart Express Air Transit**, arriving within 2–4 business days across India with complimentary shipping.
 `.trim();
 
+      const cleanedMarkdown = cleanseRoboticAIisms(markdownContent);
+      const editorialAudit = auditProseAgainstAITells(cleanedMarkdown);
+
       const internalLinks = [
-        { anchor: 'Royal Bengal Choker', targetUrl: '/products/royal-bengal-choker' },
-        { anchor: 'Filigree Bangles', targetUrl: '/products/filigree-bangle-set' },
-        { anchor: 'Anti-Tarnish Collection', targetUrl: '/collections/anti-tarnish' },
+        {
+          anchor: 'Royal Bengal Choker',
+          targetUrl: '/products/royal-bengal-choker',
+        },
+        {
+          anchor: 'Filigree Bangles',
+          targetUrl: '/products/filigree-bangle-set',
+        },
+        {
+          anchor: 'Anti-Tarnish Collection',
+          targetUrl: '/collections/anti-tarnish',
+        },
       ];
 
       const featuredImagePrompt =
@@ -156,10 +173,12 @@ All orders are packaged in tamper-evident velvet gift boxes and dispatched via *
         `Generated 1,200-word comprehensive SEO blog article on "${topic}".`,
         `Integrated target search phrase "${targetKeyword}" with optimal density (1.4%).`,
         `Structured with H1, H2, H3 headings, FAQ schema, and 3 high-intent internal product links.`,
+        `Humanizer Audit: ${editorialAudit.score}/100 editorial score (${editorialAudit.warnings.length === 0 ? 'Zero robotic AI tells detected' : 'Flagged: ' + editorialAudit.warnings.join(', ')}).`,
       ];
 
       const evidence: string[] = [
         `Article adheres strictly to Ruhvi brand foundation: ${RUHVI_BUSINESS_KNOWLEDGE.brand.tagline}, 22K gold plating, and Blue Dart shipping transit.`,
+        `Enforced Humanizer anti-AI writing rules: eliminated staged openers, forced triads, and banned model buzzwords.`,
       ];
 
       const opportunities: string[] = [
@@ -197,7 +216,7 @@ All orders are packaged in tamper-evident velvet gift boxes and dispatched via *
         targetKeyword,
         featuredImagePrompt,
         readingTimeMinutes: 5,
-        markdownContent,
+        markdownContent: cleanedMarkdown,
         internalLinks,
       };
 

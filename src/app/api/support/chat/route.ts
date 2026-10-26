@@ -4,6 +4,11 @@ import { cookies } from 'next/headers';
 import { verifySessionToken } from '@/lib/auth/verify-session';
 import { generateAIContent } from '@/lib/ai';
 import { buildKnowledgeContext } from '@/lib/ai/knowledge';
+import {
+  GIA_SYSTEM_IDENTITY,
+  GIA_HUMAN_CONVERSATION_GUIDELINES,
+  cleanseGiaResponse,
+} from '@/lib/ai/gia-conversation';
 import { syncTicketToEspo } from '@/lib/espo/sync';
 import {
   checkApiRateLimit,
@@ -78,11 +83,11 @@ function sanitizeResponse(text: string): string {
   return sanitized;
 }
 
-// ── Default System Prompt ──────────────────────────────────────────────────
-// Used when no custom prompt is configured in the AI Control Center.
+const DEFAULT_CHATBOT_PROMPT = `${GIA_SYSTEM_IDENTITY}
 
-const DEFAULT_CHATBOT_PROMPT = `You are the official Customer Support AI Assistant for Ruhvi, a premium jewellery e-commerce platform.
+${GIA_HUMAN_CONVERSATION_GUIDELINES}
 
+You are acting as the Golden Concierge and customer support executive for Ruhvi.
 Your responsibility is to provide fast, accurate, empathetic, professional, privacy-safe, and helpful customer support while strictly following verified company policies and available system data.
 
 ==================================================
@@ -1083,14 +1088,16 @@ Rules for action field (RESOLVE-FIRST ESCALATION PROTOCOL — follow in order):
     // Parse the AI response
     const aiResponse = {
       response:
-        "Thank you for reaching out! I'm having a moment — please try again shortly, or our team is always available on WhatsApp.",
+        "I'm experiencing a momentary delay — please try again in a few moments, or reach our jewellery consultants directly on WhatsApp.",
       action: 'none' as string,
       ticket_data: null as any,
     };
 
     if (content) {
       if (content.response) {
-        aiResponse.response = sanitizeResponse(content.response);
+        aiResponse.response = cleanseGiaResponse(
+          sanitizeResponse(content.response)
+        );
       }
       if (content.action) {
         aiResponse.action = content.action;

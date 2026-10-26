@@ -36,6 +36,7 @@ export class MarketingWorker implements AIWorkerInterface {
         'Natural-language dynamic routing across Strategy, Creative Media, and Ads Execution co-workers',
         'Campaign ideation tailored to seasonal jewellery moments (Diwali, Weddings, Karwa Chauth)',
         'Detailed visual image creative prompts and artistic direction',
+        'Ruhvi product photography identity lock: strict geometry, stone count, and metal finish preservation',
         'Two-video continuous Flow/Veo prompt generation with character and lighting persistence',
         'Multilingual voiceover scripting (Bengali, Hindi, English) with TTS formatting',
         'Cloudinary media asset orchestration and n8n FFmpeg webhook pipeline management',
@@ -48,6 +49,7 @@ export class MarketingWorker implements AIWorkerInterface {
         'Marketing co-worker orchestration',
         'Luxury jewellery copywriting',
         'Visual art direction',
+        'Ruhvi product photography identity lock & art direction',
         'Two-video continuity planning',
         'Multilingual voiceover scripting',
         'Meta Ads campaign management',
@@ -75,8 +77,10 @@ export class MarketingWorker implements AIWorkerInterface {
         channel: input.channel,
         timeframe: input.timeframe,
         parameters: input.parameters,
-        productName: input.parameters?.product_name || input.parameters?.productName,
-        targetAudience: input.parameters?.target_audience || input.parameters?.targetAudience,
+        productName:
+          input.parameters?.product_name || input.parameters?.productName,
+        targetAudience:
+          input.parameters?.target_audience || input.parameters?.targetAudience,
         budget: input.parameters?.budget,
       };
 
@@ -91,8 +95,11 @@ export class MarketingWorker implements AIWorkerInterface {
       const recommendations: string[] = [];
 
       let requiredApproval = false;
-      let requiredAction = 'Deploy ad copy to Meta Ads Manager and schedule creative asset creation';
-      let executionStatus: 'not_required' | 'pending_approval' | 'executed' | 'disabled' = 'not_required';
+      let requiredAction =
+        'Deploy ad copy to Meta Ads Manager and schedule creative asset creation';
+      let executionStatus:
+        'not_required' | 'pending_approval' | 'executed' | 'disabled' =
+        'not_required';
       let voiceSummary = '';
 
       // 2. Execute Co-Worker Pipeline sequentially, propagating context
@@ -109,8 +116,10 @@ export class MarketingWorker implements AIWorkerInterface {
         if (coWorkerOutput.findings) findings.push(...coWorkerOutput.findings);
         if (coWorkerOutput.evidence) evidence.push(...coWorkerOutput.evidence);
         if (coWorkerOutput.problems) problems.push(...coWorkerOutput.problems);
-        if (coWorkerOutput.opportunities) opportunities.push(...coWorkerOutput.opportunities);
-        if (coWorkerOutput.recommendations) recommendations.push(...coWorkerOutput.recommendations);
+        if (coWorkerOutput.opportunities)
+          opportunities.push(...coWorkerOutput.opportunities);
+        if (coWorkerOutput.recommendations)
+          recommendations.push(...coWorkerOutput.recommendations);
 
         if (coWorkerOutput.data?.strategy) {
           strategyResult = coWorkerOutput.data.strategy;
@@ -136,7 +145,10 @@ export class MarketingWorker implements AIWorkerInterface {
 
       // If no strategy or creative was run (e.g. direct copy request), execute strategy as fallback
       if (!strategyResult && plan.pipeline.length === 0) {
-        const stratOutput = await executeCoWorkerById('marketing_strategy', coWorkerInput);
+        const stratOutput = await executeCoWorkerById(
+          'marketing_strategy',
+          coWorkerInput
+        );
         strategyResult = stratOutput.data?.strategy;
       }
 
@@ -166,13 +178,18 @@ export class MarketingWorker implements AIWorkerInterface {
       };
 
       const videoStoryboard = {
-        concept: creativeResult?.twoVideoFlow.video1Prompt.title || 'The All-Day Wear Test (15-second Reel)',
+        concept:
+          creativeResult?.twoVideoFlow.video1Prompt.title ||
+          'The All-Day Wear Test (15-second Reel)',
         pacing: 'Fast, vibrant, aspirational',
         scenes: [
           {
             seconds: '0-3s',
             visual:
-              creativeResult?.twoVideoFlow.video1Prompt.visualPrompt.substring(0, 80) ||
+              creativeResult?.twoVideoFlow.video1Prompt.visualPrompt.substring(
+                0,
+                80
+              ) ||
               'Close up of morning coffee, woman putting on Ruhvi pendant necklace.',
             audioVo:
               creativeResult?.voiceover.english.script.substring(0, 60) ||
@@ -181,21 +198,26 @@ export class MarketingWorker implements AIWorkerInterface {
           {
             seconds: '3-9s',
             visual:
-              creativeResult?.twoVideoFlow.continuityInstructions.video2StartingAction ||
+              creativeResult?.twoVideoFlow.continuityInstructions
+                .video2StartingAction ||
               'Cut to workout/office/dinner party. Pendant shines flawlessly under different lighting.',
-            audioVo: '22K gold plating. Anti-tarnish e-coating. Built for every single day.',
+            audioVo:
+              '22K gold plating. Anti-tarnish e-coating. Built for every single day.',
           },
           {
             seconds: '9-15s',
-            visual: 'Luxury Ruhvi unboxing box on velvet, 6-month warranty card, shop now button.',
-            audioVo: 'Discover authentic craftsmanship. Express delivery across India at ruhvi.in.',
+            visual:
+              'Luxury Ruhvi unboxing box on velvet, 6-month warranty card, shop now button.',
+            audioVo:
+              'Discover authentic craftsmanship. Express delivery across India at ruhvi.in.',
           },
         ],
       };
 
       const creativeBrief = {
         campaignTheme:
-          strategyResult?.campaignAngle || 'Timeless Radiance — Anti-Tarnish Demi-Fine Elegance',
+          strategyResult?.campaignAngle ||
+          'Timeless Radiance — Anti-Tarnish Demi-Fine Elegance',
         targetAudience:
           strategyResult?.targetAudience ||
           'Modern Indian women (22-40), young professionals, festive/wedding shoppers looking for daily luxury without premium solid-gold markup.',
@@ -226,7 +248,8 @@ export class MarketingWorker implements AIWorkerInterface {
         executionStatus = 'pending_approval';
         requiredAction = 'Create and activate promotional coupon code RUHVI500';
         if (!voiceSummary.includes('Awaiting your approval')) {
-          voiceSummary += ' Awaiting your approval before activating any discount codes.';
+          voiceSummary +=
+            ' Awaiting your approval before activating any discount codes.';
         }
       }
 
@@ -258,7 +281,10 @@ export class MarketingWorker implements AIWorkerInterface {
           orchestrationPipeline: plan.pipeline,
           metricsBaseline: {
             aov: strategyResult?.budgetRecommendation.suggestedDailyBudgetInr
-              ? Math.round(strategyResult.budgetRecommendation.suggestedDailyBudgetInr / 0.8)
+              ? Math.round(
+                  strategyResult.budgetRecommendation.suggestedDailyBudgetInr /
+                    0.8
+                )
               : 3500,
           },
         },
@@ -274,7 +300,9 @@ export class MarketingWorker implements AIWorkerInterface {
         evidence: [err.message],
         problems: [`Failed to run marketing worker: ${err.message}`],
         opportunities: [],
-        recommendations: ['Check marketing co-worker configuration and model availability.'],
+        recommendations: [
+          'Check marketing co-worker configuration and model availability.',
+        ],
         priority: 'high',
         expectedImpact: 'Ensure campaign planning continuity',
         requiredAction: 'Resolve marketing tool error',

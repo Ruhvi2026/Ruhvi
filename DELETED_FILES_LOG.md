@@ -1,6 +1,49 @@
 # Deletion Log (অপ্রয়োজনীয় ফাইল ক্লিনআপ লগ)
 
-**Timestamp:** 2026-10-25 (Local Time: 15:13:00 IST)
+**Timestamp:** 2026-10-26 (Local Time: 02:35:00 IST)
+
+### Recovery Reference (রিকভারির জন্য গিট কমিট তথ্য)
+- **Commit Hash:** `d207999f3a8c2dd52aae5fa9d5c9ed8ef5b1f8af`
+- **Author:** Ruhvi2026 <ruhvi.main@gmail.com>
+- **Date:** Sun Oct 25 19:12:58 2026 +0530
+- **Message:** `fix(middleware): restore missing isProduction variable in RBAC cookie scope`
+
+### Archived Files (সংরক্ষিত জরুরি ফাইল)
+- `RUHCHAT_DEPARTMENT_AI_IMPLEMENTATION_PLAN.md` (18,887 Bytes)
+  - **Archived To:** `docs/archived-reports/RUHCHAT_DEPARTMENT_AI_IMPLEMENTATION_PLAN.md`
+  - **Reason:** Completed implementation specifications and prompt engineering for RuhChat departmental AI co-workers. Moved to archived reports to keep the root directory clean while preserving full technical context.
+
+### Deleted Files & Directories List (মুছে ফেলা ফাইল ও ফোল্ডার)
+1. **One-Off / Executed Scripts (`scripts/`):**
+   - `scripts/create-admin.mjs` (4,437 Bytes) — One-time setup script to create Supabase master admin (`ruhvi.main@gmail.com`). Account exists.
+   - `scripts/create-admin-public.mjs` (1,232 Bytes) — One-time admin setup test script with plaintext secrets.
+   - `scripts/add_statuses.mjs` (1,160 Bytes) — One-time seed script to upsert `Accepted` and `Updated` task statuses. Already applied to DB.
+   - `scripts/create_test_ticket.ts` (2,240 Bytes) — Test script for dummy support ticket generation.
+   - `scripts/generate_favicons.js` (2,341 Bytes) & `scripts/generate_favicons.ps1` (2,054 Bytes) — Favicon generator referencing temporary chat image. All favicons exist in `public/`.
+   - `scripts/test-login.mjs` (659 Bytes) — One-line console login tester.
+   - `scripts/test-jwt.mjs` (10,071 Bytes) — Security audit test suite for JWT minting/verification. Audit completed successfully.
+
+2. **Redundant Copies & External Git Clone:**
+   - `SKILL.md` (11,309 Bytes) — Redundant root copy of `ruhvi-product-photography`. Canonical active copy is tracked at `.agents/skills/ruhvi-product-photography/SKILL.md`.
+   - `ai-ui-ux-motion-engine/` (Directory) — Cloned external git repository. Canonical active skill is tracked at `.agents/skills/ai-ui-ux-motion-engine/SKILL.md`.
+
+3. **Build & Webpack Cache Artifacts (~121 MB freed):**
+   - `tsconfig.tsbuildinfo` (748,718 Bytes ~ 748 KB) — TypeScript build cache; automatically regenerates on `tsc`.
+   - `.next/cache/webpack/client-production/index.pack.old` (31,454,284 Bytes ~ 31.4 MB) — Obsolete webpack pack cache.
+   - `.next/cache/webpack/edge-server-production/index.pack.old` (7,127,158 Bytes ~ 7.1 MB) — Obsolete webpack pack cache.
+   - `.next/cache/webpack/server-production/index.pack.old` (81,668,272 Bytes ~ 81.6 MB) — Obsolete webpack pack cache.
+
+### Preserved Operational Scripts & Protected Files (অক্ষত রাখা হয়েছে)
+- `task-scheduler.mjs` (Active cloud VM cron running every 15 minutes)
+- `scripts/meta-interactive-login.mjs` (Meta Ads headless/headed browser OAuth helper)
+- `scripts/encrypt-credentials.ts` (Active utility for encrypting AI provider API keys)
+- `PROJECT_ARCHITECTURE_DOCS.md` & `PROJECT_SYSTEM_TOOLS_AND_SERVICES.md` (Protected master docs)
+- `RUHVI_A_TO_Z_PROJECT_GUIDE.md` (Master knowledge base)
+- `.kilo/` (Agent manager worktrees)
+
+---
+
+**Prior Timestamp:** 2026-10-25 (Local Time: 15:13:00 IST)
 - **Deleted Files:**
   - `tasks/plan.md` (Temporary 2FA implementation plan draft)
   - `tasks/todo.md` (Temporary 2FA checklist)

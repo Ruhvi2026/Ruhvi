@@ -106,11 +106,16 @@
 4. **code-simplification**: Code refactoring for readability, maintainability, and complexity reduction without altering behavior.
 5. **debugging-and-error-recovery**: Systematic root-cause debugging workflows for broken builds, runtime errors, and test failures.
 6. **frontend-ui-engineering**: Production-grade, accessible (WCAG compliant), responsive UI building and design system implementation.
-7. **performance-optimization**: Cross-stack performance optimization (Core Web Vitals, N+1 DB queries, JS payload reductions).
-8. **planning-and-task-breakdown**: Structured task breakdown, scope estimation, and ordering for complex feature implementations.
-9. **playwright**: End-to-End (E2E) test suite authoring, execution, and browser automation debugging for Project Ruhvi.
-10. **security-and-hardening**: Code hardening against OWASP vulnerabilities, safe input handling, auth security, and dependency auditing.
-11. **understand (Knowledge Graph Suite)**: Codebase comprehension and knowledge graph suite consisting of 9 dedicated sub-skills:
+7. **gia-human-conversation**: Humanized customer support and jewellery shopping conversations for GIA (Golden Concierge) across English, Bengali, Banglish, and Hindi without robotic framing.
+8. **hallmark**: Anti-slop frontend and visual design principles to produce bespoke, high-craft web UI aesthetics.
+9. **humanizer**: Editorial engine and AI text sanitizer that detects and removes synthetic filler, robotic cadence, and superficial fluff.
+10. **performance-optimization**: Cross-stack performance optimization (Core Web Vitals, N+1 DB queries, JS payload reductions).
+11. **planning-and-task-breakdown**: Structured task breakdown, scope estimation, and ordering for complex feature implementations.
+12. **playwright**: End-to-End (E2E) test suite authoring, execution, and browser automation debugging for Project Ruhvi.
+13. **ruhvi-product-photography**: Luxury jewelry commercial product photography generation protocol strictly preserving exact product design, stone settings, and metal geometry.
+14. **scrapling-official**: Adaptive web crawling and intelligence scraping with HTTP, stealth browser rendering, and dynamic page parsing for Worker 5 (Competitor AI).
+15. **security-and-hardening**: Code hardening against OWASP vulnerabilities, safe input handling, auth security, and dependency auditing.
+16. **understand (Knowledge Graph Suite)**: Codebase comprehension and knowledge graph suite consisting of 9 dedicated sub-skills:
     - `understand-chat`: Direct Q&A on codebase structure using graph metadata.
     - `understand-dashboard`: Interactive web visualizer for system architecture.
     - `understand-diff`: Git diff and pull request dependency analysis.
