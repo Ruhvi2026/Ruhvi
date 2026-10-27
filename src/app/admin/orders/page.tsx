@@ -7,6 +7,7 @@ import {
   Search,
   RefreshCw,
   ChevronDown,
+  ExternalLink,
   Filter,
   Download,
   Eye,
@@ -18,7 +19,6 @@ import {
   RotateCcw,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
-import { OrdersMetricsSparklineGrid } from '@/components/portal/MetricSparklineCard';
 
 type OrderStatus =
   | 'all'
@@ -46,32 +46,32 @@ const STATUS_CONFIG: Record<
   pending: {
     label: 'Pending',
     icon: Clock,
-    cls: 'bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/30',
+    cls: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
   },
   confirmed: {
     label: 'Confirmed',
     icon: AlertCircle,
-    cls: 'bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/30',
+    cls: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
   },
   shipped: {
     label: 'Shipped',
     icon: Truck,
-    cls: 'bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-500/30',
+    cls: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
   },
   delivered: {
     label: 'Delivered',
     icon: CheckCircle,
-    cls: 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/30',
+    cls: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
   },
   cancelled: {
     label: 'Cancelled',
     icon: XCircle,
-    cls: 'bg-rose-500/10 text-rose-700 dark:text-rose-400 border-rose-500/30',
+    cls: 'bg-rose-500/10 text-rose-400 border-rose-500/20',
   },
   returned: {
     label: 'Returned',
     icon: RotateCcw,
-    cls: 'bg-slate-500/10 text-slate-700 dark:text-slate-400 border-slate-500/30',
+    cls: 'bg-slate-500/10 text-slate-400 border-slate-500/20',
   },
 };
 
@@ -118,7 +118,7 @@ export default function AdminOrdersPage() {
         .order('created_at', { ascending: false });
       if (error) throw error;
       setOrders((data as any) || []);
-    } catch {
+    } catch (err: any) {
       setError('Failed to load orders.');
     } finally {
       setLoading(false);
@@ -210,201 +210,148 @@ export default function AdminOrdersPage() {
   };
 
   return (
-    <div className="mx-auto max-w-7xl space-y-6">
-      {/* 1. Header & Quick Actions */}
-      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+    <div className="mx-auto max-w-7xl space-y-5">
+      {/* Header */}
+      <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
         <div>
-          <div className="flex items-center gap-2.5">
-            <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white sm:text-3xl">
-              Orders Management
-            </h1>
-            <span className="rounded-full border border-emerald-500/25 bg-emerald-500/10 px-2.5 py-0.5 text-xs font-bold text-emerald-700 dark:text-emerald-400">
-              Live
-            </span>
-          </div>
-          <p className="mt-1 text-xs font-medium text-slate-500 dark:text-slate-400">
-            Real-time multi-channel fulfillment tracking & dispatch portal
+          <h1 className="text-xl font-bold text-white">Orders</h1>
+          <p className="mt-0.5 text-xs text-slate-500">
+            {orders.length} total orders
           </p>
         </div>
-
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2">
           <button
             onClick={fetchOrders}
-            className="portal-floating-glass flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-semibold text-slate-700 shadow-sm transition-all hover:bg-slate-100 hover:text-slate-900 dark:text-slate-200 dark:hover:bg-white/10 dark:hover:text-white"
-            title="Refresh Orders Data"
+            className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-slate-300 transition-colors hover:bg-white/10"
           >
             <RefreshCw
-              className={`h-3.5 w-3.5 text-slate-500 transition-transform dark:text-slate-400 ${
-                loading ? 'animate-spin' : ''
-              }`}
+              className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`}
             />
-            <span>Refresh</span>
+            Refresh
           </button>
           <button
             onClick={exportCsv}
-            className="flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-xs font-bold text-white shadow-md shadow-emerald-600/20 transition-all hover:scale-[1.02] hover:bg-emerald-500 active:scale-[0.98]"
-            title="Export Filtered Orders as CSV"
+            className="flex items-center gap-2 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-emerald-500"
           >
             <Download className="h-3.5 w-3.5" />
-            <span>Export CSV</span>
+            Export CSV
           </button>
         </div>
       </div>
 
       {error && (
-        <div className="rounded-2xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm font-medium text-rose-700 backdrop-blur-md dark:text-rose-400">
+        <div className="rounded-xl border border-rose-500/20 bg-rose-500/10 px-4 py-3 text-sm text-rose-400">
           {error}
         </div>
       )}
 
-      {/* 2. In-Card Sparkline KPI Metrics Grid (Phase 2 Component) */}
-      <OrdersMetricsSparklineGrid orders={orders} loading={loading} />
+      {/* Status Tabs */}
+      <div className="flex items-center gap-1 overflow-x-auto pb-1">
+        {ALL_STATUSES.map((s) => (
+          <button
+            key={s}
+            onClick={() => setActiveStatus(s)}
+            className={`flex items-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-medium transition-all ${
+              activeStatus === s
+                ? 'border border-emerald-500/20 bg-emerald-500/10 text-emerald-400'
+                : 'text-slate-500 hover:bg-white/5 hover:text-slate-300'
+            }`}
+          >
+            {s === 'all' ? 'All Orders' : (STATUS_CONFIG[s]?.label ?? s)}
+            <span
+              className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold ${
+                activeStatus === s ? 'bg-emerald-500/20' : 'bg-white/5'
+              }`}
+            >
+              {countByStatus[s] ?? 0}
+            </span>
+          </button>
+        ))}
+      </div>
 
-      {/* 3. Floating Glass Filter & Search Toolbar */}
-      <div className="space-y-4">
-        {/* Status Tabs Bar */}
-        <div className="portal-floating-glass flex items-center gap-1.5 overflow-x-auto rounded-2xl p-1.5 shadow-sm">
-          {ALL_STATUSES.map((s) => {
-            const isActive = activeStatus === s;
-            const label =
-              s === 'all' ? 'All Orders' : (STATUS_CONFIG[s]?.label ?? s);
-            const count = countByStatus[s] ?? 0;
-
-            return (
-              <button
-                key={s}
-                onClick={() => setActiveStatus(s)}
-                className={`flex items-center gap-2 whitespace-nowrap rounded-xl px-3.5 py-2 text-xs font-semibold transition-all ${
-                  isActive
-                    ? 'border border-emerald-500/30 bg-emerald-500/15 text-emerald-800 shadow-sm dark:text-emerald-300'
-                    : 'text-slate-600 hover:bg-slate-200/50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-white/5 dark:hover:text-white'
-                }`}
-              >
-                <span>{label}</span>
-                <span
-                  className={`rounded-full px-2 py-0.5 text-[10px] font-bold transition-colors ${
-                    isActive
-                      ? 'bg-emerald-500/25 text-emerald-900 dark:text-emerald-200'
-                      : 'bg-slate-200/80 text-slate-600 dark:bg-white/10 dark:text-slate-400'
-                  }`}
-                >
-                  {count}
-                </span>
-              </button>
-            );
-          })}
+      {/* Filters */}
+      <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center">
+        <div className="relative max-w-sm flex-1">
+          <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-500" />
+          <input
+            type="text"
+            placeholder="Search by order ID, customer name, phone..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full rounded-xl border border-white/10 bg-white/5 py-2 pl-9 pr-4 text-xs text-slate-300 placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+          />
         </div>
-
-        {/* Search & Payment Filter Controls */}
-        <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="relative max-w-md flex-1">
-            <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 dark:text-slate-500" />
-            <input
-              type="text"
-              placeholder="Search by order ID, customer name, phone..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="portal-inset-control w-full rounded-xl py-2.5 pl-10 pr-4 text-xs font-medium placeholder-slate-400 transition-all focus:outline-none focus:ring-2 focus:ring-emerald-500/40 dark:placeholder-slate-500"
-            />
-          </div>
-
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-2 rounded-xl border border-slate-200/80 bg-white/60 px-3 py-1 shadow-sm backdrop-blur-md dark:border-white/10 dark:bg-white/5">
-              <Filter className="h-3.5 w-3.5 text-slate-500 dark:text-slate-400" />
-              <select
-                value={paymentFilter}
-                onChange={(e) => setPaymentFilter(e.target.value as any)}
-                aria-label="Filter orders by payment method"
-                className="cursor-pointer bg-transparent py-1.5 text-xs font-semibold text-slate-700 focus:outline-none dark:text-slate-200"
-              >
-                <option
-                  value="all"
-                  className="bg-white text-slate-900 dark:bg-[#1a1d2e] dark:text-white"
-                >
-                  All Payments
-                </option>
-                <option
-                  value="phonepe"
-                  className="bg-white text-slate-900 dark:bg-[#1a1d2e] dark:text-white"
-                >
-                  PhonePe
-                </option>
-                <option
-                  value="cod"
-                  className="bg-white text-slate-900 dark:bg-[#1a1d2e] dark:text-white"
-                >
-                  Cash on Delivery (COD)
-                </option>
-              </select>
-            </div>
-          </div>
+        <div className="flex items-center gap-2">
+          <Filter className="h-3.5 w-3.5 text-slate-500" />
+          <select
+            value={paymentFilter}
+            onChange={(e) => setPaymentFilter(e.target.value as any)}
+            className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs text-slate-300 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+          >
+            <option value="all">All Payments</option>
+            <option value="phonepe">PhonePe</option>
+            <option value="cod">Cash on Delivery</option>
+          </select>
         </div>
       </div>
 
-      {/* 4. High-Contrast Floating Glass Orders Table */}
-      <div className="portal-floating-glass overflow-hidden rounded-2xl shadow-xl transition-all">
+      {/* Orders Table */}
+      <div className="overflow-hidden rounded-2xl border border-white/5 bg-[#131726]">
         {loading ? (
-          <div className="py-20 text-center">
-            <RefreshCw className="mx-auto mb-3 h-7 w-7 animate-spin text-emerald-500" />
-            <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
-              Syncing live orders from Supabase...
-            </p>
+          <div className="py-16 text-center text-sm text-slate-500">
+            Loading orders...
           </div>
         ) : filteredOrders.length === 0 ? (
-          <div className="py-20 text-center">
-            <Package className="mx-auto mb-3 h-10 w-10 text-slate-400 dark:text-slate-600" />
-            <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+          <div className="py-16 text-center">
+            <Package className="mx-auto mb-3 h-10 w-10 text-slate-700" />
+            <p className="text-sm font-medium text-slate-500">
               No orders match your filters
-            </p>
-            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-              Try adjusting your search query, status tab, or payment filter.
             </p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
               <thead>
-                <tr className="border-b border-slate-200/80 bg-slate-100/60 text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:border-white/10 dark:bg-slate-900/60 dark:text-slate-400">
-                  <th className="px-5 py-3.5 text-left">Order ID</th>
-                  <th className="px-5 py-3.5 text-left">Customer</th>
-                  <th className="px-5 py-3.5 text-left">Date</th>
-                  <th className="px-5 py-3.5 text-left">Payment</th>
-                  <th className="px-5 py-3.5 text-left">Status</th>
-                  <th className="px-5 py-3.5 text-right">Amount</th>
-                  <th className="px-5 py-3.5 text-right">Actions</th>
+                <tr className="border-b border-white/5 text-[10px] uppercase tracking-wider text-slate-500">
+                  <th className="px-4 py-3 text-left font-semibold">Order</th>
+                  <th className="px-4 py-3 text-left font-semibold">
+                    Customer
+                  </th>
+                  <th className="px-4 py-3 text-left font-semibold">Date</th>
+                  <th className="px-4 py-3 text-left font-semibold">Payment</th>
+                  <th className="px-4 py-3 text-left font-semibold">Status</th>
+                  <th className="px-4 py-3 text-right font-semibold">Amount</th>
+                  <th className="px-4 py-3 text-right font-semibold">
+                    Actions
+                  </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-200/60 dark:divide-white/5">
+              <tbody className="divide-y divide-white/5">
                 {pageOrders.map((order) => {
                   const cfg = STATUS_CONFIG[order.status];
                   return (
                     <tr
                       key={order.id}
-                      className="transition-colors hover:bg-slate-500/5 dark:hover:bg-white/[0.03]"
+                      className="hover:bg-white/2 group transition-colors"
                     >
-                      {/* Order Number */}
-                      <td className="px-5 py-4">
+                      <td className="px-4 py-3">
                         <Link
                           href={`/admin/orders/${order.id}`}
-                          className="font-mono font-bold text-emerald-600 transition-colors hover:text-emerald-500 hover:underline dark:text-emerald-400 dark:hover:text-emerald-300"
+                          className="font-mono font-semibold text-emerald-400 hover:text-emerald-300"
                         >
                           #{order.order_number}
                         </Link>
                       </td>
-
-                      {/* Customer Info (ph-no-capture Strictly Preserved) */}
-                      <td className="ph-no-capture px-5 py-4">
-                        <div className="font-semibold text-slate-900 dark:text-slate-100">
+                      <td className="ph-no-capture px-4 py-3">
+                        <div className="font-medium text-slate-200">
                           {(order.shipping_address as any)?.full_name ||
-                            'Guest Customer'}
+                            'Guest'}
                         </div>
-                        <div className="font-mono text-[11px] text-slate-500 dark:text-slate-400">
-                          {(order.shipping_address as any)?.phone || 'No phone'}
+                        <div className="font-mono text-[10px] text-slate-600">
+                          {(order.shipping_address as any)?.phone || ''}
                         </div>
                       </td>
-
-                      {/* Date */}
-                      <td className="px-5 py-4 font-medium text-slate-600 dark:text-slate-400">
+                      <td className="px-4 py-3 text-slate-500">
                         {new Date(order.created_at).toLocaleDateString(
                           'en-IN',
                           {
@@ -414,16 +361,14 @@ export default function AdminOrdersPage() {
                           }
                         )}
                       </td>
-
-                      {/* Payment Method Badge */}
-                      <td className="px-5 py-4">
+                      <td className="px-4 py-3">
                         <span
-                          className={`inline-block rounded-full border px-2.5 py-0.5 text-[10px] font-bold ${
+                          className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold ${
                             order.payment_method === 'cod'
-                              ? 'border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-400'
+                              ? 'border-amber-500/20 bg-amber-500/10 text-amber-400'
                               : order.payment_method === 'phonepe'
-                                ? 'border-purple-500/30 bg-purple-500/10 text-purple-700 dark:text-purple-400'
-                                : 'border-slate-500/30 bg-slate-500/10 text-slate-700 dark:text-slate-400'
+                                ? 'border-purple-500/20 bg-purple-500/10 text-purple-400'
+                                : 'border-slate-500/20 bg-slate-500/10 text-slate-400'
                           }`}
                         >
                           {order.payment_method === 'cod'
@@ -433,9 +378,7 @@ export default function AdminOrdersPage() {
                               : order.payment_method || 'Unknown'}
                         </span>
                       </td>
-
-                      {/* Row-Level Status Select */}
-                      <td className="px-5 py-4">
+                      <td className="px-4 py-3">
                         <div className="relative inline-block">
                           <select
                             value={order.status}
@@ -443,10 +386,9 @@ export default function AdminOrdersPage() {
                               handleStatusUpdate(order.id, e.target.value)
                             }
                             disabled={updatingId === order.id}
-                            aria-label={`Update status for order #${order.order_number}`}
-                            className={`cursor-pointer appearance-none rounded-full border py-1 pl-3 pr-7 text-[11px] font-bold transition-all focus:outline-none focus:ring-2 focus:ring-emerald-500/30 ${
+                            className={`cursor-pointer appearance-none rounded-full border py-0.5 pl-2 pr-6 text-[10px] font-semibold focus:outline-none ${
                               cfg?.cls ||
-                              'border-slate-500/30 bg-slate-500/10 text-slate-700 dark:text-slate-300'
+                              'border-slate-500/20 bg-slate-500/10 text-slate-400'
                             } ${updatingId === order.id ? 'opacity-50' : ''}`}
                             style={{ background: 'transparent' }}
                           >
@@ -454,29 +396,25 @@ export default function AdminOrdersPage() {
                               <option
                                 key={s}
                                 value={s}
-                                className="bg-white text-slate-900 dark:bg-[#1a1d2e] dark:text-white"
+                                className="bg-[#1e2235] text-white"
                               >
                                 {STATUS_CONFIG[s].label}
                               </option>
                             ))}
                           </select>
-                          <ChevronDown className="pointer-events-none absolute right-2 top-1/2 h-3 w-3 -translate-y-1/2 opacity-70" />
+                          <ChevronDown className="pointer-events-none absolute right-1 top-1/2 h-3 w-3 -translate-y-1/2 opacity-60" />
                         </div>
                       </td>
-
-                      {/* Total Amount */}
-                      <td className="px-5 py-4 text-right font-mono font-extrabold text-slate-900 dark:text-white">
+                      <td className="px-4 py-3 text-right font-semibold text-white">
                         ₹{Number(order.total).toLocaleString('en-IN')}
                       </td>
-
-                      {/* View Action */}
-                      <td className="px-5 py-4 text-right">
+                      <td className="px-4 py-3 text-right">
                         <Link
                           href={`/admin/orders/${order.id}`}
-                          className="portal-floating-glass inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm transition-all hover:bg-slate-100 hover:text-emerald-600 dark:text-slate-300 dark:hover:bg-white/10 dark:hover:text-emerald-400"
+                          className="inline-flex items-center gap-1 rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 text-slate-300 transition-colors hover:bg-white/10"
                         >
-                          <Eye className="h-3.5 w-3.5" />
-                          <span>View</span>
+                          <Eye className="h-3 w-3" />
+                          View
                         </Link>
                       </td>
                     </tr>
@@ -488,33 +426,28 @@ export default function AdminOrdersPage() {
         )}
       </div>
 
-      {/* 5. Pagination Controls */}
       {filteredOrders.length > 0 && (
-        <div className="portal-floating-glass flex flex-col items-center justify-between gap-3 rounded-2xl p-4 text-xs shadow-sm sm:flex-row">
-          <span className="font-medium text-slate-600 dark:text-slate-400">
+        <div className="flex flex-col items-center justify-between gap-3 text-xs text-slate-500 sm:flex-row">
+          <span>
             Showing {(page - 1) * PAGE_SIZE + 1}–
             {Math.min(page * PAGE_SIZE, filteredOrders.length)} of{' '}
-            <strong className="font-bold text-slate-900 dark:text-white">
-              {filteredOrders.length}
-            </strong>{' '}
-            orders
+            {filteredOrders.length} orders
           </span>
-
           <div className="flex items-center gap-2">
             <button
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page === 1}
-              className="portal-floating-glass rounded-xl px-3.5 py-1.5 font-semibold text-slate-700 shadow-sm transition-all hover:bg-slate-100 hover:text-slate-900 disabled:cursor-not-allowed disabled:opacity-40 dark:text-slate-200 dark:hover:bg-white/10 dark:hover:text-white"
+              className="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-slate-300 transition-colors hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
             >
               Previous
             </button>
-            <span className="px-2 font-mono font-semibold text-slate-500 dark:text-slate-400">
+            <span className="text-slate-600">
               Page {page} of {totalPages}
             </span>
             <button
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               disabled={page >= totalPages}
-              className="portal-floating-glass rounded-xl px-3.5 py-1.5 font-semibold text-slate-700 shadow-sm transition-all hover:bg-slate-100 hover:text-slate-900 disabled:cursor-not-allowed disabled:opacity-40 dark:text-slate-200 dark:hover:bg-white/10 dark:hover:text-white"
+              className="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-slate-300 transition-colors hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
             >
               Next
             </button>
