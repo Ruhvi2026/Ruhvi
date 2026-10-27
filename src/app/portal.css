@@ -329,22 +329,35 @@ html.light {
     inset 0 1px 1.5px 0 rgba(255, 255, 255, 1);
 }
 
-/* 1. Portal Canvas (Deep Midnight Obsidian + Ambient Jewel Glows) */
+/* 1. Portal Canvas (Satin & Diamonds Luxury Backdrops) */
 .portal-shell {
   background-color: #07090e !important;
   background-image:
-    radial-gradient(at 12% 10%, rgba(16, 185, 129, 0.07) 0px, transparent 45%),
-    radial-gradient(at 88% 12%, rgba(212, 175, 55, 0.07) 0px, transparent 40%),
-    radial-gradient(at 50% 88%, rgba(99, 102, 241, 0.05) 0px, transparent 50%) !important;
+    radial-gradient(at 12% 10%, rgba(16, 185, 129, 0.12) 0px, transparent 40%),
+    radial-gradient(at 88% 12%, rgba(212, 175, 55, 0.1) 0px, transparent 38%),
+    linear-gradient(to bottom, rgba(7, 9, 14, 0.62), rgba(7, 9, 14, 0.82)),
+    url('/images/portal/portal-dark-bg.jpg') !important;
+  background-size: cover !important;
+  background-position: center center !important;
+  background-repeat: no-repeat !important;
   background-attachment: fixed !important;
 }
 
 html.light .portal-shell {
   background-color: #f8fafc !important;
   background-image:
-    radial-gradient(at 12% 10%, rgba(212, 175, 55, 0.1) 0px, transparent 45%),
-    radial-gradient(at 88% 12%, rgba(16, 185, 129, 0.07) 0px, transparent 40%),
-    radial-gradient(at 50% 88%, rgba(226, 232, 240, 0.6) 0px, transparent 50%) !important;
+    radial-gradient(at 12% 10%, rgba(212, 175, 55, 0.15) 0px, transparent 40%),
+    radial-gradient(at 88% 12%, rgba(16, 185, 129, 0.08) 0px, transparent 38%),
+    linear-gradient(
+      to bottom,
+      rgba(248, 250, 252, 0.58),
+      rgba(248, 250, 252, 0.75)
+    ),
+    url('/images/portal/portal-light-bg.jpg') !important;
+  background-size: cover !important;
+  background-position: center center !important;
+  background-repeat: no-repeat !important;
+  background-attachment: fixed !important;
 }
 
 .portal-shell main,
