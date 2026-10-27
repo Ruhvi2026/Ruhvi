@@ -124,6 +124,7 @@
     - `understand-figma`: Figma design file parsing into design tokens/components.
     - `understand-knowledge`: LLM wiki & topic cluster graph generation.
     - `understand-onboard`: Interactive developer onboarding document creation.
+17. **ui-ux-pro-max**: Comprehensive UI/UX design intelligence layer (79 searchable UI styles, 192 product palettes & reasoning rules, 74 font pairings, 119 UX guidelines, 22 stack presets including Next.js/React/Tailwind) powered by local zero-latency BM25 search (`scripts/search.py`). Allocated for UI/UX engineering across administrative and operational subdomains (`admin.ruhvi.in`, `orders.ruhvi.in`, `support.ruhvi.in`, `operation.ruhvi.in`, etc.) with strict zero-alteration isolation on the main customer storefront.
 
 ### B. Global Builtin & Installed Plugin Skills
 1. **agy-customizations**: Reference guide for configuring AGY skills, rules, plugins, hooks, and MCP servers.

@@ -577,7 +577,7 @@ export default function AdminLayout({
   return (
     <PortalThemeProvider>
       <div
-        className="portal-shell flex h-screen overflow-hidden bg-slate-50 dark:bg-[#0d0f1a]"
+        className="portal-shell portal-silk-canvas flex h-screen overflow-hidden bg-slate-50 dark:bg-[#0d0f1a]"
         style={{ fontFamily: 'Inter, system-ui, sans-serif' }}
       >
         {/* Desktop Sidebar */}
