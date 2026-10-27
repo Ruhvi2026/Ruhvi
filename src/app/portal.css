@@ -15,22 +15,21 @@ html.light {
   color-scheme: light;
 }
 
-/* ---- Surfaces: dark arbitrary-hex backgrounds -------------------------- */
-html.light .portal-shell [class*='bg-[#0'],
-html.light .portal-shell [class*='bg-[#1'] {
-  background-color: #ffffff !important;
-}
-
-/* Full-page canvases keep a soft slate instead of pure white */
+/* ---- Full-page canvases & wrappers stay transparent to show wallpaper ---- */
+.portal-shell [class*='bg-[#0d0f1a]'],
+.portal-shell [class*='bg-[#0a0a0f]'],
+.portal-shell [class*='bg-[#0A0D16]'],
+.portal-shell [class*='bg-[#080B14]'],
+.portal-shell [class*='bg-tech-bg'],
+.portal-shell [class*='bg-slate-50'],
 html.light .portal-shell [class*='bg-[#0d0f1a]'],
 html.light .portal-shell [class*='bg-[#0a0a0f]'],
-html.light .portal-shell [class*='bg-[#0A0D16]'] {
-  background-color: #f8fafc !important;
-}
-
-/* Translucent-white elevations become a subtle slate tint */
-html.light .portal-shell [class*='bg-white/'] {
-  background-color: rgba(15, 23, 42, 0.045) !important;
+html.light .portal-shell [class*='bg-[#0A0D16]'],
+html.light .portal-shell [class*='bg-[#080B14]'],
+html.light .portal-shell [class*='bg-tech-bg'],
+html.light .portal-shell [class*='bg-slate-50'] {
+  background-color: transparent !important;
+  background-image: none !important;
 }
 
 html.light .portal-shell [class*='hover:bg-white/']:hover {
@@ -294,48 +293,50 @@ html.light .portal-shell [class~='bg-tech-neutral'] {
 }
 
 /* ==========================================================================
-   Ruhvi Portal Glassmorphism Design System (Dark-First)
+   Ruhvi Portal Glassmorphism Design System (Dark & Light)
    --------------------------------------------------------------------------
-   Governing skills: ui-ux-pro-max, frontend-ui-engineering, design-system.
+   Governing skills: ui-ux-pro-max (Liquid Glass), frontend-ui-engineering.
    Applies to all subdomains: admin, orders, operations, tech, support.
    Scoped strictly to `.portal-shell` — storefront is 100% untouched.
    ========================================================================== */
 
 :root {
-  --portal-glass-bg: rgba(14, 19, 31, 0.68);
-  --portal-glass-border: rgba(255, 255, 255, 0.08);
-  --portal-glass-border-hover: rgba(255, 255, 255, 0.16);
-  --portal-glass-blur: 18px;
+  --portal-glass-bg: rgba(12, 16, 28, 0.58);
+  --portal-glass-border: rgba(255, 255, 255, 0.12);
+  --portal-glass-border-hover: rgba(255, 255, 255, 0.25);
+  --portal-glass-blur: 20px;
   --portal-glass-shadow:
-    0 10px 30px -4px rgba(0, 0, 0, 0.48), 0 4px 12px -2px rgba(0, 0, 0, 0.28),
-    inset 0 1px 1px 0 rgba(255, 255, 255, 0.12);
+    0 16px 36px -4px rgba(0, 0, 0, 0.52), 0 4px 12px -2px rgba(0, 0, 0, 0.28),
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.15);
   --portal-glass-shadow-hover:
-    0 18px 40px -4px rgba(0, 0, 0, 0.62),
-    0 6px 16px -2px rgba(16, 185, 129, 0.08),
-    inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.18);
+    0 20px 44px -4px rgba(0, 0, 0, 0.68), 0 0 24px rgba(139, 92, 246, 0.2),
+    inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.22);
 }
 
 html.light {
-  --portal-glass-bg: rgba(255, 255, 255, 0.76);
-  --portal-glass-border: rgba(15, 23, 42, 0.08);
-  --portal-glass-border-hover: rgba(15, 23, 42, 0.16);
-  --portal-glass-blur: 18px;
+  --portal-glass-bg: rgba(255, 255, 255, 0.65);
+  --portal-glass-border: rgba(255, 255, 255, 0.9);
+  --portal-glass-border-hover: #ffffff;
+  --portal-glass-blur: 20px;
   --portal-glass-shadow:
-    0 10px 28px -4px rgba(15, 23, 42, 0.07),
-    0 4px 10px -2px rgba(15, 23, 42, 0.03),
-    inset 0 1px 1px 0 rgba(255, 255, 255, 0.95);
-  --portal-glass-shadow-hover:
-    0 16px 36px -4px rgba(15, 23, 42, 0.12),
+    0 14px 34px -4px rgba(180, 110, 120, 0.14),
+    0 4px 12px -2px rgba(180, 110, 120, 0.08),
     inset 0 1px 1.5px 0 rgba(255, 255, 255, 1);
+  --portal-glass-shadow-hover:
+    0 20px 42px -4px rgba(180, 110, 120, 0.22),
+    0 0 24px rgba(244, 114, 182, 0.25), inset 0 1px 2px 0 rgba(255, 255, 255, 1);
 }
 
-/* 1. Portal Canvas (Satin & Diamonds Luxury Backdrops) */
+/* 1. Portal Canvas (Satin & Diamonds Luxury Wallpapers) */
 .portal-shell {
-  background-color: #07090e !important;
+  background-color: #080b18 !important;
   background-image:
-    radial-gradient(at 12% 10%, rgba(16, 185, 129, 0.12) 0px, transparent 40%),
-    radial-gradient(at 88% 12%, rgba(212, 175, 55, 0.1) 0px, transparent 38%),
-    linear-gradient(to bottom, rgba(7, 9, 14, 0.62), rgba(7, 9, 14, 0.82)),
+    linear-gradient(
+      135deg,
+      rgba(88, 28, 135, 0.22) 0%,
+      rgba(30, 58, 138, 0.18) 50%,
+      rgba(8, 11, 24, 0.42) 100%
+    ),
     url('/images/portal/portal-dark-bg.jpg') !important;
   background-size: cover !important;
   background-position: center center !important;
@@ -344,14 +345,13 @@ html.light {
 }
 
 html.light .portal-shell {
-  background-color: #f8fafc !important;
+  background-color: #fcf4f5 !important;
   background-image:
-    radial-gradient(at 12% 10%, rgba(212, 175, 55, 0.15) 0px, transparent 40%),
-    radial-gradient(at 88% 12%, rgba(16, 185, 129, 0.08) 0px, transparent 38%),
     linear-gradient(
-      to bottom,
-      rgba(248, 250, 252, 0.58),
-      rgba(248, 250, 252, 0.75)
+      135deg,
+      rgba(254, 243, 199, 0.28) 0%,
+      rgba(253, 242, 248, 0.2) 50%,
+      rgba(255, 255, 255, 0.4) 100%
     ),
     url('/images/portal/portal-light-bg.jpg') !important;
   background-size: cover !important;
@@ -360,63 +360,96 @@ html.light .portal-shell {
   background-attachment: fixed !important;
 }
 
+/* 2. Full-Page Canvases & Inner Wrappers Must Be 100% Transparent */
 .portal-shell main,
+.portal-shell > div,
+.portal-shell .overflow-y-auto,
+.portal-shell [class*='bg-[#0d0f1a]'],
+.portal-shell [class*='bg-[#0a0a0f]'],
+.portal-shell [class*='bg-[#0A0D16]'],
+.portal-shell [class*='bg-[#080B14]'],
+.portal-shell [class*='bg-tech-bg'],
+.portal-shell [class*='bg-slate-50'],
 html.light .portal-shell main,
-html.light .portal-shell main[class*='bg-'] {
+html.light .portal-shell > div,
+html.light .portal-shell .overflow-y-auto,
+html.light .portal-shell [class*='bg-[#0d0f1a]'],
+html.light .portal-shell [class*='bg-[#0a0a0f]'],
+html.light .portal-shell [class*='bg-[#0A0D16]'],
+html.light .portal-shell [class*='bg-[#080B14]'],
+html.light .portal-shell [class*='bg-tech-bg'],
+html.light .portal-shell [class*='bg-slate-50'] {
   background-color: transparent !important;
   background-image: none !important;
 }
 
-/* 2. Glassmorphic Navigation (Sidebar & Topbar Header) */
+/* 3. Glassmorphic Navigation (Sidebar & Topbar Header) */
 .portal-shell aside {
-  background: rgba(11, 15, 25, 0.75) !important;
-  backdrop-filter: blur(var(--portal-glass-blur)) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(var(--portal-glass-blur)) saturate(180%) !important;
-  border-right: 1px solid var(--portal-glass-border) !important;
+  background: rgba(10, 14, 25, 0.65) !important;
+  backdrop-filter: blur(24px) saturate(190%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(190%) !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
   box-shadow: 4px 0 28px -4px rgba(0, 0, 0, 0.45) !important;
 }
 
 .portal-shell header {
-  background: rgba(11, 15, 25, 0.68) !important;
-  backdrop-filter: blur(var(--portal-glass-blur)) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(var(--portal-glass-blur)) saturate(180%) !important;
-  border-bottom: 1px solid var(--portal-glass-border) !important;
+  background: rgba(10, 14, 25, 0.62) !important;
+  backdrop-filter: blur(24px) saturate(190%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(190%) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
   box-shadow: 0 4px 24px -2px rgba(0, 0, 0, 0.35) !important;
 }
 
 html.light .portal-shell aside {
-  background: rgba(255, 255, 255, 0.78) !important;
-  border-right: 1px solid var(--portal-glass-border) !important;
-  box-shadow: 4px 0 24px -2px rgba(15, 23, 42, 0.05) !important;
+  background: rgba(255, 255, 255, 0.7) !important;
+  backdrop-filter: blur(24px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.8) !important;
+  box-shadow: 4px 0 24px -2px rgba(180, 110, 120, 0.08) !important;
 }
 
 html.light .portal-shell header {
-  background: rgba(255, 255, 255, 0.78) !important;
-  border-bottom: 1px solid var(--portal-glass-border) !important;
-  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.04) !important;
+  background: rgba(255, 255, 255, 0.68) !important;
+  backdrop-filter: blur(24px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.8) !important;
+  box-shadow: 0 4px 20px -2px rgba(180, 110, 120, 0.06) !important;
 }
 
-/* 3. Glassmorphic Surface Cards & Panels (Both Dark & Light) */
+/* 4. Glassmorphic Surface Cards & Panels (Both Dark & Light) */
 .portal-shell [class*='bg-[#131726]'],
 .portal-shell [class*='bg-[#0f0f17]'],
 .portal-shell [class*='bg-[#101321]'],
 .portal-shell [class*='bg-[#141824]'],
 .portal-shell [class*='bg-[#1a1f33]'],
+.portal-shell [class*='bg-[#151520]'],
+.portal-shell [class*='bg-[#161b2e]'],
+.portal-shell [class*='bg-[#1e2235]'],
+.portal-shell [class*='bg-white/5'],
+.portal-shell [class*='bg-white/10'],
+.portal-shell [class*='dark:bg-tech-surface'],
 .portal-shell .portal-glass-card,
 html.light .portal-shell [class*='bg-[#131726]'],
 html.light .portal-shell [class*='bg-[#0f0f17]'],
 html.light .portal-shell [class*='bg-[#101321]'],
 html.light .portal-shell [class*='bg-[#141824]'],
 html.light .portal-shell [class*='bg-[#1a1f33]'],
+html.light .portal-shell [class*='bg-[#151520]'],
+html.light .portal-shell [class*='bg-[#161b2e]'],
+html.light .portal-shell [class*='bg-[#1e2235]'],
+html.light .portal-shell [class*='bg-white/5'],
+html.light .portal-shell [class*='bg-white/10'],
+html.light .portal-shell [class*='bg-white'],
 html.light .portal-shell .portal-glass-card {
   background: var(--portal-glass-bg) !important;
-  backdrop-filter: blur(var(--portal-glass-blur)) saturate(160%) !important;
-  -webkit-backdrop-filter: blur(var(--portal-glass-blur)) saturate(160%) !important;
+  backdrop-filter: blur(var(--portal-glass-blur)) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(var(--portal-glass-blur)) saturate(180%) !important;
   border: 1px solid var(--portal-glass-border) !important;
   box-shadow: var(--portal-glass-shadow) !important;
   transition:
     border-color 0.25s ease,
     box-shadow 0.25s ease,
+    background-color 0.25s ease,
     transform 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
@@ -424,107 +457,115 @@ html.light .portal-shell .portal-glass-card {
 .portal-shell [class*='bg-[#0f0f17]']:hover,
 .portal-shell [class*='bg-[#101321]']:hover,
 .portal-shell [class*='bg-[#141824]']:hover,
+.portal-shell [class*='bg-[#151520]']:hover,
+.portal-shell [class*='bg-[#161b2e]']:hover,
 .portal-shell .portal-glass-card:hover,
 html.light .portal-shell [class*='bg-[#131726]']:hover,
 html.light .portal-shell [class*='bg-[#0f0f17]']:hover,
 html.light .portal-shell [class*='bg-[#101321]']:hover,
 html.light .portal-shell [class*='bg-[#141824]']:hover,
+html.light .portal-shell [class*='bg-[#151520]']:hover,
+html.light .portal-shell [class*='bg-[#161b2e]']:hover,
+html.light .portal-shell [class*='bg-white']:hover,
 html.light .portal-shell .portal-glass-card:hover {
   border-color: var(--portal-glass-border-hover) !important;
   box-shadow: var(--portal-glass-shadow-hover) !important;
+  transform: translateY(-2px) !important;
 }
 
-/* 4. Glass Data Tables & Row Strips */
+/* 5. Glass Data Tables & Row Strips */
 .portal-shell table {
   background: transparent !important;
 }
 
 .portal-shell thead th {
-  background: rgba(255, 255, 255, 0.03) !important;
-  backdrop-filter: blur(10px) !important;
-  -webkit-backdrop-filter: blur(10px) !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
   border-bottom: 1px solid var(--portal-glass-border) !important;
 }
 
 html.light .portal-shell thead th {
-  background: rgba(15, 23, 42, 0.03) !important;
+  background: rgba(255, 255, 255, 0.6) !important;
+  color: #0f172a !important;
 }
 
 .portal-shell tbody tr {
   transition:
     background-color 0.2s ease,
     border-color 0.2s ease !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
 }
 
 .portal-shell tbody tr:hover {
-  background-color: rgba(255, 255, 255, 0.04) !important;
+  background-color: rgba(255, 255, 255, 0.06) !important;
 }
 
 html.light .portal-shell tbody tr {
-  border-bottom: 1px solid rgba(15, 23, 42, 0.06) !important;
+  border-bottom: 1px solid rgba(180, 110, 120, 0.1) !important;
 }
 
 html.light .portal-shell tbody tr:hover {
-  background-color: rgba(15, 23, 42, 0.03) !important;
+  background-color: rgba(255, 255, 255, 0.55) !important;
 }
 
-/* 5. Inputs, Selects & Controls */
+/* 6. Inputs, Selects & Controls */
 .portal-shell input[type='text'],
 .portal-shell input[type='search'],
 .portal-shell input[type='date'],
 .portal-shell select {
-  background-color: rgba(255, 255, 255, 0.05) !important;
-  backdrop-filter: blur(12px) !important;
-  -webkit-backdrop-filter: blur(12px) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  background-color: rgba(255, 255, 255, 0.08) !important;
+  backdrop-filter: blur(14px) !important;
+  -webkit-backdrop-filter: blur(14px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
   transition: all 0.2s ease !important;
 }
 
 .portal-shell input[type='text']:focus,
 .portal-shell input[type='search']:focus,
 .portal-shell select:focus {
-  background-color: rgba(255, 255, 255, 0.08) !important;
-  border-color: rgba(16, 185, 129, 0.5) !important;
-  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2) !important;
+  background-color: rgba(255, 255, 255, 0.12) !important;
+  border-color: rgba(16, 185, 129, 0.6) !important;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.25) !important;
 }
 
 html.light .portal-shell input[type='text'],
 html.light .portal-shell input[type='search'],
 html.light .portal-shell select {
-  background-color: rgba(255, 255, 255, 0.85) !important;
-  border: 1px solid rgba(15, 23, 42, 0.12) !important;
+  background-color: rgba(255, 255, 255, 0.75) !important;
+  border: 1px solid rgba(255, 255, 255, 0.9) !important;
+  box-shadow: 0 2px 8px rgba(180, 110, 120, 0.08) !important;
 }
 
-/* 6. Utility Classes */
+/* 7. Utility Classes */
 .portal-glass {
   background: var(--portal-glass-bg) !important;
-  backdrop-filter: blur(var(--portal-glass-blur)) saturate(160%) !important;
-  -webkit-backdrop-filter: blur(var(--portal-glass-blur)) saturate(160%) !important;
+  backdrop-filter: blur(var(--portal-glass-blur)) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(var(--portal-glass-blur)) saturate(180%) !important;
   border: 1px solid var(--portal-glass-border) !important;
   box-shadow: var(--portal-glass-shadow) !important;
 }
 
 .portal-glass-pill {
-  background: rgba(255, 255, 255, 0.06) !important;
-  backdrop-filter: blur(12px) !important;
-  -webkit-backdrop-filter: blur(12px) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  backdrop-filter: blur(14px) !important;
+  -webkit-backdrop-filter: blur(14px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
   transition: all 0.2s ease !important;
 }
 
 .portal-glass-pill-active {
-  background: rgba(16, 185, 129, 0.16) !important;
-  backdrop-filter: blur(12px) !important;
-  -webkit-backdrop-filter: blur(12px) !important;
-  border: 1px solid rgba(16, 185, 129, 0.45) !important;
+  background: rgba(16, 185, 129, 0.2) !important;
+  backdrop-filter: blur(14px) !important;
+  -webkit-backdrop-filter: blur(14px) !important;
+  border: 1px solid rgba(16, 185, 129, 0.5) !important;
   box-shadow:
-    0 0 14px rgba(16, 185, 129, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.18) !important;
+    0 0 14px rgba(16, 185, 129, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
 }
 
-/* 7. Accessibility & Reduced Motion (ui-ux-pro-max standard) */
+/* 8. Accessibility & Reduced Motion (ui-ux-pro-max standard) */
 @media (prefers-reduced-motion: reduce) {
   .portal-shell *,
   .portal-shell *::before,

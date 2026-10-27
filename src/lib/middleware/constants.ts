@@ -18,7 +18,7 @@ export const INTERNAL_BASES = [
   '/co-founder',
 ] as const;
 
-/** Paths allowed on all hosts (login, API, auth callback, etc.) */
+/** Paths allowed on all hosts (login, API, auth callback, static images, etc.) */
 export const COMMON_ALLOWED_PATHS = [
   '/login',
   '/api',
@@ -29,4 +29,5 @@ export const COMMON_ALLOWED_PATHS = [
   '/admin/task-manager',
   '/admin/chat',
   '/co-founder',
+  '/images',
 ] as const;
