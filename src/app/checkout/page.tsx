@@ -152,23 +152,22 @@ export default function CheckoutPage() {
     }
   }, [isLoggedIn, user, profile]);
 
-  // GA4 begin_checkout event
+  // Track checkout_started event once per checkout entry (deduplicating dual begin_checkout/checkout_started)
+  const hasTrackedCheckoutRef = useRef(false);
   useEffect(() => {
-    if (items.length > 0) {
-      ecommerceEvent('begin_checkout', {
-        currency: 'INR',
-        value: subtotal,
-        items: items.map((item) => ({
-          item_id: item.product_id,
-          item_name: item.product?.name,
-        })),
-      });
-
-      // PostHog checkout_started event
+    if (items.length > 0 && !hasTrackedCheckoutRef.current) {
+      hasTrackedCheckoutRef.current = true;
       import('posthog-js/dist/module.slim').then(({ default: ph }) => {
         ph.capture('checkout_started', {
           cart_value: subtotal,
           item_count: items.reduce((sum, item) => sum + item.quantity, 0),
+          currency: 'INR',
+          items: items.map((item) => ({
+            item_id: item.product_id,
+            item_name: item.product?.name,
+            price: item.product?.price,
+            quantity: item.quantity,
+          })),
         });
       });
     }

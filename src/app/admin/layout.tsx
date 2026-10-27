@@ -10,6 +10,7 @@ import { useUnreadChatCount } from '@/hooks/useUnreadChatCount';
 import { useSessionUserId } from '@/hooks/useSessionUserId';
 import {
   LayoutDashboard,
+  Radar,
   ShoppingBag,
   Package,
   Users,
@@ -43,6 +44,8 @@ import {
   MessageCircle,
   ClipboardList,
   Sparkles,
+  ShieldAlert,
+  ShieldCheck,
 } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { AdminNotificationCenter } from '@/components/admin/AdminNotificationCenter';
@@ -80,6 +83,17 @@ const NAV_GROUPS: NavGroup[] = [
     section: 'OVERVIEW',
     items: [
       { label: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard },
+      { label: 'Business Radar', href: '/admin/business-radar', icon: Radar },
+      {
+        label: 'Action Center',
+        href: '/admin/action-center',
+        icon: ClipboardList,
+      },
+      {
+        label: 'Decision Simulator',
+        href: '/admin/decision-simulator',
+        icon: Sparkles,
+      },
     ],
   },
   {
@@ -121,6 +135,7 @@ const NAV_GROUPS: NavGroup[] = [
     section: 'CUSTOMERS',
     items: [
       { label: 'Customers', href: '/admin/users', icon: Users },
+      { label: 'Customer 360', href: '/admin/customer-360', icon: UserCheck },
       { label: 'Wallet & Coins', href: '/admin/wallet', icon: Wallet },
     ],
   },
@@ -153,6 +168,16 @@ const NAV_GROUPS: NavGroup[] = [
         icon: Bell,
         badge: 'New',
         badgeColor: 'bg-rose-500',
+      },
+      {
+        label: 'Anomaly Review',
+        href: '/admin/anomalies',
+        icon: ShieldAlert,
+      },
+      {
+        label: 'System Self-Audit',
+        href: '/admin/self-audit',
+        icon: ShieldCheck,
       },
     ],
   },
