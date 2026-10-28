@@ -76,7 +76,7 @@ function KpiCard({
   href?: string;
 }) {
   const card = (
-    <div className="group flex flex-col gap-3 rounded-2xl border border-white/5 bg-[#131726] p-5 transition-colors hover:border-white/10">
+    <div className="portal-glass-card group flex flex-col gap-3 rounded-2xl p-5 transition-all duration-300 hover:scale-[1.02]">
       <div className="flex items-start justify-between">
         <div
           className={`flex h-10 w-10 items-center justify-center rounded-xl ${iconBg}`}
@@ -517,8 +517,12 @@ export default async function AdminDashboardPage({
                 value={`${rtoRate}%`}
                 sub={`${rtoCount} orders in period`}
                 icon={RotateCcw}
-                iconColor={Number(rtoRate) > 10 ? 'text-rose-400' : 'text-amber-400'}
-                iconBg={Number(rtoRate) > 10 ? 'bg-rose-500/10' : 'bg-amber-500/10'}
+                iconColor={
+                  Number(rtoRate) > 10 ? 'text-rose-400' : 'text-amber-400'
+                }
+                iconBg={
+                  Number(rtoRate) > 10 ? 'bg-rose-500/10' : 'bg-amber-500/10'
+                }
                 trend={Number(rtoRate) > 10 ? 'down' : 'neutral'}
                 trendLabel={Number(rtoRate) > 10 ? 'High' : 'Normal'}
               />
@@ -536,8 +540,12 @@ export default async function AdminDashboardPage({
                 value={`${refundRate}%`}
                 sub={`${refundCount} refunds in period`}
                 icon={BarChart3}
-                iconColor={Number(refundRate) > 5 ? 'text-rose-400' : 'text-slate-400'}
-                iconBg={Number(refundRate) > 5 ? 'bg-rose-500/10' : 'bg-slate-500/10'}
+                iconColor={
+                  Number(refundRate) > 5 ? 'text-rose-400' : 'text-slate-400'
+                }
+                iconBg={
+                  Number(refundRate) > 5 ? 'bg-rose-500/10' : 'bg-slate-500/10'
+                }
               />
             </div>
           </div>
@@ -685,7 +693,9 @@ export default async function AdminDashboardPage({
       {activeTab === 'operations' && (
         <OperationsDashboard from={safeFrom} to={safeTo} />
       )}
-      {activeTab === 'orders' && <OrdersDashboard from={safeFrom} to={safeTo} />}
+      {activeTab === 'orders' && (
+        <OrdersDashboard from={safeFrom} to={safeTo} />
+      )}
       {activeTab === 'support' && (
         <SupportDashboard from={safeFrom} to={safeTo} />
       )}

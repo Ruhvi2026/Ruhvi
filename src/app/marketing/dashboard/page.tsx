@@ -96,7 +96,7 @@ export default function MarketingDashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
-        <div className="rounded-xl border border-white/5 bg-[#131726] p-5">
+        <div className="portal-glass-card rounded-xl p-5">
           <div className="flex items-center gap-3">
             <Megaphone className="h-5 w-5 text-fuchsia-400" />
             <h3 className="text-sm font-medium text-slate-400">
@@ -111,7 +111,7 @@ export default function MarketingDashboardPage() {
           </p>
         </div>
 
-        <div className="rounded-xl border border-white/5 bg-[#131726] p-5">
+        <div className="portal-glass-card rounded-xl p-5">
           <div className="flex items-center gap-3">
             <Ticket className="h-5 w-5 text-emerald-400" />
             <h3 className="text-sm font-medium text-slate-400">Coupons</h3>
@@ -124,7 +124,7 @@ export default function MarketingDashboardPage() {
           </p>
         </div>
 
-        <div className="rounded-xl border border-white/5 bg-[#131726] p-5">
+        <div className="portal-glass-card rounded-xl p-5">
           <div className="flex items-center gap-3">
             <Percent className="h-5 w-5 text-amber-400" />
             <h3 className="text-sm font-medium text-slate-400">
@@ -139,7 +139,7 @@ export default function MarketingDashboardPage() {
           </p>
         </div>
 
-        <div className="rounded-xl border border-white/5 bg-[#131726] p-5">
+        <div className="portal-glass-card rounded-xl p-5">
           <div className="flex items-center gap-3">
             <Users className="h-5 w-5 text-blue-400" />
             <h3 className="text-sm font-medium text-slate-400">

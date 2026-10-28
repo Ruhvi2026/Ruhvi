@@ -125,7 +125,7 @@ export default function OperationsDashboard() {
         {/* Metric 1: Total Products */}
         <Link
           href="/operations/products"
-          className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-white/10 bg-[#131726] p-5 shadow-xl transition-all duration-300 hover:scale-[1.02] hover:border-amber-400/40"
+          className="portal-glass-card group relative flex flex-col justify-between overflow-hidden rounded-2xl p-5 shadow-xl transition-all duration-300 hover:scale-[1.02] hover:border-amber-400/40"
         >
           <div className="flex items-start justify-between">
             <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-indigo-500/15 text-indigo-400 shadow-inner">
@@ -152,7 +152,7 @@ export default function OperationsDashboard() {
         {/* Metric 2: Low Stock Alerts */}
         <Link
           href="/operations/inventory"
-          className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-white/10 bg-[#131726] p-5 shadow-xl transition-all duration-300 hover:scale-[1.02] hover:border-amber-400/40"
+          className="portal-glass-card group relative flex flex-col justify-between overflow-hidden rounded-2xl p-5 shadow-xl transition-all duration-300 hover:scale-[1.02] hover:border-amber-400/40"
         >
           <div className="flex items-start justify-between">
             <div
@@ -193,7 +193,7 @@ export default function OperationsDashboard() {
         {/* Metric 3: Active Categories */}
         <Link
           href="/operations/categories"
-          className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-white/10 bg-[#131726] p-5 shadow-xl transition-all duration-300 hover:scale-[1.02] hover:border-amber-400/40"
+          className="portal-glass-card group relative flex flex-col justify-between overflow-hidden rounded-2xl p-5 shadow-xl transition-all duration-300 hover:scale-[1.02] hover:border-amber-400/40"
         >
           <div className="flex items-start justify-between">
             <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-400 shadow-inner">
@@ -220,7 +220,7 @@ export default function OperationsDashboard() {
         {/* Metric 4: Suppliers & Transfers */}
         <Link
           href="/operations/suppliers"
-          className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-white/10 bg-[#131726] p-5 shadow-xl transition-all duration-300 hover:scale-[1.02] hover:border-amber-400/40"
+          className="portal-glass-card group relative flex flex-col justify-between overflow-hidden rounded-2xl p-5 shadow-xl transition-all duration-300 hover:scale-[1.02] hover:border-amber-400/40"
         >
           <div className="flex items-start justify-between">
             <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-500/15 text-blue-400 shadow-inner">
@@ -248,7 +248,7 @@ export default function OperationsDashboard() {
       {/* Main Panels: Recent Activity & Quick Inventory Status */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Panel 1: Recent Operations Activity */}
-        <div className="rounded-2xl border border-white/10 bg-[#131726] p-6 shadow-xl">
+        <div className="portal-glass-card rounded-2xl p-6 shadow-xl">
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-lg font-bold text-white">
@@ -265,7 +265,7 @@ export default function OperationsDashboard() {
               View Full History →
             </Link>
           </div>
-          <div className="mt-4 flex h-60 flex-col items-center justify-center rounded-xl border border-dashed border-white/10 text-center">
+          <div className="mt-4 flex h-60 flex-col items-center justify-center rounded-xl border border-dashed border-white/15 bg-white/[0.02] text-center backdrop-blur-sm">
             <TrendingUp className="h-8 w-8 text-slate-500 opacity-60" />
             <p className="mt-2 text-sm font-semibold text-slate-300">
               Live Activity Stream Online
@@ -277,7 +277,7 @@ export default function OperationsDashboard() {
         </div>
 
         {/* Panel 2: Low Stock & Reorder Queue */}
-        <div className="rounded-2xl border border-white/10 bg-[#131726] p-6 shadow-xl">
+        <div className="portal-glass-card rounded-2xl p-6 shadow-xl">
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-lg font-bold text-white">
@@ -294,7 +294,7 @@ export default function OperationsDashboard() {
               Open Inventory →
             </Link>
           </div>
-          <div className="mt-4 flex h-60 flex-col items-center justify-center rounded-xl border border-dashed border-white/10 text-center">
+          <div className="mt-4 flex h-60 flex-col items-center justify-center rounded-xl border border-dashed border-white/15 bg-white/[0.02] text-center backdrop-blur-sm">
             <AlertCircle className="h-8 w-8 text-amber-400/60" />
             <p className="mt-2 text-sm font-semibold text-slate-300">
               {stats.lowStockAlerts > 0

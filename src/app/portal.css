@@ -302,103 +302,89 @@ html.light .portal-shell [class~='bg-tech-neutral'] {
    ========================================================================== */
 
 :root {
-  --portal-glass-bg: rgba(12, 16, 28, 0.58);
-  --portal-glass-border: rgba(255, 255, 255, 0.12);
-  --portal-glass-border-hover: rgba(255, 255, 255, 0.25);
-  --portal-glass-blur: 20px;
+  --portal-glass-bg: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.14) 0%,
+    rgba(255, 255, 255, 0.04) 35%,
+    rgba(14, 19, 36, 0.45) 100%
+  );
+  --portal-glass-border: rgba(255, 255, 255, 0.18);
+  --portal-glass-border-hover: rgba(255, 255, 255, 0.38);
+  --portal-glass-blur: 24px;
   --portal-glass-shadow:
-    0 16px 36px -4px rgba(0, 0, 0, 0.52), 0 4px 12px -2px rgba(0, 0, 0, 0.28),
-    inset 0 1px 1px 0 rgba(255, 255, 255, 0.15);
+    0 16px 36px -4px rgba(0, 0, 0, 0.65), 0 4px 12px -2px rgba(0, 0, 0, 0.4),
+    inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.32),
+    inset 0 -1px 1px 0 rgba(0, 0, 0, 0.3);
   --portal-glass-shadow-hover:
-    0 20px 44px -4px rgba(0, 0, 0, 0.68), 0 0 24px rgba(139, 92, 246, 0.2),
-    inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.22);
+    0 24px 48px -4px rgba(0, 0, 0, 0.75), 0 0 28px rgba(139, 92, 246, 0.35),
+    inset 0 1px 2px 0 rgba(255, 255, 255, 0.45);
 }
 
 html.light {
-  --portal-glass-bg: rgba(255, 255, 255, 0.65);
-  --portal-glass-border: rgba(255, 255, 255, 0.9);
+  --portal-glass-bg: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.85) 0%,
+    rgba(255, 255, 255, 0.62) 100%
+  );
+  --portal-glass-border: rgba(255, 255, 255, 0.95);
   --portal-glass-border-hover: #ffffff;
-  --portal-glass-blur: 20px;
+  --portal-glass-blur: 24px;
   --portal-glass-shadow:
-    0 14px 34px -4px rgba(180, 110, 120, 0.14),
-    0 4px 12px -2px rgba(180, 110, 120, 0.08),
-    inset 0 1px 1.5px 0 rgba(255, 255, 255, 1);
+    0 16px 38px -4px rgba(180, 110, 120, 0.16),
+    0 4px 14px -2px rgba(180, 110, 120, 0.08),
+    inset 0 1px 2px 0 rgba(255, 255, 255, 1);
   --portal-glass-shadow-hover:
-    0 20px 42px -4px rgba(180, 110, 120, 0.22),
-    0 0 24px rgba(244, 114, 182, 0.25), inset 0 1px 2px 0 rgba(255, 255, 255, 1);
+    0 24px 44px -4px rgba(180, 110, 120, 0.24),
+    0 0 28px rgba(244, 114, 182, 0.3), inset 0 1px 2px 0 rgba(255, 255, 255, 1);
 }
 
-/* 1. Portal Canvas (Satin & Diamonds Luxury Wallpapers) */
-html.dark .portal-shell,
-html:not(.light) .portal-shell,
+/* 1. Portal Canvas (Satin & Diamonds Luxury Wallpapers via Hardware-Accelerated Fixed Layer) */
 .portal-shell {
+  position: relative !important;
+  background-color: transparent !important;
+}
+
+.portal-shell::before {
+  content: '' !important;
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 0 !important;
+  pointer-events: none !important;
+  background-size: cover !important;
+  background-position: center center !important;
+  background-repeat: no-repeat !important;
+  transform: translateZ(0);
+}
+
+html.dark .portal-shell::before,
+html:not(.light) .portal-shell::before,
+.portal-shell::before {
   background-color: #080b18 !important;
   background-image:
     linear-gradient(
       135deg,
-      rgba(88, 28, 135, 0.22) 0%,
-      rgba(30, 58, 138, 0.18) 50%,
-      rgba(8, 11, 24, 0.42) 100%
+      rgba(88, 28, 135, 0.32) 0%,
+      rgba(30, 58, 138, 0.24) 50%,
+      rgba(8, 11, 24, 0.48) 100%
     ),
     url('/images/portal/portal-dark-bg.jpg') !important;
-  background-size: cover !important;
-  background-position: center center !important;
-  background-repeat: no-repeat !important;
-  background-attachment: fixed !important;
 }
 
-html.dark .portal-shell.bg-slate-50,
-html.dark .portal-shell.bg-white,
-html.dark .portal-shell[class*='bg-'],
-.portal-shell.bg-slate-50,
-.portal-shell[class*='bg-'] {
-  background-color: #080b18 !important;
-  background-image:
-    linear-gradient(
-      135deg,
-      rgba(88, 28, 135, 0.22) 0%,
-      rgba(30, 58, 138, 0.18) 50%,
-      rgba(8, 11, 24, 0.42) 100%
-    ),
-    url('/images/portal/portal-dark-bg.jpg') !important;
-  background-size: cover !important;
-  background-position: center center !important;
-  background-repeat: no-repeat !important;
-  background-attachment: fixed !important;
-}
-
-html.light .portal-shell {
+html.light .portal-shell::before {
   background-color: #fcf4f5 !important;
   background-image:
     linear-gradient(
       135deg,
-      rgba(254, 243, 199, 0.28) 0%,
-      rgba(253, 242, 248, 0.2) 50%,
-      rgba(255, 255, 255, 0.4) 100%
+      rgba(254, 243, 199, 0.32) 0%,
+      rgba(253, 242, 248, 0.22) 50%,
+      rgba(255, 255, 255, 0.45) 100%
     ),
     url('/images/portal/portal-light-bg.jpg') !important;
-  background-size: cover !important;
-  background-position: center center !important;
-  background-repeat: no-repeat !important;
-  background-attachment: fixed !important;
 }
 
-html.light .portal-shell.bg-slate-50,
-html.light .portal-shell.bg-white,
-html.light .portal-shell[class*='bg-'] {
-  background-color: #fcf4f5 !important;
-  background-image:
-    linear-gradient(
-      135deg,
-      rgba(254, 243, 199, 0.28) 0%,
-      rgba(253, 242, 248, 0.2) 50%,
-      rgba(255, 255, 255, 0.4) 100%
-    ),
-    url('/images/portal/portal-light-bg.jpg') !important;
-  background-size: cover !important;
-  background-position: center center !important;
-  background-repeat: no-repeat !important;
-  background-attachment: fixed !important;
+.portal-shell > * {
+  position: relative;
+  z-index: 10;
 }
 
 /* 2. Full-Page Canvases & Inner Wrappers Must Be 100% Transparent */
@@ -516,6 +502,18 @@ html.light .portal-shell header [class*='absolute'][class*='z-50'] {
 }
 
 /* 4. Glassmorphic Surface Cards & Panels (Both Dark & Light) */
+.portal-shell .portal-glass-card,
+.portal-shell .bg-\[\#131726\],
+.portal-shell .bg-\[\#151520\],
+.portal-shell .bg-\[\#0f0f17\],
+.portal-shell .bg-\[\#0f0f18\],
+.portal-shell .bg-\[\#101321\],
+.portal-shell .bg-\[\#141824\],
+.portal-shell .bg-\[\#1a1f33\],
+.portal-shell .bg-\[\#161b2e\],
+.portal-shell .bg-\[\#1e2235\],
+.portal-shell .bg-\[\#080B14\],
+.portal-shell .bg-\[\#0d0f1a\],
 .portal-shell [class*='bg-[#131726]'],
 .portal-shell [class*='bg-[#0f0f17]'],
 .portal-shell [class*='bg-[#0f0f18]'],
@@ -527,12 +525,22 @@ html.light .portal-shell header [class*='absolute'][class*='z-50'] {
 .portal-shell [class*='bg-[#1e2235]'],
 .portal-shell [class*='bg-[#080B14]'],
 .portal-shell [class*='bg-[#0d0f1a]'],
-.portal-shell [class*='bg-white/5'],
-.portal-shell [class*='bg-white/10'],
 .portal-shell [class*='dark:bg-tech-surface'],
 .portal-shell [class*='dark:bg-tech-card'],
 .portal-shell [class*='bg-tech-card'],
-.portal-shell .portal-glass-card,
+html.light .portal-shell .portal-glass-card,
+html.light .portal-shell .bg-\[\#131726\],
+html.light .portal-shell .bg-\[\#151520\],
+html.light .portal-shell .bg-\[\#0f0f17\],
+html.light .portal-shell .bg-\[\#0f0f18\],
+html.light .portal-shell .bg-\[\#101321\],
+html.light .portal-shell .bg-\[\#141824\],
+html.light .portal-shell .bg-\[\#1a1f33\],
+html.light .portal-shell .bg-\[\#151520\],
+html.light .portal-shell .bg-\[\#161b2e\],
+html.light .portal-shell .bg-\[\#1e2235\],
+html.light .portal-shell .bg-\[\#080B14\],
+html.light .portal-shell .bg-\[\#0d0f1a\],
 html.light .portal-shell [class*='bg-[#131726]'],
 html.light .portal-shell [class*='bg-[#0f0f17]'],
 html.light .portal-shell [class*='bg-[#0f0f18]'],
@@ -544,25 +552,25 @@ html.light .portal-shell [class*='bg-[#161b2e]'],
 html.light .portal-shell [class*='bg-[#1e2235]'],
 html.light .portal-shell [class*='bg-[#080B14]'],
 html.light .portal-shell [class*='bg-[#0d0f1a]'],
-html.light .portal-shell [class*='bg-white/5'],
-html.light .portal-shell [class*='bg-white/10'],
-html.light .portal-shell [class*='bg-white'],
 html.light .portal-shell [class*='dark:bg-tech-surface'],
 html.light .portal-shell [class*='dark:bg-tech-card'],
-html.light .portal-shell [class*='bg-tech-card'],
-html.light .portal-shell .portal-glass-card {
+html.light .portal-shell [class*='bg-tech-card'] {
   background: var(--portal-glass-bg) !important;
-  backdrop-filter: blur(var(--portal-glass-blur)) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(var(--portal-glass-blur)) saturate(180%) !important;
+  backdrop-filter: blur(var(--portal-glass-blur)) saturate(190%) !important;
+  -webkit-backdrop-filter: blur(var(--portal-glass-blur)) saturate(190%) !important;
   border: 1px solid var(--portal-glass-border) !important;
   box-shadow: var(--portal-glass-shadow) !important;
+  transform: translateZ(0);
   transition:
     border-color 0.25s ease,
     box-shadow 0.25s ease,
-    background-color 0.25s ease,
+    background 0.25s ease,
     transform 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
+.portal-shell .portal-glass-card:hover,
+.portal-shell .bg-\[\#131726\]:hover,
+.portal-shell .bg-\[\#151520\]:hover,
 .portal-shell [class*='bg-[#131726]']:hover,
 .portal-shell [class*='bg-[#0f0f17]']:hover,
 .portal-shell [class*='bg-[#0f0f18]']:hover,
@@ -572,7 +580,9 @@ html.light .portal-shell .portal-glass-card {
 .portal-shell [class*='bg-[#161b2e]']:hover,
 .portal-shell [class*='bg-[#080B14]']:hover,
 .portal-shell [class*='bg-[#0d0f1a]']:hover,
-.portal-shell .portal-glass-card:hover,
+html.light .portal-shell .portal-glass-card:hover,
+html.light .portal-shell .bg-\[\#131726\]:hover,
+html.light .portal-shell .bg-\[\#151520\]:hover,
 html.light .portal-shell [class*='bg-[#131726]']:hover,
 html.light .portal-shell [class*='bg-[#0f0f17]']:hover,
 html.light .portal-shell [class*='bg-[#0f0f18]']:hover,
@@ -581,9 +591,7 @@ html.light .portal-shell [class*='bg-[#141824]']:hover,
 html.light .portal-shell [class*='bg-[#151520]']:hover,
 html.light .portal-shell [class*='bg-[#161b2e]']:hover,
 html.light .portal-shell [class*='bg-[#080B14]']:hover,
-html.light .portal-shell [class*='bg-[#0d0f1a]']:hover,
-html.light .portal-shell [class*='bg-white']:hover,
-html.light .portal-shell .portal-glass-card:hover {
+html.light .portal-shell [class*='bg-[#0d0f1a]']:hover {
   border-color: var(--portal-glass-border-hover) !important;
   box-shadow: var(--portal-glass-shadow-hover) !important;
   transform: translateY(-2px) !important;
