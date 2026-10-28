@@ -577,7 +577,7 @@ export default function AdminLayout({
   return (
     <PortalThemeProvider>
       <div
-        className="portal-shell flex h-screen overflow-hidden bg-slate-50 dark:bg-[#0d0f1a]"
+        className="portal-shell flex h-screen overflow-hidden"
         style={{ fontFamily: 'Inter, system-ui, sans-serif' }}
       >
         {/* Desktop Sidebar */}
@@ -623,7 +623,7 @@ export default function AdminLayout({
         {/* Main Content */}
         <div className="flex h-full flex-1 flex-col overflow-hidden">
           {/* Header */}
-          <header className="flex h-14 flex-shrink-0 items-center justify-between border-b border-slate-200 bg-white px-4 dark:border-white/5 dark:bg-[#131726]">
+          <header className="relative z-40 flex h-14 flex-shrink-0 items-center justify-between border-b border-slate-200 bg-white px-4 dark:border-white/5 dark:bg-[#131726]">
             <div className="flex items-center gap-3">
               <button
                 className="text-slate-500 transition-colors hover:text-slate-900 dark:text-slate-400 dark:hover:text-white lg:hidden"
@@ -660,7 +660,7 @@ export default function AdminLayout({
           </header>
 
           {/* Page Content */}
-          <main className="flex-1 overflow-y-auto bg-slate-50 dark:bg-[#0d0f1a]">
+          <main className="relative z-10 flex-1 overflow-y-auto">
             <div className="min-h-full p-4 sm:p-6">{children}</div>
           </main>
         </div>

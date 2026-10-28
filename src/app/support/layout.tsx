@@ -32,6 +32,7 @@ import {
 import toast from 'react-hot-toast';
 import { PortalThemeProvider } from '@/context/PortalThemeContext';
 import { ThemeToggle } from '@/components/portal/ThemeToggle';
+import { PortalSwitcherDropdown } from '@/components/portal/PortalSwitcherDropdown';
 import dynamic from 'next/dynamic';
 
 const FloatingStaffMessenger = dynamic(
@@ -468,7 +469,7 @@ export default function SupportLayout({
   return (
     <PortalThemeProvider>
       <div
-        className="portal-shell flex h-screen overflow-hidden bg-slate-50 text-slate-900 selection:bg-indigo-500/30 dark:bg-[#0A0D16] dark:text-slate-200"
+        className="portal-shell flex h-screen overflow-hidden text-slate-900 dark:text-slate-200"
         style={{
           fontFamily: 'Outfit, Inter, system-ui, -apple-system, sans-serif',
         }}
@@ -502,7 +503,7 @@ export default function SupportLayout({
         )}
 
         {/* Main Container */}
-        <div className="relative flex h-full flex-1 flex-col overflow-hidden bg-slate-50 dark:bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] dark:from-indigo-900/10 dark:via-[#0A0D16] dark:to-[#0A0D16]">
+        <div className="relative flex h-full flex-1 flex-col overflow-hidden">
           {/* Mobile menu trigger */}
           <button
             className="absolute left-4 top-4 z-30 flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 shadow-md backdrop-blur-md transition-all hover:text-slate-900 dark:border-white/10 dark:bg-[#080B14]/80 dark:text-slate-400 dark:shadow-xl dark:hover:text-white lg:hidden"
@@ -512,7 +513,7 @@ export default function SupportLayout({
           </button>
 
           {/* Top Header (Desktop) - Optional Global Search & Auto-Assign */}
-          <header className="hidden h-16 w-full flex-shrink-0 items-center justify-between border-b border-slate-200 bg-white px-8 backdrop-blur-md dark:border-white/5 dark:bg-[#080B14]/80 lg:flex">
+          <header className="relative z-40 hidden h-16 w-full flex-shrink-0 items-center justify-between border-b border-slate-200 bg-white px-8 backdrop-blur-md dark:border-white/5 dark:bg-[#080B14]/80 lg:flex">
             <div className="flex flex-1 items-center gap-4">
               {unassignedCount !== null && unassignedCount > 0 && (
                 <button
@@ -530,6 +531,7 @@ export default function SupportLayout({
               )}
             </div>
             <div className="flex items-center gap-3">
+              <PortalSwitcherDropdown currentPortalId="support" />
               <ThemeToggle />
               <form onSubmit={handleGlobalSearch} className="relative w-64">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 dark:text-slate-500" />
@@ -545,7 +547,7 @@ export default function SupportLayout({
           </header>
 
           {/* Page Body */}
-          <main className="custom-scrollbar flex-1 overflow-y-auto">
+          <main className="custom-scrollbar relative z-10 flex-1 overflow-y-auto">
             <div className="min-h-full p-4 pt-16 sm:p-6 lg:p-8 lg:pt-4">
               {children}
             </div>

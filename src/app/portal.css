@@ -22,6 +22,12 @@ html.light {
 .portal-shell [class*='bg-[#080B14]'],
 .portal-shell [class*='bg-tech-bg'],
 .portal-shell [class*='bg-slate-50'],
+html.dark .portal-shell [class*='bg-[#0d0f1a]'],
+html.dark .portal-shell [class*='bg-[#0a0a0f]'],
+html.dark .portal-shell [class*='bg-[#0A0D16]'],
+html.dark .portal-shell [class*='bg-[#080B14]'],
+html.dark .portal-shell [class*='bg-tech-bg'],
+html.dark .portal-shell [class*='bg-slate-50'],
 html.light .portal-shell [class*='bg-[#0d0f1a]'],
 html.light .portal-shell [class*='bg-[#0a0a0f]'],
 html.light .portal-shell [class*='bg-[#0A0D16]'],
@@ -328,7 +334,29 @@ html.light {
 }
 
 /* 1. Portal Canvas (Satin & Diamonds Luxury Wallpapers) */
+html.dark .portal-shell,
+html:not(.light) .portal-shell,
 .portal-shell {
+  background-color: #080b18 !important;
+  background-image:
+    linear-gradient(
+      135deg,
+      rgba(88, 28, 135, 0.22) 0%,
+      rgba(30, 58, 138, 0.18) 50%,
+      rgba(8, 11, 24, 0.42) 100%
+    ),
+    url('/images/portal/portal-dark-bg.jpg') !important;
+  background-size: cover !important;
+  background-position: center center !important;
+  background-repeat: no-repeat !important;
+  background-attachment: fixed !important;
+}
+
+html.dark .portal-shell.bg-slate-50,
+html.dark .portal-shell.bg-white,
+html.dark .portal-shell[class*='bg-'],
+.portal-shell.bg-slate-50,
+.portal-shell[class*='bg-'] {
   background-color: #080b18 !important;
   background-image:
     linear-gradient(
@@ -360,6 +388,24 @@ html.light .portal-shell {
   background-attachment: fixed !important;
 }
 
+html.light .portal-shell.bg-slate-50,
+html.light .portal-shell.bg-white,
+html.light .portal-shell[class*='bg-'] {
+  background-color: #fcf4f5 !important;
+  background-image:
+    linear-gradient(
+      135deg,
+      rgba(254, 243, 199, 0.28) 0%,
+      rgba(253, 242, 248, 0.2) 50%,
+      rgba(255, 255, 255, 0.4) 100%
+    ),
+    url('/images/portal/portal-light-bg.jpg') !important;
+  background-size: cover !important;
+  background-position: center center !important;
+  background-repeat: no-repeat !important;
+  background-attachment: fixed !important;
+}
+
 /* 2. Full-Page Canvases & Inner Wrappers Must Be 100% Transparent */
 .portal-shell main,
 .portal-shell > div,
@@ -370,6 +416,17 @@ html.light .portal-shell {
 .portal-shell [class*='bg-[#080B14]'],
 .portal-shell [class*='bg-tech-bg'],
 .portal-shell [class*='bg-slate-50'],
+html.dark .portal-shell main,
+html.dark .portal-shell main.bg-slate-50,
+html.dark .portal-shell main[class*='bg-'],
+html.dark .portal-shell [class*='bg-[#0d0f1a]'],
+html.dark .portal-shell [class*='bg-[#0a0a0f]'],
+html.dark .portal-shell [class*='bg-[#0A0D16]'],
+html.dark .portal-shell [class*='bg-[#080B14]'],
+html.dark .portal-shell [class*='bg-tech-bg'],
+html.dark .portal-shell [class*='bg-slate-50'],
+html.dark .portal-shell > div,
+html.dark .portal-shell .overflow-y-auto,
 html.light .portal-shell main,
 html.light .portal-shell > div,
 html.light .portal-shell .overflow-y-auto,
@@ -385,6 +442,8 @@ html.light .portal-shell [class*='bg-slate-50'] {
 
 /* 3. Glassmorphic Navigation (Sidebar & Topbar Header) */
 .portal-shell aside {
+  position: relative !important;
+  z-index: 30 !important;
   background: rgba(10, 14, 25, 0.65) !important;
   backdrop-filter: blur(24px) saturate(190%) !important;
   -webkit-backdrop-filter: blur(24px) saturate(190%) !important;
@@ -392,7 +451,10 @@ html.light .portal-shell [class*='bg-slate-50'] {
   box-shadow: 4px 0 28px -4px rgba(0, 0, 0, 0.45) !important;
 }
 
+/* Header has high z-index stacking context (z-40) so open dropdowns always float above main cards (z-10) */
 .portal-shell header {
+  position: relative !important;
+  z-index: 40 !important;
   background: rgba(10, 14, 25, 0.62) !important;
   backdrop-filter: blur(24px) saturate(190%) !important;
   -webkit-backdrop-filter: blur(24px) saturate(190%) !important;
@@ -400,7 +462,14 @@ html.light .portal-shell [class*='bg-slate-50'] {
   box-shadow: 0 4px 24px -2px rgba(0, 0, 0, 0.35) !important;
 }
 
+.portal-shell main {
+  position: relative !important;
+  z-index: 10 !important;
+}
+
 html.light .portal-shell aside {
+  position: relative !important;
+  z-index: 30 !important;
   background: rgba(255, 255, 255, 0.7) !important;
   backdrop-filter: blur(24px) saturate(180%) !important;
   -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
@@ -409,11 +478,46 @@ html.light .portal-shell aside {
 }
 
 html.light .portal-shell header {
+  position: relative !important;
+  z-index: 40 !important;
   background: rgba(255, 255, 255, 0.68) !important;
   backdrop-filter: blur(24px) saturate(180%) !important;
   -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
   border-bottom: 1px solid rgba(255, 255, 255, 0.8) !important;
   box-shadow: 0 4px 20px -2px rgba(180, 110, 120, 0.06) !important;
+}
+
+html.light .portal-shell main {
+  position: relative !important;
+  z-index: 10 !important;
+}
+
+/* Header dropdown popovers float cleanly with z-50 and liquid glass backdrop */
+.portal-shell header [class*='z-50'],
+.portal-shell header .z-50 {
+  z-index: 50 !important;
+}
+
+.portal-shell header .animate-in,
+.portal-shell header [class*='absolute'][class*='z-50'] {
+  background: rgba(15, 20, 36, 0.94) !important;
+  backdrop-filter: blur(24px) saturate(190%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(190%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  box-shadow:
+    0 20px 48px -4px rgba(0, 0, 0, 0.65),
+    0 0 24px rgba(139, 92, 246, 0.18) !important;
+}
+
+html.light .portal-shell header .animate-in,
+html.light .portal-shell header [class*='absolute'][class*='z-50'] {
+  background: rgba(255, 255, 255, 0.94) !important;
+  backdrop-filter: blur(24px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.95) !important;
+  box-shadow:
+    0 20px 40px -4px rgba(180, 110, 120, 0.22),
+    0 0 20px rgba(244, 114, 182, 0.2) !important;
 }
 
 /* 4. Glassmorphic Surface Cards & Panels (Both Dark & Light) */

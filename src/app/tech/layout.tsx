@@ -32,6 +32,7 @@ import {
 } from 'lucide-react';
 import { PortalThemeProvider } from '@/context/PortalThemeContext';
 import { ThemeToggle } from '@/components/portal/ThemeToggle';
+import { PortalSwitcherDropdown } from '@/components/portal/PortalSwitcherDropdown';
 import dynamic from 'next/dynamic';
 
 const FloatingStaffMessenger = dynamic(
@@ -349,7 +350,7 @@ export default function TechLayout({
   return (
     <PortalThemeProvider>
       <div
-        className="portal-shell flex h-screen overflow-hidden bg-slate-50 text-slate-900 dark:bg-tech-bg dark:text-tech-text"
+        className="portal-shell flex h-screen overflow-hidden text-slate-900 dark:text-tech-text"
         style={{ fontFamily: 'Inter, system-ui, sans-serif' }}
       >
         {/* Desktop Sidebar */}
@@ -383,7 +384,7 @@ export default function TechLayout({
         {/* Main Content */}
         <div className="flex h-full flex-1 flex-col overflow-hidden">
           {/* Header */}
-          <header className="flex h-14 flex-shrink-0 items-center justify-between border-b border-slate-200 bg-white px-4 dark:border-tech-border dark:bg-tech-surface">
+          <header className="relative z-40 flex h-14 flex-shrink-0 items-center justify-between border-b border-slate-200 bg-white px-4 dark:border-tech-border dark:bg-tech-surface">
             <div className="flex items-center gap-3">
               <button
                 className="text-slate-500 transition-colors hover:text-slate-900 dark:text-slate-400 dark:hover:text-white lg:hidden"
@@ -401,6 +402,7 @@ export default function TechLayout({
               </div>
             </div>
             <div className="flex items-center gap-2">
+              <PortalSwitcherDropdown currentPortalId="tech" />
               <ThemeToggle />
               <Link
                 href="/admin/settings"
@@ -421,7 +423,7 @@ export default function TechLayout({
           </header>
 
           {/* Page Content */}
-          <main className="flex-1 overflow-y-auto bg-slate-50 dark:bg-tech-bg">
+          <main className="relative z-10 flex-1 overflow-y-auto">
             <div className="min-h-full p-4 sm:p-6">{children}</div>
           </main>
         </div>

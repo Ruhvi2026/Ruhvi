@@ -25,6 +25,7 @@ import {
 import { OrderNotificationCenter } from '@/components/portal-orders/OrderNotificationCenter';
 import { PortalThemeProvider } from '@/context/PortalThemeContext';
 import { ThemeToggle } from '@/components/portal/ThemeToggle';
+import { PortalSwitcherDropdown } from '@/components/portal/PortalSwitcherDropdown';
 import dynamic from 'next/dynamic';
 
 const FloatingStaffMessenger = dynamic(
@@ -348,7 +349,7 @@ export default function OrdersPortalLayout({
   return (
     <PortalThemeProvider>
       <div
-        className="portal-shell flex h-screen overflow-hidden bg-slate-50 dark:bg-[#0a0a0f]"
+        className="portal-shell flex h-screen overflow-hidden"
         style={{ fontFamily: 'Inter, system-ui, sans-serif' }}
       >
         <aside
@@ -376,7 +377,7 @@ export default function OrdersPortalLayout({
         )}
 
         <div className="flex h-full flex-1 flex-col overflow-hidden">
-          <header className="flex h-14 flex-shrink-0 items-center justify-between border-b border-slate-200 bg-white px-4 dark:border-white/5 dark:bg-[#0f0f17]">
+          <header className="relative z-40 flex h-14 flex-shrink-0 items-center justify-between border-b border-slate-200 bg-white px-4 dark:border-white/5 dark:bg-[#0f0f17]">
             <div className="flex items-center gap-3">
               <button
                 className="text-slate-500 transition-colors hover:text-slate-900 dark:text-slate-400 dark:hover:text-white lg:hidden"
@@ -402,6 +403,7 @@ export default function OrdersPortalLayout({
               </div>
             </div>
             <div className="flex items-center gap-3">
+              <PortalSwitcherDropdown currentPortalId="orders" />
               <ThemeToggle />
               <OrderNotificationCenter />
               <div className="mx-1 h-5 w-px bg-slate-200 dark:bg-white/10" />
@@ -414,7 +416,7 @@ export default function OrdersPortalLayout({
             </div>
           </header>
 
-          <main className="flex-1 overflow-y-auto bg-slate-50 dark:bg-[#0a0a0f]">
+          <main className="relative z-10 flex-1 overflow-y-auto">
             <div className="min-h-full p-4 sm:p-6">{children}</div>
           </main>
         </div>

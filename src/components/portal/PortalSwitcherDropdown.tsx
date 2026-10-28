@@ -110,7 +110,7 @@ export function PortalSwitcherDropdown({
   }, []);
 
   return (
-    <div ref={ref} className="relative">
+    <div ref={ref} className="relative z-50">
       <button
         type="button"
         onClick={() => setOpen(!open)}
