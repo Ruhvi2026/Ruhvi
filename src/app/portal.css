@@ -16,24 +16,19 @@ html.light {
 }
 
 /* ---- Full-page canvases & wrappers stay transparent to show wallpaper ---- */
-.portal-shell [class*='bg-[#0d0f1a]'],
-.portal-shell [class*='bg-[#0a0a0f]'],
-.portal-shell [class*='bg-[#0A0D16]'],
-.portal-shell [class*='bg-[#080B14]'],
+.portal-shell main,
+.portal-shell > div,
+.portal-shell .portal-canvas,
 .portal-shell [class*='bg-tech-bg'],
-.portal-shell [class*='bg-slate-50'],
-html.dark .portal-shell [class*='bg-[#0d0f1a]'],
-html.dark .portal-shell [class*='bg-[#0a0a0f]'],
-html.dark .portal-shell [class*='bg-[#0A0D16]'],
-html.dark .portal-shell [class*='bg-[#080B14]'],
-html.dark .portal-shell [class*='bg-tech-bg'],
-html.dark .portal-shell [class*='bg-slate-50'],
-html.light .portal-shell [class*='bg-[#0d0f1a]'],
-html.light .portal-shell [class*='bg-[#0a0a0f]'],
-html.light .portal-shell [class*='bg-[#0A0D16]'],
-html.light .portal-shell [class*='bg-[#080B14]'],
-html.light .portal-shell [class*='bg-tech-bg'],
-html.light .portal-shell [class*='bg-slate-50'] {
+html.dark .portal-shell main,
+html.dark .portal-shell > div,
+html.light .portal-shell main,
+html.light .portal-shell > div,
+html.light
+  .portal-shell
+  [class*='bg-slate-50']:not(.portal-glass-card):not([class*='p-']):not(
+    [class*='rounded-']
+  ) {
   background-color: transparent !important;
   background-image: none !important;
 }
@@ -523,27 +518,38 @@ html.light .portal-shell header [class*='absolute'][class*='z-50'] {
 /* 4. Glassmorphic Surface Cards & Panels (Both Dark & Light) */
 .portal-shell [class*='bg-[#131726]'],
 .portal-shell [class*='bg-[#0f0f17]'],
+.portal-shell [class*='bg-[#0f0f18]'],
 .portal-shell [class*='bg-[#101321]'],
 .portal-shell [class*='bg-[#141824]'],
 .portal-shell [class*='bg-[#1a1f33]'],
 .portal-shell [class*='bg-[#151520]'],
 .portal-shell [class*='bg-[#161b2e]'],
 .portal-shell [class*='bg-[#1e2235]'],
+.portal-shell [class*='bg-[#080B14]'],
+.portal-shell [class*='bg-[#0d0f1a]'],
 .portal-shell [class*='bg-white/5'],
 .portal-shell [class*='bg-white/10'],
 .portal-shell [class*='dark:bg-tech-surface'],
+.portal-shell [class*='dark:bg-tech-card'],
+.portal-shell [class*='bg-tech-card'],
 .portal-shell .portal-glass-card,
 html.light .portal-shell [class*='bg-[#131726]'],
 html.light .portal-shell [class*='bg-[#0f0f17]'],
+html.light .portal-shell [class*='bg-[#0f0f18]'],
 html.light .portal-shell [class*='bg-[#101321]'],
 html.light .portal-shell [class*='bg-[#141824]'],
 html.light .portal-shell [class*='bg-[#1a1f33]'],
 html.light .portal-shell [class*='bg-[#151520]'],
 html.light .portal-shell [class*='bg-[#161b2e]'],
 html.light .portal-shell [class*='bg-[#1e2235]'],
+html.light .portal-shell [class*='bg-[#080B14]'],
+html.light .portal-shell [class*='bg-[#0d0f1a]'],
 html.light .portal-shell [class*='bg-white/5'],
 html.light .portal-shell [class*='bg-white/10'],
 html.light .portal-shell [class*='bg-white'],
+html.light .portal-shell [class*='dark:bg-tech-surface'],
+html.light .portal-shell [class*='dark:bg-tech-card'],
+html.light .portal-shell [class*='bg-tech-card'],
 html.light .portal-shell .portal-glass-card {
   background: var(--portal-glass-bg) !important;
   backdrop-filter: blur(var(--portal-glass-blur)) saturate(180%) !important;
@@ -559,17 +565,23 @@ html.light .portal-shell .portal-glass-card {
 
 .portal-shell [class*='bg-[#131726]']:hover,
 .portal-shell [class*='bg-[#0f0f17]']:hover,
+.portal-shell [class*='bg-[#0f0f18]']:hover,
 .portal-shell [class*='bg-[#101321]']:hover,
 .portal-shell [class*='bg-[#141824]']:hover,
 .portal-shell [class*='bg-[#151520]']:hover,
 .portal-shell [class*='bg-[#161b2e]']:hover,
+.portal-shell [class*='bg-[#080B14]']:hover,
+.portal-shell [class*='bg-[#0d0f1a]']:hover,
 .portal-shell .portal-glass-card:hover,
 html.light .portal-shell [class*='bg-[#131726]']:hover,
 html.light .portal-shell [class*='bg-[#0f0f17]']:hover,
+html.light .portal-shell [class*='bg-[#0f0f18]']:hover,
 html.light .portal-shell [class*='bg-[#101321]']:hover,
 html.light .portal-shell [class*='bg-[#141824]']:hover,
 html.light .portal-shell [class*='bg-[#151520]']:hover,
 html.light .portal-shell [class*='bg-[#161b2e]']:hover,
+html.light .portal-shell [class*='bg-[#080B14]']:hover,
+html.light .portal-shell [class*='bg-[#0d0f1a]']:hover,
 html.light .portal-shell [class*='bg-white']:hover,
 html.light .portal-shell .portal-glass-card:hover {
   border-color: var(--portal-glass-border-hover) !important;

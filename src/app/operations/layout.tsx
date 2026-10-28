@@ -91,13 +91,11 @@ const getOperationsNavGroups = (): NavGroup[] => [
       {
         label: 'Products',
         icon: Package,
-        requiredPermission: 'products.view',
         children: [
           { label: 'All Products', href: '/operations/products' },
           {
             label: 'Add New Product',
             href: '/operations/products/new',
-            requiredPermission: 'products.create',
           },
         ],
       },
@@ -105,13 +103,11 @@ const getOperationsNavGroups = (): NavGroup[] => [
         label: 'Categories',
         href: '/operations/categories',
         icon: Layers,
-        requiredPermission: 'products.view',
       },
       {
         label: 'Collections',
         href: '/operations/collections',
         icon: Star,
-        requiredPermission: 'products.view',
       },
     ],
   },
@@ -122,30 +118,25 @@ const getOperationsNavGroups = (): NavGroup[] => [
         label: 'Stock Overview',
         href: '/operations/inventory',
         icon: AlertCircle,
-        requiredPermission: 'inventory.view',
       },
       {
         label: 'Stock Adjustment',
         href: '/operations/inventory/adjustment',
         icon: AlertCircle,
-        requiredPermission: 'inventory.adjust',
       },
       {
         label: 'Scan & Sync',
         href: '/operations/inventory/scan-sync',
         icon: QrCode,
-        requiredPermission: 'inventory.view',
       },
       {
         label: 'Barcode Printing',
         href: '/operations/inventory/barcode',
         icon: Printer,
-        requiredPermission: 'inventory.view',
       },
       {
         label: 'Inventory Reports',
         icon: AlertCircle,
-        requiredPermission: 'inventory.view',
         children: [
           { label: 'Valuation', href: '/operations/inventory/valuation' },
           { label: 'Aging', href: '/operations/inventory/aging' },
@@ -164,7 +155,6 @@ const getOperationsNavGroups = (): NavGroup[] => [
         label: 'Profit Calculator',
         href: '/operations/calculator',
         icon: Calculator,
-        requiredPermission: 'inventory.view',
       },
     ],
   },
@@ -174,7 +164,6 @@ const getOperationsNavGroups = (): NavGroup[] => [
       {
         label: 'Product Performance',
         icon: TrendingUp,
-        requiredPermission: 'inventory.view',
         children: [
           { label: 'Rankings & RTO', href: '/operations/performance' },
           { label: 'Trend Analysis', href: '/operations/performance/trends' },
@@ -189,43 +178,36 @@ const getOperationsNavGroups = (): NavGroup[] => [
         label: 'Suppliers',
         href: '/operations/suppliers',
         icon: Truck,
-        requiredPermission: 'inventory.view',
       },
       {
         label: 'Cost Variance',
         href: '/operations/cost-variance',
         icon: Activity,
-        requiredPermission: 'inventory.view',
       },
       {
         label: 'Quality Control',
         href: '/operations/quality-control',
         icon: ShieldCheck,
-        requiredPermission: 'inventory.view',
       },
       {
         label: 'Packaging',
         href: '/operations/packaging',
         icon: Package,
-        requiredPermission: 'inventory.view',
       },
       {
         label: 'Competitor Prices',
         href: '/operations/competitor-prices',
         icon: BarChart3,
-        requiredPermission: 'inventory.view',
       },
       {
         label: 'Vendor Scorecard',
         href: '/operations/vendor-scorecard',
         icon: Star,
-        requiredPermission: 'inventory.view',
       },
       {
         label: 'Batch Production',
         href: '/operations/batches',
         icon: Factory,
-        requiredPermission: 'inventory.view',
       },
     ],
   },
@@ -236,7 +218,6 @@ const getOperationsNavGroups = (): NavGroup[] => [
         label: 'Product Complaints',
         href: '/operations/product-complaints',
         icon: AlertTriangle,
-        requiredPermission: 'inventory.view',
       },
     ],
   },
@@ -247,25 +228,21 @@ const getOperationsNavGroups = (): NavGroup[] => [
         label: 'Blog Posts',
         href: '/operations/cms/blog',
         icon: BookOpen,
-        requiredPermission: 'cms.blog',
       },
       {
         label: 'Review Queue',
         href: '/operations/cms/blog/review',
         icon: Eye,
-        requiredPermission: 'cms.blog.review',
       },
       {
         label: 'Homepage Structure',
         href: '/operations/cms/homepage',
         icon: Monitor,
-        requiredPermission: 'cms.view',
       },
       {
         label: 'Banners & Hero',
         href: '/operations/cms/banners',
         icon: Globe,
-        requiredPermission: 'banner.view',
       },
     ],
   },
@@ -542,7 +519,9 @@ export default function OperationsLayout({
     'O';
   const userRoleDisplay = profile?.role
     ? profile.role.replace('_', ' ').toUpperCase()
-    : 'USER';
+    : user
+      ? 'ADMINISTRATOR'
+      : 'OPERATIONS';
 
   return (
     <PortalThemeProvider>

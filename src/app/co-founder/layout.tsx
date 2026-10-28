@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import '@/app/portal.css';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import {
@@ -33,9 +34,9 @@ export default function CoFounderPortalLayout({
 
   return (
     <PortalThemeProvider>
-      <div className="flex min-h-screen flex-col bg-neutral-950 font-sans text-neutral-100 selection:bg-amber-500 selection:text-neutral-950 dark:bg-neutral-950">
+      <div className="portal-shell flex min-h-screen flex-col font-sans text-slate-900 selection:bg-amber-500 selection:text-neutral-950 dark:text-neutral-100">
         {/* Top Executive Navigation Bar */}
-        <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b border-neutral-800/80 bg-neutral-900/60 px-4 backdrop-blur-xl md:px-8">
+        <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b border-slate-200/80 bg-white/70 px-4 backdrop-blur-xl dark:border-white/10 dark:bg-neutral-900/60 md:px-8">
           {/* Left: Brand & Portal Badge */}
           <div className="flex items-center gap-4">
             <Link href="/co-founder" className="group flex items-center gap-3">
