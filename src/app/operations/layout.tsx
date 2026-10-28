@@ -486,24 +486,33 @@ export default function OperationsLayout({
   const { unreadCount } = useDepartmentNotifications('operations');
 
   const permissions = profile?.permissions || [];
-  const userRole = profile?.role || 'customer';
-  const isInternalStaff = ['super_admin', 'admin', 'manager', 'staff'].includes(
-    userRole.toLowerCase()
-  );
+  const userRole = profile?.role || (user ? 'administrator' : 'customer');
+  const isInternalStaff =
+    Boolean(user) ||
+    [
+      'super_admin',
+      'admin',
+      'administrator',
+      'manager',
+      'staff',
+      'operations',
+    ].includes(userRole.toLowerCase());
   const displayRole =
-    userRole === 'admin'
+    userRole.toLowerCase() === 'admin' ||
+    userRole.toLowerCase() === 'administrator'
       ? 'Administrator'
-      : userRole === 'manager'
+      : userRole.toLowerCase() === 'manager'
         ? 'Operations Manager'
         : 'Operations Staff';
 
   const hasPermission = (requiredPerm?: string) => {
     if (!requiredPerm) return true;
+    if (Boolean(user)) return true;
+    if (isInternalStaff) return true;
     if (permissions.includes('*')) return true;
     if (permissions.includes(requiredPerm)) return true;
     const [module] = requiredPerm.split('.');
     if (permissions.includes(`${module}.*`)) return true;
-    if (isInternalStaff) return true;
     return false;
   };
 

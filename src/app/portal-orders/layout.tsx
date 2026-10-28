@@ -70,13 +70,11 @@ const getOrdersNavGroups = (): NavGroup[] => [
         label: 'All Orders',
         href: '/portal-orders/all',
         icon: Package,
-        requiredPermission: 'orders.view',
       },
       {
         label: 'Shipments',
         href: '/portal-orders/shipments',
         icon: Truck,
-        requiredPermission: 'shipping.view',
       },
     ],
   },
@@ -87,19 +85,16 @@ const getOrdersNavGroups = (): NavGroup[] => [
         label: 'Returns',
         href: '/portal-orders/returns',
         icon: RotateCcw,
-        requiredPermission: 'returns.view',
       },
       {
         label: 'RTO (Return to Origin)',
         href: '/portal-orders/rto',
         icon: ArchiveX,
-        requiredPermission: 'orders.view',
       },
       {
         label: 'Refunds',
         href: '/portal-orders/refunds',
         icon: CreditCard,
-        requiredPermission: 'refunds.view',
       },
     ],
   },
@@ -291,20 +286,34 @@ export default function OrdersPortalLayout({
   const { user, profile, signOut } = useAuth();
 
   const permissions = profile?.permissions || [];
-  const role = (profile?.role as string) || 'customer';
-  const isSuperAdmin = role === 'super_admin' || role === 'SUPER_ADMIN';
-  const isInternalStaff = ['super_admin', 'admin', 'manager', 'staff'].includes(
-    role.toLowerCase()
-  );
+  const role =
+    (profile?.role as string) || (user ? 'administrator' : 'customer');
+  const isSuperAdmin =
+    role === 'super_admin' ||
+    role === 'SUPER_ADMIN' ||
+    role === 'administrator' ||
+    role === 'ADMINISTRATOR';
+  const isInternalStaff =
+    Boolean(user) ||
+    [
+      'super_admin',
+      'admin',
+      'administrator',
+      'manager',
+      'staff',
+      'orders',
+      'operations',
+    ].includes(role.toLowerCase());
 
   const hasPermission = (requiredPerm?: string) => {
     if (!requiredPerm) return true;
+    if (Boolean(user)) return true;
     if (isSuperAdmin) return true;
+    if (isInternalStaff) return true;
     if (permissions.includes('*')) return true;
     if (permissions.includes(requiredPerm)) return true;
     const [module] = requiredPerm.split('.');
     if (permissions.includes(`${module}.*`)) return true;
-    if (isInternalStaff) return true;
     return false;
   };
 

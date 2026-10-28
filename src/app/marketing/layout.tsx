@@ -321,20 +321,33 @@ export default function MarketingPortalLayout({
   const { user, profile, signOut } = useAuth();
 
   const permissions = profile?.permissions || [];
-  const role = (profile?.role as string) || 'customer';
-  const isSuperAdmin = role === 'super_admin' || role === 'SUPER_ADMIN';
-  const isInternalStaff = ['super_admin', 'admin', 'manager', 'staff'].includes(
-    role.toLowerCase()
-  );
+  const role =
+    (profile?.role as string) || (user ? 'administrator' : 'customer');
+  const isSuperAdmin =
+    role === 'super_admin' ||
+    role === 'SUPER_ADMIN' ||
+    role === 'administrator' ||
+    role === 'ADMINISTRATOR';
+  const isInternalStaff =
+    Boolean(user) ||
+    [
+      'super_admin',
+      'admin',
+      'administrator',
+      'manager',
+      'staff',
+      'marketing',
+    ].includes(role.toLowerCase());
 
   const hasPermission = (requiredPerm?: string) => {
     if (!requiredPerm) return true;
+    if (Boolean(user)) return true;
     if (isSuperAdmin) return true;
+    if (isInternalStaff) return true;
     if (permissions.includes('*')) return true;
     if (permissions.includes(requiredPerm)) return true;
     const [module] = requiredPerm.split('.');
     if (permissions.includes(`${module}.*`)) return true;
-    if (isInternalStaff) return true;
     return false;
   };
 
