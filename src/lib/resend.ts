@@ -2,6 +2,8 @@ import { Resend } from 'resend';
 import fs from 'fs';
 import path from 'path';
 import Handlebars from 'handlebars/dist/handlebars.js';
+import { EMAIL_CONFIG } from './email-orchestrator/config';
+import { EmailOrchestrator } from './email-orchestrator/service';
 
 const getResendClient = () => {
   const apiKey = process.env.RESEND_API_KEY;
@@ -45,6 +47,25 @@ export async function sendWelcomeEmail(
   email: string,
   name: string = 'Beautiful'
 ) {
+  if (EMAIL_CONFIG.isV2Enabled()) {
+    const result = await EmailOrchestrator.send({
+      category: 'account',
+      eventKey: `welcome:${email.toLowerCase()}`,
+      eventType: 'welcome_email',
+      recipientEmail: email,
+      recipientName: name,
+      subject: 'Welcome to Ruhvi! ✨',
+      templateFileName: 'Welcome to Ruhvi, {{customer.name}} ✨.html',
+      variables: { customer: { name } },
+    });
+    return {
+      data: result.success
+        ? { id: result.providerMessageId || result.deliveryId }
+        : null,
+      error: result.error ? { message: result.error } : null,
+    };
+  }
+
   const resend = getResendClient();
   if (!resend) return null;
 
@@ -69,6 +90,26 @@ export async function sendWelcomeEmail(
 
 // 2. Order Confirmation
 export async function sendOrderConfirmationEmail(email: string, data: any) {
+  if (EMAIL_CONFIG.isV2Enabled()) {
+    const orderNum = data.order?.number || data.orderNumber || 'pending';
+    const result = await EmailOrchestrator.send({
+      category: 'order',
+      eventKey: `order_confirmed:${orderNum}:${email.toLowerCase()}`,
+      eventType: 'order_confirmed',
+      recipientEmail: email,
+      recipientName: data.shipping?.name || data.customer?.name,
+      subject: `Order Confirmed! (#${orderNum})`,
+      templateFileName: 'Your Ruhvi Order #{{order.number}} is Confirmed.html',
+      variables: data,
+    });
+    return {
+      data: result.success
+        ? { id: result.providerMessageId || result.deliveryId }
+        : null,
+      error: result.error ? { message: result.error } : null,
+    };
+  }
+
   const resend = getResendClient();
   if (!resend) return null;
 
@@ -95,6 +136,26 @@ export async function sendOrderConfirmationEmail(email: string, data: any) {
 
 // 3. Shipping Updates (Shipped)
 export async function sendOrderShippedEmail(email: string, data: any) {
+  if (EMAIL_CONFIG.isV2Enabled()) {
+    const orderNum = data.order?.number || 'order';
+    const result = await EmailOrchestrator.send({
+      category: 'shipping',
+      eventKey: `order_shipped:${orderNum}:${email.toLowerCase()}`,
+      eventType: 'order_shipped',
+      recipientEmail: email,
+      recipientName: data.shipping?.name,
+      subject: `Your Order #${orderNum} has Shipped! 🚚`,
+      templateFileName: 'Your Ruhvi Order #{{order.number}} Has Shipped.html',
+      variables: data,
+    });
+    return {
+      data: result.success
+        ? { id: result.providerMessageId || result.deliveryId }
+        : null,
+      error: result.error ? { message: result.error } : null,
+    };
+  }
+
   const resend = getResendClient();
   if (!resend) return null;
 
@@ -119,6 +180,27 @@ export async function sendOrderShippedEmail(email: string, data: any) {
 
 // 4. Shipping Updates (Out for Delivery)
 export async function sendOrderOutForDeliveryEmail(email: string, data: any) {
+  if (EMAIL_CONFIG.isV2Enabled()) {
+    const orderNum = data.order?.number || 'order';
+    const result = await EmailOrchestrator.send({
+      category: 'shipping',
+      eventKey: `order_ofd:${orderNum}:${email.toLowerCase()}`,
+      eventType: 'order_out_for_delivery',
+      recipientEmail: email,
+      recipientName: data.shipping?.name,
+      subject: `Your Order #${orderNum} is Out for Delivery! 📦`,
+      templateFileName:
+        'Your Ruhvi Order #{{order.number}} Is Out for Delivery.html',
+      variables: data,
+    });
+    return {
+      data: result.success
+        ? { id: result.providerMessageId || result.deliveryId }
+        : null,
+      error: result.error ? { message: result.error } : null,
+    };
+  }
+
   const resend = getResendClient();
   if (!resend) return null;
 
@@ -143,6 +225,27 @@ export async function sendOrderOutForDeliveryEmail(email: string, data: any) {
 
 // 5. Shipping Updates (Delivered)
 export async function sendOrderDeliveredEmail(email: string, data: any) {
+  if (EMAIL_CONFIG.isV2Enabled()) {
+    const orderNum = data.order?.number || 'order';
+    const result = await EmailOrchestrator.send({
+      category: 'shipping',
+      eventKey: `order_delivered:${orderNum}:${email.toLowerCase()}`,
+      eventType: 'order_delivered',
+      recipientEmail: email,
+      recipientName: data.shipping?.name,
+      subject: `Your Order #${orderNum} has been Delivered! ✨`,
+      templateFileName:
+        'Your Ruhvi Order #{{order.number}} Has Been Delivered.html',
+      variables: data,
+    });
+    return {
+      data: result.success
+        ? { id: result.providerMessageId || result.deliveryId }
+        : null,
+      error: result.error ? { message: result.error } : null,
+    };
+  }
+
   const resend = getResendClient();
   if (!resend) return null;
 
@@ -167,6 +270,27 @@ export async function sendOrderDeliveredEmail(email: string, data: any) {
 
 // 6. Order Cancelled
 export async function sendOrderCancelledEmail(email: string, data: any) {
+  if (EMAIL_CONFIG.isV2Enabled()) {
+    const orderNum = data.order?.number || 'order';
+    const result = await EmailOrchestrator.send({
+      category: 'order',
+      eventKey: `order_cancelled:${orderNum}:${email.toLowerCase()}`,
+      eventType: 'order_cancelled',
+      recipientEmail: email,
+      recipientName: data.customer?.name,
+      subject: `Update regarding Order #${orderNum}`,
+      templateFileName:
+        'Your Ruhvi Order #{{order.number}} Has Been Cancelled.html',
+      variables: data,
+    });
+    return {
+      data: result.success
+        ? { id: result.providerMessageId || result.deliveryId }
+        : null,
+      error: result.error ? { message: result.error } : null,
+    };
+  }
+
   const resend = getResendClient();
   if (!resend) return null;
 
@@ -191,6 +315,27 @@ export async function sendOrderCancelledEmail(email: string, data: any) {
 
 // 7. Payment Received
 export async function sendPaymentReceivedEmail(email: string, data: any) {
+  if (EMAIL_CONFIG.isV2Enabled()) {
+    const orderNum =
+      data.order?.number || data.payment?.transaction_id || 'payment';
+    const result = await EmailOrchestrator.send({
+      category: 'order',
+      eventKey: `payment_received:${orderNum}:${email.toLowerCase()}`,
+      eventType: 'payment_received',
+      recipientEmail: email,
+      recipientName: data.customer?.name,
+      subject: `Payment Received for Order #${orderNum}`,
+      templateFileName: 'Payment Received — Ruhvi Order #{{order.number}}.html',
+      variables: data,
+    });
+    return {
+      data: result.success
+        ? { id: result.providerMessageId || result.deliveryId }
+        : null,
+      error: result.error ? { message: result.error } : null,
+    };
+  }
+
   const resend = getResendClient();
   if (!resend) return null;
 
@@ -215,6 +360,27 @@ export async function sendPaymentReceivedEmail(email: string, data: any) {
 
 // 8. Payment Failed
 export async function sendPaymentFailedEmail(email: string, data: any) {
+  if (EMAIL_CONFIG.isV2Enabled()) {
+    const orderNum = data.order?.number || 'payment';
+    const result = await EmailOrchestrator.send({
+      category: 'order',
+      eventKey: `payment_failed:${orderNum}:${Date.now()}:${email.toLowerCase()}`,
+      eventType: 'payment_failed',
+      recipientEmail: email,
+      recipientName: data.customer?.name,
+      subject: `Action Needed: Payment Failed for Order #${orderNum}`,
+      templateFileName:
+        'Payment Failed — Action Needed for Ruhvi Order #{{order.number}}.html',
+      variables: data,
+    });
+    return {
+      data: result.success
+        ? { id: result.providerMessageId || result.deliveryId }
+        : null,
+      error: result.error ? { message: result.error } : null,
+    };
+  }
+
   const resend = getResendClient();
   if (!resend) return null;
 
@@ -239,9 +405,7 @@ export async function sendPaymentFailedEmail(email: string, data: any) {
 
 // 9. Refund Processed
 export async function sendRefundProcessedEmail(email: string, data: any) {
-  const resend = getResendClient();
-  if (!resend) return null;
-
+  const orderNum = data.order?.number || 'refund';
   const htmlContent = `
     <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #121110; background: #FDFAF3; border-radius: 12px; overflow: hidden; border: 1px solid #E8DFC6;">
       <div style="background: #1C1B1A; padding: 24px 32px; text-align: center;">
@@ -264,6 +428,27 @@ export async function sendRefundProcessedEmail(email: string, data: any) {
         </div>
       </div>
     </div>`;
+
+  if (EMAIL_CONFIG.isV2Enabled()) {
+    const result = await EmailOrchestrator.send({
+      category: 'order',
+      eventKey: `refund_processed:${orderNum}:${email.toLowerCase()}`,
+      eventType: 'refund_processed',
+      recipientEmail: email,
+      recipientName: data.customer?.name,
+      subject: `Refund Processed for Order #${orderNum}`,
+      html: htmlContent,
+    });
+    return {
+      data: result.success
+        ? { id: result.providerMessageId || result.deliveryId }
+        : null,
+      error: result.error ? { message: result.error } : null,
+    };
+  }
+
+  const resend = getResendClient();
+  if (!resend) return null;
 
   try {
     const response = await resend.emails.send({
@@ -296,9 +481,6 @@ export async function sendShippingUpdateEmail(
 
 // Support Ticket Email Notifications
 export async function sendSupportTicketEmail(email: string, data: any) {
-  const resend = getResendClient();
-  if (!resend) return null;
-
   let subject = '';
   let htmlContent = '';
   const ticket = data.ticket || {};
@@ -366,6 +548,27 @@ export async function sendSupportTicketEmail(email: string, data: any) {
 
   if (!subject) return null;
 
+  if (EMAIL_CONFIG.isV2Enabled()) {
+    const result = await EmailOrchestrator.send({
+      category: 'support',
+      eventKey: `support_ticket:${ticket.number || 'ticket'}:${data.type || 'msg'}:${Date.now()}:${email.toLowerCase()}`,
+      eventType: `support_ticket_${data.type || 'update'}`,
+      recipientEmail: email,
+      recipientName: customerName,
+      subject,
+      html: htmlContent,
+    });
+    return {
+      data: result.success
+        ? { id: result.providerMessageId || result.deliveryId }
+        : null,
+      error: result.error ? { message: result.error } : null,
+    };
+  }
+
+  const resend = getResendClient();
+  if (!resend) return null;
+
   try {
     const response = await resend.emails.send({
       from: getSender(),
@@ -386,9 +589,6 @@ export async function sendPasswordResetEmail(
   resetLink: string,
   name: string = 'Customer'
 ) {
-  const resend = getResendClient();
-  if (!resend) return null;
-
   const subject = 'Reset Your Ruhvi Password 🔑';
   const htmlContent = `
     <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #121110; background: #FDFAF3; border-radius: 12px; overflow: hidden; border: 1px solid #E8DFC6;">
@@ -417,6 +617,28 @@ export async function sendPasswordResetEmail(
       </div>
     </div>
   `;
+
+  if (EMAIL_CONFIG.isV2Enabled()) {
+    const result = await EmailOrchestrator.send({
+      category: 'auth',
+      eventKey: `pwd_reset:${email.toLowerCase()}:${Date.now()}`,
+      eventType: 'password_reset',
+      recipientEmail: email,
+      recipientName: name,
+      subject,
+      html: htmlContent,
+    });
+    return {
+      data: result.success
+        ? { id: result.providerMessageId || result.deliveryId }
+        : null,
+      error: result.error ? { message: result.error } : null,
+    };
+  }
+
+  const resend = getResendClient();
+  if (!resend) return null;
+
   try {
     return await resend.emails.send({
       from: getSender(),
@@ -436,9 +658,6 @@ export async function sendVerificationEmail(
   verifyLink: string,
   name: string = 'Customer'
 ) {
-  const resend = getResendClient();
-  if (!resend) return null;
-
   const subject = 'Verify Your Ruhvi Email ✔️';
   const htmlContent = `
     <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #121110; background: #FDFAF3; border-radius: 12px; overflow: hidden; border: 1px solid #E8DFC6;">
@@ -467,6 +686,27 @@ export async function sendVerificationEmail(
       </div>
     </div>
   `;
+
+  if (EMAIL_CONFIG.isV2Enabled()) {
+    const result = await EmailOrchestrator.send({
+      category: 'auth',
+      eventKey: `verify_email:${email.toLowerCase()}:${Date.now()}`,
+      eventType: 'verify_email',
+      recipientEmail: email,
+      recipientName: name,
+      subject,
+      html: htmlContent,
+    });
+    return {
+      data: result.success
+        ? { id: result.providerMessageId || result.deliveryId }
+        : null,
+      error: result.error ? { message: result.error } : null,
+    };
+  }
+
+  const resend = getResendClient();
+  if (!resend) return null;
   try {
     return await resend.emails.send({
       from: getSender(),
@@ -490,9 +730,6 @@ export async function sendTicketCreatedEmail(
   email: string,
   name: string
 ) {
-  const resend = getResendClient();
-  if (!resend) return null;
-
   const htmlContent = `
     <div style="font-family: Arial, sans-serif; background-color: #FAF6ED; margin: 0; padding: 40px 20px; min-height: 100vh;">
       <div style="max-width: 600px; margin: 0 auto; background-color: #FFFFFF; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.03);">
@@ -515,6 +752,28 @@ export async function sendTicketCreatedEmail(
       </div>
     </div>
   `;
+
+  if (EMAIL_CONFIG.isV2Enabled()) {
+    const result = await EmailOrchestrator.send({
+      category: 'support',
+      eventKey: `ticket_created:${ticketId}:${email.toLowerCase()}`,
+      eventType: 'ticket_created',
+      recipientEmail: email,
+      recipientName: name,
+      subject: `Ticket Created: #${ticketId} - ${subject}`,
+      html: htmlContent,
+    });
+    return {
+      data: result.success
+        ? { id: result.providerMessageId || result.deliveryId }
+        : null,
+      error: result.error ? { message: result.error } : null,
+    };
+  }
+
+  const resend = getResendClient();
+  if (!resend) return null;
+
   try {
     return await resend.emails.send({
       from: getSender(),
@@ -533,9 +792,6 @@ export async function sendTicketResolvedEmail(
   email: string,
   name: string
 ) {
-  const resend = getResendClient();
-  if (!resend) return null;
-
   const htmlContent = `
     <div style="font-family: Arial, sans-serif; background-color: #FAF6ED; margin: 0; padding: 40px 20px; min-height: 100vh;">
       <div style="max-width: 600px; margin: 0 auto; background-color: #FFFFFF; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.03);">
@@ -558,6 +814,28 @@ export async function sendTicketResolvedEmail(
       </div>
     </div>
   `;
+
+  if (EMAIL_CONFIG.isV2Enabled()) {
+    const result = await EmailOrchestrator.send({
+      category: 'support',
+      eventKey: `ticket_resolved:${ticketId}:${email.toLowerCase()}`,
+      eventType: 'ticket_resolved',
+      recipientEmail: email,
+      recipientName: name,
+      subject: `Ticket Resolved: #${ticketId}`,
+      html: htmlContent,
+    });
+    return {
+      data: result.success
+        ? { id: result.providerMessageId || result.deliveryId }
+        : null,
+      error: result.error ? { message: result.error } : null,
+    };
+  }
+
+  const resend = getResendClient();
+  if (!resend) return null;
+
   try {
     return await resend.emails.send({
       from: getSender(),
@@ -577,9 +855,6 @@ export async function sendTicketUpdateEmail(
   email: string,
   name: string
 ) {
-  const resend = getResendClient();
-  if (!resend) return null;
-
   const htmlContent = `
     <div style="font-family: Arial, sans-serif; background-color: #FAF6ED; margin: 0; padding: 40px 20px; min-height: 100vh;">
       <div style="max-width: 600px; margin: 0 auto; background-color: #FFFFFF; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.03);">
@@ -602,6 +877,28 @@ export async function sendTicketUpdateEmail(
       </div>
     </div>
   `;
+
+  if (EMAIL_CONFIG.isV2Enabled()) {
+    const result = await EmailOrchestrator.send({
+      category: 'support',
+      eventKey: `ticket_update:${ticketId}:${Date.now()}:${email.toLowerCase()}`,
+      eventType: 'ticket_update',
+      recipientEmail: email,
+      recipientName: name,
+      subject: `Update on Ticket #${ticketId}`,
+      html: htmlContent,
+    });
+    return {
+      data: result.success
+        ? { id: result.providerMessageId || result.deliveryId }
+        : null,
+      error: result.error ? { message: result.error } : null,
+    };
+  }
+
+  const resend = getResendClient();
+  if (!resend) return null;
+
   try {
     return await resend.emails.send({
       from: getSender(),
@@ -628,9 +925,6 @@ export async function sendMfaEmergencyRecoveryEmail({
   name?: string;
   recoveryLink: string;
 }) {
-  const resend = getResendClient();
-  if (!resend) return null;
-
   const subject = '🚨 Emergency 2FA Account Recovery Request — Ruhvi Staff';
   const htmlContent = `
     <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #121110; background: #FDFAF3; border-radius: 12px; overflow: hidden; border: 1px solid #E8DFC6;">
@@ -666,6 +960,27 @@ export async function sendMfaEmergencyRecoveryEmail({
     </div>
   `;
 
+  if (EMAIL_CONFIG.isV2Enabled()) {
+    const result = await EmailOrchestrator.send({
+      category: 'auth',
+      eventKey: `mfa_recovery:${email.toLowerCase()}:${Date.now()}`,
+      eventType: 'mfa_emergency_recovery',
+      recipientEmail: email,
+      recipientName: name,
+      subject,
+      html: htmlContent,
+    });
+    return {
+      data: result.success
+        ? { id: result.providerMessageId || result.deliveryId }
+        : null,
+      error: result.error ? { message: result.error } : null,
+    };
+  }
+
+  const resend = getResendClient();
+  if (!resend) return null;
+
   try {
     return await resend.emails.send({
       from: getSender(),
@@ -678,4 +993,3 @@ export async function sendMfaEmergencyRecoveryEmail({
     return null;
   }
 }
-

@@ -1,6 +1,8 @@
 import fs from 'fs';
 import path from 'path';
 import Handlebars from 'handlebars/dist/handlebars.js';
+import { EMAIL_CONFIG } from './email-orchestrator/config';
+import { EmailOrchestrator } from './email-orchestrator/service';
 
 const BREVO_API_URL = 'https://api.brevo.com/v3/smtp/email';
 
@@ -94,6 +96,19 @@ export async function sendAbandonedCartEmail(email: string, name: string) {
       </div>
     </div>
   `;
+
+  if (EMAIL_CONFIG.isV2Enabled()) {
+    return await EmailOrchestrator.send({
+      category: 'marketing_automation',
+      eventKey: `abandoned_cart:${email.toLowerCase()}:${new Date().toISOString().split('T')[0]}`,
+      eventType: 'abandoned_cart',
+      recipientEmail: email,
+      recipientName: name,
+      subject,
+      html: htmlContent,
+    });
+  }
+
   return sendEmail({ to: [{ email, name }], subject, htmlContent });
 }
 
@@ -118,6 +133,19 @@ export async function sendWinBackEmail(
       </div>
     </div>
   `;
+
+  if (EMAIL_CONFIG.isV2Enabled()) {
+    return await EmailOrchestrator.send({
+      category: 'marketing_automation',
+      eventKey: `win_back:${email.toLowerCase()}:${new Date().toISOString().split('T')[0]}`,
+      eventType: 'win_back',
+      recipientEmail: email,
+      recipientName: name,
+      subject,
+      html: htmlContent,
+    });
+  }
+
   return sendEmail({ to: [{ email, name }], subject, htmlContent });
 }
 
@@ -150,6 +178,19 @@ export async function sendCelebrationEmail(
       </div>
     </div>
   `;
+
+  if (EMAIL_CONFIG.isV2Enabled()) {
+    return await EmailOrchestrator.send({
+      category: 'marketing_automation',
+      eventKey: `celebration:${type}:${email.toLowerCase()}:${new Date().getFullYear()}`,
+      eventType: `celebration_${type}`,
+      recipientEmail: email,
+      recipientName: name,
+      subject,
+      html: htmlContent,
+    });
+  }
+
   return sendEmail({ to: [{ email, name }], subject, htmlContent });
 }
 
