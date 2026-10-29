@@ -29,3 +29,5 @@ export function getServiceClient() {
     },
   });
 }
+
+export const getSupabaseAdmin = getServiceClient;
