@@ -1,4 +1,5 @@
 import {
+  CanonicalEmailCategory,
   EmailCategory,
   EmailProviderId,
   EmailRoutingPolicy,
@@ -55,9 +56,10 @@ export const EMAIL_CONFIG = {
 };
 
 export const INITIAL_ROUTING_POLICIES: Record<
-  EmailCategory,
+  CanonicalEmailCategory,
   EmailRoutingPolicy
-> = {
+> &
+  Partial<Record<EmailCategory, EmailRoutingPolicy>> = {
   account_security: {
     category: 'account_security',
     primaryProvider: 'resend',

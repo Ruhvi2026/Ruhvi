@@ -201,7 +201,7 @@ export class EmailOrchestrator {
         'accepted',
         200,
         result.providerMessageId,
-        result.providerMessageUuid,
+        result.providerMessageUuid || null,
         null,
         null,
         durationMs
@@ -268,7 +268,7 @@ export class EmailOrchestrator {
             'accepted',
             200,
             fbResult.providerMessageId,
-            fbResult.providerMessageUuid,
+            fbResult.providerMessageUuid || null,
             null,
             null,
             fbDuration

@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import Handlebars from 'handlebars/dist/handlebars.js';
 
-const templateCache = new Map<string, Handlebars.TemplateDelegate>();
+const templateCache = new Map<string, (data: any) => string>();
 
 // Register standard currency & formatting helpers
 try {
@@ -38,9 +38,7 @@ export function htmlToPlainText(html: string): string {
 }
 
 export class TemplateRenderer {
-  static getCompiledTemplate(
-    fileName: string
-  ): Handlebars.TemplateDelegate | null {
+  static getCompiledTemplate(fileName: string): ((data: any) => string) | null {
     if (templateCache.has(fileName)) {
       return templateCache.get(fileName)!;
     }

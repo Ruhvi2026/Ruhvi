@@ -1,14 +1,17 @@
 export type EmailProviderId = 'resend' | 'mailjet' | 'brevo' | 'brevo_legacy';
 
-export type EmailCategory =
+export type CanonicalEmailCategory =
   | 'account_security'
   | 'account_lifecycle'
   | 'order_transactional'
   | 'shipping_transactional'
   | 'customer_support'
   | 'marketing_campaign'
+  | 'internal_staff';
+
+export type EmailCategory =
+  | CanonicalEmailCategory
   | 'marketing_automation'
-  | 'internal_staff'
   | 'order'
   | 'shipping'
   | 'account'
