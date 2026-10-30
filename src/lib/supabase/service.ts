@@ -22,5 +22,10 @@ export function getServiceClient() {
   if (!key) {
     throw new Error('SUPABASE_SERVICE_ROLE_KEY is not set');
   }
-  return createJSClient(url || FALLBACK_SUPABASE_URL, key);
+  return createJSClient(url || FALLBACK_SUPABASE_URL, key, {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+    },
+  });
 }
