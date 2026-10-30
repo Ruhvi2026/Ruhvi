@@ -59,7 +59,7 @@ describe('Durable Anomaly Persistence & Resolution Actor Attribution (P1.3)', ()
       impact: 'high',
       suggestedAction: 'Inspect orders',
       targetMetric: 'cancellation_rate',
-    },
+    } as any,
   };
 
   it('records actor attribution (resolvedBy) when resolving an anomaly', () => {

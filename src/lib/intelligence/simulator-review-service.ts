@@ -5,6 +5,8 @@ import {
   type SimulationFixture,
   type SimulationResult,
 } from './decision-simulator';
+
+export type { SimulationFixture };
 import {
   modelInventoryBufferOptimization,
   modelTieredPricingElasticity,

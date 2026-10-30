@@ -63,8 +63,94 @@ export interface AnalyticsReport {
     sampleSizeOrders: number;
     sampleSizeItems: number;
     dataFreshnessTimestamp: string;
+    timezone?: string;
     isCached: boolean;
   };
+}
+
+export const BUSINESS_TIMEZONE = 'Asia/Kolkata';
+export const IST_OFFSET_MS = (5 * 60 + 30) * 60 * 1000; // 5 hours 30 minutes in milliseconds
+
+/**
+ * Returns the calendar date components formatted in the business timezone.
+ */
+export function getZonedDateParts(
+  date: Date,
+  timeZone = BUSINESS_TIMEZONE
+): {
+  year: number;
+  month: number;
+  day: number;
+  hour: number;
+  minute: number;
+  second: number;
+} {
+  const formatter = new Intl.DateTimeFormat('en-US', {
+    timeZone,
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+    second: 'numeric',
+    hour12: false,
+  });
+
+  const parts = formatter.formatToParts(date);
+  const map: Record<string, number> = {};
+  for (const part of parts) {
+    if (part.type !== 'literal') {
+      map[part.type] = parseInt(part.value, 10);
+    }
+  }
+
+  return {
+    year: map.year,
+    month: map.month, // 1-12
+    day: map.day,
+    hour: map.hour === 24 ? 0 : map.hour,
+    minute: map.minute,
+    second: map.second,
+  };
+}
+
+/**
+ * Returns UTC Date object representing 00:00:00.000 IST on that calendar date.
+ */
+export function getStartOfDayIST(date: Date): Date {
+  const parts = getZonedDateParts(date, BUSINESS_TIMEZONE);
+  return new Date(
+    Date.UTC(parts.year, parts.month - 1, parts.day) - IST_OFFSET_MS
+  );
+}
+
+/**
+ * Returns UTC Date object representing 23:59:59.999 IST on that calendar date.
+ */
+export function getEndOfDayIST(date: Date): Date {
+  const parts = getZonedDateParts(date, BUSINESS_TIMEZONE);
+  return new Date(
+    Date.UTC(parts.year, parts.month - 1, parts.day, 23, 59, 59, 999) -
+      IST_OFFSET_MS
+  );
+}
+
+/**
+ * Returns UTC Date representing the 1st of the month at 00:00:00.000 IST.
+ */
+export function getStartOfMonthIST(year: number, month: number): Date {
+  return new Date(Date.UTC(year, month - 1, 1, 0, 0, 0, 0) - IST_OFFSET_MS);
+}
+
+/**
+ * Returns UTC Date representing the last millisecond of the month in IST.
+ */
+export function getEndOfMonthIST(year: number, month: number): Date {
+  const nextMonthStart =
+    month === 12
+      ? getStartOfMonthIST(year + 1, 1)
+      : getStartOfMonthIST(year, month + 1);
+  return new Date(nextMonthStart.getTime() - 1);
 }
 
 /**
@@ -73,9 +159,10 @@ export interface AnalyticsReport {
 export function resolveTimeRange(
   timeframe: AnalyticsTimeframe,
   customFrom?: string,
-  customTo?: string
+  customTo?: string,
+  baseDate = new Date()
 ): { current: TimeRange; baseline: TimeRange } {
-  const now = new Date();
+  const now = baseDate;
 
   // Helper for rolling days
   const getRollingDays = (
@@ -102,11 +189,7 @@ export function resolveTimeRange(
 
   switch (timeframe) {
     case 'today': {
-      const todayStart = new Date(
-        now.getFullYear(),
-        now.getMonth(),
-        now.getDate()
-      );
+      const todayStart = getStartOfDayIST(now);
       const yesterdayStart = new Date(
         todayStart.getTime() - 24 * 60 * 60 * 1000
       );
@@ -124,13 +207,9 @@ export function resolveTimeRange(
       };
     }
     case 'yesterday': {
-      const yesterdayEnd = new Date(
-        now.getFullYear(),
-        now.getMonth(),
-        now.getDate()
-      );
+      const todayStart = getStartOfDayIST(now);
       const yesterdayStart = new Date(
-        yesterdayEnd.getTime() - 24 * 60 * 60 * 1000
+        todayStart.getTime() - 24 * 60 * 60 * 1000
       );
       const dayBeforeYesterday = new Date(
         yesterdayStart.getTime() - 24 * 60 * 60 * 1000
@@ -138,7 +217,7 @@ export function resolveTimeRange(
       return {
         current: {
           from: yesterdayStart.toISOString(),
-          to: yesterdayEnd.toISOString(),
+          to: todayStart.toISOString(),
           label: 'Yesterday',
         },
         baseline: {
@@ -153,21 +232,13 @@ export function resolveTimeRange(
     case '30d':
       return getRollingDays(30);
     case 'this_month': {
-      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-      const startOfLastMonth = new Date(
-        now.getFullYear(),
-        now.getMonth() - 1,
-        1
-      );
-      const endOfLastMonth = new Date(
-        now.getFullYear(),
-        now.getMonth(),
-        0,
-        23,
-        59,
-        59,
-        999
-      );
+      const parts = getZonedDateParts(now, BUSINESS_TIMEZONE);
+      const startOfMonth = getStartOfMonthIST(parts.year, parts.month);
+      const lastMonthYear = parts.month === 1 ? parts.year - 1 : parts.year;
+      const lastMonthNum = parts.month === 1 ? 12 : parts.month - 1;
+      const startOfLastMonth = getStartOfMonthIST(lastMonthYear, lastMonthNum);
+      const endOfLastMonth = getEndOfMonthIST(lastMonthYear, lastMonthNum);
+
       return {
         current: {
           from: startOfMonth.toISOString(),
@@ -182,34 +253,24 @@ export function resolveTimeRange(
       };
     }
     case 'last_month': {
-      const startOfLastMonth = new Date(
-        now.getFullYear(),
-        now.getMonth() - 1,
-        1
+      const parts = getZonedDateParts(now, BUSINESS_TIMEZONE);
+      const lastMonthYear = parts.month === 1 ? parts.year - 1 : parts.year;
+      const lastMonthNum = parts.month === 1 ? 12 : parts.month - 1;
+      const startOfLastMonth = getStartOfMonthIST(lastMonthYear, lastMonthNum);
+      const endOfLastMonth = getEndOfMonthIST(lastMonthYear, lastMonthNum);
+
+      const twoMonthsAgoYear =
+        lastMonthNum === 1 ? lastMonthYear - 1 : lastMonthYear;
+      const twoMonthsAgoNum = lastMonthNum === 1 ? 12 : lastMonthNum - 1;
+      const startOfTwoMonthsAgo = getStartOfMonthIST(
+        twoMonthsAgoYear,
+        twoMonthsAgoNum
       );
-      const endOfLastMonth = new Date(
-        now.getFullYear(),
-        now.getMonth(),
-        0,
-        23,
-        59,
-        59,
-        999
+      const endOfTwoMonthsAgo = getEndOfMonthIST(
+        twoMonthsAgoYear,
+        twoMonthsAgoNum
       );
-      const startOfTwoMonthsAgo = new Date(
-        now.getFullYear(),
-        now.getMonth() - 2,
-        1
-      );
-      const endOfTwoMonthsAgo = new Date(
-        now.getFullYear(),
-        now.getMonth() - 1,
-        0,
-        23,
-        59,
-        59,
-        999
-      );
+
       return {
         current: {
           from: startOfLastMonth.toISOString(),
@@ -548,6 +609,7 @@ async function computeStoreAnalytics(params: {
       sampleSizeOrders: totalOrders,
       sampleSizeItems: topSellingProducts.length,
       dataFreshnessTimestamp: new Date().toISOString(),
+      timezone: BUSINESS_TIMEZONE,
       isCached: false,
     },
   };

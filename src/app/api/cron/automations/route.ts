@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { getServiceClient } from '@/lib/supabase/service';
 import {
   sendAbandonedCartEmail,
   sendWinBackEmail,
@@ -9,6 +9,12 @@ import { runTaskScheduler } from '@/lib/cron/task-scheduler';
 import { runBlogPublisher } from '@/lib/cron/blog-publisher';
 import { runProactiveCronScan } from '@/lib/ai/co-founder/proactive';
 import { generateDailyMorningBriefing } from '@/lib/ai/co-founder/morning-briefing';
+import {
+  startAutomationRun,
+  finishAutomationRun,
+  claimMarketingDispatch,
+  completeMarketingDispatch,
+} from '@/lib/cron/automation-ledger';
 
 export async function GET(request: Request) {
   try {
@@ -20,12 +26,17 @@ export async function GET(request: Request) {
     }
 
     // We need service role to query all users and bypass RLS
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    const supabase = getServiceClient();
+
+    // Start durable ledger run record
+    const { runId, startedAt } = await startAutomationRun(
+      supabase,
+      'daily_automations'
     );
+    const runErrors: any[] = [];
 
     const results = {
+      runId,
       abandonedCarts: 0,
       winBacks: 0,
       birthdays: 0,
@@ -35,30 +46,70 @@ export async function GET(request: Request) {
     // 1. Abandoned Carts
     // Find carts that were updated more than 24 hours ago, have items, but haven't triggered a reminder recently
     const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+    const todayDailyPeriod = new Date().toISOString().split('T')[0];
 
-    // We fetch users whose cart updated_at < yesterday AND last_cart_reminder_sent < updated_at or is null
-    const { data: abandonedUsers } = await supabase
-      .from('users')
-      .select('id, email, full_name, carts!inner(updated_at)')
-      .lt('carts.updated_at', yesterday)
-      .is('email', 'not.null')
-      .not('email', 'eq', '')
-      .or(
-        `last_cart_reminder_sent.is.null,last_cart_reminder_sent.lt.${yesterday}`
-      );
+    try {
+      const { data: abandonedUsers, error: abandonedError } = await supabase
+        .from('users')
+        .select('id, email, full_name, carts!inner(updated_at)')
+        .lt('carts.updated_at', yesterday)
+        .is('email', 'not.null')
+        .not('email', 'eq', '')
+        .or(
+          `last_cart_reminder_sent.is.null,last_cart_reminder_sent.lt.${yesterday}`
+        )
+        .limit(50); // Bounded batch limit
 
-    if (abandonedUsers && abandonedUsers.length > 0) {
-      for (const user of abandonedUsers) {
-        await sendAbandonedCartEmail(
-          user.email,
-          user.full_name || 'Valued Customer'
-        );
-        await supabase
-          .from('users')
-          .update({ last_cart_reminder_sent: new Date().toISOString() })
-          .eq('id', user.id);
-        results.abandonedCarts++;
+      if (abandonedError) {
+        runErrors.push({
+          step: 'abandoned_carts_query',
+          error: abandonedError.message,
+        });
+      } else if (abandonedUsers && abandonedUsers.length > 0) {
+        for (const user of abandonedUsers) {
+          // Check campaign dispatch idempotency
+          const { claimed, dispatchId } = await claimMarketingDispatch(
+            supabase,
+            {
+              userId: user.id,
+              campaignType: 'abandoned_cart',
+              campaignPeriod: todayDailyPeriod,
+            }
+          );
+
+          if (!claimed) continue; // Already dispatched for today, skip duplicate
+
+          try {
+            await sendAbandonedCartEmail(
+              user.email,
+              user.full_name || 'Valued Customer'
+            );
+            await supabase
+              .from('users')
+              .update({ last_cart_reminder_sent: new Date().toISOString() })
+              .eq('id', user.id);
+            await completeMarketingDispatch(supabase, dispatchId, true);
+            results.abandonedCarts++;
+          } catch (sendErr: any) {
+            await completeMarketingDispatch(
+              supabase,
+              dispatchId,
+              false,
+              sendErr?.message
+            );
+            runErrors.push({
+              user: user.id,
+              step: 'abandoned_cart_send',
+              error: sendErr?.message,
+            });
+          }
+        }
       }
+    } catch (cartErr: any) {
+      runErrors.push({
+        step: 'abandoned_carts_general',
+        error: cartErr?.message,
+      });
     }
 
     // 2. Win-Back Campaigns
@@ -66,106 +117,203 @@ export async function GET(request: Request) {
     const sixtyDaysAgo = new Date(
       Date.now() - 60 * 24 * 60 * 60 * 1000
     ).toISOString();
-    const { data: winBackUsers } = await supabase
-      .from('users')
-      .select('id, email, full_name')
-      .is('email', 'not.null')
-      .or(`last_winback_sent.is.null,last_winback_sent.lt.${sixtyDaysAgo}`);
-    // NOTE: We'd ideally join with orders or keep a `last_order_date` on the users table.
-    // For brevity, we'll assume we can fetch the latest order.
+    const winbackMonthPeriod = new Date().toISOString().slice(0, 7); // e.g. '2026-10'
 
-    if (winBackUsers) {
-      for (const user of winBackUsers) {
-        const { data: latestOrder } = await supabase
-          .from('orders')
-          .select('created_at')
-          .eq('user_id', user.id)
-          .order('created_at', { ascending: false })
-          .limit(1)
-          .single();
+    try {
+      const { data: winBackUsers, error: winBackError } = await supabase
+        .from('users')
+        .select('id, email, full_name')
+        .is('email', 'not.null')
+        .or(`last_winback_sent.is.null,last_winback_sent.lt.${sixtyDaysAgo}`)
+        .limit(50); // Bounded batch limit
 
-        if (
-          latestOrder &&
-          new Date(latestOrder.created_at) < new Date(sixtyDaysAgo)
-        ) {
-          await sendWinBackEmail(
-            user.email,
-            user.full_name || 'Valued Customer',
-            'MISSYOU20'
-          );
-          await supabase
-            .from('users')
-            .update({ last_winback_sent: new Date().toISOString() })
-            .eq('id', user.id);
-          results.winBacks++;
+      if (winBackError) {
+        runErrors.push({ step: 'winback_query', error: winBackError.message });
+      } else if (winBackUsers) {
+        for (const user of winBackUsers) {
+          const { data: latestOrder } = await supabase
+            .from('orders')
+            .select('created_at')
+            .eq('user_id', user.id)
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .maybeSingle();
+
+          if (
+            latestOrder &&
+            new Date(latestOrder.created_at) < new Date(sixtyDaysAgo)
+          ) {
+            const { claimed, dispatchId } = await claimMarketingDispatch(
+              supabase,
+              {
+                userId: user.id,
+                campaignType: 'winback',
+                campaignPeriod: winbackMonthPeriod,
+              }
+            );
+
+            if (!claimed) continue;
+
+            try {
+              await sendWinBackEmail(
+                user.email,
+                user.full_name || 'Valued Customer',
+                'MISSYOU20'
+              );
+              await supabase
+                .from('users')
+                .update({ last_winback_sent: new Date().toISOString() })
+                .eq('id', user.id);
+              await completeMarketingDispatch(supabase, dispatchId, true);
+              results.winBacks++;
+            } catch (wbSendErr: any) {
+              await completeMarketingDispatch(
+                supabase,
+                dispatchId,
+                false,
+                wbSendErr?.message
+              );
+              runErrors.push({
+                user: user.id,
+                step: 'winback_send',
+                error: wbSendErr?.message,
+              });
+            }
+          }
         }
       }
+    } catch (wbErr: any) {
+      runErrors.push({ step: 'winback_general', error: wbErr?.message });
     }
 
     // 3. Birthdays and Anniversaries
     const today = new Date();
     const currentMonth = today.getMonth() + 1; // 1-12
     const currentDay = today.getDate();
+    const currentYear = today.getFullYear();
+    const yearPeriod = currentYear.toString();
 
-    const { data: usersToCelebrate } = await supabase
-      .from('users')
-      .select(
-        'id, email, full_name, dob, anniversary_date, last_birthday_sent, last_anniversary_sent'
-      )
-      .is('email', 'not.null');
+    try {
+      const { data: usersToCelebrate, error: celebrateError } = await supabase
+        .from('users')
+        .select(
+          'id, email, full_name, dob, anniversary_date, last_birthday_sent, last_anniversary_sent'
+        )
+        .is('email', 'not.null')
+        .limit(100); // Bounded batch limit
 
-    if (usersToCelebrate) {
-      for (const user of usersToCelebrate) {
-        const currentYear = today.getFullYear();
+      if (celebrateError) {
+        runErrors.push({
+          step: 'celebration_query',
+          error: celebrateError.message,
+        });
+      } else if (usersToCelebrate) {
+        for (const user of usersToCelebrate) {
+          if (user.dob) {
+            const dobDate = new Date(user.dob);
+            const hasNotBeenSentThisYear =
+              !user.last_birthday_sent ||
+              new Date(user.last_birthday_sent).getFullYear() < currentYear;
 
-        if (user.dob) {
-          const dobDate = new Date(user.dob);
-          const hasNotBeenSentThisYear =
-            !user.last_birthday_sent ||
-            new Date(user.last_birthday_sent).getFullYear() < currentYear;
-          if (
-            dobDate.getMonth() + 1 === currentMonth &&
-            dobDate.getDate() === currentDay &&
-            hasNotBeenSentThisYear
-          ) {
-            await sendCelebrationEmail(
-              user.email,
-              user.full_name || 'Valued Customer',
-              'birthday',
-              'BDAY30'
-            );
-            await supabase
-              .from('users')
-              .update({ last_birthday_sent: new Date().toISOString() })
-              .eq('id', user.id);
-            results.birthdays++;
+            if (
+              dobDate.getMonth() + 1 === currentMonth &&
+              dobDate.getDate() === currentDay &&
+              hasNotBeenSentThisYear
+            ) {
+              const { claimed, dispatchId } = await claimMarketingDispatch(
+                supabase,
+                {
+                  userId: user.id,
+                  campaignType: 'birthday',
+                  campaignPeriod: yearPeriod,
+                }
+              );
+
+              if (claimed) {
+                try {
+                  await sendCelebrationEmail(
+                    user.email,
+                    user.full_name || 'Valued Customer',
+                    'birthday',
+                    'BDAY30'
+                  );
+                  await supabase
+                    .from('users')
+                    .update({ last_birthday_sent: new Date().toISOString() })
+                    .eq('id', user.id);
+                  await completeMarketingDispatch(supabase, dispatchId, true);
+                  results.birthdays++;
+                } catch (bdayErr: any) {
+                  await completeMarketingDispatch(
+                    supabase,
+                    dispatchId,
+                    false,
+                    bdayErr?.message
+                  );
+                  runErrors.push({
+                    user: user.id,
+                    step: 'birthday_send',
+                    error: bdayErr?.message,
+                  });
+                }
+              }
+            }
           }
-        }
 
-        if (user.anniversary_date) {
-          const annDate = new Date(user.anniversary_date);
-          const hasNotBeenSentThisYear =
-            !user.last_anniversary_sent ||
-            new Date(user.last_anniversary_sent).getFullYear() < currentYear;
-          if (
-            annDate.getMonth() + 1 === currentMonth &&
-            annDate.getDate() === currentDay &&
-            hasNotBeenSentThisYear
-          ) {
-            await sendCelebrationEmail(
-              user.email,
-              user.full_name || 'Valued Customer',
-              'anniversary',
-              'ANNIV30'
-            );
-            await supabase
-              .from('users')
-              .update({ last_anniversary_sent: new Date().toISOString() })
-              .eq('id', user.id);
-            results.anniversaries++;
+          if (user.anniversary_date) {
+            const annDate = new Date(user.anniversary_date);
+            const hasNotBeenSentThisYear =
+              !user.last_anniversary_sent ||
+              new Date(user.last_anniversary_sent).getFullYear() < currentYear;
+
+            if (
+              annDate.getMonth() + 1 === currentMonth &&
+              annDate.getDate() === currentDay &&
+              hasNotBeenSentThisYear
+            ) {
+              const { claimed, dispatchId } = await claimMarketingDispatch(
+                supabase,
+                {
+                  userId: user.id,
+                  campaignType: 'anniversary',
+                  campaignPeriod: yearPeriod,
+                }
+              );
+
+              if (claimed) {
+                try {
+                  await sendCelebrationEmail(
+                    user.email,
+                    user.full_name || 'Valued Customer',
+                    'anniversary',
+                    'ANNIV30'
+                  );
+                  await supabase
+                    .from('users')
+                    .update({ last_anniversary_sent: new Date().toISOString() })
+                    .eq('id', user.id);
+                  await completeMarketingDispatch(supabase, dispatchId, true);
+                  results.anniversaries++;
+                } catch (annivErr: any) {
+                  await completeMarketingDispatch(
+                    supabase,
+                    dispatchId,
+                    false,
+                    annivErr?.message
+                  );
+                  runErrors.push({
+                    user: user.id,
+                    step: 'anniversary_send',
+                    error: annivErr?.message,
+                  });
+                }
+              }
+            }
           }
         }
       }
+    } catch (celErr: any) {
+      runErrors.push({ step: 'celebration_general', error: celErr?.message });
     }
 
     // 4. Scheduled Task Recurrences & Overdue Reminders
@@ -175,6 +323,7 @@ export async function GET(request: Request) {
     } catch (taskErr: any) {
       console.error('[cron/automations] Task scheduler error:', taskErr);
       (results as any).taskAutomationError = taskErr?.message;
+      runErrors.push({ step: 'task_scheduler', error: taskErr?.message });
     }
 
     // 5. Blog Publishing Automation
@@ -184,6 +333,7 @@ export async function GET(request: Request) {
     } catch (blogErr: any) {
       console.error('[cron/automations] Blog publisher error:', blogErr);
       (results as any).blogPublisherError = blogErr?.message;
+      runErrors.push({ step: 'blog_publisher', error: blogErr?.message });
     }
 
     // 6. Proactive AI Co-Founder Telemetry, Anomaly Scan & Scheduled Intelligence Analysis
@@ -209,6 +359,7 @@ export async function GET(request: Request) {
     } catch (proactiveErr: any) {
       console.error('[cron/automations] Proactive scan error:', proactiveErr);
       (results as any).proactiveScanError = proactiveErr?.message;
+      runErrors.push({ step: 'proactive_scan', error: proactiveErr?.message });
     }
 
     // 7. Daily 9:00 AM Executive Morning Briefing
@@ -218,7 +369,27 @@ export async function GET(request: Request) {
     } catch (briefingErr: any) {
       console.error('[cron/automations] Morning briefing error:', briefingErr);
       (results as any).morningBriefingError = briefingErr?.message;
+      runErrors.push({ step: 'morning_briefing', error: briefingErr?.message });
     }
+
+    // Complete durable ledger run record
+    const { status: runStatus, durationMs } = await finishAutomationRun(
+      supabase,
+      {
+        runId,
+        startedAt,
+        stepCounts: {
+          abandonedCarts: results.abandonedCarts,
+          winBacks: results.winBacks,
+          birthdays: results.birthdays,
+          anniversaries: results.anniversaries,
+        },
+        errors: runErrors,
+      }
+    );
+
+    (results as any).status = runStatus;
+    (results as any).durationMs = durationMs;
 
     return NextResponse.json({ success: true, results });
   } catch (error: any) {

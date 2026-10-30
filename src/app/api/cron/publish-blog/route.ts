@@ -4,8 +4,11 @@ import { runBlogPublisher } from '@/lib/cron/blog-publisher';
 // ---------------------------------------------------------------------------
 // GET /api/cron/publish-blog
 //
-// Publishes blog posts whose `scheduled_publish_at` <= now and `status` =
-// 'scheduled'. Runs every 15 minutes via Vercel Cron. Secured by CRON_SECRET.
+// Publishes scheduled blog posts whose publish timestamp has arrived.
+// Cadence Architecture (Finding C1):
+// - Secured by CRON_SECRET (fail-closed 401 Unauthorized if missing/invalid).
+// - Daily execution is bundled in /api/cron/automations (0 4 * * *).
+// - Can also be invoked independently on-demand or by scheduled workflows.
 // ---------------------------------------------------------------------------
 
 export async function GET(request: Request) {

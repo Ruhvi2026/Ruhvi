@@ -10,7 +10,7 @@
 | Tool / Service | Category | Purpose / Role in Project | Status | Primary Config / Implementation Files |
 | :--- | :--- | :--- | :--- | :--- |
 | **Next.js 15** | Framework | Full-stack React App Router framework handling SSR, SSG, Server Actions, and API routes. | Active | `package.json`, `next.config.js` |
-| **Supabase** | Database & Storage | Primary PostgreSQL database source of truth, RLS policies, site asset storage, and Supabase Realtime subscriptions. | Active | `src/lib/supabase/*`, `supabase/migrations/*` |
+| **Supabase** | Database & Storage | Primary PostgreSQL database source of truth, RLS policies, site asset storage, Supabase Realtime subscriptions, and Disaster Recovery Runbook (`docs/DATABASE_BACKUP_AND_DISASTER_RECOVERY_RUNBOOK.md`). | Active | `src/lib/supabase/*`, `supabase/migrations/*`, `docs/DATABASE_BACKUP_AND_DISASTER_RECOVERY_RUNBOOK.md` |
 | **Firebase Auth** | Authentication | Centralized authentication system (Email/Password, Phone OTP, Google OAuth, Facebook Login) coupled with custom Supabase JWT creation. | Active | `src/lib/firebase.ts`, `src/services/authService.ts` |
 | **Firebase Cloud Messaging (FCM)** | Push Notifications | Dedicated push notification service used for transactional order updates and marketing broadcasts (OneSignal fully removed). | Active | `src/lib/fcm-admin.ts`, `src/app/api/admin/notifications/route.ts` |
 | **Google Identity Toolkit REST API** | Auth Infrastructure | Lightweight REST API migration bypassing heavy `firebase-admin` SDK to prevent ESM bundler conflicts on Vercel Serverless. | Active | `src/lib/firebase-admin.ts` |
@@ -20,7 +20,7 @@
 | **Brevo** | Email Marketing | Email marketing platform used for automated cron campaigns, newsletters, and abandoned cart emails. | Active | `src/lib/brevo.ts`, `src/lib/brevo/mcp.ts` |
 | **Zoho Mail** | Business Email | Official custom domain mailboxes (`support@ruhvi.in` for customer tickets/helpdesk and `admin@ruhvi.in` for third-party platform registrations & administrative accounts). | Active | Cloudflare MX (`mx.zoho.in`) |
 | **EspoCRM** | Customer CRM | Self-hosted CRM instance (`crm.support.ruhvi.in`) running on VPS for support staff ticket lifecycle management and customer context sync. | Active | `src/lib/espo/*`, `src/app/api/integrations/espo/*` |
-| **PostHog** | Product Analytics | Full product analytics, user funnel tracking, heatmaps, and session replay recording. | Active | `src/lib/posthog.ts`, `src/services/posthog-analytics.service.ts` |
+| **PostHog** | Product Analytics | Full product analytics, user funnel tracking, heatmaps, and session replay recording. Configured with strict PII minimization (identifies by UID and role only; customer emails and names strictly excluded; DNT respected). | Active | `src/lib/posthog.ts`, `src/services/posthog-analytics.service.ts`, `src/components/PostHogProvider.tsx` |
 | **Meta Pixel & Meta CAPI** | Ad Analytics | Browser Meta Pixel and server-side Conversion API (CAPI) for ad performance and event tracking. | Active | `src/app/api/capi/route.ts` |
 | **Google Analytics 4 (GA4)** | Web Analytics | E-commerce transaction tracking and overall site traffic monitoring. | Active | `src/lib/gtag.ts`, `src/app/layout.tsx` |
 | **Cloudflare Turnstile** | Anti-Bot Security | Bot prevention challenge integrated into checkout and sensitive authentication routes. | Active | `src/app/checkout/page.tsx` |
@@ -29,15 +29,16 @@
 | **Shiprocket** | Logistics & Shipping | Automated courier allocation, shipping label generation, and order tracking status sync. | Active | `src/lib/shiprocket.ts`, `src/app/api/admin/shiprocket/create-order` |
 | **DeepSeek AI** | AI LLM Engine | DeepSeek LLM models (`deepseek-reasoner` [R1] for complex reasoning tasks, `deepseek-chat` [V3] for conversational) configured with working API key as the automatic tertiary failover tier in the multi-credential routing engine if all Gemini accounts encounter rate limits, 503 high demand spikes, or outages. | Active | `src/lib/ai/providers/deepseek.ts`, `src/lib/ai/index.ts` |
 | **Google Gemini & Imagen 3** | AI Multimodal & Image Generation | Google Gemini configured as **Primary Priority 1** across all features: `gemini-3.5-flash` for deep reasoning (`product_description`, `co_founder`, `support_reply`) and `gemini-3.5-flash-lite` for ultra-fast customer chatbot / SEO. Powered by encrypted multi-credential rotation (Primary Account 1 -> Secondary Account 2 backup) before escalating to DeepSeek. Imagen 3 powers studio photography. | Active | `src/lib/ai/credentials.ts`, `src/lib/ai/index.ts`, `src/lib/ai/co-founder/studio-photography.ts` |
-| **OpenTelemetry (OTel)** | Distributed Tracing | Server-side trace telemetry export pipeline sending node HTTP/Express spans to local Jaeger / OTLP HTTP collector (`http://localhost:4318`). | Active | `src/instrumentation-otel.ts` |
+| **OpenTelemetry (OTel)** | Distributed Tracing | Server-side trace telemetry export pipeline configurable via `OTEL_EXPORTER_OTLP_ENDPOINT` (with optional headers). Gracefully skips in serverless production when unconfigured, with optional dev-only Jaeger fallback (`ENABLE_LOCAL_OTEL=true`). | Active | `src/instrumentation-otel.ts` |
 | **Vercel Hosting & Speed Insights**| Hosting & CWV | Production deployment platform and real-time Core Web Vitals performance analytics. | Active | `src/app/layout.tsx` |
-| **Sentry** | Observability | Application performance monitoring, client/server error tracking, and MCP server instrumentation. | Active | `sentry.client.config.ts`, `sentry.server.config.ts` |
+| **Sentry** | Observability | Application performance monitoring, client/server error tracking with PII scrubbing, 10% production trace sampling guard (configurable via `SENTRY_TRACES_SAMPLE_RATE`), and MCP server instrumentation. | Active | `sentry.client.config.ts`, `sentry.server.config.ts`, `sentry.edge.config.ts` |
 | **n8n Workflow Engine** | Automation Engine | Self-hosted workflow automation engine (`n8n.ruhvi.in`) driving AI blog draft generation and background tasks. | Active | `src/app/api/operations/blog/generate-draft/route.ts` |
 | **Motion (Framer Motion)** | UI Animation | Hardware-accelerated 60fps animations, layout transitions, and micro-interactions for Live Worker Workspace. | Active | `src/components/co-founder/workspace/LiveWorkspace.tsx` |
 | **Expo Camera** | Mobile Scanning | High-performance native barcode scanning library powering the mobile Inventory Scan & Add workflow. | Active | `ruhvi-mobile_DO_NOT_DELETE/package.json`, `ruhvi-mobile_DO_NOT_DELETE/src/screens/InventoryScanScreen.tsx` |
 | **JsBarcode** | Barcode Generation | Industry-standard vector SVG barcode encoding engine powering A4 sheet and thermal roll barcode printing. | Active | `package.json`, `src/app/operations/inventory/barcode/page.tsx` |
 | **QRCode** | QR Code Generation | Zero-cloud offline QR code generation engine powering Google Authenticator TOTP 2FA enrollment. | Active | `package.json`, `src/app/api/auth/mfa/setup/route.ts` |
 | **otplib (RFC 6238 TOTP)** | Two-Factor Authentication (2FA) | Cryptographic TOTP token generation, HMAC-SHA1 validation, master emergency email fallback, and backup code hashing for backend staff logins. | Active | `src/lib/auth/totp.ts`, `src/app/api/auth/mfa/*` |
+| **Playwright & axe-core** | E2E & Accessibility Testing | Automated browser testing suite for storefront smoke flows, login, navigation, and automated WCAG 2.1 AA accessibility auditing. | Active | `playwright.config.ts`, `tests/e2e/smoke.spec.ts` |
 
 ---
 
@@ -180,7 +181,7 @@ Full optimization details, Core Web Vitals baselines, and verification benchmark
 - **CDN Preconnect**: Root `<head>` preconnects to `res.cloudinary.com`.
 - **SSR Deduplication**: Supabase taxonomy and metadata queries wrapped in React `cache()`.
 - **Client Cache**: 5-minute memory cache in `useTaxonomy.ts`.
-- **Telemetry**: Sentry/OTel client traces sample rate capped at 10% in production.
+- **Telemetry**: Sentry/OTel traces sample rate capped at 10% in production across client, server, and edge (configurable via `SENTRY_TRACES_SAMPLE_RATE`).
 - **Image Formats**: Automatic AVIF + WebP multi-format conversion via Next.js image optimization.
 
 ---

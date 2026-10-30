@@ -1,16 +1,19 @@
-import { createClient } from '@supabase/supabase-js';
+import { getServiceClient } from '@/lib/supabase/service';
 
 /**
- * Publishes blog posts whose `scheduled_publish_at` <= now and `status` =
- * 'scheduled'. Runs every 15 minutes via Vercel Cron.
+ * Publishes blog posts whose `scheduled_publish_at` <= now and `status` = 'scheduled'.
+ *
+ * Cadence Architecture (Finding C1):
+ * - Bundled into the daily /api/cron/automations workflow executed at 04:00 UTC (0 4 * * *) via Vercel Cron.
+ * - Dedicated on-demand endpoint GET /api/cron/publish-blog is secured with CRON_SECRET (fail-closed).
+ * - Note on Vercel limits: Vercel Hobby permits 1 execution/day. If more frequent publishing is required,
+ *   /api/cron/publish-blog can be scheduled via GitHub Actions or an external worker.
  */
-export async function runBlogPublisher() {
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  );
-
-  const now = new Date().toISOString();
+export async function runBlogPublisher(
+  options: { nowIso?: string; client?: any } = {}
+) {
+  const supabase = options.client || getServiceClient();
+  const now = options.nowIso || new Date().toISOString();
 
   const { data: due, error: fetchError } = await supabase
     .from('blog_posts')
@@ -22,7 +25,7 @@ export async function runBlogPublisher() {
   if (fetchError) throw fetchError;
 
   let published = 0;
-  const ids = (due || []).map((p) => p.id);
+  const ids = (due || []).map((p: any) => p.id);
 
   if (ids.length > 0) {
     const { error: updateError } = await supabase
@@ -40,5 +43,5 @@ export async function runBlogPublisher() {
     published = ids.length;
   }
 
-  return { published, due: (due || []).map((p) => p.slug) };
+  return { published, due: (due || []).map((p: any) => p.slug) };
 }

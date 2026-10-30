@@ -8,7 +8,7 @@ import {
 } from '../rate-limit';
 import { NextResponse } from 'next/server';
 
-describe('API Rate Limit Module', () => {
+describe('API Rate Limit Module (Finding B4)', () => {
   describe('getClientIp', () => {
     it('extracts IP from cf-connecting-ip first', () => {
       const req = new Request('https://ruhvi.in/api/newsletter', {
@@ -47,12 +47,13 @@ describe('API Rate Limit Module', () => {
   });
 
   describe('checkApiRateLimit (in-memory fallback when Redis is unconfigured)', () => {
-    it('allows requests within limit and decrements remaining', async () => {
+    it('allows requests within limit and decrements remaining with isDegraded flag', async () => {
       const key = `test_rate_user_${Date.now()}`;
       const res1 = await checkApiRateLimit(key, 3, 60);
       expect(res1.success).toBe(true);
       expect(res1.limit).toBe(3);
       expect(res1.remaining).toBe(2);
+      expect(res1.isDegraded).toBe(true);
 
       const res2 = await checkApiRateLimit(key, 3, 60);
       expect(res2.success).toBe(true);
@@ -67,17 +68,19 @@ describe('API Rate Limit Module', () => {
       expect(res4.success).toBe(false);
       expect(res4.remaining).toBe(0);
       expect(res4.retryAfter).toBeGreaterThan(0);
+      expect(res4.isDegraded).toBe(true);
     });
   });
 
   describe('createRateLimitResponse', () => {
-    it('constructs 429 response with RFC headers', () => {
+    it('constructs 429 response with RFC headers and degraded flag', () => {
       const res = createRateLimitResponse({
         success: false,
         limit: 5,
         remaining: 0,
         resetAt: 1730000000,
         retryAfter: 35,
+        isDegraded: true,
       });
 
       expect(res.status).toBe(429);
@@ -85,11 +88,12 @@ describe('API Rate Limit Module', () => {
       expect(res.headers.get('X-RateLimit-Limit')).toBe('5');
       expect(res.headers.get('X-RateLimit-Remaining')).toBe('0');
       expect(res.headers.get('X-RateLimit-Reset')).toBe('1730000000');
+      expect(res.headers.get('X-RateLimit-Degraded')).toBe('true');
     });
   });
 
   describe('addRateLimitHeaders', () => {
-    it('attaches rate limit headers to response', () => {
+    it('attaches rate limit headers to response including degraded state', () => {
       const base = NextResponse.json({ ok: true });
       const enriched = addRateLimitHeaders(base, {
         success: true,
@@ -97,11 +101,13 @@ describe('API Rate Limit Module', () => {
         remaining: 8,
         resetAt: 1730000000,
         retryAfter: 0,
+        isDegraded: true,
       });
 
       expect(enriched.headers.get('X-RateLimit-Limit')).toBe('10');
       expect(enriched.headers.get('X-RateLimit-Remaining')).toBe('8');
       expect(enriched.headers.get('X-RateLimit-Reset')).toBe('1730000000');
+      expect(enriched.headers.get('X-RateLimit-Degraded')).toBe('true');
     });
   });
 });

@@ -8,6 +8,7 @@ export interface ApiRateLimitResult {
   remaining: number;
   resetAt: number;
   retryAfter: number;
+  isDegraded?: boolean; // True when falling back to process in-memory sliding window (Finding B4)
 }
 
 // In-memory sliding window fallback store if Redis is unavailable
@@ -42,6 +43,7 @@ function isRedisConfigured(): boolean {
 /**
  * Checks rate limit for a given key using distributed Redis sliding window.
  * Gracefully falls back to an in-memory sliding window if Redis is unconfigured or unreachable.
+ * Emits an operational warning when degraded in-memory mode is active (Finding B4).
  */
 export async function checkApiRateLimit(
   key: string,
@@ -65,9 +67,12 @@ export async function checkApiRateLimit(
         remaining: redisResult.remaining,
         resetAt: redisResult.resetAt,
         retryAfter,
+        isDegraded: false,
       };
-    } catch {
-      // Fall through to in-memory fallback on network failure
+    } catch (err: any) {
+      console.warn(
+        `[rate-limit] Redis unavailable (${err?.message || 'connection failed'}). Falling back to in-memory sliding window for key: "${key}".`
+      );
     }
   }
 
@@ -90,6 +95,7 @@ export async function checkApiRateLimit(
       remaining: 0,
       resetAt,
       retryAfter,
+      isDegraded: true,
     };
   }
 
@@ -111,6 +117,7 @@ export async function checkApiRateLimit(
     remaining: Math.max(0, limit - timestamps.length),
     resetAt: now + windowSeconds,
     retryAfter: 0,
+    isDegraded: true,
   };
 }
 
@@ -127,6 +134,9 @@ export function createRateLimitResponse(
   res.headers.set('X-RateLimit-Limit', String(result.limit));
   res.headers.set('X-RateLimit-Remaining', String(result.remaining));
   res.headers.set('X-RateLimit-Reset', String(result.resetAt));
+  if (result.isDegraded) {
+    res.headers.set('X-RateLimit-Degraded', 'true');
+  }
 
   return res;
 }
@@ -141,5 +151,8 @@ export function addRateLimitHeaders(
   response.headers.set('X-RateLimit-Limit', String(result.limit));
   response.headers.set('X-RateLimit-Remaining', String(result.remaining));
   response.headers.set('X-RateLimit-Reset', String(result.resetAt));
+  if (result.isDegraded) {
+    response.headers.set('X-RateLimit-Degraded', 'true');
+  }
   return response;
 }

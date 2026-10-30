@@ -122,7 +122,7 @@ describe('GET /api/action-center/simulate/[id]', () => {
         urgency: 'high',
         actionLabel: 'Increase Buffer',
         actionType: 'navigate',
-      },
+      } as any,
     };
     // Attach metadata property for product binding
     (mockAnomalyRecord as any).metadata = { productId: 'prod_earrings_01' };

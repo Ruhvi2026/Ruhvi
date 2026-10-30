@@ -56,16 +56,17 @@ export async function GET(
     if (anomaly) {
       resolvedTitle = anomaly.title;
       category = (anomaly.recommendation?.category as any) || 'inventory';
-      if (anomaly.affectedEntities && anomaly.affectedEntities.length > 0) {
-        const prodEntity = anomaly.affectedEntities.find(
+      const anomAny = anomaly as any;
+      if (anomAny.affectedEntities && anomAny.affectedEntities.length > 0) {
+        const prodEntity = anomAny.affectedEntities.find(
           (e: any) => e.type === 'product'
         );
         if (prodEntity) {
           targetProductId = prodEntity.id;
         }
       }
-      if (!targetProductId && anomaly.metadata?.productId) {
-        targetProductId = String(anomaly.metadata.productId);
+      if (!targetProductId && anomAny.metadata?.productId) {
+        targetProductId = String(anomAny.metadata.productId);
       }
     }
 

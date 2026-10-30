@@ -88,59 +88,79 @@ export async function GET(req: NextRequest) {
             ]);
 
           if (stockoutResult.status === 'fulfilled') {
-            const risk = stockoutResult.value;
-            if (risk.riskLevel === 'CRITICAL' || risk.riskLevel === 'HIGH') {
+            const risk = stockoutResult.value as any;
+            if (
+              risk.riskLevel === 'imminent' ||
+              risk.riskLevel === 'high' ||
+              risk.riskLevel === 'CRITICAL' ||
+              risk.riskLevel === 'HIGH'
+            ) {
               stockoutAlerts.push({
                 productId: prod.id,
                 productName: prod.name,
                 sku: prod.sku,
                 onHandStock: prod.stock_quantity,
-                daysOfInventory: risk.daysOfInventoryRemaining,
+                daysOfInventory:
+                  risk.estimatedRunoutDays ??
+                  risk.daysOfInventoryRemaining ??
+                  0,
                 riskLevel: risk.riskLevel,
-                dataSufficiency: risk.dataSufficiency,
-                explanation: risk.explanation,
-                stockoutProbability: risk.stockoutProbabilityWithinLeadTime,
+                dataSufficiency: risk.confidence ?? risk.dataSufficiency,
+                explanation: risk.assumptions?.formula ?? risk.explanation,
+                stockoutProbability:
+                  risk.confidenceScore ??
+                  risk.stockoutProbabilityWithinLeadTime ??
+                  0,
               });
             }
           }
 
           if (restockResult.status === 'fulfilled') {
-            const restock = restockResult.value;
+            const restock = restockResult.value as any;
             if (
               restock.recommendationAction === 'reorder_now' ||
               restock.recommendationAction === 'review_supplier' ||
-              restock.recommendedReorderQuantity > 0
+              (restock.recommendedReorderQuantity ||
+                restock.recommendedUnits ||
+                0) > 0
             ) {
               restockDrafts.push({
                 productId: prod.id,
                 productName: prod.name,
                 sku: prod.sku,
-                recommendedUnits: restock.recommendedReorderQuantity,
-                recommendationAction: restock.recommendationAction,
-                urgency: restock.urgency,
-                confidenceScore: restock.confidenceScore,
-                supplierLeadTimeDays: restock.supplierLeadTimeDays,
-                explanation: restock.explanation,
+                recommendedUnits:
+                  restock.recommendedReorderQuantity ??
+                  restock.recommendedUnits ??
+                  0,
+                recommendationAction: restock.recommendationAction || 'review',
+                urgency: restock.urgency || 'medium',
+                confidenceScore: restock.confidenceScore ?? 0.8,
+                supplierLeadTimeDays: restock.supplierLeadTimeDays ?? 10,
+                explanation:
+                  restock.explanation || 'Inventory replenishment required',
                 requiresHumanReview: true,
               });
             }
           }
 
           if (agingResult.status === 'fulfilled') {
-            const aging = agingResult.value;
+            const aging = agingResult.value as any;
             if (
               aging.agingCategory === 'dead_stock' ||
-              aging.agingCategory === 'aging'
+              aging.agingCategory === 'aging' ||
+              aging.status === 'dead_stock'
             ) {
               deadStockFindings.push({
                 productId: prod.id,
                 productName: prod.name,
                 sku: prod.sku,
-                agingCategory: aging.agingCategory,
-                daysSinceLastSale: aging.daysSinceLastSale,
-                estimatedTiedCapital: aging.estimatedTiedCapital,
-                liquidationGuidance: aging.liquidationGuidance,
-                actionLabel: aging.actionLabel,
+                agingCategory: aging.agingCategory || aging.status,
+                daysSinceLastSale: aging.daysSinceLastSale ?? 0,
+                estimatedTiedCapital:
+                  aging.estimatedTiedCapital ?? aging.tiedCapital ?? 0,
+                liquidationGuidance:
+                  aging.liquidationGuidance || aging.guidance || '',
+                actionLabel: aging.actionLabel || 'Inspect Product',
               });
             }
           }

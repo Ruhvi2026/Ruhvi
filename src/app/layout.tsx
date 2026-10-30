@@ -137,7 +137,7 @@ export default function RootLayout({
       telephone: '+91-9153577651',
       contactType: 'customer service',
       areaServed: 'IN',
-      availableLanguage: ['en', 'hi'],
+      availableLanguage: ['en', 'bn', 'hi'],
     },
   };
 

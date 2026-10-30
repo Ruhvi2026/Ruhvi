@@ -1,0 +1,57 @@
+name: CI Quality Gate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Lint, Typecheck, Test & Build
+    runs-on: ubuntu-latest
+
+    env:
+      NODE_ENV: test
+      NEXT_TELEMETRY_DISABLED: 1
+      # Safe dummy build environment variables for Next.js compilation
+      NEXT_PUBLIC_APP_URL: https://ruhvi.in
+      NEXT_PUBLIC_SUPABASE_URL: https://igrkrkxdantrolbldapj.supabase.co
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: dummy_anon_key_for_ci
+      SUPABASE_SERVICE_ROLE_KEY: dummy_service_role_key_for_ci
+      SUPABASE_JWT_SECRET: dummy_jwt_secret_for_ci_test_token_validation
+      CREDENTIAL_ENCRYPTION_KEY: 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+      WALLET_INTERNAL_SECRET: dummy_wallet_secret
+      CRON_SECRET: dummy_cron_secret
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 20.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint verification (ESLint)
+        run: npm run lint
+
+      - name: TypeScript type verification
+        run: npm run typecheck
+
+      - name: Run automated test suites (Jest)
+        run: npm run test:ci
+
+      - name: Production build validation
+        run: npm run build
+        env:
+          NODE_ENV: production
+

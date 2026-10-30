@@ -10,6 +10,21 @@ const IGNORE_PATTERNS = [
   /auth\/invalid-api-key/,
 ];
 
+/**
+ * Calculates a cost-effective, environment-aware trace sample rate for Sentry.
+ * Defaults to 0.1 (10%) in production to preserve quota, and 1.0 (100%) in development/staging.
+ * Can be overridden via SENTRY_TRACES_SAMPLE_RATE environment variable.
+ */
+export function getSentryTracesSampleRate(): number {
+  if (process.env.SENTRY_TRACES_SAMPLE_RATE) {
+    const parsed = parseFloat(process.env.SENTRY_TRACES_SAMPLE_RATE);
+    if (!isNaN(parsed) && parsed >= 0 && parsed <= 1) {
+      return parsed;
+    }
+  }
+  return process.env.NODE_ENV === 'production' ? 0.1 : 1.0;
+}
+
 export function beforeSendSentry(event: ErrorEvent) {
   const exception = event.exception?.values?.[0];
   const message = exception?.value || event.message || '';

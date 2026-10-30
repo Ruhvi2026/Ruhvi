@@ -153,7 +153,7 @@ describe('QA Guardian to Action Center Bridge (Track H - Phase 42)', () => {
     });
 
     it('returns null when synthetic transaction status is SUCCESS', () => {
-      const successTxn: SyntheticTransactionResult = {
+      const successTxn: any = {
         executionId: 'synth_123',
         status: 'SUCCESS',
         testOrderNumber: 'SYNTH_ORD_123',
@@ -179,7 +179,7 @@ describe('QA Guardian to Action Center Bridge (Track H - Phase 42)', () => {
     });
 
     it('creates an action proposal when synthetic transaction fails', () => {
-      const failedTxn: SyntheticTransactionResult = {
+      const failedTxn: any = {
         executionId: 'synth_failed_999',
         status: 'FAILED',
         testOrderNumber: null,

@@ -3,6 +3,7 @@ import 'server-only';
 import { getServiceClient } from '@/lib/supabase/service';
 import { getStoreAnalytics } from './analytics';
 import { getRelevantMemories } from './memory';
+import type { CompetitorRecord } from './competitors';
 
 export type SignalCategory =
   'BUSINESS' | 'RISK' | 'OPPORTUNITY' | 'FOLLOW_UP' | 'SYSTEM';
@@ -48,15 +49,21 @@ export function createSignalFingerprint(
 }
 
 /**
- * Detect competitor discounting pressure, price undercut, or aggressive promotional movements.
+ * Detect competitor discounting pressure, price undercut, or promotional movements.
+ * Calibrates confidence based on evidence recency and avoids unverified definitive claims.
  */
 export async function detectCompetitorPriceSignals(
-  dateBucket: string
+  dateBucket: string,
+  competitorsOverride?: CompetitorRecord[]
 ): Promise<ProactiveSignal[]> {
   const signals: ProactiveSignal[] = [];
   try {
-    const { getCompetitors } = await import('./competitors');
-    const competitors = await getCompetitors();
+    const competitors: CompetitorRecord[] =
+      competitorsOverride ||
+      (await (async () => {
+        const { getCompetitors } = await import('./competitors');
+        return getCompetitors();
+      })());
 
     for (const comp of competitors) {
       const insights = comp.latest_insights;
@@ -64,9 +71,16 @@ export async function detectCompetitorPriceSignals(
       const notes = comp.notes || '';
       const combinedText = `${promotions} ${notes}`.toLowerCase();
 
+      // Check if promotional mentions are negated (e.g. "no promotions", "without discount")
+      const isNegated =
+        /\b(?:no|not|neither|without|zero)\s+(?:\w+\s+){0,3}(?:sale|discount|off|promo|promotions?|deal)\b/i.test(
+          combinedText
+        );
+
       // Look for aggressive discount patterns (e.g. 20% off, clearance, price drop, flash sale)
       const hasDiscountMention =
-        /(?:sale|discount|off|drop|clearance|promo|deal|underpriced|slash)/i.test(
+        !isNegated &&
+        /\b(?:sale|discount|off|drop|clearance|promos?|promotions?|deals?|underpriced|slashed?)\b/i.test(
           combinedText
         );
       const discountMatch = combinedText.match(/(\d+)%\s*(?:off|discount)/i);
@@ -75,6 +89,26 @@ export async function detectCompetitorPriceSignals(
         : null;
 
       if (hasDiscountMention || (discountPercent && discountPercent >= 15)) {
+        // Evidence-based confidence calibration:
+        // Stored intelligence notes/insights indicate promotional patterns, but do not prove live price undercut.
+        let confidence: SignalConfidence = 'possible';
+        if (comp.last_analyzed_at) {
+          const analyzedDate = new Date(comp.last_analyzed_at).getTime();
+          const daysSinceAnalysis =
+            (Date.now() - analyzedDate) / (1000 * 60 * 60 * 24);
+          if (
+            daysSinceAnalysis <= 7 &&
+            discountPercent &&
+            discountPercent >= 20
+          ) {
+            confidence = 'strong';
+          } else if (daysSinceAnalysis > 30) {
+            confidence = 'insufficient_evidence';
+          }
+        } else if (!promotions && !notes) {
+          confidence = 'insufficient_evidence';
+        }
+
         signals.push({
           fingerprint: createSignalFingerprint(
             'competitor_discount_alert',
@@ -85,15 +119,22 @@ export async function detectCompetitorPriceSignals(
           category: 'RISK',
           severity:
             discountPercent && discountPercent >= 25 ? 'high' : 'medium',
-          confidence: 'strong',
-          title: `Competitor Pricing Pressure: ${comp.name}`,
-          summary: `Competitor ${comp.name} launched aggressive promotional discounts${discountPercent ? ` (${discountPercent}% off)` : ''} in the ${comp.category || 'jewelry'} category.`,
-          detail: `Competitor intelligence report for ${comp.name} indicates promotional campaign: "${promotions || notes}". Counter-strategy: ${insights?.strategicCounterMove || 'Review category margins and feature handcrafted artisan differentiators.'}`,
+          confidence,
+          title: `Potential Competitor Promotion: ${comp.name}`,
+          summary: `Stored competitor intelligence for ${comp.name} indicates potential promotional discount activity${discountPercent ? ` (~${discountPercent}% off)` : ''} in the ${comp.category || 'jewelry'} category.`,
+          detail: `Competitor record (ID: ${comp.id}, table: co_founder_competitors, last_analyzed: ${comp.last_analyzed_at || 'manual notes'}) indicates promotional mentions: "${promotions || notes}". Confidence is calibrated to "${confidence}" pending live site price verification. Counter-strategy: ${insights?.strategicCounterMove || 'Review category margins and feature handcrafted artisan differentiators.'}`,
           metrics: {
             competitorId: comp.id,
             competitorName: comp.name,
             discountPercent: discountPercent ?? undefined,
             category: comp.category,
+            sourceTable: 'co_founder_competitors',
+            lastAnalyzedAt: comp.last_analyzed_at || null,
+            evidenceType: comp.last_analyzed_at
+              ? 'competitor_intel_scan'
+              : 'stored_notes',
+            evidenceSummary: `Detected keywords in ${promotions ? 'latest_insights.promotions' : 'notes'}`,
+            evaluatedAt: new Date().toISOString(),
           },
           recommendedAction:
             insights?.strategicCounterMove ||
@@ -112,60 +153,128 @@ export async function detectCompetitorPriceSignals(
 }
 
 /**
- * Detect checkout abandonment spikes and cart dropoff surges.
+ * Detect checkout abandonment and cart dropoff surges with evidence calibration.
+ * Groups by distinct cart sessions and excludes users who placed a completed order in the evaluation window.
  */
 export async function detectCheckoutAbandonmentSignals(
-  dateBucket: string
+  dateBucket: string,
+  supabaseClient?: any,
+  nowDate: Date = new Date()
 ): Promise<ProactiveSignal[]> {
   const signals: ProactiveSignal[] = [];
   try {
-    const supabase = getServiceClient();
+    const supabase = supabaseClient || getServiceClient();
     const twentyFourHoursAgo = new Date(
-      Date.now() - 24 * 60 * 60 * 1000
+      nowDate.getTime() - 24 * 60 * 60 * 1000
     ).toISOString();
 
     // Query pending cart items created or updated within the last 24h
     const { data: cartItems, error } = await supabase
       .from('cart_items')
-      .select('id, quantity, created_at, product:products(name, price)')
+      .select(
+        'id, cart_id, quantity, created_at, product:products(name, price), carts(user_id, updated_at)'
+      )
       .gte('created_at', twentyFourHoursAgo)
       .limit(100);
 
-    if (!error && cartItems && cartItems.length >= 3) {
-      const totalUnits = cartItems.reduce(
-        (acc: number, item: any) => acc + (Number(item.quantity) || 1),
-        0
-      );
-      const estimatedValue = cartItems.reduce((acc: number, item: any) => {
-        const price = Number(item.product?.price) || 0;
-        const qty = Number(item.quantity) || 1;
-        return acc + price * qty;
-      }, 0);
+    if (!error && cartItems && cartItems.length > 0) {
+      // Group items by unique cart session
+      const cartMap = new Map<string, { userId?: string; items: any[] }>();
+      for (const item of cartItems) {
+        const cartId = item.cart_id || item.id;
+        const userId = item.carts?.user_id;
+        if (!cartMap.has(cartId)) {
+          cartMap.set(cartId, { userId, items: [] });
+        }
+        cartMap.get(cartId)!.items.push(item);
+      }
 
-      const isHighDropoff = cartItems.length >= 8 || estimatedValue >= 15000;
+      // Check which users placed an order in the last 24h to filter out converted carts
+      const candidateUserIds = Array.from(cartMap.values())
+        .map((c) => c.userId)
+        .filter((id): id is string => Boolean(id));
 
-      signals.push({
-        fingerprint: createSignalFingerprint(
-          'checkout_abandonment_spike',
-          'cart_funnel_24h',
-          dateBucket
-        ),
-        signalType: 'checkout_abandonment_spike',
-        category: 'RISK',
-        severity: isHighDropoff ? 'high' : 'medium',
-        confidence: 'confirmed',
-        title: 'Elevated Checkout Abandonment Spike Detected',
-        summary: `There are ${cartItems.length} uncompleted checkout carts (${totalUnits} items) totaling ~₹${estimatedValue.toLocaleString('en-IN')} pending in the last 24 hours.`,
-        detail: `Checkout funnel scan identified ${cartItems.length} abandoned checkout sessions. Estimated unrealized GMV: ₹${estimatedValue.toLocaleString('en-IN')}. Potential drop-off friction at payment step or shipping calculation.`,
-        metrics: {
-          abandonedCartsCount: cartItems.length,
-          totalUnits,
-          estimatedUnrealizedGmv: estimatedValue,
-        },
-        recommendedAction:
-          'Trigger automated WhatsApp & Email cart recovery sequence and test payment gateway latency.',
-        requiresApproval: true,
-      });
+      const convertedUserIds = new Set<string>();
+      if (candidateUserIds.length > 0) {
+        try {
+          const { data: recentOrders } = await supabase
+            .from('orders')
+            .select('user_id')
+            .gte('created_at', twentyFourHoursAgo)
+            .in('user_id', candidateUserIds);
+
+          if (recentOrders) {
+            for (const ord of recentOrders) {
+              if (ord.user_id) convertedUserIds.add(ord.user_id);
+            }
+          }
+        } catch {
+          // Graceful fallback if orders check fails
+        }
+      }
+
+      // Filter out carts of users who completed an order
+      const unconvertedCarts: Array<{ cartId: string; items: any[] }> = [];
+      for (const [cartId, data] of cartMap.entries()) {
+        if (!data.userId || !convertedUserIds.has(data.userId)) {
+          unconvertedCarts.push({ cartId, items: data.items });
+        }
+      }
+
+      const distinctCartsCount = unconvertedCarts.length;
+      const unconvertedItems = unconvertedCarts.flatMap((c) => c.items);
+
+      if (distinctCartsCount >= 3) {
+        const totalUnits = unconvertedItems.reduce(
+          (acc: number, item: any) => acc + (Number(item.quantity) || 1),
+          0
+        );
+        const estimatedValue = unconvertedItems.reduce(
+          (acc: number, item: any) => {
+            const price = Number(item.product?.price) || 0;
+            const qty = Number(item.quantity) || 1;
+            return acc + price * qty;
+          },
+          0
+        );
+
+        const isHighDropoff =
+          distinctCartsCount >= 8 || estimatedValue >= 15000;
+        // Evidence-based confidence calibration:
+        // Unconverted cart sessions indicate potential drop-off; calibrate to 'possible' or 'strong'
+        const confidence: SignalConfidence =
+          distinctCartsCount >= 6 && estimatedValue >= 15000
+            ? 'strong'
+            : 'possible';
+
+        signals.push({
+          fingerprint: createSignalFingerprint(
+            'checkout_abandonment_spike',
+            'cart_funnel_24h',
+            dateBucket
+          ),
+          signalType: 'checkout_abandonment_spike',
+          category: 'RISK',
+          severity: isHighDropoff ? 'high' : 'medium',
+          confidence,
+          title: 'Potential Cart Drop-off Spike Detected',
+          summary: `Identified ${distinctCartsCount} uncompleted cart session(s) (${totalUnits} items) totaling ~₹${estimatedValue.toLocaleString('en-IN')} pending without orders in the last 24 hours.`,
+          detail: `Cart telemetry scanned ${unconvertedItems.length} active cart items across ${distinctCartsCount} distinct user carts with no completed order in the last 24 hours. Estimated unrealized GMV: ₹${estimatedValue.toLocaleString('en-IN')}. Confidence calibrated to "${confidence}" pending checkout-funnel event confirmation.`,
+          metrics: {
+            abandonedCartsCount: distinctCartsCount,
+            totalCartItems: unconvertedItems.length,
+            totalUnits,
+            estimatedUnrealizedGmv: estimatedValue,
+            sourceTable: 'cart_items, carts, orders',
+            sampleSize: distinctCartsCount,
+            evaluatedAt: nowDate.toISOString(),
+            evidenceType: 'unconverted_cart_session_check',
+          },
+          recommendedAction:
+            'Trigger automated WhatsApp & Email cart recovery sequence and test payment gateway latency.',
+          requiresApproval: true,
+        });
+      }
     }
   } catch (err: any) {
     console.warn(
@@ -213,6 +322,9 @@ export async function detectSeoDecaySignals(
           missingMetaDescriptions: seoReport.missingMetaDescriptions,
           missingAltText: seoReport.missingAltText,
           weakKeywordCount: seoReport.weakKeywordCount,
+          sourceTable: 'products',
+          sampleSize: seoReport.totalProductsScanned,
+          evaluatedAt: new Date().toISOString(),
         },
         recommendedAction:
           'Dispatch Worker 3 (SEO Specialist) to generate search-optimized titles and rich meta descriptions targeting high-intent jewelry keywords.',
@@ -277,6 +389,10 @@ export async function scanProactiveSignals(
             currentRevenue: revComp.current,
             baselineRevenue: revComp.baseline,
             percentageChange: revComp.percentageChange,
+            sourceTable: 'orders',
+            sampleSize: analytics7d.evidence.sampleSizeOrders,
+            dataFreshness: analytics7d.evidence.dataFreshnessTimestamp,
+            evaluatedAt: now.toISOString(),
           },
           recommendedAction:
             'Inspect checkout conversion rates and review recent traffic acquisition channels.',
@@ -287,6 +403,8 @@ export async function scanProactiveSignals(
 
     // B. High Cancellation Rate Spike
     if (kpis7d.totalOrders >= 5 && kpis7d.cancellationRate >= 20) {
+      const cancellationConfidence: SignalConfidence =
+        kpis7d.totalOrders >= 10 ? 'confirmed' : 'strong';
       candidateSignals.push({
         fingerprint: createSignalFingerprint(
           'high_cancellations',
@@ -296,7 +414,7 @@ export async function scanProactiveSignals(
         signalType: 'high_cancellations',
         category: 'RISK',
         severity: 'high',
-        confidence: 'confirmed',
+        confidence: cancellationConfidence,
         title: 'Elevated Order Cancellation Rate',
         summary: `We have experienced a ${kpis7d.cancellationRate}% order cancellation rate across ${kpis7d.totalOrders} orders recently.`,
         detail: `${kpis7d.cancelledOrders} out of ${kpis7d.totalOrders} orders were cancelled in the last 7 days.`,
@@ -304,6 +422,9 @@ export async function scanProactiveSignals(
           totalOrders: kpis7d.totalOrders,
           cancelledOrders: kpis7d.cancelledOrders,
           cancellationRate: kpis7d.cancellationRate,
+          sourceTable: 'orders',
+          sampleSize: kpis7d.totalOrders,
+          evaluatedAt: now.toISOString(),
         },
         recommendedAction:
           'Review customer cancellation reasons and check payment gateway webhook health.',
@@ -326,7 +447,12 @@ export async function scanProactiveSignals(
         title: 'Low Inventory Alert for Active Catalog Items',
         summary: `There are ${kpis7d.lowStockItemsCount} active products with 5 or fewer units remaining in stock.`,
         detail: `Safety stock thresholds triggered for ${kpis7d.lowStockItemsCount} items. Top seller demand may be constrained if not restocked promptly.`,
-        metrics: { lowStockCount: kpis7d.lowStockItemsCount },
+        metrics: {
+          lowStockCount: kpis7d.lowStockItemsCount,
+          sourceTable: 'products',
+          sampleSize: kpis7d.lowStockItemsCount,
+          evaluatedAt: now.toISOString(),
+        },
         recommendedAction:
           'Issue restock request or adjust safety buffers with artisan suppliers.',
         requiresApproval: true,
@@ -351,6 +477,9 @@ export async function scanProactiveSignals(
         metrics: {
           urgentTickets: kpis7d.urgentTicketsCount,
           openTickets: kpis7d.openSupportTicketsCount,
+          sourceTable: 'support_tickets',
+          sampleSize: kpis7d.urgentTicketsCount,
+          evaluatedAt: now.toISOString(),
         },
         recommendedAction:
           'Assign available support staff to expedite ticket resolution.',
