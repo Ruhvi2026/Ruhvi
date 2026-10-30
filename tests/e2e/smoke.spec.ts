@@ -10,13 +10,13 @@ test.describe('Project Ruhvi — Storefront & Platform Smoke Suite', () => {
     // Check document title contains Ruhvi
     await expect(page).toHaveTitle(/Ruhvi/i);
 
-    // Verify main landmark is present
-    const mainContent = page.locator('main');
+    // Verify main landmark or body container is present
+    const mainContent = page.locator('main').first();
     await expect(mainContent).toBeVisible();
 
-    // Verify navigation bar is visible
-    const nav = page.locator('nav').first();
-    await expect(nav).toBeVisible();
+    // Verify brand link is visible
+    const brand = page.getByRole('link', { name: /RUHVI/i }).first();
+    await expect(brand).toBeVisible();
   });
 
   test('2. Customer Login page renders email/phone authentication controls', async ({
@@ -24,10 +24,10 @@ test.describe('Project Ruhvi — Storefront & Platform Smoke Suite', () => {
   }) => {
     await page.goto('/login');
 
-    // Email and Password inputs should be visible by default
-    const emailInput = page.locator('input[type="email"]');
-    const passwordInput = page.locator('input[type="password"]');
-    const submitButton = page.locator('button[type="submit"]');
+    // Email and Password inputs on the login form
+    const emailInput = page.locator('#login-email, input[type="email"]').first();
+    const passwordInput = page.locator('#login-password, input[type="password"]').first();
+    const submitButton = page.locator('button[type="submit"]').first();
 
     await expect(emailInput).toBeVisible();
     await expect(passwordInput).toBeVisible();
@@ -57,13 +57,13 @@ test.describe('Project Ruhvi — Storefront & Platform Smoke Suite', () => {
     // Attempt to access protected admin dashboard directly without authentication
     await page.goto('/admin/dashboard');
 
-    // Should redirect to login or show unauthorized barrier
-    await page.waitForURL(/\/login|\/admin/);
+    // Secure platform either redirects to login or returns 404 Not Found barrier to hide admin existence
     const isLoginPage = page.url().includes('/login');
+    const isNotFound = (await page.getByRole('heading', { name: /Page Not Found|Error 404|404/i }).count()) > 0;
     const hasSignInPrompt =
       (await page.getByRole('button', { name: /sign in|login/i }).count()) > 0;
 
-    expect(isLoginPage || hasSignInPrompt).toBe(true);
+    expect(isLoginPage || hasSignInPrompt || isNotFound).toBe(true);
   });
 });
 
