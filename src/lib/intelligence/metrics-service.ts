@@ -192,6 +192,111 @@ export function verifyMetricsAuthorization(
 }
 
 /**
+ * Detects whether an order record is an automated QA synthetic test or sandbox artifact.
+ */
+export function isSyntheticOrTestOrder(order: any): boolean {
+  if (!order || typeof order !== 'object') return false;
+  if (order.is_test === true || order.is_test === 'true') return true;
+  if (order.status === 'cancelled_synthetic_test') return true;
+  if (order.payment_method === 'synthetic_test_sandbox') return true;
+  if (
+    typeof order.order_number === 'string' &&
+    order.order_number.startsWith('SYNTH_ORD_')
+  ) {
+    return true;
+  }
+  if (
+    typeof order.user_id === 'string' &&
+    order.user_id.startsWith('usr_synth_qa_')
+  ) {
+    return true;
+  }
+  return false;
+}
+
+/**
+ * Terminal, non-realized, or contested statuses excluded from net sales realization.
+ */
+export const NON_NET_SALES_STATUSES = new Set([
+  'pending',
+  'cancelled',
+  'returned',
+  'return_requested',
+  'return_approved',
+  'rto_initiated',
+  'rto_received',
+  'delivery_failed',
+  'refunded',
+]);
+
+/**
+ * Statuses that invalidate a pure COD order from being counted as paid/committed.
+ */
+export const NON_PAID_COD_STATUSES = new Set([
+  'pending',
+  'cancelled',
+  'returned',
+  'return_requested',
+  'return_approved',
+  'rto_initiated',
+  'rto_received',
+  'delivery_failed',
+  'refunded',
+]);
+
+/**
+ * Safely executes order reads across PostgREST row limits with automatic pagination
+ * when supported, falling back cleanly for standard test mocks.
+ */
+export async function fetchOrdersPaginated(
+  supabase: any,
+  selectFields: string,
+  timeWindow: TimeWindow,
+  pageSize = 1000
+): Promise<{ data: any[] | null; error: any }> {
+  try {
+    const baseQuery = supabase
+      .from('orders')
+      .select(selectFields)
+      .gte('created_at', timeWindow.start)
+      .lte('created_at', timeWindow.end);
+
+    // If PostgREST client supports .range() pagination (production runtime)
+    if (typeof baseQuery?.range === 'function') {
+      const allRows: any[] = [];
+      let offset = 0;
+      let hasMore = true;
+
+      while (hasMore) {
+        const { data, error } = await supabase
+          .from('orders')
+          .select(selectFields)
+          .gte('created_at', timeWindow.start)
+          .lte('created_at', timeWindow.end)
+          .range(offset, offset + pageSize - 1);
+
+        if (error) return { data: null, error };
+        if (!data || data.length === 0) break;
+
+        allRows.push(...data);
+        if (data.length < pageSize) {
+          hasMore = false;
+        } else {
+          offset += pageSize;
+        }
+      }
+      return { data: allRows, error: null };
+    }
+
+    // Direct resolution for Jest test doubles where .range is not mocked
+    const res = await baseQuery;
+    return { data: res?.data || null, error: res?.error || null };
+  } catch (err: any) {
+    return { data: null, error: err };
+  }
+}
+
+/**
  * Retrieves a single canonical metric with permission checks, caching, and fallback handling.
  */
 export async function getCanonicalMetric(
@@ -233,14 +338,14 @@ export async function getCanonicalMetric(
 
   switch (metric) {
     case 'gross_sales': {
-      // Sum of orders.total where status != 'pending'
-      const { data: orders, error } = await supabase
-        .from('orders')
-        .select('total, status')
-        .gte('created_at', timeWindow.start)
-        .lte('created_at', timeWindow.end);
+      // Sum of orders.total where status != 'pending', excluding synthetic/test orders
+      const { data: rawOrders, error } = await fetchOrdersPaginated(
+        supabase,
+        'total, status, order_number, user_id, payment_method, is_test',
+        timeWindow
+      );
 
-      if (error || !orders) {
+      if (error || !rawOrders) {
         metricValue = {
           metric,
           value: null,
@@ -253,11 +358,31 @@ export async function getCanonicalMetric(
         break;
       }
 
+      // Exclude synthetic/test orders and pending unconfirmed checkouts
+      const orders = rawOrders.filter((o) => !isSyntheticOrTestOrder(o));
       const validOrders = orders.filter((o) => o.status !== 'pending');
       const totalGross = validOrders.reduce(
         (sum, o) => sum + (Number(o.total) || 0),
         0
       );
+
+      // Collect demand deductions breakdown in metadata
+      const cancelledDemand = validOrders
+        .filter((o) => o.status === 'cancelled')
+        .reduce((sum, o) => sum + (Number(o.total) || 0), 0);
+      const returnedDemand = validOrders
+        .filter(
+          (o) =>
+            o.status === 'returned' ||
+            o.status === 'return_approved' ||
+            o.status === 'return_requested'
+        )
+        .reduce((sum, o) => sum + (Number(o.total) || 0), 0);
+      const rtoDemand = validOrders
+        .filter(
+          (o) => o.status === 'rto_received' || o.status === 'rto_initiated'
+        )
+        .reduce((sum, o) => sum + (Number(o.total) || 0), 0);
 
       metricValue = {
         metric,
@@ -266,6 +391,13 @@ export async function getCanonicalMetric(
         currency: 'INR',
         unit: '₹',
         sampleSize: validOrders.length,
+        metadata: {
+          testOrdersExcludedCount: rawOrders.length - orders.length,
+          cancelledDemand: Number(cancelledDemand.toFixed(2)),
+          returnedDemand: Number(returnedDemand.toFixed(2)),
+          rtoDemand: Number(rtoDemand.toFixed(2)),
+          note: 'Gross sales represents total placed customer demand before deductions per Business KPI Dictionary.',
+        },
         calculatedAt,
         timeWindow,
       };
@@ -273,14 +405,14 @@ export async function getCanonicalMetric(
     }
 
     case 'net_sales': {
-      // Gross sales of non-cancelled/non-returned/no-RTO orders
-      const { data: orders, error } = await supabase
-        .from('orders')
-        .select('total, status, id')
-        .gte('created_at', timeWindow.start)
-        .lte('created_at', timeWindow.end);
+      // Gross sales excluding cancellations, returns, RTOs, delivery failures, and refunds
+      const { data: rawOrders, error } = await fetchOrdersPaginated(
+        supabase,
+        'total, status, id, order_number, user_id, payment_status, payment_method, is_test',
+        timeWindow
+      );
 
-      if (error || !orders) {
+      if (error || !rawOrders) {
         metricValue = {
           metric,
           value: null,
@@ -293,12 +425,11 @@ export async function getCanonicalMetric(
         break;
       }
 
+      const orders = rawOrders.filter((o) => !isSyntheticOrTestOrder(o));
       const eligibleOrders = orders.filter(
         (o) =>
-          o.status !== 'pending' &&
-          o.status !== 'cancelled' &&
-          o.status !== 'returned' &&
-          o.status !== 'rto_received'
+          !NON_NET_SALES_STATUSES.has(o.status) &&
+          o.payment_status !== 'refunded'
       );
       const totalNet = eligibleOrders.reduce(
         (sum, o) => sum + (Number(o.total) || 0),
@@ -312,6 +443,10 @@ export async function getCanonicalMetric(
         currency: 'INR',
         unit: '₹',
         sampleSize: eligibleOrders.length,
+        metadata: {
+          testOrdersExcludedCount: rawOrders.length - orders.length,
+          excludedNonNetCount: orders.length - eligibleOrders.length,
+        },
         calculatedAt,
         timeWindow,
       };
@@ -319,13 +454,13 @@ export async function getCanonicalMetric(
     }
 
     case 'paid_orders_count': {
-      const { data: orders, error } = await supabase
-        .from('orders')
-        .select('id, payment_status, is_partial_cod, payment_method, status')
-        .gte('created_at', timeWindow.start)
-        .lte('created_at', timeWindow.end);
+      const { data: rawOrders, error } = await fetchOrdersPaginated(
+        supabase,
+        'id, payment_status, is_partial_cod, payment_method, status, order_number, user_id, is_test',
+        timeWindow
+      );
 
-      if (error || !orders) {
+      if (error || !rawOrders) {
         metricValue = {
           metric,
           value: null,
@@ -337,28 +472,53 @@ export async function getCanonicalMetric(
         break;
       }
 
-      const paidCount = orders.filter((o) => {
-        if (o.payment_status === 'paid') return true;
+      const orders = rawOrders.filter((o) => !isSyntheticOrTestOrder(o));
+
+      let onlinePrepaidCount = 0;
+      let partialCodCount = 0;
+      let codSettledCount = 0;
+      let codInTransitCount = 0;
+
+      const paidOrders = orders.filter((o) => {
+        if (
+          o.payment_method === 'cod' &&
+          !NON_PAID_COD_STATUSES.has(o.status)
+        ) {
+          if (o.status === 'delivered' || o.payment_status === 'paid') {
+            codSettledCount++;
+          } else {
+            codInTransitCount++;
+          }
+          return true;
+        }
         if (
           o.is_partial_cod &&
           (o.payment_status === 'paid' || o.payment_status === 'partial_paid')
-        )
+        ) {
+          partialCodCount++;
           return true;
-        if (
-          o.payment_method === 'cod' &&
-          o.status !== 'pending' &&
-          o.status !== 'cancelled'
-        )
+        }
+        if (o.payment_status === 'paid') {
+          onlinePrepaidCount++;
           return true;
+        }
         return false;
-      }).length;
+      });
 
       metricValue = {
         metric,
-        value: paidCount,
+        value: paidOrders.length,
         status: 'available',
         unit: 'orders',
         sampleSize: orders.length,
+        metadata: {
+          onlinePrepaidCount,
+          partialCodCount,
+          codCommittedCount: codSettledCount + codInTransitCount,
+          codSettledCount,
+          codInTransitCount,
+          testOrdersExcludedCount: rawOrders.length - orders.length,
+        },
         calculatedAt,
         timeWindow,
       };
@@ -366,13 +526,13 @@ export async function getCanonicalMetric(
     }
 
     case 'average_order_value': {
-      const { data: orders, error } = await supabase
-        .from('orders')
-        .select('total, status')
-        .gte('created_at', timeWindow.start)
-        .lte('created_at', timeWindow.end);
+      const { data: rawOrders, error } = await fetchOrdersPaginated(
+        supabase,
+        'total, status, order_number, user_id, is_test',
+        timeWindow
+      );
 
-      if (error || !orders) {
+      if (error || !rawOrders) {
         metricValue = {
           metric,
           value: null,
@@ -385,6 +545,7 @@ export async function getCanonicalMetric(
         break;
       }
 
+      const orders = rawOrders.filter((o) => !isSyntheticOrTestOrder(o));
       const confirmedOrders = orders.filter(
         (o) => o.status !== 'pending' && o.status !== 'cancelled'
       );
@@ -413,6 +574,9 @@ export async function getCanonicalMetric(
           currency: 'INR',
           unit: '₹',
           sampleSize: confirmedOrders.length,
+          metadata: {
+            testOrdersExcludedCount: rawOrders.length - orders.length,
+          },
           calculatedAt,
           timeWindow,
         };
@@ -421,23 +585,36 @@ export async function getCanonicalMetric(
     }
 
     case 'cancellation_rate': {
-      const { data: orders, error } = await supabase
-        .from('orders')
-        .select('id, status')
-        .gte('created_at', timeWindow.start)
-        .lte('created_at', timeWindow.end);
+      const { data: rawOrders, error } = await fetchOrdersPaginated(
+        supabase,
+        'id, status, order_number, user_id, is_test',
+        timeWindow
+      );
 
-      if (error || !orders || orders.length === 0) {
+      if (error || !rawOrders || rawOrders.length === 0) {
         metricValue = {
           metric,
           value: null,
           status: error ? 'unavailable' : 'insufficient_data',
           unit: '%',
-          sampleSize: orders?.length || 0,
+          sampleSize: rawOrders?.length || 0,
           calculatedAt,
           timeWindow,
         };
       } else {
+        const orders = rawOrders.filter((o) => !isSyntheticOrTestOrder(o));
+        if (orders.length === 0) {
+          metricValue = {
+            metric,
+            value: null,
+            status: 'insufficient_data',
+            unit: '%',
+            sampleSize: 0,
+            calculatedAt,
+            timeWindow,
+          };
+          break;
+        }
         const cancelled = orders.filter((o) => o.status === 'cancelled').length;
         const rate = Number(((cancelled / orders.length) * 100).toFixed(2));
         metricValue = {
@@ -446,7 +623,11 @@ export async function getCanonicalMetric(
           status: 'available',
           unit: '%',
           sampleSize: orders.length,
-          metadata: { cancelledCount: cancelled, totalCount: orders.length },
+          metadata: {
+            cancelledCount: cancelled,
+            totalCount: orders.length,
+            testOrdersExcludedCount: rawOrders.length - orders.length,
+          },
           calculatedAt,
           timeWindow,
         };
@@ -455,13 +636,13 @@ export async function getCanonicalMetric(
     }
 
     case 'rto_rate': {
-      const { data: orders, error } = await supabase
-        .from('orders')
-        .select('id, status')
-        .gte('created_at', timeWindow.start)
-        .lte('created_at', timeWindow.end);
+      const { data: rawOrders, error } = await fetchOrdersPaginated(
+        supabase,
+        'id, status, order_number, user_id, is_test',
+        timeWindow
+      );
 
-      if (error || !orders) {
+      if (error || !rawOrders) {
         metricValue = {
           metric,
           value: null,
@@ -473,6 +654,7 @@ export async function getCanonicalMetric(
         break;
       }
 
+      const orders = rawOrders.filter((o) => !isSyntheticOrTestOrder(o));
       const shippedOrders = orders.filter(
         (o) =>
           o.status === 'shipped' ||
@@ -508,7 +690,11 @@ export async function getCanonicalMetric(
           status: 'available',
           unit: '%',
           sampleSize: shippedOrders.length,
-          metadata: { rtoCount, shippedCount: shippedOrders.length },
+          metadata: {
+            rtoCount,
+            shippedCount: shippedOrders.length,
+            testOrdersExcludedCount: rawOrders.length - orders.length,
+          },
           calculatedAt,
           timeWindow,
         };
@@ -517,13 +703,13 @@ export async function getCanonicalMetric(
     }
 
     case 'return_rate': {
-      const { data: orders, error } = await supabase
-        .from('orders')
-        .select('id, status')
-        .gte('created_at', timeWindow.start)
-        .lte('created_at', timeWindow.end);
+      const { data: rawOrders, error } = await fetchOrdersPaginated(
+        supabase,
+        'id, status, order_number, user_id, is_test',
+        timeWindow
+      );
 
-      if (error || !orders) {
+      if (error || !rawOrders) {
         metricValue = {
           metric,
           value: null,
@@ -535,6 +721,7 @@ export async function getCanonicalMetric(
         break;
       }
 
+      const orders = rawOrders.filter((o) => !isSyntheticOrTestOrder(o));
       const deliveredOrders = orders.filter((o) => o.status === 'delivered');
 
       if (deliveredOrders.length === 0) {
@@ -563,7 +750,11 @@ export async function getCanonicalMetric(
           status: 'available',
           unit: '%',
           sampleSize: deliveredOrders.length,
-          metadata: { returnedCount, deliveredCount: deliveredOrders.length },
+          metadata: {
+            returnedCount,
+            deliveredCount: deliveredOrders.length,
+            testOrdersExcludedCount: rawOrders.length - orders.length,
+          },
           calculatedAt,
           timeWindow,
         };

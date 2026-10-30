@@ -124,6 +124,9 @@ export async function executeProbe(
   const url = `${baseUrl.replace(/\/$/, '')}${config.path}`;
   const startedAt = Date.now();
   const checkedAt = new Date().toISOString();
+  const controller = new AbortController();
+  const timeoutMs = (config.maxLatencyMs || 3000) + 2000;
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
   try {
     const res = await fetchFn(url, {
@@ -133,7 +136,9 @@ export async function executeProbe(
         Accept: 'text/html,application/json',
       },
       redirect: 'manual', // Do not automatically follow redirects so we can verify 307/308
+      signal: controller.signal,
     });
+    clearTimeout(timeoutId);
 
     const latencyMs = Date.now() - startedAt;
     const observedStatus = res.status;
@@ -186,6 +191,7 @@ export async function executeProbe(
       isReadOnly: true,
     };
   } catch (err: any) {
+    clearTimeout(timeoutId);
     const latencyMs = Date.now() - startedAt;
     return {
       probeId: config.id,

@@ -45,6 +45,7 @@ export async function GET(
       targetCustomerId: customerId,
       requestedByActor: {
         actorId: auth.uid,
+        email: (auth as any).email || (auth as any).user?.email,
         role: auth.role || 'staff',
       },
     });

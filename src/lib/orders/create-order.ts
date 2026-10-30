@@ -1,5 +1,6 @@
 import { createClient as createServerClient } from '@/lib/supabase/server';
 import { createClient as createJSClient } from '@supabase/supabase-js';
+import { getServiceClient } from '@/lib/supabase/service';
 import { getServerUser } from '@/lib/auth/server';
 import { assertWalletBalance, debitWalletForOrder } from '@/lib/wallet/debit';
 
@@ -206,11 +207,7 @@ export async function createOrder(
     throw new OrderError('Invalid cart item: missing product identifier', 400);
   }
 
-  const adminSupabase = createJSClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL ||
-      'https://igrkrkxdantrolbldapj.supabase.co',
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  );
+  const adminSupabase = getServiceClient();
 
   const { data: dbProducts, error: dbProdError } = await adminSupabase
     .from('products')
@@ -470,6 +467,56 @@ export async function createOrder(
         vipErr
       );
     }
+  }
+
+  // Shared Intelligence Canonical Event Observation (Track B)
+  try {
+    const { observeOrderLifecycleTransition } =
+      await import('@/lib/intelligence/order-lifecycle');
+    await observeOrderLifecycleTransition({
+      orderId: insertedOrder.id,
+      orderNumber,
+      fromStatus: null,
+      toStatus: (options.status || 'confirmed') as any,
+      actor: {
+        type: user?.id ? 'customer' : 'system',
+        id: user?.id || 'guest',
+      },
+      source: 'storefront',
+      metadata: {
+        itemCount: orderItemsToInsert.length,
+        total: finalTotal,
+        paymentMethod: paymentMethod || 'phonepe',
+        isPartialCod,
+        prepaidAmount: isPartialCod ? prepaidAmount : undefined,
+        codBalance: isPartialCod
+          ? Math.max(0, finalTotal - (prepaidAmount || 0))
+          : undefined,
+      },
+    });
+
+    if (paymentMethod === 'cod' && !isPartialCod) {
+      const { observePaymentOutcome } =
+        await import('@/lib/intelligence/payment-events');
+      await observePaymentOutcome({
+        orderId: insertedOrder.id,
+        orderNumber,
+        gateway: 'cod',
+        merchantTransactionId: `cod_${insertedOrder.id}`,
+        amount: finalTotal,
+        outcome: 'CONFIRMED',
+        actor: {
+          type: user?.id ? 'customer' : 'system',
+          id: user?.id || 'guest',
+        },
+        origin: 'manual_reconcile',
+      });
+    }
+  } catch (obsErr) {
+    console.error(
+      '[Shared Intelligence] Failed to observe order creation:',
+      obsErr
+    );
   }
 
   const newOrder = {

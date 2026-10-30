@@ -129,6 +129,42 @@ export async function finalizePhonePeOrder(
       }
     }
 
+    // Shared Intelligence Canonical Event Observation (Track B)
+    try {
+      const { observePaymentOutcome } =
+        await import('@/lib/intelligence/payment-events');
+      const { observeOrderLifecycleTransition } =
+        await import('@/lib/intelligence/order-lifecycle');
+      await observePaymentOutcome({
+        orderId: order.id,
+        orderNumber: order.order_number,
+        gateway: 'phonepe',
+        merchantTransactionId,
+        gatewayTransactionId: details.phonepeTransactionId,
+        amount: Number(order.total) || 0,
+        outcome: 'CONFIRMED',
+        isPartialCod: Boolean(
+          order.cod_balance && Number(order.cod_balance) > 0
+        ),
+        prepaidAmount: Number(order.prepaid_amount) || undefined,
+        codBalance: Number(order.cod_balance) || undefined,
+        origin: 'webhook',
+      });
+      await observeOrderLifecycleTransition({
+        orderId: order.id,
+        orderNumber: order.order_number,
+        fromStatus: order.status,
+        toStatus: 'confirmed',
+        actor: { type: 'webhook', id: 'phonepe' },
+        source: 'webhook_phonepe',
+      });
+    } catch (obsErr) {
+      console.error(
+        '[Shared Intelligence] Failed to observe PhonePe payment confirmation:',
+        obsErr
+      );
+    }
+
     // Fire confirmation notifications (WhatsApp + email + push) asynchronously
     sendOrderNotifications(supabase, { ...order, ...update }).catch((err) =>
       console.error('Failed to send order notifications:', err)
@@ -150,6 +186,28 @@ export async function finalizePhonePeOrder(
 
     if (updateError) {
       console.error('Failed to mark PhonePe order as failed:', updateError);
+    }
+
+    // Shared Intelligence Canonical Event Observation (Track B)
+    try {
+      const { observePaymentOutcome } =
+        await import('@/lib/intelligence/payment-events');
+      await observePaymentOutcome({
+        orderId: order.id,
+        orderNumber: order.order_number,
+        gateway: 'phonepe',
+        merchantTransactionId,
+        gatewayTransactionId: details.phonepeTransactionId,
+        amount: Number(order.total) || 0,
+        outcome: 'FAILED',
+        failureReason: state,
+        origin: 'webhook',
+      });
+    } catch (obsErr) {
+      console.error(
+        '[Shared Intelligence] Failed to observe PhonePe payment failure:',
+        obsErr
+      );
     }
 
     return { status: 'failed', order };

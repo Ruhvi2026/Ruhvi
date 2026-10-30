@@ -14,6 +14,8 @@ import {
   Clock,
   Archive,
   Layers,
+  Sparkles,
+  ShieldCheck,
 } from 'lucide-react';
 import Link from 'next/link';
 import {
@@ -73,6 +75,11 @@ export default function InventoryDashboardPage() {
   const [categories, setCategories] = useState<{ id: string; name: string }[]>(
     []
   );
+
+  // AI Inventory Intelligence State (Track B/C/H Integration - Audit P1.9)
+  const [intelligenceData, setIntelligenceData] = useState<any | null>(null);
+  const [loadingIntelligence, setLoadingIntelligence] =
+    useState<boolean>(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -168,6 +175,27 @@ export default function InventoryDashboardPage() {
         }))
       );
       setLoading(false);
+
+      // Fetch AI inventory intelligence signals (read-only manager review)
+      try {
+        setLoadingIntelligence(true);
+        const intelRes = await fetch(
+          '/api/operations/inventory/intelligence?limit=10'
+        );
+        if (intelRes.ok) {
+          const json = await intelRes.json();
+          if (json.success) {
+            setIntelligenceData(json);
+          }
+        }
+      } catch (intelErr) {
+        console.warn(
+          '[OperationsInventory] Intelligence fetch failed:',
+          intelErr
+        );
+      } finally {
+        setLoadingIntelligence(false);
+      }
     };
 
     fetchData();
@@ -281,6 +309,80 @@ export default function InventoryDashboardPage() {
           </p>
         </div>
       </div>
+
+      {/* AI Inventory Intelligence & Restock Forecast (Audit P1.9) */}
+      {intelligenceData && (
+        <div className="rounded-xl border border-purple-500/20 bg-purple-500/5 p-4">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-purple-500/10 pb-3">
+            <div className="flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-purple-400" />
+              <h2 className="text-sm font-bold text-white">
+                AI Inventory Intelligence & Restock Signals
+              </h2>
+              <span className="inline-flex items-center gap-1 rounded bg-purple-500/20 px-2 py-0.5 text-[10px] font-medium text-purple-300">
+                <ShieldCheck className="h-3 w-3" /> Manager Review Required
+              </span>
+            </div>
+            <p className="text-[11px] italic text-slate-400">
+              Read-only predictive models. Zero automatic purchase orders or
+              stock writes.
+            </p>
+          </div>
+
+          <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
+            {/* Stockout Risk Alerts */}
+            <div className="rounded-lg border border-white/5 bg-[#12121a] p-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-semibold text-rose-300">
+                  Stockout Risk Alerts
+                </span>
+                <span className="rounded bg-rose-500/20 px-1.5 py-0.5 text-[10px] font-bold text-rose-300">
+                  {intelligenceData.summary?.stockoutAlertsCount ?? 0} Critical
+                </span>
+              </div>
+              <p className="mt-1 text-[11px] text-slate-400">
+                {intelligenceData.stockoutAlerts?.length > 0
+                  ? `${intelligenceData.stockoutAlerts[0]?.productName || 'SKU'} has ~${Math.round(intelligenceData.stockoutAlerts[0]?.daysOfInventory || 0)}d run-out time.`
+                  : 'No high-risk stockout breaches detected.'}
+              </p>
+            </div>
+
+            {/* Restock Draft Recommendations */}
+            <div className="rounded-lg border border-white/5 bg-[#12121a] p-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-semibold text-amber-300">
+                  Restock Recommendations
+                </span>
+                <span className="rounded bg-amber-500/20 px-1.5 py-0.5 text-[10px] font-bold text-amber-300">
+                  {intelligenceData.summary?.restockDraftsCount ?? 0} Drafts
+                </span>
+              </div>
+              <p className="mt-1 text-[11px] text-slate-400">
+                {intelligenceData.restockDrafts?.length > 0
+                  ? `Recommended: Reorder +${intelligenceData.restockDrafts[0]?.recommendedUnits} units of ${intelligenceData.restockDrafts[0]?.productName}.`
+                  : 'Stock levels aligned with sales velocity.'}
+              </p>
+            </div>
+
+            {/* Dead Stock / Aging Signals */}
+            <div className="rounded-lg border border-white/5 bg-[#12121a] p-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-semibold text-purple-300">
+                  Dead Stock Signals
+                </span>
+                <span className="rounded bg-purple-500/20 px-1.5 py-0.5 text-[10px] font-bold text-purple-300">
+                  {intelligenceData.summary?.deadStockFindingsCount ?? 0} Items
+                </span>
+              </div>
+              <p className="mt-1 text-[11px] text-slate-400">
+                {intelligenceData.deadStockFindings?.length > 0
+                  ? `${intelligenceData.deadStockFindings[0]?.productName} idle for ${intelligenceData.deadStockFindings[0]?.daysSinceLastSale ?? '>90'}d.`
+                  : 'Healthy stock turnaround across active catalog.'}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Lazy Report Links */}
       <div className="flex flex-wrap gap-2">

@@ -1,6 +1,7 @@
 import 'server-only';
 
 import crypto from 'crypto';
+import { getServiceClient } from '@/lib/supabase/service';
 import type {
   AuditCheckCategory,
   AuditSeverity,
@@ -107,11 +108,38 @@ export function generateFindingFingerprint(
     .substring(0, 24);
 }
 
+// Helper to safely get the service-role client if configured
+function tryGetServiceClient() {
+  try {
+    if (!process.env.SUPABASE_SERVICE_ROLE_KEY) return null;
+    return getServiceClient();
+  } catch {
+    return null;
+  }
+}
+
 /**
  * Sanitizes observation values to ensure zero secrets or PII are stored.
+ * Checks both object keys and sensitive string patterns.
  */
 export function sanitizeFindingPayload(value: any): any {
   if (value === null || value === undefined) return value;
+
+  if (typeof value === 'string') {
+    return value
+      .replace(/(bearer\s+)[A-Za-z0-9_\-\.]{15,}/gi, '$1[REDACTED_TOKEN]')
+      .replace(
+        /(postgres(ql)?:\/\/[^:]+:)[^@]+(@)/gi,
+        '$1[REDACTED_PASSWORD]$3'
+      )
+      .replace(
+        /(api[_-]?key\s*[=:]\s*)[A-Za-z0-9_\-]{12,}/gi,
+        '$1[REDACTED_KEY]'
+      )
+      .replace(/(secret\s*[=:]\s*)[A-Za-z0-9_\-]{6,}/gi, '$1[REDACTED_SECRET]')
+      .replace(/(password\s*[=:]\s*)[^\s,;&]+/gi, '$1[REDACTED_PASSWORD]');
+  }
+
   if (typeof value !== 'object') return value;
 
   const sensitivePattern =
@@ -121,6 +149,8 @@ export function sanitizeFindingPayload(value: any): any {
   for (const [k, v] of Object.entries(value)) {
     if (sensitivePattern.test(k)) {
       sanitized[k] = '[REDACTED_SECRET]';
+    } else if (typeof v === 'string') {
+      sanitized[k] = sanitizeFindingPayload(v);
     } else if (typeof v === 'object' && v !== null) {
       sanitized[k] = sanitizeFindingPayload(v);
     } else {
@@ -273,6 +303,51 @@ export async function processAuditReportFindings(
     if (f.status === 'ACTIVE' || f.status === 'ACKNOWLEDGED') activeCount++;
   }
 
+  // Persist modified findings to PostgreSQL table public.self_audit_findings
+  const changedFindings = [
+    ...created,
+    ...updated,
+    ...reopened,
+    ...autoResolved,
+  ];
+  const supabase = tryGetServiceClient();
+
+  if (supabase && changedFindings.length > 0) {
+    try {
+      const recordsToUpsert = changedFindings.map((f) => ({
+        fingerprint: f.fingerprint,
+        check_id: f.checkId,
+        category: f.category,
+        severity: f.severity,
+        status: f.status,
+        title: f.title,
+        message: f.message,
+        evidence_source: f.evidenceSource,
+        remediation_hint: f.remediationHint,
+        sanitized_observed_value: f.sanitizedObservedValue ?? {},
+        occurrence_count: f.occurrenceCount,
+        reopen_count: f.reopenCount,
+        first_seen_at: f.firstSeenAt,
+        last_seen_at: f.lastSeenAt,
+        resolved_at: f.resolvedAt,
+        resolution_reason: f.resolutionReason,
+        acknowledged_at: f.acknowledgedAt,
+        acknowledged_by: f.acknowledgedBy,
+        history: f.history,
+        updated_at: new Date().toISOString(),
+      }));
+
+      await supabase
+        .from('self_audit_findings')
+        .upsert(recordsToUpsert, { onConflict: 'fingerprint' });
+    } catch (dbErr) {
+      console.error(
+        'Failed to upsert findings to self_audit_findings table:',
+        dbErr
+      );
+    }
+  }
+
   return {
     processedAt,
     created,
@@ -286,10 +361,69 @@ export async function processAuditReportFindings(
 
 /**
  * Retrieves findings matching filter criteria with pagination.
+ * Checks PostgreSQL table first; falls back to in-memory store.
  */
 export async function getSelfAuditFindings(
   filters: FindingFilters = {}
 ): Promise<{ findings: SelfAuditFinding[]; total: number }> {
+  const supabase = tryGetServiceClient();
+  if (supabase) {
+    try {
+      let query = supabase
+        .from('self_audit_findings')
+        .select('*', { count: 'exact' });
+
+      if (filters.status && filters.status !== 'ALL') {
+        query = query.eq('status', filters.status);
+      }
+      if (filters.category && filters.category !== 'ALL') {
+        query = query.eq('category', filters.category);
+      }
+      if (filters.severity && filters.severity !== 'ALL') {
+        query = query.eq('severity', filters.severity);
+      }
+      if (filters.searchQuery) {
+        query = query.ilike('title', `%${filters.searchQuery}%`);
+      }
+
+      const offset = filters.offset || 0;
+      const limit = filters.limit || 50;
+
+      const { data, count, error } = await query
+        .order('last_seen_at', { ascending: false })
+        .range(offset, offset + limit - 1);
+
+      if (!error && data && data.length > 0) {
+        const findings: SelfAuditFinding[] = data.map((row: any) => ({
+          id: row.id || `saf_${row.fingerprint}`,
+          fingerprint: row.fingerprint,
+          checkId: row.check_id,
+          category: row.category,
+          severity: row.severity,
+          status: row.status,
+          title: row.title,
+          message: row.message,
+          evidenceSource: row.evidence_source,
+          remediationHint: row.remediation_hint,
+          sanitizedObservedValue: row.sanitized_observed_value,
+          occurrenceCount: row.occurrence_count,
+          reopenCount: row.reopen_count,
+          firstSeenAt: row.first_seen_at,
+          lastSeenAt: row.last_seen_at,
+          resolvedAt: row.resolved_at,
+          resolutionReason: row.resolution_reason,
+          acknowledgedAt: row.acknowledged_at,
+          acknowledgedBy: row.acknowledged_by,
+          history: row.history || [],
+        }));
+
+        return { findings, total: count ?? findings.length };
+      }
+    } catch {
+      // Fall through to in-memory store
+    }
+  }
+
   let list = Array.from(inMemoryFindings.values());
 
   if (filters.status && filters.status !== 'ALL') {
@@ -336,9 +470,50 @@ export async function getSelfAuditFindings(
 export async function getFindingById(
   id: string
 ): Promise<SelfAuditFinding | null> {
-  for (const f of inMemoryFindings.values()) {
-    if (f.id === id) return f;
+  const local = Array.from(inMemoryFindings.values()).find(
+    (f) => f.id === id || f.fingerprint === id || `saf_${f.fingerprint}` === id
+  );
+  if (local) return local;
+
+  const supabase = tryGetServiceClient();
+  if (supabase) {
+    try {
+      const cleanId = id.replace(/^saf_/, '');
+      const { data, error } = await supabase
+        .from('self_audit_findings')
+        .select('*')
+        .or(`id.eq.${id},fingerprint.eq.${cleanId}`)
+        .maybeSingle();
+
+      if (!error && data) {
+        return {
+          id: data.id || `saf_${data.fingerprint}`,
+          fingerprint: data.fingerprint,
+          checkId: data.check_id,
+          category: data.category,
+          severity: data.severity,
+          status: data.status,
+          title: data.title,
+          message: data.message,
+          evidenceSource: data.evidence_source,
+          remediationHint: data.remediation_hint,
+          sanitizedObservedValue: data.sanitized_observed_value,
+          occurrenceCount: data.occurrence_count,
+          reopenCount: data.reopen_count,
+          firstSeenAt: data.first_seen_at,
+          lastSeenAt: data.last_seen_at,
+          resolvedAt: data.resolved_at,
+          resolutionReason: data.resolution_reason,
+          acknowledgedAt: data.acknowledged_at,
+          acknowledgedBy: data.acknowledged_by,
+          history: data.history || [],
+        };
+      }
+    } catch {
+      // ignore
+    }
   }
+
   return null;
 }
 
@@ -363,6 +538,27 @@ export async function acknowledgeFinding(
   finding.status = 'ACKNOWLEDGED';
   finding.acknowledgedAt = new Date().toISOString();
   finding.acknowledgedBy = `${actor.role}:${actor.uid}`;
+
+  const supabase = tryGetServiceClient();
+  if (supabase) {
+    try {
+      const cleanId = findingId.replace(/^saf_/, '');
+      await supabase
+        .from('self_audit_findings')
+        .update({
+          status: 'ACKNOWLEDGED',
+          acknowledged_at: finding.acknowledgedAt,
+          acknowledged_by: finding.acknowledgedBy,
+          updated_at: new Date().toISOString(),
+        })
+        .or(`id.eq.${findingId},fingerprint.eq.${cleanId}`);
+    } catch (err) {
+      console.error(
+        'Failed to persist finding acknowledgement to database:',
+        err
+      );
+    }
+  }
 
   return finding;
 }
@@ -390,6 +586,24 @@ export async function resolveFinding(
   finding.resolutionReason =
     options?.reason ||
     `Manually marked resolved by ${options?.actor?.role || 'staff'}`;
+
+  const supabase = tryGetServiceClient();
+  if (supabase) {
+    try {
+      const cleanId = findingId.replace(/^saf_/, '');
+      await supabase
+        .from('self_audit_findings')
+        .update({
+          status: 'RESOLVED',
+          resolved_at: finding.resolvedAt,
+          resolution_reason: finding.resolutionReason,
+          updated_at: new Date().toISOString(),
+        })
+        .or(`id.eq.${findingId},fingerprint.eq.${cleanId}`);
+    } catch (err) {
+      console.error('Failed to persist finding resolution to database:', err);
+    }
+  }
 
   return finding;
 }

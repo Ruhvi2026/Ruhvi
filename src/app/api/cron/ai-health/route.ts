@@ -2,9 +2,14 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { getAIProvider } from '@/lib/ai';
 
-// This would typically be secured by a cron secret in production
 export async function GET(req: Request) {
   try {
+    const cronSecret = process.env.CRON_SECRET;
+    const authHeader = req.headers.get('authorization');
+    if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const supabase = await createClient();
 
     // Fetch all providers

@@ -12,6 +12,32 @@ import {
 
 export const dynamic = 'force-dynamic';
 
+/**
+ * Safely parses and clamps numeric parameters, preventing NaN propagation.
+ */
+export function parseNumeric(
+  value: any,
+  fallback: number,
+  min?: number,
+  max?: number
+): number {
+  if (
+    value === null ||
+    value === undefined ||
+    (typeof value === 'string' && value.trim() === '')
+  ) {
+    let result = fallback;
+    if (min !== undefined && result < min) result = min;
+    if (max !== undefined && result > max) result = max;
+    return result;
+  }
+  const num = typeof value === 'number' ? value : Number(value);
+  let parsed = Number.isFinite(num) ? num : fallback;
+  if (min !== undefined && parsed < min) parsed = min;
+  if (max !== undefined && parsed > max) parsed = max;
+  return parsed;
+}
+
 export interface SimulatorExecutionRequest {
   decisionType: CounterfactualDecisionType;
   parameters: Record<string, any>;
@@ -52,25 +78,28 @@ export async function POST(req: NextRequest) {
     // 2. Dispatch to deterministic counterfactual model with input validation
     switch (decisionType) {
       case 'inventory_buffer_optimization': {
-        const skuCount = Math.max(
-          1,
-          Math.min(1000, Number(parameters.skuCount) || 25)
+        const skuCount = parseNumeric(parameters.skuCount, 25, 1, 1000);
+        const averageUnitCost = parseNumeric(
+          parameters.averageUnitCost,
+          35000,
+          100
         );
-        const averageUnitCost = Math.max(
-          100,
-          Number(parameters.averageUnitCost) || 35000
-        );
-        const bufferDeltaUnitsPerSku = Math.max(
+        const bufferDeltaUnitsPerSku = parseNumeric(
+          parameters.bufferDeltaUnitsPerSku,
+          3,
           -20,
-          Math.min(50, Number(parameters.bufferDeltaUnitsPerSku) ?? 3)
+          50
         );
-        const baselineStockoutLossMonthly = Math.max(
-          0,
-          Number(parameters.baselineStockoutLossMonthly) || 150000
+        const baselineStockoutLossMonthly = parseNumeric(
+          parameters.baselineStockoutLossMonthly,
+          150000,
+          0
         );
-        const costOfCapitalAnnualPercent = Math.max(
+        const costOfCapitalAnnualPercent = parseNumeric(
+          parameters.costOfCapitalAnnualPercent,
+          12,
           1,
-          Math.min(50, Number(parameters.costOfCapitalAnnualPercent) || 12)
+          50
         );
 
         result = modelInventoryBufferOptimization({
@@ -92,17 +121,22 @@ export async function POST(req: NextRequest) {
           ? (parameters.priceTier as
               'entry_level' | 'mid_tier' | 'luxury_high_ticket')
           : 'luxury_high_ticket';
-        const priceAdjustmentPercent = Math.max(
-          -50,
-          Math.min(50, Number(parameters.priceAdjustmentPercent) ?? 5)
-        );
-        const baselineRevenueMonthly = Math.max(
-          10000,
-          Number(parameters.baselineRevenueMonthly) || 1500000
-        );
-        const baselineGrossMarginPercent = Math.max(
+        const priceAdjustmentPercent = parseNumeric(
+          parameters.priceAdjustmentPercent,
           5,
-          Math.min(85, Number(parameters.baselineGrossMarginPercent) || 40)
+          -50,
+          50
+        );
+        const baselineRevenueMonthly = parseNumeric(
+          parameters.baselineRevenueMonthly,
+          1500000,
+          10000
+        );
+        const baselineGrossMarginPercent = parseNumeric(
+          parameters.baselineGrossMarginPercent,
+          40,
+          5,
+          85
         );
 
         result = modelTieredPricingElasticity({
@@ -115,25 +149,29 @@ export async function POST(req: NextRequest) {
       }
 
       case 'promotional_campaign_structure': {
-        const baselineMonthlyOrders = Math.max(
-          1,
-          Number(parameters.baselineMonthlyOrders) || 350
+        const baselineMonthlyOrders = parseNumeric(
+          parameters.baselineMonthlyOrders,
+          350,
+          1
         );
-        const baselineAov = Math.max(
-          500,
-          Number(parameters.baselineAov) || 38500
-        );
-        const baselineGrossMarginPercent = Math.max(
+        const baselineAov = parseNumeric(parameters.baselineAov, 38500, 500);
+        const baselineGrossMarginPercent = parseNumeric(
+          parameters.baselineGrossMarginPercent,
+          38,
           5,
-          Math.min(85, Number(parameters.baselineGrossMarginPercent) || 38)
+          85
         );
-        const discountPercent = Math.max(
+        const discountPercent = parseNumeric(
+          parameters.discountPercent,
+          10,
           0,
-          Math.min(50, Number(parameters.discountPercent) ?? 10)
+          50
         );
-        const expectedConversionLiftPercent = Math.max(
+        const expectedConversionLiftPercent = parseNumeric(
+          parameters.expectedConversionLiftPercent,
+          20,
           0,
-          Math.min(150, Number(parameters.expectedConversionLiftPercent) ?? 20)
+          150
         );
 
         result = modelPromotionalCampaignStructure({
@@ -147,24 +185,27 @@ export async function POST(req: NextRequest) {
       }
 
       case 'expedited_delivery_promise': {
-        const monthlyShipmentVolume = Math.max(
-          1,
-          Number(parameters.monthlyShipmentVolume) || 400
+        const monthlyShipmentVolume = parseNumeric(
+          parameters.monthlyShipmentVolume,
+          400,
+          1
         );
-        const baselineCheckoutConversionRate = Math.max(
+        const baselineCheckoutConversionRate = parseNumeric(
+          parameters.baselineCheckoutConversionRate,
+          2.5,
           0.1,
-          Math.min(25, Number(parameters.baselineCheckoutConversionRate) || 2.5)
+          25
         );
-        const expressCourierSurchargePerShipment = Math.max(
+        const expressCourierSurchargePerShipment = parseNumeric(
+          parameters.expressCourierSurchargePerShipment,
+          150,
           0,
-          Math.min(
-            2000,
-            Number(parameters.expressCourierSurchargePerShipment) ?? 150
-          )
+          2000
         );
-        const averageOrderGrossProfit = Math.max(
-          100,
-          Number(parameters.averageOrderGrossProfit) || 6500
+        const averageOrderGrossProfit = parseNumeric(
+          parameters.averageOrderGrossProfit,
+          6500,
+          100
         );
 
         result = modelExpeditedDeliveryPromise({

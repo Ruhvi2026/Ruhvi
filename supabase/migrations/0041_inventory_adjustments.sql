@@ -1,8 +1,13 @@
 -- Migration 0041: Inventory Adjustments Audit Log
 
-CREATE TYPE inventory_adjustment_reason AS ENUM ('restock', 'damage', 'return', 'audit', 'transfer', 'manual');
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'inventory_adjustment_reason') THEN
+    CREATE TYPE inventory_adjustment_reason AS ENUM ('restock', 'damage', 'return', 'audit', 'transfer', 'manual');
+  END IF;
+END $$;
 
-CREATE TABLE public.inventory_adjustments (
+CREATE TABLE IF NOT EXISTS public.inventory_adjustments (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   product_id uuid NOT NULL REFERENCES public.products(id) ON DELETE CASCADE,
   user_id uuid NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
@@ -18,6 +23,7 @@ CREATE TABLE public.inventory_adjustments (
 ALTER TABLE public.inventory_adjustments ENABLE ROW LEVEL SECURITY;
 
 -- Policies
+DROP POLICY IF EXISTS "Admin/Staff can view inventory adjustments" ON public.inventory_adjustments;
 CREATE POLICY "Admin/Staff can view inventory adjustments"
   ON public.inventory_adjustments FOR SELECT USING (
     EXISTS (
@@ -26,6 +32,7 @@ CREATE POLICY "Admin/Staff can view inventory adjustments"
     )
   );
 
+DROP POLICY IF EXISTS "Admin/Staff can insert inventory adjustments" ON public.inventory_adjustments;
 CREATE POLICY "Admin/Staff can insert inventory adjustments"
   ON public.inventory_adjustments FOR INSERT WITH CHECK (
     EXISTS (

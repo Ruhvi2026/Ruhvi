@@ -122,17 +122,30 @@ export async function observeOrderLifecycleTransition(
 
   const supabase = getServiceClient();
 
-  // Deduplication check: verify if an event with this order_id, event_type, and portal
-  // has already been recorded recently
+  // Deduplication check: verify if an event with this order_id, event_type, and idempotency_key
+  // has already been recorded
   const { data: existingEvents, error: checkError } = await supabase
     .from('order_events')
-    .select('id, created_at')
+    .select('id, created_at, metadata')
     .eq('order_id', orderId)
     .eq('event_type', eventType)
     .order('created_at', { ascending: false })
-    .limit(1);
+    .limit(10);
 
-  if (!checkError && existingEvents && existingEvents.length > 0) {
+  const isDuplicate = Boolean(
+    !checkError &&
+    existingEvents &&
+    existingEvents.length > 0 &&
+    existingEvents.some((evt: any) => {
+      const meta = evt.metadata || {};
+      if (meta.idempotency_key) {
+        return meta.idempotency_key === deterministicKey;
+      }
+      return true;
+    })
+  );
+
+  if (isDuplicate) {
     // Already observed in SoR: mark as duplicate to prevent downstream alert spam
     return {
       observed: true,
@@ -153,6 +166,19 @@ export async function observeOrderLifecycleTransition(
       idempotency_key: deterministicKey,
     },
   });
+
+  if (
+    insertError &&
+    (insertError.code === '23505' ||
+      insertError.message?.includes('duplicate key'))
+  ) {
+    return {
+      observed: true,
+      event: businessEvent,
+      isDuplicate: true,
+      persistedToEventLog: false,
+    };
+  }
 
   return {
     observed: true,

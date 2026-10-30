@@ -346,6 +346,29 @@ export async function PATCH(
       priority: body.priority,
     });
 
+    // Shared Intelligence Canonical Event Observation (Track B)
+    try {
+      const { observeTicketLifecycleTransition } =
+        await import('@/lib/intelligence/support-events');
+      void observeTicketLifecycleTransition({
+        ticketId: id,
+        ticketNumber: result?.ticket_number || id,
+        status: body.status || result?.status || 'in_progress',
+        priority: body.priority,
+        assignedTo: body.assigned_to,
+        source: 'manual',
+        actor: {
+          type: 'staff',
+          id: user.id,
+        },
+      });
+    } catch (obsErr) {
+      console.error(
+        '[Shared Intelligence] Failed to observe ticket update:',
+        obsErr
+      );
+    }
+
     return NextResponse.json({ ticket: result });
   } catch (err: any) {
     console.error('Ticket PATCH Error:', err);

@@ -10,7 +10,7 @@ export async function verifySessionToken(
 ) {
   if (!sessionCookie) return null;
   try {
-    const jwtSecret = process.env.SUPABASE_JWT_SECRET;
+    const jwtSecret = process.env.SUPABASE_JWT_SECRET || process.env.JWT_SECRET;
     if (!jwtSecret) {
       console.error('[verify-session] SUPABASE_JWT_SECRET is missing');
       return null;

@@ -111,6 +111,61 @@ describe('Payment Outcome Intelligence Pipeline (Phase 09)', () => {
       expect(mockInsert).not.toHaveBeenCalled();
     });
 
+    it('allows a subsequent payment attempt with a new transaction ID without suppressing it as a duplicate', async () => {
+      // Existing first attempt logged in DB
+      const mockSelect = jest.fn().mockReturnThis();
+      const mockEq1 = jest.fn().mockReturnThis();
+      const mockEq2 = jest.fn().mockReturnThis();
+      const mockOrder = jest.fn().mockReturnThis();
+      const mockLimit = jest.fn().mockResolvedValue({
+        data: [
+          {
+            id: 'evt_first_attempt',
+            created_at: new Date().toISOString(),
+            metadata: {
+              merchantTransactionId: 'MTX_FIRST_FAIL_111',
+              idempotency_key: 'idemp_pay_phonepe_MTX_FIRST_FAIL_111_failed',
+              outcome: 'FAILED',
+            },
+          },
+        ],
+        error: null,
+      });
+      const mockInsert = jest.fn().mockResolvedValue({ error: null });
+
+      mockSupabase.from.mockImplementation((table: string) => {
+        if (table === 'order_events') {
+          return {
+            select: mockSelect,
+            eq: mockEq1,
+            order: mockOrder,
+            limit: mockLimit,
+            insert: mockInsert,
+          };
+        }
+        return {};
+      });
+
+      mockEq1.mockReturnValue({ eq: mockEq2 });
+      mockEq2.mockReturnValue({ order: mockOrder });
+      mockOrder.mockReturnValue({ limit: mockLimit });
+
+      // Second attempt on the same order with different merchantTransactionId
+      const result = await observePaymentOutcome({
+        orderId: '00000000-0000-0000-0000-000000000002',
+        gateway: 'phonepe',
+        merchantTransactionId: 'MTX_SECOND_RETRY_222',
+        amount: 3499.0,
+        outcome: 'FAILED',
+        failureReason: 'USER_CANCELLED',
+      });
+
+      expect(result.observed).toBe(true);
+      expect(result.isDuplicate).toBe(false); // MUST NOT be suppressed
+      expect(result.persistedToEventLog).toBe(true);
+      expect(mockInsert).toHaveBeenCalledTimes(1);
+    });
+
     it('observes payment failure outcome with failure reason', async () => {
       const mockSelect = jest.fn().mockReturnThis();
       const mockEq1 = jest.fn().mockReturnThis();

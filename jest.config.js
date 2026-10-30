@@ -15,8 +15,8 @@ module.exports = {
     '^@/(.*)$': '<rootDir>/src/$1',
   },
   testMatch: [
-    '<rootDir>/src/**/__tests__/**/*.test.ts',
-    '<rootDir>/src/**/*.test.ts',
+    '<rootDir>/src/**/__tests__/**/*.{test,spec}.{ts,tsx,js,jsx}',
+    '<rootDir>/src/**/*.{test,spec}.{ts,tsx,js,jsx}',
   ],
   testPathIgnorePatterns: ['/node_modules/', '/\\.agents/', '/\\.next/'],
 };

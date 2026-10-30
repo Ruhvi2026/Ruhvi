@@ -9,6 +9,7 @@ import {
   type AuditCheckResult,
   type AuditCheckStatus,
 } from './self-audit-registry';
+import { processAuditReportFindings } from './self-audit-store';
 
 /**
  * ============================================================================
@@ -241,6 +242,13 @@ export async function runSelfAuditSuite(
   runHistoryBuffer.unshift(report);
   if (runHistoryBuffer.length > MAX_RUN_HISTORY) {
     runHistoryBuffer.pop();
+  }
+
+  // 6. Wire report findings into persistent audit store
+  try {
+    await processAuditReportFindings(report);
+  } catch (err) {
+    console.error('Failed to process and persist audit report findings:', err);
   }
 
   return report;

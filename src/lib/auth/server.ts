@@ -14,7 +14,7 @@ export async function getServerUser() {
   }
 
   try {
-    const jwtSecret = process.env.SUPABASE_JWT_SECRET;
+    const jwtSecret = process.env.SUPABASE_JWT_SECRET || process.env.JWT_SECRET;
     if (!jwtSecret) {
       console.error('SUPABASE_JWT_SECRET is missing');
       return { user: null };

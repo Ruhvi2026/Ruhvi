@@ -26,6 +26,8 @@ const envSchema = z.object({
     .or(z.literal(''))
     .default('placeholder-anon-key'),
   SUPABASE_SERVICE_ROLE_KEY: optionalString,
+  SUPABASE_JWT_SECRET: optionalString,
+  JWT_SECRET: optionalString,
 
   // Upstash Redis
   UPSTASH_REDIS_REST_URL: optionalUrl,
@@ -83,6 +85,8 @@ const _env = envSchema.safeParse({
   NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
   NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
   SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
+  SUPABASE_JWT_SECRET: process.env.SUPABASE_JWT_SECRET,
+  JWT_SECRET: process.env.JWT_SECRET,
   UPSTASH_REDIS_REST_URL: process.env.UPSTASH_REDIS_REST_URL,
   UPSTASH_REDIS_REST_TOKEN: process.env.UPSTASH_REDIS_REST_TOKEN,
   UPSTASH_REDIS_REST_READONLY_URL: process.env.UPSTASH_REDIS_REST_READONLY_URL,

@@ -1,8 +1,9 @@
 import { createClient as createJSClient } from '@supabase/supabase-js';
 import crypto from 'crypto';
 
-// Must match the secret baked into the `wallet_topup` Postgres RPC (migration 0017).
-const INTERNAL_SECRET = 'ruhvi_wallet_secret_2026';
+function getInternalSecret(): string {
+  return process.env.WALLET_INTERNAL_SECRET || '';
+}
 
 export interface WalletTopUpRecord {
   id: string;
@@ -83,7 +84,7 @@ export async function creditWalletTopUp(
     p_user_id: topup.user_id,
     p_amount: topup.amount,
     p_type: 'credit',
-    p_secret: INTERNAL_SECRET,
+    p_secret: getInternalSecret(),
   });
 
   if (credit.error) {
@@ -96,7 +97,7 @@ export async function creditWalletTopUp(
       p_user_id: topup.user_id,
       p_amount: topup.bonus_amount,
       p_type: 'cashback',
-      p_secret: INTERNAL_SECRET,
+      p_secret: getInternalSecret(),
     });
     if (bonus.error) {
       console.error('Wallet bonus credit failed:', bonus.error);

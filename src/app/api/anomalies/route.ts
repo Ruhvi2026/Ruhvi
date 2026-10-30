@@ -53,6 +53,7 @@ export async function GET(req: NextRequest) {
       (searchParams.get('preset') as DateRangePreset) || 'last_7_days';
 
     const registry = getAnomalyLifecycleRegistry();
+    await registry.loadPersistedRecords();
 
     // Trigger fresh deterministic scan if requested
     if (shouldScan) {
@@ -129,6 +130,7 @@ export async function PATCH(req: NextRequest) {
 
     const { action, anomalyId, reason } = parseResult.data;
     const registry = getAnomalyLifecycleRegistry();
+    await registry.loadPersistedRecords();
     const actorId = auth.uid || 'admin_user';
 
     let updatedRecord;
@@ -141,7 +143,7 @@ export async function PATCH(req: NextRequest) {
           { status: 400 }
         );
       }
-      updatedRecord = registry.resolve(anomalyId, reason);
+      updatedRecord = registry.resolve(anomalyId, reason, actorId);
     }
 
     return NextResponse.json({

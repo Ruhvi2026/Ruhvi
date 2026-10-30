@@ -62,9 +62,22 @@ export async function requireAdmin(): Promise<RequireAdminResult> {
       };
     }
 
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    if (!supabaseUrl && process.env.NODE_ENV === 'production') {
+      console.error(
+        '[requireAdmin] FATAL: NEXT_PUBLIC_SUPABASE_URL is not set in production. Failing closed.'
+      );
+      return {
+        ok: false,
+        uid: '',
+        role: null,
+        error: 'Unauthorized',
+        status: 500,
+      };
+    }
+
     const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL ||
-        'https://igrkrkxdantrolbldapj.supabase.co',
+      supabaseUrl || 'https://igrkrkxdantrolbldapj.supabase.co',
       process.env.SUPABASE_SERVICE_ROLE_KEY!,
       {
         cookies: {

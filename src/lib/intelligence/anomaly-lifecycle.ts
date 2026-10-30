@@ -1,6 +1,16 @@
 import { type BusinessAnomalyFinding } from './anomaly-detector';
 import { type BusinessRecommendation } from './recommendation-schema';
 import { type CanonicalMetric } from './metrics-service';
+import { getServiceClient } from '@/lib/supabase/service';
+
+function tryGetServiceClient() {
+  try {
+    if (!process.env.SUPABASE_SERVICE_ROLE_KEY) return null;
+    return getServiceClient();
+  } catch {
+    return null;
+  }
+}
 
 /**
  * ============================================================================
@@ -45,6 +55,7 @@ export interface AnomalyRecord {
   lastObservedAt: string;
   resolvedAt?: string;
   resolutionReason?: string;
+  resolvedBy?: string;
   acknowledgedAt?: string;
   acknowledgedBy?: string;
   occurrenceCount: number;
@@ -342,11 +353,12 @@ export function acknowledgeAnomaly(
 }
 
 /**
- * Staff manual action: Mark an anomaly as resolved with reason.
+ * Staff manual action: Mark an anomaly as resolved with reason and actor attribution.
  */
 export function resolveAnomaly(
   record: AnomalyRecord,
-  reason: string
+  reason: string,
+  actorId?: string
 ): AnomalyRecord {
   if (!canTransitionAnomalyState(record.state, 'resolved')) {
     throw new Error(
@@ -359,6 +371,7 @@ export function resolveAnomaly(
     state: 'resolved',
     resolvedAt: new Date().toISOString(),
     resolutionReason: reason,
+    resolvedBy: actorId,
     shouldNotify: false,
   };
 }
@@ -435,7 +448,93 @@ class AnomalyLifecycleRegistry {
       this.records.set(rec.fingerprint, rec);
     }
 
+    void this.persistRecords(result.records);
+
     return result;
+  }
+
+  public async persistRecords(records: AnomalyRecord[]): Promise<void> {
+    const supabase = tryGetServiceClient();
+    if (!supabase || records.length === 0) return;
+
+    try {
+      const rows = records.map((r) => ({
+        id: r.id,
+        fingerprint: r.fingerprint,
+        rule_id: r.ruleId,
+        metric: r.metric,
+        dimension: r.dimension || 'global',
+        state: r.state,
+        severity: r.severity,
+        title: r.title,
+        first_detected_at: r.firstDetectedAt,
+        last_observed_at: r.lastObservedAt,
+        resolved_at: r.resolvedAt,
+        resolution_reason: r.resolutionReason,
+        resolved_by: r.resolvedBy,
+        acknowledged_at: r.acknowledgedAt,
+        acknowledged_by: r.acknowledgedBy,
+        occurrence_count: r.occurrenceCount,
+        reopen_count: r.reopenCount,
+        latest_value: r.latestValue,
+        threshold_value: r.thresholdValue,
+        cooldown_until: r.cooldownUntil,
+        should_notify: r.shouldNotify,
+        history: r.history || [],
+        recommendation: r.recommendation || {},
+        updated_at: new Date().toISOString(),
+      }));
+
+      await supabase
+        .from('business_anomalies')
+        .upsert(rows, { onConflict: 'fingerprint' });
+    } catch (err) {
+      console.error('Failed to persist anomaly records to database:', err);
+    }
+  }
+
+  public async loadPersistedRecords(): Promise<void> {
+    const supabase = tryGetServiceClient();
+    if (!supabase) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('business_anomalies')
+        .select('*');
+
+      if (!error && data && data.length > 0) {
+        for (const row of data) {
+          const record: AnomalyRecord = {
+            id: row.id,
+            fingerprint: row.fingerprint,
+            ruleId: row.rule_id,
+            metric: row.metric,
+            dimension: row.dimension,
+            state: row.state,
+            severity: row.severity,
+            title: row.title,
+            firstDetectedAt: row.first_detected_at,
+            lastObservedAt: row.last_observed_at,
+            resolvedAt: row.resolved_at,
+            resolutionReason: row.resolution_reason,
+            resolvedBy: row.resolved_by,
+            acknowledgedAt: row.acknowledged_at,
+            acknowledgedBy: row.acknowledged_by,
+            occurrenceCount: row.occurrence_count,
+            reopenCount: row.reopen_count,
+            latestValue: Number(row.latest_value),
+            thresholdValue: Number(row.threshold_value),
+            cooldownUntil: row.cooldown_until,
+            shouldNotify: Boolean(row.should_notify),
+            history: row.history || [],
+            recommendation: row.recommendation || {},
+          };
+          this.records.set(record.fingerprint, record);
+        }
+      }
+    } catch (err) {
+      console.warn('Failed to load persisted anomalies from database:', err);
+    }
   }
 
   public acknowledge(id: string, actorId: string): AnomalyRecord {
@@ -446,17 +545,19 @@ class AnomalyLifecycleRegistry {
 
     const updated = acknowledgeAnomaly(record, actorId);
     this.records.set(updated.fingerprint, updated);
+    void this.persistRecords([updated]);
     return updated;
   }
 
-  public resolve(id: string, reason: string): AnomalyRecord {
+  public resolve(id: string, reason: string, actorId?: string): AnomalyRecord {
     const record = this.getRecordById(id);
     if (!record) {
       throw new Error(`Anomaly record with id '${id}' not found`);
     }
 
-    const updated = resolveAnomaly(record, reason);
+    const updated = resolveAnomaly(record, reason, actorId);
     this.records.set(updated.fingerprint, updated);
+    void this.persistRecords([updated]);
     return updated;
   }
 

@@ -136,13 +136,32 @@ export async function observePaymentOutcome(
   // Check if this payment outcome has already been logged for this order & transaction
   const { data: existingEvents, error: checkError } = await supabase
     .from('order_events')
-    .select('id, created_at')
+    .select('id, created_at, metadata')
     .eq('order_id', orderId)
     .eq('event_type', eventType)
     .order('created_at', { ascending: false })
-    .limit(1);
+    .limit(10);
 
-  if (!checkError && existingEvents && existingEvents.length > 0) {
+  const isDuplicate = Boolean(
+    !checkError &&
+    existingEvents &&
+    existingEvents.length > 0 &&
+    existingEvents.some((evt: any) => {
+      const meta = evt.metadata || {};
+      if (meta.idempotency_key) {
+        return meta.idempotency_key === deterministicKey;
+      }
+      if (meta.merchantTransactionId) {
+        return (
+          meta.merchantTransactionId === merchantTransactionId &&
+          (!meta.outcome || meta.outcome === outcome)
+        );
+      }
+      return true;
+    })
+  );
+
+  if (isDuplicate) {
     // Already processed by earlier webhook or browser return — flag as duplicate
     return {
       observed: true,
@@ -163,6 +182,19 @@ export async function observePaymentOutcome(
       idempotency_key: deterministicKey,
     },
   });
+
+  if (
+    insertError &&
+    (insertError.code === '23505' ||
+      insertError.message?.includes('duplicate key'))
+  ) {
+    return {
+      observed: true,
+      event: businessEvent,
+      isDuplicate: true,
+      persistedToEventLog: false,
+    };
+  }
 
   return {
     observed: true,

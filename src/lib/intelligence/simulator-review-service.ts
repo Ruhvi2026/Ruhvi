@@ -118,7 +118,8 @@ export function generateSimulationForProposal(
 
   // ─── Case 1: Inventory Safety Buffer Adjustment ───────────────────────────
   if (actionType === 'update_inventory_safety_buffer') {
-    const newThreshold = Number(params.newThreshold) || 5;
+    const newThreshold =
+      Number(params.lowStockThreshold ?? params.newThreshold) || 5;
     const previousThreshold = Number(params.previousThreshold) || 2;
     const delta = newThreshold - previousThreshold;
 

@@ -4,6 +4,7 @@ import {
   transitionOrder,
 } from '../status-engine';
 
+jest.mock('server-only', () => ({}));
 jest.mock('@/lib/supabase/service', () => ({
   getServiceClient: jest.fn(),
 }));
@@ -158,6 +159,22 @@ describe('OrderStatusEngine', () => {
             update: jest.fn().mockReturnValue(updateChain),
           };
         }
+        if (table === 'order_events') {
+          return {
+            select: jest.fn().mockReturnValue({
+              eq: jest.fn().mockReturnValue({
+                eq: jest.fn().mockReturnValue({
+                  order: jest.fn().mockReturnValue({
+                    limit: jest
+                      .fn()
+                      .mockResolvedValue({ data: [], error: null }),
+                  }),
+                }),
+              }),
+            }),
+            insert: jest.fn().mockResolvedValue({ error: null }),
+          };
+        }
         return {};
       });
 
@@ -200,6 +217,22 @@ describe('OrderStatusEngine', () => {
           return {
             select: jest.fn().mockReturnValue(selectChain),
             update: jest.fn().mockReturnValue(updateChain),
+          };
+        }
+        if (table === 'order_events') {
+          return {
+            select: jest.fn().mockReturnValue({
+              eq: jest.fn().mockReturnValue({
+                eq: jest.fn().mockReturnValue({
+                  order: jest.fn().mockReturnValue({
+                    limit: jest
+                      .fn()
+                      .mockResolvedValue({ data: [], error: null }),
+                  }),
+                }),
+              }),
+            }),
+            insert: jest.fn().mockResolvedValue({ error: null }),
           };
         }
         return {};

@@ -1,6 +1,7 @@
 import 'server-only';
 
 import { getServiceClient } from '@/lib/supabase/service';
+import { logAuditEvent } from '@/lib/audit';
 import {
   evaluateLookupPermissions,
   maskCustomerProfilePii,
@@ -48,6 +49,7 @@ export interface GetCustomer360Options {
   targetCustomerId: string;
   requestedByActor: {
     actorId: string;
+    email?: string;
     role: 'customer' | 'staff' | 'manager' | 'admin' | 'super_admin' | string;
   };
   includeOrderHistoryLimit?: number; // default: 10
@@ -334,6 +336,37 @@ export async function getCustomer360Profile(
     (t: any) =>
       t.status === 'new' || t.status === 'open' || t.status === 'in_progress'
   );
+
+  // ─── 9. Audit Logging for Privileged Access (Audit P1.10) ──────────────────
+  // Mandatory audit trail for sensitive customer profile reads by staff/managers/admins.
+  // Records minimum necessary metadata: actor, role, target ID, masking status, timestamp.
+  // NEVER copies full customer profile, contact details, or PII into the audit log.
+  const isPrivilegedRole =
+    requestedByActor.role === 'staff' ||
+    requestedByActor.role === 'manager' ||
+    requestedByActor.role === 'admin' ||
+    requestedByActor.role === 'super_admin';
+
+  if (isPrivilegedRole || requestedByActor.actorId !== targetCustomerId) {
+    try {
+      await logAuditEvent({
+        actorId: requestedByActor.actorId,
+        actorEmail: requestedByActor.email,
+        portal: 'admin',
+        action: 'customer_360_privileged_read',
+        entityType: 'customer',
+        entityId: targetCustomerId,
+        changes: {
+          requesterRole: requestedByActor.role,
+          piiMasked: permissions.maskPii,
+          financialsIncluded: permissions.canViewFinancials,
+          readTimestamp: fetchTimestamp,
+        },
+      });
+    } catch (auditErr) {
+      console.warn('[Customer360] Audit log write failed:', auditErr);
+    }
+  }
 
   return {
     profile: {

@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
     }
 
     const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
-    const jwtSecret = process.env.SUPABASE_JWT_SECRET;
+    const jwtSecret = process.env.SUPABASE_JWT_SECRET || process.env.JWT_SECRET;
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 

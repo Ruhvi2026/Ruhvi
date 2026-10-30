@@ -188,5 +188,25 @@ describe('Decision Simulator Interface & API (Track I - Phase 46)', () => {
         )
       ).toBe(true);
     });
+
+    it('gracefully handles missing and undefined parameters without NaN propagation (P1.7)', async () => {
+      const req = createMockRequest({
+        decisionType: 'inventory_buffer_optimization',
+        parameters: {},
+      });
+
+      const res = await POST(req);
+      const json = await res.json();
+
+      expect(res.status).toBe(200);
+      expect(json.success).toBe(true);
+      expect(json.data.metrics.length).toBeGreaterThan(0);
+      for (const m of json.data.metrics) {
+        expect(Number.isNaN(m.baseline)).toBe(false);
+        expect(Number.isNaN(m.projected)).toBe(false);
+        expect(Number.isNaN(m.absoluteDelta)).toBe(false);
+        expect(Number.isNaN(m.percentageDelta)).toBe(false);
+      }
+    });
   });
 });

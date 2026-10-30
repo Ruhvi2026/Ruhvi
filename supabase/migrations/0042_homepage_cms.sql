@@ -1,6 +1,6 @@
 -- Migration 0042: Homepage CMS (Hero Slides)
 
-CREATE TABLE public.hero_slides (
+CREATE TABLE IF NOT EXISTS public.hero_slides (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   title text NOT NULL,
   subtitle text,
@@ -17,9 +17,11 @@ CREATE TABLE public.hero_slides (
 ALTER TABLE public.hero_slides ENABLE ROW LEVEL SECURITY;
 
 -- Policies
+DROP POLICY IF EXISTS "Public can view active hero slides" ON public.hero_slides;
 CREATE POLICY "Public can view active hero slides"
   ON public.hero_slides FOR SELECT USING (is_active = true);
 
+DROP POLICY IF EXISTS "Admin/Staff can view all hero slides" ON public.hero_slides;
 CREATE POLICY "Admin/Staff can view all hero slides"
   ON public.hero_slides FOR SELECT USING (
     EXISTS (
@@ -28,6 +30,7 @@ CREATE POLICY "Admin/Staff can view all hero slides"
     )
   );
 
+DROP POLICY IF EXISTS "Admin/Staff with cms.edit can insert hero slides" ON public.hero_slides;
 CREATE POLICY "Admin/Staff with cms.edit can insert hero slides"
   ON public.hero_slides FOR INSERT WITH CHECK (
     EXISTS (
@@ -36,6 +39,7 @@ CREATE POLICY "Admin/Staff with cms.edit can insert hero slides"
     )
   );
 
+DROP POLICY IF EXISTS "Admin/Staff with cms.edit can update hero slides" ON public.hero_slides;
 CREATE POLICY "Admin/Staff with cms.edit can update hero slides"
   ON public.hero_slides FOR UPDATE USING (
     EXISTS (
@@ -44,6 +48,7 @@ CREATE POLICY "Admin/Staff with cms.edit can update hero slides"
     )
   );
 
+DROP POLICY IF EXISTS "Admin/Staff with cms.edit can delete hero slides" ON public.hero_slides;
 CREATE POLICY "Admin/Staff with cms.edit can delete hero slides"
   ON public.hero_slides FOR DELETE USING (
     EXISTS (

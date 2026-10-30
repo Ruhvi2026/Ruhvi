@@ -429,6 +429,31 @@ export async function POST(req: NextRequest) {
     // Fire-and-forget sync to EspoCRM (agent console) — non-blocking.
     void syncTicketToEspo(ticket.id, supabase);
 
+    // Shared Intelligence Canonical Event Observation (Track B)
+    try {
+      const { observeTicketLifecycleTransition } =
+        await import('@/lib/intelligence/support-events');
+      void observeTicketLifecycleTransition({
+        ticketId: ticket.id,
+        ticketNumber: ticket.ticket_number || ticket.id,
+        status: ticket.status || initialStatus,
+        priority: priorityValue,
+        categoryId: categoryId || undefined,
+        orderId: order_id || undefined,
+        assignedTo: finalAssignedTo || undefined,
+        source: 'manual',
+        actor: {
+          type: isStaff ? 'staff' : 'customer',
+          id: user.id,
+        },
+      });
+    } catch (obsErr) {
+      console.error(
+        '[Shared Intelligence] Failed to observe ticket creation:',
+        obsErr
+      );
+    }
+
     return NextResponse.json({ ticket }, { status: 201 });
   } catch (err: any) {
     console.error('Tickets POST Error:', err);

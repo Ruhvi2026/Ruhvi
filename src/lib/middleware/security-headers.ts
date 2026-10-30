@@ -28,7 +28,7 @@ export function applySecurityHeaders(
   res.headers.set('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
   res.headers.set(
     'Permissions-Policy',
-    'camera=(), microphone=(), geolocation=(), payment=(self)'
+    'camera=(), microphone=(self), geolocation=(), payment=(self)'
   );
   // CSP: strictly HTTPS for scripts (no unencrypted http:)
   // TODO: Migrate from unsafe-inline/unsafe-eval to nonce-based CSP

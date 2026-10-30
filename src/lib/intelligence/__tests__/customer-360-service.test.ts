@@ -4,7 +4,12 @@ jest.mock('@/lib/supabase/service', () => ({
   getServiceClient: jest.fn(),
 }));
 
+jest.mock('@/lib/audit', () => ({
+  logAuditEvent: jest.fn(),
+}));
+
 import { getServiceClient } from '@/lib/supabase/service';
+import { logAuditEvent } from '@/lib/audit';
 import {
   getCustomer360Profile,
   Customer360ForbiddenError,
@@ -123,12 +128,10 @@ describe('Customer 360 Read Service (Track F - Phase 32)', () => {
                 eq: jest.fn().mockReturnValue({
                   order: jest.fn().mockReturnValue({
                     limit: jest.fn().mockReturnValue({
-                      maybeSingle: jest
-                        .fn()
-                        .mockResolvedValue({
-                          data: mockAddressRow,
-                          error: null,
-                        }),
+                      maybeSingle: jest.fn().mockResolvedValue({
+                        data: mockAddressRow,
+                        error: null,
+                      }),
                     }),
                   }),
                 }),
@@ -151,12 +154,10 @@ describe('Customer 360 Read Service (Track F - Phase 32)', () => {
               select: jest.fn().mockReturnValue({
                 eq: jest.fn().mockReturnValue({
                   order: jest.fn().mockReturnValue({
-                    limit: jest
-                      .fn()
-                      .mockResolvedValue({
-                        data: mockWishlistRows,
-                        error: null,
-                      }),
+                    limit: jest.fn().mockResolvedValue({
+                      data: mockWishlistRows,
+                      error: null,
+                    }),
                   }),
                 }),
               }),
@@ -176,12 +177,10 @@ describe('Customer 360 Read Service (Track F - Phase 32)', () => {
               select: jest.fn().mockReturnValue({
                 eq: jest.fn().mockReturnValue({
                   order: jest.fn().mockReturnValue({
-                    limit: jest
-                      .fn()
-                      .mockResolvedValue({
-                        data: mockSupportRows,
-                        error: null,
-                      }),
+                    limit: jest.fn().mockResolvedValue({
+                      data: mockSupportRows,
+                      error: null,
+                    }),
                   }),
                 }),
               }),
@@ -379,6 +378,109 @@ describe('Customer 360 Read Service (Track F - Phase 32)', () => {
           },
         })
       ).rejects.toThrow(Customer360NotFoundError);
+    });
+  });
+
+  describe('Privileged Read Audit Logging & Role Masking Matrix (Audit P1.10)', () => {
+    it('logs audit event on admin privileged read with minimum metadata and zero raw PII in changes', async () => {
+      await getCustomer360Profile({
+        targetCustomerId: 'usr_alice_001',
+        requestedByActor: {
+          actorId: 'admin_usr_01',
+          email: 'admin@ruhvi.in',
+          role: 'admin',
+        },
+      });
+
+      expect(logAuditEvent).toHaveBeenCalledTimes(1);
+      expect(logAuditEvent).toHaveBeenCalledWith({
+        actorId: 'admin_usr_01',
+        actorEmail: 'admin@ruhvi.in',
+        portal: 'admin',
+        action: 'customer_360_privileged_read',
+        entityType: 'customer',
+        entityId: 'usr_alice_001',
+        changes: expect.objectContaining({
+          requesterRole: 'admin',
+          piiMasked: false,
+          financialsIncluded: true,
+        }),
+      });
+
+      const auditCall = (logAuditEvent as jest.Mock).mock.calls[0][0];
+      // Verify raw customer profile PII is never copied into audit log
+      expect(JSON.stringify(auditCall.changes)).not.toContain('Alice Roy');
+      expect(JSON.stringify(auditCall.changes)).not.toContain(
+        'alice@example.com'
+      );
+      expect(JSON.stringify(auditCall.changes)).not.toContain('+919830111111');
+    });
+
+    it('logs audit event on staff read indicating piiMasked: true', async () => {
+      await getCustomer360Profile({
+        targetCustomerId: 'usr_alice_001',
+        requestedByActor: {
+          actorId: 'staff_usr_88',
+          role: 'staff',
+        },
+      });
+
+      expect(logAuditEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          action: 'customer_360_privileged_read',
+          entityId: 'usr_alice_001',
+          changes: expect.objectContaining({
+            requesterRole: 'staff',
+            piiMasked: true,
+            financialsIncluded: false,
+          }),
+        })
+      );
+    });
+
+    it('does not log privileged audit event when a customer views their own profile', async () => {
+      await getCustomer360Profile({
+        targetCustomerId: 'usr_alice_001',
+        requestedByActor: {
+          actorId: 'usr_alice_001',
+          role: 'customer',
+        },
+      });
+
+      expect(logAuditEvent).not.toHaveBeenCalled();
+    });
+
+    it('applies the department manager masking matrix correctly (masked PII with authorized financials)', async () => {
+      const result = await getCustomer360Profile({
+        targetCustomerId: 'usr_alice_001',
+        requestedByActor: {
+          actorId: 'manager_usr_05',
+          email: 'manager@ruhvi.in',
+          role: 'manager',
+        },
+      });
+
+      // PII must be masked for manager
+      expect(result.metadata.piiMasked).toBe(true);
+      expect(result.profile.fullName).toBe('Alice R.');
+      expect(result.profile.email).toBe('a•••@example.com');
+      expect(result.profile.phone).toBe('+919830••••11');
+
+      // But commercial financials are authorized
+      expect(result.orderSummary.totalLifetimeSpend).toBe(20700.0);
+      expect(result.orderSummary.averageOrderValue).toBe(10350.0);
+
+      // Audit logged
+      expect(logAuditEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          action: 'customer_360_privileged_read',
+          changes: expect.objectContaining({
+            requesterRole: 'manager',
+            piiMasked: true,
+            financialsIncluded: true,
+          }),
+        })
+      );
     });
   });
 });

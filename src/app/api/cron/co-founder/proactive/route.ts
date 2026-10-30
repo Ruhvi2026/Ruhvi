@@ -10,16 +10,31 @@ export async function GET(req: NextRequest) {
     const authHeader = req.headers.get('authorization');
     const cronSecret = process.env.CRON_SECRET;
 
-    if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+    if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const res = await runProactiveCronScan();
 
+    const { getScheduledAnalysisController } =
+      await import('@/lib/intelligence/scheduled-proactive-analysis');
+    const controller = getScheduledAnalysisController();
+    const scheduledRun = await controller.executeAnalysis({
+      trigger: 'cron',
+      actorId: 'system_cron_proactive',
+      callerRole: 'admin',
+      preset: 'last_7_days',
+    });
+
     return NextResponse.json({
       success: true,
       timestamp: new Date().toISOString(),
       ...res,
+      scheduledAnalysis: {
+        runId: scheduledRun.runId,
+        status: scheduledRun.status,
+        recommendationsCount: scheduledRun.recommendationsCount,
+      },
     });
   } catch (error: any) {
     console.error('Proactive cron scan failed:', error);

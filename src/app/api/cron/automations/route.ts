@@ -12,12 +12,10 @@ import { generateDailyMorningBriefing } from '@/lib/ai/co-founder/morning-briefi
 
 export async function GET(request: Request) {
   try {
-    // Vercel Cron secures the route via Authorization header matching CRON_SECRET
+    // Vercel Cron secures the route via Authorization header matching CRON_SECRET (fail-closed)
+    const cronSecret = process.env.CRON_SECRET;
     const authHeader = request.headers.get('authorization');
-    if (
-      process.env.CRON_SECRET &&
-      authHeader !== `Bearer ${process.env.CRON_SECRET}`
-    ) {
+    if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -188,10 +186,26 @@ export async function GET(request: Request) {
       (results as any).blogPublisherError = blogErr?.message;
     }
 
-    // 6. Proactive AI Co-Founder Telemetry & Anomaly Scan
+    // 6. Proactive AI Co-Founder Telemetry, Anomaly Scan & Scheduled Intelligence Analysis
     try {
       const proactiveResults = await runProactiveCronScan();
       (results as any).proactiveScan = proactiveResults;
+
+      // Unify with Track E Shared Intelligence Scheduled Analysis (P2.6)
+      const { getScheduledAnalysisController } =
+        await import('@/lib/intelligence/scheduled-proactive-analysis');
+      const controller = getScheduledAnalysisController();
+      const scheduledRun = await controller.executeAnalysis({
+        trigger: 'cron',
+        actorId: 'system_cron_automations',
+        callerRole: 'admin',
+        preset: 'last_7_days',
+      });
+      (results as any).scheduledAnalysis = {
+        runId: scheduledRun.runId,
+        status: scheduledRun.status,
+        recommendationsCount: scheduledRun.recommendationsCount,
+      };
     } catch (proactiveErr: any) {
       console.error('[cron/automations] Proactive scan error:', proactiveErr);
       (results as any).proactiveScanError = proactiveErr?.message;

@@ -1,5 +1,5 @@
 -- Migration: Create promotions table
-CREATE TABLE public.promotions (
+CREATE TABLE IF NOT EXISTS public.promotions (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   name text NOT NULL,
   discount_type text NOT NULL,
@@ -14,6 +14,7 @@ CREATE TABLE public.promotions (
 -- RLS Policies
 ALTER TABLE public.promotions ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Public promotions are viewable by everyone" ON public.promotions;
 CREATE POLICY "Public promotions are viewable by everyone"
   ON public.promotions FOR SELECT
   USING (true);

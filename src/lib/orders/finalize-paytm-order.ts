@@ -212,6 +212,42 @@ export async function finalizePaytmOrder(
       );
     }
 
+    // Shared Intelligence Canonical Event Observation (Track B)
+    try {
+      const { observePaymentOutcome } =
+        await import('@/lib/intelligence/payment-events');
+      const { observeOrderLifecycleTransition } =
+        await import('@/lib/intelligence/order-lifecycle');
+      await observePaymentOutcome({
+        orderId: order.id,
+        orderNumber: order.order_number,
+        gateway: 'paytm',
+        merchantTransactionId: orderIdentifier,
+        gatewayTransactionId: details.paytmTransactionId,
+        amount: Number(order.total) || 0,
+        outcome: 'CONFIRMED',
+        isPartialCod: Boolean(
+          order.cod_balance && Number(order.cod_balance) > 0
+        ),
+        prepaidAmount: Number(order.prepaid_amount) || undefined,
+        codBalance: Number(order.cod_balance) || undefined,
+        origin: 'webhook',
+      });
+      await observeOrderLifecycleTransition({
+        orderId: order.id,
+        orderNumber: order.order_number,
+        fromStatus: order.status,
+        toStatus: 'confirmed',
+        actor: { type: 'webhook', id: 'paytm' },
+        source: 'webhook_paytm',
+      });
+    } catch (obsErr) {
+      console.error(
+        '[Shared Intelligence] Failed to observe Paytm payment confirmation:',
+        obsErr
+      );
+    }
+
     return { status: 'paid', order };
   } else {
     // Payment failed or cancelled
@@ -223,6 +259,39 @@ export async function finalizePaytmOrder(
         updated_at: new Date().toISOString(),
       })
       .eq('id', order.id);
+
+    // Shared Intelligence Canonical Event Observation (Track B)
+    try {
+      const { observePaymentOutcome } =
+        await import('@/lib/intelligence/payment-events');
+      const { observeOrderLifecycleTransition } =
+        await import('@/lib/intelligence/order-lifecycle');
+      await observePaymentOutcome({
+        orderId: order.id,
+        orderNumber: order.order_number,
+        gateway: 'paytm',
+        merchantTransactionId: orderIdentifier,
+        gatewayTransactionId: details.paytmTransactionId,
+        amount: Number(order.total) || 0,
+        outcome: 'FAILED',
+        failureReason: paymentState,
+        origin: 'webhook',
+      });
+      await observeOrderLifecycleTransition({
+        orderId: order.id,
+        orderNumber: order.order_number,
+        fromStatus: order.status,
+        toStatus: 'cancelled',
+        actor: { type: 'webhook', id: 'paytm' },
+        source: 'webhook_paytm',
+        notes: `Payment failed with state: ${paymentState}`,
+      });
+    } catch (obsErr) {
+      console.error(
+        '[Shared Intelligence] Failed to observe Paytm payment failure:',
+        obsErr
+      );
+    }
 
     return { status: 'failed', order };
   }

@@ -7,7 +7,9 @@ const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
   projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  messagingSenderId:
+    process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID ||
+    process.env.NEXT_PUBLIC_FIREBASE_MESSSENDER_ID,
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
@@ -21,7 +23,8 @@ if (!getApps().length) {
     appInstance = initializeApp({
       apiKey: 'AIzaSyDummyKeyForBuildPhaseOnly0000000',
       projectId: firebaseConfig.projectId || 'ruhvi-dummy',
-      appId: firebaseConfig.appId || '1:000000000000:web:0000000000000000000000',
+      appId:
+        firebaseConfig.appId || '1:000000000000:web:0000000000000000000000',
     });
   }
 } else {
@@ -31,4 +34,3 @@ if (!getApps().length) {
 export const app: FirebaseApp = appInstance;
 export const auth: Auth = getAuth(appInstance);
 export default app;
-

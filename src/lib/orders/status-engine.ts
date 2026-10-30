@@ -196,6 +196,30 @@ export async function transitionOrder(
     }
   }
 
+  // Shared Intelligence Canonical Event Observation (Track B)
+  try {
+    const { observeOrderLifecycleTransition } =
+      await import('@/lib/intelligence/order-lifecycle');
+    await observeOrderLifecycleTransition({
+      orderId: order.id,
+      fromStatus: order.status,
+      toStatus: input.newStatus,
+      actor: {
+        type: input.performedBy ? 'staff' : 'system',
+        id: input.performedBy || undefined,
+      },
+      source: 'orders_portal',
+      metadata: input.metadata as any,
+      notes: input.notes,
+    });
+  } catch (obsErr) {
+    // Non-blocking observation
+    console.warn(
+      '[Shared Intelligence] Could not observe order lifecycle transition:',
+      obsErr
+    );
+  }
+
   if (
     [
       'shipped',
