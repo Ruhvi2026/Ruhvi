@@ -1,10 +1,10 @@
 jest.mock('server-only', () => ({}));
 
 import sitemap from '../app/sitemap';
-import { createClient } from '../lib/supabase/server';
+import { createPublicClient } from '../lib/supabase/public';
 
-jest.mock('../lib/supabase/server', () => ({
-  createClient: jest.fn(),
+jest.mock('../lib/supabase/public', () => ({
+  createPublicClient: jest.fn(),
 }));
 
 describe('Sitemap Accuracy & Error Handling Hardening (Finding E1)', () => {
@@ -25,7 +25,7 @@ describe('Sitemap Accuracy & Error Handling Hardening (Finding E1)', () => {
   });
 
   it('omits artificial lastModified timestamps for static pages and categories', async () => {
-    (createClient as jest.Mock).mockResolvedValue({
+    (createPublicClient as jest.Mock).mockReturnValue({
       from: jest.fn().mockReturnValue({
         select: jest.fn().mockReturnThis(),
         neq: jest.fn().mockReturnThis(),
@@ -66,7 +66,7 @@ describe('Sitemap Accuracy & Error Handling Hardening (Finding E1)', () => {
       },
     ];
 
-    (createClient as jest.Mock).mockResolvedValue({
+    (createPublicClient as jest.Mock).mockReturnValue({
       from: jest.fn((table: string) => {
         if (table === 'products') {
           return {
@@ -119,7 +119,7 @@ describe('Sitemap Accuracy & Error Handling Hardening (Finding E1)', () => {
 
   it('logs database error with console.error instead of silently swallowing it', async () => {
     const dbError = new Error('Database connection failed');
-    (createClient as jest.Mock).mockResolvedValue({
+    (createPublicClient as jest.Mock).mockReturnValue({
       from: jest.fn().mockReturnValue({
         select: jest.fn().mockReturnThis(),
         neq: jest.fn().mockReturnThis(),

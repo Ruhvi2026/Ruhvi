@@ -1,5 +1,5 @@
 import { MetadataRoute } from 'next';
-import { createClient } from '@/lib/supabase/server';
+import { createPublicClient } from '@/lib/supabase/public';
 
 /**
  * Generates the XML sitemap for Ruhvi E-commerce (Finding E1).
@@ -10,6 +10,7 @@ import { createClient } from '@/lib/supabase/server';
  * 2. Use real `updated_at` timestamps for dynamic products and published blog articles.
  * 3. Log database and query errors explicitly with console.error instead of silently swallowing them.
  * 4. Apply defensive limits and null-safety to prevent malformed sitemap entries.
+ * 5. Use cookie-free createPublicClient() so the route can be rendered statically during build / ISR.
  */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://ruhvi.in';
@@ -47,10 +48,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }));
 
-  // Fetch dynamic products from Supabase
+  // Fetch dynamic products from Supabase via public cookie-free client
   let productEntries: MetadataRoute.Sitemap = [];
   try {
-    const supabase = await createClient();
+    const supabase = createPublicClient();
     const { data: dbProducts, error: dbError } = await supabase
       .from('products')
       .select('slug, updated_at')
@@ -81,10 +82,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     productEntries = [];
   }
 
-  // Fetch dynamic published blog posts from Supabase
+  // Fetch dynamic published blog posts from Supabase via public cookie-free client
   let blogEntries: MetadataRoute.Sitemap = [];
   try {
-    const supabase = await createClient();
+    const supabase = createPublicClient();
     const { data: dbBlogs, error: blogError } = await supabase
       .from('blog_posts')
       .select('slug, updated_at, published_at')
