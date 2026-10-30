@@ -27,6 +27,10 @@ jobs:
       CREDENTIAL_ENCRYPTION_KEY: 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
       WALLET_INTERNAL_SECRET: dummy_wallet_secret
       CRON_SECRET: dummy_cron_secret
+      LIVEKIT_URL: wss://dummy.livekit.cloud
+      LIVEKIT_API_KEY: dummy_livekit_key
+      LIVEKIT_API_SECRET: dummy_livekit_secret
+      RESEND_API_KEY: re_dummy_key
 
     steps:
       - name: Checkout repository
@@ -54,4 +58,3 @@ jobs:
         run: npm run build
         env:
           NODE_ENV: production
-

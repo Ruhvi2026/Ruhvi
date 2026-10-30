@@ -11,25 +11,31 @@ import { createLiveKitToken } from './token';
  */
 
 export class LiveKitAgentManager {
-  private roomService: RoomServiceClient;
-  private agentDispatch: AgentDispatchClient;
+  private roomService: RoomServiceClient | null = null;
+  private agentDispatch: AgentDispatchClient | null = null;
 
-  constructor() {
-    const config = getLiveKitConfig();
-    // LiveKit HTTP URL from WSS URL
-    const httpUrl = config.url
-      .replace(/^wss:\/\//, 'https://')
-      .replace(/^ws:\/\//, 'http://');
-    this.roomService = new RoomServiceClient(
-      httpUrl,
-      config.apiKey,
-      config.apiSecret
-    );
-    this.agentDispatch = new AgentDispatchClient(
-      httpUrl,
-      config.apiKey,
-      config.apiSecret
-    );
+  private getClients() {
+    if (!this.roomService || !this.agentDispatch) {
+      const config = getLiveKitConfig();
+      // LiveKit HTTP URL from WSS URL
+      const httpUrl = config.url
+        .replace(/^wss:\/\//, 'https://')
+        .replace(/^ws:\/\//, 'http://');
+      this.roomService = new RoomServiceClient(
+        httpUrl,
+        config.apiKey,
+        config.apiSecret
+      );
+      this.agentDispatch = new AgentDispatchClient(
+        httpUrl,
+        config.apiKey,
+        config.apiSecret
+      );
+    }
+    return {
+      roomService: this.roomService,
+      agentDispatch: this.agentDispatch,
+    };
   }
 
   /**
@@ -56,9 +62,10 @@ export class LiveKitAgentManager {
    */
   async ensureRoom(roomName: string) {
     try {
-      const rooms = await this.roomService.listRooms([roomName]);
+      const { roomService } = this.getClients();
+      const rooms = await roomService.listRooms([roomName]);
       if (rooms.length === 0) {
-        await this.roomService.createRoom({
+        await roomService.createRoom({
           name: roomName,
           emptyTimeout: 300, // 5 minutes timeout if empty
           maxParticipants: 10,
@@ -77,16 +84,13 @@ export class LiveKitAgentManager {
    */
   async dispatchAgent(roomName: string, agentName = 'co-founder-agent') {
     try {
-      const dispatch = await this.agentDispatch.createDispatch(
-        roomName,
-        agentName,
-        {
-          metadata: JSON.stringify({
-            type: 'co_founder_voice',
-            startedAt: Date.now(),
-          }),
-        }
-      );
+      const { agentDispatch } = this.getClients();
+      const dispatch = await agentDispatch.createDispatch(roomName, agentName, {
+        metadata: JSON.stringify({
+          type: 'co_founder_voice',
+          startedAt: Date.now(),
+        }),
+      });
       return { ok: true, dispatch };
     } catch (err: any) {
       // In self-orchestrated or client-bridged mode, fallback gracefully
@@ -104,7 +108,8 @@ export class LiveKitAgentManager {
   ) {
     const payload =
       typeof data === 'string' ? new TextEncoder().encode(data) : data;
-    await this.roomService.sendData(roomName, payload, 0, { topic });
+    const { roomService } = this.getClients();
+    await roomService.sendData(roomName, payload, 0, { topic });
   }
 
   /**
@@ -112,7 +117,8 @@ export class LiveKitAgentManager {
    */
   async closeRoom(roomName: string) {
     try {
-      await this.roomService.deleteRoom(roomName);
+      const { roomService } = this.getClients();
+      await roomService.deleteRoom(roomName);
       return { ok: true };
     } catch (err: any) {
       return { ok: false, error: err?.message };
