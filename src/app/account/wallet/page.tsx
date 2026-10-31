@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { createClient } from '@/lib/supabase/client';
+import { getAuthoritativeCustomerUuid } from '@/lib/intelligence/customer-identity-resolution';
 import toast from 'react-hot-toast';
 import {
   ArrowLeft,
@@ -18,11 +19,18 @@ import {
   Sparkles,
   CheckCircle2,
   AlertCircle,
+  AlertTriangle,
+  RefreshCw,
   X,
   Lock,
   Building2,
   Smartphone,
 } from 'lucide-react';
+
+import {
+  reconcileWalletState,
+  type WalletReconciliationResult,
+} from '@/lib/wallet/reconciliation';
 
 interface WalletTxn {
   id: string;
@@ -35,10 +43,13 @@ interface WalletTxn {
 
 export default function WalletPage() {
   const router = useRouter();
-  const { user, profile, loading: authLoading } = useAuth();
+  const { user, profile, loading: authLoading, refreshProfile } = useAuth();
   const [ledgerBalance, setLedgerBalance] = useState<number | null>(null);
   const [transactions, setTransactions] = useState<WalletTxn[]>([]);
   const [loadingTxns, setLoadingTxns] = useState(true);
+  const [reconciliation, setReconciliation] =
+    useState<WalletReconciliationResult | null>(null);
+  const [isSyncing, setIsSyncing] = useState(false);
 
   // Add Money Modal State
   const [showAddMoneyModal, setShowAddMoneyModal] = useState(false);
@@ -55,35 +66,28 @@ export default function WalletPage() {
   const fetchLedger = useCallback(async () => {
     if (!user) return;
     try {
+      const targetUserId =
+        getAuthoritativeCustomerUuid(user, profile) || user.id;
       const supabase = createClient();
       const { data, error } = await supabase.rpc('get_wallet_transactions', {
-        p_user_id: user.id,
+        p_user_id: targetUserId,
       });
 
       if (error) throw error;
 
-      if (data && data.length > 0) {
-        setTransactions(data as WalletTxn[]);
-        // Calculate ledger balance
-        const ledgerSum = (data as WalletTxn[]).reduce((acc, curr) => {
-          const amt = Number(curr.amount) || 0;
-          if (curr.type === 'credit' || curr.type === 'cashback')
-            return acc + amt;
-          if (curr.type === 'debit') return acc - amt;
-          return acc;
-        }, 0);
+      const txns = (data as WalletTxn[]) || [];
+      setTransactions(txns);
 
-        setLedgerBalance(ledgerSum);
-      } else {
-        setTransactions([]);
-        setLedgerBalance(null);
-      }
+      // Perform auditable ledger reconciliation against profile cache
+      const rec = reconcileWalletState(profile?.wallet_balance, txns);
+      setReconciliation(rec);
+      setLedgerBalance(rec.authoritativeBalance);
     } catch (err) {
       console.error('Error fetching wallet ledger:', err);
     } finally {
       setLoadingTxns(false);
     }
-  }, [user, profile?.wallet_balance]);
+  }, [user, profile?.id, profile?.wallet_balance]);
 
   useEffect(() => {
     if (!user) {
@@ -104,7 +108,8 @@ export default function WalletPage() {
           schema: 'public',
           table: 'wallet_ledger',
         },
-        () => {
+        async () => {
+          if (refreshProfile) await refreshProfile();
           fetchLedger();
         }
       )
@@ -231,7 +236,11 @@ export default function WalletPage() {
 
   const isGuest = !user && !authLoading;
 
-  const displayBalance = Number(profile?.wallet_balance) || 0;
+  // Authoritative balance from immutable ledger entries (or profile cache as initial fallback)
+  const authoritativeBalance =
+    reconciliation?.authoritativeBalance ??
+    (Number(profile?.wallet_balance) || 0);
+  const displayBalance = authoritativeBalance;
 
   return (
     <div className="mx-auto max-w-5xl space-y-8 px-4 py-10 sm:px-6 lg:px-8">
@@ -245,6 +254,52 @@ export default function WalletPage() {
         </Link>
       </div>
 
+      {/* Ledger Reconciliation Discrepancy Alert */}
+      {reconciliation?.hasDiscrepancy && (
+        <div className="flex flex-col items-start justify-between gap-4 rounded-2xl border border-amber-300 bg-amber-50/90 p-4 text-amber-950 shadow-sm sm:flex-row sm:items-center sm:p-5">
+          <div className="flex items-start space-x-3 sm:items-center">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-200/80 text-amber-800">
+              <AlertTriangle className="h-5 w-5" />
+            </div>
+            <div className="text-xs">
+              <p className="font-bold text-amber-900">
+                Wallet Balance Reconciliation Notice
+              </p>
+              <p className="mt-0.5 text-stone-700">
+                {reconciliation.explanation}
+              </p>
+              <p className="mt-1 text-[11px] font-medium text-amber-800/80">
+                Authoritative Ledger: ₹
+                {reconciliation.authoritativeBalance.toFixed(2)} | Account
+                Cache: ₹{reconciliation.cachedBalance.toFixed(2)} (Discrepancy:
+                ₹{Math.abs(reconciliation.discrepancy).toFixed(2)})
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={async () => {
+              setIsSyncing(true);
+              try {
+                if (refreshProfile) await refreshProfile();
+                await fetchLedger();
+                toast.success('Wallet balance reconciled with ledger.');
+              } catch (e) {
+                console.error(e);
+              } finally {
+                setIsSyncing(false);
+              }
+            }}
+            disabled={isSyncing}
+            className="flex shrink-0 items-center gap-1.5 rounded-xl bg-amber-950 px-4 py-2.5 text-xs font-bold text-amber-100 shadow-sm transition hover:bg-black disabled:opacity-50"
+          >
+            <RefreshCw
+              className={`h-3.5 w-3.5 ${isSyncing ? 'animate-spin' : ''}`}
+            />
+            <span>{isSyncing ? 'Syncing...' : 'Sync Balance'}</span>
+          </button>
+        </div>
+      )}
+
       {/* Wallet Balance Card */}
       <div className="relative flex flex-col items-center justify-between gap-8 overflow-hidden rounded-3xl border border-emerald-700/40 bg-gradient-to-r from-emerald-950 via-emerald-900 to-emerald-800 p-8 text-emerald-50 shadow-2xl sm:p-10 md:flex-row">
         <div className="pointer-events-none absolute right-0 top-0 -mr-16 -mt-16 h-64 w-64 rounded-full bg-emerald-500/20 blur-3xl"></div>
@@ -254,12 +309,22 @@ export default function WalletPage() {
             <Wallet className="h-8 w-8 text-emerald-300" />
           </div>
           <div>
-            <p className="text-xs font-semibold uppercase tracking-widest text-emerald-200">
-              Available Balance
-            </p>
+            <div className="flex items-center gap-2">
+              <p className="text-xs font-semibold uppercase tracking-widest text-emerald-200">
+                Available Balance
+              </p>
+              {reconciliation &&
+                !reconciliation.hasDiscrepancy &&
+                transactions.length > 0 && (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/20 px-2 py-0.5 text-[10px] font-semibold text-emerald-200">
+                    <CheckCircle2 className="h-2.5 w-2.5 text-emerald-300" />
+                    Ledger Verified
+                  </span>
+                )}
+            </div>
             <h1 className="mt-1 font-serif text-4xl font-bold tracking-tight sm:text-5xl">
               ₹
-              {displayBalance.toLocaleString('en-IN', {
+              {authoritativeBalance.toLocaleString('en-IN', {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2,
               })}
@@ -362,12 +427,43 @@ export default function WalletPage() {
         {/* Transaction History */}
         <div className="space-y-6 md:col-span-2">
           <div className="flex items-center justify-between">
-            <h2 className="font-serif text-xl font-bold text-stone-900">
-              Transaction History
-            </h2>
-            <span className="text-xs font-medium text-stone-500">
-              {transactions.length} Records
-            </span>
+            <div className="flex items-center gap-2">
+              <h2 className="font-serif text-xl font-bold text-stone-900">
+                Transaction History
+              </h2>
+              {reconciliation &&
+                !reconciliation.hasDiscrepancy &&
+                transactions.length > 0 && (
+                  <span className="inline-flex items-center gap-1 rounded-md border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700">
+                    <ShieldCheck className="h-3 w-3" />
+                    Reconciled
+                  </span>
+                )}
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-medium text-stone-500">
+                {transactions.length} Records
+              </span>
+              <button
+                onClick={async () => {
+                  setIsSyncing(true);
+                  try {
+                    if (refreshProfile) await refreshProfile();
+                    await fetchLedger();
+                    toast.success('Transactions refreshed and reconciled.');
+                  } finally {
+                    setIsSyncing(false);
+                  }
+                }}
+                disabled={isSyncing}
+                title="Refresh & Reconcile"
+                className="rounded-lg p-1.5 text-stone-400 transition hover:bg-stone-100 hover:text-stone-700"
+              >
+                <RefreshCw
+                  className={`h-3.5 w-3.5 ${isSyncing ? 'animate-spin' : ''}`}
+                />
+              </button>
+            </div>
           </div>
 
           {isGuest ? (

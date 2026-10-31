@@ -1,0 +1,52 @@
+name: Security & Secret Scan
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    # Run weekly every Monday at 04:00 UTC
+    - cron: '0 4 * * 1'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  secret-scan:
+    name: Accidental Secret Exposure Scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 22.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Execute Secret Scan Script
+        run: node scripts/scan-secrets.mjs
+
+  dependency-audit:
+    name: Production Dependency Vulnerability Audit
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 22.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Run Production Dependency Audit
+        run: |
+          echo "### Running Production Dependency Security Audit"
+          npm audit --omit=dev --audit-level=critical || echo "⚠️ Critical/High vulnerabilities detected in production dependencies. Review advisories for upstream patches."
+

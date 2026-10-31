@@ -49,6 +49,9 @@ export interface UseVoiceSessionReturn {
   messages: ChatMessageItem[];
   errorMessage: string;
   isLive: boolean;
+  isFallback: boolean;
+  fallbackReason: string;
+  voiceMode: 'idle' | 'livekit' | 'fallback';
   telemetry: VoiceSessionTelemetryData;
   start: () => Promise<void>;
   disconnect: () => void;
@@ -98,6 +101,10 @@ export class VoiceSessionClient {
     sessionDurationSeconds: 0,
     lastTurnLatencyMs: 0,
   };
+
+  private isFallback = false;
+  private voiceMode: 'idle' | 'livekit' | 'fallback' = 'idle';
+  private fallbackReason = '';
 
   private listeners: Set<() => void> = new Set();
   private sessionStartTime = 0;
@@ -151,6 +158,18 @@ export class VoiceSessionClient {
 
   getTelemetry(): VoiceSessionTelemetryData {
     return { ...this.telemetry };
+  }
+
+  isFallbackMode(): boolean {
+    return this.isFallback;
+  }
+
+  getVoiceMode(): 'idle' | 'livekit' | 'fallback' {
+    return this.voiceMode;
+  }
+
+  getFallbackReason(): string {
+    return this.fallbackReason;
   }
 
   subscribe(listener: () => void): () => void {
@@ -269,6 +288,9 @@ export class VoiceSessionClient {
     }
     this.cleanup();
     this.roomName = '';
+    this.isFallback = false;
+    this.voiceMode = 'idle';
+    this.fallbackReason = '';
     this.setState('idle');
   }
 
@@ -281,7 +303,7 @@ export class VoiceSessionClient {
       this.errorMessage = '';
       this.sessionStartTime = Date.now();
 
-      // 1. Microphone access
+      // 1. Microphone access with permission and device error categorization
       if (typeof navigator !== 'undefined' && navigator.mediaDevices) {
         try {
           const stream = await navigator.mediaDevices.getUserMedia({
@@ -290,7 +312,27 @@ export class VoiceSessionClient {
           this.micStream = stream;
           this.initAudioAnalyzer(stream);
         } catch (micErr: any) {
-          console.warn('[VoiceSessionClient] Mic access warning:', micErr?.message);
+          let errorMsg = 'Failed to access microphone';
+          if (
+            micErr.name === 'NotAllowedError' ||
+            micErr.name === 'PermissionDeniedError'
+          ) {
+            errorMsg =
+              'Microphone access denied. Please allow microphone permissions in your browser to speak with the AI Co-Founder.';
+          } else if (
+            micErr.name === 'NotFoundError' ||
+            micErr.name === 'DevicesNotFoundError'
+          ) {
+            errorMsg =
+              'No microphone detected. Please connect an audio input device to use voice mode.';
+          } else if (micErr.message) {
+            errorMsg = micErr.message;
+          }
+          this.errorMessage = errorMsg;
+          this.setState('error');
+          this.options.onError?.(new Error(errorMsg));
+          this.cleanup();
+          return;
         }
       }
 
@@ -313,36 +355,55 @@ export class VoiceSessionClient {
           room = data.roomName || room;
         }
       } catch (err: any) {
-        console.warn('[VoiceSessionClient] Session credentials warning:', err?.message);
+        console.warn(
+          '[VoiceSessionClient] Session credentials warning:',
+          err?.message
+        );
       }
 
       this.roomName = room;
 
       // 3. Connect LiveKit room
       if (token && url) {
-        const lkRoom = new Room({ adaptiveStream: true, dynacast: true });
+        try {
+          const lkRoom = new Room({ adaptiveStream: true, dynacast: true });
 
-        lkRoom.on(RoomEvent.TrackSubscribed, (track: Track) => {
-          if (track.kind === Track.Kind.Audio) {
-            const el = track.attach();
-            this.audioElements.push(el);
-            this.setState('speaking');
+          lkRoom.on(RoomEvent.TrackSubscribed, (track: Track) => {
+            if (track.kind === Track.Kind.Audio) {
+              const el = track.attach();
+              this.audioElements.push(el);
+              this.setState('speaking');
+            }
+          });
+
+          lkRoom.on(RoomEvent.Disconnected, () => {
+            this.disconnect();
+          });
+
+          await lkRoom.connect(url, token);
+          this.room = lkRoom;
+
+          if (this.micStream) {
+            const audioTrack = this.micStream.getAudioTracks()[0];
+            if (audioTrack) {
+              await lkRoom.localParticipant.publishTrack(audioTrack);
+            }
           }
-        });
 
-        lkRoom.on(RoomEvent.Disconnected, () => {
-          this.disconnect();
-        });
-
-        await lkRoom.connect(url, token);
-        this.room = lkRoom;
-
-        if (this.micStream) {
-          const audioTrack = this.micStream.getAudioTracks()[0];
-          if (audioTrack) {
-            await lkRoom.localParticipant.publishTrack(audioTrack);
-          }
+          this.isFallback = false;
+          this.voiceMode = 'livekit';
+          this.fallbackReason = '';
+        } catch (connErr: any) {
+          this.isFallback = true;
+          this.voiceMode = 'fallback';
+          this.fallbackReason =
+            connErr?.message || 'LiveKit Cloud connection failed';
         }
+      } else {
+        this.isFallback = true;
+        this.voiceMode = 'fallback';
+        this.fallbackReason =
+          'LiveKit credentials unavailable; running in Web Speech fallback mode';
       }
 
       this.setState('connected');
@@ -392,7 +453,11 @@ export class VoiceSessionClient {
 
         // Auto barge-in check
         const threshold = this.options.interruptionThreshold ?? 0.15;
-        if ((this.options.autoBargeIn ?? true) && this.isSpeaking && rms >= threshold) {
+        if (
+          (this.options.autoBargeIn ?? true) &&
+          this.isSpeaking &&
+          rms >= threshold
+        ) {
           this.bargeIn();
         }
 
@@ -442,7 +507,9 @@ export class VoiceSessionClient {
 
       const data = await resp.json();
       const replyText =
-        data?.reply || data?.message || 'I have processed your audio instruction.';
+        data?.reply ||
+        data?.message ||
+        'I have processed your audio instruction.';
 
       const latency = Date.now() - this.turnStartTime;
       this.telemetry.turnsCount++;
@@ -576,9 +643,15 @@ export function useVoiceSession(
   const start = useCallback(() => client.start(), [client]);
   const disconnect = useCallback(() => client.disconnect(), [client]);
   const toggleMute = useCallback(() => client.toggleMute(), [client]);
-  const sendMessage = useCallback((t: string) => client.sendMessage(t), [client]);
+  const sendMessage = useCallback(
+    (t: string) => client.sendMessage(t),
+    [client]
+  );
   const bargeIn = useCallback(() => client.bargeIn(), [client]);
-  const testVoice = useCallback((txt?: string) => client.testVoice(txt), [client]);
+  const testVoice = useCallback(
+    (txt?: string) => client.testVoice(txt),
+    [client]
+  );
 
   return {
     state: client.getState(),
@@ -593,6 +666,9 @@ export function useVoiceSession(
       client.getState() === 'connected' ||
       client.getState() === 'listening' ||
       client.getState() === 'speaking',
+    isFallback: client.isFallbackMode(),
+    fallbackReason: client.getFallbackReason(),
+    voiceMode: client.getVoiceMode(),
     telemetry: client.getTelemetry(),
     start,
     disconnect,

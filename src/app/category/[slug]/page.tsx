@@ -6,6 +6,7 @@ import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { getOptimizedImageUrl } from '@/lib/imageService';
 import { Breadcrumbs } from '@/components/seo/Breadcrumbs';
+import { filterPublicProducts } from '@/lib/content/content-isolation';
 
 interface CategoryPageProps {
   params: Promise<{
@@ -64,15 +65,13 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
     notFound();
   }
 
-  let { data: categoryProducts } = await supabase
+  const { data: rawProducts } = await supabase
     .from('products')
     .select('*, images:product_images(*), category:categories(*)')
     .eq('category_id', category.id)
     .neq('status', 'hidden');
 
-  if (!categoryProducts) {
-    categoryProducts = [];
-  }
+  const categoryProducts = filterPublicProducts(rawProducts || []);
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">

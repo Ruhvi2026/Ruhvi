@@ -7,6 +7,9 @@ import {
   getRelevantMemories,
   writeCoFounderMemory,
   correctCoFounderMemory,
+  deleteCoFounderMemory,
+  purgeUserMemories,
+  containsCustomerPii,
 } from './memory';
 
 // Re-export existing basic memory primitives for seamless backwards compatibility
@@ -14,6 +17,9 @@ export {
   getRelevantMemories,
   writeCoFounderMemory,
   correctCoFounderMemory,
+  deleteCoFounderMemory,
+  purgeUserMemories,
+  containsCustomerPii,
   type CoFounderMemoryItem,
   type MemoryCategory,
 };
@@ -108,6 +114,7 @@ export interface SemanticSearchOptions {
   includeSuperseded?: boolean;
   topicFilter?: string[];
   targetEmbedding?: number[];
+  userRole?: 'staff' | 'manager' | 'admin' | 'super_admin';
   weights?: {
     similarity?: number;
     recency?: number;
@@ -561,13 +568,25 @@ export async function storeMemoryWithContradictionCheck(
 ): Promise<StoreMemoryResult> {
   const supabase = getServiceClient();
 
-  if (!input.userId) {
+  if (
+    !input.userId ||
+    typeof input.userId !== 'string' ||
+    input.userId.trim() === ''
+  ) {
     return { success: false, error: 'User ID is required for memory storage' };
   }
   if (!input.key || !input.value) {
     return {
       success: false,
       error: 'Both key and value are required for memory storage',
+    };
+  }
+
+  if (containsCustomerPii(input.key) || containsCustomerPii(input.value)) {
+    return {
+      success: false,
+      error:
+        'Customer payment credentials or sensitive PII cannot be stored in Co-Founder memory (CUSTOMER_PII_PROHIBITED).',
     };
   }
 
@@ -731,6 +750,11 @@ export async function searchSemanticMemories(
   query: string,
   options?: SemanticSearchOptions
 ): Promise<ScoredMemory[]> {
+  // Tenant isolation guard: Fail-closed if userId is empty or missing
+  if (!userId || typeof userId !== 'string' || userId.trim() === '') {
+    return [];
+  }
+
   const supabase = getServiceClient();
 
   const limit = options?.limit ?? 8;
@@ -753,11 +777,9 @@ export async function searchSemanticMemories(
       .select(
         'id, user_id, category, key, value, confidence, source, is_active, superseded_by, metadata, created_at, updated_at'
       )
-      .eq('is_active', options?.includeSuperseded ? undefined : true);
+      .eq('is_active', options?.includeSuperseded ? undefined : true)
+      .eq('user_id', userId.trim());
 
-    if (userId) {
-      dbQuery = dbQuery.eq('user_id', userId);
-    }
     if (options?.category) {
       dbQuery = dbQuery.eq('category', options.category);
     }
@@ -792,6 +814,24 @@ export async function searchSemanticMemories(
           rowTopics.includes(t)
         );
         if (!hasTopicMatch) continue;
+      }
+
+      // Optional role-based permission boundary
+      if (options?.userRole) {
+        const roleLevels: Record<string, number> = {
+          staff: 1,
+          manager: 2,
+          admin: 3,
+          super_admin: 4,
+        };
+        const userLevel = roleLevels[options.userRole] ?? 1;
+        const reqRole = meta.requiredRole as string | undefined;
+        if (reqRole) {
+          const reqLevel = roleLevels[reqRole] ?? 1;
+          if (userLevel < reqLevel) {
+            continue; // Exclude memory if requester lacks sufficient role
+          }
+        }
       }
 
       // Retrieve or compute memory embedding
@@ -914,8 +954,22 @@ export function synthesizePrioritizedMemoryContext(
   sections.push(
     `[EXECUTIVE DIRECTIVE: TRUTH & PRIORITY ORDER]\n` +
       `Live Verified Store Data > Approved Operational Rules > Strategic Goals & Preferences > Historical Memory.\n` +
-      `Operational rules must never be violated without explicit founder authorization.`
+      `Operational rules must never be violated without explicit founder authorization.\n` +
+      `When no relevant memory or store data exists, explicitly state that no data is on record; NEVER fabricate, invent, or assume unverified business facts or customer details.`
   );
+
+  const formatFreshness = (m: ScoredMemory) => {
+    const recordedDate = m.createdAt ? m.createdAt.substring(0, 10) : 'recent';
+    const nowMs = Date.now();
+    const createdMs = new Date(m.createdAt || nowMs).getTime();
+    const ageDays = Math.max(
+      0,
+      Math.round((nowMs - createdMs) / (1000 * 60 * 60 * 24))
+    );
+    const staleMarker = ageDays > 90 ? ' [POTENTIALLY STALE: >90d]' : '';
+    const sourceTag = m.source ? ` [source: ${m.source}]` : '';
+    return { recordedDate, staleMarker, sourceTag };
+  };
 
   // Tier 1: Operational Rules
   if (operationalRules.length > 0) {
@@ -924,7 +978,8 @@ export function synthesizePrioritizedMemoryContext(
         operationalRules
           .map((m) => {
             const conf = Math.round(m.confidence * 100);
-            return `- [POLICY ${m.importance}/5 | ${conf}% conf] ${m.key}: ${m.value}`;
+            const { recordedDate, staleMarker, sourceTag } = formatFreshness(m);
+            return `- [POLICY ${m.importance}/5 | ${conf}% conf | recorded: ${recordedDate}${sourceTag}${staleMarker}] ${m.key}: ${m.value}`;
           })
           .join('\n')
     );
@@ -934,7 +989,12 @@ export function synthesizePrioritizedMemoryContext(
   if (strategicGoals.length > 0) {
     sections.push(
       `STRATEGIC GOALS & TARGETS:\n` +
-        strategicGoals.map((m) => `- [GOAL] ${m.key}: ${m.value}`).join('\n')
+        strategicGoals
+          .map((m) => {
+            const { recordedDate, staleMarker, sourceTag } = formatFreshness(m);
+            return `- [GOAL | recorded: ${recordedDate}${sourceTag}${staleMarker}] ${m.key}: ${m.value}`;
+          })
+          .join('\n')
     );
   }
 
@@ -942,7 +1002,12 @@ export function synthesizePrioritizedMemoryContext(
   if (preferences.length > 0) {
     sections.push(
       `FOUNDER PREFERENCES & BRAND TONE:\n` +
-        preferences.map((m) => `- [PREFERENCE] ${m.key}: ${m.value}`).join('\n')
+        preferences
+          .map((m) => {
+            const { recordedDate, staleMarker, sourceTag } = formatFreshness(m);
+            return `- [PREFERENCE | recorded: ${recordedDate}${sourceTag}${staleMarker}] ${m.key}: ${m.value}`;
+          })
+          .join('\n')
     );
   }
 
@@ -955,8 +1020,11 @@ export function synthesizePrioritizedMemoryContext(
             const tag =
               m.taxonomyLayer === 'outcome_learning'
                 ? 'VERIFIED OUTCOME'
-                : 'DECISION';
-            return `- [${tag}] ${m.key}: ${m.value}`;
+                : m.taxonomyLayer === 'correction'
+                  ? 'VERIFIED CORRECTION'
+                  : 'DECISION';
+            const { recordedDate, staleMarker, sourceTag } = formatFreshness(m);
+            return `- [${tag} | recorded: ${recordedDate}${sourceTag}${staleMarker}] ${m.key}: ${m.value}`;
           })
           .join('\n')
     );
@@ -966,7 +1034,12 @@ export function synthesizePrioritizedMemoryContext(
   if (generalContext.length > 0) {
     sections.push(
       `RELEVANT HISTORICAL CONTEXT:\n` +
-        generalContext.map((m) => `- [CONTEXT] ${m.key}: ${m.value}`).join('\n')
+        generalContext
+          .map((m) => {
+            const { recordedDate, staleMarker, sourceTag } = formatFreshness(m);
+            return `- [CONTEXT | recorded: ${recordedDate}${sourceTag}${staleMarker}] ${m.key}: ${m.value}`;
+          })
+          .join('\n')
     );
   }
 

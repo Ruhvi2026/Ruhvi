@@ -1,6 +1,7 @@
 import 'server-only';
 import { createPublicClient } from '@/lib/supabase/public';
 import { cacheWrap } from '@/lib/redis';
+import { filterPublicProducts } from '@/lib/content/content-isolation';
 
 export type CatalogStockFilter = 'all' | 'in_stock' | 'out_of_stock';
 export type CatalogSortBy = 'newest' | 'price-low' | 'price-high';
@@ -91,9 +92,14 @@ export async function queryCatalogPage(
       throw new Error(error.message);
     }
 
+    const filtered = filterPublicProducts((data as any[]) || []);
+
     return {
-      products: (data as any[]) || [],
-      count: count ?? 0,
+      products: filtered,
+      count:
+        count != null
+          ? Math.min(count, count - ((data?.length || 0) - filtered.length))
+          : filtered.length,
     };
   });
 }

@@ -278,6 +278,86 @@ describe('Stock-Out Risk Estimation Engine (Track G - Phase 36)', () => {
     });
   });
 
+  describe('Sparse Data, Edge Cases & Review-Only Guardrails', () => {
+    it('handles edge case when reserved stock equals or exceeds onHandStock', () => {
+      const demand = createMockDemandMetrics({ inStockDailySales: 1.5 });
+
+      const res = calculateStockoutRisk({
+        productId,
+        sku,
+        onHandStock: 5,
+        reservedStock: 7, // Exceeds on-hand!
+        supplierLeadTimeDays: 10,
+        demandMetrics: demand,
+        evaluatedAt,
+      });
+
+      expect(res.sellableStock).toBe(0);
+      expect(res.riskLevel).toBe('CRITICAL_STOCKOUT');
+      expect(res.estimatedRunoutDays).toBe(0);
+      expect(res.confidenceLimitations).toEqual(
+        expect.arrayContaining([
+          expect.stringContaining('all 5 on-hand unit(s) are reserved'),
+        ])
+      );
+    });
+
+    it('defaults safely to 10-day supplier lead time when omitted', () => {
+      // 8 sellable units, 1.0 daily demand = 8 days runout <= 10 days default lead time
+      const demand = createMockDemandMetrics({ inStockDailySales: 1.0 });
+
+      const res = calculateStockoutRisk({
+        productId,
+        sku,
+        onHandStock: 8,
+        demandMetrics: demand,
+        evaluatedAt,
+      });
+
+      expect(res.supplierLeadTimeDays).toBe(10);
+      expect(res.riskLevel).toBe('IMMINENT_RISK');
+      expect(res.assumptions.leadTimeDays).toBe(10);
+    });
+
+    it('clamps negative or invalid stock inputs safely to zero', () => {
+      const demand = createMockDemandMetrics();
+
+      const res = calculateStockoutRisk({
+        productId,
+        sku,
+        onHandStock: -5 as any,
+        reservedStock: -2 as any,
+        demandMetrics: demand,
+        evaluatedAt,
+      });
+
+      expect(res.onHandStock).toBe(0);
+      expect(res.reservedStock).toBe(0);
+      expect(res.sellableStock).toBe(0);
+      expect(res.riskLevel).toBe('CRITICAL_STOCKOUT');
+    });
+
+    it('strictly outputs review-only advisory notices without side effects', () => {
+      const demand = createMockDemandMetrics({ inStockDailySales: 2.0 });
+
+      const res = calculateStockoutRisk({
+        productId,
+        sku,
+        onHandStock: 12,
+        supplierLeadTimeDays: 7,
+        demandMetrics: demand,
+        evaluatedAt,
+      });
+
+      expect(res.assumptions.advisoryNotice).toContain(
+        'Review-only advisory estimate'
+      );
+      expect(res.assumptions.advisoryNotice).toContain(
+        'Zero automatic stock updates are performed'
+      );
+    });
+  });
+
   describe('Database Service Integration: getSkuStockoutRisk()', () => {
     it('queries authoritative product and demand metrics to estimate stockout risk', async () => {
       const mockSupabase = {

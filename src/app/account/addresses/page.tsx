@@ -19,6 +19,7 @@ import {
 import { Address } from '@/types/database';
 import { useAuth } from '@/context/AuthContext';
 import { createClient } from '@/lib/supabase/client';
+import { getAuthoritativeCustomerUuid } from '@/lib/intelligence/customer-identity-resolution';
 import toast from 'react-hot-toast';
 import {
   AddressTagSelector,
@@ -65,8 +66,8 @@ function TagBadge({ tag }: { tag?: string }) {
 }
 
 export default function AddressBookPage() {
-  const { user, profile } = useAuth();
-  const currentUserId = profile?.id || user?.id;
+  const { user, profile, loading: authLoading } = useAuth();
+  const currentUserId = getAuthoritativeCustomerUuid(user, profile);
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [saving, setSaving] = useState<boolean>(false);
@@ -75,13 +76,15 @@ export default function AddressBookPage() {
   const [deleteTarget, setDeleteTarget] = useState<Address | null>(null);
 
   const fetchAddresses = useCallback(async () => {
+    if (authLoading) return;
     if (!user) {
       setAddresses([]);
       setLoading(false);
       return;
     }
-    const targetUserId = profile?.id || user.id;
-    if (!profile?.id) {
+    const targetUserId = getAuthoritativeCustomerUuid(user, profile);
+    if (!targetUserId) {
+      setLoading(false);
       return;
     }
     setLoading(true);
@@ -105,7 +108,7 @@ export default function AddressBookPage() {
     } finally {
       setLoading(false);
     }
-  }, [user, profile?.id]);
+  }, [user, profile?.id, authLoading]);
 
   useEffect(() => {
     fetchAddresses();

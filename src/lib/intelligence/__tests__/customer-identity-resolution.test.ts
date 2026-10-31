@@ -7,6 +7,9 @@ import {
   evaluateLookupPermissions,
   maskCustomerProfilePii,
   applyDataErasurePolicy,
+  resolveCanonicalCustomerId,
+  isValidUuid,
+  getAuthoritativeCustomerUuid,
   type CustomerIdentityRecord,
   type IncomingIdentitySignal,
 } from '../customer-identity-resolution';
@@ -367,6 +370,193 @@ describe('Privacy-Safe Customer Identity Resolution (Track F - Phase 31)', () =>
 
       expect(result.status).toBe('NEW_PROFILE_REQUIRED');
       expect(result.matchedProfile).toBeUndefined();
+    });
+  });
+
+  describe('Canonical Customer ID Resolution Helper (Phase 36)', () => {
+    const validUuid = '123e4567-e89b-12d3-a456-426614174000';
+    const firebaseUid = 'W9zB8xK7qL2mN5pT1vR4yX6zC3';
+
+    it('resolves internal canonical UUID directly from users table', async () => {
+      const mockSupabase = {
+        from: jest.fn().mockImplementation((table: string) => {
+          if (table === 'users') {
+            return {
+              select: jest.fn().mockReturnValue({
+                eq: jest.fn().mockReturnValue({
+                  maybeSingle: jest
+                    .fn()
+                    .mockResolvedValue({ data: { id: validUuid } }),
+                }),
+              }),
+            };
+          }
+          return {};
+        }),
+      };
+
+      const result = await resolveCanonicalCustomerId(
+        validUuid,
+        mockSupabase as any
+      );
+      expect(result.resolvedId).toBe(validUuid);
+      expect(result.matchedBy).toBe('CANONICAL_UUID');
+      expect(result.identifierType).toBe('UUID');
+    });
+
+    it('resolves external Firebase UID to internal UUID via customer_identities table', async () => {
+      const mockSupabase = {
+        from: jest.fn().mockImplementation((table: string) => {
+          if (table === 'users') {
+            return {
+              select: jest.fn().mockReturnValue({
+                eq: jest.fn().mockReturnValue({
+                  maybeSingle: jest.fn().mockResolvedValue({ data: null }),
+                }),
+              }),
+            };
+          }
+          if (table === 'customer_identities') {
+            return {
+              select: jest.fn().mockReturnValue({
+                eq: jest.fn().mockReturnValue({
+                  maybeSingle: jest
+                    .fn()
+                    .mockResolvedValue({ data: { customer_id: validUuid } }),
+                }),
+              }),
+            };
+          }
+          return {};
+        }),
+      };
+
+      const result = await resolveCanonicalCustomerId(
+        firebaseUid,
+        mockSupabase as any
+      );
+      expect(result.resolvedId).toBe(validUuid);
+      expect(result.matchedBy).toBe('FIREBASE_UID_MAPPING');
+      expect(result.identifierType).toBe('FIREBASE_UID');
+    });
+
+    it('resolves via fallback users.firebase_uid column if customer_identities is not yet indexed', async () => {
+      const mockSupabase = {
+        from: jest.fn().mockImplementation((table: string) => {
+          if (table === 'customer_identities') {
+            return {
+              select: jest.fn().mockReturnValue({
+                eq: jest.fn().mockReturnValue({
+                  maybeSingle: jest.fn().mockResolvedValue({ data: null }),
+                }),
+              }),
+            };
+          }
+          if (table === 'users') {
+            return {
+              select: jest.fn().mockReturnValue({
+                eq: jest
+                  .fn()
+                  .mockImplementation((col: string, val: string) => ({
+                    maybeSingle: jest.fn().mockImplementation(async () => {
+                      if (col === 'firebase_uid' && val === firebaseUid) {
+                        return { data: { id: validUuid } };
+                      }
+                      return { data: null };
+                    }),
+                  })),
+              }),
+            };
+          }
+          return {};
+        }),
+      };
+
+      const result = await resolveCanonicalCustomerId(
+        firebaseUid,
+        mockSupabase as any
+      );
+      expect(result.resolvedId).toBe(validUuid);
+      expect(result.matchedBy).toBe('FIREBASE_UID_MAPPING');
+    });
+
+    it('returns unresolved state when identifier matches neither users nor customer_identities', async () => {
+      const mockSupabase = {
+        from: jest.fn().mockReturnValue({
+          select: jest.fn().mockReturnValue({
+            eq: jest.fn().mockReturnValue({
+              maybeSingle: jest.fn().mockResolvedValue({ data: null }),
+            }),
+          }),
+        }),
+      };
+
+      const result = await resolveCanonicalCustomerId(
+        'unknown_identifier',
+        mockSupabase as any
+      );
+      expect(result.resolvedId).toBeNull();
+      expect(result.matchedBy).toBe('UNRESOLVED');
+      expect(result.error).toContain('No customer profile mapped');
+    });
+
+    it('handles empty, null, or whitespace identifier safely without throwing', async () => {
+      const resultNull = await resolveCanonicalCustomerId(null);
+      expect(resultNull.resolvedId).toBeNull();
+      expect(resultNull.identifierType).toBe('INVALID_FORMAT');
+
+      const resultEmpty = await resolveCanonicalCustomerId('   ');
+      expect(resultEmpty.resolvedId).toBeNull();
+      expect(resultEmpty.identifierType).toBe('INVALID_FORMAT');
+    });
+  });
+
+  describe('Authoritative Customer UUID & Validation (Phase 52)', () => {
+    it('accurately validates standard RFC 4122 v1-v5 UUIDs and rejects Firebase UIDs or malformed IDs', () => {
+      // Valid UUIDs
+      expect(isValidUuid('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11')).toBe(true);
+      expect(isValidUuid('7b19dc62-1e9a-4c9f-8643-26a1b2496a84')).toBe(true);
+      expect(isValidUuid('   7b19dc62-1e9a-4c9f-8643-26a1b2496a84   ')).toBe(
+        true
+      );
+
+      // Firebase UIDs or invalid non-UUID identifiers
+      expect(isValidUuid('fb_uid_alice_123')).toBe(false);
+      expect(isValidUuid('auth0|1234567890')).toBe(false);
+      expect(isValidUuid('12345')).toBe(false);
+      expect(isValidUuid('')).toBe(false);
+      expect(isValidUuid(null)).toBe(false);
+      expect(isValidUuid(undefined)).toBe(false);
+      expect(isValidUuid('invalid-uuid-format-here-1234')).toBe(false);
+    });
+
+    it('extracts authoritative customer UUID when profile contains a valid UUID', () => {
+      const user = { id: 'fb_user_12345' };
+      const profile = { id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11' };
+
+      const resolved = getAuthoritativeCustomerUuid(user, profile);
+      expect(resolved).toBe('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11');
+    });
+
+    it('falls back to user.id if it is already a valid UUID (e.g. native Supabase session)', () => {
+      const user = { id: '7b19dc62-1e9a-4c9f-8643-26a1b2496a84' };
+      const profile = null;
+
+      const resolved = getAuthoritativeCustomerUuid(user, profile);
+      expect(resolved).toBe('7b19dc62-1e9a-4c9f-8643-26a1b2496a84');
+    });
+
+    it('returns null when neither profile nor user contains a valid UUID, preventing Postgres 22P02 crashes', () => {
+      const user = { id: 'fb_user_random_alpha_uid' };
+      const profile = { id: 'fb_user_random_alpha_uid' }; // fallback profile created with Firebase UID
+
+      const resolved = getAuthoritativeCustomerUuid(user, profile);
+      expect(resolved).toBeNull();
+    });
+
+    it('returns null safely when user and profile are null/undefined', () => {
+      expect(getAuthoritativeCustomerUuid(null, null)).toBeNull();
+      expect(getAuthoritativeCustomerUuid(undefined, undefined)).toBeNull();
     });
   });
 });

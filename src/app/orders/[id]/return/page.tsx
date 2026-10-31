@@ -25,6 +25,10 @@ import { Order, ReturnRequest } from '@/types/database';
 import { useAuth } from '@/context/AuthContext';
 import { createClient } from '@/lib/supabase/client';
 import toast from 'react-hot-toast';
+import {
+  getAuthoritativeCustomerUuid,
+  isValidUuid,
+} from '@/lib/intelligence/customer-identity-resolution';
 
 export default function OrderReturnPage({
   params,
@@ -35,7 +39,7 @@ export default function OrderReturnPage({
   const orderId = resolvedParams.id;
 
   const router = useRouter();
-  const { user, profile } = useAuth();
+  const { user, profile, loading: authLoading } = useAuth();
 
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
@@ -144,6 +148,12 @@ export default function OrderReturnPage({
     let isMounted = true;
 
     async function fetchOrder() {
+      // 1. Wait for auth context to finish hydrating
+      if (authLoading) {
+        return;
+      }
+
+      // 2. Guest user flow — load local orders from localStorage
       if (!user) {
         try {
           const saved = localStorage.getItem('ruhvi_orders_v1');
@@ -162,25 +172,99 @@ export default function OrderReturnPage({
         return;
       }
 
+      // 3. Authenticated user: resolve authoritative customer UUID
+      let targetUserId = getAuthoritativeCustomerUuid(user, profile);
+
+      if (!targetUserId) {
+        try {
+          const supabase = createClient();
+          const { data: rpcProfile } = await supabase
+            .rpc('get_user_profile', { p_user_id: user.id })
+            .maybeSingle();
+
+          if (rpcProfile?.id && isValidUuid(rpcProfile.id)) {
+            targetUserId = rpcProfile.id.trim();
+          }
+        } catch (rpcErr) {
+          console.warn(
+            'RPC profile resolution fallback error in return:',
+            rpcErr
+          );
+        }
+      }
+
+      const isPrivilegedStaff =
+        profile?.role === 'admin' ||
+        profile?.role === 'manager' ||
+        profile?.role === 'staff' ||
+        (profile?.role as string) === 'super_admin';
+
+      if (!isPrivilegedStaff && !targetUserId) {
+        console.warn(
+          '[Return] Could not resolve customer UUID. Access denied.'
+        );
+        if (isMounted) {
+          setOrder(null);
+          setLoading(false);
+        }
+        return;
+      }
+
       try {
         const supabase = createClient();
-        let { data, error } = await supabase
-          .from('orders')
-          .select('*, order_items(*, product(*))')
-          .eq('id', orderId)
-          .maybeSingle();
+        let data: any = null;
+        let error: any = null;
 
-        if (!data && !error) {
-          const byNumber = await supabase
+        // If orderId is a valid UUID, search by primary key id
+        if (isValidUuid(orderId)) {
+          let query = supabase
             .from('orders')
             .select('*, order_items(*, product(*))')
-            .eq('order_number', orderId)
-            .maybeSingle();
+            .eq('id', orderId);
+
+          if (!isPrivilegedStaff && targetUserId) {
+            query = query.eq('user_id', targetUserId);
+          }
+
+          const res = await query.maybeSingle();
+          data = res.data;
+          error = res.error;
+        }
+
+        // Fallback or human-readable order number search
+        if (!data && !error) {
+          let byNumberQuery = supabase
+            .from('orders')
+            .select('*, order_items(*, product(*))')
+            .eq('order_number', orderId);
+
+          if (!isPrivilegedStaff && targetUserId) {
+            byNumberQuery = byNumberQuery.eq('user_id', targetUserId);
+          }
+
+          const byNumber = await byNumberQuery.maybeSingle();
           data = byNumber.data;
           error = byNumber.error;
         }
 
         if (error) throw error;
+
+        // Strict authorization check: customer must never return another customer's order
+        if (
+          data &&
+          !isPrivilegedStaff &&
+          targetUserId &&
+          data.user_id !== targetUserId
+        ) {
+          console.warn(
+            '[Return] Authorization mismatch: order user_id does not match customer'
+          );
+          if (isMounted) {
+            setOrder(null);
+          }
+          return;
+        }
+
         if (isMounted && data) setOrder(data as Order);
       } catch (err) {
         console.error('Error fetching real order:', err);
@@ -194,7 +278,7 @@ export default function OrderReturnPage({
     return () => {
       isMounted = false;
     };
-  }, [orderId, user]);
+  }, [orderId, user, profile?.id, profile?.role, authLoading]);
 
   const handleSubmitReturn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -209,11 +293,20 @@ export default function OrderReturnPage({
     setErrorMessage('');
 
     if (user) {
+      const targetUserId = getAuthoritativeCustomerUuid(user, profile);
+      if (!targetUserId) {
+        setErrorMessage(
+          'Unable to verify customer identity. Please refresh and try again.'
+        );
+        setIsSubmitting(false);
+        return;
+      }
+
       try {
         const supabase = createClient();
         const { error } = await supabase.from('returns').insert({
           order_id: order?.id || orderId,
-          user_id: user.id,
+          user_id: targetUserId,
           reason,
           status: 'requested',
           item_condition: 'tag_intact',

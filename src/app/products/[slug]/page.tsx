@@ -6,6 +6,10 @@ import { ProductDetailPageClient } from './ProductDetailPageClient';
 import { createClient } from '@/lib/supabase/server';
 import { Breadcrumbs } from '@/components/seo/Breadcrumbs';
 import ProductSchema from '@/components/ProductSchema';
+import {
+  isTestProduct,
+  filterPublicProducts,
+} from '@/lib/content/content-isolation';
 
 interface PageProps {
   params: Promise<{
@@ -35,7 +39,11 @@ const getProductBySlugOrId = cache(async (key: string): Promise<any | null> => {
     }
   }
 
-  if (!product) {
+  if (
+    !product ||
+    product.status === 'hidden' ||
+    isTestProduct(product.slug, product.name)
+  ) {
     return null;
   }
 
@@ -140,6 +148,8 @@ export default async function ProductDetailPage({ params }: PageProps) {
       relatedProducts = anyDbProducts;
     }
   }
+
+  relatedProducts = filterPublicProducts(relatedProducts);
 
   return (
     <>

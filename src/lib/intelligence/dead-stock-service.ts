@@ -78,6 +78,7 @@ export interface StockAgingFinding {
     isSeasonal: boolean;
   };
   recommendedReviewActions: string[];
+  advisoryNotice: string;
   evaluatedAt: string;
 }
 
@@ -299,6 +300,8 @@ export function evaluateStockAgingAndMovement(
       isSeasonal,
     },
     recommendedReviewActions,
+    advisoryNotice:
+      'Review-only merchandising recommendation. Zero automated discounting, price edits, delisting, or stock mutations occur.',
     evaluatedAt,
   };
 }
@@ -316,7 +319,7 @@ export async function getSkuAgingAnalysis(
   const { data: product, error: prodErr } = await supabase
     .from('products')
     .select(
-      'id, sku, name, category_id, price, stock_quantity, created_at, categories(name)'
+      'id, sku, name, category_id, price, cost_price, stock_quantity, created_at, categories(name)'
     )
     .eq('id', productId)
     .maybeSingle();
@@ -369,6 +372,10 @@ export async function getSkuAgingAnalysis(
     productCreatedAt: product.created_at,
     onHandStock: Number(product.stock_quantity) || 0,
     price: Number(product.price) || 0,
+    costPrice:
+      product.cost_price !== null && product.cost_price !== undefined
+        ? Number(product.cost_price)
+        : undefined,
     lastSaleDate,
     demandMetrics,
   });

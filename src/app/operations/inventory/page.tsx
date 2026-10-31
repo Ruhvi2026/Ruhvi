@@ -80,6 +80,41 @@ export default function InventoryDashboardPage() {
   const [intelligenceData, setIntelligenceData] = useState<any | null>(null);
   const [loadingIntelligence, setLoadingIntelligence] =
     useState<boolean>(false);
+  const [showStockoutDetails, setShowStockoutDetails] =
+    useState<boolean>(false);
+  const [showDeadStockDetails, setShowDeadStockDetails] =
+    useState<boolean>(false);
+  const [showRestockDetails, setShowRestockDetails] = useState<boolean>(false);
+
+  const stockoutAlertMap = useMemo(() => {
+    const map = new Map<string, any>();
+    if (intelligenceData?.stockoutAlerts) {
+      for (const alert of intelligenceData.stockoutAlerts) {
+        if (alert.sku) map.set(alert.sku.toUpperCase(), alert);
+      }
+    }
+    return map;
+  }, [intelligenceData]);
+
+  const deadStockMap = useMemo(() => {
+    const map = new Map<string, any>();
+    if (intelligenceData?.deadStockFindings) {
+      for (const finding of intelligenceData.deadStockFindings) {
+        if (finding.sku) map.set(finding.sku.toUpperCase(), finding);
+      }
+    }
+    return map;
+  }, [intelligenceData]);
+
+  const restockDraftMap = useMemo(() => {
+    const map = new Map<string, any>();
+    if (intelligenceData?.restockDrafts) {
+      for (const draft of intelligenceData.restockDrafts) {
+        if (draft.sku) map.set(draft.sku.toUpperCase(), draft);
+      }
+    }
+    return map;
+  }, [intelligenceData]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -324,30 +359,64 @@ export default function InventoryDashboardPage() {
               </span>
             </div>
             <p className="text-[11px] italic text-slate-400">
-              Read-only predictive models. Zero automatic purchase orders or
-              stock writes.
+              Read-only predictive models. Demand derived strictly from
+              confirmed sales; warehouse scans excluded.
             </p>
           </div>
 
-          <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
-            {/* Stockout Risk Alerts */}
+          <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {/* Demand Velocity & Sales Signals (Phase 40) */}
+            <div className="rounded-lg border border-white/5 bg-[#12121a] p-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-semibold text-emerald-300">
+                  Demand Velocity (30d)
+                </span>
+                <span className="rounded bg-emerald-500/20 px-1.5 py-0.5 text-[10px] font-bold text-emerald-300">
+                  {intelligenceData.summary?.activeDemandSkusCount ?? 0} Active
+                  / {intelligenceData.summary?.zeroDemandSkusCount ?? 0} Zero
+                </span>
+              </div>
+              <p className="mt-1 text-[11px] text-slate-400">
+                {intelligenceData.demandSignals?.length > 0
+                  ? `Top: ${intelligenceData.demandSignals[0]?.productName || 'SKU'} (${intelligenceData.demandSignals[0]?.inStockDailySales ?? 0} units/day).`
+                  : 'Zero demand distinguished from out-of-stock items.'}
+              </p>
+            </div>
+
+            {/* Stockout Risk Alerts (Phase 41) */}
             <div className="rounded-lg border border-white/5 bg-[#12121a] p-3">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold text-rose-300">
                   Stockout Risk Alerts
                 </span>
                 <span className="rounded bg-rose-500/20 px-1.5 py-0.5 text-[10px] font-bold text-rose-300">
-                  {intelligenceData.summary?.stockoutAlertsCount ?? 0} Critical
+                  {intelligenceData.summary?.criticalStockoutsCount ??
+                    intelligenceData.summary?.stockoutAlertsCount ??
+                    0}{' '}
+                  Critical / {intelligenceData.summary?.imminentRisksCount ?? 0}{' '}
+                  Imminent
                 </span>
               </div>
               <p className="mt-1 text-[11px] text-slate-400">
                 {intelligenceData.stockoutAlerts?.length > 0
-                  ? `${intelligenceData.stockoutAlerts[0]?.productName || 'SKU'} has ~${Math.round(intelligenceData.stockoutAlerts[0]?.daysOfInventory || 0)}d run-out time.`
+                  ? `${intelligenceData.stockoutAlerts[0]?.productName || 'SKU'} has ~${Math.round(intelligenceData.stockoutAlerts[0]?.daysOfInventory || 0)}d run-out time (${intelligenceData.stockoutAlerts[0]?.riskLevel?.replace('_', ' ')}).`
                   : 'No high-risk stockout breaches detected.'}
               </p>
+              {intelligenceData.stockoutAlerts?.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setShowStockoutDetails((prev) => !prev)}
+                  className="mt-2 text-[10px] font-medium text-rose-400 underline hover:text-rose-300"
+                >
+                  {showStockoutDetails
+                    ? 'Hide Risk Breakdown'
+                    : `View ${intelligenceData.stockoutAlerts.length} Stock-Out Projections`}
+                </button>
+              )}
             </div>
 
             {/* Restock Draft Recommendations */}
+            {/* Restock Draft Recommendations (Phase 43) */}
             <div className="rounded-lg border border-white/5 bg-[#12121a] p-3">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold text-amber-300">
@@ -355,32 +424,378 @@ export default function InventoryDashboardPage() {
                 </span>
                 <span className="rounded bg-amber-500/20 px-1.5 py-0.5 text-[10px] font-bold text-amber-300">
                   {intelligenceData.summary?.restockDraftsCount ?? 0} Drafts
+                  {intelligenceData.summary?.criticalRestockCount ?? 0} Critical
+                  / {intelligenceData.summary?.highRestockCount ?? 0} High
                 </span>
               </div>
               <p className="mt-1 text-[11px] text-slate-400">
                 {intelligenceData.restockDrafts?.length > 0
-                  ? `Recommended: Reorder +${intelligenceData.restockDrafts[0]?.recommendedUnits} units of ${intelligenceData.restockDrafts[0]?.productName}.`
+                  ? `Recommended: Reorder +${
+                      intelligenceData.restockDrafts[0]?.suggestedQuantity ??
+                      intelligenceData.restockDrafts[0]?.recommendedUnits ??
+                      0
+                    } units of ${intelligenceData.restockDrafts[0]?.productName} (est. ₹${Number(
+                      intelligenceData.summary?.totalEstimatedProcurementCost ??
+                        intelligenceData.restockDrafts[0]
+                          ?.estimatedProcurementCost ??
+                        0
+                    ).toLocaleString('en-IN')}).`
                   : 'Stock levels aligned with sales velocity.'}
               </p>
+              {intelligenceData.restockDrafts?.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setShowRestockDetails((prev) => !prev)}
+                  className="mt-2 text-[10px] font-medium text-amber-400 underline hover:text-amber-300"
+                >
+                  {showRestockDetails
+                    ? 'Hide Restock Drafts'
+                    : `View ${intelligenceData.restockDrafts.length} Restock Drafts`}
+                </button>
+              )}
             </div>
 
-            {/* Dead Stock / Aging Signals */}
+            {/* Dead Stock / Aging Signals (Phase 42) */}
             <div className="rounded-lg border border-white/5 bg-[#12121a] p-3">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold text-purple-300">
-                  Dead Stock Signals
+                  Slow & Dead Stock
                 </span>
                 <span className="rounded bg-purple-500/20 px-1.5 py-0.5 text-[10px] font-bold text-purple-300">
-                  {intelligenceData.summary?.deadStockFindingsCount ?? 0} Items
+                  {intelligenceData.summary?.deadStockCount ??
+                    intelligenceData.summary?.deadStockFindingsCount ??
+                    0}{' '}
+                  Dead / {intelligenceData.summary?.slowMovingCount ?? 0} Slow
                 </span>
               </div>
               <p className="mt-1 text-[11px] text-slate-400">
                 {intelligenceData.deadStockFindings?.length > 0
-                  ? `${intelligenceData.deadStockFindings[0]?.productName} idle for ${intelligenceData.deadStockFindings[0]?.daysSinceLastSale ?? '>90'}d.`
+                  ? `Top: ${intelligenceData.deadStockFindings[0]?.productName} idle for ${
+                      intelligenceData.deadStockFindings[0]
+                        ?.daysSinceLastSale !== null &&
+                      intelligenceData.deadStockFindings[0]
+                        ?.daysSinceLastSale !== undefined
+                        ? `${intelligenceData.deadStockFindings[0]?.daysSinceLastSale}d`
+                        : 'never sold'
+                    } (₹${Number(
+                      intelligenceData.summary?.totalTiedCapital ??
+                        intelligenceData.deadStockFindings[0]?.capitalTiedUp ??
+                        0
+                    ).toLocaleString('en-IN')} tied).`
                   : 'Healthy stock turnaround across active catalog.'}
               </p>
+              {intelligenceData.deadStockFindings?.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setShowDeadStockDetails((prev) => !prev)}
+                  className="mt-2 text-[10px] font-medium text-purple-400 underline hover:text-purple-300"
+                >
+                  {showDeadStockDetails
+                    ? 'Hide Aging Breakdown'
+                    : `View ${intelligenceData.deadStockFindings.length} Slow & Dead SKUs`}
+                </button>
+              )}
             </div>
           </div>
+
+          {/* Expandable Stock-Out Risk Review Panel (Phase 41) */}
+          {showStockoutDetails &&
+            intelligenceData.stockoutAlerts?.length > 0 && (
+              <div className="mt-4 rounded-lg border border-rose-500/20 bg-[#101018] p-4">
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-rose-500/10 pb-2">
+                  <div className="flex items-center gap-2">
+                    <AlertCircle className="h-4 w-4 text-rose-400" />
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-white">
+                      Stock-Out Risk Projections & Lead-Time Analysis
+                      (Review-Only)
+                    </h3>
+                  </div>
+                  <span className="rounded bg-rose-500/10 px-2 py-0.5 text-[10px] text-rose-300">
+                    Zero automated stock updates — review only
+                  </span>
+                </div>
+                <div className="mt-3 overflow-x-auto">
+                  <table className="w-full text-left text-xs">
+                    <thead className="border-b border-white/5 text-[10px] uppercase text-slate-500">
+                      <tr>
+                        <th className="py-2 pr-3">Product / SKU</th>
+                        <th className="py-2 pr-3">Sellable / On-Hand</th>
+                        <th className="py-2 pr-3">Run-out Time</th>
+                        <th className="py-2 pr-3">Risk Tier</th>
+                        <th className="py-2 pr-3">Confidence & Limits</th>
+                        <th className="py-2">
+                          Projection Formula & Assumptions
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-white/5 text-slate-300">
+                      {intelligenceData.stockoutAlerts.map(
+                        (alert: any, idx: number) => (
+                          <tr key={idx} className="hover:bg-white/5">
+                            <td className="py-2 pr-3 font-medium text-white">
+                              {alert.productName}
+                              <span className="ml-1.5 font-mono text-[10px] text-slate-400">
+                                ({alert.sku})
+                              </span>
+                            </td>
+                            <td className="py-2 pr-3">
+                              <span className="font-semibold text-white">
+                                {alert.sellableStock ?? alert.onHandStock}
+                              </span>
+                              <span className="text-[10px] text-slate-500">
+                                {' '}
+                                (on-hand: {alert.onHandStock}
+                                {alert.reservedStock
+                                  ? `, reserved: ${alert.reservedStock}`
+                                  : ''}
+                                )
+                              </span>
+                            </td>
+                            <td className="py-2 pr-3 font-medium text-rose-300">
+                              ~{Math.round(alert.daysOfInventory || 0)} day(s)
+                              {alert.estimatedStockoutDate && (
+                                <p className="text-[10px] text-slate-500">
+                                  Est:{' '}
+                                  {new Date(
+                                    alert.estimatedStockoutDate
+                                  ).toLocaleDateString('en-IN')}
+                                </p>
+                              )}
+                            </td>
+                            <td className="py-2 pr-3">
+                              <span
+                                className={`rounded px-1.5 py-0.5 text-[9px] font-bold ${
+                                  alert.riskLevel === 'CRITICAL_STOCKOUT' ||
+                                  alert.riskLevel === 'CRITICAL'
+                                    ? 'bg-rose-500/20 text-rose-300'
+                                    : alert.riskLevel === 'IMMINENT_RISK' ||
+                                        alert.riskLevel === 'imminent'
+                                      ? 'bg-orange-500/20 text-orange-300'
+                                      : 'bg-amber-500/20 text-amber-300'
+                                }`}
+                              >
+                                {alert.riskLevel?.replace('_', ' ')}
+                              </span>
+                            </td>
+                            <td className="py-2 pr-3">
+                              <span className="text-[11px] font-semibold text-slate-200">
+                                {alert.confidence || 'MEDIUM'}
+                              </span>
+                              {alert.confidenceLimitations?.length > 0 && (
+                                <p className="text-[10px] text-slate-400">
+                                  {alert.confidenceLimitations[0]}
+                                </p>
+                              )}
+                            </td>
+                            <td className="py-2 font-mono text-[10px] text-slate-400">
+                              {alert.explanation ||
+                                'sellableStock / dailyDemand'}
+                            </td>
+                          </tr>
+                        )
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+          {/* Expandable Slow & Dead Stock Review Panel (Phase 42) */}
+          {showDeadStockDetails &&
+            intelligenceData.deadStockFindings?.length > 0 && (
+              <div className="mt-4 rounded-lg border border-purple-500/20 bg-[#101018] p-4">
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-purple-500/10 pb-2">
+                  <div className="flex items-center gap-2">
+                    <Clock className="h-4 w-4 text-purple-400" />
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-white">
+                      Slow & Dead Stock Findings (Merchandising Review-Only)
+                    </h3>
+                  </div>
+                  <span className="rounded bg-purple-500/10 px-2 py-0.5 text-[10px] text-purple-300">
+                    Zero auto-discounting, delisting, or stock writes
+                  </span>
+                </div>
+                <div className="mt-3 overflow-x-auto">
+                  <table className="w-full text-left text-xs">
+                    <thead className="border-b border-white/5 text-[10px] uppercase text-slate-500">
+                      <tr>
+                        <th className="py-2 pr-3">Product / SKU</th>
+                        <th className="py-2 pr-3">Classification</th>
+                        <th className="py-2 pr-3">Days Idle / Age</th>
+                        <th className="py-2 pr-3">On-Hand & Tied Capital</th>
+                        <th className="py-2 pr-3">Rule / Evidence</th>
+                        <th className="py-2">Recommended Review Action</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-white/5 text-slate-300">
+                      {intelligenceData.deadStockFindings.map(
+                        (finding: any, idx: number) => (
+                          <tr key={idx} className="hover:bg-white/5">
+                            <td className="py-2 pr-3 font-medium text-white">
+                              {finding.productName}
+                              <span className="ml-1.5 font-mono text-[10px] text-slate-400">
+                                ({finding.sku})
+                              </span>
+                            </td>
+                            <td className="py-2 pr-3">
+                              <span
+                                className={`rounded px-1.5 py-0.5 text-[9px] font-bold ${
+                                  finding.classification === 'DEAD_STOCK' ||
+                                  finding.agingCategory === 'dead_stock'
+                                    ? 'bg-rose-500/20 text-rose-300'
+                                    : finding.classification ===
+                                          'SLOW_MOVING' ||
+                                        finding.agingCategory === 'aging'
+                                      ? 'bg-amber-500/20 text-amber-300'
+                                      : 'bg-yellow-500/20 text-yellow-300'
+                                }`}
+                              >
+                                {(
+                                  finding.classification ||
+                                  finding.agingCategory
+                                )?.replace('_', ' ')}
+                              </span>
+                            </td>
+                            <td className="py-2 pr-3">
+                              {finding.daysSinceLastSale !== null &&
+                              finding.daysSinceLastSale !== undefined ? (
+                                <span>
+                                  {finding.daysSinceLastSale}d since sale
+                                </span>
+                              ) : (
+                                <span className="text-amber-400">
+                                  Never sold ({finding.daysSinceCatalogued ?? 0}
+                                  d old)
+                                </span>
+                              )}
+                            </td>
+                            <td className="py-2 pr-3">
+                              <span className="font-semibold text-white">
+                                ₹
+                                {Number(
+                                  finding.capitalTiedUp ||
+                                    finding.estimatedTiedCapital ||
+                                    0
+                                ).toLocaleString('en-IN')}
+                              </span>
+                            </td>
+                            <td className="py-2 pr-3 text-[10px] text-slate-400">
+                              {finding.rulesTriggered?.[0] ||
+                                (finding.neverSold
+                                  ? 'No sales since catalog launch'
+                                  : `${finding.daysSinceLastSale} days since last confirmed sale`)}
+                            </td>
+                            <td className="py-2 text-[10px] text-purple-300">
+                              {finding.recommendedReviewActions?.[0] ||
+                                finding.liquidationGuidance ||
+                                'Review promotional placement'}
+                            </td>
+                          </tr>
+                        )
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+          {/* Expandable Restock Draft Recommendations Review Panel (Phase 43) */}
+          {showRestockDetails && intelligenceData.restockDrafts?.length > 0 && (
+            <div className="mt-4 rounded-lg border border-amber-500/20 bg-[#101018] p-4">
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-amber-500/10 pb-2">
+                <div className="flex items-center gap-2">
+                  <Package className="h-4 w-4 text-amber-400" />
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-white">
+                    Draft Restock Recommendations (Review-Only Suggestions)
+                  </h3>
+                </div>
+                <span className="rounded bg-amber-500/10 px-2 py-0.5 text-[10px] text-amber-300">
+                  Draft suggestions only — zero automated purchase orders or
+                  stock writes
+                </span>
+              </div>
+              <div className="mt-3 overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead className="border-b border-white/5 text-[10px] uppercase text-slate-500">
+                    <tr>
+                      <th className="py-2 pr-3">Product / SKU</th>
+                      <th className="py-2 pr-3">Sellable / ROP</th>
+                      <th className="py-2 pr-3">Suggested Restock</th>
+                      <th className="py-2 pr-3">Urgency</th>
+                      <th className="py-2 pr-3">Lead Time & Target</th>
+                      <th className="py-2 pr-3">Rationale & Formula</th>
+                      <th className="py-2">Caveats & Constraints</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-white/5 text-slate-300">
+                    {intelligenceData.restockDrafts.map(
+                      (draft: any, idx: number) => (
+                        <tr key={idx} className="hover:bg-white/5">
+                          <td className="py-2 pr-3 font-medium text-white">
+                            {draft.productName}
+                            <span className="ml-1.5 font-mono text-[10px] text-slate-400">
+                              ({draft.sku})
+                            </span>
+                          </td>
+                          <td className="py-2 pr-3">
+                            <span className="font-semibold text-white">
+                              {draft.sellableStock}
+                            </span>
+                            <span className="text-[10px] text-slate-500">
+                              {' '}
+                              (ROP: {draft.reorderPoint || '—'})
+                            </span>
+                          </td>
+                          <td className="py-2 pr-3 font-semibold text-amber-300">
+                            +
+                            {draft.suggestedQuantity ??
+                              draft.recommendedUnits ??
+                              0}{' '}
+                            units
+                            {draft.estimatedProcurementCost > 0 && (
+                              <p className="text-[10px] font-normal text-slate-400">
+                                ~₹
+                                {Number(
+                                  draft.estimatedProcurementCost
+                                ).toLocaleString('en-IN')}
+                              </p>
+                            )}
+                          </td>
+                          <td className="py-2 pr-3">
+                            <span
+                              className={`rounded px-1.5 py-0.5 text-[9px] font-bold uppercase ${
+                                draft.urgency === 'critical'
+                                  ? 'bg-rose-500/20 text-rose-300'
+                                  : draft.urgency === 'high'
+                                    ? 'bg-orange-500/20 text-orange-300'
+                                    : 'bg-amber-500/20 text-amber-300'
+                              }`}
+                            >
+                              {draft.urgency}
+                            </span>
+                          </td>
+                          <td className="py-2 pr-3 text-[10px] text-slate-400">
+                            Lead: {draft.supplierLeadTimeDays ?? 10}d | Target:{' '}
+                            {draft.targetStockLevel ?? '—'}
+                          </td>
+                          <td className="py-2 pr-3 text-[10px] text-slate-300">
+                            {draft.rationale || draft.explanation}
+                          </td>
+                          <td className="py-2 text-[10px] text-slate-400">
+                            {draft.caveats?.length > 0
+                              ? draft.caveats[0]
+                              : draft.moqApplied
+                                ? 'Supplier MOQ applied'
+                                : 'No supplier constraints violated'}
+                          </td>
+                        </tr>
+                      )
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -520,6 +935,70 @@ export default function InventoryDashboardPage() {
                             <span className="font-medium text-white">
                               {v.stock_quantity}
                             </span>
+                            {stockoutAlertMap.get(v.sku.toUpperCase()) && (
+                              <span
+                                title={
+                                  stockoutAlertMap.get(v.sku.toUpperCase())
+                                    .explanation
+                                }
+                                className={`rounded px-1.5 py-0.5 text-[9px] font-bold ${
+                                  stockoutAlertMap.get(v.sku.toUpperCase())
+                                    .riskLevel === 'CRITICAL_STOCKOUT' ||
+                                  stockoutAlertMap.get(v.sku.toUpperCase())
+                                    .riskLevel === 'CRITICAL'
+                                    ? 'bg-rose-500/20 text-rose-300'
+                                    : 'bg-amber-500/20 text-amber-300'
+                                }`}
+                              >
+                                ~
+                                {Math.round(
+                                  stockoutAlertMap.get(v.sku.toUpperCase())
+                                    .daysOfInventory || 0
+                                )}
+                                d
+                              </span>
+                            )}
+                            {deadStockMap.get(v.sku.toUpperCase()) && (
+                              <span
+                                title={
+                                  deadStockMap.get(v.sku.toUpperCase())
+                                    .rulesTriggered?.[0] ||
+                                  'Slow-moving inventory'
+                                }
+                                className={`rounded px-1.5 py-0.5 text-[9px] font-bold ${
+                                  deadStockMap.get(v.sku.toUpperCase())
+                                    .classification === 'DEAD_STOCK' ||
+                                  deadStockMap.get(v.sku.toUpperCase())
+                                    .agingCategory === 'dead_stock'
+                                    ? 'bg-purple-500/20 text-purple-300'
+                                    : 'bg-yellow-500/20 text-yellow-300'
+                                }`}
+                              >
+                                {deadStockMap.get(v.sku.toUpperCase())
+                                  .classification === 'DEAD_STOCK' ||
+                                deadStockMap.get(v.sku.toUpperCase())
+                                  .agingCategory === 'dead_stock'
+                                  ? 'Dead'
+                                  : 'Slow'}
+                              </span>
+                            )}
+                            {restockDraftMap.get(v.sku.toUpperCase()) && (
+                              <span
+                                title={
+                                  restockDraftMap.get(v.sku.toUpperCase())
+                                    .rationale ||
+                                  'Restock recommendation available'
+                                }
+                                className="rounded bg-indigo-500/20 px-1.5 py-0.5 text-[9px] font-bold text-indigo-300"
+                              >
+                                +
+                                {restockDraftMap.get(v.sku.toUpperCase())
+                                  .suggestedQuantity ??
+                                  restockDraftMap.get(v.sku.toUpperCase())
+                                    .recommendedUnits ??
+                                  0}
+                              </span>
+                            )}
                           </div>
                         </td>
                         <td className="px-4 py-3">

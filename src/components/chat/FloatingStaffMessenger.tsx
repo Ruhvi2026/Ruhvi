@@ -890,11 +890,14 @@ export default function FloatingStaffMessenger() {
         title="Open RuhChat"
       >
         <div className="relative flex items-center">
-          <img
-            src="/ruhchat-icon.png"
-            alt="RuhChat"
-            className="h-6 w-6 rounded-lg object-cover shadow-sm"
-          />
+          <picture>
+            <source srcSet="/ruhchat-icon.webp" type="image/webp" />
+            <img
+              src="/ruhchat-icon.png"
+              alt="RuhChat"
+              className="h-6 w-6 rounded-lg object-cover shadow-sm"
+            />
+          </picture>
           {unreadTotal > 0 && (
             <span className="absolute -right-1.5 -top-1.5 flex h-4 w-4 animate-pulse items-center justify-center rounded-full bg-rose-500 text-[10px] font-bold text-white shadow-md">
               {unreadTotal > 9 ? '9+' : unreadTotal}
@@ -929,11 +932,14 @@ export default function FloatingStaffMessenger() {
         className="group fixed bottom-5 right-5 z-50 flex h-12 w-12 transform cursor-pointer items-center justify-center rounded-2xl border border-emerald-400/30 bg-gradient-to-tr from-emerald-800 via-teal-800 to-emerald-700 p-1.5 text-white shadow-2xl transition-all hover:scale-110 hover:from-emerald-700 hover:to-teal-600"
         title="RuhChat - Staff Messenger (Click to open)"
       >
-        <img
-          src="/ruhchat-icon.png"
-          alt="RuhChat"
-          className="h-full w-full rounded-xl object-cover shadow-inner"
-        />
+        <picture className="h-full w-full">
+          <source srcSet="/ruhchat-icon.webp" type="image/webp" />
+          <img
+            src="/ruhchat-icon.png"
+            alt="RuhChat"
+            className="h-full w-full rounded-xl object-cover shadow-inner"
+          />
+        </picture>
         {unreadTotal > 0 && (
           <span className="absolute -right-1.5 -top-1.5 flex h-5 w-5 animate-pulse items-center justify-center rounded-full border border-white/20 bg-rose-500 text-[11px] font-bold text-white shadow-md">
             {unreadTotal > 9 ? '9+' : unreadTotal}
@@ -961,11 +967,14 @@ export default function FloatingStaffMessenger() {
               <ArrowLeft className="h-4 w-4" />
             </button>
           ) : (
-            <img
-              src="/ruhchat-icon.png"
-              alt="RuhChat"
-              className="h-6 w-6 rounded-lg object-cover shadow"
-            />
+            <picture>
+              <source srcSet="/ruhchat-icon.webp" type="image/webp" />
+              <img
+                src="/ruhchat-icon.png"
+                alt="RuhChat"
+                className="h-6 w-6 rounded-lg object-cover shadow"
+              />
+            </picture>
           )}
 
           <div className="min-w-0">

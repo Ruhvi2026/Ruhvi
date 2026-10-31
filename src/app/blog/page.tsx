@@ -4,6 +4,7 @@ import Image from 'next/image';
 import type { Metadata } from 'next';
 import { BookOpen, ArrowRight, Calendar } from 'lucide-react';
 import { createClient } from '@/lib/supabase/server';
+import { filterPublicBlogPosts } from '@/lib/content/content-isolation';
 
 // Uses cookies() via createClient(), so it must render on demand, not at build time.
 export const dynamic = 'force-dynamic';
@@ -59,7 +60,7 @@ export default async function BlogIndexPage() {
       .limit(9);
 
     if (data && data.length > 0) {
-      posts = (data as BlogPostRow[]).map((p) => ({
+      const rawPosts = (data as BlogPostRow[]).map((p) => ({
         ...p,
         excerpt: p.excerpt || '',
         cover_image: p.cover_image || '',
@@ -67,6 +68,7 @@ export default async function BlogIndexPage() {
         published_at: p.published_at || new Date().toISOString(),
         category: 'Journal',
       }));
+      posts = filterPublicBlogPosts(rawPosts);
     }
   } catch (err) {
     console.error('Failed to load blog posts:', err);

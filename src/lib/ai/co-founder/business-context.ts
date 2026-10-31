@@ -154,7 +154,7 @@ export async function getHolisticBusinessContext(
     // Memories
     options.userId
       ? getRelevantMemories(options.userId, undefined, 8)
-      : getRelevantMemories('', undefined, 5),
+      : Promise.resolve([]),
   ]);
 
   // Process Users

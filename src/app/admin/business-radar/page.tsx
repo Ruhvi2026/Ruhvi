@@ -532,6 +532,82 @@ export default function BusinessRadarPage() {
       {/* ─── State: Populated Dashboard ──────────────────────────────────── */}
       {!loading && !error && data && (
         <div className="space-y-10">
+          {/* 0. VERIFIED ACTIVE ANOMALY SIGNALS (PHASE 24) */}
+          <section aria-labelledby="heading-anomalies">
+            <div className="mb-4 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Radar className="h-5 w-5 text-amber-400" />
+                <h2
+                  id="heading-anomalies"
+                  className="text-lg font-semibold tracking-tight text-white"
+                >
+                  Active Operational Signals & Anomalies
+                </h2>
+              </div>
+              <span className="text-xs text-slate-400">
+                Sourced from verified PostgreSQL business_anomalies ledger
+              </span>
+            </div>
+
+            {data.activeAnomalies && data.activeAnomalies.length > 0 ? (
+              <div className="space-y-3">
+                {data.activeAnomalies.map((anom) => (
+                  <div
+                    key={anom.id}
+                    className="flex flex-col justify-between gap-4 rounded-xl border border-rose-500/20 bg-rose-950/10 p-4 transition-colors hover:border-rose-500/30 sm:flex-row sm:items-center"
+                  >
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span
+                          className={`rounded px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
+                            anom.severity === 'critical'
+                              ? 'bg-rose-500/20 text-rose-300'
+                              : 'bg-amber-500/20 text-amber-300'
+                          }`}
+                        >
+                          {anom.severity}
+                        </span>
+                        <h3 className="text-sm font-semibold text-white">
+                          {anom.title}
+                        </h3>
+                      </div>
+                      <p className="text-xs text-slate-300">
+                        Metric:{' '}
+                        <span className="font-mono text-amber-300">
+                          {anom.metric}
+                        </span>{' '}
+                        • Observed:{' '}
+                        <span className="font-semibold text-white">
+                          {anom.latestValue}
+                        </span>{' '}
+                        (Threshold: {anom.thresholdValue}) • Detected:{' '}
+                        {formatIsoTime(anom.firstDetectedAt)} IST
+                      </p>
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                      <Link
+                        href="/admin/action-center"
+                        className="inline-flex items-center gap-1 text-xs font-semibold text-amber-400 hover:text-amber-300"
+                      >
+                        Action Center <ArrowRight className="h-3.5 w-3.5" />
+                      </Link>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="flex items-center gap-3 rounded-xl border border-emerald-500/20 bg-emerald-950/10 p-4 text-xs text-emerald-300">
+                <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-400" />
+                <span>
+                  All operational signals within established thresholds. Zero
+                  open business anomalies recorded in current observation
+                  window.
+                </span>
+              </div>
+            )}
+          </section>
+
           {/* 1. FINANCIAL TELEMETRY SECTION */}
           <section aria-labelledby="heading-financial">
             <div className="mb-4 flex items-center justify-between">

@@ -1,4 +1,5 @@
-export type UserRole = 'customer' | 'staff' | 'manager' | 'admin';
+export type UserRole =
+  'customer' | 'staff' | 'manager' | 'admin' | 'super_admin' | 'SUPER_ADMIN';
 export type ProductStatus = 'active' | 'hidden' | 'out_of_stock';
 export type ImageType = 'model' | 'still' | 'zoom' | '360';
 export type OrderStatus =
@@ -26,10 +27,16 @@ export type ReturnStatus = 'requested' | 'approved' | 'rejected' | 'completed';
 
 export interface User {
   id: string;
+  firebase_uid?: string | null;
   full_name?: string | null;
   email?: string | null;
   phone?: string | null;
   role: UserRole;
+  status?: string;
+  email_verified?: boolean;
+  phone_verified?: boolean;
+  department?: string | null;
+  totp_enabled?: boolean;
   wallet_balance: number;
   reward_coins: number;
   referral_code?: string | null;
@@ -458,6 +465,94 @@ export interface OrderCallRemark {
   call_status: OrderCallStatus;
   remark_text: string;
   rescheduled_date?: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export type OrderEventType =
+  | 'ORDER_CREATED'
+  | 'PAYMENT_CONFIRMED'
+  | 'ORDER_CONFIRMED'
+  | 'PACKING_STARTED'
+  | 'PACKED'
+  | 'LABEL_CREATED'
+  | 'MANIFEST_CREATED'
+  | 'SHIPPED'
+  | 'OUT_FOR_DELIVERY'
+  | 'DELIVERED'
+  | 'RETURN_REQUESTED'
+  | 'RETURN_APPROVED'
+  | 'RETURN_PICKED'
+  | 'REFUND_INITIATED'
+  | 'RTO_INITIATED'
+  | 'RTO_RECEIVED'
+  | 'CANCELLED';
+
+export interface OrderEvent {
+  id: string;
+  order_id: string;
+  event_type: OrderEventType;
+  performed_by?: string | null;
+  portal: string;
+  metadata: Record<string, any>;
+  created_at: string;
+}
+
+export interface BusinessAnomalyRow {
+  id: string;
+  fingerprint: string;
+  rule_id: string;
+  metric: string;
+  dimension: string;
+  state: 'open' | 'acknowledged' | 'resolved' | 'expired';
+  severity: 'warning' | 'critical';
+  title: string;
+  first_detected_at: string;
+  last_observed_at: string;
+  resolved_at?: string | null;
+  resolution_reason?: string | null;
+  resolved_by?: string | null;
+  acknowledged_at?: string | null;
+  acknowledged_by?: string | null;
+  occurrence_count: number;
+  reopen_count: number;
+  latest_value: number;
+  threshold_value: number;
+  cooldown_until: string;
+  should_notify: boolean;
+  history: any[];
+  recommendation: Record<string, any>;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface SelfAuditFindingRow {
+  id: string;
+  fingerprint: string;
+  check_id: string;
+  category:
+    | 'architecture'
+    | 'integration'
+    | 'configuration'
+    | 'security'
+    | 'performance'
+    | 'ai_health';
+  severity: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW' | 'INFO';
+  status: 'ACTIVE' | 'ACKNOWLEDGED' | 'RESOLVED' | 'EXPIRED';
+  title: string;
+  message: string;
+  evidence_source: string;
+  remediation_hint?: string | null;
+  sanitized_observed_value: Record<string, any>;
+  occurrence_count: number;
+  reopen_count: number;
+  first_seen_at: string;
+  last_seen_at: string;
+  resolved_at?: string | null;
+  resolution_reason?: string | null;
+  acknowledged_at?: string | null;
+  acknowledged_by?: string | null;
+  history: any[];
   created_at: string;
   updated_at: string;
 }

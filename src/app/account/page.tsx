@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { createClient } from '@/lib/supabase/client';
+import { getAuthoritativeCustomerUuid } from '@/lib/intelligence/customer-identity-resolution';
 import { SpatialPage } from '@/components/design-system/SpatialPage';
 import {
   User,
@@ -111,11 +112,16 @@ export default function AccountOverviewPage() {
   const handleCheckVerification = async () => {
     try {
       setCheckingVerification(true);
+      const targetUserId = getAuthoritativeCustomerUuid(user, profile);
+      if (!targetUserId) {
+        toast.error('Customer session not verified.');
+        return;
+      }
       const supabase = createClient();
       const { data: profileRow } = await supabase
         .from('users')
         .select('email_verified')
-        .eq('id', user?.id)
+        .eq('id', targetUserId)
         .maybeSingle();
       if (profileRow?.email_verified) {
         localStorage.removeItem('emailVerificationSent');
@@ -267,6 +273,12 @@ export default function AccountOverviewPage() {
     e.preventDefault();
     if (!user) return;
 
+    const targetUserId = getAuthoritativeCustomerUuid(user, profile);
+    if (!targetUserId) {
+      setProfileErrorMsg('Unable to verify customer identity. Please refresh.');
+      return;
+    }
+
     setSavingProfile(true);
     setProfileSuccessMsg(null);
     setProfileErrorMsg(null);
@@ -281,7 +293,7 @@ export default function AccountOverviewPage() {
           .from('users')
           .select('id')
           .eq('phone', trimmedPhone)
-          .neq('id', user.id)
+          .neq('id', targetUserId)
           .limit(1);
 
         if (!checkErr && existingUsers && existingUsers.length > 0) {
@@ -291,7 +303,7 @@ export default function AccountOverviewPage() {
         }
       }
 
-      // 1. Update public.users table
+      // 1. Update public.users table using authoritative UUID
       const { error: dbError } = await supabase
         .from('users')
         .update({
@@ -299,7 +311,7 @@ export default function AccountOverviewPage() {
           phone: trimmedPhone || null,
           updated_at: new Date().toISOString(),
         })
-        .eq('id', user.id);
+        .eq('id', targetUserId);
 
       if (dbError) throw dbError;
 
@@ -359,13 +371,14 @@ export default function AccountOverviewPage() {
   const handleDeleteAccount = async () => {
     setDeletingAccount(true);
     try {
+      const targetUserId = getAuthoritativeCustomerUuid(user, profile);
       const supabase = createClient();
       const { error } = await supabase.rpc('delete_user_account');
-      if (error) {
+      if (error && targetUserId) {
         const { error: profileErr } = await supabase
           .from('users')
           .delete()
-          .eq('id', user?.id);
+          .eq('id', targetUserId);
         if (profileErr) throw profileErr;
       }
       setShowDeleteModal(false);

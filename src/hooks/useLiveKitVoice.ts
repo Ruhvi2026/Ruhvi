@@ -67,6 +67,11 @@ export function useLiveKitVoice(options: UseLiveKitVoiceOptions = {}) {
     SpeechSynthesisVoice[]
   >([]);
   const [hasBengaliVoice, setHasBengaliVoice] = useState<boolean>(false);
+  const [isFallback, setIsFallback] = useState<boolean>(false);
+  const [voiceMode, setVoiceMode] = useState<'idle' | 'livekit' | 'fallback'>(
+    'idle'
+  );
+  const [fallbackReason, setFallbackReason] = useState<string>('');
 
   const selectedProviderRef = useRef<string | undefined>(options.provider);
   const selectedModelRef = useRef<string | undefined>(options.model);
@@ -137,11 +142,13 @@ export function useLiveKitVoice(options: UseLiveKitVoiceOptions = {}) {
   >([]);
 
   // Cleanup audio elements helper
-  const cleanupAudio = () => {
+  const cleanupAudio = useCallback(() => {
     audioElementsRef.current.forEach((el) => {
-      el.pause();
-      el.srcObject = null;
-      el.remove();
+      try {
+        el.pause();
+        el.srcObject = null;
+        el.remove();
+      } catch {}
     });
     audioElementsRef.current = [];
 
@@ -170,12 +177,14 @@ export function useLiveKitVoice(options: UseLiveKitVoiceOptions = {}) {
     }
 
     if (typeof window !== 'undefined' && window.speechSynthesis) {
-      window.speechSynthesis.cancel();
+      try {
+        window.speechSynthesis.cancel();
+      } catch {}
     }
 
     setAudioLevel(0);
     setInterimTranscript('');
-  };
+  }, []);
 
   /**
    * Disconnect from current voice session
@@ -190,7 +199,10 @@ export function useLiveKitVoice(options: UseLiveKitVoiceOptions = {}) {
     cleanupAudio();
     setState('idle');
     setRoomName('');
-  }, []);
+    setIsFallback(false);
+    setVoiceMode('idle');
+    setFallbackReason('');
+  }, [cleanupAudio]);
 
   /**
    * Speak a response aloud using high-quality browser Web Speech Synthesis
@@ -532,15 +544,48 @@ export function useLiveKitVoice(options: UseLiveKitVoiceOptions = {}) {
       setErrorMessage('');
       setInterimTranscript('');
 
-      // 1. Acquire microphone stream directly
-      const micStream = await navigator.mediaDevices.getUserMedia({
-        audio: {
-          echoCancellation: true,
-          noiseSuppression: true,
-          autoGainControl: true,
-        },
-      });
-      micStreamRef.current = micStream;
+      // 1. Acquire microphone stream directly with permission error categorization
+      let micStream: MediaStream;
+      try {
+        if (
+          typeof navigator === 'undefined' ||
+          !navigator.mediaDevices?.getUserMedia
+        ) {
+          throw new Error(
+            'MediaDevices API not supported in this browser environment'
+          );
+        }
+        micStream = await navigator.mediaDevices.getUserMedia({
+          audio: {
+            echoCancellation: true,
+            noiseSuppression: true,
+            autoGainControl: true,
+          },
+        });
+        micStreamRef.current = micStream;
+      } catch (micErr: any) {
+        let errorMsg = 'Failed to access microphone';
+        if (
+          micErr.name === 'NotAllowedError' ||
+          micErr.name === 'PermissionDeniedError'
+        ) {
+          errorMsg =
+            'Microphone access denied. Please allow microphone permissions in your browser to speak with the AI Co-Founder.';
+        } else if (
+          micErr.name === 'NotFoundError' ||
+          micErr.name === 'DevicesNotFoundError'
+        ) {
+          errorMsg =
+            'No microphone detected. Please connect an audio input device to use voice mode.';
+        } else if (micErr.message) {
+          errorMsg = micErr.message;
+        }
+        setErrorMessage(errorMsg);
+        setState('error');
+        options.onError?.(new Error(errorMsg));
+        cleanupAudio();
+        return;
+      }
 
       // Start audio level visualizer loop
       startAudioAnalyser(micStream);
@@ -548,83 +593,118 @@ export function useLiveKitVoice(options: UseLiveKitVoiceOptions = {}) {
       // Start continuous speech recognition
       startSpeechRecognition();
 
-      // 2. Fetch token from secure Next.js API
-      const res = await fetch('/api/admin/co-founder/token', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-      });
+      // 2. Fetch LiveKit token from secure Next.js API
+      let connectedToLiveKit = false;
+      let failureReason = '';
 
-      if (!res.ok) {
-        const errData = await res.json().catch(() => ({}));
-        throw new Error(
-          errData.error || `Failed to authenticate voice session: ${res.status}`
-        );
-      }
+      try {
+        const res = await fetch('/api/admin/co-founder/token', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+        });
 
-      const { token, url, roomName: serverRoom } = await res.json();
-      setRoomName(serverRoom);
-
-      // 3. Initialize LiveKit Room client (for WebRTC relay/collab)
-      const room = new Room({
-        adaptiveStream: true,
-        dynacast: true,
-      });
-
-      roomRef.current = room;
-
-      room.on(RoomEvent.Connected, () => {
-        setState('listening');
-      });
-
-      room.on(RoomEvent.Disconnected, () => {
-        disconnect();
-      });
-
-      // Handle incoming remote audio tracks if agent is running
-      room.on(
-        RoomEvent.TrackSubscribed,
-        (
-          track: Track,
-          publication: RemoteTrackPublication,
-          participant: RemoteParticipant
-        ) => {
-          if (track.kind === Track.Kind.Audio) {
-            const el = track.attach();
-            audioElementsRef.current.push(el);
-            setState('speaking');
-          }
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          throw new Error(
+            errData.error ||
+              `Voice session authentication failed: ${res.status}`
+          );
         }
-      );
 
-      // Connect to LiveKit SFU
-      await room.connect(url, token);
-      await room.localParticipant.setMicrophoneEnabled(true);
+        const { token, url, roomName: serverRoom } = await res.json();
+        setRoomName(serverRoom);
+
+        // 3. Initialize LiveKit Room client (for WebRTC relay/collab)
+        const room = new Room({
+          adaptiveStream: true,
+          dynacast: true,
+        });
+
+        roomRef.current = room;
+
+        room.on(RoomEvent.Connected, () => {
+          setState('listening');
+        });
+
+        room.on(RoomEvent.Disconnected, () => {
+          disconnect();
+        });
+
+        // Handle incoming remote audio tracks if agent is running
+        room.on(
+          RoomEvent.TrackSubscribed,
+          (
+            track: Track,
+            publication: RemoteTrackPublication,
+            participant: RemoteParticipant
+          ) => {
+            if (track.kind === Track.Kind.Audio) {
+              const el = track.attach();
+              audioElementsRef.current.push(el);
+              setState('speaking');
+            }
+          }
+        );
+
+        // Connect to LiveKit SFU
+        await room.connect(url, token);
+        await room.localParticipant.setMicrophoneEnabled(true);
+
+        connectedToLiveKit = true;
+        setIsFallback(false);
+        setVoiceMode('livekit');
+        setFallbackReason('');
+
+        // Dispatch agent in background if cloud worker present
+        fetch('/api/admin/co-founder/agent/dispatch', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ roomName: serverRoom }),
+        }).catch(() => {});
+      } catch (liveKitErr: any) {
+        failureReason =
+          liveKitErr?.message || 'LiveKit Cloud connection unavailable';
+        console.warn(
+          'LiveKit Cloud connection unavailable, falling back to Web Speech API:',
+          liveKitErr
+        );
+        connectedToLiveKit = false;
+        setIsFallback(true);
+        setVoiceMode('fallback');
+        setFallbackReason(failureReason);
+        setRoomName('local-fallback-session');
+      }
 
       setIsMuted(false);
       setState('listening');
 
-      // Dispatch agent in background if cloud worker present
-      fetch('/api/admin/co-founder/agent/dispatch', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ roomName: serverRoom }),
-      }).catch(() => {});
-
       // Welcome voice greeting on initial connect
       setTimeout(() => {
-        speakResponse(
-          'Hello Founder! I am listening. How can I help you today?'
-        );
+        if (connectedToLiveKit) {
+          speakResponse(
+            'Hello Founder! LiveKit Realtime Voice is active. How can I help you today?'
+          );
+        } else {
+          speakResponse(
+            'Hello Founder! Web Speech fallback is active. How can I help you today?'
+          );
+        }
       }, 600);
     } catch (err: any) {
-      console.error('LiveKit Voice Error:', err);
+      console.error('Voice Session Error:', err);
       const msg = err.message || 'Failed to connect to voice session';
       setErrorMessage(msg);
       setState('error');
       options.onError?.(err);
       cleanupAudio();
     }
-  }, [disconnect, options, speakResponse, startSpeechRecognition]);
+  }, [
+    cleanupAudio,
+    disconnect,
+    options,
+    speakResponse,
+    startSpeechRecognition,
+  ]);
 
   /**
    * Toggle local microphone mute
@@ -659,6 +739,9 @@ export function useLiveKitVoice(options: UseLiveKitVoiceOptions = {}) {
     interimTranscript,
     availableVoices,
     hasBengaliVoice,
+    isFallback,
+    voiceMode,
+    fallbackReason,
     startSession,
     disconnect,
     toggleMute,

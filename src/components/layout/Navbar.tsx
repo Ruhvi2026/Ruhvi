@@ -103,8 +103,11 @@ export function Navbar() {
           <div className="nav-left">
             <button
               onClick={() => setMobileMenuOpen(true)}
-              className="icon-btn burger-btn lg:hidden"
-              aria-label="Menu"
+              className="icon-btn burger-btn focus:outline-none focus-visible:ring-2 focus-visible:ring-gold-500 lg:hidden"
+              aria-label="Open categories menu"
+              aria-expanded={mobileMenuOpen}
+              aria-controls="mobile-navigation-drawer"
+              aria-haspopup="dialog"
             >
               <div className="burger">
                 <span></span>
@@ -115,8 +118,11 @@ export function Navbar() {
             <div className="hidden items-center space-x-1 lg:flex">
               <button
                 onClick={() => setMobileMenuOpen(true)}
-                className="icon-btn burger-btn"
-                aria-label="Menu"
+                className="icon-btn burger-btn focus:outline-none focus-visible:ring-2 focus-visible:ring-gold-500"
+                aria-label="Open categories menu"
+                aria-expanded={mobileMenuOpen}
+                aria-controls="mobile-navigation-drawer"
+                aria-haspopup="dialog"
               >
                 <div className="burger">
                   <span></span>
@@ -174,8 +180,9 @@ export function Navbar() {
             {user && (
               <Link
                 href="/account/wallet"
-                className="text-ink group flex items-center gap-1.5 rounded-full border border-gold-200/60 bg-gradient-to-r from-gold-50/60 to-transparent px-2 py-1 shadow-sm transition-all duration-300 hover:border-gold-300/80 hover:shadow-[0_2px_12px_-3px_rgba(214,179,106,0.25)] sm:gap-2 sm:px-4 sm:py-1.5"
+                className="text-ink group flex items-center gap-1.5 rounded-full border border-gold-200/60 bg-gradient-to-r from-gold-50/60 to-transparent px-2 py-1 shadow-sm transition-all duration-300 hover:border-gold-300/80 hover:shadow-[0_2px_12px_-3px_rgba(214,179,106,0.25)] focus:outline-none focus-visible:ring-2 focus-visible:ring-gold-500 focus-visible:ring-offset-1 sm:gap-2 sm:px-4 sm:py-1.5"
                 title="Wallet Balance"
+                aria-label={`Wallet balance: ₹${(profile?.wallet_balance ?? 0).toLocaleString('en-IN')}`}
               >
                 <Wallet
                   className="h-4 w-4 text-gold-600 transition-transform duration-300 group-hover:scale-110"
@@ -234,7 +241,7 @@ export function Navbar() {
               {user ? (
                 <Link
                   href="/account"
-                  className="group flex min-h-[36px] min-w-[36px] items-center justify-center focus:outline-none"
+                  className="group flex min-h-[36px] min-w-[36px] items-center justify-center rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-gold-500 focus-visible:ring-offset-2"
                   title="My Profile"
                   aria-label="My Profile"
                 >
@@ -245,7 +252,7 @@ export function Navbar() {
               ) : (
                 <Link
                   href="/login"
-                  className="text-ink-soft inline-flex min-h-[36px] min-w-[36px] items-center justify-center rounded-full p-2 transition-colors duration-300 hover:text-gold-600"
+                  className="text-ink-soft inline-flex min-h-[36px] min-w-[36px] items-center justify-center rounded-full p-2 transition-colors duration-300 hover:text-gold-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-gold-500 focus-visible:ring-offset-2"
                   title="Login"
                   aria-label="Login"
                 >
@@ -291,6 +298,7 @@ export function Navbar() {
           onClick={() => setMobileMenuOpen(false)}
         />
         <aside
+          id="mobile-navigation-drawer"
           role="dialog"
           aria-modal="true"
           aria-label="Categories"
@@ -304,7 +312,7 @@ export function Navbar() {
             </span>
             <button
               onClick={() => setMobileMenuOpen(false)}
-              className="rounded-full p-1.5 text-slate-700 transition hover:bg-gold-100/60 hover:text-gold-700"
+              className="rounded-full p-1.5 text-slate-700 transition hover:bg-gold-100/60 hover:text-gold-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-gold-500"
               aria-label="Close menu"
             >
               <X className="h-5 w-5" />

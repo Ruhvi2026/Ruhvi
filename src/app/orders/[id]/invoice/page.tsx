@@ -12,6 +12,14 @@ import {
 import { Order } from '@/types/database';
 import { useAuth } from '@/context/AuthContext';
 import { createClient } from '@/lib/supabase/client';
+import {
+  getAuthoritativeCustomerUuid,
+  isValidUuid,
+} from '@/lib/intelligence/customer-identity-resolution';
+import {
+  CANONICAL_BUSINESS_IDENTITY,
+  getCanonicalBusinessAddress,
+} from '@/lib/seo/business-identity';
 
 export default function InvoicePage({
   params,
@@ -21,7 +29,7 @@ export default function InvoicePage({
   const resolvedParams = use(params);
   const orderId = resolvedParams.id;
 
-  const { user } = useAuth();
+  const { user, profile, loading: authLoading } = useAuth();
 
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
@@ -32,6 +40,12 @@ export default function InvoicePage({
     let isMounted = true;
 
     async function fetchInvoice() {
+      // 1. Wait for auth context to finish hydrating
+      if (authLoading) {
+        return;
+      }
+
+      // 2. Guest user flow — load local orders from localStorage
       if (!user) {
         let match: Order | null = null;
         try {
@@ -51,28 +65,102 @@ export default function InvoicePage({
         return;
       }
 
+      // 3. Authenticated user: resolve authoritative customer UUID
+      let targetUserId = getAuthoritativeCustomerUuid(user, profile);
+
+      if (!targetUserId) {
+        try {
+          const supabase = createClient();
+          const { data: rpcProfile } = await supabase
+            .rpc('get_user_profile', { p_user_id: user.id })
+            .maybeSingle();
+
+          if (rpcProfile?.id && isValidUuid(rpcProfile.id)) {
+            targetUserId = rpcProfile.id.trim();
+          }
+        } catch (rpcErr) {
+          console.warn(
+            'RPC profile resolution fallback error in invoice:',
+            rpcErr
+          );
+        }
+      }
+
+      const isPrivilegedStaff =
+        profile?.role === 'admin' ||
+        profile?.role === 'manager' ||
+        profile?.role === 'staff' ||
+        (profile?.role as string) === 'super_admin';
+
+      if (!isPrivilegedStaff && !targetUserId) {
+        console.warn(
+          '[Invoice] Could not resolve customer UUID. Access denied.'
+        );
+        if (isMounted) {
+          setOrder(null);
+          setLoading(false);
+        }
+        return;
+      }
+
       try {
         const supabase = createClient();
-        let { data, error } = await supabase
-          .from('orders')
-          .select('*, order_items(*, product(*))')
-          .eq('id', orderId)
-          .maybeSingle();
+        let data: any = null;
+        let error: any = null;
 
-        if (!data && !error) {
-          const byNumber = await supabase
+        // If orderId is a valid UUID, search by primary key id
+        if (isValidUuid(orderId)) {
+          let query = supabase
             .from('orders')
             .select('*, order_items(*, product(*))')
-            .eq('order_number', orderId)
-            .maybeSingle();
+            .eq('id', orderId);
+
+          if (!isPrivilegedStaff && targetUserId) {
+            query = query.eq('user_id', targetUserId);
+          }
+
+          const res = await query.maybeSingle();
+          data = res.data;
+          error = res.error;
+        }
+
+        // Fallback or human-readable order number search
+        if (!data && !error) {
+          let byNumberQuery = supabase
+            .from('orders')
+            .select('*, order_items(*, product(*))')
+            .eq('order_number', orderId);
+
+          if (!isPrivilegedStaff && targetUserId) {
+            byNumberQuery = byNumberQuery.eq('user_id', targetUserId);
+          }
+
+          const byNumber = await byNumberQuery.maybeSingle();
           data = byNumber.data;
           error = byNumber.error;
         }
 
         if (error) throw error;
+
+        // Strict authorization check: customer must never see another customer's invoice
+        if (
+          data &&
+          !isPrivilegedStaff &&
+          targetUserId &&
+          data.user_id !== targetUserId
+        ) {
+          console.warn(
+            '[Invoice] Authorization mismatch: invoice user_id does not match customer'
+          );
+          if (isMounted) {
+            setOrder(null);
+          }
+          return;
+        }
+
         if (isMounted && data) setOrder(data as Order);
       } catch (err) {
-        console.error('Error fetching real order:', err);
+        console.error('Error fetching real order for invoice:', err);
       } finally {
         if (isMounted) setLoading(false);
       }
@@ -83,7 +171,7 @@ export default function InvoicePage({
     return () => {
       isMounted = false;
     };
-  }, [orderId, user]);
+  }, [orderId, user, profile?.id, profile?.role, authLoading]);
 
   const handlePrint = () => {
     window.print();
@@ -149,19 +237,22 @@ export default function InvoicePage({
         <div className="mb-6 flex items-start justify-between border-b-2 border-amber-950 pb-6">
           <div>
             <span className="block font-serif text-3xl font-bold uppercase tracking-widest text-amber-950">
-              RUHVI JEWELS
+              {CANONICAL_BUSINESS_IDENTITY.legalEntityName}
             </span>
             <span className="mt-0.5 block font-sans text-xs font-semibold uppercase tracking-widest text-stone-500">
-              Sole Proprietorship
+              {CANONICAL_BUSINESS_IDENTITY.businessType}
             </span>
             <div className="mt-2 space-y-0.5 text-xs text-stone-600">
-              <p>Plot 12, Road No. 36, Jubilee Hills</p>
-              <p>Hyderabad, Telangana - 500033</p>
+              <p>{getCanonicalBusinessAddress().formatted}</p>
               <p className="font-mono text-xs font-bold text-stone-800">
                 GSTIN: {gstin || 'Pending Registration'}
               </p>
               <p className="text-xs">
-                Email: support@ruhvi.in | Web: www.ruhvi.in
+                Email: {CANONICAL_BUSINESS_IDENTITY.supportEmail} | Web:{' '}
+                {CANONICAL_BUSINESS_IDENTITY.canonicalUrl.replace(
+                  'https://',
+                  'www.'
+                )}
               </p>
             </div>
           </div>

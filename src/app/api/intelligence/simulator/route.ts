@@ -5,10 +5,12 @@ import {
   modelTieredPricingElasticity,
   modelPromotionalCampaignStructure,
   modelExpeditedDeliveryPromise,
+  modelFreeShippingThresholdEconomics,
   SIMULATION_SANDBOX_DISCLAIMER,
   type CounterfactualDecisionType,
   type CounterfactualEvaluationResult,
 } from '@/lib/intelligence/counterfactual-models';
+import { simulatePromotionalCampaignWithSnapshot } from '@/lib/intelligence/simulator-snapshot-service';
 
 export const dynamic = 'force-dynamic';
 
@@ -41,6 +43,7 @@ export function parseNumeric(
 export interface SimulatorExecutionRequest {
   decisionType: CounterfactualDecisionType;
   parameters: Record<string, any>;
+  useVerifiedSnapshot?: boolean;
 }
 
 export interface SimulatorExecutionResponse {
@@ -174,13 +177,27 @@ export async function POST(req: NextRequest) {
           150
         );
 
-        result = modelPromotionalCampaignStructure({
-          baselineMonthlyOrders,
-          baselineAov,
-          baselineGrossMarginPercent,
-          discountPercent,
-          expectedConversionLiftPercent,
-        });
+        const shouldQuerySnapshot = Boolean(
+          parameters.useVerifiedSnapshot || body.useVerifiedSnapshot
+        );
+
+        if (shouldQuerySnapshot) {
+          result = await simulatePromotionalCampaignWithSnapshot({
+            discountPercent,
+            expectedConversionLiftPercent,
+            baselineGrossMarginPercent,
+            callerRole: auth.role,
+            allowFallback: parameters.allowFallback ?? false,
+          });
+        } else {
+          result = modelPromotionalCampaignStructure({
+            baselineMonthlyOrders,
+            baselineAov,
+            baselineGrossMarginPercent,
+            discountPercent,
+            expectedConversionLiftPercent,
+          });
+        }
         break;
       }
 
@@ -213,6 +230,66 @@ export async function POST(req: NextRequest) {
           baselineCheckoutConversionRate,
           expressCourierSurchargePerShipment,
           averageOrderGrossProfit,
+        });
+        break;
+      }
+
+      case 'free_shipping_threshold_economics': {
+        const baselineMonthlyOrders = parseNumeric(
+          parameters.baselineMonthlyOrders,
+          350,
+          1
+        );
+        const baselineAov = parseNumeric(parameters.baselineAov, 38500, 500);
+        const baselineGrossMarginPercent = parseNumeric(
+          parameters.baselineGrossMarginPercent,
+          38,
+          5,
+          85
+        );
+        const currentThreshold = parseNumeric(
+          parameters.currentThreshold,
+          2500,
+          0,
+          100000
+        );
+        const proposedThreshold = parseNumeric(
+          parameters.proposedThreshold,
+          5000,
+          0,
+          100000
+        );
+        const averageFulfillmentShippingCost = parseNumeric(
+          parameters.averageFulfillmentShippingCost,
+          150,
+          0,
+          2000
+        );
+        const standardShippingFeeCharged = parseNumeric(
+          parameters.standardShippingFeeCharged,
+          100,
+          0,
+          2000
+        );
+        const cartExpansionLiftPercent =
+          parameters.cartExpansionLiftPercent !== undefined
+            ? parseNumeric(parameters.cartExpansionLiftPercent, 0, 0, 50)
+            : undefined;
+        const conversionDropPercent =
+          parameters.conversionDropPercent !== undefined
+            ? parseNumeric(parameters.conversionDropPercent, 0, 0, 50)
+            : undefined;
+
+        result = modelFreeShippingThresholdEconomics({
+          baselineMonthlyOrders,
+          baselineAov,
+          baselineGrossMarginPercent,
+          currentThreshold,
+          proposedThreshold,
+          averageFulfillmentShippingCost,
+          standardShippingFeeCharged,
+          cartExpansionLiftPercent,
+          conversionDropPercent,
         });
         break;
       }

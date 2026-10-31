@@ -26,6 +26,7 @@ import {
 } from 'lucide-react';
 import { SpatialPage } from '@/components/design-system/SpatialPage';
 import { useAuth } from '@/context/AuthContext';
+import { getAuthoritativeCustomerUuid } from '@/lib/intelligence/customer-identity-resolution';
 import toast from 'react-hot-toast';
 
 const T = {
@@ -430,15 +431,16 @@ export default function SettingsPage() {
   const handleDeleteAccount = async () => {
     try {
       setDeletingAccount(true);
+      const targetUserId = getAuthoritativeCustomerUuid(user, profile);
       const { createClient } = await import('@/lib/supabase/client');
       const supabase = createClient();
       const { error } = await supabase.rpc('delete_user_account');
-      if (error) {
+      if (error && targetUserId) {
         // Fallback: delete users row
         const { error: profileErr } = await supabase
           .from('users')
           .delete()
-          .eq('id', user?.id);
+          .eq('id', targetUserId);
         if (profileErr) throw profileErr;
       }
       await signOut();

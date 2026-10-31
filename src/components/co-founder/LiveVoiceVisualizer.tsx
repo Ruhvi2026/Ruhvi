@@ -40,6 +40,8 @@ interface LiveVoiceVisualizerProps {
   messages?: ChatMessageItem[];
   onSendMessage?: (text: string) => void;
   isLoading?: boolean;
+  isFallback?: boolean;
+  fallbackReason?: string;
 }
 
 export function LiveVoiceVisualizer({
@@ -57,6 +59,8 @@ export function LiveVoiceVisualizer({
   messages = [],
   onSendMessage,
   isLoading = false,
+  isFallback = false,
+  fallbackReason,
 }: LiveVoiceVisualizerProps) {
   const isLive =
     state === 'connected' || state === 'listening' || state === 'speaking';
@@ -115,7 +119,14 @@ export function LiveVoiceVisualizer({
         <span className="font-bold text-nm-light-textPrimary dark:text-white">
           AI Co-Founder • Real-Time Voice Workspace
         </span>
-        {roomName ? (
+        {isFallback ? (
+          <span
+            data-testid="voice-fallback-header-badge"
+            className="border-l border-amber-300 pl-2 font-mono text-[10px] font-bold text-amber-600 dark:border-amber-700 dark:text-amber-400"
+          >
+            [Fallback Mode: Browser Speech]
+          </span>
+        ) : roomName ? (
           <span className="border-l border-neutral-300 pl-2 font-mono text-[11px] text-nm-light-textSecondary dark:border-neutral-800 dark:text-neutral-400">
             {roomName.split('-').slice(0, 3).join('-')}
           </span>
@@ -160,26 +171,60 @@ export function LiveVoiceVisualizer({
           <Layers className="h-3 w-3 text-cyan-600 dark:text-cyan-400" />
           <span>6 Orbiting Workers</span>
         </span>
-        <span className="flex items-center gap-1 rounded-xl border border-neutral-300/80 bg-nm-light-bg px-2.5 py-1 font-bold text-emerald-700 shadow-nm-flat dark:border-neutral-800 dark:bg-nm-dark-bg dark:text-emerald-300 dark:shadow-nm-flat-dark">
-          <Activity className="h-3 w-3 text-emerald-600 dark:text-emerald-400" />
-          <span>WebRTC Voice Active</span>
-        </span>
+        {isFallback ? (
+          <span
+            data-testid="voice-mode-badge"
+            className="flex items-center gap-1 rounded-xl border border-amber-400/80 bg-amber-500/10 px-2.5 py-1 font-bold text-amber-700 shadow-nm-flat dark:border-amber-600/80 dark:bg-amber-950/40 dark:text-amber-300 dark:shadow-nm-flat-dark"
+            title={
+              fallbackReason ||
+              'Web Speech fallback mode active (LiveKit Cloud not connected)'
+            }
+          >
+            <Activity className="h-3 w-3 animate-pulse text-amber-500" />
+            <span>Web Speech Fallback (LiveKit Disconnected)</span>
+          </span>
+        ) : (
+          <span
+            data-testid="voice-mode-badge"
+            className="flex items-center gap-1 rounded-xl border border-neutral-300/80 bg-nm-light-bg px-2.5 py-1 font-bold text-emerald-700 shadow-nm-flat dark:border-neutral-800 dark:bg-nm-dark-bg dark:text-emerald-300 dark:shadow-nm-flat-dark"
+          >
+            <Activity className="h-3 w-3 text-emerald-600 dark:text-emerald-400" />
+            <span>WebRTC Voice Active</span>
+          </span>
+        )}
       </div>
 
       {/* Connection State Description */}
-      <div className="relative z-10 my-1 min-h-[30px] text-center">
-        <p className="font-mono text-xs font-bold uppercase tracking-wider text-violet-700 dark:text-amber-400">
-          {state === 'idle' && 'AI Co-Founder Ready'}
-          {state === 'connecting' && 'Connecting Voice Session...'}
-          {state === 'connected' && 'Connected • Ready for Voice'}
-          {state === 'listening' &&
-            (audioLevel > 0.08
-              ? 'Receiving Voice Input...'
-              : 'Listening to Founder...')}
-          {state === 'speaking' && 'Co-Founder Speaking...'}
-          {state === 'reconnecting' && 'Reconnecting live stream...'}
-          {state === 'error' && 'Voice Connection Error'}
-        </p>
+      <div className="relative z-10 my-1 min-h-[30px] px-4 text-center">
+        {errorMessage && state === 'error' ? (
+          <p
+            data-testid="voice-error-message"
+            className="rounded-lg border border-rose-500/30 bg-rose-500/10 px-3 py-1.5 font-mono text-xs font-semibold text-rose-600 dark:text-rose-400"
+          >
+            {errorMessage}
+          </p>
+        ) : (
+          <p className="font-mono text-xs font-bold uppercase tracking-wider text-violet-700 dark:text-amber-400">
+            {state === 'idle' && 'AI Co-Founder Ready'}
+            {state === 'connecting' && 'Connecting Voice Session...'}
+            {state === 'connected' &&
+              (isFallback
+                ? 'Connected (Web Speech Fallback)'
+                : 'Connected • Ready for Voice')}
+            {state === 'listening' &&
+              (audioLevel > 0.08
+                ? 'Receiving Voice Input...'
+                : isFallback
+                  ? 'Listening (Fallback Mode)...'
+                  : 'Listening to Founder...')}
+            {state === 'speaking' &&
+              (isFallback
+                ? 'Co-Founder Speaking (Browser Voice)...'
+                : 'Co-Founder Speaking...')}
+            {state === 'reconnecting' && 'Reconnecting live stream...'}
+            {state === 'error' && 'Voice Connection Error'}
+          </p>
+        )}
       </div>
 
       {/* Dynamic Frequency Wave Spectrum */}

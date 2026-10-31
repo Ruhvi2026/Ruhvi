@@ -6,6 +6,7 @@ import type { Metadata } from 'next';
 import { ArrowLeft, Sparkles, Filter } from 'lucide-react';
 import { createClient } from '@/lib/supabase/server';
 import { getOptimizedImageUrl } from '@/lib/imageService';
+import { filterPublicProducts } from '@/lib/content/content-isolation';
 
 const getCollectionBySlug = cache(async (type: string) => {
   const supabase = await createClient();
@@ -17,7 +18,7 @@ const getCollectionBySlug = cache(async (type: string) => {
 
   if (data) return data;
 
-  // Graceful virtual fallback collections for high-traffic homepage banners
+  // Graceful virtual fallback collections for high-traffic homepage banners and gift guides
   if (type === 'new-arrivals') {
     return {
       id: 'virtual_new_arrivals',
@@ -46,6 +47,38 @@ const getCollectionBySlug = cache(async (type: string) => {
       image_url: '/images/categories/bridal.jpg',
       isVirtual: true,
       virtualType: 'limited',
+    };
+  }
+  if (type === 'for-her') {
+    return {
+      id: 'virtual_for_her',
+      title: 'Gifts For Her',
+      subtitle: 'Timeless pieces designed to make her feel extraordinary.',
+      image_url: '/images/categories/necklaces.jpg',
+      isVirtual: true,
+      virtualType: 'for_her',
+    };
+  }
+  if (type === 'under-15000') {
+    return {
+      id: 'virtual_under_15000',
+      title: 'Gifts Under ₹15,000',
+      subtitle:
+        'Beautiful 22K Gold jewellery that fits perfectly within budget.',
+      image_url: '/images/categories/pendants.jpg',
+      isVirtual: true,
+      virtualType: 'under_15000',
+    };
+  }
+  if (type === 'anniversary') {
+    return {
+      id: 'virtual_anniversary',
+      title: 'Anniversary Specials',
+      subtitle:
+        'Celebrate your beautiful journey with the timeless elegance of gold and diamonds.',
+      image_url: '/images/categories/rings.jpg',
+      isVirtual: true,
+      virtualType: 'anniversary',
     };
   }
 
@@ -111,6 +144,12 @@ export default async function CollectionPage({
         query = query
           .order('is_best_seller', { ascending: false })
           .order('created_at', { ascending: false });
+      } else if (dbCollection.virtualType === 'under_15000') {
+        query = query.lte('price', 15000).order('price', { ascending: false });
+      } else if (dbCollection.virtualType === 'for_her') {
+        query = query
+          .order('is_best_seller', { ascending: false })
+          .order('created_at', { ascending: false });
       } else {
         query = query.order('created_at', { ascending: false });
       }
@@ -157,13 +196,16 @@ export default async function CollectionPage({
       title: dbCollection.title,
       subtitle: dbCollection.subtitle,
       cover: dbCollection.image_url || '/images/categories/necklaces.jpg',
-      products: products,
+      products: filterPublicProducts(products),
     };
   }
 
   if (!collection) {
     notFound();
   }
+
+  const isGiftGuideOrigin =
+    type === 'for-her' || type === 'under-15000' || type === 'anniversary';
 
   return (
     <div className="min-h-screen bg-white">
@@ -181,10 +223,11 @@ export default async function CollectionPage({
 
         <div className="relative z-10 mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
           <Link
-            href="/gift-guide"
+            href={isGiftGuideOrigin ? '/gift-guide' : '/products'}
             className="mb-8 inline-flex items-center text-sm font-semibold text-white/80 transition-colors hover:text-white"
           >
-            <ArrowLeft className="mr-2 h-4 w-4" /> Back to Gift Guide
+            <ArrowLeft className="mr-2 h-4 w-4" />{' '}
+            {isGiftGuideOrigin ? 'Back to Gift Guide' : 'Back to All Products'}
           </Link>
           <div className="max-w-2xl">
             <div className="mb-4 inline-flex items-center space-x-2 text-amber-300">
@@ -218,31 +261,51 @@ export default async function CollectionPage({
 
       {/* Products Grid */}
       <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {collection.products.map((product: any) => (
+        {collection.products.length > 0 ? (
+          <div className="grid grid-cols-1 gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {collection.products.map((product: any) => (
+              <Link
+                href={`/products/${product.slug || product.id}`}
+                key={product.id}
+                className="group flex flex-col"
+              >
+                <div className="relative mb-4 aspect-[4/5] overflow-hidden rounded-2xl bg-stone-100">
+                  <Image
+                    src={getOptimizedImageUrl(product.image)}
+                    alt={product.name}
+                    fill
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                  />
+                </div>
+                <h3 className="line-clamp-1 font-serif text-lg font-bold text-stone-900 transition-colors group-hover:text-amber-900">
+                  {product.name}
+                </h3>
+                <p className="mt-1 font-semibold text-stone-500">
+                  ₹{product.price.toLocaleString('en-IN')}
+                </p>
+              </Link>
+            ))}
+          </div>
+        ) : (
+          <div className="rounded-2xl border border-dashed border-stone-200 bg-white p-12 text-center shadow-sm">
+            <Sparkles className="mx-auto mb-4 h-10 w-10 text-amber-600/60" />
+            <h3 className="mb-2 font-serif text-xl font-bold text-stone-900">
+              No Products Currently in this Collection
+            </h3>
+            <p className="mx-auto mb-6 max-w-md text-sm text-stone-500">
+              Our master artisans are curating exquisite pieces for{' '}
+              {collection.title}. Explore our complete catalogue for currently
+              available designs.
+            </p>
             <Link
-              href={`/products/${product.slug || product.id}`}
-              key={product.id}
-              className="group flex flex-col"
+              href="/products"
+              className="inline-flex items-center gap-2 rounded-lg bg-stone-900 px-6 py-2.5 text-xs font-bold uppercase tracking-wider text-white hover:bg-stone-700"
             >
-              <div className="relative mb-4 aspect-[4/5] overflow-hidden rounded-2xl bg-stone-100">
-                <Image
-                  src={getOptimizedImageUrl(product.image)}
-                  alt={product.name}
-                  fill
-                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                  className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                />
-              </div>
-              <h3 className="line-clamp-1 font-serif text-lg font-bold text-stone-900 transition-colors group-hover:text-amber-900">
-                {product.name}
-              </h3>
-              <p className="mt-1 font-semibold text-stone-500">
-                ₹{product.price.toLocaleString('en-IN')}
-              </p>
+              Browse All Fine Jewellery
             </Link>
-          ))}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );

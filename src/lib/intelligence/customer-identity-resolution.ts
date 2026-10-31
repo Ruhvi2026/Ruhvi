@@ -86,6 +86,40 @@ export interface IdentityResolutionResult {
 }
 
 /**
+ * Canonical UUID validation regex (RFC 4122 v1-v5).
+ */
+export const UUID_V4_OR_CANONICAL_REGEX =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+/**
+ * Checks if a string is a valid RFC-compliant UUID.
+ * Rejects Firebase UIDs, arbitrary alpha strings, or empty/malformed values.
+ */
+export function isValidUuid(id: string | null | undefined): boolean {
+  if (!id || typeof id !== 'string') return false;
+  return UUID_V4_OR_CANONICAL_REGEX.test(id.trim());
+}
+
+/**
+ * Resolves the authoritative PostgreSQL customer UUID from client-side authentication context.
+ * Prioritizes profile.id if it is a valid UUID, otherwise user.id if it is already a UUID.
+ * Returns null if the identifier is a raw Firebase UID or non-UUID, preventing PostgreSQL syntax crashes
+ * and ensuring database queries are never executed against unverified or incompatible keys.
+ */
+export function getAuthoritativeCustomerUuid(
+  user: { id?: string | null } | null | undefined,
+  profile: { id?: string | null } | null | undefined
+): string | null {
+  if (profile?.id && isValidUuid(profile.id)) {
+    return profile.id.trim();
+  }
+  if (user?.id && isValidUuid(user.id)) {
+    return user.id.trim();
+  }
+  return null;
+}
+
+/**
  * Normalizes Indian phone numbers into canonical E.164 format (+91XXXXXXXXXX).
  * Strips whitespace, dashes, leading 0, and country code variations.
  */
@@ -551,5 +585,126 @@ export function applyDataErasurePolicy(
     linkedProviders: [],
     consentedAnalyticsIds: [],
     erasedAt: new Date().toISOString(),
+  };
+}
+
+export interface CanonicalCustomerResolution {
+  resolvedId: string | null;
+  matchedBy: 'CANONICAL_UUID' | 'FIREBASE_UID_MAPPING' | 'UNRESOLVED';
+  identifierType: 'UUID' | 'FIREBASE_UID' | 'INVALID_FORMAT';
+  error?: string;
+}
+
+/**
+ * UUID regex pattern according to RFC 4122.
+ */
+export const UUID_V4_REGEX =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+/**
+ * Resolves any incoming customer identifier (internal UUID or external Firebase UID)
+ * to the authoritative internal canonical users.id UUID.
+ *
+ * Guarantees:
+ * 1. Internal UUID Preserved: If input is a valid UUID, verifies users table directly.
+ * 2. External Firebase UID Resolved: If input is not a UUID, checks customer_identities
+ *    (or users.firebase_uid) to map to customer_id.
+ * 3. SQL / RPC Parity: Matches behavior of public.get_user_profile(p_user_id text)
+ *    and public.resolve_customer_identity.
+ * 4. Safe Fallback: Returns typed result with resolvedId = null if identifier is unresolvable.
+ */
+export async function resolveCanonicalCustomerId(
+  rawIdentifier: string | null | undefined,
+  supabaseClient?: any
+): Promise<CanonicalCustomerResolution> {
+  if (
+    !rawIdentifier ||
+    typeof rawIdentifier !== 'string' ||
+    !rawIdentifier.trim()
+  ) {
+    return {
+      resolvedId: null,
+      matchedBy: 'UNRESOLVED',
+      identifierType: 'INVALID_FORMAT',
+      error: 'Identifier is missing or empty.',
+    };
+  }
+
+  const trimmed = rawIdentifier.trim();
+  const isUuid = UUID_V4_REGEX.test(trimmed);
+
+  // If supabaseClient is not provided, dynamically import service client
+  const client =
+    supabaseClient ||
+    (await import('@/lib/supabase/service')).getServiceClient();
+
+  // 1. Direct check on users.id (canonical internal ID, UUID or canonical string)
+  try {
+    const fromUsers = client.from('users');
+    if (fromUsers && typeof fromUsers.select === 'function') {
+      const { data: userRow } = await fromUsers
+        .select('id')
+        .eq('id', trimmed)
+        .maybeSingle();
+
+      if (userRow?.id) {
+        return {
+          resolvedId: userRow.id,
+          matchedBy: 'CANONICAL_UUID',
+          identifierType: isUuid ? 'UUID' : 'FIREBASE_UID',
+        };
+      }
+    }
+  } catch {
+    // If querying users.id with non-UUID throws, proceed to external identity lookups
+  }
+
+  // 2. Check customer_identities table (firebase_uid)
+  try {
+    const fromIdentities = client.from('customer_identities');
+    if (fromIdentities && typeof fromIdentities.select === 'function') {
+      const { data: identityRow } = await fromIdentities
+        .select('customer_id')
+        .eq('firebase_uid', trimmed)
+        .maybeSingle();
+
+      if (identityRow?.customer_id) {
+        return {
+          resolvedId: identityRow.customer_id,
+          matchedBy: 'FIREBASE_UID_MAPPING',
+          identifierType: isUuid ? 'UUID' : 'FIREBASE_UID',
+        };
+      }
+    }
+  } catch {
+    // Ignore and proceed to fallback
+  }
+
+  // 3. Fallback check on users.firebase_uid if column exists
+  try {
+    const fromUsers = client.from('users');
+    if (fromUsers && typeof fromUsers.select === 'function') {
+      const { data: userByFb } = await fromUsers
+        .select('id')
+        .eq('firebase_uid', trimmed)
+        .maybeSingle();
+
+      if (userByFb?.id) {
+        return {
+          resolvedId: userByFb.id,
+          matchedBy: 'FIREBASE_UID_MAPPING',
+          identifierType: isUuid ? 'UUID' : 'FIREBASE_UID',
+        };
+      }
+    }
+  } catch {
+    // Ignore
+  }
+
+  return {
+    resolvedId: null,
+    matchedBy: 'UNRESOLVED',
+    identifierType: isUuid ? 'UUID' : 'FIREBASE_UID',
+    error: `No customer profile mapped to identifier '${trimmed}'.`,
   };
 }

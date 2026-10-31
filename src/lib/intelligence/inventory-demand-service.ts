@@ -41,16 +41,20 @@ export interface RawOrderItemRecord {
   orderId: string;
   productId: string;
   sku: string;
+  barcode?: string | null;
   quantity: number;
   priceAtPurchase: number;
   orderStatus: string;
   createdAt: string;
   isReturned?: boolean;
+  isWarehouseScan?: boolean;
+  isInventoryStaging?: boolean;
 }
 
 export interface SkuDemandCalculationParams {
   productId: string;
   sku: string;
+  barcode?: string | null;
   productCreatedAt?: string;
   currentStock: number;
   lowStockThreshold: number;
@@ -64,6 +68,7 @@ export interface SkuDemandCalculationParams {
 export interface SkuDemandMetrics {
   productId: string;
   sku: string;
+  barcode?: string | null;
   windowDays: number;
   windowStart: string;
   windowEnd: string;
@@ -161,12 +166,22 @@ export function calculateSkuDemandMetrics(
   let priorHalfUnits = 0;
 
   for (const item of params.orderItems) {
-    // Match by SKU or Product ID
+    // 0. Raw scan counts and warehouse staging records must NEVER be treated as customer demand
+    if (item.isWarehouseScan || item.isInventoryStaging) {
+      continue;
+    }
+
+    // Match by SKU, Barcode, or Product ID
     const itemSkuUpper = (item.sku || '').trim().toUpperCase();
     const isSkuMatch = itemSkuUpper && itemSkuUpper === skuUpper;
     const isIdMatch = item.productId && item.productId === params.productId;
+    const isBarcodeMatch = Boolean(
+      params.barcode &&
+      item.barcode &&
+      item.barcode.trim().toUpperCase() === params.barcode.trim().toUpperCase()
+    );
 
-    if (!isSkuMatch && !isIdMatch) {
+    if (!isSkuMatch && !isIdMatch && !isBarcodeMatch) {
       continue;
     }
 
@@ -289,6 +304,7 @@ export function calculateSkuDemandMetrics(
   return {
     productId: params.productId,
     sku: params.sku,
+    barcode: params.barcode || null,
     windowDays,
     windowStart,
     windowEnd,

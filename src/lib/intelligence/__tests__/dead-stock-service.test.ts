@@ -315,6 +315,7 @@ describe('Dead & Slow-Moving Stock Detection Engine (Track G - Phase 37)', () =>
                   name: 'Royal Emerald Choker',
                   category_id: 'cat_necklaces',
                   price: 75000,
+                  cost_price: 45000,
                   stock_quantity: 6,
                   created_at: '2025-01-01T00:00:00.000Z',
                   categories: { name: 'Necklaces' },
@@ -351,7 +352,58 @@ describe('Dead & Slow-Moving Stock Detection Engine (Track G - Phase 37)', () =>
       expect(res.productId).toBe(productId);
       expect(res.categoryName).toBe('Necklaces');
       expect(res.onHandStock).toBe(6);
+      expect(res.costPrice).toBe(45000);
+      expect(res.capitalTiedUp).toBe(270000); // 6 * 45000
       expect(res.classification).toBe('DEAD_STOCK');
+      expect(res.advisoryNotice).toContain('Review-only merchandising');
+    });
+  });
+
+  describe('Seasonality, Cost Valuations & Review-Only Guardrails', () => {
+    it('accurately incorporates seasonality factors and contextual notes', () => {
+      const input: SkuAgingInput = {
+        productId,
+        sku,
+        productName: 'Diwali Gold Coin 10g',
+        productCreatedAt: '2026-06-01T00:00:00.000Z',
+        onHandStock: 10,
+        price: 90000,
+        costPrice: 85000,
+        lastSaleDate: '2026-07-15T00:00:00.000Z', // >90 days ago
+        isSeasonal: true,
+        seasonalNotes: 'Seasonal surge expected during Diwali & Dhanteras',
+        evaluatedAt,
+      };
+
+      const res = evaluateStockAgingAndMovement(input);
+
+      expect(res.evidence.isSeasonal).toBe(true);
+      expect(res.rulesTriggered).toEqual(
+        expect.arrayContaining([
+          expect.stringContaining(
+            'Seasonal factor noted: Seasonal surge expected during Diwali & Dhanteras'
+          ),
+        ])
+      );
+      expect(res.advisoryNotice).toContain('Zero automated discounting');
+    });
+
+    it('falls back safely to 60% margin when cost price is omitted', () => {
+      const input: SkuAgingInput = {
+        productId,
+        sku,
+        productName: 'Royal Emerald Choker',
+        productCreatedAt: '2026-01-01T00:00:00.000Z',
+        onHandStock: 4,
+        price: 100000,
+        lastSaleDate: '2026-09-01T00:00:00.000Z',
+        evaluatedAt,
+      };
+
+      const res = evaluateStockAgingAndMovement(input);
+
+      expect(res.costPrice).toBe(60000); // 60% of 100,000
+      expect(res.capitalTiedUp).toBe(240000); // 4 * 60,000
     });
   });
 });

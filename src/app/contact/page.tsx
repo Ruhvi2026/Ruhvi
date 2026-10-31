@@ -6,6 +6,10 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import toast from 'react-hot-toast';
+import {
+  CANONICAL_BUSINESS_IDENTITY,
+  getCanonicalBusinessAddress,
+} from '@/lib/seo/business-identity';
 
 const contactSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -80,19 +84,29 @@ export default function ContactPage() {
           <div className="space-y-4 text-xs text-stone-700">
             <div className="flex items-center space-x-3">
               <Mail className="h-5 w-5 text-amber-700" />
-              <span>support@ruhvi.in</span>
+              <a
+                href={`mailto:${CANONICAL_BUSINESS_IDENTITY.supportEmail}`}
+                className="hover:text-amber-800 hover:underline"
+              >
+                {CANONICAL_BUSINESS_IDENTITY.supportEmail}
+              </a>
             </div>
             <div className="flex items-center space-x-3">
               <Phone className="h-5 w-5 text-amber-700" />
-              <span>+91 91535 77651</span>
+              <a
+                href={`tel:${CANONICAL_BUSINESS_IDENTITY.supportPhoneTel}`}
+                className="hover:text-amber-800 hover:underline"
+              >
+                {CANONICAL_BUSINESS_IDENTITY.supportPhoneDisplay}
+              </a>
             </div>
             <div className="flex items-center space-x-3">
               <Clock className="h-5 w-5 text-amber-700" />
-              <span>Monday – Saturday: 10:00 AM – 7:00 PM IST</span>
+              <span>{CANONICAL_BUSINESS_IDENTITY.supportHours}</span>
             </div>
             <div className="flex items-center space-x-3">
               <MapPin className="h-5 w-5 text-amber-700" />
-              <span>Ruhvi Jewels, Mumbai, Maharashtra, India</span>
+              <span>{getCanonicalBusinessAddress().formatted}</span>
             </div>
           </div>
         </div>

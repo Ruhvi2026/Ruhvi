@@ -78,9 +78,13 @@ export interface RestockRecommendation {
     effectiveDailyRate: number;
   };
   caveats: string[];
+  advisoryNotice: string;
   isDraftReviewOnly: true;
   evaluatedAt: string;
 }
+
+const DEFAULT_ADVISORY_NOTICE =
+  'Review-only replenishment suggestion for human inventory review. Zero automated purchase orders, supplier communications, product additions, or stock ledger mutations occur.';
 
 /**
  * Pure calculation engine for restock quantity recommendations.
@@ -139,6 +143,7 @@ export function calculateRestockRecommendation(
         effectiveDailyRate: 0,
       },
       caveats,
+      advisoryNotice: DEFAULT_ADVISORY_NOTICE,
       isDraftReviewOnly: true,
       evaluatedAt,
     };
@@ -177,6 +182,7 @@ export function calculateRestockRecommendation(
         effectiveDailyRate: 0,
       },
       caveats,
+      advisoryNotice: DEFAULT_ADVISORY_NOTICE,
       isDraftReviewOnly: true,
       evaluatedAt,
     };
@@ -238,6 +244,7 @@ export function calculateRestockRecommendation(
         effectiveDailyRate,
       },
       caveats,
+      advisoryNotice: DEFAULT_ADVISORY_NOTICE,
       isDraftReviewOnly: true,
       evaluatedAt,
     };
@@ -317,6 +324,7 @@ export function calculateRestockRecommendation(
       effectiveDailyRate,
     },
     caveats,
+    advisoryNotice: DEFAULT_ADVISORY_NOTICE,
     isDraftReviewOnly: true,
     evaluatedAt,
   };
@@ -341,7 +349,9 @@ export async function getSkuRestockRecommendation(
   // 1. Fetch Product
   const { data: product, error: prodErr } = await supabase
     .from('products')
-    .select('id, sku, name, price, stock_quantity, low_stock_threshold')
+    .select(
+      'id, sku, name, price, cost_price, stock_quantity, low_stock_threshold'
+    )
     .eq('id', productId)
     .maybeSingle();
 
@@ -368,6 +378,9 @@ export async function getSkuRestockRecommendation(
     safetyStockDays: options?.safetyStockDays ?? 7,
     minimumOrderQuantity: options?.minimumOrderQuantity,
     batchSizeMultiple: options?.batchSizeMultiple,
-    unitCostPrice: Math.round((Number(product.price) || 0) * 0.6),
+    unitCostPrice:
+      product.cost_price !== null && product.cost_price !== undefined
+        ? Number(product.cost_price)
+        : Math.round((Number(product.price) || 0) * 0.6),
   });
 }

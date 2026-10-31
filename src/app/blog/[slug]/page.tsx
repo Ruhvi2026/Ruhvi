@@ -7,6 +7,10 @@ import { ArrowLeft, Calendar } from 'lucide-react';
 import { createClient } from '@/lib/supabase/server';
 import BlogEngagement from './BlogEngagement';
 import { sanitizeHtml } from '@/lib/security/sanitize';
+import {
+  isTestBlogPost,
+  normalizeBlogTitle,
+} from '@/lib/content/content-isolation';
 
 interface BlogPost {
   title: string;
@@ -26,6 +30,9 @@ interface BlogPost {
 }
 
 const fetchPost = cache(async (slug: string): Promise<BlogPost | null> => {
+  if (isTestBlogPost(slug)) {
+    return null;
+  }
   try {
     const supabase = await createClient();
     const { data } = await supabase
@@ -36,16 +43,19 @@ const fetchPost = cache(async (slug: string): Promise<BlogPost | null> => {
       .maybeSingle();
 
     if (data) {
+      if (isTestBlogPost(data.slug, data.title)) {
+        return null;
+      }
       return {
-        title: data.title,
+        title: normalizeBlogTitle(data.title),
         slug: data.slug,
         excerpt: data.excerpt || '',
         content: data.content,
         cover_image: data.cover_image || '',
         cover_image_alt: data.cover_image_alt || '',
-        meta_title: data.meta_title || '',
+        meta_title: normalizeBlogTitle(data.meta_title || ''),
         meta_description: data.meta_description || '',
-        h1_tag: data.h1_tag || '',
+        h1_tag: normalizeBlogTitle(data.h1_tag || ''),
         seo_keywords: data.seo_keywords || [],
         canonical_url: data.canonical_url || '',
         published_at: data.published_at || new Date().toISOString(),

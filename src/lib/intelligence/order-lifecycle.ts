@@ -9,6 +9,7 @@ import {
   type EventSource,
   type EventActor,
 } from './event-contract';
+import { recordFailedEvent } from './event-failure-recovery';
 import type { OrderStatus } from '@/lib/orders/status-engine';
 
 /**
@@ -62,6 +63,7 @@ export interface ObserveOrderLifecycleResult {
   event: BusinessEvent;
   isDuplicate: boolean;
   persistedToEventLog: boolean;
+  error?: string;
 }
 
 /**
@@ -180,11 +182,31 @@ export async function observeOrderLifecycleTransition(
     };
   }
 
+  if (insertError) {
+    recordFailedEvent({
+      eventId: businessEvent.id,
+      eventType: businessEvent.eventType,
+      idempotencyKey: deterministicKey,
+      source,
+      orderId,
+      rawEvent: businessEvent,
+      errorMessage: insertError.message || 'Failed to insert order event',
+    });
+
+    return {
+      observed: false,
+      event: businessEvent,
+      isDuplicate: false,
+      persistedToEventLog: false,
+      error: insertError.message,
+    };
+  }
+
   return {
     observed: true,
     event: businessEvent,
     isDuplicate: false,
-    persistedToEventLog: !insertError,
+    persistedToEventLog: true,
   };
 }
 

@@ -9,6 +9,10 @@ import {
   type MetricValue,
   type TimeWindow,
 } from './metrics-service';
+import {
+  getAnomalyLifecycleRegistry,
+  type AnomalyRecord,
+} from './anomaly-lifecycle';
 
 export type { DateRangePreset };
 
@@ -66,6 +70,7 @@ export interface BusinessRadarSummary {
     infrastructure?: Record<string, RadarMetricItem>;
   };
   anomaliesDetectedCount: number;
+  activeAnomalies?: AnomalyRecord[];
 }
 
 export interface RadarSummaryOptions {
@@ -337,6 +342,16 @@ export async function getBusinessRadarSummary(
   if (Object.keys(sections.infrastructure || {}).length === 0)
     delete sections.infrastructure;
 
+  // Load verified active anomaly records from durable persistence
+  let activeAnomalies: AnomalyRecord[] = [];
+  try {
+    const registry = getAnomalyLifecycleRegistry();
+    await registry.loadPersistedRecords();
+    activeAnomalies = registry.getRecords({ state: 'open' });
+  } catch {
+    // Non-blocking fallback if database query encounters transient issue
+  }
+
   return {
     overallHealth: maxSeverity,
     timeWindow: currentWindow,
@@ -344,6 +359,10 @@ export async function getBusinessRadarSummary(
     callerRole,
     generatedAt,
     sections,
-    anomaliesDetectedCount: criticalCount + warningCount,
+    anomaliesDetectedCount: Math.max(
+      activeAnomalies.length,
+      criticalCount + warningCount
+    ),
+    activeAnomalies: activeAnomalies.length > 0 ? activeAnomalies : undefined,
   };
 }

@@ -123,6 +123,91 @@ describe('Inventory Demand Metrics Service (Track G - Phase 35)', () => {
       expect(metrics.netRevenue).toBe(100000);
       expect(metrics.averageSellingPrice).toBe(20000);
     });
+
+    it('strictly excludes raw warehouse scans and inventory staging records from demand count', () => {
+      const orderItems: RawOrderItemRecord[] = [
+        // Legitimate customer order
+        {
+          orderId: 'ord_valid_01',
+          productId: sampleProductId,
+          sku: sampleSku,
+          quantity: 3,
+          priceAtPurchase: 25000,
+          orderStatus: 'delivered',
+          createdAt: '2026-10-14T10:00:00.000Z',
+        },
+        // Warehouse staging scan (must NEVER be treated as customer demand)
+        {
+          orderId: 'scan_staging_01',
+          productId: sampleProductId,
+          sku: sampleSku,
+          quantity: 50,
+          priceAtPurchase: 0,
+          orderStatus: 'staged',
+          createdAt: '2026-10-15T12:00:00.000Z',
+          isWarehouseScan: true,
+        },
+        // Inventory scan sync
+        {
+          orderId: 'scan_staging_02',
+          productId: sampleProductId,
+          sku: sampleSku,
+          quantity: 25,
+          priceAtPurchase: 0,
+          orderStatus: 'scanned',
+          createdAt: '2026-10-16T14:00:00.000Z',
+          isInventoryStaging: true,
+        },
+      ];
+
+      const metrics = calculateSkuDemandMetrics({
+        productId: sampleProductId,
+        sku: sampleSku,
+        productCreatedAt: '2025-01-01T00:00:00.000Z',
+        currentStock: 15,
+        lowStockThreshold: 2,
+        windowDays: 30,
+        orderItems,
+        evaluatedAt,
+      });
+
+      // The 75 scanned warehouse units must NOT inflate demand! Only the 3 purchased units count.
+      expect(metrics.grossUnitsSold).toBe(3);
+      expect(metrics.netUnitsSold).toBe(3);
+      expect(metrics.orderCount).toBe(1);
+    });
+
+    it('resolves demand accurately via barcode mapping', () => {
+      const sampleBarcode = '8901234567890';
+      const orderItems: RawOrderItemRecord[] = [
+        {
+          orderId: 'ord_barcode_01',
+          productId: 'different_id_variant',
+          sku: 'DIFFERENT_SKU',
+          barcode: sampleBarcode,
+          quantity: 4,
+          priceAtPurchase: 18000,
+          orderStatus: 'delivered',
+          createdAt: '2026-10-17T15:00:00.000Z',
+        },
+      ];
+
+      const metrics = calculateSkuDemandMetrics({
+        productId: sampleProductId,
+        sku: sampleSku,
+        barcode: sampleBarcode,
+        productCreatedAt: '2025-01-01T00:00:00.000Z',
+        currentStock: 8,
+        lowStockThreshold: 2,
+        windowDays: 30,
+        orderItems,
+        evaluatedAt,
+      });
+
+      expect(metrics.barcode).toBe(sampleBarcode);
+      expect(metrics.grossUnitsSold).toBe(4);
+      expect(metrics.netUnitsSold).toBe(4);
+    });
   });
 
   describe('Stockout-Adjusted Sales Velocity', () => {

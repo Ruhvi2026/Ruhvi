@@ -19,6 +19,7 @@
     "test:e2e:smoke": "playwright test tests/e2e/smoke.spec.ts",
     "analyze": "cross-env ANALYZE=true next build",
     "audit:prod": "npm audit --production",
+    "security:scan": "node scripts/scan-secrets.mjs",
     "prepare": "husky"
   },
   "dependencies": {

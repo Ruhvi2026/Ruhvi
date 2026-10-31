@@ -64,8 +64,15 @@ export default async function HomePage() {
       <link
         rel="preload"
         as="image"
+        href={heroTabletUrl}
+        media="(min-width: 641px) and (max-width: 1024px)"
+        fetchPriority="high"
+      />
+      <link
+        rel="preload"
+        as="image"
         href={heroDesktopUrl}
-        media="(min-width: 641px)"
+        media="(min-width: 1025px)"
         fetchPriority="high"
       />
       <script

@@ -11,9 +11,10 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { createClient } from '@/lib/supabase/client';
+import { getAuthoritativeCustomerUuid } from '@/lib/intelligence/customer-identity-resolution';
 
 export default function RewardCoinsPage() {
-  const { user, profile } = useAuth();
+  const { user, profile, loading: authLoading } = useAuth();
   const coins = Number(profile?.reward_coins) || 0;
 
   // 10 coins = ₹1
@@ -24,15 +25,17 @@ export default function RewardCoinsPage() {
 
   useEffect(() => {
     async function fetchLedger() {
+      if (authLoading) return;
       if (!user) {
         setLedger([]);
         setLoading(false);
         return;
       }
 
-      const targetUserId = profile?.id || user.id;
-      // Wait for profile UUID to resolve if authenticated
-      if (!profile?.id) {
+      const targetUserId = getAuthoritativeCustomerUuid(user, profile);
+      // Wait for authoritative UUID to resolve if authenticated
+      if (!targetUserId) {
+        setLoading(false);
         return;
       }
 
@@ -86,7 +89,7 @@ export default function RewardCoinsPage() {
     }
 
     fetchLedger();
-  }, [user, profile?.id]);
+  }, [user, profile?.id, authLoading]);
 
   return (
     <div className="mx-auto max-w-4xl space-y-8 px-4 py-10 sm:px-6 lg:px-8">

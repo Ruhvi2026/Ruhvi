@@ -42,6 +42,7 @@ import { OfflineDetector } from '@/components/layout/OfflineDetector';
 import { StorefrontChrome } from '@/components/layout/StorefrontChrome';
 import PostHogProvider from '@/components/PostHogProvider';
 import AnalyticsScripts from '@/components/AnalyticsScripts';
+import { getOrganizationSchemaJsonLd } from '@/lib/seo/business-identity';
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://ruhvi.in'),
@@ -125,21 +126,7 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const organizationSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'Organization',
-    name: 'Ruhvi Fine Jewellery',
-    url: 'https://ruhvi.in',
-    logo: 'https://ruhvi.in/logo.png',
-    sameAs: ['https://instagram.com/ruhvi.in', 'https://facebook.com/ruhvi.in'],
-    contactPoint: {
-      '@type': 'ContactPoint',
-      telephone: '+91-9153577651',
-      contactType: 'customer service',
-      areaServed: 'IN',
-      availableLanguage: ['en', 'bn', 'hi'],
-    },
-  };
+  const organizationSchema = getOrganizationSchemaJsonLd();
 
   return (
     <html
@@ -149,7 +136,11 @@ export default function RootLayout({
     >
       <head>
         {/* Preconnect to critical first-paint asset origins */}
-        <link rel="preconnect" href="https://res.cloudinary.com" />
+        <link
+          rel="preconnect"
+          href="https://res.cloudinary.com"
+          crossOrigin="anonymous"
+        />
         <link rel="dns-prefetch" href="https://res.cloudinary.com" />
         <link
           rel="preconnect"

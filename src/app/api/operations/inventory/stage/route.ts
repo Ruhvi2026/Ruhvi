@@ -49,7 +49,7 @@ export async function GET(req: NextRequest) {
  */
 export async function POST(req: NextRequest) {
   try {
-    const { supabase, userId } = await requireAdminClient();
+    const { supabase, userId, role } = await requireAdminClient();
 
     const body = await req.json();
     const rawScans = Array.isArray(body.scans)
@@ -143,6 +143,36 @@ export async function POST(req: NextRequest) {
         },
         { status: 400 }
       );
+    }
+
+    // Pre-flight cross-user collision check to prevent scan takeover
+    const clientScanIds = stagingRows.map((r) => r.client_scan_id);
+    const { data: existingRows, error: checkError } = await supabase
+      .from('inventory_staging')
+      .select('id, client_scan_id, owner_id')
+      .in('client_scan_id', clientScanIds);
+
+    if (checkError) {
+      console.error('Error checking scan ownership:', checkError);
+      return NextResponse.json({ error: checkError.message }, { status: 500 });
+    }
+
+    if (existingRows && existingRows.length > 0) {
+      const isSuperAdmin = role === 'super_admin' || role === 'SUPER_ADMIN';
+      const collidingRows = existingRows.filter(
+        (row: any) => row.owner_id !== userId
+      );
+
+      if (collidingRows.length > 0 && !isSuperAdmin) {
+        return NextResponse.json(
+          {
+            error:
+              'Ownership collision: one or more scan IDs belong to another staff user',
+            conflicting_ids: collidingRows.map((r: any) => r.client_scan_id),
+          },
+          { status: 409 }
+        );
+      }
     }
 
     // Upsert into inventory_staging table using client_scan_id for idempotency

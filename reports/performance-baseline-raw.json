@@ -1,0 +1,1033 @@
+{
+  "auditDate": "2026-10-31T07:17:39.246Z",
+  "tooling": "Playwright Chromium Headless + W3C Navigation & Core Web Vitals PerformanceObserver",
+  "runCount": 3,
+  "profiles": ["Desktop (Broadband)", "Mobile (Simulated 4G)"],
+  "targetUrls": [
+    "https://ruhvi.in",
+    "https://ruhvi.in/products",
+    "https://ruhvi.in/contact"
+  ],
+  "matrix": {
+    "Desktop (Broadband)": {
+      "https://ruhvi.in": {
+        "runsCount": 3,
+        "ttfb": {
+          "median": 459,
+          "avg": 813,
+          "min": 296,
+          "max": 1683
+        },
+        "fcp": {
+          "median": 1856,
+          "avg": 2744,
+          "min": 1548,
+          "max": 4828
+        },
+        "lcp": {
+          "median": 1856,
+          "avg": 2744,
+          "min": 1548,
+          "max": 4828
+        },
+        "cls": {
+          "median": 0,
+          "avg": 0.0002
+        },
+        "totalBytes": {
+          "median": 2176724,
+          "avg": 2176590
+        },
+        "totalRequests": {
+          "median": 69,
+          "avg": 69
+        },
+        "primaryLcpElement": "IMG.absolute inset-0 h-full w-full object-cover"
+      },
+      "https://ruhvi.in/products": {
+        "runsCount": 3,
+        "ttfb": {
+          "median": 556,
+          "avg": 577,
+          "min": 528,
+          "max": 648
+        },
+        "fcp": {
+          "median": 1804,
+          "avg": 1799,
+          "min": 1752,
+          "max": 1840
+        },
+        "lcp": {
+          "median": 2168,
+          "avg": 2499,
+          "min": 1840,
+          "max": 3488
+        },
+        "cls": {
+          "median": 0,
+          "avg": 0.0017
+        },
+        "totalBytes": {
+          "median": 2168402,
+          "avg": 2162590
+        },
+        "totalRequests": {
+          "median": 76,
+          "avg": 76
+        },
+        "primaryLcpElement": "H1.mt-1 font-serif text-3xl font-bold text-charcoal-9"
+      },
+      "https://ruhvi.in/contact": {
+        "runsCount": 3,
+        "ttfb": {
+          "median": 540,
+          "avg": 443,
+          "min": 243,
+          "max": 545
+        },
+        "fcp": {
+          "median": 1864,
+          "avg": 1824,
+          "min": 1448,
+          "max": 2160
+        },
+        "lcp": {
+          "median": 1864,
+          "avg": 1824,
+          "min": 1448,
+          "max": 2160
+        },
+        "cls": {
+          "median": 0,
+          "avg": 0
+        },
+        "totalBytes": {
+          "median": 1993793,
+          "avg": 2005604
+        },
+        "totalRequests": {
+          "median": 60,
+          "avg": 60
+        },
+        "primaryLcpElement": "H1.font-serif text-3xl font-bold text-stone-900 sm:te"
+      }
+    },
+    "Mobile (Simulated 4G)": {
+      "https://ruhvi.in": {
+        "runsCount": 3,
+        "ttfb": {
+          "median": 333,
+          "avg": 358,
+          "min": 257,
+          "max": 483
+        },
+        "fcp": {
+          "median": 1592,
+          "avg": 2367,
+          "min": 1576,
+          "max": 3932
+        },
+        "lcp": {
+          "median": 1612,
+          "avg": 2379,
+          "min": 1592,
+          "max": 3932
+        },
+        "cls": {
+          "median": 0,
+          "avg": 0.0002
+        },
+        "totalBytes": {
+          "median": 2132713,
+          "avg": 2066499
+        },
+        "totalRequests": {
+          "median": 70,
+          "avg": 68
+        },
+        "primaryLcpElement": "IMG.absolute inset-0 h-full w-full object-cover"
+      },
+      "https://ruhvi.in/products": {
+        "runsCount": 3,
+        "ttfb": {
+          "median": 419,
+          "avg": 480,
+          "min": 366,
+          "max": 654
+        },
+        "fcp": {
+          "median": 1572,
+          "avg": 1621,
+          "min": 1548,
+          "max": 1744
+        },
+        "lcp": {
+          "median": 1572,
+          "avg": 1720,
+          "min": 1548,
+          "max": 2040
+        },
+        "cls": {
+          "median": 0,
+          "avg": 0.0063
+        },
+        "totalBytes": {
+          "median": 2226116,
+          "avg": 2225783
+        },
+        "totalRequests": {
+          "median": 69,
+          "avg": 69
+        },
+        "primaryLcpElement": "H1.mt-1 font-serif text-3xl font-bold text-charcoal-9"
+      },
+      "https://ruhvi.in/contact": {
+        "runsCount": 3,
+        "ttfb": {
+          "median": 241,
+          "avg": 263,
+          "min": 227,
+          "max": 322
+        },
+        "fcp": {
+          "median": 1388,
+          "avg": 1459,
+          "min": 1352,
+          "max": 1636
+        },
+        "lcp": {
+          "median": 1388,
+          "avg": 1459,
+          "min": 1352,
+          "max": 1636
+        },
+        "cls": {
+          "median": 0,
+          "avg": 0
+        },
+        "totalBytes": {
+          "median": 2130435,
+          "avg": 2092648
+        },
+        "totalRequests": {
+          "median": 64,
+          "avg": 64
+        },
+        "primaryLcpElement": "P.mt-2 text-xs text-stone-500"
+      }
+    }
+  },
+  "individualRuns": [
+    {
+      "url": "https://ruhvi.in",
+      "profile": "Desktop (Broadband)",
+      "timestamp": "2026-10-31T07:15:58.162Z",
+      "ttfb": 1683,
+      "fcp": 4828,
+      "lcp": 4828,
+      "cls": 0.0005,
+      "lcpElement": "IMG.absolute inset-0 h-full w-full object-cover",
+      "lcpSize": 748512,
+      "domContentLoaded": 4723,
+      "loadEventEnd": 8748,
+      "totalRequests": 69,
+      "totalBytes": 2194476,
+      "resourcesByType": {
+        "document": {
+          "count": 1,
+          "bytes": 96164
+        },
+        "script": {
+          "count": 37,
+          "bytes": 1455973
+        },
+        "stylesheet": {
+          "count": 3,
+          "bytes": 302931
+        },
+        "image": {
+          "count": 11,
+          "bytes": 160444
+        },
+        "font": {
+          "count": 3,
+          "bytes": 78636
+        },
+        "fetch_xhr": {
+          "count": 14,
+          "bytes": 100328
+        },
+        "other": {
+          "count": 0,
+          "bytes": 0
+        }
+      }
+    },
+    {
+      "url": "https://ruhvi.in",
+      "profile": "Desktop (Broadband)",
+      "timestamp": "2026-10-31T07:16:04.097Z",
+      "ttfb": 459,
+      "fcp": 1856,
+      "lcp": 1856,
+      "cls": 0,
+      "lcpElement": "IMG.absolute inset-0 h-full w-full object-cover",
+      "lcpSize": 748512,
+      "domContentLoaded": 1815,
+      "loadEventEnd": 2542,
+      "totalRequests": 69,
+      "totalBytes": 2176724,
+      "resourcesByType": {
+        "document": {
+          "count": 1,
+          "bytes": 96164
+        },
+        "script": {
+          "count": 37,
+          "bytes": 1455973
+        },
+        "stylesheet": {
+          "count": 3,
+          "bytes": 302931
+        },
+        "image": {
+          "count": 11,
+          "bytes": 160444
+        },
+        "font": {
+          "count": 3,
+          "bytes": 78636
+        },
+        "fetch_xhr": {
+          "count": 14,
+          "bytes": 82576
+        },
+        "other": {
+          "count": 0,
+          "bytes": 0
+        }
+      }
+    },
+    {
+      "url": "https://ruhvi.in",
+      "profile": "Desktop (Broadband)",
+      "timestamp": "2026-10-31T07:16:09.577Z",
+      "ttfb": 296,
+      "fcp": 1548,
+      "lcp": 1548,
+      "cls": 0,
+      "lcpElement": "IMG.absolute inset-0 h-full w-full object-cover",
+      "lcpSize": 748512,
+      "domContentLoaded": 1338,
+      "loadEventEnd": 2150,
+      "totalRequests": 69,
+      "totalBytes": 2158569,
+      "resourcesByType": {
+        "document": {
+          "count": 1,
+          "bytes": 96164
+        },
+        "script": {
+          "count": 37,
+          "bytes": 1455973
+        },
+        "stylesheet": {
+          "count": 3,
+          "bytes": 302931
+        },
+        "image": {
+          "count": 11,
+          "bytes": 160444
+        },
+        "font": {
+          "count": 3,
+          "bytes": 78636
+        },
+        "fetch_xhr": {
+          "count": 14,
+          "bytes": 64421
+        },
+        "other": {
+          "count": 0,
+          "bytes": 0
+        }
+      }
+    },
+    {
+      "url": "https://ruhvi.in/products",
+      "profile": "Desktop (Broadband)",
+      "timestamp": "2026-10-31T07:16:18.027Z",
+      "ttfb": 556,
+      "fcp": 1752,
+      "lcp": 3488,
+      "cls": 0.005,
+      "lcpElement": "H1.mt-1 font-serif text-3xl font-bold text-charcoal-9",
+      "lcpSize": 23595,
+      "domContentLoaded": 2627,
+      "loadEventEnd": 5249,
+      "totalRequests": 76,
+      "totalBytes": 2150470,
+      "resourcesByType": {
+        "document": {
+          "count": 1,
+          "bytes": 116279
+        },
+        "script": {
+          "count": 38,
+          "bytes": 1474975
+        },
+        "stylesheet": {
+          "count": 3,
+          "bytes": 302931
+        },
+        "image": {
+          "count": 7,
+          "bytes": 27006
+        },
+        "font": {
+          "count": 4,
+          "bytes": 95840
+        },
+        "fetch_xhr": {
+          "count": 23,
+          "bytes": 133439
+        },
+        "other": {
+          "count": 0,
+          "bytes": 0
+        }
+      }
+    },
+    {
+      "url": "https://ruhvi.in/products",
+      "profile": "Desktop (Broadband)",
+      "timestamp": "2026-10-31T07:16:23.892Z",
+      "ttfb": 528,
+      "fcp": 1804,
+      "lcp": 2168,
+      "cls": 0,
+      "lcpElement": "H1.mt-1 font-serif text-3xl font-bold text-charcoal-9",
+      "lcpSize": 23595,
+      "domContentLoaded": 1780,
+      "loadEventEnd": 2703,
+      "totalRequests": 75,
+      "totalBytes": 2168898,
+      "resourcesByType": {
+        "document": {
+          "count": 1,
+          "bytes": 116279
+        },
+        "script": {
+          "count": 38,
+          "bytes": 1474975
+        },
+        "stylesheet": {
+          "count": 3,
+          "bytes": 302931
+        },
+        "image": {
+          "count": 7,
+          "bytes": 27006
+        },
+        "font": {
+          "count": 4,
+          "bytes": 95840
+        },
+        "fetch_xhr": {
+          "count": 22,
+          "bytes": 151867
+        },
+        "other": {
+          "count": 0,
+          "bytes": 0
+        }
+      }
+    },
+    {
+      "url": "https://ruhvi.in/products",
+      "profile": "Desktop (Broadband)",
+      "timestamp": "2026-10-31T07:16:29.729Z",
+      "ttfb": 648,
+      "fcp": 1840,
+      "lcp": 1840,
+      "cls": 0,
+      "lcpElement": "H1.mt-1 font-serif text-3xl font-bold text-charcoal-9",
+      "lcpSize": 23595,
+      "domContentLoaded": 1786,
+      "loadEventEnd": 2655,
+      "totalRequests": 76,
+      "totalBytes": 2168402,
+      "resourcesByType": {
+        "document": {
+          "count": 1,
+          "bytes": 116279
+        },
+        "script": {
+          "count": 38,
+          "bytes": 1474975
+        },
+        "stylesheet": {
+          "count": 3,
+          "bytes": 302931
+        },
+        "image": {
+          "count": 8,
+          "bytes": 27090
+        },
+        "font": {
+          "count": 4,
+          "bytes": 95840
+        },
+        "fetch_xhr": {
+          "count": 22,
+          "bytes": 151287
+        },
+        "other": {
+          "count": 0,
+          "bytes": 0
+        }
+      }
+    },
+    {
+      "url": "https://ruhvi.in/contact",
+      "profile": "Desktop (Broadband)",
+      "timestamp": "2026-10-31T07:16:35.088Z",
+      "ttfb": 540,
+      "fcp": 1864,
+      "lcp": 1864,
+      "cls": 0,
+      "lcpElement": "H1.font-serif text-3xl font-bold text-stone-900 sm:te",
+      "lcpSize": 13448,
+      "domContentLoaded": 1815,
+      "loadEventEnd": 2209,
+      "totalRequests": 60,
+      "totalBytes": 1993793,
+      "resourcesByType": {
+        "document": {
+          "count": 1,
+          "bytes": 59786
+        },
+        "script": {
+          "count": 37,
+          "bytes": 1455973
+        },
+        "stylesheet": {
+          "count": 3,
+          "bytes": 302931
+        },
+        "image": {
+          "count": 1,
+          "bytes": 1320
+        },
+        "font": {
+          "count": 4,
+          "bytes": 95840
+        },
+        "fetch_xhr": {
+          "count": 14,
+          "bytes": 77943
+        },
+        "other": {
+          "count": 0,
+          "bytes": 0
+        }
+      }
+    },
+    {
+      "url": "https://ruhvi.in/contact",
+      "profile": "Desktop (Broadband)",
+      "timestamp": "2026-10-31T07:16:40.816Z",
+      "ttfb": 545,
+      "fcp": 2160,
+      "lcp": 2160,
+      "cls": 0,
+      "lcpElement": "H1.font-serif text-3xl font-bold text-stone-900 sm:te",
+      "lcpSize": 13448,
+      "domContentLoaded": 2097,
+      "loadEventEnd": 2577,
+      "totalRequests": 60,
+      "totalBytes": 1993638,
+      "resourcesByType": {
+        "document": {
+          "count": 1,
+          "bytes": 59786
+        },
+        "script": {
+          "count": 37,
+          "bytes": 1455973
+        },
+        "stylesheet": {
+          "count": 3,
+          "bytes": 302931
+        },
+        "image": {
+          "count": 1,
+          "bytes": 1320
+        },
+        "font": {
+          "count": 4,
+          "bytes": 95840
+        },
+        "fetch_xhr": {
+          "count": 14,
+          "bytes": 77788
+        },
+        "other": {
+          "count": 0,
+          "bytes": 0
+        }
+      }
+    },
+    {
+      "url": "https://ruhvi.in/contact",
+      "profile": "Desktop (Broadband)",
+      "timestamp": "2026-10-31T07:16:45.860Z",
+      "ttfb": 243,
+      "fcp": 1448,
+      "lcp": 1448,
+      "cls": 0,
+      "lcpElement": "H1.font-serif text-3xl font-bold text-stone-900 sm:te",
+      "lcpSize": 13448,
+      "domContentLoaded": 1405,
+      "loadEventEnd": 1895,
+      "totalRequests": 60,
+      "totalBytes": 2029381,
+      "resourcesByType": {
+        "document": {
+          "count": 1,
+          "bytes": 59786
+        },
+        "script": {
+          "count": 37,
+          "bytes": 1455973
+        },
+        "stylesheet": {
+          "count": 3,
+          "bytes": 302931
+        },
+        "image": {
+          "count": 1,
+          "bytes": 1320
+        },
+        "font": {
+          "count": 4,
+          "bytes": 95840
+        },
+        "fetch_xhr": {
+          "count": 14,
+          "bytes": 113531
+        },
+        "other": {
+          "count": 0,
+          "bytes": 0
+        }
+      }
+    },
+    {
+      "url": "https://ruhvi.in",
+      "profile": "Mobile (Simulated 4G)",
+      "timestamp": "2026-10-31T07:16:54.021Z",
+      "ttfb": 333,
+      "fcp": 3932,
+      "lcp": 3932,
+      "cls": 0.0005,
+      "lcpElement": "IMG.absolute inset-0 h-full w-full object-cover",
+      "lcpSize": 196000,
+      "domContentLoaded": 3773,
+      "loadEventEnd": 4980,
+      "totalRequests": 62,
+      "totalBytes": 1933801,
+      "resourcesByType": {
+        "document": {
+          "count": 1,
+          "bytes": 96164
+        },
+        "script": {
+          "count": 35,
+          "bytes": 1351749
+        },
+        "stylesheet": {
+          "count": 3,
+          "bytes": 302931
+        },
+        "image": {
+          "count": 9,
+          "bytes": 57375
+        },
+        "font": {
+          "count": 3,
+          "bytes": 78636
+        },
+        "fetch_xhr": {
+          "count": 11,
+          "bytes": 46946
+        },
+        "other": {
+          "count": 0,
+          "bytes": 0
+        }
+      }
+    },
+    {
+      "url": "https://ruhvi.in",
+      "profile": "Mobile (Simulated 4G)",
+      "timestamp": "2026-10-31T07:16:59.616Z",
+      "ttfb": 257,
+      "fcp": 1576,
+      "lcp": 1612,
+      "cls": 0,
+      "lcpElement": "IMG.absolute inset-0 h-full w-full object-cover",
+      "lcpSize": 196000,
+      "domContentLoaded": 1381,
+      "loadEventEnd": 2400,
+      "totalRequests": 70,
+      "totalBytes": 2132713,
+      "resourcesByType": {
+        "document": {
+          "count": 1,
+          "bytes": 96164
+        },
+        "script": {
+          "count": 39,
+          "bytes": 1496901
+        },
+        "stylesheet": {
+          "count": 3,
+          "bytes": 302931
+        },
+        "image": {
+          "count": 9,
+          "bytes": 57375
+        },
+        "font": {
+          "count": 3,
+          "bytes": 78636
+        },
+        "fetch_xhr": {
+          "count": 15,
+          "bytes": 100706
+        },
+        "other": {
+          "count": 0,
+          "bytes": 0
+        }
+      }
+    },
+    {
+      "url": "https://ruhvi.in",
+      "profile": "Mobile (Simulated 4G)",
+      "timestamp": "2026-10-31T07:17:05.288Z",
+      "ttfb": 483,
+      "fcp": 1592,
+      "lcp": 1592,
+      "cls": 0,
+      "lcpElement": "IMG.absolute inset-0 h-full w-full object-cover",
+      "lcpSize": 196000,
+      "domContentLoaded": 1440,
+      "loadEventEnd": 2517,
+      "totalRequests": 71,
+      "totalBytes": 2132984,
+      "resourcesByType": {
+        "document": {
+          "count": 2,
+          "bytes": 96435
+        },
+        "script": {
+          "count": 39,
+          "bytes": 1496901
+        },
+        "stylesheet": {
+          "count": 3,
+          "bytes": 302931
+        },
+        "image": {
+          "count": 9,
+          "bytes": 57375
+        },
+        "font": {
+          "count": 3,
+          "bytes": 78636
+        },
+        "fetch_xhr": {
+          "count": 15,
+          "bytes": 100706
+        },
+        "other": {
+          "count": 0,
+          "bytes": 0
+        }
+      }
+    },
+    {
+      "url": "https://ruhvi.in/products",
+      "profile": "Mobile (Simulated 4G)",
+      "timestamp": "2026-10-31T07:17:10.944Z",
+      "ttfb": 366,
+      "fcp": 1572,
+      "lcp": 1572,
+      "cls": 0,
+      "lcpElement": "H1.mt-1 font-serif text-3xl font-bold text-charcoal-9",
+      "lcpSize": 9415,
+      "domContentLoaded": 1446,
+      "loadEventEnd": 2307,
+      "totalRequests": 69,
+      "totalBytes": 2243604,
+      "resourcesByType": {
+        "document": {
+          "count": 2,
+          "bytes": 116550
+        },
+        "script": {
+          "count": 41,
+          "bytes": 1611064
+        },
+        "stylesheet": {
+          "count": 3,
+          "bytes": 302931
+        },
+        "image": {
+          "count": 1,
+          "bytes": 1320
+        },
+        "font": {
+          "count": 4,
+          "bytes": 95840
+        },
+        "fetch_xhr": {
+          "count": 18,
+          "bytes": 115899
+        },
+        "other": {
+          "count": 0,
+          "bytes": 0
+        }
+      }
+    },
+    {
+      "url": "https://ruhvi.in/products",
+      "profile": "Mobile (Simulated 4G)",
+      "timestamp": "2026-10-31T07:17:16.475Z",
+      "ttfb": 419,
+      "fcp": 1548,
+      "lcp": 1548,
+      "cls": 0,
+      "lcpElement": "H1.mt-1 font-serif text-3xl font-bold text-charcoal-9",
+      "lcpSize": 9415,
+      "domContentLoaded": 1414,
+      "loadEventEnd": 2241,
+      "totalRequests": 69,
+      "totalBytes": 2207630,
+      "resourcesByType": {
+        "document": {
+          "count": 2,
+          "bytes": 116550
+        },
+        "script": {
+          "count": 41,
+          "bytes": 1611064
+        },
+        "stylesheet": {
+          "count": 3,
+          "bytes": 302931
+        },
+        "image": {
+          "count": 1,
+          "bytes": 1320
+        },
+        "font": {
+          "count": 4,
+          "bytes": 95840
+        },
+        "fetch_xhr": {
+          "count": 18,
+          "bytes": 79925
+        },
+        "other": {
+          "count": 0,
+          "bytes": 0
+        }
+      }
+    },
+    {
+      "url": "https://ruhvi.in/products",
+      "profile": "Mobile (Simulated 4G)",
+      "timestamp": "2026-10-31T07:17:22.594Z",
+      "ttfb": 654,
+      "fcp": 1744,
+      "lcp": 2040,
+      "cls": 0.019,
+      "lcpElement": "H1.mt-1 font-serif text-3xl font-bold text-charcoal-9",
+      "lcpSize": 9415,
+      "domContentLoaded": 1724,
+      "loadEventEnd": 2792,
+      "totalRequests": 69,
+      "totalBytes": 2226116,
+      "resourcesByType": {
+        "document": {
+          "count": 2,
+          "bytes": 116550
+        },
+        "script": {
+          "count": 41,
+          "bytes": 1611064
+        },
+        "stylesheet": {
+          "count": 3,
+          "bytes": 302931
+        },
+        "image": {
+          "count": 1,
+          "bytes": 1320
+        },
+        "font": {
+          "count": 4,
+          "bytes": 95840
+        },
+        "fetch_xhr": {
+          "count": 18,
+          "bytes": 98411
+        },
+        "other": {
+          "count": 0,
+          "bytes": 0
+        }
+      }
+    },
+    {
+      "url": "https://ruhvi.in/contact",
+      "profile": "Mobile (Simulated 4G)",
+      "timestamp": "2026-10-31T07:17:27.954Z",
+      "ttfb": 227,
+      "fcp": 1388,
+      "lcp": 1388,
+      "cls": 0,
+      "lcpElement": "P.mt-2 text-xs text-stone-500",
+      "lcpSize": 10608,
+      "domContentLoaded": 1204,
+      "loadEventEnd": 2136,
+      "totalRequests": 64,
+      "totalBytes": 2147310,
+      "resourcesByType": {
+        "document": {
+          "count": 2,
+          "bytes": 60057
+        },
+        "script": {
+          "count": 40,
+          "bytes": 1592061
+        },
+        "stylesheet": {
+          "count": 3,
+          "bytes": 302931
+        },
+        "image": {
+          "count": 1,
+          "bytes": 1320
+        },
+        "font": {
+          "count": 4,
+          "bytes": 95840
+        },
+        "fetch_xhr": {
+          "count": 14,
+          "bytes": 95101
+        },
+        "other": {
+          "count": 0,
+          "bytes": 0
+        }
+      }
+    },
+    {
+      "url": "https://ruhvi.in/contact",
+      "profile": "Mobile (Simulated 4G)",
+      "timestamp": "2026-10-31T07:17:33.334Z",
+      "ttfb": 241,
+      "fcp": 1352,
+      "lcp": 1352,
+      "cls": 0,
+      "lcpElement": "P.mt-2 text-xs text-stone-500",
+      "lcpSize": 10608,
+      "domContentLoaded": 1227,
+      "loadEventEnd": 2207,
+      "totalRequests": 61,
+      "totalBytes": 2000200,
+      "resourcesByType": {
+        "document": {
+          "count": 1,
+          "bytes": 59786
+        },
+        "script": {
+          "count": 38,
+          "bytes": 1461848
+        },
+        "stylesheet": {
+          "count": 3,
+          "bytes": 302931
+        },
+        "image": {
+          "count": 1,
+          "bytes": 1320
+        },
+        "font": {
+          "count": 4,
+          "bytes": 95840
+        },
+        "fetch_xhr": {
+          "count": 14,
+          "bytes": 78475
+        },
+        "other": {
+          "count": 0,
+          "bytes": 0
+        }
+      }
+    },
+    {
+      "url": "https://ruhvi.in/contact",
+      "profile": "Mobile (Simulated 4G)",
+      "timestamp": "2026-10-31T07:17:39.027Z",
+      "ttfb": 322,
+      "fcp": 1636,
+      "lcp": 1636,
+      "cls": 0,
+      "lcpElement": "P.mt-2 text-xs text-stone-500",
+      "lcpSize": 10362,
+      "domContentLoaded": 1480,
+      "loadEventEnd": 2525,
+      "totalRequests": 66,
+      "totalBytes": 2130435,
+      "resourcesByType": {
+        "document": {
+          "count": 2,
+          "bytes": 60057
+        },
+        "script": {
+          "count": 40,
+          "bytes": 1592062
+        },
+        "stylesheet": {
+          "count": 3,
+          "bytes": 302931
+        },
+        "image": {
+          "count": 1,
+          "bytes": 1320
+        },
+        "font": {
+          "count": 4,
+          "bytes": 95840
+        },
+        "fetch_xhr": {
+          "count": 16,
+          "bytes": 78225
+        },
+        "other": {
+          "count": 0,
+          "bytes": 0
+        }
+      }
+    }
+  ]
+}

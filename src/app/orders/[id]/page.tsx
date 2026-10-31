@@ -21,6 +21,10 @@ import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
 import { createClient } from '@/lib/supabase/client';
 import { ImageWithFallback } from '@/components/ui/ImageWithFallback';
+import {
+  getAuthoritativeCustomerUuid,
+  isValidUuid,
+} from '@/lib/intelligence/customer-identity-resolution';
 
 export default function OrderDetailsPage({
   params,
@@ -32,7 +36,7 @@ export default function OrderDetailsPage({
 
   const router = useRouter();
   const { addToCart } = useCart();
-  const { user } = useAuth();
+  const { user, profile, loading: authLoading } = useAuth();
 
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
@@ -42,6 +46,12 @@ export default function OrderDetailsPage({
     let isMounted = true;
 
     async function fetchOrder() {
+      // 1. Wait for auth context to finish hydrating
+      if (authLoading) {
+        return;
+      }
+
+      // 2. Guest user flow — load local orders from localStorage
       if (!user) {
         try {
           const saved = localStorage.getItem('ruhvi_orders_v1');
@@ -60,26 +70,103 @@ export default function OrderDetailsPage({
         return;
       }
 
+      // 3. Authenticated user: resolve authoritative customer UUID
+      let targetUserId = getAuthoritativeCustomerUuid(user, profile);
+
+      if (!targetUserId) {
+        try {
+          const supabase = createClient();
+          const { data: rpcProfile } = await supabase
+            .rpc('get_user_profile', { p_user_id: user.id })
+            .maybeSingle();
+
+          if (rpcProfile?.id && isValidUuid(rpcProfile.id)) {
+            targetUserId = rpcProfile.id.trim();
+          }
+        } catch (rpcErr) {
+          console.warn('RPC profile resolution fallback error:', rpcErr);
+        }
+      }
+
+      const isPrivilegedStaff =
+        profile?.role === 'admin' ||
+        profile?.role === 'manager' ||
+        profile?.role === 'staff' ||
+        (profile?.role as string) === 'super_admin';
+
+      if (!isPrivilegedStaff && !targetUserId) {
+        console.warn(
+          '[Order Details] Could not resolve customer UUID. Access denied.'
+        );
+        if (isMounted) {
+          setOrder(null);
+          setActionMessage('Unable to verify customer identity.');
+          setLoading(false);
+        }
+        return;
+      }
+
       try {
         const supabase = createClient();
-        let { data, error } = await supabase
-          .from('orders')
-          .select('*, order_items(*, product(*))')
-          .eq('id', orderId)
-          .maybeSingle();
+        let data: any = null;
+        let error: any = null;
 
-        if (!data && !error) {
-          const byNumber = await supabase
+        // If orderId is a valid UUID, search by primary key id
+        if (isValidUuid(orderId)) {
+          let query = supabase
             .from('orders')
             .select('*, order_items(*, product(*))')
-            .eq('order_number', orderId)
-            .maybeSingle();
-          data = byNumber.data;
-          error = byNumber.error;
+            .eq('id', orderId);
+
+          if (!isPrivilegedStaff && targetUserId) {
+            query = query.eq('user_id', targetUserId);
+          }
+
+          const res = await query.maybeSingle();
+          data = res.data;
+          error = res.error;
+        }
+
+        // If not found by UUID or orderId is human-readable order_number, query by order_number
+        if (!data && !error) {
+          let byNumberQuery = supabase
+            .from('orders')
+            .select('*, order_items(*, product(*))')
+            .eq('order_number', orderId);
+
+          if (!isPrivilegedStaff && targetUserId) {
+            byNumberQuery = byNumberQuery.eq('user_id', targetUserId);
+          }
+
+          const byNumberRes = await byNumberQuery.maybeSingle();
+          data = byNumberRes.data;
+          error = byNumberRes.error;
         }
 
         if (error) throw error;
-        if (isMounted && data) setOrder(data as Order);
+
+        // Strict authorization check: customer must never see another customer's order
+        if (
+          data &&
+          !isPrivilegedStaff &&
+          targetUserId &&
+          data.user_id !== targetUserId
+        ) {
+          console.warn(
+            '[Order Details] Authorization mismatch: order user_id does not match authenticated customer'
+          );
+          if (isMounted) {
+            setOrder(null);
+            setActionMessage('You do not have permission to view this order.');
+          }
+          return;
+        }
+
+        if (isMounted && data) {
+          setOrder(data as Order);
+        } else if (isMounted && !data) {
+          setOrder(null);
+        }
       } catch (err) {
         console.error('Error fetching real order:', err);
       } finally {
@@ -92,7 +179,7 @@ export default function OrderDetailsPage({
     return () => {
       isMounted = false;
     };
-  }, [orderId, user]);
+  }, [orderId, user, profile?.id, profile?.role, authLoading]);
 
   const handleCancelOrder = async () => {
     if (!order) return;
@@ -110,6 +197,14 @@ export default function OrderDetailsPage({
     setOrder(updatedOrder);
 
     if (user) {
+      const targetUserId = getAuthoritativeCustomerUuid(user, profile);
+      if (!targetUserId) {
+        setActionMessage(
+          'Unable to verify customer identity. Please refresh and try again.'
+        );
+        return;
+      }
+
       try {
         const supabase = createClient();
         const { error } = await supabase
@@ -119,7 +214,7 @@ export default function OrderDetailsPage({
             updated_at: new Date().toISOString(),
           })
           .eq('id', order.id)
-          .eq('user_id', user.id);
+          .eq('user_id', targetUserId);
 
         if (error) throw error;
         setActionMessage('Order has been successfully cancelled.');

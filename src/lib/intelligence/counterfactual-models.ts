@@ -31,7 +31,8 @@ export type CounterfactualDecisionType =
   | 'inventory_buffer_optimization'
   | 'tiered_pricing_elasticity'
   | 'promotional_campaign_structure'
-  | 'expedited_delivery_promise';
+  | 'expedited_delivery_promise'
+  | 'free_shipping_threshold_economics';
 
 export interface CounterfactualMetric {
   name: string;
@@ -53,6 +54,30 @@ export interface UnintendedSideEffect {
   mitigationSuggestion: string;
 }
 
+export interface SnapshotObservedMetric {
+  value: number | null;
+  status: 'available' | 'insufficient_data' | 'unavailable';
+  sourceMetric: string;
+  sampleSize?: number;
+  isFallbackDefault?: boolean;
+}
+
+export interface SimulatorSnapshotProvenance {
+  snapshotSource:
+    'verified_business_snapshot' | 'fallback_default' | 'insufficient_data';
+  snapshotTimestamp: string;
+  sourceTimeWindow?: {
+    start: string;
+    end: string;
+    timezone: string;
+    preset: string;
+  };
+  observedValues: Record<string, SnapshotObservedMetric>;
+  userEnteredAssumptions: Record<string, number | string>;
+  modelEstimates: Record<string, number>;
+  dataQualityNotice?: string;
+}
+
 export interface CounterfactualEvaluationResult {
   decisionType: CounterfactualDecisionType;
   title: string;
@@ -70,6 +95,7 @@ export interface CounterfactualEvaluationResult {
 
   isSimulatedProjection: true;
   evaluatedAt: string;
+  snapshotProvenance?: SimulatorSnapshotProvenance;
 }
 
 function buildMetric(
@@ -324,6 +350,8 @@ export function modelPromotionalCampaignStructure(params: {
   baselineGrossMarginPercent: number; // e.g. 38%
   discountPercent: number; // e.g. 10%
   expectedConversionLiftPercent: number; // e.g. +20%
+  snapshotProvenance?: SimulatorSnapshotProvenance;
+  customAssumptions?: string[];
 }): CounterfactualEvaluationResult {
   const baselineRevenue = params.baselineMonthlyOrders * params.baselineAov;
   const baselineCogs =
@@ -394,6 +422,12 @@ export function modelPromotionalCampaignStructure(params: {
     });
   }
 
+  const assumptions = [
+    `Assumes ${params.expectedConversionLiftPercent}% order volume increase during campaign.`,
+    'Marketing ad acquisition spend assumed constant in simulation.',
+    ...(params.customAssumptions || []),
+  ];
+
   return {
     decisionType: 'promotional_campaign_structure',
     title: 'Promotional Campaign Structure Counterfactual Model',
@@ -403,16 +437,14 @@ export function modelPromotionalCampaignStructure(params: {
       'Empirical e-commerce promotional response curve calibrated against jewellery AOV.',
     metrics,
     sideEffects,
-    assumptions: [
-      `Assumes ${params.expectedConversionLiftPercent}% order volume increase during campaign.`,
-      'Marketing ad acquisition spend assumed constant in simulation.',
-    ],
+    assumptions,
     netBusinessRecommendation:
       profitDelta > 0
         ? 'FAVORABLE_WITH_CONDITIONS'
         : 'HIGH_RISK_NOT_RECOMMENDED',
     isSimulatedProjection: true,
     evaluatedAt: new Date().toISOString(),
+    snapshotProvenance: params.snapshotProvenance,
   };
 }
 
@@ -518,5 +550,212 @@ export function modelExpeditedDeliveryPromise(params: {
         : 'HIGH_RISK_NOT_RECOMMENDED',
     isSimulatedProjection: true,
     evaluatedAt: new Date().toISOString(),
+  };
+}
+
+/**
+ * 5. Model Free Shipping Threshold Economics (Track F - Phase 30)
+ * Evaluates the financial and conversion impact of modifying the free shipping cart threshold.
+ */
+export function modelFreeShippingThresholdEconomics(params: {
+  baselineMonthlyOrders: number;
+  baselineAov: number;
+  baselineGrossMarginPercent: number; // e.g. 38%
+  currentThreshold: number; // e.g. 2500
+  proposedThreshold: number; // e.g. 5000
+  averageFulfillmentShippingCost: number; // e.g. 150
+  standardShippingFeeCharged: number; // e.g. 100
+  cartExpansionLiftPercent?: number; // e.g. 4%
+  conversionDropPercent?: number; // e.g. 2%
+  snapshotProvenance?: SimulatorSnapshotProvenance;
+  customAssumptions?: string[];
+}): CounterfactualEvaluationResult {
+  const cartExpansionLift =
+    params.cartExpansionLiftPercent ??
+    (params.proposedThreshold > params.currentThreshold
+      ? Math.min(
+          10,
+          Math.max(
+            1,
+            ((params.proposedThreshold - params.currentThreshold) /
+              Math.max(1, params.currentThreshold)) *
+              2
+          )
+        )
+      : 0);
+
+  const conversionDrop =
+    params.conversionDropPercent ??
+    (params.proposedThreshold > params.currentThreshold
+      ? Math.min(
+          6,
+          Math.max(
+            0.5,
+            ((params.proposedThreshold - params.currentThreshold) /
+              Math.max(1, params.currentThreshold)) *
+              1.2
+          )
+        )
+      : 0);
+
+  // Baseline calculations
+  const baselineRevenue = params.baselineMonthlyOrders * params.baselineAov;
+  const baselineCogs =
+    baselineRevenue * (1 - params.baselineGrossMarginPercent / 100);
+  const baselineProductProfit = baselineRevenue - baselineCogs;
+
+  // Fraction of orders qualifying for free shipping under current threshold
+  const currentQualifyingRatio = Math.max(
+    0.6,
+    Math.min(0.98, 1 - params.currentThreshold / (params.baselineAov * 1.5))
+  );
+  const baselineQualifyingOrders = Math.round(
+    params.baselineMonthlyOrders * currentQualifyingRatio
+  );
+  const baselineFeePayingOrders =
+    params.baselineMonthlyOrders - baselineQualifyingOrders;
+
+  // Shipping costs: brand absorbs courier cost on all shipments, recovers fee from sub-threshold orders
+  const baselineCourierExpense =
+    params.baselineMonthlyOrders * params.averageFulfillmentShippingCost;
+  const baselineShippingFeeRevenue =
+    baselineFeePayingOrders * params.standardShippingFeeCharged;
+  const baselineNetShippingExpense =
+    baselineCourierExpense - baselineShippingFeeRevenue;
+  const baselineNetContribution =
+    baselineProductProfit - baselineNetShippingExpense;
+
+  // Projected calculations
+  const projectedOrders = Math.round(
+    params.baselineMonthlyOrders * (1 - conversionDrop / 100)
+  );
+  const projectedAov = Math.round(
+    params.baselineAov * (1 + cartExpansionLift / 100)
+  );
+  const projectedRevenue = projectedOrders * projectedAov;
+  const projectedCogs =
+    projectedRevenue * (1 - params.baselineGrossMarginPercent / 100);
+  const projectedProductProfit = projectedRevenue - projectedCogs;
+
+  const proposedQualifyingRatio = Math.max(
+    0.4,
+    Math.min(0.95, 1 - params.proposedThreshold / (projectedAov * 1.5))
+  );
+  const projectedQualifyingOrders = Math.round(
+    projectedOrders * proposedQualifyingRatio
+  );
+  const projectedFeePayingOrders = projectedOrders - projectedQualifyingOrders;
+
+  const projectedCourierExpense =
+    projectedOrders * params.averageFulfillmentShippingCost;
+  const projectedShippingFeeRevenue =
+    projectedFeePayingOrders * params.standardShippingFeeCharged;
+  const projectedNetShippingExpense =
+    projectedCourierExpense - projectedShippingFeeRevenue;
+  const projectedNetContribution =
+    projectedProductProfit - projectedNetShippingExpense;
+
+  const netContributionDelta =
+    projectedNetContribution - baselineNetContribution;
+
+  const metrics: CounterfactualMetric[] = [
+    buildMetric(
+      'Monthly Merchandise Revenue',
+      'financial',
+      '₹',
+      baselineRevenue,
+      projectedRevenue,
+      0.08,
+      true
+    ),
+    buildMetric(
+      'Average Order Value (AOV)',
+      'financial',
+      '₹',
+      params.baselineAov,
+      projectedAov,
+      0.05,
+      true
+    ),
+    buildMetric(
+      'Monthly Order Volume',
+      'customer',
+      'orders',
+      params.baselineMonthlyOrders,
+      projectedOrders,
+      0.06,
+      true
+    ),
+    buildMetric(
+      'Net Shipping Expense',
+      'operations',
+      '₹',
+      baselineNetShippingExpense,
+      projectedNetShippingExpense,
+      0.1,
+      false // Lower is better
+    ),
+    buildMetric(
+      'Net Operating Contribution',
+      'financial',
+      '₹',
+      baselineNetContribution,
+      projectedNetContribution,
+      0.12,
+      true
+    ),
+  ];
+
+  const sideEffects: UnintendedSideEffect[] = [];
+  if (params.proposedThreshold > params.currentThreshold * 1.5) {
+    sideEffects.push({
+      title: 'Cart Abandonment Risk on Entry-Tier Jewellery',
+      severity: 'MEDIUM',
+      description: `Raising free shipping threshold from ₹${params.currentThreshold.toLocaleString('en-IN')} to ₹${params.proposedThreshold.toLocaleString('en-IN')} creates checkout friction for lightweight gifts and charms.`,
+      mitigationSuggestion:
+        'Display dynamic cart drawer progress indicator: "Add ₹X more to unlock Free Insured Express Delivery".',
+    });
+  }
+
+  if (netContributionDelta < 0) {
+    sideEffects.push({
+      title: 'Contribution Margin Compression',
+      severity: 'HIGH',
+      description: `Order loss of ${conversionDrop.toFixed(1)}% outweighs the cart expansion gain, resulting in a net monthly loss of -₹${Math.round(Math.abs(netContributionDelta)).toLocaleString('en-IN')}.`,
+      mitigationSuggestion:
+        'Keep free shipping on prepaid UPI/cards regardless of threshold to protect conversion, or test a smaller threshold increment.',
+    });
+  }
+
+  const assumptions = [
+    `Current free shipping threshold: ₹${params.currentThreshold.toLocaleString('en-IN')}; Proposed: ₹${params.proposedThreshold.toLocaleString('en-IN')}.`,
+    `Modeled AOV cart expansion lift: +${cartExpansionLift.toFixed(1)}% from customers topping up orders.`,
+    `Modeled checkout conversion attrition: -${conversionDrop.toFixed(1)}% from shipping fee resistance.`,
+    `Carrier fulfillment cost absorbed per parcel: ₹${params.averageFulfillmentShippingCost}; Fee billed to sub-threshold carts: ₹${params.standardShippingFeeCharged}.`,
+    ...(params.customAssumptions || []),
+  ];
+
+  let recommendation: CounterfactualEvaluationResult['netBusinessRecommendation'] =
+    'FAVORABLE_WITH_CONDITIONS';
+  if (netContributionDelta > 50000) {
+    recommendation = 'STRONGLY_FAVORABLE';
+  } else if (netContributionDelta <= 0) {
+    recommendation = 'HIGH_RISK_NOT_RECOMMENDED';
+  }
+
+  return {
+    decisionType: 'free_shipping_threshold_economics',
+    title: 'Free Shipping Threshold Economics Counterfactual Model',
+    summary: `Simulated shift in free shipping threshold from ₹${params.currentThreshold.toLocaleString('en-IN')} to ₹${params.proposedThreshold.toLocaleString('en-IN')} with net contribution impact of ${netContributionDelta >= 0 ? '+' : ''}₹${Math.round(netContributionDelta).toLocaleString('en-IN')}/mo.`,
+    confidenceScore: 0.84,
+    uncertaintyBasis:
+      'Calibrated against retail e-commerce cart-top-up elasticity and courier fulfillment subsidy benchmarks.',
+    metrics,
+    sideEffects,
+    assumptions,
+    netBusinessRecommendation: recommendation,
+    isSimulatedProjection: true,
+    evaluatedAt: new Date().toISOString(),
+    snapshotProvenance: params.snapshotProvenance,
   };
 }

@@ -5,6 +5,7 @@ import { logAuditEvent } from '@/lib/audit';
 import {
   evaluateLookupPermissions,
   maskCustomerProfilePii,
+  resolveCanonicalCustomerId,
   type CustomerIdentityRecord,
 } from './customer-identity-resolution';
 
@@ -151,10 +152,30 @@ export async function getCustomer360Profile(
     Math.min(50, options.includeOrderHistoryLimit ?? 10)
   );
 
-  // ─── 1. Server-Side Authorization Evaluation ──────────────────────────────
-  const permissions = evaluateLookupPermissions(
+  // ─── 1. Pre-Flight Server-Side Authorization Evaluation ───────────────────
+  const preCheck = evaluateLookupPermissions(
     requestedByActor.role,
     targetCustomerId,
+    requestedByActor.actorId
+  );
+
+  // If a customer attempts to query another customer profile, reject immediately before DB access
+  if (!preCheck.allowed && requestedByActor.role === 'customer') {
+    throw new Customer360ForbiddenError(
+      preCheck.reason || 'Customers are restricted to their own profile only.'
+    );
+  }
+
+  const supabase = getServiceClient();
+  const resolution = await resolveCanonicalCustomerId(
+    targetCustomerId,
+    supabase
+  );
+  const resolvedTargetId = resolution.resolvedId || targetCustomerId;
+
+  const permissions = evaluateLookupPermissions(
+    requestedByActor.role,
+    resolvedTargetId,
     requestedByActor.actorId
   );
 
@@ -165,7 +186,6 @@ export async function getCustomer360Profile(
     );
   }
 
-  const supabase = getServiceClient();
   const fetchTimestamp = new Date().toISOString();
 
   // ─── 2. Parallel Authoritative Queries ─────────────────────────────────────
@@ -177,14 +197,14 @@ export async function getCustomer360Profile(
         .select(
           'id, full_name, email, phone, email_verified, phone_verified, role, wallet_balance, reward_coins, dob, anniversary_date, referral_code, created_at, account_status'
         )
-        .eq('id', targetCustomerId)
+        .eq('id', resolvedTargetId)
         .maybeSingle(),
 
       // Default Delivery Region (Only city/state/pincode — NEVER street line1/line2)
       supabase
         .from('addresses')
         .select('city, state, pincode, is_default')
-        .eq('user_id', targetCustomerId)
+        .eq('user_id', resolvedTargetId)
         .order('is_default', { ascending: false })
         .limit(1)
         .maybeSingle(),
@@ -193,7 +213,7 @@ export async function getCustomer360Profile(
       supabase
         .from('orders')
         .select('id, order_number, status, total, payment_method, created_at')
-        .eq('user_id', targetCustomerId)
+        .eq('user_id', resolvedTargetId)
         .order('created_at', { ascending: false })
         .limit(orderLimit),
 
@@ -201,7 +221,7 @@ export async function getCustomer360Profile(
       supabase
         .from('wishlists')
         .select('product_id, created_at, products(id, name, price)')
-        .eq('user_id', targetCustomerId)
+        .eq('user_id', resolvedTargetId)
         .order('created_at', { ascending: false })
         .limit(20),
 
@@ -209,7 +229,7 @@ export async function getCustomer360Profile(
       supabase
         .from('carts')
         .select('id, updated_at, cart_items(quantity, price_at_add)')
-        .eq('user_id', targetCustomerId)
+        .eq('user_id', resolvedTargetId)
         .maybeSingle(),
 
       // Support tickets
@@ -218,7 +238,7 @@ export async function getCustomer360Profile(
         .select(
           'id, ticket_number, title, priority, status, created_at, updated_at'
         )
-        .eq('customer_id', targetCustomerId)
+        .eq('customer_id', resolvedTargetId)
         .order('created_at', { ascending: false })
         .limit(10),
     ]);
@@ -347,7 +367,7 @@ export async function getCustomer360Profile(
     requestedByActor.role === 'admin' ||
     requestedByActor.role === 'super_admin';
 
-  if (isPrivilegedRole || requestedByActor.actorId !== targetCustomerId) {
+  if (isPrivilegedRole || requestedByActor.actorId !== resolvedTargetId) {
     try {
       await logAuditEvent({
         actorId: requestedByActor.actorId,
@@ -355,7 +375,7 @@ export async function getCustomer360Profile(
         portal: 'admin',
         action: 'customer_360_privileged_read',
         entityType: 'customer',
-        entityId: targetCustomerId,
+        entityId: resolvedTargetId,
         changes: {
           requesterRole: requestedByActor.role,
           piiMasked: permissions.maskPii,
@@ -423,7 +443,7 @@ export async function getCustomer360Profile(
       })),
     },
     metadata: {
-      targetCustomerId,
+      targetCustomerId: resolvedTargetId,
       requestedByActorId: requestedByActor.actorId,
       requestedByRole: requestedByActor.role,
       piiMasked: permissions.maskPii,

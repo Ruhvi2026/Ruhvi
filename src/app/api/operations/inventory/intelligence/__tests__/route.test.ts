@@ -137,6 +137,32 @@ describe('GET /api/operations/inventory/intelligence (Track B & C Integration - 
       }),
     });
 
+    mockedGetDemand
+      .mockResolvedValueOnce({
+        netUnitsSold: 28,
+        grossUnitsSold: 30,
+        cancelledUnitsOmitted: 2,
+        returnedUnitsSubtracted: 2,
+        rawDailySales: 0.93,
+        inStockDailySales: 1.2,
+        classification: 'ACTIVE_DEMAND',
+        classificationReason: 'Active demand with 28 units sold',
+        trend: 'ACCELERATING',
+        confidenceScore: 0.85,
+      })
+      .mockResolvedValueOnce({
+        netUnitsSold: 0,
+        grossUnitsSold: 0,
+        cancelledUnitsOmitted: 0,
+        returnedUnitsSubtracted: 0,
+        rawDailySales: 0,
+        inStockDailySales: 0,
+        classification: 'ZERO_DEMAND',
+        classificationReason: 'Zero units sold in 30 days',
+        trend: 'STEADY',
+        confidenceScore: 0.7,
+      });
+
     mockedGetStockout
       .mockResolvedValueOnce({
         riskLevel: 'CRITICAL',
@@ -190,14 +216,29 @@ describe('GET /api/operations/inventory/intelligence (Track B & C Integration - 
     expect(json.success).toBe(true);
     expect(json.summary.scannedSkusCount).toBe(2);
     expect(json.summary.stockoutAlertsCount).toBe(1);
+    expect(json.summary.criticalStockoutsCount).toBe(1);
+    expect(json.summary.imminentRisksCount).toBe(0);
     expect(json.summary.restockDraftsCount).toBe(1);
+    expect(json.summary.criticalRestockCount).toBe(1);
     expect(json.summary.deadStockFindingsCount).toBe(1);
+    expect(json.summary.deadStockCount).toBe(1);
+    expect(json.summary.slowMovingCount).toBe(0);
+    expect(json.summary.totalTiedCapital).toBe(75000);
+    expect(json.summary.activeDemandSkusCount).toBe(1);
+    expect(json.summary.zeroDemandSkusCount).toBe(1);
+    expect(json.demandSignals).toHaveLength(2);
+    expect(json.demandSignals[0].classification).toBe('ACTIVE_DEMAND');
+    expect(json.demandSignals[1].classification).toBe('ZERO_DEMAND');
 
     expect(json.stockoutAlerts[0].sku).toBe('RG-DIA-001');
     expect(json.stockoutAlerts[0].riskLevel).toBe('CRITICAL');
+    expect(json.stockoutAlerts[0].sellableStock).toBeDefined();
 
     expect(json.restockDrafts[0].recommendedUnits).toBe(15);
+    expect(json.restockDrafts[0].suggestedQuantity).toBe(15);
+    expect(json.restockDrafts[0].isDraftReviewOnly).toBe(true);
     expect(json.deadStockFindings[0].sku).toBe('BG-GLD-002');
+    expect(json.deadStockFindings[0].capitalTiedUp).toBe(75000);
     expect(json.advisoryNotice).toBe(ADVISORY_NOTICE);
     expect(json.requiresHumanReview).toBe(true);
   });

@@ -82,6 +82,10 @@ export interface StockoutRiskEstimate {
     windowDays: number;
     inStockDaysObserved: number;
     trend: string;
+    onHandStock?: number;
+    reservedStock?: number;
+    confidenceLimits?: string;
+    advisoryNotice?: string;
   };
 
   evaluatedAt: string;
@@ -112,6 +116,12 @@ export function calculateStockoutRisk(
 
   // Edge case: Already stocked out
   if (sellableStock <= 0) {
+    const zeroReason =
+      reservedStock > 0 && onHandStock > 0
+        ? `Zero sellable stock: all ${onHandStock} on-hand unit(s) are reserved.`
+        : 'Product currently has zero sellable stock.';
+    confidenceLimitations.push(zeroReason);
+
     return {
       productId: params.productId,
       sku: params.sku,
@@ -127,13 +137,18 @@ export function calculateStockoutRisk(
       riskLevel: 'CRITICAL_STOCKOUT',
       confidence: 'HIGH',
       confidenceScore: 1.0,
-      confidenceLimitations: ['Product currently has zero sellable stock.'],
+      confidenceLimitations,
       assumptions: {
         formula: 'sellableStock <= 0',
         leadTimeDays: supplierLeadTimeDays,
         windowDays: demandMetrics.windowDays,
         inStockDaysObserved: demandMetrics.inStockDays,
         trend: demandMetrics.trend,
+        onHandStock,
+        reservedStock,
+        confidenceLimits: 'Certain: Sellable stock is zero.',
+        advisoryNotice:
+          'Review-only advisory estimate. Zero automatic stock updates are performed.',
       },
       evaluatedAt,
     };
@@ -172,6 +187,12 @@ export function calculateStockoutRisk(
         windowDays: demandMetrics.windowDays,
         inStockDaysObserved: demandMetrics.inStockDays,
         trend: demandMetrics.trend,
+        onHandStock,
+        reservedStock,
+        confidenceLimits:
+          'Projection withheld: insufficient historical observation window.',
+        advisoryNotice:
+          'Review-only advisory estimate. Zero automatic stock updates are performed.',
       },
       evaluatedAt,
     };
@@ -211,6 +232,12 @@ export function calculateStockoutRisk(
         windowDays: demandMetrics.windowDays,
         inStockDaysObserved: demandMetrics.inStockDays,
         trend: demandMetrics.trend,
+        onHandStock,
+        reservedStock,
+        confidenceLimits:
+          'Subject to sudden demand spikes; current velocity is flat zero.',
+        advisoryNotice:
+          'Review-only advisory estimate. Zero automatic stock updates are performed.',
       },
       evaluatedAt,
     };
@@ -317,6 +344,16 @@ export function calculateStockoutRisk(
       windowDays: demandMetrics.windowDays,
       inStockDaysObserved: demandMetrics.inStockDays,
       trend: demandMetrics.trend,
+      onHandStock,
+      reservedStock,
+      confidenceLimits:
+        confidence === 'HIGH'
+          ? 'High projection reliability based on >=21 in-stock days and >=5 orders.'
+          : confidence === 'MEDIUM'
+            ? 'Moderate projection reliability. Subject to normal demand variance.'
+            : 'Low projection reliability due to sparse order history (<3 orders) or brief in-stock horizon (<14 days).',
+      advisoryNotice:
+        'Review-only advisory estimate. Zero automatic stock updates are performed.',
     },
     evaluatedAt,
   };

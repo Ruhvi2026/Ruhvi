@@ -344,6 +344,44 @@ describe('Restock Recommendation Engine (Track G - Phase 38)', () => {
       expect(res.sellableStock).toBe(8);
       expect(res.suggestedQuantity).toBe(39); // 47 - 8 = 39
       expect(res.isDraftReviewOnly).toBe(true);
+      expect(res.advisoryNotice).toContain(
+        'Review-only replenishment suggestion'
+      );
+    });
+
+    it('utilizes verified cost_price from products table for estimated procurement cost', async () => {
+      const mockSupabase = {
+        from: jest.fn().mockReturnValue({
+          select: jest.fn().mockReturnThis(),
+          eq: jest.fn().mockReturnThis(),
+          maybeSingle: jest.fn().mockResolvedValue({
+            data: {
+              id: productId,
+              sku,
+              name: 'Solitaire Diamond Studs',
+              price: 50000,
+              cost_price: 32000,
+              stock_quantity: 10,
+              low_stock_threshold: 2,
+            },
+            error: null,
+          }),
+        }),
+      };
+
+      (getServiceClient as jest.Mock).mockReturnValue(mockSupabase);
+      (getSkuDemandMetrics as jest.Mock).mockResolvedValue(
+        createMockDemandMetrics({ inStockDailySales: 1.0 })
+      );
+
+      const res = await getSkuRestockRecommendation(productId, {
+        supplierLeadTimeDays: 10,
+        reviewPeriodDays: 30,
+      });
+
+      // targetStockLevel = 47. Deficit = 47 - 10 = 37.
+      expect(res.suggestedQuantity).toBe(37);
+      expect(res.estimatedProcurementCost).toBe(37 * 32000); // 1,184,000
     });
   });
 });

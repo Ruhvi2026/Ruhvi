@@ -1,5 +1,6 @@
 import { MetadataRoute } from 'next';
 import { createPublicClient } from '@/lib/supabase/public';
+import { isTestProduct, isTestBlogPost } from '@/lib/content/content-isolation';
 
 /**
  * Generates the XML sitemap for Ruhvi E-commerce (Finding E1).
@@ -66,7 +67,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       );
     } else if (dbProducts && dbProducts.length > 0) {
       productEntries = dbProducts
-        .filter((p: any) => Boolean(p.slug))
+        .filter((p: any) => Boolean(p.slug) && !isTestProduct(p.slug))
         .map((p: any) => ({
           url: `${baseUrl}/products/${p.slug}`,
           ...(p.updated_at ? { lastModified: new Date(p.updated_at) } : {}),
@@ -100,7 +101,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       );
     } else if (dbBlogs && dbBlogs.length > 0) {
       blogEntries = dbBlogs
-        .filter((b: any) => Boolean(b.slug))
+        .filter((b: any) => Boolean(b.slug) && !isTestBlogPost(b.slug))
         .map((b: any) => ({
           url: `${baseUrl}/blog/${b.slug}`,
           ...(b.updated_at || b.published_at

@@ -164,6 +164,8 @@ export default function AdminAiChatPage() {
             onStart={voice.startSession}
             errorMessage={voice.errorMessage}
             roomName={voice.roomName}
+            isFallback={voice.isFallback}
+            fallbackReason={voice.fallbackReason}
           />
         </div>
 

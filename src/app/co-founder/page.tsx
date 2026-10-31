@@ -1706,6 +1706,8 @@ export default function CoFounderPortalPage() {
               messages={messages}
               onSendMessage={executeChatMessage}
               isLoading={isLoading}
+              isFallback={voice.isFallback}
+              fallbackReason={voice.fallbackReason}
             />
           </div>
 

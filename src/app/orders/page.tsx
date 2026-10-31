@@ -16,23 +16,74 @@ import { Order } from '@/types/database';
 import { useAuth } from '@/context/AuthContext';
 import { createClient } from '@/lib/supabase/client';
 import { ImageWithFallback } from '@/components/ui/ImageWithFallback';
+import {
+  getAuthoritativeCustomerUuid,
+  isValidUuid,
+} from '@/lib/intelligence/customer-identity-resolution';
 
 export default function OrderHistoryPage() {
-  const { user, profile } = useAuth();
+  const { user, profile, loading: authLoading } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let isMounted = true;
+
     async function fetchOrders() {
-      if (!user) {
-        setOrders([]);
-        setLoading(false);
+      // 1. Wait for auth context to finish hydrating
+      if (authLoading) {
         return;
       }
 
-      const targetUserId = profile?.id || user.id;
-      // Wait for profile UUID to resolve if authenticated
-      if (!profile?.id) {
+      // 2. Guest user flow — load local orders from localStorage
+      if (!user) {
+        try {
+          const saved =
+            typeof window !== 'undefined'
+              ? localStorage.getItem('ruhvi_orders_v1')
+              : null;
+          if (saved && isMounted) {
+            setOrders(JSON.parse(saved));
+          } else if (isMounted) {
+            setOrders([]);
+          }
+        } catch {
+          if (isMounted) setOrders([]);
+        } finally {
+          if (isMounted) setLoading(false);
+        }
+        return;
+      }
+
+      // 3. Authenticated user: resolve authoritative PostgreSQL UUID
+      let targetUserId = getAuthoritativeCustomerUuid(user, profile);
+
+      // If profile UUID is not yet cached in state, query the secure RPC fallback
+      if (!targetUserId) {
+        try {
+          const supabase = createClient();
+          const { data: rpcProfile } = await supabase
+            .rpc('get_user_profile', { p_user_id: user.id })
+            .maybeSingle();
+
+          if (rpcProfile?.id && isValidUuid(rpcProfile.id)) {
+            targetUserId = rpcProfile.id.trim();
+          }
+        } catch (rpcErr) {
+          console.warn('RPC profile resolution fallback error:', rpcErr);
+        }
+      }
+
+      // If we still cannot resolve a valid UUID, fail-closed without firing an invalid PostgREST query
+      if (!targetUserId) {
+        console.warn(
+          '[Orders] Could not resolve authoritative customer UUID for Firebase user:',
+          user.id
+        );
+        if (isMounted) {
+          setOrders([]);
+          setLoading(false);
+        }
         return;
       }
 
@@ -45,16 +96,20 @@ export default function OrderHistoryPage() {
           .order('created_at', { ascending: false });
 
         if (error) throw error;
-        setOrders((data as Order[]) || []);
+        if (isMounted) setOrders((data as Order[]) || []);
       } catch (err) {
         console.error('Error fetching real orders:', err);
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     }
 
     fetchOrders();
-  }, [user, profile?.id]);
+
+    return () => {
+      isMounted = false;
+    };
+  }, [user, profile?.id, authLoading]);
 
   const getStatusBadge = (status: string) => {
     switch (status) {

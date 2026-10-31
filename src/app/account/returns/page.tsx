@@ -14,6 +14,7 @@ import {
 import { ReturnRequest } from '@/types/database';
 import { useAuth } from '@/context/AuthContext';
 import { createClient } from '@/lib/supabase/client';
+import { getAuthoritativeCustomerUuid } from '@/lib/intelligence/customer-identity-resolution';
 
 interface ReturnRow {
   id: string;
@@ -29,12 +30,14 @@ interface ReturnRow {
 }
 
 export default function ReturnsHistoryPage() {
-  const { user, profile } = useAuth();
+  const { user, profile, loading: authLoading } = useAuth();
   const [returns, setReturns] = useState<ReturnRequest[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchReturns() {
+      if (authLoading) return;
+
       if (!user) {
         try {
           const saved = localStorage.getItem('ruhvi_returns_v1');
@@ -47,8 +50,9 @@ export default function ReturnsHistoryPage() {
         return;
       }
 
-      const targetUserId = profile?.id || user.id;
-      if (!profile?.id) {
+      const targetUserId = getAuthoritativeCustomerUuid(user, profile);
+      if (!targetUserId) {
+        setLoading(false);
         return;
       }
 
@@ -86,7 +90,7 @@ export default function ReturnsHistoryPage() {
     }
 
     fetchReturns();
-  }, [user, profile?.id]);
+  }, [user, profile?.id, authLoading]);
 
   const getStatusBadge = (status: string) => {
     switch (status) {

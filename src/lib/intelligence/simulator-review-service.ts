@@ -10,6 +10,8 @@ export type { SimulationFixture };
 import {
   modelInventoryBufferOptimization,
   modelTieredPricingElasticity,
+  modelPromotionalCampaignStructure,
+  modelFreeShippingThresholdEconomics,
   type CounterfactualEvaluationResult,
 } from './counterfactual-models';
 import type { ProposedCoFounderAction } from './approval-policy';
@@ -212,4 +214,103 @@ export function generateSimulationForProposal(
     reviewGuidance,
     reviewedAt,
   };
+}
+
+/**
+ * Authoritative Unified Simulation Dispatcher (Phase 28 Reconciled Engine)
+ * Unifies the Macro Counterfactual Engine (counterfactual-models.ts) and the
+ * Micro SKU Catalog Engine (decision-simulator.ts) behind a single typed contract.
+ */
+export function executeAuthoritativeSimulation(request: {
+  mode: 'macro_counterfactual' | 'micro_sku_catalog';
+  macroDecisionType?:
+    | 'inventory_buffer_optimization'
+    | 'tiered_pricing_elasticity'
+    | 'promotional_campaign_structure'
+    | 'expedited_delivery_promise'
+    | 'free_shipping_threshold_economics';
+  macroParams?: Record<string, any>;
+  microScenario?: {
+    type:
+      | 'inventory_safety_buffer_adjustment'
+      | 'price_elasticity_change'
+      | 'promotional_discount_campaign'
+      | 'supplier_lead_time_delay';
+    title: string;
+    description: string;
+    parameters: Record<string, any>;
+  };
+  fixture?: SimulationFixture;
+}): SimulationResult | CounterfactualEvaluationResult {
+  if (request.mode === 'micro_sku_catalog') {
+    if (!request.microScenario) {
+      throw new Error(
+        'microScenario configuration is required when mode is micro_sku_catalog'
+      );
+    }
+    return simulateDecisionScenario(
+      request.microScenario as any,
+      request.fixture || DEFAULT_CATALOG_FIXTURE
+    );
+  }
+
+  // Macro Counterfactual Dispatch
+  const params = request.macroParams || {};
+  switch (request.macroDecisionType) {
+    case 'inventory_buffer_optimization':
+      return modelInventoryBufferOptimization({
+        skuCount: params.skuCount || 10,
+        averageUnitCost: params.averageUnitCost || 25000,
+        bufferDeltaUnitsPerSku: params.bufferDeltaUnitsPerSku || 3,
+        baselineStockoutLossMonthly:
+          params.baselineStockoutLossMonthly || 150000,
+        costOfCapitalAnnualPercent: params.costOfCapitalAnnualPercent || 12,
+      });
+
+    case 'tiered_pricing_elasticity':
+      return modelTieredPricingElasticity({
+        baselineRevenueMonthly: params.baselineRevenueMonthly || 1500000,
+        baselineGrossMarginPercent: params.baselineGrossMarginPercent || 40,
+        priceAdjustmentPercent: params.priceAdjustmentPercent || 5,
+        priceTier: params.priceTier || 'luxury_high_ticket',
+      });
+
+    case 'promotional_campaign_structure':
+      return modelPromotionalCampaignStructure({
+        baselineMonthlyOrders: params.baselineMonthlyOrders || 350,
+        baselineAov: params.baselineAov || 38500,
+        baselineGrossMarginPercent: params.baselineGrossMarginPercent || 38,
+        discountPercent: params.discountPercent || 10,
+        expectedConversionLiftPercent:
+          params.expectedConversionLiftPercent || 20,
+        snapshotProvenance: params.snapshotProvenance,
+      });
+
+    case 'free_shipping_threshold_economics':
+      return modelFreeShippingThresholdEconomics({
+        baselineMonthlyOrders: params.baselineMonthlyOrders || 350,
+        baselineAov: params.baselineAov || 38500,
+        baselineGrossMarginPercent: params.baselineGrossMarginPercent || 38,
+        currentThreshold: params.currentThreshold || 2500,
+        proposedThreshold: params.proposedThreshold || 5000,
+        averageFulfillmentShippingCost:
+          params.averageFulfillmentShippingCost || 150,
+        standardShippingFeeCharged: params.standardShippingFeeCharged || 100,
+        cartExpansionLiftPercent: params.cartExpansionLiftPercent,
+        conversionDropPercent: params.conversionDropPercent,
+        snapshotProvenance: params.snapshotProvenance,
+      });
+
+    default:
+      // Default to micro catalog simulation if unspecified
+      return simulateDecisionScenario(
+        {
+          type: 'inventory_safety_buffer_adjustment',
+          title: 'Default Simulation Run',
+          description: 'Counterfactual run against catalog baseline',
+          parameters: { thresholdAdjustmentDelta: 1 },
+        },
+        request.fixture || DEFAULT_CATALOG_FIXTURE
+      );
+  }
 }
