@@ -234,6 +234,7 @@ describe('Responsive, Theme & UI Regression Verification (Phase 59)', () => {
       const walletSource = fs.readFileSync(walletPagePath, 'utf-8');
 
       // Responsive flex/grid
+      expect(walletSource).toMatch(/flex flex-col[\s\S]*?sm:flex-row/);
       expect(walletSource).toContain('flex flex-col sm:flex-row');
       expect(walletSource).toContain(
         'p-8 text-emerald-50 shadow-2xl sm:p-10 md:flex-row'
