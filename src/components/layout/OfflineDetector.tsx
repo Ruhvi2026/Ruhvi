@@ -11,11 +11,6 @@ export function OfflineDetector() {
   const [isOffline, setIsOffline] = useState(false);
 
   useEffect(() => {
-    // Check initial state
-    if (typeof window !== 'undefined' && !navigator.onLine) {
-      setIsOffline(true);
-    }
-
     const handleOffline = () => setIsOffline(true);
     const handleOnline = () => setIsOffline(false);
 

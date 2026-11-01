@@ -25,7 +25,25 @@ jest.mock('@/lib/ai/browser/playwright', () => ({
   }),
 }));
 
+jest.mock('@/lib/ai/browser/scrapling', () => ({
+  scrapeCompetitorWithScrapling: jest.fn().mockResolvedValue({
+    url: 'https://competitor.com',
+    status: 200,
+    title: 'Luxury Demi-Fine Jewellery Online',
+    headings: {
+      h1: ['Waterproof Gold Necklaces & Rings'],
+      h2: ['Trending Bridal Chokers'],
+    },
+    textContent: 'Curated 22K gold plated jewellery.',
+    markdownContent: 'Curated 22K gold plated jewellery.',
+    detectedPricing: ['₹2,499', '₹3,999', '₹5,499'],
+    engine: 'scrapling_stealth',
+    antiBotBypassed: true,
+  }),
+}));
+
 import { browseWebPageWithPlaywright } from '@/lib/ai/browser/playwright';
+import { scrapeCompetitorWithScrapling } from '@/lib/ai/browser/scrapling';
 import { CompetitorResearchWorker } from '../worker-5-competitor';
 
 describe('Worker 5: Competitor Research Worker', () => {
@@ -102,7 +120,7 @@ describe('Worker 5: Competitor Research Worker', () => {
   });
 
   it('handles browser crawl errors gracefully and falls back to inference', async () => {
-    (browseWebPageWithPlaywright as jest.Mock).mockRejectedValueOnce(
+    (scrapeCompetitorWithScrapling as jest.Mock).mockRejectedValueOnce(
       new Error('Cloudflare Captcha Challenge')
     );
 

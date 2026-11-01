@@ -263,7 +263,7 @@ function StatusCheckContent() {
     <div className="mx-auto min-h-[80vh] max-w-4xl px-4 py-12 text-stone-800">
       {/* Page Title */}
       <div className="mb-10 space-y-3 text-center">
-        <h1 className="text-3xl font-extrabold tracking-tight text-stone-900 sm:text-4xl">
+        <h1 className="font-serif text-3xl font-bold tracking-tight text-[#1F1813] sm:text-4xl">
           Track Support Ticket
         </h1>
         <p className="mx-auto max-w-lg text-base text-stone-600">
@@ -273,7 +273,7 @@ function StatusCheckContent() {
       </div>
 
       {/* Search Card */}
-      <div className="rounded-2xl border border-stone-200 bg-white/90 p-6 shadow-xl backdrop-blur-md">
+      <div className="rounded-2xl border border-[#E7D7A3]/60 bg-[#FDFBF7] p-6 shadow-xl backdrop-blur-md sm:p-8">
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -282,25 +282,25 @@ function StatusCheckContent() {
           className="grid gap-4 sm:grid-cols-7"
         >
           <div className="relative sm:col-span-3">
-            <Ticket className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-amber-500" />
+            <Ticket className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#C5A059]" />
             <input
               type="text"
               placeholder="Ticket Number (e.g. RUV-2026-000001)"
               value={ticketNumber}
               onChange={(e) => setTicketNumber(e.target.value)}
-              className="w-full rounded-xl border border-stone-200 bg-stone-50 py-3.5 pl-12 pr-4 text-sm text-stone-900 placeholder-stone-400 transition focus:border-amber-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-amber-500"
+              className="w-full rounded-xl border border-[#E7D7A3]/70 bg-white py-3.5 pl-12 pr-4 text-sm text-[#121110] placeholder-stone-400 transition focus:border-[#C5A059] focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#C5A059]"
               required
             />
           </div>
           {!user && (
             <div className="relative sm:col-span-3">
-              <Mail className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-amber-500" />
+              <Mail className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#C5A059]" />
               <input
                 type="email"
                 placeholder="Associated Email Address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full rounded-xl border border-stone-200 bg-stone-50 py-3.5 pl-12 pr-4 text-sm text-stone-900 placeholder-stone-400 transition focus:border-amber-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-amber-500"
+                className="w-full rounded-xl border border-[#E7D7A3]/70 bg-white py-3.5 pl-12 pr-4 text-sm text-[#121110] placeholder-stone-400 transition focus:border-[#C5A059] focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#C5A059]"
                 required
               />
             </div>
@@ -308,7 +308,7 @@ function StatusCheckContent() {
           <button
             type="submit"
             disabled={loading}
-            className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 px-5 py-3.5 text-sm font-bold text-white shadow-md transition-all hover:brightness-110 active:scale-95 disabled:opacity-50 sm:col-span-1"
+            className="flex items-center justify-center gap-2 rounded-xl border border-[#C5A059]/40 bg-[#1F1813] px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-[#FAF6ED] shadow-md transition-all hover:bg-black active:scale-95 disabled:opacity-50 sm:col-span-1"
           >
             {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : 'Check'}
           </button>
@@ -343,7 +343,7 @@ function StatusCheckContent() {
                     <div
                       className={`flex h-10 w-10 items-center justify-center rounded-full border text-sm font-bold transition-colors ${
                         isCurrent
-                          ? 'border-amber-500 bg-amber-500 text-white shadow-lg shadow-amber-500/30'
+                          ? 'border-[#C5A059] bg-[#C5A059] text-white shadow-lg shadow-[#C5A059]/30'
                           : isCompleted
                             ? 'border-emerald-500 bg-emerald-50 text-emerald-600'
                             : 'border-stone-200 bg-stone-50 text-stone-400'
@@ -353,7 +353,7 @@ function StatusCheckContent() {
                     </div>
                     <div className="text-left md:text-center">
                       <p
-                        className={`text-sm font-semibold ${isCurrent ? 'font-bold text-amber-600' : isCompleted ? 'text-emerald-600' : 'text-stone-400'}`}
+                        className={`text-sm font-semibold ${isCurrent ? 'font-bold text-[#7A5C22]' : isCompleted ? 'text-emerald-600' : 'text-stone-400'}`}
                       >
                         {step.label}
                       </p>
@@ -369,7 +369,7 @@ function StatusCheckContent() {
             <div className="space-y-5 rounded-2xl border border-stone-200 bg-white p-6 shadow-sm md:col-span-2 md:p-8">
               <div className="flex items-start justify-between">
                 <div className="space-y-1.5">
-                  <span className="rounded-md border border-amber-200 bg-amber-50 px-2.5 py-1 font-mono text-xs font-semibold text-amber-700">
+                  <span className="rounded-md border border-[#E7D7A3] bg-[#FAF7ED] px-2.5 py-1 font-mono text-xs font-semibold text-[#7A5C22]">
                     {ticket.ticket_number}
                   </span>
                   <h2 className="mt-2 text-xl font-bold text-stone-900 md:text-2xl">
@@ -450,7 +450,7 @@ function StatusCheckContent() {
           {/* Conversation History */}
           <div className="space-y-6 rounded-2xl border border-stone-200 bg-white p-6 shadow-sm md:p-8">
             <h3 className="flex items-center gap-2.5 border-b border-stone-100 pb-4 text-lg font-bold text-stone-900">
-              <MessageSquare className="h-5 w-5 text-amber-500" />
+              <MessageSquare className="h-5 w-5 text-[#C5A059]" />
               Conversation Updates
             </h3>
 
@@ -472,7 +472,7 @@ function StatusCheckContent() {
                       <div
                         className={`max-w-[85%] rounded-2xl p-5 text-sm ${
                           isStaff
-                            ? 'border border-amber-200 bg-amber-50 text-stone-900'
+                            ? 'border border-[#E7D7A3] bg-[#FAF7ED] text-[#121110]'
                             : isAI
                               ? 'border border-purple-200 bg-purple-50 text-stone-900'
                               : 'border border-stone-200 bg-stone-50 text-stone-900'
@@ -515,7 +515,7 @@ function StatusCheckContent() {
                   placeholder="Post an update or reply to support..."
                   value={replyText}
                   onChange={(e) => setReplyText(e.target.value)}
-                  className="w-full rounded-xl border border-stone-200 bg-stone-50 px-5 py-4 text-sm text-stone-900 placeholder-stone-400 transition focus:border-amber-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-amber-500"
+                  className="w-full rounded-xl border border-[#E7D7A3]/70 bg-stone-50 px-5 py-4 text-sm text-stone-900 placeholder-stone-400 transition focus:border-[#C5A059] focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#C5A059]"
                   required
                 />
 
@@ -572,7 +572,7 @@ function StatusCheckContent() {
                   <button
                     type="submit"
                     disabled={sendingReply}
-                    className="flex items-center gap-2 rounded-xl bg-amber-500 px-6 py-3 text-sm font-bold text-white shadow-md transition-all hover:bg-amber-600 active:scale-95 disabled:opacity-50"
+                    className="flex items-center gap-2 rounded-xl border border-[#C5A059]/40 bg-[#1F1813] px-6 py-3 text-xs font-semibold uppercase tracking-wider text-[#FAF6ED] shadow-md transition-all hover:bg-black active:scale-95 disabled:opacity-50"
                   >
                     {sendingReply ? (
                       <Loader2 className="h-4 w-4 animate-spin" />

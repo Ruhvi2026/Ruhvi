@@ -28,11 +28,22 @@ import { ecommerceEvent } from '@/lib/gtag';
 import posthog from 'posthog-js/dist/module.slim';
 import { useCart } from '@/context/CartContext';
 import { useWishlist } from '@/context/WishlistContext';
+import dynamic from 'next/dynamic';
 import { useAuth } from '@/context/AuthContext';
 import { SpatialPage } from '@/components/design-system/SpatialPage';
-import { Carousel3D } from '@/components/design-system/Carousel3D';
 import ProductAttributes from '@/components/ProductAttributes';
 import MetaPixel from '@/components/MetaPixel';
+
+const Carousel3D = dynamic(
+  () =>
+    import('@/components/design-system/Carousel3D').then((m) => m.Carousel3D),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-64 w-full animate-pulse rounded-xl bg-[#F9F6F0]" />
+    ),
+  }
+);
 
 interface ProductDetailPageClientProps {
   product: Product;
@@ -260,7 +271,7 @@ export function ProductDetailPageClient({
                     <span className="text-base text-slate-400 line-through">
                       ₹{product.mrp.toLocaleString('en-IN')}
                     </span>
-                    <span className="rounded bg-emerald-50 px-2 py-0.5 text-xs font-bold text-emerald-700">
+                    <span className="rounded border border-[#8C6D2E]/25 bg-[#FAF4E8] px-2.5 py-0.5 text-xs font-semibold tracking-wide text-[#7A5C22]">
                       Save ₹
                       {(product.mrp - product.price).toLocaleString('en-IN')} (
                       {Math.round(
@@ -291,7 +302,7 @@ export function ProductDetailPageClient({
                     }
                     aria-expanded={activeAccordion === 'description'}
                     aria-controls="pdp-description-panel"
-                    className="flex w-full items-center justify-between font-serif text-lg font-medium text-charcoal-900"
+                    className="flex w-full items-center justify-between rounded px-1 font-serif text-lg font-medium text-charcoal-900 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-500"
                   >
                     <span>Description</span>
                     <span className="text-xl leading-none">
@@ -323,7 +334,7 @@ export function ProductDetailPageClient({
                     }
                     aria-expanded={activeAccordion === 'materials'}
                     aria-controls="pdp-materials-panel"
-                    className="flex w-full items-center justify-between font-serif text-lg font-medium text-charcoal-900"
+                    className="flex w-full items-center justify-between rounded px-1 font-serif text-lg font-medium text-charcoal-900 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-500"
                   >
                     <span>Materials & Craftsmanship</span>
                     <span className="text-xl leading-none">
@@ -357,7 +368,7 @@ export function ProductDetailPageClient({
                     }
                     aria-expanded={activeAccordion === 'care'}
                     aria-controls="pdp-care-panel"
-                    className="flex w-full items-center justify-between font-serif text-lg font-medium text-charcoal-900"
+                    className="flex w-full items-center justify-between rounded px-1 font-serif text-lg font-medium text-charcoal-900 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-500"
                   >
                     <span>Care Instructions</span>
                     <span className="text-xl leading-none">
@@ -440,16 +451,22 @@ export function ProductDetailPageClient({
 
                   <div className="flex space-x-3">
                     <button
+                      type="button"
                       onClick={handleBuyNow}
-                      className="flex flex-1 items-center justify-center space-x-2 bg-gold-700 py-4 text-xs font-bold uppercase tracking-[0.15em] text-white shadow-xl transition-all hover:-translate-y-0.5 hover:bg-gold-800"
+                      aria-label="Buy now and proceed directly to checkout"
+                      className="flex flex-1 items-center justify-center space-x-2 bg-gold-700 py-4 text-xs font-bold uppercase tracking-[0.15em] text-white shadow-xl transition-all hover:-translate-y-0.5 hover:bg-gold-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-500 active:scale-[0.98]"
                     >
                       <Zap className="h-4 w-4" />
                       <span>Buy Now</span>
                     </button>
 
                     <button
+                      type="button"
                       onClick={handleToggleWishlist}
-                      className={`border px-5 py-4 transition-colors hover:bg-champagne-50 ${isLiked ? 'border-charcoal-900 bg-champagne-50 text-charcoal-900' : 'border-gold-300/70 text-slate-700'}`}
+                      aria-label={
+                        isLiked ? 'Remove from wishlist' : 'Add to wishlist'
+                      }
+                      className={`border px-5 py-4 transition-all hover:bg-champagne-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-500 active:scale-[0.98] ${isLiked ? 'border-charcoal-900 bg-champagne-50 text-charcoal-900' : 'border-gold-300/70 text-slate-700'}`}
                     >
                       <Heart
                         className={`h-5 w-5 ${isLiked ? 'fill-current' : ''}`}
@@ -459,8 +476,12 @@ export function ProductDetailPageClient({
                   </div>
 
                   <button
+                    type="button"
                     onClick={handleAddToCart}
-                    className="flex w-full items-center justify-center space-x-2 bg-charcoal-900 py-3.5 text-xs font-bold uppercase tracking-[0.15em] text-white shadow-xl transition-all hover:-translate-y-0.5 hover:bg-charcoal-800"
+                    aria-label={
+                      isInCart ? 'Item already added to cart' : 'Add to cart'
+                    }
+                    className="flex w-full items-center justify-center space-x-2 bg-charcoal-900 py-3.5 text-xs font-bold uppercase tracking-[0.15em] text-white shadow-xl transition-all hover:-translate-y-0.5 hover:bg-charcoal-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-500 active:scale-[0.98]"
                   >
                     {isInCart ? (
                       <Check className="h-4 w-4 text-champagne-300" />

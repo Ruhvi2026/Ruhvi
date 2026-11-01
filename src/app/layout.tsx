@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next';
-import { Cormorant_Garamond, Jost, Marcellus } from 'next/font/google';
+import { Cormorant_Garamond, Jost } from 'next/font/google';
 import './globals.css';
 import '@/lib/env'; // Validate env variables on boot
 
@@ -9,6 +9,7 @@ const cormorant = Cormorant_Garamond({
   variable: '--font-cormorant',
   display: 'swap',
   adjustFontFallback: true,
+  preload: true,
 });
 
 const jost = Jost({
@@ -17,14 +18,7 @@ const jost = Jost({
   variable: '--font-jost',
   display: 'swap',
   adjustFontFallback: true,
-});
-
-const marcellus = Marcellus({
-  subsets: ['latin'],
-  weight: '400',
-  variable: '--font-marcellus',
-  display: 'swap',
-  adjustFontFallback: true,
+  preload: true,
 });
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
@@ -131,7 +125,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${cormorant.variable} ${jost.variable} ${marcellus.variable}`}
+      className={`${cormorant.variable} ${jost.variable}`}
       suppressHydrationWarning
     >
       <head>

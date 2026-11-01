@@ -47,6 +47,10 @@ vercel.env
 # Reports
 PERFORMANCE_OPTIMIZATION_REPORT.pdf
 
+# Playwright
+playwright-report/
+test-results/
+
 # Agent Manager worktrees / local state
 .kilo/
 

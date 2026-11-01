@@ -84,8 +84,8 @@ export default function SharedWishlistPage({ userId }: { userId: string }) {
         <EmptyState
           icon={<Heart className="h-8 w-8" />}
           title="No Items Shared"
-          description="This wishlist is empty or is no longer available. Explore our collections to discover your next favourite piece."
-          actionLabel="Explore All Collections"
+          description="This wishlist is empty — explore our latest collection to discover your favourite pieces."
+          actionLabel="Explore Collection"
           actionHref="/products"
         />
       )}

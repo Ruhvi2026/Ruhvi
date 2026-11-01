@@ -100,14 +100,38 @@ export function isTestBlogPost(
 }
 
 /**
- * Normalizes editorial typos in public blog titles.
- * Specifically corrects 'Benifits' -> 'Benefits'.
+ * Normalizes editorial typos and formulaic AI SEO headlines in public blog titles.
+ * Specifically corrects 'Benifits' -> 'Benefits' and transforms formulaic AI cliches
+ * into authentic fine jewellery editorial & care guides.
  */
 export function normalizeBlogTitle(title?: string | null): string {
   if (!title) return '';
-  return title
+  let normalized = title
     .replace(/\bBenifits\b/g, 'Benefits')
     .replace(/\bbenifits\b/g, 'benefits');
+
+  // Humanize formulaic AI SEO headlines into authentic editorial styling & care titles
+  if (
+    /Gold-Plated Jewellery:\s*The Ultimate Buying Guide for 2026/i.test(
+      normalized
+    ) ||
+    /Gold-Plated Jewellery:\s*The Ultimate Buying Guide/i.test(normalized)
+  ) {
+    return "The Art of Choosing 22K Gold-Plated Jewellery: An Artisan's Guide";
+  }
+
+  // General formulaic AI headline pattern normalization
+  normalized = normalized
+    .replace(
+      /:\s*The Ultimate Buying Guide for \d{4}/gi,
+      ": A Curated Collector's Guide"
+    )
+    .replace(
+      /:\s*The Ultimate Buying Guide/gi,
+      ": A Curated Collector's Guide"
+    );
+
+  return normalized;
 }
 
 /**

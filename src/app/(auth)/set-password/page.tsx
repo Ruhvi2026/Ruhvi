@@ -214,7 +214,7 @@ function SetPasswordForm() {
                 disabled={!!user?.email}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="aarav@example.com"
+                placeholder="name@email.com"
                 className="w-full rounded-xl border border-[#E7D7A3] bg-[#FAF7ED]/50 px-4 py-3 pl-10 text-sm text-[#121110] focus:outline-none focus:ring-2 focus:ring-[#C29831]/50 disabled:bg-gray-100 disabled:opacity-60"
               />
               <Mail className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#121110]/40" />

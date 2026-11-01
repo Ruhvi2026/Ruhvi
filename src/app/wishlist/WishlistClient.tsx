@@ -104,8 +104,8 @@ export default function WishlistPage() {
         <EmptyState
           icon={<Heart className="h-8 w-8" />}
           title="Your Wishlist is Empty"
-          description="Save your favourite solitaire rings, emerald chokers, and pearl drops to curate your dream jewellery vault."
-          actionLabel="Explore Fine Jewellery"
+          description="Your wishlist is empty — explore our latest collection and save your favourite jewellery pieces."
+          actionLabel="Explore Collection"
           actionHref="/products"
         />
       )}

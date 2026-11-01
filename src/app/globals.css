@@ -307,6 +307,35 @@
     opacity: 0;
   }
 }
+
+/* Accessibility: Respect system reduced motion preferences (WCAG 2.2 / 2.3.3) */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .mascot-bob,
+  .mascot-thinking,
+  .mascot-happy,
+  .mascot-waving,
+  .mascot-glow,
+  .mascot-glint,
+  .mascot-eyes,
+  .mascot-arm,
+  .mascot-star,
+  .gold-shimmer,
+  .card-lift {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+  }
+}
+
 /* Gemini Wave Loader */
 @keyframes gemini-wave-1 {
   0%,

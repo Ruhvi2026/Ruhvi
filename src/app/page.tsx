@@ -89,10 +89,12 @@ export default async function HomePage() {
                 <source media="(max-width: 1024px)" srcSet={heroTabletUrl} />
                 <img
                   src={heroDesktopUrl}
-                  alt={hp.hero_title || 'Woman wearing gold-plated jewellery'}
+                  alt={hp.hero_title || 'Ruhvi Fine Jewellery Collection'}
                   fetchPriority="high"
                   loading="eager"
                   decoding="async"
+                  width={1200}
+                  height={600}
                   className="absolute inset-0 h-full w-full object-cover"
                   style={{ objectPosition: '78% 30%' }}
                 />
@@ -100,7 +102,31 @@ export default async function HomePage() {
             </div>
             <div className="hero-content">
               <div className="eyebrow">
-                <span>✦</span> FEATURED COLLECTION
+                <svg
+                  className="h-3.5 w-3.5 shrink-0"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M12 2L19.5 8.5L12 22L4.5 8.5L12 2Z"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                  <path
+                    d="M4.5 8.5H19.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                  <path
+                    d="M9 2L12 8.5L15 2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+                <span>Kolkata Atelier &bull; Signature Collection</span>
               </div>
               <h1 className="display">
                 {hp.hero_title ? (
@@ -111,15 +137,15 @@ export default async function HomePage() {
                   />
                 ) : (
                   <>
-                    Timeless Elegance,
+                    Bengal&apos;s Fine Artistry,
                     <br />
-                    Crafted for You
+                    Reimagined in 22K Gold
                   </>
                 )}
               </h1>
               <p>
-                Discover our finest gold-plated jewellery, designed to celebrate
-                your every moment.
+                Handcrafted with generational Bengali karigari and modern
+                luxury, designed to celebrate your everyday moments.
               </p>
               <Link
                 href={hp.hero_cta1_link || '/products'}

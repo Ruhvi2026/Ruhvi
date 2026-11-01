@@ -64,4 +64,49 @@ describe('Accessibility Remediation Verification (Phase 60)', () => {
       /className="[^"]*focus-visible:ring-2 focus-visible:ring-gold-500[^"]*"[\s\S]*?aria-label="Close menu"/
     );
   });
+
+  it('ensures global stylesheet respects system prefers-reduced-motion settings (WCAG 2.2 / 2.3.3)', () => {
+    const globalsCssPath = path.resolve(
+      process.cwd(),
+      'src',
+      'app',
+      'globals.css'
+    );
+    const globalsCss = fs.readFileSync(globalsCssPath, 'utf-8');
+
+    expect(globalsCss).toContain('@media (prefers-reduced-motion: reduce)');
+    expect(globalsCss).toContain('animation-duration: 0.01ms !important;');
+    expect(globalsCss).toContain('.mascot-bob,');
+    expect(globalsCss).toContain('.gold-shimmer,');
+  });
+
+  it('ensures product detail page wishlist and CTA actions declare aria-labels and focus rings', () => {
+    const pdpPath = path.resolve(
+      process.cwd(),
+      'src',
+      'app',
+      'products',
+      '[slug]',
+      'ProductDetailPageClient.tsx'
+    );
+    const pdpSource = fs.readFileSync(pdpPath, 'utf-8');
+
+    expect(pdpSource).toContain(
+      "aria-label={isLiked ? 'Remove from wishlist' : 'Add to wishlist'}"
+    );
+    expect(pdpSource).toContain('focus-visible:ring-gold-500');
+  });
+
+  it('ensures EmptyState component provides accessible focus visible indicator on action links', () => {
+    const emptyStatePath = path.resolve(
+      process.cwd(),
+      'src',
+      'components',
+      'ui',
+      'EmptyState.tsx'
+    );
+    const emptyStateSource = fs.readFileSync(emptyStatePath, 'utf-8');
+
+    expect(emptyStateSource).toContain('focus-visible:ring-gold-500');
+  });
 });

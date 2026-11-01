@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { useTaxonomy } from '@/hooks/useTaxonomy';
 import { ProductCard } from '@/components/products/ProductCard';
+import { ProductCardSkeleton } from '@/components/ui/Skeleton';
 import { SpatialPage } from '@/components/design-system/SpatialPage';
 import { GlassPanel } from '@/components/design-system/GlassPanel';
 import { DepthCard } from '@/components/design-system/DepthCard';
@@ -230,7 +231,7 @@ function ProductsCatalogContent({
         <div className="relative mb-8 pb-8">
           <div className="relative z-10">
             <span className="text-xs font-semibold uppercase tracking-widest text-gold-600">
-              Immersive Catalog
+              Curated Atelier &bull; 22K Gold Plated
             </span>
             <h1 className="mt-1 font-serif text-3xl font-bold text-charcoal-900 sm:text-5xl">
               All Fine <span className="gold-shimmer">Jewellery</span>
@@ -394,13 +395,7 @@ function ProductsCatalogContent({
             {isLoading ? (
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 {[...Array(PAGE_SIZE)].map((_, i) => (
-                  <div key={i} className="animate-pulse">
-                    <div className="aspect-[4/5] w-full rounded-lg bg-gold-100" />
-                    <div className="mt-4 space-y-2">
-                      <div className="h-3 w-2/3 rounded bg-gold-100" />
-                      <div className="h-3 w-1/3 rounded bg-gold-200" />
-                    </div>
-                  </div>
+                  <ProductCardSkeleton key={i} />
                 ))}
               </div>
             ) : filteredProducts.length > 0 ? (

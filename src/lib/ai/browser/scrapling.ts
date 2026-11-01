@@ -58,9 +58,10 @@ export async function scrapeCompetitorWithScrapling(
 
   const timeoutSec = Math.round((options.timeoutMs || 25000) / 1000);
 
-  // 1. Attempt Scrapling stealth execution via Python if available
-  try {
-    const pythonScript = `
+  // 1. Attempt Scrapling stealth execution via Python if available (in non-test environments)
+  if (process.env.NODE_ENV !== 'test') {
+    try {
+      const pythonScript = `
 import sys
 import json
 
@@ -92,28 +93,29 @@ except Exception as e:
     print(json.dumps({"success": False, "error": str(e)}))
 `.trim();
 
-    const { stdout } = await execAsync(
-      `python -c "${pythonScript.replace(/"/g, '\\"')}"`,
-      { timeout: (options.timeoutMs || 25000) + 5000 }
-    );
+      const { stdout } = await execAsync(
+        `python -c "${pythonScript.replace(/"/g, '\\"')}"`,
+        { timeout: (options.timeoutMs || 25000) + 5000 }
+      );
 
-    const parsed = JSON.parse(stdout.trim());
-    if (parsed.success) {
-      return {
-        url: targetUrl,
-        title: parsed.title,
-        headings: parsed.headings || { h1: [], h2: [] },
-        textContent: parsed.textContent || '',
-        markdownContent: parsed.markdownContent || '',
-        detectedPricing: parsed.detectedPricing || [],
-        status: parsed.status || 200,
-        engine: 'scrapling_stealth',
-        antiBotBypassed: true,
-      };
+      const parsed = JSON.parse(stdout.trim());
+      if (parsed.success) {
+        return {
+          url: targetUrl,
+          title: parsed.title,
+          headings: parsed.headings || { h1: [], h2: [] },
+          textContent: parsed.textContent || '',
+          markdownContent: parsed.markdownContent || '',
+          detectedPricing: parsed.detectedPricing || [],
+          status: parsed.status || 200,
+          engine: 'scrapling_stealth',
+          antiBotBypassed: true,
+        };
+      }
+    } catch {
+      // If Scrapling Python module is not yet installed or encountered an issue,
+      // seamlessly fall back to our existing Playwright headless browser
     }
-  } catch {
-    // If Scrapling Python module is not yet installed or encountered an issue,
-    // seamlessly fall back to our existing Playwright headless browser
   }
 
   // 2. Playwright fallback execution

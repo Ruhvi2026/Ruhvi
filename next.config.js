@@ -37,8 +37,17 @@ const nextConfig = {
       key: 'Cache-Control',
       value: 'no-store',
     };
+    const staticAssetCache = {
+      key: 'Cache-Control',
+      value: 'public, max-age=31536000, immutable',
+    };
 
     return [
+      // Long-term immutable caching for static assets (images, fonts, media)
+      {
+        source: '/:all*(svg|jpg|jpeg|png|webp|avif|woff2)',
+        headers: [staticAssetCache],
+      },
       // Personalized / authenticated routes & APIs — never cache, so no stale
       // personalized content leaks between users.
       { source: '/account/:path*', headers: [noStore] },

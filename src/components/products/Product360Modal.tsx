@@ -1,8 +1,18 @@
 'use client';
 
 import React, { useEffect, useRef } from 'react';
+import dynamic from 'next/dynamic';
 import { Product360Set } from '@/types/database';
-import { Product360Viewer } from './Product360Viewer';
+
+const Product360Viewer = dynamic(
+  () => import('./Product360Viewer').then((m) => m.Product360Viewer),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex h-96 w-full animate-pulse items-center justify-center rounded-2xl bg-[#F9F6F0]" />
+    ),
+  }
+);
 
 interface Product360ModalProps {
   viewer360: Product360Set;
