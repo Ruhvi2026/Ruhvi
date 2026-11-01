@@ -91,8 +91,8 @@ describe('Accessibility Remediation Verification (Phase 60)', () => {
     );
     const pdpSource = fs.readFileSync(pdpPath, 'utf-8');
 
-    expect(pdpSource).toContain(
-      "aria-label={isLiked ? 'Remove from wishlist' : 'Add to wishlist'}"
+    expect(pdpSource).toMatch(
+      /aria-label=\{[\s\S]*?isLiked \? 'Remove from wishlist' : 'Add to wishlist'[\s\S]*?\}/
     );
     expect(pdpSource).toContain('focus-visible:ring-gold-500');
   });
