@@ -21,6 +21,8 @@ import {
   calculateItemGst,
   numberToIndianWords,
 } from '@/lib/accounts/gst-engine';
+import { PdfDownloadButton } from '@/components/accounts/PdfDownloadButton';
+import type { RuhviPdfData } from '@/lib/accounts/pdf/InvoicePDF';
 
 interface NewItemRow {
   id: string;
@@ -37,7 +39,11 @@ interface NewItemRow {
 
 export default function NewInvoiceMakerPage() {
   const [docType, setDocType] = useState<
-    'TAX_INVOICE' | 'PROFORMA' | 'DELIVERY_CHALLAN' | 'CREDIT_NOTE'
+    | 'TAX_INVOICE'
+    | 'PROFORMA'
+    | 'DELIVERY_CHALLAN'
+    | 'CREDIT_NOTE'
+    | 'BILL_OF_SUPPLY'
   >('TAX_INVOICE');
   const [currencyCode, setCurrencyCode] = useState('INR');
   const [customerName, setCustomerName] = useState('');
@@ -71,6 +77,10 @@ export default function NewInvoiceMakerPage() {
   ]);
 
   const isInterState = selectedStateCode !== '19';
+  const isBillOfSupply = docType === 'BILL_OF_SUPPLY';
+  const effectiveGstRate = isBillOfSupply
+    ? 0
+    : RUHVI_GST_CONFIG.defaultJewelryGstRate;
 
   // Add Item
   const handleAddItem = () => {
@@ -111,7 +121,7 @@ export default function NewInvoiceMakerPage() {
         makingCharges: it.makingCharges,
         hallmarkingCharges: it.hallmarkCharges,
         discount: it.discount,
-        gstRate: RUHVI_GST_CONFIG.defaultJewelryGstRate,
+        gstRate: effectiveGstRate,
       },
       isInterState
     );
@@ -119,13 +129,52 @@ export default function NewInvoiceMakerPage() {
   });
 
   const subtotalTaxable = computedItems.reduce((s, i) => s + i.taxableValue, 0);
-  const totalCgst = computedItems.reduce((s, i) => s + i.cgstAmount, 0);
-  const totalSgst = computedItems.reduce((s, i) => s + i.sgstAmount, 0);
-  const totalIgst = computedItems.reduce((s, i) => s + i.igstAmount, 0);
+  const totalCgst = isBillOfSupply
+    ? 0
+    : computedItems.reduce((s, i) => s + i.cgstAmount, 0);
+  const totalSgst = isBillOfSupply
+    ? 0
+    : computedItems.reduce((s, i) => s + i.sgstAmount, 0);
+  const totalIgst = isBillOfSupply
+    ? 0
+    : computedItems.reduce((s, i) => s + i.igstAmount, 0);
   const totalGst = totalCgst + totalSgst + totalIgst;
   const rawGrandTotal = subtotalTaxable + totalGst;
   const grandTotal = Math.round(rawGrandTotal);
   const roundOff = Math.round((grandTotal - rawGrandTotal) * 100) / 100;
+
+  const pdfData: RuhviPdfData = {
+    docType: docType,
+    docNumber: `RJ-${docType.slice(0, 3)}-${Date.now().toString().slice(-6)}`,
+    docDate: invoiceDate,
+    customerName: customerName || 'Valued Customer',
+    customerAddress: customerAddress || 'Customer Address',
+    customerGstin: customerGstin || '',
+    customerPhone: customerPhone || '',
+    placeOfSupply: `${INDIAN_STATES[selectedStateCode as keyof typeof INDIAN_STATES] || 'West Bengal'}`,
+    isInterState,
+    currencySymbol: symbol,
+    currencyCode,
+    items: computedItems.map((it, idx) => ({
+      sl: idx + 1,
+      description: it.description,
+      hsn: it.hsn,
+      purity: it.purity,
+      grossWeight: it.grossWeight,
+      netWeight: it.netWeight,
+      ratePerGram: it.ratePerGram,
+      makingCharges: it.makingCharges,
+      taxableValue: it.taxableValue,
+      gstRate: isBillOfSupply ? 0 : RUHVI_GST_CONFIG.defaultJewelryGstRate,
+      totalAmount: it.totalAmount,
+    })),
+    subtotalTaxable,
+    totalCgst,
+    totalSgst,
+    totalIgst,
+    grandTotal,
+    amountInWords: numberToIndianWords(grandTotal),
+  };
 
   return (
     <div className="mx-auto max-w-6xl space-y-8">
@@ -150,12 +199,17 @@ export default function NewInvoiceMakerPage() {
         </div>
 
         <div className="flex items-center space-x-3">
+          <PdfDownloadButton
+            data={pdfData}
+            filename={`${docType}_${pdfData.docNumber}.pdf`}
+            label="Download PDF"
+          />
           <button
             onClick={() => window.print()}
             className="inline-flex items-center space-x-2 rounded-xl bg-amber-500 px-5 py-2.5 text-sm font-bold text-slate-950 shadow-lg shadow-amber-500/20 transition-all hover:bg-amber-400"
           >
             <Printer className="h-4 w-4" />
-            <span>Print / Save Bill</span>
+            <span>Print Bill</span>
           </button>
         </div>
       </div>
@@ -175,6 +229,7 @@ export default function NewInvoiceMakerPage() {
             <option value="PROFORMA">Proforma Invoice</option>
             <option value="DELIVERY_CHALLAN">Delivery Challan</option>
             <option value="CREDIT_NOTE">Credit Note</option>
+            <option value="BILL_OF_SUPPLY">Bill of Supply (No GST)</option>
           </select>
         </div>
 
@@ -230,14 +285,34 @@ export default function NewInvoiceMakerPage() {
             Applicable GST
           </label>
           <div className="rounded-xl border border-slate-800 bg-slate-950 px-3 py-2 font-mono text-xs font-bold text-amber-300">
-            {currencyCode !== 'INR'
-              ? 'Zero-Rated Export / LUT'
-              : isInterState
-                ? 'IGST 3% (Inter-State)'
-                : 'CGST 1.5% + SGST 1.5%'}
+            {docType === 'BILL_OF_SUPPLY'
+              ? 'No GST — Exempt / Composition (Bill of Supply)'
+              : currencyCode !== 'INR'
+                ? 'Zero-Rated Export / LUT'
+                : isInterState
+                  ? 'IGST 3% (Inter-State)'
+                  : 'CGST 1.5% + SGST 1.5%'}
           </div>
         </div>
       </div>
+
+      {/* Bill of Supply Notice */}
+      {docType === 'BILL_OF_SUPPLY' && (
+        <div className="flex items-start gap-2.5 rounded-xl border border-sky-500/30 bg-sky-500/10 p-4 text-xs text-sky-300">
+          <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-sky-400" />
+          <div>
+            <div className="font-bold text-sky-200">
+              Bill of Supply — Section 31(3)(c) CGST Act, 2017
+            </div>
+            <div className="mt-0.5 text-sky-300/80">
+              This document is issued for supply of GST-exempted goods/services
+              or by Composition Scheme taxpayers.{' '}
+              <strong className="text-sky-200">No GST is charged</strong> on
+              this document. Grand total = taxable value only.
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Buyer & Customer Details Form */}
       <div className="space-y-4 rounded-2xl border border-slate-800 bg-slate-900/60 p-6">
@@ -546,7 +621,12 @@ export default function NewInvoiceMakerPage() {
               </span>
             </div>
 
-            {!isInterState ? (
+            {isBillOfSupply ? (
+              <div className="flex justify-between text-slate-300">
+                <span>GST (Bill of Supply):</span>
+                <span className="font-mono text-sky-400">Exempt (0.00)</span>
+              </div>
+            ) : !isInterState ? (
               <>
                 <div className="flex justify-between text-slate-300">
                   <span>CGST (1.5%):</span>
@@ -604,18 +684,26 @@ export default function NewInvoiceMakerPage() {
           <div className="flex items-center space-x-2 text-slate-400">
             <ShieldCheck className="h-4 w-4 text-amber-400" />
             <span>
-              Invoice conforms to Rule 46 (CGST) and BIS Hallmarking Laser
-              Inscription.
+              {isBillOfSupply
+                ? 'Conforms to Section 31(3)(c) Bill of Supply under CGST Act, 2017.'
+                : 'Invoice conforms to Rule 46 (CGST) and BIS Hallmarking Laser Inscription.'}
             </span>
           </div>
 
-          <button
-            onClick={() => window.print()}
-            className="inline-flex items-center space-x-2 rounded-xl bg-amber-500 px-6 py-2.5 font-bold text-slate-950 shadow-lg shadow-amber-500/20 transition-all hover:bg-amber-400"
-          >
-            <Printer className="h-4 w-4" />
-            <span>Generate & Print Bill</span>
-          </button>
+          <div className="flex items-center space-x-3">
+            <PdfDownloadButton
+              data={pdfData}
+              filename={`${docType}_${pdfData.docNumber}.pdf`}
+              label="Download Official PDF"
+            />
+            <button
+              onClick={() => window.print()}
+              className="inline-flex items-center space-x-2 rounded-xl bg-amber-500 px-6 py-2.5 font-bold text-slate-950 shadow-lg shadow-amber-500/20 transition-all hover:bg-amber-400"
+            >
+              <Printer className="h-4 w-4" />
+              <span>Generate & Print Bill</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>

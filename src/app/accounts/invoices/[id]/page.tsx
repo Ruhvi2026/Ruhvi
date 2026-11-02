@@ -19,6 +19,8 @@ import {
   numberToIndianWords,
   generateUpiPayload,
 } from '@/lib/accounts/gst-engine';
+import { PdfDownloadButton } from '@/components/accounts/PdfDownloadButton';
+import type { RuhviPdfData } from '@/lib/accounts/pdf/InvoicePDF';
 
 export default function InvoicePrintPage({
   params,
@@ -126,12 +128,56 @@ export default function InvoicePrintPage({
         </Link>
 
         <div className="flex items-center space-x-3">
+          <PdfDownloadButton
+            data={{
+              docType: 'TAX_INVOICE',
+              docNumber: invoiceNumber,
+              docDate: invoiceDate,
+              customerName:
+                order.shipping_address?.full_name || 'Valued Customer',
+              customerAddress: [
+                order.shipping_address?.address_line1,
+                order.shipping_address?.city,
+                order.shipping_address?.state,
+                order.shipping_address?.pincode,
+              ]
+                .filter(Boolean)
+                .join(', '),
+              customerPhone: order.shipping_address?.phone,
+              customerGstin: order.shipping_address?.gstin || '',
+              placeOfSupply: `${order.shipping_address?.state || 'West Bengal'}`,
+              isInterState,
+              currencySymbol: '₹',
+              currencyCode: 'INR',
+              items: items.map((it: any, idx: number) => ({
+                sl: idx + 1,
+                description:
+                  it.name || it.sku || `Jewellery Article ${idx + 1}`,
+                hsn: RUHVI_GST_CONFIG.defaultJewelryHsn,
+                purity: '22K',
+                grossWeight: 14.5,
+                netWeight: 14.2,
+                ratePerGram: 7200,
+                makingCharges: 0,
+                taxableValue:
+                  Math.round((Number(it.price_at_purchase) / 1.03) * 100) / 100,
+                gstRate: RUHVI_GST_CONFIG.defaultJewelryGstRate,
+                totalAmount: Number(it.price_at_purchase) || 0,
+              })),
+              subtotalTaxable: taxableTotal,
+              totalCgst: cgst,
+              totalSgst: sgst,
+              totalIgst: igst,
+              grandTotal: grossTotal,
+              amountInWords: numberToIndianWords(grossTotal),
+            }}
+          />
           <button
             onClick={() => window.print()}
             className="inline-flex items-center space-x-2 rounded-xl bg-amber-500 px-5 py-2.5 text-sm font-bold text-slate-950 shadow-lg shadow-amber-500/20 transition-all hover:bg-amber-400"
           >
             <Printer className="h-4 w-4" />
-            <span>Print / Save as PDF</span>
+            <span>Print Invoice</span>
           </button>
         </div>
       </div>

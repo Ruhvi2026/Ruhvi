@@ -28,6 +28,7 @@ import {
   Calculator,
   Database,
   FileCheck,
+  ClipboardList,
 } from 'lucide-react';
 import { PortalThemeProvider } from '@/context/PortalThemeContext';
 import { ThemeToggle } from '@/components/portal/ThemeToggle';
@@ -75,6 +76,12 @@ const getAccountsNavGroups = (): NavGroup[] => [
         href: '/accounts/invoices/new',
         icon: PlusCircle,
         badge: 'Rule 46',
+      },
+      {
+        label: 'Quotations & Estimates',
+        href: '/accounts/quotations',
+        icon: ClipboardList,
+        badge: 'Bespoke',
       },
       {
         label: 'Recurring Invoices',
