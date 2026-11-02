@@ -137,7 +137,9 @@ describe('Cross-System Integration & Critical Journeys Regression Suite (Phase 6
         'utf-8'
       );
       expect(triggerSource).toContain('z-[100]');
-      expect(triggerSource).toContain('aria-label="Open support chat"');
+      expect(triggerSource).toContain(
+        'aria-label="Open support chat with GIA Concierge"'
+      );
     });
   });
 
