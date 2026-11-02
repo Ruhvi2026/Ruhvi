@@ -241,6 +241,19 @@ export class AccountsTaxWorker implements AIWorkerInterface {
         opportunities,
         recommendations,
         priority,
+        expectedImpact:
+          'Maintain 100% statutory GST & Income Tax compliance while optimizing input tax credit and jewellery manufacturing margins.',
+        requiredAction:
+          problems.length > 0
+            ? 'Review GST mismatch or margin leakage'
+            : 'None - accounts metrics healthy',
+        requiredApproval: false,
+        executionStatus: 'executed',
+        verification:
+          'Verified against cashbook, GSTR-3B, and manufacturing cost calculations.',
+        missingCapabilities: [],
+        executiveVoiceSummary: `Accounts and tax check complete. Recorded ${findings.length} financial observations.`,
+        timestamp: new Date().toISOString(),
       };
     } catch (err: any) {
       console.error('[worker_accounts_tax] Execution failure:', err);
@@ -262,6 +275,17 @@ export class AccountsTaxWorker implements AIWorkerInterface {
           'Inspect accounts_purchases and accounts_vouchers tables.',
         ],
         priority: 'high',
+        expectedImpact:
+          'Prevent tax filing penalties and cashbook discrepancies.',
+        requiredAction:
+          'Check Supabase database connectivity for financial tables.',
+        requiredApproval: false,
+        executionStatus: 'failed',
+        verification: 'Re-run accounts audit once connectivity is restored.',
+        missingCapabilities: [],
+        executiveVoiceSummary:
+          'Accounts check encountered a database error while querying financial records.',
+        timestamp: new Date().toISOString(),
       };
     }
   }

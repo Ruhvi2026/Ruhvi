@@ -843,7 +843,10 @@ export default function CoFounderPortalPage() {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              title: userText.slice(0, 32) || 'New Conversation',
+              title: (rawInput || userMsg.text || 'New Conversation').slice(
+                0,
+                32
+              ),
               conversationType: 'cofounder',
             }),
           });

@@ -1413,7 +1413,7 @@ export default function FloatingStaffMessenger() {
                           <div key={att.id} className="mb-1.5">
                             {att.mime_type?.startsWith('audio/') ||
                             att.file_name?.includes('Voice Note') ||
-                            msg.message_type === 'voice_note' ? (
+                            m.message_type === 'voice_note' ? (
                               <VoiceNotePlayer
                                 src={att.cloudinary_url}
                                 duration={att.duration || 0}
