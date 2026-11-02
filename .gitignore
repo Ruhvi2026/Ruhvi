@@ -64,3 +64,6 @@ GoogleService-Info.plist
 firebase-adminsdk*.json
 service-account*.json
 *-firebase-adminsdk-*.json
+
+/reports/
+scripts/playwright-lighthouse-audit.mjs

@@ -101,7 +101,7 @@ export default async function HomePage() {
               </picture>
             </div>
             <div className="hero-content">
-              <div className="eyebrow">
+              <div className="eyebrow dark">
                 <svg
                   className="h-3.5 w-3.5 shrink-0"
                   viewBox="0 0 24 24"

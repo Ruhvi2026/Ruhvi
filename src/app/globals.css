@@ -838,8 +838,10 @@ html.dark .glow-card-focus {
     text-transform: uppercase;
     margin-bottom: 14px;
   }
-  .eyebrow.dark {
-    color: var(--gold-pale);
+  .eyebrow.dark,
+  .hero-content .eyebrow {
+    color: #f3d99f;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
   }
 
   .shop-now {
@@ -870,12 +872,14 @@ html.dark .glow-card-focus {
     border-color: var(--brown-dark);
   }
   .shop-now.on-dark {
-    color: var(--gold-pale);
-    border-color: var(--gold-pale);
+    color: #f3d99f;
+    border-color: #f3d99f;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
   }
   .shop-now.on-dark:hover {
-    color: #fff;
-    border-color: #fff;
+    color: #fff8eb;
+    border-color: #fff8eb;
+    text-shadow: 0 1px 6px rgba(243, 217, 159, 0.4);
   }
 
   .pill-btn {
@@ -953,14 +957,19 @@ html.dark .glow-card-focus {
     font-weight: 400;
     letter-spacing: -0.01em;
     margin-bottom: 20px;
+    color: #fff9ed;
+    text-shadow:
+      0 2px 14px rgba(0, 0, 0, 0.6),
+      0 1px 4px rgba(233, 201, 137, 0.25);
   }
   .hero-content p {
     font-family: 'Jost', sans-serif;
     font-size: 15px;
     line-height: 1.65;
-    color: rgba(247, 241, 231, 0.82);
+    color: #f7e7ce;
     max-width: 380px;
     margin-bottom: 30px;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
   }
 
   /* ---------- Two-up promo ---------- */
@@ -1070,15 +1079,16 @@ html.dark .glow-card-focus {
     position: relative;
     z-index: 1;
     padding: 18px 16px 20px;
-    color: #f7f1e7;
+    color: #fff8eb;
   }
   .cat-label {
     font-size: 10.5px;
     letter-spacing: 0.16em;
-    color: var(--gold-pale);
+    color: #f3d99f;
     font-weight: 600;
     text-transform: uppercase;
     margin-bottom: 8px;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);
   }
   .cat-card h3,
   .cat-card h4 {
@@ -1088,7 +1098,15 @@ html.dark .glow-card-focus {
     font-style: italic;
     line-height: 1.25;
     margin-bottom: 14px;
-    color: #f7f1e7;
+    color: #fff8eb;
+    text-shadow:
+      0 1px 4px rgba(0, 0, 0, 0.8),
+      0 2px 10px rgba(0, 0, 0, 0.45);
+    transition: color 0.3s ease;
+  }
+  .cat-card:hover h3,
+  .cat-card:hover h4 {
+    color: #fbeacf;
   }
 
   /* ---------- Occasion split ---------- */
@@ -1168,18 +1186,21 @@ html.dark .glow-card-focus {
     z-index: 1;
     padding: 36px clamp(24px, 4vw, 48px);
     max-width: 440px;
-    color: #f7f1e7;
+    color: #fff9ed;
   }
   .limited-body h2 {
     font-size: clamp(24px, 3vw, 32px);
     font-weight: 400;
     line-height: 1.14;
     margin: 4px 0 14px;
+    color: #fff9ed;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
   }
   .limited-body p {
     font-size: 14px;
-    color: rgba(247, 241, 231, 0.78);
+    color: #ead8b8;
     margin-bottom: 18px;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
   }
 
   /* ---------- CTA strip ---------- */
@@ -1255,17 +1276,21 @@ html.dark .glow-card-focus {
   .cta-text {
     position: relative;
     z-index: 1;
-    color: #f7f1e7;
+    color: #fff9ed;
   }
   .cta-text h2 {
     font-size: clamp(26px, 4vw, 36px);
     font-weight: 400;
     margin-top: 8px;
+    color: #fff9ed;
+    text-shadow:
+      0 2px 10px rgba(0, 0, 0, 0.6),
+      0 1px 4px rgba(233, 201, 137, 0.25);
   }
   .cta-text .rule {
     width: 46px;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    height: 1.5px;
+    background: linear-gradient(90deg, transparent, #e9c989, transparent);
     margin: 16px auto 0;
   }
   .cta-strip .pill-btn {

@@ -75,7 +75,7 @@ export function Footer() {
               <span className="block text-xs font-bold uppercase tracking-wider text-cream-50">
                 22K Gold Plated
               </span>
-              <p className="text-[11px] text-cream-200/60">
+              <p className="text-[11px] text-[#e8d7be]">
                 Anti-Tarnish & Water Resistant
               </p>
             </div>
@@ -87,7 +87,7 @@ export function Footer() {
               <span className="block text-xs font-bold uppercase tracking-wider text-cream-50">
                 Insured Shipping
               </span>
-              <p className="text-[11px] text-cream-200/60">
+              <p className="text-[11px] text-[#e8d7be]">
                 Estimated 2–5 days delivery
               </p>
             </div>
@@ -99,7 +99,7 @@ export function Footer() {
               <span className="block text-xs font-bold uppercase tracking-wider text-cream-50">
                 Easy Returns
               </span>
-              <p className="text-[11px] text-cream-200/60">
+              <p className="text-[11px] text-[#e8d7be]">
                 7-day hassle-free return policy
               </p>
             </div>
@@ -111,7 +111,7 @@ export function Footer() {
               <span className="block text-xs font-bold uppercase tracking-wider text-cream-50">
                 6-Month Color Guarantee
               </span>
-              <p className="text-[11px] text-cream-200/60">
+              <p className="text-[11px] text-[#e8d7be]">
                 On all gold plated pieces
               </p>
             </div>
@@ -131,7 +131,7 @@ export function Footer() {
             <h3 className="mb-3 font-serif text-3xl font-bold text-white">
               Refer a Friend
             </h3>
-            <p className="text-sm text-gold-100/90">
+            <p className="text-sm text-[#f5dfab]/95">
               Invite your friends to Ruhvi. You get 500 Reward Coins (₹50) and
               your friend gets ₹100 in Wallet balance to shop.
             </p>
@@ -169,7 +169,7 @@ export function Footer() {
               RUHVI JEWELS
             </h3>
           </div>
-          <p className="mb-6 max-w-xs text-xs leading-relaxed text-cream-200/60">
+          <p className="mb-6 max-w-xs text-xs leading-relaxed text-[#e8d7be]/85">
             Curating timeless elegance with modern Indian heritage
             craftsmanship. Exquisite 22K gold-plated jewellery designed for
             life&apos;s special moments.
