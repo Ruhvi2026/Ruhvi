@@ -30,7 +30,7 @@ export default function BotMascot({
     <div
       className={`relative inline-flex select-none items-center justify-center ${stateClass} ${className}`}
       style={{ width: size, height: size }}
-      aria-label="GIA - Ruhvi Luxury Jewellery Concierge"
+      aria-hidden="true"
     >
       {showGlow && (
         <div
@@ -46,8 +46,7 @@ export default function BotMascot({
         width={size}
         height={size}
         className="relative z-10 drop-shadow-lg"
-        role="img"
-        aria-label="GIA Concierge"
+        aria-hidden="true"
       >
         <defs>
           {/* Luxury Metallic Gold Gradient */}

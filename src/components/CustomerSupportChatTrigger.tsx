@@ -42,7 +42,7 @@ export default function CustomerSupportChatTrigger() {
         }}
         role="button"
         tabIndex={0}
-        className="fixed bottom-20 right-5 z-[100] cursor-pointer"
+        className="fixed bottom-20 right-5 z-[100] cursor-pointer rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-500 focus-visible:ring-offset-2"
         aria-label="Open support chat"
       >
         <BotMascot size={70} showGlow={true} state="idle" />

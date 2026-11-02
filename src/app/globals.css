@@ -1080,6 +1080,7 @@ html.dark .glow-card-focus {
     text-transform: uppercase;
     margin-bottom: 8px;
   }
+  .cat-card h3,
   .cat-card h4 {
     font-family: 'Cormorant Garamond', serif;
     font-size: 20px;
@@ -1105,6 +1106,14 @@ html.dark .glow-card-focus {
     display: flex;
     flex-direction: column;
     justify-content: center;
+  }
+  .split-body .eyebrow {
+    color: #7a5c22;
+    font-weight: 600;
+  }
+  .split-body .shop-now {
+    color: #7a5c22;
+    border-bottom: 1px solid #7a5c22;
   }
   .split-body h2 {
     font-size: clamp(26px, 3.4vw, 36px);

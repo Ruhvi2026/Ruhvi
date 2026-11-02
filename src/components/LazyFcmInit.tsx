@@ -17,7 +17,16 @@ export function LazyFcmInit() {
       !!localStorage.getItem('ruhvi_auth');
 
     if (hasSession) {
-      setShouldLoad(true);
+      if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+        const id = (window as any).requestIdleCallback(
+          () => setShouldLoad(true),
+          { timeout: 3000 }
+        );
+        return () => (window as any).cancelIdleCallback(id);
+      } else {
+        const timer = setTimeout(() => setShouldLoad(true), 2000);
+        return () => clearTimeout(timer);
+      }
     }
   }, []);
 

@@ -48,7 +48,7 @@ export default async function HomePage() {
   const heroRawUrl =
     hp.hero_image_url ||
     'https://res.cloudinary.com/tfelmupe/image/upload/v1787781771/timeless_elegance_efj5j3.jpg';
-  const heroMobileUrl = getOptimizedImageUrl(heroRawUrl, 'w_600');
+  const heroMobileUrl = getOptimizedImageUrl(heroRawUrl, 'w_480');
   const heroTabletUrl = getOptimizedImageUrl(heroRawUrl, 'w_1000');
   const heroDesktopUrl = getOptimizedImageUrl(heroRawUrl, 'w_1200');
 
@@ -269,7 +269,7 @@ export default async function HomePage() {
                 </div>
                 <div className="cat-body">
                   <div className="cat-label">{cat.name}</div>
-                  <h4>{CATEGORY_TAGLINES[cat.slug] || 'Elegant & Timeless'}</h4>
+                  <h3>{CATEGORY_TAGLINES[cat.slug] || 'Elegant & Timeless'}</h3>
                   <Link
                     href={`/category/${cat.slug}`}
                     className="shop-now on-dark before:absolute before:inset-0 before:z-10"
