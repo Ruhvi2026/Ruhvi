@@ -21,6 +21,13 @@ import {
   ShieldCheck,
   Receipt,
   Download,
+  Truck,
+  ScanLine,
+  Hammer,
+  Repeat,
+  Calculator,
+  Database,
+  FileCheck,
 } from 'lucide-react';
 import { PortalThemeProvider } from '@/context/PortalThemeContext';
 import { ThemeToggle } from '@/components/portal/ThemeToggle';
@@ -70,21 +77,63 @@ const getAccountsNavGroups = (): NavGroup[] => [
         badge: 'Rule 46',
       },
       {
+        label: 'Recurring Invoices',
+        href: '/accounts/recurring',
+        icon: Repeat,
+      },
+      {
+        label: 'Payment Vouchers',
+        href: '/accounts/vouchers',
+        icon: Receipt,
+      },
+    ],
+  },
+  {
+    section: 'GST & LEGAL COMPLIANCE',
+    items: [
+      {
         label: 'GSTR-1 & GSTR-3B',
         href: '/accounts/gstr',
         icon: FileSpreadsheet,
         badge: 'JSON Export',
       },
+      {
+        label: 'GSTR-2B Reconciliation',
+        href: '/accounts/gstr-2b',
+        icon: FileCheck,
+      },
+      {
+        label: 'E-Way Bill & E-Invoice',
+        href: '/accounts/eway-bill',
+        icon: Truck,
+        badge: 'NIC JSON',
+      },
     ],
   },
   {
-    section: 'PURCHASES & EXPENSES',
+    section: 'PURCHASES & WORKSHOP',
     items: [
       {
         label: 'Vendor Bills & ITC',
         href: '/accounts/purchases',
         icon: ShoppingBag,
       },
+      {
+        label: 'Bill OCR Scanner',
+        href: '/accounts/ocr',
+        icon: ScanLine,
+        badge: 'AI OCR',
+      },
+      {
+        label: 'Jewellery Costing (BOM)',
+        href: '/accounts/manufacturing',
+        icon: Hammer,
+      },
+    ],
+  },
+  {
+    section: 'ACCOUNTS & TAX',
+    items: [
       {
         label: 'Cash Book & Ledger',
         href: '/accounts/cashbook',
@@ -95,11 +144,21 @@ const getAccountsNavGroups = (): NavGroup[] => [
         href: '/accounts/ledger',
         icon: Users,
       },
+      {
+        label: 'Income & Advance Tax',
+        href: '/accounts/income-tax',
+        icon: Calculator,
+      },
     ],
   },
   {
-    section: 'COMPLIANCE & SYSTEM',
+    section: 'SYSTEM & TOOLS',
     items: [
+      {
+        label: 'Backup & Data Export',
+        href: '/accounts/backup',
+        icon: Database,
+      },
       {
         label: 'GST Configuration',
         href: '/accounts/settings',

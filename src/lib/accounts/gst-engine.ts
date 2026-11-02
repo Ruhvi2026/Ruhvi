@@ -377,3 +377,179 @@ export function generateGstr1Json(
     hsn: { data: hsnSummary },
   };
 }
+
+/**
+ * 22 Supported International Currencies with Localized Tax Systems
+ */
+export const WORLD_CURRENCIES = [
+  { code: 'INR', name: 'Indian Rupee', symbol: '₹', taxName: 'GST', rate: 3 },
+  {
+    code: 'USD',
+    name: 'US Dollar',
+    symbol: '$',
+    taxName: 'Sales Tax',
+    rate: 0,
+  },
+  { code: 'AED', name: 'UAE Dirham', symbol: 'د.إ', taxName: 'VAT', rate: 5 },
+  { code: 'GBP', name: 'British Pound', symbol: '£', taxName: 'VAT', rate: 20 },
+  { code: 'EUR', name: 'Euro', symbol: '€', taxName: 'VAT', rate: 19 },
+  {
+    code: 'SGD',
+    name: 'Singapore Dollar',
+    symbol: 'S$',
+    taxName: 'GST',
+    rate: 9,
+  },
+  {
+    code: 'CAD',
+    name: 'Canadian Dollar',
+    symbol: 'C$',
+    taxName: 'HST/GST',
+    rate: 13,
+  },
+  {
+    code: 'AUD',
+    name: 'Australian Dollar',
+    symbol: 'A$',
+    taxName: 'GST',
+    rate: 10,
+  },
+  { code: 'SAR', name: 'Saudi Riyal', symbol: '﷼', taxName: 'VAT', rate: 15 },
+  { code: 'QAR', name: 'Qatari Riyal', symbol: 'QR', taxName: 'VAT', rate: 5 },
+  { code: 'KWD', name: 'Kuwaiti Dinar', symbol: 'KD', taxName: 'Tax', rate: 0 },
+  { code: 'OMR', name: 'Omani Rial', symbol: 'RO', taxName: 'VAT', rate: 5 },
+  {
+    code: 'BHD',
+    name: 'Bahraini Dinar',
+    symbol: 'BD',
+    taxName: 'VAT',
+    rate: 10,
+  },
+  {
+    code: 'MYR',
+    name: 'Malaysian Ringgit',
+    symbol: 'RM',
+    taxName: 'SST',
+    rate: 10,
+  },
+  {
+    code: 'JPY',
+    name: 'Japanese Yen',
+    symbol: '¥',
+    taxName: 'Consumption Tax',
+    rate: 10,
+  },
+  {
+    code: 'CHF',
+    name: 'Swiss Franc',
+    symbol: 'CHF',
+    taxName: 'MwSt',
+    rate: 8.1,
+  },
+  {
+    code: 'NZD',
+    name: 'New Zealand Dollar',
+    symbol: 'NZ$',
+    taxName: 'GST',
+    rate: 15,
+  },
+  {
+    code: 'ZAR',
+    name: 'South African Rand',
+    symbol: 'R',
+    taxName: 'VAT',
+    rate: 15,
+  },
+  { code: 'THB', name: 'Thai Baht', symbol: '฿', taxName: 'VAT', rate: 7 },
+  {
+    code: 'NPR',
+    name: 'Nepalese Rupee',
+    symbol: 'रू',
+    taxName: 'VAT',
+    rate: 13,
+  },
+  {
+    code: 'BDT',
+    name: 'Bangladeshi Taka',
+    symbol: '৳',
+    taxName: 'VAT',
+    rate: 15,
+  },
+  {
+    code: 'LKR',
+    name: 'Sri Lankan Rupee',
+    symbol: 'Rs',
+    taxName: 'VAT',
+    rate: 18,
+  },
+];
+
+/**
+ * E-Way Bill JSON Generator conforming to NIC ewaybill.nic.in standard
+ */
+export function generateEwayBillJson(
+  invoice: GSTInvoice,
+  transporterDetails: {
+    transporterId?: string;
+    transporterName?: string;
+    transDocNo?: string;
+    vehicleNo?: string;
+    distanceKm?: number;
+  }
+) {
+  return {
+    version: '1.0.0421',
+    billLists: [
+      {
+        userGstin: RUHVI_GST_CONFIG.gstin,
+        supplyType: 'O',
+        subSupplyType: '1',
+        docType: 'INV',
+        docNo: invoice.invoiceNumber,
+        docDate: invoice.invoiceDate.split('T')[0],
+        transType: '1',
+        fromGstin: RUHVI_GST_CONFIG.gstin,
+        fromTrdName: RUHVI_GST_CONFIG.tradeName,
+        fromAddr1: RUHVI_GST_CONFIG.address,
+        fromPlace: 'Kolkata',
+        fromPincode: 700091,
+        actFromStateCode: 19,
+        fromStateCode: 19,
+        toGstin: invoice.customerGstin || 'URP',
+        toTrdName: invoice.customerName,
+        toAddr1: invoice.customerAddress || 'Customer Address',
+        toPlace: invoice.customerCity || 'Kolkata',
+        toPincode: 700001,
+        actToStateCode: parseInt(invoice.customerStateCode || '19', 10),
+        toStateCode: parseInt(invoice.customerStateCode || '19', 10),
+        totalValue: invoice.subtotalTaxable,
+        cgstValue: invoice.totalCgst,
+        sgstValue: invoice.totalSgst,
+        igstValue: invoice.totalIgst,
+        cessValue: 0,
+        totInvValue: invoice.grandTotal,
+        transporterId: transporterDetails.transporterId || '',
+        transporterName:
+          transporterDetails.transporterName || 'Shiprocket Logistics',
+        transDocNo: transporterDetails.transDocNo || 'AWB-PENDING',
+        transMode: '1',
+        transDistance: transporterDetails.distanceKm || 25,
+        vehicleNo: transporterDetails.vehicleNo || '',
+        vehicleType: 'R',
+        itemList: invoice.items.map((it, idx) => ({
+          itemNo: idx + 1,
+          productName: it.description,
+          productDesc: 'BIS Hallmarked Gold / Silver Jewellery',
+          hsnCode: it.hsn || RUHVI_GST_CONFIG.defaultJewelryHsn,
+          quantity: it.grossWeightGrams || it.quantity || 1,
+          qtyUnit: 'GMS',
+          cgstRate: invoice.isInterState ? 0 : it.gstRate / 2,
+          sgstRate: invoice.isInterState ? 0 : it.gstRate / 2,
+          igstRate: invoice.isInterState ? it.gstRate : 0,
+          cessRate: 0,
+          taxableAmount: it.taxableValue,
+        })),
+      },
+    ],
+  };
+}

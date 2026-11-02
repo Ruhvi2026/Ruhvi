@@ -12,10 +12,12 @@ import {
   ShieldCheck,
   Save,
   CheckCircle,
+  Globe,
 } from 'lucide-react';
 import {
   RUHVI_GST_CONFIG,
   INDIAN_STATES,
+  WORLD_CURRENCIES,
   calculateItemGst,
   numberToIndianWords,
 } from '@/lib/accounts/gst-engine';
@@ -37,6 +39,7 @@ export default function NewInvoiceMakerPage() {
   const [docType, setDocType] = useState<
     'TAX_INVOICE' | 'PROFORMA' | 'DELIVERY_CHALLAN' | 'CREDIT_NOTE'
   >('TAX_INVOICE');
+  const [currencyCode, setCurrencyCode] = useState('INR');
   const [customerName, setCustomerName] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
   const [customerEmail, setCustomerEmail] = useState('');
@@ -46,6 +49,11 @@ export default function NewInvoiceMakerPage() {
   const [invoiceDate, setInvoiceDate] = useState(
     new Date().toISOString().split('T')[0]
   );
+
+  const selectedCurrency =
+    WORLD_CURRENCIES.find((c) => c.code === currencyCode) ||
+    WORLD_CURRENCIES[0];
+  const symbol = selectedCurrency.symbol;
 
   const [items, setItems] = useState<NewItemRow[]>([
     {
@@ -136,8 +144,8 @@ export default function NewInvoiceMakerPage() {
             <span>GST Invoice & Bill Generator</span>
           </h1>
           <p className="mt-0.5 text-xs text-slate-400">
-            Create customized B2B / B2C Jewellery Invoices, Proformas, and
-            Delivery Challans
+            Create customized B2B / B2C Jewellery Invoices, Proformas,
+            Multi-Currency Exports, and Delivery Challans
           </p>
         </div>
 
@@ -153,7 +161,7 @@ export default function NewInvoiceMakerPage() {
       </div>
 
       {/* Invoice Meta Settings */}
-      <div className="grid grid-cols-1 gap-4 rounded-2xl border border-slate-800 bg-slate-900/60 p-6 md:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 rounded-2xl border border-slate-800 bg-slate-900/60 p-6 sm:grid-cols-2 md:grid-cols-5">
         <div>
           <label className="mb-1 block text-xs font-semibold uppercase text-slate-400">
             Document Type
@@ -167,6 +175,23 @@ export default function NewInvoiceMakerPage() {
             <option value="PROFORMA">Proforma Invoice</option>
             <option value="DELIVERY_CHALLAN">Delivery Challan</option>
             <option value="CREDIT_NOTE">Credit Note</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="mb-1 block text-xs font-semibold uppercase text-slate-400">
+            Billing Currency
+          </label>
+          <select
+            value={currencyCode}
+            onChange={(e) => setCurrencyCode(e.target.value)}
+            className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs text-white focus:border-amber-400 focus:outline-none"
+          >
+            {WORLD_CURRENCIES.map((c) => (
+              <option key={c.code} value={c.code}>
+                {c.code} ({c.symbol}) - {c.name}
+              </option>
+            ))}
           </select>
         </div>
 
@@ -205,7 +230,11 @@ export default function NewInvoiceMakerPage() {
             Applicable GST
           </label>
           <div className="rounded-xl border border-slate-800 bg-slate-950 px-3 py-2 font-mono text-xs font-bold text-amber-300">
-            {isInterState ? 'IGST 3% (Inter-State)' : 'CGST 1.5% + SGST 1.5%'}
+            {currencyCode !== 'INR'
+              ? 'Zero-Rated Export / LUT'
+              : isInterState
+                ? 'IGST 3% (Inter-State)'
+                : 'CGST 1.5% + SGST 1.5%'}
           </div>
         </div>
       </div>
@@ -228,8 +257,8 @@ export default function NewInvoiceMakerPage() {
               type="text"
               value={customerName}
               onChange={(e) => setCustomerName(e.target.value)}
-              placeholder="e.g. Smt. Ananya Roy / Joyalukkas"
-              className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs text-white placeholder-slate-600 focus:border-amber-400 focus:outline-none"
+              placeholder="e.g. Smt. Arundhati Sengupta"
+              className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs text-white focus:border-amber-400 focus:outline-none"
             />
           </div>
 
@@ -238,51 +267,52 @@ export default function NewInvoiceMakerPage() {
               Phone Number
             </label>
             <input
-              type="tel"
+              type="text"
               value={customerPhone}
               onChange={(e) => setCustomerPhone(e.target.value)}
-              placeholder="+91 98765 43210"
-              className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs text-white placeholder-slate-600 focus:border-amber-400 focus:outline-none"
-            />
-          </div>
-
-          <div>
-            <label className="mb-1 block text-xs text-slate-400">Email</label>
-            <input
-              type="email"
-              value={customerEmail}
-              onChange={(e) => setCustomerEmail(e.target.value)}
-              placeholder="client@gmail.com"
-              className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs text-white placeholder-slate-600 focus:border-amber-400 focus:outline-none"
+              placeholder="+91 98301 23456"
+              className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs text-white focus:border-amber-400 focus:outline-none"
             />
           </div>
 
           <div>
             <label className="mb-1 block text-xs text-slate-400">
-              Customer GSTIN (For B2B)
+              GSTIN / UIN (B2B)
             </label>
             <input
               type="text"
               value={customerGstin}
               onChange={(e) => setCustomerGstin(e.target.value.toUpperCase())}
-              placeholder="15-digit GSTIN (optional)"
-              maxLength={15}
-              className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 font-mono text-xs uppercase text-white placeholder-slate-600 focus:border-amber-400 focus:outline-none"
+              placeholder="e.g. 19AAACR1234D1Z5"
+              className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 font-mono text-xs text-white focus:border-amber-400 focus:outline-none"
             />
           </div>
 
-          <div className="sm:col-span-2 md:col-span-4">
+          <div>
             <label className="mb-1 block text-xs text-slate-400">
-              Billing / Delivery Address
+              Email Address
             </label>
             <input
-              type="text"
-              value={customerAddress}
-              onChange={(e) => setCustomerAddress(e.target.value)}
-              placeholder="Street, Landmark, City, Pincode"
-              className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs text-white placeholder-slate-600 focus:border-amber-400 focus:outline-none"
+              type="email"
+              value={customerEmail}
+              onChange={(e) => setCustomerEmail(e.target.value)}
+              placeholder="client@domain.com"
+              className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs text-white focus:border-amber-400 focus:outline-none"
             />
           </div>
+        </div>
+
+        <div>
+          <label className="mb-1 block text-xs text-slate-400">
+            Billing & Shipping Address
+          </label>
+          <input
+            type="text"
+            value={customerAddress}
+            onChange={(e) => setCustomerAddress(e.target.value)}
+            placeholder="Flat / House No, Street, City, State, Pincode"
+            className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs text-white focus:border-amber-400 focus:outline-none"
+          />
         </div>
       </div>
 
@@ -290,13 +320,13 @@ export default function NewInvoiceMakerPage() {
       <div className="space-y-4 rounded-2xl border border-slate-800 bg-slate-900/60 p-6">
         <div className="flex items-center justify-between">
           <h2 className="text-sm font-bold uppercase tracking-wider text-white">
-            Jewellery Items & Breakdown
+            Jewellery Articles ({items.length})
           </h2>
           <button
             onClick={handleAddItem}
-            className="inline-flex items-center space-x-1.5 rounded-lg border border-amber-500/20 bg-amber-500/10 px-3 py-1.5 text-xs font-semibold text-amber-300 transition-all hover:bg-amber-500 hover:text-slate-950"
+            className="inline-flex items-center space-x-1.5 rounded-xl border border-amber-500/30 bg-amber-500/10 px-3 py-1.5 text-xs font-bold text-amber-300 transition-all hover:bg-amber-500/20"
           >
-            <Plus className="h-3.5 w-3.5" />
+            <Plus className="h-4 w-4" />
             <span>Add Item</span>
           </button>
         </div>
@@ -307,55 +337,92 @@ export default function NewInvoiceMakerPage() {
             return (
               <div
                 key={it.id}
-                className="space-y-3 rounded-xl border border-slate-800 bg-slate-950/80 p-4"
+                className="relative rounded-xl border border-slate-800 bg-slate-950/70 p-4 transition-all hover:border-slate-700"
               >
-                <div className="flex items-start justify-between gap-4">
-                  <div className="grid flex-1 grid-cols-1 gap-3 sm:grid-cols-3">
-                    <div className="sm:col-span-2">
-                      <label className="mb-1 block text-[11px] text-slate-400">
-                        Item Description
-                      </label>
-                      <input
-                        type="text"
-                        value={it.description}
-                        onChange={(e) =>
-                          handleUpdateItem(it.id, 'description', e.target.value)
-                        }
-                        className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-1.5 text-xs text-white focus:border-amber-400 focus:outline-none"
-                      />
-                    </div>
-                    <div>
-                      <label className="mb-1 block text-[11px] text-slate-400">
-                        Purity
-                      </label>
-                      <select
-                        value={it.purity}
-                        onChange={(e) =>
-                          handleUpdateItem(it.id, 'purity', e.target.value)
-                        }
-                        className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-1.5 text-xs text-white focus:border-amber-400 focus:outline-none"
-                      >
-                        <option value="22K">22K (916 Hallmarked)</option>
-                        <option value="18K">18K (750 Diamond Mount)</option>
-                        <option value="14K">14K Gold</option>
-                        <option value="925 Silver">925 Sterling Silver</option>
-                      </select>
-                    </div>
-                  </div>
-
+                <div className="mb-3 flex items-center justify-between">
+                  <span className="font-mono text-xs font-bold text-amber-400">
+                    #{idx + 1}
+                  </span>
                   {items.length > 1 && (
                     <button
                       onClick={() => handleRemoveItem(it.id)}
-                      className="mt-6 p-1.5 text-slate-500 transition-colors hover:text-rose-400"
-                      title="Remove"
+                      className="text-slate-500 transition-colors hover:text-rose-400"
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>
                   )}
                 </div>
 
-                {/* Weight and rates grid */}
-                <div className="grid grid-cols-2 gap-3 font-mono text-xs sm:grid-cols-6">
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-4">
+                  <div className="md:col-span-2">
+                    <label className="mb-1 block text-xs text-slate-400">
+                      Product Description *
+                    </label>
+                    <input
+                      type="text"
+                      value={it.description}
+                      onChange={(e) =>
+                        handleUpdateItem(it.id, 'description', e.target.value)
+                      }
+                      className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-1.5 text-xs text-white focus:border-amber-400 focus:outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="mb-1 block text-xs text-slate-400">
+                      HSN Code
+                    </label>
+                    <input
+                      type="text"
+                      value={it.hsn}
+                      onChange={(e) =>
+                        handleUpdateItem(it.id, 'hsn', e.target.value)
+                      }
+                      className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-1.5 font-mono text-xs text-white focus:border-amber-400 focus:outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="mb-1 block text-xs text-slate-400">
+                      Gold Purity
+                    </label>
+                    <select
+                      value={it.purity}
+                      onChange={(e) =>
+                        handleUpdateItem(it.id, 'purity', e.target.value)
+                      }
+                      className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-1.5 text-xs text-white focus:border-amber-400 focus:outline-none"
+                    >
+                      <option value="22K">22K (916)</option>
+                      <option value="18K">18K (750)</option>
+                      <option value="14K">14K (585)</option>
+                      <option value="925">925 Silver</option>
+                      <option value="999">24K (999)</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Weights and Making Charges */}
+                <div className="mt-3 grid grid-cols-2 gap-3 font-mono text-xs sm:grid-cols-3 md:grid-cols-7">
+                  <div>
+                    <label className="mb-1 block font-sans text-[10px] text-slate-400">
+                      Gross Wt (g)
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={it.grossWeight}
+                      onChange={(e) =>
+                        handleUpdateItem(
+                          it.id,
+                          'grossWeight',
+                          parseFloat(e.target.value) || 0
+                        )
+                      }
+                      className="w-full rounded border border-slate-700 bg-slate-900 px-2 py-1 text-white"
+                    />
+                  </div>
+
                   <div>
                     <label className="mb-1 block font-sans text-[10px] text-slate-400">
                       Net Wt (g)
@@ -377,7 +444,7 @@ export default function NewInvoiceMakerPage() {
 
                   <div>
                     <label className="mb-1 block font-sans text-[10px] text-slate-400">
-                      Rate/g (₹)
+                      Rate/g ({symbol})
                     </label>
                     <input
                       type="number"
@@ -395,7 +462,7 @@ export default function NewInvoiceMakerPage() {
 
                   <div>
                     <label className="mb-1 block font-sans text-[10px] text-slate-400">
-                      Making (₹)
+                      Making ({symbol})
                     </label>
                     <input
                       type="number"
@@ -413,7 +480,7 @@ export default function NewInvoiceMakerPage() {
 
                   <div>
                     <label className="mb-1 block font-sans text-[10px] text-slate-400">
-                      Hallmark (₹)
+                      Hallmark ({symbol})
                     </label>
                     <input
                       type="number"
@@ -431,10 +498,11 @@ export default function NewInvoiceMakerPage() {
 
                   <div>
                     <label className="mb-1 block font-sans text-[10px] text-slate-400">
-                      Taxable (₹)
+                      Taxable ({symbol})
                     </label>
                     <div className="rounded bg-slate-800/80 px-2 py-1 font-bold text-slate-300">
-                      ₹{rowCalc.taxableValue.toLocaleString('en-IN')}
+                      {symbol}
+                      {rowCalc.taxableValue.toLocaleString('en-IN')}
                     </div>
                   </div>
 
@@ -443,7 +511,8 @@ export default function NewInvoiceMakerPage() {
                       Total + 3% GST
                     </label>
                     <div className="rounded border border-amber-500/20 bg-amber-500/10 px-2 py-1 font-bold text-amber-300">
-                      ₹{rowCalc.totalAmount.toLocaleString('en-IN')}
+                      {symbol}
+                      {rowCalc.totalAmount.toLocaleString('en-IN')}
                     </div>
                   </div>
                 </div>
@@ -461,7 +530,8 @@ export default function NewInvoiceMakerPage() {
               Total Amount in Words:
             </div>
             <div className="mt-0.5 font-serif text-sm font-bold italic text-amber-300">
-              {numberToIndianWords(grandTotal)}
+              {numberToIndianWords(grandTotal)}{' '}
+              {currencyCode !== 'INR' ? `(${currencyCode})` : ''}
             </div>
           </div>
 
@@ -469,7 +539,7 @@ export default function NewInvoiceMakerPage() {
             <div className="flex justify-between text-slate-300">
               <span>Subtotal Taxable:</span>
               <span className="font-bold">
-                ₹
+                {symbol}
                 {subtotalTaxable.toLocaleString('en-IN', {
                   minimumFractionDigits: 2,
                 })}
@@ -481,7 +551,7 @@ export default function NewInvoiceMakerPage() {
                 <div className="flex justify-between text-slate-300">
                   <span>CGST (1.5%):</span>
                   <span>
-                    ₹
+                    {symbol}
                     {totalCgst.toLocaleString('en-IN', {
                       minimumFractionDigits: 2,
                     })}
@@ -490,7 +560,7 @@ export default function NewInvoiceMakerPage() {
                 <div className="flex justify-between text-slate-300">
                   <span>SGST (1.5%):</span>
                   <span>
-                    ₹
+                    {symbol}
                     {totalSgst.toLocaleString('en-IN', {
                       minimumFractionDigits: 2,
                     })}
@@ -501,7 +571,7 @@ export default function NewInvoiceMakerPage() {
               <div className="flex justify-between text-slate-300">
                 <span>IGST (3.0%):</span>
                 <span>
-                  ₹
+                  {symbol}
                   {totalIgst.toLocaleString('en-IN', {
                     minimumFractionDigits: 2,
                   })}
@@ -512,20 +582,40 @@ export default function NewInvoiceMakerPage() {
             <div className="flex justify-between text-[11px] text-slate-400">
               <span>Round Off:</span>
               <span>
-                {roundOff >= 0 ? `+₹${roundOff}` : `-₹${Math.abs(roundOff)}`}
+                {roundOff >= 0
+                  ? `+${symbol}${roundOff}`
+                  : `-${symbol}${Math.abs(roundOff)}`}
               </span>
             </div>
 
             <div className="flex justify-between border-t border-slate-700 pt-2 text-base font-bold text-white">
-              <span>GRAND TOTAL:</span>
+              <span>GRAND TOTAL ({currencyCode}):</span>
               <span className="text-amber-400">
-                ₹
+                {symbol}
                 {grandTotal.toLocaleString('en-IN', {
                   minimumFractionDigits: 2,
                 })}
               </span>
             </div>
           </div>
+        </div>
+
+        <div className="flex flex-col justify-between gap-3 border-t border-slate-800/80 pt-4 text-xs sm:flex-row sm:items-center">
+          <div className="flex items-center space-x-2 text-slate-400">
+            <ShieldCheck className="h-4 w-4 text-amber-400" />
+            <span>
+              Invoice conforms to Rule 46 (CGST) and BIS Hallmarking Laser
+              Inscription.
+            </span>
+          </div>
+
+          <button
+            onClick={() => window.print()}
+            className="inline-flex items-center space-x-2 rounded-xl bg-amber-500 px-6 py-2.5 font-bold text-slate-950 shadow-lg shadow-amber-500/20 transition-all hover:bg-amber-400"
+          >
+            <Printer className="h-4 w-4" />
+            <span>Generate & Print Bill</span>
+          </button>
         </div>
       </div>
     </div>
