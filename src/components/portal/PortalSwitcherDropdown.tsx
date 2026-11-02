@@ -12,6 +12,7 @@ import {
   ChevronDown,
   ExternalLink,
   Check,
+  ReceiptText,
 } from 'lucide-react';
 
 export interface PortalOption {
@@ -78,6 +79,17 @@ export const PORTAL_OPTIONS: PortalOption[] = [
     href: 'https://marketing.ruhvi.in/marketing/dashboard',
     icon: Megaphone,
     iconColor: 'text-pink-400',
+  },
+  {
+    id: 'accounts',
+    name: 'Accounts & Billing',
+    subdomain: 'accounts.ruhvi.in',
+    href: 'https://accounts.ruhvi.in/accounts/dashboard',
+    badge: 'GST & Finance',
+    badgeColor:
+      'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30',
+    icon: ReceiptText,
+    iconColor: 'text-emerald-400',
   },
   {
     id: 'tech',

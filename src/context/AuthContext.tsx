@@ -340,7 +340,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const isProtectedOrAuthRoute =
       typeof window !== 'undefined' &&
-      /^\/(admin|co-founder|portal-orders|support|marketing|tech|operations|account|checkout|orders|wishlist|login|signup)(\/|$)/i.test(
+      /^\/(admin|co-founder|portal-orders|support|marketing|tech|operations|accounts|account|checkout|orders|wishlist|login|signup)(\/|$)/i.test(
         window.location.pathname
       );
 

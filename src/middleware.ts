@@ -31,6 +31,7 @@ export async function middleware(request: NextRequest) {
     isAuthHost,
     isTechHost,
     isCoFounderHost,
+    isAccountsHost,
     isAnyPortalHost,
   } = host;
   supabaseResponse.headers.set('x-ruhvi-host', hostname);
@@ -58,6 +59,7 @@ export async function middleware(request: NextRequest) {
       { condition: isMarketingHost, dest: '/marketing/dashboard' },
       { condition: isTechHost, dest: '/tech/dashboard' },
       { condition: isCoFounderHost, dest: '/co-founder' },
+      { condition: isAccountsHost, dest: '/accounts/dashboard' },
       { condition: isAuthHost, dest: '/login' },
     ];
 
@@ -113,6 +115,10 @@ export async function middleware(request: NextRequest) {
       !path.startsWith('/co-founder') &&
       !path.startsWith('/admin/ai-chat')
     ) {
+      return NextResponse.rewrite(new URL('/404', request.url));
+    }
+  } else if (isAccountsHost) {
+    if (!isCommonAllowed && !path.startsWith('/accounts')) {
       return NextResponse.rewrite(new URL('/404', request.url));
     }
   } else if (isAuthHost) {
@@ -393,6 +399,15 @@ export async function middleware(request: NextRequest) {
           isCoFounderHost &&
           (department === 'co-founder' ||
             allowedPortals.includes('co-founder') ||
+            ['super_admin', 'admin'].includes(role))
+        ) {
+          isPortalAllowed = true;
+        }
+        if (
+          isAccountsHost &&
+          (department === 'accounts' ||
+            department === 'finance' ||
+            allowedPortals.includes('accounts') ||
             ['super_admin', 'admin'].includes(role))
         ) {
           isPortalAllowed = true;

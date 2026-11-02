@@ -52,6 +52,7 @@
 | :--- | :--- | :--- |
 | **`ruhvi.in`** | `216.198.79.1` (Direct A Record) | **Main Customer Storefront**: Primary e-commerce website for customers to browse catalog, cart, and checkout. |
 | **`www.ruhvi.in`** | `ruhvi.in` (CNAME) | **Storefront Redirect Alias**: Standard `www` alias pointing to the root storefront. |
+| **`accounts.ruhvi.in`** | Vercel (`cname.vercel-dns.com`) | **Accounts & GST Billing Portal**: Official GST Tax Invoicing (Rule 46), GSTR-1 & GSTR-3B automated JSON filing, jewelry HSN 7113 calculation, vendor purchase bills (ITC), cash book, and party outstanding ledgers. |
 | **`admin.ruhvi.in`** | Vercel (`0edb5b...vercel-dns-017.com`) | **Super Admin Panel**: Master administrative portal for platform settings, audit logs, staff productivity, and system configurations. |
 | **`co-founder.ruhvi.in`** | Vercel (`0edb5b...vercel-dns-017.com`) | **AI Co-Founder Workspace**: Workspace for AI agent collaboration, business intelligence tools, and competitive analysis. |
 | **`marketing.ruhvi.in`** | Vercel (`0edb5b...vercel-dns-017.com`) | **Marketing Portal**: Campaign hub for Meta/Google Ads tracking, ROAS analysis, and email broadcast dispatches. |

@@ -16,6 +16,7 @@ export const INTERNAL_BASES = [
   '/marketing',
   '/tech',
   '/co-founder',
+  '/accounts',
 ] as const;
 
 /** Paths allowed on all hosts (login, API, auth callback, static images, etc.) */

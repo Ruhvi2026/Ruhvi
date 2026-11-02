@@ -15,7 +15,8 @@ export interface HostFlags {
   isAuthHost: boolean;
   isTechHost: boolean;
   isCoFounderHost: boolean;
-  /** True if any portal subdomain (admin, operations, orders, support, marketing, tech, co-founder). */
+  isAccountsHost: boolean;
+  /** True if any portal subdomain (admin, operations, orders, support, marketing, tech, co-founder, accounts). */
   isAnyPortalHost: boolean;
 }
 
@@ -48,6 +49,10 @@ export function resolveHost(hostname: string): HostFlags {
     hostname === 'cofounder.ruhvi.in' ||
     hostname.startsWith('cofounder.localhost');
 
+  const isAccountsHost =
+    hostname === 'accounts.ruhvi.in' ||
+    hostname.startsWith('accounts.localhost');
+
   const isAnyPortalHost =
     isAdminHost ||
     isOperationsHost ||
@@ -55,7 +60,8 @@ export function resolveHost(hostname: string): HostFlags {
     isSupportHost ||
     isMarketingHost ||
     isTechHost ||
-    isCoFounderHost;
+    isCoFounderHost ||
+    isAccountsHost;
 
   return {
     hostname,
@@ -67,6 +73,7 @@ export function resolveHost(hostname: string): HostFlags {
     isAuthHost,
     isTechHost,
     isCoFounderHost,
+    isAccountsHost,
     isAnyPortalHost,
   };
 }
