@@ -1,3 +1,16 @@
+jest.mock('server-only', () => ({}));
+jest.mock('@/lib/ai/co-founder/conversations/repository', () => ({
+  ConversationRepository: {
+    addMessage: jest.fn().mockResolvedValue({ id: 'msg_test' }),
+    getOrCreateDefaultConversation: jest
+      .fn()
+      .mockResolvedValue({ id: 'conv_default' }),
+    listConversations: jest.fn().mockResolvedValue([]),
+    getConversation: jest.fn().mockResolvedValue(null),
+    listMessages: jest.fn().mockResolvedValue([]),
+  },
+}));
+
 import { NextRequest } from 'next/server';
 import { POST } from '../route';
 import { requireAdmin } from '@/lib/auth/require-admin';
