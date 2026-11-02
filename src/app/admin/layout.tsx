@@ -46,6 +46,7 @@ import {
   Sparkles,
   ShieldAlert,
   ShieldCheck,
+  Receipt,
 } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { AdminNotificationCenter } from '@/components/admin/AdminNotificationCenter';
@@ -234,6 +235,14 @@ const NAV_GROUPS: NavGroup[] = [
   {
     section: 'PORTAL ACCESS',
     items: [
+      {
+        label: 'Accounts & Billing',
+        href: 'https://accounts.ruhvi.in/accounts/dashboard',
+        external: true,
+        icon: Receipt,
+        badge: 'GST',
+        badgeColor: 'emerald',
+      },
       {
         label: 'Operations Portal',
         href: 'https://operation.ruhvi.in/operations/dashboard',
