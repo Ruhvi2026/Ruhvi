@@ -25,8 +25,12 @@ import {
 
 export default function AdminLogin({
   defaultRedirect = '/admin/dashboard',
+  portalTitle = 'Staff Login',
+  portalSubtitle = 'Ruhvi Operations & Administration Portal',
 }: {
   defaultRedirect?: string;
+  portalTitle?: string;
+  portalSubtitle?: string;
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -414,11 +418,9 @@ export default function AdminLogin({
               ) : (
                 <>
                   <h2 className="text-3xl font-bold text-gray-900">
-                    Staff Login
+                    {portalTitle}
                   </h2>
-                  <p className="mt-1 text-xs text-gray-500">
-                    Ruhvi Operations &amp; Administration Portal
-                  </p>
+                  <p className="mt-1 text-xs text-gray-500">{portalSubtitle}</p>
                 </>
               )}
             </div>

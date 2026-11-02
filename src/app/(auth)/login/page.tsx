@@ -1,36 +1,65 @@
 import { headers } from 'next/headers';
+import { resolveHost } from '@/lib/middleware/resolve-host';
 import AdminLogin from './AdminLogin';
 import CustomerLogin from './CustomerLogin';
 
 export default async function LoginPage() {
   const headersList = await headers();
   const host = headersList.get('host') || '';
-  const isAdminHost =
-    host === 'admin.ruhvi.in' || host.startsWith('admin.localhost');
-  const isOperationsHost =
-    host === 'operation.ruhvi.in' || host.startsWith('operation.localhost');
-  const isMarketingHost =
-    host === 'marketing.ruhvi.in' || host.startsWith('marketing.localhost');
-  const isOrdersHost =
-    host === 'orders.ruhvi.in' || host.startsWith('orders.localhost');
-  const isSupportHost =
-    host === 'support.ruhvi.in' || host.startsWith('support.localhost');
+  const hostFlags = resolveHost(host);
+  const {
+    isOperationsHost,
+    isMarketingHost,
+    isOrdersHost,
+    isSupportHost,
+    isTechHost,
+    isCoFounderHost,
+    isAccountsHost,
+    isAnyPortalHost,
+  } = hostFlags;
 
-  const isSystemSubdomain =
-    isAdminHost ||
-    isOperationsHost ||
-    isMarketingHost ||
-    isOrdersHost ||
-    isSupportHost;
-
-  if (isSystemSubdomain) {
+  if (isAnyPortalHost) {
     let defaultRedirect = '/admin/dashboard';
-    if (isOperationsHost) defaultRedirect = '/operations/dashboard';
-    else if (isMarketingHost) defaultRedirect = '/marketing/dashboard';
-    else if (isOrdersHost) defaultRedirect = '/portal-orders/dashboard';
-    else if (isSupportHost) defaultRedirect = '/support/dashboard';
+    let portalTitle = 'Staff Login';
+    let portalSubtitle = 'Ruhvi Operations & Administration Portal';
 
-    return <AdminLogin defaultRedirect={defaultRedirect} />;
+    if (isAccountsHost) {
+      defaultRedirect = '/accounts/dashboard';
+      portalTitle = 'Accounts & Finance Login';
+      portalSubtitle = 'Ruhvi GST, Finance & Accounts Portal';
+    } else if (isOperationsHost) {
+      defaultRedirect = '/operations/dashboard';
+      portalTitle = 'Operations Login';
+      portalSubtitle = 'Ruhvi Inventory & Operations Portal';
+    } else if (isMarketingHost) {
+      defaultRedirect = '/marketing/dashboard';
+      portalTitle = 'Marketing Login';
+      portalSubtitle = 'Ruhvi Marketing & Growth Portal';
+    } else if (isOrdersHost) {
+      defaultRedirect = '/portal-orders/dashboard';
+      portalTitle = 'Orders Portal Login';
+      portalSubtitle = 'Ruhvi Order Processing & Logistics';
+    } else if (isSupportHost) {
+      defaultRedirect = '/support/dashboard';
+      portalTitle = 'Customer Support Login';
+      portalSubtitle = 'Ruhvi Helpdesk & Ticket Console';
+    } else if (isTechHost) {
+      defaultRedirect = '/tech/dashboard';
+      portalTitle = 'Tech Portal Login';
+      portalSubtitle = 'Ruhvi Tech & Developer Console';
+    } else if (isCoFounderHost) {
+      defaultRedirect = '/co-founder';
+      portalTitle = 'AI Co-Founder Login';
+      portalSubtitle = 'Ruhvi AI Executive Workspace';
+    }
+
+    return (
+      <AdminLogin
+        defaultRedirect={defaultRedirect}
+        portalTitle={portalTitle}
+        portalSubtitle={portalSubtitle}
+      />
+    );
   }
 
   return <CustomerLogin />;
