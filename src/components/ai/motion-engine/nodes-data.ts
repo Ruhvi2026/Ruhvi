@@ -26,12 +26,28 @@ export const INITIAL_AI_HIERARCHY: AgentNode[] = [
       activeTool: 'dispatcher.routeIntent()',
       activeModel: 'Gemini 2.5 Pro / GPT-4o Multi-Provider Router',
       autonomyLevel: 'Autonomous',
-      currentAction: 'Orchestrating 12 autonomous workers and reviewing growth telemetry...',
+      currentAction:
+        'Orchestrating 12 autonomous workers and reviewing growth telemetry...',
       progressPct: 78,
       logLines: [
-        { timestamp: '13:58:10', level: 'info', message: 'Apex Orchestrator initialized with Supabase multi-agent bridge.' },
-        { timestamp: '13:58:12', level: 'exec', message: 'Signal radar active: Monitoring gross margin, cart dropoff, and keyword surges.' },
-        { timestamp: '13:58:15', level: 'success', message: 'Worker 2 (Marketing) dispatched with 22K Gold Choker two-clip campaign directive.' },
+        {
+          timestamp: '13:58:10',
+          level: 'info',
+          message:
+            'Apex Orchestrator initialized with Supabase multi-agent bridge.',
+        },
+        {
+          timestamp: '13:58:12',
+          level: 'exec',
+          message:
+            'Signal radar active: Monitoring gross margin, cart dropoff, and keyword surges.',
+        },
+        {
+          timestamp: '13:58:15',
+          level: 'success',
+          message:
+            'Worker 2 (Marketing) dispatched with 22K Gold Choker two-clip campaign directive.',
+        },
       ],
     },
     capabilities: [
@@ -41,8 +57,20 @@ export const INITIAL_AI_HIERARCHY: AgentNode[] = [
       'Autonomous Task & Action Plan Decomposition',
     ],
     subagentIds: [
-      'worker_1', 'worker_2', 'worker_3', 'worker_4', 'worker_5', 'worker_6',
-      'worker_7', 'worker_8', 'worker_9', 'worker_10', 'worker_11', 'worker_12',
+      'worker_1',
+      'worker_2',
+      'worker_3',
+      'worker_4',
+      'worker_5',
+      'worker_6',
+      'worker_7',
+      'worker_8',
+      'worker_9',
+      'worker_10',
+      'worker_11',
+      'worker_12',
+      'worker_13',
+      'worker_14',
     ],
   },
 
@@ -72,14 +100,27 @@ export const INITIAL_AI_HIERARCHY: AgentNode[] = [
       activeTool: 'supabase.queryOrders()',
       activeModel: 'Gemini 2.5 Flash',
       autonomyLevel: 'Autonomous',
-      currentAction: 'Calculating AOV ₹3,850 and cohort repurchase trajectory...',
+      currentAction:
+        'Calculating AOV ₹3,850 and cohort repurchase trajectory...',
       progressPct: 65,
       logLines: [
-        { timestamp: '13:57:40', level: 'info', message: 'Aggregating last 30-day transaction logs.' },
-        { timestamp: '13:57:42', level: 'exec', message: 'Detected 18.4% uptick in 22K Gold category orders.' },
+        {
+          timestamp: '13:57:40',
+          level: 'info',
+          message: 'Aggregating last 30-day transaction logs.',
+        },
+        {
+          timestamp: '13:57:42',
+          level: 'exec',
+          message: 'Detected 18.4% uptick in 22K Gold category orders.',
+        },
       ],
     },
-    capabilities: ['AOV & CLV Modeling', 'Cohort Retention', 'Financial Unit Economics'],
+    capabilities: [
+      'AOV & CLV Modeling',
+      'Cohort Retention',
+      'Financial Unit Economics',
+    ],
   },
   {
     id: 'worker_2',
@@ -104,16 +145,42 @@ export const INITIAL_AI_HIERARCHY: AgentNode[] = [
       activeTool: 'co_worker_router.execute()',
       activeModel: 'Gemini 2.5 Pro',
       autonomyLevel: 'Approval Required',
-      currentAction: 'Coordinating 3 active Co-Workers for two-video continuous ad pipeline...',
+      currentAction:
+        'Coordinating 3 active Co-Workers for two-video continuous ad pipeline...',
       progressPct: 82,
       logLines: [
-        { timestamp: '13:58:01', level: 'info', message: 'Triggered Strategy Co-Worker for cultural positioning angles.' },
-        { timestamp: '13:58:04', level: 'exec', message: 'Dispatched Creative Media Co-Worker for Veo/Flow prompts.' },
-        { timestamp: '13:58:08', level: 'exec', message: 'Prepared Draft Meta Campaign in PAUSED status with ₹1,800 budget.' },
+        {
+          timestamp: '13:58:01',
+          level: 'info',
+          message:
+            'Triggered Strategy Co-Worker for cultural positioning angles.',
+        },
+        {
+          timestamp: '13:58:04',
+          level: 'exec',
+          message: 'Dispatched Creative Media Co-Worker for Veo/Flow prompts.',
+        },
+        {
+          timestamp: '13:58:08',
+          level: 'exec',
+          message:
+            'Prepared Draft Meta Campaign in PAUSED status with ₹1,800 budget.',
+        },
       ],
     },
-    capabilities: ['Campaign Strategy', 'Continuous Video Generation', 'Safe Ads Drafting'],
-    subagentIds: ['coworker_strategy', 'coworker_creative', 'coworker_ads', 'coworker_social', 'coworker_email', 'coworker_influencer'],
+    capabilities: [
+      'Campaign Strategy',
+      'Continuous Video Generation',
+      'Safe Ads Drafting',
+    ],
+    subagentIds: [
+      'coworker_strategy',
+      'coworker_creative',
+      'coworker_ads',
+      'coworker_social',
+      'coworker_email',
+      'coworker_influencer',
+    ],
   },
   {
     id: 'worker_3',
@@ -138,13 +205,22 @@ export const INITIAL_AI_HIERARCHY: AgentNode[] = [
       activeTool: 'google.searchConsoleAudit()',
       activeModel: 'Gemini 2.5 Flash',
       autonomyLevel: 'Autonomous',
-      currentAction: 'Monitoring rank #1 for "anti-tarnish 22k gold jewellery"...',
+      currentAction:
+        'Monitoring rank #1 for "anti-tarnish 22k gold jewellery"...',
       progressPct: 100,
       logLines: [
-        { timestamp: '13:50:00', level: 'info', message: 'Sitemap crawler refreshed. All product canonicals valid.' },
+        {
+          timestamp: '13:50:00',
+          level: 'info',
+          message: 'Sitemap crawler refreshed. All product canonicals valid.',
+        },
       ],
     },
-    capabilities: ['Structured Schema Injection', 'Search Console Auditing', 'Keyword Mapping'],
+    capabilities: [
+      'Structured Schema Injection',
+      'Search Console Auditing',
+      'Keyword Mapping',
+    ],
   },
   {
     id: 'worker_4',
@@ -172,10 +248,18 @@ export const INITIAL_AI_HIERARCHY: AgentNode[] = [
       currentAction: 'Catalog indexing synced with Supabase products table...',
       progressPct: 100,
       logLines: [
-        { timestamp: '13:52:12', level: 'info', message: 'Enriched 48 SKUs with nano-coating durability tags.' },
+        {
+          timestamp: '13:52:12',
+          level: 'info',
+          message: 'Enriched 48 SKUs with nano-coating durability tags.',
+        },
       ],
     },
-    capabilities: ['Attribute Enrichment', 'Visual Catalog Optimization', 'Bundle Recommendation'],
+    capabilities: [
+      'Attribute Enrichment',
+      'Visual Catalog Optimization',
+      'Bundle Recommendation',
+    ],
   },
   {
     id: 'worker_5',
@@ -200,14 +284,28 @@ export const INITIAL_AI_HIERARCHY: AgentNode[] = [
       activeTool: 'playwright.auditCompetitor()',
       activeModel: 'Gemini 2.5 Pro',
       autonomyLevel: 'Autonomous',
-      currentAction: 'Scanning Giva & Mia by Tanishq 22K festive promotional pricing...',
+      currentAction:
+        'Scanning Giva & Mia by Tanishq 22K festive promotional pricing...',
       progressPct: 52,
       logLines: [
-        { timestamp: '13:56:02', level: 'exec', message: 'Giva launching 15% Durga Puja discount campaign.' },
-        { timestamp: '13:56:09', level: 'info', message: 'Ruhvi price elasticity advantage: +12% on anti-tarnish warranty.' },
+        {
+          timestamp: '13:56:02',
+          level: 'exec',
+          message: 'Giva launching 15% Durga Puja discount campaign.',
+        },
+        {
+          timestamp: '13:56:09',
+          level: 'info',
+          message:
+            'Ruhvi price elasticity advantage: +12% on anti-tarnish warranty.',
+        },
       ],
     },
-    capabilities: ['Playwright Competitor Scraping', 'Price Elasticity Tracking', 'Feature Matrix Comparison'],
+    capabilities: [
+      'Playwright Competitor Scraping',
+      'Price Elasticity Tracking',
+      'Feature Matrix Comparison',
+    ],
   },
   {
     id: 'worker_6',
@@ -235,10 +333,18 @@ export const INITIAL_AI_HIERARCHY: AgentNode[] = [
       currentAction: 'One-click checkout conversion rate stable at 4.2%...',
       progressPct: 100,
       logLines: [
-        { timestamp: '13:45:10', level: 'info', message: 'Post-purchase upsell bundle conversion +8.3%.' },
+        {
+          timestamp: '13:45:10',
+          level: 'info',
+          message: 'Post-purchase upsell bundle conversion +8.3%.',
+        },
       ],
     },
-    capabilities: ['Funnel Drop-off Diagnostic', 'Dynamic Bundle Engine', 'Checkout Acceleration'],
+    capabilities: [
+      'Funnel Drop-off Diagnostic',
+      'Dynamic Bundle Engine',
+      'Checkout Acceleration',
+    ],
   },
   {
     id: 'worker_7',
@@ -266,10 +372,18 @@ export const INITIAL_AI_HIERARCHY: AgentNode[] = [
       currentAction: 'Zero pending escalation tickets. Customer CSAT: 4.9/5...',
       progressPct: 100,
       logLines: [
-        { timestamp: '13:40:00', level: 'info', message: 'Auto-resolved 14 tracking status inquiries via WhatsApp.' },
+        {
+          timestamp: '13:40:00',
+          level: 'info',
+          message: 'Auto-resolved 14 tracking status inquiries via WhatsApp.',
+        },
       ],
     },
-    capabilities: ['Automated Triage', 'CSAT Sentiment Tracking', 'Warranty Claim Verification'],
+    capabilities: [
+      'Automated Triage',
+      'CSAT Sentiment Tracking',
+      'Warranty Claim Verification',
+    ],
   },
   {
     id: 'worker_8',
@@ -294,13 +408,22 @@ export const INITIAL_AI_HIERARCHY: AgentNode[] = [
       activeTool: 'content.synthesizeMultilingual()',
       activeModel: 'Gemini 2.5 Pro',
       autonomyLevel: 'Autonomous',
-      currentAction: 'Drafting colloquial Bengali and Hinglish micro-copy for bridal landing page...',
+      currentAction:
+        'Drafting colloquial Bengali and Hinglish micro-copy for bridal landing page...',
       progressPct: 70,
       logLines: [
-        { timestamp: '13:55:18', level: 'exec', message: 'Phonetic Banglish voiceover transcription completed.' },
+        {
+          timestamp: '13:55:18',
+          level: 'exec',
+          message: 'Phonetic Banglish voiceover transcription completed.',
+        },
       ],
     },
-    capabilities: ['Bengali/Hindi Cultural Localization', 'High-Converting Hooks', 'Blog & Editorial Generation'],
+    capabilities: [
+      'Bengali/Hindi Cultural Localization',
+      'High-Converting Hooks',
+      'Blog & Editorial Generation',
+    ],
   },
   {
     id: 'worker_9',
@@ -325,13 +448,23 @@ export const INITIAL_AI_HIERARCHY: AgentNode[] = [
       activeTool: 'inventory.forecastVelocity()',
       activeModel: 'Gemini 2.5 Flash',
       autonomyLevel: 'Autonomous',
-      currentAction: 'Stock velocity balanced. 18 days of supply for gold pendants...',
+      currentAction:
+        'Stock velocity balanced. 18 days of supply for gold pendants...',
       progressPct: 100,
       logLines: [
-        { timestamp: '13:42:00', level: 'info', message: 'All reorder thresholds evaluated against vendor lead times.' },
+        {
+          timestamp: '13:42:00',
+          level: 'info',
+          message:
+            'All reorder thresholds evaluated against vendor lead times.',
+        },
       ],
     },
-    capabilities: ['Stockout Risk Detection', 'Lead-Time Optimization', 'Holding Cost Minimization'],
+    capabilities: [
+      'Stockout Risk Detection',
+      'Lead-Time Optimization',
+      'Holding Cost Minimization',
+    ],
   },
   {
     id: 'worker_10',
@@ -356,13 +489,23 @@ export const INITIAL_AI_HIERARCHY: AgentNode[] = [
       activeTool: 'reviews.aggregateSentiment()',
       activeModel: 'Gemini 2.5 Flash',
       autonomyLevel: 'Autonomous',
-      currentAction: 'Curating 5-star customer unboxing photos for homepage social proof...',
+      currentAction:
+        'Curating 5-star customer unboxing photos for homepage social proof...',
       progressPct: 100,
       logLines: [
-        { timestamp: '13:38:00', level: 'info', message: '98.2% positive sentiment across 320 verified buyer reviews.' },
+        {
+          timestamp: '13:38:00',
+          level: 'info',
+          message:
+            '98.2% positive sentiment across 320 verified buyer reviews.',
+        },
       ],
     },
-    capabilities: ['UGC Photo Moderation', 'Structured Review Schema', 'Verified Buyer Badging'],
+    capabilities: [
+      'UGC Photo Moderation',
+      'Structured Review Schema',
+      'Verified Buyer Badging',
+    ],
   },
   {
     id: 'worker_11',
@@ -387,13 +530,22 @@ export const INITIAL_AI_HIERARCHY: AgentNode[] = [
       activeTool: 'taskManager.createSubTasks()',
       activeModel: 'Gemini 2.5 Flash',
       autonomyLevel: 'Autonomous',
-      currentAction: 'Executing database sync and syncing automated project tasks...',
+      currentAction:
+        'Executing database sync and syncing automated project tasks...',
       progressPct: 90,
       logLines: [
-        { timestamp: '13:56:40', level: 'exec', message: 'Dispatched 3 background tasks to internal executor queue.' },
+        {
+          timestamp: '13:56:40',
+          level: 'exec',
+          message: 'Dispatched 3 background tasks to internal executor queue.',
+        },
       ],
     },
-    capabilities: ['Task Decomposition', 'Migration Synchronization', 'Cron & Background Worker Execution'],
+    capabilities: [
+      'Task Decomposition',
+      'Migration Synchronization',
+      'Cron & Background Worker Execution',
+    ],
   },
   {
     id: 'worker_12',
@@ -421,10 +573,103 @@ export const INITIAL_AI_HIERARCHY: AgentNode[] = [
       currentAction: 'All endpoints 100% operational. Average latency: 42ms...',
       progressPct: 100,
       logLines: [
-        { timestamp: '13:58:20', level: 'info', message: 'Postgres connection pool healthy. Cloudinary io1kkukg ready.' },
+        {
+          timestamp: '13:58:20',
+          level: 'info',
+          message:
+            'Postgres connection pool healthy. Cloudinary io1kkukg ready.',
+        },
       ],
     },
-    capabilities: ['API Latency Probing', 'Security Policy Auditing', 'Integrations Health Monitor'],
+    capabilities: [
+      'API Latency Probing',
+      'Security Policy Auditing',
+      'Integrations Health Monitor',
+    ],
+  },
+  {
+    id: 'worker_13',
+    name: 'Worker 13: Orders & Logistics',
+    title: 'Head of Order Fulfillment & Logistics Intelligence',
+    level: 'core_worker',
+    parentId: 'co_founder',
+    category: 'Logistics',
+    color: '#06b6d4',
+    accentColor: '#22d3ee',
+    dotCount: 75,
+    radius: 19,
+    orbitRadius: 190,
+    orbitSpeed: 0.0028,
+    orbitAngle: (13 * Math.PI) / 7,
+    orbitElevation: -10,
+    state: 'idle',
+    telemetry: {
+      latencyMs: 58,
+      tokensPerSec: 46.5,
+      computeLoadPct: 12,
+      activeTool: 'orders.getPipelineStatus()',
+      activeModel: 'Gemini 2.5 Flash',
+      autonomyLevel: 'Autonomous',
+      currentAction: 'Tracking courier SLAs and active RTO prevention...',
+      progressPct: 100,
+      logLines: [
+        {
+          timestamp: '14:00:10',
+          level: 'info',
+          message:
+            'Fulfillment pipeline healthy. Tracking Shiprocket & BlueDart SLAs.',
+        },
+      ],
+    },
+    capabilities: [
+      'Delivery Failure Triage',
+      'RTO Mitigation',
+      'Courier SLA Tracking',
+      'Return Root-Cause Analysis',
+    ],
+  },
+  {
+    id: 'worker_14',
+    name: 'Worker 14: Accounts & Tax',
+    title: 'Chief Accounts Officer & GST Compliance Manager',
+    level: 'core_worker',
+    parentId: 'co_founder',
+    category: 'Financial & Tax',
+    color: '#10b981',
+    accentColor: '#34d399',
+    dotCount: 75,
+    radius: 19,
+    orbitRadius: 195,
+    orbitSpeed: 0.0025,
+    orbitAngle: (14 * Math.PI) / 7,
+    orbitElevation: 12,
+    state: 'idle',
+    telemetry: {
+      latencyMs: 72,
+      tokensPerSec: 52.0,
+      computeLoadPct: 15,
+      activeTool: 'accounts.computeGstr3bSummary()',
+      activeModel: 'Gemini 2.5 Flash',
+      autonomyLevel: 'Supervised',
+      currentAction:
+        'Auditing GST Rule 46 invoices, Section 17(5) ITC, and Section 44AB threshold...',
+      progressPct: 100,
+      logLines: [
+        {
+          timestamp: '14:00:15',
+          level: 'info',
+          message:
+            'GST Rule 46 compliance active. Section 17(5) ITC verified against vendor bills.',
+        },
+      ],
+    },
+    capabilities: [
+      'Rule 46 Tax Invoicing',
+      'GSTR-1 & 3B Filing',
+      'Input Tax Credit (ITC)',
+      'Double-Entry Cash Book',
+      'Income Tax Section 44AB',
+    ],
   },
 
   // -------------------------------------------------------------------------
@@ -453,13 +698,23 @@ export const INITIAL_AI_HIERARCHY: AgentNode[] = [
       activeTool: 'strategy.formulateAngles()',
       activeModel: 'Gemini 2.5 Pro',
       autonomyLevel: 'Autonomous',
-      currentAction: 'Formulating 3 cultural angles (Durga Puja, Daily Luxury, Tarnish-Free Guarantee)...',
+      currentAction:
+        'Formulating 3 cultural angles (Durga Puja, Daily Luxury, Tarnish-Free Guarantee)...',
       progressPct: 95,
       logLines: [
-        { timestamp: '13:57:00', level: 'exec', message: 'Budget calculated: Suggested daily ₹1,800 INR for Meta Ads.' },
+        {
+          timestamp: '13:57:00',
+          level: 'exec',
+          message:
+            'Budget calculated: Suggested daily ₹1,800 INR for Meta Ads.',
+        },
       ],
     },
-    capabilities: ['Angle Generation', 'Targeting Formulation', 'Budget Recommendation'],
+    capabilities: [
+      'Angle Generation',
+      'Targeting Formulation',
+      'Budget Recommendation',
+    ],
   },
   {
     id: 'coworker_creative',
@@ -484,14 +739,28 @@ export const INITIAL_AI_HIERARCHY: AgentNode[] = [
       activeTool: 'cloudinary.uploadStream(io1kkukg)',
       activeModel: 'Gemini 2.5 Pro',
       autonomyLevel: 'Autonomous',
-      currentAction: 'Generating Video 1 & Video 2 match-cut prompts and Bengali/Hindi voiceovers...',
+      currentAction:
+        'Generating Video 1 & Video 2 match-cut prompts and Bengali/Hindi voiceovers...',
       progressPct: 88,
       logLines: [
-        { timestamp: '13:57:30', level: 'exec', message: 'Google Flow anchor instructions generated.' },
-        { timestamp: '13:57:45', level: 'info', message: 'Dispatched upload pipeline targeting Cloudinary cloud io1kkukg.' },
+        {
+          timestamp: '13:57:30',
+          level: 'exec',
+          message: 'Google Flow anchor instructions generated.',
+        },
+        {
+          timestamp: '13:57:45',
+          level: 'info',
+          message:
+            'Dispatched upload pipeline targeting Cloudinary cloud io1kkukg.',
+        },
       ],
     },
-    capabilities: ['Two-Video Flow Prompts', 'Match-Cut Continuity', 'Multilingual Script & Voiceover'],
+    capabilities: [
+      'Two-Video Flow Prompts',
+      'Match-Cut Continuity',
+      'Multilingual Script & Voiceover',
+    ],
   },
   {
     id: 'coworker_ads',
@@ -516,13 +785,23 @@ export const INITIAL_AI_HIERARCHY: AgentNode[] = [
       activeTool: 'metaAds.registerDraftCampaign()',
       activeModel: 'Gemini 2.5 Pro',
       autonomyLevel: 'Approval Required',
-      currentAction: 'Draft campaign created in PAUSED status. Awaiting Founder explicit authorization...',
+      currentAction:
+        'Draft campaign created in PAUSED status. Awaiting Founder explicit authorization...',
       progressPct: 100,
       logLines: [
-        { timestamp: '13:58:00', level: 'warn', message: 'Strict Gate: No live money spent without explicit founder signature.' },
+        {
+          timestamp: '13:58:00',
+          level: 'warn',
+          message:
+            'Strict Gate: No live money spent without explicit founder signature.',
+        },
       ],
     },
-    capabilities: ['Meta Graph API Drafting', 'PAUSED Default Enforcer', 'Founder Approval Gatekeeper'],
+    capabilities: [
+      'Meta Graph API Drafting',
+      'PAUSED Default Enforcer',
+      'Founder Approval Gatekeeper',
+    ],
   },
   {
     id: 'coworker_social',
@@ -547,7 +826,13 @@ export const INITIAL_AI_HIERARCHY: AgentNode[] = [
       autonomyLevel: 'Supervised',
       currentAction: 'Standby mode (Feature Flag disabled by policy).',
       progressPct: 0,
-      logLines: [{ timestamp: '13:00:00', level: 'info', message: 'Co-Worker disabled in config.' }],
+      logLines: [
+        {
+          timestamp: '13:00:00',
+          level: 'info',
+          message: 'Co-Worker disabled in config.',
+        },
+      ],
     },
     capabilities: ['Feed Strategy', 'Organic Hashtags'],
   },
@@ -574,7 +859,13 @@ export const INITIAL_AI_HIERARCHY: AgentNode[] = [
       autonomyLevel: 'Supervised',
       currentAction: 'Standby mode (Feature Flag disabled by policy).',
       progressPct: 0,
-      logLines: [{ timestamp: '13:00:00', level: 'info', message: 'Co-Worker disabled in config.' }],
+      logLines: [
+        {
+          timestamp: '13:00:00',
+          level: 'info',
+          message: 'Co-Worker disabled in config.',
+        },
+      ],
     },
     capabilities: ['Email Flows', 'Segment Targeting'],
   },
@@ -601,7 +892,13 @@ export const INITIAL_AI_HIERARCHY: AgentNode[] = [
       autonomyLevel: 'Supervised',
       currentAction: 'Standby mode (Feature Flag disabled by policy).',
       progressPct: 0,
-      logLines: [{ timestamp: '13:00:00', level: 'info', message: 'Co-Worker disabled in config.' }],
+      logLines: [
+        {
+          timestamp: '13:00:00',
+          level: 'info',
+          message: 'Co-Worker disabled in config.',
+        },
+      ],
     },
     capabilities: ['Creator Discovery', 'PR Seeding Pipeline'],
   },

@@ -164,6 +164,9 @@ export const TOOL_PERMISSION_MAP: Record<
   get_wallet_ledger: { module: 'wallet', action: 'read' },
   get_reward_coin_ledger: { module: 'rewards_coin', action: 'read' },
   get_payment_transactions: { module: 'payment', action: 'read' },
+  get_accounts_summary: { module: 'payment', action: 'read' },
+  get_recent_gst_invoices: { module: 'orders', action: 'read' },
+  get_active_quotations: { module: 'orders', action: 'read' },
 
   // Messaging (Read & Write)
   send_whatsapp_message: { module: 'whatsapp', action: 'write' },

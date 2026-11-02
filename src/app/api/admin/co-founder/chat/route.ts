@@ -16,6 +16,7 @@ import {
   enforceCoFounderRateLimit,
   createRateLimitHeaders,
 } from '@/lib/ai/co-founder/rate-limiter';
+import { ConversationRepository } from '@/lib/ai/co-founder/conversations/repository';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -34,6 +35,7 @@ export async function POST(req: NextRequest) {
 
     const body = await req.json();
     const {
+      conversationId,
       messages,
       channel = 'text',
       provider: requestedProvider,
@@ -60,6 +62,18 @@ export async function POST(req: NextRequest) {
     if (!latest?.text && (latest?.imageUrl || latest?.imageBase64)) {
       latest.text =
         'Please review this attached image and share your analysis and thoughts.';
+    }
+
+    if (conversationId && latest?.text) {
+      await ConversationRepository.appendMessage({
+        conversationId,
+        senderType: 'user',
+        senderId: auth.uid,
+        content: latest.text,
+        contentType: 'text',
+      }).catch((err) =>
+        console.warn('[chat/route] Failed to append user message:', err)
+      );
     }
 
     let audioTranscription: string | null = null;
@@ -1033,6 +1047,22 @@ export async function POST(req: NextRequest) {
     }
 
     const rateHeaders = createRateLimitHeaders(rateLimitCheck.result);
+
+    if (conversationId && responseText) {
+      await ConversationRepository.appendMessage({
+        conversationId,
+        senderType: 'cofounder',
+        content: responseText,
+        contentType: 'text',
+        metadata: {
+          provider: answeredProvider,
+          model: answeredModel,
+          toolCallsCount: agentExecutionMeta?.toolCallsExecuted?.length || 0,
+        },
+      }).catch((err) =>
+        console.warn('[chat/route] Failed to append assistant message:', err)
+      );
+    }
 
     return NextResponse.json(
       {

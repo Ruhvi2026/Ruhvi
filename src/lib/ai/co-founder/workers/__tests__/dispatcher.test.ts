@@ -34,9 +34,9 @@ import {
 import { workerRegistry } from '../registry';
 
 describe('AI Co-Founder Dynamic Worker Dispatcher & Registry', () => {
-  it('registers all 13 specialized AI Agent Workers', () => {
+  it('registers all 14 specialized AI Agent Workers', () => {
     const status = getWorkerRegistryStatus();
-    expect(status.totalWorkers).toBe(13);
+    expect(status.totalWorkers).toBe(14);
 
     const workerIds = status.workers.map((w) => w.id);
     expect(workerIds).toEqual([
@@ -53,6 +53,7 @@ describe('AI Co-Founder Dynamic Worker Dispatcher & Registry', () => {
       'worker_execution',
       'worker_monitoring_verification',
       'worker_orders_logistics',
+      'worker_accounts_tax',
     ]);
   });
 

@@ -20,6 +20,9 @@ import type {
   ChatAttachment,
 } from '@/types/chat';
 import AutoLinkText from '@/components/chat/AutoLinkText';
+import { VoiceNotePlayer } from '@/components/chat/VoiceNotePlayer';
+import { VoiceNoteRecorder } from '@/components/chat/VoiceNoteRecorder';
+import { SpeechToTextButton } from '@/components/chat/SpeechToTextButton';
 import {
   MessageCircle,
   X,
@@ -42,6 +45,7 @@ import {
   Sparkles,
   ExternalLink,
   Bot,
+  Mic,
 } from 'lucide-react';
 
 export interface AIWorkerPersona {
@@ -283,6 +287,8 @@ export default function FloatingStaffMessenger() {
   const [inputText, setInputText] = useState('');
   const [sendingMsg, setSendingMsg] = useState(false);
   const [uploadingFile, setUploadingFile] = useState(false);
+  const [isRecordingVoiceNote, setIsRecordingVoiceNote] = useState(false);
+  const [uploadingVoiceNote, setUploadingVoiceNote] = useState(false);
 
   // Mentions & Entity references
   const [staffList, setStaffList] = useState<ChatUserProfile[]>([]);
@@ -846,6 +852,54 @@ export default function FloatingStaffMessenger() {
     }
   };
 
+  const handleSendVoiceNote = async (blob: Blob, duration: number) => {
+    if (!activeConv) return;
+    setUploadingVoiceNote(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', blob, 'voice_note.webm');
+      formData.append('conversation_id', activeConv.id);
+      formData.append('duration_seconds', duration.toString());
+
+      const res = await fetch('/api/internal-chat/voice-notes/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        await fetch(
+          `/api/internal-chat/conversations/${activeConv.id}/messages`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              text_content: 'Voice Note',
+              message_type: 'voice_note',
+              attachments: [
+                {
+                  cloudinary_public_id: data.publicId,
+                  cloudinary_url: data.url,
+                  resource_type: 'video',
+                  file_name: 'Voice Note.webm',
+                  file_size: data.fileSizeBytes,
+                  mime_type: data.mimeType || 'audio/webm',
+                  duration: data.durationSeconds || duration,
+                },
+              ],
+            }),
+          }
+        );
+        loadMessages(activeConv.id);
+        setIsRecordingVoiceNote(false);
+      }
+    } catch (err) {
+      console.error('FloatingMessenger: Voice note send failed', err);
+    } finally {
+      setUploadingVoiceNote(false);
+    }
+  };
+
   const filteredConversations = conversations.filter((c) => {
     if (!searchQuery.trim()) return true;
     const q = searchQuery.toLowerCase();
@@ -1357,7 +1411,15 @@ export default function FloatingStaffMessenger() {
                       {attachments.length > 0 &&
                         attachments.map((att: ChatAttachment) => (
                           <div key={att.id} className="mb-1.5">
-                            {att.resource_type === 'image' ? (
+                            {att.mime_type?.startsWith('audio/') ||
+                            att.file_name?.includes('Voice Note') ||
+                            msg.message_type === 'voice_note' ? (
+                              <VoiceNotePlayer
+                                src={att.cloudinary_url}
+                                duration={att.duration || 0}
+                                isUser={isMe}
+                              />
+                            ) : att.resource_type === 'image' ? (
                               <a
                                 href={att.cloudinary_url}
                                 target="_blank"
@@ -1670,6 +1732,14 @@ export default function FloatingStaffMessenger() {
                 </span>
               </div>
             </div>
+          ) : isRecordingVoiceNote ? (
+            <div className="border-t border-white/10 bg-[#13192B] p-2">
+              <VoiceNoteRecorder
+                onSend={handleSendVoiceNote}
+                onCancel={() => setIsRecordingVoiceNote(false)}
+                isUploading={uploadingVoiceNote}
+              />
+            </div>
           ) : (
             <form
               onSubmit={handleSendMessage}
@@ -1694,6 +1764,26 @@ export default function FloatingStaffMessenger() {
                 type="file"
                 className="hidden"
                 onChange={handleFileUpload}
+              />
+
+              {/* Voice Note Record Trigger Button */}
+              <button
+                type="button"
+                onClick={() => setIsRecordingVoiceNote(true)}
+                className="rounded-lg p-1.5 text-slate-400 transition hover:bg-white/5 hover:text-rose-400"
+                title="Record WhatsApp-style Voice Note"
+              >
+                <Mic className="h-4 w-4" />
+              </button>
+
+              {/* Speech to Text Dictation Button */}
+              <SpeechToTextButton
+                onTranscript={(transcript) => {
+                  setInputText((prev) =>
+                    prev ? `${prev} ${transcript}` : transcript
+                  );
+                }}
+                disabled={sendingMsg}
               />
 
               {/* # Reference Button */}

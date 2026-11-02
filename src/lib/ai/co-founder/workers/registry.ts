@@ -15,6 +15,7 @@ import { reviewWorker } from './worker-10-review';
 import { executionWorker } from './worker-11-execution';
 import { monitoringWorker } from './worker-12-monitoring';
 import { ordersLogisticsWorker } from './worker-13-orders-logistics';
+import { accountsWorker } from './worker-14-accounts';
 
 export class WorkerRegistry {
   private workers: Map<WorkerId, AIWorkerInterface> = new Map();
@@ -33,6 +34,7 @@ export class WorkerRegistry {
     this.register(executionWorker);
     this.register(monitoringWorker);
     this.register(ordersLogisticsWorker);
+    this.register(accountsWorker);
   }
 
   register(worker: AIWorkerInterface): void {
@@ -134,6 +136,43 @@ export class WorkerRegistry {
       text.includes('write post')
     ) {
       return contentWorker;
+    }
+
+    // Accounts, GST & Tax Compliance keywords
+    if (
+      text.includes('tax') ||
+      text.includes('gst') ||
+      text.includes('gstr') ||
+      text.includes('itc') ||
+      text.includes('input tax credit') ||
+      text.includes('accounts') ||
+      text.includes('accounting') ||
+      text.includes('invoice') ||
+      text.includes('bill') ||
+      text.includes('voucher') ||
+      text.includes('cashbook') ||
+      text.includes('cash book') ||
+      text.includes('ledger') ||
+      text.includes('trial balance') ||
+      text.includes('advance tax') ||
+      text.includes('income tax') ||
+      text.includes('44ab') ||
+      text.includes('206c') ||
+      text.includes('tcs') ||
+      text.includes('tds') ||
+      text.includes('cogs') ||
+      text.includes('manufacturing cost') ||
+      text.includes('making charges') ||
+      text.includes('hallmarking') ||
+      text.includes('ট্যাক্স') ||
+      text.includes('জিএসটি') ||
+      text.includes('হিসাব') ||
+      text.includes('অ্যাকাউন্টস') ||
+      text.includes('ইনভয়েস') ||
+      text.includes('ভাউচার') ||
+      text.includes('লেজার')
+    ) {
+      return accountsWorker;
     }
 
     // Orders & Logistics keywords

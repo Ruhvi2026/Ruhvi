@@ -1,5 +1,44 @@
 # Deletion Log (অপ্রয়োজনীয় ফাইল ক্লিনআপ লগ)
 
+**Timestamp:** 2026-11-03 (Local Time: 01:05:00 IST)
+
+### Recovery Reference (রিকভারির জন্য গিট কমিট তথ্য)
+- **Commit Hash:** `8948653`
+- **Author:** Ruhvi2026 <ruhvi.main@gmail.com>
+- **Date:** Sun Nov 2 17:30:26 2026 +0530
+- **Message:** `fix(accounts): migrate PDF generator to jsPDF to resolve webpack build error`
+
+### Archived & Relocated Files (সংরক্ষিত ও স্থানান্তরিত জরুরি ফাইলসমূহ)
+- `ruhvi_codebase_audit_2026-10-29_done.md` (31,965 Bytes)
+  - **Archived To:** `docs/archived-reports/ruhvi_codebase_audit_2026-10-29_done.md`
+  - **Reason:** Completed codebase audit report. Relocated to preserve full audit history while keeping repository root clean.
+- `Ruhvi_Ecommerce_Deep_Codebase_Audit_2026-10-29.md` (40,209 Bytes)
+  - **Archived To:** `docs/archived-reports/Ruhvi_Ecommerce_Deep_Codebase_Audit_2026-10-29.md`
+  - **Reason:** Completed deep ecommerce audit report. Preserved permanently in archived reports.
+- `ruhvi_master_phased_implementation_plan.md` (47,328 Bytes)
+  - **Archived To:** `docs/archived-reports/ruhvi_master_phased_implementation_plan.md`
+  - **Reason:** Master phased implementation roadmap. Preserved permanently in archived reports.
+- `RUHVI_TOTAL_IMPLEMENTATION_REPORT.md` (175,458 Bytes)
+  - **Archived To:** `docs/archived-reports/RUHVI_TOTAL_IMPLEMENTATION_REPORT.md`
+  - **Reason:** Total implementation completion report (Tracks A through M). Preserved permanently in archived reports.
+- `RUHVI_TOTAL_MASTER_IMPLEMENTATION_PLAN.md` (52,151 Bytes)
+  - **Archived To:** `docs/archived-reports/RUHVI_TOTAL_MASTER_IMPLEMENTATION_PLAN.md`
+  - **Reason:** Master phased implementation plan. Preserved permanently in archived reports.
+- `CRITICAL_FLOW_REGRESSION_TEST_MAP.md` (12,502 Bytes)
+  - **Relocated To:** `docs/CRITICAL_FLOW_REGRESSION_TEST_MAP.md`
+  - **Reason:** Authoritative regression test specifications; relocated to `docs/` alongside canonical journeys and ownership maps.
+- `RU_CHAT_VOICE_NOTE_AND_SPEECH_TO_TEXT_IMPLEMENTATION_PLAN.md` (26,590 Bytes)
+  - **Organized To:** `docs/RU_CHAT_VOICE_NOTE_AND_SPEECH_TO_TEXT_IMPLEMENTATION_PLAN.md`
+  - **Reason:** Ru Chat Voice Note & Speech-to-Text technical roadmap organized securely in `docs/`.
+- `Ruhvi_CoFounder_MultiConversation_MultiAgent_Implementation_Plan.md` (31,240 Bytes)
+  - **Organized To:** `docs/Ruhvi_CoFounder_MultiConversation_MultiAgent_Implementation_Plan.md`
+  - **Reason:** AI Co-Founder multi-conversation & multi-agent roadmap organized securely in `docs/`.
+
+### Cleaned Build Artifacts & Stale Locks
+- `.git/index.lock` — Stale process lock cleanly removed.
+
+---
+
 **Timestamp:** 2026-10-26 (Local Time: 02:35:00 IST)
 
 ### Recovery Reference (রিকভারির জন্য গিট কমিট তথ্য)

@@ -1,24 +1,31 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Play, Pause, Volume2, RotateCcw } from 'lucide-react';
+import { Play, Pause, AlertCircle, Clock } from 'lucide-react';
+import { VoiceNoteStatus } from '@/lib/chat/voice-types';
 
 interface VoiceNotePlayerProps {
   src: string;
   duration?: number;
   className?: string;
   isUser?: boolean;
+  status?: VoiceNoteStatus;
 }
+
+// Global reference for currently playing audio to prevent overlapping playback
+let currentlyPlayingAudio: HTMLAudioElement | null = null;
 
 export function VoiceNotePlayer({
   src,
   duration = 0,
   className = '',
   isUser = false,
+  status = 'active',
 }: VoiceNotePlayerProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [playbackRate, setPlaybackRate] = useState<number>(1);
+  const [hasError, setHasError] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
@@ -32,21 +39,40 @@ export function VoiceNotePlayer({
     const handleEnded = () => {
       setIsPlaying(false);
       setCurrentTime(0);
+      if (currentlyPlayingAudio === audio) {
+        currentlyPlayingAudio = null;
+      }
     };
 
     const handlePause = () => setIsPlaying(false);
-    const handlePlay = () => setIsPlaying(true);
+    const handlePlay = () => {
+      if (currentlyPlayingAudio && currentlyPlayingAudio !== audio) {
+        currentlyPlayingAudio.pause();
+      }
+      currentlyPlayingAudio = audio;
+      setIsPlaying(true);
+    };
+
+    const handleError = () => {
+      setHasError(true);
+      setIsPlaying(false);
+    };
 
     audio.addEventListener('timeupdate', handleTimeUpdate);
     audio.addEventListener('ended', handleEnded);
     audio.addEventListener('pause', handlePause);
     audio.addEventListener('play', handlePlay);
+    audio.addEventListener('error', handleError);
 
     return () => {
       audio.removeEventListener('timeupdate', handleTimeUpdate);
       audio.removeEventListener('ended', handleEnded);
       audio.removeEventListener('pause', handlePause);
       audio.removeEventListener('play', handlePlay);
+      audio.removeEventListener('error', handleError);
+      if (currentlyPlayingAudio === audio) {
+        currentlyPlayingAudio = null;
+      }
     };
   }, []);
 
@@ -57,7 +83,10 @@ export function VoiceNotePlayer({
     if (isPlaying) {
       audio.pause();
     } else {
-      audio.play().catch(() => setIsPlaying(false));
+      audio.play().catch(() => {
+        setIsPlaying(false);
+        setHasError(true);
+      });
     }
   };
 
@@ -85,6 +114,23 @@ export function VoiceNotePlayer({
 
   const maxTime = duration > 0 ? duration : audioRef.current?.duration || 10;
   const progressPercent = maxTime > 0 ? (currentTime / maxTime) * 100 : 0;
+
+  // Handle 45-day retention expired state gracefully
+  if (status === 'expired' || hasError) {
+    return (
+      <div
+        className={`my-1.5 flex items-center gap-2 rounded-2xl border border-amber-500/30 bg-amber-500/10 p-2.5 text-xs text-amber-700 dark:border-amber-500/40 dark:bg-amber-950/40 dark:text-amber-300 ${className}`}
+      >
+        <Clock
+          size={16}
+          className="shrink-0 text-amber-600 dark:text-amber-400"
+        />
+        <span className="font-medium">
+          Voice note expired and deleted (45-day retention policy)
+        </span>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -121,7 +167,6 @@ export function VoiceNotePlayer({
           {Array.from({ length: 24 }).map((_, i) => {
             const barProgress = (i / 24) * 100;
             const isPassed = barProgress <= progressPercent;
-            // pseudo-random bar height pattern
             const baseH = [35, 60, 90, 45, 75, 100, 50, 80, 65, 40, 85, 95][
               i % 12
             ];
@@ -148,7 +193,7 @@ export function VoiceNotePlayer({
           })}
         </div>
 
-        {/* Seek Range Input (invisible on top of bars or slider) */}
+        {/* Seek Range Input */}
         <div className="flex items-center justify-between font-mono text-[10px] text-neutral-500 dark:text-neutral-400">
           <span>{formatSec(currentTime)}</span>
           <input

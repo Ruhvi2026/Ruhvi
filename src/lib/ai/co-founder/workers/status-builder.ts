@@ -42,13 +42,15 @@ const WORKER_REGISTRY_TO_NODE: Record<string, string> = {
   worker_review_feedback: 'worker_10',
   worker_execution: 'worker_11',
   worker_monitoring_verification: 'worker_12',
+  worker_orders_logistics: 'worker_13',
+  worker_accounts_tax: 'worker_14',
 };
 
 const SIGNAL_CATEGORY_TO_WORKERS: Record<string, string[]> = {
-  BUSINESS: ['worker_1', 'worker_2', 'worker_6', 'worker_9'],
-  RISK: ['worker_7', 'worker_12', 'worker_4'],
-  OPPORTUNITY: ['worker_2', 'worker_8', 'worker_5'],
-  FOLLOW_UP: ['worker_5', 'worker_10', 'worker_8'],
+  BUSINESS: ['worker_1', 'worker_2', 'worker_6', 'worker_9', 'worker_14'],
+  RISK: ['worker_7', 'worker_12', 'worker_4', 'worker_14'],
+  OPPORTUNITY: ['worker_2', 'worker_8', 'worker_5', 'worker_14'],
+  FOLLOW_UP: ['worker_5', 'worker_10', 'worker_8', 'worker_13'],
   SYSTEM: ['worker_11', 'worker_12'],
 };
 
@@ -72,7 +74,9 @@ export async function buildLiveWorkforceStatus(
 
   const { data: signals } = (await supabase
     .from('co_founder_signals')
-    .select('id,signal_type,category,severity,confidence,title,summary,detail,metrics,is_acknowledged,created_at')
+    .select(
+      'id,signal_type,category,severity,confidence,title,summary,detail,metrics,is_acknowledged,created_at'
+    )
     .eq('is_acknowledged', false)
     .order('created_at', { ascending: false })
     .limit(50)) as { data: SignalRecord[] | null };

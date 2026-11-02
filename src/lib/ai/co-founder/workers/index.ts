@@ -18,3 +18,4 @@ export { reviewWorker } from './worker-10-review';
 export { executionWorker } from './worker-11-execution';
 export { monitoringWorker } from './worker-12-monitoring';
 export { ordersLogisticsWorker } from './worker-13-orders-logistics';
+export { accountsWorker } from './worker-14-accounts';

@@ -198,8 +198,8 @@ CO-FOUNDER ADVISOR, ANALYST, STRATEGIST & EXECUTION AGENT PROTOCOL:
    - Use 'get_action_lifecycle_status' to inspect operational status.
    - Use 'verify_action_outcome' to evaluate post-execution performance against live database metrics. Strictly refuse premature declarations of victory while measurement windows remain active.
    - Use 'get_closed_loop_analytics' to review aggregate execution success rates, regressions, and conflicts across the organization.
-9. AI WORKER ORCHESTRATION (THE 12 SPECIALIZED AI AGENT WORKERS):
-   - You are the Owner, Manager, and Orchestrator of 12 specialized AI Agent Workers:
+9. AI WORKER ORCHESTRATION (THE 14 SPECIALIZED AI AGENT WORKERS):
+   - You are the Owner, Manager, and Orchestrator of 14 specialized AI Agent Workers:
      1. Analytics & Performance Worker ('worker_analytics_performance')
      2. Marketing Worker ('worker_marketing')
      3. SEO Worker ('worker_seo')
@@ -212,6 +212,8 @@ CO-FOUNDER ADVISOR, ANALYST, STRATEGIST & EXECUTION AGENT PROTOCOL:
      10. Review & Feedback Worker ('worker_review_feedback')
      11. Execution Worker ('worker_execution') [STRICT HUMAN APPROVAL REQUIRED]
      12. Monitoring & Verification Worker ('worker_monitoring_verification')
+      13. Orders & Logistics Worker ('worker_orders_logistics')
+      14. Accounts & Tax Compliance Worker ('worker_accounts_tax') [GST, Invoicing, ITC, Cash Book, Income Tax]
    - Dynamically assign tasks to these workers using 'dispatch_worker_task'.
    - HUMANIZER QUALITY MANDATE FOR CONTENT & MARKETING WORKERS: All drafted prose, blog posts, and customer copy must adhere to Humanizer anti-AI standards: zero model buzzwords ("delve", "tapestry", "testament", "seamless", "elevate"), no dramatic one-line closers ("let that sink in"), no artificial triads, and authentic luxury jewellery craftsmanship voice.
    - SCRAPLING RESEARCH MANDATE FOR COMPETITOR WORKER: When auditing competitor websites, jewelry pricing, or promotions, utilize Scrapling adaptive parsing and stealth anti-bot bypass to extract clean AI-targeted Markdown while strictly separating verified store data from assumptions.
@@ -261,6 +263,32 @@ CO-FOUNDER ADVISOR, ANALYST, STRATEGIST & EXECUTION AGENT PROTOCOL:
      * When the Founder asks about VIP Privé, membership numbers, renewal rates, or benefits, you have direct access to live database metrics via the current snapshot and the 'get_prive_membership_status' tool.
      * Call 'get_prive_membership_status' whenever you need the most up-to-the-minute active member count, expiration cohort, or channel breakdown. Never invent member numbers.
 
+13. ACCOUNTS, BILLING & GST TAX OPERATIONS PROTOCOL (accounts.ruhvi.in):
+   - Subdomain: 'accounts.ruhvi.in' (Ruhvi GST, Finance, Workshop & Accounts Portal).
+   - Invoicing Standards:
+     * Rule 46 GST Tax Invoice: HSN Chapter 71 (7113 for jewellery), 3% GST (Intra-state: CGST 1.5% + SGST 1.5%; Inter-state: IGST 3%), itemized gross/net weights, purity (22K/18K/14K/925), making charges, and BIS Hallmarking Laser Inscription.
+     * Bill of Supply (Section 31(3)(c)): For composition scheme and GST-exempt articles; no tax charged, grand total = taxable value.
+     * Multi-Currency Invoicing: 22 world currencies (USD $, AED د.إ, GBP £, EUR €, etc.) with live currency symbols for international jewellery exports.
+     * Direct PDF Downloads: Client-side vector A4 PDF generation using jsPDF without browser print dialog.
+   - Bespoke Quotations & Bridal Estimates:
+     * Quotations feature bullion lock validity periods (3, 7, 14, 30 days) due to gold rate volatility.
+     * 1-Click "Convert to Tax Invoice" when customer confirms order or pays deposit.
+     * Pre-formatted WhatsApp share dispatch.
+   - Statutory Compliance & Workshop Tools:
+     * GSTR-1 (JSON export for direct GST Portal upload) & GSTR-3B monthly worksheet.
+     * GSTR-2B Automated ITC Reconciliation against vendor bullion bills (MMTC-PAMP, Kundan Refinery).
+     * NIC E-Way Bill JSON generator conforming to ewaybill.nic.in for high-value interstate courier shipments.
+     * AI Paper Bill OCR Scanner for photographing and digitizing offline bullion receipts.
+     * Jewellery Manufacturing BOM (Bill of Materials): Karigar casting & melting wastage tolerance (1.5%–3.0%), making charges, stone setting, and workshop job cards across Bowbazar, Salt Lake, and Metiabruz.
+     * Swarna Nidhi 11-Month Gold Accumulation recurring plans and retainers.
+     * Rule 52 Payment Receipt Vouchers with instant WhatsApp customer dispatch.
+     * Income Tax & Advance Tax Estimator: Section 44AD presumptive taxation (6% digital, 8% cash) and quarterly installments (15 Jun, 15 Sep, 15 Dec, 15 Mar) with Sec 234B/C interest alerts.
+     * CA Backup & Export Center: Encrypted full JSON database backups and Tally/Excel CSV bundles.
+   - TOOLS TO USE:
+     * Use 'get_accounts_summary' to query high-level finance, tax liabilities, pending quotes, and active gold scheme members.
+     * Use 'get_recent_gst_invoices' to inspect recent Rule 46 sales bills.
+     * Use 'get_active_quotations' to review pending bridal quotes and pipeline value.
+
 ${memoryBlock}
 
 ${proactiveBlock}
@@ -274,6 +302,51 @@ ${dynamicKnowledge}
  * Standard Tool Declarations for Gemini Live and AI SDK
  */
 export const CO_FOUNDER_TOOL_DECLARATIONS = [
+  {
+    name: 'get_accounts_summary',
+    description:
+      'Retrieve high-level GST and financial accounting metrics from accounts.ruhvi.in: total sales revenue, estimated GST collected (CGST, SGST, IGST), active bridal quotations pipeline value, and Swarna Nidhi gold scheme subscribers.',
+    parameters: {
+      type: 'OBJECT',
+      properties: {
+        timeframe: {
+          type: 'STRING',
+          description:
+            'Time window for analytics, e.g. "today", "7d", "30d", "all"',
+        },
+      },
+    },
+  },
+  {
+    name: 'get_recent_gst_invoices',
+    description:
+      'Retrieve recent Rule 46 GST Tax Invoices and Bills of Supply from accounts.ruhvi.in with customer name, gross total, HSN 7113 breakdown, and place of supply.',
+    parameters: {
+      type: 'OBJECT',
+      properties: {
+        limit: {
+          type: 'NUMBER',
+          description:
+            'Maximum number of recent invoices to return (default: 5)',
+        },
+      },
+    },
+  },
+  {
+    name: 'get_active_quotations',
+    description:
+      'Retrieve active bespoke bridal jewellery quotations and estimates from accounts.ruhvi.in, including customer name, bullion lock validity date, estimated total, and status.',
+    parameters: {
+      type: 'OBJECT',
+      properties: {
+        status: {
+          type: 'STRING',
+          description:
+            'Filter by status: "ALL", "SENT", "ACCEPTED", "CONVERTED", or "EXPIRED"',
+        },
+      },
+    },
+  },
   {
     name: 'get_store_metrics',
     description:
@@ -823,7 +896,7 @@ export const CO_FOUNDER_TOOL_DECLARATIONS = [
   {
     name: 'dispatch_worker_task',
     description:
-      'Assign an operational or analytical task to one of the 12 specialized AI Agent Workers under the AI Co-Founder (or use "auto" to dynamically route). Workers: Analytics, Marketing, SEO, Product, Competitor Research, Sales & Conversion, Customer Support, Content/Blog, Inventory, Review/Feedback, Execution, Monitoring/Verification.',
+      'Assign an operational or analytical task to one of the 14 specialized AI Agent Workers under the AI Co-Founder (or use "auto" to dynamically route). Workers: Analytics, Marketing, SEO, Product, Competitor Research, Sales & Conversion, Customer Support, Content/Blog, Inventory, Review/Feedback, Execution, Monitoring/Verification, Orders & Logistics, Accounts & Tax Compliance.',
     parameters: {
       type: 'OBJECT',
       required: ['task'],
@@ -831,7 +904,7 @@ export const CO_FOUNDER_TOOL_DECLARATIONS = [
         worker_id: {
           type: 'STRING',
           description:
-            'Target worker ID ("auto", "worker_analytics_performance", "worker_marketing", "worker_seo", "worker_product", "worker_competitor_research", "worker_sales_conversion", "worker_customer_support", "worker_content_blog", "worker_inventory", "worker_review_feedback", "worker_execution", "worker_monitoring_verification")',
+            'Target worker ID ("auto", "worker_analytics_performance", "worker_marketing", "worker_seo", "worker_product", "worker_competitor_research", "worker_sales_conversion", "worker_customer_support", "worker_content_blog", "worker_inventory", "worker_review_feedback", "worker_execution", "worker_monitoring_verification", "worker_orders_logistics", "worker_accounts_tax")',
         },
         task: {
           type: 'STRING',
@@ -854,7 +927,7 @@ export const CO_FOUNDER_TOOL_DECLARATIONS = [
   {
     name: 'get_worker_statuses',
     description:
-      'List the operational status, role, priority, and responsibilities of all 12 specialized AI Agent Workers.',
+      'List the operational status, role, priority, and responsibilities of all 14 specialized AI Agent Workers.',
     parameters: {
       type: 'OBJECT',
       properties: {},

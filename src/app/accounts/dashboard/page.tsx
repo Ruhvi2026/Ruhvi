@@ -21,6 +21,7 @@ import {
   RefreshCw,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
+import { AccountsAiCopilot } from '@/components/accounts/AccountsAiCopilot';
 import {
   RUHVI_GST_CONFIG,
   numberToIndianWords,
@@ -137,6 +138,9 @@ export default function AccountsDashboardPage() {
         {/* Ambient background glow */}
         <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-amber-500/10 blur-3xl" />
       </div>
+
+      {/* AI Accounts Worker 14 Copilot */}
+      <AccountsAiCopilot />
 
       {/* KPI Cards Grid */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4">

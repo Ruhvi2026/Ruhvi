@@ -6,6 +6,7 @@ import { GET as getSelfAudit } from '../self-audit/route';
 import { GET as getProactive } from '../co-founder/proactive/route';
 import { GET as getMorningBriefing } from '../co-founder/morning-briefing/route';
 import { GET as getAiHealth } from '../ai-health/route';
+import { GET as getCleanupVoiceNotes } from '../cleanup-voice-notes/route';
 import { NextRequest } from 'next/server';
 
 describe('Cron Fail-Closed Authorization Verification', () => {
@@ -57,6 +58,12 @@ describe('Cron Fail-Closed Authorization Verification', () => {
   it('rejects /api/cron/ai-health when CRON_SECRET is missing', async () => {
     const req = new Request('http://localhost/api/cron/ai-health');
     const res = await getAiHealth(req);
+    expect(res.status).toBe(401);
+  });
+
+  it('rejects /api/cron/cleanup-voice-notes when CRON_SECRET is missing', async () => {
+    const req = new Request('http://localhost/api/cron/cleanup-voice-notes');
+    const res = await getCleanupVoiceNotes(req);
     expect(res.status).toBe(401);
   });
 

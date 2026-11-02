@@ -76,6 +76,10 @@ import { useLiveKitVoice } from '@/hooks/useLiveKitVoice';
 import { useBrowserVoice } from '@/hooks/useBrowserVoice';
 import { useVoiceNoteRecorder } from '@/hooks/useVoiceNoteRecorder';
 import { VoiceNotePlayer } from '@/components/chat/VoiceNotePlayer';
+import { ConversationSidebar } from '@/components/co-founder/ConversationSidebar';
+import { WorkerChatDrawer } from '@/components/co-founder/WorkerChatDrawer';
+import { SpeechToTextButton } from '@/components/chat/SpeechToTextButton';
+import { WorkerId } from '@/lib/ai/co-founder/workers/types';
 import toast from 'react-hot-toast';
 
 interface ChatMessage {
@@ -153,6 +157,72 @@ export default function CoFounderPortalPage() {
     },
   ]);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Multi-conversation state
+  const [activeConversationId, setActiveConversationId] = useState<
+    string | null
+  >(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  // Dedicated Worker Chat Drawer state
+  const [activeWorkerDrawer, setActiveWorkerDrawer] = useState<{
+    workerId: WorkerId | null;
+    name: string;
+    role: string;
+  }>({
+    workerId: null,
+    name: '',
+    role: '',
+  });
+
+  const handleSelectConversation = async (id: string) => {
+    setActiveConversationId(id);
+    try {
+      const res = await fetch(`/api/admin/co-founder/conversations/${id}`);
+      const data = await res.json();
+      if (data.success && Array.isArray(data.messages)) {
+        if (data.messages.length === 0) {
+          setMessages([
+            {
+              id: 'welcome',
+              sender: 'assistant',
+              text: 'This is a new conversation thread. How can I assist you today?',
+              timestamp: Date.now(),
+              role: 'cofounder',
+              workerName: 'AI Co-Founder',
+            },
+          ]);
+        } else {
+          setMessages(
+            data.messages.map((m: any) => ({
+              id: m.id,
+              sender: m.senderType === 'user' ? 'user' : 'assistant',
+              text: m.content,
+              timestamp: new Date(m.createdAt).getTime(),
+              role: m.senderType === 'user' ? 'user' : 'cofounder',
+              workerName: m.senderType === 'user' ? 'Founder' : 'AI Co-Founder',
+            }))
+          );
+        }
+      }
+    } catch (err) {
+      console.error('Failed to load conversation messages:', err);
+    }
+  };
+
+  const handleNewChat = () => {
+    setActiveConversationId(null);
+    setMessages([
+      {
+        id: 'welcome',
+        sender: 'assistant',
+        text: 'Greetings Founder. I am your Ruhvi AI Co-Founder on co-founder.ruhvi.in. I have direct access to your real-time catalog, sales metrics, support tickets, and system architecture. You can speak with me using live WebRTC audio or type below.',
+        timestamp: Date.now(),
+        role: 'cofounder',
+        workerName: 'AI Co-Founder',
+      },
+    ]);
+  };
 
   // Model & Provider Selection State
   const [providers, setProviders] = useState<any[]>([]);
@@ -766,10 +836,32 @@ export default function CoFounderPortalPage() {
     }
 
     try {
+      let currentConvId = activeConversationId;
+      if (!currentConvId) {
+        try {
+          const convRes = await fetch('/api/admin/co-founder/conversations', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              title: userText.slice(0, 32) || 'New Conversation',
+              conversationType: 'cofounder',
+            }),
+          });
+          const convData = await convRes.json();
+          if (convData.success && convData.conversation?.id) {
+            currentConvId = convData.conversation.id;
+            setActiveConversationId(currentConvId);
+          }
+        } catch {
+          // Non-blocking fallback
+        }
+      }
+
       const res = await fetch('/api/admin/co-founder/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          conversationId: currentConvId || undefined,
           messages: newMessages.map((m) => ({
             sender: m.sender,
             text: m.text,
@@ -1422,6 +1514,15 @@ export default function CoFounderPortalPage() {
                 </button>
               )}
             </p>
+            <button
+              type="button"
+              onClick={() => setIsSidebarOpen((prev) => !prev)}
+              className="mt-1.5 inline-flex items-center gap-1.5 rounded-xl border border-violet-500/30 bg-violet-500/10 px-2.5 py-1 text-[11px] font-semibold text-violet-700 transition hover:bg-violet-500/20 dark:border-violet-500/40 dark:bg-violet-950/40 dark:text-violet-300"
+              title="Open Conversation History"
+            >
+              <MessageSquare size={13} />
+              <span>{isSidebarOpen ? 'Hide History' : 'Chat History'}</span>
+            </button>
           </div>
         </div>
 
@@ -1669,8 +1770,14 @@ export default function CoFounderPortalPage() {
             workers={liveWorkerGrid.length > 0 ? liveWorkerGrid : undefined}
             onSelectWorker={(id) => setSelectedWorkerId(id)}
             onPromptWorker={(role) => {
-              setInput(`@${role} `);
-              setActiveTab('chat');
+              const canonicalWorkerId = (
+                role.startsWith('worker_') ? role : `worker_${role}`
+              ) as WorkerId;
+              setActiveWorkerDrawer({
+                workerId: canonicalWorkerId,
+                name: role.toUpperCase(),
+                role: 'Specialist AI Worker',
+              });
             }}
           />
         </div>
@@ -1678,13 +1785,27 @@ export default function CoFounderPortalPage() {
         <div className="flex-1 overflow-y-auto pr-1">
           <LiveWorkspace
             onWorkerClick={(role) => {
-              setInput(`@${role} `);
-              setActiveTab('chat');
+              const canonicalWorkerId = (
+                role.startsWith('worker_') ? role : `worker_${role}`
+              ) as WorkerId;
+              setActiveWorkerDrawer({
+                workerId: canonicalWorkerId,
+                name: role.toUpperCase(),
+                role: 'Specialist AI Worker',
+              });
             }}
           />
         </div>
       ) : (
-        <div className="flex flex-1 gap-6 overflow-hidden">
+        <div className="flex flex-1 gap-4 overflow-hidden">
+          {/* Conversation History Sidebar */}
+          <ConversationSidebar
+            activeId={activeConversationId}
+            onSelectConversation={handleSelectConversation}
+            onNewChat={handleNewChat}
+            isOpen={isSidebarOpen}
+            onToggleOpen={() => setIsSidebarOpen((prev) => !prev)}
+          />
           {/* Left Column: 3D Voice Visualizer */}
           <div
             className={`flex min-w-0 flex-1 flex-col justify-center ${
@@ -3001,6 +3122,16 @@ export default function CoFounderPortalPage() {
                     )}
                   </button>
 
+                  {/* Speech-to-Text Gemini 3.5 Dictation Button */}
+                  <SpeechToTextButton
+                    onTranscript={(transcript) => {
+                      setInput((prev) =>
+                        prev ? `${prev} ${transcript}` : transcript
+                      );
+                    }}
+                    disabled={isLoading}
+                  />
+
                   {/* Voice Note Recording Microphone Button */}
                   <button
                     type="button"
@@ -3411,6 +3542,17 @@ export default function CoFounderPortalPage() {
             onBrowseUrl={(url) => handleBrowseUrl(url)}
           />
         )}
+
+      {/* Dedicated Specialist Worker 1:1 Chat Drawer */}
+      <WorkerChatDrawer
+        workerId={activeWorkerDrawer.workerId}
+        workerName={activeWorkerDrawer.name}
+        workerRole={activeWorkerDrawer.role}
+        isOpen={Boolean(activeWorkerDrawer.workerId)}
+        onClose={() =>
+          setActiveWorkerDrawer({ workerId: null, name: '', role: '' })
+        }
+      />
     </div>
   );
 }

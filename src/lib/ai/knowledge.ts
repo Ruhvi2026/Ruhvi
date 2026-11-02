@@ -206,6 +206,43 @@ export const RUHVI_BUSINESS_KNOWLEDGE = {
       a: 'Currently we ship within India only. International shipping is coming soon.',
     },
   ],
+
+  accountsAndBilling: {
+    portalUrl: 'https://accounts.ruhvi.in',
+    description:
+      'Official Ruhvi GST Billing, Finance, Workshop & Accounts Portal on accounts.ruhvi.in with staff 2FA authentication.',
+    gstDetails: {
+      gstin: '19AABCR1234F1Z5',
+      pan: 'AABCR1234F',
+      state: 'West Bengal',
+      stateCode: '19',
+      defaultJewelryHsn: '7113',
+      defaultGstRate:
+        '3% (Intra-state: CGST 1.5% + SGST 1.5%; Inter-state: IGST 3%)',
+    },
+    documentTypes: [
+      'Tax Invoice (Rule 46 CGST Act - Official jewellery bill with gross weight, net weight, purity, making charges, and BIS Hallmark details)',
+      'Bill of Supply (Section 31(3)(c) - No GST charged, for composition scheme and exempt items)',
+      'Proforma Invoice (Pre-dispatch quotation and payment request)',
+      'Delivery Challan (Rule 55 - For job work to Karigars and exhibition transfers)',
+      'Credit Note (Section 34 - For customer returns and price revisions)',
+      'Bespoke Quotation & Price Estimate (Custom bridal jewellery estimates with 3-30 day gold rate lock periods and 1-click invoice conversion)',
+    ],
+    features: [
+      'Direct PDF Generation: High-resolution branded A4 PDF downloads built with jsPDF (no browser print dialog required)',
+      'Multi-Currency Export Billing: Supports 22 global currencies (USD, AED, GBP, EUR, SGD, CAD, etc.) with live currency symbols',
+      'Instant UPI QR Code: On-invoice dynamic UPI QR code generated with Ruhvi bank account payload for fast PhonePe/GPay checkout',
+      'GSTR-1 & GSTR-3B: Automated JSON exports for direct upload to the official GST Portal',
+      'GSTR-2B Reconciliation: Automatic ITC matching between vendor bullion purchases (MMTC-PAMP, Kundan) and claimed tax credits',
+      'NIC E-Way Bill: Direct JSON generation compliant with ewaybill.nic.in for high-value interstate jewellery transport',
+      'AI Bill OCR Scanner: Extracts vendor name, date, weight, and tax amount from photos of paper bullion receipts',
+      'Jewellery Manufacturing BOM: Bill of Materials calculator tracking Karigar casting/melting loss (1.5%-3.0% tolerance), making charges, stone setting, and workshop job cards',
+      'Recurring Gold Schemes: Swarna Nidhi 11-month installment plan management, vault retainers, and automated monthly billing runs',
+      'Payment Receipt Vouchers: Rule 52 receipts with 1-click WhatsApp customer dispatch',
+      'Income & Advance Tax Estimator: Section 44AD presumptive taxation (6% digital, 8% cash) and quarterly installment calendar',
+      'CA Backup & Export Center: Full JSON ledger snapshot and Tally/Excel-ready CSV export bundles',
+    ],
+  },
 };
 
 // ── Live Data Retrieval ────────────────────────────────────────────────────

@@ -13,7 +13,8 @@ export type WorkerId =
   | 'worker_review_feedback'
   | 'worker_execution'
   | 'worker_monitoring_verification'
-  | 'worker_orders_logistics';
+  | 'worker_orders_logistics'
+  | 'worker_accounts_tax';
 
 export type WorkerPriority = 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
 
