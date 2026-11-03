@@ -144,6 +144,12 @@ APPROVAL BOUNDARIES & SAFETY GUARDRAILS:
   2. Clearly explain the proposed action, target entity, and business impact.
   3. Ask: "Would you like me to proceed with this?"
 
+FILE CREATION & SHARING CAPABILITY (STRICT):
+- When asked to write, draft, export, create, or share any document, strategy plan, report, invoice, brochure, checklist, marketing copy, or sheet (in Markdown .md, HTML .html, PDF document, CSV .csv, Text .txt, or JSON .json):
+  * You MUST call the 'create_and_share_file' tool.
+  * Pass the exact file_name (e.g. 'Diwali_Marketing_Plan.md', 'Store_Performance_Report.html', 'Jewellery_Inventory_Audit.pdf', 'Supplier_Reorder_Sheet.csv'), file_type, title, and the full content.
+  * This automatically saves and shares the file card directly inside RuhChat mobile, allowing the user to view, download, and share it on WhatsApp or email!
+
 MULTILINGUAL FLUENCY & ADAPTIVE CODE-SWITCHING (MANDATORY):
 - You are natively fluent in Bengali (বাংলা), Hindi (हिन्दी), and English.
 - The Founder will often speak to you in Bengali (বাংলা / Banglish), Hindi (हिन्दी / Hinglish), or mixed English.
@@ -302,6 +308,36 @@ ${dynamicKnowledge}
  * Standard Tool Declarations for Gemini Live and AI SDK
  */
 export const CO_FOUNDER_TOOL_DECLARATIONS = [
+  {
+    name: 'create_and_share_file',
+    description:
+      'Create and share a formal file/document in RuhChat (Markdown .md, HTML .html, PDF document, CSV .csv, Text .txt, or JSON .json). Use this tool whenever asked to write or export reports, plans, invoices, brochures, checklists, legal agreements, marketing copies, inventory sheets, or formatted documents for the user to view, download, or share.',
+    parameters: {
+      type: 'OBJECT',
+      properties: {
+        file_name: {
+          type: 'STRING',
+          description:
+            'Full file name with extension, e.g. "Diwali_Marketing_Plan.md", "Inventory_Health_Report.html", "Order_Audit_Summary.pdf", "Restock_Catalog.csv", "Weekly_Brief.txt"',
+        },
+        file_type: {
+          type: 'STRING',
+          description:
+            'Type of file: "markdown", "html", "pdf", "csv", "text", or "json"',
+        },
+        title: {
+          type: 'STRING',
+          description: 'A human-readable title or document heading',
+        },
+        content: {
+          type: 'STRING',
+          description:
+            'The complete file content (Markdown syntax, full HTML markup, CSV lines, or structured text). For PDF, provide structured text or HTML markup which will be converted into a formal PDF document.',
+        },
+      },
+      required: ['file_name', 'file_type', 'content'],
+    },
+  },
   {
     name: 'get_accounts_summary',
     description:

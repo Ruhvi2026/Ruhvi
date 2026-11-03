@@ -2,6 +2,7 @@ import 'server-only';
 
 import { getServiceClient } from '@/lib/supabase/service';
 import { assertToolPermission } from '@/lib/ai/mcp-auth';
+import { createAndUploadFile } from './file-generator';
 
 import { getStoreAnalytics, type AnalyticsTimeframe } from './analytics';
 import { getActiveProactiveSignals, acknowledgeSignal } from './proactive';
@@ -106,6 +107,40 @@ async function executeCoFounderToolInternal(
 
   try {
     switch (toolName) {
+      case 'create_and_share_file': {
+        const fileName = String(args.file_name || 'document.md');
+        const fileType = String(args.file_type || 'markdown');
+        const title = String(args.title || fileName);
+        const content = String(args.content || '');
+
+        if (!content) {
+          throw new Error('Content cannot be empty when creating a file.');
+        }
+
+        const generated = await createAndUploadFile({
+          file_name: fileName,
+          file_type: fileType,
+          title,
+          content,
+        });
+
+        return {
+          toolName,
+          success: true,
+          data: {
+            fileName: generated.fileName,
+            fileType: generated.fileType,
+            title: generated.title,
+            fileUrl: generated.fileUrl,
+            fileSize: generated.fileSize,
+            mimeType: generated.mimeType,
+            contentPreview: generated.contentPreview,
+            rawContent: generated.rawContent,
+          },
+          summaryForVoice: `File "${generated.fileName}" created successfully. It is ready to open, download, or share in RuhChat.`,
+        };
+      }
+
       case 'get_accounts_summary': {
         const supabase = getServiceClient();
         const { data: orders, error } = await supabase

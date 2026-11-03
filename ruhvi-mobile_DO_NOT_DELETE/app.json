@@ -53,7 +53,8 @@
         {
           "microphonePermission": "Allow RuhChat to access your microphone for voice notes and speech-to-text dictation."
         }
-      ]
+      ],
+      "expo-sharing"
     ]
   }
 }

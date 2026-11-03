@@ -28,15 +28,26 @@ const ALLOWED_MIME_TYPES = new Set([
   'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
   'text/plain',
   'text/csv',
+  'text/markdown',
+  'text/x-markdown',
+  'text/html',
+  'application/json',
   'video/mp4',
   'video/webm',
   'video/quicktime',
 ]);
 
-async function getAuthenticatedStaff() {
-  const cookieStore = await cookies();
-  const sessionCookie = cookieStore.get('__session')?.value;
-  const decoded = await verifySessionToken(sessionCookie);
+async function getAuthenticatedStaff(req: Request) {
+  let token: string | null = null;
+  const authHeader = req.headers.get('authorization');
+  if (authHeader?.startsWith('Bearer ')) {
+    token = authHeader.substring(7);
+  }
+  if (!token) {
+    const cookieStore = await cookies();
+    token = cookieStore.get('__session')?.value || null;
+  }
+  const decoded = await verifySessionToken(token);
   if (!decoded) return null;
   const supabase = getServiceClient();
   const { data: user } = await supabase
@@ -51,7 +62,7 @@ async function getAuthenticatedStaff() {
 
 export async function POST(req: Request) {
   try {
-    const staffUser = await getAuthenticatedStaff();
+    const staffUser = await getAuthenticatedStaff(req);
     if (!staffUser)
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 

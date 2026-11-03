@@ -32,6 +32,7 @@ import AutoLinkText from '../components/AutoLinkText';
 import EmojiPickerModal from '../components/EmojiPickerModal';
 import VoiceNotePlayer from '../components/VoiceNotePlayer';
 import ForwardMessageModal from '../components/ForwardMessageModal';
+import FileAttachmentCard from '../components/FileAttachmentCard';
 import {
   startAudioRecording,
   stopAudioRecording,
@@ -1486,8 +1487,17 @@ export default function ChatRoomScreen({ route, navigation }: any) {
         const doc = result.assets[0];
         const fileName = doc.name || `DOC_${Date.now()}`;
         let mimeType = doc.mimeType || 'application/octet-stream';
-        if (fileName.toLowerCase().endsWith('.pdf')) {
+        const lower = fileName.toLowerCase();
+        if (lower.endsWith('.pdf')) {
           mimeType = 'application/pdf';
+        } else if (lower.endsWith('.md')) {
+          mimeType = 'text/markdown';
+        } else if (lower.endsWith('.html') || lower.endsWith('.htm')) {
+          mimeType = 'text/html';
+        } else if (lower.endsWith('.csv')) {
+          mimeType = 'text/csv';
+        } else if (lower.endsWith('.json')) {
+          mimeType = 'application/json';
         }
 
         // Pass doc.uri directly to handleUploadAndSend
@@ -1580,24 +1590,16 @@ export default function ChatRoomScreen({ route, navigation }: any) {
                 )}
               </TouchableOpacity>
             ) : (
-              <TouchableOpacity 
-                style={styles.docCard}
-                activeOpacity={0.7}
-                onPress={() => !item.uploading && Linking.openURL(firstAttach.cloudinary_url)}
-              >
-                <MaterialIcons name="insert-drive-file" size={32} color="#128C7E" />
-                <View style={styles.docDetails}>
-                  <Text style={styles.docName} numberOfLines={1}>{firstAttach.file_name}</Text>
-                  <Text style={styles.docSize}>
-                    {firstAttach.file_size ? `${(firstAttach.file_size / 1024).toFixed(1)} KB` : 'Document'}
-                  </Text>
-                </View>
-                {item.uploading ? (
-                  <ActivityIndicator size="small" color="#128C7E" style={{ marginRight: 4 }} />
-                ) : (
-                  <MaterialIcons name="file-download" size={20} color="#666" />
-                )}
-              </TouchableOpacity>
+              <FileAttachmentCard
+                file={{
+                  fileName: firstAttach.file_name,
+                  fileType: firstAttach.mime_type || firstAttach.file_name?.split('.').pop(),
+                  fileUrl: firstAttach.cloudinary_url,
+                  fileSize: firstAttach.file_size,
+                  mimeType: firstAttach.mime_type,
+                }}
+                isMe={isMe}
+              />
             )
           )}
 

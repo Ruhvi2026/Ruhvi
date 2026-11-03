@@ -316,3 +316,4 @@ const styles = StyleSheet.create({
     color: '#075E54',
   },
 });
+

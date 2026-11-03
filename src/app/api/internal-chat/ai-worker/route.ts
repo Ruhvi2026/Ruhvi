@@ -42,6 +42,7 @@ PRINCIPLES:
     workerName: 'Marketing AI Worker',
     roleTitle: 'Brand Marketing & Editorial Content Strategist',
     allowedTools: [
+      'create_and_share_file',
       'get_products',
       'get_categories',
       'get_blog_posts',
@@ -72,6 +73,7 @@ STRICT RESTRICTION:
     workerName: 'Operations AI Worker',
     roleTitle: 'Inventory & Supply Chain Operations Assistant',
     allowedTools: [
+      'create_and_share_file',
       'get_inventory_levels',
       'get_days_of_inventory',
       'get_restock_recommendations',
@@ -91,6 +93,7 @@ STRICT RESTRICTION:
     workerName: 'Orders & Logistics AI Worker',
     roleTitle: 'Head of Order Fulfillment & Logistics Intelligence',
     allowedTools: [
+      'create_and_share_file',
       'get_order_pipeline_status',
       'get_delivery_failed_and_rto_orders',
       'get_courier_sla_delays',
@@ -111,6 +114,7 @@ STRICT RESTRICTION:
     workerName: 'Support AI Worker',
     roleTitle: 'Customer Care & Grievance Resolution Assistant',
     allowedTools: [
+      'create_and_share_file',
       'get_support_tickets',
       'get_order_call_remarks',
       'add_order_call_remark',
@@ -130,6 +134,7 @@ STRICT RESTRICTION:
     workerName: 'Tech AI Worker',
     roleTitle: 'Systems Architecture & Monitoring Assistant',
     allowedTools: [
+      'create_and_share_file',
       'inspect_recent_errors',
       'get_repository_architecture',
       'review_code_snippet',
@@ -146,6 +151,7 @@ STRICT RESTRICTION:
     workerName: 'Analytics AI Worker',
     roleTitle: 'Data & Performance Intelligence Specialist',
     allowedTools: [
+      'create_and_share_file',
       'get_sales_analytics',
       'get_product_velocity',
       'get_store_metrics',
@@ -159,7 +165,11 @@ You speak fluently in Bengali, English, and Hindi.`,
   seo: {
     workerName: 'SEO AI Worker',
     roleTitle: 'Search Engine & Technical Catalog Specialist',
-    allowedTools: ['browse_website', 'get_product_velocity'],
+    allowedTools: [
+      'create_and_share_file',
+      'browse_website',
+      'get_product_velocity',
+    ],
     systemInstructions: `You are the Ruhvi SEO AI Worker.
 Your role is to evaluate search keywords, metadata coverage, Google search indexing, and jewelry category SEO health.
 You speak fluently in Bengali and English.`,
@@ -169,6 +179,7 @@ You speak fluently in Bengali and English.`,
     workerName: 'Product AI Worker',
     roleTitle: 'Merchandising & Product Catalog Specialist',
     allowedTools: [
+      'create_and_share_file',
       'get_category_margin_breakdown',
       'analyze_product_image',
       'create_draft_product',
@@ -182,7 +193,11 @@ You speak fluently in Bengali, English, and Hindi.`,
   competitor: {
     workerName: 'Competitor AI Worker',
     roleTitle: 'Market & Competitor Intelligence Specialist',
-    allowedTools: ['scan_reddit_social_sentiment', 'browse_website'],
+    allowedTools: [
+      'create_and_share_file',
+      'scan_reddit_social_sentiment',
+      'browse_website',
+    ],
     systemInstructions: `You are the Ruhvi Competitor AI Worker.
 Your role is to monitor competitor jewelry pricing, customer complaints on reddit, and contrast Ruhvi's 18K anti-tarnish warranty with competitor offerings.
 You speak fluently in Bengali, English, and Hindi.`,
@@ -192,6 +207,7 @@ You speak fluently in Bengali, English, and Hindi.`,
     workerName: 'Sales AI Worker',
     roleTitle: 'Revenue & Conversion Optimization Specialist',
     allowedTools: [
+      'create_and_share_file',
       'recommend_aov_bundles',
       'forecast_festive_demand',
       'get_sales_analytics',
@@ -427,9 +443,32 @@ COMMUNICATION CADENCE:
         'আমি এই মুহূর্তে রিয়েল-টাইম তথ্যটি সরাসরি ফেচ করতে পারছি না। অনুগ্রহ করে ডিপার্টমেন্ট পোর্টাল থেকে বর্তমান স্ট্যাটাসটি দেখে নিন অথবা আপনার প্রশ্নটি পুনরায় স্পষ্ট করুন।';
     }
 
+    // Extract any files created via create_and_share_file tool
+    const createdFiles: any[] = [];
+    if (Array.isArray(agentResult?.toolCallsExecuted)) {
+      for (const call of agentResult.toolCallsExecuted) {
+        if (call.name === 'create_and_share_file') {
+          const resData = call.result?.data || call.result;
+          if (resData && resData.fileUrl) {
+            createdFiles.push({
+              fileName: resData.fileName,
+              fileType: resData.fileType,
+              title: resData.title,
+              fileUrl: resData.fileUrl,
+              fileSize: resData.fileSize,
+              mimeType: resData.mimeType,
+              contentPreview: resData.contentPreview,
+              rawContent: resData.rawContent,
+            });
+          }
+        }
+      }
+    }
+
     return NextResponse.json({
       success: true,
       response: finalResponse,
+      files: createdFiles.length > 0 ? createdFiles : undefined,
       workerName: config.workerName,
       department: effectiveDept,
       toolCallsExecuted: agentResult.toolCallsExecuted,

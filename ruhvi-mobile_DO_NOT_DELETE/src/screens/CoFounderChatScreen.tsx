@@ -19,6 +19,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useHeaderHeight } from '@react-navigation/elements';
 import * as ImagePicker from 'expo-image-picker';
+import * as DocumentPicker from 'expo-document-picker';
+import * as FileSystem from 'expo-file-system/legacy';
 import * as Clipboard from 'expo-clipboard';
 import { Audio } from 'expo-av';
 import { uploadToCloudinary } from '../lib/cloudinary';
@@ -30,6 +32,7 @@ import {
 import { supabase, getCurrentUserId } from '../lib/supabase';
 import VoiceNotePlayer from '../components/VoiceNotePlayer';
 import ForwardMessageModal from '../components/ForwardMessageModal';
+import FileAttachmentCard, { FileItem } from '../components/FileAttachmentCard';
 import {
   startAudioRecording,
   stopAudioRecording,
@@ -54,6 +57,7 @@ interface ChatMessage {
   imageUrl?: string;
   audioUrl?: string;
   duration?: number;
+  files?: FileItem[];
   timestamp: number;
   provider?: string;
   model?: string;
@@ -115,6 +119,14 @@ export default function CoFounderChatScreen({ navigation, route }: any) {
   const [authToken, setAuthToken] = useState<string | null>(null);
   const [attachedImage, setAttachedImage] = useState<{ uri: string; url?: string } | null>(null);
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [attachedDoc, setAttachedDoc] = useState<{
+    uri: string;
+    name: string;
+    size?: number;
+    mimeType?: string;
+    content?: string;
+  } | null>(null);
+  const [uploadingDoc, setUploadingDoc] = useState(false);
   const [activeAlerts, setActiveAlerts] = useState<any[]>([]);
 
   const flatListRef = useRef<FlatList>(null);
@@ -712,13 +724,53 @@ export default function CoFounderChatScreen({ navigation, route }: any) {
     }
   };
 
+  const handlePickDocument = async () => {
+    try {
+      const res = await DocumentPicker.getDocumentAsync({
+        type: '*/*',
+        copyToCacheDirectory: true,
+      });
+
+      if (!res.canceled && res.assets && res.assets.length > 0) {
+        const asset = res.assets[0];
+        let content = '';
+        const lower = (asset.name || '').toLowerCase();
+        if (
+          lower.endsWith('.md') ||
+          lower.endsWith('.markdown') ||
+          lower.endsWith('.txt') ||
+          lower.endsWith('.html') ||
+          lower.endsWith('.htm') ||
+          lower.endsWith('.csv') ||
+          lower.endsWith('.json')
+        ) {
+          try {
+            content = await FileSystem.readAsStringAsync(asset.uri);
+          } catch (e) {
+            console.warn('Could not read file text:', e);
+          }
+        }
+        setAttachedDoc({
+          uri: asset.uri,
+          name: asset.name || `Document_${Date.now()}`,
+          size: asset.size,
+          mimeType: asset.mimeType || 'application/octet-stream',
+          content,
+        });
+      }
+    } catch (err: any) {
+      Alert.alert('Error', err.message || 'Could not pick document');
+    }
+  };
+
   const showAttachmentOptions = () => {
     Alert.alert(
-      `Attach Image for ${activePersona.name}`,
-      'Share product photos, defect photos, or documents for visual analysis:',
+      `Attach for ${activePersona.name}`,
+      'Share photos, documents, markdown, HTML, or spreadsheets for analysis:',
       [
         { text: 'Take Photo', onPress: handleTakePhoto },
-        { text: 'Choose from Gallery', onPress: handlePickImage },
+        { text: 'Choose Image from Gallery', onPress: handlePickImage },
+        { text: 'Attach Document (.pdf, .md, .html, .csv)', onPress: handlePickDocument },
         { text: 'Cancel', style: 'cancel' },
       ]
     );
@@ -726,7 +778,7 @@ export default function CoFounderChatScreen({ navigation, route }: any) {
 
   const handleSend = async () => {
     const trimmed = inputText.trim();
-    if ((!trimmed && !attachedImage) || loading) return;
+    if ((!trimmed && !attachedImage && !attachedDoc) || loading) return;
 
     let token = authToken;
     if (!token) {
@@ -755,11 +807,50 @@ export default function CoFounderChatScreen({ navigation, route }: any) {
       }
     }
 
+    let attachedFiles: FileItem[] | undefined = undefined;
+
+    // Upload attached document if present
+    if (attachedDoc) {
+      try {
+        setUploadingDoc(true);
+        const uploadRes = await uploadToCloudinary(
+          attachedDoc.uri,
+          attachedDoc.name,
+          attachedDoc.mimeType || 'application/octet-stream',
+          attachedDoc.size
+        );
+        if (uploadRes?.cloudinary_url) {
+          attachedFiles = [
+            {
+              fileName: attachedDoc.name,
+              fileType: attachedDoc.name.split('.').pop() || 'document',
+              fileUrl: uploadRes.cloudinary_url,
+              fileSize: attachedDoc.size,
+              mimeType: attachedDoc.mimeType,
+              rawContent: attachedDoc.content,
+              contentPreview: attachedDoc.content ? attachedDoc.content.slice(0, 300) : undefined,
+            },
+          ];
+        }
+      } catch (docErr) {
+        console.warn('Document upload error:', docErr);
+      } finally {
+        setUploadingDoc(false);
+      }
+    }
+
     const userMsg: ChatMessage = {
       id: `msg_${Date.now()}_u`,
       sender: 'user',
-      text: trimmed || (imageUrl ? 'Please review this attached image and share your analysis.' : ''),
+      text:
+        trimmed ||
+        (imageUrl
+          ? 'Please review this attached image and share your analysis.'
+          : attachedDoc
+            ? `Please review this attached file: ${attachedDoc.name}`
+            : ''),
       imageUrl,
+      files: attachedFiles,
       timestamp: Date.now(),
     };
 
@@ -767,13 +858,20 @@ export default function CoFounderChatScreen({ navigation, route }: any) {
     setMessages(updatedList);
     setInputText('');
     setAttachedImage(null);
+    setAttachedDoc(null);
     setLoading(true);
     persistMessages(updatedList);
 
-    // Prepare history payload for Agent Loop
-    const payloadMessages = updatedList.map((m) => ({
+    // Prepare history payload for Agent Loop including doc text if available
+    const docPromptSuffix = attachedDoc?.content
+      ? `\n\n[Attached File Content for ${attachedDoc.name}]:\n${attachedDoc.content.slice(0, 4000)}`
+      : attachedFiles?.[0]?.fileUrl
+        ? `\n\n[Attached Document URL for ${attachedDoc?.name}]: ${attachedFiles[0].fileUrl}`
+        : '';
+
+    const payloadMessages = updatedList.map((m, idx) => ({
       sender: m.sender,
-      text: m.text,
+      text: idx === updatedList.length - 1 ? `${m.text}${docPromptSuffix}` : m.text,
       imageUrl: m.imageUrl,
     }));
 
@@ -782,6 +880,7 @@ export default function CoFounderChatScreen({ navigation, route }: any) {
     let usedProvider = '';
     let usedModel = '';
     let toolExecuted = false;
+    let createdFilesFromAi: FileItem[] | undefined = undefined;
 
     const isCoFounder = activePersona.department === 'founder';
     const endpoints = isCoFounder ? CO_FOUNDER_ENDPOINTS : AI_WORKER_ENDPOINTS;
@@ -819,6 +918,9 @@ export default function CoFounderChatScreen({ navigation, route }: any) {
           toolExecuted = Boolean(
             data.agent?.toolCallsExecuted?.length || data.toolCallsExecuted?.length
           );
+          if (Array.isArray(data.files) && data.files.length > 0) {
+            createdFilesFromAi = data.files;
+          }
           responseReceived = true;
           break;
         } else if (res.status === 401 || res.status === 403) {
@@ -842,6 +944,7 @@ export default function CoFounderChatScreen({ navigation, route }: any) {
       id: `msg_${Date.now()}_ai`,
       sender: 'assistant',
       text: assistantReply,
+      files: createdFilesFromAi,
       timestamp: Date.now(),
       provider: usedProvider,
       model: usedModel,
@@ -913,6 +1016,19 @@ export default function CoFounderChatScreen({ navigation, route }: any) {
             <Text style={[styles.messageText, isUser ? styles.userText : styles.aiText]}>
               {item.text}
             </Text>
+          )}
+
+          {/* File Attachments (Markdown, HTML, PDF, CSV, etc.) */}
+          {item.files && item.files.length > 0 && (
+            <View style={{ marginVertical: 4 }}>
+              {item.files.map((fileItem, fIdx) => (
+                <FileAttachmentCard
+                  key={`file_${item.id}_${fIdx}`}
+                  file={fileItem}
+                  isMe={isUser}
+                />
+              ))}
+            </View>
           )}
 
           <View style={styles.bubbleMeta}>
@@ -1001,6 +1117,29 @@ export default function CoFounderChatScreen({ navigation, route }: any) {
           </View>
         )}
 
+        {/* Selected Document Preview strip */}
+        {attachedDoc && (
+          <View style={styles.docPreviewBar}>
+            <View style={styles.docPreviewIconWrap}>
+              <MaterialIcons name="insert-drive-file" size={22} color="#075E54" />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.docPreviewName} numberOfLines={1}>
+                {attachedDoc.name}
+              </Text>
+              <Text style={styles.docPreviewSize}>
+                File attached for {workerDisplayName}
+              </Text>
+            </View>
+            <TouchableOpacity
+              onPress={() => setAttachedDoc(null)}
+              style={styles.removeImageBtn}
+            >
+              <MaterialIcons name="close" size={20} color="#d32f2f" />
+            </TouchableOpacity>
+          </View>
+        )}
+
         {/* Input Bar / Voice Note Bar (WhatsApp style) */}
         {isRecordingVoice ? (
           <View style={styles.recordingBar}>
@@ -1072,17 +1211,17 @@ export default function CoFounderChatScreen({ navigation, route }: any) {
               editable={!loading && !uploadingVoice}
             />
 
-            {inputText.trim() || attachedImage ? (
+            {inputText.trim() || attachedImage || attachedDoc ? (
               <TouchableOpacity
                 style={[
                   styles.sendBtn,
-                  loading || uploadingImage ? styles.sendBtnDisabled : null,
+                  loading || uploadingImage || uploadingDoc ? styles.sendBtnDisabled : null,
                 ]}
                 onPress={handleSend}
-                disabled={loading || uploadingImage}
+                disabled={loading || uploadingImage || uploadingDoc}
                 activeOpacity={0.8}
               >
-                {uploadingImage || loading ? (
+                {uploadingImage || uploadingDoc || loading ? (
                   <ActivityIndicator size="small" color="#fff" />
                 ) : (
                   <MaterialIcons name="send" size={20} color="#fff" />
@@ -1395,6 +1534,34 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 12,
     color: '#54656F',
+  },
+  docPreviewBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F0F2F5',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderTopWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  docPreviewIconWrap: {
+    width: 36,
+    height: 36,
+    borderRadius: 8,
+    backgroundColor: '#E6FFFA',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 10,
+  },
+  docPreviewName: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#0F172A',
+  },
+  docPreviewSize: {
+    fontSize: 11,
+    color: '#64748B',
+    marginTop: 1,
   },
   removeImageBtn: {
     padding: 4,

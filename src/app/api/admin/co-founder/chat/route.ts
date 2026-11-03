@@ -1169,9 +1169,31 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    const createdFiles: any[] = [];
+    if (Array.isArray(agentExecutionMeta?.toolCallsExecuted)) {
+      for (const call of agentExecutionMeta.toolCallsExecuted) {
+        if (call.name === 'create_and_share_file') {
+          const resData = call.result?.data || call.result;
+          if (resData && resData.fileUrl) {
+            createdFiles.push({
+              fileName: resData.fileName,
+              fileType: resData.fileType,
+              title: resData.title,
+              fileUrl: resData.fileUrl,
+              fileSize: resData.fileSize,
+              mimeType: resData.mimeType,
+              contentPreview: resData.contentPreview,
+              rawContent: resData.rawContent,
+            });
+          }
+        }
+      }
+    }
+
     return NextResponse.json(
       {
         response: responseText,
+        files: createdFiles.length > 0 ? createdFiles : undefined,
         provider: answeredProvider,
         model: answeredModel,
         fallbackUsed: answeredProvider !== primaryProvider,
