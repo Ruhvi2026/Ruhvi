@@ -335,10 +335,12 @@ export async function POST(req: NextRequest) {
 
     // Check if the latest user message is a voice note that needs automatic transcription
     const lastMsg = messages[messages.length - 1];
+    const rawContent = (lastMsg?.text || lastMsg?.text_content || '').trim();
     if (
       lastMsg &&
-      (lastMsg.text_content === 'Voice Note' ||
-        !lastMsg.text_content ||
+      (rawContent.startsWith('[Voice Note') ||
+        rawContent === 'Voice Note' ||
+        !rawContent ||
         lastMsg.message_type === 'voice_note') &&
       lastMsg.audioUrl
     ) {
@@ -346,9 +348,10 @@ export async function POST(req: NextRequest) {
         const audioFetch = await fetch(lastMsg.audioUrl);
         if (audioFetch.ok) {
           const audioBuf = Buffer.from(await audioFetch.arrayBuffer());
-          const trRes = await transcribeAudioBuffer(audioBuf, 'audio/webm');
+          const trRes = await transcribeAudioBuffer(audioBuf, 'audio/m4a');
           if (trRes && trRes.transcript && trRes.transcript.trim()) {
             lastMsg.text_content = trRes.transcript.trim();
+            lastMsg.text = trRes.transcript.trim();
           }
         }
       } catch (trErr) {

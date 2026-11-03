@@ -11,7 +11,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { createAudioPlayer, AudioPlayer, AudioStatus } from 'expo-audio';
+import { createAudioPlayer, AudioPlayer, AudioStatus, setAudioModeAsync } from 'expo-audio';
 
 interface VoiceNotePlayerProps {
   audioUrl: string;
@@ -56,6 +56,8 @@ export default function VoiceNotePlayer({
   };
 
   const handlePlayPause = async () => {
+    if (!audioUrl) return;
+
     try {
       if (isPlaying) {
         if (playerRef.current) {
@@ -70,9 +72,22 @@ export default function VoiceNotePlayer({
         globalStopCallback();
       }
 
+      // Ensure audio mode outputs to device speakers with silent mode bypass
+      try {
+        await setAudioModeAsync({
+          playsInSilentMode: true,
+          allowsRecording: false,
+        });
+      } catch (modeErr) {
+        console.warn('[VoiceNotePlayer] setAudioModeAsync warning:', modeErr);
+      }
+
       if (!playerRef.current) {
         setIsLoading(true);
-        const newPlayer = createAudioPlayer(audioUrl);
+        const newPlayer = createAudioPlayer(audioUrl, {
+          updateInterval: 250,
+          downloadFirst: audioUrl.startsWith('http'),
+        });
         newPlayer.playbackRate = playbackRate;
         newPlayer.addListener('playbackStatusUpdate', (status: AudioStatus) => {
           setIsPlaying(status.playing);

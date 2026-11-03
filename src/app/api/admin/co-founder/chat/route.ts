@@ -128,37 +128,57 @@ export async function POST(req: NextRequest) {
     }
 
     let audioTranscription: string | null = null;
-    if (latest?.audioBase64) {
+    if (latest?.audioBase64 || latest?.audioUrl) {
       try {
-        const geminiKey =
-          resolveEffectiveApiKey('gemini').apiKey || process.env.GEMINI_API_KEY;
-        if (geminiKey) {
-          const genAI = new GoogleGenerativeAI(geminiKey);
-          const transcribeModel = genAI.getGenerativeModel({
-            model: 'gemini-3.5-flash-lite',
-          });
-          const rawBase64 = latest.audioBase64.replace(
-            /^data:[^;]+;base64,/,
-            ''
-          );
-          const mimeType = latest.audioMimeType || 'audio/webm';
-          const transcriptionRes = await transcribeModel.generateContent([
-            {
-              inlineData: {
-                mimeType,
-                data: rawBase64,
+        let rawBase64 = '';
+        let mimeType = latest.audioMimeType || 'audio/m4a';
+
+        if (latest.audioBase64) {
+          rawBase64 = latest.audioBase64.replace(/^data:[^;]+;base64,/, '');
+        } else if (latest.audioUrl) {
+          try {
+            const audioFetch = await fetch(latest.audioUrl);
+            if (audioFetch.ok) {
+              const arrBuf = await audioFetch.arrayBuffer();
+              rawBase64 = Buffer.from(arrBuf).toString('base64');
+              const cType = audioFetch.headers.get('content-type');
+              if (cType) mimeType = cType;
+            }
+          } catch (fetchErr) {
+            console.warn(
+              '[Co-Founder Chat] Failed to fetch audioUrl for transcription:',
+              fetchErr
+            );
+          }
+        }
+
+        if (rawBase64) {
+          const geminiKey =
+            resolveEffectiveApiKey('gemini').apiKey ||
+            process.env.GEMINI_API_KEY;
+          if (geminiKey) {
+            const genAI = new GoogleGenerativeAI(geminiKey);
+            const transcribeModel = genAI.getGenerativeModel({
+              model: 'gemini-3.5-flash-lite',
+            });
+            const transcriptionRes = await transcribeModel.generateContent([
+              {
+                inlineData: {
+                  mimeType,
+                  data: rawBase64,
+                },
               },
-            },
-            {
-              text: 'Transcribe this founder voice note verbatim in Bengali, English, or Hindi (the language spoken). Return ONLY the transcription with no explanations, notes, or preamble.',
-            },
-          ]);
-          const candidateTranscript = transcriptionRes?.response
-            ?.text()
-            ?.trim();
-          if (candidateTranscript) {
-            audioTranscription = candidateTranscript;
-            latest.text = candidateTranscript;
+              {
+                text: 'Transcribe this founder voice note verbatim in Bengali, English, or Hindi (the language spoken). Return ONLY the transcription with no explanations, notes, or preamble.',
+              },
+            ]);
+            const candidateTranscript = transcriptionRes?.response
+              ?.text()
+              ?.trim();
+            if (candidateTranscript) {
+              audioTranscription = candidateTranscript;
+              latest.text = candidateTranscript;
+            }
           }
         }
       } catch (transcribeErr: any) {
@@ -166,7 +186,11 @@ export async function POST(req: NextRequest) {
           '[Co-Founder Chat] Audio transcription warning:',
           transcribeErr?.message
         );
-        if (!latest?.text || latest.text.startsWith('🎤')) {
+        if (
+          !latest?.text ||
+          latest.text.startsWith('🎤') ||
+          latest.text.startsWith('[Voice Note')
+        ) {
           latest.text =
             'Founder shared a voice message. Please listen to their query and address it systematically.';
         }

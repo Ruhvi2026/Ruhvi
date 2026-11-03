@@ -56,6 +56,7 @@ interface ChatMessage {
   text: string;
   imageUrl?: string;
   audioUrl?: string;
+  audioBase64?: string;
   duration?: number;
   files?: FileItem[];
   timestamp: number;
@@ -72,12 +73,12 @@ export default function CoFounderChatScreen({ navigation, route }: any) {
   const initialPersona: AIWorkerPersona =
     routeParams.department && AI_WORKER_PERSONAS[routeParams.department]
       ? {
-          ...AI_WORKER_PERSONAS[routeParams.department],
-          ...(routeParams.name ? { name: routeParams.name } : {}),
-          ...(routeParams.roleTitle ? { roleTitle: routeParams.roleTitle } : {}),
-          ...(routeParams.avatarEmoji ? { avatarEmoji: routeParams.avatarEmoji } : {}),
-          ...(routeParams.welcomeMessage ? { welcomeMessage: routeParams.welcomeMessage } : {}),
-        }
+        ...AI_WORKER_PERSONAS[routeParams.department],
+        ...(routeParams.name ? { name: routeParams.name } : {}),
+        ...(routeParams.roleTitle ? { roleTitle: routeParams.roleTitle } : {}),
+        ...(routeParams.avatarEmoji ? { avatarEmoji: routeParams.avatarEmoji } : {}),
+        ...(routeParams.welcomeMessage ? { welcomeMessage: routeParams.welcomeMessage } : {}),
+      }
       : routeParams.isCoFounder
         ? AI_WORKER_PERSONAS.founder
         : AI_WORKER_PERSONAS.orders;
@@ -154,8 +155,8 @@ export default function CoFounderChatScreen({ navigation, route }: any) {
           <View style={styles.headerTextWrap}>
             <Text style={styles.headerName} numberOfLines={1}>{activePersona.name}</Text>
             <Text style={styles.headerSubtitle} numberOfLines={1}>
-              {loading 
-                ? 'Thinking & executing...' 
+              {loading
+                ? 'Thinking & executing...'
                 : activePersona.department === 'founder'
                   ? 'AI Partner • Online'
                   : `${activePersona.roleTitle} • Online`}
@@ -482,7 +483,7 @@ export default function CoFounderChatScreen({ navigation, route }: any) {
       if (recordTimer) clearInterval(recordTimer);
       setRecordTimer(null);
       if (recordingRef) {
-        await recordingRef.stop().catch(() => {});
+        await recordingRef.stop().catch(() => { });
       }
     } catch (e) {
       console.warn('Cancel recording error:', e);
@@ -520,6 +521,16 @@ export default function CoFounderChatScreen({ navigation, route }: any) {
       // 1. Upload voice note to Cloudinary
       const uploaded = await uploadVoiceNote(audioData.uri, audioData.durationSeconds);
 
+      // Read base64 audio for backend fallback
+      let audioBase64 = '';
+      try {
+        audioBase64 = await FileSystem.readAsStringAsync(audioData.uri, {
+          encoding: FileSystem.EncodingType.Base64,
+        });
+      } catch (b64Err) {
+        console.warn('Could not read base64 audio:', b64Err);
+      }
+
       // 2. Transcribe voice note for AI reasoning
       let transcriptionText = '';
       try {
@@ -537,6 +548,7 @@ export default function CoFounderChatScreen({ navigation, route }: any) {
         sender: 'user',
         text: transcriptionText ? transcriptionText : `[Voice Note (${durationSeconds}s)]`,
         audioUrl: uploaded?.url || audioData.uri,
+        audioBase64: audioBase64 || undefined,
         duration: durationSeconds,
         timestamp: Date.now(),
       };
@@ -554,20 +566,22 @@ export default function CoFounderChatScreen({ navigation, route }: any) {
         sender: m.sender,
         text: m.text,
         imageUrl: m.imageUrl,
+        audioUrl: m.audioUrl,
+        audioBase64: m.audioBase64,
       }));
 
       const requestBody = isCoFounder
         ? {
-            messages: payloadMessages,
-            channel: 'voice_note',
-            provider: 'gemini',
-            model: 'gemini-3.5-flash-lite',
-            agenticLoop: true,
-          }
+          messages: payloadMessages,
+          channel: 'voice_note',
+          provider: 'gemini',
+          model: 'gemini-3.5-flash-lite',
+          agenticLoop: true,
+        }
         : {
-            messages: payloadMessages,
-            department: activePersona.department,
-          };
+          messages: payloadMessages,
+          department: activePersona.department,
+        };
 
       let responseReceived = false;
       let assistantReply = '';
@@ -887,16 +901,16 @@ export default function CoFounderChatScreen({ navigation, route }: any) {
 
     const requestBody = isCoFounder
       ? {
-          messages: payloadMessages,
-          channel: 'text',
-          provider: 'gemini',
-          model: 'gemini-3.5-flash-lite',
-          agenticLoop: true,
-        }
+        messages: payloadMessages,
+        channel: 'text',
+        provider: 'gemini',
+        model: 'gemini-3.5-flash-lite',
+        agenticLoop: true,
+      }
       : {
-          messages: payloadMessages,
-          department: activePersona.department,
-        };
+        messages: payloadMessages,
+        department: activePersona.department,
+      };
 
     // Try primary then fallback endpoint
     for (const endpoint of endpoints) {
@@ -1007,11 +1021,18 @@ export default function CoFounderChatScreen({ navigation, route }: any) {
           )}
 
           {item.audioUrl ? (
-            <VoiceNotePlayer
-              audioUrl={item.audioUrl}
-              durationSeconds={item.duration || 0}
-              isMe={isUser}
-            />
+            <View>
+              <VoiceNotePlayer
+                audioUrl={item.audioUrl}
+                durationSeconds={item.duration || 0}
+                isMe={isUser}
+              />
+              {item.text && !item.text.startsWith('[Voice Note') ? (
+                <Text style={[{ fontSize: 13, marginTop: 6, fontStyle: 'italic', opacity: 0.9 }, isUser ? styles.userText : styles.aiText]}>
+                  💬 {item.text}
+                </Text>
+              ) : null}
+            </View>
           ) : (
             <Text style={[styles.messageText, isUser ? styles.userText : styles.aiText]}>
               {item.text}
@@ -1052,285 +1073,285 @@ export default function CoFounderChatScreen({ navigation, route }: any) {
       keyboardVerticalOffset={headerHeight}
     >
       <StatusBar barStyle="light-content" backgroundColor="#075E54" />
-        {/* Proactive Live Alert Banner */}
-        {activeAlerts.length > 0 && (
+      {/* Proactive Live Alert Banner */}
+      {activeAlerts.length > 0 && (
+        <TouchableOpacity
+          style={styles.alertBanner}
+          activeOpacity={0.8}
+          onPress={() => {
+            setInputText(`Explain details of alert: ${activeAlerts[0]?.title}`);
+          }}
+        >
+          <MaterialIcons name="notifications-active" size={18} color="#C2410C" style={{ marginRight: 8 }} />
+          <View style={{ flex: 1 }}>
+            <Text style={styles.alertBannerTitle} numberOfLines={1}>
+              {activeAlerts[0]?.title}
+            </Text>
+            <Text style={styles.alertBannerText} numberOfLines={1}>
+              {activeAlerts[0]?.message}
+            </Text>
+          </View>
+          <MaterialIcons name="chevron-right" size={20} color="#C2410C" />
+        </TouchableOpacity>
+      )}
+
+      {/* Chat message list */}
+      <FlatList
+        ref={flatListRef}
+        data={messages}
+        keyExtractor={(m) => m.id}
+        renderItem={renderItem}
+        contentContainerStyle={styles.listContent}
+        keyboardShouldPersistTaps="handled"
+        onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
+        onLayout={() => flatListRef.current?.scrollToEnd({ animated: false })}
+        ListHeaderComponent={
+          <View style={styles.dateBadgeWrap}>
+            <View style={styles.dateBadge}>
+              <Text style={styles.dateBadgeText}>TODAY</Text>
+            </View>
+          </View>
+        }
+        ListFooterComponent={
+          loading ? (
+            <View style={styles.typingContainer}>
+              <View style={[styles.bubble, styles.aiBubble, styles.typingBubble]}>
+                <ActivityIndicator size="small" color="#075E54" style={{ marginRight: 8 }} />
+                <Text style={styles.typingText}>{workerDisplayName} is executing...</Text>
+              </View>
+            </View>
+          ) : null
+        }
+      />
+
+      {/* Selected Image Preview strip */}
+      {attachedImage && (
+        <View style={styles.imagePreviewBar}>
+          <Image source={{ uri: attachedImage.uri }} style={styles.imageThumbnail} />
+          <Text style={styles.imageLabel}>Image attached for {workerDisplayName}</Text>
           <TouchableOpacity
-            style={styles.alertBanner}
-            activeOpacity={0.8}
-            onPress={() => {
-              setInputText(`Explain details of alert: ${activeAlerts[0]?.title}`);
-            }}
+            onPress={() => setAttachedImage(null)}
+            style={styles.removeImageBtn}
           >
-            <MaterialIcons name="notifications-active" size={18} color="#C2410C" style={{ marginRight: 8 }} />
-            <View style={{ flex: 1 }}>
-              <Text style={styles.alertBannerTitle} numberOfLines={1}>
-                {activeAlerts[0]?.title}
-              </Text>
-              <Text style={styles.alertBannerText} numberOfLines={1}>
-                {activeAlerts[0]?.message}
-              </Text>
-            </View>
-            <MaterialIcons name="chevron-right" size={20} color="#C2410C" />
+            <MaterialIcons name="close" size={20} color="#d32f2f" />
           </TouchableOpacity>
-        )}
+        </View>
+      )}
 
-        {/* Chat message list */}
-        <FlatList
-          ref={flatListRef}
-          data={messages}
-          keyExtractor={(m) => m.id}
-          renderItem={renderItem}
-          contentContainerStyle={styles.listContent}
-          keyboardShouldPersistTaps="handled"
-          onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
-          onLayout={() => flatListRef.current?.scrollToEnd({ animated: false })}
-          ListHeaderComponent={
-            <View style={styles.dateBadgeWrap}>
-              <View style={styles.dateBadge}>
-                <Text style={styles.dateBadgeText}>TODAY</Text>
-              </View>
-            </View>
-          }
-          ListFooterComponent={
-            loading ? (
-              <View style={styles.typingContainer}>
-                <View style={[styles.bubble, styles.aiBubble, styles.typingBubble]}>
-                  <ActivityIndicator size="small" color="#075E54" style={{ marginRight: 8 }} />
-                  <Text style={styles.typingText}>{workerDisplayName} is executing...</Text>
-                </View>
-              </View>
-            ) : null
-          }
-        />
-
-        {/* Selected Image Preview strip */}
-        {attachedImage && (
-          <View style={styles.imagePreviewBar}>
-            <Image source={{ uri: attachedImage.uri }} style={styles.imageThumbnail} />
-            <Text style={styles.imageLabel}>Image attached for {workerDisplayName}</Text>
-            <TouchableOpacity
-              onPress={() => setAttachedImage(null)}
-              style={styles.removeImageBtn}
-            >
-              <MaterialIcons name="close" size={20} color="#d32f2f" />
-            </TouchableOpacity>
+      {/* Selected Document Preview strip */}
+      {attachedDoc && (
+        <View style={styles.docPreviewBar}>
+          <View style={styles.docPreviewIconWrap}>
+            <MaterialIcons name="insert-drive-file" size={22} color="#075E54" />
           </View>
-        )}
-
-        {/* Selected Document Preview strip */}
-        {attachedDoc && (
-          <View style={styles.docPreviewBar}>
-            <View style={styles.docPreviewIconWrap}>
-              <MaterialIcons name="insert-drive-file" size={22} color="#075E54" />
-            </View>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.docPreviewName} numberOfLines={1}>
-                {attachedDoc.name}
-              </Text>
-              <Text style={styles.docPreviewSize}>
-                File attached for {workerDisplayName}
-              </Text>
-            </View>
-            <TouchableOpacity
-              onPress={() => setAttachedDoc(null)}
-              style={styles.removeImageBtn}
-            >
-              <MaterialIcons name="close" size={20} color="#d32f2f" />
-            </TouchableOpacity>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.docPreviewName} numberOfLines={1}>
+              {attachedDoc.name}
+            </Text>
+            <Text style={styles.docPreviewSize}>
+              File attached for {workerDisplayName}
+            </Text>
           </View>
-        )}
+          <TouchableOpacity
+            onPress={() => setAttachedDoc(null)}
+            style={styles.removeImageBtn}
+          >
+            <MaterialIcons name="close" size={20} color="#d32f2f" />
+          </TouchableOpacity>
+        </View>
+      )}
 
-        {/* Input Bar / Voice Note Bar (WhatsApp style) */}
-        {isRecordingVoice ? (
-          <View style={styles.recordingBar}>
+      {/* Input Bar / Voice Note Bar (WhatsApp style) */}
+      {isRecordingVoice ? (
+        <View style={styles.recordingBar}>
+          <TouchableOpacity
+            onPress={handleCancelRecording}
+            style={styles.recordingDiscardBtn}
+            activeOpacity={0.7}
+          >
+            <MaterialIcons name="delete" size={24} color="#EF4444" />
+          </TouchableOpacity>
+          <View style={styles.recordingStatusWrap}>
+            <View style={styles.recordingPulseDot} />
+            <Text style={styles.recordingTimerText}>{formatTimer(recordDuration)}</Text>
+            <Text style={styles.recordingLabel}>Recording Voice Note...</Text>
+          </View>
+          <TouchableOpacity
+            onPress={handleSendVoiceNote}
+            style={styles.recordingSendBtn}
+            disabled={uploadingVoice}
+            activeOpacity={0.8}
+          >
+            {uploadingVoice ? (
+              <ActivityIndicator size="small" color="#fff" />
+            ) : (
+              <MaterialIcons name="send" size={20} color="#fff" />
+            )}
+          </TouchableOpacity>
+        </View>
+      ) : (
+        <View style={styles.inputBar}>
+          <TouchableOpacity
+            style={styles.attachBtn}
+            onPress={showAttachmentOptions}
+            activeOpacity={0.7}
+            disabled={loading || uploadingVoice}
+          >
+            <MaterialIcons name="attach-file" size={24} color="#54656F" />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.sttBtn, isDictating && styles.sttBtnActive]}
+            onPress={handleToggleDictation}
+            activeOpacity={0.7}
+            disabled={loading || uploadingVoice}
+          >
+            {transcribing ? (
+              <ActivityIndicator size="small" color="#075E54" />
+            ) : (
+              <MaterialIcons
+                name="graphic-eq"
+                size={22}
+                color={isDictating ? '#EF4444' : '#54656F'}
+              />
+            )}
+          </TouchableOpacity>
+
+          <TextInput
+            style={styles.inputField}
+            placeholder={
+              isDictating
+                ? 'Listening... Speak now'
+                : `Ask ${workerDisplayName} or give instructions...`
+            }
+            placeholderTextColor={isDictating ? '#EF4444' : '#8696A0'}
+            value={inputText}
+            onChangeText={setInputText}
+            multiline
+            maxLength={2000}
+            editable={!loading && !uploadingVoice}
+          />
+
+          {inputText.trim() || attachedImage || attachedDoc ? (
             <TouchableOpacity
-              onPress={handleCancelRecording}
-              style={styles.recordingDiscardBtn}
-              activeOpacity={0.7}
-            >
-              <MaterialIcons name="delete" size={24} color="#EF4444" />
-            </TouchableOpacity>
-            <View style={styles.recordingStatusWrap}>
-              <View style={styles.recordingPulseDot} />
-              <Text style={styles.recordingTimerText}>{formatTimer(recordDuration)}</Text>
-              <Text style={styles.recordingLabel}>Recording Voice Note...</Text>
-            </View>
-            <TouchableOpacity
-              onPress={handleSendVoiceNote}
-              style={styles.recordingSendBtn}
-              disabled={uploadingVoice}
+              style={[
+                styles.sendBtn,
+                loading || uploadingImage || uploadingDoc ? styles.sendBtnDisabled : null,
+              ]}
+              onPress={handleSend}
+              disabled={loading || uploadingImage || uploadingDoc}
               activeOpacity={0.8}
             >
-              {uploadingVoice ? (
+              {uploadingImage || uploadingDoc || loading ? (
                 <ActivityIndicator size="small" color="#fff" />
               ) : (
                 <MaterialIcons name="send" size={20} color="#fff" />
               )}
             </TouchableOpacity>
-          </View>
-        ) : (
-          <View style={styles.inputBar}>
+          ) : (
             <TouchableOpacity
-              style={styles.attachBtn}
-              onPress={showAttachmentOptions}
-              activeOpacity={0.7}
+              style={styles.micBtn}
+              onPress={handleStartRecording}
               disabled={loading || uploadingVoice}
+              activeOpacity={0.8}
             >
-              <MaterialIcons name="attach-file" size={24} color="#54656F" />
+              <MaterialIcons name="mic" size={22} color="#fff" />
             </TouchableOpacity>
+          )}
+        </View>
+      )}
 
-            <TouchableOpacity
-              style={[styles.sttBtn, isDictating && styles.sttBtnActive]}
-              onPress={handleToggleDictation}
-              activeOpacity={0.7}
-              disabled={loading || uploadingVoice}
-            >
-              {transcribing ? (
-                <ActivityIndicator size="small" color="#075E54" />
-              ) : (
-                <MaterialIcons
-                  name="graphic-eq"
-                  size={22}
-                  color={isDictating ? '#EF4444' : '#54656F'}
-                />
-              )}
-            </TouchableOpacity>
-
-            <TextInput
-              style={styles.inputField}
-              placeholder={
-                isDictating
-                  ? 'Listening... Speak now'
-                  : `Ask ${workerDisplayName} or give instructions...`
-              }
-              placeholderTextColor={isDictating ? '#EF4444' : '#8696A0'}
-              value={inputText}
-              onChangeText={setInputText}
-              multiline
-              maxLength={2000}
-              editable={!loading && !uploadingVoice}
-            />
-
-            {inputText.trim() || attachedImage || attachedDoc ? (
-              <TouchableOpacity
-                style={[
-                  styles.sendBtn,
-                  loading || uploadingImage || uploadingDoc ? styles.sendBtnDisabled : null,
-                ]}
-                onPress={handleSend}
-                disabled={loading || uploadingImage || uploadingDoc}
-                activeOpacity={0.8}
-              >
-                {uploadingImage || uploadingDoc || loading ? (
-                  <ActivityIndicator size="small" color="#fff" />
-                ) : (
-                  <MaterialIcons name="send" size={20} color="#fff" />
-                )}
-              </TouchableOpacity>
-            ) : (
-              <TouchableOpacity
-                style={styles.micBtn}
-                onPress={handleStartRecording}
-                disabled={loading || uploadingVoice}
-                activeOpacity={0.8}
-              >
-                <MaterialIcons name="mic" size={22} color="#fff" />
-              </TouchableOpacity>
-            )}
-          </View>
-        )}
-
-        {/* WhatsApp Long-Press Action Modal */}
-        <Modal
-          visible={!!actionMenuMessage}
-          transparent
-          animationType="fade"
-          onRequestClose={() => setActionMenuMessage(null)}
+      {/* WhatsApp Long-Press Action Modal */}
+      <Modal
+        visible={!!actionMenuMessage}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setActionMenuMessage(null)}
+      >
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPress={() => setActionMenuMessage(null)}
         >
-          <TouchableOpacity
-            style={styles.modalOverlay}
-            activeOpacity={1}
-            onPress={() => setActionMenuMessage(null)}
-          >
-            <View style={styles.sheetContainer} onStartShouldSetResponder={() => true}>
-              <View style={styles.actionMenuHeader}>
-                <Text style={styles.actionMenuTitle} numberOfLines={1}>
-                  {actionMenuMessage?.text || 'Message Options'}
-                </Text>
-              </View>
-
-              {/* Copy Message */}
-              {actionMenuMessage?.text ? (
-                <TouchableOpacity
-                  style={styles.actionMenuItem}
-                  onPress={() => handleCopyMessage(actionMenuMessage)}
-                >
-                  <MaterialIcons name="content-copy" size={22} color="#075E54" style={{ marginRight: 12 }} />
-                  <Text style={styles.actionMenuItemText}>Copy message (কপি)</Text>
-                </TouchableOpacity>
-              ) : null}
-
-              {/* Forward Message */}
-              <TouchableOpacity
-                style={styles.actionMenuItem}
-                onPress={() => handleOpenForward(actionMenuMessage)}
-              >
-                <MaterialIcons name="forward" size={22} color="#128C7E" style={{ marginRight: 12 }} />
-                <Text style={styles.actionMenuItemText}>Forward message (ফরওয়ার্ড)</Text>
-              </TouchableOpacity>
-
-              {/* Star / Unstar Message */}
-              <TouchableOpacity
-                style={styles.actionMenuItem}
-                onPress={() => {
-                  const msgId = actionMenuMessage?.id;
-                  if (msgId) {
-                    setActionMenuMessage(null);
-                    handleToggleStarMessage(msgId);
-                  }
-                }}
-              >
-                <MaterialIcons
-                  name={actionMenuMessage && starredMessageIds.has(actionMenuMessage.id) ? 'star' : 'star-outline'}
-                  size={22}
-                  color="#D97706"
-                  style={{ marginRight: 12 }}
-                />
-                <Text style={styles.actionMenuItemText}>
-                  {actionMenuMessage && starredMessageIds.has(actionMenuMessage.id)
-                    ? 'Unstar message (স্টার বাতিল)'
-                    : 'Star message (স্টার মার্ক)'}
-                </Text>
-              </TouchableOpacity>
-
-              {/* Cancel */}
-              <TouchableOpacity
-                style={styles.actionMenuItem}
-                onPress={() => setActionMenuMessage(null)}
-              >
-                <MaterialIcons name="close" size={22} color="#EF4444" style={{ marginRight: 12 }} />
-                <Text style={[styles.actionMenuItemText, { color: '#EF4444' }]}>Cancel</Text>
-              </TouchableOpacity>
+          <View style={styles.sheetContainer} onStartShouldSetResponder={() => true}>
+            <View style={styles.actionMenuHeader}>
+              <Text style={styles.actionMenuTitle} numberOfLines={1}>
+                {actionMenuMessage?.text || 'Message Options'}
+              </Text>
             </View>
-          </TouchableOpacity>
-        </Modal>
 
-        {/* Forward Modal */}
-        <ForwardMessageModal
-          visible={isForwardModalVisible}
-          messageText={
-            forwardTargetMessage
-              ? forwardTargetMessage.text ||
-                (forwardTargetMessage.audioUrl ? '🎵 Voice Note' : '📷 Image')
-              : ''
-          }
-          onClose={() => {
-            setIsForwardModalVisible(false);
-            setForwardTargetMessage(null);
-          }}
-          onForward={executeForward}
-        />
-      </KeyboardAvoidingView>
+            {/* Copy Message */}
+            {actionMenuMessage?.text ? (
+              <TouchableOpacity
+                style={styles.actionMenuItem}
+                onPress={() => handleCopyMessage(actionMenuMessage)}
+              >
+                <MaterialIcons name="content-copy" size={22} color="#075E54" style={{ marginRight: 12 }} />
+                <Text style={styles.actionMenuItemText}>Copy message (কপি)</Text>
+              </TouchableOpacity>
+            ) : null}
+
+            {/* Forward Message */}
+            <TouchableOpacity
+              style={styles.actionMenuItem}
+              onPress={() => handleOpenForward(actionMenuMessage)}
+            >
+              <MaterialIcons name="forward" size={22} color="#128C7E" style={{ marginRight: 12 }} />
+              <Text style={styles.actionMenuItemText}>Forward message (ফরওয়ার্ড)</Text>
+            </TouchableOpacity>
+
+            {/* Star / Unstar Message */}
+            <TouchableOpacity
+              style={styles.actionMenuItem}
+              onPress={() => {
+                const msgId = actionMenuMessage?.id;
+                if (msgId) {
+                  setActionMenuMessage(null);
+                  handleToggleStarMessage(msgId);
+                }
+              }}
+            >
+              <MaterialIcons
+                name={actionMenuMessage && starredMessageIds.has(actionMenuMessage.id) ? 'star' : 'star-outline'}
+                size={22}
+                color="#D97706"
+                style={{ marginRight: 12 }}
+              />
+              <Text style={styles.actionMenuItemText}>
+                {actionMenuMessage && starredMessageIds.has(actionMenuMessage.id)
+                  ? 'Unstar message (স্টার বাতিল)'
+                  : 'Star message (স্টার মার্ক)'}
+              </Text>
+            </TouchableOpacity>
+
+            {/* Cancel */}
+            <TouchableOpacity
+              style={styles.actionMenuItem}
+              onPress={() => setActionMenuMessage(null)}
+            >
+              <MaterialIcons name="close" size={22} color="#EF4444" style={{ marginRight: 12 }} />
+              <Text style={[styles.actionMenuItemText, { color: '#EF4444' }]}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </TouchableOpacity>
+      </Modal>
+
+      {/* Forward Modal */}
+      <ForwardMessageModal
+        visible={isForwardModalVisible}
+        messageText={
+          forwardTargetMessage
+            ? forwardTargetMessage.text ||
+            (forwardTargetMessage.audioUrl ? '🎵 Voice Note' : '📷 Image')
+            : ''
+        }
+        onClose={() => {
+          setIsForwardModalVisible(false);
+          setForwardTargetMessage(null);
+        }}
+        onForward={executeForward}
+      />
+    </KeyboardAvoidingView>
   );
 }
 

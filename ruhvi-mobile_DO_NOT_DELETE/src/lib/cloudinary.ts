@@ -85,6 +85,8 @@ export async function uploadToCloudinary(
     lowerName.endsWith('.png') || lowerName.endsWith('.webp') || 
     lowerName.endsWith('.gif');
   const isVideo = mimeType.startsWith('video/') || 
+    mimeType.startsWith('audio/') ||
+    lowerName.endsWith('.m4a') || lowerName.endsWith('.mp3') || lowerName.endsWith('.wav') || 
     lowerName.endsWith('.mp4') || lowerName.endsWith('.webm') || 
     lowerName.endsWith('.mov');
   const resourceType = isVideo ? 'video' : isImage ? 'image' : 'raw';

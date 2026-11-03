@@ -408,3 +408,10 @@ Centralized feature flags in [`src/lib/features.ts`](file:///c:/Users/INDIA/Desk
 3. Zero database rollback is required. All existing messages, database foreign keys, and indexes remain intact and non-breaking.
 
 
+
+### D. Mobile Client (RuhChat App) Audio & STT Implementation
+- **Audio Engine**: Powered by `expo-audio` (modern replacement for unmaintained `expo-av`, compatible with React Native 0.86+ and Expo SDK 57 New Architecture).
+- **Speaker Mode & Caching**: [`src/components/VoiceNotePlayer.tsx`](file:///c:/Users/INDIA/Desktop/Project%20Ruhvi/ruhvi-mobile_DO_NOT_DELETE/src/components/VoiceNotePlayer.tsx) enforces `setAudioModeAsync({ playsInSilentMode: true, allowsRecording: false })` and `downloadFirst: true` to prevent streaming buffer aborts on Android hardware.
+- **WinterCG FormData Compatibility**: Mobile STT transmission avoids React Native `FormData` multipart object failures (`unsupported FormDataPart implementation`) by transmitting base64 encoded audio in JSON with `expo-file-system` uploadAsync fallback to `/api/chat/transcribe`.
+- **Cloudinary Media Routing**: Mobile audio uploads (`.m4a`, `audio/mp4`) are explicitly routed to `resource_type: 'video'` to preserve HTTP byte-range audio streaming and correct Content-Type headers for Android MediaPlayer.
+- **AI Voice Comprehension**: Dual-channel ingestion: client-side STT sends transcribed text, while `/api/admin/co-founder/chat` and `/api/internal-chat/ai-worker` provide server-side remote audio fetching (`audioUrl`) and Gemini 3.5 transcription as a fail-safe fallback.

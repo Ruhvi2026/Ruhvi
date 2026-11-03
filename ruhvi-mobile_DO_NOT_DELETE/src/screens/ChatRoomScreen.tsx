@@ -401,6 +401,12 @@ export default function ChatRoomScreen({ route, navigation }: any) {
     }
   };
 
+  const formatTimer = (sec: number) => {
+    const m = Math.floor(sec / 60);
+    const s = sec % 60;
+    return `${m}:${s < 10 ? '0' : ''}${s}`;
+  };
+
   const handleStartRecording = async () => {
     try {
       const rec = await startAudioRecording();
@@ -1564,7 +1570,7 @@ export default function ChatRoomScreen({ route, navigation }: any) {
           {/* Attachment / Voice Note Render */}
           {(item.message_type === 'voice_note' || firstAttach?.mime_type?.startsWith('audio/') || firstAttach?.file_name?.endsWith('.m4a') || firstAttach?.file_name?.includes('Voice Note')) ? (
             <VoiceNotePlayer
-              audioUrl={firstAttach?.cloudinary_url || (item as any).voice_note?.cloudinaryUrl || (item as any).voice_note?.cloudinary_url || ''}
+              audioUrl={firstAttach?.cloudinary_url || (item as any).voice_note?.cloudinaryUrl || (item as any).voice_note?.cloudinary_url || (item as any).audio_url || (item as any).audioUrl || ''}
               durationSeconds={firstAttach?.duration || (item as any).duration || (item as any).voice_note?.durationSeconds || 10}
               isMe={isMe}
             />
@@ -1974,58 +1980,119 @@ export default function ChatRoomScreen({ route, navigation }: any) {
             </View>
           )}
 
-          <View style={styles.inputContainer}>
-            <View style={styles.textInputWrapper}>
-              <TouchableOpacity 
-                style={[styles.iconInsideInput, { marginLeft: 2, marginRight: 2 }]}
-                onPress={() => setShowInputEmojiPicker(true)}
+          {isRecordingVoice ? (
+            <View style={styles.recordingBarWrapper}>
+              <TouchableOpacity
+                style={styles.discardRecordBtn}
+                onPress={handleCancelRecording}
                 activeOpacity={0.7}
               >
-                <MaterialIcons name="sentiment-satisfied-alt" size={24} color="#666" />
+                <MaterialIcons name="delete" size={24} color="#EF4444" />
               </TouchableOpacity>
-              <TextInput
-                style={styles.input}
-                value={text}
-                onChangeText={handleTextChange}
-                placeholder="Type a message... (@ for staff, # for orders)"
-                placeholderTextColor="#888"
-                multiline
-              />
-              <TouchableOpacity 
-                style={styles.iconInsideInput}
-                onPress={() => setShowEntityModal(true)}
-                activeOpacity={0.7}
+
+              <View style={styles.recordingTimerGroup}>
+                <View style={styles.recordingRedDot} />
+                <Text style={styles.recordingTimerText}>{formatTimer(recordDuration)}</Text>
+                <Text style={styles.recordingHintText}>Recording Voice Note...</Text>
+              </View>
+
+              <TouchableOpacity
+                style={styles.sendRecordBtn}
+                onPress={handleSendVoiceNote}
+                disabled={uploadingVoice}
+                activeOpacity={0.8}
               >
-                <Text style={{ fontSize: 18, fontWeight: '700', color: '#128C7E' }}>#</Text>
-              </TouchableOpacity>
-              <TouchableOpacity 
-                style={styles.iconInsideInput}
-                onPress={() => setShowAttachMenu(true)}
-                activeOpacity={0.7}
-              >
-                <MaterialIcons name="attach-file" size={22} color="#777" />
-              </TouchableOpacity>
-              <TouchableOpacity 
-                style={styles.iconInsideInput}
-                onPress={takePhoto}
-                activeOpacity={0.7}
-              >
-                <MaterialIcons name="camera-alt" size={22} color="#777" />
+                {uploadingVoice ? (
+                  <ActivityIndicator size="small" color="#fff" />
+                ) : (
+                  <MaterialIcons name="send" size={20} color="#fff" />
+                )}
               </TouchableOpacity>
             </View>
+          ) : (
+            <View style={styles.inputContainer}>
+              <View style={styles.textInputWrapper}>
+                <TouchableOpacity 
+                  style={[styles.iconInsideInput, { marginLeft: 2, marginRight: 2 }]}
+                  onPress={() => setShowInputEmojiPicker(true)}
+                  activeOpacity={0.7}
+                >
+                  <MaterialIcons name="sentiment-satisfied-alt" size={24} color="#666" />
+                </TouchableOpacity>
 
-            <TouchableOpacity 
-              style={[styles.sendButton, (!text.trim() && pendingEntityRefs.length === 0 || sending) && styles.sendButtonDisabled]}
-              onPress={sendMessage}
-              disabled={(!text.trim() && pendingEntityRefs.length === 0) || sending}
-            >
-              {sending ? (
-                <ActivityIndicator size="small" color="#fff" />
+                {/* Speech-to-Text (STT) Dictation Icon */}
+                <TouchableOpacity
+                  style={[styles.iconInsideInput, isDictating && { backgroundColor: '#FEE2E2', borderRadius: 12 }]}
+                  onPress={handleToggleDictation}
+                  activeOpacity={0.7}
+                  disabled={transcribing}
+                >
+                  {transcribing ? (
+                    <ActivityIndicator size="small" color="#075E54" />
+                  ) : (
+                    <MaterialIcons
+                      name="graphic-eq"
+                      size={22}
+                      color={isDictating ? '#EF4444' : '#128C7E'}
+                    />
+                  )}
+                </TouchableOpacity>
+
+                <TextInput
+                  style={styles.input}
+                  value={text}
+                  onChangeText={handleTextChange}
+                  placeholder={isDictating ? 'Listening... Speak now' : 'Type a message... (@ for staff, # for orders)'}
+                  placeholderTextColor={isDictating ? '#EF4444' : '#888'}
+                  multiline
+                />
+                <TouchableOpacity 
+                  style={styles.iconInsideInput}
+                  onPress={() => setShowEntityModal(true)}
+                  activeOpacity={0.7}
+                >
+                  <Text style={{ fontSize: 18, fontWeight: '700', color: '#128C7E' }}>#</Text>
+                </TouchableOpacity>
+                <TouchableOpacity 
+                  style={styles.iconInsideInput}
+                  onPress={() => setShowAttachMenu(true)}
+                  activeOpacity={0.7}
+                >
+                  <MaterialIcons name="attach-file" size={22} color="#777" />
+                </TouchableOpacity>
+                <TouchableOpacity 
+                  style={styles.iconInsideInput}
+                  onPress={takePhoto}
+                  activeOpacity={0.7}
+                >
+                  <MaterialIcons name="camera-alt" size={22} color="#777" />
+                </TouchableOpacity>
+              </View>
+
+              {text.trim().length > 0 || pendingEntityRefs.length > 0 ? (
+                <TouchableOpacity 
+                  style={[styles.sendButton, sending && styles.sendButtonDisabled]}
+                  onPress={sendMessage}
+                  disabled={sending}
+                >
+                  {sending ? (
+                    <ActivityIndicator size="small" color="#fff" />
+                  ) : (
+                    <MaterialIcons name="send" size={20} color="#fff" />
+                  )}
+                </TouchableOpacity>
               ) : (
-                <MaterialIcons name="send" size={20} color="#fff" />
+                <TouchableOpacity
+                  style={styles.sendRecordBtn}
+                  onPress={handleStartRecording}
+                  disabled={sending || uploadingVoice}
+                  activeOpacity={0.8}
+                >
+                  <MaterialIcons name="mic" size={22} color="#fff" />
+                </TouchableOpacity>
               )}
-            </TouchableOpacity>
-          </View>
+            </View>
+          )}
         </View>
       )}
 

@@ -52,26 +52,50 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const formData = await req.formData();
-    const file = formData.get('file') as File | null;
+    let buffer: Buffer;
+    let mimeType = 'audio/m4a';
 
-    if (!file) {
-      return NextResponse.json(
-        { error: 'Audio file is required for transcription' },
-        { status: 400 }
-      );
+    const contentType = (req.headers.get('content-type') || '').toLowerCase();
+    if (contentType.includes('application/json')) {
+      const body = await req.json();
+      if (!body.audioBase64) {
+        return NextResponse.json(
+          { error: 'audioBase64 is required in JSON payload' },
+          { status: 400 }
+        );
+      }
+      const rawBase64 = body.audioBase64.replace(/^data:[^;]+;base64,/, '');
+      buffer = Buffer.from(rawBase64, 'base64');
+      mimeType = body.mimeType || 'audio/m4a';
+
+      if (buffer.length > MAX_STT_AUDIO_BYTES) {
+        return NextResponse.json(
+          { error: 'Audio exceeds maximum allowed dictation size of 5 MB.' },
+          { status: 413 }
+        );
+      }
+    } else {
+      const formData = await req.formData();
+      const file = formData.get('file') as File | null;
+
+      if (!file) {
+        return NextResponse.json(
+          { error: 'Audio file is required for transcription' },
+          { status: 400 }
+        );
+      }
+
+      if (file.size > MAX_STT_AUDIO_BYTES) {
+        return NextResponse.json(
+          { error: `Audio exceeds maximum allowed dictation size of 5 MB.` },
+          { status: 413 }
+        );
+      }
+
+      mimeType = file.type || 'audio/m4a';
+      const arrayBuffer = await file.arrayBuffer();
+      buffer = Buffer.from(arrayBuffer);
     }
-
-    if (file.size > MAX_STT_AUDIO_BYTES) {
-      return NextResponse.json(
-        { error: `Audio exceeds maximum allowed dictation size of 5 MB.` },
-        { status: 413 }
-      );
-    }
-
-    const mimeType = file.type || 'audio/webm';
-    const arrayBuffer = await file.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
 
     // Call Gemini 3.5 Transcribe
     const { transcript, detectedLanguage } = await transcribeAudioBuffer(

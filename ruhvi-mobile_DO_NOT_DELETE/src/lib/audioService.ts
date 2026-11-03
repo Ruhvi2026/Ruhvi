@@ -10,6 +10,9 @@ import {
   setAudioModeAsync,
 } from 'expo-audio';
 import { Platform } from 'react-native';
+import * as FileSystem from 'expo-file-system/legacy';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { supabase } from './supabase';
 import { uploadToCloudinary } from './cloudinary';
 
 export interface RecordedAudio {
@@ -98,38 +101,75 @@ export async function transcribeAudio(
   token?: string | null
 ): Promise<string> {
   try {
-    const formData = new FormData();
-    const filePayload = {
-      uri: Platform.OS === 'android' ? uri : uri.replace('file://', ''),
-      name: 'voice_note.m4a',
-      type: 'audio/mp4',
-    };
-    formData.append('file', filePayload as any);
+    let effectiveToken = token;
+    if (!effectiveToken) {
+      effectiveToken = await AsyncStorage.getItem('ruhvi_mobile_jwt');
+    }
+    if (!effectiveToken) {
+      const { data } = await supabase.auth.getSession();
+      effectiveToken = data.session?.access_token || null;
+    }
 
     const endpoints = [
       `${BACKEND_BASE}/api/chat/transcribe`,
       'http://localhost:3000/api/chat/transcribe',
     ];
 
+    // Read audio as base64 to avoid React Native FormData compatibility issues across Android/iOS
+    let base64Audio = '';
+    try {
+      base64Audio = await FileSystem.readAsStringAsync(uri, {
+        encoding: 'base64' as any,
+      });
+    } catch (readErr) {
+      console.warn('[audioService] readAsStringAsync failed, will attempt uploadAsync:', readErr);
+    }
+
     let lastError: any = null;
     for (const url of endpoints) {
       try {
-        const response = await fetch(url, {
-          method: 'POST',
-          headers: {
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
-          },
-          body: formData,
-        });
+        if (base64Audio) {
+          const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              ...(effectiveToken ? { Authorization: `Bearer ${effectiveToken}` } : {}),
+            },
+            body: JSON.stringify({
+              audioBase64: base64Audio,
+              mimeType: 'audio/m4a',
+            }),
+          });
 
-        if (response.ok) {
-          const data = await response.json();
-          if (data.transcript) {
-            return data.transcript.trim();
+          if (response.ok) {
+            const data = await response.json();
+            if (data.transcript) {
+              return data.transcript.trim();
+            }
+          } else {
+            const errText = await response.text();
+            console.warn(`[audioService] Transcribe failed via JSON on ${url}:`, errText);
           }
         } else {
-          const errText = await response.text();
-          console.warn(`[audioService] Transcribe failed on ${url}:`, errText);
+          // Native upload fallback via FileSystem.uploadAsync
+          const res = await FileSystem.uploadAsync(url, uri, {
+            httpMethod: 'POST',
+            uploadType: FileSystem.FileSystemUploadType.MULTIPART,
+            fieldName: 'file',
+            mimeType: 'audio/m4a',
+            headers: {
+              ...(effectiveToken ? { Authorization: `Bearer ${effectiveToken}` } : {}),
+            },
+          });
+
+          if (res.status >= 200 && res.status < 300) {
+            const data = JSON.parse(res.body);
+            if (data.transcript) {
+              return data.transcript.trim();
+            }
+          } else {
+            console.warn(`[audioService] Transcribe failed via uploadAsync on ${url}:`, res.body);
+          }
         }
       } catch (reqErr) {
         lastError = reqErr;
