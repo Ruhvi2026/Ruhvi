@@ -4,6 +4,9 @@
 
 import { WorkerId } from './types';
 
+export const MAX_COLLABORATION_DEPTH = 2;
+export const DEFAULT_COLLABORATION_TIMEOUT_MS = 15000;
+
 export interface WorkerConsultationRequest {
   correlationId: string;
   requesterWorkerId: WorkerId | 'co_founder';

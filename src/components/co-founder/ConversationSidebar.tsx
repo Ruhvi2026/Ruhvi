@@ -115,6 +115,121 @@ export function ConversationSidebar({
     }
   };
 
+  // Group conversations by relative date
+  const now = new Date();
+  const startOfToday = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate()
+  ).getTime();
+  const startOfYesterday = startOfToday - 24 * 60 * 60 * 1000;
+  const startOf7DaysAgo = startOfToday - 7 * 24 * 60 * 60 * 1000;
+
+  const grouped = {
+    today: conversations.filter(
+      (c) => new Date(c.lastMessageAt || c.createdAt).getTime() >= startOfToday
+    ),
+    yesterday: conversations.filter((c) => {
+      const t = new Date(c.lastMessageAt || c.createdAt).getTime();
+      return t >= startOfYesterday && t < startOfToday;
+    }),
+    previous7Days: conversations.filter((c) => {
+      const t = new Date(c.lastMessageAt || c.createdAt).getTime();
+      return t >= startOf7DaysAgo && t < startOfYesterday;
+    }),
+    older: conversations.filter(
+      (c) =>
+        new Date(c.lastMessageAt || c.createdAt).getTime() < startOf7DaysAgo
+    ),
+  };
+
+  const sections: { label: string; items: CoFounderConversation[] }[] = [
+    { label: 'Today', items: grouped.today },
+    { label: 'Yesterday', items: grouped.yesterday },
+    { label: 'Previous 7 Days', items: grouped.previous7Days },
+    { label: 'Older', items: grouped.older },
+  ].filter((s) => s.items.length > 0);
+
+  const renderConversationItem = (conv: CoFounderConversation) => {
+    const isActive = conv.id === activeId;
+    const isEditing = conv.id === editingId;
+
+    return (
+      <div
+        key={conv.id}
+        onClick={() => onSelectConversation(conv.id)}
+        className={`group relative flex cursor-pointer items-center justify-between rounded-xl px-3 py-2 text-xs transition ${
+          isActive
+            ? 'bg-violet-500/15 font-semibold text-violet-700 dark:bg-violet-500/20 dark:text-violet-300'
+            : 'text-neutral-700 hover:bg-neutral-200/60 dark:text-neutral-300 dark:hover:bg-neutral-800/60'
+        }`}
+      >
+        <div className="flex min-w-0 flex-1 items-center gap-2">
+          <MessageSquare size={14} className="shrink-0 opacity-70" />
+          {isEditing ? (
+            <input
+              type="text"
+              value={editingTitle}
+              onChange={(e) => setEditingTitle(e.target.value)}
+              onClick={(e) => e.stopPropagation()}
+              autoFocus
+              className="w-full rounded bg-white px-1.5 py-0.5 text-xs text-neutral-900 ring-1 ring-violet-500 dark:bg-neutral-800 dark:text-neutral-100"
+            />
+          ) : (
+            <span className="truncate">{conv.title}</span>
+          )}
+        </div>
+
+        {/* Actions */}
+        <div className="flex shrink-0 items-center gap-1 opacity-0 transition group-hover:opacity-100">
+          {isEditing ? (
+            <>
+              <button
+                type="button"
+                onClick={(e) => handleSaveRename(conv.id, e)}
+                className="rounded p-0.5 text-emerald-600 hover:bg-emerald-50"
+              >
+                <Check size={13} />
+              </button>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setEditingId(null);
+                }}
+                className="rounded p-0.5 text-neutral-500 hover:bg-neutral-200"
+              >
+                <X size={13} />
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                type="button"
+                onClick={(e) => handleStartRename(conv, e)}
+                title="Rename"
+                className="rounded p-1 text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200"
+              >
+                <Edit2 size={12} />
+              </button>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setDeleteModalId(conv.id);
+                }}
+                title="Delete"
+                className="rounded p-1 text-neutral-400 hover:text-red-600 dark:hover:text-red-400"
+              >
+                <Trash2 size={12} />
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   if (!isOpen) {
     return (
       <button
@@ -162,89 +277,15 @@ export function ConversationSidebar({
               No conversations yet. Start a new chat!
             </div>
           ) : (
-            <div className="space-y-1">
-              {conversations.map((conv) => {
-                const isActive = conv.id === activeId;
-                const isEditing = conv.id === editingId;
-
-                return (
-                  <div
-                    key={conv.id}
-                    onClick={() => onSelectConversation(conv.id)}
-                    className={`group relative flex cursor-pointer items-center justify-between rounded-xl px-3 py-2 text-xs transition ${
-                      isActive
-                        ? 'bg-violet-500/15 font-semibold text-violet-700 dark:bg-violet-500/20 dark:text-violet-300'
-                        : 'text-neutral-700 hover:bg-neutral-200/60 dark:text-neutral-300 dark:hover:bg-neutral-800/60'
-                    }`}
-                  >
-                    <div className="flex min-w-0 flex-1 items-center gap-2">
-                      <MessageSquare
-                        size={14}
-                        className="shrink-0 opacity-70"
-                      />
-                      {isEditing ? (
-                        <input
-                          type="text"
-                          value={editingTitle}
-                          onChange={(e) => setEditingTitle(e.target.value)}
-                          onClick={(e) => e.stopPropagation()}
-                          autoFocus
-                          className="w-full rounded bg-white px-1.5 py-0.5 text-xs text-neutral-900 ring-1 ring-violet-500 dark:bg-neutral-800 dark:text-neutral-100"
-                        />
-                      ) : (
-                        <span className="truncate">{conv.title}</span>
-                      )}
-                    </div>
-
-                    {/* Actions */}
-                    <div className="flex shrink-0 items-center gap-1 opacity-0 transition group-hover:opacity-100">
-                      {isEditing ? (
-                        <>
-                          <button
-                            type="button"
-                            onClick={(e) => handleSaveRename(conv.id, e)}
-                            className="rounded p-0.5 text-emerald-600 hover:bg-emerald-50"
-                          >
-                            <Check size={13} />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setEditingId(null);
-                            }}
-                            className="rounded p-0.5 text-neutral-500 hover:bg-neutral-200"
-                          >
-                            <X size={13} />
-                          </button>
-                        </>
-                      ) : (
-                        <>
-                          <button
-                            type="button"
-                            onClick={(e) => handleStartRename(conv, e)}
-                            title="Rename"
-                            className="rounded p-1 text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200"
-                          >
-                            <Edit2 size={12} />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setDeleteModalId(conv.id);
-                            }}
-                            title="Delete"
-                            className="rounded p-1 text-neutral-400 hover:text-red-600 dark:hover:text-red-400"
-                          >
-                            <Trash2 size={12} />
-                          </button>
-                        </>
-                      )}
-                    </div>
+            <div className="space-y-4">
+              {sections.map((section) => (
+                <div key={section.label} className="space-y-1">
+                  <div className="px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-neutral-400 dark:text-neutral-500">
+                    {section.label}
                   </div>
-                );
-              })}
+                  {section.items.map(renderConversationItem)}
+                </div>
+              ))}
             </div>
           )}
         </div>

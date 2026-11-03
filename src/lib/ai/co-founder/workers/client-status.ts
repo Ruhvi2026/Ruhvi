@@ -21,6 +21,25 @@ const WORKER_NODE_TO_ROLE: Record<string, SwarmWorkerNode['role']> = {
   worker_10: 'analyst',
   worker_11: 'coder',
   worker_12: 'analyst',
+  worker_13: 'coder',
+  worker_14: 'analyst',
+};
+
+export const WORKER_NODE_TO_CANONICAL: Record<string, string> = {
+  worker_1: 'worker_analytics_performance',
+  worker_2: 'worker_marketing',
+  worker_3: 'worker_seo',
+  worker_4: 'worker_product',
+  worker_5: 'worker_competitor_research',
+  worker_6: 'worker_sales_conversion',
+  worker_7: 'worker_customer_support',
+  worker_8: 'worker_content_blog',
+  worker_9: 'worker_inventory',
+  worker_10: 'worker_review_feedback',
+  worker_11: 'worker_execution',
+  worker_12: 'worker_monitoring_verification',
+  worker_13: 'worker_orders_logistics',
+  worker_14: 'worker_accounts_tax',
 };
 
 export function agentNodesToSwarmNodes(nodes: AgentNode[]): SwarmWorkerNode[] {
@@ -106,6 +125,7 @@ export function agentNodesToWorkerGrid(nodes: AgentNode[]): WorkerNodeData[] {
     .map((node): WorkerNodeData | null => {
       const role = WORKER_NODE_TO_ROLE[node.id];
       if (!role) return null;
+      const canonicalWorkerId = WORKER_NODE_TO_CANONICAL[node.id];
 
       const subAgents: SubAgent[] =
         node.subagentIds?.map((subId) => {
@@ -121,9 +141,9 @@ export function agentNodesToWorkerGrid(nodes: AgentNode[]): WorkerNodeData[] {
         }) || [];
 
       return {
-        id: node.id,
+        id: canonicalWorkerId || node.id,
         role: role as WorkerNodeData['role'],
-        name: node.name.replace(/^Worker \d:\s*/, ''),
+        name: node.name.replace(/^Worker \d+:\s*/, ''),
         title: node.title,
         description: node.category,
         status: mapAgentStateToWorkerStatus(node.state),
@@ -131,6 +151,7 @@ export function agentNodesToWorkerGrid(nodes: AgentNode[]): WorkerNodeData[] {
         latencyMs: node.telemetry.latencyMs,
         tokensPerSec: node.telemetry.tokensPerSec,
         subAgents,
+        canonicalWorkerId: canonicalWorkerId || (node.id as any),
       };
     })
     .filter((n): n is WorkerNodeData => n !== null);

@@ -1,7 +1,7 @@
 -- 0123_co_founder_multi_conversations.sql
 -- Additive tables for AI Co-Founder multi-conversation workspaces and direct worker chats.
 
-CREATE TABLE IF NOT EXISTS co_founder_conversations (
+CREATE TABLE IF NOT EXISTS public.co_founder_conversations (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL,
   conversation_type TEXT NOT NULL CHECK (conversation_type IN ('cofounder', 'worker')),
@@ -15,17 +15,17 @@ CREATE TABLE IF NOT EXISTS co_founder_conversations (
 
 -- Guarantee exactly one persistent direct conversation per admin-worker pair
 CREATE UNIQUE INDEX IF NOT EXISTS uq_co_founder_worker_conv 
-  ON co_founder_conversations(user_id, worker_id) 
+  ON public.co_founder_conversations(user_id, worker_id) 
   WHERE conversation_type = 'worker';
 
 -- Fast sidebar ordering index
 CREATE INDEX IF NOT EXISTS idx_co_founder_conv_user_type 
-  ON co_founder_conversations(user_id, conversation_type, last_message_at DESC);
+  ON public.co_founder_conversations(user_id, conversation_type, last_message_at DESC);
 
 -- Durable message history per conversation
-CREATE TABLE IF NOT EXISTS co_founder_messages (
+CREATE TABLE IF NOT EXISTS public.co_founder_messages (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  conversation_id UUID NOT NULL REFERENCES co_founder_conversations(id) ON DELETE CASCADE,
+  conversation_id UUID NOT NULL REFERENCES public.co_founder_conversations(id) ON DELETE CASCADE,
   sender_type TEXT NOT NULL CHECK (sender_type IN ('user', 'cofounder', 'worker', 'tool', 'system')),
   sender_id TEXT,
   worker_id TEXT,
@@ -38,13 +38,13 @@ CREATE TABLE IF NOT EXISTS co_founder_messages (
 
 -- Index for sequential message retrieval in conversations
 CREATE INDEX IF NOT EXISTS idx_co_founder_msgs_conv_created 
-  ON co_founder_messages(conversation_id, created_at ASC);
+  ON public.co_founder_messages(conversation_id, created_at ASC);
 
 -- Worker-to-Worker / Co-Founder collaboration audit trace
-CREATE TABLE IF NOT EXISTS co_founder_worker_collaborations (
+CREATE TABLE IF NOT EXISTS public.co_founder_worker_collaborations (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   correlation_id TEXT NOT NULL,
-  root_conversation_id UUID REFERENCES co_founder_conversations(id) ON DELETE SET NULL,
+  root_conversation_id UUID REFERENCES public.co_founder_conversations(id) ON DELETE SET NULL,
   requester_id TEXT NOT NULL,
   target_worker_id TEXT NOT NULL,
   task TEXT NOT NULL,
@@ -55,23 +55,74 @@ CREATE TABLE IF NOT EXISTS co_founder_worker_collaborations (
 );
 
 CREATE INDEX IF NOT EXISTS idx_cf_collab_correlation 
-  ON co_founder_worker_collaborations(correlation_id);
+  ON public.co_founder_worker_collaborations(correlation_id);
 
 -- Enable RLS
-ALTER TABLE co_founder_conversations ENABLE ROW LEVEL SECURITY;
-ALTER TABLE co_founder_messages ENABLE ROW LEVEL SECURITY;
-ALTER TABLE co_founder_worker_collaborations ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.co_founder_conversations ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.co_founder_messages ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.co_founder_worker_collaborations ENABLE ROW LEVEL SECURITY;
 
 -- Allow service role full access
-DROP POLICY IF EXISTS "Service role full access on co_founder_conversations" ON co_founder_conversations;
+DROP POLICY IF EXISTS "Service role full access on co_founder_conversations" ON public.co_founder_conversations;
 CREATE POLICY "Service role full access on co_founder_conversations"
-  ON co_founder_conversations FOR ALL USING (true) WITH CHECK (true);
+  ON public.co_founder_conversations FOR ALL USING (true) WITH CHECK (true);
 
-DROP POLICY IF EXISTS "Service role full access on co_founder_messages" ON co_founder_messages;
+DROP POLICY IF EXISTS "Service role full access on co_founder_messages" ON public.co_founder_messages;
 CREATE POLICY "Service role full access on co_founder_messages"
-  ON co_founder_messages FOR ALL USING (true) WITH CHECK (true);
+  ON public.co_founder_messages FOR ALL USING (true) WITH CHECK (true);
 
-DROP POLICY IF EXISTS "Service role full access on co_founder_worker_collaborations" ON co_founder_worker_collaborations;
+DROP POLICY IF EXISTS "Service role full access on co_founder_worker_collaborations" ON public.co_founder_worker_collaborations;
 CREATE POLICY "Service role full access on co_founder_worker_collaborations"
-  ON co_founder_worker_collaborations FOR ALL USING (true) WITH CHECK (true);
+  ON public.co_founder_worker_collaborations FOR ALL USING (true) WITH CHECK (true);
+
+-- Authenticated staff owner RLS policies: only owner staff can select/insert/update/delete their conversations
+DROP POLICY IF EXISTS "Staff users can view their own co-founder conversations" ON public.co_founder_conversations;
+CREATE POLICY "Staff users can view their own co-founder conversations"
+  ON public.co_founder_conversations FOR SELECT
+  TO authenticated
+  USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Staff users can insert their own co-founder conversations" ON public.co_founder_conversations;
+CREATE POLICY "Staff users can insert their own co-founder conversations"
+  ON public.co_founder_conversations FOR INSERT
+  TO authenticated
+  WITH CHECK (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Staff users can update their own co-founder conversations" ON public.co_founder_conversations;
+CREATE POLICY "Staff users can update their own co-founder conversations"
+  ON public.co_founder_conversations FOR UPDATE
+  TO authenticated
+  USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Staff users can delete their own co-founder conversations" ON public.co_founder_conversations;
+CREATE POLICY "Staff users can delete their own co-founder conversations"
+  ON public.co_founder_conversations FOR DELETE
+  TO authenticated
+  USING (auth.uid() = user_id);
+
+-- Authenticated staff owner RLS policies on messages
+DROP POLICY IF EXISTS "Staff users can view messages of their conversations" ON public.co_founder_messages;
+CREATE POLICY "Staff users can view messages of their conversations"
+  ON public.co_founder_messages FOR SELECT
+  TO authenticated
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.co_founder_conversations c
+      WHERE c.id = co_founder_messages.conversation_id
+      AND c.user_id = auth.uid()
+    )
+  );
+
+DROP POLICY IF EXISTS "Staff users can insert messages into their conversations" ON public.co_founder_messages;
+CREATE POLICY "Staff users can insert messages into their conversations"
+  ON public.co_founder_messages FOR INSERT
+  TO authenticated
+  WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM public.co_founder_conversations c
+      WHERE c.id = co_founder_messages.conversation_id
+      AND c.user_id = auth.uid()
+    )
+  );
 

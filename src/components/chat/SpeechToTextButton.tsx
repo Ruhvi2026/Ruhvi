@@ -179,9 +179,15 @@ export function SpeechToTextButton({
         disabled={disabled}
         onClick={startListening}
         title="Dictate message (Speech to Text - Bengali, Hindi, English)"
-        className={`flex h-9 w-9 items-center justify-center rounded-xl text-neutral-500 transition hover:bg-violet-500/10 hover:text-violet-600 disabled:opacity-50 dark:text-neutral-400 dark:hover:bg-violet-500/20 dark:hover:text-violet-300 ${className}`}
+        className={`group relative flex h-9 w-9 items-center justify-center rounded-xl text-neutral-500 transition hover:bg-violet-500/10 hover:text-violet-600 disabled:opacity-50 dark:text-neutral-400 dark:hover:bg-violet-500/20 dark:hover:text-violet-300 ${className}`}
       >
-        <Mic size={18} />
+        <Mic size={16} />
+        <span
+          className="absolute -bottom-0.5 -right-0.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-violet-600 text-[8px] font-bold text-white shadow-sm group-hover:bg-violet-700"
+          title="Speech to Text"
+        >
+          T
+        </span>
       </button>
 
       {errorMsg ? (

@@ -1358,4 +1358,30 @@ export const CO_FOUNDER_TOOL_DECLARATIONS = [
       properties: {},
     },
   },
+  {
+    name: 'consult_specialist_worker',
+    description:
+      'Consult a dedicated specialist AI worker (e.g., marketing, seo, analytics, product, competitor, customer_support, content, inventory, review, execution, monitoring, orders_logistics, accounts_tax) to retrieve domain-specific intelligence, analysis, and recommendations.',
+    parameters: {
+      type: 'OBJECT',
+      required: ['targetWorkerId', 'task'],
+      properties: {
+        targetWorkerId: {
+          type: 'STRING',
+          description:
+            'Target worker ID or alias to consult (e.g. "worker_analytics_performance", "worker_marketing", "worker_seo", "worker_inventory", "worker_orders_logistics", "worker_accounts_tax", "competitor", "seo", "analytics", "marketing", "logistics", etc.)',
+        },
+        task: {
+          type: 'STRING',
+          description:
+            'Specific task, analytical inquiry, or directive to ask the specialist worker.',
+        },
+        context: {
+          type: 'OBJECT',
+          description:
+            'Optional contextual parameters or key-value constraints for the consultation.',
+        },
+      },
+    },
+  },
 ];

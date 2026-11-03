@@ -9,8 +9,9 @@ import { cookies } from 'next/headers';
 import { verifySessionToken } from '@/lib/auth/verify-session';
 import { getServiceClient } from '@/lib/supabase/service';
 import { transcribeAudioBuffer } from '@/lib/ai/transcribe-service';
+import { SPEECH_TO_TEXT_MAX_BYTES } from '@/lib/chat/voice-types';
 
-const MAX_STT_AUDIO_BYTES = 5 * 1024 * 1024; // 5 MB max for speech dictation
+const MAX_STT_AUDIO_BYTES = SPEECH_TO_TEXT_MAX_BYTES;
 
 async function getAuthenticatedUser() {
   const cookieStore = await cookies();

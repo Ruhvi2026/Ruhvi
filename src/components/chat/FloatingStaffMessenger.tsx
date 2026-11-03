@@ -48,93 +48,9 @@ import {
   Mic,
 } from 'lucide-react';
 
-export interface AIWorkerPersona {
-  id: string;
-  department: string;
-  name: string;
-  roleTitle: string;
-  avatarEmoji: string;
-  welcomeMessage: string;
-  capabilities: string[];
-}
-
-export const AI_WORKER_PERSONAS: Record<string, AIWorkerPersona> = {
-  orders: {
-    id: 'ai_worker_orders',
-    department: 'orders',
-    name: 'Orders AI Worker',
-    roleTitle: 'Fulfillment & Logistics Intelligence',
-    avatarEmoji: '📦',
-    welcomeMessage:
-      'নমস্কার! আমি রুহভি অর্ডার্স অ্যান্ড লজিস্টিকস এআই। ফুলফিলমেন্ট পাইপলাইন স্ট্যাটাস, কুরিয়ার ট্রানজিট ডিলে (Shiprocket), ডেলিভারি ফেইল্ড কেস, RTO ট্র্যাকিং এবং কাস্টমার রিটার্ন কারণ অ্যানালিসিসে আপনাকে সহায়তা করতে প্রস্তুত। টিমমেটদের কল রিমার্ক দেখে ডুপ্লিকেট কল এড়াতে সাহায্য করব। কীভাবে সাহায্য করতে পারি?',
-    capabilities: [
-      'Pipeline Status',
-      'Delivery Failed & RTO',
-      'Return Reasons Breakdown',
-      'Call Collision Guard',
-    ],
-  },
-  support: {
-    id: 'ai_worker_support',
-    department: 'support',
-    name: 'Support AI Worker',
-    roleTitle: 'Customer Care & Grievance Resolution',
-    avatarEmoji: '🎧',
-    welcomeMessage:
-      'হ্যালো! আমি রুহভি কাস্টমার সাপোর্ট এআই। ওপেন টিকেট ট্রায়াজিং, কাস্টমার রিটার্ন রিকোয়েস্ট (ডিফেক্ট ক্লেম/সাইজ মিসম্যাচ), সহানুভূতিশীল রিপ্লাই ড্রাফট এবং কাস্টমার কল রিমার্ক ট্র্যাকিংয়ে আপনাকে সাহায্য করতে পারি। কীভাবে সাহায্য করতে পারি?',
-    capabilities: [
-      'Return Claim Triage',
-      'Empathic Draft Replies',
-      'Ticket Priority',
-      'Call Remarks Log',
-    ],
-  },
-  operations: {
-    id: 'ai_worker_operations',
-    department: 'operations',
-    name: 'Operations AI Worker',
-    roleTitle: 'Inventory & Supply Chain Operations',
-    avatarEmoji: '⚙️',
-    welcomeMessage:
-      'হ্যালো! আমি রুহভি অপারেশনস এআই কো-ওয়ার্কার। রিয়েল-টাইম ক্যাটালগ স্টক ট্র্যাকিং, লো-স্টক অর্নামেন্টস অ্যালার্ট (<= 5 units), স্টকআউট প্রেডিকশন এবং সাপ্লায়ার রিঅর্ডার ড্রাফট তৈরিতে আপনাকে সহায়তা করতে পারি। আজ কী চেক করতে চান?',
-    capabilities: [
-      'Stockout Risk Tracking',
-      'Days of Inventory',
-      'Restock Drafts',
-      'Catalog Health',
-    ],
-  },
-  marketing: {
-    id: 'ai_worker_marketing',
-    department: 'marketing',
-    name: 'Marketing AI Worker',
-    roleTitle: 'Brand Marketing & Content Strategist',
-    avatarEmoji: '✨',
-    welcomeMessage:
-      'নমস্কার! আমি রুহভি মার্কেটিং এআই কো-ওয়ার্কার। সোশ্যাল মিডিয়া ক্যাম্পেইন, SEO ব্লগ ড্রাফট এবং ট্রেন্ডিং জুয়েলারি প্রমো ব্যানার তৈরিতে আমি সাহায্য করতে পারি। মনে রাখবেন—আমি ড্রাফট তৈরি করতে পারি, কিন্তু লাইভ পাবলিশ করার জন্য আপনাকে মার্কেটিং পোর্টালে গিয়ে রিভিউ করে পাবলিশ করতে হবে। আজ কোন ক্যাম্পেইন নিয়ে কাজ করব?',
-    capabilities: [
-      'Creative Promo Photos',
-      'SEO Blog Drafts',
-      'Offers & Coupons',
-      'Catalog SEO',
-    ],
-  },
-  tech: {
-    id: 'ai_worker_tech',
-    department: 'tech',
-    name: 'Tech AI Worker',
-    roleTitle: 'Systems Architecture & Monitoring',
-    avatarEmoji: '💻',
-    welcomeMessage:
-      'Hello! I am the Ruhvi Tech & Systems AI Worker. I can assist you with server 500 error log analysis, 404 broken route spikes, latency investigations, and system architectural troubleshooting.',
-    capabilities: [
-      'Sentry 500 Log Analysis',
-      '404 Broken Slug Spikes',
-      'Server Latency Audit',
-      'System Health',
-    ],
-  },
-};
+import { AIWorkerPersona, AI_WORKER_PERSONAS } from '@/lib/chat/ai-workers';
+export type { AIWorkerPersona };
+export { AI_WORKER_PERSONAS };
 
 function extractImageUrls(text: string): {
   cleanText: string;
@@ -868,30 +784,167 @@ export default function FloatingStaffMessenger() {
 
       if (res.ok) {
         const data = await res.json();
-        await fetch(
-          `/api/internal-chat/conversations/${activeConv.id}/messages`,
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              text_content: 'Voice Note',
-              message_type: 'voice_note',
-              attachments: [
-                {
-                  cloudinary_public_id: data.publicId,
-                  cloudinary_url: data.url,
-                  resource_type: 'video',
-                  file_name: 'Voice Note.webm',
-                  file_size: data.fileSizeBytes,
-                  mime_type: data.mimeType || 'audio/webm',
-                  duration: data.durationSeconds || duration,
-                },
-              ],
-            }),
+
+        if (isAiActive) {
+          // 1. Transcribe audio for AI Worker / Co-Founder
+          let transcriptText = 'Voice Note';
+          try {
+            const trForm = new FormData();
+            trForm.append('audio', blob, 'voice_note.webm');
+            const trRes = await fetch('/api/chat/transcribe', {
+              method: 'POST',
+              body: trForm,
+            });
+            if (trRes.ok) {
+              const trData = await trRes.json();
+              if (trData.transcript?.trim()) {
+                transcriptText = trData.transcript.trim();
+              }
+            }
+          } catch (trErr) {
+            console.warn(
+              '[FloatingMessenger] AI voice note transcribe warning:',
+              trErr
+            );
           }
-        );
-        loadMessages(activeConv.id);
-        setIsRecordingVoiceNote(false);
+
+          // 2. Append user voice note to active AI thread
+          const userMsg: ChatMessage = {
+            id: `user_voice_${Date.now()}`,
+            conversation_id: activeConv.id,
+            sender_id: user?.uid || 'me',
+            message_type: 'voice_note',
+            text_content: transcriptText,
+            reply_to_id: null,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            deleted_at: null,
+            is_edited: false,
+            system_action: null,
+            attachments: [
+              {
+                id: data.publicId || `vn_${Date.now()}`,
+                message_id: `user_voice_${Date.now()}`,
+                cloudinary_public_id: data.publicId || '',
+                cloudinary_url: data.url,
+                resource_type: 'video',
+                file_name: 'Voice Note.webm',
+                file_size: data.fileSizeBytes || 0,
+                mime_type: data.mimeType || 'audio/webm',
+                duration: data.durationSeconds || duration,
+                width: null,
+                height: null,
+                created_at: new Date().toISOString(),
+              },
+            ],
+            voice_note: {
+              id: data.voiceNoteId || `vn_${Date.now()}`,
+              conversationId: activeConv.id,
+              senderId: user?.uid || 'me',
+              cloudinaryPublicId: data.publicId || '',
+              cloudinaryUrl: data.url,
+              durationSeconds: data.durationSeconds || duration,
+              fileSizeBytes: data.fileSizeBytes || 0,
+              mimeType: data.mimeType || 'audio/webm',
+              uploadedAt: new Date().toISOString(),
+              expiresAt:
+                data.expiresAt ||
+                new Date(Date.now() + 45 * 24 * 60 * 60 * 1000).toISOString(),
+              status: 'active',
+            },
+          };
+
+          const currentList = aiMessages[currentAiDept] || [];
+          const updatedList = [...currentList, userMsg];
+          setAiMessages((prev) => ({ ...prev, [currentAiDept]: updatedList }));
+          if (typeof window !== 'undefined' && user?.uid) {
+            localStorage.setItem(
+              `ruhchat_ai_${user.uid}_${currentAiDept}`,
+              JSON.stringify(updatedList)
+            );
+          }
+          setIsRecordingVoiceNote(false);
+
+          // 3. Request AI worker response
+          setAiThinking(true);
+          try {
+            const aiRes = await fetch('/api/internal-chat/ai-worker', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                department: currentAiDept,
+                messages: updatedList.map((m) => ({
+                  role:
+                    m.sender_id === user?.uid || m.sender_id === 'me'
+                      ? 'user'
+                      : 'model',
+                  text_content: m.text_content,
+                  audioUrl:
+                    m.attachments?.[0]?.cloudinary_url ||
+                    m.voice_note?.cloudinaryUrl,
+                })),
+              }),
+            });
+
+            if (aiRes.ok) {
+              const aiData = await aiRes.json();
+              const botMsg: ChatMessage = {
+                id: `ai_${Date.now()}`,
+                conversation_id: activeConv.id,
+                sender_id: `ai_${currentAiDept}`,
+                message_type: 'text',
+                text_content:
+                  aiData.response || 'I have analyzed your voice note.',
+                reply_to_id: null,
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString(),
+                deleted_at: null,
+                is_edited: false,
+                system_action: null,
+              };
+              const finalWithBot = [...updatedList, botMsg];
+              setAiMessages((prev) => ({
+                ...prev,
+                [currentAiDept]: finalWithBot,
+              }));
+              if (typeof window !== 'undefined' && user?.uid) {
+                localStorage.setItem(
+                  `ruhchat_ai_${user.uid}_${currentAiDept}`,
+                  JSON.stringify(finalWithBot)
+                );
+              }
+            }
+          } finally {
+            setAiThinking(false);
+          }
+        } else {
+          // Standard staff-to-staff or admin-to-staff message
+          await fetch(
+            `/api/internal-chat/conversations/${activeConv.id}/messages`,
+            {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                text_content: 'Voice Note',
+                message_type: 'voice_note',
+                voice_note_id: data.voiceNoteId || null,
+                attachments: [
+                  {
+                    cloudinary_public_id: data.publicId,
+                    cloudinary_url: data.url,
+                    resource_type: 'video',
+                    file_name: 'Voice Note.webm',
+                    file_size: data.fileSizeBytes,
+                    mime_type: data.mimeType || 'audio/webm',
+                    duration: data.durationSeconds || duration,
+                  },
+                ],
+              }),
+            }
+          );
+          loadMessages(activeConv.id);
+          setIsRecordingVoiceNote(false);
+        }
       }
     } catch (err) {
       console.error('FloatingMessenger: Voice note send failed', err);
@@ -1186,29 +1239,21 @@ export default function FloatingStaffMessenger() {
               )}
             </div>
 
-            {/* Admin Department Switcher */}
+            {/* Admin AI Worker & Co-Founder Switcher */}
             {isAdmin && (
-              <div className="mb-2 flex gap-1 overflow-x-auto pb-1 text-[10px]">
-                {(
-                  [
-                    'orders',
-                    'support',
-                    'operations',
-                    'marketing',
-                    'tech',
-                  ] as const
-                ).map((d) => (
+              <div className="no-scrollbar mb-2 flex gap-1 overflow-x-auto pb-1 text-[10px]">
+                {Object.keys(AI_WORKER_PERSONAS).map((d) => (
                   <button
                     key={d}
                     type="button"
                     onClick={() => setSelectedAiDept(d)}
-                    className={`rounded-lg px-2 py-0.5 font-medium capitalize transition ${
+                    className={`whitespace-nowrap rounded-lg px-2 py-0.5 font-medium capitalize transition ${
                       (selectedAiDept || effectiveDept) === d
                         ? 'bg-violet-600 text-white shadow'
                         : 'bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white'
                     }`}
                   >
-                    {d}
+                    {d === 'co_founder' ? '👑 Co-Founder' : d}
                   </button>
                 ))}
               </div>
@@ -1407,7 +1452,7 @@ export default function FloatingStaffMessenger() {
                             : 'rounded-bl-none border border-white/5 bg-[#182136] text-slate-200'
                       }`}
                     >
-                      {/* Attachments */}
+                      {/* Attachments & Voice Notes */}
                       {attachments.length > 0 &&
                         attachments.map((att: ChatAttachment) => (
                           <div key={att.id} className="mb-1.5">
@@ -1416,8 +1461,16 @@ export default function FloatingStaffMessenger() {
                             m.message_type === 'voice_note' ? (
                               <VoiceNotePlayer
                                 src={att.cloudinary_url}
-                                duration={att.duration || 0}
+                                duration={
+                                  att.duration ||
+                                  m.voice_note?.durationSeconds ||
+                                  0
+                                }
                                 isUser={isMe}
+                                status={
+                                  m.voice_note?.status ||
+                                  (att.cloudinary_url ? 'active' : 'expired')
+                                }
                               />
                             ) : att.resource_type === 'image' ? (
                               <a
@@ -1448,18 +1501,35 @@ export default function FloatingStaffMessenger() {
                           </div>
                         ))}
 
+                      {/* Standalone Voice Note with empty attachments (expired/deleted asset guard) */}
+                      {attachments.length === 0 &&
+                        m.message_type === 'voice_note' && (
+                          <div className="mb-1.5">
+                            <VoiceNotePlayer
+                              src={m.voice_note?.cloudinaryUrl || ''}
+                              duration={m.voice_note?.durationSeconds || 0}
+                              isUser={isMe}
+                              status={m.voice_note?.status || 'expired'}
+                            />
+                          </div>
+                        )}
+
                       {/* Text content with clickable phone, email, and URLs */}
-                      {cleanText && (
-                        <AutoLinkText
-                          text={cleanText}
-                          className="whitespace-pre-wrap break-words leading-relaxed"
-                          linkClassName={
-                            isMe
-                              ? 'text-white underline font-semibold'
-                              : 'text-violet-300 hover:text-white underline'
-                          }
-                        />
-                      )}
+                      {cleanText &&
+                        !(
+                          m.message_type === 'voice_note' &&
+                          cleanText === 'Voice Note'
+                        ) && (
+                          <AutoLinkText
+                            text={cleanText}
+                            className="whitespace-pre-wrap break-words leading-relaxed"
+                            linkClassName={
+                              isMe
+                                ? 'text-white underline font-semibold'
+                                : 'text-violet-300 hover:text-white underline'
+                            }
+                          />
+                        )}
 
                       {/* AI Generated Images Preview Cards */}
                       {imageUrls.length > 0 && (

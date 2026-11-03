@@ -200,6 +200,7 @@ To maintain 100% compliance with Vercel's Hobby (Free) tier limits (maximum 1 da
 | **Proactive Intelligence Analysis** | VM Crontab (`proactive-analysis-scheduler.mjs`) | `30 2 * * *` (Daily 8:00 AM IST) | **Endpoint:** `GET /api/intelligence/proactive-analysis`<br>• **Executive Strategy Synthesis:** Analyzes sales momentum, cancellation rates, and dead-stock capital exposure.<br>• **Unified Action Center Bridge:** Generates prioritized human-in-the-loop recommendations. |
 | **Master Daily Automation** | Vercel Cloud Cron (`vercel.json`) | `0 4 * * *` (Daily 9:30 AM IST) | **Endpoint:** `GET /api/cron/automations`<br>• Abandoned Cart Recovery emails (>24h)<br>• Customer Win-Back campaigns (`MISSYOU20`)<br>• Birthday & Anniversary automated offers<br>• Blog scheduled publishing automation<br>• Daily Executive Morning Briefing synthesis |
 | **Dedicated Morning Briefing** | Standalone / Idempotent | `30 3 * * *` (9:00 AM IST) | **Endpoint:** `GET /api/cron/co-founder/morning-briefing`<br>• Synthesizes 24h store metrics into spoken Bengali & English executive briefing registered in `co_founder_signals`. |
+| **Voice Note 45-Day Cleanup** | VM / Scheduled Cron | `0 3 * * *` (Daily 3:00 AM IST) | **Endpoint:** `GET /api/cron/cleanup-voice-notes`<br>• Identifies internal chat voice notes exceeding the strict 45-day retention lifecycle.<br>• Destroys underlying audio assets on Cloudinary via chat credentials (`resource_type: 'video'`).<br>• Atomically updates database records in `internal_chat_messages` to status = `'expired'` with graceful UI fallback. |
 
 ---
 
@@ -319,5 +320,91 @@ Authoritative architectural record of the modular intelligence layer, determinis
 - **Findings Persistence**: [`src/lib/audit/self-audit-store.ts`](file:///c:/Users/INDIA/Desktop/Project%20Ruhvi/src/lib/audit/self-audit-store.ts) and migration [`supabase/migrations/0117_self_audit_findings.sql`](file:///c:/Users/INDIA/Desktop/Project%20Ruhvi/supabase/migrations/0117_self_audit_findings.sql). SHA-256 fingerprint deduplication, auto-resolution on healthy check evaluations, and zero plaintext secret storage.
 - **Self-Audit UI**: [`src/app/admin/self-audit/page.tsx`](file:///c:/Users/INDIA/Desktop/Project%20Ruhvi/src/app/admin/self-audit/page.tsx). Comprehensive admin interface for reviewing run telemetry and active findings.
 - **Remediation Proposal Engine**: [`src/lib/audit/self-audit-remediation.ts`](file:///c:/Users/INDIA/Desktop/Project%20Ruhvi/src/lib/audit/self-audit-remediation.ts). Generates approval-gated remediation blueprints with hard compile-time safety invariant (`isExecutionBlocked: true`), test/rollback plans, and human Action Center bridge.
+
+---
+
+## 13. AI Co-Founder Multi-Conversation Architecture, Specialist Worker Directory & Collaboration Gateway
+
+Authoritative architectural record of the AI Co-Founder multi-conversation database isolation, 14 canonical specialist worker personas, 1:1 direct chat interface, and recursive-safe worker-to-worker collaboration gateway:
+
+### A. Multi-Conversation Architecture & Context Isolation
+- **Database Schema**: [`supabase/migrations/0123_co_founder_multi_conversations.sql`](file:///c:/Users/INDIA/Desktop/Project%20Ruhvi/supabase/migrations/0123_co_founder_multi_conversations.sql).
+  - Tables: `public.co_founder_conversations` (with `id`, `title`, `created_at`, `updated_at`, `is_pinned`, `metadata`) and `public.co_founder_messages` (with `conversation_id`, `role`, `content`, `attachments`, `tool_invocations`, `tokens_used`).
+  - Strict Foreign Key cascade deletes ensure deleting a thread leaves other threads and the global business memory 100% intact.
+- **Repository Layer**: [`src/lib/ai/co-founder/conversations/repository.ts`](file:///c:/Users/INDIA/Desktop/Project%20Ruhvi/src/lib/ai/co-founder/conversations/repository.ts). Provides typed CRUD operations (`listConversations`, `getConversation`, `createConversation`, `updateConversation`, `deleteConversation`, `appendMessage`, `getConversationMessages`).
+- **UI & State**: [`src/components/co-founder/ConversationSidebar.tsx`](file:///c:/Users/INDIA/Desktop/Project%20Ruhvi/src/components/co-founder/ConversationSidebar.tsx) and [`src/app/co-founder/page.tsx`](file:///c:/Users/INDIA/Desktop/Project%20Ruhvi/src/app/co-founder/page.tsx). Supports pinning, renaming, creating new isolated threads, and auto-associating LiveKit WebRTC audio transcripts with the active conversation.
+
+### B. Canonical 14-Specialist Worker Directory
+- **Worker Registry & Aliases**: [`src/lib/ai/co-founder/workers/registry.ts`](file:///c:/Users/INDIA/Desktop/Project%20Ruhvi/src/lib/ai/co-founder/workers/registry.ts). Maps canonical IDs (`worker_analytics` through `worker_accounts_tax`) and colloquial aliases (`marketing`, `logistics`, `tax`, `seo`) via `resolveCanonicalWorkerId()`:
+  1. `worker_analytics` — Data & Intelligence Specialist
+  2. `worker_marketing` — Growth & Performance Marketing Specialist
+  3. `worker_seo` — Search Engine & Technical Catalog Specialist
+  4. `worker_product` — Merchandising & Product Catalog Specialist
+  5. `worker_competitor` — Market & Competitor Intelligence Specialist
+  6. `worker_sales` — Revenue & Conversions Specialist
+  7. `worker_support` — Customer Experience & Retention Specialist
+  8. `worker_content` — Editorial, Craftsmanship & Social Specialist
+  9. `worker_inventory` — Supply Chain & Stockout Specialist
+  10. `worker_review` — Customer Feedback & Voice-of-Customer Specialist
+  11. `worker_execution` — Action Execution & Task Orchestration Specialist
+  12. `worker_monitoring` — System Health & Diagnostics Specialist
+  13. `worker_orders_logistics` — Order Tracking & Courier SLA Specialist
+  14. `worker_accounts_tax` — Accounts, GST & Compliance Specialist
+- **Workforce UI**: [`src/components/co-founder/workforce/WorkerGrid.tsx`](file:///c:/Users/INDIA/Desktop/Project%20Ruhvi/src/components/co-founder/workforce/WorkerGrid.tsx) and [`src/components/ai/motion-engine/LiveWorkingWorkspace.tsx`](file:///c:/Users/INDIA/Desktop/Project%20Ruhvi/src/components/ai/motion-engine/LiveWorkingWorkspace.tsx). Interactive 14-card grid with active status indicators, activity badges, and dedicated 1:1 chat launch buttons.
+
+### C. Specialist AI Worker 1:1 Direct Chat Service
+- **Service & Prompt Engine**: [`src/lib/ai/co-founder/workers/worker-chat-service.ts`](file:///c:/Users/INDIA/Desktop/Project%20Ruhvi/src/lib/ai/co-founder/workers/worker-chat-service.ts).
+  - Injects specialized domain persona instructions into Gemini with zero bleed into general Co-Founder context.
+  - Dedicated API endpoint: [`src/app/api/admin/co-founder/workers/[workerId]/chat/route.ts`](file:///c:/Users/INDIA/Desktop/Project%20Ruhvi/src/app/api/admin/co-founder/workers/[workerId]/chat/route.ts) with `requireAdmin()` RBAC security.
+- **Drawer UI**: [`src/components/co-founder/WorkerChatDrawer.tsx`](file:///c:/Users/INDIA/Desktop/Project%20Ruhvi/src/components/co-founder/WorkerChatDrawer.tsx). Dedicated right-side sliding drawer with avatar, domain badge, active status pill, collapsible responsibilities accordion, automated message history retrieval, and integrated `SpeechToTextButton`.
+
+### D. Worker-to-Worker Collaboration Gateway & Loop Breaker
+- **Collaboration Gateway**: [`src/lib/ai/co-founder/workers/collaboration-gateway.ts`](file:///c:/Users/INDIA/Desktop/Project%20Ruhvi/src/lib/ai/co-founder/workers/collaboration-gateway.ts).
+  - Loop Protection: Strict recursion limit (`MAX_COLLABORATION_DEPTH = 2`), self-delegation prohibition (`fromWorker !== toWorker`), and a 15-second execution timeout guard.
+  - Audit Trail: Records every cross-worker consultation in `co_founder_worker_collaborations` with status mapped cleanly to valid constraints (`'pending'`, `'completed'`, `'failed'`, `'timeout'`).
+  - Sensitive Data Redaction: Automatically masks API keys, Bearer tokens, passwords, Indian PAN, Aadhaar, and credit card numbers via `redactSensitiveData()` prior to logging.
+- **Tool Bridge**: Exposes `consult_specialist_worker` tool in [`src/lib/ai/co-founder/brain.ts`](file:///c:/Users/INDIA/Desktop/Project%20Ruhvi/src/lib/ai/co-founder/brain.ts) and routes execution via [`src/lib/ai/co-founder/tool-bridge.ts`](file:///c:/Users/INDIA/Desktop/Project%20Ruhvi/src/lib/ai/co-founder/tool-bridge.ts).
+
+---
+
+## 14. Voice Notes, Multilingual Speech-to-Text & Rollback Operations Manual
+
+Authoritative architectural record of the WhatsApp-style voice note pipeline, real-time multilingual transcription engine, and operational rollback procedures:
+
+### A. P2P Audio Voice Note Architecture
+- **Isolation Principle**: Pure direct Cloudinary upload using secondary messenger credentials (`io1kkukg`). Voice notes bypass LLM APIs (zero Gemini token usage).
+- **Database & Storage**: Stored in `internal_chat_messages` with `media_type: 'audio'`, metadata containing `audioUrl`, `duration`, `status: 'active'`, and `expires_at: NOW() + INTERVAL '45 days'`.
+- **45-Day Retention & Auto-Purge**: Daily cron job (`/api/cron/cleanup-voice-notes`) executes at 3:00 AM IST, queries expired notes, deletes audio from Cloudinary (`resource_type: 'video'`), and flags DB records as `'expired'`.
+- **UI Playback & Recording**:
+  - [`src/components/chat/VoiceNotePlayer.tsx`](file:///c:/Users/INDIA/Desktop/Project%20Ruhvi/src/components/chat/VoiceNotePlayer.tsx): Inline WhatsApp-style waveform, play/pause controls, speed toggle (`1x`, `1.5x`, `2x`), and graceful 45-day expiration notice.
+  - [`src/components/chat/VoiceNoteRecorder.tsx`](file:///c:/Users/INDIA/Desktop/Project%20Ruhvi/src/components/chat/VoiceNoteRecorder.tsx): Audio recording with live time visualizer, discard/trash option, review preview player, and send action.
+
+### B. Multilingual Speech-to-Text (STT) Dictation Architecture
+- **Isolation Principle**: Pure temporary in-memory audio buffer sent directly to `gemini-3.5-transcribe`. Audio is never written to Cloudinary or persistent disks.
+- **Drafting Behavior**: Transcribes audio into Bengali, Hindi, or Indian English and populates the composer textarea as an **editable draft**. It strictly **does not auto-send**.
+- **Service & API**: [`src/lib/ai/transcribe-service.ts`](file:///c:/Users/INDIA/Desktop/Project%20Ruhvi/src/lib/ai/transcribe-service.ts) and [`src/app/api/chat/transcribe/route.ts`](file:///c:/Users/INDIA/Desktop/Project%20Ruhvi/src/app/api/chat/transcribe/route.ts).
+- **UI Button**: [`src/components/chat/SpeechToTextButton.tsx`](file:///c:/Users/INDIA/Desktop/Project%20Ruhvi/src/components/chat/SpeechToTextButton.tsx).
+
+### C. Feature Flags & Safe Production Rollback Protocol
+Centralized feature flags in [`src/lib/features.ts`](file:///c:/Users/INDIA/Desktop/Project%20Ruhvi/src/lib/features.ts), `.env.local`, and `.env.example`:
+
+| Environment Variable | Default | Purpose | Rollback State & Behavior |
+| :--- | :--- | :--- | :--- |
+| `NEXT_PUBLIC_VOICE_NOTES_ENABLED` | `true` | Enables voice note recording & player in internal chat | Set `false`: Hides mic recorder button. Existing text chat continues without disruption. |
+| `NEXT_PUBLIC_SPEECH_TO_TEXT_ENABLED` | `true` | Enables STT dictation button in chat composers | Set `false`: Hides STT dictation trigger. Pure keyboard entry continues without disruption. |
+| `NEXT_PUBLIC_COFOUNDER_MULTI_CONVERSATION_ENABLED` | `true` | Enables multi-conversation sidebar & thread switching | Set `false`: Falls back to default single continuous executive chat session. |
+| `NEXT_PUBLIC_WORKER_DIRECT_CHAT_ENABLED` | `true` | Enables 1:1 specialist worker chat drawer | Set `false`: Hides 1:1 chat buttons on worker cards; workers remain visible as status displays. |
+
+#### Rollback Execution Procedure:
+1. If Cloudinary audio storage or Gemini transcription encounters upstream provider outages, update Vercel environment variables:
+   ```bash
+   vercel env add NEXT_PUBLIC_VOICE_NOTES_ENABLED=false production
+   vercel env add NEXT_PUBLIC_SPEECH_TO_TEXT_ENABLED=false production
+   ```
+2. Trigger an immediate deployment or redeploy the latest commit:
+   ```bash
+   vercel redeploy
+   ```
+3. Zero database rollback is required. All existing messages, database foreign keys, and indexes remain intact and non-breaking.
 
 

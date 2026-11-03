@@ -71,6 +71,7 @@ import { useCoFounderWorkforce } from '@/hooks/useCoFounderWorkforce';
 import {
   agentNodesToSwarmNodes,
   agentNodesToWorkerGrid,
+  WORKER_NODE_TO_CANONICAL,
 } from '@/lib/ai/co-founder/workers/client-status';
 import { useLiveKitVoice } from '@/hooks/useLiveKitVoice';
 import { useBrowserVoice } from '@/hooks/useBrowserVoice';
@@ -387,6 +388,29 @@ export default function CoFounderPortalPage() {
           workerName,
         },
       ]);
+
+      // Multimodal Voice Binding: Associate live voice transcript with active conversation thread
+      if (activeConversationId && text && text.trim()) {
+        fetch(`/api/admin/co-founder/conversations/${activeConversationId}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            senderType: speaker === 'user' ? 'user' : 'assistant',
+            content: text.trim(),
+            contentType: 'text',
+            metadata: {
+              channel: 'livekit_voice',
+              provider: meta?.provider,
+              model: meta?.model,
+            },
+          }),
+        }).catch((err) =>
+          console.warn(
+            '[LiveKit Voice] Failed to associate transcript with conversation:',
+            err
+          )
+        );
+      }
     },
   });
 
@@ -1767,18 +1791,42 @@ export default function CoFounderPortalPage() {
             isLiveData={!!workforceData}
             selectedNodeId={selectedWorkerId}
             onSelectNode={setSelectedWorkerId}
+            onChatWithWorker={(nodeId) => {
+              const canonicalWorkerId = (WORKER_NODE_TO_CANONICAL[nodeId] ||
+                nodeId) as WorkerId;
+              const node = workforceData?.nodes.find((n) => n.id === nodeId);
+              setActiveWorkerDrawer({
+                workerId: canonicalWorkerId,
+                name:
+                  node?.name.replace(/^Worker \d+:\s*/, '') ||
+                  canonicalWorkerId,
+                role: node?.title || 'Specialist AI Worker',
+              });
+            }}
             className="mb-6"
           />
           <WorkerGrid
             workers={liveWorkerGrid.length > 0 ? liveWorkerGrid : undefined}
             onSelectWorker={(id) => setSelectedWorkerId(id)}
-            onPromptWorker={(role) => {
+            onChatWorker={({ workerId, name, title }) => {
+              const canonicalId = (
+                workerId.startsWith('worker_') ? workerId : `worker_${workerId}`
+              ) as WorkerId;
+              setActiveWorkerDrawer({
+                workerId: canonicalId,
+                name: name || canonicalId,
+                role: title || 'Specialist AI Worker',
+              });
+            }}
+            onPromptWorker={(workerIdOrRole) => {
               const canonicalWorkerId = (
-                role.startsWith('worker_') ? role : `worker_${role}`
+                workerIdOrRole.startsWith('worker_')
+                  ? workerIdOrRole
+                  : `worker_${workerIdOrRole}`
               ) as WorkerId;
               setActiveWorkerDrawer({
                 workerId: canonicalWorkerId,
-                name: role.toUpperCase(),
+                name: workerIdOrRole.toUpperCase(),
                 role: 'Specialist AI Worker',
               });
             }}

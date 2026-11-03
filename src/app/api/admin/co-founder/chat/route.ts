@@ -64,16 +64,67 @@ export async function POST(req: NextRequest) {
         'Please review this attached image and share your analysis and thoughts.';
     }
 
+    const userAttachments: any[] = [];
+    if (latest?.imageUrl) {
+      userAttachments.push({
+        url: latest.imageUrl,
+        type: 'image',
+      });
+    }
+    if (Array.isArray((latest as any)?.attachments)) {
+      userAttachments.push(...(latest as any).attachments);
+    }
+
     if (conversationId && latest?.text) {
       await ConversationRepository.appendMessage({
         conversationId,
         senderType: 'user',
         senderId: auth.uid,
         content: latest.text,
-        contentType: 'text',
+        contentType: userAttachments.length > 0 ? 'image' : 'text',
+        attachments: userAttachments.length > 0 ? userAttachments : undefined,
       }).catch((err) =>
         console.warn('[chat/route] Failed to append user message:', err)
       );
+    }
+
+    // Load authoritative previous conversation history from server repository if conversationId is provided
+    let effectiveMessages = messages;
+    if (conversationId) {
+      try {
+        const repoData =
+          await ConversationRepository.getConversationWithMessages(
+            conversationId,
+            auth.uid,
+            30
+          );
+        if (repoData?.messages && repoData.messages.length > 0) {
+          const serverHistory: ChatHistoryItem[] = repoData.messages.map(
+            (m) => ({
+              sender: m.senderType === 'user' ? 'user' : 'assistant',
+              text: m.content,
+            })
+          );
+          const latestClientMsg = messages[messages.length - 1];
+          if (
+            latestClientMsg &&
+            (serverHistory.length === 0 ||
+              serverHistory[serverHistory.length - 1].text !==
+                latestClientMsg.text)
+          ) {
+            serverHistory.push(latestClientMsg);
+          }
+          if (serverHistory.length > 0) {
+            effectiveMessages = serverHistory;
+          }
+        }
+      } catch (repoErr) {
+        console.warn(
+          '[chat/route] Could not load server conversation history, using client messages:',
+          repoErr
+        );
+      }
+      messages = effectiveMessages;
     }
 
     let audioTranscription: string | null = null;
@@ -1049,11 +1100,27 @@ export async function POST(req: NextRequest) {
     const rateHeaders = createRateLimitHeaders(rateLimitCheck.result);
 
     if (conversationId && responseText) {
+      const assistantAttachments: any[] = [];
+      if (agentExecutionMeta?.toolCallsExecuted) {
+        for (const tc of agentExecutionMeta.toolCallsExecuted) {
+          if (
+            tc.tool === 'generate_product_studio_photos' &&
+            tc.result?.photoUrls
+          ) {
+            for (const u of tc.result.photoUrls) {
+              assistantAttachments.push({ url: u, type: 'image' });
+            }
+          }
+        }
+      }
+
       await ConversationRepository.appendMessage({
         conversationId,
         senderType: 'cofounder',
         content: responseText,
-        contentType: 'text',
+        contentType: assistantAttachments.length > 0 ? 'image' : 'text',
+        attachments:
+          assistantAttachments.length > 0 ? assistantAttachments : undefined,
         metadata: {
           provider: answeredProvider,
           model: answeredModel,
@@ -1062,6 +1129,44 @@ export async function POST(req: NextRequest) {
       }).catch((err) =>
         console.warn('[chat/route] Failed to append assistant message:', err)
       );
+
+      // Task 9.2: Auto-title generation: After first user & assistant turn, summarize title into 3-5 words
+      try {
+        const convDetails =
+          await ConversationRepository.getConversationWithMessages(
+            conversationId,
+            auth.uid,
+            5
+          );
+        if (
+          convDetails?.conversation &&
+          (convDetails.conversation.title === 'New Conversation' ||
+            convDetails.conversation.title.startsWith('New Conversation') ||
+            convDetails.messages.length <= 3)
+        ) {
+          const firstUser = convDetails.messages.find(
+            (m) => m.senderType === 'user'
+          );
+          if (firstUser?.content) {
+            const rawTitle = firstUser.content
+              .replace(/[\r\n]+/g, ' ')
+              .replace(/[^\w\s\u0980-\u09FF-]/g, '')
+              .trim();
+            const words = rawTitle.split(/\s+/).slice(0, 5).join(' ');
+            if (words && words.length >= 3) {
+              const cleanedTitle =
+                words.charAt(0).toUpperCase() + words.slice(1);
+              await ConversationRepository.updateConversationTitle(
+                conversationId,
+                auth.uid,
+                cleanedTitle
+              );
+            }
+          }
+        }
+      } catch (titleErr) {
+        // Non-blocking auto-title background generation
+      }
     }
 
     return NextResponse.json(

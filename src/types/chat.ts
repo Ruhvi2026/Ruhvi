@@ -2,6 +2,8 @@
 // TypeScript types for the Ruhvi Internal Staff Chat system.
 // These types mirror the Supabase DB schema (migration 0085).
 
+import type { VoiceNoteMetadata } from '@/lib/chat/voice-types';
+
 export type ConversationType = 'direct' | 'group' | 'broadcast';
 export type MessageType =
   'text' | 'attachment' | 'system' | 'entity_ref' | 'voice_note';
@@ -112,6 +114,8 @@ export interface ChatMessage {
   system_action: string | null;
   pinned_at?: string | null;
   pinned_by?: string | null;
+  voice_note_id?: string | null;
+  voice_note?: VoiceNoteMetadata | null;
   // Joined
   sender?: ChatUserProfile;
   attachments?: ChatAttachment[];
@@ -131,6 +135,7 @@ export interface SendMessagePayload {
   message_type: MessageType;
   text_content?: string;
   reply_to_id?: string;
+  voice_note_id?: string;
   attachments?: Omit<ChatAttachment, 'id' | 'message_id' | 'created_at'>[];
   mentions?: string[]; // user_ids
   entity_refs?: Omit<ChatEntityRef, 'id' | 'message_id' | 'created_at'>[];

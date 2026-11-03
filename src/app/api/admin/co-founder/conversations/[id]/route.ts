@@ -1,6 +1,7 @@
 // src/app/api/admin/co-founder/conversations/[id]/route.ts
 //
 // GET    /api/admin/co-founder/conversations/[id]  → Get conversation & sequential messages
+// POST   /api/admin/co-founder/conversations/[id]  → Append message (voice transcript, note, or prompt) to thread
 // PATCH  /api/admin/co-founder/conversations/[id]  → Rename conversation title
 // DELETE /api/admin/co-founder/conversations/[id]  → Delete conversation thread
 
@@ -36,6 +37,50 @@ export async function GET(
     return NextResponse.json(
       { error: err.message || 'Failed to fetch conversation' },
       { status: 404 }
+    );
+  }
+}
+
+export async function POST(
+  req: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
+  try {
+    const auth = await requireAdmin();
+    if (!auth.ok || !auth.uid) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { id } = await context.params;
+    const body = await req.json();
+    const { senderType, content, contentType, attachments, metadata } = body;
+
+    if (!content || !content.trim()) {
+      return NextResponse.json(
+        { error: 'Content cannot be empty' },
+        { status: 400 }
+      );
+    }
+
+    const message = await ConversationRepository.appendMessage({
+      conversationId: id,
+      senderType: senderType || 'user',
+      senderId: auth.uid,
+      content: content.trim(),
+      contentType: contentType || 'text',
+      attachments: attachments || [],
+      metadata: metadata || {},
+    });
+
+    return NextResponse.json({
+      success: true,
+      message,
+    });
+  } catch (err: any) {
+    console.error('[co-founder/conversations/[id] POST] Error:', err);
+    return NextResponse.json(
+      { error: err.message || 'Failed to append message' },
+      { status: 500 }
     );
   }
 }

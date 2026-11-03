@@ -32,12 +32,14 @@ import toast from 'react-hot-toast';
 interface LiveWorkingWorkspaceProps {
   node: AgentNode;
   onSimulateWork?: (nodeId: string) => void;
+  onChatWithWorker?: (nodeId: string) => void;
   className?: string;
 }
 
 export const LiveWorkingWorkspace: React.FC<LiveWorkingWorkspaceProps> = ({
   node,
   onSimulateWork,
+  onChatWithWorker,
   className = '',
 }) => {
   const [charSize, setCharSize] = useState(64);
@@ -408,6 +410,17 @@ export const LiveWorkingWorkspace: React.FC<LiveWorkingWorkspaceProps> = ({
 
         {/* Action Button */}
         <div className="flex items-center gap-2">
+          {onChatWithWorker && node.id !== 'co_founder' && (
+            <button
+              type="button"
+              onClick={() => onChatWithWorker(node.id)}
+              className="flex min-h-[44px] items-center gap-1.5 rounded-xl border border-amber-500/50 bg-gradient-to-r from-amber-500/20 via-violet-500/15 to-amber-500/20 px-3.5 py-2.5 text-xs font-bold text-amber-300 shadow-md transition-all hover:opacity-90 active:scale-95 sm:py-2"
+              title={`Open dedicated 1:1 conversation with ${node.name}`}
+            >
+              <MessageSquare className="h-3.5 w-3.5 text-amber-400" />
+              <span>Chat 1:1</span>
+            </button>
+          )}
           <button
             onClick={handleTriggerWork}
             disabled={isExecuting}

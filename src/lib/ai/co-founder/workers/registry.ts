@@ -17,6 +17,62 @@ import { monitoringWorker } from './worker-12-monitoring';
 import { ordersLogisticsWorker } from './worker-13-orders-logistics';
 import { accountsWorker } from './worker-14-accounts';
 
+export const WORKER_ALIAS_MAP: Record<string, WorkerId> = {
+  // Direct canonical mappings
+  worker_analytics_performance: 'worker_analytics_performance',
+  worker_marketing: 'worker_marketing',
+  worker_seo: 'worker_seo',
+  worker_product: 'worker_product',
+  worker_competitor_research: 'worker_competitor_research',
+  worker_sales_conversion: 'worker_sales_conversion',
+  worker_customer_support: 'worker_customer_support',
+  worker_content_blog: 'worker_content_blog',
+  worker_inventory: 'worker_inventory',
+  worker_review_feedback: 'worker_review_feedback',
+  worker_execution: 'worker_execution',
+  worker_monitoring_verification: 'worker_monitoring_verification',
+  worker_orders_logistics: 'worker_orders_logistics',
+  worker_accounts_tax: 'worker_accounts_tax',
+
+  // Master Plan canonical 13/14 aliases
+  marketing: 'worker_marketing',
+  seo: 'worker_seo',
+  analytics: 'worker_analytics_performance',
+  product: 'worker_product',
+  inventory: 'worker_inventory',
+  customer_service: 'worker_customer_support',
+  customer_support: 'worker_customer_support',
+  finance: 'worker_accounts_tax',
+  competitor: 'worker_competitor_research',
+  compliance: 'worker_accounts_tax',
+  social_media: 'worker_content_blog',
+  pricing: 'worker_product',
+  supply_chain: 'worker_orders_logistics',
+  growth: 'worker_sales_conversion',
+  sales: 'worker_sales_conversion',
+  content: 'worker_content_blog',
+  reviews: 'worker_review_feedback',
+  review: 'worker_review_feedback',
+  execution: 'worker_execution',
+  monitoring: 'worker_monitoring_verification',
+
+  // UI swarm & workforce aliases
+  researcher: 'worker_competitor_research',
+  coder: 'worker_execution',
+  writer: 'worker_content_blog',
+  designer: 'worker_product',
+  analyst: 'worker_analytics_performance',
+  marketer: 'worker_marketing',
+};
+
+export function resolveCanonicalWorkerId(id: string): WorkerId | undefined {
+  if (!id) return undefined;
+  const normalized = id.toLowerCase().trim();
+  return (
+    WORKER_ALIAS_MAP[normalized] || WORKER_ALIAS_MAP[`worker_${normalized}`]
+  );
+}
+
 export class WorkerRegistry {
   private workers: Map<WorkerId, AIWorkerInterface> = new Map();
 
@@ -41,8 +97,15 @@ export class WorkerRegistry {
     this.workers.set(worker.id, worker);
   }
 
-  getWorker(id: WorkerId): AIWorkerInterface | undefined {
-    return this.workers.get(id);
+  getWorker(id: WorkerId | string): AIWorkerInterface | undefined {
+    const direct = this.workers.get(id as WorkerId);
+    if (direct) return direct;
+
+    const resolved = resolveCanonicalWorkerId(id);
+    if (resolved) {
+      return this.workers.get(resolved);
+    }
+    return undefined;
   }
 
   getAllWorkers(): AIWorkerInterface[] {

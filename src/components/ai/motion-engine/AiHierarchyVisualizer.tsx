@@ -16,6 +16,7 @@ interface AiHierarchyVisualizerProps {
   isLiveData?: boolean;
   selectedNodeId?: string;
   onSelectNode?: (nodeId: string) => void;
+  onChatWithWorker?: (nodeId: string) => void;
 }
 
 export const AiHierarchyVisualizer: React.FC<AiHierarchyVisualizerProps> = ({
@@ -27,6 +28,7 @@ export const AiHierarchyVisualizer: React.FC<AiHierarchyVisualizerProps> = ({
   isLiveData = false,
   selectedNodeId: controlledSelectedId,
   onSelectNode,
+  onChatWithWorker,
 }) => {
   const [nodes, setNodes] = useState<AgentNode[]>(
     liveNodes && isLiveData ? liveNodes : INITIAL_AI_HIERARCHY
@@ -202,6 +204,7 @@ export const AiHierarchyVisualizer: React.FC<AiHierarchyVisualizerProps> = ({
           <LiveWorkingWorkspace
             node={selectedNode}
             onSimulateWork={handleSimulateWork}
+            onChatWithWorker={onChatWithWorker}
           />
         </div>
       ) : (

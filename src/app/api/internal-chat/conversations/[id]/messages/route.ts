@@ -86,33 +86,46 @@ export async function GET(
     const { data: messages, error } = await query;
     if (error) throw error;
 
-    // Enrich with sender profiles, attachments, mentions, entity refs
+    // Enrich with sender profiles, attachments, mentions, entity refs, and voice notes
     const enriched = await Promise.all(
       (messages || []).map(async (msg: any) => {
-        const [senderRes, attachRes, mentionRes, entityRes, reactionRes] =
-          await Promise.all([
-            supabase
-              .from('users')
-              .select('id, full_name, email, role, department')
-              .eq('id', msg.sender_id)
-              .maybeSingle(),
-            supabase
-              .from('chat_attachments')
-              .select('*')
-              .eq('message_id', msg.id),
-            supabase
-              .from('chat_message_mentions')
-              .select('*, user:users(id, full_name, email)')
-              .eq('message_id', msg.id),
-            supabase
-              .from('chat_entity_references')
-              .select('*')
-              .eq('message_id', msg.id),
-            supabase
-              .from('chat_message_reactions')
-              .select('*, user:users(id, full_name, email)')
-              .eq('message_id', msg.id),
-          ]);
+        const [
+          senderRes,
+          attachRes,
+          mentionRes,
+          entityRes,
+          reactionRes,
+          voiceNoteRes,
+        ] = await Promise.all([
+          supabase
+            .from('users')
+            .select('id, full_name, email, role, department')
+            .eq('id', msg.sender_id)
+            .maybeSingle(),
+          supabase
+            .from('chat_attachments')
+            .select('*')
+            .eq('message_id', msg.id),
+          supabase
+            .from('chat_message_mentions')
+            .select('*, user:users(id, full_name, email)')
+            .eq('message_id', msg.id),
+          supabase
+            .from('chat_entity_references')
+            .select('*')
+            .eq('message_id', msg.id),
+          supabase
+            .from('chat_message_reactions')
+            .select('*, user:users(id, full_name, email)')
+            .eq('message_id', msg.id),
+          msg.voice_note_id
+            ? supabase
+                .from('chat_voice_notes')
+                .select('*')
+                .eq('id', msg.voice_note_id)
+                .maybeSingle()
+            : Promise.resolve({ data: null }),
+        ]);
 
         return {
           ...msg,
@@ -121,6 +134,7 @@ export async function GET(
           mentions: mentionRes.data || [],
           entity_refs: entityRes.data || [],
           reactions: reactionRes.data || [],
+          voice_note: voiceNoteRes?.data || null,
         };
       })
     );
@@ -162,6 +176,7 @@ export async function POST(
       message_type = 'text',
       text_content,
       reply_to_id,
+      voice_note_id,
       attachments,
       mentions, // array of user_ids
       entity_refs, // array of { entity_type, entity_id, display_label }
@@ -193,11 +208,20 @@ export async function POST(
         message_type,
         text_content: text_content?.trim() || null,
         reply_to_id: reply_to_id || null,
+        voice_note_id: voice_note_id || null,
       })
       .select()
       .single();
 
     if (msgErr) throw msgErr;
+
+    // Link voice note record to message if voice_note_id was provided
+    if (voice_note_id && message?.id) {
+      await supabase
+        .from('chat_voice_notes')
+        .update({ message_id: message.id })
+        .eq('id', voice_note_id);
+    }
 
     // Insert attachments
     if (attachments && attachments.length > 0) {

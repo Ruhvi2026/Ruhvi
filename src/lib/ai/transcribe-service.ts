@@ -18,6 +18,8 @@ function getGeminiApiKey(): string | null {
     process.env.GEMINI_TRANSCRIBE_API_KEY ||
     process.env.GEMINI_API_KEY ||
     process.env.GEMINI_LIVE_API_KEY ||
+    process.env.GOOGLE_AI_API_KEY ||
+    process.env.GOOGLE_API_KEY ||
     null
   );
 }

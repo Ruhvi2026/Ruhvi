@@ -32,6 +32,41 @@ export interface SwarmWorkerNode {
   latencyMs: number;
   tokensPerSec: number;
   avatarUrl?: string;
+  canonicalWorkerId?: string;
+}
+
+/**
+ * Mapping legacy Swarm UI roles to canonical Co-Founder AI Worker IDs
+ */
+export const SWARM_TO_CANONICAL_WORKER_MAP: Record<string, string> = {
+  researcher: 'worker_competitor_research',
+  coder: 'worker_execution',
+  writer: 'worker_content_blog',
+  designer: 'worker_product',
+  analyst: 'worker_analytics_performance',
+  marketer: 'worker_marketing',
+};
+
+export const CANONICAL_WORKER_TO_SWARM_MAP: Record<string, string> = {
+  worker_competitor_research: 'researcher',
+  worker_execution: 'coder',
+  worker_content_blog: 'writer',
+  worker_product: 'designer',
+  worker_analytics_performance: 'analyst',
+  worker_marketing: 'marketer',
+};
+
+export function getCanonicalWorkerIdFromSwarmRole(
+  role: string
+): string | undefined {
+  return SWARM_TO_CANONICAL_WORKER_MAP[role];
+}
+
+export function getSwarmRoleFromCanonicalWorkerId(
+  workerId: string
+): SwarmWorkerNode['role'] | undefined {
+  return CANONICAL_WORKER_TO_SWARM_MAP[workerId] as
+    SwarmWorkerNode['role'] | undefined;
 }
 
 export const SWARM_NODES: SwarmWorkerNode[] = [
@@ -70,6 +105,7 @@ export const SWARM_NODES: SwarmWorkerNode[] = [
     status: 'analyzing',
     latencyMs: 95,
     tokensPerSec: 54.2,
+    canonicalWorkerId: 'worker_competitor_research',
   },
   {
     id: 'coder',
@@ -87,6 +123,7 @@ export const SWARM_NODES: SwarmWorkerNode[] = [
     status: 'executing',
     latencyMs: 110,
     tokensPerSec: 61.2,
+    canonicalWorkerId: 'worker_execution',
   },
   {
     id: 'writer',
@@ -104,6 +141,7 @@ export const SWARM_NODES: SwarmWorkerNode[] = [
     status: 'generating',
     latencyMs: 115,
     tokensPerSec: 64.0,
+    canonicalWorkerId: 'worker_content_blog',
   },
   {
     id: 'designer',
@@ -121,6 +159,7 @@ export const SWARM_NODES: SwarmWorkerNode[] = [
     status: 'idle',
     latencyMs: 88,
     tokensPerSec: 51.5,
+    canonicalWorkerId: 'worker_product',
   },
   {
     id: 'analyst',
@@ -138,6 +177,7 @@ export const SWARM_NODES: SwarmWorkerNode[] = [
     status: 'active',
     latencyMs: 76,
     tokensPerSec: 48.0,
+    canonicalWorkerId: 'worker_analytics_performance',
   },
   {
     id: 'marketer',
@@ -155,6 +195,7 @@ export const SWARM_NODES: SwarmWorkerNode[] = [
     status: 'idle',
     latencyMs: 120,
     tokensPerSec: 72.1,
+    canonicalWorkerId: 'worker_marketing',
   },
 ];
 

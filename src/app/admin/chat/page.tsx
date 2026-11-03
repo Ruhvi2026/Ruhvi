@@ -43,9 +43,20 @@ import {
   Smile,
   Lock,
   ClipboardList,
+  Mic,
+  Bot,
+  Sparkles,
 } from 'lucide-react';
 import Link from 'next/link';
 import AutoLinkText from '@/components/chat/AutoLinkText';
+import { VoiceNotePlayer } from '@/components/chat/VoiceNotePlayer';
+import { VoiceNoteRecorder } from '@/components/chat/VoiceNoteRecorder';
+import { SpeechToTextButton } from '@/components/chat/SpeechToTextButton';
+import {
+  AIWorkerPersona,
+  AI_WORKER_PERSONAS,
+  listAIWorkers,
+} from '@/lib/chat/ai-workers';
 
 // ─── Utility helpers ─────────────────────────────────────────────────────────
 
@@ -148,7 +159,29 @@ function UserAvatar({
 
 // ─── Attachment preview ───────────────────────────────────────────────────────
 
-function AttachmentPreview({ att }: { att: ChatAttachment }) {
+function AttachmentPreview({
+  att,
+  isOwn,
+}: {
+  att: ChatAttachment;
+  isOwn?: boolean;
+}) {
+  if (
+    att.mime_type?.startsWith('audio/') ||
+    att.file_name?.includes('Voice Note') ||
+    (att.resource_type === 'video' && att.file_name?.endsWith('.webm'))
+  ) {
+    return (
+      <div className="my-1 min-w-[240px] max-w-[320px]">
+        <VoiceNotePlayer
+          src={att.cloudinary_url}
+          duration={att.duration || 0}
+          isUser={isOwn}
+          status={att.cloudinary_url ? 'active' : 'expired'}
+        />
+      </div>
+    );
+  }
   if (att.resource_type === 'image') {
     return (
       <a href={att.cloudinary_url} target="_blank" rel="noopener noreferrer">
@@ -296,16 +329,33 @@ function MessageBubble({
             <p className="text-xs italic text-slate-400/70">Message deleted</p>
           ) : (
             <>
-              {msg.text_content && (
-                <AutoLinkText
-                  text={msg.text_content}
-                  className="block whitespace-pre-wrap break-words text-sm leading-relaxed"
-                />
-              )}
+              {/* Standalone Voice Note guard if attachments are empty */}
+              {msg.message_type === 'voice_note' &&
+                (!msg.attachments || msg.attachments.length === 0) && (
+                  <div className="my-1 min-w-[240px] max-w-[320px]">
+                    <VoiceNotePlayer
+                      src={(msg as any).voice_note?.cloudinaryUrl || ''}
+                      duration={(msg as any).voice_note?.durationSeconds || 0}
+                      isUser={isOwn}
+                      status={(msg as any).voice_note?.status || 'expired'}
+                    />
+                  </div>
+                )}
+              {/* Text content with clickable links (hide generic 'Voice Note' placeholder) */}
+              {msg.text_content &&
+                !(
+                  msg.message_type === 'voice_note' &&
+                  msg.text_content === 'Voice Note'
+                ) && (
+                  <AutoLinkText
+                    text={msg.text_content}
+                    className="block whitespace-pre-wrap break-words text-sm leading-relaxed"
+                  />
+                )}
               {msg.attachments && msg.attachments.length > 0 && (
                 <div className="space-y-1.5">
                   {msg.attachments.map((att) => (
-                    <AttachmentPreview key={att.id} att={att} />
+                    <AttachmentPreview key={att.id} att={att} isOwn={isOwn} />
                   ))}
                 </div>
               )}
@@ -1096,6 +1146,22 @@ export default function InternalChatPage() {
   const [showEntityPicker, setShowEntityPicker] = useState(false);
   const [replyTo, setReplyTo] = useState<ChatMessage | null>(null);
 
+  // Voice Note states
+  const [isRecordingVoiceNote, setIsRecordingVoiceNote] = useState(false);
+  const [uploadingVoiceNote, setUploadingVoiceNote] = useState(false);
+
+  // AI Co-Founder & Specialist Worker State
+  const [activeAiWorker, setActiveAiWorker] = useState<AIWorkerPersona | null>(
+    null
+  );
+  const [aiMessages, setAiMessages] = useState<Record<string, ChatMessage[]>>(
+    {}
+  );
+  const [sendingAi, setSendingAi] = useState(false);
+  const [sidebarTab, setSidebarTab] = useState<'conversations' | 'ai'>(
+    'conversations'
+  );
+
   // In-Chat Search State (WhatsApp style)
   const [showInChatSearch, setShowInChatSearch] = useState(false);
   const [inChatSearchQuery, setInChatSearchQuery] = useState('');
@@ -1158,7 +1224,33 @@ export default function InternalChatPage() {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
 
-  const activeConv = conversations.find((c) => c.id === activeConvId) || null;
+  const activeConv = useMemo<ChatConversation | null>(() => {
+    if (activeAiWorker) {
+      return {
+        id: `ai_${activeAiWorker.department}`,
+        type: 'direct',
+        group_name: activeAiWorker.name,
+        group_topic: `${activeAiWorker.roleTitle} (AI Specialist)`,
+        created_by: 'system_ai',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        archived_at: null,
+        deleted_at: null,
+        group_avatar_url: null,
+        other_user: {
+          id: `ai_${activeAiWorker.department}`,
+          full_name: activeAiWorker.name,
+          email: `${activeAiWorker.department}-ai@ruhvi.in`,
+          role:
+            activeAiWorker.department === 'co_founder'
+              ? 'ai_co_founder'
+              : 'ai_worker',
+          department: activeAiWorker.department,
+        },
+      };
+    }
+    return conversations.find((c) => c.id === activeConvId) || null;
+  }, [activeAiWorker, conversations, activeConvId]);
 
   // ── Fetch conversations ──
   const fetchConversations = useCallback(async () => {
@@ -1219,9 +1311,55 @@ export default function InternalChatPage() {
     }
   }, []);
 
+  // ── Select AI Worker ──
+  const selectAIWorker = useCallback(
+    (persona: AIWorkerPersona) => {
+      if (channelRef.current) supabase.removeChannel(channelRef.current);
+      setActiveConvId(null);
+      setActiveAiWorker(persona);
+      setReplyTo(null);
+      setShowGroupInfo(false);
+      setMobileView('chat');
+
+      const dept = persona.department;
+      let initialList: ChatMessage[] = [];
+      try {
+        if (typeof window !== 'undefined' && user?.uid) {
+          const saved = localStorage.getItem(`ruhchat_ai_${user.uid}_${dept}`);
+          if (saved) initialList = JSON.parse(saved);
+        }
+      } catch {}
+
+      if (initialList.length === 0) {
+        initialList = [
+          {
+            id: `welcome_${dept}`,
+            conversation_id: `ai_${dept}`,
+            sender_id: `ai_${dept}`,
+            message_type: 'text',
+            text_content: persona.welcomeMessage,
+            reply_to_id: null,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            deleted_at: null,
+            is_edited: false,
+            system_action: null,
+          },
+        ];
+      }
+
+      setAiMessages((prev) => ({
+        ...prev,
+        [dept]: prev[dept]?.length ? prev[dept] : initialList,
+      }));
+    },
+    [supabase, user?.uid]
+  );
+
   // ── Select conversation ──
   const selectConversation = useCallback(
     (convId: string) => {
+      setActiveAiWorker(null);
       setActiveConvId(convId);
       setMessages([]);
       setReplyTo(null);
@@ -1318,9 +1456,90 @@ export default function InternalChatPage() {
 
   // ── Send message ──
   const sendMessage = useCallback(async () => {
-    if (!activeConvId) return;
+    if (!activeConvId && !activeAiWorker) return;
     const trimmed = text.trim();
     if (!trimmed && pendingAttachments.length === 0) return;
+
+    if (activeAiWorker) {
+      const dept = activeAiWorker.department;
+      const userMsg: ChatMessage = {
+        id: `user_${Date.now()}`,
+        conversation_id: `ai_${dept}`,
+        sender_id: user?.uid || 'me',
+        message_type: 'text',
+        text_content: trimmed,
+        reply_to_id: replyTo?.id || null,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        deleted_at: null,
+        is_edited: false,
+        system_action: null,
+      };
+
+      const currentList = aiMessages[dept] || [];
+      const updatedList = [...currentList, userMsg];
+      setAiMessages((prev) => ({ ...prev, [dept]: updatedList }));
+      if (typeof window !== 'undefined' && user?.uid) {
+        localStorage.setItem(
+          `ruhchat_ai_${user.uid}_${dept}`,
+          JSON.stringify(updatedList)
+        );
+      }
+      setText('');
+      setReplyTo(null);
+      if (textareaRef.current) textareaRef.current.style.height = 'auto';
+      setSendingAi(true);
+      setSendingMsg(true);
+
+      try {
+        const aiRes = await fetch('/api/internal-chat/ai-worker', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            department: dept,
+            messages: updatedList.map((m) => ({
+              role:
+                m.sender_id === user?.uid || m.sender_id === 'me'
+                  ? 'user'
+                  : 'model',
+              text_content: m.text_content,
+            })),
+          }),
+        });
+
+        if (aiRes.ok) {
+          const aiData = await aiRes.json();
+          const botMsg: ChatMessage = {
+            id: `ai_${Date.now()}`,
+            conversation_id: `ai_${dept}`,
+            sender_id: `ai_${dept}`,
+            message_type: 'text',
+            text_content: aiData.response || 'Understood.',
+            reply_to_id: null,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            deleted_at: null,
+            is_edited: false,
+            system_action: null,
+          };
+          const finalWithBot = [...updatedList, botMsg];
+          setAiMessages((prev) => ({ ...prev, [dept]: finalWithBot }));
+          if (typeof window !== 'undefined' && user?.uid) {
+            localStorage.setItem(
+              `ruhchat_ai_${user.uid}_${dept}`,
+              JSON.stringify(finalWithBot)
+            );
+          }
+        }
+      } catch (err: any) {
+        console.error('[AdminChat] AI worker request error:', err);
+      } finally {
+        setSendingAi(false);
+        setSendingMsg(false);
+      }
+      return;
+    }
+
     setSendingMsg(true);
     try {
       const payload: any = {
@@ -1353,15 +1572,201 @@ export default function InternalChatPage() {
       if (textareaRef.current) textareaRef.current.style.height = 'auto';
     } catch (e: any) {
       setError(e.message);
+    } finally {
+      setSendingMsg(false);
     }
   }, [
     activeConvId,
+    activeAiWorker,
     text,
     pendingAttachments,
     pendingMentions,
     pendingEntityRefs,
     replyTo,
+    aiMessages,
+    user?.uid,
   ]);
+
+  // ── Send Voice Note ──
+  const handleSendVoiceNote = useCallback(
+    async (blob: Blob, duration: number) => {
+      if (!activeConv) return;
+      setUploadingVoiceNote(true);
+      try {
+        const formData = new FormData();
+        formData.append('file', blob, 'voice_note.webm');
+        formData.append('conversation_id', activeConv.id);
+        formData.append('duration_seconds', duration.toString());
+
+        const res = await fetch('/api/internal-chat/voice-notes/upload', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+
+          if (activeAiWorker) {
+            let transcriptText = 'Voice Note';
+            try {
+              const trForm = new FormData();
+              trForm.append('audio', blob, 'voice_note.webm');
+              const trRes = await fetch('/api/chat/transcribe', {
+                method: 'POST',
+                body: trForm,
+              });
+              if (trRes.ok) {
+                const trData = await trRes.json();
+                if (trData.transcript?.trim()) {
+                  transcriptText = trData.transcript.trim();
+                }
+              }
+            } catch (trErr) {
+              console.warn('[AdminChat] AI voice transcribe error:', trErr);
+            }
+
+            const dept = activeAiWorker.department;
+            const userMsg: ChatMessage = {
+              id: `user_voice_${Date.now()}`,
+              conversation_id: activeConv.id,
+              sender_id: user?.uid || 'me',
+              message_type: 'voice_note',
+              text_content: transcriptText,
+              reply_to_id: null,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+              deleted_at: null,
+              is_edited: false,
+              system_action: null,
+              attachments: [
+                {
+                  id: data.publicId || `vn_${Date.now()}`,
+                  message_id: `user_voice_${Date.now()}`,
+                  cloudinary_public_id: data.publicId || '',
+                  cloudinary_url: data.url,
+                  resource_type: 'video',
+                  file_name: 'Voice Note.webm',
+                  file_size: data.fileSizeBytes || 0,
+                  mime_type: data.mimeType || 'audio/webm',
+                  duration: data.durationSeconds || duration,
+                  width: null,
+                  height: null,
+                  created_at: new Date().toISOString(),
+                },
+              ],
+              voice_note: {
+                id: data.voiceNoteId || `vn_${Date.now()}`,
+                conversationId: activeConv.id,
+                senderId: user?.uid || 'me',
+                cloudinaryPublicId: data.publicId || '',
+                cloudinaryUrl: data.url,
+                durationSeconds: data.durationSeconds || duration,
+                fileSizeBytes: data.fileSizeBytes || 0,
+                mimeType: data.mimeType || 'audio/webm',
+                uploadedAt: new Date().toISOString(),
+                expiresAt:
+                  data.expiresAt ||
+                  new Date(Date.now() + 45 * 24 * 60 * 60 * 1000).toISOString(),
+                status: 'active',
+              },
+            };
+
+            const currentList = aiMessages[dept] || [];
+            const updatedList = [...currentList, userMsg];
+            setAiMessages((prev) => ({ ...prev, [dept]: updatedList }));
+            if (typeof window !== 'undefined' && user?.uid) {
+              localStorage.setItem(
+                `ruhchat_ai_${user.uid}_${dept}`,
+                JSON.stringify(updatedList)
+              );
+            }
+            setIsRecordingVoiceNote(false);
+
+            setSendingAi(true);
+            try {
+              const aiRes = await fetch('/api/internal-chat/ai-worker', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  department: dept,
+                  messages: updatedList.map((m) => ({
+                    role:
+                      m.sender_id === user?.uid || m.sender_id === 'me'
+                        ? 'user'
+                        : 'model',
+                    text_content: m.text_content,
+                    audioUrl:
+                      m.attachments?.[0]?.cloudinary_url ||
+                      m.voice_note?.cloudinaryUrl,
+                  })),
+                }),
+              });
+
+              if (aiRes.ok) {
+                const aiData = await aiRes.json();
+                const botMsg: ChatMessage = {
+                  id: `ai_${Date.now()}`,
+                  conversation_id: activeConv.id,
+                  sender_id: `ai_${dept}`,
+                  message_type: 'text',
+                  text_content:
+                    aiData.response || 'I have analyzed your voice note.',
+                  reply_to_id: null,
+                  created_at: new Date().toISOString(),
+                  updated_at: new Date().toISOString(),
+                  deleted_at: null,
+                  is_edited: false,
+                  system_action: null,
+                };
+                const finalWithBot = [...updatedList, botMsg];
+                setAiMessages((prev) => ({ ...prev, [dept]: finalWithBot }));
+                if (typeof window !== 'undefined' && user?.uid) {
+                  localStorage.setItem(
+                    `ruhchat_ai_${user.uid}_${dept}`,
+                    JSON.stringify(finalWithBot)
+                  );
+                }
+              }
+            } finally {
+              setSendingAi(false);
+            }
+          } else {
+            // Standard staff message
+            await fetch(
+              `/api/internal-chat/conversations/${activeConv.id}/messages`,
+              {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  text_content: 'Voice Note',
+                  message_type: 'voice_note',
+                  voice_note_id: data.voiceNoteId || null,
+                  attachments: [
+                    {
+                      cloudinary_public_id: data.publicId,
+                      cloudinary_url: data.url,
+                      resource_type: 'video',
+                      file_name: 'Voice Note.webm',
+                      file_size: data.fileSizeBytes,
+                      mime_type: data.mimeType || 'audio/webm',
+                      duration: data.durationSeconds || duration,
+                    },
+                  ],
+                }),
+              }
+            );
+            fetchMessages(activeConv.id);
+            setIsRecordingVoiceNote(false);
+          }
+        }
+      } catch (err) {
+        console.error('[AdminChat] Voice note upload failed:', err);
+      } finally {
+        setUploadingVoiceNote(false);
+      }
+    },
+    [activeConv, activeAiWorker, user?.uid, aiMessages, fetchMessages]
+  );
 
   // ── Reactions & Pins ──
   const handleReact = useCallback(
@@ -1544,8 +1949,9 @@ export default function InternalChatPage() {
     [conversations]
   );
 
-  const convTitle =
-    activeConv?.type === 'group'
+  const convTitle = activeAiWorker
+    ? activeAiWorker.name
+    : activeConv?.type === 'group'
       ? activeConv.group_name || 'Group Chat'
       : activeConv?.other_user?.department
         ? `${activeConv.other_user?.full_name || activeConv.other_user?.email || 'Chat'} (${activeConv.other_user.department})`
@@ -1553,8 +1959,9 @@ export default function InternalChatPage() {
           activeConv?.other_user?.email ||
           'Chat';
 
-  const convSubtitle =
-    activeConv?.type === 'group'
+  const convSubtitle = activeAiWorker
+    ? activeAiWorker.roleTitle
+    : activeConv?.type === 'group'
       ? `${(activeConv.members || []).filter((m) => !m.left_at).length} members`
       : activeConv?.other_user?.role
         ? `${activeConv.other_user.role}`
@@ -1565,13 +1972,20 @@ export default function InternalChatPage() {
     (activeConv?.members?.find((m) => m.user_id === user?.uid)?.is_admin ??
       false);
 
+  const activeChatMessages = useMemo(() => {
+    if (activeAiWorker) {
+      return aiMessages[activeAiWorker.department] || [];
+    }
+    return messages;
+  }, [activeAiWorker, aiMessages, messages]);
+
   const displayedMessages = useMemo(() => {
-    if (!inChatSearchQuery.trim()) return messages;
+    if (!inChatSearchQuery.trim()) return activeChatMessages;
     const q = inChatSearchQuery.trim().toLowerCase();
-    return messages.filter((m) =>
+    return activeChatMessages.filter((m) =>
       (m.text_content || '').toLowerCase().includes(q)
     );
-  }, [messages, inChatSearchQuery]);
+  }, [activeChatMessages, inChatSearchQuery]);
 
   // ─── Render ────────────────────────────────────────────────────────────────
 
@@ -1641,8 +2055,80 @@ export default function InternalChatPage() {
           </div>
         </div>
 
+        {/* Navigation Tabs: Staff Chats vs AI Co-Founder & Workers */}
+        <div className="flex border-b border-white/5 bg-black/20 p-1.5 text-xs font-semibold">
+          <button
+            onClick={() => setSidebarTab('conversations')}
+            className={`flex flex-1 items-center justify-center gap-1.5 rounded-lg py-1.5 transition ${
+              sidebarTab === 'conversations'
+                ? 'bg-emerald-600 text-white shadow'
+                : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            <Users className="h-3.5 w-3.5" />
+            <span>Staff</span>
+            {totalUnread > 0 && (
+              <span className="ml-1 rounded-full bg-emerald-500 px-1 text-[9px] text-white">
+                {totalUnread}
+              </span>
+            )}
+          </button>
+          <button
+            onClick={() => setSidebarTab('ai')}
+            className={`flex flex-1 items-center justify-center gap-1.5 rounded-lg py-1.5 transition ${
+              sidebarTab === 'ai'
+                ? 'bg-violet-600 text-white shadow'
+                : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            <Sparkles className="h-3.5 w-3.5 text-violet-300" />
+            <span>AI Workers ({listAIWorkers().length})</span>
+          </button>
+        </div>
+
         <div className="flex-1 space-y-0.5 overflow-y-auto px-2 py-2">
-          {loadingConvs ? (
+          {sidebarTab === 'ai' ? (
+            <div className="space-y-1">
+              {listAIWorkers().map((persona) => {
+                const isActive =
+                  activeAiWorker?.department === persona.department;
+                return (
+                  <button
+                    key={persona.id}
+                    onClick={() => selectAIWorker(persona)}
+                    className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-all ${
+                      isActive
+                        ? 'bg-violet-600/20 text-white ring-1 ring-violet-500/40'
+                        : 'text-slate-300 hover:bg-white/5'
+                    }`}
+                  >
+                    <div className="relative flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr from-violet-700 to-indigo-600 text-base shadow">
+                      <span>{persona.avatarEmoji}</span>
+                      <span className="absolute -bottom-0.5 -right-0.5 flex h-2.5 w-2.5">
+                        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
+                        <span className="relative inline-flex h-2.5 w-2.5 rounded-full border border-violet-900 bg-emerald-500"></span>
+                      </span>
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center justify-between">
+                        <p className="truncate text-xs font-bold text-white">
+                          {persona.name}
+                        </p>
+                        <span className="rounded bg-violet-500/20 px-1 py-0.5 text-[8px] font-semibold text-violet-300">
+                          {persona.department === 'co_founder'
+                            ? 'Executive'
+                            : 'Specialist'}
+                        </span>
+                      </div>
+                      <p className="truncate text-[10px] text-slate-400">
+                        {persona.roleTitle}
+                      </p>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          ) : loadingConvs ? (
             <div className="flex items-center justify-center py-12">
               <Loader2 className="h-6 w-6 animate-spin text-emerald-400" />
             </div>
@@ -1726,7 +2212,7 @@ export default function InternalChatPage() {
       <div
         className={`flex flex-1 flex-col overflow-hidden ${mobileView === 'list' ? 'hidden lg:flex' : 'flex'}`}
       >
-        {!activeConvId ? (
+        {!activeConv ? (
           <div className="flex flex-1 flex-col items-center justify-center gap-4 p-8">
             <div className="flex h-20 w-20 items-center justify-center rounded-full bg-emerald-500/10">
               <MessageCircle className="h-10 w-10 text-emerald-400" />
@@ -1754,7 +2240,15 @@ export default function InternalChatPage() {
               >
                 <ChevronLeft className="h-5 w-5" />
               </button>
-              {activeConv?.type === 'group' ? (
+              {activeAiWorker ? (
+                <div className="relative flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr from-violet-700 to-indigo-600 text-base shadow">
+                  <span>{activeAiWorker.avatarEmoji}</span>
+                  <span className="absolute -bottom-0.5 -right-0.5 flex h-2.5 w-2.5">
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
+                    <span className="relative inline-flex h-2.5 w-2.5 rounded-full border border-violet-900 bg-emerald-500"></span>
+                  </span>
+                </div>
+              ) : activeConv?.type === 'group' ? (
                 <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-violet-600">
                   <Users className="h-5 w-5 text-white" />
                 </div>
@@ -1762,8 +2256,15 @@ export default function InternalChatPage() {
                 <UserAvatar user={activeConv?.other_user || null} />
               )}
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-bold text-white">
-                  {convTitle}
+                <p className="flex items-center gap-2 truncate text-sm font-bold text-white">
+                  <span>{convTitle}</span>
+                  {activeAiWorker && (
+                    <span className="rounded bg-violet-500/20 px-1.5 py-0.5 text-[9px] font-semibold text-violet-300">
+                      {activeAiWorker.department === 'co_founder'
+                        ? 'Executive Co-Founder'
+                        : 'AI Specialist'}
+                    </span>
+                  )}
                 </p>
                 <p className="truncate text-[11px] capitalize text-slate-400">
                   {convSubtitle}
@@ -1876,7 +2377,10 @@ export default function InternalChatPage() {
               ) : (
                 <div className="space-y-0.5">
                   {displayedMessages.map((msg, idx) => {
-                    const isOwn = msg.sender_id === user?.uid;
+                    const isOwn =
+                      msg.sender_id === user?.uid ||
+                      msg.sender_id === 'me' ||
+                      (msg.sender_id?.startsWith('user_') ?? false);
                     const prev = idx > 0 ? messages[idx - 1] : null;
                     const showSenderInfo =
                       !prev ||
@@ -1919,6 +2423,15 @@ export default function InternalChatPage() {
                       </React.Fragment>
                     );
                   })}
+                  {sendingAi && (
+                    <div className="flex items-center gap-2 py-3 text-xs text-slate-400">
+                      <Loader2 className="h-4 w-4 animate-spin text-violet-400" />
+                      <span>
+                        {activeAiWorker?.name || 'AI Specialist'} is
+                        analyzing...
+                      </span>
+                    </div>
+                  )}
                   <div ref={messagesEndRef} />
                 </div>
               )}
@@ -2027,6 +2540,14 @@ export default function InternalChatPage() {
                   </span>
                 </div>
               </div>
+            ) : isRecordingVoiceNote ? (
+              <div className="flex-shrink-0 border-t border-white/5 bg-[#131726] p-2">
+                <VoiceNoteRecorder
+                  onSend={handleSendVoiceNote}
+                  onCancel={() => setIsRecordingVoiceNote(false)}
+                  isUploading={uploadingVoiceNote}
+                />
+              </div>
             ) : (
               <div className="flex-shrink-0 border-t border-white/5 bg-[#131726] px-3 py-3">
                 <div className="relative">
@@ -2081,13 +2602,35 @@ export default function InternalChatPage() {
                       <Hash className="h-5 w-5" />
                     </button>
 
+                    {/* Voice Note Recording Trigger Button */}
+                    <button
+                      type="button"
+                      onClick={() => setIsRecordingVoiceNote(true)}
+                      className="mb-0.5 flex-shrink-0 text-slate-400 transition-colors hover:text-rose-400"
+                      title="Record Voice Note (Bengali, Hindi, English)"
+                    >
+                      <Mic className="h-5 w-5" />
+                    </button>
+
+                    {/* Speech to Text Dictation Button */}
+                    <SpeechToTextButton
+                      onTranscript={(trans) =>
+                        setText((prev) => (prev ? `${prev} ${trans}` : trans))
+                      }
+                      disabled={sendingMsg}
+                    />
+
                     {/* Textarea */}
                     <textarea
                       ref={textareaRef}
                       value={text}
                       onChange={handleTextChange}
                       onKeyDown={handleKeyDown}
-                      placeholder="Message… (Enter to send · Shift+Enter for newline · @ to mention)"
+                      placeholder={
+                        activeAiWorker
+                          ? `Message ${activeAiWorker.name}… (Voice note or text)`
+                          : 'Message… (Enter to send · Shift+Enter for newline · @ to mention)'
+                      }
                       rows={1}
                       className="flex-1 resize-none bg-transparent text-sm leading-relaxed text-white placeholder-slate-500 focus:outline-none"
                       style={{ maxHeight: '130px' }}

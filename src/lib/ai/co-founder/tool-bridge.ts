@@ -54,6 +54,7 @@ import {
   getWorkerRegistryStatus,
   executeMultiWorkerPlan,
 } from './workers';
+import { WorkerCollaborationGateway } from './workers/collaboration-gateway';
 import { recordToolTelemetry, classifyError } from './telemetry';
 
 export interface ToolExecutionResult {
@@ -1361,6 +1362,35 @@ async function executeCoFounderToolInternal(
           success: true,
           data: statuses,
           summaryForVoice: `All ${statuses.totalWorkers} AI Agent Workers are active and operational under the AI Co-Founder.`,
+        };
+      }
+
+      case 'consult_specialist_worker': {
+        const targetWorkerId = args.targetWorkerId || args.target_worker_id;
+        const task = args.task;
+        if (!targetWorkerId || !task) {
+          throw new Error(
+            'targetWorkerId and task are required to consult a specialist worker'
+          );
+        }
+
+        const correlationId = `collab_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+        const result = await WorkerCollaborationGateway.consultWorker({
+          correlationId,
+          requesterWorkerId: 'co_founder',
+          targetWorkerId,
+          task,
+          context: args.context || {},
+        });
+
+        return {
+          toolName,
+          success: result.status === 'success',
+          data: result,
+          summaryForVoice:
+            result.status === 'success'
+              ? `Consulted specialist ${targetWorkerId}: ${result.findings.slice(0, 2).join(' ')}`
+              : `Consultation with ${targetWorkerId} ${result.status}: ${result.error || result.uncertainty || 'Inconclusive'}`,
         };
       }
 

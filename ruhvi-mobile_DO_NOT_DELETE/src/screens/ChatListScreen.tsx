@@ -650,12 +650,6 @@ export default function ChatListScreen({ navigation }: any) {
     rawRole === 'super_admin' ||
     userEmail === 'ruhvi.main@gmail.com';
   const activeAIWorker = resolveAIWorkerForUser(rawRole, rawDept, userEmail);
-  const isOperations = 
-    rawDept === 'operations' ||
-    rawDept.includes('operation') ||
-    rawRole === 'operations' ||
-    rawRole === 'operation';
-  const canManageStock = isAdmin || isOperations;
 
   const activeConversations = conversations.filter(c => !c.archived_at);
   const archivedConversations = conversations.filter(c => !!c.archived_at);
@@ -765,46 +759,6 @@ export default function ChatListScreen({ navigation }: any) {
           ListHeaderComponent={
             chatTab === 'active' ? (
               <View>
-                {/* Scan & Add Stock Quick Card */}
-                {(!globalSearch.trim() || 'scan stock inventory barcode add product'.includes(globalSearch.toLowerCase())) && (
-                  <TouchableOpacity 
-                    style={[styles.chatItem, styles.inventoryScanCard]}
-                    activeOpacity={0.7}
-                    onPress={() => navigation.navigate('InventoryScan')}
-                  >
-                    <View style={styles.inventoryScanAvatar}>
-                      <MaterialIcons name="qr-code-scanner" size={24} color="#fff" />
-                      <View style={styles.inventoryScanDot} />
-                    </View>
-
-                    <View style={styles.chatDetails}>
-                      <View style={styles.chatHeader}>
-                        <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, marginRight: 8 }}>
-                          <Text style={[styles.chatName, styles.inventoryScanName]} numberOfLines={1}>
-                            {canManageStock ? 'Scan & Add Stock' : 'Product Details Lookup'}
-                          </Text>
-                          <View style={styles.inventoryScanBadge}>
-                            <MaterialIcons name={canManageStock ? "bolt" : "visibility"} size={11} color="#075E54" style={{ marginRight: 2 }} />
-                            <Text style={styles.inventoryScanBadgeText}>
-                              {canManageStock ? 'Inventory' : 'Lookup'}
-                            </Text>
-                          </View>
-                        </View>
-                        <Text style={styles.inventoryScanActionText}>Tap to Scan</Text>
-                      </View>
-
-                      <View style={styles.chatSubRow}>
-                        <Text style={styles.inventoryScanSnippet} numberOfLines={1}>
-                          {canManageStock
-                            ? 'Scan jewellery barcodes, enter weight & cost, sync'
-                            : 'Scan jewellery barcode to view live retail specs & price'}
-                        </Text>
-                        <MaterialIcons name="chevron-right" size={20} color="#075E54" />
-                      </View>
-                    </View>
-                  </TouchableOpacity>
-                )}
-
                 {/* Pinned AI Co-Worker / Co-Founder Card (Accessible to ALL Staff) */}
                 {(!globalSearch.trim() || 
                   'ai co-founder cofounder partner worker assistant bot'.includes(globalSearch.toLowerCase()) || 

@@ -77,3 +77,20 @@ export interface ConversationFilter {
   limit?: number;
   cursor?: string;
 }
+
+export interface UpdateConversationInput {
+  title?: string;
+  summary?: string;
+}
+
+export interface DeleteConversationResult {
+  success: boolean;
+  conversationId: string;
+  deletedMessagesCount?: number;
+  error?: string;
+}
+
+export interface GetConversationResult {
+  conversation: CoFounderConversation;
+  messages: CoFounderMessage[];
+}

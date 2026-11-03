@@ -8,12 +8,12 @@ import { WorkerId } from './types';
 import {
   WorkerConsultationRequest,
   WorkerConsultationResult,
+  MAX_COLLABORATION_DEPTH,
+  DEFAULT_COLLABORATION_TIMEOUT_MS,
 } from './collaboration-types';
-import { WorkerRegistry } from './registry';
+import { WorkerRegistry, resolveCanonicalWorkerId } from './registry';
 import { getServiceClient } from '@/lib/supabase/service';
-
-const MAX_DELEGATION_DEPTH = 2;
-const DEFAULT_TIMEOUT_MS = 15000; // 15 seconds max per consultation
+import { redactSensitiveData } from '../security';
 
 const registry = new WorkerRegistry();
 
@@ -26,10 +26,19 @@ export class WorkerCollaborationGateway {
   ): Promise<WorkerConsultationResult> {
     const startedAt = Date.now();
     const depth = request.depth || 1;
-    const timeoutMs = request.timeoutMs || DEFAULT_TIMEOUT_MS;
+    const timeoutMs = request.timeoutMs || DEFAULT_COLLABORATION_TIMEOUT_MS;
+
+    const canonicalTargetId =
+      resolveCanonicalWorkerId(request.targetWorkerId) ||
+      (request.targetWorkerId as WorkerId);
+    const canonicalRequesterId =
+      request.requesterWorkerId === 'co_founder'
+        ? 'co_founder'
+        : resolveCanonicalWorkerId(request.requesterWorkerId) ||
+          request.requesterWorkerId;
 
     // Guard 1: Recursion depth limit
-    if (depth > MAX_DELEGATION_DEPTH) {
+    if (depth > MAX_COLLABORATION_DEPTH) {
       return this.buildResult(
         request,
         'rejected',
@@ -44,7 +53,7 @@ export class WorkerCollaborationGateway {
     }
 
     // Guard 2: Prevent self-delegation loop
-    if (request.requesterWorkerId === request.targetWorkerId) {
+    if (canonicalRequesterId === canonicalTargetId) {
       return this.buildResult(
         request,
         'rejected',
@@ -59,7 +68,7 @@ export class WorkerCollaborationGateway {
     }
 
     // Guard 3: Validate target worker exists
-    const targetWorker = registry.getWorker(request.targetWorkerId);
+    const targetWorker = registry.getWorker(canonicalTargetId);
     if (!targetWorker) {
       return this.buildResult(
         request,
@@ -103,7 +112,12 @@ export class WorkerCollaborationGateway {
       );
 
       // Async audit log
-      this.logCollaboration(request, result).catch((err) =>
+      this.logCollaboration(
+        request,
+        canonicalRequesterId,
+        canonicalTargetId,
+        result
+      ).catch((err) =>
         console.warn('[WorkerCollaborationGateway] Audit log error:', err)
       );
 
@@ -124,7 +138,12 @@ export class WorkerCollaborationGateway {
         err.message
       );
 
-      this.logCollaboration(request, result).catch(() => {});
+      this.logCollaboration(
+        request,
+        canonicalRequesterId,
+        canonicalTargetId,
+        result
+      ).catch(() => {});
       return result;
     }
   }
@@ -162,17 +181,31 @@ export class WorkerCollaborationGateway {
 
   private static async logCollaboration(
     request: WorkerConsultationRequest,
+    requesterId: string,
+    targetWorkerId: string,
     result: WorkerConsultationResult
   ) {
     try {
       const supabase = getServiceClient();
+      const dbStatus =
+        result.status === 'success'
+          ? 'completed'
+          : result.status === 'timeout'
+            ? 'timeout'
+            : 'failed';
+
+      const cleanTask = redactSensitiveData(request.task);
+      const cleanFindings = Array.isArray(result.findings)
+        ? result.findings.map((f) => redactSensitiveData(String(f)))
+        : result.findings;
+
       await supabase.from('co_founder_worker_collaborations').insert({
         correlation_id: request.correlationId,
-        requester_id: request.requesterWorkerId,
-        target_worker_id: request.targetWorkerId,
-        task: request.task,
-        status: result.status,
-        findings: result.findings,
+        requester_id: requesterId,
+        target_worker_id: targetWorkerId,
+        task: cleanTask,
+        status: dbStatus,
+        findings: cleanFindings,
         duration_ms: result.trace.durationMs,
       });
     } catch {

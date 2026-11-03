@@ -2,6 +2,23 @@
 //
 // Typed contracts for Ru Chat Voice Notes, Speech-to-Text, and Cloudinary 45-day retention lifecycle.
 
+export const VOICE_NOTE_RETENTION_DAYS = 45;
+export const VOICE_NOTE_RETENTION_MS =
+  VOICE_NOTE_RETENTION_DAYS * 24 * 60 * 60 * 1000;
+export const VOICE_NOTE_MAX_BYTES = 10 * 1024 * 1024; // 10MB
+export const SPEECH_TO_TEXT_MAX_BYTES = 5 * 1024 * 1024; // 5MB
+
+export const VOICE_NOTE_ALLOWED_MIME_TYPES = [
+  'audio/webm',
+  'audio/mp4',
+  'audio/ogg',
+  'audio/wav',
+  'audio/aac',
+] as const;
+
+export type AllowedVoiceMimeType =
+  (typeof VOICE_NOTE_ALLOWED_MIME_TYPES)[number];
+
 export type VoiceNoteStatus = 'active' | 'expired' | 'deleted';
 
 export interface VoiceNoteMetadata {
@@ -54,4 +71,22 @@ export interface VoiceCleanupResult {
   purgedPublicIds: string[];
   errors: string[];
   durationMs: number;
+}
+
+/**
+ * Checks whether a voice note has passed its 45-day retention deadline.
+ */
+export function isVoiceNoteExpired(expiresAt: string | Date): boolean {
+  const expiryTime =
+    typeof expiresAt === 'string'
+      ? new Date(expiresAt).getTime()
+      : expiresAt.getTime();
+  return Date.now() >= expiryTime;
+}
+
+/**
+ * Calculates the exact expiry date (now + 45 days) for a newly uploaded voice note.
+ */
+export function calculateVoiceNoteExpiry(from: Date = new Date()): Date {
+  return new Date(from.getTime() + VOICE_NOTE_RETENTION_MS);
 }

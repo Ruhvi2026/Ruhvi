@@ -5,10 +5,14 @@
 import 'server-only';
 import { v2 as cloudinary } from 'cloudinary';
 import { getServiceClient } from '@/lib/supabase/service';
-import { VoiceCleanupResult } from './voice-types';
+import {
+  VoiceCleanupResult,
+  VOICE_NOTE_RETENTION_DAYS,
+  VOICE_NOTE_RETENTION_MS,
+} from './voice-types';
 
-const RETENTION_DAYS = 45;
-const RETENTION_MS = RETENTION_DAYS * 24 * 60 * 60 * 1000;
+const RETENTION_DAYS = VOICE_NOTE_RETENTION_DAYS;
+const RETENTION_MS = VOICE_NOTE_RETENTION_MS;
 
 function getCloudinary() {
   const cloudName =
@@ -132,6 +136,11 @@ export async function destroyAudioVoiceNote(
     return false;
   }
 }
+
+/**
+ * Alias adhering to canonical Master Plan naming.
+ */
+export const deleteAudioVoiceNote = destroyAudioVoiceNote;
 
 /**
  * Automated Cron Job Engine:

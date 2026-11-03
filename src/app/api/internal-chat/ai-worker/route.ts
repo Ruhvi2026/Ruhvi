@@ -9,6 +9,7 @@ import {
 } from '@/lib/ai/co-founder/orchestrator';
 import { CO_FOUNDER_TOOL_DECLARATIONS } from '@/lib/ai/co-founder/brain';
 import { HUMANIZER_EDITORIAL_RULES } from '@/lib/ai/humanizer';
+import { transcribeAudioBuffer } from '@/lib/ai/transcribe-service';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -21,6 +22,22 @@ interface DepartmentConfig {
 }
 
 const DEPARTMENT_CONFIGS: Record<string, DepartmentConfig> = {
+  co_founder: {
+    workerName: 'Executive AI Co-Founder',
+    roleTitle: 'Strategic Leadership & Holistic Growth Co-Founder',
+    allowedTools: CO_FOUNDER_TOOL_DECLARATIONS.map((t) => t.name),
+    systemInstructions: `You are the Executive AI Co-Founder of Ruhvi Jewels (ruhvi.in).
+Your role is to assist the Founder with high-level business strategy, revenue growth, profit margin preservation, inventory safety, competitor intelligence, and human-in-the-loop action proposals.
+You speak fluently in Bengali, English, and Hindi.
+
+${HUMANIZER_EDITORIAL_RULES}
+
+PRINCIPLES:
+1. Data-backed realism: Anchor recommendations to current catalog, orders, and market telemetry.
+2. Human-in-the-loop: Never claim to autonomously mutate production database tables without admin approval.
+3. Tone: Direct, collegial, and executive.`,
+  },
+
   marketing: {
     workerName: 'Marketing AI Worker',
     roleTitle: 'Brand Marketing & Editorial Content Strategist',
@@ -124,6 +141,129 @@ You speak fluently in Bengali and English.
 STRICT RESTRICTION:
 - You do NOT have access to customer PII or company financials.`,
   },
+
+  analytics: {
+    workerName: 'Analytics AI Worker',
+    roleTitle: 'Data & Performance Intelligence Specialist',
+    allowedTools: [
+      'get_sales_analytics',
+      'get_product_velocity',
+      'get_store_metrics',
+      'run_business_intelligence_scan',
+    ],
+    systemInstructions: `You are the Ruhvi Analytics AI Worker.
+Your role is to analyze store performance, traffic funnel anomalies, checkout drop-offs, and product sales velocity.
+You speak fluently in Bengali, English, and Hindi.`,
+  },
+
+  seo: {
+    workerName: 'SEO AI Worker',
+    roleTitle: 'Search Engine & Technical Catalog Specialist',
+    allowedTools: ['browse_website', 'get_product_velocity'],
+    systemInstructions: `You are the Ruhvi SEO AI Worker.
+Your role is to evaluate search keywords, metadata coverage, Google search indexing, and jewelry category SEO health.
+You speak fluently in Bengali and English.`,
+  },
+
+  product: {
+    workerName: 'Product AI Worker',
+    roleTitle: 'Merchandising & Product Catalog Specialist',
+    allowedTools: [
+      'get_category_margin_breakdown',
+      'analyze_product_image',
+      'create_draft_product',
+      'get_days_of_inventory',
+    ],
+    systemInstructions: `You are the Ruhvi Product Merchandising AI Worker.
+Your role is to maintain product accuracy, stone counts, precious metal hallmark specifications, and category merchandising.
+You speak fluently in Bengali, English, and Hindi.`,
+  },
+
+  competitor: {
+    workerName: 'Competitor AI Worker',
+    roleTitle: 'Market & Competitor Intelligence Specialist',
+    allowedTools: ['scan_reddit_social_sentiment', 'browse_website'],
+    systemInstructions: `You are the Ruhvi Competitor AI Worker.
+Your role is to monitor competitor jewelry pricing, customer complaints on reddit, and contrast Ruhvi's 18K anti-tarnish warranty with competitor offerings.
+You speak fluently in Bengali, English, and Hindi.`,
+  },
+
+  sales: {
+    workerName: 'Sales AI Worker',
+    roleTitle: 'Revenue & Conversion Optimization Specialist',
+    allowedTools: [
+      'recommend_aov_bundles',
+      'forecast_festive_demand',
+      'get_sales_analytics',
+    ],
+    systemInstructions: `You are the Ruhvi Sales & Conversions AI Worker.
+Your role is to provide actionable tactics for abandoned cart recovery, AOV bundle creation, and festive discount pacing.
+You speak fluently in Bengali, English, and Hindi.`,
+  },
+
+  content: {
+    workerName: 'Content AI Worker',
+    roleTitle: 'Editorial, Craftsmanship & Social Specialist',
+    allowedTools: [
+      'scan_reddit_social_sentiment',
+      'generate_product_studio_photos',
+    ],
+    systemInstructions: `You are the Ruhvi Content AI Worker.
+Your role is to write artisanal jewelry stories, highlight Bengali craft heritage, and draft social copy.
+You speak fluently in Bengali, English, and Hindi.`,
+  },
+
+  inventory: {
+    workerName: 'Inventory AI Worker',
+    roleTitle: 'Supply Chain & Stockout Specialist',
+    allowedTools: [
+      'get_inventory_levels',
+      'get_days_of_inventory',
+      'get_restock_recommendations',
+    ],
+    systemInstructions: `You are the Ruhvi Inventory AI Worker.
+Your role is to identify low-stock items, calculate days of inventory (DOI), and prevent stockouts.
+You speak fluently in Bengali, English, and Hindi.`,
+  },
+
+  review: {
+    workerName: 'Review AI Worker',
+    roleTitle: 'Customer Feedback & Voice-of-Customer Specialist',
+    allowedTools: [
+      'scan_reddit_social_sentiment',
+      'get_support_tickets',
+      'get_return_requests_and_reasons',
+    ],
+    systemInstructions: `You are the Ruhvi Review & Customer Sentiment AI Worker.
+Your role is to analyze buyer reviews, NPS scores, and customer sentiment.
+You speak fluently in Bengali, English, and Hindi.`,
+  },
+
+  execution: {
+    workerName: 'Execution AI Worker',
+    roleTitle: 'Action Execution & Task Orchestration Specialist',
+    allowedTools: [
+      'get_pending_approvals',
+      'submit_approval_decision',
+      'get_action_lifecycle_status',
+    ],
+    systemInstructions: `You are the Ruhvi Action Execution AI Worker.
+Your role is to track Action Center proposals, task completion, and execution hand-offs.
+You speak fluently in Bengali, English, and Hindi.`,
+  },
+
+  accounts: {
+    workerName: 'Accounts AI Worker',
+    roleTitle: 'Accounts, GST & Compliance Specialist',
+    allowedTools: [
+      'get_accounts_summary',
+      'get_recent_gst_invoices',
+      'get_active_quotations',
+    ],
+    systemInstructions: `You are the Ruhvi Accounts & GST Tax AI Worker.
+Your role is to assist with Indian GST Rule 46 compliance, GSTR-1/3B reconciliation, and accounting advisory.
+You speak fluently in Bengali, English, and Hindi.`,
+  },
 };
 
 export async function POST(req: NextRequest) {
@@ -177,6 +317,32 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Check if the latest user message is a voice note that needs automatic transcription
+    const lastMsg = messages[messages.length - 1];
+    if (
+      lastMsg &&
+      (lastMsg.text_content === 'Voice Note' ||
+        !lastMsg.text_content ||
+        lastMsg.message_type === 'voice_note') &&
+      lastMsg.audioUrl
+    ) {
+      try {
+        const audioFetch = await fetch(lastMsg.audioUrl);
+        if (audioFetch.ok) {
+          const audioBuf = Buffer.from(await audioFetch.arrayBuffer());
+          const trRes = await transcribeAudioBuffer(audioBuf, 'audio/webm');
+          if (trRes && trRes.transcript && trRes.transcript.trim()) {
+            lastMsg.text_content = trRes.transcript.trim();
+          }
+        }
+      } catch (trErr) {
+        console.warn(
+          '[ai-worker] Voice note audio transcription warning:',
+          trErr
+        );
+      }
+    }
+
     // 2. Resolve Effective Department with RBAC boundary
     const userRole = (staffUser.role || '').toLowerCase();
     const userAssignedDept = (staffUser.department || '').toLowerCase().trim();
@@ -184,20 +350,23 @@ export async function POST(req: NextRequest) {
     let effectiveDept = 'orders';
     const isAdmin = ['admin', 'super_admin'].includes(userRole);
 
-    if (
-      isAdmin &&
-      requestedDept &&
-      DEPARTMENT_CONFIGS[requestedDept.toLowerCase()]
-    ) {
-      effectiveDept = requestedDept.toLowerCase();
+    const normRequested = (requestedDept || '')
+      .toLowerCase()
+      .replace(/^worker_/, '')
+      .replace(/^ai_worker_/, '');
+
+    if (isAdmin && normRequested && DEPARTMENT_CONFIGS[normRequested]) {
+      effectiveDept = normRequested;
+    } else if (normRequested === 'co_founder' && !isAdmin) {
+      effectiveDept =
+        userAssignedDept && DEPARTMENT_CONFIGS[userAssignedDept]
+          ? userAssignedDept
+          : 'orders';
     } else if (userAssignedDept && DEPARTMENT_CONFIGS[userAssignedDept]) {
       effectiveDept = userAssignedDept;
-    } else if (
-      requestedDept &&
-      DEPARTMENT_CONFIGS[requestedDept.toLowerCase()]
-    ) {
+    } else if (normRequested && DEPARTMENT_CONFIGS[normRequested]) {
       // If staff has no explicit department set, allow the matching requested department
-      effectiveDept = requestedDept.toLowerCase();
+      effectiveDept = normRequested;
     }
 
     const config =
