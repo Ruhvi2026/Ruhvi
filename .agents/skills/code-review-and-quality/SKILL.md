@@ -100,6 +100,59 @@ When you flag a structural problem, propose the move — not just the problem. A
 
 Prefer the remedy that removes moving pieces over one that spreads the same complexity around.
 
+## Code Simplification & Complexity Reduction Principles
+
+> Integrated from `code-simplification`: Always simplify code for readability and maintainability without altering existing behavior.
+
+### 1. The Core Objective
+The goal of simplification is NOT simply fewer lines — it is code that is easier to read, understand, modify, and debug. Every refactoring must pass this test: *"Would a new team member understand this faster than the original?"*
+
+### 2. The Five Simplification Principles
+1. **Preserve Behavior Exactly:**
+   - Does this produce the exact same output for every input?
+   - Does this maintain identical error behavior and edge case handling?
+   - Does this preserve the same side effects and execution ordering?
+   - Do all existing tests pass without modification?
+2. **Follow Project Conventions:**
+   - Match existing Next.js, React, and TypeScript idioms used across the project.
+   - Simplification that breaks project style consistency is not simplification — it is churn.
+3. **Prefer Clarity Over Cleverness:**
+   - Explicit code is vastly superior to compact code when the compact version requires mental pauses to parse.
+   ```typescript
+   // AVOID: Dense nested ternary chain
+   const label = isNew ? 'New' : isUpdated ? 'Updated' : isArchived ? 'Archived' : 'Active';
+
+   // PREFER: Clean, readable mapping or dispatcher
+   function getStatusLabel(item: Item): string {
+     if (item.isNew) return 'New';
+     if (item.isUpdated) return 'Updated';
+     if (item.isArchived) return 'Archived';
+     return 'Active';
+   }
+   ```
+   ```typescript
+   // AVOID: Complex nested inline reduce
+   const result = items.reduce((acc, item) => ({
+     ...acc,
+     [item.id]: { ...acc[item.id], count: (acc[item.id]?.count ?? 0) + 1 }
+   }), {});
+
+   // PREFER: Named, sequential step
+   const countById = new Map<string, number>();
+   for (const item of items) {
+     countById.set(item.id, (countById.get(item.id) ?? 0) + 1);
+   }
+   ```
+4. **Maintain Balance & Avoid Over-Simplification Traps:**
+   - **Do not inline helpers too aggressively** — removing a helper that gave a domain concept a clear name makes call sites harder to comprehend.
+   - **Do not combine unrelated logic** — two simple, focused functions merged into one complex polymorphic function is a regression.
+   - **Do not strip necessary abstractions** — abstractions created for extensibility or testability should be preserved.
+   - **Do not optimize for raw line count** — clarity and self-documentation always win.
+5. **Clean Up Scope Creep & Leftovers:**
+   - Remove unused temporary variables, dead debug logs, and commented-out dead code.
+   - Keep diffs tight and focused on the feature or fix being addressed.
+
+
 ## Change Sizing
 
 Small, focused changes are easier to review, faster to merge, and safer to deploy. Target these sizes:

@@ -1,5 +1,29 @@
 # Deletion Log (অপ্রয়োজনীয় ফাইল ক্লিনআপ লগ)
 
+**Timestamp:** 2026-11-04 (Local Time: 01:48:00 IST)
+
+### Cleaned Root Duplicate Files & Relocated Reports
+- Ruhvi_CoFounder_MultiConversation_MultiAgent_Implementation_Plan.md (60,959 Bytes)
+  - **Status:** Removed from root.
+  - **Reason:** Root copy was a 100% byte-for-byte duplicate of docs/Ruhvi_CoFounder_MultiConversation_MultiAgent_Implementation_Plan.md.
+- RU_CHAT_VOICE_NOTE_AND_SPEECH_TO_TEXT_IMPLEMENTATION_PLAN.md (31,947 Bytes)
+  - **Status:** Removed from root.
+  - **Reason:** Root copy was a 100% byte-for-byte duplicate of docs/RU_CHAT_VOICE_NOTE_AND_SPEECH_TO_TEXT_IMPLEMENTATION_PLAN.md.
+- PHASE_0_BASELINE_AUDIT_REPORT.md (6,252 Bytes)
+  - **Status:** Moved from root to docs/archived-reports/PHASE_0_BASELINE_AUDIT_REPORT.md.
+  - **Reason:** Phase 0 audit is complete and verified. Moved to archived reports to keep the root directory clean while preserving full audit history.
+- .kilo/ (~65 MB)
+  - **Status:** Removed local directory.
+  - **Reason:** Stale worktree and node_modules artifacts from external agent manager.
+- playwright-report/ & 	est-results/ (~0.5 MB)
+  - **Status:** Removed local test run artifacts.
+  - **Reason:** Ephemeral Playwright test reports. Automatically regenerated on next test run.
+
+> **Preserved:** capacitor.config.json was explicitly retained per user instruction.
+
+---
+
+
 **Timestamp:** 2026-11-03 (Local Time: 01:05:00 IST)
 
 ### Recovery Reference (রিকভারির জন্য গিট কমিট তথ্য)

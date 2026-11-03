@@ -33,6 +33,7 @@ import { LazyFcmInit } from '@/components/LazyFcmInit';
 import { AuthProvider } from '@/context/AuthContext';
 import { ToastProvider } from '@/components/layout/ToastProvider';
 import { OfflineDetector } from '@/components/layout/OfflineDetector';
+import { PwaShell } from '@/components/pwa/PwaShell';
 import { StorefrontChrome } from '@/components/layout/StorefrontChrome';
 import PostHogProvider from '@/components/PostHogProvider';
 import AnalyticsScripts from '@/components/AnalyticsScripts';
@@ -113,6 +114,13 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   colorScheme: 'light dark',
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#FAFAF8' },
+    { media: '(prefers-color-scheme: dark)', color: '#09090b' },
+  ],
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
 };
 
 export default function RootLayout({
@@ -129,6 +137,13 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <head>
+        {/* Apple PWA meta tags */}
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta
+          name="apple-mobile-web-app-status-bar-style"
+          content="black-translucent"
+        />
+        <meta name="apple-mobile-web-app-title" content="Ruhvi" />
         {/* Preconnect to critical first-paint asset origins */}
         <link
           rel="preconnect"
@@ -227,6 +242,9 @@ export default function RootLayout({
                   </Suspense>
                   <ToastProvider />
                   <OfflineDetector />
+                  <Suspense fallback={null}>
+                    <PwaShell />
+                  </Suspense>
                 </NotificationProvider>
               </WishlistProvider>
             </CartProvider>

@@ -303,6 +303,23 @@ function useToggleTask() {
 }
 ```
 
+## Anti-Slop UI Craft & Production Standards (Integrated from hallmark)
+
+Production quality standards to ensure UI looks bespoke, handcrafted, and professional rather than like generic AI boilerplate:
+
+### The Essential UI Craft Floor Rules
+1. **Targeted Transitions Only**: Never write `transition: all`. Always declare explicit transition properties (e.g. `transition: color 150ms ease, background-color 150ms ease, opacity 150ms ease`).
+2. **Never Animate Layout Properties**: Never animate `width`, `height`, `top`, `bottom`, `left`, or `right` as they trigger expensive layout recalculations. Animate only GPU-accelerated `transform` and `opacity`.
+3. **Clean Horizontal Overflow**: Use `overflow-x: clip` on `html` and `body` to eliminate horizontal scrollbars. Avoid `overflow-x: hidden` (which breaks `position: sticky`) or `100vw`.
+4. **Instant Focus Feedback**: Every interactive button, link, and input must define a high-contrast `:focus-visible` ring appearing instantly for keyboard navigation.
+5. **Reduced Motion Compliance**: Every animation or smooth scroll must wrap a `@media (prefers-reduced-motion: reduce)` fallback to avoid motion sickness.
+6. **Robust Grid Columns**: Always specify `minmax(0, 1fr)` on image-bearing grid tracks along with `min-width: 0` on flex/grid children to prevent layout blowout.
+7. **Eliminate Synthetic AI Aesthetics**:
+   - Never use cliché purple-to-blue linear gradients on primary CTAs or hero banners.
+   - Never nest cards inside cards inside cards (3 levels deep).
+   - Never use raw emojis in place of proper SVG icons (Lucide / Radix icons).
+   - Ensure primary value propositions and main CTAs are visible above the fold (1280x800).
+
 ## See Also
 
 For detailed accessibility requirements and testing tools, see `../../references/accessibility-checklist.md`.

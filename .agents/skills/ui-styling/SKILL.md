@@ -314,6 +314,49 @@ export function LoginForm() {
 </div>
 ```
 
+## Token Architecture & Component Specifications (Integrated from design-system)
+
+Systematic design token hierarchy and component state specifications for Project Ruhvi:
+
+### 1. Three-Layer Token Architecture
+```
+Primitive Tokens (raw hex / scale values)
+       ↓
+Semantic Tokens (purpose & role aliases)
+       ↓
+Component Tokens (component-specific variables)
+```
+
+**Example Token Mapping:**
+```css
+/* Layer 1: Primitive (Raw palette) */
+--gold-50: #FFFDF0;
+--gold-500: #D4AF37;
+--gold-900: #5C4A08;
+--charcoal-900: #121212;
+
+/* Layer 2: Semantic (Design intents) */
+--color-primary: var(--gold-500);
+--color-primary-foreground: #000000;
+--color-background: #FFFFFF;
+--color-surface-dark: var(--charcoal-900);
+
+/* Layer 3: Component (Component-level assignments) */
+--button-gold-bg: var(--color-primary);
+--badge-luxury-border: var(--gold-500);
+```
+
+### 2. Standard Component State Specifications
+When implementing or customizing shadcn/ui components, define all 5 interactive states:
+
+| Component State | Background / Fill | Text / Foreground | Border | Shadow / Ring |
+| :--- | :--- | :--- | :--- | :--- |
+| **Default** | `bg-primary` / `bg-card` | `text-primary-foreground` | `border-border` | `shadow-sm` |
+| **Hover** | `bg-primary/90` | `text-primary-foreground` | `border-primary/50` | `shadow-md` |
+| **Active / Pressed** | `scale-[0.98] bg-primary/95` | `text-primary-foreground` | `border-primary` | `shadow-inner` |
+| **Focus-Visible** | Inherit | Inherit | `border-primary` | `ring-2 ring-primary ring-offset-2` |
+| **Disabled** | `opacity-50 pointer-events-none` | `text-muted-foreground` | `border-muted` | `none` |
+
 ## Resources
 
 - shadcn/ui Docs: https://ui.shadcn.com

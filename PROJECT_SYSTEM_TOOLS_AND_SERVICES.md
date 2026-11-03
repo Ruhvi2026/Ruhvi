@@ -41,6 +41,7 @@
 | **otplib (RFC 6238 TOTP)** | Two-Factor Authentication (2FA) | Cryptographic TOTP token generation, HMAC-SHA1 validation, master emergency email fallback, and backup code hashing for backend staff logins. | Active | `src/lib/auth/totp.ts`, `src/app/api/auth/mfa/*` |
 | **jsPDF** | PDF Generation | High-performance client & server vector PDF document generator with auto-table styling for GST Rule 46 Invoices, Bill of Supply, and Bespoke Quotation downloads (replaces `@react-pdf/renderer`). | Active | `src/lib/accounts/pdf/InvoicePDF.ts`, `src/components/accounts/PdfDownloadButton.tsx` |
 | **Playwright & axe-core** | E2E & Accessibility Testing | Automated browser testing suite for storefront smoke flows, login, navigation, and automated WCAG 2.1 AA accessibility auditing. | Active | `playwright.config.ts`, `tests/e2e/smoke.spec.ts` |
+| **Ruhvi PWA Engine** | Client PWA & Offline Engine | Complete Progressive Web App layer (public/site.webmanifest, public/sw.js, public/offline.html, and PwaInstallPrompt.tsx) delivering zero-friction home screen installation, network-first navigation with offline fallback, and static asset caching across Android & iOS devices. | Active | public/site.webmanifest, public/sw.js, src/components/pwa/* |
 
 ---
 
@@ -103,32 +104,35 @@
 
 ## 4. Registered Skills (এআই এজেন্ট দক্ষতা)
 
-### A. Local Workspace Skills (`.agents/skills/`)
+### A. Local Workspace Skills (.agents/skills/)
 1. **ai-ui-ux-motion-engine**: Minimalist 3D particle simulations, Grok-inspired dynamic dot matrix avatar bodies, and reactive spatial animations.
 2. **api-and-interface-design**: Standards for stable REST/GraphQL endpoint creation, type contracts, and module boundaries.
-3. **code-review-and-quality**: Multi-axis code reviews evaluating architectural alignment, type safety, and edge-case handling.
-4. **code-simplification**: Code refactoring for readability, maintainability, and complexity reduction without altering behavior.
-5. **debugging-and-error-recovery**: Systematic root-cause debugging workflows for broken builds, runtime errors, and test failures.
-6. **frontend-ui-engineering**: Production-grade, accessible (WCAG compliant), responsive UI building and design system implementation.
-7. **gia-human-conversation**: Humanized customer support and jewellery shopping conversations for GIA (Golden Concierge) across English, Bengali, Banglish, and Hindi without robotic framing.
-8. **hallmark**: Anti-slop frontend and visual design principles to produce bespoke, high-craft web UI aesthetics.
-9. **humanizer**: Editorial engine and AI text sanitizer that detects and removes synthetic filler, robotic cadence, and superficial fluff.
-10. **performance-optimization**: Cross-stack performance optimization (Core Web Vitals, N+1 DB queries, JS payload reductions).
-11. **planning-and-task-breakdown**: Structured task breakdown, scope estimation, and ordering for complex feature implementations.
-12. **playwright**: End-to-End (E2E) test suite authoring, execution, and browser automation debugging for Project Ruhvi.
-13. **ruhvi-product-photography**: Luxury jewelry commercial product photography generation protocol strictly preserving exact product design, stone settings, and metal geometry.
-14. **scrapling-official**: Adaptive web crawling and intelligence scraping with HTTP, stealth browser rendering, and dynamic page parsing for Worker 5 (Competitor AI).
-15. **security-and-hardening**: Code hardening against OWASP vulnerabilities, safe input handling, auth security, and dependency auditing.
-16. **understand (Knowledge Graph Suite)**: Codebase comprehension and knowledge graph suite consisting of 9 dedicated sub-skills:
-    - `understand-chat`: Direct Q&A on codebase structure using graph metadata.
-    - `understand-dashboard`: Interactive web visualizer for system architecture.
-    - `understand-diff`: Git diff and pull request dependency analysis.
-    - `understand-domain`: Business domain flow extraction and mapping.
-    - `understand-explain`: Deep-dive explanation of specific modules/functions.
-    - `understand-figma`: Figma design file parsing into design tokens/components.
-    - `understand-knowledge`: LLM wiki & topic cluster graph generation.
-    - `understand-onboard`: Interactive developer onboarding document creation.
-17. **ui-ux-pro-max**: Comprehensive UI/UX design intelligence layer (79 searchable UI styles, 192 product palettes & reasoning rules, 74 font pairings, 119 UX guidelines, 22 stack presets including Next.js/React/Tailwind) powered by local zero-latency BM25 search (`scripts/search.py`). Allocated for UI/UX engineering across administrative and operational subdomains (`admin.ruhvi.in`, `orders.ruhvi.in`, `support.ruhvi.in`, `operation.ruhvi.in`, etc.) with strict zero-alteration isolation on the main customer storefront.
+3. **banner-design**: Social media, advertising, print, and web hero banner generation with AI visual direction.
+4. **brand**: Brand voice, visual identity, tone guidelines, and marketing asset compliance.
+5. **code-review-and-quality**: Multi-axis code reviews (correctness, architecture, security, performance) integrated with **code-simplification principles** (behavior preservation, clarity over cleverness, over-simplification avoidance).
+6. **debugging-and-error-recovery**: Systematic root-cause debugging workflows for broken builds, runtime errors, and test failures.
+7. **frontend-ui-engineering**: Production-grade, accessible (WCAG compliant), responsive UI engineering integrated with **anti-slop UI craft floor rules** (layout animation bans, explicit transitions, instant focus-visible, prefers-reduced-motion).
+8. **gia-human-conversation**: Humanized customer support and jewellery shopping conversations for GIA (Golden Concierge) across English, Bengali, Banglish, and Hindi; enriched with **anti-AI writing guardrails** (eliminating synthetic staging, dramatic one-line closers, and forced triads).
+9. **performance-optimization**: Cross-stack performance optimization (Core Web Vitals, N+1 DB queries, JS payload reductions).
+10. **planning-and-task-breakdown**: Structured task breakdown, scope estimation, and ordering for complex feature implementations.
+11. **playwright**: End-to-End (E2E) test suite authoring, execution, and browser automation debugging for Project Ruhvi.
+12. **ruhvi-product-photography**: Luxury jewelry commercial product photography generation protocol strictly preserving exact product design, stone settings, and metal geometry.
+13. **scrapling-official**: Adaptive web crawling and intelligence scraping with HTTP, stealth browser rendering, and dynamic page parsing for Worker 5 (Competitor AI).
+14. **security-and-hardening**: Code hardening against OWASP vulnerabilities, safe input handling, auth security, and dependency auditing.
+15. **slides**: Strategic HTML presentations, pitch decks, and executive reporting with Chart.js.
+16. **ui-styling**: Production UI styling with shadcn/ui and Tailwind CSS; integrated with **Three-Layer Token Architecture** (Primitive → Semantic → Component) and comprehensive component state specifications.
+17. **ui-ux-pro-max**: Comprehensive UI/UX design intelligence layer (79 searchable UI styles, 192 product palettes & reasoning rules, 74 font pairings, 119 UX guidelines, 22 stack presets including Next.js/React/Tailwind) powered by local zero-latency BM25 search (scripts/search.py). Allocated for UI/UX engineering across administrative and operational subdomains with strict zero-alteration isolation on the main customer storefront.
+18. **understand (Knowledge Graph Suite)**: Codebase comprehension and knowledge graph suite consisting of 9 dedicated sub-skills:
+    - understand-chat: Direct Q&A on codebase structure using graph metadata.
+    - understand-dashboard: Interactive web visualizer for system architecture.
+    - understand-diff: Git diff and pull request dependency analysis.
+    - understand-domain: Business domain flow extraction and mapping.
+    - understand-explain: Deep-dive explanation of specific modules/functions.
+    - understand-figma: Figma design file parsing into design tokens/components.
+    - understand-knowledge: LLM wiki & topic cluster graph generation.
+    - understand-onboard: Interactive developer onboarding document creation.
+
+> **Consolidation Audit Log (2026-11-04):** Redundant, orphaned, and overlapping workspace skills (code-simplification, humanizer, hallmark, design, design-system, security-audit) were audited and safely removed after migrating all critical rules, token architectures, and anti-AI guidelines directly into their respective active parent skills (code-review-and-quality, gia-human-conversation, rontend-ui-engineering, and ui-styling).
 
 ### B. Global Builtin & Installed Plugin Skills
 1. **agy-customizations**: Reference guide for configuring AGY skills, rules, plugins, hooks, and MCP servers.

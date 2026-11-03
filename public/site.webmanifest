@@ -1,7 +1,18 @@
 {
-  "name": "Ruhvi Fine Jewellery",
+  "name": "Ruhvi Fine Jewellery — Exquisite Gold & Diamond",
   "short_name": "Ruhvi",
-  "description": "Exquisite handcrafted gold, diamond, and gemstone fine jewellery.",
+  "description": "Discover handcrafted premium gold-plated jewellery. Anti-tarnish 22K gold plating with 6-month colour guarantee and free insured shipping across India.",
+  "id": "/",
+  "start_url": "/?utm_source=pwa&utm_medium=homescreen",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "portrait",
+  "theme_color": "#09090b",
+  "background_color": "#09090b",
+  "lang": "en-IN",
+  "dir": "ltr",
+  "categories": ["shopping", "lifestyle"],
   "icons": [
     {
       "src": "/favicon-16x16.png",
@@ -16,17 +27,51 @@
     {
       "src": "/android-chrome-192x192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
       "src": "/android-chrome-512x512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ],
-  "theme_color": "#09090b",
-  "background_color": "#09090b",
-  "display": "standalone",
-  "orientation": "portrait",
-  "start_url": "/"
+  "screenshots": [
+    {
+      "src": "/og-image.jpg",
+      "sizes": "1200x630",
+      "type": "image/jpeg",
+      "form_factor": "wide",
+      "label": "Ruhvi Jewellery — Premium Gold & Diamond Collection"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Browse Collections",
+      "short_name": "Collections",
+      "url": "/collections?utm_source=pwa",
+      "icons": [{ "src": "/android-chrome-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "My Orders",
+      "short_name": "Orders",
+      "url": "/account/orders?utm_source=pwa",
+      "icons": [{ "src": "/android-chrome-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Today's Offers",
+      "short_name": "Offers",
+      "url": "/offers?utm_source=pwa",
+      "icons": [{ "src": "/android-chrome-192x192.png", "sizes": "192x192" }]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false
 }
