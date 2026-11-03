@@ -41,8 +41,20 @@ async function getAuthenticatedUser(req: Request) {
     .eq('id', userId)
     .maybeSingle();
 
-  if (!user || user.account_status !== 'active') return null;
+  if (!user || (user.account_status && user.account_status !== 'active'))
+    return null;
   return user;
+}
+
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 204,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    },
+  });
 }
 
 export async function POST(req: Request) {

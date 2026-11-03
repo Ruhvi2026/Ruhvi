@@ -456,19 +456,37 @@ export default function ChatRoomScreen({ route, navigation }: any) {
       // 1. Upload audio to Cloudinary
       const uploaded = await uploadVoiceNote(result.uri, result.durationSeconds);
 
-      // 2. Insert into chat_messages as voice_note
-      const { data: msgData, error: msgError } = await supabase
+      // 2. Insert into chat_messages (support both 'voice_note' and standard 'attachment' check constraint)
+      let msgData: any = null;
+      const firstTry = await supabase
         .from('chat_messages')
         .insert({
           conversation_id: id,
           sender_id: uid,
           message_type: 'voice_note',
-          text_content: 'Voice Note',
+          text_content: '🎤 Voice Note',
         })
         .select()
         .single();
 
-      if (msgError) throw msgError;
+      if (firstTry.error) {
+        // Fallback to 'attachment' which is guaranteed by chat_messages_message_type_check
+        const secondTry = await supabase
+          .from('chat_messages')
+          .insert({
+            conversation_id: id,
+            sender_id: uid,
+            message_type: 'attachment',
+            text_content: '🎤 Voice Note',
+          })
+          .select()
+          .single();
+
+        if (secondTry.error) throw secondTry.error;
+        msgData = secondTry.data;
+      } else {
+        msgData = firstTry.data;
+      }
 
       // 3. Insert into chat_attachments
       await supabase

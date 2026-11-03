@@ -111,8 +111,8 @@ export async function transcribeAudio(
     }
 
     const endpoints = [
-      `${BACKEND_BASE}/api/chat/transcribe`,
-      'http://localhost:3000/api/chat/transcribe',
+      'https://admin.ruhvi.in/api/chat/transcribe',
+      'https://ruhvi.in/api/chat/transcribe',
     ];
 
     // Read audio as base64 to avoid React Native FormData compatibility issues across Android/iOS
@@ -143,12 +143,18 @@ export async function transcribeAudio(
 
           if (response.ok) {
             const data = await response.json();
-            if (data.transcript) {
-              return data.transcript.trim();
+            if (data.transcript !== undefined) {
+              return (data.transcript || '').trim();
             }
           } else {
             const errText = await response.text();
             console.warn(`[audioService] Transcribe failed via JSON on ${url}:`, errText);
+            try {
+              const parsed = JSON.parse(errText);
+              lastError = new Error(parsed.error || `Server error ${response.status}`);
+            } catch {
+              lastError = new Error(`Server error ${response.status}`);
+            }
           }
         } else {
           // Native upload fallback via FileSystem.uploadAsync
@@ -164,14 +170,21 @@ export async function transcribeAudio(
 
           if (res.status >= 200 && res.status < 300) {
             const data = JSON.parse(res.body);
-            if (data.transcript) {
-              return data.transcript.trim();
+            if (data.transcript !== undefined) {
+              return (data.transcript || '').trim();
             }
           } else {
             console.warn(`[audioService] Transcribe failed via uploadAsync on ${url}:`, res.body);
+            try {
+              const parsed = JSON.parse(res.body);
+              lastError = new Error(parsed.error || `Server error ${res.status}`);
+            } catch {
+              lastError = new Error(`Server error ${res.status}`);
+            }
           }
         }
       } catch (reqErr) {
+        console.warn(`[audioService] Request failed on ${url}:`, reqErr);
         lastError = reqErr;
       }
     }
