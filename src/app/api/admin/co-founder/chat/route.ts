@@ -36,7 +36,6 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const {
       conversationId,
-      messages,
       channel = 'text',
       provider: requestedProvider,
       model: requestedModel,
@@ -46,6 +45,7 @@ export async function POST(req: NextRequest) {
       maxIterations: requestedMaxIterations,
       stream: requestedStream,
     } = body;
+    let messages = body.messages;
 
     const wantsStream =
       Boolean(requestedStream) ||

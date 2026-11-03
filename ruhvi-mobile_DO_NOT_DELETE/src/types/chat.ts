@@ -3,7 +3,7 @@
 // These types mirror the Supabase DB schema (migration 0085).
 
 export type ConversationType = 'direct' | 'group' | 'broadcast';
-export type MessageType = 'text' | 'attachment' | 'system' | 'entity_ref';
+export type MessageType = 'text' | 'attachment' | 'system' | 'entity_ref' | 'voice_note';
 export type EntityRefType = 'order' | 'support_ticket' | 'product';
 export type CloudinaryResourceType = 'image' | 'video' | 'raw';
 
@@ -113,6 +113,8 @@ export interface ChatMessage {
   system_action: string | null;
   pinned_at?: string | null;
   pinned_by?: string | null;
+  voice_note_id?: string | null;
+  is_starred?: boolean;
   // Joined
   sender?: ChatUserProfile;
   attachments?: ChatAttachment[];

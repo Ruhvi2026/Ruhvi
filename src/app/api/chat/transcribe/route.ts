@@ -13,16 +13,32 @@ import { SPEECH_TO_TEXT_MAX_BYTES } from '@/lib/chat/voice-types';
 
 const MAX_STT_AUDIO_BYTES = SPEECH_TO_TEXT_MAX_BYTES;
 
-async function getAuthenticatedUser() {
+async function getAuthenticatedUser(req: Request) {
   const cookieStore = await cookies();
-  const sessionCookie = cookieStore.get('__session')?.value;
-  const decoded = await verifySessionToken(sessionCookie);
-  if (!decoded) return null;
+  let token = cookieStore.get('__session')?.value;
+  if (!token) {
+    const authHeader = req.headers.get('authorization');
+    if (authHeader && authHeader.toLowerCase().startsWith('bearer ')) {
+      token = authHeader.substring(7).trim();
+    }
+  }
+  const decoded = await verifySessionToken(token);
+  let userId = decoded?.sub as string | undefined;
+
   const supabase = getServiceClient();
+  if (!userId && token) {
+    const { data: authData } = await supabase.auth.getUser(token);
+    if (authData?.user?.id) {
+      userId = authData.user.id;
+    }
+  }
+
+  if (!userId) return null;
+
   const { data: user } = await supabase
     .from('users')
     .select('id, role, account_status')
-    .eq('id', decoded.sub as string)
+    .eq('id', userId)
     .maybeSingle();
 
   if (!user || user.account_status !== 'active') return null;
@@ -31,7 +47,7 @@ async function getAuthenticatedUser() {
 
 export async function POST(req: Request) {
   try {
-    const user = await getAuthenticatedUser();
+    const user = await getAuthenticatedUser(req);
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }

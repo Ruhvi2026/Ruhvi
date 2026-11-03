@@ -13,6 +13,7 @@ import {
   Image,
   Modal,
   Alert,
+  ToastAndroid,
   Linking,
   ScrollView
 } from 'react-native';
@@ -22,11 +23,21 @@ import { useHeaderHeight } from '@react-navigation/elements';
 import * as ImagePicker from 'expo-image-picker';
 import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system/legacy';
+import * as Clipboard from 'expo-clipboard';
+import { Audio } from 'expo-av';
 import { supabase, getCurrentUserId } from '../lib/supabase';
 import { uploadToCloudinary } from '../lib/cloudinary';
 import { ChatMessage, ChatAttachment } from '../types/chat';
 import AutoLinkText from '../components/AutoLinkText';
 import EmojiPickerModal from '../components/EmojiPickerModal';
+import VoiceNotePlayer from '../components/VoiceNotePlayer';
+import ForwardMessageModal from '../components/ForwardMessageModal';
+import {
+  startAudioRecording,
+  stopAudioRecording,
+  transcribeAudio,
+  uploadVoiceNote,
+} from '../lib/audioService';
 import { triggerLocalNotification, dispatchChatPushNotification } from '../lib/notifications';
 
 const QUICK_REACTIONS = ['👍', '❤️', '😂', '😮', '😢', '🙏'];
@@ -83,6 +94,25 @@ export default function ChatRoomScreen({ route, navigation }: any) {
   // Pinned Message State
   const [pinnedMessage, setPinnedMessage] = useState<any | null>(null);
 
+  // Starred Messages (WhatsApp style)
+  const [starredMessageIds, setStarredMessageIds] = useState<Set<string>>(new Set());
+
+  // Forward Message State
+  const [isForwardModalVisible, setIsForwardModalVisible] = useState(false);
+  const [forwardTargetMessage, setForwardTargetMessage] = useState<ChatMessage | null>(null);
+
+  // WhatsApp Voice Note Recording State
+  const [isRecordingVoice, setIsRecordingVoice] = useState(false);
+  const [recordingRef, setRecordingRef] = useState<Audio.Recording | null>(null);
+  const [recordDuration, setRecordDuration] = useState(0);
+  const [recordTimer, setRecordTimer] = useState<any>(null);
+  const [uploadingVoice, setUploadingVoice] = useState(false);
+
+  // Speech-to-Text (STT) Dictation State
+  const [isDictating, setIsDictating] = useState(false);
+  const [dictatingRef, setDictatingRef] = useState<Audio.Recording | null>(null);
+  const [transcribing, setTranscribing] = useState(false);
+
   // In-Chat Media Library State
   const [showMediaLibrary, setShowMediaLibrary] = useState<boolean>(false);
   const [mediaTab, setMediaTab] = useState<'photos' | 'docs'>('photos');
@@ -112,6 +142,10 @@ export default function ChatRoomScreen({ route, navigation }: any) {
       if (uid) {
         const { data: u } = await supabase.from('users').select('role').eq('id', uid).single();
         if (u?.role) setUserRole(u.role);
+        try {
+          const rawStarred = await AsyncStorage.getItem(`@ruhvi_starred_messages_${uid}`);
+          if (rawStarred) setStarredMessageIds(new Set(JSON.parse(rawStarred)));
+        } catch {}
       }
       markAsRead(uid);
 
@@ -125,6 +159,10 @@ export default function ChatRoomScreen({ route, navigation }: any) {
     };
     initAuth();
     fetchConversation();
+
+    return () => {
+      if (recordTimer) clearInterval(recordTimer);
+    };
   }, [id]);
 
   const fetchConversation = async () => {
@@ -277,6 +315,246 @@ export default function ChatRoomScreen({ route, navigation }: any) {
       }
     } catch (e: any) {
       Alert.alert('Error', e.message);
+    }
+  };
+
+  const handleCopyMessage = async (msg: ChatMessage) => {
+    setActionMenuMessage(null);
+    const content = msg.text_content || '';
+    if (!content) return;
+    await Clipboard.setStringAsync(content);
+    if (Platform.OS === 'android') {
+      ToastAndroid.show('Message copied to clipboard', ToastAndroid.SHORT);
+    } else {
+      Alert.alert('Copied', 'Message copied to clipboard');
+    }
+  };
+
+  const handleOpenForward = (msg: ChatMessage) => {
+    setActionMenuMessage(null);
+    setForwardTargetMessage(msg);
+    setIsForwardModalVisible(true);
+  };
+
+  const executeForward = async (targetConversationId: string, targetName: string) => {
+    if (!forwardTargetMessage) return;
+    let uid = currentUserId || getCurrentUserId();
+    if (!uid) uid = await AsyncStorage.getItem('ruhvi_user_id');
+    if (!uid) return;
+
+    try {
+      const fwdText = forwardTargetMessage.text_content || '';
+      const fwdAttachments = (forwardTargetMessage as any).chat_attachments || forwardTargetMessage.attachments || [];
+
+      const { data: newMsg, error } = await supabase
+        .from('chat_messages')
+        .insert({
+          conversation_id: targetConversationId,
+          sender_id: uid,
+          message_type: forwardTargetMessage.message_type || 'text',
+          text_content: fwdText ? `[Forwarded]\n${fwdText}` : '[Forwarded Attachment]',
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      if (newMsg && fwdAttachments.length > 0) {
+        for (const att of fwdAttachments) {
+          await supabase.from('chat_attachments').insert({
+            message_id: newMsg.id,
+            cloudinary_public_id: att.cloudinary_public_id,
+            cloudinary_url: att.cloudinary_url,
+            resource_type: att.resource_type,
+            file_name: att.file_name,
+            mime_type: att.mime_type,
+            file_size: att.file_size,
+          });
+        }
+      }
+
+      if (Platform.OS === 'android') {
+        ToastAndroid.show(`Forwarded to ${targetName}`, ToastAndroid.SHORT);
+      } else {
+        Alert.alert('Forwarded', `Message forwarded to ${targetName}`);
+      }
+    } catch (err: any) {
+      Alert.alert('Forward Error', err?.message || 'Could not forward message');
+    }
+  };
+
+  const handleToggleStarMessage = async (msgId: string) => {
+    let uid = currentUserId || getCurrentUserId();
+    if (!uid) uid = await AsyncStorage.getItem('ruhvi_user_id');
+    const next = new Set(starredMessageIds);
+    if (next.has(msgId)) {
+      next.delete(msgId);
+      if (Platform.OS === 'android') ToastAndroid.show('Unstarred', ToastAndroid.SHORT);
+    } else {
+      next.add(msgId);
+      if (Platform.OS === 'android') ToastAndroid.show('Message starred ⭐', ToastAndroid.SHORT);
+    }
+    setStarredMessageIds(next);
+    if (uid) {
+      await AsyncStorage.setItem(`@ruhvi_starred_messages_${uid}`, JSON.stringify(Array.from(next)));
+    }
+  };
+
+  const handleStartRecording = async () => {
+    try {
+      const rec = await startAudioRecording();
+      if (!rec) return;
+      setRecordingRef(rec);
+      setIsRecordingVoice(true);
+      setRecordDuration(0);
+      const timer = setInterval(() => {
+        setRecordDuration((d) => d + 1);
+      }, 1000);
+      setRecordTimer(timer);
+    } catch (err: any) {
+      Alert.alert('Microphone Access', err?.message || 'Could not access microphone');
+    }
+  };
+
+  const handleCancelRecording = async () => {
+    if (recordTimer) clearInterval(recordTimer);
+    setRecordTimer(null);
+    if (recordingRef) {
+      await recordingRef.stopAndUnloadAsync().catch(() => {});
+      setRecordingRef(null);
+    }
+    setIsRecordingVoice(false);
+    setRecordDuration(0);
+  };
+
+  const handleSendVoiceNote = async () => {
+    if (!recordingRef) return;
+    if (recordTimer) clearInterval(recordTimer);
+    setRecordTimer(null);
+
+    setUploadingVoice(true);
+    try {
+      const result = await stopAudioRecording(recordingRef);
+      setRecordingRef(null);
+      setIsRecordingVoice(false);
+      if (!result || !result.uri) {
+        setUploadingVoice(false);
+        return;
+      }
+
+      let uid = currentUserId || getCurrentUserId();
+      if (!uid) uid = await AsyncStorage.getItem('ruhvi_user_id');
+      if (!uid) throw new Error('Not logged in');
+
+      // 1. Upload audio to Cloudinary
+      const uploaded = await uploadVoiceNote(result.uri, result.durationSeconds);
+
+      // 2. Insert into chat_messages as voice_note
+      const { data: msgData, error: msgError } = await supabase
+        .from('chat_messages')
+        .insert({
+          conversation_id: id,
+          sender_id: uid,
+          message_type: 'voice_note',
+          text_content: 'Voice Note',
+        })
+        .select()
+        .single();
+
+      if (msgError) throw msgError;
+
+      // 3. Insert into chat_attachments
+      await supabase
+        .from('chat_attachments')
+        .insert({
+          message_id: msgData.id,
+          cloudinary_public_id: uploaded.publicId,
+          cloudinary_url: uploaded.url,
+          resource_type: 'video',
+          file_name: 'Voice Note.m4a',
+          mime_type: 'audio/mp4',
+          duration: result.durationSeconds,
+        });
+
+      // 4. Register in chat_voice_notes for 45-day retention
+      try {
+        await supabase
+          .from('chat_voice_notes')
+          .insert({
+            message_id: msgData.id,
+            conversation_id: id,
+            sender_id: uid,
+            cloudinary_public_id: uploaded.publicId,
+            cloudinary_url: uploaded.url,
+            duration_seconds: result.durationSeconds,
+            mime_type: 'audio/mp4',
+            status: 'active',
+          });
+      } catch (e: any) {
+        console.warn('[ChatRoom] chat_voice_notes insert warning:', e);
+      }
+
+      // 5. Update local state
+      const newMsgWithAttach = {
+        ...msgData,
+        chat_attachments: [
+          {
+            id: uploaded.publicId,
+            message_id: msgData.id,
+            cloudinary_public_id: uploaded.publicId,
+            cloudinary_url: uploaded.url,
+            resource_type: 'video',
+            file_name: 'Voice Note.m4a',
+            mime_type: 'audio/mp4',
+            duration: result.durationSeconds,
+          },
+        ],
+      };
+
+      setMessages((prev) => [newMsgWithAttach as any, ...prev]);
+    } catch (err: any) {
+      Alert.alert('Voice Note Failed', err?.message || 'Could not send voice note');
+    } finally {
+      setUploadingVoice(false);
+      setRecordDuration(0);
+    }
+  };
+
+  const handleToggleDictation = async () => {
+    if (isDictating) {
+      if (!dictatingRef) return;
+      setIsDictating(false);
+      setTranscribing(true);
+      try {
+        const audio = await stopAudioRecording(dictatingRef);
+        setDictatingRef(null);
+        if (audio?.uri) {
+          const token = await AsyncStorage.getItem('ruhvi_mobile_jwt');
+          const transcript = await transcribeAudio(audio.uri, token);
+          if (transcript) {
+            setText((prev) => (prev ? `${prev} ${transcript}` : transcript));
+            if (Platform.OS === 'android') {
+              ToastAndroid.show('Dictated text added', ToastAndroid.SHORT);
+            }
+          }
+        }
+      } catch (err: any) {
+        Alert.alert('Speech-to-Text', err?.message || 'Could not transcribe speech');
+      } finally {
+        setTranscribing(false);
+      }
+    } else {
+      try {
+        const rec = await startAudioRecording();
+        if (!rec) return;
+        setDictatingRef(rec);
+        setIsDictating(true);
+        if (Platform.OS === 'android') {
+          ToastAndroid.show('Listening... Speak now (Bengali, Hindi, English)', ToastAndroid.LONG);
+        }
+      } catch (err: any) {
+        Alert.alert('Microphone Access', err?.message || 'Could not start dictation');
+      }
     }
   };
 
@@ -1273,8 +1551,14 @@ export default function ChatRoomScreen({ route, navigation }: any) {
             </TouchableOpacity>
           )}
 
-          {/* Attachment Render */}
-          {firstAttach && (
+          {/* Attachment / Voice Note Render */}
+          {(item.message_type === 'voice_note' || firstAttach?.mime_type?.startsWith('audio/') || firstAttach?.file_name?.endsWith('.m4a') || firstAttach?.file_name?.includes('Voice Note')) ? (
+            <VoiceNotePlayer
+              audioUrl={firstAttach?.cloudinary_url || (item as any).voice_note?.cloudinaryUrl || (item as any).voice_note?.cloudinary_url || ''}
+              durationSeconds={firstAttach?.duration || (item as any).duration || (item as any).voice_note?.durationSeconds || 10}
+              isMe={isMe}
+            />
+          ) : firstAttach && (
             firstAttach.resource_type === 'image' ? (
               <TouchableOpacity 
                 activeOpacity={0.9}
@@ -1318,7 +1602,7 @@ export default function ChatRoomScreen({ route, navigation }: any) {
           )}
 
           {/* Text content if text message or caption with clickable links/phone/email/mentions/orders */}
-          {(!firstAttach || (item.text_content && item.text_content !== firstAttach.file_name)) && (
+          {item.message_type !== 'voice_note' && (!firstAttach || (item.text_content && item.text_content !== firstAttach.file_name)) && (
             <AutoLinkText 
               text={item.text_content || ''} 
               style={styles.messageText} 
@@ -1357,6 +1641,9 @@ export default function ChatRoomScreen({ route, navigation }: any) {
 
           {/* Timestamp & Ticks row */}
           <View style={styles.metaRow}>
+            {starredMessageIds.has(item.id) && (
+              <MaterialIcons name="star" size={13} color="#D97706" style={{ marginRight: 3 }} />
+            )}
             <Text style={styles.timeText}>{time}</Text>
             {isMe && (
               item.uploading ? (
@@ -2206,6 +2493,52 @@ export default function ChatRoomScreen({ route, navigation }: any) {
               </Text>
             </View>
 
+            {/* WhatsApp-Style Copy Action */}
+            {actionMenuMessage?.text_content && (
+              <TouchableOpacity
+                style={styles.actionMenuItem}
+                onPress={() => handleCopyMessage(actionMenuMessage)}
+              >
+                <MaterialIcons name="content-copy" size={22} color="#075E54" style={{ marginRight: 12 }} />
+                <Text style={styles.actionMenuItemText}>Copy message</Text>
+              </TouchableOpacity>
+            )}
+
+            {/* WhatsApp-Style Forward Action */}
+            <TouchableOpacity
+              style={styles.actionMenuItem}
+              onPress={() => {
+                if (actionMenuMessage) {
+                  handleOpenForward(actionMenuMessage);
+                }
+              }}
+            >
+              <MaterialIcons name="forward" size={22} color="#128C7E" style={{ marginRight: 12 }} />
+              <Text style={styles.actionMenuItemText}>Forward message</Text>
+            </TouchableOpacity>
+
+            {/* WhatsApp-Style Star / Unstar Action */}
+            <TouchableOpacity
+              style={styles.actionMenuItem}
+              onPress={() => {
+                const msgId = actionMenuMessage?.id;
+                if (msgId) {
+                  setActionMenuMessage(null);
+                  handleToggleStarMessage(msgId);
+                }
+              }}
+            >
+              <MaterialIcons
+                name={starredMessageIds.has(actionMenuMessage?.id || '') ? 'star' : 'star-outline'}
+                size={22}
+                color="#D97706"
+                style={{ marginRight: 12 }}
+              />
+              <Text style={styles.actionMenuItemText}>
+                {starredMessageIds.has(actionMenuMessage?.id || '') ? 'Unstar message' : 'Star message ⭐'}
+              </Text>
+            </TouchableOpacity>
+
             <TouchableOpacity
               style={styles.actionMenuItem}
               onPress={() => {
@@ -2274,6 +2607,17 @@ export default function ChatRoomScreen({ route, navigation }: any) {
           </View>
         </TouchableOpacity>
       </Modal>
+
+      {/* WhatsApp-Style Forward Message Modal */}
+      <ForwardMessageModal
+        visible={isForwardModalVisible}
+        messageText={forwardTargetMessage?.text_content || ''}
+        onClose={() => {
+          setIsForwardModalVisible(false);
+          setForwardTargetMessage(null);
+        }}
+        onForward={executeForward}
+      />
 
       {/* Emoji Picker for Input Box */}
       <EmojiPickerModal
@@ -2799,6 +3143,55 @@ const styles = StyleSheet.create({
   },
   checkIcon: {
     marginLeft: 2,
+  },
+  recordingBarWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 24,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    marginHorizontal: 8,
+    marginVertical: 6,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOpacity: 0.12,
+    shadowOffset: { width: 0, height: 1 },
+    shadowRadius: 3,
+  },
+  recordingTimerGroup: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  recordingRedDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: '#EF4444',
+    marginRight: 8,
+  },
+  recordingTimerText: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#1F2937',
+    marginRight: 8,
+  },
+  recordingHintText: {
+    fontSize: 12,
+    color: '#6B7280',
+  },
+  discardRecordBtn: {
+    padding: 8,
+    marginRight: 4,
+  },
+  sendRecordBtn: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: '#075E54',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   inputContainer: {
     flexDirection: 'row',

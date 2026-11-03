@@ -22,17 +22,34 @@ const ALLOWED_AUDIO_TYPES = new Set([
   'audio/x-m4a',
 ]);
 
-async function getAuthenticatedStaff() {
+async function getAuthenticatedStaff(req: Request) {
   const cookieStore = await cookies();
-  const sessionCookie = cookieStore.get('__session')?.value;
-  const decoded = await verifySessionToken(sessionCookie);
-  if (!decoded) return null;
+  let token = cookieStore.get('__session')?.value;
+  if (!token) {
+    const authHeader = req.headers.get('authorization');
+    if (authHeader && authHeader.toLowerCase().startsWith('bearer ')) {
+      token = authHeader.substring(7).trim();
+    }
+  }
+  const decoded = await verifySessionToken(token);
+  let userId = decoded?.sub as string | undefined;
+
   const supabase = getServiceClient();
+  if (!userId && token) {
+    const { data: authData } = await supabase.auth.getUser(token);
+    if (authData?.user?.id) {
+      userId = authData.user.id;
+    }
+  }
+
+  if (!userId) return null;
+
   const { data: user } = await supabase
     .from('users')
     .select('id, role, full_name, email, account_status')
-    .eq('id', decoded.sub as string)
+    .eq('id', userId)
     .maybeSingle();
+
   if (!user || user.account_status !== 'active' || user.role === 'customer') {
     return null;
   }
@@ -41,7 +58,7 @@ async function getAuthenticatedStaff() {
 
 export async function POST(req: Request) {
   try {
-    const staffUser = await getAuthenticatedStaff();
+    const staffUser = await getAuthenticatedStaff(req);
     if (!staffUser) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
