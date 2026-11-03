@@ -2,7 +2,13 @@
 //
 // Native Audio Recording, Voice Note Upload & Speech-to-Text Dictation Service for RuhChat Mobile
 
-import { Audio } from 'expo-av';
+import {
+  AudioModule,
+  AudioRecorder,
+  RecordingPresets,
+  requestRecordingPermissionsAsync,
+  setAudioModeAsync,
+} from 'expo-audio';
 import { Platform } from 'react-native';
 import { uploadToCloudinary } from './cloudinary';
 
@@ -24,7 +30,7 @@ const BACKEND_BASE = 'https://ruhvi.in';
  */
 export async function requestAudioPermissions(): Promise<boolean> {
   try {
-    const { status } = await Audio.requestPermissionsAsync();
+    const { status } = await requestRecordingPermissionsAsync();
     return status === 'granted';
   } catch (err) {
     console.warn('[audioService] Failed to request audio permissions:', err);
@@ -35,24 +41,22 @@ export async function requestAudioPermissions(): Promise<boolean> {
 /**
  * Start high-quality voice note or dictation recording
  */
-export async function startAudioRecording(): Promise<Audio.Recording | null> {
+export async function startAudioRecording(): Promise<AudioRecorder | null> {
   try {
     const granted = await requestAudioPermissions();
     if (!granted) {
       throw new Error('Microphone permission is required to record voice notes');
     }
 
-    await Audio.setAudioModeAsync({
-      allowsRecordingIOS: true,
-      playsInSilentModeIOS: true,
-      staysActiveInBackground: false,
-      shouldDuckAndroid: true,
+    await setAudioModeAsync({
+      allowsRecording: true,
+      playsInSilentMode: true,
     });
 
-    const { recording } = await Audio.Recording.createAsync(
-      Audio.RecordingOptionsPresets.HIGH_QUALITY
-    );
-    return recording;
+    const recorder = new AudioModule.AudioRecorder(RecordingPresets.HIGH_QUALITY);
+    await recorder.prepareToRecordAsync();
+    recorder.record();
+    return recorder;
   } catch (err: any) {
     console.error('[audioService] Error starting recording:', err);
     throw err;
@@ -63,22 +67,21 @@ export async function startAudioRecording(): Promise<Audio.Recording | null> {
  * Stop active recording and retrieve local file URI + duration
  */
 export async function stopAudioRecording(
-  recording: Audio.Recording
+  recording: AudioRecorder
 ): Promise<RecordedAudio | null> {
   try {
-    const status = await recording.getStatusAsync();
-    await recording.stopAndUnloadAsync();
+    const durationSeconds = Math.max(1, Math.round(recording.currentTime || 1));
+    await recording.stop();
 
     // Reset audio mode for normal playback
-    await Audio.setAudioModeAsync({
-      allowsRecordingIOS: false,
-      playsInSilentModeIOS: true,
+    await setAudioModeAsync({
+      allowsRecording: false,
+      playsInSilentMode: true,
     });
 
-    const uri = recording.getURI();
+    const uri = recording.uri;
     if (!uri) return null;
 
-    const durationSeconds = Math.max(1, Math.round((status.durationMillis || 1000) / 1000));
     return { uri, durationSeconds };
   } catch (err: any) {
     console.error('[audioService] Error stopping recording:', err);

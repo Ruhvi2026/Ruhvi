@@ -24,7 +24,7 @@ import * as ImagePicker from 'expo-image-picker';
 import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system/legacy';
 import * as Clipboard from 'expo-clipboard';
-import { Audio } from 'expo-av';
+import { AudioRecorder } from 'expo-audio';
 import { supabase, getCurrentUserId } from '../lib/supabase';
 import { uploadToCloudinary } from '../lib/cloudinary';
 import { ChatMessage, ChatAttachment } from '../types/chat';
@@ -104,14 +104,14 @@ export default function ChatRoomScreen({ route, navigation }: any) {
 
   // WhatsApp Voice Note Recording State
   const [isRecordingVoice, setIsRecordingVoice] = useState(false);
-  const [recordingRef, setRecordingRef] = useState<Audio.Recording | null>(null);
+  const [recordingRef, setRecordingRef] = useState<AudioRecorder | null>(null);
   const [recordDuration, setRecordDuration] = useState(0);
   const [recordTimer, setRecordTimer] = useState<any>(null);
   const [uploadingVoice, setUploadingVoice] = useState(false);
 
   // Speech-to-Text (STT) Dictation State
   const [isDictating, setIsDictating] = useState(false);
-  const [dictatingRef, setDictatingRef] = useState<Audio.Recording | null>(null);
+  const [dictatingRef, setDictatingRef] = useState<AudioRecorder | null>(null);
   const [transcribing, setTranscribing] = useState(false);
 
   // In-Chat Media Library State
@@ -421,7 +421,7 @@ export default function ChatRoomScreen({ route, navigation }: any) {
     if (recordTimer) clearInterval(recordTimer);
     setRecordTimer(null);
     if (recordingRef) {
-      await recordingRef.stopAndUnloadAsync().catch(() => {});
+      await recordingRef.stop().catch(() => {});
       setRecordingRef(null);
     }
     setIsRecordingVoice(false);

@@ -11,7 +11,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { Audio, AVPlaybackStatus } from 'expo-av';
+import { createAudioPlayer, AudioPlayer, AudioStatus } from 'expo-audio';
 
 interface VoiceNotePlayerProps {
   audioUrl: string;
@@ -20,7 +20,7 @@ interface VoiceNotePlayerProps {
 }
 
 // Global reference to ensure only one voice note plays at any time
-let globalCurrentSound: Audio.Sound | null = null;
+let globalCurrentPlayer: AudioPlayer | null = null;
 let globalStopCallback: (() => void) | null = null;
 
 export default function VoiceNotePlayer({
@@ -28,56 +28,38 @@ export default function VoiceNotePlayer({
   durationSeconds = 0,
   isMe = false,
 }: VoiceNotePlayerProps) {
-  const [sound, setSound] = useState<Audio.Sound | null>(null);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [positionMillis, setPositionMillis] = useState<number>(0);
-  const [durationMillis, setDurationMillis] = useState<number>(durationSeconds * 1000);
+  const [currentTime, setCurrentTime] = useState<number>(0);
+  const [duration, setDuration] = useState<number>(durationSeconds);
   const [playbackRate, setPlaybackRate] = useState<number>(1.0);
-  const soundRef = useRef<Audio.Sound | null>(null);
+  const playerRef = useRef<AudioPlayer | null>(null);
 
   useEffect(() => {
     return () => {
-      if (soundRef.current) {
-        soundRef.current.unloadAsync().catch(() => {});
-        if (globalCurrentSound === soundRef.current) {
-          globalCurrentSound = null;
+      if (playerRef.current) {
+        playerRef.current.pause();
+        playerRef.current.release();
+        if (globalCurrentPlayer === playerRef.current) {
+          globalCurrentPlayer = null;
           globalStopCallback = null;
         }
       }
     };
   }, []);
 
-  const onPlaybackStatusUpdate = (status: AVPlaybackStatus) => {
-    if (!status.isLoaded) {
-      if (status.error) {
-        setIsPlaying(false);
-        setIsLoading(false);
-      }
-      return;
+  const stopThisSound = () => {
+    if (playerRef.current) {
+      playerRef.current.pause();
     }
-
-    setIsPlaying(status.isPlaying);
-    setPositionMillis(status.positionMillis);
-    if (status.durationMillis) {
-      setDurationMillis(status.durationMillis);
-    }
-
-    if (status.didJustFinish) {
-      setIsPlaying(false);
-      setPositionMillis(0);
-      if (globalCurrentSound === soundRef.current) {
-        globalCurrentSound = null;
-        globalStopCallback = null;
-      }
-    }
+    setIsPlaying(false);
   };
 
   const handlePlayPause = async () => {
     try {
       if (isPlaying) {
-        if (sound) {
-          await sound.pauseAsync();
+        if (playerRef.current) {
+          playerRef.current.pause();
         }
         setIsPlaying(false);
         return;
@@ -88,22 +70,35 @@ export default function VoiceNotePlayer({
         globalStopCallback();
       }
 
-      if (!sound) {
+      if (!playerRef.current) {
         setIsLoading(true);
-        const { sound: newSound } = await Audio.Sound.createAsync(
-          { uri: audioUrl },
-          { shouldPlay: true, rate: playbackRate, shouldCorrectPitch: true },
-          onPlaybackStatusUpdate
-        );
-        soundRef.current = newSound;
-        setSound(newSound);
-        globalCurrentSound = newSound;
+        const newPlayer = createAudioPlayer(audioUrl);
+        newPlayer.playbackRate = playbackRate;
+        newPlayer.addListener('playbackStatusUpdate', (status: AudioStatus) => {
+          setIsPlaying(status.playing);
+          setCurrentTime(status.currentTime);
+          if (status.duration > 0) {
+            setDuration(status.duration);
+          }
+          if (status.didJustFinish) {
+            setIsPlaying(false);
+            setCurrentTime(0);
+            newPlayer.seekTo(0);
+            if (globalCurrentPlayer === newPlayer) {
+              globalCurrentPlayer = null;
+              globalStopCallback = null;
+            }
+          }
+        });
+        playerRef.current = newPlayer;
+        globalCurrentPlayer = newPlayer;
         globalStopCallback = stopThisSound;
+        newPlayer.play();
         setIsLoading(false);
         setIsPlaying(true);
       } else {
-        await sound.playAsync();
-        globalCurrentSound = sound;
+        playerRef.current.play();
+        globalCurrentPlayer = playerRef.current;
         globalStopCallback = stopThisSound;
         setIsPlaying(true);
       }
@@ -114,35 +109,28 @@ export default function VoiceNotePlayer({
     }
   };
 
-  const stopThisSound = () => {
-    if (soundRef.current) {
-      soundRef.current.pauseAsync().catch(() => {});
-    }
-    setIsPlaying(false);
-  };
-
-  const handleSpeedToggle = async () => {
+  const handleSpeedToggle = () => {
     const nextRate = playbackRate === 1.0 ? 1.5 : playbackRate === 1.5 ? 2.0 : 1.0;
     setPlaybackRate(nextRate);
-    if (sound) {
-      await sound.setRateAsync(nextRate, true).catch(() => {});
+    if (playerRef.current) {
+      playerRef.current.playbackRate = nextRate;
     }
   };
 
-  const formatTime = (millis: number) => {
-    const totalSec = Math.floor(millis / 1000);
+  const formatTime = (sec: number) => {
+    const totalSec = Math.floor(sec);
     const m = Math.floor(totalSec / 60);
     const s = totalSec % 60;
     return `${m}:${s < 10 ? '0' : ''}${s}`;
   };
 
-  const progressPercent = durationMillis > 0
-    ? Math.min(100, Math.max(0, (positionMillis / durationMillis) * 100))
+  const progressPercent = duration > 0
+    ? Math.min(100, Math.max(0, (currentTime / duration) * 100))
     : 0;
 
   const displayTime = isPlaying
-    ? formatTime(positionMillis)
-    : formatTime(durationMillis || durationSeconds * 1000);
+    ? formatTime(currentTime)
+    : formatTime(duration || durationSeconds);
 
   return (
     <View style={[styles.container, isMe ? styles.myContainer : styles.otherContainer]}>

@@ -22,7 +22,7 @@ import * as ImagePicker from 'expo-image-picker';
 import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system/legacy';
 import * as Clipboard from 'expo-clipboard';
-import { Audio } from 'expo-av';
+import { AudioRecorder } from 'expo-audio';
 import { uploadToCloudinary } from '../lib/cloudinary';
 import {
   AI_WORKER_PERSONAS,
@@ -106,14 +106,14 @@ export default function CoFounderChatScreen({ navigation, route }: any) {
 
   // Voice Note Recording State
   const [isRecordingVoice, setIsRecordingVoice] = useState(false);
-  const [recordingRef, setRecordingRef] = useState<Audio.Recording | null>(null);
+  const [recordingRef, setRecordingRef] = useState<AudioRecorder | null>(null);
   const [recordDuration, setRecordDuration] = useState(0);
   const [recordTimer, setRecordTimer] = useState<any>(null);
   const [uploadingVoice, setUploadingVoice] = useState(false);
 
   // Speech-to-Text (STT) Dictation State
   const [isDictating, setIsDictating] = useState(false);
-  const [dictatingRef, setDictatingRef] = useState<Audio.Recording | null>(null);
+  const [dictatingRef, setDictatingRef] = useState<AudioRecorder | null>(null);
   const [transcribing, setTranscribing] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [authToken, setAuthToken] = useState<string | null>(null);
@@ -482,7 +482,7 @@ export default function CoFounderChatScreen({ navigation, route }: any) {
       if (recordTimer) clearInterval(recordTimer);
       setRecordTimer(null);
       if (recordingRef) {
-        await recordingRef.stopAndUnloadAsync();
+        await recordingRef.stop().catch(() => {});
       }
     } catch (e) {
       console.warn('Cancel recording error:', e);

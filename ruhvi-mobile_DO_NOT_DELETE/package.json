@@ -10,7 +10,8 @@
     "@react-navigation/native-stack": "^7.19.2",
     "@supabase/supabase-js": "^2.117.1",
     "expo": "~57.0.31",
-    "expo-av": "^16.0.8",
+    "expo-asset": "~57.0.20",
+    "expo-audio": "~57.0.5",
     "expo-camera": "~57.0.6",
     "expo-clipboard": "~57.0.2",
     "expo-document-picker": "~57.0.3",
@@ -38,15 +39,6 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web"
-  },
-  "expo": {
-    "doctor": {
-      "reactNativeDirectoryCheck": {
-        "exclude": [
-          "expo-av"
-        ]
-      }
-    }
   },
   "private": true
 }
