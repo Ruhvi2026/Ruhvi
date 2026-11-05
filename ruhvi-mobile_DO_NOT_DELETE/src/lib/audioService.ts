@@ -1,6 +1,7 @@
 // ruhvi-mobile_DO_NOT_DELETE/src/lib/audioService.ts
 //
 // Native Audio Recording, Voice Note Upload & Speech-to-Text Dictation Service for RuhChat Mobile
+// Compatible with Expo SDK 57 (expo-audio) and Gemini 3.5 Transcribe.
 
 import {
   AudioModule,
@@ -18,15 +19,27 @@ import { uploadToCloudinary } from './cloudinary';
 export interface RecordedAudio {
   uri: string;
   durationSeconds: number;
+  mimeType: string;
+  fileName: string;
+  fileSizeBytes: number;
 }
 
 export interface VoiceUploadResult {
   url: string;
   publicId: string;
   durationSeconds: number;
+  fileSizeBytes?: number;
+  mimeType?: string;
+  voiceNoteId?: string;
+  expiresAt?: string;
 }
 
-const BACKEND_BASE = 'https://ruhvi.in';
+const BACKEND_BASE_URLS = [
+  'https://admin.ruhvi.in',
+  'https://ruhvi.in',
+];
+
+const MAX_STT_BYTES = 3 * 1024 * 1024; // 3 MB raw ceiling safe for Vercel 4.5 MB function payload
 
 /**
  * Request runtime microphone permission for audio recording
@@ -42,13 +55,14 @@ export async function requestAudioPermissions(): Promise<boolean> {
 }
 
 /**
- * Start high-quality voice note or dictation recording
+ * Start high-quality voice note or dictation recording adhering to Expo SDK 57
+ * nested platform configuration.
  */
 export async function startAudioRecording(): Promise<AudioRecorder | null> {
   try {
     const granted = await requestAudioPermissions();
     if (!granted) {
-      throw new Error('Microphone permission is required to record voice notes');
+      throw new Error('Microphone permission is required to record audio');
     }
 
     await setAudioModeAsync({
@@ -57,18 +71,14 @@ export async function startAudioRecording(): Promise<AudioRecorder | null> {
       shouldRouteThroughEarpiece: false,
     });
 
-    const raw = RecordingPresets.HIGH_QUALITY;
-    const platformOptions = {
-      extension: raw.extension,
-      sampleRate: raw.sampleRate,
-      numberOfChannels: raw.numberOfChannels,
-      bitRate: raw.bitRate,
+    // Expo SDK 57 requires preserving the nested android/ios/web structure
+    const options: any = {
+      ...RecordingPresets.HIGH_QUALITY,
       isMeteringEnabled: false,
-      ...(Platform.OS === 'android' ? raw.android : raw.ios),
     };
 
-    const recorder = new AudioModule.AudioRecorder(platformOptions);
-    await recorder.prepareToRecordAsync(platformOptions);
+    const recorder = new AudioModule.AudioRecorder(options);
+    await recorder.prepareToRecordAsync(options);
     recorder.record();
     return recorder;
   } catch (err: any) {
@@ -78,7 +88,8 @@ export async function startAudioRecording(): Promise<AudioRecorder | null> {
 }
 
 /**
- * Stop active recording and retrieve local file URI + duration
+ * Stop active recording, inspect file on disk, and retrieve local file URI,
+ * duration, verified size, and platform MIME type.
  */
 export async function stopAudioRecording(
   recording: AudioRecorder
@@ -87,7 +98,7 @@ export async function stopAudioRecording(
     const durationSeconds = Math.max(1, Math.round(recording.currentTime || 1));
     await recording.stop();
 
-    // Reset audio mode for loud speaker playback
+    // Reset audio mode for loudspeaker playback
     await setAudioModeAsync({
       allowsRecording: false,
       playsInSilentMode: true,
@@ -95,79 +106,113 @@ export async function stopAudioRecording(
     });
 
     const uri = recording.uri;
-    if (!uri) return null;
+    if (!uri) {
+      throw new Error('Audio recorder did not produce a valid file URI');
+    }
 
-    return { uri, durationSeconds };
+    const info = await FileSystem.getInfoAsync(uri);
+    if (!info.exists || (info as any).size === 0) {
+      throw new Error('Recorded audio file is empty or missing from storage');
+    }
+
+    const isWeb = Platform.OS === 'web';
+    const ext = isWeb ? '.webm' : '.m4a';
+    const mimeType = isWeb ? 'audio/webm' : 'audio/mp4';
+    const fileName = `Voice_Note_${Date.now()}${ext}`;
+    const fileSizeBytes = (info as any).size || 0;
+
+    return {
+      uri,
+      durationSeconds,
+      mimeType,
+      fileName,
+      fileSizeBytes,
+    };
   } catch (err: any) {
     console.error('[audioService] Error stopping recording:', err);
-    return null;
+    throw err;
   }
+}
+
+async function getEffectiveAuthToken(token?: string | null): Promise<string | null> {
+  if (token) return token;
+  try {
+    const mobileJwt = await AsyncStorage.getItem('ruhvi_mobile_jwt');
+    if (mobileJwt) return mobileJwt;
+
+    const { data } = await supabase.auth.getSession();
+    if (data.session?.access_token) {
+      return data.session.access_token;
+    }
+
+    // Attempt staff mobile authentication mint if credentials stored
+    const uid = await AsyncStorage.getItem('ruhvi_user_id');
+    const email = await AsyncStorage.getItem('ruhvi_user_email');
+    if (uid || email) {
+      const { data: authData } = await supabase.rpc('authenticate_staff_mobile', {
+        p_firebase_uid: uid || 'mobile-session',
+        p_email: email || '',
+      });
+      if (authData?.supabaseToken) {
+        await AsyncStorage.setItem('ruhvi_mobile_jwt', authData.supabaseToken);
+        return authData.supabaseToken;
+      }
+    }
+  } catch (err) {
+    console.warn('[audioService] getEffectiveAuthToken error:', err);
+  }
+  return null;
 }
 
 /**
  * Transcribe recorded audio buffer via Gemini 3.5 Transcribe
- * Zero persistence - audio is discarded after streaming transcription
+ * Zero persistence - audio is processed in memory and discarded.
  */
 export async function transcribeAudio(
   uri: string,
-  token?: string | null
+  token?: string | null,
+  customMimeType?: string
 ): Promise<string> {
   try {
-    let effectiveToken = token;
+    const effectiveToken = await getEffectiveAuthToken(token);
     if (!effectiveToken) {
-      effectiveToken = await AsyncStorage.getItem('ruhvi_mobile_jwt');
-    }
-    if (!effectiveToken) {
-      const { data } = await supabase.auth.getSession();
-      effectiveToken = data.session?.access_token || null;
+      throw new Error('Authentication required for speech transcription');
     }
 
-    let uid = await AsyncStorage.getItem('ruhvi_user_id');
-    let email = await AsyncStorage.getItem('ruhvi_user_email');
-
-    // Self-healing: if token is missing, attempt quick authentication mint
-    if (!effectiveToken && (email || uid)) {
-      try {
-        const { data: authData } = await supabase.rpc('authenticate_staff_mobile', {
-          p_firebase_uid: uid || 'mobile-session',
-          p_email: email || '',
-        });
-        if (authData?.supabaseToken) {
-          effectiveToken = authData.supabaseToken;
-          await AsyncStorage.setItem('ruhvi_mobile_jwt', authData.supabaseToken);
-        }
-      } catch (_) {}
+    const fileInfo = await FileSystem.getInfoAsync(uri);
+    if (fileInfo.exists && (fileInfo as any).size > MAX_STT_BYTES) {
+      throw new Error(
+        `Audio recording (${(((fileInfo as any).size) / 1024 / 1024).toFixed(1)} MB) exceeds maximum allowed size of 3 MB for dictation.`
+      );
     }
 
-    const endpoints = [
-      'https://admin.ruhvi.in/api/chat/transcribe',
-      'https://ruhvi.in/api/chat/transcribe',
-    ];
+    const mimeType = customMimeType || (Platform.OS === 'web' ? 'audio/webm' : 'audio/mp4');
 
-    // Read audio as base64 to avoid React Native FormData compatibility issues across Android/iOS
+    // Read audio as base64 for fast JSON streaming
     let base64Audio = '';
     try {
       base64Audio = await FileSystem.readAsStringAsync(uri, {
-        encoding: 'base64' as any,
+        encoding: FileSystem.EncodingType.Base64,
       });
     } catch (readErr) {
-      console.warn('[audioService] readAsStringAsync failed, will attempt uploadAsync:', readErr);
+      console.warn('[audioService] Base64 read failed, fallback to uploadAsync:', readErr);
     }
 
     let lastError: any = null;
-    for (const url of endpoints) {
+
+    for (const base of BACKEND_BASE_URLS) {
+      const endpoint = `${base}/api/chat/transcribe`;
       try {
         if (base64Audio) {
-          const response = await fetch(url, {
+          const response = await fetch(endpoint, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              ...(effectiveToken ? { Authorization: `Bearer ${effectiveToken}` } : {}),
-              ...(uid ? { 'x-ruhvi-user-id': uid } : {}),
+              Authorization: `Bearer ${effectiveToken}`,
             },
             body: JSON.stringify({
               audioBase64: base64Audio,
-              mimeType: 'audio/m4a',
+              mimeType,
             }),
           });
 
@@ -178,7 +223,7 @@ export async function transcribeAudio(
             }
           } else {
             const errText = await response.text();
-            console.warn(`[audioService] Transcribe failed via JSON on ${url}:`, errText);
+            console.warn(`[audioService] Transcribe JSON failed on ${endpoint}:`, errText);
             try {
               const parsed = JSON.parse(errText);
               lastError = new Error(parsed.error || `Server error ${response.status}`);
@@ -188,14 +233,13 @@ export async function transcribeAudio(
           }
         } else {
           // Native upload fallback via FileSystem.uploadAsync
-          const res = await FileSystem.uploadAsync(url, uri, {
+          const res = await FileSystem.uploadAsync(endpoint, uri, {
             httpMethod: 'POST',
             uploadType: FileSystem.FileSystemUploadType.MULTIPART,
             fieldName: 'file',
-            mimeType: 'audio/m4a',
+            mimeType,
             headers: {
-              ...(effectiveToken ? { Authorization: `Bearer ${effectiveToken}` } : {}),
-              ...(uid ? { 'x-ruhvi-user-id': uid } : {}),
+              Authorization: `Bearer ${effectiveToken}`,
             },
           });
 
@@ -205,7 +249,7 @@ export async function transcribeAudio(
               return (data.transcript || '').trim();
             }
           } else {
-            console.warn(`[audioService] Transcribe failed via uploadAsync on ${url}:`, res.body);
+            console.warn(`[audioService] Transcribe uploadAsync failed on ${endpoint}:`, res.body);
             try {
               const parsed = JSON.parse(res.body);
               lastError = new Error(parsed.error || `Server error ${res.status}`);
@@ -214,8 +258,8 @@ export async function transcribeAudio(
             }
           }
         }
-      } catch (reqErr) {
-        console.warn(`[audioService] Request failed on ${url}:`, reqErr);
+      } catch (reqErr: any) {
+        console.warn(`[audioService] Transcribe request error on ${endpoint}:`, reqErr?.message);
         lastError = reqErr;
       }
     }
@@ -229,25 +273,71 @@ export async function transcribeAudio(
 }
 
 /**
- * Upload voice note to Cloudinary via secondary credentials with 45-day retention
+ * Upload voice note with 45-day retention lifecycle tracking.
+ * When conversationId is provided, uploads via /api/internal-chat/voice-notes/upload
+ * which creates the server-side retention record in chat_voice_notes automatically.
  */
 export async function uploadVoiceNote(
   uri: string,
-  durationSeconds: number
+  durationSeconds: number,
+  mimeType?: string,
+  conversationId?: string
 ): Promise<VoiceUploadResult> {
-  try {
-    const fileName = `Voice_Note_${Date.now()}.m4a`;
-    const mimeType = 'audio/mp4';
+  const token = await getEffectiveAuthToken();
+  const effectiveMime = mimeType || (Platform.OS === 'web' ? 'audio/webm' : 'audio/mp4');
+  const fileName = `Voice_Note_${Date.now()}.${effectiveMime.includes('webm') ? 'webm' : 'm4a'}`;
 
-    const result = await uploadToCloudinary(uri, fileName, mimeType);
+  // If conversationId provided and token available, use dedicated voice note endpoint
+  if (conversationId && token) {
+    for (const base of BACKEND_BASE_URLS) {
+      const endpoint = `${base}/api/internal-chat/voice-notes/upload`;
+      try {
+        const uploadRes = await FileSystem.uploadAsync(endpoint, uri, {
+          httpMethod: 'POST',
+          uploadType: FileSystem.FileSystemUploadType.MULTIPART,
+          fieldName: 'file',
+          mimeType: effectiveMime,
+          parameters: {
+            conversation_id: conversationId,
+            duration_seconds: durationSeconds.toString(),
+          },
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (uploadRes.status >= 200 && uploadRes.status < 300) {
+          const data = JSON.parse(uploadRes.body);
+          if (data.success && data.url) {
+            return {
+              url: data.url,
+              publicId: data.publicId,
+              durationSeconds: data.durationSeconds || durationSeconds,
+              fileSizeBytes: data.fileSizeBytes,
+              mimeType: data.mimeType || effectiveMime,
+              voiceNoteId: data.voiceNoteId,
+              expiresAt: data.expiresAt,
+            };
+          }
+        }
+      } catch (vnUploadErr) {
+        console.warn(`[audioService] voice-notes/upload error on ${endpoint}:`, vnUploadErr);
+      }
+    }
+  }
+
+  // Fallback to standard attachment upload
+  try {
+    const result = await uploadToCloudinary(uri, fileName, effectiveMime);
     return {
       url: result.cloudinary_url,
       publicId: result.cloudinary_public_id,
       durationSeconds,
+      fileSizeBytes: result.file_size,
+      mimeType: result.mime_type || effectiveMime,
     };
   } catch (err: any) {
-    console.error('[audioService] uploadVoiceNote error:', err);
+    console.error('[audioService] uploadVoiceNote fallback error:', err);
     throw new Error(err?.message || 'Failed to upload voice note');
   }
 }
-

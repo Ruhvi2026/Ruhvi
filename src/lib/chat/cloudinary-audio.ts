@@ -16,18 +16,20 @@ const RETENTION_MS = VOICE_NOTE_RETENTION_MS;
 
 function getCloudinary() {
   const cloudName =
+    process.env.CHAT_CLOUDINARY_CLOUD_NAME ||
     process.env.NEXT_PUBLIC_CHAT_CLOUDINARY_CLOUD_NAME ||
     process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME ||
-    process.env.CLOUDINARY_CLOUD_NAME ||
-    'io1kkukg';
+    process.env.CLOUDINARY_CLOUD_NAME;
   const apiKey =
-    process.env.CHAT_CLOUDINARY_API_KEY ||
-    process.env.CLOUDINARY_API_KEY ||
-    '522811694238476';
+    process.env.CHAT_CLOUDINARY_API_KEY || process.env.CLOUDINARY_API_KEY;
   const apiSecret =
-    process.env.CHAT_CLOUDINARY_API_SECRET ||
-    process.env.CLOUDINARY_API_SECRET ||
-    '4InB0lp_J8h_NUwTCp3NVBXalOs';
+    process.env.CHAT_CLOUDINARY_API_SECRET || process.env.CLOUDINARY_API_SECRET;
+
+  if (!cloudName || !apiKey || !apiSecret) {
+    throw new Error(
+      'Cloudinary audio service credentials missing: Ensure CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET (or CHAT_CLOUDINARY_* variants) are configured in the environment.'
+    );
+  }
 
   cloudinary.config({
     cloud_name: cloudName,

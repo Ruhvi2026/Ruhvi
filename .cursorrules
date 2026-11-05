@@ -1,0 +1,28 @@
+# Cursor Rules — Project Ruhvi (GSD Workflow Enforced)
+
+## 1. Prime Directive: Context-First Execution
+- **Mandatory Read:** Before writing code, planning refactors, or running generation steps, you MUST read `GSD_CONTEXT.md`.
+- `GSD_CONTEXT.md` is the single authoritative rolling memory preventing context rot, duplicate tasks, or hallucinated boundaries.
+
+## 2. GSD 3-State Execution Lifecycle
+Every feature, bug fix, or refactor MUST transition strictly through three states:
+1. **PLAN:**
+   - Define exact inputs, target files, and falsifiable verification criteria in `GSD_PLAN.md` or via `.\gsd_runner.ps1 plan <taskId> "<title>"`.
+   - Do NOT edit code in the PLAN state.
+2. **EXECUTE:**
+   - Transition task to execute: `.\gsd_runner.ps1 execute <taskId>`.
+   - Implement minimal, atomic, well-typed code changes.
+3. **VERIFY:**
+   - Run verification checks immediately: `.\gsd_runner.ps1 verify <taskId>` (or `./gsd_runner.sh verify <taskId>`).
+   - Verification gates include `npx tsc --noEmit` (0 errors required) and targeted tests.
+   - If verification fails, fix the issue in place; NEVER mark a task complete or proceed to the next task if verification fails.
+   - Upon completion, summarize context: `.\gsd_runner.ps1 summarize`.
+
+## 3. Protected Documentation & Repository Invariants
+- **NEVER** delete, relocate, or overwrite:
+  - `PROJECT_ARCHITECTURE_DOCS.md`
+  - `PROJECT_SYSTEM_TOOLS_AND_SERVICES.md`
+- **Integration Audit:** Whenever adding, updating, or removing dependencies, SDKs, or services, update `PROJECT_SYSTEM_TOOLS_AND_SERVICES.md`.
+- **Auth Guardrail:** Firebase Auth is the SOLE authentication provider. Custom HS256 JWTs are minted for Supabase RLS. Supabase Auth is NOT used.
+- **Zero Breakage:** Zero tolerance for breaking existing payments (PhonePe), logistics (Shiprocket), or admin workflows.
+

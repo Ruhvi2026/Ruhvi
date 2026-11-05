@@ -17,6 +17,7 @@ import {
   createRateLimitHeaders,
 } from '@/lib/ai/co-founder/rate-limiter';
 import { ConversationRepository } from '@/lib/ai/co-founder/conversations/repository';
+import { transcribeAudioBuffer } from '@/lib/ai/transcribe-service';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -127,20 +128,35 @@ export async function POST(req: NextRequest) {
       messages = effectiveMessages;
     }
 
+    // Single canonical transcription: skip re-transcription if client already provided a valid transcript
+    const hasExistingTranscript =
+      latest?.text &&
+      !latest.text.startsWith('🎤') &&
+      !latest.text.startsWith('[Voice Note') &&
+      latest.text !== 'Voice Note' &&
+      latest.text.trim().length > 0;
+
     let audioTranscription: string | null = null;
-    if (latest?.audioBase64 || latest?.audioUrl) {
+    if (!hasExistingTranscript && (latest?.audioBase64 || latest?.audioUrl)) {
       try {
-        let rawBase64 = '';
-        let mimeType = latest.audioMimeType || 'audio/m4a';
+        let audioBuf: Buffer | null = null;
+        let mimeType = latest.audioMimeType || 'audio/mp4';
 
         if (latest.audioBase64) {
-          rawBase64 = latest.audioBase64.replace(/^data:[^;]+;base64,/, '');
+          const rawBase64 = latest.audioBase64.replace(
+            /^data:[^;]+;base64,/,
+            ''
+          );
+          audioBuf = Buffer.from(rawBase64, 'base64');
         } else if (latest.audioUrl) {
           try {
-            const audioFetch = await fetch(latest.audioUrl);
+            assertSafeOutboundUrl(latest.audioUrl);
+            const audioFetch = await fetch(latest.audioUrl, {
+              signal: AbortSignal.timeout(8000),
+            });
             if (audioFetch.ok) {
               const arrBuf = await audioFetch.arrayBuffer();
-              rawBase64 = Buffer.from(arrBuf).toString('base64');
+              audioBuf = Buffer.from(arrBuf);
               const cType = audioFetch.headers.get('content-type');
               if (cType) mimeType = cType;
             }
@@ -152,33 +168,11 @@ export async function POST(req: NextRequest) {
           }
         }
 
-        if (rawBase64) {
-          const geminiKey =
-            resolveEffectiveApiKey('gemini').apiKey ||
-            process.env.GEMINI_API_KEY;
-          if (geminiKey) {
-            const genAI = new GoogleGenerativeAI(geminiKey);
-            const transcribeModel = genAI.getGenerativeModel({
-              model: 'gemini-3.5-flash-lite',
-            });
-            const transcriptionRes = await transcribeModel.generateContent([
-              {
-                inlineData: {
-                  mimeType,
-                  data: rawBase64,
-                },
-              },
-              {
-                text: 'Transcribe this founder voice note verbatim in Bengali, English, or Hindi (the language spoken). Return ONLY the transcription with no explanations, notes, or preamble.',
-              },
-            ]);
-            const candidateTranscript = transcriptionRes?.response
-              ?.text()
-              ?.trim();
-            if (candidateTranscript) {
-              audioTranscription = candidateTranscript;
-              latest.text = candidateTranscript;
-            }
+        if (audioBuf && audioBuf.length > 0) {
+          const trRes = await transcribeAudioBuffer(audioBuf, mimeType);
+          if (trRes?.transcript && trRes.transcript.trim().length > 0) {
+            audioTranscription = trRes.transcript.trim();
+            latest.text = audioTranscription;
           }
         }
       } catch (transcribeErr: any) {
@@ -192,7 +186,7 @@ export async function POST(req: NextRequest) {
           latest.text.startsWith('[Voice Note')
         ) {
           latest.text =
-            'Founder shared a voice message. Please listen to their query and address it systematically.';
+            'Founder shared a voice message, but transcription was not clear. Please ask them politely to clarify their request or type it.';
         }
       }
     }

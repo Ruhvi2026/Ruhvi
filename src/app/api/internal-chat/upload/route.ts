@@ -35,28 +35,63 @@ const ALLOWED_MIME_TYPES = new Set([
   'video/mp4',
   'video/webm',
   'video/quicktime',
+  'audio/mp4',
+  'audio/webm',
+  'audio/m4a',
+  'audio/x-m4a',
+  'audio/mpeg',
+  'audio/wav',
+  'audio/ogg',
+  'audio/aac',
 ]);
+
+const CORS_HEADERS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+};
+
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 204,
+    headers: CORS_HEADERS,
+  });
+}
 
 async function getAuthenticatedStaff(req: Request) {
   let token: string | null = null;
   const authHeader = req.headers.get('authorization');
-  if (authHeader?.startsWith('Bearer ')) {
-    token = authHeader.substring(7);
+  if (authHeader?.toLowerCase().startsWith('bearer ')) {
+    token = authHeader.substring(7).trim();
   }
   if (!token) {
     const cookieStore = await cookies();
     token = cookieStore.get('__session')?.value || null;
   }
+  if (!token) return null;
+
   const decoded = await verifySessionToken(token);
-  if (!decoded) return null;
+  let userId = decoded?.sub as string | undefined;
+
   const supabase = getServiceClient();
+  if (!userId) {
+    const { data: authData } = await supabase.auth.getUser(token);
+    if (authData?.user?.id) {
+      userId = authData.user.id;
+    }
+  }
+
+  if (!userId) return null;
+
   const { data: user } = await supabase
     .from('users')
     .select('id, role, account_status')
-    .eq('id', decoded.sub as string)
+    .eq('id', userId)
     .maybeSingle();
-  if (!user || user.account_status !== 'active' || user.role === 'customer')
+
+  if (!user || user.account_status !== 'active' || user.role === 'customer') {
     return null;
+  }
   return user;
 }
 
@@ -102,7 +137,8 @@ export async function POST(req: Request) {
 
     // Determine resource type for Cloudinary
     const isImage = mimeType.startsWith('image/');
-    const isVideo = mimeType.startsWith('video/');
+    const isVideo =
+      mimeType.startsWith('video/') || mimeType.startsWith('audio/');
     const cloudinaryResourceType = isVideo
       ? 'video'
       : isImage

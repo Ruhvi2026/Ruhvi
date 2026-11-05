@@ -20,7 +20,21 @@ const ALLOWED_AUDIO_TYPES = new Set([
   'audio/mpeg',
   'audio/aac',
   'audio/x-m4a',
+  'audio/m4a',
 ]);
+
+const CORS_HEADERS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+};
+
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 204,
+    headers: CORS_HEADERS,
+  });
+}
 
 async function getAuthenticatedStaff(req: Request) {
   const cookieStore = await cookies();

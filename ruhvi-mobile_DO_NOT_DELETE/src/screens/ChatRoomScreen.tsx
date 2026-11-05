@@ -114,6 +114,11 @@ export default function ChatRoomScreen({ route, navigation }: any) {
   const [dictatingRef, setDictatingRef] = useState<AudioRecorder | null>(null);
   const [transcribing, setTranscribing] = useState(false);
 
+  // Lifecycle Refs to prevent unmount leaks
+  const recordTimerRef = useRef<any>(null);
+  const activeRecordingRef = useRef<AudioRecorder | null>(null);
+  const activeDictatingRef = useRef<AudioRecorder | null>(null);
+
   // In-Chat Media Library State
   const [showMediaLibrary, setShowMediaLibrary] = useState<boolean>(false);
   const [mediaTab, setMediaTab] = useState<'photos' | 'docs'>('photos');
@@ -162,7 +167,18 @@ export default function ChatRoomScreen({ route, navigation }: any) {
     fetchConversation();
 
     return () => {
-      if (recordTimer) clearInterval(recordTimer);
+      if (recordTimerRef.current) {
+        clearInterval(recordTimerRef.current);
+        recordTimerRef.current = null;
+      }
+      if (activeRecordingRef.current) {
+        activeRecordingRef.current.stop().catch(() => {});
+        activeRecordingRef.current = null;
+      }
+      if (activeDictatingRef.current) {
+        activeDictatingRef.current.stop().catch(() => {});
+        activeDictatingRef.current = null;
+      }
     };
   }, [id]);
 
@@ -412,37 +428,44 @@ export default function ChatRoomScreen({ route, navigation }: any) {
       const rec = await startAudioRecording();
       if (!rec) return;
       setRecordingRef(rec);
+      activeRecordingRef.current = rec;
       setIsRecordingVoice(true);
       setRecordDuration(0);
       const timer = setInterval(() => {
         setRecordDuration((d) => d + 1);
       }, 1000);
       setRecordTimer(timer);
+      recordTimerRef.current = timer;
     } catch (err: any) {
       Alert.alert('Microphone Access', err?.message || 'Could not access microphone');
     }
   };
 
   const handleCancelRecording = async () => {
-    if (recordTimer) clearInterval(recordTimer);
+    if (recordTimerRef.current) clearInterval(recordTimerRef.current);
+    recordTimerRef.current = null;
     setRecordTimer(null);
-    if (recordingRef) {
-      await recordingRef.stop().catch(() => {});
-      setRecordingRef(null);
+    if (activeRecordingRef.current) {
+      await activeRecordingRef.current.stop().catch(() => {});
+      activeRecordingRef.current = null;
     }
+    setRecordingRef(null);
     setIsRecordingVoice(false);
     setRecordDuration(0);
   };
 
   const handleSendVoiceNote = async () => {
-    if (!recordingRef) return;
-    if (recordTimer) clearInterval(recordTimer);
+    const rec = activeRecordingRef.current || recordingRef;
+    if (!rec) return;
+    if (recordTimerRef.current) clearInterval(recordTimerRef.current);
+    recordTimerRef.current = null;
     setRecordTimer(null);
+    activeRecordingRef.current = null;
+    setRecordingRef(null);
 
     setUploadingVoice(true);
     try {
-      const result = await stopAudioRecording(recordingRef);
-      setRecordingRef(null);
+      const result = await stopAudioRecording(rec);
       setIsRecordingVoice(false);
       if (!result || !result.uri) {
         setUploadingVoice(false);
@@ -453,8 +476,8 @@ export default function ChatRoomScreen({ route, navigation }: any) {
       if (!uid) uid = await AsyncStorage.getItem('ruhvi_user_id');
       if (!uid) throw new Error('Not logged in');
 
-      // 1. Upload audio to Cloudinary
-      const uploaded = await uploadVoiceNote(result.uri, result.durationSeconds);
+      // 1. Upload audio (using conversationId to leverage server-side retention endpoint)
+      const uploaded = await uploadVoiceNote(result.uri, result.durationSeconds, result.mimeType, id);
 
       // 2. Insert into chat_messages (support both 'voice_note' and standard 'attachment' check constraint)
       let msgData: any = null;
@@ -488,52 +511,70 @@ export default function ChatRoomScreen({ route, navigation }: any) {
         msgData = firstTry.data;
       }
 
-      // 3. Insert into chat_attachments
-      await supabase
+      // 3. Insert into chat_attachments and strictly check error
+      const { data: attachData, error: attachErr } = await supabase
         .from('chat_attachments')
         .insert({
           message_id: msgData.id,
           cloudinary_public_id: uploaded.publicId,
           cloudinary_url: uploaded.url,
           resource_type: 'video',
-          file_name: 'Voice Note.m4a',
-          mime_type: 'audio/mp4',
+          file_name: result.fileName || 'Voice Note.m4a',
+          mime_type: result.mimeType || 'audio/mp4',
           duration: result.durationSeconds,
-        });
+          file_size: result.fileSizeBytes,
+        })
+        .select()
+        .single();
 
-      // 4. Register in chat_voice_notes for 45-day retention
-      try {
-        await supabase
-          .from('chat_voice_notes')
-          .insert({
-            message_id: msgData.id,
-            conversation_id: id,
-            sender_id: uid,
-            cloudinary_public_id: uploaded.publicId,
-            cloudinary_url: uploaded.url,
-            duration_seconds: result.durationSeconds,
-            mime_type: 'audio/mp4',
-            status: 'active',
-          });
-      } catch (e: any) {
-        console.warn('[ChatRoom] chat_voice_notes insert warning:', e);
+      if (attachErr) {
+        console.error('[ChatRoom] chat_attachments insert error:', attachErr);
+        await supabase.from('chat_messages').delete().eq('id', msgData.id);
+        throw new Error(`Failed to save voice note attachment: ${attachErr.message}`);
+      }
+
+      // 4. Register in chat_voice_notes for 45-day retention if not already stored by endpoint
+      if (!uploaded.voiceNoteId) {
+        try {
+          const now = new Date();
+          const expiresAt = new Date(now.getTime() + 45 * 24 * 60 * 60 * 1000).toISOString();
+          const { error: vnErr } = await supabase
+            .from('chat_voice_notes')
+            .insert({
+              message_id: msgData.id,
+              conversation_id: id,
+              sender_id: uid,
+              cloudinary_public_id: uploaded.publicId,
+              cloudinary_url: uploaded.url,
+              duration_seconds: result.durationSeconds,
+              file_size_bytes: result.fileSizeBytes || 0,
+              mime_type: result.mimeType || 'audio/mp4',
+              uploaded_at: now.toISOString(),
+              expires_at: uploaded.expiresAt || expiresAt,
+              status: 'active',
+            });
+          if (vnErr) console.warn('[ChatRoom] chat_voice_notes insert warning:', vnErr);
+        } catch (e: any) {
+          console.warn('[ChatRoom] chat_voice_notes insert warning:', e);
+        }
       }
 
       // 5. Update local state
+      const attachmentItem = attachData || {
+        id: uploaded.publicId,
+        message_id: msgData.id,
+        cloudinary_public_id: uploaded.publicId,
+        cloudinary_url: uploaded.url,
+        resource_type: 'video',
+        file_name: result.fileName || 'Voice Note.m4a',
+        mime_type: result.mimeType || 'audio/mp4',
+        duration: result.durationSeconds,
+        file_size: result.fileSizeBytes,
+      };
+
       const newMsgWithAttach = {
         ...msgData,
-        chat_attachments: [
-          {
-            id: uploaded.publicId,
-            message_id: msgData.id,
-            cloudinary_public_id: uploaded.publicId,
-            cloudinary_url: uploaded.url,
-            resource_type: 'video',
-            file_name: 'Voice Note.m4a',
-            mime_type: 'audio/mp4',
-            duration: result.durationSeconds,
-          },
-        ],
+        chat_attachments: [attachmentItem],
       };
 
       setMessages((prev) => [newMsgWithAttach as any, ...prev]);
@@ -547,15 +588,17 @@ export default function ChatRoomScreen({ route, navigation }: any) {
 
   const handleToggleDictation = async () => {
     if (isDictating) {
-      if (!dictatingRef) return;
+      const rec = activeDictatingRef.current || dictatingRef;
+      if (!rec) return;
       setIsDictating(false);
       setTranscribing(true);
+      activeDictatingRef.current = null;
+      setDictatingRef(null);
       try {
-        const audio = await stopAudioRecording(dictatingRef);
-        setDictatingRef(null);
+        const audio = await stopAudioRecording(rec);
         if (audio?.uri) {
           const token = await AsyncStorage.getItem('ruhvi_mobile_jwt');
-          const transcript = await transcribeAudio(audio.uri, token);
+          const transcript = await transcribeAudio(audio.uri, token, audio.mimeType);
           if (transcript) {
             setText((prev) => (prev ? `${prev} ${transcript}` : transcript));
             if (Platform.OS === 'android') {
@@ -577,6 +620,7 @@ export default function ChatRoomScreen({ route, navigation }: any) {
         const rec = await startAudioRecording();
         if (!rec) return;
         setDictatingRef(rec);
+        activeDictatingRef.current = rec;
         setIsDictating(true);
         if (Platform.OS === 'android') {
           ToastAndroid.show('Listening... Speak now (Bengali, Hindi, English)', ToastAndroid.LONG);
@@ -976,6 +1020,50 @@ export default function ChatRoomScreen({ route, navigation }: any) {
               return [data as ChatMessage, ...prev];
             });
             markAsRead();
+
+            // Guard against attachment insertion latency
+            if (
+              (data.message_type === 'voice_note' || data.message_type === 'attachment') &&
+              (!data.chat_attachments || data.chat_attachments.length === 0)
+            ) {
+              setTimeout(async () => {
+                const { data: refetched } = await supabase
+                  .from('chat_messages')
+                  .select('id, chat_attachments (*)')
+                  .eq('id', data.id)
+                  .single();
+                if (refetched?.chat_attachments && refetched.chat_attachments.length > 0) {
+                  setMessages((prev) =>
+                    prev.map((m) =>
+                      m.id === data.id ? { ...m, chat_attachments: refetched.chat_attachments } : m
+                    )
+                  );
+                }
+              }, 700);
+            }
+          }
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'chat_attachments' },
+        (payload: any) => {
+          const newAttach = payload?.new;
+          if (newAttach?.message_id) {
+            setMessages((prev) =>
+              prev.map((m) => {
+                if (m.id === newAttach.message_id) {
+                  const existing = (m as any).chat_attachments || [];
+                  if (!existing.some((a: any) => a.id === newAttach.id)) {
+                    return {
+                      ...m,
+                      chat_attachments: [...existing, newAttach],
+                    };
+                  }
+                }
+                return m;
+              })
+            );
           }
         }
       )
@@ -1591,11 +1679,34 @@ export default function ChatRoomScreen({ route, navigation }: any) {
 
           {/* Attachment / Voice Note Render */}
           {(item.message_type === 'voice_note' || firstAttach?.mime_type?.startsWith('audio/') || firstAttach?.file_name?.endsWith('.m4a') || firstAttach?.file_name?.includes('Voice Note')) ? (
-            <VoiceNotePlayer
-              audioUrl={firstAttach?.cloudinary_url || (item as any).voice_note?.cloudinaryUrl || (item as any).voice_note?.cloudinary_url || (item as any).audio_url || (item as any).audioUrl || ''}
-              durationSeconds={firstAttach?.duration || (item as any).duration || (item as any).voice_note?.durationSeconds || 10}
-              isMe={isMe}
-            />
+            (() => {
+              const audioUrl =
+                firstAttach?.cloudinary_url ||
+                (item as any).voice_note?.cloudinaryUrl ||
+                (item as any).voice_note?.cloudinary_url ||
+                (item as any).audio_url ||
+                (item as any).audioUrl ||
+                '';
+
+              if (!audioUrl) {
+                return (
+                  <View style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 8, paddingHorizontal: 10, gap: 8 }}>
+                    <ActivityIndicator size="small" color={isMe ? '#075E54' : '#128C7E'} />
+                    <Text style={{ fontSize: 12, color: isMe ? '#075E54' : '#666', fontStyle: 'italic' }}>
+                      Syncing voice note...
+                    </Text>
+                  </View>
+                );
+              }
+
+              return (
+                <VoiceNotePlayer
+                  audioUrl={audioUrl}
+                  durationSeconds={firstAttach?.duration || (item as any).duration || (item as any).voice_note?.durationSeconds || 10}
+                  isMe={isMe}
+                />
+              );
+            })()
           ) : firstAttach && (
             firstAttach.resource_type === 'image' ? (
               <TouchableOpacity 

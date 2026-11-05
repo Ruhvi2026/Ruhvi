@@ -20,6 +20,17 @@
     "analyze": "cross-env ANALYZE=true next build",
     "audit:prod": "npm audit --production",
     "security:scan": "node scripts/scan-secrets.mjs",
+    "gsd": "node scripts/gsd-engine.mjs",
+    "gsd:status": "node scripts/gsd-engine.mjs status",
+    "gsd:verify": "node scripts/gsd-engine.mjs verify",
+    "ralph": "node scripts/ralph-engine.mjs run",
+    "ralph:status": "node scripts/ralph-engine.mjs status",
+    "ralph:step": "node scripts/ralph-engine.mjs step",
+    "ralph:stop": "node scripts/ralph-engine.mjs stop",
+    "review": "coderabbit review --uncommitted --gate major",
+    "review:all": "coderabbit review --gate major",
+    "review:agent": "coderabbit review --uncommitted --agent",
+    "review:doctor": "coderabbit doctor",
     "prepare": "husky"
   },
   "dependencies": {
@@ -81,6 +92,7 @@
   "devDependencies": {
     "@axe-core/playwright": "^4.14.0",
     "@next/bundle-analyzer": "^16.3.7",
+    "@opengsd/gsd-core": "^1.20.1",
     "@playwright/test": "^1.64.1",
     "@tailwindcss/typography": "^0.5.20",
     "@types/jest": "^30.0.0",

@@ -1,0 +1,63 @@
+# yaml-language-server: $schema=https://www.coderabbit.ai/integrations/schema.v2.json
+language: "en-US"
+tone_instructions: "Concise, actionable, and strictly engineering-focused. Zero fluff. Prioritize correctness, type safety, OWASP Top 10 vulnerabilities, race conditions, concurrency bottlenecks, and secret leakage prevention."
+
+reviews:
+  profile: "assertive"
+  request_changes_workflow: true
+  high_level_summary: true
+  poem: false
+  review_status: true
+  collapse_walkthrough: false
+  auto_review:
+    enabled: true
+    drafts: false
+    base_branches:
+      - "main"
+      - "master"
+      - "develop"
+      - "staging"
+
+  # Path Exclusions and Target Inclusions
+  path_filters:
+    # Target Source Code
+    - "src/**"
+    - "supabase/**"
+    - "scripts/**"
+    - "tests/**"
+    - "*.ts"
+    - "*.tsx"
+    - "*.js"
+    - "*.mjs"
+    - "*.sql"
+    - "*.json"
+    # Exclude Build Artifacts, Dependencies, Lockfiles & Media
+    - "!node_modules/**"
+    - "!.next/**"
+    - "!dist/**"
+    - "!build/**"
+    - "!out/**"
+    - "!coverage/**"
+    - "!package-lock.json"
+    - "!pnpm-lock.yaml"
+    - "!yarn.lock"
+    - "!**/*.lock"
+    - "!**/*.min.js"
+    - "!**/*.min.css"
+    - "!**/*.map"
+    - "!**/*.svg"
+    - "!**/*.png"
+    - "!**/*.jpg"
+    - "!**/*.jpeg"
+    - "!**/*.webp"
+    - "!**/*.ico"
+    - "!public/**"
+    - "!ruhvi-mobile_DO_NOT_DELETE/android/**"
+    - "!ruhvi-mobile_DO_NOT_DELETE/ios/**"
+    - "!.git/**"
+    - "!.gsd/**"
+    - "!.planning/**"
+    - "!.ralph/**"
+
+chat:
+  auto_reply: true

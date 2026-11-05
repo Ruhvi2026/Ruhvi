@@ -6,7 +6,7 @@ export const VOICE_NOTE_RETENTION_DAYS = 45;
 export const VOICE_NOTE_RETENTION_MS =
   VOICE_NOTE_RETENTION_DAYS * 24 * 60 * 60 * 1000;
 export const VOICE_NOTE_MAX_BYTES = 10 * 1024 * 1024; // 10MB
-export const SPEECH_TO_TEXT_MAX_BYTES = 5 * 1024 * 1024; // 5MB
+export const SPEECH_TO_TEXT_MAX_BYTES = 3 * 1024 * 1024; // 3MB (safe for Vercel 4.5MB function body limit)
 
 export const VOICE_NOTE_ALLOWED_MIME_TYPES = [
   'audio/webm',

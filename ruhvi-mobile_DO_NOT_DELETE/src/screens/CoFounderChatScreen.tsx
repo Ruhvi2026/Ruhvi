@@ -56,7 +56,6 @@ interface ChatMessage {
   text: string;
   imageUrl?: string;
   audioUrl?: string;
-  audioBase64?: string;
   duration?: number;
   files?: FileItem[];
   timestamp: number;
@@ -116,6 +115,12 @@ export default function CoFounderChatScreen({ navigation, route }: any) {
   const [isDictating, setIsDictating] = useState(false);
   const [dictatingRef, setDictatingRef] = useState<AudioRecorder | null>(null);
   const [transcribing, setTranscribing] = useState(false);
+
+  // Lifecycle Refs to prevent unmount leaks
+  const recordTimerRef = useRef<any>(null);
+  const activeRecordingRef = useRef<AudioRecorder | null>(null);
+  const activeDictatingRef = useRef<AudioRecorder | null>(null);
+
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [authToken, setAuthToken] = useState<string | null>(null);
   const [attachedImage, setAttachedImage] = useState<{ uri: string; url?: string } | null>(null);
@@ -131,6 +136,24 @@ export default function CoFounderChatScreen({ navigation, route }: any) {
   const [activeAlerts, setActiveAlerts] = useState<any[]>([]);
 
   const flatListRef = useRef<FlatList>(null);
+
+  // Unmount cleanup for active audio recording and timer
+  useEffect(() => {
+    return () => {
+      if (recordTimerRef.current) {
+        clearInterval(recordTimerRef.current);
+        recordTimerRef.current = null;
+      }
+      if (activeRecordingRef.current) {
+        activeRecordingRef.current.stop().catch(() => {});
+        activeRecordingRef.current = null;
+      }
+      if (activeDictatingRef.current) {
+        activeDictatingRef.current.stop().catch(() => {});
+        activeDictatingRef.current = null;
+      }
+    };
+  }, []);
 
   // Configure WhatsApp header
   useEffect(() => {
@@ -176,15 +199,22 @@ export default function CoFounderChatScreen({ navigation, route }: any) {
     });
   }, [navigation, loading, activePersona]);
 
-  // Save chat history
+  // Save chat history without any binary audio payloads
   const persistMessages = useCallback(async (newMsgs: ChatMessage[]) => {
     try {
       const uid = currentUserId || (await AsyncStorage.getItem('ruhvi_user_id'));
       if (uid) {
+        const sanitized = newMsgs.map((m: any) => {
+          if (m.audioBase64) {
+            const { audioBase64, ...rest } = m;
+            return rest;
+          }
+          return m;
+        });
         const storageKey = activePersona.department === 'founder'
           ? `ruhvi_co_founder_chat_${uid}`
           : `ruhvi_ai_worker_chat_${activePersona.department}_${uid}`;
-        await AsyncStorage.setItem(storageKey, JSON.stringify(newMsgs));
+        await AsyncStorage.setItem(storageKey, JSON.stringify(sanitized));
       }
     } catch (e) {
       console.warn('Failed to persist messages:', e);
@@ -287,7 +317,14 @@ export default function CoFounderChatScreen({ navigation, route }: any) {
           if (stored) {
             const parsed = JSON.parse(stored);
             if (Array.isArray(parsed) && parsed.length > 0) {
-              setMessages(parsed);
+              const sanitized = parsed.map((m: any) => {
+                if (m.audioBase64) {
+                  const { audioBase64, ...rest } = m;
+                  return rest;
+                }
+                return m;
+              });
+              setMessages(sanitized);
               return;
             }
           }
@@ -466,12 +503,14 @@ export default function CoFounderChatScreen({ navigation, route }: any) {
       const recording = await startAudioRecording();
       if (recording) {
         setRecordingRef(recording);
+        activeRecordingRef.current = recording;
         setIsRecordingVoice(true);
         setRecordDuration(0);
         const timer = setInterval(() => {
           setRecordDuration((prev) => prev + 1);
         }, 1000);
         setRecordTimer(timer);
+        recordTimerRef.current = timer;
       }
     } catch (err: any) {
       Alert.alert('Microphone Error', err.message || 'Could not start audio recording');
@@ -480,14 +519,17 @@ export default function CoFounderChatScreen({ navigation, route }: any) {
 
   const handleCancelRecording = async () => {
     try {
-      if (recordTimer) clearInterval(recordTimer);
+      if (recordTimerRef.current) clearInterval(recordTimerRef.current);
+      recordTimerRef.current = null;
       setRecordTimer(null);
-      if (recordingRef) {
-        await recordingRef.stop().catch(() => { });
+      const rec = activeRecordingRef.current || recordingRef;
+      if (rec) {
+        await rec.stop().catch(() => { });
       }
     } catch (e) {
       console.warn('Cancel recording error:', e);
     } finally {
+      activeRecordingRef.current = null;
       setRecordingRef(null);
       setIsRecordingVoice(false);
       setRecordDuration(0);
@@ -496,15 +538,18 @@ export default function CoFounderChatScreen({ navigation, route }: any) {
 
   const handleSendVoiceNote = async () => {
     try {
-      if (recordTimer) clearInterval(recordTimer);
+      if (recordTimerRef.current) clearInterval(recordTimerRef.current);
+      recordTimerRef.current = null;
       setRecordTimer(null);
 
-      const recording = recordingRef;
+      const recording = activeRecordingRef.current || recordingRef;
       if (!recording) return;
 
-      setUploadingVoice(true);
-      const audioData = await stopAudioRecording(recording);
+      activeRecordingRef.current = null;
       setRecordingRef(null);
+      setUploadingVoice(true);
+
+      const audioData = await stopAudioRecording(recording);
       setIsRecordingVoice(false);
 
       if (!audioData) {
@@ -518,23 +563,13 @@ export default function CoFounderChatScreen({ navigation, route }: any) {
         setAuthToken(token);
       }
 
-      // 1. Upload voice note to Cloudinary
-      const uploaded = await uploadVoiceNote(audioData.uri, audioData.durationSeconds);
-
-      // Read base64 audio for backend fallback
-      let audioBase64 = '';
-      try {
-        audioBase64 = await FileSystem.readAsStringAsync(audioData.uri, {
-          encoding: FileSystem.EncodingType.Base64,
-        });
-      } catch (b64Err) {
-        console.warn('Could not read base64 audio:', b64Err);
-      }
+      // 1. Upload voice note
+      const uploaded = await uploadVoiceNote(audioData.uri, audioData.durationSeconds, audioData.mimeType);
 
       // 2. Transcribe voice note for AI reasoning
       let transcriptionText = '';
       try {
-        const transcript = await transcribeAudio(audioData.uri, token || undefined);
+        const transcript = await transcribeAudio(audioData.uri, token || undefined, audioData.mimeType);
         if (transcript) {
           transcriptionText = transcript.trim();
         }
@@ -548,7 +583,6 @@ export default function CoFounderChatScreen({ navigation, route }: any) {
         sender: 'user',
         text: transcriptionText ? transcriptionText : `[Voice Note (${durationSeconds}s)]`,
         audioUrl: uploaded?.url || audioData.uri,
-        audioBase64: audioBase64 || undefined,
         duration: durationSeconds,
         timestamp: Date.now(),
       };
@@ -562,12 +596,11 @@ export default function CoFounderChatScreen({ navigation, route }: any) {
       const isCoFounder = activePersona.department === 'founder';
       const endpoints = isCoFounder ? CO_FOUNDER_ENDPOINTS : AI_WORKER_ENDPOINTS;
 
-      const payloadMessages = updatedList.map((m) => ({
+      const payloadMessages = updatedList.map((m, idx) => ({
         sender: m.sender,
         text: m.text,
         imageUrl: m.imageUrl,
-        audioUrl: m.audioUrl,
-        audioBase64: m.audioBase64,
+        audioUrl: idx === updatedList.length - 1 ? m.audioUrl : undefined,
       }));
 
       const requestBody = isCoFounder
@@ -654,17 +687,19 @@ export default function CoFounderChatScreen({ navigation, route }: any) {
     if (isDictating) {
       setIsDictating(false);
       setTranscribing(true);
+      const rec = activeDictatingRef.current || dictatingRef;
+      activeDictatingRef.current = null;
+      setDictatingRef(null);
       try {
-        if (dictatingRef) {
-          const audioData = await stopAudioRecording(dictatingRef);
-          setDictatingRef(null);
+        if (rec) {
+          const audioData = await stopAudioRecording(rec);
           if (audioData) {
             let token = authToken;
             if (!token) {
               token = await AsyncStorage.getItem('ruhvi_mobile_jwt');
               setAuthToken(token);
             }
-            const transcript = await transcribeAudio(audioData.uri, token || undefined);
+            const transcript = await transcribeAudio(audioData.uri, token || undefined, audioData.mimeType);
             if (transcript) {
               setInputText((prev) => (prev ? `${prev} ${transcript.trim()}` : transcript.trim()));
             } else {
@@ -684,6 +719,7 @@ export default function CoFounderChatScreen({ navigation, route }: any) {
         const recording = await startAudioRecording();
         if (recording) {
           setDictatingRef(recording);
+          activeDictatingRef.current = recording;
           setIsDictating(true);
           if (Platform.OS === 'android') {
             ToastAndroid.show('Listening... Speak now 🎙️', ToastAndroid.SHORT);

@@ -1,6 +1,7 @@
 // ruhvi-mobile_DO_NOT_DELETE/src/components/VoiceNotePlayer.tsx
 //
 // WhatsApp-style Voice Note Audio Player for RuhChat Mobile
+// Resilient player state machine with status.error handling, automatic player release, and retry.
 
 import React, { useState, useEffect, useRef } from 'react';
 import {
@@ -14,7 +15,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { createAudioPlayer, AudioPlayer, AudioStatus, setAudioModeAsync } from 'expo-audio';
 
 interface VoiceNotePlayerProps {
-  audioUrl: string;
+  audioUrl?: string | null;
   durationSeconds?: number;
   isMe?: boolean;
 }
@@ -30,45 +31,61 @@ export default function VoiceNotePlayer({
 }: VoiceNotePlayerProps) {
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [hasError, setHasError] = useState<boolean>(false);
   const [currentTime, setCurrentTime] = useState<number>(0);
   const [duration, setDuration] = useState<number>(durationSeconds);
   const [playbackRate, setPlaybackRate] = useState<number>(1.0);
   const playerRef = useRef<AudioPlayer | null>(null);
+  const loadTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  useEffect(() => {
-    // Reset player if audioUrl changes (FlatList virtualization recycling)
+  const cleanUpPlayer = () => {
+    if (loadTimeoutRef.current) {
+      clearTimeout(loadTimeoutRef.current);
+      loadTimeoutRef.current = null;
+    }
     if (playerRef.current) {
-      playerRef.current.pause();
-      playerRef.current.release();
+      try {
+        playerRef.current.pause();
+        playerRef.current.release();
+      } catch (_) {}
+      if (globalCurrentPlayer === playerRef.current) {
+        globalCurrentPlayer = null;
+        globalStopCallback = null;
+      }
       playerRef.current = null;
     }
+  };
+
+  useEffect(() => {
+    cleanUpPlayer();
     setIsPlaying(false);
+    setIsLoading(false);
+    setHasError(false);
     setCurrentTime(0);
     setDuration(durationSeconds);
 
     return () => {
-      if (playerRef.current) {
-        playerRef.current.pause();
-        playerRef.current.release();
-        if (globalCurrentPlayer === playerRef.current) {
-          globalCurrentPlayer = null;
-          globalStopCallback = null;
-        }
-      }
+      cleanUpPlayer();
     };
   }, [audioUrl, durationSeconds]);
 
   const stopThisSound = () => {
     if (playerRef.current) {
-      playerRef.current.pause();
+      try {
+        playerRef.current.pause();
+      } catch (_) {}
     }
     setIsPlaying(false);
   };
 
   const handlePlayPause = async () => {
-    if (!audioUrl) return;
+    if (!audioUrl || audioUrl.trim().length === 0) {
+      setHasError(true);
+      return;
+    }
 
     try {
+      // If currently playing, pause
       if (isPlaying) {
         if (playerRef.current) {
           playerRef.current.pause();
@@ -82,27 +99,57 @@ export default function VoiceNotePlayer({
         globalStopCallback();
       }
 
-      // Ensure audio mode outputs to device loud speaker with silent mode bypass
-      try {
-        await setAudioModeAsync({
-          playsInSilentMode: true,
-          allowsRecording: false,
-          shouldRouteThroughEarpiece: false,
-        });
-      } catch (modeErr) {
-        console.warn('[VoiceNotePlayer] setAudioModeAsync warning:', modeErr);
-      }
-
-      if (!playerRef.current) {
+      // If in error state or player missing, recreate
+      if (hasError || !playerRef.current) {
+        cleanUpPlayer();
+        setHasError(false);
         setIsLoading(true);
-        const newPlayer = createAudioPlayer(audioUrl, {
+
+        try {
+          await setAudioModeAsync({
+            playsInSilentMode: true,
+            allowsRecording: false,
+            shouldRouteThroughEarpiece: false,
+          });
+        } catch (modeErr) {
+          console.warn('[VoiceNotePlayer] setAudioModeAsync warning:', modeErr);
+        }
+
+        const newPlayer = createAudioPlayer(audioUrl.trim(), {
           updateInterval: 200,
           downloadFirst: false,
         });
+
         newPlayer.playbackRate = playbackRate;
+
+        // Set safety timeout in case remote player hangs buffering
+        loadTimeoutRef.current = setTimeout(() => {
+          if (isLoading && !isPlaying) {
+            console.warn('[VoiceNotePlayer] Player load timeout for URL:', audioUrl);
+            setHasError(true);
+            setIsLoading(false);
+            cleanUpPlayer();
+          }
+        }, 12000);
+
         newPlayer.addListener('playbackStatusUpdate', (status: AudioStatus) => {
-          setIsPlaying(status.playing);
-          setIsLoading(status.isBuffering && !status.playing);
+          if (loadTimeoutRef.current) {
+            clearTimeout(loadTimeoutRef.current);
+            loadTimeoutRef.current = null;
+          }
+
+          if (status.error) {
+            console.warn('[VoiceNotePlayer] AudioStatus error event:', status.error);
+            setHasError(true);
+            setIsPlaying(false);
+            setIsLoading(false);
+            cleanUpPlayer();
+            return;
+          }
+
+          setIsPlaying(Boolean(status.playing));
+          setIsLoading(Boolean(status.isBuffering && !status.playing));
+
           if (status.currentTime !== undefined) {
             setCurrentTime(status.currentTime);
           }
@@ -119,22 +166,24 @@ export default function VoiceNotePlayer({
             }
           }
         });
+
         playerRef.current = newPlayer;
         globalCurrentPlayer = newPlayer;
         globalStopCallback = stopThisSound;
+
         newPlayer.play();
-        setIsLoading(false);
-        setIsPlaying(true);
       } else {
+        // Player already exists, resume playback
         playerRef.current.play();
         globalCurrentPlayer = playerRef.current;
         globalStopCallback = stopThisSound;
-        setIsPlaying(true);
       }
-    } catch (err) {
-      console.warn('[VoiceNotePlayer] Error toggling playback:', err);
+    } catch (err: any) {
+      console.warn('[VoiceNotePlayer] Playback toggle error:', err);
+      setHasError(true);
       setIsLoading(false);
       setIsPlaying(false);
+      cleanUpPlayer();
     }
   };
 
@@ -142,7 +191,9 @@ export default function VoiceNotePlayer({
     const nextRate = playbackRate === 1.0 ? 1.5 : playbackRate === 1.5 ? 2.0 : 1.0;
     setPlaybackRate(nextRate);
     if (playerRef.current) {
-      playerRef.current.playbackRate = nextRate;
+      try {
+        playerRef.current.playbackRate = nextRate;
+      } catch (_) {}
     }
   };
 
@@ -153,25 +204,43 @@ export default function VoiceNotePlayer({
     return `${m}:${s < 10 ? '0' : ''}${s}`;
   };
 
-  const progressPercent = duration > 0
-    ? Math.min(100, Math.max(0, (currentTime / duration) * 100))
-    : 0;
+  const progressPercent =
+    duration > 0 ? Math.min(100, Math.max(0, (currentTime / duration) * 100)) : 0;
 
   const displayTime = isPlaying
     ? formatTime(currentTime)
     : formatTime(duration || durationSeconds);
 
+  const isAudioMissing = !audioUrl || audioUrl.trim().length === 0;
+
+  if (isAudioMissing) {
+    return (
+      <View style={[styles.container, isMe ? styles.myContainer : styles.otherContainer]}>
+        <View style={styles.unavailableBadge}>
+          <MaterialIcons name="mic-off" size={16} color="#888" />
+          <Text style={styles.unavailableText}>Audio unavailable</Text>
+        </View>
+      </View>
+    );
+  }
+
   return (
     <View style={[styles.container, isMe ? styles.myContainer : styles.otherContainer]}>
-      {/* Play / Pause / Loading button */}
+      {/* Play / Pause / Loading / Retry button */}
       <TouchableOpacity
-        style={[styles.playBtn, isMe ? styles.myPlayBtn : styles.otherPlayBtn]}
+        style={[
+          styles.playBtn,
+          isMe ? styles.myPlayBtn : styles.otherPlayBtn,
+          hasError && styles.errorPlayBtn,
+        ]}
         onPress={handlePlayPause}
         activeOpacity={0.8}
         disabled={isLoading}
       >
         {isLoading ? (
           <ActivityIndicator size="small" color={isMe ? '#075E54' : '#fff'} />
+        ) : hasError ? (
+          <MaterialIcons name="refresh" size={24} color={isMe ? '#d32f2f' : '#ffcdd2'} />
         ) : (
           <MaterialIcons
             name={isPlaying ? 'pause' : 'play-arrow'}
@@ -195,8 +264,8 @@ export default function VoiceNotePlayer({
         </View>
 
         <View style={styles.metaRow}>
-          <Text style={[styles.timeText, isMe && styles.myTimeText]}>
-            {displayTime}
+          <Text style={[styles.timeText, isMe && styles.myTimeText, hasError && styles.errorText]}>
+            {hasError ? 'Retry' : displayTime}
           </Text>
 
           <View style={styles.micBadge}>
@@ -240,26 +309,27 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
   },
   playBtn: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    backgroundColor: '#075E54',
-    alignItems: 'center',
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#fff',
     justifyContent: 'center',
-    marginRight: 10,
-    elevation: 2,
+    alignItems: 'center',
+    marginRight: 8,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.15,
     shadowRadius: 2,
+    elevation: 2,
   },
   myPlayBtn: {
-    backgroundColor: '#DCF8C6',
-    borderWidth: 1,
-    borderColor: '#A7F3D0',
+    backgroundColor: '#fff',
   },
   otherPlayBtn: {
-    backgroundColor: '#075E54',
+    backgroundColor: '#128C7E',
+  },
+  errorPlayBtn: {
+    backgroundColor: '#ffebee',
   },
   trackArea: {
     flex: 1,
@@ -267,37 +337,41 @@ const styles = StyleSheet.create({
   },
   trackBackground: {
     height: 4,
-    backgroundColor: 'rgba(0,0,0,0.12)',
+    backgroundColor: 'rgba(0,0,0,0.15)',
     borderRadius: 2,
     position: 'relative',
-    justifyContent: 'center',
+    marginBottom: 4,
   },
   trackFill: {
-    height: 4,
-    backgroundColor: '#075E54',
+    height: '100%',
+    backgroundColor: '#25D366',
     borderRadius: 2,
   },
   trackThumb: {
     position: 'absolute',
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: '#075E54',
-    marginLeft: -5,
+    top: -4,
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: '#128C7E',
+    marginLeft: -6,
   },
   metaRow: {
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
-    marginTop: 6,
+    alignItems: 'center',
   },
   timeText: {
     fontSize: 11,
-    color: '#667781',
+    color: '#666',
     fontWeight: '500',
   },
   myTimeText: {
-    color: '#4B5563',
+    color: '#075E54',
+  },
+  errorText: {
+    color: '#d32f2f',
+    fontWeight: '600',
   },
   micBadge: {
     flexDirection: 'row',
@@ -306,31 +380,43 @@ const styles = StyleSheet.create({
   },
   vnLabel: {
     fontSize: 10,
-    color: '#128C7E',
-    fontWeight: '600',
+    color: '#888',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
   speedBtn: {
     marginLeft: 8,
     paddingHorizontal: 6,
-    paddingVertical: 2,
+    paddingVertical: 3,
     borderRadius: 10,
     backgroundColor: 'rgba(0,0,0,0.06)',
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   mySpeedBtn: {
-    backgroundColor: 'rgba(7, 94, 84, 0.12)',
+    backgroundColor: 'rgba(7, 94, 84, 0.1)',
   },
   otherSpeedBtn: {
-    backgroundColor: 'rgba(0,0,0,0.08)',
+    backgroundColor: 'rgba(0,0,0,0.06)',
   },
   speedText: {
-    fontSize: 10,
+    fontSize: 11,
     fontWeight: '700',
-    color: '#374151',
+    color: '#555',
   },
   mySpeedText: {
     color: '#075E54',
   },
+  unavailableBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    backgroundColor: 'rgba(0,0,0,0.04)',
+    borderRadius: 6,
+  },
+  unavailableText: {
+    fontSize: 12,
+    color: '#888',
+    fontStyle: 'italic',
+  },
 });
-

@@ -1,0 +1,16 @@
+{
+  "name": "Ralph Loop Runner",
+  "version": "1.0.0",
+  "settings": {
+    "goal_file": "RALPH_GOAL.md",
+    "status_file": "RALPH_STATUS.json",
+    "log_file": ".ralph/run.log",
+    "max_iterations": 15,
+    "iteration_timeout_ms": 180000,
+    "backoff_ms": 1500,
+    "emergency_stop_file": ".ralph/STOP",
+    "auto_restore_on_crash": true,
+    "checkpoint_dir": ".ralph/checkpoints",
+    "default_validation_command": "npx tsc --noEmit"
+  }
+}

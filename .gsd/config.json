@@ -1,0 +1,37 @@
+{
+  "version": "1.0.0",
+  "project": "Ruhvi E-commerce",
+  "workflow": {
+    "states": ["PLAN", "EXECUTE", "VERIFY"],
+    "strict_transitions": true,
+    "require_verification_to_complete": true,
+    "context_rot_mitigation": {
+      "enabled": true,
+      "summary_file": "GSD_CONTEXT.md",
+      "plan_file": "GSD_PLAN.md",
+      "max_recent_tasks_in_context": 5,
+      "auto_archive_phases": true
+    },
+    "verification": {
+      "default_gates": [
+        {
+          "name": "typecheck",
+          "command": "npx tsc --noEmit",
+          "required": true
+        }
+      ],
+      "optional_gates": [
+        {
+          "name": "lint",
+          "command": "npm run lint",
+          "required": false
+        },
+        {
+          "name": "test",
+          "command": "npm test",
+          "required": false
+        }
+      ]
+    }
+  }
+}

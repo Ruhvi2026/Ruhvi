@@ -60,6 +60,10 @@ describe('Cloudinary Audio Voice Notes & 45-Day Lifecycle', () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
+    process.env.CHAT_CLOUDINARY_CLOUD_NAME = 'test_cloud';
+    process.env.CHAT_CLOUDINARY_API_KEY = 'test_key';
+    process.env.CHAT_CLOUDINARY_API_SECRET = 'test_secret';
+
     mockSupabase = {
       from: jest.fn().mockReturnThis(),
       select: jest.fn().mockReturnThis(),

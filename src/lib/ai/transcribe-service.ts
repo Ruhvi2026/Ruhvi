@@ -1,7 +1,7 @@
 // src/lib/ai/transcribe-service.ts
 //
 // Dedicated Gemini Speech-to-Text Transcription Service for Bengali, Hindi, and English.
-// Supported Models: gemini-3.5-transcribe, gemini-3.5-flash, gemini-3.5-flash-lite
+// Supported Models: gemini-3.5-transcribe, gemini-2.5-flash, gemini-3.5-flash, gemini-3.5-flash-lite
 // NOTE: Audio is processed in-memory only and is NEVER uploaded to Cloudinary.
 
 import 'server-only';
@@ -25,6 +25,24 @@ function getCandidateApiKeys(): string[] {
   return Array.from(new Set(keys));
 }
 
+function isNonRetryableError(msg: string): boolean {
+  const lower = msg.toLowerCase();
+  return (
+    lower.includes('unsupported mime') ||
+    lower.includes('invalid_argument') ||
+    lower.includes('invalid argument') ||
+    lower.includes('bad request') ||
+    lower.includes('request payload size exceeds')
+  );
+}
+
+function normalizeAudioMime(raw: string): string {
+  const lower = (raw || '').toLowerCase().trim();
+  if (lower === 'audio/m4a' || lower === 'audio/x-m4a') return 'audio/mp4';
+  if (lower.startsWith('video/')) return 'audio/mp4';
+  return lower || 'audio/webm';
+}
+
 /**
  * Transcribes audio speech using Gemini 3.5 Transcribe with automatic resilient fallback
  * to multimodal flash models. Supports auto-detection of Bengali (bn-IN), Hindi (hi-IN),
@@ -32,7 +50,7 @@ function getCandidateApiKeys(): string[] {
  */
 export async function transcribeAudioBuffer(
   audioBuffer: Buffer,
-  mimeType = 'audio/webm'
+  rawMimeType = 'audio/webm'
 ): Promise<TranscribeResult> {
   const apiKeys = getCandidateApiKeys();
   if (apiKeys.length === 0) {
@@ -44,19 +62,23 @@ export async function transcribeAudioBuffer(
     return { transcript: '', detectedLanguage: 'auto' };
   }
 
+  const mimeType = normalizeAudioMime(rawMimeType);
   const base64Audio = audioBuffer.toString('base64');
-  const candidateModels = [
-    process.env.GEMINI_TRANSCRIBE_MODEL || 'gemini-3.5-transcribe',
+  const primaryModel =
+    process.env.GEMINI_TRANSCRIBE_MODEL || 'gemini-3.5-transcribe';
+  const fallbackModels = [
+    'gemini-2.5-flash',
     'gemini-3.5-flash',
     'gemini-3.5-flash-lite',
-  ];
+  ].filter((m) => m !== primaryModel);
+  const candidateModels = [primaryModel, ...fallbackModels];
 
   const prompt =
     'Transcribe the spoken audio verbatim with exact punctuation. ' +
     'Support multilingual code-switching seamlessly: Bengali (Bangla/Banglish), Hindi, and Indian English. ' +
     'Do not add any explanation, meta-commentary, or preamble. Return ONLY the transcribed text.';
 
-  let lastError: any = null;
+  let lastError: Error | null = null;
 
   for (const apiKey of apiKeys) {
     const genAI = new GoogleGenerativeAI(apiKey);
@@ -81,17 +103,23 @@ export async function transcribeAudioBuffer(
 
         const response = await result.response;
         const transcript = response.text()?.trim() || '';
+        const isFallback = modelName !== primaryModel;
 
         return {
           transcript,
-          detectedLanguage: 'auto',
+          detectedLanguage: isFallback ? 'auto-fallback' : 'auto',
         };
-      } catch (err: any) {
-        lastError = err;
+      } catch (err: unknown) {
+        lastError = err instanceof Error ? err : new Error(String(err));
         console.warn(
           `[transcribeAudioBuffer] Model ${modelName} failed with key:`,
-          err.message
+          lastError.message
         );
+
+        // Fail fast if input error is permanent (invalid MIME or malformed payload)
+        if (isNonRetryableError(lastError.message)) {
+          throw lastError;
+        }
       }
     }
   }

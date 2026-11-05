@@ -10,6 +10,7 @@ import {
 import { CO_FOUNDER_TOOL_DECLARATIONS } from '@/lib/ai/co-founder/brain';
 import { HUMANIZER_EDITORIAL_RULES } from '@/lib/ai/humanizer';
 import { transcribeAudioBuffer } from '@/lib/ai/transcribe-service';
+import { assertSafeOutboundUrl } from '@/lib/security/ssrf';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -345,13 +346,35 @@ export async function POST(req: NextRequest) {
       lastMsg.audioUrl
     ) {
       try {
-        const audioFetch = await fetch(lastMsg.audioUrl);
+        assertSafeOutboundUrl(lastMsg.audioUrl);
+        const audioFetch = await fetch(lastMsg.audioUrl, {
+          signal: AbortSignal.timeout(8000),
+        });
         if (audioFetch.ok) {
+          const cLength = parseInt(
+            audioFetch.headers.get('content-length') || '0',
+            10
+          );
+          if (cLength > 10 * 1024 * 1024) {
+            throw new Error('Audio file exceeds maximum 10 MB limit');
+          }
+          const rawMime =
+            audioFetch.headers.get('content-type') ||
+            lastMsg.mimeType ||
+            'audio/mp4';
+          const mimeType = rawMime.toLowerCase().includes('webm')
+            ? 'audio/webm'
+            : 'audio/mp4';
           const audioBuf = Buffer.from(await audioFetch.arrayBuffer());
-          const trRes = await transcribeAudioBuffer(audioBuf, 'audio/m4a');
+          const trRes = await transcribeAudioBuffer(audioBuf, mimeType);
           if (trRes && trRes.transcript && trRes.transcript.trim()) {
             lastMsg.text_content = trRes.transcript.trim();
             lastMsg.text = trRes.transcript.trim();
+          } else {
+            lastMsg.text_content =
+              'Staff shared a voice note, but transcription was not clear.';
+            lastMsg.text =
+              'Staff shared a voice note, but transcription was not clear.';
           }
         }
       } catch (trErr) {
@@ -359,6 +382,10 @@ export async function POST(req: NextRequest) {
           '[ai-worker] Voice note audio transcription warning:',
           trErr
         );
+        lastMsg.text_content =
+          'Staff shared a voice note, but audio could not be retrieved or transcribed.';
+        lastMsg.text =
+          'Staff shared a voice note, but audio could not be retrieved or transcribed.';
       }
     }
 
