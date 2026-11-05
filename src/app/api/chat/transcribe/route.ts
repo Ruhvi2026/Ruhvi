@@ -33,6 +33,29 @@ async function getAuthenticatedUser(req: Request) {
     }
   }
 
+  // Also decode custom JWT sub
+  if (!userId && token) {
+    try {
+      const parts = token.split('.');
+      if (parts.length === 3) {
+        const payload = JSON.parse(
+          Buffer.from(parts[1], 'base64').toString('utf8')
+        );
+        if (payload?.sub) {
+          userId = payload.sub;
+        }
+      }
+    } catch (_) {}
+  }
+
+  // Also support 'x-ruhvi-user-id' header if bearer token was provided
+  if (!userId && token) {
+    const xUid = req.headers.get('x-ruhvi-user-id');
+    if (xUid && /^[0-9a-f-]{36}$/i.test(xUid)) {
+      userId = xUid;
+    }
+  }
+
   if (!userId) return null;
 
   const { data: user } = await supabase
@@ -115,16 +138,28 @@ export async function POST(req: Request) {
       mimeType
     );
 
-    return NextResponse.json({
-      success: true,
-      transcript,
-      detectedLanguage,
-    });
+    return NextResponse.json(
+      {
+        success: true,
+        transcript,
+        detectedLanguage,
+      },
+      {
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+        },
+      }
+    );
   } catch (err: any) {
     console.error('[chat/transcribe] Fatal error:', err);
     return NextResponse.json(
       { error: err.message || 'Speech-to-text transcription failed' },
-      { status: 500 }
+      {
+        status: 500,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+        },
+      }
     );
   }
 }

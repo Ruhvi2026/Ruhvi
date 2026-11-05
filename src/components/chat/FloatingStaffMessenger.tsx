@@ -847,9 +847,7 @@ export default function FloatingStaffMessenger() {
               fileSizeBytes: data.fileSizeBytes || 0,
               mimeType: data.mimeType || 'audio/webm',
               uploadedAt: new Date().toISOString(),
-              expiresAt:
-                data.expiresAt ||
-                new Date(Date.now() + 45 * 24 * 60 * 60 * 1000).toISOString(),
+              expiresAt: new Date(Date.now() + 45 * 86400000).toISOString(),
               status: 'active',
             },
           };

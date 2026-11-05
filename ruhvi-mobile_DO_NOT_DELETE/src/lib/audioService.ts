@@ -54,10 +54,21 @@ export async function startAudioRecording(): Promise<AudioRecorder | null> {
     await setAudioModeAsync({
       allowsRecording: true,
       playsInSilentMode: true,
+      shouldRouteThroughEarpiece: false,
     });
 
-    const recorder = new AudioModule.AudioRecorder(RecordingPresets.HIGH_QUALITY);
-    await recorder.prepareToRecordAsync();
+    const raw = RecordingPresets.HIGH_QUALITY;
+    const platformOptions = {
+      extension: raw.extension,
+      sampleRate: raw.sampleRate,
+      numberOfChannels: raw.numberOfChannels,
+      bitRate: raw.bitRate,
+      isMeteringEnabled: false,
+      ...(Platform.OS === 'android' ? raw.android : raw.ios),
+    };
+
+    const recorder = new AudioModule.AudioRecorder(platformOptions);
+    await recorder.prepareToRecordAsync(platformOptions);
     recorder.record();
     return recorder;
   } catch (err: any) {
@@ -76,10 +87,11 @@ export async function stopAudioRecording(
     const durationSeconds = Math.max(1, Math.round(recording.currentTime || 1));
     await recording.stop();
 
-    // Reset audio mode for normal playback
+    // Reset audio mode for loud speaker playback
     await setAudioModeAsync({
       allowsRecording: false,
       playsInSilentMode: true,
+      shouldRouteThroughEarpiece: false,
     });
 
     const uri = recording.uri;
@@ -110,6 +122,23 @@ export async function transcribeAudio(
       effectiveToken = data.session?.access_token || null;
     }
 
+    let uid = await AsyncStorage.getItem('ruhvi_user_id');
+    let email = await AsyncStorage.getItem('ruhvi_user_email');
+
+    // Self-healing: if token is missing, attempt quick authentication mint
+    if (!effectiveToken && (email || uid)) {
+      try {
+        const { data: authData } = await supabase.rpc('authenticate_staff_mobile', {
+          p_firebase_uid: uid || 'mobile-session',
+          p_email: email || '',
+        });
+        if (authData?.supabaseToken) {
+          effectiveToken = authData.supabaseToken;
+          await AsyncStorage.setItem('ruhvi_mobile_jwt', authData.supabaseToken);
+        }
+      } catch (_) {}
+    }
+
     const endpoints = [
       'https://admin.ruhvi.in/api/chat/transcribe',
       'https://ruhvi.in/api/chat/transcribe',
@@ -134,6 +163,7 @@ export async function transcribeAudio(
             headers: {
               'Content-Type': 'application/json',
               ...(effectiveToken ? { Authorization: `Bearer ${effectiveToken}` } : {}),
+              ...(uid ? { 'x-ruhvi-user-id': uid } : {}),
             },
             body: JSON.stringify({
               audioBase64: base64Audio,
@@ -165,6 +195,7 @@ export async function transcribeAudio(
             mimeType: 'audio/m4a',
             headers: {
               ...(effectiveToken ? { Authorization: `Bearer ${effectiveToken}` } : {}),
+              ...(uid ? { 'x-ruhvi-user-id': uid } : {}),
             },
           });
 

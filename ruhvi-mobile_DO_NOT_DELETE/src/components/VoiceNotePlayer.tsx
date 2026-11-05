@@ -36,6 +36,16 @@ export default function VoiceNotePlayer({
   const playerRef = useRef<AudioPlayer | null>(null);
 
   useEffect(() => {
+    // Reset player if audioUrl changes (FlatList virtualization recycling)
+    if (playerRef.current) {
+      playerRef.current.pause();
+      playerRef.current.release();
+      playerRef.current = null;
+    }
+    setIsPlaying(false);
+    setCurrentTime(0);
+    setDuration(durationSeconds);
+
     return () => {
       if (playerRef.current) {
         playerRef.current.pause();
@@ -46,7 +56,7 @@ export default function VoiceNotePlayer({
         }
       }
     };
-  }, []);
+  }, [audioUrl, durationSeconds]);
 
   const stopThisSound = () => {
     if (playerRef.current) {
@@ -72,11 +82,12 @@ export default function VoiceNotePlayer({
         globalStopCallback();
       }
 
-      // Ensure audio mode outputs to device speakers with silent mode bypass
+      // Ensure audio mode outputs to device loud speaker with silent mode bypass
       try {
         await setAudioModeAsync({
           playsInSilentMode: true,
           allowsRecording: false,
+          shouldRouteThroughEarpiece: false,
         });
       } catch (modeErr) {
         console.warn('[VoiceNotePlayer] setAudioModeAsync warning:', modeErr);
@@ -85,20 +96,23 @@ export default function VoiceNotePlayer({
       if (!playerRef.current) {
         setIsLoading(true);
         const newPlayer = createAudioPlayer(audioUrl, {
-          updateInterval: 250,
-          downloadFirst: audioUrl.startsWith('http'),
+          updateInterval: 200,
+          downloadFirst: false,
         });
         newPlayer.playbackRate = playbackRate;
         newPlayer.addListener('playbackStatusUpdate', (status: AudioStatus) => {
           setIsPlaying(status.playing);
-          setCurrentTime(status.currentTime);
+          setIsLoading(status.isBuffering && !status.playing);
+          if (status.currentTime !== undefined) {
+            setCurrentTime(status.currentTime);
+          }
           if (status.duration > 0) {
             setDuration(status.duration);
           }
           if (status.didJustFinish) {
             setIsPlaying(false);
             setCurrentTime(0);
-            newPlayer.seekTo(0);
+            newPlayer.seekTo(0).catch(() => {});
             if (globalCurrentPlayer === newPlayer) {
               globalCurrentPlayer = null;
               globalStopCallback = null;

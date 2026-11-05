@@ -561,6 +561,10 @@ export default function ChatRoomScreen({ route, navigation }: any) {
             if (Platform.OS === 'android') {
               ToastAndroid.show('Dictated text added', ToastAndroid.SHORT);
             }
+          } else {
+            if (Platform.OS === 'android') {
+              ToastAndroid.show('No speech detected. Please speak closer to microphone.', ToastAndroid.SHORT);
+            }
           }
         }
       } catch (err: any) {
@@ -1628,7 +1632,7 @@ export default function ChatRoomScreen({ route, navigation }: any) {
           )}
 
           {/* Text content if text message or caption with clickable links/phone/email/mentions/orders */}
-          {item.message_type !== 'voice_note' && (!firstAttach || (item.text_content && item.text_content !== firstAttach.file_name)) && (
+          {!(item.message_type === 'voice_note' || firstAttach?.mime_type?.startsWith('audio/') || firstAttach?.file_name?.endsWith('.m4a') || firstAttach?.file_name?.includes('Voice Note')) && (!firstAttach || (item.text_content && item.text_content !== firstAttach.file_name)) && (
             <AutoLinkText 
               text={item.text_content || ''} 
               style={styles.messageText} 
