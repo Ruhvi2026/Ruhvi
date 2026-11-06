@@ -40,8 +40,8 @@ yarn-error.*
 /ios
 /android
 
-# Firebase credentials — NEVER COMMIT
-google-services.json
+# Firebase credentials ï¿½ NEVER COMMIT
+# google-services.json (bundled for EAS native FCM)
 GoogleService-Info.plist
 
 # Keystores and credentials - NEVER COMMIT

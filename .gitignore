@@ -60,6 +60,7 @@ test-results/
 
 # Firebase / Google Services credentials — NEVER COMMIT
 google-services.json
+!ruhvi-mobile_DO_NOT_DELETE/google-services.json
 GoogleService-Info.plist
 firebase-adminsdk*.json
 service-account*.json
