@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { TouchableOpacity, Alert, View, Linking } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, createNavigationContainerRef } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import * as Notifications from 'expo-notifications';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { setSupabaseToken } from './src/lib/supabase';
 import { registerForPushNotificationsAsync } from './src/lib/notifications';
+
+export const navigationRef = createNavigationContainerRef();
 
 import LoginScreen from './src/screens/LoginScreen';
 import ChatListScreen from './src/screens/ChatListScreen';
@@ -32,6 +35,24 @@ export default function App() {
       }
     };
     checkAuth();
+
+    // Listen for notification clicks (WhatsApp-style: opens the exact chat room directly)
+    const responseSub = Notifications.addNotificationResponseReceivedListener((response) => {
+      try {
+        const data = response?.notification?.request?.content?.data;
+        const convId = data?.conversationId || data?.conversation_id;
+        const title = response?.notification?.request?.content?.title || 'Chat';
+        if (convId && navigationRef.isReady()) {
+          (navigationRef as any).navigate('ChatRoom', { id: convId, title });
+        }
+      } catch (e) {
+        console.warn('[App] Notification tap navigation note:', e);
+      }
+    });
+
+    return () => {
+      responseSub.remove();
+    };
   }, []);
 
   const handleLoginSuccess = () => {
@@ -44,7 +65,7 @@ export default function App() {
   }
 
   return (
-    <NavigationContainer>
+    <NavigationContainer ref={navigationRef}>
       <Stack.Navigator 
         initialRouteName={isAuthenticated ? "ChatList" : "Login"}
         screenOptions={{

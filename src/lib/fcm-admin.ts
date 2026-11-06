@@ -111,7 +111,22 @@ export async function sendFcmToToken(
       title: message.title,
       body: message.body || '',
     },
-    data: message.data || {},
+    data: {
+      ...(message.data || {}),
+      title: message.title,
+      body: message.body || '',
+    },
+    android: {
+      priority: 'high',
+      notification: {
+        channelId: 'chat_messages',
+        sound: 'default',
+        priority: 'max',
+        defaultSound: true,
+        defaultVibrateTimings: true,
+        notificationPriority: 'PRIORITY_MAX',
+      },
+    },
   };
 
   if (message.imageUrl) {
@@ -165,9 +180,24 @@ export async function sendFcmToTokens(
     try {
       await sendFcmToToken(token, message);
       sent++;
-    } catch (err) {
+    } catch (err: any) {
       failed++;
-      console.error('[FCM] Send failed for token:', err);
+      console.error('[FCM] Send failed for token:', err?.message || err);
+      // Prune dead or unregistered tokens to keep user_push_tokens clean
+      if (
+        err?.message?.includes('NotRegistered') ||
+        err?.message?.includes('NOT_FOUND') ||
+        err?.message?.includes('UNREGISTERED')
+      ) {
+        try {
+          const { createClient } = await import('@supabase/supabase-js');
+          const supabase = createClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.SUPABASE_SERVICE_ROLE_KEY!
+          );
+          await supabase.from('user_push_tokens').delete().eq('token', token);
+        } catch (_) {}
+      }
     }
   }
 

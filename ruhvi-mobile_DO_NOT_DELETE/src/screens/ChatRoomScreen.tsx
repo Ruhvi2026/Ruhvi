@@ -391,6 +391,14 @@ export default function ChatRoomScreen({ route, navigation }: any) {
         }
       }
 
+      // Dispatch push notification for forwarded message
+      dispatchChatPushNotification(
+        targetConversationId,
+        uid,
+        'Staff Member',
+        fwdText ? `[Forwarded] ${fwdText}` : '[Forwarded Attachment]'
+      );
+
       if (Platform.OS === 'android') {
         ToastAndroid.show(`Forwarded to ${targetName}`, ToastAndroid.SHORT);
       } else {
@@ -579,6 +587,40 @@ export default function ChatRoomScreen({ route, navigation }: any) {
       };
 
       setMessages((prev) => [newMsgWithAttach as any, ...prev]);
+
+      // Broadcast to room channel (<50ms delivery)
+      try {
+        if (channelRef.current) {
+          channelRef.current.send({
+            type: 'broadcast',
+            event: 'new_message',
+            payload: newMsgWithAttach,
+          });
+        }
+      } catch (_) {}
+
+      // Broadcast to global feed channel
+      try {
+        const globalChan = supabase.channel('chat_list_global_feed');
+        globalChan.send({
+          type: 'broadcast',
+          event: 'feed_update',
+          payload: {
+            conversation_id: id,
+            sender_id: uid,
+            sender_name: msgData.sender?.full_name || 'Staff Member',
+            text_content: '🎤 Voice note',
+          },
+        });
+      } catch (_) {}
+
+      // Dispatch push notification to recipients
+      dispatchChatPushNotification(
+        id,
+        uid,
+        msgData.sender?.full_name || 'Staff Member',
+        '🎤 Voice note'
+      );
     } catch (err: any) {
       Alert.alert('Voice Note Failed', err?.message || 'Could not send voice note');
     } finally {

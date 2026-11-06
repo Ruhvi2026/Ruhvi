@@ -310,6 +310,25 @@ export async function POST(
               ? '📎 Sent an attachment'
               : text_content?.slice(0, 100) || 'Sent a message';
 
+          // Insert in-app notifications for conversation members if not already mentioned
+          try {
+            const unmentionedRecipientIds = recipientIds.filter(
+              (uid: string) => !mentions?.includes(uid)
+            );
+            if (unmentionedRecipientIds.length > 0) {
+              const notifRows = unmentionedRecipientIds.map((uid: string) => ({
+                user_id: uid,
+                title: senderName,
+                message: preview,
+                category: 'CHAT',
+                reference_type: 'chat_conversation',
+                reference_id: conversationId,
+                actor_id: staffUser.id,
+              }));
+              await supabase.from('notifications').insert(notifRows);
+            }
+          } catch (_) {}
+
           if (expoTokens.length > 0) {
             fetch('https://exp.host/--/api/v2/push/send', {
               method: 'POST',
@@ -322,6 +341,7 @@ export async function POST(
                 expoTokens.map((token) => ({
                   to: token,
                   sound: 'default',
+                  priority: 'high',
                   title: senderName,
                   body: preview,
                   channelId: 'chat_messages',

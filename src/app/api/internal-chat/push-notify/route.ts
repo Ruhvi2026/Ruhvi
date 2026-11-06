@@ -13,6 +13,7 @@ async function sendExpoPush(
     const messages = tokens.map((token) => ({
       to: token,
       sound: 'default',
+      priority: 'high',
       title,
       body,
       channelId: 'chat_messages',
@@ -71,13 +72,35 @@ export async function POST(req: Request) {
     }
 
     const recipientIds = members.map((m: any) => m.user_id);
+    const title = sender_name || 'Staff Member';
+    const preview = text_content || 'Sent a new message';
 
-    // 2. Fetch push tokens for all recipients
+    // 2. Insert into public.notifications for instant in-app alerts on mobile and web
+    try {
+      const notifRows = recipientIds.map((uid: string) => ({
+        user_id: uid,
+        title,
+        message: preview.slice(0, 150),
+        category: 'CHAT',
+        reference_type: 'chat_conversation',
+        reference_id: conversation_id,
+        actor_id: sender_id,
+      }));
+      await supabase.from('notifications').insert(notifRows);
+    } catch (notifErr) {
+      console.warn(
+        '[InternalChatPush] In-app notification insert note:',
+        notifErr
+      );
+    }
+
+    // 3. Fetch push tokens for all recipients
     const tokens = await getTokensForUsers(recipientIds);
     if (!tokens || tokens.length === 0) {
       return NextResponse.json({
         success: true,
         delivered: 0,
+        recipients: recipientIds.length,
         reason: 'No registered tokens',
       });
     }
@@ -93,8 +116,6 @@ export async function POST(req: Request) {
     );
 
     let deliveredCount = 0;
-    const title = sender_name || 'Staff Member';
-    const preview = text_content || 'Sent a new message';
 
     // Send Expo push notifications (100% Free)
     if (expoTokens.length > 0) {
