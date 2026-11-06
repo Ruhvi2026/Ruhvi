@@ -9,7 +9,10 @@ import {
 } from '@/lib/ai/co-founder/orchestrator';
 import { CO_FOUNDER_TOOL_DECLARATIONS } from '@/lib/ai/co-founder/brain';
 import { HUMANIZER_EDITORIAL_RULES } from '@/lib/ai/humanizer';
-import { transcribeAudioBuffer } from '@/lib/ai/transcribe-service';
+import {
+  transcribeAudioBuffer,
+  detectAudioLanguage,
+} from '@/lib/ai/transcribe-service';
 import { assertSafeOutboundUrl } from '@/lib/security/ssrf';
 
 export const runtime = 'nodejs';
@@ -325,7 +328,12 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { messages, department: requestedDept } = body;
+    const {
+      messages,
+      department: requestedDept,
+      language: requestedLanguage,
+    } = body;
+    let detectedAudioLanguage: string | undefined = undefined;
 
     if (!messages || !Array.isArray(messages) || messages.length === 0) {
       return NextResponse.json(
@@ -370,6 +378,9 @@ export async function POST(req: NextRequest) {
           if (trRes && trRes.transcript && trRes.transcript.trim()) {
             lastMsg.text_content = trRes.transcript.trim();
             lastMsg.text = trRes.transcript.trim();
+            if (trRes.detectedLanguage && trRes.detectedLanguage !== 'none') {
+              detectedAudioLanguage = trRes.detectedLanguage;
+            }
           } else {
             lastMsg.text_content =
               'Staff shared a voice note, but transcription was not clear.';
@@ -438,6 +449,20 @@ export async function POST(req: NextRequest) {
     }
 
     // 5. Execute Agent Loop with Department-Scoped Tools & Prompt
+    const effectiveLanguage =
+      requestedLanguage ||
+      detectedAudioLanguage ||
+      detectAudioLanguage(lastMsg?.text || lastMsg?.text_content || '');
+
+    const languageInstruction =
+      effectiveLanguage === 'bn'
+        ? '\n[MANDATORY RESPONSE LANGUAGE: BENGALI (বাংলা)]\nThe staff member communicated in Bengali. You MUST formulate your response in natural, warm, and professional Bengali (বাংলা হরফ). Do NOT respond in Hindi or English.\n'
+        : effectiveLanguage === 'banglish'
+          ? '\n[MANDATORY RESPONSE LANGUAGE: BANGLISH / BENGALI]\nThe staff member communicated in Banglish (colloquial Bengali). You MUST formulate your response in natural Bengali (বাংলা হরফ) or clean Banglish matching their conversational flow. Do NOT respond in Hindi or pure English.\n'
+          : effectiveLanguage === 'hi'
+            ? '\n[MANDATORY RESPONSE LANGUAGE: HINDI (हिन्दी)]\nThe staff member communicated in Hindi. You MUST formulate your response in natural, professional Hindi. Do NOT respond in Bengali or English.\n'
+            : '';
+
     const fullSystemInstruction = `
 ${config.systemInstructions}
 
@@ -445,6 +470,7 @@ COMMUNICATION CADENCE:
 - Speak naturally and warmly in ${staffUser.full_name ? `addressing ${staffUser.full_name}` : 'talking to the staff member'}.
 - Provide direct, concise answers with actionable next steps.
 - NEVER output placeholder promises like "আমি চেক করে জানাচ্ছি" without returning the actual data. Always call the tool immediately.
+${languageInstruction}
 `;
 
     const scopes = [

@@ -37,6 +37,7 @@ import {
   startAudioRecording,
   stopAudioRecording,
   transcribeAudio,
+  transcribeAudioDetailed,
   uploadVoiceNote,
 } from '../lib/audioService';
 import { triggerLocalNotification, dispatchChatPushNotification } from '../lib/notifications';
@@ -598,11 +599,30 @@ export default function ChatRoomScreen({ route, navigation }: any) {
         const audio = await stopAudioRecording(rec);
         if (audio?.uri) {
           const token = await AsyncStorage.getItem('ruhvi_mobile_jwt');
-          const transcript = await transcribeAudio(audio.uri, token, audio.mimeType);
+          const { transcript, detectedLanguage } = await transcribeAudioDetailed(
+            audio.uri,
+            token,
+            audio.mimeType
+          );
           if (transcript) {
             setText((prev) => (prev ? `${prev} ${transcript}` : transcript));
             if (Platform.OS === 'android') {
-              ToastAndroid.show('Dictated text added', ToastAndroid.SHORT);
+              const langLabel =
+                detectedLanguage === 'bn'
+                  ? 'বাংলা'
+                  : detectedLanguage === 'banglish'
+                  ? 'Banglish'
+                  : detectedLanguage === 'hi'
+                  ? 'हिंदी'
+                  : detectedLanguage === 'hinglish'
+                  ? 'Hinglish'
+                  : detectedLanguage === 'en'
+                  ? 'English'
+                  : '';
+              ToastAndroid.show(
+                `Dictated text added${langLabel ? ` (${langLabel})` : ''}`,
+                ToastAndroid.SHORT
+              );
             }
           } else {
             if (Platform.OS === 'android') {

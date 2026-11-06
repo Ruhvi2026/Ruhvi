@@ -180,15 +180,20 @@ async function getEffectiveAuthToken(token?: string | null): Promise<string | nu
   return null;
 }
 
+export interface TranscribeDetailedResult {
+  transcript: string;
+  detectedLanguage?: string;
+}
+
 /**
- * Transcribe recorded audio buffer via Gemini 3.5 Transcribe
- * Zero persistence - audio is processed in memory and discarded.
+ * Transcribe recorded audio buffer via Gemini Multi-Model Architecture
+ * Returns both the transcript and the detected language ('bn' | 'banglish' | 'hi' | 'hinglish' | 'en' | 'mixed' | 'none')
  */
-export async function transcribeAudio(
+export async function transcribeAudioDetailed(
   uri: string,
   token?: string | null,
   customMimeType?: string
-): Promise<string> {
+): Promise<TranscribeDetailedResult> {
   try {
     const effectiveToken = await getEffectiveAuthToken(token);
     if (!effectiveToken) {
@@ -235,7 +240,10 @@ export async function transcribeAudio(
           if (response.ok) {
             const data = await response.json();
             if (data.transcript !== undefined) {
-              return (data.transcript || '').trim();
+              return {
+                transcript: (data.transcript || '').trim(),
+                detectedLanguage: data.detectedLanguage || 'none',
+              };
             }
           } else {
             const errText = await response.text();
@@ -262,7 +270,10 @@ export async function transcribeAudio(
           if (res.status >= 200 && res.status < 300) {
             const data = JSON.parse(res.body);
             if (data.transcript !== undefined) {
-              return (data.transcript || '').trim();
+              return {
+                transcript: (data.transcript || '').trim(),
+                detectedLanguage: data.detectedLanguage || 'none',
+              };
             }
           } else {
             console.warn(`[audioService] Transcribe uploadAsync failed on ${endpoint}:`, res.body);
@@ -281,11 +292,24 @@ export async function transcribeAudio(
     }
 
     if (lastError) throw lastError;
-    return '';
+    return { transcript: '', detectedLanguage: 'none' };
   } catch (err: any) {
-    console.error('[audioService] transcribeAudio error:', err);
+    console.error('[audioService] transcribeAudioDetailed error:', err);
     throw new Error(err?.message || 'Failed to transcribe audio dictation');
   }
+}
+
+/**
+ * Transcribe recorded audio buffer via Gemini 3.5 Transcribe (backwards-compatible wrapper)
+ * Zero persistence - audio is processed in memory and discarded.
+ */
+export async function transcribeAudio(
+  uri: string,
+  token?: string | null,
+  customMimeType?: string
+): Promise<string> {
+  const result = await transcribeAudioDetailed(uri, token, customMimeType);
+  return result.transcript;
 }
 
 /**

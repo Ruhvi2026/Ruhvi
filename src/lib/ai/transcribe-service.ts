@@ -1,15 +1,268 @@
 // src/lib/ai/transcribe-service.ts
 //
-// Dedicated Gemini Speech-to-Text Transcription Service for Bengali, Hindi, and English.
+// Dedicated Gemini Speech-to-Text Transcription Service for Bengali, Banglish, Hindi, and English.
 // NOTE: Audio is processed in-memory only and is NEVER uploaded to Cloudinary.
 
 import 'server-only';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
+export type DetectedAudioLanguage =
+  'bn' | 'banglish' | 'hi' | 'hinglish' | 'en' | 'mixed' | 'none';
+
 export interface TranscribeResult {
   transcript: string;
-  detectedLanguage?: string;
+  detectedLanguage?: DetectedAudioLanguage | string;
   durationSeconds?: number;
+}
+
+/**
+ * Detects the language of a transcribed speech string:
+ * - 'none': Empty, silence, or no linguistic content
+ * - 'bn': Bengali script (বাংলা হরফ)
+ * - 'hi': Devanagari script (हिंदी)
+ * - 'banglish': Romanized Bengali (Bengali spoken phonetics written in Latin script)
+ * - 'hinglish': Romanized Hindi (Hindi spoken phonetics written in Latin script)
+ * - 'en': Standard English
+ * - 'mixed': Code-switching between multiple scripts/languages
+ */
+export function detectAudioLanguage(text: string): DetectedAudioLanguage {
+  const trimmed = (text || '').trim();
+  if (!trimmed || trimmed === '[SILENCE]') {
+    return 'none';
+  }
+
+  // Count script character occurrences
+  const bengaliChars = (trimmed.match(/[\u0980-\u09FF]/g) || []).length;
+  const devanagariChars = (trimmed.match(/[\u0900-\u097F]/g) || []).length;
+  const latinChars = (trimmed.match(/[a-zA-Z]/g) || []).length;
+
+  const totalAlphabetChars = bengaliChars + devanagariChars + latinChars;
+  if (totalAlphabetChars === 0) {
+    return 'none';
+  }
+
+  // If Bengali script is present:
+  if (bengaliChars > 0) {
+    if (devanagariChars === 0) {
+      return 'bn';
+    }
+    if (bengaliChars >= devanagariChars * 2) return 'bn';
+    if (devanagariChars >= bengaliChars * 2) return 'hi';
+    return 'mixed';
+  }
+
+  // If Devanagari script is present:
+  if (devanagariChars > 0) {
+    return 'hi';
+  }
+
+  // Latin alphabet analysis (Distinguish Banglish vs Hinglish vs English)
+  const lower = trimmed.toLowerCase();
+  const words = lower.match(/[a-z]+/g) || [];
+  if (words.length === 0) {
+    return 'en';
+  }
+
+  // Lexicon tokens for Banglish
+  const BANGLISH_WORDS = new Set([
+    'ami',
+    'tumi',
+    'apni',
+    'amader',
+    'tomader',
+    'apnader',
+    'amake',
+    'tomake',
+    'apnake',
+    'ei',
+    'oi',
+    'eta',
+    'ota',
+    'egulo',
+    'ogulo',
+    'sheta',
+    'koto',
+    'keno',
+    'kivabe',
+    'kibhabe',
+    'kothay',
+    'kobe',
+    'ki',
+    'ache',
+    'achhe',
+    'nei',
+    'hobe',
+    'hochhe',
+    'hoche',
+    'holo',
+    'koro',
+    'korun',
+    'korbo',
+    'korechi',
+    'korchi',
+    'korecho',
+    'korchen',
+    'bolun',
+    'bolo',
+    'dekho',
+    'dekhun',
+    'dekhan',
+    'dam',
+    'daam',
+    'taka',
+    'shob',
+    'sob',
+    'bhalo',
+    'valo',
+    'khub',
+    'notun',
+    'purono',
+    'ajke',
+    'aajke',
+    'kal',
+    'kaal',
+    'ekhon',
+    'aar',
+    'ar',
+    'ebong',
+    'kintu',
+    'karun',
+    'karon',
+    'kichu',
+    'keu',
+    'gulo',
+    'gula',
+    'khana',
+    'jonno',
+    'theke',
+    'diye',
+    'shathe',
+    'sathe',
+    'bujhte',
+    'parche',
+    'parchi',
+    'parbo',
+    'din',
+    'deo',
+    'dao',
+    'pathao',
+    'pathan',
+    'dekhlam',
+    'pelam',
+    'pawa',
+    'gelo',
+    'ekta',
+    'duto',
+    'tin',
+    'te',
+    'chai',
+    'bolchi',
+    'shunchi',
+    'shunte',
+    'shunchen',
+    'thik',
+    'thakbe',
+    'thakun',
+    'bujhechi',
+    'korle',
+  ]);
+
+  // Lexicon tokens for Hinglish
+  const HINGLISH_WORDS = new Set([
+    'kya',
+    'hai',
+    'hain',
+    'ho',
+    'hoon',
+    'hun',
+    'kaise',
+    'kaisa',
+    'kaisi',
+    'kitna',
+    'kitne',
+    'kitni',
+    'kaha',
+    'kahan',
+    'kab',
+    'kyun',
+    'kyu',
+    'batao',
+    'bataiye',
+    'karo',
+    'kariye',
+    'karein',
+    'raha',
+    'rahi',
+    'rahe',
+    'hoga',
+    'hogi',
+    'honge',
+    'tha',
+    'thi',
+    'the',
+    'nahi',
+    'nahin',
+    'mat',
+    'accha',
+    'achha',
+    'bahut',
+    'thoda',
+    'zyada',
+    'lekin',
+    'magar',
+    'aur',
+    'bhi',
+    'hum',
+    'aap',
+    'tum',
+    'mera',
+    'meri',
+    'mere',
+    'tera',
+    'teri',
+    'tere',
+    'uska',
+    'uski',
+    'unka',
+    'inka',
+    'bhejo',
+    'dekho',
+    'karna',
+    'kijiye',
+  ]);
+
+  let banglishScore = 0;
+  let hinglishScore = 0;
+
+  for (const w of words) {
+    if (BANGLISH_WORDS.has(w)) banglishScore++;
+    if (HINGLISH_WORDS.has(w)) hinglishScore++;
+  }
+
+  // Also check common Banglish phonetic suffixes: -er, -tar, -gulo, -che, -chi, -chen, -lam, -bo
+  const banglishSuffixMatches = words.filter(
+    (w) =>
+      w.length > 4 &&
+      (w.endsWith('tar') ||
+        w.endsWith('gulo') ||
+        w.endsWith('che') ||
+        w.endsWith('chi') ||
+        w.endsWith('chen') ||
+        w.endsWith('lam') ||
+        w.endsWith('bo'))
+  ).length;
+
+  const totalBanglishPoints = banglishScore + banglishSuffixMatches;
+
+  if (totalBanglishPoints >= 1 && totalBanglishPoints > hinglishScore) {
+    return 'banglish';
+  }
+
+  if (hinglishScore >= 1 && hinglishScore > totalBanglishPoints) {
+    return 'hinglish';
+  }
+
+  return 'en';
 }
 
 function getCandidateApiKeys(): string[] {
@@ -80,7 +333,7 @@ export async function transcribeAudioBuffer(
   preferredModel?: string
 ): Promise<TranscribeResult> {
   if (!audioBuffer || audioBuffer.length === 0) {
-    return { transcript: '', detectedLanguage: 'auto' };
+    return { transcript: '', detectedLanguage: 'none' };
   }
 
   const MAX_BUFFER_BYTES = 4.5 * 1024 * 1024;
@@ -111,10 +364,17 @@ export async function transcribeAudioBuffer(
     : defaultOrder;
 
   const prompt =
-    'Transcribe the spoken audio verbatim with exact punctuation. ' +
-    'Support multilingual code-switching seamlessly: Bengali (Bangla script বাংলা), Hindi (Devanagari हिंदी), and Indian English. ' +
-    'If the audio contains only silence or noise with no human speech at all, return [SILENCE]. ' +
-    'Do not add any explanation, meta-commentary, or preamble. Return ONLY the transcribed text.';
+    'You are an expert speech-to-text transcriber for Ruhvi Jewels, a fine jewellery brand based in Kolkata, West Bengal, India.\n' +
+    'TARGET REGIONAL LANGUAGES: Spoken Bengali (বাংলা / Banglish), Indian English, and Hindi (हिन्दी / Hinglish).\n' +
+    'CRITICAL TRANSCRIPTION RULES:\n' +
+    '1. STRICT NO TRANSLATION: Transcribe the EXACT spoken words verbatim. NEVER translate the speech from one language into another. If the speaker speaks Bengali, DO NOT translate it into English or Hindi!\n' +
+    '2. BENGALI & BANGLISH RECOGNITION (TOP PRIORITY):\n' +
+    '   - Bengali is the primary language of the users.\n' +
+    '   - You MAY transcribe spoken Bengali into standard Bengali script (বাংলা লিপি) OR verbatim Banglish (colloquial Bengali written in English/Latin letters). Both scripts are fully accepted.\n' +
+    '   - DO NOT confuse Bengali vocabulary and verb forms with Hindi! For example: "korchi", "korechi", "korbo", "koro", "korun", "hobe", "ache", "nei", "koto", "dam", "keno", "bhalo", "ajke", "bolun", "dekhan", "taka", "gulo", "amader", "apnar" are BENGALI. Never output Hindi equivalents like "karo", "hoga", "hai", "kitna", "batao", etc. unless the speaker actually spoke Hindi.\n' +
+    '3. MULTILINGUAL CODE-SWITCHING: Seamlessly preserve natural code-switching between Bengali and English (e.g., "ajker total sales koto?", "ei necklace-er stock ache kina check koro", "new collection launch hobe").\n' +
+    '4. SILENCE & BACKGROUND NOISE: If the audio contains only silence, background noise, or no human speech at all, return exactly [SILENCE].\n' +
+    '5. OUTPUT FORMAT: Return ONLY the raw transcribed text. No explanations, no markdown fences, no prefixes like "Transcript:", no metadata, and no translation.';
 
   let lastError: Error | null = null;
 
@@ -171,10 +431,10 @@ export async function transcribeAudioBuffer(
               continue;
             }
 
+            const detectedLang = detectAudioLanguage(rawTranscript);
             return {
               transcript: rawTranscript,
-              detectedLanguage:
-                modelName === candidateModels[0] ? 'auto' : 'auto-fallback',
+              detectedLanguage: detectedLang,
             };
           } catch (innerErr: any) {
             lastError =

@@ -1,6 +1,7 @@
 import {
   transcribeAudioBuffer,
   normalizeGeminiAudioMimeType,
+  detectAudioLanguage,
 } from '../transcribe-service';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
@@ -48,6 +49,59 @@ describe('Gemini STT Transcribe Service', () => {
     });
   });
 
+  describe('detectAudioLanguage', () => {
+    it('detects Bengali script correctly', () => {
+      expect(detectAudioLanguage('আজকের সেলস কেমন?')).toBe('bn');
+      expect(
+        detectAudioLanguage(
+          'এই নেকলেসটার গোল্ড ক্যারেট কত? What is the making charge?'
+        )
+      ).toBe('bn');
+    });
+
+    it('detects Banglish (Romanized Bengali) accurately', () => {
+      expect(
+        detectAudioLanguage('ajker sales kemon? koto gulo order esheche?')
+      ).toBe('banglish');
+      expect(detectAudioLanguage('ei necklace tar dam koto? stock ache?')).toBe(
+        'banglish'
+      );
+      expect(detectAudioLanguage('notun order status ki bolun')).toBe(
+        'banglish'
+      );
+      expect(detectAudioLanguage('model change kore dao')).toBe('banglish');
+    });
+
+    it('detects Hindi (Devanagari script) correctly', () => {
+      expect(
+        detectAudioLanguage('आज की बिक्री कैसी रही? कितने ऑर्डर आए?')
+      ).toBe('hi');
+      expect(detectAudioLanguage('स्टॉक चेक करो')).toBe('hi');
+    });
+
+    it('detects Hinglish accurately', () => {
+      expect(detectAudioLanguage('aaj kitne orders aaye hai batao')).toBe(
+        'hinglish'
+      );
+      expect(
+        detectAudioLanguage('iska price kya hai aur stock check karo')
+      ).toBe('hinglish');
+    });
+
+    it('detects English correctly', () => {
+      expect(detectAudioLanguage('What is today total revenue?')).toBe('en');
+      expect(
+        detectAudioLanguage('Check inventory for necklace and rings')
+      ).toBe('en');
+    });
+
+    it('handles silence or empty strings as none', () => {
+      expect(detectAudioLanguage('')).toBe('none');
+      expect(detectAudioLanguage('   ')).toBe('none');
+      expect(detectAudioLanguage('[SILENCE]')).toBe('none');
+    });
+  });
+
   it('throws an error if no Gemini API key is configured', async () => {
     delete process.env.GEMINI_TRANSCRIBE_API_KEY;
     delete process.env.GEMINI_API_KEY;
@@ -66,7 +120,7 @@ describe('Gemini STT Transcribe Service', () => {
   it('returns empty transcript safely on empty buffer', async () => {
     const emptyBuffer = Buffer.from('');
     const result = await transcribeAudioBuffer(emptyBuffer);
-    expect(result).toEqual({ transcript: '', detectedLanguage: 'auto' });
+    expect(result).toEqual({ transcript: '', detectedLanguage: 'none' });
   });
 
   it('transcribes verbatim Bengali/English speech using primary model', async () => {
@@ -87,7 +141,7 @@ describe('Gemini STT Transcribe Service', () => {
     const result = await transcribeAudioBuffer(buffer, 'audio/webm');
 
     expect(result.transcript).toBe(mockResponseText);
-    expect(result.detectedLanguage).toBe('auto');
+    expect(result.detectedLanguage).toBe('bn');
 
     expect(mockGenAIInstance.getGenerativeModel).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -119,7 +173,7 @@ describe('Gemini STT Transcribe Service', () => {
     const result = await transcribeAudioBuffer(buffer, 'audio/webm');
 
     expect(result.transcript).toBe(mockFallbackText);
-    expect(result.detectedLanguage).toBe('auto-fallback');
+    expect(result.detectedLanguage).toBe('en');
 
     expect(mockGenAIInstance.getGenerativeModel).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -153,6 +207,6 @@ describe('Gemini STT Transcribe Service', () => {
     const result = await transcribeAudioBuffer(buffer, 'audio/webm');
 
     expect(result.transcript).toBe(mockFallbackText);
-    expect(result.detectedLanguage).toBe('auto-fallback');
+    expect(result.detectedLanguage).toBe('en');
   });
 });

@@ -159,6 +159,15 @@ MULTILINGUAL FLUENCY & ADAPTIVE CODE-SWITCHING (MANDATORY):
   * If the Founder speaks in English, respond in English.
   * If the Founder code-switches (mixes English terms with Bengali or Hindi): Match their flow naturally like a real Indian tech & business co-founder.
 - Never force English on the Founder when they converse in Bengali or Hindi. You understand their questions effortlessly.
+${
+  options.language === 'bn' || options.language === 'bengali'
+    ? `\nACTIVE LANGUAGE REQUIREMENT (STRICT):\n- The Founder is conversing in Bengali (বাংলা). You MUST formulate your response in natural, warm, and professional Bengali (বাংলা হরফ). Do NOT respond in Hindi or English under any circumstance.\n`
+    : options.language === 'banglish'
+      ? `\nACTIVE LANGUAGE REQUIREMENT (STRICT):\n- The Founder is conversing in Banglish (colloquial Bengali). You MUST formulate your response in natural Bengali (বাংলা হরফ) or clean Banglish matching their conversational flow. Do NOT respond in Hindi or English.\n`
+      : options.language === 'hi' || options.language === 'hindi'
+        ? `\nACTIVE LANGUAGE REQUIREMENT (STRICT):\n- The Founder is conversing in Hindi (हिन्दी). You MUST formulate your response in natural, professional Hindi. Do NOT switch to Bengali or English.\n`
+        : ''
+}
 
 BENGALI SPOKEN VOICE PHONICS & NATURAL COLLOQUIAL SPEECH (STRICT FOR BENGALI):
 ${

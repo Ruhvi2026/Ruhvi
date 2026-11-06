@@ -37,6 +37,7 @@ import {
   startAudioRecording,
   stopAudioRecording,
   transcribeAudio,
+  transcribeAudioDetailed,
   uploadVoiceNote,
 } from '../lib/audioService';
 
@@ -568,10 +569,16 @@ export default function CoFounderChatScreen({ navigation, route }: any) {
 
       // 2. Transcribe voice note for AI reasoning
       let transcriptionText = '';
+      let detectedLang: string | undefined = undefined;
       try {
-        const transcript = await transcribeAudio(audioData.uri, token || undefined, audioData.mimeType);
-        if (transcript) {
-          transcriptionText = transcript.trim();
+        const trRes = await transcribeAudioDetailed(
+          audioData.uri,
+          token || undefined,
+          audioData.mimeType
+        );
+        if (trRes?.transcript) {
+          transcriptionText = trRes.transcript.trim();
+          detectedLang = trRes.detectedLanguage;
         }
       } catch (sttErr) {
         console.warn('Voice transcription for AI failed:', sttErr);
@@ -610,10 +617,12 @@ export default function CoFounderChatScreen({ navigation, route }: any) {
           provider: 'gemini',
           model: 'gemini-3.5-flash-lite',
           agenticLoop: true,
+          ...(detectedLang && detectedLang !== 'none' ? { language: detectedLang } : {}),
         }
         : {
           messages: payloadMessages,
           department: activePersona.department,
+          ...(detectedLang && detectedLang !== 'none' ? { language: detectedLang } : {}),
         };
 
       let responseReceived = false;
@@ -699,9 +708,33 @@ export default function CoFounderChatScreen({ navigation, route }: any) {
               token = await AsyncStorage.getItem('ruhvi_mobile_jwt');
               setAuthToken(token);
             }
-            const transcript = await transcribeAudio(audioData.uri, token || undefined, audioData.mimeType);
-            if (transcript) {
-              setInputText((prev) => (prev ? `${prev} ${transcript.trim()}` : transcript.trim()));
+            const trRes = await transcribeAudioDetailed(
+              audioData.uri,
+              token || undefined,
+              audioData.mimeType
+            );
+            if (trRes?.transcript) {
+              setInputText((prev) =>
+                prev ? `${prev} ${trRes.transcript.trim()}` : trRes.transcript.trim()
+              );
+              if (Platform.OS === 'android') {
+                const langLabel =
+                  trRes.detectedLanguage === 'bn'
+                    ? 'বাংলা'
+                    : trRes.detectedLanguage === 'banglish'
+                    ? 'Banglish'
+                    : trRes.detectedLanguage === 'hi'
+                    ? 'हिंदी'
+                    : trRes.detectedLanguage === 'hinglish'
+                    ? 'Hinglish'
+                    : trRes.detectedLanguage === 'en'
+                    ? 'English'
+                    : '';
+                ToastAndroid.show(
+                  `Dictated text added${langLabel ? ` (${langLabel})` : ''}`,
+                  ToastAndroid.SHORT
+                );
+              }
             } else {
               if (Platform.OS === 'android') {
                 ToastAndroid.show('No speech detected. Try speaking closer to mic.', ToastAndroid.SHORT);

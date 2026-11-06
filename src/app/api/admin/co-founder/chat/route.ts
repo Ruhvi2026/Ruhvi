@@ -17,7 +17,10 @@ import {
   createRateLimitHeaders,
 } from '@/lib/ai/co-founder/rate-limiter';
 import { ConversationRepository } from '@/lib/ai/co-founder/conversations/repository';
-import { transcribeAudioBuffer } from '@/lib/ai/transcribe-service';
+import {
+  transcribeAudioBuffer,
+  detectAudioLanguage,
+} from '@/lib/ai/transcribe-service';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -136,6 +139,8 @@ export async function POST(req: NextRequest) {
       latest.text !== 'Voice Note' &&
       latest.text.trim().length > 0;
 
+    let effectiveLanguage = language;
+
     let audioTranscription: string | null = null;
     if (!hasExistingTranscript && (latest?.audioBase64 || latest?.audioUrl)) {
       try {
@@ -173,6 +178,13 @@ export async function POST(req: NextRequest) {
           if (trRes?.transcript && trRes.transcript.trim().length > 0) {
             audioTranscription = trRes.transcript.trim();
             latest.text = audioTranscription;
+            if (
+              trRes.detectedLanguage &&
+              trRes.detectedLanguage !== 'none' &&
+              (!effectiveLanguage || effectiveLanguage === 'auto')
+            ) {
+              effectiveLanguage = trRes.detectedLanguage;
+            }
           }
         }
       } catch (transcribeErr: any) {
@@ -198,6 +210,18 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Auto-detect language from user text if not explicitly provided
+    if (
+      (!effectiveLanguage || effectiveLanguage === 'auto') &&
+      latest?.text &&
+      !latest.text.startsWith('[Voice Note')
+    ) {
+      const detected = detectAudioLanguage(latest.text);
+      if (detected !== 'none') {
+        effectiveLanguage = detected;
+      }
+    }
+
     // Enforce Co-Founder rate limiting per user/role & channel tier
     const rateLimitTier = channel === 'voice' ? 'voice' : 'chat';
     const rateLimitCheck = enforceCoFounderRateLimit(auth.uid, {
@@ -215,7 +239,7 @@ export async function POST(req: NextRequest) {
       adminName: 'Founder',
       channel: channel as 'voice' | 'text',
       sessionGoal: latest.text,
-      language,
+      language: effectiveLanguage,
       voiceStyle,
     });
 
