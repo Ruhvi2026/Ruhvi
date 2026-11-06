@@ -5,8 +5,8 @@ import { NavigationContainer, createNavigationContainerRef } from '@react-naviga
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import * as Notifications from 'expo-notifications';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { setSupabaseToken } from './src/lib/supabase';
-import { registerForPushNotificationsAsync } from './src/lib/notifications';
+import { supabase, setSupabaseToken, getCurrentUserId } from './src/lib/supabase';
+import { registerForPushNotificationsAsync, triggerLocalNotification } from './src/lib/notifications';
 
 export const navigationRef = createNavigationContainerRef();
 
@@ -54,6 +54,55 @@ export default function App() {
       responseSub.remove();
     };
   }, []);
+
+  useEffect(() => {
+    let notifChannel: any = null;
+
+    const setupRealtime = async () => {
+      const myId = (await AsyncStorage.getItem('ruhvi_user_id')) || getCurrentUserId();
+      if (!myId) return;
+
+      notifChannel = supabase
+        .channel(`user_alerts_${myId}`)
+        .on(
+          'postgres_changes',
+          {
+            event: 'INSERT',
+            schema: 'public',
+            table: 'notifications',
+            filter: `user_id=eq.${myId}`,
+          },
+          (payload: any) => {
+            const currentRoute: any = navigationRef.isReady() ? navigationRef.getCurrentRoute() : null;
+            const isLookingAtSameRoom =
+              currentRoute?.name === 'ChatRoom' &&
+              currentRoute?.params?.id === payload.new?.reference_id;
+
+            if (!isLookingAtSameRoom && payload?.new) {
+              triggerLocalNotification(
+                payload.new.title || 'New Message',
+                payload.new.message || 'You received a new message',
+                {
+                  conversationId: payload.new.reference_id,
+                  type: 'chat',
+                }
+              );
+            }
+          }
+        )
+        .subscribe();
+    };
+
+    if (isAuthenticated) {
+      setupRealtime();
+    }
+
+    return () => {
+      if (notifChannel) {
+        supabase.removeChannel(notifChannel);
+      }
+    };
+  }, [isAuthenticated]);
 
   const handleLoginSuccess = () => {
     setIsAuthenticated(true);

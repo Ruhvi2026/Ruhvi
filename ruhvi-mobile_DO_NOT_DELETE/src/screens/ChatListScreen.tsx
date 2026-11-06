@@ -18,7 +18,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MaterialIcons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { supabase, getCurrentUserId, setSupabaseToken } from '../lib/supabase';
-import { triggerLocalNotification } from '../lib/notifications';
 import { uploadToCloudinary } from '../lib/cloudinary';
 import {
   AI_WORKER_PERSONAS,
@@ -209,10 +208,8 @@ export default function ChatListScreen({ navigation }: any) {
         { event: 'INSERT', schema: 'public', table: 'notifications' },
         (payload: any) => {
           const activeUid = getCurrentUserId() || currentUserId;
-          // STRICT TARGETING: Only notify if this notification was specifically created for ME!
           if (payload?.new && payload.new.user_id === activeUid) {
             fetchChats();
-            triggerLocalNotification(payload.new.title || 'New Notification', payload.new.message || '');
           }
         }
       )

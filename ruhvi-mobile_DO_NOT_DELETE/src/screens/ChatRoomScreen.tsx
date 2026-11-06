@@ -396,7 +396,8 @@ export default function ChatRoomScreen({ route, navigation }: any) {
         targetConversationId,
         uid,
         'Staff Member',
-        fwdText ? `[Forwarded] ${fwdText}` : '[Forwarded Attachment]'
+        fwdText ? `[Forwarded] ${fwdText}` : '[Forwarded Attachment]',
+        newMsg?.id
       );
 
       if (Platform.OS === 'android') {
@@ -619,7 +620,8 @@ export default function ChatRoomScreen({ route, navigation }: any) {
         id,
         uid,
         msgData.sender?.full_name || 'Staff Member',
-        '🎤 Voice note'
+        '🎤 Voice note',
+        msgData?.id
       );
     } catch (err: any) {
       Alert.alert('Voice Note Failed', err?.message || 'Could not send voice note');
@@ -1433,7 +1435,8 @@ export default function ChatRoomScreen({ route, navigation }: any) {
           id,
           uid,
           data.sender?.full_name || 'Staff Member',
-          trimmed
+          trimmed,
+          data.id
         );
       }
     } catch (err: any) {
@@ -1588,7 +1591,8 @@ export default function ChatRoomScreen({ route, navigation }: any) {
         id,
         uid,
         completeMessage.sender?.full_name || 'Staff Member',
-        '📎 Sent an attachment'
+        '📎 Sent an attachment',
+        completeMessage?.id
       );
     } catch (err: any) {
       console.error('Upload error:', err);

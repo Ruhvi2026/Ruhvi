@@ -119,12 +119,11 @@ export async function sendFcmToToken(
     android: {
       priority: 'high',
       notification: {
-        channelId: 'chat_messages',
+        channel_id: 'chat_messages',
         sound: 'default',
-        priority: 'max',
-        defaultSound: true,
-        defaultVibrateTimings: true,
-        notificationPriority: 'PRIORITY_MAX',
+        default_sound: true,
+        default_vibrate_timings: true,
+        notification_priority: 'PRIORITY_MAX',
       },
     },
   };

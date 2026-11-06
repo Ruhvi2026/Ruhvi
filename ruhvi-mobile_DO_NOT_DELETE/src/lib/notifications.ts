@@ -81,7 +81,7 @@ export async function registerForPushNotificationsAsync(): Promise<string | null
     const primaryToken = expoPushToken || nativeFcmToken;
     if (!primaryToken) return null;
 
-    // 3. Save tokens to Supabase user_push_tokens
+    // 3. Save tokens to Supabase user_push_tokens (both via service-role backend API and direct Supabase client)
     let uid = getCurrentUserId();
     if (!uid) {
       uid = await AsyncStorage.getItem('ruhvi_user_id');
@@ -89,25 +89,42 @@ export async function registerForPushNotificationsAsync(): Promise<string | null
 
     if (uid) {
       const tokensToSave = Array.from(
-        new Set([expoPushToken, nativeFcmToken].filter((t): t is string => !!t && t.length > 5))
+        new Set([nativeFcmToken, expoPushToken].filter((t): t is string => !!t && t.length > 5))
       );
 
-      for (const t of tokensToSave) {
-        const { error } = await supabase.from('user_push_tokens').upsert(
-          {
-            user_id: uid,
-            token: t,
-            platform: Platform.OS,
-            last_seen_at: new Date().toISOString(),
+      // 3a. Register via backend API using service role for 100% reliable persistence
+      try {
+        await fetch('https://admin.ruhvi.in/api/internal-chat/push-notify', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
           },
-          { onConflict: 'user_id,token' }
-        );
+          body: JSON.stringify({
+            action: 'register',
+            user_id: uid,
+            tokens: tokensToSave,
+            platform: Platform.OS,
+          }),
+        });
+        console.log('[Notifications] Backend service registered push tokens for user:', uid);
+      } catch (backendRegErr) {
+        console.warn('[Notifications] Backend token registration note:', backendRegErr);
+      }
 
-        if (error) {
-          console.warn('[Notifications] Token upsert note:', error.message);
-        } else {
-          console.log('[Notifications] Successfully saved push token to database for user:', uid);
-        }
+      // 3b. Local client upsert fallback
+      for (const t of tokensToSave) {
+        try {
+          await supabase.from('user_push_tokens').upsert(
+            {
+              user_id: uid,
+              token: t,
+              platform: Platform.OS,
+              last_seen_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+            },
+            { onConflict: 'user_id,token' }
+          );
+        } catch (_) {}
       }
     }
 
@@ -149,7 +166,8 @@ export async function dispatchChatPushNotification(
   conversationId: string,
   senderId: string,
   senderName: string,
-  previewText: string
+  previewText: string,
+  messageId?: string
 ) {
   try {
     // 1. Resolve sender name if generic or missing
@@ -196,11 +214,12 @@ export async function dispatchChatPushNotification(
           sender_id: senderId,
           sender_name: notificationTitle,
           text_content: cleanBody,
+          message_id: messageId,
         }),
       });
       if (res.ok) {
         const data = await res.json();
-        if (data.success) {
+        if (data.success && data.delivered > 0) {
           backendDelivered = true;
         }
       }

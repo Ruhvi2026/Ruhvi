@@ -41,7 +41,47 @@ async function sendExpoPush(
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { conversation_id, sender_id, sender_name, text_content } = body;
+
+    // 0. Handle Token Registration
+    if (body.action === 'register') {
+      const { user_id, tokens, platform = 'android' } = body;
+      if (!user_id || !tokens || !Array.isArray(tokens)) {
+        return NextResponse.json(
+          { error: 'user_id and tokens array are required' },
+          { status: 400 }
+        );
+      }
+      const supabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!
+      );
+      let registeredCount = 0;
+      for (const t of tokens) {
+        if (!t || typeof t !== 'string' || t.length < 5) continue;
+        const { error: upsertErr } = await supabase
+          .from('user_push_tokens')
+          .upsert(
+            {
+              user_id,
+              token: t,
+              platform,
+              last_seen_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+            },
+            { onConflict: 'user_id,token' }
+          );
+        if (!upsertErr) registeredCount++;
+      }
+      return NextResponse.json({ success: true, registered: registeredCount });
+    }
+
+    const {
+      conversation_id,
+      sender_id,
+      sender_name,
+      text_content,
+      message_id,
+    } = body;
 
     if (!conversation_id || !sender_id) {
       return NextResponse.json(
@@ -75,7 +115,7 @@ export async function POST(req: Request) {
     const title = sender_name || 'Staff Member';
     const preview = text_content || 'Sent a new message';
 
-    // 2. Insert into public.notifications for instant in-app alerts on mobile and web
+    // 2. Insert into public.notifications for instant in-app alerts (with idempotency to prevent duplicates)
     try {
       const notifRows = recipientIds.map((uid: string) => ({
         user_id: uid,
@@ -85,8 +125,14 @@ export async function POST(req: Request) {
         reference_type: 'chat_conversation',
         reference_id: conversation_id,
         actor_id: sender_id,
+        idempotency_key: message_id
+          ? `chat_msg_${message_id}_${uid}`
+          : undefined,
       }));
-      await supabase.from('notifications').insert(notifRows);
+      await supabase.from('notifications').upsert(notifRows, {
+        onConflict: 'idempotency_key',
+        ignoreDuplicates: true,
+      });
     } catch (notifErr) {
       console.warn(
         '[InternalChatPush] In-app notification insert note:',
