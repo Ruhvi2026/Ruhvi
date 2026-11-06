@@ -181,35 +181,20 @@ export default function ChatListScreen({ navigation }: any) {
           broadcast: { ack: true, self: false },
         },
       })
-      .on('broadcast', { event: 'feed_update' }, (payload: any) => {
+      .on('broadcast', { event: 'feed_update' }, () => {
+        // Silently update list snippets and timestamps
         fetchChats();
-        const activeUid = getCurrentUserId() || currentUserId;
-        if (payload?.payload?.sender_id && payload.payload.sender_id !== activeUid) {
-          triggerLocalNotification(
-            payload.payload.sender_name || 'New Message',
-            payload.payload.text_content || 'You received a new message'
-          );
-        }
       })
-      .on('broadcast', { event: 'new_message' }, (payload: any) => {
+      .on('broadcast', { event: 'new_message' }, () => {
+        // Silently update list
         fetchChats();
-        const activeUid = getCurrentUserId() || currentUserId;
-        if (payload?.payload?.sender_id && payload.payload.sender_id !== activeUid) {
-          triggerLocalNotification(
-            payload.payload.sender_name || 'New Message',
-            payload.payload.text_content || 'You received a new message'
-          );
-        }
       })
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'chat_messages' },
-        (payload: any) => {
+        () => {
+          // Silently refresh conversation list
           fetchChats();
-          const activeUid = getCurrentUserId() || currentUserId;
-          if (payload?.new && payload.new.sender_id !== activeUid) {
-            triggerLocalNotification('New Message', payload.new.text_content || 'You received a new message');
-          }
         }
       )
       .on(
@@ -224,6 +209,7 @@ export default function ChatListScreen({ navigation }: any) {
         { event: 'INSERT', schema: 'public', table: 'notifications' },
         (payload: any) => {
           const activeUid = getCurrentUserId() || currentUserId;
+          // STRICT TARGETING: Only notify if this notification was specifically created for ME!
           if (payload?.new && payload.new.user_id === activeUid) {
             fetchChats();
             triggerLocalNotification(payload.new.title || 'New Notification', payload.new.message || '');
