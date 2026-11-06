@@ -1,7 +1,6 @@
 // src/lib/ai/transcribe-service.ts
 //
 // Dedicated Gemini Speech-to-Text Transcription Service for Bengali, Hindi, and English.
-// Supported Models: gemini-3.5-transcribe, gemini-2.5-flash, gemini-3.5-flash, gemini-3.5-flash-lite
 // NOTE: Audio is processed in-memory only and is NEVER uploaded to Cloudinary.
 
 import 'server-only';
@@ -25,65 +24,106 @@ function getCandidateApiKeys(): string[] {
   return Array.from(new Set(keys));
 }
 
-function isNonRetryableError(msg: string): boolean {
-  const lower = msg.toLowerCase();
-  return (
-    lower.includes('unsupported mime') ||
-    lower.includes('invalid_argument') ||
-    lower.includes('invalid argument') ||
-    lower.includes('bad request') ||
-    lower.includes('request payload size exceeds')
-  );
-}
-
-function normalizeAudioMime(raw: string): string {
-  const lower = (raw || '').toLowerCase().trim();
-  if (lower === 'audio/m4a' || lower === 'audio/x-m4a') return 'audio/mp4';
-  if (lower.startsWith('video/')) return 'audio/mp4';
-  return lower || 'audio/webm';
-}
-
 /**
- * Transcribes audio speech using Gemini 3.5 Transcribe with automatic resilient fallback
- * to multimodal flash models. Supports auto-detection of Bengali (bn-IN), Hindi (hi-IN),
- * Indian English (en-IN), and natural multilingual code-switching.
+ * Normalizes mobile/browser/Cloudinary MIME types to Gemini's supported audio MIME list:
+ * audio/m4a, audio/aac, audio/wav, audio/mp3, audio/mpeg, audio/ogg, audio/flac, audio/webm
  */
+export function normalizeGeminiAudioMimeType(rawMime?: string | null): string {
+  const cleaned = (rawMime || '').split(';')[0].trim().toLowerCase();
+  if (!cleaned) return 'audio/m4a';
+
+  if (
+    cleaned === 'audio/mp4' ||
+    cleaned === 'audio/x-m4a' ||
+    cleaned === 'audio/mp4a-latm' ||
+    cleaned === 'video/mp4' ||
+    cleaned === 'audio/m4a'
+  ) {
+    return 'audio/m4a';
+  }
+  if (cleaned === 'video/webm' || cleaned === 'audio/webm') {
+    return 'audio/webm';
+  }
+  if (
+    cleaned === 'audio/mp3' ||
+    cleaned === 'audio/mpeg' ||
+    cleaned === 'audio/mpga'
+  ) {
+    return 'audio/mp3';
+  }
+  if (
+    cleaned === 'audio/ogg' ||
+    cleaned === 'audio/opus' ||
+    cleaned === 'application/ogg'
+  ) {
+    return 'audio/ogg';
+  }
+  if (
+    cleaned === 'audio/wav' ||
+    cleaned === 'audio/x-wav' ||
+    cleaned === 'audio/wave'
+  ) {
+    return 'audio/wav';
+  }
+  if (cleaned === 'audio/aac' || cleaned === 'audio/x-aac') {
+    return 'audio/aac';
+  }
+  if (cleaned === 'audio/flac' || cleaned === 'audio/x-flac') {
+    return 'audio/flac';
+  }
+  return 'audio/m4a';
+}
+
 export async function transcribeAudioBuffer(
   audioBuffer: Buffer,
-  rawMimeType = 'audio/webm'
+  mimeType = 'audio/m4a',
+  preferredModel?: string
 ): Promise<TranscribeResult> {
-  const apiKeys = getCandidateApiKeys();
-  if (apiKeys.length === 0) {
-    throw new Error('Gemini API key is not configured for transcription.');
-  }
-
-  // If buffer is empty or too small, return empty transcript safely
   if (!audioBuffer || audioBuffer.length === 0) {
     return { transcript: '', detectedLanguage: 'auto' };
   }
 
-  const mimeType = normalizeAudioMime(rawMimeType);
+  const MAX_BUFFER_BYTES = 4.5 * 1024 * 1024;
+  if (audioBuffer.length > MAX_BUFFER_BYTES) {
+    throw new Error(
+      `Audio payload size (${(audioBuffer.length / (1024 * 1024)).toFixed(2)} MB) exceeds limit.`
+    );
+  }
+
+  const apiKeys = getCandidateApiKeys();
+  if (apiKeys.length === 0) {
+    throw new Error('No Gemini API keys configured for transcription service.');
+  }
+
+  const safeMimeType = normalizeGeminiAudioMimeType(mimeType);
   const base64Audio = audioBuffer.toString('base64');
-  const primaryModel =
-    process.env.GEMINI_TRANSCRIBE_MODEL || 'gemini-3.5-transcribe';
-  const fallbackModels = [
+
+  // Multimodal models support { inlineData } + { text: prompt } for Bengali/Hindi/English script rules.
+  // Dedicated 'gemini-3.5-transcribe' is Audio-only (must NOT be sent a { text } prompt part).
+  const defaultOrder = [
+    'gemini-3.5-flash-lite',
     'gemini-2.5-flash',
     'gemini-3.5-flash',
-    'gemini-3.5-flash-lite',
-  ].filter((m) => m !== primaryModel);
-  const candidateModels = [primaryModel, ...fallbackModels];
+    'gemini-3.5-transcribe',
+  ];
+  const candidateModels = preferredModel
+    ? [preferredModel, ...defaultOrder.filter((m) => m !== preferredModel)]
+    : defaultOrder;
 
   const prompt =
     'Transcribe the spoken audio verbatim with exact punctuation. ' +
-    'Support multilingual code-switching seamlessly: Bengali (Bangla/Banglish), Hindi, and Indian English. ' +
+    'Support multilingual code-switching seamlessly: Bengali (Bangla script বাংলা), Hindi (Devanagari हिंदी), and Indian English. ' +
+    'If the audio contains only silence or noise with no human speech at all, return [SILENCE]. ' +
     'Do not add any explanation, meta-commentary, or preamble. Return ONLY the transcribed text.';
 
   let lastError: Error | null = null;
 
-  for (const apiKey of apiKeys) {
-    const genAI = new GoogleGenerativeAI(apiKey);
-    for (const modelName of candidateModels) {
+  for (const modelName of candidateModels) {
+    const isAudioOnlyModel = modelName.includes('transcribe');
+
+    for (const apiKey of apiKeys) {
       try {
+        const genAI = new GoogleGenerativeAI(apiKey);
         const model = genAI.getGenerativeModel({
           model: modelName,
           generationConfig: {
@@ -91,34 +131,77 @@ export async function transcribeAudioBuffer(
           },
         });
 
-        const result = await model.generateContent([
-          {
-            inlineData: {
-              mimeType,
-              data: base64Audio,
-            },
-          },
-          { text: prompt },
-        ]);
+        // Try with safeMimeType first; if a multimodal model prefers audio/mp4 for .m4a, try fallback MIME on 400
+        const mimeCandidates =
+          safeMimeType === 'audio/m4a' && !isAudioOnlyModel
+            ? ['audio/m4a', 'audio/mp4', 'audio/aac']
+            : [safeMimeType];
 
-        const response = await result.response;
-        const transcript = response.text()?.trim() || '';
-        const isFallback = modelName !== primaryModel;
+        for (const candidateMime of mimeCandidates) {
+          try {
+            const parts: any[] = [
+              {
+                inlineData: {
+                  mimeType: candidateMime,
+                  data: base64Audio,
+                },
+              },
+            ];
 
-        return {
-          transcript,
-          detectedLanguage: isFallback ? 'auto-fallback' : 'auto',
-        };
+            if (!isAudioOnlyModel) {
+              parts.push({ text: prompt });
+            }
+
+            const result = await model.generateContent(parts);
+            const response = await result.response;
+            const rawTranscript = response.text()?.trim() || '';
+
+            if (rawTranscript === '[SILENCE]') {
+              return {
+                transcript: '',
+                detectedLanguage: 'none',
+              };
+            }
+
+            // Never return empty "" if a model produced 0 tokens; try next model/MIME
+            if (!rawTranscript) {
+              console.warn(
+                `[transcribeAudioBuffer] Model ${modelName} (${candidateMime}) returned 0 tokens, trying fallback...`
+              );
+              continue;
+            }
+
+            return {
+              transcript: rawTranscript,
+              detectedLanguage:
+                modelName === candidateModels[0] ? 'auto' : 'auto-fallback',
+            };
+          } catch (innerErr: any) {
+            lastError =
+              innerErr instanceof Error
+                ? innerErr
+                : new Error(String(innerErr));
+            const msg = lastError.message.toLowerCase();
+            // If error is not MIME-related, break out of candidate MIME loop
+            if (
+              !msg.includes('mime') &&
+              !msg.includes('400') &&
+              !msg.includes('argument')
+            ) {
+              throw lastError;
+            }
+          }
+        }
       } catch (err: unknown) {
         lastError = err instanceof Error ? err : new Error(String(err));
+        const msg = lastError.message.toLowerCase();
         console.warn(
-          `[transcribeAudioBuffer] Model ${modelName} failed with key:`,
-          lastError.message
+          `[transcribeAudioBuffer] Model ${modelName} failed:`,
+          lastError.message.slice(0, 180)
         );
-
-        // Fail fast if input error is permanent (invalid MIME or malformed payload)
-        if (isNonRetryableError(lastError.message)) {
-          throw lastError;
+        // If the model ID itself is 404 Not Found, break to next model immediately
+        if (msg.includes('404') || msg.includes('not found')) {
+          break;
         }
       }
     }

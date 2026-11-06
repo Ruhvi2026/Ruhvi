@@ -101,12 +101,29 @@ export async function uploadAudioVoiceNote(
           return reject(new Error('Cloudinary returned empty upload result'));
         }
 
+        let playableUrl = result.secure_url;
+        if (
+          playableUrl.includes('res.cloudinary.com') &&
+          playableUrl.includes('/video/upload/')
+        ) {
+          if (!playableUrl.includes('/f_mp3/')) {
+            playableUrl = playableUrl.replace(
+              '/video/upload/',
+              '/video/upload/f_mp3/'
+            );
+          }
+          playableUrl = playableUrl.replace(
+            /\.(webm|m4a|ogg|wav|mp4|aac)(\?.*)?$/i,
+            '.mp3$2'
+          );
+        }
+
         resolve({
           publicId: result.public_id,
-          url: result.secure_url,
+          url: playableUrl,
           durationSeconds: result.duration || durationSeconds,
           bytes: result.bytes,
-          mimeType,
+          mimeType: 'audio/mpeg',
           uploadedAt,
           expiresAt,
         });

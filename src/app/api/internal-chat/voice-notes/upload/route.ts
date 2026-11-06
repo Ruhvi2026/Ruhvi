@@ -130,10 +130,10 @@ export async function POST(req: Request) {
         .is('left_at', null)
         .maybeSingle();
 
-      if (!membership) {
+      if (!membership && staffUser.role !== 'super_admin') {
         return NextResponse.json(
           { error: 'Forbidden: Not a conversation member' },
-          { status: 403 }
+          { status: 403, headers: CORS_HEADERS }
         );
       }
     }
@@ -183,16 +183,31 @@ export async function POST(req: Request) {
       voiceNoteId = voiceNoteRecord.id;
     }
 
-    return NextResponse.json({
-      success: true,
-      voiceNoteId,
-      publicId: uploadResult.publicId,
-      url: uploadResult.url,
-      durationSeconds: uploadResult.durationSeconds,
-      fileSizeBytes: uploadResult.bytes,
-      mimeType: uploadResult.mimeType,
-      expiresAt: uploadResult.expiresAt,
-    });
+    return NextResponse.json(
+      {
+        success: true,
+        url: uploadResult.url,
+        publicId: uploadResult.publicId,
+        durationSeconds: uploadResult.durationSeconds,
+        fileSizeBytes: uploadResult.bytes,
+        mimeType: uploadResult.mimeType,
+        voiceNoteId,
+        expiresAt: uploadResult.expiresAt,
+        voice_note: {
+          id: voiceNoteId,
+          public_id: uploadResult.publicId,
+          publicId: uploadResult.publicId,
+          url: uploadResult.url,
+          duration_seconds: uploadResult.durationSeconds,
+          durationSeconds: uploadResult.durationSeconds,
+          bytes: uploadResult.bytes,
+          mime_type: uploadResult.mimeType,
+          uploaded_at: uploadResult.uploadedAt,
+          expires_at: uploadResult.expiresAt,
+        },
+      },
+      { headers: CORS_HEADERS }
+    );
   } catch (err: any) {
     console.error('[voice-notes/upload] Fatal error:', err);
     return NextResponse.json(

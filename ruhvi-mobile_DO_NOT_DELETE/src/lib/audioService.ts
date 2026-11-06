@@ -72,13 +72,27 @@ export async function startAudioRecording(): Promise<AudioRecorder | null> {
     });
 
     // Expo SDK 57 requires preserving the nested android/ios/web structure
-    const options: any = {
-      ...RecordingPresets.HIGH_QUALITY,
+    const raw = RecordingPresets.HIGH_QUALITY;
+    const recordingOptions = {
+      ...raw,
       isMeteringEnabled: false,
+      android: {
+        ...raw.android,
+      },
+      ios: {
+        ...raw.ios,
+      },
+      web: {
+        ...(raw.web || {
+          mimeType: 'audio/webm',
+          bitsPerSecond: 128000,
+        }),
+      },
     };
 
-    const recorder = new AudioModule.AudioRecorder(options);
-    await recorder.prepareToRecordAsync(options);
+    const recorder = new AudioModule.AudioRecorder(recordingOptions as any);
+    // CRITICAL: Do NOT pass recordingOptions a second time to prepareToRecordAsync()
+    await recorder.prepareToRecordAsync();
     recorder.record();
     return recorder;
   } catch (err: any) {
@@ -97,6 +111,8 @@ export async function stopAudioRecording(
   try {
     const durationSeconds = Math.max(1, Math.round(recording.currentTime || 1));
     await recording.stop();
+    // Wait 120ms for Android MediaRecorder to flush AAC frames & moov atom to disk
+    await new Promise((resolve) => setTimeout(resolve, 120));
 
     // Reset audio mode for loudspeaker playback
     await setAudioModeAsync({
@@ -236,10 +252,10 @@ export async function transcribeAudio(
           const res = await FileSystem.uploadAsync(endpoint, uri, {
             httpMethod: 'POST',
             uploadType: FileSystem.FileSystemUploadType.MULTIPART,
-            fieldName: 'file',
-            mimeType,
+            fieldName: 'audio',
+            mimeType: mimeType === 'audio/mp4' ? 'audio/m4a' : mimeType,
             headers: {
-              Authorization: `Bearer ${effectiveToken}`,
+              ...(effectiveToken ? { Authorization: `Bearer ${effectiveToken}` } : {}),
             },
           });
 
@@ -308,15 +324,20 @@ export async function uploadVoiceNote(
 
         if (uploadRes.status >= 200 && uploadRes.status < 300) {
           const data = JSON.parse(uploadRes.body);
-          if (data.success && data.url) {
+          const vn = data.voice_note || data.voiceNote || data;
+          const resolvedUrl = vn?.url || vn?.cloudinary_url || data?.url;
+          const resolvedPublicId =
+            vn?.public_id || vn?.publicId || vn?.cloudinary_public_id || data?.publicId || '';
+          if (data.success && resolvedUrl) {
             return {
-              url: data.url,
-              publicId: data.publicId,
-              durationSeconds: data.durationSeconds || durationSeconds,
-              fileSizeBytes: data.fileSizeBytes,
-              mimeType: data.mimeType || effectiveMime,
-              voiceNoteId: data.voiceNoteId,
-              expiresAt: data.expiresAt,
+              url: resolvedUrl,
+              publicId: resolvedPublicId,
+              durationSeconds:
+                vn?.duration_seconds || vn?.durationSeconds || durationSeconds,
+              fileSizeBytes: vn?.bytes || vn?.file_size_bytes || data?.fileSizeBytes,
+              mimeType: vn?.mime_type || vn?.mimeType || effectiveMime,
+              voiceNoteId: vn?.id || data?.voiceNoteId,
+              expiresAt: vn?.expires_at || vn?.expiresAt || data?.expiresAt,
             };
           }
         }

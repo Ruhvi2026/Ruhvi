@@ -10,9 +10,15 @@ import {
   TouchableOpacity,
   StyleSheet,
   ActivityIndicator,
+  Platform,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { createAudioPlayer, AudioPlayer, AudioStatus, setAudioModeAsync } from 'expo-audio';
+import {
+  createAudioPlayer,
+  AudioPlayer,
+  AudioStatus,
+  setAudioModeAsync,
+} from 'expo-audio';
 
 interface VoiceNotePlayerProps {
   audioUrl?: string | null;
@@ -24,6 +30,43 @@ interface VoiceNotePlayerProps {
 let globalCurrentPlayer: AudioPlayer | null = null;
 let globalStopCallback: (() => void) | null = null;
 
+/**
+ * Normalizes Cloudinary /video/upload/ URLs (.webm, .m4a, .ogg, .mp4) to universal MP3 (f_mp3)
+ * so both Web .webm and Mobile .m4a voice notes play natively on Android ExoPlayer and iOS AVPlayer.
+ */
+export function normalizePlayableAudioUrl(rawUrl?: string | null): string {
+  if (!rawUrl || typeof rawUrl !== 'string') return '';
+  let url = rawUrl.trim();
+  if (!url) return '';
+
+  if (url.startsWith('http://')) {
+    url = 'https://' + url.slice(7);
+  }
+
+  if (url.includes('res.cloudinary.com') && url.includes('/video/upload/')) {
+    if (!url.includes('/f_mp3/')) {
+      url = url.replace('/video/upload/', '/video/upload/f_mp3/');
+    }
+    url = url.replace(/\.(webm|m4a|ogg|wav|mp4|aac)(\?.*)?$/i, '.mp3$2');
+  }
+  return url;
+}
+
+function applyPlayerSpeedSafely(player: AudioPlayer | null, rate: number) {
+  if (!player) return;
+  try {
+    if (typeof (player as any).setPlaybackRate === 'function') {
+      (player as any).setPlaybackRate(rate);
+      return;
+    }
+  } catch (_) {}
+  try {
+    (player as any).playbackRate = rate;
+  } catch (_) {
+    // Ignore read-only getter TypeError on JSI SharedObject
+  }
+}
+
 export default function VoiceNotePlayer({
   audioUrl,
   durationSeconds = 0,
@@ -33,200 +76,269 @@ export default function VoiceNotePlayer({
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [hasError, setHasError] = useState<boolean>(false);
   const [currentTime, setCurrentTime] = useState<number>(0);
-  const [duration, setDuration] = useState<number>(durationSeconds);
+  const [duration, setDuration] = useState<number>(durationSeconds || 0);
   const [playbackRate, setPlaybackRate] = useState<number>(1.0);
-  const playerRef = useRef<AudioPlayer | null>(null);
-  const loadTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const cleanUpPlayer = () => {
+  const playerRef = useRef<AudioPlayer | null>(null);
+  const subRef = useRef<{ remove: () => void } | null>(null);
+  const loadTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isLoadedOrPlayingRef = useRef<boolean>(false);
+
+  const playableUrl = normalizePlayableAudioUrl(audioUrl);
+
+  const clearLoadTimeout = () => {
     if (loadTimeoutRef.current) {
       clearTimeout(loadTimeoutRef.current);
       loadTimeoutRef.current = null;
     }
-    if (playerRef.current) {
+  };
+
+  const releasePlayer = () => {
+    clearLoadTimeout();
+    isLoadedOrPlayingRef.current = false;
+    if (subRef.current) {
       try {
-        playerRef.current.pause();
-        playerRef.current.release();
+        subRef.current.remove();
       } catch (_) {}
-      if (globalCurrentPlayer === playerRef.current) {
+      subRef.current = null;
+    }
+    if (playerRef.current) {
+      const p = playerRef.current;
+      playerRef.current = null;
+      if (globalCurrentPlayer === p) {
         globalCurrentPlayer = null;
         globalStopCallback = null;
       }
-      playerRef.current = null;
+      try {
+        p.pause();
+      } catch (_) {}
+      try {
+        (p as any).remove?.();
+      } catch (_) {}
+      try {
+        p.release();
+      } catch (_) {}
     }
   };
 
+  // Only reset player when playableUrl changes
   useEffect(() => {
-    cleanUpPlayer();
+    releasePlayer();
     setIsPlaying(false);
     setIsLoading(false);
     setHasError(false);
     setCurrentTime(0);
-    setDuration(durationSeconds);
+    setDuration(durationSeconds || 0);
 
     return () => {
-      cleanUpPlayer();
+      releasePlayer();
     };
-  }, [audioUrl, durationSeconds]);
+  }, [playableUrl]);
+
+  useEffect(() => {
+    if (durationSeconds > 0 && duration === 0) {
+      setDuration(durationSeconds);
+    }
+  }, [durationSeconds]);
 
   const stopThisSound = () => {
+    clearLoadTimeout();
     if (playerRef.current) {
       try {
         playerRef.current.pause();
       } catch (_) {}
     }
     setIsPlaying(false);
+    setIsLoading(false);
   };
 
   const handlePlayPause = async () => {
-    if (!audioUrl || audioUrl.trim().length === 0) {
+    if (!playableUrl) {
       setHasError(true);
       return;
     }
 
     try {
-      // If currently playing, pause
       if (isPlaying) {
-        if (playerRef.current) {
-          playerRef.current.pause();
-        }
-        setIsPlaying(false);
+        stopThisSound();
         return;
       }
 
-      // Stop any other active voice note
+      if (hasError) {
+        releasePlayer();
+        setHasError(false);
+      }
+
       if (globalStopCallback && globalStopCallback !== stopThisSound) {
         globalStopCallback();
       }
 
-      // If in error state or player missing, recreate
-      if (hasError || !playerRef.current) {
-        cleanUpPlayer();
-        setHasError(false);
-        setIsLoading(true);
-
-        try {
-          await setAudioModeAsync({
-            playsInSilentMode: true,
-            allowsRecording: false,
-            shouldRouteThroughEarpiece: false,
-          });
-        } catch (modeErr) {
-          console.warn('[VoiceNotePlayer] setAudioModeAsync warning:', modeErr);
-        }
-
-        const newPlayer = createAudioPlayer(audioUrl.trim(), {
-          updateInterval: 200,
-          downloadFirst: false,
+      try {
+        await setAudioModeAsync({
+          playsInSilentMode: true,
+          allowsRecording: false,
+          shouldRouteThroughEarpiece: false,
+          interruptionMode: 'doNotMix',
         });
+      } catch (modeErr) {
+        console.warn('[VoiceNotePlayer] setAudioModeAsync warning:', modeErr);
+      }
 
-        newPlayer.playbackRate = playbackRate;
+      if (!playerRef.current) {
+        setIsLoading(true);
+        setHasError(false);
+        isLoadedOrPlayingRef.current = false;
 
-        // Set safety timeout in case remote player hangs buffering
+        clearLoadTimeout();
         loadTimeoutRef.current = setTimeout(() => {
-          if (isLoading && !isPlaying) {
-            console.warn('[VoiceNotePlayer] Player load timeout for URL:', audioUrl);
-            setHasError(true);
+          if (!isLoadedOrPlayingRef.current) {
+            console.warn('[VoiceNotePlayer] Audio load timed out:', playableUrl);
+            releasePlayer();
             setIsLoading(false);
-            cleanUpPlayer();
+            setIsPlaying(false);
+            setHasError(true);
           }
         }, 12000);
 
-        newPlayer.addListener('playbackStatusUpdate', (status: AudioStatus) => {
-          if (loadTimeoutRef.current) {
-            clearTimeout(loadTimeoutRef.current);
-            loadTimeoutRef.current = null;
+        const newPlayer = createAudioPlayer(
+          { uri: playableUrl },
+          {
+            updateInterval: 200,
+            downloadFirst: Platform.OS !== 'web',
           }
+        );
 
-          if (status.error) {
-            console.warn('[VoiceNotePlayer] AudioStatus error event:', status.error);
-            setHasError(true);
-            setIsPlaying(false);
-            setIsLoading(false);
-            cleanUpPlayer();
-            return;
-          }
+        let didTriggerInitialPlay = false;
 
-          setIsPlaying(Boolean(status.playing));
-          setIsLoading(Boolean(status.isBuffering && !status.playing));
+        subRef.current = newPlayer.addListener(
+          'playbackStatusUpdate',
+          (status: AudioStatus) => {
+            if ((status as any).error) {
+              console.warn(
+                '[VoiceNotePlayer] Playback error:',
+                (status as any).error
+              );
+              releasePlayer();
+              setIsLoading(false);
+              setIsPlaying(false);
+              setHasError(true);
+              return;
+            }
 
-          if (status.currentTime !== undefined) {
-            setCurrentTime(status.currentTime);
-          }
-          if (status.duration > 0) {
-            setDuration(status.duration);
-          }
-          if (status.didJustFinish) {
-            setIsPlaying(false);
-            setCurrentTime(0);
-            newPlayer.seekTo(0).catch(() => {});
-            if (globalCurrentPlayer === newPlayer) {
-              globalCurrentPlayer = null;
-              globalStopCallback = null;
+            if (status.isLoaded || status.playing) {
+              isLoadedOrPlayingRef.current = true;
+              clearLoadTimeout();
+            }
+
+            if (status.isLoaded && !didTriggerInitialPlay) {
+              didTriggerInitialPlay = true;
+              if (playbackRate !== 1.0) {
+                applyPlayerSpeedSafely(newPlayer, playbackRate);
+              }
+              try {
+                newPlayer.play();
+              } catch (_) {}
+            }
+
+            setIsPlaying(Boolean(status.playing));
+            if (status.playing || (status.isLoaded && !status.isBuffering)) {
+              setIsLoading(false);
+            }
+
+            if (status.currentTime !== undefined && status.currentTime >= 0) {
+              setCurrentTime(status.currentTime);
+            }
+            if (status.duration && status.duration > 0) {
+              setDuration(status.duration);
+            }
+
+            if (status.didJustFinish) {
+              clearLoadTimeout();
+              setIsPlaying(false);
+              setIsLoading(false);
+              setCurrentTime(0);
+              try {
+                newPlayer.pause();
+                newPlayer.seekTo(0).catch(() => {});
+              } catch (_) {}
+              if (globalCurrentPlayer === newPlayer) {
+                globalCurrentPlayer = null;
+                globalStopCallback = null;
+              }
             }
           }
-        });
+        );
 
         playerRef.current = newPlayer;
         globalCurrentPlayer = newPlayer;
         globalStopCallback = stopThisSound;
 
-        newPlayer.play();
+        // Also invoke play() safely
+        try {
+          newPlayer.play();
+        } catch (_) {}
       } else {
-        // Player already exists, resume playback
-        playerRef.current.play();
-        globalCurrentPlayer = playerRef.current;
+        const p = playerRef.current;
+        if (p.duration > 0 && p.currentTime >= p.duration - 0.15) {
+          await p.seekTo(0).catch(() => {});
+          setCurrentTime(0);
+        }
+        if (playbackRate !== 1.0) {
+          applyPlayerSpeedSafely(p, playbackRate);
+        }
+        p.play();
+        globalCurrentPlayer = p;
         globalStopCallback = stopThisSound;
+        setIsPlaying(true);
       }
-    } catch (err: any) {
-      console.warn('[VoiceNotePlayer] Playback toggle error:', err);
-      setHasError(true);
+    } catch (err) {
+      console.warn('[VoiceNotePlayer] Error toggling playback:', err);
+      releasePlayer();
       setIsLoading(false);
       setIsPlaying(false);
-      cleanUpPlayer();
+      setHasError(true);
     }
   };
 
   const handleSpeedToggle = () => {
-    const nextRate = playbackRate === 1.0 ? 1.5 : playbackRate === 1.5 ? 2.0 : 1.0;
+    const nextRate =
+      playbackRate === 1.0 ? 1.5 : playbackRate === 1.5 ? 2.0 : 1.0;
     setPlaybackRate(nextRate);
-    if (playerRef.current) {
-      try {
-        playerRef.current.playbackRate = nextRate;
-      } catch (_) {}
-    }
+    applyPlayerSpeedSafely(playerRef.current, nextRate);
   };
 
   const formatTime = (sec: number) => {
-    const totalSec = Math.floor(sec);
+    const totalSec = Math.max(0, Math.floor(sec || 0));
     const m = Math.floor(totalSec / 60);
     const s = totalSec % 60;
     return `${m}:${s < 10 ? '0' : ''}${s}`;
   };
 
   const progressPercent =
-    duration > 0 ? Math.min(100, Math.max(0, (currentTime / duration) * 100)) : 0;
+    duration > 0
+      ? Math.min(100, Math.max(0, (currentTime / duration) * 100))
+      : 0;
 
   const displayTime = isPlaying
     ? formatTime(currentTime)
     : formatTime(duration || durationSeconds);
 
-  const isAudioMissing = !audioUrl || audioUrl.trim().length === 0;
-
-  if (isAudioMissing) {
+  if (!playableUrl) {
     return (
-      <View style={[styles.container, isMe ? styles.myContainer : styles.otherContainer]}>
-        <View style={styles.unavailableBadge}>
-          <MaterialIcons name="mic-off" size={16} color="#888" />
-          <Text style={styles.unavailableText}>Audio unavailable</Text>
-        </View>
+      <View style={styles.unavailableBadge}>
+        <MaterialIcons name="mic-off" size={16} color="#888" />
+        <Text style={styles.unavailableText}>Audio unavailable</Text>
       </View>
     );
   }
 
   return (
-    <View style={[styles.container, isMe ? styles.myContainer : styles.otherContainer]}>
-      {/* Play / Pause / Loading / Retry button */}
+    <View
+      style={[
+        styles.container,
+        isMe ? styles.myContainer : styles.otherContainer,
+      ]}
+    >
       <TouchableOpacity
         style={[
           styles.playBtn,
@@ -240,7 +352,11 @@ export default function VoiceNotePlayer({
         {isLoading ? (
           <ActivityIndicator size="small" color={isMe ? '#075E54' : '#fff'} />
         ) : hasError ? (
-          <MaterialIcons name="refresh" size={24} color={isMe ? '#d32f2f' : '#ffcdd2'} />
+          <MaterialIcons
+            name="refresh"
+            size={24}
+            color={isMe ? '#D32F2F' : '#d32f2f'}
+          />
         ) : (
           <MaterialIcons
             name={isPlaying ? 'pause' : 'play-arrow'}
@@ -250,7 +366,6 @@ export default function VoiceNotePlayer({
         )}
       </TouchableOpacity>
 
-      {/* Progress Track and Duration */}
       <View style={styles.trackArea}>
         <View style={styles.trackBackground}>
           <View style={[styles.trackFill, { width: `${progressPercent}%` }]} />
@@ -264,7 +379,13 @@ export default function VoiceNotePlayer({
         </View>
 
         <View style={styles.metaRow}>
-          <Text style={[styles.timeText, isMe && styles.myTimeText, hasError && styles.errorText]}>
+          <Text
+            style={[
+              styles.timeText,
+              isMe && styles.myTimeText,
+              hasError && styles.errorText,
+            ]}
+          >
             {hasError ? 'Retry' : displayTime}
           </Text>
 
@@ -274,14 +395,18 @@ export default function VoiceNotePlayer({
               size={13}
               color={isMe ? '#075E54' : '#128C7E'}
             />
-            <Text style={[styles.vnLabel, isMe && { color: '#075E54' }]}>Voice Note</Text>
+            <Text style={[styles.vnLabel, isMe && { color: '#075E54' }]}>
+              Voice Note
+            </Text>
           </View>
         </View>
       </View>
 
-      {/* Speed Rate Toggle Button (1x / 1.5x / 2x) */}
       <TouchableOpacity
-        style={[styles.speedBtn, isMe ? styles.mySpeedBtn : styles.otherSpeedBtn]}
+        style={[
+          styles.speedBtn,
+          isMe ? styles.mySpeedBtn : styles.otherSpeedBtn,
+        ]}
         onPress={handleSpeedToggle}
         activeOpacity={0.7}
       >
