@@ -41,3 +41,4 @@ database_id = "1e6386be-2429-480c-b606-cbe8030a387c"
 [[env.dev.r2_buckets]]
 binding = "ARTIFACTS"
 bucket_name = "ruhvi-cofounder-artifacts"
+
