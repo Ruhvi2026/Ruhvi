@@ -188,6 +188,31 @@ export async function writeCoFounderMemory(
         .eq('id', existing.id);
     }
 
+    // 4. Background mirror to Cloudflare D1 (Blueprint Section 1.2 & 15)
+    if (
+      process.env.COFOUNDER_DATA_API_CLIENT_ID ||
+      process.env.COFOUNDER_DATA_API_ENABLED === 'true'
+    ) {
+      import('./data-client')
+        .then(({ getCofounderDataClient }) => {
+          getCofounderDataClient()
+            .saveExplicitMemory({
+              content: `${item.key}: ${item.value}`,
+              normalized_key: item.key,
+              memory_type:
+                item.source === 'user_explicit'
+                  ? 'user_instruction'
+                  : 'project_memory',
+              scope: item.userId,
+              priority: item.category === 'strategic_goal' ? 2 : 1,
+            })
+            .catch((e) =>
+              console.warn('[CofounderDataClient] Mirror failed:', e?.message)
+            );
+        })
+        .catch(() => {});
+    }
+
     return { success: true, memoryId: inserted.id };
   } catch (err: any) {
     console.error('writeCoFounderMemory error:', err);

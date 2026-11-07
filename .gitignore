@@ -68,3 +68,6 @@ service-account*.json
 
 /reports/
 scripts/playwright-lighthouse-audit.mjs
+
+# Cursor MCP local secrets
+.cursor/mcp.json

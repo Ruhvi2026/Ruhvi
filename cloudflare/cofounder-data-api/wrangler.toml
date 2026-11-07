@@ -1,0 +1,43 @@
+name = "ruhvi-cofounder-data-api"
+main = "src/index.ts"
+compatibility_date = "2024-11-05"
+compatibility_flags = ["nodejs_compat"]
+
+[vars]
+ENVIRONMENT = "production"
+
+# Production Environment (Default)
+[[d1_databases]]
+binding = "DB"
+database_name = "ruhvi-cofounder-prod"
+database_id = "3d828d68-8e54-4f6d-b206-25c364592499"
+
+[[r2_buckets]]
+binding = "ARTIFACTS"
+bucket_name = "ruhvi-cofounder-artifacts"
+
+# Staging Environment
+[env.staging]
+vars = { ENVIRONMENT = "staging" }
+
+[[env.staging.d1_databases]]
+binding = "DB"
+database_name = "ruhvi-cofounder-staging"
+database_id = "f742dfa6-5363-4203-a07b-7bc651d6c2ed"
+
+[[env.staging.r2_buckets]]
+binding = "ARTIFACTS"
+bucket_name = "ruhvi-cofounder-artifacts"
+
+# Development Environment
+[env.dev]
+vars = { ENVIRONMENT = "dev" }
+
+[[env.dev.d1_databases]]
+binding = "DB"
+database_name = "ruhvi-cofounder-dev"
+database_id = "1e6386be-2429-480c-b606-cbe8030a387c"
+
+[[env.dev.r2_buckets]]
+binding = "ARTIFACTS"
+bucket_name = "ruhvi-cofounder-artifacts"

@@ -25,6 +25,9 @@
 | **Meta Pixel & Meta CAPI** | Ad Analytics | Browser Meta Pixel and server-side Conversion API (CAPI) for ad performance and event tracking. | Active | `src/app/api/capi/route.ts` |
 | **Google Analytics 4 (GA4)** | Web Analytics | E-commerce transaction tracking and overall site traffic monitoring. | Active | `src/lib/gtag.ts`, `src/app/layout.tsx` |
 | **Cloudflare Turnstile** | Anti-Bot Security | Bot prevention challenge integrated into checkout and sensitive authentication routes. | Active | `src/app/checkout/page.tsx` |
+| **Cloudflare D1 (Serverless SQL)** | Co-Founder Database | Dedicated serverless relational database for AI Co-Founder memory, task runs, reflections, RSI proposals, and audit events (`ruhvi-cofounder-prod`, `ruhvi-cofounder-staging`, `ruhvi-cofounder-dev`). | Active | Cloudflare D1 (APAC) |
+| **Cloudflare R2 (Object Storage)** | Artifacts & Backup Storage | High-durability zero-egress object storage (`ruhvi-cofounder-artifacts` in APAC) for large research reports, D1 SQL backup exports, and evaluation bundles. | Active | Cloudflare R2 (APAC) |
+| **Cloudflare Zero Trust / Access** | API Security & M2M Auth | Machine-to-machine service token authorization (`Vercel Co-Founder Data API Token`) protecting `cofounder-data.ruhvi.in` from unauthorized external calls. | Active | Cloudflare One / Access |
 | **PhonePe** | Payment Gateway | E-commerce payment gateway supporting standard checkout and 10% Partial-COD pre-payments. | Active | `src/app/api/checkout/phonepe`, `src/lib/orders/finalize-phonepe-order.ts` |
 | **Paytm Payment Gateway** | Payment Gateway | Alternative backup payment gateway configured for online transactions. | Active (Keys Pending) | `src/lib/payments/paytm.ts`, `src/app/api/checkout/paytm` |
 | **Shiprocket** | Logistics & Shipping | Automated courier allocation, shipping label generation, and order tracking status sync. | Active | `src/lib/shiprocket.ts`, `src/app/api/admin/shiprocket/create-order` |
@@ -72,6 +75,7 @@
 | :--- | :--- | :--- |
 | **`ai.ruhvi.in`** | Cloudflare Argo Tunnel (`66370576...cfargotunnel.com`) | Secure Cloudflare tunnel routing external API requests to internal AI model microservices/endpoints. |
 | **`n8n.ruhvi.in`** | Cloudflare Argo Tunnel (`66370576...cfargotunnel.com`) | Cloudflare tunnel routing webhooks to the self-hosted n8n workflow engine (e.g., automated blog generation). |
+| **`cofounder-data.ruhvi.in`** | Cloudflare Access (`cofounder-data`) + Worker Domain | Dedicated Co-Founder Data API origin protected by Cloudflare Access Service Token authentication, routing to `ruhvi-cofounder-data-api` Worker, D1 and R2. |
 
 ### C. Email Authentication, Sending & Security (DKIM, SPF, DMARC, MX)
 
@@ -100,6 +104,7 @@
 | **chrome-devtools-mcp** | Automates headless browser testing, page inspection, accessibility audits, and network request monitoring. | `.gemini/antigravity-ide/mcp/chrome-devtools-mcp` |
 | **sentry** | Sentry MCP server integration (`@sentry/mcp-server`) scoped to `ruhvi-jewels/javascript-nextjs` for inspecting errors & stack traces. | `.agents/mcp_config.json` |
 | **Meta Ads MCP Server** | Direct first-party Meta remote MCP server for AI Co-Founder live ROAS analytics, ad set management, and draft creative uploads under App ID `1516695129765369`. | `https://mcp.facebook.com/ads`, `.env.local` |
+| **Cloudflare MCP Server** | Official Cloudflare remote MCP server (Code Mode) providing AI assistants direct access to documentation, OpenAPI specs, and dynamic execution tools for managing DNS (`ruhvi.in`), Argo Tunnels (`ai.ruhvi.in`, `n8n.ruhvi.in`), and Workers across account `73012e9170b1c74522222d12694ee063`. | `https://mcp.cloudflare.com/mcp`, `.agents/mcp_config.json`, `.cursor/mcp.json`, `.env.local` |
 
 ---
 

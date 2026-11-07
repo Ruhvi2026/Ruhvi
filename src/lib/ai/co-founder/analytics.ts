@@ -658,3 +658,34 @@ export async function getStoreAnalytics(params: {
 
   return report;
 }
+
+/**
+ * Fast, privacy-safe analytics summary powered by Supabase RPC
+ * Reference: Blueprint Section 3.1 & Migration 0127
+ */
+export async function getCofounderAggregatedMetrics(params?: {
+  startDate?: string;
+  endDate?: string;
+}): Promise<Record<string, any> | null> {
+  const supabase = getServiceClient();
+  try {
+    const { data, error } = await supabase.rpc(
+      'get_cofounder_analytics_summary',
+      {
+        p_start_date: params?.startDate || undefined,
+        p_end_date: params?.endDate || undefined,
+      }
+    );
+    if (error) {
+      console.warn(
+        '[getCofounderAggregatedMetrics] RPC failed, falling back:',
+        error.message
+      );
+      return null;
+    }
+    return data;
+  } catch (err: any) {
+    console.warn('[getCofounderAggregatedMetrics] Exception:', err.message);
+    return null;
+  }
+}
