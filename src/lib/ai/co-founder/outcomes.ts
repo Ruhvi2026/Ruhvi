@@ -3,6 +3,7 @@ import 'server-only';
 import { getServiceClient } from '@/lib/supabase/service';
 import { logAuditEvent } from '@/lib/audit';
 import { writeCoFounderMemory } from './memory';
+import { measureAuthoritativeMetric } from './closed-loop';
 
 export type OutcomeEntityType =
   | 'recommendation'
@@ -273,6 +274,17 @@ export async function verifyDelayedOutcome(
     } else {
       newStatus = 'verified';
     }
+  } else {
+    // RSI-GAP-011: Strict outcome verification policy.
+    // If an outcome expects business metrics, it cannot be verified without authoritative measurement.
+    const hasMetricExpectation = Boolean(
+      evidence.metricKey || evidence.metricExpectation
+    );
+    if (hasMetricExpectation) {
+      newStatus = 'unresolved';
+    } else {
+      newStatus = 'verified';
+    }
   }
 
   const { data: updated, error: updateErr } = await supabase
@@ -416,44 +428,89 @@ export async function verifyDueActionPlanOutcomes(): Promise<{
   }
 
   let verifiedCount = 0;
-  const conflictedCount = 0;
+  let conflictedCount = 0;
   let learningsRecordedCount = 0;
 
   for (const outcome of dueOutcomes) {
     try {
       const evidence = outcome.evidence || {};
-      const metricKey = evidence.metricKey;
+      const metricKey =
+        evidence.metricKey || evidence.metricExpectation?.metricKey;
       const baseline =
-        typeof evidence.baseline === 'number' ? evidence.baseline : 0;
+        typeof evidence.baseline === 'number'
+          ? evidence.baseline
+          : (evidence.metricExpectation?.baselineValue ?? 0);
       const target =
-        typeof evidence.target === 'number' ? evidence.target : baseline;
+        typeof evidence.target === 'number'
+          ? evidence.target
+          : (evidence.metricExpectation?.targetValue ?? baseline);
 
-      // Default to verified if no explicit metricKey, or evaluate progression
-      const status: VerificationStatus = 'verified';
+      let status: VerificationStatus = 'verified';
+      let actualOutcome = 'Operational action completed and verified.';
+
+      // RSI-GAP-011: Measure authoritative store metrics if metricKey is declared
+      if (metricKey) {
+        const metricResult = await measureAuthoritativeMetric(metricKey);
+        if (
+          metricResult.sourceTable === 'unknown' ||
+          metricResult.details?.error
+        ) {
+          status = 'unresolved';
+          actualOutcome = `Measurement inconclusive: ${
+            metricResult.details?.error ||
+            'No authoritative tabular binding for ' + metricKey
+          }`;
+        } else {
+          const measuredVal = metricResult.currentValue;
+          evidence.measuredData = {
+            metricName: metricKey,
+            measuredValue: measuredVal,
+            baseline,
+            target,
+            measuredAt: metricResult.measuredAt,
+          };
+          const deviation = (measuredVal - target) / (target || baseline || 1);
+          if (deviation < -0.25) {
+            status = 'conflicted';
+            actualOutcome = `Metric conflicted: measured ${measuredVal} vs target ${target} (shortfall ${(
+              Math.abs(deviation) * 100
+            ).toFixed(1)}%).`;
+          } else {
+            status = 'verified';
+            actualOutcome = `Metric verified: measured ${measuredVal} reached baseline ${baseline} / target ${target}.`;
+          }
+        }
+      }
 
       // Record authoritative DB confirmation
       await supabase
         .from('co_founder_outcomes')
         .update({
           verification_status: status,
-          actual_outcome: `Measured against baseline (${baseline}) and target (${target}). Status verified.`,
+          actual_outcome: actualOutcome,
           verification_source: 'authoritative_db',
+          evidence,
           updated_at: new Date().toISOString(),
         })
         .eq('id', outcome.id);
 
-      verifiedCount++;
-
-      // Save learning signal to memory
-      await writeCoFounderMemory({
-        userId: outcome.user_id || 'system',
-        category: 'decision',
-        key: `learning_outcome_${outcome.id.slice(0, 8)}`,
-        value: `Action outcome verified: ${outcome.expected_outcome || 'Action plan target reached'}.`,
-        confidence: 0.95,
-        source: 'system',
-      });
-      learningsRecordedCount++;
+      if (status === 'verified') {
+        verifiedCount++;
+        // Save verified learning signal to memory
+        await writeCoFounderMemory({
+          userId: outcome.user_id || 'system',
+          category: 'decision',
+          key: `learning_outcome_${outcome.id.slice(0, 8)}`,
+          value: `Action outcome verified: ${
+            outcome.expected_outcome || 'Action plan target reached'
+          }.`,
+          confidence: 0.95,
+          source: 'system',
+        });
+        learningsRecordedCount++;
+      } else if (status === 'conflicted') {
+        conflictedCount++;
+      }
     } catch (err) {
       console.error(`Failed to verify outcome ${outcome.id}:`, err);
     }

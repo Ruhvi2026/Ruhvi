@@ -93,8 +93,9 @@ export function validateServiceAuth(
     request.headers.get('cf-access-client-secret');
 
   if (clientId && clientSecret) {
-    if (env.ACCESS_CLIENT_ID && env.ACCESS_CLIENT_SECRET) {
-      const idMatch = timingSafeEqual(clientId, env.ACCESS_CLIENT_ID);
+    const expectedClientId = env.ACCESS_CLIENT_ID || DESIGNATED_CLIENT_ID;
+    if (env.ACCESS_CLIENT_SECRET) {
+      const idMatch = timingSafeEqual(clientId, expectedClientId);
       const secretMatch = timingSafeEqual(
         clientSecret,
         env.ACCESS_CLIENT_SECRET
@@ -105,13 +106,12 @@ export function validateServiceAuth(
       return { authorized: false, reason: 'Invalid Service Token credentials' };
     }
 
-    if (
-      timingSafeEqual(clientId, env.ACCESS_CLIENT_ID || DESIGNATED_CLIENT_ID) &&
-      clientSecret.startsWith('cfast_') &&
-      clientSecret.length >= 40
-    ) {
-      return { authorized: true };
-    }
+    // Fail closed if server-side secret is unconfigured (RSI-GAP-001)
+    return {
+      authorized: false,
+      reason:
+        'Server credentials unconfigured for direct Service Token validation',
+    };
   }
 
   return {

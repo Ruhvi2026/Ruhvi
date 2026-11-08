@@ -234,6 +234,23 @@ describe('Stage 10 — Outcome Tracking & Learning Loop Engine', () => {
 
       expect(conflicted.verification_status).toBe('conflicted');
     });
+
+    it('marks outcome unresolved when metric is expected but no measured data is supplied (RSI-GAP-011)', async () => {
+      mockOutcomes.push({
+        id: 'out_delayed_3',
+        entity_type: 'action',
+        expected_outcome: 'Increase sales by 15%',
+        verification_status: 'pending',
+        evidence: {
+          metricKey: 'order_revenue',
+          baseline: 100000,
+          target: 115000,
+        },
+      });
+
+      const unresolved = await verifyDelayedOutcome('out_delayed_3');
+      expect(unresolved.verification_status).toBe('unresolved');
+    });
   });
 
   describe('getOutcomeAnalytics (Phase 20)', () => {

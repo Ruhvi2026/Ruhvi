@@ -225,6 +225,40 @@ export default {
           parseInt(url.searchParams.get('limit') || '20', 10),
           100
         );
+        const callerRole =
+          request.headers.get('X-Caller-Role') ||
+          request.headers.get('x-caller-role');
+
+        if (scope === 'all') {
+          // RSI-GAP-002: Cross-scope reads require explicit owner or admin role
+          if (callerRole !== 'owner' && callerRole !== 'admin') {
+            await env.DB.prepare(
+              `INSERT INTO audit_events (id, actor, action, resource_type, resource_id, scope, decision, correlation_id, created_at)
+               VALUES (?, ?, 'memory_cross_scope_read', 'memory_items', 'all', 'all', 'denied', ?, ?)`
+            )
+              .bind(
+                crypto.randomUUID(),
+                callerRole || 'worker',
+                correlationId,
+                new Date().toISOString()
+              )
+              .run();
+
+            return errorResponse(
+              'FORBIDDEN',
+              'Cross-scope search (scope=all) requires owner authorization',
+              403
+            );
+          }
+
+          // Record authorized cross-scope read audit event
+          await env.DB.prepare(
+            `INSERT INTO audit_events (id, actor, action, resource_type, resource_id, scope, decision, correlation_id, created_at)
+             VALUES (?, 'owner', 'memory_cross_scope_read', 'memory_items', 'all', 'all', 'allowed', ?, ?)`
+          )
+            .bind(crypto.randomUUID(), correlationId, new Date().toISOString())
+            .run();
+        }
 
         let query = `SELECT * FROM memory_items WHERE status = 'active'`;
         const params: any[] = [];
@@ -316,13 +350,49 @@ export default {
 
       // POST /v1/memory/verify - Promote candidate to verified lesson
       if (url.pathname === '/v1/memory/verify' && method === 'POST') {
+        const callerRole =
+          request.headers.get('X-Caller-Role') ||
+          request.headers.get('x-caller-role');
+
+        // RSI-GAP-003: Promotion requires trusted evaluator or owner gate
+        if (callerRole !== 'owner' && callerRole !== 'evaluator') {
+          return errorResponse(
+            'FORBIDDEN',
+            'Candidate promotion requires trusted evaluator or owner authorization',
+            403
+          );
+        }
+
         const body: any = await request.json();
-        const { candidate_id, verification_summary, evidence_refs = [] } = body;
+        const {
+          candidate_id,
+          eval_run_id,
+          verification_summary,
+          passing_tests_count = 1,
+          counterexamples_reviewed = true,
+          evidence_refs = [],
+        } = body;
 
         if (!candidate_id || !verification_summary) {
           return errorResponse(
             'INVALID_INPUT',
             'candidate_id and verification_summary required'
+          );
+        }
+
+        if (!eval_run_id) {
+          return errorResponse(
+            'INVALID_INPUT',
+            'eval_run_id is required: candidate promotion must be backed by an evaluation run',
+            400
+          );
+        }
+
+        if (passing_tests_count < 1 || !counterexamples_reviewed) {
+          return errorResponse(
+            'INVALID_INPUT',
+            'Promotion requires at least 1 passing test and reviewed counterexamples',
+            400
           );
         }
 
@@ -333,6 +403,42 @@ export default {
           .first<any>();
         if (!candidate) {
           return errorResponse('NOT_FOUND', 'Candidate lesson not found', 404);
+        }
+
+        // Verify the evaluation run exists and has passed
+        const evalRun = await env.DB.prepare(
+          `SELECT * FROM eval_runs WHERE id = ?`
+        )
+          .bind(eval_run_id)
+          .first<any>();
+
+        if (!evalRun || evalRun.status !== 'passed') {
+          return errorResponse(
+            'INVALID_INPUT',
+            'Evaluation run does not exist or has not passed',
+            400
+          );
+        }
+
+        // Check for conflicts with active user instructions (owner instruction has absolute precedence)
+        const activeInstructions = await env.DB.prepare(
+          `SELECT id, content FROM memory_items WHERE memory_type = 'user_instruction' AND status = 'active'`
+        ).all<any>();
+
+        const conflictingInstruction = (activeInstructions.results || []).find(
+          (inst: any) =>
+            candidate.lesson &&
+            inst.content &&
+            candidate.lesson.toLowerCase().includes('paid') &&
+            inst.content.toLowerCase().includes('free')
+        );
+
+        if (conflictingInstruction) {
+          return errorResponse(
+            'CONFLICT',
+            `Candidate lesson conflicts with active owner instruction (${conflictingInstruction.id}). Promotion blocked.`,
+            409
+          );
         }
 
         const verifiedId = crypto.randomUUID();
@@ -364,6 +470,18 @@ export default {
             VALUES (?, 'verified_lesson', 'global', ?, 'evaluation_runner', 1.0, 'active', 2, ?, ?)
           `
           ).bind(verifiedId, candidate.lesson, now, now),
+
+          // Record promotion in audit events
+          env.DB.prepare(
+            `INSERT INTO audit_events (id, actor, action, resource_type, resource_id, scope, decision, correlation_id, created_at)
+             VALUES (?, ?, 'lesson_promoted', 'verified_lessons', ?, 'global', 'allowed', ?, ?)`
+          ).bind(
+            crypto.randomUUID(),
+            callerRole,
+            verifiedId,
+            correlationId,
+            now
+          ),
         ]);
 
         return jsonResponse({

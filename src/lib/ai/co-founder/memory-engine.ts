@@ -1052,20 +1052,31 @@ export function synthesizePrioritizedMemoryContext(
 
 /**
  * Normalizes an extracted rule or decision into a clean, snake_case key slug.
+ * Supports Unicode/Bengali script and provides deterministic hash fallback.
  */
 function slugifyKey(text: string, prefix = ''): string {
   const clean = text
     .toLowerCase()
-    .replace(/[^\w\s]/g, '')
+    .replace(/[^\p{L}\p{N}\s]/gu, '')
     .trim()
     .replace(/\s+/g, '_')
     .slice(0, 36);
-  return prefix ? `${prefix}_${clean}` : clean;
+
+  let finalKey = clean;
+  if (!finalKey) {
+    let hash = 5381;
+    for (let i = 0; i < text.length; i++) {
+      hash = (hash * 33) ^ text.charCodeAt(i);
+    }
+    finalKey = `hash_${Math.abs(hash).toString(36)}`;
+  }
+  return prefix ? `${prefix}_${finalKey}` : finalKey;
 }
 
 /**
  * Analyzes conversational messages to extract high-signal rules, preferences,
  * decisions, and strategic targets that should be remembered long-term.
+ * RSI-GAP-010: Supports English, Bengali, and Banglish explicit intents and corrections.
  */
 export function extractMemoriesFromConversation(
   messages: Array<{ role: string; content: string }>,
@@ -1080,6 +1091,31 @@ export function extractMemoriesFromConversation(
     const text = msg.content;
     const lower = text.toLowerCase();
 
+    // 0. Explicit Intent (e.g. "remember that we never...", "মনে রেখো...", "mone rekho...")
+    const explicitIntentPatterns = [
+      /(?:remember\s+(?:that|this)|keep\s+in\s+mind),?\s*([^.?!]+)/i,
+      /(?:please\s+remember|don't\s+forget\s+that),?\s*([^.?!]+)/i,
+      /(?:মনে\s+রেখো|মনে\s+রাখবে|মনে\s+রাখো),?\s*([^.?!]+)/iu,
+      /(?:mone\s+rekho|mone\s+rakhbe|mone\s+rakho),?\s*([^.?!]+)/i,
+    ];
+
+    for (const pat of explicitIntentPatterns) {
+      const match = text.match(pat);
+      if (match) {
+        candidates.push({
+          key: slugifyKey(match[1].slice(0, 24), 'explicit'),
+          value: match[0].trim(),
+          taxonomyLayer: 'operational_rule',
+          category: 'business_preference',
+          confidence: 1.0,
+          importance: 5,
+          source: 'user_explicit',
+          reason: `Matched explicit founder instruction: "${match[0]}"`,
+          topics: ['explicit_instruction', 'founder_preference'],
+        });
+      }
+    }
+
     // 1. Operational Rules (e.g. "always keep 10 choker units in stock", "never discount diamond products > 15%")
     const operationalPatterns = [
       /always\s+keep\s+([^.?!]+)/i,
@@ -1088,6 +1124,8 @@ export function extractMemoriesFromConversation(
       /free\s+shipping\s+(?:threshold|over)\s+([^.?!]+)/i,
       /policy\s+is\s+to\s+([^.?!]+)/i,
       /delivery\s+sla\s+(?:is|should\s+be)\s+([^.?!]+)/i,
+      /(?:সবসময়|কখনো\s+না)\s+([^.?!]+)/iu,
+      /(?:shob\s*shomoy|kokhono\s+na)\s+([^.?!]+)/i,
     ];
 
     for (const pat of operationalPatterns) {
@@ -1114,6 +1152,8 @@ export function extractMemoriesFromConversation(
       /aiming\s+for\s+([^.?!]+)/i,
       /diwali\s+(?:target|campaign|revenue)\s+is\s+([^.?!]+)/i,
       /q\d\s+target\s+is\s+([^.?!]+)/i,
+      /(?:আমাদের\s+টার্গেট|লক্ষ্য)\s+(?:হলো|হচ্ছে|হল)\s+([^.?!]+)/iu,
+      /(?:amader\s+target|goal)\s+(?:holo|hoche|is)\s+([^.?!]+)/i,
     ];
 
     for (const pat of goalPatterns) {
@@ -1166,6 +1206,8 @@ export function extractMemoriesFromConversation(
       /(?:that'?s\s+(?:wrong|incorrect|not\s+right)),?\s*([^.?!]+)/i,
       /actually,?\s*(?:we|it's|it\s+is)\s+([^.?!]+)/i,
       /correct\s+(?:that|it)\s+to\s+([^.?!]+)/i,
+      /(?:এটা\s+ভুল|ভুল\s+হয়েছে),?\s*([^.?!]+)/iu,
+      /(?:eta\s+bhul|bhul\s+hoyechhe),?\s*([^.?!]+)/i,
     ];
 
     for (const pat of correctionPatterns) {

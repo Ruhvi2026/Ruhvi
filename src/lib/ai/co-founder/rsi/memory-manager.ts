@@ -138,27 +138,29 @@ export class RsiMemoryManager {
     hasConflict: boolean;
     reason: string;
   } {
-    // 1. Candidate lessons NEVER override user instructions
+    // 1. User instructions have absolute precedence over candidate lessons and verified lessons (RSI-GAP-009)
     if (
       memoryA.memory_type === 'user_instruction' &&
-      memoryB.memory_type === 'candidate_lesson'
+      (memoryB.memory_type === 'candidate_lesson' ||
+        memoryB.memory_type === 'verified_lesson')
     ) {
       return {
         winner: memoryA,
         hasConflict: false,
         reason:
-          'User instruction has absolute precedence over candidate lesson',
+          'Explicit user instruction has absolute precedence over candidate/verified lessons',
       };
     }
     if (
       memoryB.memory_type === 'user_instruction' &&
-      memoryA.memory_type === 'candidate_lesson'
+      (memoryA.memory_type === 'candidate_lesson' ||
+        memoryA.memory_type === 'verified_lesson')
     ) {
       return {
         winner: memoryB,
         hasConflict: false,
         reason:
-          'User instruction has absolute precedence over candidate lesson',
+          'Explicit user instruction has absolute precedence over candidate/verified lessons',
       };
     }
 

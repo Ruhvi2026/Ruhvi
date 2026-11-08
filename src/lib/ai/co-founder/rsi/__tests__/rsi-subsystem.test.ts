@@ -13,6 +13,7 @@ import { RsiGapDetector } from '../gap-detector';
 import { RsiEvalLab, GOLDEN_RSI_TEST_CASES } from '../eval-lab';
 import { RsiProposalEngine } from '../proposal-engine';
 import { RsiEvolutionHistory } from '../evolution-history';
+import { extractMemoriesFromConversation } from '../../memory-engine';
 
 describe('RSI (Recursive Self-Improvement) Subsystem Test Suite', () => {
   // Phase 1: Governance & Scope Isolation
@@ -108,6 +109,80 @@ describe('RSI (Recursive Self-Improvement) Subsystem Test Suite', () => {
 
       const result = memoryMgr.resolveConflict(memA, memB);
       expect(result.hasConflict).toBe(true);
+    });
+
+    it('enforces precedence: user_instruction strictly overrides verified_lesson (RSI-GAP-009)', () => {
+      const userInstruction: any = {
+        id: 'u1',
+        memory_type: 'user_instruction',
+        scope: 'global',
+        content: 'Never offer discounts on gold chokers',
+        priority: 1,
+      };
+      const verifiedLesson: any = {
+        id: 'v1',
+        memory_type: 'verified_lesson',
+        scope: 'global',
+        content: 'Discounting chokers increases sales velocity by 20%',
+        priority: 5,
+      };
+
+      const result = memoryMgr.resolveConflict(userInstruction, verifiedLesson);
+      expect(result.hasConflict).toBe(false);
+      expect(result.winner?.id).toBe('u1');
+      expect(result.reason).toContain(
+        'Explicit user instruction has absolute precedence'
+      );
+    });
+
+    it('extracts explicit memory intent in Bengali, Banglish, and English without false positives (RSI-GAP-010)', () => {
+      // 1. Bengali explicit instruction
+      const bnMessages = [
+        {
+          role: 'user',
+          content: 'মনে রেখো, আমরা সবসময় ফ্রি ওপেন সোর্স টুলস ব্যবহার করব।',
+        },
+      ];
+      const bnCandidates = extractMemoriesFromConversation(bnMessages);
+      expect(bnCandidates.length).toBeGreaterThanOrEqual(1);
+      expect(bnCandidates[0].confidence).toBe(1.0);
+      expect(bnCandidates[0].source).toBe('user_explicit');
+
+      // 2. Banglish explicit instruction
+      const banglishMessages = [
+        {
+          role: 'user',
+          content:
+            'Mone rekho, shob shomoy discount 10% er beshi kakhono debe na.',
+        },
+      ];
+      const banglishCandidates =
+        extractMemoriesFromConversation(banglishMessages);
+      expect(banglishCandidates.length).toBeGreaterThanOrEqual(1);
+      expect(banglishCandidates[0].confidence).toBe(1.0);
+
+      // 3. English explicit instruction
+      const enMessages = [
+        {
+          role: 'user',
+          content:
+            'Please remember that all jewellery images must have white background.',
+        },
+      ];
+      const enCandidates = extractMemoriesFromConversation(enMessages);
+      expect(enCandidates.length).toBeGreaterThanOrEqual(1);
+
+      // 4. Casual statements (must NOT produce memory candidates)
+      const casualMessages = [
+        { role: 'user', content: 'আজকের আবহাওয়া বেশ চমৎকার এবং রোদ উঠেছে।' },
+        { role: 'user', content: 'Ajke lunch e ki khawa jaye bhabchi.' },
+        {
+          role: 'user',
+          content: 'I had coffee this morning before opening the store.',
+        },
+      ];
+      const casualCandidates = extractMemoriesFromConversation(casualMessages);
+      expect(casualCandidates.length).toBe(0);
     });
   });
 

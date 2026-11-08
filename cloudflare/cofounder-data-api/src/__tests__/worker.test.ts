@@ -132,6 +132,9 @@ describe('Cloudflare Worker: cofounder-data-api (A-15)', () => {
           if (sql.includes('FROM upgrade_proposals')) {
             return { results: mockDbData.upgrade_proposals as T[] };
           }
+          if (sql.includes('FROM memory_items')) {
+            return { results: mockDbData.memory_items as T[] };
+          }
           return { results: [] as T[] };
         },
         run: async () => {
@@ -273,6 +276,24 @@ describe('Cloudflare Worker: cofounder-data-api (A-15)', () => {
               decision: boundArgs[3],
               note: boundArgs[4],
             });
+          } else if (sql.includes('INSERT INTO audit_events')) {
+            mockDbData.audit_events.push({
+              id: boundArgs[0],
+              actor: boundArgs[1],
+              action: boundArgs[2],
+            });
+          } else if (sql.includes('INSERT INTO verified_lessons')) {
+            mockDbData.verified_lessons.push({
+              id: boundArgs[0],
+              candidate_id: boundArgs[1],
+              lesson: boundArgs[2],
+              verification_summary: boundArgs[3],
+            });
+          } else if (sql.includes('UPDATE candidate_lessons SET status = ?')) {
+            const cand = mockDbData.candidate_lessons.find(
+              (c) => c.id === boundArgs[1]
+            );
+            if (cand) cand.status = boundArgs[0];
           }
           return { success: true };
         },
@@ -422,6 +443,178 @@ describe('Cloudflare Worker: cofounder-data-api (A-15)', () => {
       expect(json2.data.id).toBe(initialId);
       // Ensure only 1 record created in DB
       expect(mockDbData.memory_items.length).toBe(1);
+    });
+
+    it('enforces scope authorization: rejects scope=all without owner role (403) (RSI-GAP-002)', async () => {
+      const req = new Request(
+        'https://cofounder-data.ruhvi.in/v1/memory/search?scope=all',
+        {
+          method: 'GET',
+          headers: {
+            ...authedHeaders,
+            'X-Caller-Role': 'worker',
+          },
+        }
+      );
+      const res = await worker.fetch(req, mockEnv);
+      expect(res.status).toBe(403);
+      const json = await res.json();
+      expect(json.success).toBe(false);
+      expect(json.error.message).toContain('Cross-scope search');
+    });
+
+    it('permits scope=all for authorized owner role (RSI-GAP-002)', async () => {
+      const req = new Request(
+        'https://cofounder-data.ruhvi.in/v1/memory/search?scope=all',
+        {
+          method: 'GET',
+          headers: {
+            ...authedHeaders,
+            'X-Caller-Role': 'owner',
+          },
+        }
+      );
+      const res = await worker.fetch(req, mockEnv);
+      expect(res.status).toBe(200);
+      const json = await res.json();
+      expect(json.success).toBe(true);
+    });
+
+    it('rejects candidate lesson promotion if caller is not evaluator or owner (403) (RSI-GAP-003)', async () => {
+      const req = new Request(
+        'https://cofounder-data.ruhvi.in/v1/memory/verify',
+        {
+          method: 'POST',
+          headers: {
+            ...authedHeaders,
+            'X-Caller-Role': 'worker',
+          },
+          body: JSON.stringify({
+            candidate_id: 'cand-1',
+            eval_run_id: 'run-1',
+            verification_summary: 'Self certified summary',
+          }),
+        }
+      );
+      const res = await worker.fetch(req, mockEnv);
+      expect(res.status).toBe(403);
+    });
+
+    it('rejects candidate promotion if evaluation run does not exist or failed (400) (RSI-GAP-003)', async () => {
+      mockDbData.candidate_lessons.push({
+        id: 'cand-failed',
+        lesson: 'Use aggressive discounting',
+        status: 'pending',
+      });
+
+      const req = new Request(
+        'https://cofounder-data.ruhvi.in/v1/memory/verify',
+        {
+          method: 'POST',
+          headers: {
+            ...authedHeaders,
+            'X-Caller-Role': 'evaluator',
+          },
+          body: JSON.stringify({
+            candidate_id: 'cand-failed',
+            eval_run_id: 'run-non-existent',
+            verification_summary: 'Evaluation completed',
+            passing_tests_count: 5,
+            counterexamples_reviewed: true,
+          }),
+        }
+      );
+      const res = await worker.fetch(req, mockEnv);
+      expect(res.status).toBe(400);
+      const json = await res.json();
+      expect(json.error.message).toContain('Evaluation run does not exist');
+    });
+
+    it('rejects candidate promotion if it contradicts active owner instruction (409) (RSI-GAP-003)', async () => {
+      mockDbData.memory_items.push({
+        id: 'mem-rule-1',
+        memory_type: 'user_instruction',
+        scope: 'global',
+        content: 'Always prefer free and open-source tools',
+        status: 'active',
+        priority: 5,
+      });
+
+      mockDbData.candidate_lessons.push({
+        id: 'cand-conflict',
+        lesson: 'Use paid tools for marketing',
+        status: 'pending',
+      });
+
+      mockDbData.eval_runs.push({
+        id: 'run-passed-1',
+        suite_id: 'suite-1',
+        candidate_version: 'v1',
+        status: 'passed',
+      });
+
+      const req = new Request(
+        'https://cofounder-data.ruhvi.in/v1/memory/verify',
+        {
+          method: 'POST',
+          headers: {
+            ...authedHeaders,
+            'X-Caller-Role': 'evaluator',
+          },
+          body: JSON.stringify({
+            candidate_id: 'cand-conflict',
+            eval_run_id: 'run-passed-1',
+            verification_summary: 'Evaluation passed',
+            passing_tests_count: 5,
+            counterexamples_reviewed: true,
+          }),
+        }
+      );
+      const res = await worker.fetch(req, mockEnv);
+      expect(res.status).toBe(409);
+      const json = await res.json();
+      expect(json.error.message).toContain(
+        'conflicts with active owner instruction'
+      );
+    });
+
+    it('promotes candidate to verified lesson when backed by passed eval run and authorized evaluator (RSI-GAP-003)', async () => {
+      mockDbData.candidate_lessons.push({
+        id: 'cand-valid',
+        lesson: 'Cache catalog listings for 60 seconds to reduce latency',
+        status: 'pending',
+      });
+
+      mockDbData.eval_runs.push({
+        id: 'run-passed-2',
+        suite_id: 'suite-1',
+        candidate_version: 'v2',
+        status: 'passed',
+      });
+
+      const req = new Request(
+        'https://cofounder-data.ruhvi.in/v1/memory/verify',
+        {
+          method: 'POST',
+          headers: {
+            ...authedHeaders,
+            'X-Caller-Role': 'evaluator',
+          },
+          body: JSON.stringify({
+            candidate_id: 'cand-valid',
+            eval_run_id: 'run-passed-2',
+            verification_summary: '100% pass on synthetic latency suite',
+            passing_tests_count: 10,
+            counterexamples_reviewed: true,
+          }),
+        }
+      );
+      const res = await worker.fetch(req, mockEnv);
+      expect(res.status).toBe(200);
+      const json = await res.json();
+      expect(json.success).toBe(true);
+      expect(json.data.status).toBe('verified');
+      expect(mockDbData.verified_lessons.length).toBe(1);
     });
   });
 
