@@ -18,6 +18,14 @@ export interface ExecutionObservation {
   metadata?: Record<string, any>;
 }
 
+export interface AggregatedMetrics {
+  totalRuns: number;
+  successRate: number | null;
+  status?: string;
+  averageLatencyMs: number;
+  errorRatesByClass: Record<string, number>;
+}
+
 export class RsiSelfObserver {
   private client = getCofounderDataClient();
 
@@ -63,7 +71,7 @@ export class RsiSelfObserver {
   /**
    * Aggregates key reliability metrics from recent observations
    */
-  aggregateMetrics(observations: ExecutionObservation[]) {
+  aggregateMetrics(observations: ExecutionObservation[]): AggregatedMetrics {
     if (!observations.length) {
       return {
         totalRuns: 0,
