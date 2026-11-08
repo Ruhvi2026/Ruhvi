@@ -457,3 +457,37 @@ Authoritative architectural record of the Human-Governed Recursive Self-Improvem
 - **Candidate Lesson Promotion Gate (RSI-GAP-003)**: `/v1/memory/verify` requires a completed and passed evaluation run (`eval_run_id`), verified counterexamples, evaluator/owner role authorization, and enforces owner-instruction precedence (HTTP 409 Conflict if contradictory).
 - **Authoritative Outcome Verification Reconciliation (RSI-GAP-011)**: `verifyDelayedOutcome` and `verifyDueActionPlanOutcomes` in [`src/lib/ai/co-founder/outcomes.ts`](file:///c:/Users/INDIA/Desktop/Project%20Ruhvi/src/lib/ai/co-founder/outcomes.ts) strictly require authoritative store metric measurements via `measureAuthoritativeMetric`. Inconclusive queries remain `unresolved`, metric shortfalls $> 25\%$ trigger `conflicted`, preventing false-positive verified states.
 - **Multilingual Explicit Intent Extraction (RSI-GAP-010)**: Unicode-aware parsing in `extractMemoriesFromConversation` for English, Bengali, and Banglish explicit memory instructions, cleanly differentiating permanent instructions from casual conversational statements.
+
+---
+
+## 16. Supervised Autonomous Worker Workforce Subsystem
+
+Authoritative architectural record of the Supervised Autonomous Worker Workforce Subsystem implemented around the AI Co-Founder and 14 registered specialist workers (8 November 2026):
+
+### A. Core Architecture & Safety Boundary
+- **Co-Founder Brain as Sole Supervisor**: The existing AI Co-Founder (`src/lib/ai/co-founder/brain.ts` and `orchestrator.ts`) acts as the root coordinator. Individual autonomous workers cannot self-spawn, self-modify code, deploy, mutate database DDL, or bypass policy controls.
+- **Autonomy Separation**: Clear barrier between *autonomous business execution* (analyzing trends, recommending campaigns, auditing stock, drafting checklists) and *system self-modification* (code changes, deploys, schema changes). System evolution remains owner-manual via the RSI upgrade proposal loop.
+- **Fail-Safe Runtime Controls**:
+  - Global emergency kill switch (`setGlobalKillSwitch()`, `isGlobalKillSwitchActive()`).
+  - Per-worker maintenance mode (`setWorkerMaintenance()`, `isWorkerActive()`).
+  - Default dry-run mode (`dryRun: true`) preventing unintended external side effects.
+
+### B. Autonomy Tiers & Policy Engine
+1. **Tier 0 (Manual)**: Runs only on direct, explicit user invocation.
+2. **Tier 1 (Observe & Recommend - Default)**: Continuous observation, KPI anomaly detection, recommendation generation; strictly read-only with zero business mutation.
+3. **Tier 2 (Internal Workflow)**: Low-risk, reversible internal actions (e.g. creating task drafts, saving checkpoints, compiling reports).
+4. **Tier 3 (Approval-Gated Business Execution)**: Financial or external side-effect operations (e.g. price updates, inventory adjustments, publishing campaigns). Strictly requires a valid, unexpired `ApprovalBinding` with matching cryptographic payload hash (`sha256(payload)`).
+
+### C. Core Subsystem Modules
+1. **Canonical Worker Manifests** ([`src/lib/ai/co-founder/workforce/manifests.ts`](file:///c:/Users/INDIA/Desktop/Project%20Ruhvi/src/lib/ai/co-founder/workforce/manifests.ts)): 14 versioned, tamper-evident worker specifications with SHA-256 manifest hashes covering domain objectives, owned KPIs, allowed data sources, allowed tools, read scopes, internal write scopes, autonomy tiers, limits, and retry policies.
+2. **Policy Engine** ([`src/lib/ai/co-founder/workforce/policy-engine.ts`](file:///c:/Users/INDIA/Desktop/Project%20Ruhvi/src/lib/ai/co-founder/workforce/policy-engine.ts)): Evaluates every requested step action against worker manifests, autonomy tiers, action risk categories (`read_only`, `internal_write`, `external_side_effect`, `financial`, `destructive`), and approval bindings.
+3. **Signal Normalizer** ([`src/lib/ai/co-founder/workforce/signals.ts`](file:///c:/Users/INDIA/Desktop/Project%20Ruhvi/src/lib/ai/co-founder/workforce/signals.ts)): Converts incoming schedules, webhooks, and health events into typed `WorkforceSignal` envelopes with deterministic SHA-256 idempotency keys and stale event rejection (>24h).
+4. **Goal Discovery Engine** ([`src/lib/ai/co-founder/workforce/goal-discovery.ts`](file:///c:/Users/INDIA/Desktop/Project%20Ruhvi/src/lib/ai/co-founder/workforce/goal-discovery.ts)): Evaluates candidate goals with transparent multi-factor priority scoring `(impact * confidence * urgency * alignment) / effort - riskPenalty - duplicatePenalty` and 48-hour fingerprint deduplication cooldowns.
+5. **Workforce Planner** ([`src/lib/ai/co-founder/workforce/planner.ts`](file:///c:/Users/INDIA/Desktop/Project%20Ruhvi/src/lib/ai/co-founder/workforce/planner.ts)): Constructs bounded, typed task plans with DAG dependency validation, tool allowlist enforcement, and circular dependency detection via DFS.
+6. **Delegation Broker** ([`src/lib/ai/co-founder/workforce/delegation-broker.ts`](file:///c:/Users/INDIA/Desktop/Project%20Ruhvi/src/lib/ai/co-founder/workforce/delegation-broker.ts)): Governs parent-to-child worker delegation with hard depth bounds (max depth = 2, child cannot delegate further), concurrency limits (max 3 children per parent), allowed delegate checks, and strict permission intersection.
+7. **Agent Runner** ([`src/lib/ai/co-founder/workforce/agent-runner.ts`](file:///c:/Users/INDIA/Desktop/Project%20Ruhvi/src/lib/ai/co-founder/workforce/agent-runner.ts)): Executes bounded steps under checkpointing (`checkpoints`), policy gates, step limits, dry-run simulation, and fail-safe telemetry recording to Cloudflare D1 (`worker-runs` and `tool-events`).
+8. **Two-Level Verifier** ([`src/lib/ai/co-founder/workforce/verifier.ts`](file:///c:/Users/INDIA/Desktop/Project%20Ruhvi/src/lib/ai/co-founder/workforce/verifier.ts)):
+   - **Level 1 (Task Verification)**: Verifies completion status, output summary presence, and tool allowlist compliance across execution checkpoints.
+   - **Level 2 (Business Outcome Verification)**: Evaluates real-world metric outcomes via `measureAuthoritativeMetric()` in `closed-loop.ts`, compares against target/baseline with tolerance thresholds, and feeds candidate lessons into the RSI Reflection Engine (`RsiReflectionEngine.createCandidateLesson()`) when discrepancies or conflicts occur.
+9. **Unified Coordinator Facade** ([`src/lib/ai/co-founder/workforce/index.ts`](file:///c:/Users/INDIA/Desktop/Project%20Ruhvi/src/lib/ai/co-founder/workforce/index.ts)): High-level `AutonomousWorkforceCoordinator` providing `processIncomingSignal()` and `getHealthStatus()`.
+

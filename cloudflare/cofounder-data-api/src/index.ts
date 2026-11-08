@@ -260,6 +260,37 @@ export default {
             .run();
         }
 
+        if (scope === 'all') {
+          // RSI-GAP-002: Cross-scope reads require explicit owner or admin role
+          if (callerRole !== 'owner' && callerRole !== 'admin') {
+            await env.DB.prepare(
+              `INSERT INTO audit_events (id, actor, action, resource_type, resource_id, scope, decision, correlation_id, created_at)
+               VALUES (?, ?, 'memory_cross_scope_read', 'memory_items', 'all', 'all', 'denied', ?, ?)`
+            )
+              .bind(
+                crypto.randomUUID(),
+                callerRole || 'worker',
+                correlationId,
+                new Date().toISOString()
+              )
+              .run();
+
+            return errorResponse(
+              'FORBIDDEN',
+              'Cross-scope search (scope=all) requires owner authorization',
+              403
+            );
+          }
+
+          // Record authorized cross-scope read audit event
+          await env.DB.prepare(
+            `INSERT INTO audit_events (id, actor, action, resource_type, resource_id, scope, decision, correlation_id, created_at)
+             VALUES (?, 'owner', 'memory_cross_scope_read', 'memory_items', 'all', 'all', 'allowed', ?, ?)`
+          )
+            .bind(crypto.randomUUID(), correlationId, new Date().toISOString())
+            .run();
+        }
+
         let query = `SELECT * FROM memory_items WHERE status = 'active'`;
         const params: any[] = [];
 
