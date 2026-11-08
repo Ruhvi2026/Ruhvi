@@ -469,7 +469,13 @@ export function detectPlanConflicts(steps: PlannedWorkerStep[]): string[] {
         const cycleKey = [...path, neighbor].join(' -> ');
         if (!cycleDetected.has(curr)) {
           cycleDetected.add(curr);
-          conflicts.push(`Dependency cycle detected: ${cycleKey}`);
+          if (neighbor === curr) {
+            conflicts.push(
+              `Dependency cycle detected: Step "${curr}" has a circular dependency on itself (${cycleKey})`
+            );
+          } else {
+            conflicts.push(`Dependency cycle detected: ${cycleKey}`);
+          }
         }
       }
     }

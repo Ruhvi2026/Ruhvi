@@ -683,6 +683,52 @@ export async function measureAuthoritativeMetric(
     };
   }
 
+  // 2b. Order Cancellation Rate / Cancellations
+  if (
+    normalizedKey.includes('cancellation') ||
+    normalizedKey.includes('cancel')
+  ) {
+    let query = supabase.from('orders').select('id, status, created_at');
+
+    if (params?.startDate) {
+      query = query.gte('created_at', params.startDate);
+    }
+    if (params?.endDate) {
+      query = query.lte('created_at', params.endDate);
+    }
+
+    const { data: orders, error } = await query;
+    if (error) {
+      return {
+        metricKey,
+        currentValue: 0,
+        sourceTable: 'orders',
+        details: { error: error.message },
+        measuredAt,
+      };
+    }
+
+    const totalOrders = (orders || []).length;
+    const cancelledOrders = (orders || []).filter(
+      (o: any) => (o.status || '').toLowerCase() === 'cancelled'
+    ).length;
+
+    const rate =
+      totalOrders > 0
+        ? Math.round((cancelledOrders / totalOrders) * 100 * 100) / 100
+        : 0;
+    const isRateMetric =
+      normalizedKey.includes('rate') || normalizedKey.includes('percent');
+
+    return {
+      metricKey,
+      currentValue: isRateMetric ? rate : cancelledOrders,
+      sourceTable: 'orders',
+      details: { totalOrders, cancelledOrders, cancellationRatePercent: rate },
+      measuredAt,
+    };
+  }
+
   // 3. Inventory Stock Level
   if (normalizedKey.includes('stock') || normalizedKey.includes('inventory')) {
     let query = supabase

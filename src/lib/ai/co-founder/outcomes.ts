@@ -469,15 +469,25 @@ export async function verifyDueActionPlanOutcomes(): Promise<{
             target,
             measuredAt: metricResult.measuredAt,
           };
-          const deviation = (measuredVal - target) / (target || baseline || 1);
-          if (deviation < -0.25) {
+          const isDecreaseTarget = target < baseline;
+          const isVerified = isDecreaseTarget
+            ? measuredVal <= target ||
+              (baseline - measuredVal) / (baseline - target || 1) >= 0.75
+            : measuredVal >= target ||
+              (measuredVal - baseline) / (target - baseline || 1) >= 0.75;
+
+          if (
+            !isVerified &&
+            (isDecreaseTarget ? measuredVal > baseline : measuredVal < baseline)
+          ) {
             status = 'conflicted';
-            actualOutcome = `Metric conflicted: measured ${measuredVal} vs target ${target} (shortfall ${(
-              Math.abs(deviation) * 100
-            ).toFixed(1)}%).`;
-          } else {
+            actualOutcome = `Metric conflicted: measured ${measuredVal} regressed beyond baseline ${baseline} / target ${target}.`;
+          } else if (isVerified) {
             status = 'verified';
             actualOutcome = `Metric verified: measured ${measuredVal} reached baseline ${baseline} / target ${target}.`;
+          } else {
+            status = 'conflicted';
+            actualOutcome = `Metric conflicted: measured ${measuredVal} vs target ${target}.`;
           }
         }
       }
