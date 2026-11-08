@@ -1,5 +1,6 @@
 jest.mock('server-only', () => ({}));
 
+import * as manifestsModule from '../manifests';
 import { getAllWorkerManifests, getWorkerManifest } from '../manifests';
 import {
   assertWorkforceOperationAllowed,
@@ -181,6 +182,35 @@ describe('Autonomous Worker Workforce Subsystem', () => {
         toolName: 'draft_metric_alert',
       });
       expect(writeDecision.decision).toBe('REQUIRE_APPROVAL');
+    });
+
+    it('T2 tier allows read-only and internal-write without approval, but requires approval for external side-effects', () => {
+      const baseManifest = getWorkerManifest('worker_marketing')!;
+      const t2Manifest = {
+        ...baseManifest,
+        autonomyTier: 'T2' as const,
+        allowedTools: [...baseManifest.allowedTools, 'publish_campaign'],
+      };
+
+      const spy = jest
+        .spyOn(manifestsModule, 'getWorkerManifest')
+        .mockReturnValue(t2Manifest);
+
+      // Internal write allowed in T2 without approval
+      const internalWriteDecision = workforcePolicyEngine.evaluateAction({
+        workerId: 'worker_marketing',
+        toolName: 'create_task_draft',
+      });
+      expect(internalWriteDecision.decision).toBe('ALLOW');
+
+      // External side effect requires approval in T2
+      const externalDecision = workforcePolicyEngine.evaluateAction({
+        workerId: 'worker_marketing',
+        toolName: 'publish_campaign',
+      });
+      expect(externalDecision.decision).toBe('REQUIRE_APPROVAL');
+
+      spy.mockRestore();
     });
 
     it('validates cryptographic approval binding for approval-gated actions', () => {
