@@ -812,6 +812,79 @@ const RAW_MANIFESTS: Record<
     ],
     evaluationSuiteId: 'eval_suite_workforce_performance_v1',
   },
+
+  worker_security_intelligence: {
+    workerId: 'worker_security_intelligence',
+    displayName: 'Security Intelligence Worker',
+    domain:
+      'Autonomous threat detection, vulnerability analysis, CI/CD scan synthesis, file upload quarantine, and defensive governance',
+    description:
+      'Enforces zero-trust defense-in-depth across edge, repository, database, and customer uploads with reversible autonomous containment.',
+    manifestVersion: '1.0.0',
+    supervisorId: 'co_founder_brain',
+    objectives: [
+      'Synthesize CI/CD scanner findings (Trivy, Semgrep, OSV, Gitleaks, ZAP) into deduplicated D1 findings',
+      'Inspect uploaded customer files with zero-cost magic-byte and polyglot script detection',
+      'Execute pre-approved reversible containment (quarantine, rate-limit, temporary IP block)',
+      'Gate destructive/high-risk actions behind explicit human owner approval',
+      'Maintain an append-only cryptographic audit log in Cloudflare D1',
+    ],
+    ownedKpis: [
+      {
+        metricId: 'unresolved_critical_vulnerabilities',
+        sourceId: 'security_findings',
+      },
+      {
+        metricId: 'active_containment_actions',
+        sourceId: 'security_blocked_entities',
+      },
+      {
+        metricId: 'quarantined_malicious_uploads',
+        sourceId: 'security_quarantine_records',
+      },
+    ],
+    allowedDataSources: [
+      'cloudflare:d1:security',
+      'cloudflare:r2:artifacts',
+      'github_actions:scans',
+      'authoritative_db:audit',
+    ],
+    triggers: ['manual', 'schedule', 'verified_event', 'health_signal'],
+    allowedTools: [
+      'get_security_posture',
+      'analyze_vulnerabilities',
+      'propose_containment',
+      'inspect_file_security',
+      'get_incident_report',
+    ],
+    readScopes: ['security:read', 'scans:read', 'audit:read'],
+    internalWriteScopes: [
+      'security:quarantine',
+      'security:rate_limit',
+      'security:proposals',
+    ],
+    approvalRequiredScopes: [
+      'security:permanent_block',
+      'security:rotate_credentials',
+      'security:disable_account',
+    ],
+    allowedDelegates: ['worker_monitoring_verification', 'worker_execution'],
+    autonomyTier: 'T1',
+    limits: {
+      maxSteps: 6,
+      maxToolCalls: 6,
+      maxModelCalls: 0,
+      maxChildren: 1,
+      maxDepth: 1,
+      timeoutSeconds: 30,
+      maxCostMinorUnits: 0,
+    },
+    retryPolicy: { maxAttempts: 2, backoff: 'fixed' },
+    successCriteria: [
+      '100% deterministic findings deduplication with zero false-positive disruption',
+    ],
+    evaluationSuiteId: 'eval_suite_security_intelligence_v1',
+  },
 };
 
 export const WORKER_MANIFESTS: Record<WorkerId, AutonomousWorkerManifest> = (

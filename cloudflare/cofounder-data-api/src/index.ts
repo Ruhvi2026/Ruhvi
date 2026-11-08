@@ -1,5 +1,6 @@
-import { Env, ApiResponse, ExecutionContext } from './types';
+import { Env, ApiResponse, ExecutionContext, MessageBatch } from './types';
 import { validateServiceAuth } from './auth';
+import { handleSecurityRoutes, handleSecurityQueue } from './security';
 
 function jsonResponse<T>(
   data: ApiResponse<T> & { replayed?: boolean },
@@ -124,6 +125,14 @@ export default {
       request.headers.get('X-Correlation-ID') || crypto.randomUUID();
 
     try {
+      // ------------------------------------------------------------------------
+      // 0. SECURITY INTELLIGENCE ENDPOINTS (worker_security_intelligence)
+      // ------------------------------------------------------------------------
+      if (url.pathname.startsWith('/v1/security')) {
+        const secResponse = await handleSecurityRoutes(request, env, url, ctx);
+        if (secResponse) return secResponse;
+      }
+
       // ------------------------------------------------------------------------
       // 1. MEMORY ENDPOINTS
       // ------------------------------------------------------------------------
@@ -2589,5 +2598,13 @@ export default {
         500
       );
     }
+  },
+
+  async queue(
+    batch: MessageBatch<any>,
+    env: Env,
+    ctx: ExecutionContext
+  ): Promise<void> {
+    await handleSecurityQueue(batch, env, ctx);
   },
 };

@@ -17,6 +17,7 @@ import { monitoringWorker } from './worker-12-monitoring';
 import { ordersLogisticsWorker } from './worker-13-orders-logistics';
 import { accountsWorker } from './worker-14-accounts';
 import { performanceIntelligenceWorker } from './worker-performance-intelligence';
+import { securityIntelligenceWorker } from './worker-security-intelligence';
 
 export const WORKER_ALIAS_MAP: Record<string, WorkerId> = {
   // Direct canonical mappings
@@ -35,8 +36,13 @@ export const WORKER_ALIAS_MAP: Record<string, WorkerId> = {
   worker_orders_logistics: 'worker_orders_logistics',
   worker_accounts_tax: 'worker_accounts_tax',
   worker_performance_intelligence: 'worker_performance_intelligence',
+  worker_security_intelligence: 'worker_security_intelligence',
 
   // Master Plan canonical aliases
+  security: 'worker_security_intelligence',
+  security_intelligence: 'worker_security_intelligence',
+  threat_defense: 'worker_security_intelligence',
+  vulnerability_scanner: 'worker_security_intelligence',
   performance_intelligence: 'worker_performance_intelligence',
   workforce_audit: 'worker_performance_intelligence',
   staff_performance: 'worker_performance_intelligence',
@@ -98,6 +104,7 @@ export class WorkerRegistry {
     this.register(ordersLogisticsWorker);
     this.register(accountsWorker);
     this.register(performanceIntelligenceWorker);
+    this.register(securityIntelligenceWorker);
   }
 
   register(worker: AIWorkerInterface): void {
@@ -157,6 +164,24 @@ export class WorkerRegistry {
       text.includes('audit worker')
     ) {
       return performanceIntelligenceWorker;
+    }
+
+    if (
+      text.includes('security') ||
+      text.includes('vulnerability') ||
+      text.includes('cve') ||
+      text.includes('trivy') ||
+      text.includes('semgrep') ||
+      text.includes('gitleaks') ||
+      text.includes('zap') ||
+      text.includes('threat') ||
+      text.includes('quarantine') ||
+      text.includes('malware') ||
+      text.includes('exploit') ||
+      text.includes('brute force') ||
+      text.includes('tampering')
+    ) {
+      return securityIntelligenceWorker;
     }
 
     // Domain worker keywords

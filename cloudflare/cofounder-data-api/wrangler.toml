@@ -5,6 +5,8 @@ compatibility_flags = ["nodejs_compat"]
 
 [vars]
 ENVIRONMENT = "production"
+CF_ACCESS_TEAM_DOMAIN = "floral-recipe-5dfd.cloudflareaccess.com"
+CF_ACCESS_AUD = "016810a03a1c7272896c7c65dc43f96ff83fad714747a8d34d1f701e0560998b"
 
 # Production Environment (Default)
 [[d1_databases]]
@@ -16,9 +18,20 @@ database_id = "3d828d68-8e54-4f6d-b206-25c364592499"
 binding = "ARTIFACTS"
 bucket_name = "ruhvi-cofounder-artifacts"
 
+[[queues.producers]]
+binding = "SECURITY_QUEUE"
+queue = "ruhvi-security-events-prod"
+
+[[queues.consumers]]
+queue = "ruhvi-security-events-prod"
+max_batch_size = 20
+max_batch_timeout = 5
+max_retries = 3
+dead_letter_queue = "ruhvi-security-events-dlq-prod"
+
 # Staging Environment
 [env.staging]
-vars = { ENVIRONMENT = "staging" }
+vars = { ENVIRONMENT = "staging", CF_ACCESS_TEAM_DOMAIN = "floral-recipe-5dfd.cloudflareaccess.com", CF_ACCESS_AUD = "016810a03a1c7272896c7c65dc43f96ff83fad714747a8d34d1f701e0560998b" }
 
 [[env.staging.d1_databases]]
 binding = "DB"
@@ -29,9 +42,20 @@ database_id = "f742dfa6-5363-4203-a07b-7bc651d6c2ed"
 binding = "ARTIFACTS"
 bucket_name = "ruhvi-cofounder-artifacts"
 
+[[env.staging.queues.producers]]
+binding = "SECURITY_QUEUE"
+queue = "ruhvi-security-events-staging"
+
+[[env.staging.queues.consumers]]
+queue = "ruhvi-security-events-staging"
+max_batch_size = 20
+max_batch_timeout = 5
+max_retries = 3
+dead_letter_queue = "ruhvi-security-events-dlq-staging"
+
 # Development Environment
 [env.dev]
-vars = { ENVIRONMENT = "dev" }
+vars = { ENVIRONMENT = "dev", CF_ACCESS_TEAM_DOMAIN = "floral-recipe-5dfd.cloudflareaccess.com", CF_ACCESS_AUD = "016810a03a1c7272896c7c65dc43f96ff83fad714747a8d34d1f701e0560998b" }
 
 [[env.dev.d1_databases]]
 binding = "DB"
@@ -42,3 +66,13 @@ database_id = "1e6386be-2429-480c-b606-cbe8030a387c"
 binding = "ARTIFACTS"
 bucket_name = "ruhvi-cofounder-artifacts"
 
+[[env.dev.queues.producers]]
+binding = "SECURITY_QUEUE"
+queue = "ruhvi-security-events-dev"
+
+[[env.dev.queues.consumers]]
+queue = "ruhvi-security-events-dev"
+max_batch_size = 20
+max_batch_timeout = 5
+max_retries = 3
+dead_letter_queue = "ruhvi-security-events-dlq-dev"

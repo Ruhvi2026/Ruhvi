@@ -442,6 +442,62 @@ export const INITIAL_WORKFORCE_DATA: WorkerNodeData[] = [
       },
     ],
   },
+  {
+    id: 'worker_performance_intelligence',
+    role: 'analyst',
+    canonicalWorkerId: 'worker_performance_intelligence',
+    name: 'Performance Intelligence',
+    title: 'Workforce Quality & SLA Auditor',
+    description:
+      'Continuous deterministic measurement of AI worker and staff KPIs, achievement points, and quality rubrics.',
+    status: 'working',
+    activeTask:
+      'Auditing 16-worker output quality and deterministic SLA compliance',
+    latencyMs: 42,
+    tokensPerSec: 64.0,
+    subAgents: [
+      {
+        id: 'sub_kpi_engine',
+        name: 'Deterministic KPI Calculator',
+        roleDescription: 'Calculates mathematical performance scores (0-100)',
+        status: 'working',
+        tool: 'perf.calculateMemberScorecard()',
+        lastExecutionMs: 45,
+      },
+    ],
+  },
+  {
+    id: 'worker_security_intelligence',
+    role: 'coder',
+    canonicalWorkerId: 'worker_security_intelligence',
+    name: 'Security Intelligence',
+    title: 'Autonomous Defense & Governance Auditor',
+    description:
+      'Zero-trust edge monitoring, CI/CD scan synthesis (Trivy/Semgrep/OSV/ZAP), and file upload quarantine.',
+    status: 'working',
+    activeTask:
+      'Monitoring edge security events and enforcing zero-cost defense in depth',
+    latencyMs: 38,
+    tokensPerSec: 58.0,
+    subAgents: [
+      {
+        id: 'sub_file_inspector',
+        name: 'Magic-Byte & Polyglot Sanitizer',
+        roleDescription: 'Deep binary inspection of customer file uploads',
+        status: 'working',
+        tool: 'security.inspectFilePayload()',
+        lastExecutionMs: 28,
+      },
+      {
+        id: 'sub_containment_gate',
+        name: 'Reversible Containment Gateway',
+        roleDescription: 'Auto-executes temporary rate-limits & quarantine',
+        status: 'idle',
+        tool: 'security.proposeContainment()',
+        lastExecutionMs: 50,
+      },
+    ],
+  },
 ];
 
 export interface WorkerGridProps {

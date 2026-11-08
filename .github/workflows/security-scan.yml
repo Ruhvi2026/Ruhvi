@@ -1,4 +1,4 @@
-name: Security & Secret Scan
+name: Security Intelligence & Vulnerability Scans
 
 on:
   push:
@@ -15,26 +15,67 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  secret-scan:
-    name: Accidental Secret Exposure Scan
+  # 1. SECRET DETECTION (Gitleaks)
+  gitleaks-scan:
+    name: Secret Leakage Audit (Gitleaks)
     runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
+      - name: Run Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_ENABLE_SUMMARY: true
+
+      - name: Fallback In-House Secret Scanner
+        run: node scripts/scan-secrets.mjs
+
+  # 2. SAST STATIC CODE ANALYSIS (Semgrep CE)
+  semgrep-sast:
+    name: SAST Code Analysis (Semgrep CE)
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Node.js 22.x
-        uses: actions/setup-node@v4
+      - name: Run Semgrep CE
+        run: |
+          docker run --rm -v "${{ github.workspace }}:/src" returntocorp/semgrep semgrep \
+            --config=auto \
+            --json \
+            --output=/src/semgrep.json \
+            --error || true
+
+      - name: Upload Semgrep Report Artifact
+        uses: actions/upload-artifact@v4
+        if: always()
         with:
-          node-version: 22
+          name: semgrep-report
+          path: semgrep.json
+          retention-days: 14
 
-      - name: Execute Secret Scan Script
-        run: node scripts/scan-secrets.mjs
+      - name: Ingest Semgrep Findings to Security Worker
+        if: env.CLOUDFLARE_SECURITY_API_URL != '' && env.CF_SECURITY_INGEST_TOKEN != ''
+        env:
+          CLOUDFLARE_SECURITY_API_URL: ${{ secrets.CLOUDFLARE_SECURITY_API_URL }}
+          CF_SECURITY_INGEST_TOKEN: ${{ secrets.CF_SECURITY_INGEST_TOKEN }}
+        run: |
+          if [ -f semgrep.json ]; then
+            curl -s -X POST "${CLOUDFLARE_SECURITY_API_URL}/scans" \
+              -H "Content-Type: application/json" \
+              -H "Authorization: Bearer ${CF_SECURITY_INGEST_TOKEN}" \
+              -d "{\"provider\":\"semgrep\",\"workflow\":\"${{ github.workflow }}\",\"run_id\":\"${{ github.run_id }}\",\"commit_sha\":\"${{ github.sha }}\",\"branch\":\"${{ github.ref_name }}\",\"environment\":\"prod\",\"summary\":{\"scanner\":\"semgrep\"},\"artifact_raw\":$(jq -Rs . < semgrep.json)}" || true
+          fi
 
+  # 3. DEPENDENCY VULNERABILITIES (OSV-Scanner & npm audit)
   dependency-audit:
-    name: Production Dependency Vulnerability Audit
+    name: Dependency Audit (OSV-Scanner & npm)
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -47,6 +88,45 @@ jobs:
 
       - name: Run Production Dependency Audit
         run: |
-          echo "### Running Production Dependency Security Audit"
-          npm audit --omit=dev --audit-level=critical || echo "⚠️ Critical/High vulnerabilities detected in production dependencies. Review advisories for upstream patches."
+          npm audit --omit=dev --audit-level=critical || echo "⚠️ Critical/High advisories noted."
 
+      - name: Run Google OSV-Scanner
+        run: |
+          docker run --rm -v "${{ github.workspace }}:/src" ghcr.io/google/osv-scanner:v1.9.0 \
+            --lockfile=/src/package-lock.json \
+            --format=json \
+            --output=/src/osv-report.json || true
+
+      - name: Upload OSV Report Artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: osv-report
+          path: osv-report.json
+          retention-days: 14
+
+  # 4. FILESYSTEM & CONTAINER VULNERABILITY SCAN (Trivy)
+  trivy-scan:
+    name: Filesystem & Config Security (Trivy)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run Trivy FS Scanner
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: 'fs'
+          ignore-unfixed: true
+          format: 'json'
+          output: 'trivy-results.json'
+          severity: 'CRITICAL,HIGH'
+        continue-on-error: true
+
+      - name: Upload Trivy Report Artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: trivy-report
+          path: trivy-results.json
+          retention-days: 14

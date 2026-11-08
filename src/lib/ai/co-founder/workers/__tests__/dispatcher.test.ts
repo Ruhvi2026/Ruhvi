@@ -39,9 +39,9 @@ import {
 import { workerRegistry } from '../registry';
 
 describe('AI Co-Founder Dynamic Worker Dispatcher & Registry', () => {
-  it('registers all 15 specialized AI Agent Workers', () => {
+  it('registers all 16 specialized AI Agent Workers', () => {
     const status = getWorkerRegistryStatus();
-    expect(status.totalWorkers).toBe(15);
+    expect(status.totalWorkers).toBe(16);
 
     const workerIds = status.workers.map((w) => w.id);
     expect(workerIds).toEqual([
@@ -60,6 +60,7 @@ describe('AI Co-Founder Dynamic Worker Dispatcher & Registry', () => {
       'worker_orders_logistics',
       'worker_accounts_tax',
       'worker_performance_intelligence',
+      'worker_security_intelligence',
     ]);
   });
 
@@ -112,6 +113,11 @@ describe('AI Co-Founder Dynamic Worker Dispatcher & Registry', () => {
       workerRegistry.findWorkerForTask('Verify outcome and monitor regressions')
         .id
     ).toBe('worker_monitoring_verification');
+    expect(
+      workerRegistry.findWorkerForTask(
+        'Audit vulnerabilities and CI security scans'
+      ).id
+    ).toBe('worker_security_intelligence');
   });
 
   it('dispatches task to worker, synthesizes Co-Founder analysis, and returns executive voice summary', async () => {

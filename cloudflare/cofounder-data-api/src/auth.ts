@@ -114,6 +114,27 @@ export function validateServiceAuth(
     };
   }
 
+  // 3. Bearer Token Verification (used by GitHub Actions CI Scanners & Next.js Runtime Events)
+  const authHeader =
+    request.headers.get('Authorization') ||
+    request.headers.get('authorization');
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    const token = authHeader.substring(7).trim();
+    if (
+      env.CF_SECURITY_INGEST_TOKEN &&
+      timingSafeEqual(token, env.CF_SECURITY_INGEST_TOKEN)
+    ) {
+      return { authorized: true };
+    }
+    if (
+      env.COFOUNDER_WORKFORCE_SECRET &&
+      timingSafeEqual(token, env.COFOUNDER_WORKFORCE_SECRET)
+    ) {
+      return { authorized: true };
+    }
+    return { authorized: false, reason: 'Invalid Bearer token' };
+  }
+
   return {
     authorized: false,
     reason: 'Missing or unauthorized Cloudflare Access credentials',
