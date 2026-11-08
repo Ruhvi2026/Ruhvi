@@ -9,6 +9,7 @@ import {
   GoalIntent,
   PlannedWorkerStep,
   decomposeGoalIntoPlan,
+  validateExecutionPlan,
 } from './intelligent-planner';
 
 export interface DispatchResponse {
@@ -73,10 +74,18 @@ export async function dispatchWorkerTask(
         scopeDescription: result.expectedImpact || 'Worker execution approval',
         requestedBy: worker.name,
       });
-      pendingApprovalId = approval.approvalId;
-    } catch {
-      // In tests or offline environments, generate simulated approval ID
-      pendingApprovalId = 'app_' + Date.now().toString(36);
+      if (approval.success && approval.approvalId) {
+        pendingApprovalId = approval.approvalId;
+      } else {
+        throw new Error(approval.error || 'Approval request creation failed');
+      }
+    } catch (err: any) {
+      // Per Section 5.1 & WF-GAP-013: Fail closed! Never synthesize simulated approval ID.
+      result.executionStatus = 'failed';
+      result.problems = [
+        ...(result.problems || []),
+        `APPROVAL_CREATION_FAILED: ${err?.message || 'Could not register durable approval request'}`,
+      ];
     }
   }
 
@@ -119,7 +128,8 @@ export async function dispatchWorkerTask(
 }
 
 /**
- * Returns complete operational register of all 12 AI Agent Workers
+ * Returns complete operational register of all 14 AI Agent Workers
+ * Returns truthful REGISTERED state per Section 5.5 / WF-GAP-016
  */
 export function getWorkerRegistryStatus() {
   const workers = workerRegistry.getAllWorkers();
@@ -135,7 +145,8 @@ export function getWorkerRegistryStatus() {
         isSystemWorker: def.isSystemWorker,
         responsibilitiesCount: def.responsibilities.length,
         requiredTools: def.requiredTools,
-        status: 'ACTIVE_AND_VERIFIED',
+        status: 'REGISTERED',
+        runtimeState: 'NOT_YET_RUN',
       };
     }),
   };
@@ -184,6 +195,38 @@ export async function executeMultiWorkerPlan(
     typeof planOrGoal === 'string'
       ? decomposeGoalIntoPlan(planOrGoal, options)
       : planOrGoal;
+
+  // Section 5.2 & WF-GAP-008: Validate execution plan before dispatch; fail closed if conflicts or cycles detected
+  const validation = validateExecutionPlan(plan);
+  if (!validation.valid) {
+    return {
+      planId: plan.planId,
+      userGoal: plan.userGoal,
+      intent: plan.intent,
+      status: 'FAILED',
+      stagesCompleted: 0,
+      totalStages: plan.stages.length,
+      stepsExecuted: (plan.allSteps || []).map((step) => ({
+        stepId: step.stepId,
+        workerId: step.workerId,
+        workerName: step.workerName,
+        title: step.title,
+        stageIndex: step.stageIndex,
+        status: 'FAILED',
+        error: `Plan validation failed: ${validation.errors.join('; ')}`,
+      })),
+      aggregatedFindings: [],
+      aggregatedProblems: validation.errors,
+      aggregatedRecommendations: [
+        'Refine execution plan to resolve dependency/safety conflicts.',
+      ],
+      approvalRequired: false,
+      pendingApprovalIds: [],
+      summaryForVoice: `Execution rejected: plan contains ${validation.errors.length} safety conflict(s).`,
+      executiveSummary: `Multi-worker execution halted before launch due to plan validation failure:\n- ${validation.errors.join('\n- ')}`,
+      timestamp: new Date().toISOString(),
+    };
+  }
 
   const recordsMap = new Map<string, MultiWorkerStepExecutionRecord>();
   const pendingApprovalIds: string[] = [];
@@ -246,9 +289,24 @@ export async function executeMultiWorkerPlan(
             scopeDescription: step.title,
             requestedBy: step.workerName,
           });
-          pendingApprovalId = approval.approvalId;
-        } catch {
-          pendingApprovalId = 'app_' + Date.now().toString(36);
+          if (approval.success && approval.approvalId) {
+            pendingApprovalId = approval.approvalId;
+          } else {
+            throw new Error(
+              approval.error || 'Approval request creation failed'
+            );
+          }
+        } catch (err: any) {
+          // Fail closed! Never synthesize a fake approval ID.
+          return {
+            stepId: step.stepId,
+            workerId: step.workerId,
+            workerName: step.workerName,
+            title: step.title,
+            stageIndex: step.stageIndex,
+            status: 'FAILED',
+            error: `APPROVAL_CREATION_FAILED: ${err?.message || 'Failed to create durable approval request'}`,
+          };
         }
 
         if (pendingApprovalId) {
@@ -300,9 +358,24 @@ export async function executeMultiWorkerPlan(
               scopeDescription: output.expectedImpact || step.title,
               requestedBy: worker.name,
             });
-            pendingApprovalId = approval.approvalId;
-          } catch {
-            pendingApprovalId = 'app_' + Date.now().toString(36);
+            if (approval.success && approval.approvalId) {
+              pendingApprovalId = approval.approvalId;
+            } else {
+              throw new Error(
+                approval.error || 'Approval request creation failed'
+              );
+            }
+          } catch (err: any) {
+            return {
+              stepId: step.stepId,
+              workerId: step.workerId,
+              workerName: worker.name,
+              title: step.title,
+              stageIndex: step.stageIndex,
+              status: 'FAILED',
+              output,
+              error: `APPROVAL_CREATION_FAILED: ${err?.message || 'Failed to register approval request'}`,
+            };
           }
 
           if (pendingApprovalId) {
@@ -344,27 +417,32 @@ export async function executeMultiWorkerPlan(
     };
 
     if (stage.isParallelStage && stage.steps.length > 1) {
-      const results = await Promise.allSettled(
-        stage.steps.map((s) => executeSingleStep(s))
-      );
-      for (let i = 0; i < stage.steps.length; i++) {
-        const step = stage.steps[i];
-        const res = results[i];
-        if (res.status === 'fulfilled') {
-          recordsMap.set(step.stepId, res.value);
-          if (res.value.status === 'PENDING_APPROVAL') {
-            hasApprovalPause = true;
+      // Bound stage concurrency to max 2 concurrent runs per Section 5.3 / WF-GAP-019
+      const concurrencyLimit = 2;
+      for (let i = 0; i < stage.steps.length; i += concurrencyLimit) {
+        const chunk = stage.steps.slice(i, i + concurrencyLimit);
+        const results = await Promise.allSettled(
+          chunk.map((s) => executeSingleStep(s))
+        );
+        for (let j = 0; j < chunk.length; j++) {
+          const step = chunk[j];
+          const res = results[j];
+          if (res.status === 'fulfilled') {
+            recordsMap.set(step.stepId, res.value);
+            if (res.value.status === 'PENDING_APPROVAL') {
+              hasApprovalPause = true;
+            }
+          } else {
+            recordsMap.set(step.stepId, {
+              stepId: step.stepId,
+              workerId: step.workerId,
+              workerName: step.workerName,
+              title: step.title,
+              stageIndex: step.stageIndex,
+              status: 'FAILED',
+              error: res.reason?.message || 'Parallel execution failed',
+            });
           }
-        } else {
-          recordsMap.set(step.stepId, {
-            stepId: step.stepId,
-            workerId: step.workerId,
-            workerName: step.workerName,
-            title: step.title,
-            stageIndex: step.stageIndex,
-            status: 'FAILED',
-            error: res.reason?.message || 'Parallel execution failed',
-          });
         }
       }
     } else {

@@ -5,6 +5,10 @@ jest.mock('@/lib/ai/co-founder/approvals', () => ({
     id: 'app_mock_123',
     status: 'pending',
   }),
+  createApprovalRequest: jest.fn().mockResolvedValue({
+    success: true,
+    approvalId: 'app_mock_123',
+  }),
 }));
 
 jest.mock('@/lib/ai/co-founder/analytics', () => ({
@@ -26,6 +30,7 @@ jest.mock('@/lib/ai/co-founder/analytics', () => ({
   }),
 }));
 
+import { createApprovalRequest } from '@/lib/ai/co-founder/approvals';
 import {
   dispatchWorkerTask,
   getWorkerRegistryStatus,
@@ -207,6 +212,133 @@ describe('AI Co-Founder Dynamic Worker Dispatcher & Registry', () => {
         (s) => s.status === 'SKIPPED'
       );
       expect(skippedStep).toBeDefined();
+    });
+
+    it('rejects multi-worker execution if plan contains dependency cycles (Section 5.2 & WF-GAP-008)', async () => {
+      // Craft a plan with arbitrary 3-step cycle: step_1 -> step_2 -> step_3 -> step_1
+      const cyclicPlan = {
+        planId: 'plan_cycle_test',
+        userGoal: 'Test cyclic plan rejection',
+        intent: 'ANALYTICS' as any,
+        isComposite: true,
+        summary: 'Cyclic test plan',
+        stages: [
+          {
+            stageIndex: 0,
+            isParallelStage: true,
+            steps: [
+              {
+                stepId: 'step_1',
+                workerId: 'worker_analytics_performance' as any,
+                workerName: 'Analytics',
+                title: 'Step 1',
+                task: 'Task 1',
+                stageIndex: 0,
+                dependsOn: ['step_3'], // Depends on step 3!
+                isParallelSafe: true,
+                requiresApproval: false,
+              },
+              {
+                stepId: 'step_2',
+                workerId: 'worker_marketing' as any,
+                workerName: 'Marketing',
+                title: 'Step 2',
+                task: 'Task 2',
+                stageIndex: 0,
+                dependsOn: ['step_1'], // Depends on step 1!
+                isParallelSafe: true,
+                requiresApproval: false,
+              },
+              {
+                stepId: 'step_3',
+                workerId: 'worker_seo' as any,
+                workerName: 'SEO',
+                title: 'Step 3',
+                task: 'Task 3',
+                stageIndex: 0,
+                dependsOn: ['step_2'], // Depends on step 2!
+                isParallelSafe: true,
+                requiresApproval: false,
+              },
+            ],
+          },
+        ],
+        allSteps: [
+          {
+            stepId: 'step_1',
+            workerId: 'worker_analytics_performance' as any,
+            workerName: 'Analytics',
+            title: 'Step 1',
+            task: 'Task 1',
+            stageIndex: 0,
+            dependsOn: ['step_3'],
+            isParallelSafe: true,
+            requiresApproval: false,
+          },
+          {
+            stepId: 'step_2',
+            workerId: 'worker_marketing' as any,
+            workerName: 'Marketing',
+            title: 'Step 2',
+            task: 'Task 2',
+            stageIndex: 0,
+            dependsOn: ['step_1'],
+            isParallelSafe: true,
+            requiresApproval: false,
+          },
+          {
+            stepId: 'step_3',
+            workerId: 'worker_seo' as any,
+            workerName: 'SEO',
+            title: 'Step 3',
+            task: 'Task 3',
+            stageIndex: 0,
+            dependsOn: ['step_2'],
+            isParallelSafe: true,
+            requiresApproval: false,
+          },
+        ],
+        approvalRequiredStepsCount: 0,
+        estimatedExecutionRounds: 1,
+        conflictsDetected: [],
+        fallbackWorkerId: 'worker_analytics_performance' as any,
+        createdAt: new Date().toISOString(),
+      };
+
+      const result = await executeMultiWorkerPlan(cyclicPlan);
+      expect(result.status).toBe('FAILED');
+      expect(
+        result.aggregatedProblems.some((p) => p.includes('cycle detected'))
+      ).toBe(true);
+      expect(result.executiveSummary).toContain('plan validation failure');
+    });
+
+    it('fails closed without synthetic approval ID when approval creation service fails (Section 5.1)', async () => {
+      (createApprovalRequest as jest.Mock).mockRejectedValueOnce(
+        new Error('Database offline')
+      );
+
+      const dispatch = await dispatchWorkerTask('worker_marketing', {
+        task: 'Launch festive discount coupon 20% off',
+      });
+
+      expect(dispatch.coFounderAnalysis.approvalRequired).toBe(true);
+      // Section 5.1: Must NOT synthesize a fake approval ID!
+      expect(dispatch.coFounderAnalysis.pendingApprovalId).toBeUndefined();
+      expect(dispatch.result.executionStatus).toBe('failed');
+      expect(
+        dispatch.result.problems.some((p) =>
+          p.includes('APPROVAL_CREATION_FAILED')
+        )
+      ).toBe(true);
+    });
+
+    it('reports truthful REGISTERED status in getWorkerRegistryStatus (Section 5.5)', () => {
+      const status = getWorkerRegistryStatus();
+      for (const w of status.workers) {
+        expect(w.status).toBe('REGISTERED');
+        expect((w as any).runtimeState).toBe('NOT_YET_RUN');
+      }
     });
   });
 });

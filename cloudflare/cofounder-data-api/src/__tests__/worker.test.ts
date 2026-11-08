@@ -34,6 +34,15 @@ describe('Cloudflare Worker: cofounder-data-api (A-15)', () => {
       audit_events: [],
       idempotency_keys: [],
       artifacts: [],
+      workforce_signals: [],
+      workforce_goals: [],
+      workforce_plans: [],
+      workforce_tasks: [],
+      workforce_checkpoints: [],
+      workforce_delegations: [],
+      workforce_agent_messages: [],
+      workforce_dead_letters: [],
+      workforce_controls: [],
     };
 
     r2Objects = new Map();
@@ -82,9 +91,55 @@ describe('Cloudflare Worker: cofounder-data-api (A-15)', () => {
             );
             return (found ? { result_ref: found.result_ref } : null) as T;
           }
+          // Workforce first queries
+          if (sql.includes('workforce_tasks WHERE id = ?')) {
+            return (mockDbData.workforce_tasks.find(
+              (t) => t.id === boundArgs[0]
+            ) || null) as T;
+          }
+          if (sql.includes('workforce_goals WHERE id = ?')) {
+            return (mockDbData.workforce_goals.find(
+              (g) => g.id === boundArgs[0]
+            ) || null) as T;
+          }
+          if (sql.includes('workforce_plans WHERE id = ?')) {
+            return (mockDbData.workforce_plans.find(
+              (p) => p.id === boundArgs[0]
+            ) || null) as T;
+          }
+          if (sql.includes('COUNT(*) as count FROM workforce_delegations')) {
+            const count = mockDbData.workforce_delegations.filter(
+              (d) => d.parent_task_id === boundArgs[0] && d.status === 'active'
+            ).length;
+            return { count } as T;
+          }
+          if (sql.includes('COUNT(*) as count FROM workforce_dead_letters')) {
+            const count = mockDbData.workforce_dead_letters.filter(
+              (d) => d.replay_status === 'unplayed'
+            ).length;
+            return { count } as T;
+          }
           return null as T;
         },
         all: async <T = any>() => {
+          if (sql.includes('FROM workforce_tasks')) {
+            return { results: mockDbData.workforce_tasks as T[] };
+          }
+          if (sql.includes('FROM workforce_goals')) {
+            return { results: mockDbData.workforce_goals as T[] };
+          }
+          if (sql.includes('FROM workforce_signals')) {
+            return { results: mockDbData.workforce_signals as T[] };
+          }
+          if (sql.includes('FROM workforce_delegations')) {
+            return { results: mockDbData.workforce_delegations as T[] };
+          }
+          if (sql.includes('FROM workforce_controls')) {
+            return { results: mockDbData.workforce_controls as T[] };
+          }
+          if (sql.includes('FROM workforce_dead_letters')) {
+            return { results: mockDbData.workforce_dead_letters as T[] };
+          }
           if (sql.includes('FROM worker_snapshots')) {
             return { results: mockDbData.worker_snapshots as T[] };
           }
@@ -294,6 +349,144 @@ describe('Cloudflare Worker: cofounder-data-api (A-15)', () => {
               (c) => c.id === boundArgs[1]
             );
             if (cand) cand.status = boundArgs[0];
+          } else if (sql.includes('INSERT INTO workforce_signals')) {
+            mockDbData.workforce_signals.push({
+              id: boundArgs[0],
+              source_type: boundArgs[1],
+              source_ref: boundArgs[2],
+              fingerprint: boundArgs[3],
+              idempotency_key: boundArgs[4],
+              trust_label: boundArgs[5],
+              domain: boundArgs[6],
+              payload: boundArgs[7],
+              status: 'received',
+            });
+          } else if (sql.includes('INSERT INTO workforce_goals')) {
+            mockDbData.workforce_goals.push({
+              id: boundArgs[0],
+              signal_id: boundArgs[1],
+              title: boundArgs[2],
+              description: boundArgs[3],
+              worker_id: boundArgs[4],
+              score: boundArgs[5],
+              confidence: boundArgs[6],
+              effort: boundArgs[7],
+              risk: boundArgs[8],
+              status: boundArgs[9],
+              evidence_refs: boundArgs[10],
+            });
+          } else if (sql.includes('UPDATE workforce_goals SET')) {
+            const goal = mockDbData.workforce_goals.find(
+              (g) => g.id === boundArgs[3]
+            );
+            if (goal) {
+              if (boundArgs[0]) goal.status = boundArgs[0];
+              if (boundArgs[1] !== null) goal.score = boundArgs[1];
+            }
+          } else if (sql.includes('INSERT INTO workforce_plans')) {
+            mockDbData.workforce_plans.push({
+              id: boundArgs[0],
+              goal_id: boundArgs[1],
+              schema_version: boundArgs[2],
+              user_goal: boundArgs[3],
+              intent: boundArgs[4],
+              stages_json: boundArgs[5],
+              all_steps_json: boundArgs[6],
+              status: boundArgs[9],
+            });
+          } else if (sql.includes('INSERT INTO workforce_tasks')) {
+            mockDbData.workforce_tasks.push({
+              id: boundArgs[0],
+              plan_id: boundArgs[1],
+              goal_id: boundArgs[2],
+              worker_id: boundArgs[3],
+              title: boundArgs[4],
+              task_input: boundArgs[5],
+              status: 'QUEUED',
+              priority: boundArgs[6],
+              max_attempts: boundArgs[7],
+              effective_scope: boundArgs[8],
+              attempt: 0,
+            });
+          } else if (
+            sql.includes('UPDATE workforce_tasks SET') &&
+            sql.includes('lease_owner = ?')
+          ) {
+            // Claim (taskId is boundArgs[5])
+            const task = mockDbData.workforce_tasks.find(
+              (t) => t.id === boundArgs[5]
+            );
+            if (task) {
+              task.lease_owner = boundArgs[0];
+              task.lease_expires_at = boundArgs[1];
+              task.heartbeat_at = boundArgs[2];
+              task.attempt = boundArgs[3];
+              task.status = 'LEASED';
+            }
+          } else if (
+            sql.includes('UPDATE workforce_tasks SET lease_expires_at = ?')
+          ) {
+            // Heartbeat
+            const task = mockDbData.workforce_tasks.find(
+              (t) => t.id === boundArgs[3]
+            );
+            if (task) {
+              task.lease_expires_at = boundArgs[0];
+              task.heartbeat_at = boundArgs[1];
+            }
+          } else if (
+            sql.includes('UPDATE workforce_tasks SET') &&
+            sql.includes('status = ?')
+          ) {
+            // State
+            const task = mockDbData.workforce_tasks.find(
+              (t) => t.id === boundArgs[6]
+            );
+            if (task) {
+              task.status = boundArgs[0];
+              if (boundArgs[1]) task.approval_id = boundArgs[1];
+              if (boundArgs[2]) task.output_ref = boundArgs[2];
+              if (
+                ['COMPLETED', 'FAILED', 'CANCELLED', 'DEAD_LETTER'].includes(
+                  boundArgs[0]
+                )
+              ) {
+                task.lease_owner = null;
+                task.lease_expires_at = null;
+              }
+            }
+          } else if (sql.includes('INSERT INTO workforce_checkpoints')) {
+            mockDbData.workforce_checkpoints.push({
+              id: boundArgs[0],
+              task_id: boundArgs[1],
+              step_id: boundArgs[2],
+              attempt: boundArgs[3],
+              checkpoint_data: boundArgs[4],
+            });
+          } else if (sql.includes('INSERT INTO workforce_delegations')) {
+            mockDbData.workforce_delegations.push({
+              id: boundArgs[0],
+              parent_task_id: boundArgs[1],
+              child_task_id: boundArgs[2],
+              parent_worker_id: boundArgs[3],
+              child_worker_id: boundArgs[4],
+              depth: boundArgs[5],
+              status: 'active',
+              effective_scope: boundArgs[6],
+            });
+          } else if (sql.includes('INSERT INTO workforce_controls')) {
+            const existing = mockDbData.workforce_controls.find(
+              (c) => c.control_key === boundArgs[1]
+            );
+            if (existing) {
+              existing.is_enabled = boundArgs[2];
+            } else {
+              mockDbData.workforce_controls.push({
+                id: boundArgs[0],
+                control_key: boundArgs[1],
+                is_enabled: boundArgs[2],
+              });
+            }
           }
           return { success: true };
         },
@@ -922,6 +1115,317 @@ describe('Cloudflare Worker: cofounder-data-api (A-15)', () => {
       expect(uploadRes.status).toBe(413);
       const json = await uploadRes.json();
       expect(json.error.code).toBe('PAYLOAD_TOO_LARGE');
+    });
+  });
+
+  describe('7. Autonomous Workforce Runtime (WF-GAP-004, WF-GAP-005, WF-GAP-014, WF-GAP-025)', () => {
+    it('creates workforce signal and goal with validation (WF-GAP-004)', async () => {
+      // 1. Post Signal
+      const signalReq = new Request(
+        'https://cofounder-data.ruhvi.in/v1/workforce/signals',
+        {
+          method: 'POST',
+          headers: authedHeaders,
+          body: JSON.stringify({
+            source_type: 'proactive_scan',
+            fingerprint: 'sig_fp_123',
+            idempotency_key: 'idemp_sig_123',
+            domain: 'inventory',
+            payload: { sku: 'SKU-001', stock: 2 },
+          }),
+        }
+      );
+      const signalRes = await worker.fetch(signalReq, mockEnv);
+      expect(signalRes.status).toBe(200);
+      const sigJson = await signalRes.json();
+      expect(sigJson.success).toBe(true);
+      expect(sigJson.data.fingerprint).toBe('sig_fp_123');
+
+      // 2. Post Goal
+      const goalReq = new Request(
+        'https://cofounder-data.ruhvi.in/v1/workforce/goals',
+        {
+          method: 'POST',
+          headers: authedHeaders,
+          body: JSON.stringify({
+            id: 'goal_test_01',
+            title: 'Mitigate Stockout on SKU-001',
+            description: 'Evaluate reorder quantity and supplier SLA',
+            worker_id: 'worker_inventory',
+            score: 8.5,
+          }),
+        }
+      );
+      const goalRes = await worker.fetch(goalReq, mockEnv);
+      expect(goalRes.status).toBe(200);
+      const goalJson = await goalRes.json();
+      expect(goalJson.data.id).toBe('goal_test_01');
+      expect(goalJson.data.status).toBe('CANDIDATE');
+
+      // 3. Update Goal legal transition
+      const updateGoalReq = new Request(
+        'https://cofounder-data.ruhvi.in/v1/workforce/goals/goal_test_01',
+        {
+          method: 'PUT',
+          headers: authedHeaders,
+          body: JSON.stringify({ status: 'ACCEPTED' }),
+        }
+      );
+      const updateGoalRes = await worker.fetch(updateGoalReq, mockEnv);
+      expect(updateGoalRes.status).toBe(200);
+
+      // 4. Reject illegal transition (e.g. ACCEPTED -> EXPIRED is invalid)
+      const badGoalReq = new Request(
+        'https://cofounder-data.ruhvi.in/v1/workforce/goals/goal_test_01',
+        {
+          method: 'PUT',
+          headers: authedHeaders,
+          body: JSON.stringify({ status: 'EXPIRED' }),
+        }
+      );
+      const badGoalRes = await worker.fetch(badGoalReq, mockEnv);
+      expect(badGoalRes.status).toBe(400);
+    });
+
+    it('enforces atomic task claim and rejects concurrent lease collision (WF-GAP-005)', async () => {
+      // 1. Create a task
+      const taskReq = new Request(
+        'https://cofounder-data.ruhvi.in/v1/workforce/tasks',
+        {
+          method: 'POST',
+          headers: authedHeaders,
+          body: JSON.stringify({
+            id: 'task_claim_01',
+            worker_id: 'worker_inventory',
+            title: 'Audit stock runway',
+            task_input: { timeframe: '30d' },
+            priority: 2,
+          }),
+        }
+      );
+      const taskRes = await worker.fetch(taskReq, mockEnv);
+      expect(taskRes.status).toBe(200);
+
+      // 2. Runner 1 claims the task
+      const claimReq1 = new Request(
+        'https://cofounder-data.ruhvi.in/v1/workforce/tasks/task_claim_01/claim',
+        {
+          method: 'POST',
+          headers: authedHeaders,
+          body: JSON.stringify({
+            lease_owner: 'runner_node_alpha',
+            lease_duration_ms: 10000,
+          }),
+        }
+      );
+      const claimRes1 = await worker.fetch(claimReq1, mockEnv);
+      expect(claimRes1.status).toBe(200);
+      const claimJson1 = await claimRes1.json();
+      expect(claimJson1.data.claimed).toBe(true);
+      expect(claimJson1.data.lease_owner).toBe('runner_node_alpha');
+
+      // 3. Runner 2 races to claim the same task -> must receive ALREADY_LEASED without error
+      const claimReq2 = new Request(
+        'https://cofounder-data.ruhvi.in/v1/workforce/tasks/task_claim_01/claim',
+        {
+          method: 'POST',
+          headers: authedHeaders,
+          body: JSON.stringify({
+            lease_owner: 'runner_node_beta',
+            lease_duration_ms: 10000,
+          }),
+        }
+      );
+      const claimRes2 = await worker.fetch(claimReq2, mockEnv);
+      expect(claimRes2.status).toBe(200);
+      const claimJson2 = await claimRes2.json();
+      expect(claimJson2.data.claimed).toBe(false);
+      expect(claimJson2.data.reason).toBe('ALREADY_LEASED');
+      expect(claimJson2.data.lease_owner).toBe('runner_node_alpha');
+
+      // 4. Runner 1 sends heartbeat to extend lease
+      const hbReq = new Request(
+        'https://cofounder-data.ruhvi.in/v1/workforce/tasks/task_claim_01/heartbeat',
+        {
+          method: 'POST',
+          headers: authedHeaders,
+          body: JSON.stringify({
+            lease_owner: 'runner_node_alpha',
+            extend_ms: 15000,
+          }),
+        }
+      );
+      const hbRes = await worker.fetch(hbReq, mockEnv);
+      expect(hbRes.status).toBe(200);
+
+      // 5. Runner 2 tries heartbeat with wrong lease_owner -> 403 Forbidden
+      const badHbReq = new Request(
+        'https://cofounder-data.ruhvi.in/v1/workforce/tasks/task_claim_01/heartbeat',
+        {
+          method: 'POST',
+          headers: authedHeaders,
+          body: JSON.stringify({
+            lease_owner: 'runner_node_beta',
+          }),
+        }
+      );
+      const badHbRes = await worker.fetch(badHbReq, mockEnv);
+      expect(badHbRes.status).toBe(403);
+    });
+
+    it('enforces task checkpointing, legal state transitions, and delegation guardrails (WF-GAP-014)', async () => {
+      // 1. Create and claim task
+      await worker.fetch(
+        new Request('https://cofounder-data.ruhvi.in/v1/workforce/tasks', {
+          method: 'POST',
+          headers: authedHeaders,
+          body: JSON.stringify({
+            id: 'task_exec_01',
+            worker_id: 'worker_analytics_performance',
+            title: 'Revenue Audit',
+            task_input: { period: '7d' },
+          }),
+        }),
+        mockEnv
+      );
+
+      await worker.fetch(
+        new Request(
+          'https://cofounder-data.ruhvi.in/v1/workforce/tasks/task_exec_01/claim',
+          {
+            method: 'POST',
+            headers: authedHeaders,
+            body: JSON.stringify({ lease_owner: 'runner_01' }),
+          }
+        ),
+        mockEnv
+      );
+
+      // 2. Checkpoint task progress
+      const cpReq = new Request(
+        'https://cofounder-data.ruhvi.in/v1/workforce/tasks/task_exec_01/checkpoint',
+        {
+          method: 'POST',
+          headers: authedHeaders,
+          body: JSON.stringify({
+            step_id: 'step_1',
+            attempt: 1,
+            checkpoint_data: { stage: 0, partialRevenue: 125000 },
+          }),
+        }
+      );
+      const cpRes = await worker.fetch(cpReq, mockEnv);
+      expect(cpRes.status).toBe(200);
+
+      // 3. Transition LEASED -> RUNNING -> VERIFYING -> COMPLETED
+      const stateReq1 = new Request(
+        'https://cofounder-data.ruhvi.in/v1/workforce/tasks/task_exec_01/state',
+        {
+          method: 'POST',
+          headers: authedHeaders,
+          body: JSON.stringify({ status: 'RUNNING' }),
+        }
+      );
+      const stateRes1 = await worker.fetch(stateReq1, mockEnv);
+      expect(stateRes1.status).toBe(200);
+
+      const stateReq2 = new Request(
+        'https://cofounder-data.ruhvi.in/v1/workforce/tasks/task_exec_01/state',
+        {
+          method: 'POST',
+          headers: authedHeaders,
+          body: JSON.stringify({
+            status: 'COMPLETED',
+            output_ref: { success: true },
+          }),
+        }
+      );
+      const stateRes2 = await worker.fetch(stateReq2, mockEnv);
+      expect(stateRes2.status).toBe(200);
+
+      // 4. Reject delegation self-loop
+      const selfDelegationReq = new Request(
+        'https://cofounder-data.ruhvi.in/v1/workforce/delegations',
+        {
+          method: 'POST',
+          headers: authedHeaders,
+          body: JSON.stringify({
+            parent_task_id: 'task_exec_01',
+            child_task_id: 'task_exec_child_01',
+            parent_worker_id: 'worker_analytics_performance',
+            child_worker_id: 'worker_analytics_performance', // Self-loop!
+            depth: 1,
+          }),
+        }
+      );
+      const selfDelRes = await worker.fetch(selfDelegationReq, mockEnv);
+      expect(selfDelRes.status).toBe(400);
+
+      // 5. Reject delegation depth > 2
+      const deepDelegationReq = new Request(
+        'https://cofounder-data.ruhvi.in/v1/workforce/delegations',
+        {
+          method: 'POST',
+          headers: authedHeaders,
+          body: JSON.stringify({
+            parent_task_id: 'task_exec_01',
+            child_task_id: 'task_exec_child_02',
+            parent_worker_id: 'worker_analytics_performance',
+            child_worker_id: 'worker_marketing',
+            depth: 3, // Exceeds max depth 2!
+          }),
+        }
+      );
+      const deepDelRes = await worker.fetch(deepDelegationReq, mockEnv);
+      expect(deepDelRes.status).toBe(400);
+
+      // 6. Valid child delegation
+      const validDelReq = new Request(
+        'https://cofounder-data.ruhvi.in/v1/workforce/delegations',
+        {
+          method: 'POST',
+          headers: authedHeaders,
+          body: JSON.stringify({
+            parent_task_id: 'task_exec_01',
+            child_task_id: 'task_exec_child_03',
+            parent_worker_id: 'worker_analytics_performance',
+            child_worker_id: 'worker_marketing',
+            depth: 1,
+            effective_scope: ['read_only'],
+          }),
+        }
+      );
+      const validDelRes = await worker.fetch(validDelReq, mockEnv);
+      expect(validDelRes.status).toBe(200);
+    });
+
+    it('enforces server-side kill switches and reports measured status (WF-GAP-025)', async () => {
+      // 1. Set kill switch
+      const switchReq = new Request(
+        'https://cofounder-data.ruhvi.in/v1/workforce/controls',
+        {
+          method: 'POST',
+          headers: authedHeaders,
+          body: JSON.stringify({
+            control_key: 'workforce_dispatch_enabled',
+            is_enabled: false,
+            reason: 'Emergency maintenance drill',
+          }),
+        }
+      );
+      const switchRes = await worker.fetch(switchReq, mockEnv);
+      expect(switchRes.status).toBe(200);
+
+      // 2. Fetch measured status
+      const statusReq = new Request(
+        'https://cofounder-data.ruhvi.in/v1/workforce/status',
+        { headers: authedHeaders }
+      );
+      const statusRes = await worker.fetch(statusReq, mockEnv);
+      expect(statusRes.status).toBe(200);
+      const statusJson = await statusRes.json();
+      expect(statusJson.data.controls.workforce_dispatch_enabled).toBe(false);
+      expect(statusJson.data.tasks_by_status).toBeDefined();
     });
   });
 });

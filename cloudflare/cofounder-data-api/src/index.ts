@@ -1618,6 +1618,964 @@ export default {
         });
       }
 
+      // ------------------------------------------------------------------------
+      // 8. AUTONOMOUS WORKFORCE RUNTIME ENDPOINTS (WF-GAP-004, WF-GAP-005, etc.)
+      // ------------------------------------------------------------------------
+
+      // 8.1 Signals
+      if (url.pathname === '/v1/workforce/signals' && method === 'POST') {
+        const body: any = await request.json();
+        const {
+          id = crypto.randomUUID(),
+          source_type,
+          source_ref = null,
+          fingerprint,
+          idempotency_key = crypto.randomUUID(),
+          trust_label = 'UNTRUSTED_EXTERNAL',
+          domain,
+          payload,
+        } = body;
+
+        if (!source_type || !fingerprint || !domain || !payload) {
+          return errorResponse(
+            'INVALID_INPUT',
+            'source_type, fingerprint, domain, and payload are required'
+          );
+        }
+
+        const now = new Date().toISOString();
+        const payloadStr =
+          typeof payload === 'string' ? payload : JSON.stringify(payload);
+
+        await env.DB.prepare(
+          `INSERT INTO workforce_signals (id, source_type, source_ref, fingerprint, idempotency_key, trust_label, domain, payload, status, created_at, updated_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'received', ?, ?)
+           ON CONFLICT(idempotency_key) DO UPDATE SET updated_at = excluded.updated_at`
+        )
+          .bind(
+            id,
+            source_type,
+            source_ref,
+            fingerprint,
+            idempotency_key,
+            trust_label,
+            domain,
+            payloadStr,
+            now,
+            now
+          )
+          .run();
+
+        return jsonResponse({
+          success: true,
+          data: { id, fingerprint, idempotency_key, status: 'received' },
+        });
+      }
+
+      if (url.pathname === '/v1/workforce/signals' && method === 'GET') {
+        const status = url.searchParams.get('status');
+        const limit = Math.min(
+          100,
+          parseInt(url.searchParams.get('limit') || '50', 10)
+        );
+
+        let query = `SELECT * FROM workforce_signals`;
+        const params: any[] = [];
+        if (status) {
+          query += ` WHERE status = ?`;
+          params.push(status);
+        }
+        query += ` ORDER BY created_at DESC LIMIT ?`;
+        params.push(limit);
+
+        const stmt = env.DB.prepare(query);
+        const { results } = await stmt.bind(...params).all<any>();
+        return jsonResponse({ success: true, data: results || [] });
+      }
+
+      // 8.2 Goals
+      if (url.pathname === '/v1/workforce/goals' && method === 'POST') {
+        const body: any = await request.json();
+        const {
+          id = crypto.randomUUID(),
+          signal_id = null,
+          title,
+          description,
+          worker_id,
+          score = 0.0,
+          confidence = 1.0,
+          effort = 1.0,
+          risk = 0.0,
+          status = 'CANDIDATE',
+          evidence_refs = [],
+          cooldown_until = null,
+        } = body;
+
+        if (!title || !description || !worker_id) {
+          return errorResponse(
+            'INVALID_INPUT',
+            'title, description, and worker_id are required'
+          );
+        }
+
+        const now = new Date().toISOString();
+        const evidenceStr =
+          typeof evidence_refs === 'string'
+            ? evidence_refs
+            : JSON.stringify(evidence_refs);
+
+        await env.DB.prepare(
+          `INSERT INTO workforce_goals (id, signal_id, title, description, worker_id, score, confidence, effort, risk, status, evidence_refs, cooldown_until, created_at, updated_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+        )
+          .bind(
+            id,
+            signal_id,
+            title,
+            description,
+            worker_id,
+            score,
+            confidence,
+            effort,
+            risk,
+            status,
+            evidenceStr,
+            cooldown_until,
+            now,
+            now
+          )
+          .run();
+
+        return jsonResponse({
+          success: true,
+          data: { id, title, worker_id, status, score },
+        });
+      }
+
+      if (url.pathname === '/v1/workforce/goals' && method === 'GET') {
+        const status = url.searchParams.get('status');
+        const worker_id = url.searchParams.get('worker_id');
+        const limit = Math.min(
+          100,
+          parseInt(url.searchParams.get('limit') || '50', 10)
+        );
+
+        let query = `SELECT * FROM workforce_goals WHERE 1=1`;
+        const params: any[] = [];
+        if (status) {
+          query += ` AND status = ?`;
+          params.push(status);
+        }
+        if (worker_id) {
+          query += ` AND worker_id = ?`;
+          params.push(worker_id);
+        }
+        query += ` ORDER BY score DESC, created_at DESC LIMIT ?`;
+        params.push(limit);
+
+        const stmt = env.DB.prepare(query);
+        const { results } = await stmt.bind(...params).all<any>();
+        return jsonResponse({ success: true, data: results || [] });
+      }
+
+      const goalDetailMatch = url.pathname.match(
+        /^\/v1\/workforce\/goals\/([^\/]+)$/
+      );
+      if (goalDetailMatch && method === 'GET') {
+        const goalId = goalDetailMatch[1];
+        const goal = await env.DB.prepare(
+          `SELECT * FROM workforce_goals WHERE id = ?`
+        )
+          .bind(goalId)
+          .first<any>();
+        if (!goal)
+          return errorResponse('NOT_FOUND', `Goal ${goalId} not found`, 404);
+        return jsonResponse({ success: true, data: goal });
+      }
+
+      if (goalDetailMatch && method === 'PUT') {
+        const goalId = goalDetailMatch[1];
+        const body: any = await request.json();
+        const { status, score } = body;
+        const now = new Date().toISOString();
+
+        const goal = await env.DB.prepare(
+          `SELECT * FROM workforce_goals WHERE id = ?`
+        )
+          .bind(goalId)
+          .first<any>();
+        if (!goal)
+          return errorResponse('NOT_FOUND', `Goal ${goalId} not found`, 404);
+
+        if (status) {
+          const legalTransitions: Record<string, string[]> = {
+            CANDIDATE: ['ACCEPTED', 'REJECTED', 'DEFERRED', 'EXPIRED'],
+            ACCEPTED: ['PLANNED', 'CANCELLED'],
+            PLANNED: ['QUEUED', 'CANCELLED'],
+            QUEUED: ['ACTIVE', 'CANCELLED'],
+            ACTIVE: ['COMPLETED', 'FAILED', 'CANCELLED'],
+            REJECTED: [],
+            DEFERRED: ['CANDIDATE', 'CANCELLED'],
+            EXPIRED: [],
+            CANCELLED: [],
+            FAILED: ['CANDIDATE'],
+            SUPERSEDED: [],
+            COMPLETED: [],
+          };
+          const allowed = legalTransitions[goal.status] || [];
+          if (!allowed.includes(status)) {
+            return errorResponse(
+              'INVALID_TRANSITION',
+              `Cannot transition goal from ${goal.status} to ${status}`
+            );
+          }
+        }
+
+        await env.DB.prepare(
+          `UPDATE workforce_goals SET
+             status = COALESCE(?, status),
+             score = COALESCE(?, score),
+             updated_at = ?
+           WHERE id = ?`
+        )
+          .bind(status || null, score !== undefined ? score : null, now, goalId)
+          .run();
+
+        return jsonResponse({
+          success: true,
+          data: { id: goalId, status: status || goal.status, updated_at: now },
+        });
+      }
+
+      // 8.3 Plans
+      if (url.pathname === '/v1/workforce/plans' && method === 'POST') {
+        const body: any = await request.json();
+        const {
+          id = crypto.randomUUID(),
+          goal_id,
+          schema_version = '1.0.0',
+          user_goal,
+          intent,
+          stages_json,
+          all_steps_json,
+          conflicts_json = '[]',
+          risk_tier = 'T1',
+          status = 'VALIDATED',
+        } = body;
+
+        if (
+          !goal_id ||
+          !user_goal ||
+          !intent ||
+          !stages_json ||
+          !all_steps_json
+        ) {
+          return errorResponse(
+            'INVALID_INPUT',
+            'goal_id, user_goal, intent, stages_json, and all_steps_json are required'
+          );
+        }
+
+        const now = new Date().toISOString();
+        const stagesStr =
+          typeof stages_json === 'string'
+            ? stages_json
+            : JSON.stringify(stages_json);
+        const stepsStr =
+          typeof all_steps_json === 'string'
+            ? all_steps_json
+            : JSON.stringify(all_steps_json);
+        const conflictsStr =
+          typeof conflicts_json === 'string'
+            ? conflicts_json
+            : JSON.stringify(conflicts_json);
+
+        await env.DB.prepare(
+          `INSERT INTO workforce_plans (id, goal_id, schema_version, user_goal, intent, stages_json, all_steps_json, conflicts_json, risk_tier, status, created_at, updated_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+        )
+          .bind(
+            id,
+            goal_id,
+            schema_version,
+            user_goal,
+            intent,
+            stagesStr,
+            stepsStr,
+            conflictsStr,
+            risk_tier,
+            status,
+            now,
+            now
+          )
+          .run();
+
+        return jsonResponse({ success: true, data: { id, goal_id, status } });
+      }
+
+      const planDetailMatch = url.pathname.match(
+        /^\/v1\/workforce\/plans\/([^\/]+)$/
+      );
+      if (planDetailMatch && method === 'GET') {
+        const planId = planDetailMatch[1];
+        const plan = await env.DB.prepare(
+          `SELECT * FROM workforce_plans WHERE id = ?`
+        )
+          .bind(planId)
+          .first<any>();
+        if (!plan)
+          return errorResponse('NOT_FOUND', `Plan ${planId} not found`, 404);
+        return jsonResponse({ success: true, data: plan });
+      }
+
+      // 8.4 Tasks
+      if (url.pathname === '/v1/workforce/tasks' && method === 'POST') {
+        const body: any = await request.json();
+        const {
+          id = crypto.randomUUID(),
+          plan_id = null,
+          goal_id = null,
+          worker_id,
+          title,
+          task_input,
+          priority = 5,
+          max_attempts = 3,
+          effective_scope = ['read_only'],
+          trust_label = 'VERIFIED_SYSTEM',
+          deadline_at = null,
+        } = body;
+
+        if (!worker_id || !title || !task_input) {
+          return errorResponse(
+            'INVALID_INPUT',
+            'worker_id, title, and task_input are required'
+          );
+        }
+
+        const now = new Date().toISOString();
+        const inputStr =
+          typeof task_input === 'string'
+            ? task_input
+            : JSON.stringify(task_input);
+        const scopeStr =
+          typeof effective_scope === 'string'
+            ? effective_scope
+            : JSON.stringify(effective_scope);
+
+        await env.DB.prepare(
+          `INSERT INTO workforce_tasks (id, plan_id, goal_id, worker_id, title, task_input, status, priority, max_attempts, effective_scope, trust_label, deadline_at, created_at, updated_at)
+           VALUES (?, ?, ?, ?, ?, ?, 'QUEUED', ?, ?, ?, ?, ?, ?, ?)`
+        )
+          .bind(
+            id,
+            plan_id,
+            goal_id,
+            worker_id,
+            title,
+            inputStr,
+            priority,
+            max_attempts,
+            scopeStr,
+            trust_label,
+            deadline_at,
+            now,
+            now
+          )
+          .run();
+
+        return jsonResponse({
+          success: true,
+          data: { id, worker_id, title, status: 'QUEUED' },
+        });
+      }
+
+      if (url.pathname === '/v1/workforce/tasks' && method === 'GET') {
+        const status = url.searchParams.get('status');
+        const worker_id = url.searchParams.get('worker_id');
+        const limit = Math.min(
+          100,
+          parseInt(url.searchParams.get('limit') || '50', 10)
+        );
+
+        let query = `SELECT * FROM workforce_tasks WHERE 1=1`;
+        const params: any[] = [];
+        if (status) {
+          query += ` AND status = ?`;
+          params.push(status);
+        }
+        if (worker_id) {
+          query += ` AND worker_id = ?`;
+          params.push(worker_id);
+        }
+        query += ` ORDER BY priority ASC, created_at ASC LIMIT ?`;
+        params.push(limit);
+
+        const stmt = env.DB.prepare(query);
+        const { results } = await stmt.bind(...params).all<any>();
+        return jsonResponse({ success: true, data: results || [] });
+      }
+
+      const taskDetailMatch = url.pathname.match(
+        /^\/v1\/workforce\/tasks\/([^\/]+)$/
+      );
+      if (taskDetailMatch && method === 'GET') {
+        const taskId = taskDetailMatch[1];
+        const task = await env.DB.prepare(
+          `SELECT * FROM workforce_tasks WHERE id = ?`
+        )
+          .bind(taskId)
+          .first<any>();
+        if (!task)
+          return errorResponse('NOT_FOUND', `Task ${taskId} not found`, 404);
+        return jsonResponse({ success: true, data: task });
+      }
+
+      // 8.5 Atomic Task Claim / Lease (WF-GAP-005)
+      const claimMatch = url.pathname.match(
+        /^\/v1\/workforce\/tasks\/([^\/]+)\/claim$/
+      );
+      if (claimMatch && method === 'POST') {
+        const taskId = claimMatch[1];
+        const body: any = await request.json();
+        const { lease_owner, lease_duration_ms = 30000 } = body;
+
+        if (!lease_owner) {
+          return errorResponse('INVALID_INPUT', 'lease_owner is required');
+        }
+
+        const task = await env.DB.prepare(
+          `SELECT * FROM workforce_tasks WHERE id = ?`
+        )
+          .bind(taskId)
+          .first<any>();
+        if (!task)
+          return errorResponse('NOT_FOUND', `Task ${taskId} not found`, 404);
+
+        const now = new Date();
+        const nowIso = now.toISOString();
+
+        // Check if task is already leased and lease has NOT expired
+        if (task.status === 'LEASED' && task.lease_expires_at) {
+          const expiresAt = new Date(task.lease_expires_at);
+          if (expiresAt > now && task.lease_owner !== lease_owner) {
+            return jsonResponse({
+              success: true,
+              data: {
+                claimed: false,
+                reason: 'ALREADY_LEASED',
+                lease_owner: task.lease_owner,
+                lease_expires_at: task.lease_expires_at,
+              },
+            });
+          }
+        }
+
+        // Check if task is in eligible state
+        if (!['QUEUED', 'RETRY_WAIT', 'LEASED'].includes(task.status)) {
+          return jsonResponse({
+            success: true,
+            data: {
+              claimed: false,
+              reason: `TASK_NOT_CLAIMABLE_STATE_${task.status}`,
+              status: task.status,
+            },
+          });
+        }
+
+        // Atomic lease update
+        const leaseExpiresIso = new Date(
+          now.getTime() + lease_duration_ms
+        ).toISOString();
+        const newAttempt = (task.attempt || 0) + 1;
+
+        await env.DB.prepare(
+          `UPDATE workforce_tasks SET
+             lease_owner = ?,
+             lease_expires_at = ?,
+             heartbeat_at = ?,
+             attempt = ?,
+             status = 'LEASED',
+             updated_at = ?
+           WHERE id = ?`
+        )
+          .bind(
+            lease_owner,
+            leaseExpiresIso,
+            nowIso,
+            newAttempt,
+            nowIso,
+            taskId
+          )
+          .run();
+
+        return jsonResponse({
+          success: true,
+          data: {
+            claimed: true,
+            task_id: taskId,
+            lease_owner,
+            lease_expires_at: leaseExpiresIso,
+            attempt: newAttempt,
+          },
+        });
+      }
+
+      // 8.6 Task Heartbeat
+      const heartbeatMatch = url.pathname.match(
+        /^\/v1\/workforce\/tasks\/([^\/]+)\/heartbeat$/
+      );
+      if (heartbeatMatch && method === 'POST') {
+        const taskId = heartbeatMatch[1];
+        const body: any = await request.json();
+        const { lease_owner, extend_ms = 30000 } = body;
+
+        const task = await env.DB.prepare(
+          `SELECT * FROM workforce_tasks WHERE id = ?`
+        )
+          .bind(taskId)
+          .first<any>();
+        if (!task)
+          return errorResponse('NOT_FOUND', `Task ${taskId} not found`, 404);
+
+        if (task.lease_owner !== lease_owner) {
+          return errorResponse(
+            'LEASE_OWNER_MISMATCH',
+            'Caller does not hold current lease',
+            403
+          );
+        }
+
+        const now = new Date();
+        const newExpires = new Date(now.getTime() + extend_ms).toISOString();
+
+        await env.DB.prepare(
+          `UPDATE workforce_tasks SET lease_expires_at = ?, heartbeat_at = ?, updated_at = ? WHERE id = ?`
+        )
+          .bind(newExpires, now.toISOString(), now.toISOString(), taskId)
+          .run();
+
+        return jsonResponse({
+          success: true,
+          data: { task_id: taskId, lease_expires_at: newExpires },
+        });
+      }
+
+      // 8.7 Task Checkpoint
+      const checkpointMatch = url.pathname.match(
+        /^\/v1\/workforce\/tasks\/([^\/]+)\/checkpoint$/
+      );
+      if (checkpointMatch && method === 'POST') {
+        const taskId = checkpointMatch[1];
+        const body: any = await request.json();
+        const { step_id, attempt = 1, checkpoint_data } = body;
+
+        if (!step_id || !checkpoint_data) {
+          return errorResponse(
+            'INVALID_INPUT',
+            'step_id and checkpoint_data are required'
+          );
+        }
+
+        const id = crypto.randomUUID();
+        const now = new Date().toISOString();
+        const dataStr =
+          typeof checkpoint_data === 'string'
+            ? checkpoint_data
+            : JSON.stringify(checkpoint_data);
+
+        await env.DB.prepare(
+          `INSERT INTO workforce_checkpoints (id, task_id, step_id, attempt, checkpoint_data, created_at)
+           VALUES (?, ?, ?, ?, ?, ?)`
+        )
+          .bind(id, taskId, step_id, attempt, dataStr, now)
+          .run();
+
+        return jsonResponse({
+          success: true,
+          data: { id, task_id: taskId, step_id, attempt },
+        });
+      }
+
+      // 8.8 Task State Transition (Server-Owned Legal Transitions)
+      const stateMatch = url.pathname.match(
+        /^\/v1\/workforce\/tasks\/([^\/]+)\/state$/
+      );
+      if (stateMatch && method === 'POST') {
+        const taskId = stateMatch[1];
+        const body: any = await request.json();
+        const { status, output_ref, approval_id } = body;
+
+        if (!status)
+          return errorResponse('INVALID_INPUT', 'status is required');
+
+        const task = await env.DB.prepare(
+          `SELECT * FROM workforce_tasks WHERE id = ?`
+        )
+          .bind(taskId)
+          .first<any>();
+        if (!task)
+          return errorResponse('NOT_FOUND', `Task ${taskId} not found`, 404);
+
+        // Transition validation
+        const validTaskTransitions: Record<string, string[]> = {
+          QUEUED: ['LEASED', 'CANCELLED'],
+          LEASED: [
+            'RUNNING',
+            'AWAITING_APPROVAL',
+            'RETRY_WAIT',
+            'VERIFYING',
+            'COMPLETED',
+            'FAILED',
+            'CANCELLED',
+          ],
+          RUNNING: [
+            'AWAITING_APPROVAL',
+            'RETRY_WAIT',
+            'VERIFYING',
+            'COMPLETED',
+            'FAILED',
+            'CANCELLED',
+          ],
+          AWAITING_APPROVAL: ['QUEUED', 'RUNNING', 'FAILED', 'CANCELLED'],
+          RETRY_WAIT: ['QUEUED', 'DEAD_LETTER', 'CANCELLED'],
+          VERIFYING: ['COMPLETED', 'FAILED', 'CANCELLED'],
+          COMPLETED: [],
+          FAILED: ['QUEUED'],
+          CANCELLED: [],
+          DEAD_LETTER: ['QUEUED'],
+        };
+
+        const allowed = validTaskTransitions[task.status] || [];
+        if (!allowed.includes(status)) {
+          return errorResponse(
+            'INVALID_TRANSITION',
+            `Illegal transition from ${task.status} to ${status}`
+          );
+        }
+
+        const now = new Date().toISOString();
+        const outputStr = output_ref
+          ? typeof output_ref === 'string'
+            ? output_ref
+            : JSON.stringify(output_ref)
+          : null;
+
+        await env.DB.prepare(
+          `UPDATE workforce_tasks SET
+             status = ?,
+             approval_id = COALESCE(?, approval_id),
+             output_ref = COALESCE(?, output_ref),
+             lease_owner = CASE WHEN ? IN ('COMPLETED', 'FAILED', 'CANCELLED', 'DEAD_LETTER') THEN NULL ELSE lease_owner END,
+             lease_expires_at = CASE WHEN ? IN ('COMPLETED', 'FAILED', 'CANCELLED', 'DEAD_LETTER') THEN NULL ELSE lease_expires_at END,
+             updated_at = ?
+           WHERE id = ?`
+        )
+          .bind(
+            status,
+            approval_id || null,
+            outputStr,
+            status,
+            status,
+            now,
+            taskId
+          )
+          .run();
+
+        return jsonResponse({
+          success: true,
+          data: { task_id: taskId, status, updated_at: now },
+        });
+      }
+
+      // 8.9 Delegations (WF-GAP-014)
+      if (url.pathname === '/v1/workforce/delegations' && method === 'POST') {
+        const body: any = await request.json();
+        const {
+          id = crypto.randomUUID(),
+          parent_task_id,
+          child_task_id,
+          parent_worker_id,
+          child_worker_id,
+          depth = 1,
+          effective_scope = ['read_only'],
+        } = body;
+
+        if (
+          !parent_task_id ||
+          !child_task_id ||
+          !parent_worker_id ||
+          !child_worker_id
+        ) {
+          return errorResponse(
+            'INVALID_INPUT',
+            'parent_task_id, child_task_id, parent_worker_id, and child_worker_id are required'
+          );
+        }
+
+        // Guard 1: No self-delegation
+        if (parent_worker_id === child_worker_id) {
+          return errorResponse(
+            'SELF_DELEGATION_PROHIBITED',
+            'Worker cannot delegate to itself',
+            400
+          );
+        }
+
+        // Guard 2: Depth limit <= 2
+        if (depth > 2) {
+          return errorResponse(
+            'DELEGATION_DEPTH_EXCEEDED',
+            'Max delegation depth is 2',
+            400
+          );
+        }
+
+        // Guard 3: Max 3 children per parent run
+        const existingCount = await env.DB.prepare(
+          `SELECT COUNT(*) as count FROM workforce_delegations WHERE parent_task_id = ? AND status = 'active'`
+        )
+          .bind(parent_task_id)
+          .first<any>();
+
+        if (existingCount && existingCount.count >= 3) {
+          return errorResponse(
+            'MAX_CHILDREN_EXCEEDED',
+            'Parent run reached max 3 active child delegations',
+            400
+          );
+        }
+
+        const now = new Date().toISOString();
+        const scopeStr =
+          typeof effective_scope === 'string'
+            ? effective_scope
+            : JSON.stringify(effective_scope);
+
+        await env.DB.prepare(
+          `INSERT INTO workforce_delegations (id, parent_task_id, child_task_id, parent_worker_id, child_worker_id, depth, status, effective_scope, created_at, updated_at)
+           VALUES (?, ?, ?, ?, ?, ?, 'active', ?, ?, ?)`
+        )
+          .bind(
+            id,
+            parent_task_id,
+            child_task_id,
+            parent_worker_id,
+            child_worker_id,
+            depth,
+            scopeStr,
+            now,
+            now
+          )
+          .run();
+
+        return jsonResponse({
+          success: true,
+          data: { id, parent_task_id, child_task_id, depth },
+        });
+      }
+
+      if (url.pathname === '/v1/workforce/delegations' && method === 'GET') {
+        const parent_task_id = url.searchParams.get('parent_task_id');
+        let query = `SELECT * FROM workforce_delegations`;
+        const params: any[] = [];
+        if (parent_task_id) {
+          query += ` WHERE parent_task_id = ?`;
+          params.push(parent_task_id);
+        }
+        query += ` ORDER BY created_at DESC LIMIT 50`;
+
+        const stmt = env.DB.prepare(query);
+        const { results } = await stmt.bind(...params).all<any>();
+        return jsonResponse({ success: true, data: results || [] });
+      }
+
+      // 8.10 Messages (WF-GAP-018)
+      if (url.pathname === '/v1/workforce/messages' && method === 'POST') {
+        const body: any = await request.json();
+        const {
+          id = crypto.randomUUID(),
+          correlation_id,
+          sender_id,
+          recipient_id,
+          task_id = null,
+          message_type = 'notification',
+          payload,
+          trust_label = 'VERIFIED_SYSTEM',
+        } = body;
+
+        if (!correlation_id || !sender_id || !recipient_id || !payload) {
+          return errorResponse(
+            'INVALID_INPUT',
+            'correlation_id, sender_id, recipient_id, and payload are required'
+          );
+        }
+
+        const now = new Date().toISOString();
+        const payloadStr =
+          typeof payload === 'string' ? payload : JSON.stringify(payload);
+
+        await env.DB.prepare(
+          `INSERT INTO workforce_agent_messages (id, correlation_id, sender_id, recipient_id, task_id, message_type, payload, trust_label, created_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
+        )
+          .bind(
+            id,
+            correlation_id,
+            sender_id,
+            recipient_id,
+            task_id,
+            message_type,
+            payloadStr,
+            trust_label,
+            now
+          )
+          .run();
+
+        return jsonResponse({
+          success: true,
+          data: { id, correlation_id, message_type },
+        });
+      }
+
+      // 8.11 Dead Letters (WF-GAP-020)
+      if (url.pathname === '/v1/workforce/dead-letters' && method === 'POST') {
+        const body: any = await request.json();
+        const {
+          id = crypto.randomUUID(),
+          task_id,
+          failure_class,
+          error_message,
+          attempt_count = 3,
+          payload = {},
+        } = body;
+
+        if (!task_id || !failure_class || !error_message) {
+          return errorResponse(
+            'INVALID_INPUT',
+            'task_id, failure_class, and error_message are required'
+          );
+        }
+
+        const now = new Date().toISOString();
+        const payloadStr =
+          typeof payload === 'string' ? payload : JSON.stringify(payload);
+
+        await env.DB.prepare(
+          `INSERT INTO workforce_dead_letters (id, task_id, failure_class, error_message, attempt_count, payload, replay_status, created_at, updated_at)
+           VALUES (?, ?, ?, ?, ?, ?, 'unplayed', ?, ?)`
+        )
+          .bind(
+            id,
+            task_id,
+            failure_class,
+            error_message,
+            attempt_count,
+            payloadStr,
+            now,
+            now
+          )
+          .run();
+
+        return jsonResponse({
+          success: true,
+          data: { id, task_id, replay_status: 'unplayed' },
+        });
+      }
+
+      if (url.pathname === '/v1/workforce/dead-letters' && method === 'GET') {
+        const { results } = await env.DB.prepare(
+          `SELECT * FROM workforce_dead_letters ORDER BY created_at DESC LIMIT 50`
+        ).all<any>();
+        return jsonResponse({ success: true, data: results || [] });
+      }
+
+      // 8.12 Workforce Controls & Kill Switches (WF-GAP-025)
+      if (url.pathname === '/v1/workforce/controls' && method === 'POST') {
+        const body: any = await request.json();
+        const {
+          control_key,
+          is_enabled,
+          reason = null,
+          updated_by = 'owner',
+        } = body;
+
+        if (!control_key || is_enabled === undefined) {
+          return errorResponse(
+            'INVALID_INPUT',
+            'control_key and is_enabled are required'
+          );
+        }
+
+        const id = crypto.randomUUID();
+        const now = new Date().toISOString();
+        const enabledInt = is_enabled ? 1 : 0;
+
+        await env.DB.prepare(
+          `INSERT INTO workforce_controls (id, control_key, is_enabled, reason, updated_by, updated_at)
+           VALUES (?, ?, ?, ?, ?, ?)
+           ON CONFLICT(control_key) DO UPDATE SET is_enabled = excluded.is_enabled, reason = excluded.reason, updated_by = excluded.updated_by, updated_at = excluded.updated_at`
+        )
+          .bind(id, control_key, enabledInt, reason, updated_by, now)
+          .run();
+
+        return jsonResponse({
+          success: true,
+          data: { control_key, is_enabled: !!is_enabled, updated_at: now },
+        });
+      }
+
+      if (url.pathname === '/v1/workforce/controls' && method === 'GET') {
+        const { results } = await env.DB.prepare(
+          `SELECT * FROM workforce_controls`
+        ).all<any>();
+        return jsonResponse({ success: true, data: results || [] });
+      }
+
+      // 8.13 Measured Operational Status (WF-GAP-016 & WF-GAP-021)
+      if (url.pathname === '/v1/workforce/status' && method === 'GET') {
+        const taskCounts = await env.DB.prepare(
+          `SELECT status, COUNT(*) as count FROM workforce_tasks GROUP BY status`
+        ).all<any>();
+
+        const goalCounts = await env.DB.prepare(
+          `SELECT status, COUNT(*) as count FROM workforce_goals GROUP BY status`
+        ).all<any>();
+
+        const deadLettersCount = await env.DB.prepare(
+          `SELECT COUNT(*) as count FROM workforce_dead_letters WHERE replay_status = 'unplayed'`
+        ).first<any>();
+
+        const controls = await env.DB.prepare(
+          `SELECT control_key, is_enabled FROM workforce_controls`
+        ).all<any>();
+
+        return jsonResponse({
+          success: true,
+          data: {
+            tasks_by_status: (taskCounts.results || []).reduce(
+              (acc: any, r: any) => {
+                acc[r.status] = r.count;
+                return acc;
+              },
+              {}
+            ),
+            goals_by_status: (goalCounts.results || []).reduce(
+              (acc: any, r: any) => {
+                acc[r.status] = r.count;
+                return acc;
+              },
+              {}
+            ),
+            unplayed_dead_letters: deadLettersCount?.count || 0,
+            controls: (controls.results || []).reduce((acc: any, r: any) => {
+              acc[r.control_key] = r.is_enabled === 1;
+              return acc;
+            }, {}),
+            measured_at: new Date().toISOString(),
+          },
+        });
+      }
+
       return errorResponse(
         'NOT_FOUND',
         `Route ${method} ${url.pathname} not found`,

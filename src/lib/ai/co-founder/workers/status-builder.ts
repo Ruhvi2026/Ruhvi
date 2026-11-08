@@ -146,12 +146,12 @@ export async function buildLiveWorkforceStatus(
             (Date.now() - new Date(latest.created_at).getTime()) / 1000
           )
         );
-        node.telemetry.tokensPerSec = parseFloat(
-          (40 + Math.random() * 40).toFixed(1)
-        );
+        // Section 5.5 / WF-GAP-016: Report measured data only; do not synthesize pseudo telemetry
+        node.telemetry.tokensPerSec = 0; // 0 indicates standing by / unmeasured
         node.telemetry.activeTool = `${def.role}.handleSignal('${latest.signal_type}')`;
       } else {
         node.telemetry.currentAction = `${def.objective.split('.')[0]} — standing by`;
+        node.telemetry.tokensPerSec = 0;
       }
     }
   });
@@ -169,8 +169,9 @@ export async function buildLiveWorkforceStatus(
       coFounder.state = 'thinking';
     }
 
-    coFounder.telemetry.latencyMs = 100 + Math.floor(Math.random() * 50);
-    coFounder.telemetry.tokensPerSec = 60 + Math.random() * 20;
+    // Section 5.5: Truthful operational metrics without Math.random()
+    coFounder.telemetry.latencyMs = 0;
+    coFounder.telemetry.tokensPerSec = 0;
     coFounder.telemetry.computeLoadPct = Math.min(
       100,
       25 + activeSignals * 8 + pendingApprovals * 5

@@ -83,22 +83,36 @@ export class WorkerCollaborationGateway {
       );
     }
 
-    // Guard 4: Timeout wrapper
+    // Guard 4: Timeout wrapper with cooperative cancellation (Section 5.4)
+    const abortController = new AbortController();
+    let isTimedOut = false;
+    let timer: NodeJS.Timeout | undefined;
+
     try {
       const taskPromise = targetWorker.execute({
         task: request.task,
-        parameters: request.context || {},
+        parameters: {
+          ...(request.context || {}),
+          signal: abortController.signal,
+        },
       });
 
-      const timeoutPromise = new Promise<never>((_, reject) =>
-        setTimeout(
-          () =>
-            reject(new Error(`Consultation timed out after ${timeoutMs}ms`)),
-          timeoutMs
-        )
-      );
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        timer = setTimeout(() => {
+          isTimedOut = true;
+          abortController.abort(
+            new Error(`Consultation timed out after ${timeoutMs}ms`)
+          );
+          reject(new Error(`Consultation timed out after ${timeoutMs}ms`));
+        }, timeoutMs);
+      });
 
       const output = await Promise.race([taskPromise, timeoutPromise]);
+      if (timer) clearTimeout(timer);
+
+      if (isTimedOut) {
+        throw new Error(`Consultation timed out after ${timeoutMs}ms`);
+      }
 
       const result = this.buildResult(
         request,
@@ -123,6 +137,7 @@ export class WorkerCollaborationGateway {
 
       return result;
     } catch (err: any) {
+      if (timer) clearTimeout(timer);
       const isTimeout = err.message?.includes('timed out');
       const status = isTimeout ? 'timeout' : 'failed';
 

@@ -421,12 +421,21 @@ export function classifyGoalIntent(goal: string): {
 
 /**
  * Validates plan execution graph and detects conflicts or safety violations
+ * Uses DFS cycle detection for cycles of arbitrary length (e.g. A -> B -> C -> A)
  */
 export function detectPlanConflicts(steps: PlannedWorkerStep[]): string[] {
   const conflicts: string[] = [];
-  const stepIds = new Set(steps.map((s) => s.stepId));
+  const stepIds = new Set<string>();
 
-  // Check 1: Circular or unknown dependencies
+  // Check 0: Duplicate step IDs
+  for (const step of steps) {
+    if (stepIds.has(step.stepId)) {
+      conflicts.push(`Duplicate step ID detected: "${step.stepId}".`);
+    }
+    stepIds.add(step.stepId);
+  }
+
+  // Check 1: Unknown dependencies
   for (const step of steps) {
     for (const dep of step.dependsOn) {
       if (!stepIds.has(dep)) {
@@ -434,15 +443,47 @@ export function detectPlanConflicts(steps: PlannedWorkerStep[]): string[] {
           `Step "${step.stepId}" depends on non-existent step "${dep}".`
         );
       }
-      if (dep === step.stepId) {
-        conflicts.push(
-          `Step "${step.stepId}" has circular dependency on itself.`
-        );
-      }
     }
   }
 
-  // Check 2: Execution worker steps without approval flag
+  // Check 2: Cycle detection using DFS with 3-color marking (unvisited, visiting, visited)
+  const adj = new Map<string, string[]>();
+  for (const step of steps) {
+    adj.set(step.stepId, step.dependsOn);
+  }
+
+  const visited = new Set<string>();
+  const inStack = new Set<string>();
+  const cycleDetected = new Set<string>();
+
+  function dfs(curr: string, path: string[]) {
+    visited.add(curr);
+    inStack.add(curr);
+    path.push(curr);
+
+    const neighbors = adj.get(curr) || [];
+    for (const neighbor of neighbors) {
+      if (!visited.has(neighbor)) {
+        dfs(neighbor, [...path]);
+      } else if (inStack.has(neighbor)) {
+        const cycleKey = [...path, neighbor].join(' -> ');
+        if (!cycleDetected.has(curr)) {
+          cycleDetected.add(curr);
+          conflicts.push(`Dependency cycle detected: ${cycleKey}`);
+        }
+      }
+    }
+
+    inStack.delete(curr);
+  }
+
+  for (const step of steps) {
+    if (!visited.has(step.stepId)) {
+      dfs(step.stepId, []);
+    }
+  }
+
+  // Check 3: Execution worker steps without approval flag
   for (const step of steps) {
     if (step.workerId === 'worker_execution' && !step.requiresApproval) {
       conflicts.push(
@@ -451,7 +492,7 @@ export function detectPlanConflicts(steps: PlannedWorkerStep[]): string[] {
     }
   }
 
-  // Check 3: Mutating/execution steps must not run concurrently with baseline read steps in same stage
+  // Check 4: Mutating/execution steps must not run concurrently with baseline read steps in same stage
   const stageGroups = new Map<number, PlannedWorkerStep[]>();
   for (const step of steps) {
     const existing = stageGroups.get(step.stageIndex) || [];
@@ -472,6 +513,42 @@ export function detectPlanConflicts(steps: PlannedWorkerStep[]): string[] {
   });
 
   return conflicts;
+}
+
+export interface PlanValidationResult {
+  valid: boolean;
+  errors: string[];
+}
+
+/**
+ * Validates complete execution plan against dependency, safety, and conflict invariants.
+ */
+export function validateExecutionPlan(
+  plan: CoFounderExecutionPlan
+): PlanValidationResult {
+  const errors: string[] = [];
+
+  if (!plan.allSteps || plan.allSteps.length === 0) {
+    errors.push('Plan contains no executable steps.');
+  }
+
+  const conflicts = detectPlanConflicts(plan.allSteps || []);
+  if (conflicts.length > 0) {
+    errors.push(...conflicts);
+  }
+
+  if (plan.conflictsDetected && plan.conflictsDetected.length > 0) {
+    for (const c of plan.conflictsDetected) {
+      if (!errors.includes(c)) {
+        errors.push(c);
+      }
+    }
+  }
+
+  return {
+    valid: errors.length === 0,
+    errors,
+  };
 }
 
 /**

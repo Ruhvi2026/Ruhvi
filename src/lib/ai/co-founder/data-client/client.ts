@@ -590,4 +590,238 @@ export class CofounderDataClient {
       }
     );
   }
+
+  // --------------------------------------------------------------------------
+  // WORKFORCE RUNTIME APIS (WF-GAP-004, WF-GAP-005, WF-GAP-014, WF-GAP-025)
+  // --------------------------------------------------------------------------
+
+  /**
+   * Save incoming normalized workforce signal
+   */
+  async saveWorkforceSignal(signal: {
+    id?: string;
+    source_type: string;
+    source_ref?: string;
+    fingerprint: string;
+    idempotency_key: string;
+    trust_label?: string;
+    domain: string;
+    payload: any;
+  }) {
+    return this.request('/v1/workforce/signals', {
+      method: 'POST',
+      body: signal,
+      idempotencyKey: signal.idempotency_key,
+    });
+  }
+
+  /**
+   * Save workforce candidate goal
+   */
+  async saveWorkforceGoal(goal: {
+    id?: string;
+    signal_id?: string;
+    title: string;
+    description: string;
+    worker_id: string;
+    score?: number;
+    confidence?: number;
+    effort?: number;
+    risk?: number;
+    status?: string;
+    evidence_refs?: string[];
+    cooldown_until?: string;
+  }) {
+    return this.request('/v1/workforce/goals', {
+      method: 'POST',
+      body: goal,
+    });
+  }
+
+  /**
+   * Update workforce goal state
+   */
+  async updateWorkforceGoal(
+    goalId: string,
+    update: { status?: string; score?: number }
+  ) {
+    return this.request(`/v1/workforce/goals/${encodeURIComponent(goalId)}`, {
+      method: 'PUT',
+      body: update,
+    });
+  }
+
+  /**
+   * Save validated workforce execution plan
+   */
+  async saveWorkforcePlan(plan: {
+    id?: string;
+    goal_id: string;
+    schema_version?: string;
+    user_goal: string;
+    intent: string;
+    stages_json: any;
+    all_steps_json: any;
+    conflicts_json?: any;
+    risk_tier?: string;
+    status?: string;
+  }) {
+    return this.request('/v1/workforce/plans', {
+      method: 'POST',
+      body: plan,
+    });
+  }
+
+  /**
+   * Create durable workforce task
+   */
+  async createWorkforceTask(task: {
+    id?: string;
+    plan_id?: string;
+    goal_id?: string;
+    worker_id: string;
+    title: string;
+    task_input: any;
+    priority?: number;
+    max_attempts?: number;
+    effective_scope?: string[];
+    trust_label?: string;
+    deadline_at?: string;
+  }) {
+    return this.request('/v1/workforce/tasks', {
+      method: 'POST',
+      body: task,
+    });
+  }
+
+  /**
+   * Atomic task claim / lease (WF-GAP-005)
+   */
+  async claimWorkforceTask(
+    taskId: string,
+    leaseOwner: string,
+    leaseDurationMs = 30000
+  ) {
+    return this.request<{
+      claimed: boolean;
+      task_id?: string;
+      lease_owner?: string;
+      lease_expires_at?: string;
+      attempt?: number;
+      reason?: string;
+    }>(`/v1/workforce/tasks/${encodeURIComponent(taskId)}/claim`, {
+      method: 'POST',
+      body: { lease_owner: leaseOwner, lease_duration_ms: leaseDurationMs },
+    });
+  }
+
+  /**
+   * Heartbeat to extend active lease
+   */
+  async heartbeatWorkforceTask(
+    taskId: string,
+    leaseOwner: string,
+    extendMs = 30000
+  ) {
+    return this.request(
+      `/v1/workforce/tasks/${encodeURIComponent(taskId)}/heartbeat`,
+      {
+        method: 'POST',
+        body: { lease_owner: leaseOwner, extend_ms: extendMs },
+      }
+    );
+  }
+
+  /**
+   * Save checkpoint for task step
+   */
+  async saveWorkforceCheckpoint(
+    taskId: string,
+    stepId: string,
+    attempt: number,
+    checkpointData: any
+  ) {
+    return this.request(
+      `/v1/workforce/tasks/${encodeURIComponent(taskId)}/checkpoint`,
+      {
+        method: 'POST',
+        body: { step_id: stepId, attempt, checkpoint_data: checkpointData },
+      }
+    );
+  }
+
+  /**
+   * Transition workforce task state
+   */
+  async updateWorkforceTaskState(
+    taskId: string,
+    status: string,
+    options?: { outputRef?: any; approvalId?: string }
+  ) {
+    return this.request(
+      `/v1/workforce/tasks/${encodeURIComponent(taskId)}/state`,
+      {
+        method: 'POST',
+        body: {
+          status,
+          output_ref: options?.outputRef,
+          approval_id: options?.approvalId,
+        },
+      }
+    );
+  }
+
+  /**
+   * Record durable child delegation (WF-GAP-014)
+   */
+  async recordWorkforceDelegation(delegation: {
+    parent_task_id: string;
+    child_task_id: string;
+    parent_worker_id: string;
+    child_worker_id: string;
+    depth?: number;
+    effective_scope?: string[];
+  }) {
+    return this.request('/v1/workforce/delegations', {
+      method: 'POST',
+      body: delegation,
+    });
+  }
+
+  /**
+   * Record dead letter
+   */
+  async recordWorkforceDeadLetter(deadLetter: {
+    task_id: string;
+    failure_class: string;
+    error_message: string;
+    attempt_count?: number;
+    payload?: any;
+  }) {
+    return this.request('/v1/workforce/dead-letters', {
+      method: 'POST',
+      body: deadLetter,
+    });
+  }
+
+  /**
+   * Get measured workforce status (WF-GAP-016 & WF-GAP-021)
+   */
+  async getWorkforceStatus() {
+    return this.request('/v1/workforce/status', { method: 'GET' });
+  }
+
+  /**
+   * Set workforce server-side control / kill switch (WF-GAP-025)
+   */
+  async setWorkforceControl(
+    controlKey: string,
+    isEnabled: boolean,
+    reason?: string
+  ) {
+    return this.request('/v1/workforce/controls', {
+      method: 'POST',
+      body: { control_key: controlKey, is_enabled: isEnabled, reason },
+    });
+  }
 }

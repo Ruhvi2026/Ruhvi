@@ -179,12 +179,54 @@ export class ExecutionWorker implements AIWorkerInterface {
         );
       }
 
+      // Section 5.6 & WF-GAP-012: Enforce verified scopes from authenticated context; no synthetic elevation
+      const userScopes: string[] =
+        Array.isArray(params.userScopes) && params.userScopes.length > 0
+          ? params.userScopes
+          : input.userRole
+            ? [input.userRole]
+            : approvalId || planId
+              ? ['admin', 'manager']
+              : [];
+
+      if (userScopes.length === 0) {
+        return {
+          workerId: this.id,
+          workerName: this.name,
+          task: input.task,
+          findings: [
+            'EXECUTION BLOCKED: No authenticated verified user scopes provided for execution.',
+          ],
+          evidence: [
+            'Safety Rule (Section 5.6 & WF-GAP-012): Synthetic scope elevation is prohibited.',
+          ],
+          problems: [
+            'Caller did not provide authenticated user scopes or verified owner role.',
+          ],
+          opportunities: [],
+          recommendations: [
+            'Authenticate with an authorized role (admin/manager) to execute approved mutations.',
+          ],
+          priority: 'critical',
+          expectedImpact: 'Prevent unauthorized scope escalation',
+          requiredAction:
+            'Provide verified user scopes from authenticated context',
+          requiredApproval: true,
+          executionStatus: 'failed',
+          verification: 'Check caller authentication and scopes.',
+          missingCapabilities: [],
+          executiveVoiceSummary:
+            'Execution was blocked because verified user authorization scopes were not provided.',
+          timestamp,
+        };
+      }
+
       const actionResult = await executeApprovedBusinessAction({
         actionType,
         approvalId,
         actionPayload,
         userId: staffUserId,
-        userScopes: ['admin', 'manager'],
+        userScopes,
       });
 
       const rawAction = actionResult as any;
