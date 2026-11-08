@@ -95,5 +95,81 @@ describe('CofounderDataClient & Schemas', () => {
       expect(res.success).toBe(false);
       expect(res.error).toContain('Network down');
     });
+
+    it('invokes worker snapshot sync and telemetry methods', async () => {
+      const mockFetch = jest.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({ success: true, data: { synced_count: 1 } }),
+      });
+      global.fetch = mockFetch as any;
+
+      const client = new CofounderDataClient({
+        baseUrl: 'https://test-api.example.com',
+      });
+
+      const res = await client.syncWorkerSnapshots([
+        {
+          worker_id: 'test_worker',
+          capabilities: ['test'],
+          allowed_tools: ['tool'],
+        },
+      ]);
+      expect(res.success).toBe(true);
+      expect(mockFetch).toHaveBeenCalledWith(
+        'https://test-api.example.com/v1/workers/snapshot/sync',
+        expect.objectContaining({ method: 'POST' })
+      );
+    });
+
+    it('uploads and downloads artifacts directly with correct headers', async () => {
+      const mockUploadFetch = jest.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          success: true,
+          data: { r2_key: 'dev/test.json', size_bytes: 14 },
+        }),
+      });
+      global.fetch = mockUploadFetch as any;
+
+      const client = new CofounderDataClient({
+        baseUrl: 'https://test-api.example.com',
+        clientId: 'id123',
+        clientSecret: 'secret456',
+      });
+
+      const uploadRes = await client.uploadArtifact(
+        'test.json',
+        '{"test": true}',
+        {
+          contentType: 'application/json',
+        }
+      );
+      expect(uploadRes.success).toBe(true);
+      expect(mockUploadFetch).toHaveBeenCalledWith(
+        expect.stringContaining('/v1/artifacts/upload?key=test.json'),
+        expect.objectContaining({
+          method: 'POST',
+          headers: expect.objectContaining({
+            'CF-Access-Client-Id': 'id123',
+            'CF-Access-Client-Secret': 'secret456',
+            'Content-Type': 'application/json',
+          }),
+        })
+      );
+
+      // Download
+      const mockDownloadFetch = jest.fn().mockResolvedValue({
+        ok: true,
+        arrayBuffer: async () =>
+          new TextEncoder().encode('{"test": true}').buffer,
+        headers: new Headers({ 'content-type': 'application/json' }),
+      });
+      global.fetch = mockDownloadFetch as any;
+
+      const downloadRes = await client.downloadArtifact('test.json');
+      expect(downloadRes.success).toBe(true);
+      expect(downloadRes.data).toBeDefined();
+      expect(downloadRes.contentType).toBe('application/json');
+    });
   });
 });

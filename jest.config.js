@@ -18,6 +18,7 @@ module.exports = {
   testMatch: [
     '<rootDir>/src/**/__tests__/**/*.{test,spec}.{ts,tsx,js,jsx}',
     '<rootDir>/src/**/*.{test,spec}.{ts,tsx,js,jsx}',
+    '<rootDir>/cloudflare/**/__tests__/**/*.{test,spec}.{ts,tsx,js,jsx}',
   ],
   testPathIgnorePatterns: ['/node_modules/', '/\\.agents/', '/\\.next/'],
 };

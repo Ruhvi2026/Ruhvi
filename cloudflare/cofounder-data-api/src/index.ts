@@ -1,28 +1,84 @@
 import { Env, ApiResponse, ExecutionContext } from './types';
 import { validateServiceAuth } from './auth';
 
-function jsonResponse<T>(data: ApiResponse<T>, status = 200): Response {
-  return new Response(JSON.stringify(data), {
-    status,
-    headers: {
-      'Content-Type': 'application/json',
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-      'Access-Control-Allow-Headers':
-        'Content-Type, Authorization, CF-Access-Client-Id, CF-Access-Client-Secret, Idempotency-Key, X-Correlation-ID',
-    },
-  });
+function jsonResponse<T>(
+  data: ApiResponse<T> & { replayed?: boolean },
+  status = 200
+): Response {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+    'Access-Control-Allow-Headers':
+      'Content-Type, Authorization, CF-Access-Client-Id, CF-Access-Client-Secret, Idempotency-Key, X-Correlation-ID',
+  };
+  if (data.replayed) {
+    headers['X-Idempotency-Replay'] = 'true';
+  }
+  return new Response(JSON.stringify(data), { status, headers });
 }
 
 function errorResponse(code: string, message: string, status = 400): Response {
   return jsonResponse({ success: false, error: { code, message } }, status);
 }
 
+async function hashString(str: string): Promise<string> {
+  const buf = await crypto.subtle.digest(
+    'SHA-256',
+    new TextEncoder().encode(str)
+  );
+  return Array.from(new Uint8Array(buf))
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('');
+}
+
+async function checkIdempotency(
+  env: Env,
+  key: string | null
+): Promise<Response | null> {
+  if (!key) return null;
+  const existing = await env.DB.prepare(
+    `SELECT * FROM idempotency_keys WHERE key = ? AND expires_at > datetime('now')`
+  )
+    .bind(key)
+    .first<any>();
+  if (existing && existing.result_ref) {
+    try {
+      const parsed = JSON.parse(existing.result_ref);
+      return jsonResponse({ success: true, data: parsed, replayed: true });
+    } catch {
+      return jsonResponse({
+        success: true,
+        data: { ref: existing.result_ref },
+        replayed: true,
+      });
+    }
+  }
+  return null;
+}
+
+async function recordIdempotency(
+  env: Env,
+  key: string | null,
+  operation: string,
+  resultData: any
+): Promise<void> {
+  if (!key) return;
+  const expiresAt = new Date(Date.now() + 86400000).toISOString();
+  await env.DB.prepare(
+    `INSERT INTO idempotency_keys (key, operation, result_ref, expires_at)
+     VALUES (?, ?, ?, ?)
+     ON CONFLICT(key) DO UPDATE SET result_ref = excluded.result_ref, expires_at = excluded.expires_at`
+  )
+    .bind(key, operation, JSON.stringify(resultData), expiresAt)
+    .run();
+}
+
 export default {
   async fetch(
     request: Request,
     env: Env,
-    ctx: ExecutionContext
+    ctx?: ExecutionContext
   ): Promise<Response> {
     const url = new URL(request.url);
     const method = request.method.toUpperCase();
@@ -74,6 +130,9 @@ export default {
 
       // POST /v1/memory/explicit - Save/update explicit user memory
       if (url.pathname === '/v1/memory/explicit' && method === 'POST') {
+        const replayed = await checkIdempotency(env, idempotencyKey);
+        if (replayed) return replayed;
+
         const body: any = await request.json();
         const {
           id = crypto.randomUUID(),
@@ -92,7 +151,7 @@ export default {
         const now = new Date().toISOString();
         const contentHash = await crypto.subtle
           .digest('SHA-256', new TextEncoder().encode(content))
-          .then((buf) =>
+          .then((buf: ArrayBuffer) =>
             Array.from(new Uint8Array(buf))
               .map((b) => b.toString(16).padStart(2, '0'))
               .join('')
@@ -144,9 +203,17 @@ export default {
           .bind(crypto.randomUUID(), id, scope, correlationId, now)
           .run();
 
+        const resultData = { id, memory_type, scope, content, updated_at: now };
+        await recordIdempotency(
+          env,
+          idempotencyKey,
+          'memory_explicit',
+          resultData
+        );
+
         return jsonResponse({
           success: true,
-          data: { id, memory_type, scope, content, updated_at: now },
+          data: resultData,
         });
       }
 
@@ -402,8 +469,140 @@ export default {
         return jsonResponse({ success: true, data: results });
       }
 
+      // POST /v1/workers/snapshot/sync - Synchronize live registry snapshots (Finding A-09)
+      if (url.pathname === '/v1/workers/snapshot/sync' && method === 'POST') {
+        const body: any = await request.json();
+        const { snapshots = [] } = body;
+        const now = new Date().toISOString();
+
+        for (const s of snapshots) {
+          await env.DB.prepare(
+            `INSERT INTO worker_snapshots (worker_id, version, capabilities_json, allowed_tools_json, parent_id, source_commit, synced_at)
+             VALUES (?, ?, ?, ?, ?, ?, ?)
+             ON CONFLICT(worker_id, version) DO UPDATE SET
+               capabilities_json = excluded.capabilities_json,
+               allowed_tools_json = excluded.allowed_tools_json,
+               parent_id = excluded.parent_id,
+               source_commit = excluded.source_commit,
+               synced_at = excluded.synced_at`
+          )
+            .bind(
+              s.worker_id,
+              s.version || '1.0.0',
+              typeof s.capabilities === 'string'
+                ? s.capabilities
+                : JSON.stringify(s.capabilities || []),
+              typeof s.allowed_tools === 'string'
+                ? s.allowed_tools
+                : JSON.stringify(s.allowed_tools || []),
+              s.parent_id || null,
+              s.source_commit || null,
+              now
+            )
+            .run();
+        }
+
+        return jsonResponse({
+          success: true,
+          data: { synced_count: snapshots.length, synced_at: now },
+        });
+      }
+
+      // POST /v1/worker-runs - Record worker execution lifecycle telemetry (Finding A-10)
+      if (url.pathname === '/v1/worker-runs' && method === 'POST') {
+        const body: any = await request.json();
+        const {
+          id = crypto.randomUUID(),
+          run_id,
+          worker_id,
+          parent_worker_id,
+          status = 'completed',
+          attempt = 1,
+          input_hash,
+          output_summary,
+        } = body;
+
+        if (!run_id || !worker_id) {
+          return errorResponse(
+            'INVALID_INPUT',
+            'run_id and worker_id are required'
+          );
+        }
+
+        const now = new Date().toISOString();
+        await env.DB.prepare(
+          `INSERT INTO worker_runs (id, run_id, worker_id, parent_worker_id, status, attempt, input_hash, output_summary, started_at, ended_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+        )
+          .bind(
+            id,
+            run_id,
+            worker_id,
+            parent_worker_id || null,
+            status,
+            attempt,
+            input_hash || null,
+            output_summary || null,
+            now,
+            status === 'completed' || status === 'failed' ? now : null
+          )
+          .run();
+
+        return jsonResponse({
+          success: true,
+          data: { id, run_id, worker_id, status },
+        });
+      }
+
+      // POST /v1/tool-events - Append redacted tool execution event (Finding A-10)
+      if (url.pathname === '/v1/tool-events' && method === 'POST') {
+        const body: any = await request.json();
+        const {
+          id = crypto.randomUUID(),
+          run_id,
+          worker_id,
+          tool_name,
+          scope = 'global',
+          success = true,
+          latency_ms,
+          error_code,
+          result_ref,
+        } = body;
+
+        if (!run_id || !worker_id || !tool_name) {
+          return errorResponse(
+            'INVALID_INPUT',
+            'run_id, worker_id, and tool_name are required'
+          );
+        }
+
+        const now = new Date().toISOString();
+        await env.DB.prepare(
+          `INSERT INTO tool_events (id, run_id, worker_id, tool_name, scope, success, latency_ms, error_code, result_ref, created_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+        )
+          .bind(
+            id,
+            run_id,
+            worker_id,
+            tool_name,
+            scope,
+            success ? 1 : 0,
+            latency_ms ?? null,
+            error_code || null,
+            result_ref || null,
+            now
+          )
+          .run();
+
+        return jsonResponse({ success: true, data: { id, run_id, tool_name } });
+      }
+
       // POST /v1/worker-proposals - Suggest new worker or sub-worker
       if (url.pathname === '/v1/worker-proposals' && method === 'POST') {
+        const replayed = await checkIdempotency(env, idempotencyKey);
+        if (replayed) return replayed;
+
         const body: any = await request.json();
         const {
           proposed_worker_id,
@@ -438,9 +637,17 @@ export default {
           )
           .run();
 
+        const resultData = { id, status: 'draft', created_at: now };
+        await recordIdempotency(
+          env,
+          idempotencyKey,
+          'worker_proposal',
+          resultData
+        );
+
         return jsonResponse({
           success: true,
-          data: { id, status: 'draft', created_at: now },
+          data: resultData,
         });
       }
 
@@ -448,8 +655,11 @@ export default {
       // 4. RESEARCH & UPGRADE PROPOSALS
       // ------------------------------------------------------------------------
 
-      // POST /v1/research - Record research project metadata and findings
+      // POST /v1/research - Record research project metadata, sources, and findings (Finding A-06)
       if (url.pathname === '/v1/research' && method === 'POST') {
+        const replayed = await checkIdempotency(env, idempotencyKey);
+        if (replayed) return replayed;
+
         const body: any = await request.json();
         const {
           question,
@@ -470,7 +680,31 @@ export default {
           .bind(projectId, question, scope, now)
           .run();
 
-        // Batch insert findings if provided
+        // 1. Batch insert sources (Finding A-06 fix)
+        for (const s of sources) {
+          const sourceId = s.id || crypto.randomUUID();
+          const sourceUrl = s.url || s.canonical_url || 'https://unknown';
+          const urlHash = await hashString(sourceUrl);
+          await env.DB.prepare(
+            `INSERT INTO research_sources (id, project_id, url, url_hash, title, publisher, published_at, license, source_type, reliability_score)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+          )
+            .bind(
+              sourceId,
+              projectId,
+              sourceUrl,
+              urlHash,
+              s.title || null,
+              s.publisher || null,
+              s.published_at || null,
+              s.license || null,
+              s.source_type || 'docs',
+              s.reliability_score ?? 1.0
+            )
+            .run();
+        }
+
+        // 2. Batch insert findings
         for (const f of findings) {
           await env.DB.prepare(
             `
@@ -483,20 +717,69 @@ export default {
               projectId,
               f.finding,
               JSON.stringify(f.evidence_source_ids || []),
-              f.confidence || 1.0,
+              f.confidence ?? 1.0,
               now
             )
             .run();
         }
 
+        const resultData = {
+          project_id: projectId,
+          status: 'active',
+          created_at: now,
+        };
+        await recordIdempotency(
+          env,
+          idempotencyKey,
+          'research_project',
+          resultData
+        );
+
         return jsonResponse({
           success: true,
-          data: { project_id: projectId, status: 'active', created_at: now },
+          data: resultData,
+        });
+      }
+
+      // GET /v1/research/:id - Retrieve research project with sources & findings
+      const researchDetailMatch = url.pathname.match(
+        /^\/v1\/research\/([^\/]+)$/
+      );
+      if (researchDetailMatch && method === 'GET') {
+        const pId = researchDetailMatch[1];
+        const project = await env.DB.prepare(
+          `SELECT * FROM research_projects WHERE id = ?`
+        )
+          .bind(pId)
+          .first<any>();
+
+        if (!project) {
+          return errorResponse('NOT_FOUND', 'Research project not found', 404);
+        }
+
+        const { results: sources } = await env.DB.prepare(
+          `SELECT * FROM research_sources WHERE project_id = ? ORDER BY retrieved_at DESC`
+        )
+          .bind(pId)
+          .all();
+
+        const { results: findings } = await env.DB.prepare(
+          `SELECT * FROM research_findings WHERE project_id = ? ORDER BY created_at DESC`
+        )
+          .bind(pId)
+          .all();
+
+        return jsonResponse({
+          success: true,
+          data: { ...project, sources, findings },
         });
       }
 
       // POST /v1/proposals - Store RSI upgrade proposal
       if (url.pathname === '/v1/proposals' && method === 'POST') {
+        const replayed = await checkIdempotency(env, idempotencyKey);
+        if (replayed) return replayed;
+
         const body: any = await request.json();
         const {
           title,
@@ -533,9 +816,17 @@ export default {
           )
           .run();
 
+        const resultData = { id, status: 'draft', created_at: now };
+        await recordIdempotency(
+          env,
+          idempotencyKey,
+          'upgrade_proposal',
+          resultData
+        );
+
         return jsonResponse({
           success: true,
-          data: { id, status: 'draft', created_at: now },
+          data: resultData,
         });
       }
 
@@ -557,22 +848,41 @@ export default {
         const { decision, reason = '' } = body;
         const now = new Date().toISOString();
 
+        const validDecision = [
+          'approved',
+          'rejected',
+          'revision_requested',
+        ].includes(decision)
+          ? decision
+          : 'approved';
+        const proposalStatus =
+          validDecision === 'approved'
+            ? 'owner_approved'
+            : validDecision === 'rejected'
+              ? 'owner_rejected'
+              : 'draft';
+
         await env.DB.prepare(
-          `UPDATE upgrade_proposals SET status = ?, owner_decision = ?, decided_at = ?, decision_reason = ?, updated_at = ? WHERE id = ?`
+          `UPDATE upgrade_proposals SET status = ?, updated_at = ? WHERE id = ?`
         )
-          .bind(decision, decision, now, reason, now, proposalId)
+          .bind(proposalStatus, now, proposalId)
           .run();
 
         await env.DB.prepare(
-          `INSERT INTO approval_events (id, proposal_id, decision, actor, reason, created_at)
-           VALUES (?, ?, ?, 'owner', ?, ?)`
+          `INSERT INTO approval_events (id, proposal_id, actor, decision, note, created_at)
+           VALUES (?, ?, 'owner', ?, ?, ?)`
         )
-          .bind(crypto.randomUUID(), proposalId, decision, reason, now)
+          .bind(crypto.randomUUID(), proposalId, validDecision, reason, now)
           .run();
 
         return jsonResponse({
           success: true,
-          data: { proposal_id: proposalId, decision, decided_at: now },
+          data: {
+            proposal_id: proposalId,
+            decision: validDecision,
+            status: proposalStatus,
+            decided_at: now,
+          },
         });
       }
 
@@ -630,7 +940,261 @@ export default {
         return jsonResponse({ success: true, data: results });
       }
 
-      // POST /v1/evaluations - Record evaluation suite run & results
+      // PATCH /v1/gaps/:id - Update capability gap status (Finding A-08)
+      const gapMatch = url.pathname.match(/^\/v1\/gaps\/([^\/]+)$/);
+      if (gapMatch && method === 'PATCH') {
+        const gapId = gapMatch[1];
+        const body: any = await request.json();
+        const { status, evidence_refs, impact, risk } = body;
+        const allowedStatuses = [
+          'identified',
+          'under_research',
+          'proposal_ready',
+          'resolved',
+          'wont_fix',
+        ];
+        if (status && !allowedStatuses.includes(status)) {
+          return errorResponse(
+            'INVALID_INPUT',
+            `Invalid status. Allowed: ${allowedStatuses.join(', ')}`
+          );
+        }
+        const now = new Date().toISOString();
+        const existing = await env.DB.prepare(
+          `SELECT * FROM capability_gaps WHERE id = ?`
+        )
+          .bind(gapId)
+          .first<any>();
+        if (!existing) {
+          return errorResponse('NOT_FOUND', 'Capability gap not found', 404);
+        }
+        const newStatus = status || existing.status;
+        const newEvidence = evidence_refs
+          ? JSON.stringify(evidence_refs)
+          : existing.evidence;
+        const newImpact = impact || existing.impact;
+        const newRisk = risk !== undefined ? risk : existing.risk;
+        await env.DB.prepare(
+          `UPDATE capability_gaps SET status = ?, evidence = ?, impact = ?, risk = ?, updated_at = ? WHERE id = ?`
+        )
+          .bind(newStatus, newEvidence, newImpact, newRisk, now, gapId)
+          .run();
+        return jsonResponse({
+          success: true,
+          data: { id: gapId, status: newStatus, updated_at: now },
+        });
+      }
+
+      // POST /v1/evaluations/suites - Register or create evaluation suite (Finding A-07)
+      if (url.pathname === '/v1/evaluations/suites' && method === 'POST') {
+        const body: any = await request.json();
+        const {
+          id = crypto.randomUUID(),
+          name,
+          version = '1.0.0',
+          purpose,
+          approved_by = 'owner',
+        } = body;
+        if (!name || !purpose) {
+          return errorResponse(
+            'INVALID_INPUT',
+            'name and purpose are required'
+          );
+        }
+        const now = new Date().toISOString();
+        await env.DB.prepare(
+          `INSERT INTO eval_suites (id, name, version, purpose, approved_by, created_at)
+           VALUES (?, ?, ?, ?, ?, ?)
+           ON CONFLICT(id) DO UPDATE SET name = excluded.name, version = excluded.version, purpose = excluded.purpose`
+        )
+          .bind(id, name, version, purpose, approved_by, now)
+          .run();
+        return jsonResponse({
+          success: true,
+          data: { id, name, version, purpose },
+        });
+      }
+
+      // GET /v1/evaluations/suites - List evaluation suites
+      if (url.pathname === '/v1/evaluations/suites' && method === 'GET') {
+        const { results } = await env.DB.prepare(
+          `SELECT * FROM eval_suites ORDER BY created_at DESC LIMIT 50`
+        ).all();
+        return jsonResponse({ success: true, data: results });
+      }
+
+      // POST /v1/evaluations/suites/:suiteId/cases - Add test case to suite
+      const suiteCaseMatch = url.pathname.match(
+        /^\/v1\/evaluations\/suites\/([^\/]+)\/cases$/
+      );
+      if (suiteCaseMatch && method === 'POST') {
+        const suiteId = suiteCaseMatch[1];
+        const body: any = await request.json();
+        const {
+          id = crypto.randomUUID(),
+          input_ref,
+          expected_behaviour,
+          tags = [],
+          synthetic_data,
+        } = body;
+        if (!input_ref || !expected_behaviour) {
+          return errorResponse(
+            'INVALID_INPUT',
+            'input_ref and expected_behaviour are required'
+          );
+        }
+        const now = new Date().toISOString();
+        await env.DB.prepare(
+          `INSERT INTO eval_cases (id, suite_id, input_ref, expected_behaviour, tags, synthetic_data, created_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?)`
+        )
+          .bind(
+            id,
+            suiteId,
+            input_ref,
+            expected_behaviour,
+            typeof tags === 'string' ? tags : JSON.stringify(tags),
+            synthetic_data
+              ? typeof synthetic_data === 'string'
+                ? synthetic_data
+                : JSON.stringify(synthetic_data)
+              : null,
+            now
+          )
+          .run();
+        return jsonResponse({
+          success: true,
+          data: { id, suite_id: suiteId, input_ref },
+        });
+      }
+
+      // GET /v1/evaluations/suites/:suiteId/cases - List test cases in suite
+      if (suiteCaseMatch && method === 'GET') {
+        const suiteId = suiteCaseMatch[1];
+        const { results } = await env.DB.prepare(
+          `SELECT * FROM eval_cases WHERE suite_id = ? ORDER BY created_at ASC`
+        )
+          .bind(suiteId)
+          .all();
+        return jsonResponse({ success: true, data: results });
+      }
+
+      // POST /v1/evaluations/runs - Start new evaluation run
+      if (url.pathname === '/v1/evaluations/runs' && method === 'POST') {
+        const body: any = await request.json();
+        const {
+          suite_id,
+          candidate_version,
+          baseline_version = 'baseline_v1',
+          status = 'running',
+        } = body;
+        if (!suite_id || !candidate_version) {
+          return errorResponse(
+            'INVALID_INPUT',
+            'suite_id and candidate_version are required'
+          );
+        }
+        const id = crypto.randomUUID();
+        const now = new Date().toISOString();
+
+        await env.DB.prepare(
+          `INSERT OR IGNORE INTO eval_suites (id, name, version, purpose, approved_by, created_at)
+           VALUES (?, 'Evaluation Suite', '1.0.0', 'Automated suite', 'system', ?)`
+        )
+          .bind(suite_id, now)
+          .run();
+
+        await env.DB.prepare(
+          `INSERT INTO eval_runs (id, suite_id, candidate_version, baseline_version, started_at, status)
+           VALUES (?, ?, ?, ?, ?, ?)`
+        )
+          .bind(id, suite_id, candidate_version, baseline_version, now, status)
+          .run();
+
+        return jsonResponse({
+          success: true,
+          data: {
+            id,
+            suite_id,
+            candidate_version,
+            status,
+            started_at: now,
+          },
+        });
+      }
+
+      // POST /v1/evaluations/runs/:runId/results - Record evaluation results
+      const runResultsMatch = url.pathname.match(
+        /^\/v1\/evaluations\/runs\/([^\/]+)\/results$/
+      );
+      if (runResultsMatch && method === 'POST') {
+        const runId = runResultsMatch[1];
+        const body: any = await request.json();
+        const { results = [] } = body;
+        const now = new Date().toISOString();
+
+        for (const r of results) {
+          const resId = r.id || crypto.randomUUID();
+          await env.DB.prepare(
+            `INSERT INTO eval_results (id, eval_run_id, case_id, score, passed, failure_class, result_summary, created_at)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+          )
+            .bind(
+              resId,
+              runId,
+              r.case_id || 'unspecified_case',
+              r.score ?? 1.0,
+              r.passed !== false && r.passed !== 0 ? 1 : 0,
+              r.failure_class || null,
+              r.result_summary || null,
+              now
+            )
+            .run();
+        }
+        return jsonResponse({
+          success: true,
+          data: { run_id: runId, count: results.length },
+        });
+      }
+
+      // PATCH /v1/evaluations/runs/:runId - Close evaluation run
+      const runCloseMatch = url.pathname.match(
+        /^\/v1\/evaluations\/runs\/([^\/]+)$/
+      );
+      if (runCloseMatch && method === 'PATCH') {
+        const runId = runCloseMatch[1];
+        const body: any = await request.json();
+        const { status = 'passed' } = body;
+        const now = new Date().toISOString();
+        await env.DB.prepare(
+          `UPDATE eval_runs SET status = ?, ended_at = ? WHERE id = ?`
+        )
+          .bind(status, now, runId)
+          .run();
+        return jsonResponse({
+          success: true,
+          data: { id: runId, status, ended_at: now },
+        });
+      }
+
+      // GET /v1/evaluations/runs/:runId - Get run details and results
+      if (runCloseMatch && method === 'GET') {
+        const runId = runCloseMatch[1];
+        const run = await env.DB.prepare(`SELECT * FROM eval_runs WHERE id = ?`)
+          .bind(runId)
+          .first<any>();
+        if (!run) {
+          return errorResponse('NOT_FOUND', 'Evaluation run not found', 404);
+        }
+        const { results } = await env.DB.prepare(
+          `SELECT * FROM eval_results WHERE eval_run_id = ? ORDER BY created_at ASC`
+        )
+          .bind(runId)
+          .all();
+        return jsonResponse({ success: true, data: { ...run, results } });
+      }
+
+      // POST /v1/evaluations - Record evaluation suite run & results (compat)
       if (url.pathname === '/v1/evaluations' && method === 'POST') {
         const body: any = await request.json();
         const {
@@ -642,7 +1206,6 @@ export default {
         const runId = crypto.randomUUID();
         const now = new Date().toISOString();
 
-        // Ensure parent suite exists (foreign key constraint)
         await env.DB.prepare(
           `INSERT OR IGNORE INTO eval_suites (id, name, version, purpose, approved_by, created_at)
            VALUES (?, 'Golden RSI Evaluation Suite', '1.0.0', 'Automated test verification', 'owner', ?)`
@@ -677,7 +1240,7 @@ export default {
         });
       }
 
-      // GET /v1/evaluations - List recent evaluation runs
+      // GET /v1/evaluations - List recent evaluation runs (compat)
       if (url.pathname === '/v1/evaluations' && method === 'GET') {
         const { results } = await env.DB.prepare(
           `SELECT * FROM eval_runs ORDER BY started_at DESC LIMIT 20`
@@ -694,28 +1257,214 @@ export default {
       }
 
       // ------------------------------------------------------------------------
-      // 6. ARTIFACTS PRESIGN / R2
+      // 6. REAL R2 ARTIFACTS STORAGE & MANAGEMENT (Findings A-11, A-12, A-18)
       // ------------------------------------------------------------------------
+
+      // Helper function to resolve prefixed R2 key (Finding A-18 isolation)
+      const getPrefixedKey = (rawKey: string): string => {
+        const envPrefix = (env.ENVIRONMENT || 'production') + '/';
+        const clean = rawKey.replace(/^\/+/, '');
+        return clean.startsWith(envPrefix) ? clean : `${envPrefix}${clean}`;
+      };
+
+      // POST /v1/artifacts/upload or PUT /v1/artifacts/upload - Direct authenticated binary/text upload
+      if (
+        (url.pathname === '/v1/artifacts/upload' ||
+          url.pathname === '/v1/artifacts/direct-upload') &&
+        (method === 'POST' || method === 'PUT')
+      ) {
+        const rawKey = url.searchParams.get('key');
+        if (!rawKey) {
+          return errorResponse(
+            'INVALID_INPUT',
+            'key query parameter is required'
+          );
+        }
+
+        const fullKey = getPrefixedKey(rawKey);
+        const contentType =
+          request.headers.get('content-type') ||
+          url.searchParams.get('content_type') ||
+          'application/octet-stream';
+        const artifactType = url.searchParams.get('artifact_type') || 'report';
+        const scope = url.searchParams.get('scope') || 'global';
+        const fileName =
+          url.searchParams.get('file_name') ||
+          rawKey.split('/').pop() ||
+          'artifact.bin';
+
+        const buffer = await request.arrayBuffer();
+        if (buffer.byteLength > 25 * 1024 * 1024) {
+          return errorResponse(
+            'PAYLOAD_TOO_LARGE',
+            'Artifact exceeds maximum size of 25MB',
+            413
+          );
+        }
+
+        // SHA-256 Checksum computation
+        const hashBuffer = await crypto.subtle.digest('SHA-256', buffer);
+        const checksum = Array.from(new Uint8Array(hashBuffer))
+          .map((b) => b.toString(16).padStart(2, '0'))
+          .join('');
+
+        // Store directly in R2 bucket
+        await env.ARTIFACTS.put(fullKey, buffer, {
+          httpMetadata: { contentType },
+          customMetadata: {
+            checksum,
+            correlationId,
+            environment: env.ENVIRONMENT || 'production',
+            uploadedAt: new Date().toISOString(),
+          },
+        });
+
+        // Store metadata in D1 artifacts table (Finding A-12)
+        const artifactId = crypto.randomUUID();
+        const now = new Date().toISOString();
+        await env.DB.prepare(
+          `INSERT INTO artifacts (id, r2_key, environment, artifact_type, scope, owner_id, file_name, content_type, size_bytes, checksum_sha256, status, correlation_id, created_at, updated_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, ?, ?)
+           ON CONFLICT(r2_key) DO UPDATE SET
+             size_bytes = excluded.size_bytes,
+             checksum_sha256 = excluded.checksum_sha256,
+             updated_at = excluded.updated_at`
+        )
+          .bind(
+            artifactId,
+            fullKey,
+            env.ENVIRONMENT || 'production',
+            artifactType,
+            scope,
+            null,
+            fileName,
+            contentType,
+            buffer.byteLength,
+            checksum,
+            correlationId,
+            now,
+            now
+          )
+          .run();
+
+        return jsonResponse({
+          success: true,
+          data: {
+            id: artifactId,
+            r2_key: fullKey,
+            size_bytes: buffer.byteLength,
+            checksum_sha256: checksum,
+            content_type: contentType,
+            status: 'active',
+            created_at: now,
+          },
+        });
+      }
+
+      // GET /v1/artifacts/download - Download stored artifact
+      if (url.pathname === '/v1/artifacts/download' && method === 'GET') {
+        const rawKey = url.searchParams.get('key');
+        if (!rawKey) {
+          return errorResponse(
+            'INVALID_INPUT',
+            'key query parameter is required'
+          );
+        }
+        const fullKey = getPrefixedKey(rawKey);
+        const object = await env.ARTIFACTS.get(fullKey);
+
+        if (!object) {
+          return errorResponse(
+            'NOT_FOUND',
+            `Artifact ${fullKey} not found in R2`,
+            404
+          );
+        }
+
+        const headers = new Headers();
+        headers.set(
+          'Content-Type',
+          object.httpMetadata?.contentType || 'application/octet-stream'
+        );
+        headers.set('ETag', object.httpEtag);
+        headers.set('Content-Length', String(object.size));
+        if (object.customMetadata?.checksum) {
+          headers.set('X-Checksum-SHA256', object.customMetadata.checksum);
+        }
+
+        return new Response(object.body, { headers });
+      }
+
+      // DELETE /v1/artifacts - Delete artifact from R2 & update metadata
+      if (url.pathname === '/v1/artifacts' && method === 'DELETE') {
+        const rawKey = url.searchParams.get('key');
+        if (!rawKey) {
+          return errorResponse(
+            'INVALID_INPUT',
+            'key query parameter is required'
+          );
+        }
+        const fullKey = getPrefixedKey(rawKey);
+        await env.ARTIFACTS.delete(fullKey);
+
+        const now = new Date().toISOString();
+        await env.DB.prepare(
+          `UPDATE artifacts SET status = 'deleted', updated_at = ? WHERE r2_key = ?`
+        )
+          .bind(now, fullKey)
+          .run();
+
+        return jsonResponse({
+          success: true,
+          data: { r2_key: fullKey, status: 'deleted', deleted_at: now },
+        });
+      }
+
+      // GET /v1/artifacts/metadata - Get artifact metadata
+      if (url.pathname === '/v1/artifacts/metadata' && method === 'GET') {
+        const rawKey = url.searchParams.get('key');
+        if (!rawKey) {
+          return errorResponse(
+            'INVALID_INPUT',
+            'key query parameter is required'
+          );
+        }
+        const fullKey = getPrefixedKey(rawKey);
+        const meta = await env.DB.prepare(
+          `SELECT * FROM artifacts WHERE r2_key = ?`
+        )
+          .bind(fullKey)
+          .first<any>();
+        if (!meta) {
+          return errorResponse('NOT_FOUND', 'Artifact metadata not found', 404);
+        }
+        return jsonResponse({ success: true, data: meta });
+      }
 
       // POST /v1/artifacts/presign - Reference or temporary upload key in R2
       if (url.pathname === '/v1/artifacts/presign' && method === 'POST') {
         const body: any = await request.json();
         const {
           artifact_type = 'report',
-          file_name,
+          file_name = 'artifact.json',
           content_type = 'application/json',
         } = body;
 
         const datePrefix = new Date().toISOString().slice(0, 10);
-        const key = `${artifact_type}/${datePrefix}/${crypto.randomUUID()}-${file_name || 'artifact.json'}`;
+        const key = `${artifact_type}/${datePrefix}/${crypto.randomUUID()}-${file_name}`;
+        const fullKey = getPrefixedKey(key);
 
         return jsonResponse({
           success: true,
           data: {
-            r2_key: key,
+            r2_key: fullKey,
             bucket: 'ruhvi-cofounder-artifacts',
             content_type,
-            upload_url: `/v1/artifacts/direct-upload?key=${encodeURIComponent(key)}`,
+            upload_url: `/v1/artifacts/upload?key=${encodeURIComponent(
+              key
+            )}&content_type=${encodeURIComponent(
+              content_type
+            )}&artifact_type=${encodeURIComponent(artifact_type)}`,
           },
         });
       }

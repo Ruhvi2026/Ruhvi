@@ -12,6 +12,12 @@ import {
   CapabilityGapPayload,
   EvaluationRunPayload,
   ProposalDecisionPayload,
+  WorkerSnapshotPayload,
+  WorkerRunPayload,
+  ToolEventPayload,
+  EvaluationSuitePayload,
+  EvaluationCasePayload,
+  EvaluationResultPayload,
 } from './types';
 import { generateIdempotencyKey } from './idempotency';
 
@@ -44,7 +50,7 @@ export class CofounderDataClient {
   private async request<T = any>(
     path: string,
     options: {
-      method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
+      method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
       body?: any;
       idempotencyKey?: string;
       correlationId?: string;
@@ -306,5 +312,282 @@ export class CofounderDataClient {
     return this.request<any[]>('/v1/history', {
       method: 'GET',
     });
+  }
+
+  /**
+   * Synchronize live worker registry snapshots (Finding A-09)
+   */
+  async syncWorkerSnapshots(snapshots: WorkerSnapshotPayload[]) {
+    return this.request<{ synced_count: number; synced_at: string }>(
+      '/v1/workers/snapshot/sync',
+      {
+        method: 'POST',
+        body: { snapshots },
+      }
+    );
+  }
+
+  /**
+   * Record worker execution lifecycle telemetry (Finding A-10)
+   */
+  async recordWorkerRun(payload: WorkerRunPayload) {
+    return this.request<{
+      id: string;
+      run_id: string;
+      worker_id: string;
+      status: string;
+    }>('/v1/worker-runs', {
+      method: 'POST',
+      body: payload,
+    });
+  }
+
+  /**
+   * Record redacted tool execution event (Finding A-10)
+   */
+  async recordToolEvent(payload: ToolEventPayload) {
+    return this.request<{ id: string; run_id: string; tool_name: string }>(
+      '/v1/tool-events',
+      {
+        method: 'POST',
+        body: payload,
+      }
+    );
+  }
+
+  /**
+   * Update capability gap status (Finding A-08)
+   */
+  async updateCapabilityGapStatus(
+    gapId: string,
+    status:
+      | 'identified'
+      | 'under_research'
+      | 'proposal_ready'
+      | 'resolved'
+      | 'wont_fix',
+    options?: { evidence_refs?: string[]; impact?: string; risk?: string }
+  ) {
+    return this.request(`/v1/gaps/${encodeURIComponent(gapId)}`, {
+      method: 'PATCH',
+      body: { status, ...options },
+    });
+  }
+
+  /**
+   * Create evaluation suite (Finding A-07)
+   */
+  async createEvaluationSuite(payload: EvaluationSuitePayload) {
+    return this.request('/v1/evaluations/suites', {
+      method: 'POST',
+      body: payload,
+    });
+  }
+
+  /**
+   * List evaluation suites (Finding A-07)
+   */
+  async listEvaluationSuites() {
+    return this.request<any[]>('/v1/evaluations/suites', {
+      method: 'GET',
+    });
+  }
+
+  /**
+   * Add test case to evaluation suite (Finding A-07)
+   */
+  async createEvaluationCase(suiteId: string, payload: EvaluationCasePayload) {
+    return this.request(
+      `/v1/evaluations/suites/${encodeURIComponent(suiteId)}/cases`,
+      {
+        method: 'POST',
+        body: payload,
+      }
+    );
+  }
+
+  /**
+   * List test cases in evaluation suite (Finding A-07)
+   */
+  async listEvaluationCases(suiteId: string) {
+    return this.request<any[]>(
+      `/v1/evaluations/suites/${encodeURIComponent(suiteId)}/cases`,
+      {
+        method: 'GET',
+      }
+    );
+  }
+
+  /**
+   * Start evaluation run (Finding A-07)
+   */
+  async startEvaluationRun(payload: {
+    suite_id: string;
+    candidate_version: string;
+    baseline_version?: string;
+    status?: string;
+  }) {
+    return this.request('/v1/evaluations/runs', {
+      method: 'POST',
+      body: payload,
+    });
+  }
+
+  /**
+   * Record evaluation results (Finding A-07)
+   */
+  async recordEvaluationResults(
+    runId: string,
+    results: EvaluationResultPayload[]
+  ) {
+    return this.request(
+      `/v1/evaluations/runs/${encodeURIComponent(runId)}/results`,
+      {
+        method: 'POST',
+        body: { results },
+      }
+    );
+  }
+
+  /**
+   * Close evaluation run (Finding A-07)
+   */
+  async closeEvaluationRun(
+    runId: string,
+    status: 'passed' | 'failed' | 'error' = 'passed'
+  ) {
+    return this.request(`/v1/evaluations/runs/${encodeURIComponent(runId)}`, {
+      method: 'PATCH',
+      body: { status },
+    });
+  }
+
+  /**
+   * Get evaluation run with results (Finding A-07)
+   */
+  async getEvaluationRun(runId: string) {
+    return this.request(`/v1/evaluations/runs/${encodeURIComponent(runId)}`, {
+      method: 'GET',
+    });
+  }
+
+  /**
+   * Upload binary or text artifact directly to R2 (Finding A-11 & A-18)
+   */
+  async uploadArtifact(
+    key: string,
+    data: ArrayBuffer | Uint8Array | string,
+    options: {
+      contentType?: string;
+      artifactType?: string;
+      scope?: string;
+      fileName?: string;
+    } = {}
+  ): Promise<{ success: boolean; data?: any; error?: string }> {
+    const query = new URLSearchParams();
+    query.set('key', key);
+    if (options.contentType) query.set('content_type', options.contentType);
+    if (options.artifactType) query.set('artifact_type', options.artifactType);
+    if (options.scope) query.set('scope', options.scope);
+    if (options.fileName) query.set('file_name', options.fileName);
+
+    const headers: Record<string, string> = {
+      'Content-Type': options.contentType || 'application/octet-stream',
+    };
+    if (this.clientId) headers['CF-Access-Client-Id'] = this.clientId;
+    if (this.clientSecret)
+      headers['CF-Access-Client-Secret'] = this.clientSecret;
+
+    const bodyBuffer =
+      typeof data === 'string'
+        ? new TextEncoder().encode(data)
+        : data instanceof Uint8Array
+          ? data
+          : new Uint8Array(data);
+
+    try {
+      const response = await fetch(
+        `${this.baseUrl}/v1/artifacts/upload?${query.toString()}`,
+        {
+          method: 'POST',
+          headers,
+          body: bodyBuffer as any,
+        }
+      );
+
+      if (!response.ok) {
+        const errText = await response.text();
+        return {
+          success: false,
+          error: `Data API upload returned HTTP ${response.status}: ${errText.slice(0, 200)}`,
+        };
+      }
+
+      const json = await response.json();
+      return { success: true, data: json.data };
+    } catch (err: any) {
+      return { success: false, error: err.message };
+    }
+  }
+
+  /**
+   * Download artifact from R2 (Finding A-11)
+   */
+  async downloadArtifact(key: string): Promise<{
+    success: boolean;
+    data?: ArrayBuffer;
+    contentType?: string;
+    error?: string;
+  }> {
+    const headers: Record<string, string> = {};
+    if (this.clientId) headers['CF-Access-Client-Id'] = this.clientId;
+    if (this.clientSecret)
+      headers['CF-Access-Client-Secret'] = this.clientSecret;
+
+    try {
+      const response = await fetch(
+        `${this.baseUrl}/v1/artifacts/download?key=${encodeURIComponent(key)}`,
+        {
+          method: 'GET',
+          headers,
+        }
+      );
+
+      if (!response.ok) {
+        const errText = await response.text();
+        return {
+          success: false,
+          error: `Data API download returned HTTP ${response.status}: ${errText.slice(0, 200)}`,
+        };
+      }
+
+      const buffer = await response.arrayBuffer();
+      const contentType =
+        response.headers.get('content-type') || 'application/octet-stream';
+      return { success: true, data: buffer, contentType };
+    } catch (err: any) {
+      return { success: false, error: err.message };
+    }
+  }
+
+  /**
+   * Delete artifact from R2 (Finding A-11)
+   */
+  async deleteArtifact(key: string) {
+    return this.request(`/v1/artifacts?key=${encodeURIComponent(key)}`, {
+      method: 'DELETE',
+    });
+  }
+
+  /**
+   * Get artifact metadata (Finding A-12)
+   */
+  async getArtifactMetadata(key: string) {
+    return this.request(
+      `/v1/artifacts/metadata?key=${encodeURIComponent(key)}`,
+      {
+        method: 'GET',
+      }
+    );
   }
 }

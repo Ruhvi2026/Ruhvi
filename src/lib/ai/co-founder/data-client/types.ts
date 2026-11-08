@@ -102,13 +102,77 @@ export interface CapabilityGapPayload {
 export interface EvaluationRunPayload {
   suite_id?: string;
   model_alias?: string;
+  candidate_version?: string;
+  baseline_version?: string;
   eval_type?: string;
-  status?: 'running' | 'completed' | 'failed';
+  status?: 'running' | 'completed' | 'passed' | 'failed' | 'error';
   score?: number;
   metrics?: Record<string, any>;
 }
 
+export interface WorkerSnapshotPayload {
+  worker_id: string;
+  version?: string;
+  capabilities: string[] | string;
+  allowed_tools: string[] | string;
+  parent_id?: string | null;
+  source_commit?: string | null;
+}
+
+export interface WorkerRunPayload {
+  id?: string;
+  run_id: string;
+  worker_id: string;
+  parent_worker_id?: string | null;
+  status?: 'running' | 'completed' | 'failed';
+  attempt?: number;
+  input_hash?: string;
+  output_summary?: string;
+}
+
+export interface ToolEventPayload {
+  id?: string;
+  run_id: string;
+  worker_id: string;
+  tool_name: string;
+  scope?: string;
+  success?: boolean;
+  latency_ms?: number;
+  error_code?: string;
+  result_ref?: string;
+}
+
+export interface EvaluationSuitePayload {
+  id?: string;
+  name: string;
+  version?: string;
+  purpose: string;
+  approved_by?: string;
+}
+
+export interface EvaluationCasePayload {
+  id?: string;
+  input_ref: string;
+  expected_behaviour: string;
+  tags?: string[];
+  synthetic_data?: any;
+}
+
+export interface EvaluationResultPayload {
+  id?: string;
+  case_id: string;
+  score: number;
+  passed?: boolean;
+  failure_class?: string;
+  result_summary?: string;
+}
+
 export interface ProposalDecisionPayload {
-  decision: 'accepted_for_manual_work' | 'rejected' | 'deferred';
+  decision:
+    | 'approved'
+    | 'rejected'
+    | 'revision_requested'
+    | 'accepted_for_manual_work'
+    | 'deferred';
   reason?: string;
 }

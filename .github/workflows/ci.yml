@@ -51,6 +51,12 @@ jobs:
       - name: TypeScript type verification
         run: npm run typecheck
 
+      - name: Cloudflare Worker type verification
+        run: npx tsc -p cloudflare/cofounder-data-api/tsconfig.json
+
+      - name: Cloudflare Worker bundle verification
+        run: npx esbuild cloudflare/cofounder-data-api/src/index.ts --bundle --format=esm --target=esnext --outfile=cloudflare/cofounder-data-api/dist/index.js
+
       - name: Run automated test suites (Jest)
         run: npm run test:ci
 
