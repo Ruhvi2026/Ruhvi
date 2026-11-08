@@ -9,6 +9,9 @@ import {
   ResearchProjectPayload,
   UpgradeProposalPayload,
   PresignArtifactPayload,
+  CapabilityGapPayload,
+  EvaluationRunPayload,
+  ProposalDecisionPayload,
 } from './types';
 import { generateIdempotencyKey } from './idempotency';
 
@@ -207,6 +210,16 @@ export class CofounderDataClient {
   }
 
   /**
+   * Forget / Archive Memory
+   */
+  async forgetMemory(id: string) {
+    return this.request('/v1/memory/forget', {
+      method: 'POST',
+      body: { id },
+    });
+  }
+
+  /**
    * Presign / Allocate Key in R2 Artifacts Bucket
    */
   async presignArtifact(payload: PresignArtifactPayload) {
@@ -217,6 +230,81 @@ export class CofounderDataClient {
     }>('/v1/artifacts/presign', {
       method: 'POST',
       body: payload,
+    });
+  }
+
+  /**
+   * Record Detected Capability Gap
+   */
+  async recordCapabilityGap(payload: CapabilityGapPayload) {
+    return this.request('/v1/gaps', {
+      method: 'POST',
+      body: payload,
+    });
+  }
+
+  /**
+   * List Capability Gaps
+   */
+  async listCapabilityGaps(status = 'open') {
+    return this.request<any[]>(
+      `/v1/gaps?status=${encodeURIComponent(status)}`,
+      {
+        method: 'GET',
+      }
+    );
+  }
+
+  /**
+   * Record Evaluation Run
+   */
+  async recordEvaluation(payload: EvaluationRunPayload) {
+    return this.request('/v1/evaluations', {
+      method: 'POST',
+      body: payload,
+    });
+  }
+
+  /**
+   * List Recent Evaluations
+   */
+  async listEvaluations() {
+    return this.request<any[]>('/v1/evaluations', {
+      method: 'GET',
+    });
+  }
+
+  /**
+   * Record Owner Decision on Upgrade Proposal
+   */
+  async recordProposalDecision(
+    proposalId: string,
+    payload: ProposalDecisionPayload
+  ) {
+    return this.request(
+      `/v1/proposals/${encodeURIComponent(proposalId)}/decision`,
+      {
+        method: 'POST',
+        body: payload,
+      }
+    );
+  }
+
+  /**
+   * List Upgrade Proposals
+   */
+  async listProposals() {
+    return this.request<any[]>('/v1/proposals', {
+      method: 'GET',
+    });
+  }
+
+  /**
+   * Get Evolution & Audit History
+   */
+  async getEvolutionHistory() {
+    return this.request<any[]>('/v1/history', {
+      method: 'GET',
     });
   }
 }

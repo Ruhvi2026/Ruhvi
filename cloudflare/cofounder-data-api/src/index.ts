@@ -180,6 +180,33 @@ export default {
         return jsonResponse({ success: true, data: results });
       }
 
+      // POST /v1/memory/forget - Soft-delete or archive memory
+      if (url.pathname === '/v1/memory/forget' && method === 'POST') {
+        const body: any = await request.json();
+        const { id } = body;
+        if (!id) {
+          return errorResponse('INVALID_INPUT', 'Field id is required');
+        }
+        const now = new Date().toISOString();
+        await env.DB.prepare(
+          `UPDATE memory_items SET status = 'archived', updated_at = ? WHERE id = ?`
+        )
+          .bind(now, id)
+          .run();
+
+        await env.DB.prepare(
+          `INSERT INTO audit_events (id, actor, action, resource_type, resource_id, scope, decision, correlation_id, created_at)
+           VALUES (?, 'user', 'memory_forget', 'memory_items', ?, 'global', 'allowed', ?, ?)`
+        )
+          .bind(crypto.randomUUID(), id, correlationId, now)
+          .run();
+
+        return jsonResponse({
+          success: true,
+          data: { id, status: 'archived', updated_at: now },
+        });
+      }
+
       // POST /v1/memory/candidate - Save candidate reflection/lesson
       if (url.pathname === '/v1/memory/candidate' && method === 'POST') {
         const body: any = await request.json();
@@ -512,8 +539,148 @@ export default {
         });
       }
 
+      // GET /v1/proposals - List upgrade proposals
+      if (url.pathname === '/v1/proposals' && method === 'GET') {
+        const { results } = await env.DB.prepare(
+          `SELECT * FROM upgrade_proposals ORDER BY created_at DESC LIMIT 50`
+        ).all();
+        return jsonResponse({ success: true, data: results });
+      }
+
+      // POST /v1/proposals/:id/decision - Record owner decision
+      const decisionMatch = url.pathname.match(
+        /^\/v1\/proposals\/([^\/]+)\/decision$/
+      );
+      if (decisionMatch && method === 'POST') {
+        const proposalId = decisionMatch[1];
+        const body: any = await request.json();
+        const { decision, reason = '' } = body;
+        const now = new Date().toISOString();
+
+        await env.DB.prepare(
+          `UPDATE upgrade_proposals SET status = ?, owner_decision = ?, decided_at = ?, decision_reason = ?, updated_at = ? WHERE id = ?`
+        )
+          .bind(decision, decision, now, reason, now, proposalId)
+          .run();
+
+        await env.DB.prepare(
+          `INSERT INTO approval_events (id, proposal_id, decision, actor, reason, created_at)
+           VALUES (?, ?, ?, 'owner', ?, ?)`
+        )
+          .bind(crypto.randomUUID(), proposalId, decision, reason, now)
+          .run();
+
+        return jsonResponse({
+          success: true,
+          data: { proposal_id: proposalId, decision, decided_at: now },
+        });
+      }
+
       // ------------------------------------------------------------------------
-      // 5. ARTIFACTS PRESIGN / R2
+      // 5. CAPABILITY GAPS & EVALUATION ENDPOINTS
+      // ------------------------------------------------------------------------
+
+      // POST /v1/gaps - Record detected capability gap
+      if (url.pathname === '/v1/gaps' && method === 'POST') {
+        const body: any = await request.json();
+        const {
+          title,
+          description,
+          category = 'missing_capability',
+          evidence_refs = [],
+          severity = 'medium',
+        } = body;
+        const id = crypto.randomUUID();
+        const now = new Date().toISOString();
+
+        await env.DB.prepare(
+          `INSERT INTO capability_gaps (id, title, description, category, evidence_refs, severity, status, created_at, updated_at)
+           VALUES (?, ?, ?, ?, ?, ?, 'open', ?, ?)`
+        )
+          .bind(
+            id,
+            title,
+            description,
+            category,
+            JSON.stringify(evidence_refs),
+            severity,
+            now,
+            now
+          )
+          .run();
+
+        return jsonResponse({
+          success: true,
+          data: { id, status: 'open', created_at: now },
+        });
+      }
+
+      // GET /v1/gaps - List capability gaps
+      if (url.pathname === '/v1/gaps' && method === 'GET') {
+        const status = url.searchParams.get('status') || 'open';
+        const { results } = await env.DB.prepare(
+          `SELECT * FROM capability_gaps WHERE status = ? ORDER BY created_at DESC LIMIT 50`
+        )
+          .bind(status)
+          .all();
+        return jsonResponse({ success: true, data: results });
+      }
+
+      // POST /v1/evaluations - Record evaluation suite run & results
+      if (url.pathname === '/v1/evaluations' && method === 'POST') {
+        const body: any = await request.json();
+        const {
+          suite_id,
+          model_alias,
+          eval_type = 'offline_replay',
+          status = 'completed',
+          score,
+          metrics,
+        } = body;
+        const runId = crypto.randomUUID();
+        const now = new Date().toISOString();
+
+        await env.DB.prepare(
+          `INSERT INTO eval_runs (id, suite_id, model_alias, eval_type, started_at, completed_at, status, score, metrics)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
+        )
+          .bind(
+            runId,
+            suite_id || 'golden_default',
+            model_alias || 'default',
+            eval_type,
+            now,
+            now,
+            status,
+            score ?? null,
+            metrics ? JSON.stringify(metrics) : null
+          )
+          .run();
+
+        return jsonResponse({
+          success: true,
+          data: { id: runId, status, completed_at: now },
+        });
+      }
+
+      // GET /v1/evaluations - List recent evaluation runs
+      if (url.pathname === '/v1/evaluations' && method === 'GET') {
+        const { results } = await env.DB.prepare(
+          `SELECT * FROM eval_runs ORDER BY completed_at DESC LIMIT 20`
+        ).all();
+        return jsonResponse({ success: true, data: results });
+      }
+
+      // GET /v1/history - Evolution & audit history
+      if (url.pathname === '/v1/history' && method === 'GET') {
+        const { results } = await env.DB.prepare(
+          `SELECT id, actor, action, resource_type, resource_id, decision, created_at FROM audit_events ORDER BY created_at DESC LIMIT 50`
+        ).all();
+        return jsonResponse({ success: true, data: results });
+      }
+
+      // ------------------------------------------------------------------------
+      // 6. ARTIFACTS PRESIGN / R2
       // ------------------------------------------------------------------------
 
       // POST /v1/artifacts/presign - Reference or temporary upload key in R2

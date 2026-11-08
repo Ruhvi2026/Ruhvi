@@ -90,3 +90,25 @@ export interface PresignArtifactPayload {
   file_name?: string;
   content_type?: string;
 }
+
+export interface CapabilityGapPayload {
+  title: string;
+  description: string;
+  category?: string;
+  evidence_refs?: string[];
+  severity?: 'low' | 'medium' | 'high' | 'critical';
+}
+
+export interface EvaluationRunPayload {
+  suite_id?: string;
+  model_alias?: string;
+  eval_type?: string;
+  status?: 'running' | 'completed' | 'failed';
+  score?: number;
+  metrics?: Record<string, any>;
+}
+
+export interface ProposalDecisionPayload {
+  decision: 'accepted_for_manual_work' | 'rejected' | 'deferred';
+  reason?: string;
+}

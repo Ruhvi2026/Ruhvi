@@ -427,3 +427,25 @@ Centralized feature flags in [`src/lib/features.ts`](file:///c:/Users/INDIA/Desk
 - **Server-Authenticated Uploads & Response Alignment**: Media and voice notes upload via authenticated endpoints (`/api/internal-chat/voice-notes/upload` and `/api/internal-chat/upload`), returning both top-level and nested response structures to prevent redundant multi-upload cycles.
 - **Resilient Multi-Model STT Architecture**: STT pipeline prioritizes multimodal `gemini-3.5-flash-lite`, `gemini-2.5-flash`, and `gemini-3.5-flash` with audio-only support for `gemini-3.5-transcribe`. Employs automatic fallback when any model returns 0 tokens or a non-fatal 400 error, ensuring reliable Bengali, Hindi, and Indian English transcription.
 - **Bounded STT & Storage Hygiene**: Dictation audio is strictly capped to 3 MB raw ceiling to prevent exceeding Vercel's 4.5 MB Function body limit. Base64 audio is never persisted in AsyncStorage or chat history.
+
+---
+
+## 15. Human-Governed Recursive Self-Improvement (RSI) Subsystem
+
+Authoritative architectural record of the Human-Governed Recursive Self-Improvement (RSI) Subsystem implemented for the Ruhvi AI Co-Founder:
+
+### A. Core Architecture & Safety Boundary
+- **Human-Governed Execution Loop**: `Observe -> Detect Gap -> Research -> Evaluate -> Propose Upgrade -> Owner Manual Implementation -> Post-Deploy Verification -> Evolution History`.
+- **Absolute Scope Enforcement**: RSI is strictly forbidden from modifying production repository files, committing, pushing, deploying, modifying credentials, running direct database DDL, or activating permanent workers. Any attempt to breach these boundaries immediately triggers a `RsiSecurityViolationError`.
+- **Feature Flags & Kill Switch**: Configured in [`src/lib/ai/co-founder/rsi/config.ts`](file:///c:/Users/INDIA/Desktop/Project%20Ruhvi/src/lib/ai/co-founder/rsi/config.ts) (`RSI_ENABLED`, `RSI_DRY_RUN`, `RSI_MEMORY_ENABLED`, `RSI_RESEARCH_ENABLED`, `RSI_EVAL_LAB_ENABLED`, etc.).
+
+### B. Core Subsystem Modules
+1. **Persistent Memory Manager** ([`src/lib/ai/co-founder/rsi/memory-manager.ts`](file:///c:/Users/INDIA/Desktop/Project%20Ruhvi/src/lib/ai/co-founder/rsi/memory-manager.ts)): Manages explicit user instructions, preferences, project facts, and verified lessons. Enforces scope precedence (narrow task exception overrides broad global preference without erasing history; candidate lessons cannot overwrite user instructions).
+2. **Self-Observer & Redaction** ([`src/lib/ai/co-founder/rsi/self-observer.ts`](file:///c:/Users/INDIA/Desktop/Project%20Ruhvi/src/lib/ai/co-founder/rsi/self-observer.ts)): Captures compact execution telemetry into Cloudflare D1 `run_events`. Automatically scrubs email addresses, Indian phone numbers, and secret service tokens (`cfast_...`, `cfut_...`).
+3. **Reflection & Learning Engine** ([`src/lib/ai/co-founder/rsi/reflection-engine.ts`](file:///c:/Users/INDIA/Desktop/Project%20Ruhvi/src/lib/ai/co-founder/rsi/reflection-engine.ts)): Converts failure events into testable candidate lessons. Enforces a strict promotion gate requiring at least 2 test runs with $\ge 90\%$ pass rate before promoting to `verified_lessons`.
+4. **Capability Registry** ([`src/lib/ai/co-founder/rsi/capability-registry.ts`](file:///c:/Users/INDIA/Desktop/Project%20Ruhvi/src/lib/ai/co-founder/rsi/capability-registry.ts)): Reflects the canonical 14 deployed workers (`worker_analytics_performance` through `worker_accounts_tax`) directly from live code; guarantees that database records cannot execute arbitrary code.
+5. **Research & Discovery Engine** ([`src/lib/ai/co-founder/rsi/research-engine.ts`](file:///c:/Users/INDIA/Desktop/Project%20Ruhvi/src/lib/ai/co-founder/rsi/research-engine.ts)): Bounded external research with SSRF blocking (localhost, private subnets, cloud metadata) and prompt-injection neutralization. Stores findings in Cloudflare D1 (`research_projects`, `research_findings`).
+6. **Capability Gap Detector** ([`src/lib/ai/co-founder/rsi/gap-detector.ts`](file:///c:/Users/INDIA/Desktop/Project%20Ruhvi/src/lib/ai/co-founder/rsi/gap-detector.ts)): Multi-factor priority scoring formula (`(impact * confidence * urgency * recurrence) / (effort * (1 + risk_penalty))`) and 5-tier recommendation hierarchy.
+7. **Evaluation Lab** ([`src/lib/ai/co-founder/rsi/eval-lab.ts`](file:///c:/Users/INDIA/Desktop/Project%20Ruhvi/src/lib/ai/co-founder/rsi/eval-lab.ts)): Golden test suites with English, Bengali, and Banglish test fixtures. Offline evaluation replay with regression detection.
+8. **Upgrade Proposal Engine** ([`src/lib/ai/co-founder/rsi/proposal-engine.ts`](file:///c:/Users/INDIA/Desktop/Project%20Ruhvi/src/lib/ai/co-founder/rsi/proposal-engine.ts)): Enforces mandatory 18-point schema including test and rollback plans. Manages owner decision lifecycles (`accepted_for_manual_work`, `rejected`, `deferred`).
+9. **Evolution History** ([`src/lib/ai/co-founder/rsi/evolution-history.ts`](file:///c:/Users/INDIA/Desktop/Project%20Ruhvi/src/lib/ai/co-founder/rsi/evolution-history.ts)): Compares post-deployment verification scores against baseline and records audit logs in D1.

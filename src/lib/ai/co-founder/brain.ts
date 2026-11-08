@@ -91,6 +91,33 @@ export async function getCoFounderSystemPrompt(
         }
       } catch {}
     }
+
+    // Query Cloudflare D1 persistent instructions if enabled (RSI Phase 2 & 11)
+    if (
+      process.env.COFOUNDER_DATA_API_CLIENT_ID ||
+      process.env.COFOUNDER_DATA_API_ENABLED === 'true'
+    ) {
+      try {
+        const { getCofounderDataClient } = await import('./data-client');
+        const d1Memories = await getCofounderDataClient().searchMemories({
+          type: 'user_instruction',
+          scope: options.userId || 'global',
+          limit: 5,
+        });
+        if (
+          d1Memories.success &&
+          Array.isArray(d1Memories.data) &&
+          d1Memories.data.length > 0
+        ) {
+          const d1Block = d1Memories.data
+            .map((m: any) => `- [ACTIVE OWNER INSTRUCTION] ${m.content}`)
+            .join('\n');
+          memoryBlock = memoryBlock.includes('None recorded yet')
+            ? d1Block
+            : `${memoryBlock}\n${d1Block}`;
+        }
+      } catch {}
+    }
   }
 
   let proactiveSignals: any[] = [];
