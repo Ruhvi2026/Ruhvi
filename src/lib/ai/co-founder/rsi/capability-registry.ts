@@ -27,7 +27,7 @@ export class RsiCapabilityRegistry {
         mission: def.objective || 'Operational AI Co-Founder specialist',
         tools: (def.requiredTools || []).map((t: string) => String(t)),
         status: 'deployed',
-        test_coverage_status: 'unit_and_integration_tested',
+        test_coverage_status: 'registered',
         last_verified_at: new Date().toISOString(),
       });
     }

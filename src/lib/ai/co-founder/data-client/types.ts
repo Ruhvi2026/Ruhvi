@@ -176,3 +176,64 @@ export interface ProposalDecisionPayload {
     | 'deferred';
   reason?: string;
 }
+
+export interface SecurityEventPayload {
+  event_id?: string;
+  idempotency_key?: string;
+  event_type: string;
+  source: string;
+  environment?: string;
+  correlation_id?: string;
+  occurred_at?: string;
+  payload?: Record<string, any>;
+}
+
+export interface SecurityScanIngestPayload {
+  provider: string;
+  workflow: string;
+  run_id: string;
+  commit_sha?: string;
+  branch?: string;
+  environment?: string;
+  scanner_versions?: Record<string, string>;
+  summary?: Record<string, any>;
+  artifact_raw?: string;
+  artifact_type?: 'sarif' | 'json';
+  findings?: Array<{
+    rule_id: string;
+    title: string;
+    severity: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
+    file_path?: string;
+    line_number?: number;
+    description?: string;
+    remediation?: string;
+    cve_id?: string;
+    fingerprint?: string;
+  }>;
+}
+
+export interface SecurityActionProposalPayload {
+  incident_id?: string;
+  action_type:
+    | 'quarantine_file'
+    | 'quarantine_uploaded_file'
+    | 'reject_webhook'
+    | 'rate_limit_ip'
+    | 'temporary_ip_block'
+    | 'revoke_session'
+    | 'permanent_ip_ban'
+    | 'credential_rotation';
+  target_ref: string;
+  scope?: {
+    ttl_minutes?: number;
+    rate_limit_rpm?: number;
+    file_key?: string;
+    reason?: string;
+  };
+  risk_level?: 'T1_REVERSIBLE_CONTAINMENT' | 'T2_DISRUPTIVE_OR_DESTRUCTIVE';
+  confidence?: number;
+  policy_key: string;
+  idempotency_key?: string;
+  auto_execute_if_preapproved?: boolean;
+  rollback_data?: Record<string, any>;
+}

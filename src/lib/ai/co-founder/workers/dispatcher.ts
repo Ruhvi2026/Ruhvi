@@ -12,6 +12,7 @@ import {
   validateExecutionPlan,
 } from './intelligent-planner';
 import { EventNormalizer, PerformanceDataAccess } from './performance';
+import { getRsiCoordinator } from '../rsi';
 
 export interface DispatchResponse {
   workerId: WorkerId;
@@ -59,11 +60,13 @@ export async function dispatchWorkerTask(
     result = await worker.execute(input);
   } catch (executionErr: any) {
     const durationMs = Date.now() - startTime;
-    // Asynchronously record failure event without interrupting error throw
+    // Asynchronously record failure event without interrupting error throw (PERF-06)
     try {
+      const taskId =
+        input.parameters?.taskId || `task_${worker.id}_${Date.now()}`;
       const perfEvent = EventNormalizer.normalizeAIWorkerEvent({
         workerId: worker.id,
-        taskId: input.parameters?.taskId || `task_${worker.id}_${Date.now()}`,
+        taskId,
         taskTitle: input.task,
         status: 'failed',
         durationMs,
@@ -71,31 +74,114 @@ export async function dispatchWorkerTask(
         verificationPassed: false,
         evidenceRefs: [executionErr?.message || 'Execution error'],
       });
-      PerformanceDataAccess.recordEvent(perfEvent).catch(() => {});
-    } catch {}
+      await PerformanceDataAccess.recordEvent(perfEvent);
+    } catch (perfErr) {
+      console.error(
+        '[Dispatcher] Performance failure event recording error:',
+        perfErr
+      );
+    }
+
+    // RSI Execution Observation Lifecycle Hook (RSI-01)
+    try {
+      const rsi = getRsiCoordinator();
+      if (rsi.config.enabled && rsi.config.observerEnabled) {
+        await rsi.observer.recordObservation({
+          runId: `run_${worker.id}_${Date.now()}`,
+          workerId: worker.id,
+          taskType: input.task || 'worker_execution',
+          latencyMs: durationMs,
+          success: false,
+          toolCallsCount: 0,
+          errorClass: executionErr?.name || 'ExecutionError',
+          metadata: {
+            errorMessage: executionErr?.message,
+          },
+        });
+      }
+    } catch (rsiErr) {
+      console.warn(
+        '[RSI Coordinator] Lifecycle failure observation error:',
+        rsiErr
+      );
+    }
+
     throw executionErr;
   }
 
   const durationMs = Date.now() - startTime;
-  // Asynchronously record completion event
+
+  // Truthfully map execution outcomes (PERF-01: pending approval is NOT verified success)
+  const isExecuted =
+    result.executionStatus === 'executed' ||
+    result.executionStatus === 'approved';
+  const isPending =
+    result.executionStatus === 'pending_approval' ||
+    (result.requiredApproval && !isExecuted);
+  const isFailed = result.executionStatus === 'failed';
+
+  let workerStatus: 'succeeded' | 'failed' | 'blocked' = 'succeeded';
+  let verificationPassed: boolean | undefined = undefined;
+
+  if (isFailed) {
+    workerStatus = 'failed';
+    verificationPassed = false;
+  } else if (isPending) {
+    workerStatus = 'blocked';
+    verificationPassed = undefined; // Human approval pending, NOT verified success!
+  } else if (isExecuted) {
+    workerStatus = 'succeeded';
+    verificationPassed = true;
+  }
+
+  // Record completion event (PERF-06: await persistence)
   try {
-    const isSuccess = result.executionStatus !== 'failed';
+    const taskId =
+      input.parameters?.taskId || `task_${worker.id}_${Date.now()}`;
     const perfEvent = EventNormalizer.normalizeAIWorkerEvent({
       workerId: worker.id,
-      taskId: input.parameters?.taskId || `task_${worker.id}_${Date.now()}`,
+      taskId,
       taskTitle: input.task,
-      status: isSuccess ? 'succeeded' : 'failed',
+      status: workerStatus,
       durationMs,
       retryCount: 0,
-      verificationPassed: isSuccess,
+      verificationPassed,
       approvalRequired: result.requiredApproval,
-      approvalGranted:
-        result.executionStatus === 'approved' ||
-        result.executionStatus === 'executed',
+      approvalGranted: isExecuted,
       evidenceRefs: result.evidence || [],
+      blockerReason: isPending ? 'AWAITING_HUMAN_APPROVAL' : undefined,
     });
-    PerformanceDataAccess.recordEvent(perfEvent).catch(() => {});
-  } catch {}
+    await PerformanceDataAccess.recordEvent(perfEvent);
+  } catch (perfErr) {
+    console.error(
+      '[Dispatcher] Performance completion event recording error:',
+      perfErr
+    );
+  }
+
+  // RSI Execution Observation Lifecycle Hook (RSI-01)
+  try {
+    const rsi = getRsiCoordinator();
+    if (rsi.config.enabled && rsi.config.observerEnabled) {
+      await rsi.observer.recordObservation({
+        runId: `run_${worker.id}_${Date.now()}`,
+        workerId: worker.id,
+        taskType: input.task || 'worker_execution',
+        latencyMs: durationMs,
+        success: isExecuted,
+        toolCallsCount: 0,
+        metadata: {
+          executionStatus: result.executionStatus,
+          requiredApproval: result.requiredApproval,
+        },
+      });
+    }
+  } catch (rsiErr) {
+    console.warn(
+      '[RSI Coordinator] Lifecycle completion observation error:',
+      rsiErr
+    );
+  }
 
   // 3. Human-in-the-Loop Gating:
   // If worker recommends an action requiring approval, register approval request

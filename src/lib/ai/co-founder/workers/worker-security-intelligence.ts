@@ -13,6 +13,46 @@ import {
   FileInspectionResult,
 } from '../../../security/file-inspector';
 
+/**
+ * Validates whether an IP is loopback, RFC 1918 private, link-local, CG-NAT, or reserved.
+ * SEC-08: Complete boundary validation across IPv4 and IPv6.
+ */
+export function isPrivateOrReservedIp(rawIp: string): boolean {
+  const ip = (rawIp || '').trim().toLowerCase();
+  if (!ip || ip === 'localhost') return true;
+
+  // IPv6 checks
+  if (ip === '::1' || ip === '::') return true;
+  if (ip.startsWith('fc') || ip.startsWith('fd')) return true; // Unique Local Address (fc00::/7)
+  if (
+    ip.startsWith('fe8') ||
+    ip.startsWith('fe9') ||
+    ip.startsWith('fea') ||
+    ip.startsWith('feb')
+  ) {
+    return true; // Link-local (fe80::/10)
+  }
+  if (ip.startsWith('ff')) return true; // Multicast
+
+  // IPv4 checks
+  const parts = ip.split('.').map((p) => parseInt(p, 10));
+  if (
+    parts.length === 4 &&
+    parts.every((p) => !isNaN(p) && p >= 0 && p <= 255)
+  ) {
+    const [p0, p1] = parts;
+    if (p0 === 127) return true; // 127.0.0.0/8 Loopback
+    if (p0 === 10) return true; // 10.0.0.0/8 Private
+    if (p0 === 172 && p1 >= 16 && p1 <= 31) return true; // 172.16.0.0/12 Private
+    if (p0 === 192 && p1 === 168) return true; // 192.168.0.0/16 Private
+    if (p0 === 169 && p1 === 254) return true; // 169.254.0.0/16 Link-local
+    if (p0 === 100 && p1 >= 64 && p1 <= 127) return true; // 100.64.0.0/10 Carrier-grade NAT
+    if (p0 === 0 || p0 >= 224) return true; // Reserved / Multicast
+  }
+
+  return false;
+}
+
 export interface SecurityPostureSummary {
   status: 'EXCELLENT' | 'GOOD' | 'NEEDS_ATTENTION' | 'CRITICAL';
   openVulnerabilitiesCount: number;
@@ -296,14 +336,7 @@ export class SecurityIntelligenceWorker implements AIWorkerInterface {
       };
     }
 
-    const isLoopbackOrPrivate =
-      targetIp === '127.0.0.1' ||
-      targetIp === 'localhost' ||
-      targetIp === '::1' ||
-      targetIp.startsWith('10.') ||
-      targetIp.startsWith('192.168.') ||
-      targetIp.startsWith('172.16.') ||
-      targetIp.startsWith('172.31.');
+    const isLoopbackOrPrivate = isPrivateOrReservedIp(targetIp);
 
     if (isLoopbackOrPrivate) {
       return {
@@ -338,7 +371,7 @@ export class SecurityIntelligenceWorker implements AIWorkerInterface {
       `Target Entity: ${targetIp}`,
       `Classification: ${incidentType}`,
       'Correlation Engine: Evaluated against Cloudflare WAF, Access JWKS, and D1 event receipts',
-      'Containment Tier: T1_REVERSIBLE_CONTAINMENT (Temporary 30-min rate-limit / IP block)',
+      'Containment Tier: T1_REVERSIBLE_CONTAINMENT (Temporary 30-min rate-limit / IP block proposed)',
     ];
 
     const problems = [
@@ -362,13 +395,13 @@ export class SecurityIntelligenceWorker implements AIWorkerInterface {
       ],
       recommendations,
       priority: 'high',
-      executionStatus: 'executed',
-      requiredApproval: false,
+      executionStatus: 'pending_approval',
+      requiredApproval: true,
       requiredAction: 'temporary_ip_block',
-      expectedImpact: `Entity ${targetIp} temporarily throttled; customer traffic unaffected`,
+      expectedImpact: `Entity ${targetIp} temporarily throttled upon approval; customer traffic unaffected`,
       verification:
-        'IP block registered in D1 security_blocked_entities with 30m TTL',
-      executiveVoiceSummary: `Containment active for entity ${targetIp}. Reversible rate-limit applied.`,
+        'Containment action proposed/recorded in D1. Edge firewall synchronization pending (recorded_only)',
+      executiveVoiceSummary: `Containment proposed for entity ${targetIp}. Awaiting edge synchronization/approval.`,
       timestamp: new Date().toISOString(),
     };
   }

@@ -67,7 +67,8 @@ export class RsiSelfObserver {
     if (!observations.length) {
       return {
         totalRuns: 0,
-        successRate: 1.0,
+        successRate: null,
+        status: 'INSUFFICIENT_DATA',
         averageLatencyMs: 0,
         errorRatesByClass: {},
       };

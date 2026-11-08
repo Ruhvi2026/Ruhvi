@@ -66,6 +66,22 @@ export class RsiReflectionEngine {
       };
     }
 
+    if (!params.candidateId) {
+      return {
+        success: false,
+        error: 'Promotion rejected: Candidate ID is required',
+      };
+    }
+
+    // Require non-empty durable evaluation evidence refs (RSI-05)
+    if (!params.evidenceRefs || params.evidenceRefs.length === 0) {
+      return {
+        success: false,
+        error:
+          'Promotion rejected: Minimum of 1 valid evaluation evidence reference is required',
+      };
+    }
+
     const res = await this.client.verifyLesson({
       candidate_id: params.candidateId,
       verification_summary: params.verificationSummary,

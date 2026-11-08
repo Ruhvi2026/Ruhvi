@@ -13,21 +13,92 @@ import {
   SecurityActionProposalPayload,
 } from './types';
 
-function jsonResponse<T>(data: ApiResponse<T>, status = 200): Response {
+const ALLOWED_ORIGINS = new Set([
+  'https://ruhvi.in',
+  'https://www.ruhvi.in',
+  'https://admin.ruhvi.in',
+  'http://localhost:3000',
+  'http://localhost:3001',
+]);
+
+function getCorsOrigin(request?: Request): string {
+  if (!request) return 'https://ruhvi.in';
+  const origin = request.headers.get('Origin') || request.headers.get('origin');
+  if (origin && ALLOWED_ORIGINS.has(origin)) {
+    return origin;
+  }
+  return 'https://ruhvi.in';
+}
+
+function jsonResponse<T>(
+  data: ApiResponse<T>,
+  status = 200,
+  request?: Request
+): Response {
   return new Response(JSON.stringify(data), {
     status,
     headers: {
       'Content-Type': 'application/json',
-      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Origin': getCorsOrigin(request),
       'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
       'Access-Control-Allow-Headers':
         'Content-Type, Authorization, CF-Access-Client-Id, CF-Access-Client-Secret, Idempotency-Key, X-Correlation-ID',
+      Vary: 'Origin',
     },
   });
 }
 
-function errorResponse(code: string, message: string, status = 400): Response {
-  return jsonResponse({ success: false, error: { code, message } }, status);
+function errorResponse(
+  code: string,
+  message: string,
+  status = 400,
+  request?: Request
+): Response {
+  return jsonResponse(
+    { success: false, error: { code, message } },
+    status,
+    request
+  );
+}
+
+/**
+ * Validates whether an IP is loopback, RFC 1918 private, link-local, CG-NAT, or reserved.
+ * SEC-08: Complete boundary validation across IPv4 and IPv6.
+ */
+export function isPrivateOrReservedIp(rawIp: string): boolean {
+  const ip = (rawIp || '').trim().toLowerCase();
+  if (!ip || ip === 'localhost') return true;
+
+  // IPv6 checks
+  if (ip === '::1' || ip === '::') return true;
+  if (ip.startsWith('fc') || ip.startsWith('fd')) return true; // Unique Local Address (fc00::/7)
+  if (
+    ip.startsWith('fe8') ||
+    ip.startsWith('fe9') ||
+    ip.startsWith('fea') ||
+    ip.startsWith('feb')
+  ) {
+    return true; // Link-local (fe80::/10)
+  }
+  if (ip.startsWith('ff')) return true; // Multicast
+
+  // IPv4 checks
+  const parts = ip.split('.').map((p) => parseInt(p, 10));
+  if (
+    parts.length === 4 &&
+    parts.every((p) => !isNaN(p) && p >= 0 && p <= 255)
+  ) {
+    const [p0, p1] = parts;
+    if (p0 === 127) return true; // 127.0.0.0/8 Loopback
+    if (p0 === 10) return true; // 10.0.0.0/8 Private
+    if (p0 === 172 && p1 >= 16 && p1 <= 31) return true; // 172.16.0.0/12 Private
+    if (p0 === 192 && p1 === 168) return true; // 192.168.0.0/16 Private
+    if (p0 === 169 && p1 === 254) return true; // 169.254.0.0/16 Link-local
+    if (p0 === 100 && p1 >= 64 && p1 <= 127) return true; // 100.64.0.0/10 Carrier-grade NAT
+    if (p0 === 0 || p0 >= 224) return true; // Reserved / Multicast
+  }
+
+  return false;
 }
 
 const REDACT_KEYS = new Set([
@@ -520,14 +591,7 @@ export async function handleSecurityRoutes(
           body.action_type === 'rate_limit_ip'
         ) {
           const targetIp = (body.target_ref || '').trim();
-          const isLoopbackOrPrivate =
-            targetIp === '127.0.0.1' ||
-            targetIp === 'localhost' ||
-            targetIp === '::1' ||
-            targetIp.startsWith('10.') ||
-            targetIp.startsWith('192.168.') ||
-            targetIp.startsWith('172.16.') ||
-            targetIp.startsWith('172.31.');
+          const isLoopbackOrPrivate = isPrivateOrReservedIp(targetIp);
 
           if (isLoopbackOrPrivate) {
             return errorResponse(

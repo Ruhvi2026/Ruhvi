@@ -57,6 +57,24 @@ describe('RSI (Recursive Self-Improvement) Subsystem Test Suite', () => {
         }
       }
     });
+
+    it('enforces granular feature flags independently when RSI_ENABLED is true (RSI-02)', () => {
+      const origMem = process.env.RSI_MEMORY_ENABLED;
+      try {
+        process.env.RSI_MEMORY_ENABLED = 'false';
+        expect(() => assertRsiOperationAllowed('memory_read')).toThrow(
+          '[RSI Suspended] RSI feature "memoryEnabled" is disabled'
+        );
+        // Other features remain allowed
+        expect(() => assertRsiOperationAllowed('eval_run')).not.toThrow();
+      } finally {
+        if (origMem === undefined) {
+          delete process.env.RSI_MEMORY_ENABLED;
+        } else {
+          process.env.RSI_MEMORY_ENABLED = origMem;
+        }
+      }
+    });
   });
 
   // Phase 2: Persistent Memory Manager
@@ -323,6 +341,13 @@ describe('RSI (Recursive Self-Improvement) Subsystem Test Suite', () => {
       expect(metrics.averageLatencyMs).toBe(150);
       expect(metrics.errorRatesByClass['timeout']).toBe(1);
     });
+
+    it('returns INSUFFICIENT_DATA and null success rate for empty observations (RSI-04)', () => {
+      const emptyMetrics = observer.aggregateMetrics([]);
+      expect(emptyMetrics.totalRuns).toBe(0);
+      expect(emptyMetrics.successRate).toBeNull();
+      expect(emptyMetrics.status).toBe('INSUFFICIENT_DATA');
+    });
   });
 
   // Phase 4: Reflection Engine
@@ -340,6 +365,20 @@ describe('RSI (Recursive Self-Improvement) Subsystem Test Suite', () => {
 
       expect(res.success).toBe(false);
       expect(res.error).toContain('Promotion rejected');
+    });
+
+    it('rejects candidate promotion if evidenceRefs is empty (RSI-05)', async () => {
+      const res = await reflection.promoteCandidateLesson({
+        candidateId: 'cand-1',
+        testRunsCount: 5,
+        passRate: 0.95,
+        verificationSummary: 'Valid pass',
+        evidenceRefs: [],
+      });
+      expect(res.success).toBe(false);
+      expect(res.error).toContain(
+        'Minimum of 1 valid evaluation evidence reference is required'
+      );
     });
   });
 

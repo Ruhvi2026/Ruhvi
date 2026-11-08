@@ -18,6 +18,9 @@ import {
   EvaluationSuitePayload,
   EvaluationCasePayload,
   EvaluationResultPayload,
+  SecurityEventPayload,
+  SecurityScanIngestPayload,
+  SecurityActionProposalPayload,
 } from './types';
 import { generateIdempotencyKey } from './idempotency';
 
@@ -822,6 +825,127 @@ export class CofounderDataClient {
     return this.request('/v1/workforce/controls', {
       method: 'POST',
       body: { control_key: controlKey, is_enabled: isEnabled, reason },
+    });
+  }
+
+  // ==========================================================================
+  // Security Intelligence Endpoints (/v1/security/*)
+  // ==========================================================================
+
+  /**
+   * Ingest runtime security event
+   */
+  async recordSecurityEvent(payload: SecurityEventPayload) {
+    return this.request('/v1/security/events', {
+      method: 'POST',
+      body: payload,
+    });
+  }
+
+  /**
+   * Ingest CI/CD scanner findings
+   */
+  async ingestSecurityScan(payload: SecurityScanIngestPayload) {
+    return this.request('/v1/security/scans', {
+      method: 'POST',
+      body: payload,
+    });
+  }
+
+  /**
+   * Query security findings
+   */
+  async getSecurityFindings(
+    params: {
+      severity?: string;
+      status?: string;
+      limit?: number;
+      offset?: number;
+    } = {}
+  ) {
+    const qs = new URLSearchParams();
+    if (params.severity) qs.set('severity', params.severity);
+    if (params.status) qs.set('status', params.status);
+    if (params.limit) qs.set('limit', String(params.limit));
+    if (params.offset) qs.set('offset', String(params.offset));
+    const query = qs.toString() ? `?${qs.toString()}` : '';
+    return this.request(`/v1/security/findings${query}`, { method: 'GET' });
+  }
+
+  /**
+   * Query active security incidents
+   */
+  async getSecurityIncidents(
+    params: { state?: string; severity?: string } = {}
+  ) {
+    const qs = new URLSearchParams();
+    if (params.state) qs.set('state', params.state);
+    if (params.severity) qs.set('severity', params.severity);
+    const query = qs.toString() ? `?${qs.toString()}` : '';
+    return this.request(`/v1/security/incidents${query}`, { method: 'GET' });
+  }
+
+  /**
+   * Create or update security incident
+   */
+  async createSecurityIncident(incident: {
+    id?: string;
+    title: string;
+    incident_type?: string;
+    severity?: string;
+    confidence?: number;
+    state?: string;
+    impact_summary?: string;
+    root_cause?: string;
+    timeline?: any[];
+  }) {
+    return this.request('/v1/security/incidents', {
+      method: 'POST',
+      body: incident,
+    });
+  }
+
+  /**
+   * Propose autonomous reversible containment action
+   */
+  async proposeSecurityAction(payload: SecurityActionProposalPayload) {
+    return this.request('/v1/security/proposals', {
+      method: 'POST',
+      body: payload,
+    });
+  }
+
+  /**
+   * List security containment proposals
+   */
+  async listSecurityProposals(status?: string) {
+    const qs = status ? `?status=${encodeURIComponent(status)}` : '';
+    return this.request(`/v1/security/proposals${qs}`, { method: 'GET' });
+  }
+
+  /**
+   * Record file quarantine metadata
+   */
+  async quarantineFile(metadata: {
+    filename: string;
+    mime: string;
+    r2_key: string;
+    sha256: string;
+    reason?: string;
+  }) {
+    return this.request('/v1/security/quarantine', {
+      method: 'POST',
+      body: metadata,
+    });
+  }
+
+  /**
+   * List blocked entities (IPs, accounts)
+   */
+  async listBlockedEntities(activeOnly = true) {
+    const qs = activeOnly ? '?active=true' : '';
+    return this.request(`/v1/security/blocked-entities${qs}`, {
+      method: 'GET',
     });
   }
 }

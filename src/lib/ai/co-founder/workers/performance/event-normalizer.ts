@@ -11,6 +11,8 @@ export interface RawWorkerExecutionPayload {
   taskId: string;
   taskTitle?: string;
   status: 'succeeded' | 'failed' | 'timeout' | 'blocked' | 'cancelled';
+  roleId?: string;
+  runId?: string;
   durationMs?: number;
   retryCount?: number;
   toolCalls?: Array<{
@@ -71,12 +73,21 @@ export class EventNormalizer {
     if (payload.verificationPassed === true) verificationStatus = 'verified';
     if (payload.verificationPassed === false) verificationStatus = 'failed';
 
+    const cleanTaskId = payload.taskId.replace(/[^a-zA-Z0-9_-]/g, '_');
+    const retrySuffix =
+      payload.retryCount !== undefined && payload.retryCount > 0
+        ? `_r${payload.retryCount}`
+        : '';
+    const eventId = payload.runId
+      ? `pe_ai_${payload.runId}_${eventType.toLowerCase()}`
+      : `pe_ai_${payload.workerId}_${cleanTaskId}_${eventType.toLowerCase()}${retrySuffix}`;
+
     return {
-      eventId: `pe_ai_${payload.workerId}_${payload.taskId}_${Date.now()}`,
+      eventId,
       eventType,
       entityType: 'AI_WORKER',
       memberId: payload.workerId,
-      roleId: payload.workerId,
+      roleId: payload.roleId || payload.workerId,
       taskId: payload.taskId,
       parentTaskId: null,
       occurredAt,
@@ -130,8 +141,15 @@ export class EventNormalizer {
     if (payload.verifiedPassed === true) verificationStatus = 'verified';
     if (payload.verifiedPassed === false) verificationStatus = 'failed';
 
+    const cleanTaskId = payload.taskId.replace(/[^a-zA-Z0-9_-]/g, '_');
+    const reworkSuffix =
+      payload.reworkCount !== undefined && payload.reworkCount > 0
+        ? `_rw${payload.reworkCount}`
+        : '';
+    const eventId = `pe_human_${payload.assigneeId}_${cleanTaskId}_${eventType.toLowerCase()}${reworkSuffix}`;
+
     return {
-      eventId: `pe_human_${payload.assigneeId}_${payload.taskId}_${Date.now()}`,
+      eventId,
       eventType,
       entityType: 'HUMAN_STAFF',
       memberId: payload.assigneeId,

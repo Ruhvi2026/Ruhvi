@@ -23,12 +23,26 @@ export async function GET(req: NextRequest) {
     });
 
     const report = result.data?.report;
-    if (report) {
-      try {
-        const db = getServiceClient();
-        // Persist snapshot to workforce_performance_snapshots
-        for (const card of report.scorecards || []) {
-          await db.from('workforce_performance_snapshots').upsert(
+
+    // PERF-11: Validate worker execution status and require report before returning success
+    if (result.executionStatus === 'failed' || !report || !report.reportId) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Workforce audit failed or returned missing report',
+          problems: result.problems,
+        },
+        { status: 500 }
+      );
+    }
+
+    try {
+      const db = getServiceClient();
+      // Persist snapshot to workforce_performance_snapshots (PERF-11: inspect errors)
+      for (const card of report.scorecards || []) {
+        const { error: cardError } = await db
+          .from('workforce_performance_snapshots')
+          .upsert(
             {
               member_id: card.memberId,
               entity_type: card.entityType,
@@ -51,34 +65,43 @@ export async function GET(req: NextRequest) {
             },
             { onConflict: 'member_id,period_from,period_to' }
           );
+        if (cardError) {
+          throw new Error(
+            `workforce_performance_snapshots upsert failed: ${cardError.message}`
+          );
         }
+      }
 
-        // Persist audit run record
-        await db.from('workforce_audit_runs').insert({
-          id: report.reportId,
-          report_type: report.reportType,
-          period_from: report.period.from,
-          period_to: report.period.to,
-          data_health_status: report.dataHealth.status,
-          population_summary: report.populationSummary,
-          recommendations: report.recommendations,
-          audit_payload: report,
-          created_at: report.generatedAt,
-        });
-      } catch (dbErr: any) {
-        console.error(
-          '[WorkforcePerformanceAuditCron] DB persistence failed:',
-          dbErr
-        );
-        return NextResponse.json(
-          {
-            success: false,
-            error: 'Failed to persist audit snapshots to database',
-            details: dbErr?.message || String(dbErr),
-          },
-          { status: 500 }
+      // Persist audit run record
+      const { error: runError } = await db.from('workforce_audit_runs').insert({
+        id: report.reportId,
+        report_type: report.reportType,
+        period_from: report.period.from,
+        period_to: report.period.to,
+        data_health_status: report.dataHealth.status,
+        population_summary: report.populationSummary,
+        recommendations: report.recommendations,
+        audit_payload: report,
+        created_at: report.generatedAt,
+      });
+      if (runError) {
+        throw new Error(
+          `workforce_audit_runs insert failed: ${runError.message}`
         );
       }
+    } catch (dbErr: any) {
+      console.error(
+        '[WorkforcePerformanceAuditCron] DB persistence failed:',
+        dbErr
+      );
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Failed to persist audit snapshots to database',
+          details: dbErr?.message || String(dbErr),
+        },
+        { status: 500 }
+      );
     }
 
     return NextResponse.json({

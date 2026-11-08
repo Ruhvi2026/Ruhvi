@@ -134,7 +134,9 @@ describe('Security Intelligence Worker & File Inspector', () => {
       expect(output.findings).toEqual(
         expect.arrayContaining([expect.stringContaining('198.51.100.42')])
       );
-      expect(output.executionStatus).toBe('executed');
+      expect(output.executionStatus).toBe('pending_approval');
+      expect(output.requiredApproval).toBe(true);
+      expect(output.verification).toContain('recorded_only');
       expect(output.expectedImpact).toContain('throttled');
     });
 
@@ -168,14 +170,29 @@ describe('Security Intelligence Worker & File Inspector', () => {
       );
     });
 
-    it('rejects perimeter containment on loopback and private IPs (SEC-P1-005)', async () => {
-      const output = await securityIntelligenceWorker.execute({
-        task: 'Investigate suspicious activity from loopback IP',
-        parameters: { ip: '127.0.0.1', incidentType: 'test_loopback' },
-      });
-      expect(output.executionStatus).toBe('failed');
-      expect(output.requiredAction).toBe('reject_containment');
-      expect(output.findings[1]).toContain('Target is an internal loopback');
+    it('rejects perimeter containment on loopback and private IPs (SEC-P1-005, SEC-08)', async () => {
+      const privateIps = [
+        '127.0.0.1',
+        '10.254.0.1',
+        '172.20.5.10',
+        '172.31.255.1',
+        '192.168.1.1',
+        '169.254.169.254',
+        '100.64.0.1',
+        '::1',
+        'fc00::1',
+      ];
+      for (const ip of privateIps) {
+        const output = await securityIntelligenceWorker.execute({
+          task: `Investigate suspicious activity from IP ${ip}`,
+          parameters: { ip, incidentType: 'test_private_subnet' },
+        });
+        expect(output.executionStatus).toBe('failed');
+        expect(output.requiredAction).toBe('reject_containment');
+        expect(output.findings[1]).toContain(
+          'internal loopback or private subnet'
+        );
+      }
     });
 
     it('aborts investigation when no target IP is provided (SEC-P1-005)', async () => {

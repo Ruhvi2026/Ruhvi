@@ -2,16 +2,35 @@ import { Env, ApiResponse, ExecutionContext, MessageBatch } from './types';
 import { validateServiceAuth } from './auth';
 import { handleSecurityRoutes, handleSecurityQueue } from './security';
 
+const ALLOWED_ORIGINS = new Set([
+  'https://ruhvi.in',
+  'https://www.ruhvi.in',
+  'https://admin.ruhvi.in',
+  'http://localhost:3000',
+  'http://localhost:3001',
+]);
+
+export function getCorsOrigin(request?: Request): string {
+  if (!request) return 'https://ruhvi.in';
+  const origin = request.headers.get('Origin') || request.headers.get('origin');
+  if (origin && ALLOWED_ORIGINS.has(origin)) {
+    return origin;
+  }
+  return 'https://ruhvi.in';
+}
+
 function jsonResponse<T>(
   data: ApiResponse<T> & { replayed?: boolean },
-  status = 200
+  status = 200,
+  request?: Request
 ): Response {
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
-    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Origin': getCorsOrigin(request),
     'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
     'Access-Control-Allow-Headers':
       'Content-Type, Authorization, CF-Access-Client-Id, CF-Access-Client-Secret, Idempotency-Key, X-Correlation-ID',
+    Vary: 'Origin',
   };
   if (data.replayed) {
     headers['X-Idempotency-Replay'] = 'true';
@@ -19,8 +38,17 @@ function jsonResponse<T>(
   return new Response(JSON.stringify(data), { status, headers });
 }
 
-function errorResponse(code: string, message: string, status = 400): Response {
-  return jsonResponse({ success: false, error: { code, message } }, status);
+function errorResponse(
+  code: string,
+  message: string,
+  status = 400,
+  request?: Request
+): Response {
+  return jsonResponse(
+    { success: false, error: { code, message } },
+    status,
+    request
+  );
 }
 
 async function hashString(str: string): Promise<string> {
@@ -84,16 +112,17 @@ export default {
     const url = new URL(request.url);
     const method = request.method.toUpperCase();
 
-    // CORS preflight
+    // CORS preflight (DB-05 / SEC-10: Restrict to allowed origins)
     if (method === 'OPTIONS') {
       return new Response(null, {
         status: 204,
         headers: {
-          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Origin': getCorsOrigin(request),
           'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
           'Access-Control-Allow-Headers':
             'Content-Type, Authorization, CF-Access-Client-Id, CF-Access-Client-Secret, Idempotency-Key, X-Correlation-ID',
           'Access-Control-Max-Age': '86400',
+          Vary: 'Origin',
         },
       });
     }

@@ -51,9 +51,10 @@ export function validateServiceAuth(
         return { authorized: false, reason: 'Untrusted Access JWT issuer' };
       }
 
-      // Validate Audience (must match configured Access application)
+      // Validate Audience (must match configured Access application - DB-02 / SEC-07)
       const expectedAud =
-        (env as any).ACCESS_AUD ||
+        env.CF_ACCESS_AUD ||
+        env.ACCESS_AUD ||
         (env.ENVIRONMENT === 'dev' || env.ENVIRONMENT === 'test'
           ? EXPECTED_AUD
           : undefined);

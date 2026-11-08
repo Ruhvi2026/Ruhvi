@@ -61,6 +61,11 @@ export class PerformanceDataAccess {
           );
           return false;
         }
+      } else if (process.env.NODE_ENV !== 'test') {
+        console.error(
+          '[PerformanceDataAccess] Supabase client unavailable in non-test environment (PERF-02)'
+        );
+        return false;
       }
     } catch (err) {
       if (process.env.NODE_ENV !== 'test') {
@@ -72,9 +77,11 @@ export class PerformanceDataAccess {
       }
     }
 
-    // In-memory fallback allowed only in test environment (PERF-02)
+    if (process.env.NODE_ENV !== 'test') {
+      return false;
+    }
 
-    // Deduplicate in-memory
+    // In-memory fallback allowed only in test environment (PERF-02)
     const exists = IN_MEMORY_EVENTS.some((e) => e.eventId === event.eventId);
     if (!exists) {
       IN_MEMORY_EVENTS.push(event);
@@ -103,7 +110,16 @@ export class PerformanceDataAccess {
         if (to) query = query.lte('occurred_at', to);
 
         const { data, error } = await query;
-        if (!error && data && data.length > 0) {
+        if (error) {
+          if (process.env.NODE_ENV !== 'test') {
+            console.error(
+              '[PerformanceDataAccess] Database getEvents error:',
+              error
+            );
+            return [];
+          }
+        } else if (data) {
+          // Authoritative result from DB, even if 0 rows (PERF-03)
           return data.map((d: any) => ({
             eventId: d.event_id,
             eventType: d.event_type,
@@ -129,9 +145,24 @@ export class PerformanceDataAccess {
             schemaVersion: d.schema_version,
           }));
         }
+      } else if (process.env.NODE_ENV !== 'test') {
+        console.error(
+          '[PerformanceDataAccess] Supabase client unavailable in non-test mode'
+        );
+        return [];
       }
-    } catch {
-      // fallback
+    } catch (err) {
+      if (process.env.NODE_ENV !== 'test') {
+        console.error(
+          '[PerformanceDataAccess] Database getEvents exception:',
+          err
+        );
+        return [];
+      }
+    }
+
+    if (process.env.NODE_ENV !== 'test') {
+      return [];
     }
 
     return IN_MEMORY_EVENTS.filter((e) => {
@@ -176,6 +207,11 @@ export class PerformanceDataAccess {
           );
           return false;
         }
+      } else if (process.env.NODE_ENV !== 'test') {
+        console.error(
+          '[PerformanceDataAccess] Supabase client unavailable in non-test mode'
+        );
+        return false;
       }
     } catch (err) {
       if (process.env.NODE_ENV !== 'test') {
@@ -187,8 +223,11 @@ export class PerformanceDataAccess {
       }
     }
 
-    // Fallback to in-memory only in test environment
+    if (process.env.NODE_ENV !== 'test') {
+      return false;
+    }
 
+    // Fallback to in-memory only in test environment
     const exists = IN_MEMORY_POINTS.some(
       (p) => p.idempotencyKey === txn.idempotencyKey
     );
@@ -221,6 +260,10 @@ export class PerformanceDataAccess {
       // fallback
     }
 
+    if (process.env.NODE_ENV !== 'test') {
+      return 0;
+    }
+
     return IN_MEMORY_POINTS.filter((p) => p.memberId === memberId).reduce(
       (sum, p) => sum + p.finalPoints,
       0
@@ -228,9 +271,9 @@ export class PerformanceDataAccess {
   }
 
   /**
-   * Persists alerts.
+   * Persists alerts. (PERF-04: Inspect and propagate Supabase error)
    */
-  public static async saveAlerts(alerts: WorkforceAlert[]): Promise<void> {
+  public static async saveAlerts(alerts: WorkforceAlert[]): Promise<boolean> {
     try {
       const db = getDb();
       if (db && alerts.length > 0) {
@@ -247,16 +290,38 @@ export class PerformanceDataAccess {
           recommended_action: a.recommendedAction,
           created_at: a.createdAt,
         }));
-        await db.from('workforce_alerts').upsert(rows);
+        const { error } = await db.from('workforce_alerts').upsert(rows);
+        if (error) {
+          console.error(
+            '[PerformanceDataAccess] workforce_alerts upsert error:',
+            error
+          );
+          if (process.env.NODE_ENV !== 'test') return false;
+        } else {
+          return true;
+        }
+      } else if (db && alerts.length === 0) {
+        return true;
+      } else if (!db && process.env.NODE_ENV !== 'test') {
+        console.error(
+          '[PerformanceDataAccess] Supabase client unavailable in non-test mode'
+        );
+        return false;
       }
-    } catch {
-      // fallback
+    } catch (err) {
+      console.error('[PerformanceDataAccess] saveAlerts failure:', err);
+      if (process.env.NODE_ENV !== 'test') return false;
+    }
+
+    if (process.env.NODE_ENV !== 'test') {
+      return false;
     }
 
     alerts.forEach((a) => {
       const exists = IN_MEMORY_ALERTS.some((ex) => ex.id === a.id);
       if (!exists) IN_MEMORY_ALERTS.push(a);
     });
+    return true;
   }
 
   /**
@@ -272,7 +337,15 @@ export class PerformanceDataAccess {
           .is('resolved_at', null)
           .order('created_at', { ascending: false });
 
-        if (!error && data && data.length > 0) {
+        if (error) {
+          if (process.env.NODE_ENV !== 'test') {
+            console.error(
+              '[PerformanceDataAccess] Database getActiveAlerts error:',
+              error
+            );
+            return [];
+          }
+        } else if (data) {
           return data.map((d: any) => ({
             id: d.id,
             severity: d.severity,
@@ -289,9 +362,24 @@ export class PerformanceDataAccess {
             resolvedAt: d.resolved_at,
           }));
         }
+      } else if (process.env.NODE_ENV !== 'test') {
+        console.error(
+          '[PerformanceDataAccess] Supabase client unavailable in non-test mode'
+        );
+        return [];
       }
-    } catch {
-      // fallback
+    } catch (err) {
+      if (process.env.NODE_ENV !== 'test') {
+        console.error(
+          '[PerformanceDataAccess] Database getActiveAlerts exception:',
+          err
+        );
+        return [];
+      }
+    }
+
+    if (process.env.NODE_ENV !== 'test') {
+      return [];
     }
 
     return IN_MEMORY_ALERTS.filter((a) => !a.resolvedAt);
