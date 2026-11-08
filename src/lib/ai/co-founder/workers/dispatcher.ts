@@ -11,6 +11,7 @@ import {
   decomposeGoalIntoPlan,
   validateExecutionPlan,
 } from './intelligent-planner';
+import { EventNormalizer, PerformanceDataAccess } from './performance';
 
 export interface DispatchResponse {
   workerId: WorkerId;
@@ -51,8 +52,50 @@ export async function dispatchWorkerTask(
     );
   }
 
-  // 2. Execute assigned task on worker
-  const result = await worker.execute(input);
+  // 2. Execute assigned task on worker with performance instrumentation
+  const startTime = Date.now();
+  let result: WorkerStructuredOutput;
+  try {
+    result = await worker.execute(input);
+  } catch (executionErr: any) {
+    const durationMs = Date.now() - startTime;
+    // Asynchronously record failure event without interrupting error throw
+    try {
+      const perfEvent = EventNormalizer.normalizeAIWorkerEvent({
+        workerId: worker.id,
+        taskId: input.parameters?.taskId || `task_${worker.id}_${Date.now()}`,
+        taskTitle: input.task,
+        status: 'failed',
+        durationMs,
+        retryCount: 0,
+        verificationPassed: false,
+        evidenceRefs: [executionErr?.message || 'Execution error'],
+      });
+      PerformanceDataAccess.recordEvent(perfEvent).catch(() => {});
+    } catch {}
+    throw executionErr;
+  }
+
+  const durationMs = Date.now() - startTime;
+  // Asynchronously record completion event
+  try {
+    const isSuccess = result.executionStatus !== 'failed';
+    const perfEvent = EventNormalizer.normalizeAIWorkerEvent({
+      workerId: worker.id,
+      taskId: input.parameters?.taskId || `task_${worker.id}_${Date.now()}`,
+      taskTitle: input.task,
+      status: isSuccess ? 'succeeded' : 'failed',
+      durationMs,
+      retryCount: 0,
+      verificationPassed: isSuccess,
+      approvalRequired: result.requiredApproval,
+      approvalGranted:
+        result.executionStatus === 'approved' ||
+        result.executionStatus === 'executed',
+      evidenceRefs: result.evidence || [],
+    });
+    PerformanceDataAccess.recordEvent(perfEvent).catch(() => {});
+  } catch {}
 
   // 3. Human-in-the-Loop Gating:
   // If worker recommends an action requiring approval, register approval request

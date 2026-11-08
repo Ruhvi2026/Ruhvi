@@ -45,11 +45,12 @@ describe('Autonomous Worker Workforce Subsystem', () => {
       'worker_monitoring_verification',
       'worker_orders_logistics',
       'worker_accounts_tax',
+      'worker_performance_intelligence',
     ];
 
-    it('has exactly 14 canonical worker manifests registered', () => {
+    it('has exactly 15 canonical worker manifests registered', () => {
       const manifests = getAllWorkerManifests();
-      expect(manifests).toHaveLength(14);
+      expect(manifests).toHaveLength(15);
 
       const registeredIds = manifests.map((m) => m.workerId);
       for (const id of canonicalWorkers) {
@@ -634,7 +635,7 @@ describe('Autonomous Worker Workforce Subsystem', () => {
   describe('10. Autonomous Workforce Coordinator Facade', () => {
     it('returns system health status and registered manifests', () => {
       const health = autonomousWorkforceCoordinator.getHealthStatus();
-      expect(health.activeWorkerCount).toBe(14);
+      expect(health.activeWorkerCount).toBe(15);
       expect(health.maxDepth).toBe(2);
       expect(health.maxChildren).toBe(3);
       expect(health.killSwitchActive).toBe(false);

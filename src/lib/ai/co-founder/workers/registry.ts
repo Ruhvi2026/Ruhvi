@@ -16,6 +16,7 @@ import { executionWorker } from './worker-11-execution';
 import { monitoringWorker } from './worker-12-monitoring';
 import { ordersLogisticsWorker } from './worker-13-orders-logistics';
 import { accountsWorker } from './worker-14-accounts';
+import { performanceIntelligenceWorker } from './worker-performance-intelligence';
 
 export const WORKER_ALIAS_MAP: Record<string, WorkerId> = {
   // Direct canonical mappings
@@ -33,8 +34,13 @@ export const WORKER_ALIAS_MAP: Record<string, WorkerId> = {
   worker_monitoring_verification: 'worker_monitoring_verification',
   worker_orders_logistics: 'worker_orders_logistics',
   worker_accounts_tax: 'worker_accounts_tax',
+  worker_performance_intelligence: 'worker_performance_intelligence',
 
-  // Master Plan canonical 13/14 aliases
+  // Master Plan canonical aliases
+  performance_intelligence: 'worker_performance_intelligence',
+  workforce_audit: 'worker_performance_intelligence',
+  staff_performance: 'worker_performance_intelligence',
+  auditor: 'worker_performance_intelligence',
   marketing: 'worker_marketing',
   seo: 'worker_seo',
   analytics: 'worker_analytics_performance',
@@ -91,6 +97,7 @@ export class WorkerRegistry {
     this.register(monitoringWorker);
     this.register(ordersLogisticsWorker);
     this.register(accountsWorker);
+    this.register(performanceIntelligenceWorker);
   }
 
   register(worker: AIWorkerInterface): void {
@@ -138,6 +145,18 @@ export class WorkerRegistry {
       text.includes('monitor change')
     ) {
       return monitoringWorker;
+    }
+
+    if (
+      text.includes('workforce performance') ||
+      text.includes('performance intelligence') ||
+      text.includes('staff score') ||
+      text.includes('worker score') ||
+      text.includes('kpi audit') ||
+      text.includes('workforce audit') ||
+      text.includes('audit worker')
+    ) {
+      return performanceIntelligenceWorker;
     }
 
     // Domain worker keywords

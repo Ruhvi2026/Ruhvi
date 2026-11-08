@@ -209,3 +209,4 @@ CREATE TABLE IF NOT EXISTS workforce_controls (
 );
 
 CREATE INDEX IF NOT EXISTS idx_wf_controls_key ON workforce_controls(control_key);
+

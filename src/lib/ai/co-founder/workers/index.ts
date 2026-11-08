@@ -19,3 +19,5 @@ export { executionWorker } from './worker-11-execution';
 export { monitoringWorker } from './worker-12-monitoring';
 export { ordersLogisticsWorker } from './worker-13-orders-logistics';
 export { accountsWorker } from './worker-14-accounts';
+export { performanceIntelligenceWorker } from './worker-performance-intelligence';
+export * from './performance';

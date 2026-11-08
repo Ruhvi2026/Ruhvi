@@ -757,6 +757,61 @@ const RAW_MANIFESTS: Record<
     ],
     evaluationSuiteId: 'eval_suite_workforce_accounts_v1',
   },
+  worker_performance_intelligence: {
+    workerId: 'worker_performance_intelligence',
+    displayName: 'Performance Intelligence Specialist',
+    domain:
+      'Workforce evaluation, deterministic KPI scoring, and audit intelligence',
+    description:
+      'Continuous audit and evidence-backed performance intelligence for AI workers and human staff.',
+    manifestVersion: '1.0.0',
+    supervisorId: 'co_founder_brain',
+    objectives: [
+      'Continuously audit AI worker and human staff task deliverables',
+      'Compute deterministic role-specific KPI scores and achievement points',
+      'Detect operational anomalies, high retry rates, and root causes',
+      'Produce structured performance briefings for the AI Co-Founder',
+    ],
+    ownedKpis: [
+      {
+        metricId: 'workforce_verified_success_rate',
+        sourceId: 'performance_ledger',
+      },
+      { metricId: 'workforce_quality_score', sourceId: 'performance_ledger' },
+      { metricId: 'workforce_on_time_sla', sourceId: 'performance_ledger' },
+    ],
+    allowedDataSources: [
+      'authoritative_db:workforce_task_events',
+      'authoritative_db:tasks',
+      'dispatcher:telemetry',
+    ],
+    triggers: ['manual', 'schedule', 'verified_event', 'health_signal'],
+    allowedTools: [
+      'get_workforce_events',
+      'calculate_member_scorecard',
+      'audit_workforce_quality',
+      'generate_cofounder_report',
+    ],
+    readScopes: ['admin:workforce_performance:read', 'tasks:read'],
+    internalWriteScopes: ['admin:workforce_performance:write'],
+    approvalRequiredScopes: [],
+    allowedDelegates: [],
+    autonomyTier: 'T1',
+    limits: {
+      maxSteps: 6,
+      maxToolCalls: 4,
+      maxModelCalls: 0, // Zero paid model calls by default
+      maxChildren: 0,
+      maxDepth: 1,
+      timeoutSeconds: 30,
+      maxCostMinorUnits: 0,
+    },
+    retryPolicy: { maxAttempts: 2, backoff: 'fixed' },
+    successCriteria: [
+      'Deterministic KPI calculations with reproducible evidence citations',
+    ],
+    evaluationSuiteId: 'eval_suite_workforce_performance_v1',
+  },
 };
 
 export const WORKER_MANIFESTS: Record<WorkerId, AutonomousWorkerManifest> = (

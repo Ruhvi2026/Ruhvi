@@ -14,7 +14,8 @@ export type WorkerId =
   | 'worker_execution'
   | 'worker_monitoring_verification'
   | 'worker_orders_logistics'
-  | 'worker_accounts_tax';
+  | 'worker_accounts_tax'
+  | 'worker_performance_intelligence';
 
 export type WorkerPriority = 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
 
