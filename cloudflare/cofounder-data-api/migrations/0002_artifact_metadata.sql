@@ -23,3 +23,4 @@ CREATE INDEX IF NOT EXISTS idx_artifacts_type ON artifacts(artifact_type);
 CREATE INDEX IF NOT EXISTS idx_artifacts_scope ON artifacts(scope);
 CREATE INDEX IF NOT EXISTS idx_artifacts_environment ON artifacts(environment);
 CREATE INDEX IF NOT EXISTS idx_artifacts_created_at ON artifacts(created_at);
+

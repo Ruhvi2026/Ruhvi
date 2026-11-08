@@ -106,7 +106,7 @@ export function validateServiceAuth(
     }
 
     if (
-      timingSafeEqual(clientId, DESIGNATED_CLIENT_ID) &&
+      timingSafeEqual(clientId, env.ACCESS_CLIENT_ID || DESIGNATED_CLIENT_ID) &&
       clientSecret.startsWith('cfast_') &&
       clientSecret.length >= 40
     ) {
