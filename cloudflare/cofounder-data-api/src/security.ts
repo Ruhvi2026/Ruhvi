@@ -477,6 +477,11 @@ export async function handleSecurityRoutes(
         );
       }
 
+      // Normalize action name contract (SEC-P0-003)
+      if ((body.action_type as string) === 'quarantine_uploaded_file') {
+        body.action_type = 'quarantine_file';
+      }
+
       const proposalId = crypto.randomUUID();
       const idempotencyKey = body.idempotency_key || proposalId;
       const riskLevel = body.risk_level || 'T1_REVERSIBLE_CONTAINMENT';
@@ -514,6 +519,23 @@ export async function handleSecurityRoutes(
           body.action_type === 'temporary_ip_block' ||
           body.action_type === 'rate_limit_ip'
         ) {
+          const targetIp = (body.target_ref || '').trim();
+          const isLoopbackOrPrivate =
+            targetIp === '127.0.0.1' ||
+            targetIp === 'localhost' ||
+            targetIp === '::1' ||
+            targetIp.startsWith('10.') ||
+            targetIp.startsWith('192.168.') ||
+            targetIp.startsWith('172.16.') ||
+            targetIp.startsWith('172.31.');
+
+          if (isLoopbackOrPrivate) {
+            return errorResponse(
+              'INVALID_TARGET',
+              'Internal, loopback, or private subnet IPs cannot be blocked via perimeter containment'
+            );
+          }
+
           const ttlMinutes = body.scope?.ttl_minutes || 30;
           const expiresAt = new Date(
             Date.now() + ttlMinutes * 60 * 1000
@@ -533,11 +555,11 @@ export async function handleSecurityRoutes(
             .run();
         }
 
-        // Execution record
+        // Execution record (SEC-P0-003: D1 ledger insertion is 'recorded_only', not 'verified_effective' on external WAF)
         await env.DB.prepare(
           `INSERT INTO security_action_executions 
            (id, proposal_id, executor, ended_at, result_redacted_json, verification_status)
-           VALUES (?, ?, 'worker_security_intelligence', datetime('now'), ?, 'verified_effective')`
+           VALUES (?, ?, 'worker_security_intelligence', datetime('now'), ?, 'recorded_only')`
         )
           .bind(
             crypto.randomUUID(),

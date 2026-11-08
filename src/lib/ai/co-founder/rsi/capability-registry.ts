@@ -11,7 +11,7 @@ import { assertRsiOperationAllowed } from './governance';
 export class RsiCapabilityRegistry {
   /**
    * Returns a factual, read-only snapshot of all currently deployed workers.
-   * Resolves the canonical 14 deployed workers from live code.
+   * Resolves canonical deployed workers dynamically from live code workerRegistry.
    */
   getLiveWorkerSnapshot(): CapabilitySnapshot[] {
     assertRsiOperationAllowed('capability_read');

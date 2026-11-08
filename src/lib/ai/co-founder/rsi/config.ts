@@ -24,7 +24,9 @@ export interface RsiConfig {
 
 export function getRsiConfig(): RsiConfig {
   return {
-    enabled: process.env.RSI_ENABLED === 'true',
+    enabled:
+      process.env.RSI_ENABLED === 'true' ||
+      (process.env.NODE_ENV === 'test' && process.env.RSI_ENABLED !== 'false'),
     dryRun: process.env.RSI_DRY_RUN !== 'false', // Default to dry-run true for safe initial staging
     memoryEnabled: process.env.RSI_MEMORY_ENABLED !== 'false',
     observerEnabled: process.env.RSI_OBSERVER_ENABLED !== 'false',

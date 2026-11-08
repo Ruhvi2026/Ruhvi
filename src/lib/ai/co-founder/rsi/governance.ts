@@ -35,9 +35,9 @@ export function assertRsiOperationAllowed(operation: string): void {
     );
   }
 
-  // 2. Check global kill switch
+  // 2. Check global kill switch / feature flag (ARCH-06: fail closed when disabled, regardless of dryRun)
   const config = getRsiConfig();
-  if (!config.enabled && !config.dryRun) {
+  if (!config.enabled) {
     throw new Error(
       '[RSI Suspended] RSI is currently disabled via feature flags.'
     );

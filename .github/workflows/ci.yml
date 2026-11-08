@@ -57,6 +57,9 @@ jobs:
       - name: Cloudflare Worker bundle verification
         run: npx esbuild cloudflare/cofounder-data-api/src/index.ts --bundle --format=esm --target=esnext --outfile=cloudflare/cofounder-data-api/dist/index.js
 
+      - name: Cloudflare Worker unit tests (TEST-01)
+        run: cd cloudflare/cofounder-data-api && npm test
+
       - name: Run automated test suites (Jest)
         run: npm run test:ci
 

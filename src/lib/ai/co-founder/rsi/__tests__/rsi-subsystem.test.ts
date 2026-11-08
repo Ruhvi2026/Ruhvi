@@ -14,6 +14,7 @@ import { RsiEvalLab, GOLDEN_RSI_TEST_CASES } from '../eval-lab';
 import { RsiProposalEngine } from '../proposal-engine';
 import { RsiEvolutionHistory } from '../evolution-history';
 import { extractMemoriesFromConversation } from '../../memory-engine';
+import { workerRegistry } from '../../workers/registry';
 
 describe('RSI (Recursive Self-Improvement) Subsystem Test Suite', () => {
   // Phase 1: Governance & Scope Isolation
@@ -39,6 +40,22 @@ describe('RSI (Recursive Self-Improvement) Subsystem Test Suite', () => {
     it('allows read and evaluation operations inside sandbox', () => {
       expect(() => assertRsiOperationAllowed('memory_read')).not.toThrow();
       expect(() => assertRsiOperationAllowed('eval_run')).not.toThrow();
+    });
+
+    it('fails closed when RSI_ENABLED is false, regardless of dryRun (ARCH-06)', () => {
+      const originalFlag = process.env.RSI_ENABLED;
+      try {
+        process.env.RSI_ENABLED = 'false';
+        expect(() => assertRsiOperationAllowed('memory_read')).toThrow(
+          '[RSI Suspended]'
+        );
+      } finally {
+        if (originalFlag === undefined) {
+          delete process.env.RSI_ENABLED;
+        } else {
+          process.env.RSI_ENABLED = originalFlag;
+        }
+      }
     });
   });
 
@@ -327,16 +344,20 @@ describe('RSI (Recursive Self-Improvement) Subsystem Test Suite', () => {
   });
 
   // Phase 5: Capability Registry
-  describe('Phase 5: Capability Registry (14 Workers Snapshot)', () => {
+  describe('Phase 5: Capability Registry (Dynamic Canonical Workers Snapshot)', () => {
     const registry = new RsiCapabilityRegistry();
 
-    it('reflects the exact 14 canonical deployed workers from live code', () => {
+    it('reflects the exact canonical deployed workers dynamically from live code', () => {
       const snapshot = registry.getLiveWorkerSnapshot();
-      expect(snapshot.length).toBe(14);
+      const expectedWorkerIds = workerRegistry.getAllWorkers().map((w) => w.id);
+      expect(snapshot.length).toBe(expectedWorkerIds.length);
       const workerIds = snapshot.map((w) => w.worker_id);
+      expect(new Set(workerIds)).toEqual(new Set(expectedWorkerIds));
       expect(workerIds).toContain('worker_analytics_performance');
       expect(workerIds).toContain('worker_accounts_tax');
       expect(workerIds).toContain('worker_marketing');
+      expect(workerIds).toContain('worker_performance_intelligence');
+      expect(workerIds).toContain('worker_security_intelligence');
     });
 
     it('accurately identifies whether a capability is already covered', () => {

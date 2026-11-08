@@ -65,7 +65,20 @@ export async function GET(req: NextRequest) {
           audit_payload: report,
           created_at: report.generatedAt,
         });
-      } catch {}
+      } catch (dbErr: any) {
+        console.error(
+          '[WorkforcePerformanceAuditCron] DB persistence failed:',
+          dbErr
+        );
+        return NextResponse.json(
+          {
+            success: false,
+            error: 'Failed to persist audit snapshots to database',
+            details: dbErr?.message || String(dbErr),
+          },
+          { status: 500 }
+        );
+      }
     }
 
     return NextResponse.json({

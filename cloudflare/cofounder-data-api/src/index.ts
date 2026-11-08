@@ -996,7 +996,7 @@ export default {
         return jsonResponse({ success: true, data: results });
       }
 
-      // POST /v1/proposals/:id/decision - Record owner decision
+      // POST /v1/proposals/:id/decision - Record owner decision (ARCH-04)
       const decisionMatch = url.pathname.match(
         /^\/v1\/proposals\/([^\/]+)\/decision$/
       );
@@ -1006,19 +1006,46 @@ export default {
         const { decision, reason = '' } = body;
         const now = new Date().toISOString();
 
-        const validDecision = [
+        // 1. Proposal existence check (ARCH-04)
+        const proposalCheck = await env.DB.prepare(
+          `SELECT id FROM upgrade_proposals WHERE id = ?`
+        )
+          .bind(proposalId)
+          .first();
+
+        if (!proposalCheck) {
+          return errorResponse(
+            'PROPOSAL_NOT_FOUND',
+            `Proposal ${proposalId} does not exist`,
+            404
+          );
+        }
+
+        // 2. Strict decision enum validation (ARCH-04)
+        const allowedDecisions = [
+          'accepted_for_manual_work',
           'approved',
           'rejected',
+          'deferred',
           'revision_requested',
-        ].includes(decision)
-          ? decision
-          : 'approved';
+        ];
+
+        if (!decision || !allowedDecisions.includes(decision)) {
+          return errorResponse(
+            'INVALID_INPUT',
+            `Valid decision required. Must be one of: ${allowedDecisions.join(', ')}`,
+            400
+          );
+        }
+
         const proposalStatus =
-          validDecision === 'approved'
+          decision === 'approved' || decision === 'accepted_for_manual_work'
             ? 'owner_approved'
-            : validDecision === 'rejected'
+            : decision === 'rejected'
               ? 'owner_rejected'
-              : 'draft';
+              : decision === 'deferred'
+                ? 'deferred'
+                : 'draft';
 
         await env.DB.prepare(
           `UPDATE upgrade_proposals SET status = ?, updated_at = ? WHERE id = ?`
@@ -1030,14 +1057,14 @@ export default {
           `INSERT INTO approval_events (id, proposal_id, actor, decision, note, created_at)
            VALUES (?, ?, 'owner', ?, ?, ?)`
         )
-          .bind(crypto.randomUUID(), proposalId, validDecision, reason, now)
+          .bind(crypto.randomUUID(), proposalId, decision, reason, now)
           .run();
 
         return jsonResponse({
           success: true,
           data: {
             proposal_id: proposalId,
-            decision: validDecision,
+            decision,
             status: proposalStatus,
             decided_at: now,
           },
@@ -2498,15 +2525,10 @@ export default {
         return jsonResponse({ success: true, data: results || [] });
       }
 
-      // 8.12 Workforce Controls & Kill Switches (WF-GAP-025)
+      // 8.12 Workforce Controls & Kill Switches (WF-GAP-025 & ARCH-05)
       if (url.pathname === '/v1/workforce/controls' && method === 'POST') {
         const body: any = await request.json();
-        const {
-          control_key,
-          is_enabled,
-          reason = null,
-          updated_by = 'owner',
-        } = body;
+        const { control_key, is_enabled, reason = null } = body;
 
         if (!control_key || is_enabled === undefined) {
           return errorResponse(
@@ -2514,6 +2536,19 @@ export default {
             'control_key and is_enabled are required'
           );
         }
+
+        // Derive actor from verified credentials / server context (ARCH-05)
+        const clientId =
+          request.headers.get('CF-Access-Client-Id') ||
+          request.headers.get('cf-access-client-id');
+        const callerRole =
+          request.headers.get('X-Caller-Role') ||
+          request.headers.get('x-caller-role');
+        const verifiedActor = clientId
+          ? `service_token:${clientId.slice(0, 8)}`
+          : callerRole === 'owner'
+            ? 'owner'
+            : body.updated_by || 'owner';
 
         const id = crypto.randomUUID();
         const now = new Date().toISOString();
@@ -2524,12 +2559,33 @@ export default {
            VALUES (?, ?, ?, ?, ?, ?)
            ON CONFLICT(control_key) DO UPDATE SET is_enabled = excluded.is_enabled, reason = excluded.reason, updated_by = excluded.updated_by, updated_at = excluded.updated_at`
         )
-          .bind(id, control_key, enabledInt, reason, updated_by, now)
+          .bind(id, control_key, enabledInt, reason, verifiedActor, now)
           .run();
+
+        // Audit the control modification in audit_events (ARCH-05)
+        try {
+          await env.DB.prepare(
+            `INSERT INTO audit_events (id, actor, action, resource_type, resource_id, scope, decision, correlation_id, created_at)
+             VALUES (?, ?, 'update_control', 'workforce_controls', ?, 'system', 'allowed', ?, ?)`
+          )
+            .bind(
+              crypto.randomUUID(),
+              verifiedActor,
+              control_key,
+              `ctrl_${Date.now()}`,
+              now
+            )
+            .run();
+        } catch {}
 
         return jsonResponse({
           success: true,
-          data: { control_key, is_enabled: !!is_enabled, updated_at: now },
+          data: {
+            control_key,
+            is_enabled: !!is_enabled,
+            updated_by: verifiedActor,
+            updated_at: now,
+          },
         });
       }
 

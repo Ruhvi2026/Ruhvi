@@ -6,17 +6,14 @@ import {
   TaskVerificationResult,
   WorkforcePlan,
   WorkforceSignal,
-  WorkforceTask,
 } from './types';
 import { getWorkforceConfig, isGlobalKillSwitchActive } from './config';
 import { workforceSignalNormalizer } from './signals';
 import { workforceGoalDiscovery } from './goal-discovery';
 import { workforcePlanner } from './planner';
-import { workforcePolicyEngine } from './policy-engine';
-import { workforceDelegationBroker } from './delegation-broker';
 import { workforceAgentRunner, WorkforceTaskRunResult } from './agent-runner';
 import { workforceVerifier } from './verifier';
-import { getAllWorkerManifests, getWorkerManifest } from './manifests';
+import { getAllWorkerManifests } from './manifests';
 
 export * from './types';
 export * from './config';
@@ -62,7 +59,17 @@ export class AutonomousWorkforceCoordinator {
   ): Promise<AutonomousWorkforceCycleResult> {
     const config = getWorkforceConfig();
 
-    // 1. Kill switch check
+    // 1. Enablement & Kill switch check (WF-01)
+    if (!config.enabled) {
+      return {
+        signal: rawSignal as WorkforceSignal,
+        goals: [],
+        status: 'KILLED',
+        summary:
+          'Workforce cycle aborted: Autonomous workforce is disabled via WORKFORCE_ENABLED flag.',
+      };
+    }
+
     if (isGlobalKillSwitchActive()) {
       return {
         signal: rawSignal as WorkforceSignal,

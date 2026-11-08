@@ -8,7 +8,7 @@
     "deploy": "wrangler deploy",
     "deploy:staging": "wrangler deploy --env staging",
     "typecheck": "tsc --noEmit",
-    "test": "tsc --noEmit"
+    "test": "npx jest src/__tests__/worker.test.ts --config ../../jest.config.js --runInBand"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20241104.0",

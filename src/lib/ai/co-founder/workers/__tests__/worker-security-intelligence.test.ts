@@ -149,8 +149,42 @@ describe('Security Intelligence Worker & File Inspector', () => {
         },
       });
       expect(output.requiredApproval).toBe(true);
-      expect(output.requiredAction).toBe('quarantine_uploaded_file');
+      expect(output.requiredAction).toBe('quarantine_file');
       expect(output.executionStatus).toBe('pending_approval');
+    });
+
+    it('fails closed when fileBuffer is missing in parameters (SEC-P0-004)', async () => {
+      const output = await securityIntelligenceWorker.execute({
+        task: 'Inspect file upload without buffer payload',
+        parameters: {
+          filename: 'missing.jpg',
+          mime: 'image/jpeg',
+        },
+      });
+      expect(output.executionStatus).toBe('failed');
+      expect(output.requiredAction).toBe('reject_upload');
+      expect(output.problems[0]).toContain(
+        'Cannot verify file safety without payload bytes'
+      );
+    });
+
+    it('rejects perimeter containment on loopback and private IPs (SEC-P1-005)', async () => {
+      const output = await securityIntelligenceWorker.execute({
+        task: 'Investigate suspicious activity from loopback IP',
+        parameters: { ip: '127.0.0.1', incidentType: 'test_loopback' },
+      });
+      expect(output.executionStatus).toBe('failed');
+      expect(output.requiredAction).toBe('reject_containment');
+      expect(output.findings[1]).toContain('Target is an internal loopback');
+    });
+
+    it('aborts investigation when no target IP is provided (SEC-P1-005)', async () => {
+      const output = await securityIntelligenceWorker.execute({
+        task: 'Investigate attack without target IP',
+        parameters: {},
+      });
+      expect(output.executionStatus).toBe('failed');
+      expect(output.requiredAction).toBe('insufficient_evidence');
     });
   });
 });

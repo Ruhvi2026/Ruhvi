@@ -38,7 +38,14 @@ describe('Worker: Performance Intelligence Worker', () => {
     expect(result.data).toBeDefined();
     expect(result.data?.report).toBeDefined();
     expect(result.data?.report.populationSummary).toBeDefined();
-    expect(result.data?.report.scorecards.length).toBeGreaterThan(0);
+    expect(result.data?.report.scorecards.length).toBe(
+      workerRegistry.getAllWorkers().length
+    );
+    const auditedIds = (result.data?.report.scorecards || []).map(
+      (c: any) => c.memberId
+    );
+    expect(auditedIds).toContain('worker_performance_intelligence');
+    expect(auditedIds).toContain('worker_security_intelligence');
   });
 
   it('generates target scorecard for a specific AI worker', async () => {

@@ -52,9 +52,16 @@ export function validateServiceAuth(
       }
 
       // Validate Audience (must match configured Access application)
-      const expectedAud = (env as any).ACCESS_AUD || EXPECTED_AUD;
-      if (payload.aud !== expectedAud) {
-        return { authorized: false, reason: 'Invalid Access JWT audience' };
+      const expectedAud =
+        (env as any).ACCESS_AUD ||
+        (env.ENVIRONMENT === 'dev' || env.ENVIRONMENT === 'test'
+          ? EXPECTED_AUD
+          : undefined);
+      if (!expectedAud || payload.aud !== expectedAud) {
+        return {
+          authorized: false,
+          reason: 'Invalid or unconfigured Access JWT audience',
+        };
       }
 
       // Validate Expiration
@@ -63,15 +70,20 @@ export function validateServiceAuth(
         return { authorized: false, reason: 'Expired Access JWT assertion' };
       }
 
-      // Validate Service Token identity
-      const expectedClientId = env.ACCESS_CLIENT_ID || DESIGNATED_CLIENT_ID;
+      // Validate Service Token identity (ARCH-01: reject if common_name missing)
+      const expectedClientId =
+        env.ACCESS_CLIENT_ID ||
+        (env.ENVIRONMENT === 'dev' || env.ENVIRONMENT === 'test'
+          ? DESIGNATED_CLIENT_ID
+          : undefined);
       if (
-        payload.common_name &&
+        !expectedClientId ||
+        !payload.common_name ||
         !timingSafeEqual(payload.common_name, expectedClientId)
       ) {
         return {
           authorized: false,
-          reason: 'Unauthorized Service Token common name',
+          reason: 'Unauthorized or missing Service Token common name',
         };
       }
 
@@ -93,8 +105,12 @@ export function validateServiceAuth(
     request.headers.get('cf-access-client-secret');
 
   if (clientId && clientSecret) {
-    const expectedClientId = env.ACCESS_CLIENT_ID || DESIGNATED_CLIENT_ID;
-    if (env.ACCESS_CLIENT_SECRET) {
+    const expectedClientId =
+      env.ACCESS_CLIENT_ID ||
+      (env.ENVIRONMENT === 'dev' || env.ENVIRONMENT === 'test'
+        ? DESIGNATED_CLIENT_ID
+        : undefined);
+    if (env.ACCESS_CLIENT_SECRET && expectedClientId) {
       const idMatch = timingSafeEqual(clientId, expectedClientId);
       const secretMatch = timingSafeEqual(
         clientSecret,
@@ -120,12 +136,25 @@ export function validateServiceAuth(
     request.headers.get('authorization');
   if (authHeader && authHeader.startsWith('Bearer ')) {
     const token = authHeader.substring(7).trim();
+    const url = new URL(request.url);
+
+    // ARCH-02: Scoped CI Scanner Token - restricted strictly to security ingest paths
     if (
       env.CF_SECURITY_INGEST_TOKEN &&
       timingSafeEqual(token, env.CF_SECURITY_INGEST_TOKEN)
     ) {
-      return { authorized: true };
+      if (
+        url.pathname.startsWith('/v1/security/scans') ||
+        url.pathname.startsWith('/v1/security/events')
+      ) {
+        return { authorized: true };
+      }
+      return {
+        authorized: false,
+        reason: 'Security Ingest Token is restricted to security routes only',
+      };
     }
+
     if (
       env.COFOUNDER_WORKFORCE_SECRET &&
       timingSafeEqual(token, env.COFOUNDER_WORKFORCE_SECRET)

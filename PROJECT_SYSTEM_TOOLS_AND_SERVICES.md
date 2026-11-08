@@ -448,7 +448,7 @@ Authoritative architectural record of the Human-Governed Recursive Self-Improvem
 1. **Persistent Memory Manager** ([`src/lib/ai/co-founder/rsi/memory-manager.ts`](file:///c:/Users/INDIA/Desktop/Project%20Ruhvi/src/lib/ai/co-founder/rsi/memory-manager.ts)): Manages explicit user instructions, preferences, project facts, and verified lessons. Enforces scope precedence (narrow task exception overrides broad global preference without erasing history; candidate lessons cannot overwrite user instructions).
 2. **Self-Observer & Redaction** ([`src/lib/ai/co-founder/rsi/self-observer.ts`](file:///c:/Users/INDIA/Desktop/Project%20Ruhvi/src/lib/ai/co-founder/rsi/self-observer.ts)): Captures compact execution telemetry into Cloudflare D1 `run_events`. Automatically scrubs email addresses, Indian phone numbers, and secret service tokens (`cfast_...`, `cfut_...`).
 3. **Reflection & Learning Engine** ([`src/lib/ai/co-founder/rsi/reflection-engine.ts`](file:///c:/Users/INDIA/Desktop/Project%20Ruhvi/src/lib/ai/co-founder/rsi/reflection-engine.ts)): Converts failure events into testable candidate lessons. Enforces a strict promotion gate requiring at least 2 test runs with $\ge 90\%$ pass rate before promoting to `verified_lessons`.
-4. **Capability Registry** ([`src/lib/ai/co-founder/rsi/capability-registry.ts`](file:///c:/Users/INDIA/Desktop/Project%20Ruhvi/src/lib/ai/co-founder/rsi/capability-registry.ts)): Reflects the canonical 14 deployed workers (`worker_analytics_performance` through `worker_accounts_tax`) directly from live code; guarantees that database records cannot execute arbitrary code.
+4. **Capability Registry** ([`src/lib/ai/co-founder/rsi/capability-registry.ts`](file:///c:/Users/INDIA/Desktop/Project%20Ruhvi/src/lib/ai/co-founder/rsi/capability-registry.ts)): Dynamically reflects all 16 canonical deployed workers directly from live code `WorkerRegistry`; guarantees that database records cannot execute arbitrary code.
 5. **Research & Discovery Engine** ([`src/lib/ai/co-founder/rsi/research-engine.ts`](file:///c:/Users/INDIA/Desktop/Project%20Ruhvi/src/lib/ai/co-founder/rsi/research-engine.ts)): Bounded external research with SSRF blocking (localhost, private subnets, cloud metadata) and prompt-injection neutralization. Stores findings in Cloudflare D1 (`research_projects`, `research_findings`).
 6. **Capability Gap Detector** ([`src/lib/ai/co-founder/rsi/gap-detector.ts`](file:///c:/Users/INDIA/Desktop/Project%20Ruhvi/src/lib/ai/co-founder/rsi/gap-detector.ts)): Multi-factor priority scoring formula (`(impact * confidence * urgency * recurrence) / (effort * (1 + risk_penalty))`) and 5-tier recommendation hierarchy.
 7. **Evaluation Lab** ([`src/lib/ai/co-founder/rsi/eval-lab.ts`](file:///c:/Users/INDIA/Desktop/Project%20Ruhvi/src/lib/ai/co-founder/rsi/eval-lab.ts)): Golden test suites with English, Bengali, and Banglish test fixtures. Offline evaluation replay with regression detection.
@@ -466,7 +466,7 @@ Authoritative architectural record of the Human-Governed Recursive Self-Improvem
 
 ## 16. Supervised Autonomous Worker Workforce Subsystem
 
-Authoritative architectural record of the Supervised Autonomous Worker Workforce Subsystem implemented around the AI Co-Founder and 14 registered specialist workers (8 November 2026):
+Authoritative architectural record of the Supervised Autonomous Worker Workforce Subsystem implemented around the AI Co-Founder and 16 registered specialist workers (8 November 2026):
 
 ### A. Core Architecture & Safety Boundary
 - **Co-Founder Brain as Sole Supervisor**: The existing AI Co-Founder (`src/lib/ai/co-founder/brain.ts` and `orchestrator.ts`) acts as the root coordinator. Individual autonomous workers cannot self-spawn, self-modify code, deploy, mutate database DDL, or bypass policy controls.
@@ -514,4 +514,46 @@ Authoritative architectural record of the Supervised Autonomous Worker Workforce
     - **Section 5.4**: Added cooperative cancellation (`AbortController` / `AbortSignal`) in `collaboration-gateway.ts` to cleanly abort timed-out consultations.
     - **Section 5.5 & WF-GAP-016**: Removed `Math.random()` synthetic telemetry in `status-builder.ts`; `dispatcher.ts` reports truthful `'REGISTERED'` operational status.
     - **Section 5.6 & WF-GAP-012**: Replaced synthetic hardcoded scopes in `worker-11-execution.ts` with authenticated caller scopes.
+
+---
+
+## 17. AI Co-Founder Architecture & RSI Master Gap-Closure Remediations (8 Nov 2026)
+
+Authoritative architectural record of the master gap-closure audit executed per `RUHVI_COFUNDER_ARCHITECTURE_RSI_WORKFORCE_MASTER_IMPLEMENTATION_RUNBOOK_2026-11-08.md`:
+
+1. **TEST-03 & RSI-06 (Dynamic Canonical 16-Worker Registry Set Equality)**:
+   - `WorkerRegistry` in [`src/lib/ai/co-founder/workers/registry.ts`](file:///c:/Users/INDIA/Desktop/Project%20Ruhvi/src/lib/ai/co-founder/workers/registry.ts) is the single executable source of truth for all 16 canonical workers.
+   - Removed hardcoded snapshot count (`14`) from `rsi-subsystem.test.ts` and `capability-registry.ts`. Dynamic set equality asserts exact match against live `WorkerRegistry.getAllWorkers()`.
+
+2. **PERF-03 (Dynamic Roster in Performance Intelligence Worker)**:
+   - Updated [`src/lib/ai/co-founder/workers/worker-performance-intelligence.ts`](file:///c:/Users/INDIA/Desktop/Project%20Ruhvi/src/lib/ai/co-founder/workers/worker-performance-intelligence.ts) to dynamically derive the AI workers roster from `workerRegistry.getAllDefinitions()`, ensuring all 16 workers (including performance and security intelligence) are continuously audited.
+
+3. **PERF-01 & PERF-02 (Performance Data Access Truthful Telemetry)**:
+   - In [`src/lib/ai/co-founder/workers/performance/data-access.ts`](file:///c:/Users/INDIA/Desktop/Project%20Ruhvi/src/lib/ai/co-founder/workers/performance/data-access.ts), removed silent in-memory fallback in production. If the database returns an insert error or connectivity failure, it logs and returns `false`, preventing false-positive success reporting. In-memory fallback is restricted strictly to unit testing (`process.env.NODE_ENV === 'test'`).
+
+4. **PERF-04 (Performance Cron & Error Visibility)**:
+   - Added `/api/cron/workforce-performance-audit` to [`vercel.json`](file:///c:/Users/INDIA/Desktop/Project%20Ruhvi/vercel.json) scheduled daily (`0 5 * * *`).
+   - Hardened [`src/app/api/cron/workforce-performance-audit/route.ts`](file:///c:/Users/INDIA/Desktop/Project%20Ruhvi/src/app/api/cron/workforce-performance-audit/route.ts) to remove empty `catch {}` blocks and return HTTP 500 with descriptive error details if snapshot persistence fails.
+
+5. **ARCH-04 (Proposal Decision Enum & Existence Validation)**:
+   - Hardened `POST /v1/proposals/:id/decision` in [`cloudflare/cofounder-data-api/src/index.ts`](file:///c:/Users/INDIA/Desktop/Project%20Ruhvi/cloudflare/cofounder-data-api/src/index.ts).
+   - Validates proposal existence (returns HTTP 404 `PROPOSAL_NOT_FOUND` if missing).
+   - Enforces strict canonical decision enum (`accepted_for_manual_work`, `approved`, `rejected`, `deferred`, `revision_requested`). Unknown decisions return HTTP 400 `INVALID_INPUT` and never default to approved.
+
+6. **ARCH-05 (Workforce Controls Actor Derivation)**:
+   - In `POST /v1/workforce/controls`, `updated_by` is derived from verified server credentials (`CF-Access-Client-Id` or verified caller role) rather than blindly trusting the request payload body. Modifications are logged to `audit_events`.
+
+7. **ARCH-06 (RSI Feature Flag Fail-Closed Enforcement)**:
+   - In [`src/lib/ai/co-founder/rsi/governance.ts`](file:///c:/Users/INDIA/Desktop/Project%20Ruhvi/src/lib/ai/co-founder/rsi/governance.ts), if `config.enabled` is `false`, all active RSI operations immediately fail closed, regardless of whether `dryRun` is enabled.
+   - Updated [`src/lib/ai/co-founder/rsi/config.ts`](file:///c:/Users/INDIA/Desktop/Project%20Ruhvi/src/lib/ai/co-founder/rsi/config.ts) to safely default in test environments while strictly requiring explicit `RSI_ENABLED=true` in production.
+
+8. **WF-01 (Workforce Coordinator Enablement Enforcement)**:
+   - In [`src/lib/ai/co-founder/workforce/index.ts`](file:///c:/Users/INDIA/Desktop/Project%20Ruhvi/src/lib/ai/co-founder/workforce/index.ts), `AutonomousWorkforceCoordinator.processIncomingSignal()` checks `config.enabled`. If disabled, it immediately aborts the cycle with status `'KILLED'`.
+
+9. **ARCH-01, ARCH-02 & SEC-02 (Scoped Ingest Token & Edge Auth Hardening)**:
+   - In [`cloudflare/cofounder-data-api/src/auth.ts`](file:///c:/Users/INDIA/Desktop/Project%20Ruhvi/cloudflare/cofounder-data-api/src/auth.ts), `CF_SECURITY_INGEST_TOKEN` is strictly scoped to `/v1/security/scans` and `/v1/security/events`. Any attempt by scanner tokens to access general memory, proposals, or workforce endpoints is rejected.
+   - Removed broad CORS wildcard `*` from sensitive server-to-server internal API endpoints.
+
+10. **TEST-01 (Cloudflare Worker Test Runner Script)**:
+    - In [`cloudflare/cofounder-data-api/package.json`](file:///c:/Users/INDIA/Desktop/Project%20Ruhvi/cloudflare/cofounder-data-api/package.json), updated `"test"` script from `tsc --noEmit` to execute the full Jest worker test suite with non-zero exit code on failure. Added test step to [`.github/workflows/ci.yml`](file:///c:/Users/INDIA/Desktop/Project%20Ruhvi/.github/workflows/ci.yml).
 

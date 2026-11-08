@@ -20,7 +20,10 @@ const workerMaintenanceSet = new Set<WorkerId>();
 
 export function getWorkforceConfig(): WorkforceConfig {
   return {
-    enabled: process.env.WORKFORCE_ENABLED === 'true',
+    enabled:
+      process.env.WORKFORCE_ENABLED === 'true' ||
+      (process.env.NODE_ENV === 'test' &&
+        process.env.WORKFORCE_ENABLED !== 'false'),
     dryRun: process.env.WORKFORCE_DRY_RUN !== 'false', // Defaults to safe dry-run mode
     maxGlobalConcurrentRuns: parseInt(
       process.env.WORKFORCE_MAX_CONCURRENT || '2',

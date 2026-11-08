@@ -1,7 +1,6 @@
 import 'server-only';
 import {
   PerformanceEvent,
-  MemberScorecard,
   WorkforceAlert,
   AchievementPointTransaction,
   EntityType,
@@ -20,7 +19,6 @@ function getDb() {
 const IN_MEMORY_EVENTS: PerformanceEvent[] = [];
 const IN_MEMORY_POINTS: AchievementPointTransaction[] = [];
 const IN_MEMORY_ALERTS: WorkforceAlert[] = [];
-const IN_MEMORY_SNAPSHOTS: MemberScorecard[] = [];
 
 export class PerformanceDataAccess {
   /**
@@ -56,10 +54,25 @@ export class PerformanceDataAccess {
         });
 
         if (!error) return true;
+        if (process.env.NODE_ENV !== 'test') {
+          console.error(
+            '[PerformanceDataAccess] workforce_task_events insert error:',
+            error
+          );
+          return false;
+        }
       }
-    } catch {
-      // Fallback to in-memory ledger
+    } catch (err) {
+      if (process.env.NODE_ENV !== 'test') {
+        console.error(
+          '[PerformanceDataAccess] Database recordEvent failure:',
+          err
+        );
+        return false;
+      }
     }
+
+    // In-memory fallback allowed only in test environment (PERF-02)
 
     // Deduplicate in-memory
     const exists = IN_MEMORY_EVENTS.some((e) => e.eventId === event.eventId);
@@ -156,10 +169,25 @@ export class PerformanceDataAccess {
           idempotency_key: txn.idempotencyKey,
         });
         if (!error) return true;
+        if (process.env.NODE_ENV !== 'test') {
+          console.error(
+            '[PerformanceDataAccess] workforce_score_ledger insert error:',
+            error
+          );
+          return false;
+        }
       }
-    } catch {
-      // fallback
+    } catch (err) {
+      if (process.env.NODE_ENV !== 'test') {
+        console.error(
+          '[PerformanceDataAccess] Point transaction failure:',
+          err
+        );
+        return false;
+      }
     }
+
+    // Fallback to in-memory only in test environment
 
     const exists = IN_MEMORY_POINTS.some(
       (p) => p.idempotencyKey === txn.idempotencyKey

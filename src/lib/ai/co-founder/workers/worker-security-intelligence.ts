@@ -86,7 +86,12 @@ export class SecurityIntelligenceWorker implements AIWorkerInterface {
     if (
       taskLower.includes('incident') ||
       taskLower.includes('attack') ||
-      taskLower.includes('brute force')
+      taskLower.includes('brute force') ||
+      taskLower.includes('investigate') ||
+      taskLower.includes('threat') ||
+      taskLower.includes('containment') ||
+      params.ip ||
+      params.incidentType
     ) {
       return this.handleIncidentInvestigation(input);
     }
@@ -112,22 +117,96 @@ export class SecurityIntelligenceWorker implements AIWorkerInterface {
     const mime = params.mime || 'application/octet-stream';
     const rawBuffer = params.fileBuffer;
 
+    // SEC-P0-004: Strict fail-closed when payload bytes are missing
+    if (!rawBuffer) {
+      return {
+        workerId: this.id,
+        workerName: this.name,
+        task: input.task,
+        findings: [
+          `File name: ${filename}`,
+          'Error: Missing fileBuffer in task parameters. Zero bytes received for inspection.',
+        ],
+        evidence: ['Status:MISSING_PAYLOAD'],
+        problems: [
+          'Cannot verify file safety without payload bytes (SEC-P0-004 fail-closed).',
+        ],
+        opportunities: [],
+        recommendations: [
+          'Reject upload immediately when fileBuffer is missing.',
+        ],
+        priority: 'high',
+        executionStatus: 'failed',
+        requiredApproval: false,
+        requiredAction: 'reject_upload',
+        expectedImpact: 'Prevented unverified upload from proceeding',
+        verification: 'Failed: Missing file buffer',
+        executiveVoiceSummary:
+          'File inspection failed: No file buffer received.',
+        timestamp: new Date().toISOString(),
+      };
+    }
+
     let inspection: FileInspectionResult;
 
-    if (rawBuffer instanceof Uint8Array) {
-      inspection = await inspectFilePayload(filename, mime, rawBuffer);
-    } else if (typeof rawBuffer === 'string') {
-      // Decode base64
-      const binaryStr = atob(rawBuffer);
-      const bytes = new Uint8Array(binaryStr.length);
-      for (let i = 0; i < binaryStr.length; i++) {
-        bytes[i] = binaryStr.charCodeAt(i);
+    try {
+      if (rawBuffer instanceof Uint8Array) {
+        inspection = await inspectFilePayload(filename, mime, rawBuffer);
+      } else if (typeof rawBuffer === 'string') {
+        // Decode base64
+        const binaryStr = atob(rawBuffer);
+        const bytes = new Uint8Array(binaryStr.length);
+        for (let i = 0; i < binaryStr.length; i++) {
+          bytes[i] = binaryStr.charCodeAt(i);
+        }
+        inspection = await inspectFilePayload(filename, mime, bytes);
+      } else {
+        return {
+          workerId: this.id,
+          workerName: this.name,
+          task: input.task,
+          findings: [
+            `File name: ${filename}`,
+            'Error: Unsupported fileBuffer format. Expected Uint8Array or base64 string.',
+          ],
+          evidence: ['Status:INVALID_BUFFER_FORMAT'],
+          problems: ['Unsupported payload buffer type.'],
+          opportunities: [],
+          recommendations: ['Provide valid Uint8Array or base64 string.'],
+          priority: 'high',
+          executionStatus: 'failed',
+          requiredApproval: false,
+          requiredAction: 'reject_upload',
+          expectedImpact: 'Prevented malformed payload upload',
+          verification: 'Failed: Invalid buffer format',
+          executiveVoiceSummary:
+            'File inspection rejected due to invalid buffer format.',
+          timestamp: new Date().toISOString(),
+        };
       }
-      inspection = await inspectFilePayload(filename, mime, bytes);
-    } else {
-      // Safe fallback test mode
-      const dummyBytes = new Uint8Array([0xff, 0xd8, 0xff, 0xe0]);
-      inspection = await inspectFilePayload(filename, mime, dummyBytes);
+    } catch (err: any) {
+      return {
+        workerId: this.id,
+        workerName: this.name,
+        task: input.task,
+        findings: [
+          `File name: ${filename}`,
+          `Inspection error: ${err?.message || 'Failed to parse file buffer'}`,
+        ],
+        evidence: ['Status:INSPECTION_EXCEPTION'],
+        problems: ['File inspection exception occurred (fail-closed).'],
+        opportunities: [],
+        recommendations: ['Quarantine file due to inspection failure.'],
+        priority: 'critical',
+        executionStatus: 'failed',
+        requiredApproval: true,
+        requiredAction: 'reject_upload',
+        expectedImpact: 'Prevented unverified file upload',
+        verification: 'Failed: Inspection exception',
+        executiveVoiceSummary:
+          'File inspection encountered an error and failed closed.',
+        timestamp: new Date().toISOString(),
+      };
     }
 
     const isSafe = inspection.safe;
@@ -166,7 +245,7 @@ export class SecurityIntelligenceWorker implements AIWorkerInterface {
       priority: isSafe ? 'low' : 'critical',
       executionStatus: isSafe ? 'executed' : 'pending_approval',
       requiredApproval: !isSafe,
-      requiredAction: isSafe ? 'allow_upload' : 'quarantine_uploaded_file',
+      requiredAction: isSafe ? 'allow_upload' : 'quarantine_file',
       expectedImpact: isSafe
         ? 'File verified clean'
         : 'Malware quarantined before reaching storage',
@@ -185,19 +264,89 @@ export class SecurityIntelligenceWorker implements AIWorkerInterface {
   ): Promise<WorkerStructuredOutput> {
     const params = input.parameters || {};
     const incidentType = params.incidentType || 'runtime_threat_anomaly';
-    const ip = params.ip || '127.0.0.1';
+    const targetIp = params.ip ? String(params.ip).trim() : '';
+
+    // SEC-P1-005: Do not default to 127.0.0.1 or fabricate target entities
+    if (!targetIp) {
+      return {
+        workerId: this.id,
+        workerName: this.name,
+        task: input.task,
+        findings: [
+          'Target Entity: None specified',
+          'Status: Insufficient evidence. No target IP or correlation event provided for containment.',
+        ],
+        evidence: ['Status:NO_TARGET_SPECIFIED'],
+        problems: [
+          'Cannot trigger containment without verified target entity.',
+        ],
+        opportunities: [],
+        recommendations: [
+          'Provide explicit target IP or correlation event ID to evaluate threat.',
+        ],
+        priority: 'medium',
+        executionStatus: 'failed',
+        requiredApproval: false,
+        requiredAction: 'insufficient_evidence',
+        expectedImpact: 'No action taken without verified target',
+        verification: 'Aborted: Missing target entity',
+        executiveVoiceSummary:
+          'Incident investigation aborted: No target IP provided.',
+        timestamp: new Date().toISOString(),
+      };
+    }
+
+    const isLoopbackOrPrivate =
+      targetIp === '127.0.0.1' ||
+      targetIp === 'localhost' ||
+      targetIp === '::1' ||
+      targetIp.startsWith('10.') ||
+      targetIp.startsWith('192.168.') ||
+      targetIp.startsWith('172.16.') ||
+      targetIp.startsWith('172.31.');
+
+    if (isLoopbackOrPrivate) {
+      return {
+        workerId: this.id,
+        workerName: this.name,
+        task: input.task,
+        findings: [
+          `Target Entity: ${targetIp}`,
+          'Status: Target is an internal loopback or private subnet IP. External perimeter blocking prohibited.',
+        ],
+        evidence: [`Target:${targetIp}`, 'Type:INTERNAL_OR_LOOPBACK'],
+        problems: [
+          `Cannot block internal/loopback entity ${targetIp} via edge firewall.`,
+        ],
+        opportunities: [],
+        recommendations: [
+          'Investigate internal server origin or client proxy headers.',
+        ],
+        priority: 'high',
+        executionStatus: 'failed',
+        requiredApproval: false,
+        requiredAction: 'reject_containment',
+        expectedImpact:
+          'Prevented accidental self-denial of service on loopback address',
+        verification: 'Rejected: Internal target IP',
+        executiveVoiceSummary: `Containment rejected: ${targetIp} is an internal/loopback IP.`,
+        timestamp: new Date().toISOString(),
+      };
+    }
 
     const findings = [
-      `Target Entity: ${ip}`,
+      `Target Entity: ${targetIp}`,
       `Classification: ${incidentType}`,
       'Correlation Engine: Evaluated against Cloudflare WAF, Access JWKS, and D1 event receipts',
       'Containment Tier: T1_REVERSIBLE_CONTAINMENT (Temporary 30-min rate-limit / IP block)',
     ];
 
-    const problems = [`Elevated threat signals observed from entity ${ip}`];
+    const problems = [
+      `Elevated threat signals observed from entity ${targetIp}`,
+    ];
 
     const recommendations = [
-      `Apply autonomous reversible temporary rate-limiting for IP ${ip}`,
+      `Apply autonomous reversible temporary rate-limiting for IP ${targetIp}`,
       'Monitor for subsequent distributed IP rotation across ASN',
     ];
 
@@ -206,7 +355,7 @@ export class SecurityIntelligenceWorker implements AIWorkerInterface {
       workerName: this.name,
       task: input.task,
       findings,
-      evidence: [`Target:${ip}`, `Policy:T1_REVERSIBLE_CONTAINMENT`],
+      evidence: [`Target:${targetIp}`, `Policy:T1_REVERSIBLE_CONTAINMENT`],
       problems,
       opportunities: [
         'Zero-cost automated containment without billable third-party WAF upgrades',
@@ -216,10 +365,10 @@ export class SecurityIntelligenceWorker implements AIWorkerInterface {
       executionStatus: 'executed',
       requiredApproval: false,
       requiredAction: 'temporary_ip_block',
-      expectedImpact: `Entity ${ip} temporarily throttled; customer traffic unaffected`,
+      expectedImpact: `Entity ${targetIp} temporarily throttled; customer traffic unaffected`,
       verification:
         'IP block registered in D1 security_blocked_entities with 30m TTL',
-      executiveVoiceSummary: `Containment active for entity ${ip}. Reversible rate-limit applied.`,
+      executiveVoiceSummary: `Containment active for entity ${targetIp}. Reversible rate-limit applied.`,
       timestamp: new Date().toISOString(),
     };
   }

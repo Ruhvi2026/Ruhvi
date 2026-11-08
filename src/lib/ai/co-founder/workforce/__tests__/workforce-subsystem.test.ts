@@ -659,5 +659,30 @@ describe('Autonomous Worker Workforce Subsystem', () => {
       expect(cycle.runResult?.success).toBe(true);
       expect(cycle.verification?.taskVerified).toBe(true);
     });
+
+    it('halts and aborts cycle when WORKFORCE_ENABLED is false (WF-01)', async () => {
+      const originalFlag = process.env.WORKFORCE_ENABLED;
+      try {
+        process.env.WORKFORCE_ENABLED = 'false';
+        const cycle =
+          await autonomousWorkforceCoordinator.processIncomingSignal(
+            {
+              sourceType: 'schedule',
+              sourceId: 'test_job',
+              eventType: 'test_event',
+            },
+            { dryRun: true }
+          );
+
+        expect(cycle.status).toBe('KILLED');
+        expect(cycle.summary).toContain('WORKFORCE_ENABLED');
+      } finally {
+        if (originalFlag === undefined) {
+          delete process.env.WORKFORCE_ENABLED;
+        } else {
+          process.env.WORKFORCE_ENABLED = originalFlag;
+        }
+      }
+    });
   });
 });

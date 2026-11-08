@@ -13,14 +13,11 @@ import {
   ScoreEngine,
   AnomalyDetector,
   ReportBuilder,
-  QualityEvaluator,
-  RecognitionEngine,
-  EventNormalizer,
-  EntityType,
   MemberScorecard,
   WorkforceAlert,
   PerformanceEvent,
 } from './performance';
+import { getAllWorkerManifests } from '../workforce/manifests';
 
 export class PerformanceIntelligenceWorker implements AIWorkerInterface {
   readonly id: WorkerId = 'worker_performance_intelligence';
@@ -68,7 +65,6 @@ export class PerformanceIntelligenceWorker implements AIWorkerInterface {
 
   async execute(input: WorkerTaskInput): Promise<WorkerStructuredOutput> {
     const timestamp = new Date().toISOString();
-    const taskLower = (input.task || '').toLowerCase();
     const params = input.parameters || {};
 
     const timeframe = input.timeframe || params.timeframe || '7d';
@@ -102,26 +98,12 @@ export class PerformanceIntelligenceWorker implements AIWorkerInterface {
         memberEventsMap.set(ev.memberId, list);
       });
 
-      // Default AI workers to audit if no events yet in DB
-      const standardAIWorkers: Array<{ id: WorkerId; role: string }> = [
-        { id: 'worker_analytics_performance', role: 'Analytics Specialist' },
-        { id: 'worker_marketing', role: 'Growth & Marketing' },
-        { id: 'worker_seo', role: 'Search Engine Optimization' },
-        { id: 'worker_product', role: 'Product Catalog & Pricing' },
-        { id: 'worker_competitor_research', role: 'Competitor Intelligence' },
-        { id: 'worker_sales_conversion', role: 'Sales Conversion' },
-        { id: 'worker_customer_support', role: 'Customer Concierge' },
-        { id: 'worker_content_blog', role: 'Content & Editorial' },
-        { id: 'worker_inventory', role: 'Inventory Control' },
-        { id: 'worker_review_feedback', role: 'Review Sentiment' },
-        { id: 'worker_execution', role: 'Execution & Engineering' },
-        {
-          id: 'worker_monitoring_verification',
-          role: 'Monitoring & Verification',
-        },
-        { id: 'worker_orders_logistics', role: 'Order Fulfillment' },
-        { id: 'worker_accounts_tax', role: 'Accounts & Compliance' },
-      ];
+      // Dynamic AI workers roster derived from Worker manifests (PERF-03 / Section 0.2)
+      const standardAIWorkers: Array<{ id: WorkerId; role: string }> =
+        getAllWorkerManifests().map((manifest) => ({
+          id: manifest.workerId,
+          role: manifest.displayName || 'Operational AI Specialist',
+        }));
 
       const scorecards: MemberScorecard[] = [];
       const allAlerts: WorkforceAlert[] = [];

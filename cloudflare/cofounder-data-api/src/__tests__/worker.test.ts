@@ -73,6 +73,11 @@ describe('Cloudflare Worker: cofounder-data-api (A-15)', () => {
               (g) => g.id === boundArgs[0]
             ) || null) as T;
           }
+          if (sql.includes('upgrade_proposals WHERE id = ?')) {
+            return (mockDbData.upgrade_proposals.find(
+              (p) => p.id === boundArgs[0]
+            ) || null) as T;
+          }
           // SELECT * FROM eval_runs WHERE id = ?
           if (sql.includes('eval_runs WHERE id = ?')) {
             return (mockDbData.eval_runs.find((r) => r.id === boundArgs[0]) ||
@@ -587,6 +592,21 @@ describe('Cloudflare Worker: cofounder-data-api (A-15)', () => {
       const res = await worker.fetch(req, mockEnv);
       expect(res.status).toBe(200);
     });
+
+    it('restricts security ingest token from accessing non-security routes (ARCH-02)', async () => {
+      mockEnv.CF_SECURITY_INGEST_TOKEN = 'mock-security-scan-token';
+      const req = new Request(
+        'https://cofounder-data.ruhvi.in/v1/workers/snapshot',
+        {
+          headers: {
+            Authorization: 'Bearer mock-security-scan-token',
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+      const res = await worker.fetch(req, mockEnv);
+      expect(res.status).toBe(401);
+    });
   });
 
   describe('2. Idempotency & Memory Management (A-01, A-04)', () => {
@@ -961,6 +981,67 @@ describe('Cloudflare Worker: cofounder-data-api (A-15)', () => {
       expect(patchRes.status).toBe(200);
       const patchJson = await patchRes.json();
       expect(patchJson.data.status).toBe('under_research');
+    });
+
+    it('rejects proposal decision when proposal does not exist (404) (ARCH-04)', async () => {
+      const req = new Request(
+        'https://cofounder-data.ruhvi.in/v1/proposals/non-existent-prop/decision',
+        {
+          method: 'POST',
+          headers: authedHeaders,
+          body: JSON.stringify({ decision: 'approved' }),
+        }
+      );
+      const res = await worker.fetch(req, mockEnv);
+      expect(res.status).toBe(404);
+    });
+
+    it('rejects invalid proposal decision enum with 400 (ARCH-04)', async () => {
+      const propId = 'prop_test_001';
+      mockDbData.upgrade_proposals.push({
+        id: propId,
+        title: 'Upgrade SEO Worker',
+        status: 'draft',
+      });
+
+      const req = new Request(
+        `https://cofounder-data.ruhvi.in/v1/proposals/${propId}/decision`,
+        {
+          method: 'POST',
+          headers: authedHeaders,
+          body: JSON.stringify({ decision: 'invalid_arbitrary_decision' }),
+        }
+      );
+      const res = await worker.fetch(req, mockEnv);
+      expect(res.status).toBe(400);
+      const json = await res.json();
+      expect(json.error.message).toContain('Valid decision required');
+    });
+
+    it('records valid proposal decision with exact enum (200) (ARCH-04)', async () => {
+      const propId = 'prop_test_valid_002';
+      mockDbData.upgrade_proposals.push({
+        id: propId,
+        title: 'Upgrade Security Worker',
+        status: 'draft',
+      });
+
+      const req = new Request(
+        `https://cofounder-data.ruhvi.in/v1/proposals/${propId}/decision`,
+        {
+          method: 'POST',
+          headers: authedHeaders,
+          body: JSON.stringify({
+            decision: 'accepted_for_manual_work',
+            reason: 'Reviewed and scheduled for manual sprint implementation',
+          }),
+        }
+      );
+      const res = await worker.fetch(req, mockEnv);
+      expect(res.status).toBe(200);
+      const json = await res.json();
+      expect(json.data.decision).toBe('accepted_for_manual_work');
+      expect(json.data.status).toBe('owner_approved');
     });
   });
 

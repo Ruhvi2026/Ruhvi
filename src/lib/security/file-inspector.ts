@@ -13,6 +13,7 @@ export interface FileInspectionResult {
   sha256: string;
   threat?: string;
   reason?: string;
+  inspectionMethod?: string;
 }
 
 const MAGIC_BYTES: Record<string, number[]> = {
@@ -114,6 +115,36 @@ export async function inspectFilePayload(
   declaredMime: string,
   buffer: Uint8Array
 ): Promise<FileInspectionResult> {
+  // 0. Boundary checks: empty buffer or oversized payload
+  if (!buffer || buffer.byteLength === 0) {
+    return {
+      safe: false,
+      originalFilename: filename,
+      originalMime: declaredMime,
+      detectedMime: 'application/x-empty',
+      fileSizeBytes: 0,
+      sha256: '',
+      threat: 'empty_file_payload',
+      reason: 'Empty file payload (zero bytes received)',
+      inspectionMethod: 'static_signature_screening',
+    };
+  }
+
+  const MAX_FILE_SIZE = 25 * 1024 * 1024; // 25 MB
+  if (buffer.byteLength > MAX_FILE_SIZE) {
+    return {
+      safe: false,
+      originalFilename: filename,
+      originalMime: declaredMime,
+      detectedMime: 'application/octet-stream',
+      fileSizeBytes: buffer.byteLength,
+      sha256: await computeBufferSha256(buffer.slice(0, 1024)),
+      threat: 'oversized_file_payload',
+      reason: `File size (${(buffer.byteLength / 1024 / 1024).toFixed(1)}MB) exceeds maximum allowed ceiling (25MB)`,
+      inspectionMethod: 'static_signature_screening',
+    };
+  }
+
   const sha256 = await computeBufferSha256(buffer);
   const lowerName = filename.toLowerCase();
 
@@ -129,6 +160,7 @@ export async function inspectFilePayload(
         sha256,
         threat: 'malicious_executable_extension',
         reason: `File contains forbidden executable extension: ${ext}`,
+        inspectionMethod: 'static_signature_screening',
       };
     }
   }
@@ -146,14 +178,15 @@ export async function inspectFilePayload(
       threat: 'unrecognized_magic_bytes',
       reason:
         'File binary header does not match any allowed image or document format',
+      inspectionMethod: 'static_signature_screening',
     };
   }
 
   // 3. MIME mismatch check (e.g. declaring image/jpeg but actually PDF or SVG)
-  const isImageMime =
+  const isImageOrPdf =
     declaredMime.startsWith('image/') || declaredMime === 'application/pdf';
   if (
-    isImageMime &&
+    isImageOrPdf &&
     declaredMime !== detectedMime &&
     !(declaredMime === 'image/jpg' && detectedMime === 'image/jpeg')
   ) {
@@ -166,6 +199,7 @@ export async function inspectFilePayload(
       sha256,
       threat: 'mime_type_spoofing',
       reason: `Declared MIME '${declaredMime}' does not match detected binary signature '${detectedMime}'`,
+      inspectionMethod: 'static_signature_screening',
     };
   }
 
@@ -183,17 +217,27 @@ export async function inspectFilePayload(
           sha256,
           threat: 'embedded_script_payload',
           reason: `SVG image contains dangerous active script pattern: ${pattern.toString()}`,
+          inspectionMethod: 'static_signature_screening',
         };
       }
     }
   }
 
-  // 5. Binary Polyglot check (search for embedded PHP / script tags inside binary files)
+  // 5. Binary Polyglot check (search head AND tail of binary file for embedded PHP / script tags)
   if (detectedMime.startsWith('image/')) {
-    const preview = new TextDecoder('ascii', { fatal: false }).decode(
+    const head = new TextDecoder('ascii', { fatal: false }).decode(
       buffer.slice(0, Math.min(buffer.length, 4096))
     );
-    if (/<\?php/i.test(preview) || /<script/i.test(preview)) {
+    const tail =
+      buffer.length > 4096
+        ? new TextDecoder('ascii', { fatal: false }).decode(buffer.slice(-4096))
+        : '';
+    if (
+      /<\?php/i.test(head) ||
+      /<script/i.test(head) ||
+      /<\?php/i.test(tail) ||
+      /<script/i.test(tail)
+    ) {
       return {
         safe: false,
         originalFilename: filename,
@@ -203,6 +247,7 @@ export async function inspectFilePayload(
         sha256,
         threat: 'polyglot_payload',
         reason: 'Image contains embedded PHP script tags or HTML script blocks',
+        inspectionMethod: 'static_signature_screening',
       };
     }
   }
@@ -214,5 +259,6 @@ export async function inspectFilePayload(
     detectedMime,
     fileSizeBytes: buffer.byteLength,
     sha256,
+    inspectionMethod: 'static_signature_screening',
   };
 }
