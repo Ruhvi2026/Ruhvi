@@ -20,6 +20,7 @@ import {
 import { assertRsiOperationAllowed } from './governance';
 import { researchProviderRouter } from './provider-router';
 import { evidenceLedger } from './evidence-ledger';
+import { withCoFounderSpan } from '../tracing';
 
 export class RsiResearchEngine {
   private client = getCofounderDataClient();
@@ -124,20 +125,34 @@ export class RsiResearchEngine {
     assertRsiOperationAllowed('research_read');
 
     const sanitizedQuery = this.sanitizeExternalContent(options.query || '');
-    const searchRes = await this.router.search({
-      ...options,
-      query: sanitizedQuery,
-    });
 
-    // Sanitize snippets from untrusted web sources
-    return {
-      ...searchRes,
-      results: searchRes.results.map((r) => ({
-        ...r,
-        title: this.sanitizeExternalContent(r.title),
-        snippet: this.sanitizeExternalContent(r.snippet),
-      })),
-    };
+    return await withCoFounderSpan(
+      'research.search',
+      {
+        query: sanitizedQuery,
+        domains: options.domains?.join(','),
+        maxResults: options.maxResults,
+      },
+      async (span) => {
+        const searchRes = await this.router.search({
+          ...options,
+          query: sanitizedQuery,
+        });
+
+        span.setAttribute('sourceCount', searchRes.results.length);
+        span.setAttribute('provider', searchRes.providerUsed || 'unknown');
+
+        // Sanitize snippets from untrusted web sources
+        return {
+          ...searchRes,
+          results: searchRes.results.map((r) => ({
+            ...r,
+            title: this.sanitizeExternalContent(r.title),
+            snippet: this.sanitizeExternalContent(r.snippet),
+          })),
+        };
+      }
+    );
   }
 
   /**
@@ -150,17 +165,28 @@ export class RsiResearchEngine {
   ): Promise<ResearchPageReadResponse> {
     assertRsiOperationAllowed('research_read');
 
-    const readRes = await this.router.readWebpage(options);
+    return await withCoFounderSpan(
+      'research.fetch',
+      {
+        url: options.url,
+        extractMode: options.extractMode || 'markdown',
+      },
+      async (span) => {
+        const readRes = await this.router.readWebpage(options);
+        span.setAttribute('provider', readRes.providerUsed || 'unknown');
+        span.setAttribute('httpStatus', readRes.status || 200);
 
-    // Neutralize prompt injection tokens in extracted markdown/text
-    return {
-      ...readRes,
-      title: this.sanitizeExternalContent(readRes.title),
-      markdown: this.sanitizeExternalContent(readRes.markdown),
-      textContent: readRes.textContent
-        ? this.sanitizeExternalContent(readRes.textContent)
-        : undefined,
-    };
+        // Neutralize prompt injection tokens in extracted markdown/text
+        return {
+          ...readRes,
+          title: this.sanitizeExternalContent(readRes.title),
+          markdown: this.sanitizeExternalContent(readRes.markdown),
+          textContent: readRes.textContent
+            ? this.sanitizeExternalContent(readRes.textContent)
+            : undefined,
+        };
+      }
+    );
   }
 
   /**
@@ -249,10 +275,24 @@ export class RsiResearchEngine {
       sourceUrls: allUrls,
     }));
 
-    return this.ledger.buildEvidencePack({
-      topic,
-      rawClaims,
-      rawSources,
-    });
+    return await withCoFounderSpan(
+      'source.verify',
+      {
+        topic,
+        sourceCount: rawSources.length,
+        claimCount: rawClaims.length,
+      },
+      async (span) => {
+        const pack = this.ledger.buildEvidencePack({
+          topic,
+          rawClaims,
+          rawSources,
+        });
+        span.setAttribute('confidence', pack.confidence);
+        span.setAttribute('claimCount', pack.claims.length);
+        span.setAttribute('sourceCount', pack.sources.length);
+        return pack;
+      }
+    );
   }
 }

@@ -8,6 +8,7 @@ import {
 import { CO_FOUNDER_TOOL_DECLARATIONS } from './brain';
 import { executeCoFounderTool, ToolExecutionResult } from './tool-bridge';
 import { validatePromptSecurity, tokenBudgetManager } from './security';
+import { withCoFounderSpan } from './tracing';
 
 export interface OrchestrationStep {
   iteration: number;
@@ -389,20 +390,40 @@ export async function runOpenAICompatibleAgentLoop(
       payload.tool_choice = 'auto';
     }
 
-    const res = await fetch(endpoint, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify(payload),
-    });
+    const data = await withCoFounderSpan(
+      'model.call',
+      {
+        provider,
+        model: modelName,
+        iteration,
+      },
+      async (span) => {
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify(payload),
+        });
 
-    if (!res.ok) {
-      const errText = await res.text();
-      throw new Error(
-        `${provider.toUpperCase()} API Error (${res.status}): ${errText}`
-      );
-    }
+        if (!res.ok) {
+          const errText = await res.text();
+          throw new Error(
+            `${provider.toUpperCase()} API Error (${res.status}): ${errText}`
+          );
+        }
 
-    const data = await res.json();
+        const json = await res.json();
+        span.setAttribute('resultState', 'ok');
+        if (json.usage) {
+          span.setAttribute('promptTokens', json.usage.prompt_tokens || 0);
+          span.setAttribute(
+            'completionTokens',
+            json.usage.completion_tokens || 0
+          );
+          span.setAttribute('totalTokens', json.usage.total_tokens || 0);
+        }
+        return json;
+      }
+    );
     const assistantMessage = data.choices?.[0]?.message;
 
     if (!assistantMessage) {
@@ -698,18 +719,44 @@ export async function runGeminiAgentLoop(
           };
         }
 
-        const res = await fetch(endpoint, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(requestBody),
-        });
+        const data = await withCoFounderSpan(
+          'model.call',
+          {
+            provider: 'gemini',
+            model: modelName,
+            iteration,
+          },
+          async (span) => {
+            const res = await fetch(endpoint, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(requestBody),
+            });
 
-        if (!res.ok) {
-          const errText = await res.text();
-          throw new Error(`Gemini API Error (${res.status}): ${errText}`);
-        }
+            if (!res.ok) {
+              const errText = await res.text();
+              throw new Error(`Gemini API Error (${res.status}): ${errText}`);
+            }
 
-        const data = await res.json();
+            const json = await res.json();
+            span.setAttribute('resultState', 'ok');
+            if (json.usageMetadata) {
+              span.setAttribute(
+                'promptTokens',
+                json.usageMetadata.promptTokenCount || 0
+              );
+              span.setAttribute(
+                'completionTokens',
+                json.usageMetadata.candidatesTokenCount || 0
+              );
+              span.setAttribute(
+                'totalTokens',
+                json.usageMetadata.totalTokenCount || 0
+              );
+            }
+            return json;
+          }
+        );
         const candidate = data.candidates?.[0];
         const candidateContent = candidate?.content;
 
@@ -947,145 +994,178 @@ export async function runCoFounderAgentLoop(
 
   const provider = (options.provider || 'gemini').toLowerCase();
 
-  if (!userPrompt) {
-    return {
-      success: false,
-      responseText: 'Empty user prompt provided.',
-      toolCallsExecuted: 0,
-      steps: [],
-      iterations: 0,
-      modelUsed: 'none',
+  return await withCoFounderSpan(
+    'cofounder.request',
+    {
       provider,
-      error: 'Empty prompt',
-    };
-  }
-
-  // 1. Prompt Injection & Jailbreak Guard (Phase 10: Security Hardening)
-  const securityCheck = validatePromptSecurity(userPrompt);
-  if (!securityCheck.safe && securityCheck.threatLevel === 'high') {
-    return {
-      success: false,
-      responseText:
-        'I am unable to process prompts that attempt to override system security guidelines or extract confidential instructions.',
-      toolCallsExecuted: 0,
-      steps: [],
-      iterations: 0,
-      modelUsed: 'security-guard',
-      provider,
-      error: `Security violation: ${securityCheck.reason}`,
-    };
-  }
-
-  // 2. Token Budget Guard (Phase 10: Runaway Session Prevention)
-  const sessionId =
-    (options as any).sessionId || options.userId || 'session_default';
-  const estimatedTokens = Math.max(10, Math.round(userPrompt.length / 4));
-  const budgetStatus = tokenBudgetManager.checkBudget(
-    sessionId,
-    estimatedTokens
-  );
-  if (!budgetStatus.allowed) {
-    return {
-      success: false,
-      responseText:
-        'Your session token budget has been exhausted. Please start a new session or contact the administrator.',
-      toolCallsExecuted: 0,
-      steps: [],
-      iterations: 0,
-      modelUsed: 'budget-guard',
-      provider,
-      error: budgetStatus.reason || 'Token budget exceeded',
-    };
-  }
-
-  if (!options.apiKey) {
-    return {
-      success: false,
-      responseText: `${provider === 'gemini' ? 'Gemini' : provider.toUpperCase()} API key is not configured.`,
-      toolCallsExecuted: 0,
-      steps: [],
-      iterations: 0,
-      modelUsed: 'none',
-      provider,
-      error: 'Missing API key',
-    };
-  }
-
-  const recordConsumedBudget = (res: OrchestrationResult) => {
-    if (res.success) {
-      const tokensConsumed = Math.max(
-        10,
-        Math.round((userPrompt.length + (res.responseText?.length || 0)) / 4)
-      );
-      tokenBudgetManager.consumeTokens(sessionId, tokensConsumed);
-    }
-  };
-
-  let primaryError: string | undefined;
-
-  // 1. Attempt Primary Provider Loop
-  try {
-    if (['openrouter', 'openai', 'deepseek', 'custom'].includes(provider)) {
-      const res = await runOpenAICompatibleAgentLoop(messages, options);
-      if (res.success) {
-        recordConsumedBudget(res);
-        return res;
-      }
-      primaryError =
-        res.error || 'Primary provider agentic loop returned failure';
-    } else {
-      const res = await runGeminiAgentLoop(messages, options);
-      if (res.success) {
-        recordConsumedBudget(res);
-        return res;
-      }
-      primaryError = res.error || 'Gemini agentic loop returned failure';
-    }
-  } catch (err: any) {
-    primaryError = err?.message || String(err);
-  }
-
-  // 2. Multi-Provider Fallback Degradation (if configured)
-  if (options.fallbackChain && options.fallbackChain.length > 0) {
-    for (const fb of options.fallbackChain) {
-      if (!fb.apiKey) continue;
-      const fbProvider = fb.provider.toLowerCase();
-      try {
-        const fbOptions: OrchestrationOptions = {
-          ...options,
-          provider: fbProvider,
-          apiKey: fb.apiKey,
-          modelName: fb.modelName,
-          baseUrl: fb.baseUrl,
-          customHeaders: fb.customHeaders,
-          fallbackChain: undefined, // prevent infinite recursion
+      model: options.modelName || 'default',
+      userId: options.userId,
+      promptLength: userPrompt.length,
+    },
+    async (requestSpan) => {
+      if (!userPrompt) {
+        requestSpan.setAttribute('resultState', 'failed');
+        return {
+          success: false,
+          responseText: 'Empty user prompt provided.',
+          toolCallsExecuted: 0,
+          steps: [],
+          iterations: 0,
+          modelUsed: 'none',
+          provider,
+          error: 'Empty prompt',
         };
-
-        if (fbProvider === 'gemini') {
-          const fbRes = await runGeminiAgentLoop(messages, fbOptions);
-          if (fbRes.success) return fbRes;
-        } else {
-          const fbRes = await runOpenAICompatibleAgentLoop(messages, fbOptions);
-          if (fbRes.success) return fbRes;
-        }
-      } catch (fbErr: any) {
-        console.warn(
-          `[Co-Founder Orchestrator] Fallback to ${fbProvider} failed:`,
-          fbErr?.message
-        );
-        continue;
       }
-    }
-  }
 
-  return {
-    success: false,
-    responseText: `Agentic reasoning loop failed across providers: ${primaryError}`,
-    toolCallsExecuted: 0,
-    steps: [],
-    iterations: 0,
-    modelUsed: 'none',
-    provider,
-    error: primaryError,
-  };
+      // 1. Prompt Injection & Jailbreak Guard (Phase 10: Security Hardening)
+      const securityCheck = validatePromptSecurity(userPrompt);
+      if (!securityCheck.safe && securityCheck.threatLevel === 'high') {
+        requestSpan.setAttribute('resultState', 'blocked');
+        return {
+          success: false,
+          responseText:
+            'I am unable to process prompts that attempt to override system security guidelines or extract confidential instructions.',
+          toolCallsExecuted: 0,
+          steps: [],
+          iterations: 0,
+          modelUsed: 'security-guard',
+          provider,
+          error: `Security violation: ${securityCheck.reason}`,
+        };
+      }
+
+      // 2. Token Budget Guard (Phase 10: Runaway Session Prevention)
+      const sessionId =
+        (options as any).sessionId || options.userId || 'session_default';
+      const estimatedTokens = Math.max(10, Math.round(userPrompt.length / 4));
+      const budgetStatus = tokenBudgetManager.checkBudget(
+        sessionId,
+        estimatedTokens
+      );
+      if (!budgetStatus.allowed) {
+        requestSpan.setAttribute('resultState', 'budget_exhausted');
+        return {
+          success: false,
+          responseText:
+            'Your session token budget has been exhausted. Please start a new session or contact the administrator.',
+          toolCallsExecuted: 0,
+          steps: [],
+          iterations: 0,
+          modelUsed: 'budget-guard',
+          provider,
+          error: budgetStatus.reason || 'Token budget exceeded',
+        };
+      }
+
+      if (!options.apiKey) {
+        requestSpan.setAttribute('resultState', 'missing_api_key');
+        return {
+          success: false,
+          responseText: `${provider === 'gemini' ? 'Gemini' : provider.toUpperCase()} API key is not configured.`,
+          toolCallsExecuted: 0,
+          steps: [],
+          iterations: 0,
+          modelUsed: 'none',
+          provider,
+          error: 'Missing API key',
+        };
+      }
+
+      const recordConsumedBudget = (res: OrchestrationResult) => {
+        if (res.success) {
+          const tokensConsumed = Math.max(
+            10,
+            Math.round(
+              (userPrompt.length + (res.responseText?.length || 0)) / 4
+            )
+          );
+          tokenBudgetManager.consumeTokens(sessionId, tokensConsumed);
+        }
+      };
+
+      let primaryError: string | undefined;
+
+      // 1. Attempt Primary Provider Loop
+      try {
+        if (['openrouter', 'openai', 'deepseek', 'custom'].includes(provider)) {
+          const res = await runOpenAICompatibleAgentLoop(messages, options);
+          if (res.success) {
+            recordConsumedBudget(res);
+            requestSpan.setAttribute('resultState', 'completed');
+            requestSpan.setAttribute('toolsExecuted', res.toolCallsExecuted);
+            return res;
+          }
+          primaryError =
+            res.error || 'Primary provider agentic loop returned failure';
+        } else {
+          const res = await runGeminiAgentLoop(messages, options);
+          if (res.success) {
+            recordConsumedBudget(res);
+            requestSpan.setAttribute('resultState', 'completed');
+            requestSpan.setAttribute('toolsExecuted', res.toolCallsExecuted);
+            return res;
+          }
+          primaryError = res.error || 'Gemini agentic loop returned failure';
+        }
+      } catch (err: any) {
+        primaryError = err?.message || String(err);
+      }
+
+      // 2. Multi-Provider Fallback Degradation (if configured)
+      if (options.fallbackChain && options.fallbackChain.length > 0) {
+        for (const fb of options.fallbackChain) {
+          if (!fb.apiKey) continue;
+          const fbProvider = fb.provider.toLowerCase();
+          try {
+            const fbOptions: OrchestrationOptions = {
+              ...options,
+              provider: fbProvider,
+              apiKey: fb.apiKey,
+              modelName: fb.modelName,
+              baseUrl: fb.baseUrl,
+              customHeaders: fb.customHeaders,
+              fallbackChain: undefined, // prevent infinite recursion
+            };
+
+            if (fbProvider === 'gemini') {
+              const fbRes = await runGeminiAgentLoop(messages, fbOptions);
+              if (fbRes.success) {
+                requestSpan.setAttribute('resultState', 'fallback_completed');
+                requestSpan.setAttribute('fallbackProvider', fbProvider);
+                return fbRes;
+              }
+            } else {
+              const fbRes = await runOpenAICompatibleAgentLoop(
+                messages,
+                fbOptions
+              );
+              if (fbRes.success) {
+                requestSpan.setAttribute('resultState', 'fallback_completed');
+                requestSpan.setAttribute('fallbackProvider', fbProvider);
+                return fbRes;
+              }
+            }
+          } catch (fbErr: any) {
+            console.warn(
+              `[Co-Founder Orchestrator] Fallback to ${fbProvider} failed:`,
+              fbErr?.message
+            );
+            continue;
+          }
+        }
+      }
+
+      requestSpan.setAttribute('resultState', 'failed');
+      return {
+        success: false,
+        responseText: `Agentic reasoning loop failed across providers: ${primaryError}`,
+        toolCallsExecuted: 0,
+        steps: [],
+        iterations: 0,
+        modelUsed: 'none',
+        provider,
+        error: primaryError,
+      };
+    }
+  );
 }

@@ -57,6 +57,7 @@ import {
 } from './workers';
 import { WorkerCollaborationGateway } from './workers/collaboration-gateway';
 import { recordToolTelemetry, classifyError } from './telemetry';
+import { withCoFounderSpan } from './tracing';
 
 export interface ToolExecutionResult {
   toolName: string;
@@ -2092,20 +2093,43 @@ export async function executeCoFounderTool(
   ]
 ): Promise<ToolExecutionResult> {
   const startTime = Date.now();
-  const result = await executeCoFounderToolInternal(toolName, args, userScopes);
 
-  try {
-    recordToolTelemetry({
-      traceId: args._traceId || 'tr_tool',
-      spanId: 'sp_' + toolName,
+  return withCoFounderSpan(
+    'tool.call',
+    {
       toolName,
-      durationMs: Date.now() - startTime,
-      success: result.success,
-      errorCategory: result.success ? undefined : classifyError(result.error),
-      errorMessage: result.error,
       userId: args.userId || args.user_id,
-    });
-  } catch {}
+      traceId: args._traceId,
+    },
+    async (span) => {
+      const result = await executeCoFounderToolInternal(
+        toolName,
+        args,
+        userScopes
+      );
 
-  return result;
+      span.setAttribute('success', result.success);
+      if (!result.success && result.error) {
+        span.setAttribute('errorCategory', classifyError(result.error));
+        span.setAttribute('errorMessage', result.error);
+      }
+
+      try {
+        recordToolTelemetry({
+          traceId: args._traceId || 'tr_tool',
+          spanId: 'sp_' + toolName,
+          toolName,
+          durationMs: Date.now() - startTime,
+          success: result.success,
+          errorCategory: result.success
+            ? undefined
+            : classifyError(result.error),
+          errorMessage: result.error,
+          userId: args.userId || args.user_id,
+        });
+      } catch {}
+
+      return result;
+    }
+  );
 }

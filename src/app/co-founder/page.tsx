@@ -61,6 +61,7 @@ const AiHierarchyVisualizer = dynamic(
   { ssr: false }
 );
 import { LiveWorkspace } from '@/components/co-founder/workspace/LiveWorkspace';
+import { WorkerTelemetryDashboard } from '@/components/co-founder/workforce/WorkerTelemetryDashboard';
 import {
   SwarmWorkerNode,
   SWARM_NODES,
@@ -110,7 +111,7 @@ interface ChatMessage {
 
 export default function CoFounderPortalPage() {
   const [activeTab, setActiveTab] = useState<
-    'voice' | 'chat' | 'swarm_3d' | 'workspace'
+    'voice' | 'chat' | 'swarm_3d' | 'workspace' | 'telemetry'
   >('voice');
   const [selectedWorkerId, setSelectedWorkerId] =
     useState<string>('co_founder');
@@ -1775,6 +1776,21 @@ export default function CoFounderPortalPage() {
                 <Activity className="h-3.5 w-3.5" />
                 <span>Live Workspace</span>
               </button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={activeTab === 'telemetry'}
+                aria-controls="telemetry-panel"
+                onClick={() => setActiveTab('telemetry')}
+                className={`flex flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-xl px-3.5 py-1.5 text-xs font-medium transition-all duration-200 ${
+                  activeTab === 'telemetry'
+                    ? 'bg-nm-gradient-light font-bold text-amber-700 shadow-nm-flat dark:bg-nm-gradient-dark dark:text-amber-400 dark:shadow-nm-flat-dark'
+                    : 'text-nm-light-textSecondary hover:text-nm-light-textPrimary dark:text-neutral-400 dark:hover:text-white'
+                }`}
+              >
+                <BarChart3 className="h-3.5 w-3.5" />
+                <span>Telemetry & Traces</span>
+              </button>
             </div>
           </div>
         </div>
@@ -1846,6 +1862,10 @@ export default function CoFounderPortalPage() {
               });
             }}
           />
+        </div>
+      ) : activeTab === 'telemetry' ? (
+        <div className="flex-1 overflow-y-auto pr-1">
+          <WorkerTelemetryDashboard />
         </div>
       ) : (
         <div className="flex flex-1 gap-4 overflow-hidden">

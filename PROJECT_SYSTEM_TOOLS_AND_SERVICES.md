@@ -675,6 +675,13 @@ Authoritative architectural record of the upgrades implemented per the Co-Founde
     - **Comprehensive Test Suite Coverage**: Configured 33 automated test suites spanning all 16 workers, multilingual inquiries (Bengali script, Banglish, Hindi, English), customer privacy vs guest session boundaries, approval nonces on destructive mutations, red-team jailbreak & secret exfiltration defense (`CRON_SECRET`, `SUPABASE_SERVICE_ROLE_KEY`, `CREDENTIAL_ENCRYPTION_KEY`, `DATABASE_URL`), and research engine citation/conflict verification.
     - **Strict CI Gate & Artifact Archival**: Added dedicated CI workflow step in `.github/workflows/ci.yml` (`npm run ai:eval`) running with zero `|| true` bypasses — CI fails immediately on any safety regression, fake metric, or worker failure. Uploads redacted evaluation summary (`promptfoo-report.json`) as a 14-day workflow artifact.
 
+12. **Phase 11: End-to-End Distributed Tracing & Operational Dashboards (`src/lib/ai/co-founder/tracing/`, `/api/admin/co-founder/telemetry`, `WorkerTelemetryDashboard.tsx`)**:
+    - **OpenTelemetry Custom Spans**: Instrumented 11 distinct custom span types spanning the full agent lifecycle: `cofounder.request`, `model.call`, `tool.call`, `worker.run`, `worker.delegate`, `research.search`, `research.fetch`, `source.verify`, `approval.request`, `action.execute`, and `action.verify`.
+    - **Fail-Closed Zero-PII Sanitization**: Built `sanitizeTraceAttributes()` which automatically redacts sensitive authentication keys (`password`, `secret`, `cookie`, `auth`, `api_key`, `jwt`, `private`, `cvv`, `card`, `credential`, `bearer`), strips embedded JWTs, hex secret keys, customer emails, and Indian mobile numbers (`+91`), and truncates oversized string payloads (>500 chars).
+    - **Bounded In-Memory Ring Buffer**: Deployed a rolling 500-item `traceBuffer` for zero-overhead in-memory diagnostics, supporting instant multi-criteria filtering by `workerId`, `spanName`, and `status`.
+    - **Admin Telemetry API (`/api/admin/co-founder/telemetry`)**: Protected by `requireAdmin()`, provides real-time aggregated metrics (success rate, verified success rate, failure, timeout, insufficient data, p50/p95 latency, model/tool tokens, provider breakdowns, error categories) and searchable redacted trace logs reconciled with the execution ledger.
+    - **Frontend Worker Observability Dashboard (`WorkerTelemetryDashboard.tsx`)**: Embedded into `/co-founder` portal as a dedicated tab ("Telemetry & Traces") with real-time auto-refresh, operational metric tiles, multi-worker & span filters, and collapsible attribute inspectors safe for support audits.
+
 
 
 

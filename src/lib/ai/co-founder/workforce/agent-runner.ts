@@ -21,6 +21,7 @@ import { WorkerRegistry } from '../workers/registry';
 import { WorkerTaskInput, WorkerStructuredOutput } from '../workers/types';
 import { getCofounderDataClient } from '../data-client';
 import { distributedIdempotencyStore } from './idempotency';
+import { withCoFounderSpan } from '../tracing';
 
 export interface CreateTaskParams {
   workerId: WorkerId;
@@ -101,272 +102,367 @@ export class WorkforceAgentRunner {
     const effectiveDryRun = options.dryRun ?? isDryRunEnabled();
     const manifest = getWorkerManifest(task.workerId);
 
-    // 0. Idempotency Check at task entry boundary
-    if (idempotencyKey) {
-      const cached =
-        await distributedIdempotencyStore.checkIdempotency(idempotencyKey);
-      if (cached) {
-        task.status = 'COMPLETED';
-        task.outputSummary =
-          cached.outputSummary ||
-          'Execution completed from authoritative idempotency cache.';
-        task.updatedAt = new Date().toISOString();
-        return {
-          task,
-          success: true,
-          executedSteps: 0,
-          output: cached,
-        };
-      }
-    }
-
-    // 1. Global kill switch check
-    if (isGlobalKillSwitchActive()) {
-      task.status = 'DEAD_LETTER';
-      task.error =
-        'Workforce execution halted: Global emergency kill switch is active.';
-      task.updatedAt = new Date().toISOString();
-      await this.safeRecordWorkerRun(task, 'dead_letter');
-      return { task, success: false, executedSteps: 0, error: task.error };
-    }
-
-    // 2. Worker active / maintenance check
-    if (!isWorkerActive(task.workerId)) {
-      task.status = 'CANCELLED';
-      task.error = `Worker '${task.workerId}' is currently disabled or in maintenance mode.`;
-      task.updatedAt = new Date().toISOString();
-      await this.safeRecordWorkerRun(task, 'cancelled');
-      return { task, success: false, executedSteps: 0, error: task.error };
-    }
-
-    if (!manifest) {
-      task.status = 'FAILED';
-      task.error = `Manifest missing for worker '${task.workerId}'.`;
-      task.updatedAt = new Date().toISOString();
-      return { task, success: false, executedSteps: 0, error: task.error };
-    }
-
-    // Setup Timeout Budget and AbortSignal
-    const timeoutBudget =
-      options.timeoutSeconds ?? manifest.limits?.timeoutSeconds ?? 60;
-    const controller = new AbortController();
-    const signal = controller.signal;
-
-    if (options.signal) {
-      if (options.signal.aborted) {
-        controller.abort(options.signal.reason);
-      } else {
-        options.signal.addEventListener('abort', () => {
-          controller.abort(options.signal?.reason);
-        });
-      }
-    }
-
-    const timer = setTimeout(() => {
-      controller.abort(
-        new Error(`Timeout budget of ${timeoutBudget}s exceeded`)
-      );
-    }, timeoutBudget * 1000);
-    if (typeof timer.unref === 'function') timer.unref();
-
-    if (signal.aborted) {
-      clearTimeout(timer);
-      task.status = 'TIMED_OUT';
-      task.error = `Workforce execution timed out or cancelled before starting (budget: ${timeoutBudget}s).`;
-      task.updatedAt = new Date().toISOString();
-      await this.safeRecordWorkerRun(task, 'failed');
-      return { task, success: false, executedSteps: 0, error: task.error };
-    }
-
-    task.status = 'RUNNING';
-    task.updatedAt = new Date().toISOString();
-    await this.safeRecordWorkerRun(task, 'running');
-
-    // 3. Step-by-step bounded execution
-    const maxSteps = manifest.limits.maxSteps;
-    const planSteps =
-      steps.length > 0
-        ? steps
-        : this.generateDefaultSteps(task, manifest.allowedTools);
-
-    let executedSteps = 0;
-    let finalOutput: WorkerStructuredOutput | Record<string, any> | undefined;
-
-    for (let i = 0; i < planSteps.length; i++) {
-      if (signal.aborted) {
-        clearTimeout(timer);
-        task.status = 'TIMED_OUT';
-        task.error = `Workforce execution timed out after ${timeoutBudget}s.`;
-        task.updatedAt = new Date().toISOString();
-        await this.safeRecordWorkerRun(task, 'failed');
-        return { task, success: false, executedSteps, error: task.error };
-      }
-
-      if (executedSteps >= maxSteps) {
-        clearTimeout(timer);
-        task.status = 'PARTIAL';
-        task.error = `Step limit reached: maximum allowed steps is ${maxSteps}.`;
-        task.updatedAt = new Date().toISOString();
-        await this.safeRecordWorkerRun(task, 'partial');
-        return {
-          task,
-          success: false,
-          executedSteps,
-          output: finalOutput,
-          error: task.error,
-        };
-      }
-
-      const step = planSteps[i];
-      task.currentStep = i + 1;
-
-      // Policy engine evaluation before executing step action
-      const policyDecision = workforcePolicyEngine.evaluateAction({
+    return await withCoFounderSpan(
+      'worker.run',
+      {
         workerId: task.workerId,
-        toolName: step.action,
-        payload: input?.parameters || {},
-        approvalBinding,
-        userId: userId || input?.userId,
-      });
-
-      if (policyDecision.decision === 'DENY') {
-        clearTimeout(timer);
-        task.status = 'FAILED';
-        task.error = `Policy Denied step '${step.stepId}' (${step.action}): ${policyDecision.reason}`;
-        task.updatedAt = new Date().toISOString();
-        await this.safeRecordWorkerRun(task, 'failed');
-        return { task, success: false, executedSteps, error: task.error };
-      }
-
-      if (policyDecision.decision === 'REQUIRE_APPROVAL') {
-        clearTimeout(timer);
-        task.status = 'WAITING_APPROVAL';
-        task.error = `Approval Required for step '${step.stepId}' (${step.action}): ${policyDecision.reason}`;
-        task.updatedAt = new Date().toISOString();
-        await this.safeRecordWorkerRun(task, 'waiting_approval');
-        return {
-          task,
-          success: false,
-          executedSteps,
-          error: task.error,
-        };
-      }
-
-      // Step action authorized -> Execute step
-      const startTime = Date.now();
-      let toolStatus = 'success';
-      let toolError: string | undefined;
-
-      try {
-        const workerInstance = this.workerRegistry.getWorker(task.workerId);
-        if (workerInstance) {
-          const taskInput: WorkerTaskInput = {
-            task: task.objective,
-            timeframe: input?.timeframe || '30d',
-            parameters: {
-              ...(input?.parameters || {}),
-              stepId: step.stepId,
-              action: step.action,
+        taskId: task.taskId,
+        runId: task.runId,
+        tier: task.tier,
+        parentTaskId: task.parentTaskId,
+        dryRun: effectiveDryRun,
+      },
+      async (workerSpan) => {
+        if (task.parentTaskId) {
+          await withCoFounderSpan(
+            'worker.delegate',
+            {
+              workerId: task.workerId,
+              parentTaskId: task.parentTaskId,
+              taskId: task.taskId,
             },
-            userId: userId || input?.userId,
-            userRole: input?.userRole,
-            channel: input?.channel || 'text',
-            dryRun: effectiveDryRun,
-            signal,
-          };
-
-          const workerResult = await workerInstance.execute(taskInput);
-          finalOutput = workerResult;
-          task.outputSummary =
-            workerResult.executiveVoiceSummary || workerResult.requiredAction;
-        } else {
-          finalOutput = {
-            executedAction: step.action,
-            simulated: effectiveDryRun,
-            timestamp: new Date().toISOString(),
-          };
-          task.outputSummary = `Executed action: ${step.action}`;
+            async () => {}
+          );
         }
+
+        // 0. Idempotency Check at task entry boundary
+        if (idempotencyKey) {
+          const cached =
+            await distributedIdempotencyStore.checkIdempotency(idempotencyKey);
+          if (cached) {
+            task.status = 'COMPLETED';
+            task.outputSummary =
+              cached.outputSummary ||
+              'Execution completed from authoritative idempotency cache.';
+            task.updatedAt = new Date().toISOString();
+            workerSpan.setAttribute('cacheHit', true);
+            workerSpan.setAttribute('resultState', 'completed');
+            return {
+              task,
+              success: true,
+              executedSteps: 0,
+              output: cached,
+            };
+          }
+        }
+
+        // 1. Global kill switch check
+        if (isGlobalKillSwitchActive()) {
+          task.status = 'DEAD_LETTER';
+          task.error =
+            'Workforce execution halted: Global emergency kill switch is active.';
+          task.updatedAt = new Date().toISOString();
+          await this.safeRecordWorkerRun(task, 'dead_letter');
+          workerSpan.setAttribute('resultState', 'dead_letter');
+          return { task, success: false, executedSteps: 0, error: task.error };
+        }
+
+        // 2. Worker active / maintenance check
+        if (!isWorkerActive(task.workerId)) {
+          task.status = 'CANCELLED';
+          task.error = `Worker '${task.workerId}' is currently disabled or in maintenance mode.`;
+          task.updatedAt = new Date().toISOString();
+          await this.safeRecordWorkerRun(task, 'cancelled');
+          workerSpan.setAttribute('resultState', 'cancelled');
+          return { task, success: false, executedSteps: 0, error: task.error };
+        }
+
+        if (!manifest) {
+          task.status = 'FAILED';
+          task.error = `Manifest missing for worker '${task.workerId}'.`;
+          task.updatedAt = new Date().toISOString();
+          workerSpan.setAttribute('resultState', 'failed');
+          return { task, success: false, executedSteps: 0, error: task.error };
+        }
+
+        // Setup Timeout Budget and AbortSignal
+        const timeoutBudget =
+          options.timeoutSeconds ?? manifest.limits?.timeoutSeconds ?? 60;
+        const controller = new AbortController();
+        const signal = controller.signal;
+
+        if (options.signal) {
+          if (options.signal.aborted) {
+            controller.abort(options.signal.reason);
+          } else {
+            options.signal.addEventListener('abort', () => {
+              controller.abort(options.signal?.reason);
+            });
+          }
+        }
+
+        const timer = setTimeout(() => {
+          controller.abort(
+            new Error(`Timeout budget of ${timeoutBudget}s exceeded`)
+          );
+        }, timeoutBudget * 1000);
+        if (typeof timer.unref === 'function') timer.unref();
 
         if (signal.aborted) {
           clearTimeout(timer);
           task.status = 'TIMED_OUT';
-          task.error = `Workforce execution timed out after ${timeoutBudget}s.`;
+          task.error = `Workforce execution timed out or cancelled before starting (budget: ${timeoutBudget}s).`;
           task.updatedAt = new Date().toISOString();
           await this.safeRecordWorkerRun(task, 'failed');
-          return { task, success: false, executedSteps, error: task.error };
-        }
-      } catch (err: any) {
-        clearTimeout(timer);
-        if (signal.aborted || err.name === 'AbortError') {
-          task.status = 'TIMED_OUT';
-          task.error = `Workforce execution timed out after ${timeoutBudget}s.`;
-          task.updatedAt = new Date().toISOString();
-          await this.safeRecordWorkerRun(task, 'failed');
-          return { task, success: false, executedSteps, error: task.error };
+          workerSpan.setAttribute('resultState', 'timed_out');
+          return { task, success: false, executedSteps: 0, error: task.error };
         }
 
-        toolStatus = 'error';
-        toolError = err.message || String(err);
-        task.status = 'FAILED';
-        task.error = `Error executing step '${step.stepId}': ${toolError}`;
+        task.status = 'RUNNING';
         task.updatedAt = new Date().toISOString();
-        await this.safeRecordToolEvent(
+        await this.safeRecordWorkerRun(task, 'running');
+
+        // 3. Step-by-step bounded execution
+        const maxSteps = manifest.limits.maxSteps;
+        const planSteps =
+          steps.length > 0
+            ? steps
+            : this.generateDefaultSteps(task, manifest.allowedTools);
+
+        let executedSteps = 0;
+        let finalOutput:
+          WorkerStructuredOutput | Record<string, any> | undefined;
+
+        for (let i = 0; i < planSteps.length; i++) {
+          if (signal.aborted) {
+            clearTimeout(timer);
+            task.status = 'TIMED_OUT';
+            task.error = `Workforce execution timed out after ${timeoutBudget}s.`;
+            task.updatedAt = new Date().toISOString();
+            await this.safeRecordWorkerRun(task, 'failed');
+            workerSpan.setAttribute('resultState', 'timed_out');
+            return { task, success: false, executedSteps, error: task.error };
+          }
+
+          if (executedSteps >= maxSteps) {
+            clearTimeout(timer);
+            task.status = 'PARTIAL';
+            task.error = `Step limit reached: maximum allowed steps is ${maxSteps}.`;
+            task.updatedAt = new Date().toISOString();
+            await this.safeRecordWorkerRun(task, 'partial');
+            workerSpan.setAttribute('resultState', 'partial');
+            return {
+              task,
+              success: false,
+              executedSteps,
+              output: finalOutput,
+              error: task.error,
+            };
+          }
+
+          const step = planSteps[i];
+          task.currentStep = i + 1;
+
+          // Policy engine evaluation before executing step action
+          const policyDecision = await withCoFounderSpan(
+            'approval.request',
+            {
+              workerId: task.workerId,
+              toolName: step.action,
+              stepId: step.stepId,
+              taskId: task.taskId,
+              userId: userId || input?.userId,
+            },
+            async (span) => {
+              const decision = workforcePolicyEngine.evaluateAction({
+                workerId: task.workerId,
+                toolName: step.action,
+                payload: input?.parameters || {},
+                approvalBinding,
+                userId: userId || input?.userId,
+              });
+              span.setAttribute('approvalState', decision.decision);
+              return decision;
+            }
+          );
+
+          if (policyDecision.decision === 'DENY') {
+            clearTimeout(timer);
+            task.status = 'FAILED';
+            task.error = `Policy Denied step '${step.stepId}' (${step.action}): ${policyDecision.reason}`;
+            task.updatedAt = new Date().toISOString();
+            await this.safeRecordWorkerRun(task, 'failed');
+            workerSpan.setAttribute('resultState', 'failed');
+            return { task, success: false, executedSteps, error: task.error };
+          }
+
+          if (policyDecision.decision === 'REQUIRE_APPROVAL') {
+            clearTimeout(timer);
+            task.status = 'WAITING_APPROVAL';
+            task.error = `Approval Required for step '${step.stepId}' (${step.action}): ${policyDecision.reason}`;
+            task.updatedAt = new Date().toISOString();
+            await this.safeRecordWorkerRun(task, 'waiting_approval');
+            workerSpan.setAttribute('resultState', 'waiting_approval');
+            return {
+              task,
+              success: false,
+              executedSteps,
+              error: task.error,
+            };
+          }
+
+          // Step action authorized -> Execute step
+          const startTime = Date.now();
+          let toolStatus = 'success';
+          let toolError: string | undefined;
+
+          try {
+            await withCoFounderSpan(
+              'action.execute',
+              {
+                workerId: task.workerId,
+                toolName: step.action,
+                stepId: step.stepId,
+                taskId: task.taskId,
+                dryRun: effectiveDryRun,
+              },
+              async (span) => {
+                const workerInstance = this.workerRegistry.getWorker(
+                  task.workerId
+                );
+                if (workerInstance) {
+                  const taskInput: WorkerTaskInput = {
+                    task: task.objective,
+                    timeframe: input?.timeframe || '30d',
+                    parameters: {
+                      ...(input?.parameters || {}),
+                      stepId: step.stepId,
+                      action: step.action,
+                    },
+                    userId: userId || input?.userId,
+                    userRole: input?.userRole,
+                    channel: input?.channel || 'text',
+                    dryRun: effectiveDryRun,
+                    signal,
+                  };
+
+                  const workerResult = await workerInstance.execute(taskInput);
+                  finalOutput = workerResult;
+                  task.outputSummary =
+                    workerResult.executiveVoiceSummary ||
+                    workerResult.requiredAction;
+                  span.setAttribute('resultState', 'completed');
+                } else {
+                  finalOutput = {
+                    executedAction: step.action,
+                    simulated: effectiveDryRun,
+                    timestamp: new Date().toISOString(),
+                  };
+                  task.outputSummary = `Executed action: ${step.action}`;
+                  span.setAttribute('resultState', 'simulated');
+                }
+              }
+            );
+
+            if (signal.aborted) {
+              clearTimeout(timer);
+              task.status = 'TIMED_OUT';
+              task.error = `Workforce execution timed out after ${timeoutBudget}s.`;
+              task.updatedAt = new Date().toISOString();
+              await this.safeRecordWorkerRun(task, 'failed');
+              workerSpan.setAttribute('resultState', 'timed_out');
+              return { task, success: false, executedSteps, error: task.error };
+            }
+          } catch (err: any) {
+            clearTimeout(timer);
+            if (signal.aborted || err.name === 'AbortError') {
+              task.status = 'TIMED_OUT';
+              task.error = `Workforce execution timed out after ${timeoutBudget}s.`;
+              task.updatedAt = new Date().toISOString();
+              await this.safeRecordWorkerRun(task, 'failed');
+              workerSpan.setAttribute('resultState', 'timed_out');
+              return { task, success: false, executedSteps, error: task.error };
+            }
+
+            toolStatus = 'error';
+            toolError = err.message || String(err);
+            task.status = 'FAILED';
+            task.error = `Error executing step '${step.stepId}': ${toolError}`;
+            task.updatedAt = new Date().toISOString();
+            await this.safeRecordToolEvent(
+              task,
+              step.action,
+              Date.now() - startTime,
+              toolStatus,
+              toolError
+            );
+            await this.safeRecordWorkerRun(task, 'failed');
+            workerSpan.setAttribute('resultState', 'failed');
+            return { task, success: false, executedSteps, error: task.error };
+          }
+
+          const durationMs = Date.now() - startTime;
+          await this.safeRecordToolEvent(
+            task,
+            step.action,
+            durationMs,
+            toolStatus
+          );
+
+          // Action verification span
+          await withCoFounderSpan(
+            'action.verify',
+            {
+              workerId: task.workerId,
+              toolName: step.action,
+              stepId: step.stepId,
+              taskId: task.taskId,
+              dryRun: effectiveDryRun,
+            },
+            async (verifySpan) => {
+              verifySpan.setAttribute('status', toolStatus);
+              verifySpan.setAttribute(
+                'verificationStatus',
+                toolStatus === 'success' ? 'verified' : 'unverified'
+              );
+            }
+          );
+
+          // Save step checkpoint
+          const checkpoint: TaskCheckpoint = {
+            stepIndex: task.currentStep,
+            state: {
+              stepId: step.stepId,
+              action: step.action,
+              executedAt: new Date().toISOString(),
+              dryRun: effectiveDryRun,
+            },
+            timestamp: new Date().toISOString(),
+          };
+          task.checkpoints.push(checkpoint);
+          executedSteps++;
+        }
+
+        clearTimeout(timer);
+
+        // Visible dryRun / simulated tagging
+        if (effectiveDryRun && finalOutput && typeof finalOutput === 'object') {
+          (finalOutput as any).sourceMode = 'simulated';
+          (finalOutput as any).dryRun = true;
+        }
+
+        // All steps executed successfully
+        task.status = 'COMPLETED';
+        task.updatedAt = new Date().toISOString();
+        await this.safeRecordWorkerRun(task, 'completed');
+        workerSpan.setAttribute('resultState', 'completed');
+
+        // Cache completed result under idempotency key
+        if (idempotencyKey && finalOutput) {
+          await distributedIdempotencyStore.recordIdempotency(
+            idempotencyKey,
+            finalOutput
+          );
+        }
+
+        return {
           task,
-          step.action,
-          Date.now() - startTime,
-          toolStatus,
-          toolError
-        );
-        await this.safeRecordWorkerRun(task, 'failed');
-        return { task, success: false, executedSteps, error: task.error };
+          success: true,
+          executedSteps,
+          output: finalOutput,
+        };
       }
-
-      const durationMs = Date.now() - startTime;
-      await this.safeRecordToolEvent(task, step.action, durationMs, toolStatus);
-
-      // Save step checkpoint
-      const checkpoint: TaskCheckpoint = {
-        stepIndex: task.currentStep,
-        state: {
-          stepId: step.stepId,
-          action: step.action,
-          executedAt: new Date().toISOString(),
-          dryRun: effectiveDryRun,
-        },
-        timestamp: new Date().toISOString(),
-      };
-      task.checkpoints.push(checkpoint);
-      executedSteps++;
-    }
-
-    clearTimeout(timer);
-
-    // Visible dryRun / simulated tagging
-    if (effectiveDryRun && finalOutput && typeof finalOutput === 'object') {
-      (finalOutput as any).sourceMode = 'simulated';
-      (finalOutput as any).dryRun = true;
-    }
-
-    // All steps executed successfully
-    task.status = 'COMPLETED';
-    task.updatedAt = new Date().toISOString();
-    await this.safeRecordWorkerRun(task, 'completed');
-
-    // Cache completed result under idempotency key
-    if (idempotencyKey && finalOutput) {
-      await distributedIdempotencyStore.recordIdempotency(
-        idempotencyKey,
-        finalOutput
-      );
-    }
-
-    return {
-      task,
-      success: true,
-      executedSteps,
-      output: finalOutput,
-    };
+    );
   }
 
   /**
