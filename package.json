@@ -46,7 +46,7 @@
     "@opentelemetry/instrumentation-undici": "^0.33.0",
     "@opentelemetry/sdk-node": "^0.223.0",
     "@opentelemetry/semantic-conventions": "^1.30.0",
-    "@sentry/nextjs": "^10.70.0",
+    "@sentry/nextjs": "^10.78.0",
     "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.49.1",
     "@tiptap/extension-image": "^3.31.0",
@@ -117,11 +117,12 @@
     "typescript": "^5.7.3"
   },
   "overrides": {
+    "dompurify": "^3.4.17",
     "jose": "4.15.9",
     "jwks-rsa": {
       "jose": "4.15.9"
     },
-    "undici": "^6.28.2"
+    "undici": "^6.29.0"
   },
   "browserslist": [
     "Chrome >= 90",

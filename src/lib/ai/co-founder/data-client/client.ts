@@ -80,6 +80,9 @@ export class CofounderDataClient {
 
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), this.timeoutMs);
+    if (typeof timer.unref === 'function') {
+      timer.unref();
+    }
 
     try {
       const response = await fetch(`${this.baseUrl}${path}`, {
@@ -88,8 +91,6 @@ export class CofounderDataClient {
         body: body ? JSON.stringify(body) : undefined,
         signal: controller.signal,
       });
-
-      clearTimeout(timer);
 
       if (!response.ok) {
         const errText = await response.text();
@@ -102,12 +103,13 @@ export class CofounderDataClient {
       const json = await response.json();
       return { success: true, data: json.data };
     } catch (err: any) {
-      clearTimeout(timer);
       console.warn(
         `[CofounderDataClient] Request failed for ${path}:`,
         err.message
       );
       return { success: false, error: err.message };
+    } finally {
+      clearTimeout(timer);
     }
   }
 

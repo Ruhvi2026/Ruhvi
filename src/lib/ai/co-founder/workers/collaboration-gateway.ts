@@ -105,6 +105,9 @@ export class WorkerCollaborationGateway {
           );
           reject(new Error(`Consultation timed out after ${timeoutMs}ms`));
         }, timeoutMs);
+        if (timer && typeof timer.unref === 'function') {
+          timer.unref();
+        }
       });
 
       const output = await Promise.race([taskPromise, timeoutPromise]);
