@@ -589,3 +589,28 @@ Authoritative architectural record of the findings remediated from `RUHVI_DEEP_I
    - **Roster Parity Migration 0129 (`PERF-10`)**: Created `supabase/migrations/0129_add_security_worker_to_roster.sql` seeding `worker_security_intelligence` into `workforce_members` to ensure 16/16 parity with `workerRegistry`.
    - **Cron Route Error Handling (`PERF-11`)**: In `/api/cron/workforce-performance-audit`, validates `result.executionStatus !== 'failed'`, requires `report?.reportId`, and inspects `{ error }` on Supabase upserts/inserts, returning HTTP 500 on failure.
 
+---
+
+## 19. Co-Founder Worker Security, Truthfulness & SSRF Protection Architecture (9 Nov 2026)
+
+Authoritative architectural record of the upgrades implemented per the Co-Founder Worker Upgrade Guide:
+
+1. **Phase 0: Fail-Closed Secrets & Credential Rotation**:
+   - Eliminated hardcoded fallback credentials and demo API keys across `cloudinary-service.ts`, `file-generator.ts`, `n8n-client.ts`, and `media-jobs/callback/route.ts`.
+   - In production (`process.env.NODE_ENV === 'production'`), missing environment variables fail closed immediately with typed errors (`integration_not_configured`) rather than attempting unauthenticated or mock execution.
+
+2. **Phase 1: Truthful Outputs & Zero-Fabrication Contract**:
+   - Formalized `WorkerDataSourceMode` (`'live' | 'cached' | 'simulated' | 'unavailable' | 'partial' | 'insufficient_data' | 'verified'`) in `src/lib/ai/co-founder/workers/types.ts`.
+   - **Worker 6 (Sales)**: Removed `totalOrders * 35` and `1,500 visitors` benchmark multipliers; pre-checkout funnel stages without web session telemetry marked `unavailable` (`count: null`); 0 orders returns `insufficient_data`.
+   - **Worker 10 (Review)**: Removed hardcoded 38 praise / 4 clasp defect fallbacks. Themes extracted dynamically from real reviews; 0 reviews returns `insufficient_data`.
+   - **Worker 12 (Monitoring)**: Removed fallback returning fabricated 80.0% / 87.5% reliability rates. Unrecorded telemetry returns `insufficient_data`.
+   - **Worker 8 (Content)**: Measures real word counts, actual keyword density, and internal links directly from generated markdown.
+   - **Meta Ads**: Unconfigured token returns empty data in production, marking test outputs explicitly as `sourceMode: 'simulated'`.
+
+3. **Phase 2: SSRF, Browser Sandboxing & Egress Protection**:
+   - **Playwright Browser Hardening (`src/lib/ai/browser/playwright.ts`)**: Integrated `assertSafeOutboundUrl()` pre-flight verification on all incoming target URLs. Enforces isolated Chromium context per execution with zero permissions (`permissions: []`), strict TLS enforcement (`ignoreHTTPSErrors: false`), and strict CSP (`bypassCSP: false`).
+   - **Route-Level Egress Interception**: Registered `page.route('**/*')` evaluating every outbound network request and post-redirect destination against `assertSafeOutboundUrl()`, automatically aborting requests to private IP subnets, loopback, or cloud metadata endpoints (`169.254.169.254`).
+   - **Scrapling Safe Process Invocation (`src/lib/ai/browser/scrapling.ts`)**: Replaced string interpolation in shell execution with `child_process.spawn` (`shell: false`), passing target URLs safely via `sys.argv[1]` to eliminate OS command and Python code injection vulnerabilities.
+   - **n8n Media Webhook Egress Protection (`src/lib/ai/co-founder/workers/marketing/n8n-client.ts`)**: Validates `webhookUrl` and production `callback_url` against SSRF policy before dispatching media processing jobs.
+
+
