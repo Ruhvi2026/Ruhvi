@@ -62,6 +62,9 @@ export class CompetitorResearchWorker implements AIWorkerInterface {
         'get_competitors',
         'analyze_competitor',
         'reddit_social_sentiment',
+        'web_search',
+        'read_webpage',
+        'research_topic',
       ],
       permissionScope: ['mcp_tools:read', 'mcp_tools:write'],
       isSystemWorker: false,
@@ -132,6 +135,26 @@ export class CompetitorResearchWorker implements AIWorkerInterface {
           assumptionsAndInferences.push(
             `[INFERENCE] Live crawl on ${targetUrl} timed out or blocked by bot protection; relying on cached registry benchmarks: ${crawlErr.message}.`
           );
+        }
+      } else if (
+        /search|pricing|discount|sale|campaign|offer|latest/i.test(input.task)
+      ) {
+        try {
+          const { getRsiCoordinator } = await import('@/lib/ai/co-founder/rsi');
+          const rsi = getRsiCoordinator();
+          const searchRes = await rsi.research.searchWeb({
+            query: input.task.slice(0, 120),
+            maxResults: 3,
+          });
+          if (searchRes.results && searchRes.results.length > 0) {
+            for (const r of searchRes.results) {
+              verifiedInformation.push(
+                `[VERIFIED WEB SEARCH] (${r.domain}) ${r.title}: ${r.snippet}`
+              );
+            }
+          }
+        } catch {
+          // Graceful fallback if search gateway is unavailable
         }
       }
 

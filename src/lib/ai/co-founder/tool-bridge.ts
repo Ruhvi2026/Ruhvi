@@ -1811,6 +1811,125 @@ async function executeCoFounderToolInternal(
         };
       }
 
+      case 'web_search': {
+        const query = typeof args.query === 'string' ? args.query.trim() : '';
+        if (!query) {
+          throw new Error('query is required for web_search');
+        }
+        const { getRsiCoordinator } = await import('./rsi');
+        const rsi = getRsiCoordinator();
+        const searchRes = await rsi.research.searchWeb({
+          query,
+          domains: Array.isArray(args.domains) ? args.domains : undefined,
+          timeRange: args.time_range || args.timeRange,
+          language: args.language,
+          maxResults:
+            typeof args.max_results === 'number' ? args.max_results : 5,
+        });
+
+        const count = searchRes.results?.length || 0;
+        const providerName = searchRes.providerUsed || 'web';
+        let voiceSummary = '';
+        if (searchRes.sourceMode === 'unavailable') {
+          voiceSummary = `Live web search for "${query}" is currently unavailable across configured providers.`;
+        } else if (count === 0) {
+          voiceSummary = `No external search results found for "${query}" (${searchRes.sourceMode}).`;
+        } else {
+          const topDomains = Array.from(
+            new Set(searchRes.results.map((r: any) => r.domain || 'web'))
+          )
+            .slice(0, 3)
+            .join(', ');
+          voiceSummary = `Found ${count} ${searchRes.sourceMode} search results for "${query}" from ${topDomains} via ${providerName}.`;
+        }
+
+        return {
+          toolName,
+          success: searchRes.sourceMode !== 'unavailable',
+          data: searchRes,
+          error:
+            searchRes.sourceMode === 'unavailable'
+              ? searchRes.error || 'Live search unavailable'
+              : undefined,
+          summaryForVoice: voiceSummary,
+        };
+      }
+
+      case 'read_webpage': {
+        const url = typeof args.url === 'string' ? args.url.trim() : '';
+        if (!url) {
+          throw new Error('url is required for read_webpage');
+        }
+        const { getRsiCoordinator } = await import('./rsi');
+        const rsi = getRsiCoordinator();
+        const readRes = await rsi.research.readWebpage({
+          url,
+          extractMode: args.extract_mode === 'text' ? 'text' : 'markdown',
+          maxCharacters:
+            typeof args.max_characters === 'number'
+              ? args.max_characters
+              : 25000,
+        });
+
+        const isSuccess = Boolean(readRes.markdown || readRes.textContent);
+        const providerName = readRes.providerUsed || 'reader';
+        const titleSnippet = readRes.title ? `"${readRes.title}"` : url;
+        const voiceSummary = isSuccess
+          ? `Read webpage ${titleSnippet} via ${providerName} (${readRes.sourceMode}).`
+          : `Failed to read webpage ${url} via ${providerName}: ${readRes.sourceMode}.`;
+
+        return {
+          toolName,
+          success: isSuccess,
+          data: readRes,
+          error: isSuccess
+            ? undefined
+            : readRes.error || `Failed to read webpage: ${readRes.sourceMode}`,
+          summaryForVoice: voiceSummary,
+        };
+      }
+
+      case 'research_topic': {
+        const topic = typeof args.topic === 'string' ? args.topic.trim() : '';
+        if (!topic) {
+          throw new Error('topic is required for research_topic');
+        }
+        const { getRsiCoordinator } = await import('./rsi');
+        const rsi = getRsiCoordinator();
+        const evidencePack = await rsi.research.researchTopic(topic, {
+          maxSources:
+            typeof args.max_sources === 'number' ? args.max_sources : 5,
+          category: args.category || 'general',
+        });
+
+        return {
+          toolName,
+          success:
+            evidencePack.sources.length > 0 || evidencePack.claims.length > 0,
+          data: evidencePack,
+          summaryForVoice:
+            evidencePack.voiceSummary ||
+            `Completed research for topic "${topic}".`,
+        };
+      }
+
+      case 'get_research_provider_health': {
+        const { getRsiCoordinator } = await import('./rsi');
+        const rsi = getRsiCoordinator();
+        const health = rsi.research.getProviderHealth();
+
+        const activeProviders = Object.entries(health)
+          .map(([p, h]) => `${p}: ${h.status}`)
+          .join(', ');
+
+        return {
+          toolName,
+          success: true,
+          data: health,
+          summaryForVoice: `Research provider health: ${activeProviders}.`,
+        };
+      }
+
       default:
         return {
           toolName,

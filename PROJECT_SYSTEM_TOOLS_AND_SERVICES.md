@@ -626,6 +626,14 @@ Authoritative architectural record of the upgrades implemented per the Co-Founde
    - **Freshness & Provenance Ledger**: Tracks SHA-256 `contentHash` per excerpt and categorizes publication freshness into `fresh`, `possibly_stale`, or `undated`.
    - **Dual-Mode Output Formatting**: Formats structured markdown citations with footnote links for text chat and concise spoken source digests for voice mode.
 
+6. **Phase 5: Research Gateway Tool System Bridge (`src/lib/ai/co-founder/brain.ts`, `tool-bridge.ts`, `mcp-auth.ts`)**:
+   - **4 Research Tools Declared**: Registered `web_search`, `read_webpage`, `research_topic`, and `get_research_provider_health` in `CO_FOUNDER_TOOL_DECLARATIONS` and normalized via `formatGeminiFunctionDeclarations` for Gemini Live / AI SDK.
+   - **Permission Matrix & Fail-Closed Guard**: Added all 4 tools to `TOOL_PERMISSION_MAP` under `{ module: 'mcp_tools', action: 'read' }`. Callers lacking `mcp_tools:read` are rejected with `Forbidden`. Unknown tools fail closed.
+   - **Tool Execution Router Integration**: Implemented execution branches in `executeCoFounderTool` routing `web_search` and `read_webpage` through `RsiResearchEngine` and the provider router, `research_topic` through `evidenceLedger`, and `get_research_provider_health` through the circuit breaker health monitor. Truthful fallback status (`sourceMode: 'unavailable'`) returned when providers are unreachable.
+   - **Zero-Fabrication Executive Instructions**: Injected Rule 14 into `getCoFounderSystemPrompt()`, mandating live research over fabrication, source citations, trust-tier distinctions, and untrusted web content handling.
+   - **Specialist Worker Cross-Integration**: Integrated research tools into the Competitor Research Worker (`worker_competitor_research`) and internal department configs for real-time market and competitor pricing intelligence.
+
+
 
 
 

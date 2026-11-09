@@ -201,6 +201,9 @@ You speak fluently in Bengali, English, and Hindi.`,
       'create_and_share_file',
       'scan_reddit_social_sentiment',
       'browse_website',
+      'web_search',
+      'read_webpage',
+      'research_topic',
     ],
     systemInstructions: `You are the Ruhvi Competitor AI Worker.
 Your role is to monitor competitor jewelry pricing, customer complaints on reddit, and contrast Ruhvi's 18K anti-tarnish warranty with competitor offerings.

@@ -259,6 +259,12 @@ export const TOOL_PERMISSION_MAP: Record<
   // E-commerce Catalog Drafting & Publishing (Write)
   create_draft_product: { module: 'products', action: 'write' },
   publish_product: { module: 'products', action: 'write' },
+
+  // Internet Research Gateway Tools (RSI Phase 3 & 5)
+  web_search: { module: 'mcp_tools', action: 'read' },
+  read_webpage: { module: 'mcp_tools', action: 'read' },
+  research_topic: { module: 'mcp_tools', action: 'read' },
+  get_research_provider_health: { module: 'mcp_tools', action: 'read' },
 };
 
 export function assertSpecificScope(
