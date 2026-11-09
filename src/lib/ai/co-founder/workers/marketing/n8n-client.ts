@@ -1,4 +1,5 @@
 import 'server-only';
+import { assertSafeOutboundUrl } from '@/lib/security/ssrf';
 
 export interface N8nMediaProcessingPayload {
   job_id: string;
@@ -88,6 +89,32 @@ export async function triggerN8nMediaProcessor(
       error:
         'integration_not_configured: MEDIA_PROCESSOR_SECRET is required to dispatch media webhook in production.',
     };
+  }
+
+  // SSRF Protection: Validate target webhook URL before any network connection
+  try {
+    await assertSafeOutboundUrl(webhookUrl);
+  } catch (err: any) {
+    return {
+      success: false,
+      jobId: payload.job_id,
+      status: 'FAILED',
+      error: `unsafe_webhook_url: ${err?.message || 'Webhook URL was blocked by SSRF policy'}`,
+    };
+  }
+
+  // In production, validate callback URL against SSRF policy as well
+  if (process.env.NODE_ENV === 'production' && payload.callback_url) {
+    try {
+      await assertSafeOutboundUrl(payload.callback_url);
+    } catch (err: any) {
+      return {
+        success: false,
+        jobId: payload.job_id,
+        status: 'FAILED',
+        error: `unsafe_callback_url: ${err?.message || 'Callback URL was blocked by SSRF policy'}`,
+      };
+    }
   }
 
   const controller = new AbortController();

@@ -5,6 +5,7 @@ import {
   type BrowserContext,
   type Page,
 } from 'playwright';
+import { assertSafeOutboundUrl } from '@/lib/security/ssrf';
 
 export interface BrowseOptions {
   url: string;
@@ -44,13 +45,34 @@ export async function browseWebPageWithPlaywright(
     ? options.url.trim()
     : `https://${options.url.trim()}`;
 
-  const timeout = options.timeoutMs || 20000;
+  // 1. Pre-flight SSRF Validation: Block localhost, cloud metadata (169.254.169.254), private subnets, unsafe schemes
+  try {
+    await assertSafeOutboundUrl(targetUrl);
+  } catch (err: any) {
+    return {
+      url: targetUrl,
+      finalUrl: targetUrl,
+      title: 'Blocked URL',
+      metaDescription: '',
+      headings: [],
+      textContent: '',
+      detectedPrices: [],
+      keyHighlights: [],
+      status: 403,
+      error:
+        err?.message ||
+        'Access to blocked address or invalid URL was denied by SSRF guard',
+      executiveVoiceSummary: `Blocked outbound access to ${targetUrl}: ${err?.message || 'Unsafe destination'}.`,
+    };
+  }
+
+  const timeout = Math.min(options.timeoutMs || 20000, 30000); // Enforce 30s maximum timeout ceiling
   let browser: Browser | null = null;
   let context: BrowserContext | null = null;
   let page: Page | null = null;
 
   try {
-    // Launch headless Chromium
+    // Launch headless Chromium with strict sandboxing and minimal process flags
     browser = await chromium.launch({
       headless: true,
       args: [
@@ -61,33 +83,74 @@ export async function browseWebPageWithPlaywright(
       ],
     });
 
+    // Isolated, ephemeral browser context with zero-trust permissions and strict TLS enforcement
     context = await browser.newContext({
       userAgent:
         options.customUserAgent ||
         'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
       viewport: { width: 1280, height: 800 },
       deviceScaleFactor: 1,
+      permissions: [],
+      ignoreHTTPSErrors: false,
+      bypassCSP: false,
     });
 
     page = await context.newPage();
     page.setDefaultTimeout(timeout);
     page.setDefaultNavigationTimeout(timeout);
 
-    // Block heavy media (images, fonts, media) if screenshot is not requested for faster speed
-    if (!options.captureScreenshot) {
-      await page.route('**/*', (route) => {
-        const reqType = route.request().resourceType();
+    // 2. Comprehensive Route Interception & Egress Filtering
+    await page.route('**/*', async (route) => {
+      const req = route.request();
+      const reqUrl = req.url();
+
+      // Permit safe internal browser data schemes
+      if (reqUrl.startsWith('data:') || reqUrl.startsWith('about:')) {
+        return route.continue();
+      }
+
+      // Check URL validity and SSRF egress safety for every network hop
+      try {
+        await assertSafeOutboundUrl(reqUrl);
+      } catch {
+        return route.abort('blockedbyclient');
+      }
+
+      // Block heavy media (images, fonts, media, stylesheets) if screenshot is not requested
+      if (!options.captureScreenshot) {
+        const reqType = req.resourceType();
         if (['image', 'media', 'font', 'stylesheet'].includes(reqType)) {
           return route.abort();
         }
-        return route.continue();
-      });
-    }
+      }
+
+      return route.continue();
+    });
 
     const response = await page.goto(targetUrl, {
       waitUntil: 'domcontentloaded',
       timeout,
     });
+
+    // 3. Post-navigation SSRF Validation (verify redirect did not bounce to internal network)
+    const finalUrl = page.url();
+    try {
+      await assertSafeOutboundUrl(finalUrl);
+    } catch (redirectErr: any) {
+      return {
+        url: targetUrl,
+        finalUrl,
+        title: 'Blocked Redirect',
+        metaDescription: '',
+        headings: [],
+        textContent: '',
+        detectedPrices: [],
+        keyHighlights: [],
+        status: 403,
+        error: `Redirected to unsafe URL: ${redirectErr?.message || 'Blocked by SSRF policy'}`,
+        executiveVoiceSummary: `Blocked redirection from ${targetUrl} to ${finalUrl}: ${redirectErr?.message || 'Unsafe destination'}.`,
+      };
+    }
 
     const statusCode = response?.status() || 200;
 
@@ -105,7 +168,6 @@ export async function browseWebPageWithPlaywright(
       await page.waitForTimeout(1000);
     }
 
-    const finalUrl = page.url();
     const title = (await page.title()) || 'No Title';
 
     // Extract meta description
