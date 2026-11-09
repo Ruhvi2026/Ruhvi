@@ -86,7 +86,6 @@ export class AccountsTaxWorker implements AIWorkerInterface {
       // 2. Compute GSTR-3B Summary (combining outward sales + inward ITC)
       const gstr3b = await computeGstr3bSummary(period);
 
-      const gross = gstr3b.outwardSupplies.taxableValue * 1.03;
       const taxable = gstr3b.outwardSupplies.taxableValue;
       const outputTax =
         gstr3b.outwardSupplies.cgst +
@@ -231,6 +230,33 @@ export class AccountsTaxWorker implements AIWorkerInterface {
         }
       }
 
+      const taskLower = input.task.toLowerCase();
+      let requiredApproval = false;
+      let executionStatus: 'executed' | 'pending_approval' | 'not_required' =
+        'executed';
+      let requiredAction =
+        problems.length > 0
+          ? 'Review GST mismatch or margin leakage'
+          : 'None - accounts metrics healthy';
+
+      const isMutationOrFiling =
+        taskLower.includes('file') ||
+        taskLower.includes('submit') ||
+        taskLower.includes('voucher') ||
+        taskLower.includes('record bill') ||
+        taskLower.includes('adjust') ||
+        taskLower.includes('mutate');
+
+      if (isMutationOrFiling) {
+        requiredApproval = true;
+        executionStatus = 'pending_approval';
+        requiredAction =
+          'Mandatory CA Review & Founder Approval required before statutory return submission or ledger mutation';
+        recommendations.unshift(
+          'CA Review Gate: Statutory tax filing and financial ledger mutation requires formal verification by a qualified Chartered Accountant.'
+        );
+      }
+
       return {
         workerId: this.id,
         workerName: this.name,
@@ -243,15 +269,24 @@ export class AccountsTaxWorker implements AIWorkerInterface {
         priority,
         expectedImpact:
           'Maintain 100% statutory GST & Income Tax compliance while optimizing input tax credit and jewellery manufacturing margins.',
-        requiredAction:
-          problems.length > 0
-            ? 'Review GST mismatch or margin leakage'
-            : 'None - accounts metrics healthy',
-        requiredApproval: false,
-        executionStatus: 'executed',
+        requiredAction,
+        requiredApproval,
+        executionStatus,
         verification:
-          'Verified against cashbook, GSTR-3B, and manufacturing cost calculations.',
+          'Verified against deterministic cashbook, GSTR-3B, and manufacturing cost calculation engines.',
         missingCapabilities: [],
+        data: {
+          caReviewStatus: isMutationOrFiling
+            ? 'ca_review_required'
+            : 'verified_arithmetic',
+          gstr3bSummary: {
+            period,
+            taxable,
+            outputTax,
+            itcTotal,
+            netPayable,
+          },
+        },
         executiveVoiceSummary: `Accounts and tax check complete. Recorded ${findings.length} financial observations.`,
         timestamp: new Date().toISOString(),
       };

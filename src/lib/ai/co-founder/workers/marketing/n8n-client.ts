@@ -41,6 +41,7 @@ export interface N8nWebhookResponse {
   message?: string;
   n8nExecutionId?: string;
   error?: string;
+  isSimulated?: boolean;
 }
 
 export async function triggerN8nMediaProcessor(
@@ -74,6 +75,7 @@ export async function triggerN8nMediaProcessor(
       success: true,
       jobId: payload.job_id,
       status: 'QUEUED',
+      isSimulated: true,
       message:
         'MEDIA_PROCESSOR_WEBHOOK_URL is not set. Job queued in simulation mode ready for callback.',
       n8nExecutionId: `sim_exec_${Date.now()}`,

@@ -1,6 +1,6 @@
 import 'server-only';
 
-import { AdCampaignDraft, AdSetDraft, AdDraft } from './types';
+import { AdCampaignDraft } from './types';
 import { WorkerDataSourceMode } from '../types';
 
 export interface MetaAdAccount {
@@ -89,23 +89,7 @@ export class MetaAdsService {
     campaignId?: string
   ): Promise<MetaCampaignInsight[]> {
     if (!this.accessToken) {
-      if (process.env.NODE_ENV === 'production') {
-        return [];
-      }
-      return [
-        {
-          campaignId: campaignId || 'cmp_diwali_2026',
-          campaignName: 'Diwali Anti-Tarnish 22K Showcase',
-          spend: 14200,
-          impressions: 185000,
-          clicks: 4625,
-          ctr: 2.5,
-          cpc: 3.07,
-          purchases: 38,
-          roas: 4.8,
-          sourceMode: 'simulated',
-        },
-      ];
+      return [];
     }
     // Live telemetry insights when token is available
     return [

@@ -13,6 +13,7 @@ import {
   getStoreAnalytics,
   type AnalyticsTimeframe,
 } from '@/lib/ai/co-founder/analytics';
+import { getServiceClient } from '@/lib/supabase/service';
 
 export interface FunnelStage {
   stage: string;
@@ -96,16 +97,13 @@ export class SalesConversionWorker implements AIWorkerInterface {
       let checkoutDropoffRate: number | null = null;
 
       if (hasPreCheckoutTelemetry) {
-        const carts = measuredCarts ?? Math.round(measuredVisitors * 0.05);
-        const checkouts = measuredCheckouts ?? Math.round(carts * 0.5);
-
         overallConversionRate = Number(
           ((totalOrders / measuredVisitors) * 100).toFixed(2)
         );
         checkoutDropoffRate =
-          checkouts > 0
-            ? Number((100 - (totalOrders / checkouts) * 100).toFixed(1))
-            : 0;
+          measuredCheckouts !== null && measuredCheckouts > 0
+            ? Number((100 - (totalOrders / measuredCheckouts) * 100).toFixed(1))
+            : null;
 
         funnel = [
           {
@@ -117,32 +115,57 @@ export class SalesConversionWorker implements AIWorkerInterface {
           },
           {
             stage: 'Added to Cart',
-            count: carts,
-            conversionRatePercent: Number(
-              ((carts / measuredVisitors) * 100).toFixed(1)
-            ),
-            dropOffRatePercent: Number(
-              (100 - (carts / measuredVisitors) * 100).toFixed(1)
-            ),
-            status: measuredCarts !== null ? 'measured' : 'estimated',
+            count: measuredCarts,
+            conversionRatePercent:
+              measuredCarts !== null && measuredVisitors > 0
+                ? Number(((measuredCarts / measuredVisitors) * 100).toFixed(1))
+                : null,
+            dropOffRatePercent:
+              measuredCarts !== null && measuredVisitors > 0
+                ? Number(
+                    (100 - (measuredCarts / measuredVisitors) * 100).toFixed(1)
+                  )
+                : null,
+            status: measuredCarts !== null ? 'measured' : 'unavailable',
+            notes:
+              measuredCarts !== null
+                ? undefined
+                : 'Cart event telemetry unavailable; benchmark multiplier strictly omitted.',
           },
           {
             stage: 'Initiated Checkout',
-            count: checkouts,
-            conversionRatePercent: Number(
-              ((checkouts / Math.max(carts, 1)) * 100).toFixed(1)
-            ),
-            dropOffRatePercent: Number(
-              (100 - (checkouts / Math.max(carts, 1)) * 100).toFixed(1)
-            ),
-            status: measuredCheckouts !== null ? 'measured' : 'estimated',
+            count: measuredCheckouts,
+            conversionRatePercent:
+              measuredCheckouts !== null && (measuredCarts ?? 0) > 0
+                ? Number(
+                    (
+                      (measuredCheckouts / (measuredCarts as number)) *
+                      100
+                    ).toFixed(1)
+                  )
+                : null,
+            dropOffRatePercent:
+              measuredCheckouts !== null && (measuredCarts ?? 0) > 0
+                ? Number(
+                    (
+                      100 -
+                      (measuredCheckouts / (measuredCarts as number)) * 100
+                    ).toFixed(1)
+                  )
+                : null,
+            status: measuredCheckouts !== null ? 'measured' : 'unavailable',
+            notes:
+              measuredCheckouts !== null
+                ? undefined
+                : 'Checkout initiation telemetry unavailable; benchmark multiplier strictly omitted.',
           },
           {
             stage: 'Orders Placed',
             count: totalOrders,
-            conversionRatePercent: Number(
-              ((totalOrders / Math.max(checkouts, 1)) * 100).toFixed(1)
-            ),
+            conversionRatePercent:
+              measuredCheckouts !== null && measuredCheckouts > 0
+                ? Number(((totalOrders / measuredCheckouts) * 100).toFixed(1))
+                : null,
             dropOffRatePercent: checkoutDropoffRate,
             status: 'measured',
           },
@@ -235,6 +258,70 @@ export class SalesConversionWorker implements AIWorkerInterface {
         `Authoritative completed orders: ${completedOrders}, cancelled/unfulfilled orders: ${cancelledOrders} (Cancellation rate: ${cancellationRate}%).`
       );
 
+      // Ingest real payment telemetry (COD vs Prepaid ratios & payment failures)
+      let codOrdersCount = 0;
+      let prepaidOrdersCount = 0;
+      let failedPaymentsCount = 0;
+      let paymentTelemetryAvailable = false;
+
+      try {
+        const supabase = getServiceClient();
+        const { data: orderPayments, error: paymentErr } = await supabase
+          .from('orders')
+          .select('payment_method, payment_status')
+          .limit(500);
+
+        if (!paymentErr && orderPayments && orderPayments.length > 0) {
+          paymentTelemetryAvailable = true;
+          for (const op of orderPayments) {
+            const method = String(op.payment_method || '').toLowerCase();
+            const status = String(op.payment_status || '').toLowerCase();
+            if (method.includes('cod')) {
+              codOrdersCount++;
+            } else {
+              prepaidOrdersCount++;
+            }
+            if (status === 'failed') {
+              failedPaymentsCount++;
+            }
+          }
+        }
+      } catch {
+        // Degrade gracefully if Supabase is offline or unmocked in unit test
+      }
+
+      if (paymentTelemetryAvailable) {
+        const totalSampledPayments = codOrdersCount + prepaidOrdersCount;
+        const codPercent =
+          totalSampledPayments > 0
+            ? Number(((codOrdersCount / totalSampledPayments) * 100).toFixed(1))
+            : 0;
+        const prepaidPercent =
+          totalSampledPayments > 0
+            ? Number(
+                ((prepaidOrdersCount / totalSampledPayments) * 100).toFixed(1)
+              )
+            : 0;
+        const failureRate =
+          totalSampledPayments > 0
+            ? Number(
+                ((failedPaymentsCount / totalSampledPayments) * 100).toFixed(1)
+              )
+            : 0;
+
+        findings.push(
+          `Payment Telemetry: ${prepaidPercent}% Prepaid vs ${codPercent}% COD across ${totalSampledPayments} sampled orders. Payment failure rate: ${failureRate}%.`
+        );
+        evidence.push(
+          `Payment breakdown: ${prepaidOrdersCount} Prepaid/UPI, ${codOrdersCount} COD, ${failedPaymentsCount} recorded payment failures.`
+        );
+        if (failureRate > 8) {
+          problems.push(
+            `Elevated payment gateway failure rate detected (${failureRate}% failures). Investigate gateway response codes and OTP drop-offs.`
+          );
+        }
+      }
+
       // Bottleneck identification
       if (
         hasPreCheckoutTelemetry &&
@@ -323,6 +410,23 @@ export class SalesConversionWorker implements AIWorkerInterface {
             completedOrders,
             cancellationRate,
           },
+          paymentTelemetry: paymentTelemetryAvailable
+            ? {
+                codOrdersCount,
+                prepaidOrdersCount,
+                failedPaymentsCount,
+                paymentFailureRate:
+                  codOrdersCount + prepaidOrdersCount > 0
+                    ? Number(
+                        (
+                          (failedPaymentsCount /
+                            (codOrdersCount + prepaidOrdersCount)) *
+                          100
+                        ).toFixed(1)
+                      )
+                    : 0,
+              }
+            : null,
         },
         executiveVoiceSummary: voiceSummary,
         timestamp,

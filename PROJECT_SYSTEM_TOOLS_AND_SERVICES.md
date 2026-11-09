@@ -655,6 +655,20 @@ Authoritative architectural record of the upgrades implemented per the Co-Founde
    - **Distributed Idempotency at Entry Boundary (`idempotency.ts`)**: Caches execution results by idempotency key to prevent duplicate mutations on retries.
    - **Visible Dry-Run Tagging & Dead-Letter Replay (`agent-runner.ts`)**: Stamped `sourceMode: 'simulated'` and `dryRun: true` on simulation outputs; added `replayDeadLetterTask` resetting dead-letter, timed-out, or failed tasks with fresh run credentials.
 
+10. **Phase 9: Real Data, Grounded Integrations & Domain Upgrades Across All 16 Workers (`src/lib/ai/co-founder/workers/`)**:
+    - **Worker 6 (Sales Conversion)**: Completely eliminated synthetic multiplier assumptions (`measuredVisitors * 0.05` for carts and `carts * 0.5` for checkout). Pre-checkout funnel stages without web session telemetry are reported as `count: null` and marked as `'unavailable'`. Ingests real payment telemetry directly from `orders` (`payment_method`, `payment_status`), reporting COD vs Prepaid ratios and payment failure rates with explicit `sourceMode`.
+    - **Worker 10 (Review Analysis)**: Replaced static fallback dictionaries with dynamic defect mining across 6 domain defect categories (stone loosening, plating fading/wear, clasp stiffness, choker sizing, delivery delays, packaging transit damage). Added sample size, verified purchaser counts, and statistical confidence levels (`high`, `medium`, `low`, `insufficient_data`).
+    - **Worker 12 (Monitoring & Self-Correction)**: Replaced sample success rate fallbacks with empirical checks against `co_founder_outcomes` and `co_founder_action_plans`. Enforced minimum sample size rule: < 5 actions evaluated is marked `'inconclusive'` and `sourceMode: 'partial'` with 0 success rate fallback.
+    - **Worker 8 (Content & Copywriting)**: Removed static fallback link array. Implemented strict internal link validation (`/products/`, `/collections/`, `/policies/`, `/about`, `/contact`, `/blog/`). Added structured `citations` array grounded in canonical brand knowledge (`RUHVI_BUSINESS_KNOWLEDGE`) and external research parameters. Added `qualityMetrics`.
+    - **Worker 13 (Orders & Logistics)**: Added Step 4 Shiprocket tracking reconciliation against `tracking_updates` table. Reconciles carrier AWBs, delivery statuses, identifies in-transit delays, and flags delivery discrepancies.
+    - **Worker 3 (SEO)**: Added Search Console integration status (`connected` or `not_configured`) and JSON-LD structured data validation (`Product`, `Organization`, `BreadcrumbList`).
+    - **Worker 4 (Product)**: Added SKU variant awareness via `product_variants` table.
+    - **Worker 9 (Inventory)**: Implemented reproducible lead-time replenishment model (14-day Bengal artisan casting lead time + 7-day safety buffer = 11 units reorder point) and `stock_movements` ledger tracking.
+    - **Worker 7 (Customer Support)**: Grounded customer responses in canonical policy sources (shipping SLA, warranty, returns) and marked response templates as `draft_only` with approval requirement for outbound sends.
+    - **Worker 14 (Accounts & Tax)**: Added mandatory "CA Review Required" status and approval gating for any statutory return submission, voucher creation, or financial ledger mutation.
+    - **Marketing Integrations (Meta Ads, Cloudinary, n8n)**: Eliminated synthetic ROAS (4.8) and spend (14,200). `MetaAdsService.getAdAccounts()` differentiates between production (returns empty array fail-closed) and non-production (`sourceMode: 'simulated'`). Cloudinary and n8n clients return `isSimulated: true` when unconfigured in non-prod, failing closed in prod.
+
+
 
 
 

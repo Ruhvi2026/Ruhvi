@@ -35,6 +35,7 @@ jest.mock('@/lib/ai/co-founder/analytics', () => ({
 }));
 
 import { getStoreAnalytics } from '@/lib/ai/co-founder/analytics';
+import { getOutcomeAnalytics } from '@/lib/ai/co-founder/outcomes';
 import { MonitoringVerificationWorker } from '../worker-12-monitoring';
 
 describe('Worker 12: Monitoring & Verification Worker (System Worker)', () => {
@@ -100,5 +101,31 @@ describe('Worker 12: Monitoring & Verification Worker (System Worker)', () => {
     expect(output.executiveVoiceSummary).toContain(
       'Alert: A performance regression was detected'
     );
+  });
+
+  it('marks outcome status as inconclusive when sample size is below minimum threshold', async () => {
+    (getOutcomeAnalytics as jest.Mock).mockResolvedValueOnce({
+      totalActionsExecuted: 2,
+      verifiedOutcomes: {
+        positiveCount: 2,
+        negativeCount: 0,
+        neutralCount: 0,
+        successRatePercent: 100,
+      },
+      conflicts: [],
+    });
+
+    const output = await worker.execute({
+      task: 'Verify outcomes with low sample count',
+    });
+
+    expect(output.sourceMode).toBe('partial');
+    expect(output.data?.status).toBe('inconclusive');
+    expect(
+      output.problems.some((p: string) =>
+        p.includes('Insufficient outcome verification sample')
+      )
+    ).toBe(true);
+    expect(output.findings[0]).toContain('INCONCLUSIVE');
   });
 });

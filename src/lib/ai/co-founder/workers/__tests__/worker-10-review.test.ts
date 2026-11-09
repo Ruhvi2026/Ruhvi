@@ -6,7 +6,8 @@ const mockReviews = [
     product_id: 'prod_1',
     rating: 5,
     title: 'Looks like solid heirloom gold!',
-    comment: 'The 22K gold color is stunning. Wore it to a wedding and got so many compliments. Packaging is luxurious.',
+    comment:
+      'The 22K gold color is stunning. Wore it to a wedding and got so many compliments. Packaging is luxurious.',
     verified_purchase: true,
   },
   {
@@ -14,7 +15,8 @@ const mockReviews = [
     product_id: 'prod_1',
     rating: 5,
     title: 'Zero tarnishing after 2 months',
-    comment: 'Really surprised by the anti-tarnish coating. Held up through sweat and perfumes flawlessly.',
+    comment:
+      'Really surprised by the anti-tarnish coating. Held up through sweat and perfumes flawlessly.',
     verified_purchase: true,
   },
   {
@@ -22,7 +24,8 @@ const mockReviews = [
     product_id: 'prod_2',
     rating: 3,
     title: 'Pretty but clasp was stiff',
-    comment: 'The pendant is gorgeous, but the lobster clasp is very tight and tricky to open with long nails.',
+    comment:
+      'The pendant is gorgeous, but the lobster clasp is very tight and tricky to open with long nails.',
     verified_purchase: true,
   },
 ];
@@ -77,13 +80,17 @@ describe('Worker 10: Review & Feedback Worker', () => {
     const analysis = output.data?.analysis;
     expect(analysis.averageRating).toBeGreaterThanOrEqual(4.0);
     expect(analysis.praiseThemes.length).toBeGreaterThan(0);
-    expect(analysis.defectThemes.some((d: any) => d.defect.includes('clasp'))).toBe(true);
+    expect(
+      analysis.defectThemes.some((d: any) => d.defect.includes('clasp'))
+    ).toBe(true);
 
     expect(output.problems.length).toBeGreaterThan(0);
     expect(output.recommendations.some((r) => r.includes('clasp'))).toBe(true);
     expect(output.requiredApproval).toBe(false);
     expect(output.executionStatus).toBe('not_required');
-    expect(output.executiveVoiceSummary).toContain('sentiment is exceptionally strong');
+    expect(output.executiveVoiceSummary).toContain(
+      'sentiment is exceptionally strong'
+    );
   });
 
   it('handles database error gracefully', async () => {
@@ -100,5 +107,39 @@ describe('Worker 10: Review & Feedback Worker', () => {
 
     expect(output.workerId).toBe('worker_review_feedback');
     expect(output.findings.length).toBeGreaterThan(0);
+  });
+
+  it('reports statistical confidence and extracts gem loosening defect themes', async () => {
+    mockQueryBuilder.limit.mockImplementationOnce(() =>
+      Promise.resolve({
+        data: [
+          {
+            id: 'rev_4',
+            product_id: 'prod_4',
+            rating: 2,
+            title: 'Stone fell out',
+            comment: 'One cz gem was missing when I received the package.',
+            verified_purchase: true,
+          },
+        ],
+        error: null,
+      })
+    );
+
+    const output = await worker.execute({
+      task: 'Analyze defect patterns in review data',
+    });
+
+    const analysis = output.data?.analysis;
+    expect(analysis.sampleSize).toBe(1);
+    expect(analysis.confidenceLevel).toBe('low');
+    expect(
+      analysis.defectThemes.some(
+        (d: any) => d.defect.includes('stone') || d.defect.includes('gem')
+      )
+    ).toBe(true);
+    expect(
+      output.problems.some((p: string) => p.includes('Low sample size'))
+    ).toBe(true);
   });
 });

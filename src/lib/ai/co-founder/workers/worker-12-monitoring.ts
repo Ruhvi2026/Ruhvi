@@ -19,6 +19,8 @@ import { getServiceClient } from '@/lib/supabase/service';
 export interface VerificationReportData {
   verifiedActionsCount: number;
   successRatePercent: number;
+  status: 'verified' | 'inconclusive' | 'insufficient_data';
+  confidenceNote?: string;
   conflictCount: number;
   regressionsDetected: string[];
   metricsDelta: {
@@ -69,7 +71,6 @@ export class MonitoringVerificationWorker implements AIWorkerInterface {
 
   async execute(input: WorkerTaskInput): Promise<WorkerStructuredOutput> {
     const timestamp = new Date().toISOString();
-    const params = input.parameters || {};
 
     try {
       // 1. Run due action plan outcome verifications
@@ -102,8 +103,29 @@ export class MonitoringVerificationWorker implements AIWorkerInterface {
         ? rawOutcomeStats.conflicts
         : [];
 
+      const reportStatus: VerificationReportData['status'] =
+        totalActionsExecuted === 0
+          ? 'insufficient_data'
+          : totalActionsExecuted < 5
+            ? 'inconclusive'
+            : 'verified';
+
       const sourceMode: WorkerDataSourceMode =
-        totalActionsExecuted === 0 ? 'insufficient_data' : 'verified';
+        reportStatus === 'insufficient_data'
+          ? 'insufficient_data'
+          : reportStatus === 'inconclusive'
+            ? 'partial'
+            : 'verified';
+
+      const reportedSuccessRate: number =
+        totalActionsExecuted === 0 ? 0 : successRatePercent;
+
+      const confidenceNote =
+        totalActionsExecuted === 0
+          ? 'Zero recorded action executions in co_founder_outcomes ledger.'
+          : totalActionsExecuted < 5
+            ? `Sample size (${totalActionsExecuted} actions) is below minimum threshold (5); outcome success rate is marked INCONCLUSIVE.`
+            : `Statistically validated over ${totalActionsExecuted} executed operations.`;
 
       // 3. Ingest fresh store analytics for before/after comparison
       const analytics = (await getStoreAnalytics({ timeframe: '30d' }).catch(
@@ -124,6 +146,16 @@ export class MonitoringVerificationWorker implements AIWorkerInterface {
         evidence.push(
           'co_founder_outcomes database table currently contains zero recorded outcome records.'
         );
+      } else if (totalActionsExecuted < 5) {
+        findings.push(
+          `Closed-loop outcome review: ${totalActionsExecuted} executed action${totalActionsExecuted === 1 ? '' : 's'} evaluated (${successRatePercent}% raw rate). Sample size is below minimum threshold (5); status is INCONCLUSIVE.`
+        );
+        evidence.push(
+          `Authoritative outcome records: ${positiveCount} positive, ${neutralCount} neutral, ${negativeCount} underperformed.`
+        );
+        problems.push(
+          `Insufficient outcome verification sample (${totalActionsExecuted} actions). Minimum 5 executed actions required to confirm reliable trend.`
+        );
       } else {
         findings.push(
           `Closed-loop outcome review: ${totalActionsExecuted} executed actions evaluated with an ${successRatePercent}% verified success rate.`
@@ -131,6 +163,24 @@ export class MonitoringVerificationWorker implements AIWorkerInterface {
         evidence.push(
           `Authoritative outcome records: ${positiveCount} confirmed positive impact, ${neutralCount} neutral, ${negativeCount} underperformed.`
         );
+      }
+
+      // Ingest recent execution ledger records from co_founder_action_plans
+      try {
+        const supabase = getServiceClient();
+        const { data: recentPlans } = await supabase
+          .from('co_founder_action_plans')
+          .select('id, title, status, execution_status')
+          .order('created_at', { ascending: false })
+          .limit(10);
+
+        if (recentPlans && recentPlans.length > 0) {
+          evidence.push(
+            `Execution ledger audit: Sampled ${recentPlans.length} records from co_founder_action_plans (e.g. "${recentPlans[0].title}" - status: ${recentPlans[0].status}).`
+          );
+        }
+      } catch {
+        // Degrade gracefully if Supabase client is mocked without action_plans table
       }
 
       if (verificationRun.verifiedCount > 0) {
@@ -225,14 +275,18 @@ export class MonitoringVerificationWorker implements AIWorkerInterface {
       const voiceSummary =
         totalActionsExecuted === 0
           ? 'Monitoring and verification complete. Outcome telemetry is currently in INSUFFICIENT_DATA state with 0 tracked outcomes; no success rates have been fabricated.'
-          : `Monitoring and verification complete. Overall executed action success rate is ${successRatePercent}%. ` +
-            (regressionsDetected.length > 0
-              ? `Alert: A performance regression was detected: ${regressionsDetected[0]}. Investigation recommended.`
-              : 'All executed operations are performing within expected positive bounds with zero regression.');
+          : totalActionsExecuted < 5
+            ? `Monitoring and verification complete. Analyzed ${totalActionsExecuted} executed actions with ${successRatePercent}% raw success; result is inconclusive due to small sample size.`
+            : `Monitoring and verification complete. Overall executed action success rate is ${successRatePercent}%. ` +
+              (regressionsDetected.length > 0
+                ? `Alert: A performance regression was detected: ${regressionsDetected[0]}. Investigation recommended.`
+                : 'All executed operations are performing within expected positive bounds with zero regression.');
 
       const reportData: VerificationReportData = {
         verifiedActionsCount: totalActionsExecuted,
-        successRatePercent,
+        successRatePercent: reportedSuccessRate,
+        status: reportStatus,
+        confidenceNote,
         conflictCount:
           conflicts.length || rawOutcomeStats?.conflictedOutcomes || 0,
         regressionsDetected,

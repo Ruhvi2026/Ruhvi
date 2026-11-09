@@ -83,13 +83,21 @@ export class InventoryWorker implements AIWorkerInterface {
       const lowStockList: InventoryItemStatus[] = [];
       const healthyList: InventoryItemStatus[] = [];
 
+      const workshopLeadTimeDays = 14; // Bengal artisan casting and electro-coating lead time
+      const safetyBufferDays = 7;
+      const dailyVelocity = 0.5; // Baseline velocity units/day
+      const reorderThresholdUnits = Math.ceil(
+        dailyVelocity * (workshopLeadTimeDays + safetyBufferDays)
+      ); // ~11 units
+
       for (const p of productList) {
         const qty = Number(p.stock_quantity) || 0;
-        // Estimated daily sales velocity heuristic based on catalogue activity (e.g. 0.35 to 0.7 units/day)
-        const dailyVelocity = 0.5;
         const daysRemaining = qty > 0 ? Math.round(qty / dailyVelocity) : 0;
-        // Recommend 30-day supply buffer + 10 units safety stock
-        const recommendedRestockUnits = Math.max(25 - qty, 10);
+        // Reproducible reorder quantity: target 30-day stock + lead-time buffer
+        const recommendedRestockUnits = Math.max(
+          Math.ceil(dailyVelocity * 30) - qty + reorderThresholdUnits,
+          10
+        );
 
         const item: InventoryItemStatus = {
           id: p.id,
@@ -98,18 +106,33 @@ export class InventoryWorker implements AIWorkerInterface {
           stockQuantity: qty,
           price: Number(p.price) || 0,
           status:
-            qty === 0 ? 'out_of_stock' : qty <= 5 ? 'low_stock' : 'in_stock',
+            qty === 0
+              ? 'out_of_stock'
+              : qty <= reorderThresholdUnits
+                ? 'low_stock'
+                : 'in_stock',
           estimatedDaysRemaining: daysRemaining,
           recommendedRestockUnits,
         };
 
         if (qty === 0) {
           criticalOutList.push(item);
-        } else if (qty <= 5) {
+        } else if (qty <= reorderThresholdUnits) {
           lowStockList.push(item);
         } else {
           healthyList.push(item);
         }
+      }
+
+      // Ingest recent stock movement ledger entries if present
+      let stockMovementsCount = 0;
+      try {
+        const { count } = await supabase
+          .from('stock_movements')
+          .select('*', { count: 'exact', head: true });
+        stockMovementsCount = count || 0;
+      } catch {
+        // Degrade gracefully if stock_movements is unmocked in test
       }
 
       const findings: string[] = [];
@@ -117,6 +140,15 @@ export class InventoryWorker implements AIWorkerInterface {
       const problems: string[] = [];
       const opportunities: string[] = [];
       const recommendations: string[] = [];
+
+      evidence.push(
+        `Lead-time replenishment model: ${workshopLeadTimeDays}-day workshop casting/plating lead time + ${safetyBufferDays}-day buffer (reorder point: <= ${reorderThresholdUnits} units).`
+      );
+      if (stockMovementsCount > 0) {
+        evidence.push(
+          `Stock Movement Ledger: ${stockMovementsCount} historical transaction events tracked in database.`
+        );
+      }
 
       findings.push(
         `Audited ${totalSkus} catalog SKUs: ${healthyList.length} adequately stocked, ${lowStockList.length} in low-stock status (<= 5 units), and ${criticalOutList.length} completely out of stock.`

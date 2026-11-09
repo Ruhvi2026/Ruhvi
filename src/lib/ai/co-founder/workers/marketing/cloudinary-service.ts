@@ -36,6 +36,7 @@ export interface MarketingMediaUploadResult {
   bytes: number;
   width?: number;
   height?: number;
+  isSimulated?: boolean;
 }
 
 export interface UploadValidationResult {
@@ -195,5 +196,6 @@ export async function uploadMarketingVideoToCloudinary(
         : (fileBuffer as Buffer).length || 5000000,
     width: 1080,
     height: 1920,
+    isSimulated: true,
   };
 }

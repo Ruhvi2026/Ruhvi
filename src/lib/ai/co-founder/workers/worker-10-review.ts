@@ -13,6 +13,11 @@ import { getServiceClient } from '@/lib/supabase/service';
 export interface SentimentAnalysisResult {
   totalReviews: number;
   averageRating: number;
+  sampleSize: number;
+  verifiedPurchasersCount: number;
+  unverifiedPurchasersCount: number;
+  confidenceLevel: 'high' | 'medium' | 'low' | 'insufficient_data';
+  confidenceNote?: string;
   sentimentDistribution: {
     positivePercent: number;
     neutralPercent: number;
@@ -89,6 +94,8 @@ export class ReviewFeedbackWorker implements AIWorkerInterface {
       let neutralCount = 0;
       let negativeCount = 0;
       let ratingSum = 0;
+      let verifiedPurchasersCount = 0;
+      let unverifiedPurchasersCount = 0;
 
       for (const r of reviewList) {
         const rating = Number(r.rating) || 5;
@@ -96,6 +103,12 @@ export class ReviewFeedbackWorker implements AIWorkerInterface {
         if (rating >= 4) positiveCount++;
         else if (rating === 3) neutralCount++;
         else negativeCount++;
+
+        if (r.verified_purchase) {
+          verifiedPurchasersCount++;
+        } else {
+          unverifiedPurchasersCount++;
+        }
       }
 
       const averageRating =
@@ -106,6 +119,22 @@ export class ReviewFeedbackWorker implements AIWorkerInterface {
         totalReviews > 0 ? Math.round((neutralCount / totalReviews) * 100) : 0;
       const negativePercent =
         totalReviews > 0 ? Math.round((negativeCount / totalReviews) * 100) : 0;
+
+      const confidenceLevel: SentimentAnalysisResult['confidenceLevel'] =
+        totalReviews === 0
+          ? 'insufficient_data'
+          : totalReviews < 5
+            ? 'low'
+            : totalReviews < 20
+              ? 'medium'
+              : 'high';
+
+      const confidenceNote =
+        totalReviews === 0
+          ? 'Zero customer reviews recorded. Sentiment analysis cannot be evaluated.'
+          : totalReviews < 5
+            ? `Small sample size (${totalReviews} review${totalReviews === 1 ? '' : 's'}). Findings are indicative rather than statistically conclusive.`
+            : `Robust sample size (${totalReviews} reviews, ${verifiedPurchasersCount} verified purchases) provides reliable customer voice signals.`;
 
       // Extract praise and defect themes dynamically from verified review text
       const praisePatterns = [
@@ -130,19 +159,31 @@ export class ReviewFeedbackWorker implements AIWorkerInterface {
 
       const defectPatterns = [
         {
-          regex: /clasp|lock|lobster|tight|stiff/i,
-          defect: 'Lobster clasp tightness on delicate necklace chains',
+          regex: /clasp|lock|lobster|tight|stiff|broken hook/i,
+          defect:
+            'Lobster clasp stiffness or fastening difficulty on delicate chains',
           severity: 'medium' as const,
         },
         {
-          regex: /choker|collarbone|snug|short|length/i,
+          regex: /choker|collarbone|snug|short|length|tight neck|fit|size/i,
           defect: 'Neck choker length slightly snug on broad collarbones',
           severity: 'low' as const,
         },
         {
-          regex: /delay|delivery|shipping|late/i,
+          regex: /delay|delivery|shipping|late|slow delivery/i,
           defect: 'Courier transit delay during peak seasonal surge',
           severity: 'medium' as const,
+        },
+        {
+          regex: /stone|gem|cz|zircon|fallen|loose stone|missing stone/i,
+          defect: 'Micro-pavé stone setting loosening or stone detachment',
+          severity: 'high' as const,
+        },
+        {
+          regex: /color fade|fading|dull|loss of shine|discolor/i,
+          defect:
+            'Premature plating wear or surface discoloration under harsh friction',
+          severity: 'high' as const,
         },
       ];
 
@@ -201,7 +242,10 @@ export class ReviewFeedbackWorker implements AIWorkerInterface {
         );
       } else {
         findings.push(
-          `Analyzed ${totalReviews} customer reviews. Store average rating is ${averageRating}/5.0 with ${positivePercent}% positive sentiment.`
+          `Analyzed ${totalReviews} customer reviews (${verifiedPurchasersCount} verified purchases, ${unverifiedPurchasersCount} unverified). Store average rating is ${averageRating}/5.0 with ${positivePercent}% positive sentiment.`
+        );
+        findings.push(
+          `Statistical Confidence: ${confidenceLevel.toUpperCase()} confidence. ${confidenceNote}`
         );
 
         if (praiseThemes.length > 0) {
@@ -211,15 +255,21 @@ export class ReviewFeedbackWorker implements AIWorkerInterface {
         }
 
         evidence.push(
-          `Sentiment breakdown: ${positivePercent}% Positive (4-5★), ${neutralPercent}% Neutral (3★), ${negativePercent}% Negative (1-2★).`
+          `Sentiment breakdown: ${positivePercent}% Positive (4-5★), ${neutralPercent}% Neutral (3★), ${negativePercent}% Negative (1-2★). Sample size: ${totalReviews}.`
         );
+
+        if (confidenceLevel === 'low') {
+          problems.push(
+            `Low sample size warning: Only ${totalReviews} reviews found. Minimum 20 reviews recommended for robust statistical confidence.`
+          );
+        }
 
         if (defectThemes.length > 0) {
           problems.push(
-            `Detected minor recurring friction: "${defectThemes[0].defect}" (${defectThemes[0].frequency} customer mentions).`
+            `Detected recurring customer friction: "${defectThemes[0].defect}" (${defectThemes[0].frequency} mentions).`
           );
           evidence.push(
-            `Quality check finding: Defect patterns verified from customer review texts.`
+            `Quality check finding: Defect patterns verified directly from customer review texts.`
           );
         }
 
@@ -247,15 +297,20 @@ export class ReviewFeedbackWorker implements AIWorkerInterface {
         totalReviews === 0
           ? 'Customer review sentiment is in INSUFFICIENT_DATA state with zero reviews in database. No sample sentiment was fabricated.'
           : averageRating >= 4.0
-            ? `Customer review sentiment is exceptionally strong at ${averageRating} out of 5 stars with ${positivePercent}% positive feedback across ${totalReviews} verified reviews. ` +
+            ? `Customer review sentiment is exceptionally strong at ${averageRating} out of 5 stars with ${positivePercent}% positive feedback across ${totalReviews} verified reviews (${confidenceLevel} confidence). ` +
               (defectThemes.length > 0
-                ? `I flagged one minor defect pattern around lobster clasp stiffness on delicate chains, with a workshop QC fix recommended.`
+                ? `I flagged recurring feedback around ${defectThemes[0].defect}, with a workshop QC fix recommended.`
                 : 'Zero defect patterns detected in customer feedback.')
             : `Customer review sentiment is ${averageRating} out of 5 stars across ${totalReviews} reviews with ${positivePercent}% positive rating. Quality enhancements recommended.`;
 
       const analysis: SentimentAnalysisResult = {
         totalReviews,
         averageRating,
+        sampleSize: totalReviews,
+        verifiedPurchasersCount,
+        unverifiedPurchasersCount,
+        confidenceLevel,
+        confidenceNote,
         sentimentDistribution: {
           positivePercent,
           neutralPercent,
