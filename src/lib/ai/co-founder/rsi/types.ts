@@ -173,3 +173,98 @@ export interface EvalRunReport {
   regressions_detected: string[];
   metrics: Record<string, any>;
 }
+
+// ==========================================
+// Phase 3: Research Gateway Types & Contracts
+// ==========================================
+
+export type ResearchProvider =
+  'crawl4ai' | 'tavily' | 'exa' | 'github' | 'rss' | 'direct_fetch' | 'jina';
+
+export type ProviderStatus =
+  | 'not_configured'
+  | 'healthy'
+  | 'rate_limited'
+  | 'quota_exhausted'
+  | 'auth_error'
+  | 'degraded'
+  | 'unavailable';
+
+export interface NormalizedSearchResult {
+  title: string;
+  url: string;
+  snippet: string;
+  domain: string;
+  publishedAt?: string;
+  retrievedAt: string;
+  provider: ResearchProvider;
+  score?: number;
+  raw?: unknown;
+}
+
+export interface ResearchSearchOptions {
+  query: string;
+  domains?: string[];
+  timeRange?: 'day' | 'week' | 'month' | 'year' | 'any';
+  language?: string;
+  maxResults?: number;
+  allowPaid?: boolean; // defaults to false; strictly enforces free-tier only
+}
+
+export interface ResearchSearchResponse {
+  success: boolean;
+  query: string;
+  providerUsed?: ResearchProvider;
+  attemptedProviders: ResearchProvider[];
+  results: NormalizedSearchResult[];
+  sourceMode:
+    | 'live'
+    | 'cached'
+    | 'simulated'
+    | 'unavailable'
+    | 'partial'
+    | 'insufficient_data';
+  providerStatuses: Partial<Record<ResearchProvider, ProviderStatus>>;
+  error?: string;
+  totalResults: number;
+  cached?: boolean;
+  retrievedAt: string;
+}
+
+export interface ResearchPageReadOptions {
+  url: string;
+  extractMode?: 'markdown' | 'text' | 'extract';
+  maxCharacters?: number;
+  allowPaid?: boolean;
+}
+
+export interface ResearchPageReadResponse {
+  success: boolean;
+  url: string;
+  finalUrl: string;
+  title: string;
+  markdown: string;
+  textContent?: string;
+  contentHash: string;
+  status: number;
+  providerUsed: 'crawl4ai' | 'jina' | 'direct_fetch' | 'playwright';
+  retrievedAt: string;
+  sourceMode:
+    | 'live'
+    | 'cached'
+    | 'simulated'
+    | 'unavailable'
+    | 'partial'
+    | 'insufficient_data';
+  error?: string;
+}
+
+export interface ProviderHealthState {
+  provider: ResearchProvider;
+  status: ProviderStatus;
+  lastCheckedAt: string;
+  creditsRemaining?: number | string;
+  creditsCost?: number;
+  rateLimitResetSeconds?: number;
+  error?: string;
+}

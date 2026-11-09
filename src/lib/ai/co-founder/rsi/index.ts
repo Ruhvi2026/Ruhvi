@@ -15,6 +15,7 @@ export * from './gap-detector';
 export * from './eval-lab';
 export * from './proposal-engine';
 export * from './evolution-history';
+export * from './provider-router';
 
 import { getRsiConfig } from './config';
 import { RsiMemoryManager } from './memory-manager';

@@ -613,4 +613,12 @@ Authoritative architectural record of the upgrades implemented per the Co-Founde
    - **Scrapling Safe Process Invocation (`src/lib/ai/browser/scrapling.ts`)**: Replaced string interpolation in shell execution with `child_process.spawn` (`shell: false`), passing target URLs safely via `sys.argv[1]` to eliminate OS command and Python code injection vulnerabilities.
    - **n8n Media Webhook Egress Protection (`src/lib/ai/co-founder/workers/marketing/n8n-client.ts`)**: Validates `webhookUrl` and production `callback_url` against SSRF policy before dispatching media processing jobs.
 
+4. **Phase 3: Hosted No-VPS Research Gateway (`src/lib/ai/co-founder/rsi/`)**:
+   - **Multi-Provider Search Hierarchy**: Server-only bounded router executing Crawl4AI Cloud (Primary) ➔ Tavily (Fallback 1) ➔ Exa (Fallback 2). Zero VPS, zero Docker containers, zero payment card required.
+   - **Fail-Closed & Free-Tier Guard**: Missing API keys return typed `not_configured` without faking outputs. `RESEARCH_ALLOW_PAID_PROVIDERS=false` and `RESEARCH_AUTORECHARGE=false` explicitly prevent billing, subscription, or recharge endpoint calls.
+   - **Circuit Breaker & Cooldowns**: Automatically tracks `quota_exhausted` (1h cooldown), `rate_limited` (60s cooldown), and `auth_error` without looping.
+   - **15-Minute Query Cache & Deduplication**: Canonicalizes URLs (strips `utm_*`, tracking parameters, trailing slashes) and caches query results in serverless memory (`sourceMode: 'cached'`) to conserve free-tier provider allowances.
+   - **Safe Page Readers & Specialist Sources**: Page extraction via Crawl4AI `/scrape`, Jina Reader (`r.jina.ai`), and `safeFetchDirect` all strictly gated by `assertSafeOutboundUrl()`. Public GitHub API and RSS/Atom feed ingestion adapters for code and publisher updates.
+
+
 
