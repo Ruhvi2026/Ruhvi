@@ -646,7 +646,14 @@ Authoritative architectural record of the upgrades implemented per the Co-Founde
    - **Governed Runtime Skill Loader (`src/lib/ai/skills/loader.ts`)**: Enforces strict allowlist (`SKILL_ALLOWLIST`), rejects path traversals, validates integrity hashes, and creates immutable `SkillRunTrace` records attached to each worker execution.
    - **100% Tool Permission Parity (`src/lib/ai/mcp-auth.ts`)**: Mapped all 50 worker-declared tools and 63 workforce manifest tools into `TOOL_PERMISSION_MAP` with explicit module and read/write actions, achieving 0 unmapped tools.
    - **Specialist 1:1 Chat Integration (`worker-chat-service.ts`)**: Injects capability manifests, explicit non-capabilities, and active runtime skill instructions into worker prompts, persisting audit traces in message metadata.
-   - **Tool & Router Integration**: Declared `search_public_discussions` in `CO_FOUNDER_TOOL_DECLARATIONS`, mapped under `mcp_tools:read` in `TOOL_PERMISSION_MAP`, and connected `agent_reach` to `ResearchProviderRouter` with graceful `not_configured` degradation when disabled or CLI is uninstalled.
+
+9. **Phase 8: Workforce Governance, Reliability & Distributed Controls (`src/lib/ai/co-founder/workforce/`)**:
+   - **Explicit Typed Action Risk Registry (`action-registry.ts`)**: Replaced substring-only risk matching with authoritative typed registry (`ACTION_RISK_REGISTRY`). Unknown actions default to `DENY`, never `read_only`.
+   - **Cryptographic Approval Binding with Nonce Protection (`policy-engine.ts`, `idempotency.ts`)**: Validates exact actionType, actor user ID, worker ID, expiration timestamps, and canonical payload SHA-256 hashes. Single-use nonces prevent replay attacks (second execution returns `DENY`).
+   - **Authoritative Distributed State Store (`state-store.ts`)**: Emergency global kill switch and worker maintenance state synchronized across serverless instances via Supabase `system_settings` with fast in-memory caching.
+   - **Timeout Budgets & Cancellation via AbortSignal (`agent-runner.ts`)**: Enforces `timeoutBudget` with `AbortController` and cancellation propagation to worker processes; timed-out tasks record `TIMED_OUT` rather than `COMPLETED`.
+   - **Distributed Idempotency at Entry Boundary (`idempotency.ts`)**: Caches execution results by idempotency key to prevent duplicate mutations on retries.
+   - **Visible Dry-Run Tagging & Dead-Letter Replay (`agent-runner.ts`)**: Stamped `sourceMode: 'simulated'` and `dryRun: true` on simulation outputs; added `replayDeadLetterTask` resetting dead-letter, timed-out, or failed tasks with fresh run credentials.
 
 
 

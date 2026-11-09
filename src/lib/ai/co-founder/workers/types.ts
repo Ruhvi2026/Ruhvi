@@ -58,6 +58,7 @@ export interface WorkerTaskInput {
   userRole?: string;
   channel?: 'voice' | 'text';
   dryRun?: boolean;
+  signal?: AbortSignal;
 }
 
 export interface WorkerStructuredOutput {

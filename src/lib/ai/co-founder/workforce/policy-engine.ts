@@ -14,6 +14,8 @@ import {
   isWorkerActive,
 } from './config';
 import { getWorkerManifest } from './manifests';
+import { getActionRiskCategory } from './action-registry';
+import { distributedIdempotencyStore } from './idempotency';
 
 export function computePayloadHash(payload: any): string {
   const normalized = JSON.stringify(payload, Object.keys(payload || {}).sort());
@@ -23,8 +25,12 @@ export function computePayloadHash(payload: any): string {
 export class WorkforcePolicyEngine {
   /**
    * Classify risk category for a given tool or action name.
+   * Uses authoritative ACTION_RISK_REGISTRY first.
    */
   classifyActionRisk(toolOrAction: string): ActionRiskCategory {
+    const exact = getActionRiskCategory(toolOrAction);
+    if (exact) return exact;
+
     const lower = toolOrAction.toLowerCase();
 
     if (
@@ -79,8 +85,15 @@ export class WorkforcePolicyEngine {
     toolName: string;
     payload?: Record<string, any>;
     approvalBinding?: ApprovalBinding;
+    userId?: string;
   }): PolicyDecision {
-    const { workerId, toolName, payload = {}, approvalBinding } = params;
+    const {
+      workerId,
+      toolName,
+      payload = {},
+      approvalBinding,
+      userId,
+    } = params;
 
     // 1. Strict forbidden workforce operations check (repository write, deploy, etc.)
     assertWorkforceOperationAllowed(toolName);
@@ -109,7 +122,7 @@ export class WorkforcePolicyEngine {
       return {
         decision: 'DENY',
         reason: `Worker manifest not found for '${workerId}'.`,
-        riskCategory: 'read_only',
+        riskCategory: 'destructive',
       };
     }
 
@@ -117,11 +130,21 @@ export class WorkforcePolicyEngine {
       return {
         decision: 'DENY',
         reason: `Tool '${toolName}' is not permitted in worker '${workerId}' allowlist.`,
-        riskCategory: 'read_only',
+        riskCategory: 'destructive',
       };
     }
 
-    const riskCategory = this.classifyActionRisk(toolName);
+    // Phase 8: Explicit typed action registry check. Unknown actions default to DENY, never read_only.
+    const registeredRisk = getActionRiskCategory(toolName);
+    if (!registeredRisk) {
+      return {
+        decision: 'DENY',
+        reason: `Unknown action '${toolName}' is not registered in ACTION_RISK_REGISTRY. Unknown actions default to DENY.`,
+        riskCategory: 'destructive',
+      };
+    }
+
+    const riskCategory = registeredRisk;
 
     // 5. Autonomy Tier Enforcement
     let requiresApproval = false;
@@ -158,6 +181,38 @@ export class WorkforcePolicyEngine {
       };
     }
 
+    // Validate Action Type Matching
+    if (approvalBinding.actionType && approvalBinding.actionType !== toolName) {
+      return {
+        decision: 'DENY',
+        reason: `Approval actionType '${approvalBinding.actionType}' does not match requested tool '${toolName}'.`,
+        riskCategory,
+      };
+    }
+
+    // Validate User / Actor Authorization
+    if (
+      userId &&
+      approvalBinding.actor &&
+      approvalBinding.actor !== userId &&
+      (!approvalBinding.userId || approvalBinding.userId !== userId)
+    ) {
+      return {
+        decision: 'DENY',
+        reason: `Approval actor mismatch. Requester '${userId}' is not authorized to consume approval created for '${approvalBinding.actor}'.`,
+        riskCategory,
+      };
+    }
+
+    // Validate Worker Authorization
+    if (approvalBinding.workerId && approvalBinding.workerId !== workerId) {
+      return {
+        decision: 'DENY',
+        reason: `Approval worker mismatch. Bound to worker '${approvalBinding.workerId}', but requested by '${workerId}'.`,
+        riskCategory,
+      };
+    }
+
     // Validate Approval Binding Expiry
     const now = new Date();
     const expiry = new Date(approvalBinding.expiresAt);
@@ -179,12 +234,42 @@ export class WorkforcePolicyEngine {
       };
     }
 
+    // Validate Cryptographic Nonce Replay Protection
+    const nonce = approvalBinding.nonce || approvalBinding.consumedNonce;
+    if (nonce && distributedIdempotencyStore.isNonceConsumed(nonce)) {
+      return {
+        decision: 'DENY',
+        reason: `Approval nonce '${nonce}' has already been consumed (replay attack detected).`,
+        riskCategory,
+      };
+    }
+
+    // Record Nonce Consumption upon successful authorization
+    if (nonce) {
+      distributedIdempotencyStore.consumeNonce(
+        nonce,
+        approvalBinding.approvalId
+      );
+    }
+
     return {
       decision: 'ALLOW',
       reason: `Action '${toolName}' verified with valid owner approval '${approvalBinding.approvalId}'.`,
       riskCategory,
       approvalBinding,
     };
+  }
+
+  isNonceConsumed(nonce: string): boolean {
+    return distributedIdempotencyStore.isNonceConsumed(nonce);
+  }
+
+  consumeNonce(nonce: string, approvalId: string): void {
+    distributedIdempotencyStore.consumeNonce(nonce, approvalId);
+  }
+
+  reset(): void {
+    distributedIdempotencyStore.reset();
   }
 
   /**

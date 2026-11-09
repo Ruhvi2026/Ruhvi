@@ -39,7 +39,8 @@ export type TaskLifecycleState =
   | 'FAILED'
   | 'CANCELLED'
   | 'EXPIRED'
-  | 'DEAD_LETTER';
+  | 'DEAD_LETTER'
+  | 'TIMED_OUT';
 
 export interface AutonomousWorkerManifest {
   workerId: WorkerId;
@@ -160,9 +161,12 @@ export interface ApprovalBinding {
   targetResource: string;
   payloadHash: string;
   actor: string;
+  userId?: string;
+  workerId?: WorkerId;
   riskCategory: ActionRiskCategory;
   approvedAt: string;
   expiresAt: string;
+  nonce?: string;
   consumedNonce?: string;
 }
 

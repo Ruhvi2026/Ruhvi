@@ -1,6 +1,7 @@
 import 'server-only';
 
 import { AutonomyTier, WorkerId } from './types';
+import { workforceStateStore } from './state-store';
 
 export interface WorkforceConfig {
   enabled: boolean;
@@ -49,10 +50,12 @@ export function isDryRunEnabled(): boolean {
 
 export function setGlobalKillSwitch(active: boolean): void {
   globalKillSwitchActive = active;
+  // Fire-and-forget distributed persistence to Supabase
+  workforceStateStore.setKillSwitch(active).catch(() => {});
 }
 
 export function isGlobalKillSwitchActive(): boolean {
-  return globalKillSwitchActive;
+  return globalKillSwitchActive || workforceStateStore.isKillSwitchActive();
 }
 
 export function setWorkerMaintenance(
@@ -64,15 +67,23 @@ export function setWorkerMaintenance(
   } else {
     workerMaintenanceSet.delete(workerId);
   }
+  // Fire-and-forget distributed persistence to Supabase
+  workforceStateStore
+    .setWorkerMaintenance(workerId, inMaintenance)
+    .catch(() => {});
 }
 
 export function clearAllWorkerMaintenance(): void {
   workerMaintenanceSet.clear();
+  workforceStateStore.reset();
 }
 
 export function isWorkerActive(workerId: WorkerId): boolean {
-  if (globalKillSwitchActive) return false;
-  return !workerMaintenanceSet.has(workerId);
+  if (isGlobalKillSwitchActive()) return false;
+  return (
+    !workerMaintenanceSet.has(workerId) &&
+    !workforceStateStore.isWorkerInMaintenance(workerId)
+  );
 }
 
 export class WorkforceSecurityViolationError extends Error {

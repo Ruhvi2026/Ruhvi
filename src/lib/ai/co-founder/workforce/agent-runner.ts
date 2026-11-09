@@ -20,6 +20,7 @@ import { workforcePolicyEngine } from './policy-engine';
 import { WorkerRegistry } from '../workers/registry';
 import { WorkerTaskInput, WorkerStructuredOutput } from '../workers/types';
 import { getCofounderDataClient } from '../data-client';
+import { distributedIdempotencyStore } from './idempotency';
 
 export interface CreateTaskParams {
   workerId: WorkerId;
@@ -36,6 +37,10 @@ export interface ExecuteTaskOptions {
   input?: WorkerTaskInput;
   approvalBinding?: ApprovalBinding;
   dryRun?: boolean;
+  timeoutSeconds?: number;
+  signal?: AbortSignal;
+  idempotencyKey?: string;
+  userId?: string;
 }
 
 export interface WorkforceTaskRunResult {
@@ -86,9 +91,34 @@ export class WorkforceAgentRunner {
     task: WorkforceTask,
     options: ExecuteTaskOptions = {}
   ): Promise<WorkforceTaskRunResult> {
-    const { steps = [], input, approvalBinding } = options;
+    const {
+      steps = [],
+      input,
+      approvalBinding,
+      idempotencyKey,
+      userId,
+    } = options;
     const effectiveDryRun = options.dryRun ?? isDryRunEnabled();
     const manifest = getWorkerManifest(task.workerId);
+
+    // 0. Idempotency Check at task entry boundary
+    if (idempotencyKey) {
+      const cached =
+        await distributedIdempotencyStore.checkIdempotency(idempotencyKey);
+      if (cached) {
+        task.status = 'COMPLETED';
+        task.outputSummary =
+          cached.outputSummary ||
+          'Execution completed from authoritative idempotency cache.';
+        task.updatedAt = new Date().toISOString();
+        return {
+          task,
+          success: true,
+          executedSteps: 0,
+          output: cached,
+        };
+      }
+    }
 
     // 1. Global kill switch check
     if (isGlobalKillSwitchActive()) {
@@ -116,6 +146,38 @@ export class WorkforceAgentRunner {
       return { task, success: false, executedSteps: 0, error: task.error };
     }
 
+    // Setup Timeout Budget and AbortSignal
+    const timeoutBudget =
+      options.timeoutSeconds ?? manifest.limits?.timeoutSeconds ?? 60;
+    const controller = new AbortController();
+    const signal = controller.signal;
+
+    if (options.signal) {
+      if (options.signal.aborted) {
+        controller.abort(options.signal.reason);
+      } else {
+        options.signal.addEventListener('abort', () => {
+          controller.abort(options.signal?.reason);
+        });
+      }
+    }
+
+    const timer = setTimeout(() => {
+      controller.abort(
+        new Error(`Timeout budget of ${timeoutBudget}s exceeded`)
+      );
+    }, timeoutBudget * 1000);
+    if (typeof timer.unref === 'function') timer.unref();
+
+    if (signal.aborted) {
+      clearTimeout(timer);
+      task.status = 'TIMED_OUT';
+      task.error = `Workforce execution timed out or cancelled before starting (budget: ${timeoutBudget}s).`;
+      task.updatedAt = new Date().toISOString();
+      await this.safeRecordWorkerRun(task, 'failed');
+      return { task, success: false, executedSteps: 0, error: task.error };
+    }
+
     task.status = 'RUNNING';
     task.updatedAt = new Date().toISOString();
     await this.safeRecordWorkerRun(task, 'running');
@@ -131,7 +193,17 @@ export class WorkforceAgentRunner {
     let finalOutput: WorkerStructuredOutput | Record<string, any> | undefined;
 
     for (let i = 0; i < planSteps.length; i++) {
+      if (signal.aborted) {
+        clearTimeout(timer);
+        task.status = 'TIMED_OUT';
+        task.error = `Workforce execution timed out after ${timeoutBudget}s.`;
+        task.updatedAt = new Date().toISOString();
+        await this.safeRecordWorkerRun(task, 'failed');
+        return { task, success: false, executedSteps, error: task.error };
+      }
+
       if (executedSteps >= maxSteps) {
+        clearTimeout(timer);
         task.status = 'PARTIAL';
         task.error = `Step limit reached: maximum allowed steps is ${maxSteps}.`;
         task.updatedAt = new Date().toISOString();
@@ -154,9 +226,11 @@ export class WorkforceAgentRunner {
         toolName: step.action,
         payload: input?.parameters || {},
         approvalBinding,
+        userId: userId || input?.userId,
       });
 
       if (policyDecision.decision === 'DENY') {
+        clearTimeout(timer);
         task.status = 'FAILED';
         task.error = `Policy Denied step '${step.stepId}' (${step.action}): ${policyDecision.reason}`;
         task.updatedAt = new Date().toISOString();
@@ -165,6 +239,7 @@ export class WorkforceAgentRunner {
       }
 
       if (policyDecision.decision === 'REQUIRE_APPROVAL') {
+        clearTimeout(timer);
         task.status = 'WAITING_APPROVAL';
         task.error = `Approval Required for step '${step.stepId}' (${step.action}): ${policyDecision.reason}`;
         task.updatedAt = new Date().toISOString();
@@ -193,10 +268,11 @@ export class WorkforceAgentRunner {
               stepId: step.stepId,
               action: step.action,
             },
-            userId: input?.userId,
+            userId: userId || input?.userId,
             userRole: input?.userRole,
             channel: input?.channel || 'text',
             dryRun: effectiveDryRun,
+            signal,
           };
 
           const workerResult = await workerInstance.execute(taskInput);
@@ -211,7 +287,25 @@ export class WorkforceAgentRunner {
           };
           task.outputSummary = `Executed action: ${step.action}`;
         }
+
+        if (signal.aborted) {
+          clearTimeout(timer);
+          task.status = 'TIMED_OUT';
+          task.error = `Workforce execution timed out after ${timeoutBudget}s.`;
+          task.updatedAt = new Date().toISOString();
+          await this.safeRecordWorkerRun(task, 'failed');
+          return { task, success: false, executedSteps, error: task.error };
+        }
       } catch (err: any) {
+        clearTimeout(timer);
+        if (signal.aborted || err.name === 'AbortError') {
+          task.status = 'TIMED_OUT';
+          task.error = `Workforce execution timed out after ${timeoutBudget}s.`;
+          task.updatedAt = new Date().toISOString();
+          await this.safeRecordWorkerRun(task, 'failed');
+          return { task, success: false, executedSteps, error: task.error };
+        }
+
         toolStatus = 'error';
         toolError = err.message || String(err);
         task.status = 'FAILED';
@@ -246,16 +340,58 @@ export class WorkforceAgentRunner {
       executedSteps++;
     }
 
+    clearTimeout(timer);
+
+    // Visible dryRun / simulated tagging
+    if (effectiveDryRun && finalOutput && typeof finalOutput === 'object') {
+      (finalOutput as any).sourceMode = 'simulated';
+      (finalOutput as any).dryRun = true;
+    }
+
     // All steps executed successfully
     task.status = 'COMPLETED';
     task.updatedAt = new Date().toISOString();
     await this.safeRecordWorkerRun(task, 'completed');
+
+    // Cache completed result under idempotency key
+    if (idempotencyKey && finalOutput) {
+      await distributedIdempotencyStore.recordIdempotency(
+        idempotencyKey,
+        finalOutput
+      );
+    }
 
     return {
       task,
       success: true,
       executedSteps,
       output: finalOutput,
+    };
+  }
+
+  /**
+   * Replays a dead-letter, timed-out, or failed task with fresh run credentials.
+   */
+  replayDeadLetterTask(task: WorkforceTask): WorkforceTask {
+    if (
+      task.status !== 'DEAD_LETTER' &&
+      task.status !== 'FAILED' &&
+      task.status !== 'TIMED_OUT'
+    ) {
+      throw new Error(
+        `Only DEAD_LETTER, FAILED, or TIMED_OUT tasks can be replayed. Current status: ${task.status}`
+      );
+    }
+
+    const now = new Date().toISOString();
+    return {
+      ...task,
+      runId: `run_${randomUUID()}`,
+      status: 'PROPOSED',
+      error: undefined,
+      currentStep: 0,
+      checkpoints: [],
+      updatedAt: now,
     };
   }
 
