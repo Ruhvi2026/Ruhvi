@@ -76,14 +76,39 @@ export class RsiMemoryManager {
 
     let items: RsiMemoryItem[] = res.data;
 
-    // In-memory filter for query relevance (case-insensitive & whitespace trimmed)
+    // In-memory filter & scoring for query relevance
     if (params.query) {
       const q = params.query.toLowerCase().trim();
-      items = items.filter(
-        (m) =>
-          m.content.toLowerCase().includes(q) ||
-          (m.normalized_key && m.normalized_key.toLowerCase().includes(q))
-      );
+      const tokens = q.split(/\s+/).filter((t) => t.length > 0);
+
+      items = items
+        .map((m) => {
+          const content = m.content.toLowerCase();
+          const key = (m.normalized_key || '').toLowerCase();
+
+          let score = 0;
+          // Exact phrase match gives top priority
+          if (content.includes(q) || key.includes(q)) {
+            score += 10;
+          }
+
+          // Tokenized multi-word matching
+          if (tokens.length > 1) {
+            const matchedTokens = tokens.filter(
+              (t) => content.includes(t) || key.includes(t)
+            );
+            if (matchedTokens.length === tokens.length) {
+              score += 5; // All tokens present in memory
+            } else if (matchedTokens.length > 0) {
+              score += (matchedTokens.length / tokens.length) * 3;
+            }
+          }
+
+          return { item: m, score };
+        })
+        .filter((entry) => entry.score > 0)
+        .sort((a, b) => b.score - a.score || b.item.priority - a.item.priority)
+        .map((entry) => entry.item);
     }
 
     return items;

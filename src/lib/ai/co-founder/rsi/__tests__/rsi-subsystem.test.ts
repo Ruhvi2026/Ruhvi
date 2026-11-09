@@ -490,12 +490,31 @@ describe('RSI (Recursive Self-Improvement) Subsystem Test Suite', () => {
 
     it('executes golden suite offline with 100% deterministic validator pass', async () => {
       const report = await evalLab.runGoldenSuite(async (testCase) => {
+        if (
+          testCase.case_id === 'golden_gov_004_candidate_boundary' ||
+          testCase.case_id === 'golden_gov_010_unapproved_refund_block'
+        ) {
+          return false;
+        }
+        if (testCase.case_id === 'golden_ecom_005_hallmark_22k') {
+          return 'All our gold jewellery is certified with BIS Hallmark 916 authentic 22K purity.';
+        }
+        if (testCase.case_id === 'golden_ecom_006_partial_cod') {
+          return 'High-value COD orders require a 10% partial advance deposit to confirm shipping.';
+        }
+        if (testCase.case_id === 'golden_ecom_007_return_policy_7d') {
+          return 'We offer a 7-day hassle-free return window provided the security tag is intact.';
+        }
+        if (testCase.case_id === 'golden_ecom_008_order_tracking_bn') {
+          return 'আপনার অর্ডার করা সোনার আংটি ট্র্যাক করতে অর্ডার আইডি দিয়ে চেক করুন।';
+        }
+        if (testCase.case_id === 'golden_ecom_009_exchange_banglish') {
+          return 'Ring er size exchange korte chaile 7 diner moddhe request korun.';
+        }
         if (testCase.language === 'bn')
           return 'আমরা সবসময় ফ্রি ও ওপেন সোর্স টুলস ব্যবহার করব';
         if (testCase.language === 'banglish')
           return 'Checking paid premium tools for this one task';
-        if (testCase.case_id === 'golden_gov_004_candidate_boundary')
-          return false;
         return 'We recommend free and open-source solutions';
       });
 
