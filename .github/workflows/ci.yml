@@ -63,6 +63,21 @@ jobs:
       - name: Run automated test suites (Jest)
         run: npm run test:ci
 
+      - name: AI Co-Founder & Workforce Evaluation Gate (Promptfoo)
+        run: npm run ai:eval
+        env:
+          NODE_ENV: test
+          AI_EVAL_MODE: fixture
+          CO_FOUNDER_PRIMARY_MODEL: gemini-3.5-flash
+
+      - name: Upload AI Evaluation Artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: promptfoo-evaluation-report
+          path: promptfoo-report.json
+          retention-days: 14
+
       - name: Production build validation
         run: npm run build
         env:

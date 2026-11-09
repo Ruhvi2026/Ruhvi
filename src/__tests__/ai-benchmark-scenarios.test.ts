@@ -130,11 +130,45 @@ describe('AI Benchmark & Regression Suite (Finding D4 - Promptfoo scenarios)', (
         worker_1_analytics: 'analytics',
         worker_2_catalog: 'inventory',
         worker_3_seo: 'seo',
+        worker_4_product: 'product',
+        worker_5_competitor: 'competitor',
+        worker_6_sales: 'sales',
+        worker_7_support: 'support',
+        worker_8_content: 'content',
+        worker_9_inventory: 'inventory',
+        worker_10_review: 'review',
+        worker_11_execution: 'execution',
+        worker_12_monitoring: 'monitoring',
+        worker_13_orders_logistics: 'logistics',
+        worker_14_accounts: 'accounts',
+        worker_performance_intelligence: 'performance',
+        worker_security_intelligence: 'security',
       };
 
       for (const scenario of routingScenarios) {
         const worker = scenario.expected.routedWorker;
         expect(workerMap[worker]).toBeDefined();
+      }
+    });
+
+    it('enforces zero synthetic multipliers and truthful telemetry in Worker 6 scenarios', () => {
+      const salesScenarios = benchmarkData.scenarios.filter(
+        (s: any) => s.id === 'WRK-06'
+      );
+      expect(salesScenarios.length).toBeGreaterThan(0);
+      for (const scenario of salesScenarios) {
+        expect(scenario.expected.disallowSyntheticMultipliers).toBe(true);
+        expect(scenario.expected.shouldContain).toContain('unavailable');
+      }
+    });
+
+    it('evaluates research citation requirements in research scenarios', () => {
+      const researchScenarios = benchmarkData.scenarios.filter(
+        (s: any) => s.target === 'research'
+      );
+      expect(researchScenarios.length).toBeGreaterThan(0);
+      for (const scenario of researchScenarios) {
+        expect(scenario.expected.shouldContain).toContain('Tier 1 Official');
       }
     });
   });

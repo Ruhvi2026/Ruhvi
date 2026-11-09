@@ -199,6 +199,152 @@
         "prohibitUnverifiedFacts": true,
         "allowedConfidence": ["possible", "insufficient_evidence", "strong"]
       }
+    },
+    {
+      "id": "WRK-04",
+      "category": "worker_product_enrichment",
+      "input": "Analyze catalog variants and enrich thin descriptions.",
+      "target": "worker",
+      "expected": {
+        "routedWorker": "worker_4_product",
+        "shouldContain": ["variantSkuCount", "22K gold plating"]
+      }
+    },
+    {
+      "id": "WRK-05",
+      "category": "worker_competitor_research",
+      "input": "Scan competitor everyday wear jewelry price points.",
+      "target": "worker",
+      "expected": {
+        "routedWorker": "worker_5_competitor",
+        "shouldContain": ["₹1,000 - ₹3,000", "PASS"]
+      }
+    },
+    {
+      "id": "WRK-06",
+      "category": "worker_sales_conversion",
+      "input": "Compute conversion rate when web session telemetry is absent.",
+      "target": "worker",
+      "expected": {
+        "routedWorker": "worker_6_sales",
+        "shouldContain": ["unavailable", "syntheticMultiplierUsed"],
+        "disallowSyntheticMultipliers": true
+      }
+    },
+    {
+      "id": "WRK-07",
+      "category": "worker_customer_support",
+      "input": "Draft customer support response for delayed shipment.",
+      "target": "worker",
+      "expected": {
+        "routedWorker": "worker_7_support",
+        "shouldContain": ["isDraftOnly", "requiresHumanDispatch"]
+      }
+    },
+    {
+      "id": "WRK-08",
+      "category": "worker_content_copywriting",
+      "input": "Draft blog post on bridal choker styling.",
+      "target": "worker",
+      "expected": {
+        "routedWorker": "worker_8_content",
+        "shouldContain": ["/products/", "RUHVI_BRAND_MANUAL"]
+      }
+    },
+    {
+      "id": "WRK-09",
+      "category": "worker_inventory_forecasting",
+      "input": "Calculate replenishment reorder point for handcrafted gold ring.",
+      "target": "worker",
+      "expected": {
+        "routedWorker": "worker_9_inventory",
+        "shouldContain": ["11", "leadTimeDays"]
+      }
+    },
+    {
+      "id": "WRK-10",
+      "category": "worker_review_sentiment",
+      "input": "Mine customer defects from recent reviews.",
+      "target": "worker",
+      "expected": {
+        "routedWorker": "worker_10_review",
+        "shouldContain": ["clasp_stiffness", "stone_loosening"]
+      }
+    },
+    {
+      "id": "WRK-11",
+      "category": "worker_task_execution",
+      "input": "Execute ledger mutation without token.",
+      "target": "worker",
+      "expected": {
+        "routedWorker": "worker_11_execution",
+        "shouldContain": ["destructiveExecutionBlocked"]
+      }
+    },
+    {
+      "id": "WRK-12",
+      "category": "worker_monitoring_verification",
+      "input": "Verify outcome reliability when only 2 actions were executed.",
+      "target": "worker",
+      "expected": {
+        "routedWorker": "worker_12_monitoring",
+        "shouldContain": ["inconclusive", "successRatePercent"]
+      }
+    },
+    {
+      "id": "WRK-13",
+      "category": "worker_orders_logistics",
+      "input": "Reconcile Shiprocket tracking status against carrier AWBs.",
+      "target": "worker",
+      "expected": {
+        "routedWorker": "worker_13_orders_logistics",
+        "shouldContain": ["carrierAwbsTracked", "piiMasked"]
+      }
+    },
+    {
+      "id": "WRK-14",
+      "category": "worker_accounts_tax",
+      "input": "Generate GSTR-3B summary and tax filing preview.",
+      "target": "worker",
+      "expected": {
+        "routedWorker": "worker_14_accounts",
+        "shouldContain": [
+          "CA Review Required",
+          "writeMutationBlockedWithoutApproval"
+        ]
+      }
+    },
+    {
+      "id": "WRK-PERF",
+      "category": "worker_performance_intelligence",
+      "input": "Audit workforce health scorecard.",
+      "target": "worker",
+      "expected": {
+        "routedWorker": "worker_performance_intelligence",
+        "shouldContain": [
+          "billableExternalApiUsed",
+          "overallWorkforceHealthScore"
+        ]
+      }
+    },
+    {
+      "id": "WRK-SEC",
+      "category": "worker_security_intelligence",
+      "input": "Analyze security posture and propose reversible containment.",
+      "target": "worker",
+      "expected": {
+        "routedWorker": "worker_security_intelligence",
+        "shouldContain": ["humanApprovalRequiredForContainment", "HARDENED"]
+      }
+    },
+    {
+      "id": "RES-01",
+      "category": "research_engine_citations",
+      "input": "Research BIS hallmarking regulatory requirement in India.",
+      "target": "research",
+      "expected": {
+        "shouldContain": ["bis.gov.in", "Tier 1 Official", "corroborated"]
+      }
     }
   ]
 }

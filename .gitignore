@@ -71,3 +71,6 @@ scripts/playwright-lighthouse-audit.mjs
 
 # Cursor MCP local secrets
 .cursor/mcp.json
+
+promptfoo-report.json
+.promptfoo/

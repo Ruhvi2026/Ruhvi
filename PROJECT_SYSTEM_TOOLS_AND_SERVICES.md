@@ -47,6 +47,7 @@
 | **Playwright & axe-core** | E2E & Accessibility Testing | Automated browser testing suite for storefront smoke flows, login, navigation, and automated WCAG 2.1 AA accessibility auditing. | Active | `playwright.config.ts`, `tests/e2e/smoke.spec.ts` |
 | **Ruhvi PWA Engine** | Client PWA & Offline Engine | Complete Progressive Web App layer (public/site.webmanifest, public/sw.js, public/offline.html, and PwaInstallPrompt.tsx) delivering zero-friction home screen installation, network-first navigation with offline fallback, and static asset caching across Android & iOS devices. | Active | public/site.webmanifest, public/sw.js, src/components/pwa/* |
 | **Get Shit Done (GSD) Workflow Engine** | Autonomous AI Spec & Context Engineering | Official GSD framework core (`@opengsd/gsd-core` v1.20.1) enforcing strict 3-state execution cycles (Plan -> Execute -> Verify), automated context-rot mitigation rolling summaries (`GSD_CONTEXT.md`), dedicated planning folders (`.gsd/`, `plans/`, `tasks/`), and automated verification test runner gates (`gsd_runner.ps1`, `gsd_runner.sh`). | Active | `@opengsd/gsd-core`, `.gsd/config.json`, `.gsd/state.json`, `GSD_PLAN.md`, `GSD_CONTEXT.md`, `scripts/gsd-engine.mjs`, `gsd_runner.ps1`, `gsd_runner.sh` |
+| **Promptfoo AI Evaluation Suite** | Agent CI Quality Gate | Automated LLM evaluation suite validating 33 test suites across 16 workers, multilingual support, red-team jailbreaks, secret exfiltration defense, and research citation coverage. Supports offline zero-network fixture evaluation in CI and local developer runs without external billable keys. | Active | `promptfoo.config.yaml`, `tests/ai/providers/worker-eval-provider.js`, `scripts/run-promptfoo-eval.mjs`, `.github/workflows/ci.yml` |
 
 ---
 
@@ -667,6 +668,13 @@ Authoritative architectural record of the upgrades implemented per the Co-Founde
     - **Worker 7 (Customer Support)**: Grounded customer responses in canonical policy sources (shipping SLA, warranty, returns) and marked response templates as `draft_only` with approval requirement for outbound sends.
     - **Worker 14 (Accounts & Tax)**: Added mandatory "CA Review Required" status and approval gating for any statutory return submission, voucher creation, or financial ledger mutation.
     - **Marketing Integrations (Meta Ads, Cloudinary, n8n)**: Eliminated synthetic ROAS (4.8) and spend (14,200). `MetaAdsService.getAdAccounts()` differentiates between production (returns empty array fail-closed) and non-production (`sourceMode: 'simulated'`). Cloudinary and n8n clients return `isSimulated: true` when unconfigured in non-prod, failing closed in prod.
+
+11. **Phase 10: Promptfoo & Worker-Level Evaluation CI Architecture (`promptfoo.config.yaml`, `tests/ai/providers/worker-eval-provider.js`, `scripts/run-promptfoo-eval.mjs`, `.github/workflows/ci.yml`)**:
+    - **Active Model Configuration**: Replaced legacy static model identifier (`gemini-1.5-flash`) with dynamic environment-driven provider matching active Ruhvi AI Control Center model (`process.env.CO_FOUNDER_PRIMARY_MODEL || 'gemini-3.5-flash'`).
+    - **Dual Live & Offline Zero-Network Evaluation**: `WorkerEvalProvider` supports live Gemini calls when `GEMINI_API_KEY` is present in live mode, and zero-network deterministic fixture evaluation in local developer runs and CI environments (`AI_EVAL_MODE=fixture`) without requiring production or billable credentials.
+    - **Comprehensive Test Suite Coverage**: Configured 33 automated test suites spanning all 16 workers, multilingual inquiries (Bengali script, Banglish, Hindi, English), customer privacy vs guest session boundaries, approval nonces on destructive mutations, red-team jailbreak & secret exfiltration defense (`CRON_SECRET`, `SUPABASE_SERVICE_ROLE_KEY`, `CREDENTIAL_ENCRYPTION_KEY`, `DATABASE_URL`), and research engine citation/conflict verification.
+    - **Strict CI Gate & Artifact Archival**: Added dedicated CI workflow step in `.github/workflows/ci.yml` (`npm run ai:eval`) running with zero `|| true` bypasses — CI fails immediately on any safety regression, fake metric, or worker failure. Uploads redacted evaluation summary (`promptfoo-report.json`) as a 14-day workflow artifact.
+
 
 
 

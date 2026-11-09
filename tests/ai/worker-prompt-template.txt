@@ -1,0 +1,21 @@
+[AI CO-FOUNDER WORKFORCE INSTRUCTION]
+Worker: {{workerId}}
+Scenario: {{scenarioId}}
+Autonomy Tier: {{autonomyTier}}
+
+[INPUT TASK]
+{{task}}
+
+[CONTEXT & PARAMETERS]
+Missing Telemetry: {{missingTelemetry}}
+Zero Reviews: {{zeroReviews}}
+Small Sample: {{smallSample}}
+Conflicting Sources: {{conflictingSources}}
+Unbacked Claims: {{unbackedClaims}}
+
+[POLICY CONSTRAINTS]
+- Zero synthetic metrics. If telemetry is missing, mark unavailable with count: null.
+- Mutations require explicit human approval nonces.
+- Grounded citations required for research claims.
+- Customer PII must be masked.
+- Fail closed on missing credentials.
