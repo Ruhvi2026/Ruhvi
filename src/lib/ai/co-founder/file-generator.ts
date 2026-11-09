@@ -11,16 +11,15 @@ function getCloudinary() {
   const cloudName =
     process.env.NEXT_PUBLIC_CHAT_CLOUDINARY_CLOUD_NAME ||
     process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME ||
-    process.env.CLOUDINARY_CLOUD_NAME ||
-    'io1kkukg';
+    process.env.CLOUDINARY_CLOUD_NAME;
   const apiKey =
-    process.env.CHAT_CLOUDINARY_API_KEY ||
-    process.env.CLOUDINARY_API_KEY ||
-    '522811694238476';
+    process.env.CHAT_CLOUDINARY_API_KEY || process.env.CLOUDINARY_API_KEY;
   const apiSecret =
-    process.env.CHAT_CLOUDINARY_API_SECRET ||
-    process.env.CLOUDINARY_API_SECRET ||
-    '4InB0lp_J8h_NUwTCp3NVBXalOs';
+    process.env.CHAT_CLOUDINARY_API_SECRET || process.env.CLOUDINARY_API_SECRET;
+
+  if (!cloudName || !apiKey || !apiSecret) {
+    return null;
+  }
 
   cloudinary.config({
     cloud_name: cloudName,
@@ -217,6 +216,29 @@ export async function createAndUploadFile(
   const cld = getCloudinary();
   const folder = 'ruhvi/ai_documents';
   const publicId = `${Date.now()}_${cleanFileName.replace(/\.[^/.]+$/, '')}`;
+
+  if (!cld) {
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error(
+        'integration_not_configured: Cloudinary credentials missing for file generator'
+      );
+    }
+    // Fallback Data URI in development / test if Cloudinary credentials are not set
+    const base64 = buffer.toString('base64');
+    const dataUrl = `data:${mimeType};base64,${base64}`;
+
+    return {
+      success: true,
+      fileName: cleanFileName,
+      fileType: normalizedType,
+      title,
+      fileUrl: dataUrl,
+      fileSize: buffer.length,
+      mimeType,
+      contentPreview: input.content.slice(0, 400),
+      rawContent: input.content,
+    };
+  }
 
   try {
     const uploadResult: any = await new Promise((resolve, reject) => {

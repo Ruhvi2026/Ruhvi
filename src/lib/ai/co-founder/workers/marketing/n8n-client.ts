@@ -58,8 +58,17 @@ export async function triggerN8nMediaProcessor(
     );
   }
 
-  // If webhook URL is not configured (e.g. during dev/test), return valid simulated acceptance
+  // If webhook URL is not configured, fail closed in production, or return simulated acceptance in dev/test
   if (!webhookUrl) {
+    if (process.env.NODE_ENV === 'production') {
+      return {
+        success: false,
+        jobId: payload.job_id,
+        status: 'FAILED',
+        error:
+          'integration_not_configured: MEDIA_PROCESSOR_WEBHOOK_URL is not set.',
+      };
+    }
     return {
       success: true,
       jobId: payload.job_id,
@@ -70,22 +79,38 @@ export async function triggerN8nMediaProcessor(
     };
   }
 
+  const signingSecret = process.env.MEDIA_PROCESSOR_SECRET;
+  if (!signingSecret && process.env.NODE_ENV === 'production') {
+    return {
+      success: false,
+      jobId: payload.job_id,
+      status: 'FAILED',
+      error:
+        'integration_not_configured: MEDIA_PROCESSOR_SECRET is required to dispatch media webhook in production.',
+    };
+  }
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s webhook trigger timeout
+  if (typeof (timeoutId as any)?.unref === 'function') {
+    (timeoutId as any).unref();
+  }
+
   try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s webhook trigger timeout
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      'X-Ruhvi-Job-Id': payload.job_id,
+    };
+    if (signingSecret) {
+      headers['X-Ruhvi-Signature'] = signingSecret;
+    }
 
     const response = await fetch(webhookUrl, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Ruhvi-Job-Id': payload.job_id,
-        'X-Ruhvi-Signature': process.env.MEDIA_PROCESSOR_SECRET || 'ruhvi_secret',
-      },
+      headers,
       body: JSON.stringify(payload),
       signal: controller.signal,
     });
-
-    clearTimeout(timeoutId);
 
     if (!response.ok) {
       const errorText = await response.text().catch(() => 'Unknown error');
@@ -112,5 +137,7 @@ export async function triggerN8nMediaProcessor(
       status: 'FAILED',
       error: `Failed to trigger n8n media webhook: ${err.message}`,
     };
+  } finally {
+    clearTimeout(timeoutId);
   }
 }

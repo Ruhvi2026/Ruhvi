@@ -2,21 +2,24 @@ import 'server-only';
 
 import { v2 as cloudinary } from 'cloudinary';
 
-// Configure Cloudinary using dedicated io1kkukg account (with environment variable support)
+// Configure Cloudinary using dedicated environment variables (fail closed if unconfigured)
 const cloudName =
   process.env.NEXT_PUBLIC_CHAT_CLOUDINARY_CLOUD_NAME ||
   process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME ||
-  'io1kkukg';
+  process.env.CLOUDINARY_CLOUD_NAME ||
+  '';
 const apiKey =
-  process.env.CHAT_CLOUDINARY_API_KEY ||
-  process.env.CLOUDINARY_API_KEY ||
-  '522811694238476';
+  process.env.CHAT_CLOUDINARY_API_KEY || process.env.CLOUDINARY_API_KEY || '';
 const apiSecret =
   process.env.CHAT_CLOUDINARY_API_SECRET ||
   process.env.CLOUDINARY_API_SECRET ||
-  '4InB0lp_J8h_NUwTCp3NVBXalOs';
+  '';
 
-if (cloudName && apiKey && apiSecret) {
+export function isCloudinaryConfigured(): boolean {
+  return Boolean(cloudName && apiKey && apiSecret);
+}
+
+if (isCloudinaryConfigured()) {
   cloudinary.config({
     cloud_name: cloudName,
     api_key: apiKey,
@@ -99,7 +102,7 @@ export async function uploadMarketingVideoToCloudinary(
   const publicId = `flow_clip_${metadata.clipIndex}_${Date.now()}`;
 
   // If Cloudinary is configured, upload via Cloudinary SDK
-  if (cloudName && apiKey && apiSecret) {
+  if (isCloudinaryConfigured()) {
     return new Promise((resolve, reject) => {
       const uploadStream = cloudinary.uploader.upload_stream(
         {
@@ -109,7 +112,9 @@ export async function uploadMarketingVideoToCloudinary(
           tags: [
             'marketing_worker',
             `clip_${metadata.clipIndex}`,
-            metadata.campaignId ? `campaign_${metadata.campaignId}` : 'general_ad',
+            metadata.campaignId
+              ? `campaign_${metadata.campaignId}`
+              : 'general_ad',
           ],
           context: {
             campaignId: metadata.campaignId || 'n/a',
@@ -119,7 +124,11 @@ export async function uploadMarketingVideoToCloudinary(
         },
         (error, result) => {
           if (error || !result) {
-            return reject(new Error(`Cloudinary upload failed: ${error?.message || 'Unknown error'}`));
+            return reject(
+              new Error(
+                `Cloudinary upload failed: ${error?.message || 'Unknown error'}`
+              )
+            );
           }
           resolve({
             secureUrl: result.secure_url,
@@ -146,7 +155,11 @@ export async function uploadMarketingVideoToCloudinary(
           },
           (err, res) => {
             if (err || !res) {
-              return reject(new Error(`Cloudinary upload failed: ${err?.message || 'Unknown error'}`));
+              return reject(
+                new Error(
+                  `Cloudinary upload failed: ${err?.message || 'Unknown error'}`
+                )
+              );
             }
             resolve({
               secureUrl: res.secure_url,
@@ -163,13 +176,23 @@ export async function uploadMarketingVideoToCloudinary(
     });
   }
 
+  // Fail closed in production when credentials are missing
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error(
+      'integration_not_configured: Cloudinary API credentials missing'
+    );
+  }
+
   // Fallback / Development Simulation when Cloudinary credentials are not set in environment
   return {
     secureUrl: `https://res.cloudinary.com/ruhvi-demo/video/upload/v1728000000/${folder}/${publicId}.mp4`,
     publicId: `${folder}/${publicId}`,
     format: 'mp4',
     duration: 5.0,
-    bytes: typeof fileBuffer === 'string' ? fileBuffer.length : (fileBuffer as Buffer).length || 5000000,
+    bytes:
+      typeof fileBuffer === 'string'
+        ? fileBuffer.length
+        : (fileBuffer as Buffer).length || 5000000,
     width: 1080,
     height: 1920,
   };

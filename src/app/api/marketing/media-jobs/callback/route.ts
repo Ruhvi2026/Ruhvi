@@ -7,10 +7,26 @@ export const dynamic = 'force-dynamic';
 export async function POST(request: Request) {
   try {
     const signature = request.headers.get('x-ruhvi-signature');
-    const secret = process.env.MEDIA_PROCESSOR_SECRET || 'ruhvi_secret';
+    const secret = process.env.MEDIA_PROCESSOR_SECRET;
 
-    // Validate webhook signature / secret if in production
-    if (process.env.NODE_ENV === 'production' && signature !== secret) {
+    // Validate webhook signature / secret (fail-closed in production)
+    if (process.env.NODE_ENV === 'production') {
+      if (!secret) {
+        return NextResponse.json(
+          {
+            error:
+              'integration_not_configured: MEDIA_PROCESSOR_SECRET is not configured on server.',
+          },
+          { status: 500 }
+        );
+      }
+      if (!signature || signature !== secret) {
+        return NextResponse.json(
+          { error: 'Unauthorized webhook callback signature' },
+          { status: 401 }
+        );
+      }
+    } else if (secret && signature !== secret) {
       return NextResponse.json(
         { error: 'Unauthorized webhook callback signature' },
         { status: 401 }
@@ -18,7 +34,16 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { job_id, jobId, status, final_video_url, finalVideoUrl, public_id, publicId, error } = body;
+    const {
+      job_id,
+      jobId,
+      status,
+      final_video_url,
+      finalVideoUrl,
+      public_id,
+      publicId,
+      error,
+    } = body;
 
     const targetJobId = job_id || jobId;
     if (!targetJobId) {
@@ -28,7 +53,8 @@ export async function POST(request: Request) {
       );
     }
 
-    const normalizedStatus = (status || 'COMPLETED').toUpperCase() as 'COMPLETED' | 'FAILED';
+    const normalizedStatus = (status || 'COMPLETED').toUpperCase() as
+      'COMPLETED' | 'FAILED';
     const targetUrl = final_video_url || finalVideoUrl;
     const targetPublicId = public_id || publicId;
 
