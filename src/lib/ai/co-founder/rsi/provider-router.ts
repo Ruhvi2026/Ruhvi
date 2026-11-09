@@ -15,6 +15,10 @@ import { tavilyProvider } from './providers/tavily';
 import { exaProvider } from './providers/exa';
 import { readWithJinaReader } from './providers/jina-reader';
 import { directSafeFetch } from './providers/direct-fetch';
+import {
+  agentReachAdapter,
+  AgentReachReadResponse,
+} from './adapters/agent-reach';
 import { assertSafeOutboundUrl } from '@/lib/security/ssrf';
 
 interface CachedSearchEntry {
@@ -79,6 +83,7 @@ export class ResearchProviderRouter {
       'rss',
       'jina',
       'direct_fetch',
+      'agent_reach',
     ];
     for (const p of providers) {
       this.circuitStates.set(p, {
@@ -458,6 +463,7 @@ export class ResearchProviderRouter {
       'rss',
       'jina',
       'direct_fetch',
+      'agent_reach',
     ];
 
     for (const p of providers) {
@@ -470,6 +476,11 @@ export class ResearchProviderRouter {
         status = 'not_configured';
       } else if (p === 'exa' && !process.env.EXA_API_KEY) {
         status = 'not_configured';
+      } else if (
+        p === 'agent_reach' &&
+        process.env.AGENT_REACH_ENABLED !== 'true'
+      ) {
+        status = 'not_configured';
       }
 
       result[p] = {
@@ -481,6 +492,21 @@ export class ResearchProviderRouter {
     }
 
     return result as Record<ResearchProvider, ProviderHealthState>;
+  }
+
+  /**
+   * Phase 6: Reads from an approved public channel using the Agent Reach adapter.
+   */
+  async readPublicChannel(
+    channel: string,
+    target: string,
+    maxCharacters?: number
+  ): Promise<AgentReachReadResponse> {
+    return agentReachAdapter.read({
+      channel,
+      target,
+      maxCharacters,
+    });
   }
 }
 

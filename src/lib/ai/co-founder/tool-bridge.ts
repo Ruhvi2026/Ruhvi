@@ -1930,6 +1930,124 @@ async function executeCoFounderToolInternal(
         };
       }
 
+      case 'search_public_discussions': {
+        const platform = String(args.platform || 'all').toLowerCase();
+        const keywords =
+          typeof args.keywords === 'string' ? args.keywords.trim() : '';
+        if (!keywords) {
+          throw new Error(
+            'keywords are required for search_public_discussions'
+          );
+        }
+
+        const maxResults =
+          typeof args.max_results === 'number' ? args.max_results : 5;
+        const discussions: Array<{
+          platform: string;
+          title: string;
+          url?: string;
+          author?: string;
+          snippet: string;
+          publishedAt?: string;
+          sentiment?: string;
+        }> = [];
+
+        // 1. If platform is reddit or all, search reddit jewellery discussions
+        if (platform === 'reddit' || platform === 'all') {
+          try {
+            const { searchRedditJewelleryDiscussions } =
+              await import('@/lib/ai/social/reddit');
+            const redditPosts = await searchRedditJewelleryDiscussions(
+              [keywords],
+              {
+                limitPerSubreddit: maxResults,
+              }
+            );
+            for (const p of redditPosts.slice(0, maxResults)) {
+              discussions.push({
+                platform: `reddit/r/${p.subreddit}`,
+                title: p.title,
+                url: p.permalink,
+                author: p.author,
+                snippet: p.snippet || p.title,
+                publishedAt: p.publishedAt,
+              });
+            }
+          } catch {
+            // Reddit search failed or rate-limited
+          }
+        }
+
+        // 2. If platform is youtube, github, or agent-reach supported
+        if (
+          platform === 'youtube' ||
+          platform === 'github' ||
+          (discussions.length === 0 && platform !== 'reddit')
+        ) {
+          try {
+            const { getRsiCoordinator } = await import('./rsi');
+            const rsi = getRsiCoordinator();
+            // Try agent-reach read first if enabled
+            const channel = platform === 'all' ? 'web' : platform;
+            const reachRes = await rsi.research.readPublicChannel(
+              channel,
+              keywords,
+              3000
+            );
+            if (reachRes.success && reachRes.content) {
+              discussions.push({
+                platform: reachRes.channel,
+                title: `${reachRes.channel.toUpperCase()} public discussions for "${keywords}"`,
+                snippet: reachRes.content.slice(0, 300),
+                publishedAt: reachRes.retrievedAt,
+              });
+            } else {
+              // Graceful fallback to web search with platform filter
+              const searchRes = await rsi.research.searchWeb({
+                query: `${keywords} site:${
+                  platform === 'youtube'
+                    ? 'youtube.com'
+                    : platform === 'github'
+                      ? 'github.com'
+                      : 'reddit.com'
+                }`,
+                maxResults: 3,
+              });
+              for (const r of searchRes.results) {
+                discussions.push({
+                  platform,
+                  title: r.title,
+                  url: r.url,
+                  snippet: r.snippet,
+                  publishedAt: r.publishedAt,
+                });
+              }
+            }
+          } catch {
+            // Channel read failed
+          }
+        }
+
+        const count = discussions.length;
+        const voiceSummary =
+          count > 0
+            ? `Found ${count} public discussion posts on ${platform} for "${keywords}".`
+            : `No public discussions found on ${platform} for "${keywords}".`;
+
+        return {
+          toolName,
+          success: count > 0,
+          data: {
+            platform,
+            keywords,
+            totalDiscussions: count,
+            discussions,
+            readOnly: true,
+          },
+          summaryForVoice: voiceSummary,
+        };
+      }
+
       default:
         return {
           toolName,

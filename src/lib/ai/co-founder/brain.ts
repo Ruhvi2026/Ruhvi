@@ -1558,4 +1558,34 @@ export const CO_FOUNDER_TOOL_DECLARATIONS = [
       properties: {},
     },
   },
+  {
+    name: 'search_public_discussions',
+    description:
+      'Search public community discussions (Reddit, YouTube captions, GitHub public issues) for customer feedback, competitor complaints, product reviews, or sentiment trends. Strictly read-only; cannot post, comment, message, or modify external accounts.',
+    parameters: {
+      type: 'OBJECT',
+      required: ['platform', 'keywords'],
+      properties: {
+        platform: {
+          type: 'STRING',
+          description:
+            'Target public platform: "reddit", "youtube", "github", or "all"',
+        },
+        keywords: {
+          type: 'STRING',
+          description:
+            'Keywords or brand names to search (e.g. "anti tarnish jewellery", "CaratLane gold fading")',
+        },
+        date_window: {
+          type: 'STRING',
+          description:
+            'Optional date window: "week", "month", "year", or "all"',
+        },
+        max_results: {
+          type: 'NUMBER',
+          description: 'Maximum discussion results to return (default: 5)',
+        },
+      },
+    },
+  },
 ];

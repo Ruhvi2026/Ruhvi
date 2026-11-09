@@ -172,6 +172,27 @@ export class RsiResearchEngine {
   }
 
   /**
+   * Phase 6: Reads a public channel via the controlled Agent Reach adapter.
+   */
+  async readPublicChannel(
+    channel: string,
+    target: string,
+    maxCharacters?: number
+  ) {
+    assertRsiOperationAllowed('research_read');
+    return this.router.readPublicChannel(channel, target, maxCharacters);
+  }
+
+  /**
+   * Phase 6: Inspects Agent Reach CLI availability and configured channels.
+   */
+  async inspectAgentReach() {
+    assertRsiOperationAllowed('research_read');
+    const { agentReachAdapter } = await import('./adapters/agent-reach');
+    return agentReachAdapter.inspect();
+  }
+
+  /**
    * Phase 4: Compiles an Evidence Pack from claims and research sources
    */
   buildEvidencePack(params: {

@@ -224,7 +224,14 @@ export interface EvalRunReport {
 // ==========================================
 
 export type ResearchProvider =
-  'crawl4ai' | 'tavily' | 'exa' | 'github' | 'rss' | 'direct_fetch' | 'jina';
+  | 'crawl4ai'
+  | 'tavily'
+  | 'exa'
+  | 'github'
+  | 'rss'
+  | 'direct_fetch'
+  | 'jina'
+  | 'agent_reach';
 
 export type ProviderStatus =
   | 'not_configured'

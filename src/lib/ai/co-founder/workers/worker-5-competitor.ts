@@ -65,6 +65,7 @@ export class CompetitorResearchWorker implements AIWorkerInterface {
         'web_search',
         'read_webpage',
         'research_topic',
+        'search_public_discussions',
       ],
       permissionScope: ['mcp_tools:read', 'mcp_tools:write'],
       isSystemWorker: false,

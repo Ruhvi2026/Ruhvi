@@ -17,6 +17,7 @@ export * from './proposal-engine';
 export * from './evolution-history';
 export * from './provider-router';
 export * from './evidence-ledger';
+export * from './adapters/agent-reach';
 
 import { getRsiConfig } from './config';
 import { RsiMemoryManager } from './memory-manager';

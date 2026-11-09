@@ -633,6 +633,14 @@ Authoritative architectural record of the upgrades implemented per the Co-Founde
    - **Zero-Fabrication Executive Instructions**: Injected Rule 14 into `getCoFounderSystemPrompt()`, mandating live research over fabrication, source citations, trust-tier distinctions, and untrusted web content handling.
    - **Specialist Worker Cross-Integration**: Integrated research tools into the Competitor Research Worker (`worker_competitor_research`) and internal department configs for real-time market and competitor pricing intelligence.
 
+7. **Phase 6: Controlled Agent Reach Adapter & Discussion Search (`src/lib/ai/co-founder/rsi/adapters/agent-reach.ts`)**:
+   - **Isolated Child Process & Spawn Boundary**: Implemented `AgentReachAdapter` using `child_process.spawn` with `shell: false`, timeout budget (10s), output size limits, and sanitization of child process environment variables (scrubbing app service keys).
+   - **Subcommand Allowlist & Mutation Prevention**: Strictly allows only `['version', 'channels', 'read', 'update']`. All modification/posting verbs (`post`, `send`, `comment`, `message`, `dm`, `follow`, `like`, `publish`, `delete`) are rejected with security exceptions.
+   - **Target SSRF Protection & Output Redaction**: Mandatory `assertSafeOutboundUrl` pre-flight validation on all URL targets. Automated scrubbing of bearer tokens, session cookies, and API keys from CLI stdout.
+   - **Bounded Public Channel Policy**: Public low-risk channels (`web`, `rss`, `github`, `youtube`) are supported; high-risk authenticated channels (`reddit`, `x`) default to disabled and require explicit owner account opt-in.
+   - **Tool & Router Integration**: Declared `search_public_discussions` in `CO_FOUNDER_TOOL_DECLARATIONS`, mapped under `mcp_tools:read` in `TOOL_PERMISSION_MAP`, and connected `agent_reach` to `ResearchProviderRouter` with graceful `not_configured` degradation when disabled or CLI is uninstalled.
+
+
 
 
 
