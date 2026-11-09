@@ -16,6 +16,7 @@ export * from './eval-lab';
 export * from './proposal-engine';
 export * from './evolution-history';
 export * from './provider-router';
+export * from './evidence-ledger';
 
 import { getRsiConfig } from './config';
 import { RsiMemoryManager } from './memory-manager';

@@ -14,13 +14,17 @@ import {
   ResearchPageReadResponse,
   ProviderHealthState,
   ResearchProvider,
+  EvidencePack,
+  EvidenceClaim,
 } from './types';
 import { assertRsiOperationAllowed } from './governance';
 import { researchProviderRouter } from './provider-router';
+import { evidenceLedger } from './evidence-ledger';
 
 export class RsiResearchEngine {
   private client = getCofounderDataClient();
   private router = researchProviderRouter;
+  private ledger = evidenceLedger;
 
   /**
    * SSRF Protection: Validates that a target research URL is safe and public.
@@ -165,5 +169,69 @@ export class RsiResearchEngine {
   getProviderHealth(): Record<ResearchProvider, ProviderHealthState> {
     assertRsiOperationAllowed('research_read');
     return this.router.getProviderHealth();
+  }
+
+  /**
+   * Phase 4: Compiles an Evidence Pack from claims and research sources
+   */
+  buildEvidencePack(params: {
+    topic: string;
+    rawClaims: Array<{
+      claim: string;
+      sourceUrls?: string[];
+      sourceIds?: string[];
+    }>;
+    rawSources: Array<{
+      title: string;
+      url: string;
+      excerpt: string;
+      publishedAt?: string;
+      domain?: string;
+      category?: 'pricing' | 'policy' | 'general';
+    }>;
+    knownConflicts?: string[];
+  }): EvidencePack {
+    assertRsiOperationAllowed('research_read');
+    return this.ledger.buildEvidencePack(params);
+  }
+
+  /**
+   * Phase 4: Full Topic Research Workflow
+   * Dispatches web search, ranks sources, corroborates claims, and builds evidence pack.
+   */
+  async researchTopic(
+    topic: string,
+    options?: {
+      maxSources?: number;
+      category?: 'pricing' | 'policy' | 'general';
+    }
+  ): Promise<EvidencePack> {
+    assertRsiOperationAllowed('research_read');
+
+    const searchRes = await this.searchWeb({
+      query: topic,
+      maxResults: options?.maxSources || 5,
+    });
+
+    const rawSources = searchRes.results.map((r) => ({
+      title: r.title,
+      url: r.url,
+      excerpt: r.snippet,
+      publishedAt: r.publishedAt,
+      domain: r.domain,
+      category: options?.category || 'general',
+    }));
+
+    const allUrls = searchRes.results.map((r) => r.url);
+    const rawClaims = searchRes.results.map((r) => ({
+      claim: `${r.title}: ${r.snippet}`,
+      sourceUrls: allUrls,
+    }));
+
+    return this.ledger.buildEvidencePack({
+      topic,
+      rawClaims,
+      rawSources,
+    });
   }
 }

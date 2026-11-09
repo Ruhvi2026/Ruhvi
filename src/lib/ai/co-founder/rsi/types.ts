@@ -69,15 +69,60 @@ export interface CapabilitySnapshot {
 }
 
 export interface ResearchSource {
-  url: string;
-  canonical_url: string;
+  sourceId: string;
   title: string;
+  url: string;
+  canonicalUrl?: string;
+  canonical_url?: string;
+  domain: string;
+  sourceType:
+    | 'official'
+    | 'publisher'
+    | 'competitor'
+    | 'community'
+    | 'documentation'
+    | 'other'
+    | 'docs'
+    | 'github'
+    | 'paper'
+    | 'security_advisory'
+    | 'registry';
+  source_type?: string;
   publisher?: string;
-  source_type: 'docs' | 'github' | 'paper' | 'security_advisory' | 'registry';
   license?: string;
-  retrieved_at: string;
-  is_verified: boolean;
-  reliability_score: number;
+  publishedAt?: string;
+  retrievedAt: string;
+  retrieved_at?: string;
+  httpStatus?: number;
+  contentHash: string;
+  excerpt: string;
+  trustTier: 1 | 2 | 3 | 4;
+  freshness: 'fresh' | 'possibly_stale' | 'undated';
+  is_verified?: boolean;
+  reliability_score?: number;
+}
+
+export interface EvidenceClaim {
+  claimId: string;
+  claim: string;
+  sourceIds: string[];
+  confidence: number;
+  status: 'corroborated' | 'single_source' | 'conflicting' | 'unverified';
+  notes?: string;
+}
+
+export interface EvidencePack {
+  topic: string;
+  claims: EvidenceClaim[];
+  sources: ResearchSource[];
+  conflicts: string[];
+  unknowns: string[];
+  confidence: number;
+  overallStatus:
+    'corroborated' | 'single_source' | 'conflicting' | 'unverified';
+  generatedAt: string;
+  voiceSummary: string;
+  formattedCitations: string;
 }
 
 export interface ResearchFinding {

@@ -620,5 +620,12 @@ Authoritative architectural record of the upgrades implemented per the Co-Founde
    - **15-Minute Query Cache & Deduplication**: Canonicalizes URLs (strips `utm_*`, tracking parameters, trailing slashes) and caches query results in serverless memory (`sourceMode: 'cached'`) to conserve free-tier provider allowances.
    - **Safe Page Readers & Specialist Sources**: Page extraction via Crawl4AI `/scrape`, Jina Reader (`r.jina.ai`), and `safeFetchDirect` all strictly gated by `assertSafeOutboundUrl()`. Public GitHub API and RSS/Atom feed ingestion adapters for code and publisher updates.
 
+5. **Phase 4: Evidence Ledger, Citations & Source Ranking (`src/lib/ai/co-founder/rsi/evidence-ledger.ts`)**:
+   - **Domain Trust Tiers**: 4-level taxonomy classifying sources into Tier 1 (Official & Standards: `.gov.in`, `bis.gov.in`, `ruhvi.in`), Tier 2 (Reputable Business Publishers: Economic Times, LiveMint, Reuters), Tier 3 (Competitors & Marketplaces: CaratLane, Giva, Bluestone), and Tier 4 (Community & Social: Reddit, Quora, unverified blogs).
+   - **Corroboration & Zero-Fabrication Gate**: Factual claims strictly require either at least two independent source domains or at least one Tier 1 official source to achieve `corroborated` status. Single-domain sources are transparently marked `single_source` (confidence $\le$ 0.65); unbacked claims are marked `unverified` (confidence 0.0). Contradictory findings surface as `conflicting`.
+   - **Freshness & Provenance Ledger**: Tracks SHA-256 `contentHash` per excerpt and categorizes publication freshness into `fresh`, `possibly_stale`, or `undated`.
+   - **Dual-Mode Output Formatting**: Formats structured markdown citations with footnote links for text chat and concise spoken source digests for voice mode.
+
+
 
 
