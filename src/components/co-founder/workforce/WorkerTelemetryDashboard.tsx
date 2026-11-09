@@ -18,6 +18,7 @@ import {
   Layers,
   Zap,
 } from 'lucide-react';
+import { CanaryScorecardDashboard } from './CanaryScorecardDashboard';
 
 export interface TraceItem {
   id: string;
@@ -91,6 +92,9 @@ export function WorkerTelemetryDashboard() {
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
   const [autoRefresh, setAutoRefresh] = useState(false);
   const [expandedTraceId, setExpandedTraceId] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<'traces' | 'canary_scorecards'>(
+    'traces'
+  );
 
   const fetchTelemetry = useCallback(async () => {
     try {
@@ -217,321 +221,361 @@ export function WorkerTelemetryDashboard() {
         </div>
       </div>
 
-      {error && (
-        <div className="flex items-center gap-2 rounded-lg border border-red-800 bg-red-950/50 p-3 text-sm text-red-300">
-          <AlertTriangle className="h-4 w-4 flex-shrink-0" />
-          <span>{error}</span>
-        </div>
-      )}
-
-      {/* Primary Operational Metric Tiles */}
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-4 lg:grid-cols-6">
-        <div className="flex flex-col justify-between rounded-xl border border-zinc-800/80 bg-zinc-900/80 p-3.5">
-          <span className="text-xs font-medium text-zinc-400">Total Runs</span>
-          <div className="mt-1 text-2xl font-bold text-white">
-            {metrics?.totalRuns ?? 0}
-          </div>
-          <span className="mt-1 text-[11px] text-zinc-500">
-            Worker executions
-          </span>
-        </div>
-
-        <div className="flex flex-col justify-between rounded-xl border border-zinc-800/80 bg-zinc-900/80 p-3.5">
-          <span className="text-xs font-medium text-zinc-400">
-            Success Rate
-          </span>
-          <div className="mt-1 text-2xl font-bold text-emerald-400">
-            {metrics?.successRate ?? 100}%
-          </div>
-          <span className="mt-1 text-[11px] text-emerald-500/80">
-            {metrics?.successfulRuns ?? 0} successful
-          </span>
-        </div>
-
-        <div className="flex flex-col justify-between rounded-xl border border-zinc-800/80 bg-zinc-900/80 p-3.5">
-          <span className="text-xs font-medium text-zinc-400">
-            Verified Success
-          </span>
-          <div className="mt-1 text-2xl font-bold text-cyan-400">
-            {metrics?.verifiedSuccessRate ?? 100}%
-          </div>
-          <span className="mt-1 text-[11px] text-cyan-500/80">
-            Verified against criteria
-          </span>
-        </div>
-
-        <div className="flex flex-col justify-between rounded-xl border border-zinc-800/80 bg-zinc-900/80 p-3.5">
-          <span className="text-xs font-medium text-zinc-400">
-            Latency (p50 / p95)
-          </span>
-          <div className="mt-1 text-lg font-bold text-amber-300 md:text-xl">
-            {metrics?.p50LatencyMs ?? 0}ms / {metrics?.p95LatencyMs ?? 0}ms
-          </div>
-          <span className="mt-1 text-[11px] text-zinc-500">
-            Worker round-trip
-          </span>
-        </div>
-
-        <div className="flex flex-col justify-between rounded-xl border border-zinc-800/80 bg-zinc-900/80 p-3.5">
-          <span className="text-xs font-medium text-zinc-400">
-            LLM & Tool Calls
-          </span>
-          <div className="mt-1 text-lg font-bold text-purple-300 md:text-xl">
-            {metrics?.llmCalls ?? 0} / {metrics?.toolExecutions ?? 0}
-          </div>
-          <span className="mt-1 text-[11px] text-purple-400/80">
-            {(metrics?.totalTokens ?? 0).toLocaleString()} tokens
-          </span>
-        </div>
-
-        <div className="flex flex-col justify-between rounded-xl border border-zinc-800/80 bg-zinc-900/80 p-3.5">
-          <span className="text-xs font-medium text-zinc-400">
-            Ledger Reconciliation
-          </span>
-          <div className="mt-1 flex items-center gap-1.5 text-sm font-bold text-emerald-400">
-            <CheckCircle className="h-4 w-4" />
-            <span>Reconciled</span>
-          </div>
-          <span className="mt-1 text-[11px] text-zinc-500">
-            Zero drift detected
-          </span>
-        </div>
+      {/* Observability Mode Selector Tabs */}
+      <div className="flex items-center gap-4 border-b border-zinc-800">
+        <button
+          onClick={() => setViewMode('traces')}
+          className={`border-b-2 pb-2.5 text-xs font-semibold uppercase tracking-wider transition-colors ${
+            viewMode === 'traces'
+              ? 'border-amber-400 text-amber-300'
+              : 'border-transparent text-zinc-400 hover:text-zinc-200'
+          }`}
+        >
+          Live Traces & Spans (Phase 11)
+        </button>
+        <button
+          onClick={() => setViewMode('canary_scorecards')}
+          className={`border-b-2 pb-2.5 text-xs font-semibold uppercase tracking-wider transition-colors ${
+            viewMode === 'canary_scorecards'
+              ? 'border-cyan-400 text-cyan-300'
+              : 'border-transparent text-zinc-400 hover:text-zinc-200'
+          }`}
+        >
+          Canary Rollout & Scorecards (Phase 12)
+        </button>
       </div>
 
-      {/* Filter & Search Bar */}
-      <div className="flex flex-col items-stretch gap-3 rounded-xl border border-zinc-800/80 bg-zinc-900/60 p-3 md:flex-row md:items-center">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
-          <input
-            type="text"
-            placeholder="Search traces by ID, worker, tool, attribute..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full rounded-lg border border-zinc-800 bg-zinc-950 py-1.5 pl-9 pr-3 text-sm text-zinc-200 placeholder-zinc-500 outline-none focus:border-amber-500/60"
-          />
-        </div>
+      {viewMode === 'canary_scorecards' ? (
+        <CanaryScorecardDashboard />
+      ) : (
+        <>
+          {error && (
+            <div className="flex items-center gap-2 rounded-lg border border-red-800 bg-red-950/50 p-3 text-sm text-red-300">
+              <AlertTriangle className="h-4 w-4 flex-shrink-0" />
+              <span>{error}</span>
+            </div>
+          )}
 
-        <div className="flex flex-wrap items-center gap-2">
-          <select
-            value={selectedWorker}
-            onChange={(e) => setSelectedWorker(e.target.value)}
-            className="rounded-lg border border-zinc-800 bg-zinc-950 px-2.5 py-1.5 text-xs text-zinc-300 outline-none"
-          >
-            <option value="all">All Workers (16)</option>
-            <option value="worker_sales_conversion">
-              Worker 1: Sales & Conversion
-            </option>
-            <option value="worker_marketing_campaigns">
-              Worker 2: Marketing & Meta
-            </option>
-            <option value="worker_seo_audit">
-              Worker 3: SEO Audit & Strategy
-            </option>
-            <option value="worker_orders_fulfillment">
-              Worker 4: Orders & Logistics
-            </option>
-            <option value="worker_review_customer_feedback">
-              Worker 5: Review & Customer Feedback
-            </option>
-            <option value="worker_customer_support">
-              Worker 6: Customer Support
-            </option>
-            <option value="worker_pricing_gross_margins">
-              Worker 7: Pricing & Gross Margins
-            </option>
-            <option value="worker_content_blog">
-              Worker 8: Content & Editorial
-            </option>
-            <option value="worker_catalog_merchandising">
-              Worker 9: Product & Inventory
-            </option>
-            <option value="worker_competitor_market_intelligence">
-              Worker 10: Competitor Intelligence
-            </option>
-            <option value="worker_retention_loyalty">
-              Worker 11: Retention & VIP Coins
-            </option>
-            <option value="worker_monitoring_verification">
-              Worker 12: Monitoring & Verification
-            </option>
-            <option value="worker_execution_operations">
-              Worker 13: Execution Operations
-            </option>
-            <option value="worker_accounts_tax">
-              Worker 14: Accounts & Tax
-            </option>
-            <option value="worker_performance_intelligence">
-              Worker 15: Performance Intelligence
-            </option>
-            <option value="worker_security_intelligence">
-              Worker 16: Security Intelligence
-            </option>
-          </select>
+          {/* Primary Operational Metric Tiles */}
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-4 lg:grid-cols-6">
+            <div className="flex flex-col justify-between rounded-xl border border-zinc-800/80 bg-zinc-900/80 p-3.5">
+              <span className="text-xs font-medium text-zinc-400">
+                Total Runs
+              </span>
+              <div className="mt-1 text-2xl font-bold text-white">
+                {metrics?.totalRuns ?? 0}
+              </div>
+              <span className="mt-1 text-[11px] text-zinc-500">
+                Worker executions
+              </span>
+            </div>
 
-          <select
-            value={selectedSpan}
-            onChange={(e) => setSelectedSpan(e.target.value)}
-            className="rounded-lg border border-zinc-800 bg-zinc-950 px-2.5 py-1.5 text-xs text-zinc-300 outline-none"
-          >
-            <option value="all">All Span Types</option>
-            <option value="cofounder.request">cofounder.request</option>
-            <option value="model.call">model.call</option>
-            <option value="tool.call">tool.call</option>
-            <option value="worker.run">worker.run</option>
-            <option value="worker.delegate">worker.delegate</option>
-            <option value="approval.request">approval.request</option>
-            <option value="action.execute">action.execute</option>
-            <option value="action.verify">action.verify</option>
-            <option value="research.search">research.search</option>
-            <option value="research.fetch">research.fetch</option>
-            <option value="source.verify">source.verify</option>
-          </select>
+            <div className="flex flex-col justify-between rounded-xl border border-zinc-800/80 bg-zinc-900/80 p-3.5">
+              <span className="text-xs font-medium text-zinc-400">
+                Success Rate
+              </span>
+              <div className="mt-1 text-2xl font-bold text-emerald-400">
+                {metrics?.successRate ?? 100}%
+              </div>
+              <span className="mt-1 text-[11px] text-emerald-500/80">
+                {metrics?.successfulRuns ?? 0} successful
+              </span>
+            </div>
 
-          <select
-            value={selectedStatus}
-            onChange={(e) => setSelectedStatus(e.target.value)}
-            className="rounded-lg border border-zinc-800 bg-zinc-950 px-2.5 py-1.5 text-xs text-zinc-300 outline-none"
-          >
-            <option value="all">All Statuses</option>
-            <option value="ok">Success (ok)</option>
-            <option value="error">Error (error)</option>
-          </select>
-        </div>
-      </div>
+            <div className="flex flex-col justify-between rounded-xl border border-zinc-800/80 bg-zinc-900/80 p-3.5">
+              <span className="text-xs font-medium text-zinc-400">
+                Verified Success
+              </span>
+              <div className="mt-1 text-2xl font-bold text-cyan-400">
+                {metrics?.verifiedSuccessRate ?? 100}%
+              </div>
+              <span className="mt-1 text-[11px] text-cyan-500/80">
+                Verified against criteria
+              </span>
+            </div>
 
-      {/* Traces List Table */}
-      <div className="flex flex-col overflow-hidden rounded-xl border border-zinc-800/80 bg-zinc-900/60">
-        <div className="flex items-center justify-between border-b border-zinc-800/80 px-4 py-3 text-xs font-medium text-zinc-400">
-          <span>Searchable Trace Events ({traces.length} loaded)</span>
-          <span className="flex items-center gap-1 text-emerald-400">
-            <ShieldCheck className="h-3.5 w-3.5" />
-            Zero-PII & Secret Sanitization Enforced
-          </span>
-        </div>
+            <div className="flex flex-col justify-between rounded-xl border border-zinc-800/80 bg-zinc-900/80 p-3.5">
+              <span className="text-xs font-medium text-zinc-400">
+                Latency (p50 / p95)
+              </span>
+              <div className="mt-1 text-lg font-bold text-amber-300 md:text-xl">
+                {metrics?.p50LatencyMs ?? 0}ms / {metrics?.p95LatencyMs ?? 0}ms
+              </div>
+              <span className="mt-1 text-[11px] text-zinc-500">
+                Worker round-trip
+              </span>
+            </div>
 
-        {traces.length === 0 ? (
-          <div className="p-8 text-center text-sm text-zinc-500">
-            {isLoading
-              ? 'Loading traces...'
-              : 'No trace events match the current filter criteria.'}
+            <div className="flex flex-col justify-between rounded-xl border border-zinc-800/80 bg-zinc-900/80 p-3.5">
+              <span className="text-xs font-medium text-zinc-400">
+                LLM & Tool Calls
+              </span>
+              <div className="mt-1 text-lg font-bold text-purple-300 md:text-xl">
+                {metrics?.llmCalls ?? 0} / {metrics?.toolExecutions ?? 0}
+              </div>
+              <span className="mt-1 text-[11px] text-purple-400/80">
+                {(metrics?.totalTokens ?? 0).toLocaleString()} tokens
+              </span>
+            </div>
+
+            <div className="flex flex-col justify-between rounded-xl border border-zinc-800/80 bg-zinc-900/80 p-3.5">
+              <span className="text-xs font-medium text-zinc-400">
+                Ledger Reconciliation
+              </span>
+              <div className="mt-1 flex items-center gap-1.5 text-sm font-bold text-emerald-400">
+                <CheckCircle className="h-4 w-4" />
+                <span>Reconciled</span>
+              </div>
+              <span className="mt-1 text-[11px] text-zinc-500">
+                Zero drift detected
+              </span>
+            </div>
           </div>
-        ) : (
-          <div className="divide-y divide-zinc-800/60">
-            {traces.map((trace) => {
-              const isExpanded = expandedTraceId === trace.id;
-              return (
-                <div
-                  key={trace.id}
-                  className="flex flex-col text-xs transition-colors hover:bg-zinc-900/80"
-                >
-                  <div
-                    onClick={() =>
-                      setExpandedTraceId(isExpanded ? null : trace.id)
-                    }
-                    className="flex cursor-pointer select-none items-center justify-between gap-3 p-3"
-                  >
-                    <div className="flex min-w-0 items-center gap-2.5">
-                      {isExpanded ? (
-                        <ChevronDown className="h-4 w-4 flex-shrink-0 text-zinc-400" />
-                      ) : (
-                        <ChevronRight className="h-4 w-4 flex-shrink-0 text-zinc-500" />
-                      )}
 
-                      <span
-                        className={`rounded border px-2 py-0.5 font-mono text-[11px] font-medium ${getSpanBadgeColor(
-                          trace.name
-                        )}`}
+          {/* Filter & Search Bar */}
+          <div className="flex flex-col items-stretch gap-3 rounded-xl border border-zinc-800/80 bg-zinc-900/60 p-3 md:flex-row md:items-center">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
+              <input
+                type="text"
+                placeholder="Search traces by ID, worker, tool, attribute..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full rounded-lg border border-zinc-800 bg-zinc-950 py-1.5 pl-9 pr-3 text-sm text-zinc-200 placeholder-zinc-500 outline-none focus:border-amber-500/60"
+              />
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2">
+              <select
+                value={selectedWorker}
+                onChange={(e) => setSelectedWorker(e.target.value)}
+                className="rounded-lg border border-zinc-800 bg-zinc-950 px-2.5 py-1.5 text-xs text-zinc-300 outline-none"
+              >
+                <option value="all">All Workers (16)</option>
+                <option value="worker_sales_conversion">
+                  Worker 1: Sales & Conversion
+                </option>
+                <option value="worker_marketing_campaigns">
+                  Worker 2: Marketing & Meta
+                </option>
+                <option value="worker_seo_audit">
+                  Worker 3: SEO Audit & Strategy
+                </option>
+                <option value="worker_orders_fulfillment">
+                  Worker 4: Orders & Logistics
+                </option>
+                <option value="worker_review_customer_feedback">
+                  Worker 5: Review & Customer Feedback
+                </option>
+                <option value="worker_customer_support">
+                  Worker 6: Customer Support
+                </option>
+                <option value="worker_pricing_gross_margins">
+                  Worker 7: Pricing & Gross Margins
+                </option>
+                <option value="worker_content_blog">
+                  Worker 8: Content & Editorial
+                </option>
+                <option value="worker_catalog_merchandising">
+                  Worker 9: Product & Inventory
+                </option>
+                <option value="worker_competitor_market_intelligence">
+                  Worker 10: Competitor Intelligence
+                </option>
+                <option value="worker_retention_loyalty">
+                  Worker 11: Retention & VIP Coins
+                </option>
+                <option value="worker_monitoring_verification">
+                  Worker 12: Monitoring & Verification
+                </option>
+                <option value="worker_execution_operations">
+                  Worker 13: Execution Operations
+                </option>
+                <option value="worker_accounts_tax">
+                  Worker 14: Accounts & Tax
+                </option>
+                <option value="worker_performance_intelligence">
+                  Worker 15: Performance Intelligence
+                </option>
+                <option value="worker_security_intelligence">
+                  Worker 16: Security Intelligence
+                </option>
+              </select>
+
+              <select
+                value={selectedSpan}
+                onChange={(e) => setSelectedSpan(e.target.value)}
+                className="rounded-lg border border-zinc-800 bg-zinc-950 px-2.5 py-1.5 text-xs text-zinc-300 outline-none"
+              >
+                <option value="all">All Span Types</option>
+                <option value="cofounder.request">cofounder.request</option>
+                <option value="model.call">model.call</option>
+                <option value="tool.call">tool.call</option>
+                <option value="worker.run">worker.run</option>
+                <option value="worker.delegate">worker.delegate</option>
+                <option value="approval.request">approval.request</option>
+                <option value="action.execute">action.execute</option>
+                <option value="action.verify">action.verify</option>
+                <option value="research.search">research.search</option>
+                <option value="research.fetch">research.fetch</option>
+                <option value="source.verify">source.verify</option>
+              </select>
+
+              <select
+                value={selectedStatus}
+                onChange={(e) => setSelectedStatus(e.target.value)}
+                className="rounded-lg border border-zinc-800 bg-zinc-950 px-2.5 py-1.5 text-xs text-zinc-300 outline-none"
+              >
+                <option value="all">All Statuses</option>
+                <option value="ok">Success (ok)</option>
+                <option value="error">Error (error)</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Traces List Table */}
+          <div className="flex flex-col overflow-hidden rounded-xl border border-zinc-800/80 bg-zinc-900/60">
+            <div className="flex items-center justify-between border-b border-zinc-800/80 px-4 py-3 text-xs font-medium text-zinc-400">
+              <span>Searchable Trace Events ({traces.length} loaded)</span>
+              <span className="flex items-center gap-1 text-emerald-400">
+                <ShieldCheck className="h-3.5 w-3.5" />
+                Zero-PII & Secret Sanitization Enforced
+              </span>
+            </div>
+
+            {traces.length === 0 ? (
+              <div className="p-8 text-center text-sm text-zinc-500">
+                {isLoading
+                  ? 'Loading traces...'
+                  : 'No trace events match the current filter criteria.'}
+              </div>
+            ) : (
+              <div className="divide-y divide-zinc-800/60">
+                {traces.map((trace) => {
+                  const isExpanded = expandedTraceId === trace.id;
+                  return (
+                    <div
+                      key={trace.id}
+                      className="flex flex-col text-xs transition-colors hover:bg-zinc-900/80"
+                    >
+                      <div
+                        onClick={() =>
+                          setExpandedTraceId(isExpanded ? null : trace.id)
+                        }
+                        className="flex cursor-pointer select-none items-center justify-between gap-3 p-3"
                       >
-                        {trace.name}
-                      </span>
+                        <div className="flex min-w-0 items-center gap-2.5">
+                          {isExpanded ? (
+                            <ChevronDown className="h-4 w-4 flex-shrink-0 text-zinc-400" />
+                          ) : (
+                            <ChevronRight className="h-4 w-4 flex-shrink-0 text-zinc-500" />
+                          )}
 
-                      {trace.workerId && (
-                        <span className="max-w-[180px] truncate font-medium text-zinc-300 md:max-w-[280px]">
-                          {trace.workerId}
-                        </span>
-                      )}
+                          <span
+                            className={`rounded border px-2 py-0.5 font-mono text-[11px] font-medium ${getSpanBadgeColor(
+                              trace.name
+                            )}`}
+                          >
+                            {trace.name}
+                          </span>
 
-                      {trace.toolName && (
-                        <span className="font-mono text-[11px] text-amber-400/90">
-                          [{trace.toolName}]
-                        </span>
-                      )}
+                          {trace.workerId && (
+                            <span className="max-w-[180px] truncate font-medium text-zinc-300 md:max-w-[280px]">
+                              {trace.workerId}
+                            </span>
+                          )}
 
-                      {trace.model && (
-                        <span className="font-mono text-[11px] text-zinc-400">
-                          ({trace.model})
-                        </span>
-                      )}
-                    </div>
+                          {trace.toolName && (
+                            <span className="font-mono text-[11px] text-amber-400/90">
+                              [{trace.toolName}]
+                            </span>
+                          )}
 
-                    <div className="flex flex-shrink-0 items-center gap-3">
-                      <span className="font-mono text-[11px] text-zinc-400">
-                        {trace.durationMs}ms
-                      </span>
-
-                      {trace.status === 'ok' ? (
-                        <span className="flex items-center gap-1 rounded border border-emerald-800/60 bg-emerald-950/60 px-2 py-0.5 text-[11px] text-emerald-400">
-                          <CheckCircle className="h-3 w-3" />
-                          OK
-                        </span>
-                      ) : (
-                        <span className="flex items-center gap-1 rounded border border-red-800/60 bg-red-950/60 px-2 py-0.5 text-[11px] text-red-400">
-                          <AlertTriangle className="h-3 w-3" />
-                          ERROR
-                        </span>
-                      )}
-
-                      <span className="text-[11px] text-zinc-500">
-                        {new Date(trace.startTime).toLocaleTimeString()}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Expanded Sanitized Details */}
-                  {isExpanded && (
-                    <div className="flex flex-col gap-3 border-t border-zinc-800/70 bg-zinc-950/70 p-4 font-mono text-[11px]">
-                      <div className="grid grid-cols-1 gap-2 text-zinc-400 md:grid-cols-3">
-                        <div>
-                          <span className="text-zinc-500">Trace ID: </span>
-                          <span className="text-zinc-200">{trace.traceId}</span>
+                          {trace.model && (
+                            <span className="font-mono text-[11px] text-zinc-400">
+                              ({trace.model})
+                            </span>
+                          )}
                         </div>
-                        <div>
-                          <span className="text-zinc-500">Span ID: </span>
-                          <span className="text-zinc-200">{trace.spanId}</span>
-                        </div>
-                        <div>
-                          <span className="text-zinc-500">Result State: </span>
-                          <span className="text-cyan-400">
-                            {trace.resultState || 'completed'}
+
+                        <div className="flex flex-shrink-0 items-center gap-3">
+                          <span className="font-mono text-[11px] text-zinc-400">
+                            {trace.durationMs}ms
+                          </span>
+
+                          {trace.status === 'ok' ? (
+                            <span className="flex items-center gap-1 rounded border border-emerald-800/60 bg-emerald-950/60 px-2 py-0.5 text-[11px] text-emerald-400">
+                              <CheckCircle className="h-3 w-3" />
+                              OK
+                            </span>
+                          ) : (
+                            <span className="flex items-center gap-1 rounded border border-red-800/60 bg-red-950/60 px-2 py-0.5 text-[11px] text-red-400">
+                              <AlertTriangle className="h-3 w-3" />
+                              ERROR
+                            </span>
+                          )}
+
+                          <span className="text-[11px] text-zinc-500">
+                            {new Date(trace.startTime).toLocaleTimeString()}
                           </span>
                         </div>
                       </div>
 
-                      {trace.errorMessage && (
-                        <div className="rounded border border-red-800/60 bg-red-950/60 p-2.5 text-red-300">
-                          <strong>Error: </strong> {trace.errorMessage}
+                      {/* Expanded Sanitized Details */}
+                      {isExpanded && (
+                        <div className="flex flex-col gap-3 border-t border-zinc-800/70 bg-zinc-950/70 p-4 font-mono text-[11px]">
+                          <div className="grid grid-cols-1 gap-2 text-zinc-400 md:grid-cols-3">
+                            <div>
+                              <span className="text-zinc-500">Trace ID: </span>
+                              <span className="text-zinc-200">
+                                {trace.traceId}
+                              </span>
+                            </div>
+                            <div>
+                              <span className="text-zinc-500">Span ID: </span>
+                              <span className="text-zinc-200">
+                                {trace.spanId}
+                              </span>
+                            </div>
+                            <div>
+                              <span className="text-zinc-500">
+                                Result State:{' '}
+                              </span>
+                              <span className="text-cyan-400">
+                                {trace.resultState || 'completed'}
+                              </span>
+                            </div>
+                          </div>
+
+                          {trace.errorMessage && (
+                            <div className="rounded border border-red-800/60 bg-red-950/60 p-2.5 text-red-300">
+                              <strong>Error: </strong> {trace.errorMessage}
+                            </div>
+                          )}
+
+                          <div>
+                            <div className="mb-1 flex items-center justify-between font-medium text-zinc-400">
+                              <span>
+                                Sanitized Trace Attributes (Zero-PII):
+                              </span>
+                              <span className="rounded border border-emerald-800/40 bg-emerald-950 px-1.5 py-0.5 text-[10px] text-emerald-400">
+                                Safe for Audits
+                              </span>
+                            </div>
+                            <pre className="overflow-x-auto rounded-lg border border-zinc-800 bg-zinc-900 p-3 text-zinc-300">
+                              {JSON.stringify(trace.attributes, null, 2)}
+                            </pre>
+                          </div>
                         </div>
                       )}
-
-                      <div>
-                        <div className="mb-1 flex items-center justify-between font-medium text-zinc-400">
-                          <span>Sanitized Trace Attributes (Zero-PII):</span>
-                          <span className="rounded border border-emerald-800/40 bg-emerald-950 px-1.5 py-0.5 text-[10px] text-emerald-400">
-                            Safe for Audits
-                          </span>
-                        </div>
-                        <pre className="overflow-x-auto rounded-lg border border-zinc-800 bg-zinc-900 p-3 text-zinc-300">
-                          {JSON.stringify(trace.attributes, null, 2)}
-                        </pre>
-                      </div>
                     </div>
-                  )}
-                </div>
-              );
-            })}
+                  );
+                })}
+              </div>
+            )}
           </div>
-        )}
-      </div>
+        </>
+      )}
     </div>
   );
 }

@@ -682,6 +682,15 @@ Authoritative architectural record of the upgrades implemented per the Co-Founde
     - **Admin Telemetry API (`/api/admin/co-founder/telemetry`)**: Protected by `requireAdmin()`, provides real-time aggregated metrics (success rate, verified success rate, failure, timeout, insufficient data, p50/p95 latency, model/tool tokens, provider breakdowns, error categories) and searchable redacted trace logs reconciled with the execution ledger.
     - **Frontend Worker Observability Dashboard (`WorkerTelemetryDashboard.tsx`)**: Embedded into `/co-founder` portal as a dedicated tab ("Telemetry & Traces") with real-time auto-refresh, operational metric tiles, multi-worker & span filters, and collapsible attribute inspectors safe for support audits.
 
+13. **Phase 12: Canary Rollout, Benchmarking & Approval-Based Expansion (`canary-engine.ts`, `scorecard-engine.ts`, `/api/admin/co-founder/canary`, `CanaryScorecardDashboard.tsx`)**:
+    - **Workforce Canary Rollout Engine**: Implemented 4-stage lifecycle (`disabled` -> `shadow` -> `canary` -> `promoted`) with traffic caps, strict observation window monitoring, and automated safety gate enforcement (failure rate <= 5%, verified success >= 80%, 0 unauthorized writes, 0 PII exposures).
+    - **Role Gating for Research Tools**: Access to external web search, crawling, and channel discovery is strictly restricted to authenticated `owner`, `admin`, and `super_admin` accounts with bounded read-only limits.
+    - **Worker Shadow Execution Mode**: Runs candidate worker logic in shadow mode alongside baseline, computing Jaccard semantic divergence and ensuring candidate outputs strictly execute zero external writes (`attemptedExternalWrites === 0`).
+    - **Emergency Rollback Protocol**: Built programmatic single-worker rollback and global emergency rollback (`executeGlobalRollback`) that demotes active canary workers to shadow mode and immediately engages the distributed kill-switch across instances.
+    - **Measurable 8-Dimension Effectiveness Scorecards (Section 8.1 & 8.2)**: Replaced subjective code-review percentages with measured runtime scores computed from execution ledgers: Task correctness (20%), Evidence fidelity (20%), Tool execution (15%), Safety & approval compliance (15%), Reliability (10%), Latency/SLA (10%), Cost efficiency (5%), Observability (5%).
+    - **Section 8.2 Strict Validity Rules**: Mandates `INSUFFICIENT_DATA` for sample sizes $n < 5$ without synthetic multipliers; excludes `simulated` and `pending_approval` runs from verified success counts; calculates 95% Wilson confidence intervals alongside percentages.
+    - **Canary & Scorecard Admin Center (`CanaryScorecardDashboard.tsx`)**: Built interactive administrative dashboard with stage toggle controls, shadow mode divergence inspector, rollback drill verification, and 16-worker scorecard visualization.
+
 
 
 

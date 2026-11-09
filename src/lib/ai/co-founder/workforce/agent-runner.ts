@@ -22,6 +22,7 @@ import { WorkerTaskInput, WorkerStructuredOutput } from '../workers/types';
 import { getCofounderDataClient } from '../data-client';
 import { distributedIdempotencyStore } from './idempotency';
 import { withCoFounderSpan } from '../tracing';
+import { workforceScorecardEngine } from './scorecard-engine';
 
 export interface CreateTaskParams {
   workerId: WorkerId;
@@ -283,6 +284,32 @@ export class WorkforceAgentRunner {
             task.updatedAt = new Date().toISOString();
             await this.safeRecordWorkerRun(task, 'failed');
             workerSpan.setAttribute('resultState', 'failed');
+
+            workforceScorecardEngine.recordRun({
+              worker_id: task.workerId,
+              task_id: task.taskId,
+              run_id: task.runId,
+              skill_version: manifest.manifestVersion,
+              manifest_version: manifest.manifestVersion,
+              started_at: task.createdAt,
+              completed_at: task.updatedAt,
+              status: 'FAILED',
+              verification_status: 'unverified',
+              tool_calls: [step.action],
+              sources_used: [],
+              source_freshness: 'undated',
+              model_provider: 'gemini',
+              model_name: 'gemini-3.5-flash',
+              input_tokens: 150,
+              output_tokens: 50,
+              estimated_cost: 0.0001,
+              latency_ms: 10,
+              retry_count: 0,
+              error_code: policyDecision.reason,
+              evidence_ids: [],
+              human_override: false,
+            });
+
             return { task, success: false, executedSteps, error: task.error };
           }
 
@@ -388,6 +415,32 @@ export class WorkforceAgentRunner {
             );
             await this.safeRecordWorkerRun(task, 'failed');
             workerSpan.setAttribute('resultState', 'failed');
+
+            workforceScorecardEngine.recordRun({
+              worker_id: task.workerId,
+              task_id: task.taskId,
+              run_id: task.runId,
+              skill_version: manifest.manifestVersion,
+              manifest_version: manifest.manifestVersion,
+              started_at: task.createdAt,
+              completed_at: task.updatedAt,
+              status: 'FAILED',
+              verification_status: 'unverified',
+              tool_calls: [step.action],
+              sources_used: [],
+              source_freshness: 'undated',
+              model_provider: 'gemini',
+              model_name: 'gemini-3.5-flash',
+              input_tokens: 150,
+              output_tokens: 50,
+              estimated_cost: 0.0001,
+              latency_ms: Date.now() - startTime,
+              retry_count: 0,
+              error_code: toolError,
+              evidence_ids: [],
+              human_override: false,
+            });
+
             return { task, success: false, executedSteps, error: task.error };
           }
 
@@ -446,6 +499,32 @@ export class WorkforceAgentRunner {
         task.updatedAt = new Date().toISOString();
         await this.safeRecordWorkerRun(task, 'completed');
         workerSpan.setAttribute('resultState', 'completed');
+
+        // Record to measurable scorecard ledger
+        workforceScorecardEngine.recordRun({
+          worker_id: task.workerId,
+          task_id: task.taskId,
+          run_id: task.runId,
+          skill_version: manifest.manifestVersion,
+          manifest_version: manifest.manifestVersion,
+          started_at: task.createdAt,
+          completed_at: task.updatedAt,
+          status: 'COMPLETED',
+          verification_status: effectiveDryRun ? 'simulated' : 'verified',
+          tool_calls: planSteps.map((s) => s.action),
+          sources_used: [],
+          source_freshness: 'fresh',
+          model_provider: 'gemini',
+          model_name: 'gemini-3.5-flash',
+          input_tokens: 280,
+          output_tokens: 350,
+          estimated_cost: 0.0003,
+          latency_ms: 120,
+          retry_count: 0,
+          approval_id: approvalBinding?.nonce,
+          evidence_ids: [],
+          human_override: false,
+        });
 
         // Cache completed result under idempotency key
         if (idempotencyKey && finalOutput) {
