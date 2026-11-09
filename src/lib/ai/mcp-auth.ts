@@ -266,6 +266,103 @@ export const TOOL_PERMISSION_MAP: Record<
   research_topic: { module: 'mcp_tools', action: 'read' },
   get_research_provider_health: { module: 'mcp_tools', action: 'read' },
   search_public_discussions: { module: 'mcp_tools', action: 'read' },
+
+  // Specialist AI Worker Capability Contracts (Phase 7)
+  // Products, Catalog & Merchandising
+  get_reviews: { module: 'products', action: 'read' },
+  get_product_detail: { module: 'products', action: 'read' },
+  update_product_stock: { module: 'inventory', action: 'write' },
+  inspect_product_details: { module: 'products', action: 'read' },
+  draft_product_description: { module: 'products', action: 'read' },
+  validate_hallmark_attributes: { module: 'products', action: 'read' },
+  search_market_rates: { module: 'products', action: 'read' },
+  compare_product_pricing: { module: 'products', action: 'read' },
+  retrieve_public_citations: { module: 'products', action: 'read' },
+  analyze_review_sentiment: { module: 'products', action: 'read' },
+  get_recent_reviews: { module: 'products', action: 'read' },
+  draft_review_response: { module: 'products', action: 'read' },
+
+  // SEO & Editorial Content
+  audit_catalog_seo_health: { module: 'analytics', action: 'read' },
+  audit_page_seo: { module: 'analytics', action: 'read' },
+  suggest_meta_tags: { module: 'analytics', action: 'read' },
+  inspect_structured_data: { module: 'analytics', action: 'read' },
+  read_search_console: { module: 'analytics', action: 'read' },
+  plan_editorial_calendar: { module: 'blog', action: 'read' },
+  draft_blog_post: { module: 'blog', action: 'read' },
+  cluster_search_intent: { module: 'blog', action: 'read' },
+
+  // Competitor Research
+  analyze_competitor: { module: 'analytics', action: 'read' },
+  reddit_social_sentiment: { module: 'analytics', action: 'read' },
+
+  // Marketing & Campaigns
+  get_ad_metrics: { module: 'marketing_campaign', action: 'read' },
+  draft_campaign_brief: { module: 'marketing_campaign', action: 'read' },
+  analyze_audience_segments: { module: 'marketing_campaign', action: 'read' },
+  create_task_draft: { module: 'marketing_campaign', action: 'read' },
+
+  // Sales & CRO
+  get_abandonment_metrics: { module: 'analytics', action: 'read' },
+  draft_recovery_template: { module: 'analytics', action: 'read' },
+  simulate_checkout_flow: { module: 'analytics', action: 'read' },
+
+  // Customer Support & Grievances
+  read_ticket_details: { module: 'support_ticket', action: 'read' },
+  check_courier_tracking: { module: 'support_ticket', action: 'read' },
+  draft_support_reply: { module: 'support_ticket', action: 'read' },
+
+  // Inventory & Supply Chain
+  calculate_stock_velocity: { module: 'inventory', action: 'read' },
+  get_low_stock_items: { module: 'inventory', action: 'read' },
+  recommend_reorder_qty: { module: 'inventory', action: 'read' },
+  audit_stock_levels: { module: 'inventory', action: 'read' },
+  detect_low_stock_risks: { module: 'inventory', action: 'read' },
+  draft_reorder_sheet: { module: 'inventory', action: 'read' },
+  adjust_stock_level: { module: 'inventory', action: 'write' },
+
+  // Execution & Governance
+  execute_approved_payload: { module: 'analytics', action: 'write' },
+  verify_approval_nonce: { module: 'analytics', action: 'write' },
+  record_execution_receipt: { module: 'analytics', action: 'write' },
+
+  // Monitoring & Outcomes
+  measure_ground_truth_metric: { module: 'analytics', action: 'read' },
+  record_outcome_learning: { module: 'analytics', action: 'read' },
+
+  // Logistics & Delivery
+  get_transit_exceptions: { module: 'orders', action: 'read' },
+  calculate_rto_risk: { module: 'orders', action: 'read' },
+  check_courier_slas: { module: 'orders', action: 'read' },
+
+  // Accounts & Tax Compliance
+  compute_gstr3b_summary: { module: 'payment', action: 'read' },
+  compute_itc_breakdown: { module: 'payment', action: 'read' },
+  get_income_tax_advisory: { module: 'payment', action: 'read' },
+  get_day_book: { module: 'payment', action: 'read' },
+  compute_sku_manufacturing_cogs: { module: 'payment', action: 'read' },
+  create_double_entry_voucher: { module: 'payment', action: 'write' },
+  record_purchase_bill: { module: 'payment', action: 'write' },
+  audit_gst_calculations: { module: 'payment', action: 'read' },
+  reconcile_gateway_settlements: { module: 'payment', action: 'read' },
+  generate_discrepancy_report: { module: 'payment', action: 'read' },
+
+  // Workforce Performance & Security Intelligence
+  get_workforce_events: { module: 'analytics', action: 'read' },
+  calculate_member_scorecard: { module: 'analytics', action: 'read' },
+  audit_workforce_quality: { module: 'analytics', action: 'read' },
+  generate_cofounder_report: { module: 'analytics', action: 'read' },
+  get_security_posture: { module: 'analytics', action: 'read' },
+  analyze_vulnerabilities: { module: 'analytics', action: 'read' },
+  propose_containment: { module: 'analytics', action: 'write' },
+  inspect_file_security: { module: 'analytics', action: 'read' },
+  get_incident_report: { module: 'analytics', action: 'read' },
+  get_kpi_summary: { module: 'analytics', action: 'read' },
+  get_conversion_funnel: { module: 'analytics', action: 'read' },
+  query_sales_trends: { module: 'analytics', action: 'read' },
+  read_analytics: { module: 'analytics', action: 'read' },
+  draft_metric_alert: { module: 'analytics', action: 'read' },
+  read_metrics: { module: 'analytics', action: 'read' },
 };
 
 export function assertSpecificScope(

@@ -638,6 +638,14 @@ Authoritative architectural record of the upgrades implemented per the Co-Founde
    - **Subcommand Allowlist & Mutation Prevention**: Strictly allows only `['version', 'channels', 'read', 'update']`. All modification/posting verbs (`post`, `send`, `comment`, `message`, `dm`, `follow`, `like`, `publish`, `delete`) are rejected with security exceptions.
    - **Target SSRF Protection & Output Redaction**: Mandatory `assertSafeOutboundUrl` pre-flight validation on all URL targets. Automated scrubbing of bearer tokens, session cookies, and API keys from CLI stdout.
    - **Bounded Public Channel Policy**: Public low-risk channels (`web`, `rss`, `github`, `youtube`) are supported; high-risk authenticated channels (`reddit`, `x`) default to disabled and require explicit owner account opt-in.
+   - **Discussion Search Tool (`search_public_discussions`)**: Declared in `brain.ts`, mapped in `mcp-auth.ts`, and implemented in `tool-bridge.ts` with transparent Reddit topic sentiment fallback.
+
+8. **Phase 7: Runtime Skills & Worker Capability Contracts (`src/lib/ai/skills/`)**:
+   - **21 Versioned Runtime Skills**: Implemented typed runtime skills across 3 shared skills (`shared_evidence_quality`, `shared_source_trust_policy`, `shared_prompt_injection_boundary`), 3 research skills (`research_general_web_research`, `research_competitor_intelligence`, `research_social_listening`), and 15 worker skills covering all 16 workers.
+   - **Worker Capability Manifests (`src/lib/ai/skills/manifest.ts`)**: Built canonical capability manifests for all 16 workers defining domains, objectives, autonomy tiers (`T0`–`T3`), risk categories (`read_only`, `internal_write`, `external_side_effect`, `financial`), explicit non-capabilities, tool allowlists, token/timeout budgets, and tamper-evident SHA-256 manifest hashes.
+   - **Governed Runtime Skill Loader (`src/lib/ai/skills/loader.ts`)**: Enforces strict allowlist (`SKILL_ALLOWLIST`), rejects path traversals, validates integrity hashes, and creates immutable `SkillRunTrace` records attached to each worker execution.
+   - **100% Tool Permission Parity (`src/lib/ai/mcp-auth.ts`)**: Mapped all 50 worker-declared tools and 63 workforce manifest tools into `TOOL_PERMISSION_MAP` with explicit module and read/write actions, achieving 0 unmapped tools.
+   - **Specialist 1:1 Chat Integration (`worker-chat-service.ts`)**: Injects capability manifests, explicit non-capabilities, and active runtime skill instructions into worker prompts, persisting audit traces in message metadata.
    - **Tool & Router Integration**: Declared `search_public_discussions` in `CO_FOUNDER_TOOL_DECLARATIONS`, mapped under `mcp_tools:read` in `TOOL_PERMISSION_MAP`, and connected `agent_reach` to `ResearchProviderRouter` with graceful `not_configured` degradation when disabled or CLI is uninstalled.
 
 

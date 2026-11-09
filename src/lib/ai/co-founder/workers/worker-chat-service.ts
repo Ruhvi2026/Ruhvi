@@ -8,6 +8,11 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { WorkerId } from './types';
 import { WorkerRegistry, resolveCanonicalWorkerId } from './registry';
 import { ConversationRepository } from '../conversations/repository';
+import {
+  getWorkerCapabilityManifest,
+  loadSkillsForWorker,
+  createSkillRunTrace,
+} from '@/lib/ai/skills';
 
 export interface WorkerChatResult {
   conversationId: string;
@@ -76,11 +81,21 @@ export async function handleWorkerDirectChat(
       16
     );
 
-  // 4. Construct worker domain system prompt with full specialist contract
+  // 4. Construct worker domain system prompt with full specialist contract & runtime skills
+  const manifest = getWorkerCapabilityManifest(canonicalWorkerId);
+  const runtimeSkills = manifest ? loadSkillsForWorker(canonicalWorkerId) : [];
+  const nonCapabilitiesText = manifest?.explicitNonCapabilities?.length
+    ? `\nExplicit Non-Capabilities (Fail-Closed Boundaries):\n${manifest.explicitNonCapabilities.map((nc) => `- ${nc}`).join('\n')}`
+    : '';
+  const skillInstructionsText = runtimeSkills.length
+    ? `\nActive Runtime Skills & Governed Instructions:\n${runtimeSkills.map((s) => `[Skill: ${s.name} v${s.version}]\n${s.instructions}`).join('\n\n')}`
+    : '';
+
   const systemInstruction = `You are ${def.name} (${def.role}) at Ruhvi Jewellery (ruhvi.in).
 Your Primary Objective: ${def.objective}
 
 Domain Priority: ${def.priority}
+Autonomy Tier: ${manifest?.autonomyTier || 'T1'} (Risk Class: ${manifest?.riskCategory || 'read_only'})
 Core Responsibilities:
 ${def.responsibilities.map((r) => `- ${r}`).join('\n')}
 
@@ -89,6 +104,8 @@ ${def.requiredTools.map((t) => `- ${t}`).join('\n')}
 
 Required Skills:
 ${def.requiredSkills.map((s) => `- ${s}`).join('\n')}
+${nonCapabilitiesText}
+${skillInstructionsText}
 
 Permission Scope: ${def.permissionScope.join(', ')}
 
@@ -135,7 +152,11 @@ Guidelines:
     result.response.text()?.trim() ||
     'Task analyzed. How would you like to proceed?';
 
-  // 6. Persist assistant worker response
+  // 6. Persist assistant worker response with skill audit trace
+  const runTrace = manifest
+    ? createSkillRunTrace(canonicalWorkerId, 'live')
+    : undefined;
+
   await ConversationRepository.appendMessage({
     conversationId: conversation.id,
     senderType: 'worker',
@@ -145,6 +166,9 @@ Guidelines:
     metadata: {
       workerName: def.name,
       model: 'gemini-2.5-flash',
+      manifestVersion: manifest?.version,
+      manifestHash: manifest?.manifestHash,
+      skillRunTrace: runTrace,
     },
   });
 
