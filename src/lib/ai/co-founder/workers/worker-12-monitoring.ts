@@ -2,6 +2,7 @@ import 'server-only';
 
 import {
   AIWorkerInterface,
+  WorkerDataSourceMode,
   WorkerDefinition,
   WorkerId,
   WorkerPriority,
@@ -78,38 +79,31 @@ export class MonitoringVerificationWorker implements AIWorkerInterface {
       }));
 
       // 2. Fetch statistical outcome intelligence
-      const rawOutcomeStats = (await getOutcomeAnalytics(30).catch(() => ({
-        totalRecommendations: 12,
-        totalActionsExecuted: 10,
-        acceptanceRatePercent: 83.3,
-        verifiedOutcomes: {
-          positiveCount: 8,
-          negativeCount: 1,
-          neutralCount: 1,
-          successRatePercent: 80.0,
-        },
-        conflicts: [],
-      }))) as any;
+      const rawOutcomeStats = (await getOutcomeAnalytics(30).catch(
+        () => null
+      )) as any;
 
       const totalActionsExecuted: number =
-        rawOutcomeStats.totalActionsExecuted ??
-        rawOutcomeStats.totalOutcomesTracked ??
+        rawOutcomeStats?.totalActionsExecuted ??
+        rawOutcomeStats?.totalOutcomesTracked ??
         0;
       const successRatePercent: number =
-        rawOutcomeStats.verifiedOutcomes?.successRatePercent ??
-        rawOutcomeStats.verifiedSuccessRate ??
-        rawOutcomeStats.actionExecutionSuccessRate ??
-        87.5;
+        rawOutcomeStats?.verifiedOutcomes?.successRatePercent ??
+        rawOutcomeStats?.verifiedSuccessRate ??
+        rawOutcomeStats?.actionExecutionSuccessRate ??
+        0;
       const positiveCount: number =
-        rawOutcomeStats.verifiedOutcomes?.positiveCount ??
-        Math.round(totalActionsExecuted * 0.8);
+        rawOutcomeStats?.verifiedOutcomes?.positiveCount ?? 0;
       const neutralCount: number =
-        rawOutcomeStats.verifiedOutcomes?.neutralCount ?? 0;
+        rawOutcomeStats?.verifiedOutcomes?.neutralCount ?? 0;
       const negativeCount: number =
-        rawOutcomeStats.verifiedOutcomes?.negativeCount ?? 0;
-      const conflicts: any[] = Array.isArray(rawOutcomeStats.conflicts)
+        rawOutcomeStats?.verifiedOutcomes?.negativeCount ?? 0;
+      const conflicts: any[] = Array.isArray(rawOutcomeStats?.conflicts)
         ? rawOutcomeStats.conflicts
         : [];
+
+      const sourceMode: WorkerDataSourceMode =
+        totalActionsExecuted === 0 ? 'insufficient_data' : 'verified';
 
       // 3. Ingest fresh store analytics for before/after comparison
       const analytics = (await getStoreAnalytics({ timeframe: '30d' }).catch(
@@ -123,19 +117,27 @@ export class MonitoringVerificationWorker implements AIWorkerInterface {
       const recommendations: string[] = [];
       const regressionsDetected: string[] = [];
 
-      findings.push(
-        `Closed-loop outcome review: ${totalActionsExecuted} executed actions evaluated with an ${successRatePercent}% verified success rate.`
-      );
+      if (totalActionsExecuted === 0) {
+        findings.push(
+          'Closed-loop outcome review: 0 executed actions evaluated; outcome tracking telemetry is INSUFFICIENT_DATA.'
+        );
+        evidence.push(
+          'co_founder_outcomes database table currently contains zero recorded outcome records.'
+        );
+      } else {
+        findings.push(
+          `Closed-loop outcome review: ${totalActionsExecuted} executed actions evaluated with an ${successRatePercent}% verified success rate.`
+        );
+        evidence.push(
+          `Authoritative outcome records: ${positiveCount} confirmed positive impact, ${neutralCount} neutral, ${negativeCount} underperformed.`
+        );
+      }
 
       if (verificationRun.verifiedCount > 0) {
         findings.push(
           `Verified ${verificationRun.verifiedCount} due action plans against live database state in current cycle.`
         );
       }
-
-      evidence.push(
-        `Authoritative outcome records: ${positiveCount} confirmed positive impact, ${neutralCount} neutral, ${negativeCount} underperformed.`
-      );
 
       // Analyze regressions
       const metricsDelta: VerificationReportData['metricsDelta'] = [];
@@ -221,16 +223,18 @@ export class MonitoringVerificationWorker implements AIWorkerInterface {
             : 'medium';
 
       const voiceSummary =
-        `Monitoring and verification complete. Overall executed action success rate is ${successRatePercent}%. ` +
-        (regressionsDetected.length > 0
-          ? `Alert: A performance regression was detected: ${regressionsDetected[0]}. Investigation recommended.`
-          : 'All executed operations are performing within expected positive bounds with zero regression.');
+        totalActionsExecuted === 0
+          ? 'Monitoring and verification complete. Outcome telemetry is currently in INSUFFICIENT_DATA state with 0 tracked outcomes; no success rates have been fabricated.'
+          : `Monitoring and verification complete. Overall executed action success rate is ${successRatePercent}%. ` +
+            (regressionsDetected.length > 0
+              ? `Alert: A performance regression was detected: ${regressionsDetected[0]}. Investigation recommended.`
+              : 'All executed operations are performing within expected positive bounds with zero regression.');
 
       const reportData: VerificationReportData = {
         verifiedActionsCount: totalActionsExecuted,
         successRatePercent,
         conflictCount:
-          conflicts.length || rawOutcomeStats.conflictedOutcomes || 0,
+          conflicts.length || rawOutcomeStats?.conflictedOutcomes || 0,
         regressionsDetected,
         metricsDelta,
       };
@@ -239,6 +243,7 @@ export class MonitoringVerificationWorker implements AIWorkerInterface {
         workerId: this.id,
         workerName: this.name,
         task: input.task,
+        sourceMode,
         findings,
         evidence,
         problems,
@@ -265,6 +270,7 @@ export class MonitoringVerificationWorker implements AIWorkerInterface {
         workerId: this.id,
         workerName: this.name,
         task: input.task,
+        sourceMode: 'unavailable',
         findings: ['Monitoring and verification encountered an error.'],
         evidence: [err.message],
         problems: [`Failed to verify outcomes: ${err.message}`],

@@ -2,6 +2,7 @@ import 'server-only';
 
 import {
   AIWorkerInterface,
+  WorkerDataSourceMode,
   WorkerDefinition,
   WorkerId,
   WorkerPriority,
@@ -15,9 +16,11 @@ import {
 
 export interface FunnelStage {
   stage: string;
-  count: number;
-  conversionRatePercent: number;
-  dropOffRatePercent: number;
+  count: number | null;
+  conversionRatePercent: number | null;
+  dropOffRatePercent: number | null;
+  status: 'measured' | 'unavailable' | 'estimated';
+  notes?: string;
 }
 
 export class SalesConversionWorker implements AIWorkerInterface {
@@ -78,85 +81,172 @@ export class SalesConversionWorker implements AIWorkerInterface {
       const aov: number = cur.aov ?? 0;
       const rev: number = cur.totalRevenue ?? 0;
 
-      // Modelled e-commerce funnel based on authoritative order volume
-      // In luxury demi-fine jewellery: Benchmark visitor -> cart ~ 6%, cart -> checkout ~ 50%, checkout -> placed ~ 65%
-      const estimatedVisitors = Math.max(totalOrders * 35, 1500);
-      const estimatedCarts = Math.round(estimatedVisitors * 0.058);
-      const estimatedCheckouts = Math.round(estimatedCarts * 0.48);
+      // Check if authoritative web session analytics (e.g. PostHog) are available
+      const measuredVisitors: number | null =
+        cur.totalVisitors ?? cur.visitors ?? null;
+      const measuredCarts: number | null = cur.totalCarts ?? cur.carts ?? null;
+      const measuredCheckouts: number | null =
+        cur.totalCheckouts ?? cur.checkouts ?? null;
 
-      const funnel: FunnelStage[] = [
-        {
-          stage: 'Store Visitors',
-          count: estimatedVisitors,
-          conversionRatePercent: 100,
-          dropOffRatePercent: 0,
-        },
-        {
-          stage: 'Added to Cart',
-          count: estimatedCarts,
-          conversionRatePercent: Number(
-            ((estimatedCarts / estimatedVisitors) * 100).toFixed(1)
-          ),
-          dropOffRatePercent: Number(
-            (100 - (estimatedCarts / estimatedVisitors) * 100).toFixed(1)
-          ),
-        },
-        {
-          stage: 'Initiated Checkout',
-          count: estimatedCheckouts,
-          conversionRatePercent: Number(
-            ((estimatedCheckouts / estimatedCarts) * 100).toFixed(1)
-          ),
-          dropOffRatePercent: Number(
-            (100 - (estimatedCheckouts / estimatedCarts) * 100).toFixed(1)
-          ),
-        },
-        {
-          stage: 'Orders Placed',
-          count: totalOrders,
-          conversionRatePercent: Number(
-            ((totalOrders / estimatedCheckouts) * 100).toFixed(1)
-          ),
-          dropOffRatePercent: Number(
-            (100 - (totalOrders / estimatedCheckouts) * 100).toFixed(1)
-          ),
-        },
-        {
-          stage: 'Orders Completed (Delivered / Paid)',
-          count: completedOrders,
-          conversionRatePercent: Number(
-            ((completedOrders / Math.max(totalOrders, 1)) * 100).toFixed(1)
-          ),
-          dropOffRatePercent: Number(
-            ((cancelledOrders / Math.max(totalOrders, 1)) * 100).toFixed(1)
-          ),
-        },
-      ];
+      const hasPreCheckoutTelemetry =
+        measuredVisitors !== null && measuredVisitors > 0;
 
-      const overallConversionRate = Number(
-        ((totalOrders / estimatedVisitors) * 100).toFixed(2)
-      );
-      const checkoutDropoffRate = funnel[3].dropOffRatePercent;
+      let funnel: FunnelStage[];
+      let overallConversionRate: number | null = null;
+      let checkoutDropoffRate: number | null = null;
 
-      findings.push(
-        `Storewide conversion rate is ${overallConversionRate}% across ${estimatedVisitors.toLocaleString('en-IN')} visitors, yielding ${totalOrders} orders (₹${rev.toLocaleString('en-IN')}).`
-      );
+      if (hasPreCheckoutTelemetry) {
+        const carts = measuredCarts ?? Math.round(measuredVisitors * 0.05);
+        const checkouts = measuredCheckouts ?? Math.round(carts * 0.5);
 
-      findings.push(
-        `Checkout-to-Order completion is ${funnel[3].conversionRatePercent}%, with a ${checkoutDropoffRate}% drop-off between initiating checkout and placing order.`
-      );
+        overallConversionRate = Number(
+          ((totalOrders / measuredVisitors) * 100).toFixed(2)
+        );
+        checkoutDropoffRate =
+          checkouts > 0
+            ? Number((100 - (totalOrders / checkouts) * 100).toFixed(1))
+            : 0;
+
+        funnel = [
+          {
+            stage: 'Store Visitors',
+            count: measuredVisitors,
+            conversionRatePercent: 100,
+            dropOffRatePercent: 0,
+            status: 'measured',
+          },
+          {
+            stage: 'Added to Cart',
+            count: carts,
+            conversionRatePercent: Number(
+              ((carts / measuredVisitors) * 100).toFixed(1)
+            ),
+            dropOffRatePercent: Number(
+              (100 - (carts / measuredVisitors) * 100).toFixed(1)
+            ),
+            status: measuredCarts !== null ? 'measured' : 'estimated',
+          },
+          {
+            stage: 'Initiated Checkout',
+            count: checkouts,
+            conversionRatePercent: Number(
+              ((checkouts / Math.max(carts, 1)) * 100).toFixed(1)
+            ),
+            dropOffRatePercent: Number(
+              (100 - (checkouts / Math.max(carts, 1)) * 100).toFixed(1)
+            ),
+            status: measuredCheckouts !== null ? 'measured' : 'estimated',
+          },
+          {
+            stage: 'Orders Placed',
+            count: totalOrders,
+            conversionRatePercent: Number(
+              ((totalOrders / Math.max(checkouts, 1)) * 100).toFixed(1)
+            ),
+            dropOffRatePercent: checkoutDropoffRate,
+            status: 'measured',
+          },
+          {
+            stage: 'Orders Completed (Delivered / Paid)',
+            count: completedOrders,
+            conversionRatePercent: Number(
+              ((completedOrders / Math.max(totalOrders, 1)) * 100).toFixed(1)
+            ),
+            dropOffRatePercent: Number(
+              ((cancelledOrders / Math.max(totalOrders, 1)) * 100).toFixed(1)
+            ),
+            status: 'measured',
+          },
+        ];
+      } else {
+        // Truthful funnel: Mark pre-checkout stages unavailable without guessing benchmark multipliers
+        funnel = [
+          {
+            stage: 'Store Visitors',
+            count: null,
+            conversionRatePercent: null,
+            dropOffRatePercent: null,
+            status: 'unavailable',
+            notes:
+              'Visitor analytics telemetry currently unattached (PostHog/web session stream unavailable). Benchmark multiplier estimation is strictly removed.',
+          },
+          {
+            stage: 'Added to Cart',
+            count: null,
+            conversionRatePercent: null,
+            dropOffRatePercent: null,
+            status: 'unavailable',
+            notes: 'Cart event telemetry unavailable.',
+          },
+          {
+            stage: 'Initiated Checkout',
+            count: null,
+            conversionRatePercent: null,
+            dropOffRatePercent: null,
+            status: 'unavailable',
+            notes: 'Checkout initiation telemetry unavailable.',
+          },
+          {
+            stage: 'Orders Placed',
+            count: totalOrders,
+            conversionRatePercent: 100,
+            dropOffRatePercent: 0,
+            status: 'measured',
+            notes: 'Authoritative database order volume',
+          },
+          {
+            stage: 'Orders Completed (Delivered / Paid)',
+            count: completedOrders,
+            conversionRatePercent:
+              totalOrders > 0
+                ? Number(((completedOrders / totalOrders) * 100).toFixed(1))
+                : 0,
+            dropOffRatePercent:
+              totalOrders > 0
+                ? Number(((cancelledOrders / totalOrders) * 100).toFixed(1))
+                : 0,
+            status: 'measured',
+            notes: 'Delivered and fulfilled orders',
+          },
+        ];
+      }
+
+      if (hasPreCheckoutTelemetry) {
+        findings.push(
+          `Storewide conversion rate is ${overallConversionRate}% across ${measuredVisitors!.toLocaleString('en-IN')} measured visitors, yielding ${totalOrders} orders (₹${rev.toLocaleString('en-IN')}).`
+        );
+        findings.push(
+          `Checkout-to-Order completion is ${funnel[3].conversionRatePercent}%, with a ${checkoutDropoffRate}% drop-off between initiating checkout and placing order.`
+        );
+      } else if (totalOrders > 0) {
+        findings.push(
+          `Authoritative order volume in ${timeframe}: ${totalOrders} orders placed (₹${rev.toLocaleString('en-IN')}) with ₹${aov.toLocaleString('en-IN')} average order value.`
+        );
+        findings.push(
+          `Pre-checkout funnel stages (Store Visitors, Added to Cart, Initiated Checkout) are marked UNAVAILABLE pending web session telemetry integration. Synthetic benchmark multipliers are strictly omitted.`
+        );
+      } else {
+        findings.push(
+          `Zero order records found for timeframe (${timeframe}). Funnel stages are marked INSUFFICIENT_DATA.`
+        );
+      }
 
       evidence.push(
         `Authoritative completed orders: ${completedOrders}, cancelled/unfulfilled orders: ${cancelledOrders} (Cancellation rate: ${cancellationRate}%).`
       );
 
       // Bottleneck identification
-      if (checkoutDropoffRate > 35) {
+      if (
+        hasPreCheckoutTelemetry &&
+        checkoutDropoffRate &&
+        checkoutDropoffRate > 35
+      ) {
         problems.push(
           `Severe checkout abandonment detected: ${checkoutDropoffRate}% of users who initiate checkout leave before completing payment.`
         );
-        evidence.push(
-          `Estimated lost checkouts: ${estimatedCheckouts - totalOrders} sessions in ${timeframe}.`
+      } else if (!hasPreCheckoutTelemetry) {
+        problems.push(
+          'Pre-checkout conversion funnel visibility is limited due to unattached web session events.'
         );
       }
 
@@ -167,17 +257,11 @@ export class SalesConversionWorker implements AIWorkerInterface {
       }
 
       // CRO Opportunities
-      const potentialRecoveredOrders = Math.round(
-        (estimatedCheckouts - totalOrders) * 0.15
-      );
-      const potentialRevenueUpside = potentialRecoveredOrders * aov;
-
-      opportunities.push(
-        `Recovering just 15% of abandoned checkouts unlocks an estimated ${potentialRecoveredOrders} additional orders (~₹${potentialRevenueUpside.toLocaleString('en-IN')} revenue).`
-      );
-
       opportunities.push(
         'UPI One-Click Checkout: Enabling prominent Razorpay UPI QR and intent flow reduces checkout field friction from 8 steps to 2 taps.'
+      );
+      opportunities.push(
+        'Automated WhatsApp Abandoned Order Recovery: Prompting uncompleted or COD customers within 30 minutes improves conversion without guessing funnel ratios.'
       );
 
       // Strategic CRO recommendations
@@ -192,36 +276,52 @@ export class SalesConversionWorker implements AIWorkerInterface {
       );
 
       const priority =
-        checkoutDropoffRate > 40 || cancellationRate > 15 ? 'high' : 'medium';
+        (checkoutDropoffRate && checkoutDropoffRate > 40) ||
+        cancellationRate > 15
+          ? 'high'
+          : 'medium';
 
-      const voiceSummary =
-        `Sales and conversion audit complete. Overall store conversion is ${overallConversionRate}% with ${totalOrders} orders and ₹${aov.toLocaleString('en-IN')} AOV. ` +
-        `The largest drop-off occurs at final checkout (${checkoutDropoffRate}% abandon). Streamlining UPI checkout and WhatsApp cart recovery could recover ~₹${potentialRevenueUpside.toLocaleString('en-IN')} in lost sales.`;
+      const sourceMode: WorkerDataSourceMode =
+        totalOrders === 0
+          ? 'insufficient_data'
+          : hasPreCheckoutTelemetry
+            ? 'live'
+            : 'partial';
+
+      const voiceSummary = hasPreCheckoutTelemetry
+        ? `Sales and conversion audit complete. Overall store conversion rate is ${overallConversionRate}% with ${totalOrders} orders and ₹${aov.toLocaleString('en-IN')} AOV.`
+        : `Sales and conversion audit complete. Overall store conversion is not available because pre-checkout visitor telemetry is unattached; analyzed ${totalOrders} authoritative orders with ₹${aov.toLocaleString('en-IN')} AOV and ${cancellationRate}% cancellations.`;
 
       return {
         workerId: this.id,
         workerName: this.name,
         task: input.task,
+        sourceMode,
         findings,
         evidence,
         problems,
         opportunities,
         recommendations,
         priority,
-        expectedImpact: `+₹${potentialRevenueUpside.toLocaleString('en-IN')} incremental revenue and 15-20% reduction in checkout drop-off.`,
+        expectedImpact:
+          '15-20% reduction in checkout drop-off and improved order fulfillment.',
         requiredAction:
           'Implement Sticky UPI button on mobile PDPs and activate WhatsApp checkout recovery sequence',
         requiredApproval: false,
         executionStatus: 'not_required',
         verification:
           'Measure checkout completion rate and WhatsApp recovery conversion over next 14 days.',
-        missingCapabilities: [],
+        missingCapabilities: hasPreCheckoutTelemetry
+          ? []
+          : ['web_session_telemetry'],
         data: {
           funnel,
           metrics: {
             overallConversionRate,
             checkoutDropoffRate,
-            potentialRevenueUpside,
+            totalOrders,
+            completedOrders,
+            cancellationRate,
           },
         },
         executiveVoiceSummary: voiceSummary,
@@ -232,6 +332,7 @@ export class SalesConversionWorker implements AIWorkerInterface {
         workerId: this.id,
         workerName: this.name,
         task: input.task,
+        sourceMode: 'unavailable',
         findings: ['Sales and conversion analysis failed.'],
         evidence: [err.message],
         problems: [`Failed to compute sales funnel metrics: ${err.message}`],

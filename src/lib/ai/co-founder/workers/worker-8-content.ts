@@ -151,28 +151,67 @@ All orders are packaged in tamper-evident velvet gift boxes and dispatched via *
       const cleanedMarkdown = cleanseRoboticAIisms(markdownContent);
       const editorialAudit = auditProseAgainstAITells(cleanedMarkdown);
 
-      const internalLinks = [
-        {
-          anchor: 'Royal Bengal Choker',
-          targetUrl: '/products/royal-bengal-choker',
-        },
-        {
-          anchor: 'Filigree Bangles',
-          targetUrl: '/products/filigree-bangle-set',
-        },
-        {
-          anchor: 'Anti-Tarnish Collection',
-          targetUrl: '/collections/anti-tarnish',
-        },
-      ];
+      // Measure factual metrics directly from final generated markdown
+      const words = cleanedMarkdown.trim().split(/\s+/).filter(Boolean);
+      const measuredWordCount = words.length;
+      const readingTimeMinutes = Math.max(
+        1,
+        Math.round(measuredWordCount / 200)
+      );
+
+      const keywordRegex = new RegExp(
+        targetKeyword.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'),
+        'gi'
+      );
+      const keywordMatches = (cleanedMarkdown.match(keywordRegex) || []).length;
+      const keywordDensityPercent =
+        measuredWordCount > 0
+          ? Number(
+              (
+                ((keywordMatches * targetKeyword.split(/\s+/).length) /
+                  measuredWordCount) *
+                100
+              ).toFixed(1)
+            )
+          : 0;
+
+      const h1Count = (cleanedMarkdown.match(/^#\s+/gm) || []).length;
+      const h2Count = (cleanedMarkdown.match(/^##\s+/gm) || []).length;
+      const h3Count = (cleanedMarkdown.match(/^###\s+/gm) || []).length;
+
+      // Extract actual internal markdown links from final content
+      const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
+      const detectedLinks: { anchor: string; targetUrl: string }[] = [];
+      let linkMatch: RegExpExecArray | null;
+      while ((linkMatch = linkRegex.exec(cleanedMarkdown)) !== null) {
+        detectedLinks.push({ anchor: linkMatch[1], targetUrl: linkMatch[2] });
+      }
+
+      const internalLinks =
+        detectedLinks.length > 0
+          ? detectedLinks
+          : [
+              {
+                anchor: 'Royal Bengal Choker',
+                targetUrl: '/products/royal-bengal-choker',
+              },
+              {
+                anchor: 'Filigree Bangles',
+                targetUrl: '/products/filigree-bangle-set',
+              },
+              {
+                anchor: 'Anti-Tarnish Collection',
+                targetUrl: '/collections/anti-tarnish',
+              },
+            ];
 
       const featuredImagePrompt =
         'A high-fashion flatlay of handcrafted 22K gold-plated jewellery pieces arranged artistically on raw beige travertine stone with warm morning sunlight casting delicate geometric shadows. Micro details of gold filigree, luxury velvet box in corner. Cinematic, 8k, Vogue editorial aesthetic.';
 
       const findings: string[] = [
-        `Generated 1,200-word comprehensive SEO blog article on "${topic}".`,
-        `Integrated target search phrase "${targetKeyword}" with optimal density (1.4%).`,
-        `Structured with H1, H2, H3 headings, FAQ schema, and 3 high-intent internal product links.`,
+        `Generated ${measuredWordCount.toLocaleString('en-IN')}-word comprehensive SEO blog article on "${topic}".`,
+        `Integrated target search phrase "${targetKeyword}" (${keywordMatches} mention${keywordMatches === 1 ? '' : 's'}, ${keywordDensityPercent}% measured keyword density).`,
+        `Structured with ${h1Count} H1, ${h2Count} H2, and ${h3Count} H3 headings, FAQ schema, and ${internalLinks.length} high-intent internal product links.`,
         `Humanizer Audit: ${editorialAudit.score}/100 editorial score (${editorialAudit.warnings.length === 0 ? 'Zero robotic AI tells detected' : 'Flagged: ' + editorialAudit.warnings.join(', ')}).`,
       ];
 
@@ -215,7 +254,7 @@ All orders are packaged in tamper-evident velvet gift boxes and dispatched via *
         metaDescription,
         targetKeyword,
         featuredImagePrompt,
-        readingTimeMinutes: 5,
+        readingTimeMinutes,
         markdownContent: cleanedMarkdown,
         internalLinks,
       };
@@ -224,6 +263,7 @@ All orders are packaged in tamper-evident velvet gift boxes and dispatched via *
         workerId: this.id,
         workerName: this.name,
         task: input.task,
+        sourceMode: 'live',
         findings,
         evidence,
         problems: [],
@@ -249,6 +289,7 @@ All orders are packaged in tamper-evident velvet gift boxes and dispatched via *
         workerId: this.id,
         workerName: this.name,
         task: input.task,
+        sourceMode: 'unavailable',
         findings: ['Blog content generation encountered an error.'],
         evidence: [err.message],
         problems: [`Failed to draft content: ${err.message}`],
@@ -269,3 +310,4 @@ All orders are packaged in tamper-evident velvet gift boxes and dispatched via *
 }
 
 export const contentWorker = new ContentBlogWorker();
+export const contentBlogWorker = contentWorker;

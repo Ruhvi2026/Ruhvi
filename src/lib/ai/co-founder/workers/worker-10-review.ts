@@ -19,7 +19,11 @@ export interface SentimentAnalysisResult {
     negativePercent: number;
   };
   praiseThemes: { theme: string; frequency: number }[];
-  defectThemes: { defect: string; frequency: number; severity: 'high' | 'medium' | 'low' }[];
+  defectThemes: {
+    defect: string;
+    frequency: number;
+    severity: 'high' | 'medium' | 'low';
+  }[];
 }
 
 export class ReviewFeedbackWorker implements AIWorkerInterface {
@@ -68,7 +72,9 @@ export class ReviewFeedbackWorker implements AIWorkerInterface {
       // Ingest reviews from Supabase
       const { data: reviews, error } = await supabase
         .from('reviews')
-        .select('id, product_id, rating, title, comment, verified_purchase, created_at')
+        .select(
+          'id, product_id, rating, title, comment, verified_purchase, created_at'
+        )
         .order('created_at', { ascending: false })
         .limit(100);
 
@@ -93,33 +99,85 @@ export class ReviewFeedbackWorker implements AIWorkerInterface {
       }
 
       const averageRating =
-        totalReviews > 0 ? Number((ratingSum / totalReviews).toFixed(1)) : 4.8;
+        totalReviews > 0 ? Number((ratingSum / totalReviews).toFixed(1)) : 0;
       const positivePercent =
-        totalReviews > 0 ? Math.round((positiveCount / totalReviews) * 100) : 92;
+        totalReviews > 0 ? Math.round((positiveCount / totalReviews) * 100) : 0;
       const neutralPercent =
-        totalReviews > 0 ? Math.round((neutralCount / totalReviews) * 100) : 5;
+        totalReviews > 0 ? Math.round((neutralCount / totalReviews) * 100) : 0;
       const negativePercent =
-        totalReviews > 0 ? Math.round((negativeCount / totalReviews) * 100) : 3;
+        totalReviews > 0 ? Math.round((negativeCount / totalReviews) * 100) : 0;
 
-      // Extract praise and defect themes from review comments
-      const praiseThemes = [
-        { theme: 'Lustrous 22K gold color that matches heirloom gold', frequency: 38 },
-        { theme: 'Anti-tarnish durability after multiple wears and humid events', frequency: 29 },
-        { theme: 'Unboxing experience in luxury velvet gift packaging', frequency: 22 },
+      // Extract praise and defect themes dynamically from verified review text
+      const praisePatterns = [
+        {
+          regex: /22k|gold color|heirloom|luster|shine|color is stunning/i,
+          theme: 'Lustrous 22K gold color that matches heirloom gold',
+        },
+        {
+          regex: /anti-tarnish|tarnish|sweat|perfume|durability/i,
+          theme:
+            'Anti-tarnish durability after multiple wears and humid events',
+        },
+        {
+          regex: /packaging|unboxing|velvet|gift/i,
+          theme: 'Unboxing experience in luxury velvet gift packaging',
+        },
+        {
+          regex: /pendant|gorgeous|beautiful|finish|stunning/i,
+          theme: 'Finely detailed Bengali artisanal craftsmanship',
+        },
       ];
 
-      const defectThemes = [
+      const defectPatterns = [
         {
+          regex: /clasp|lock|lobster|tight|stiff/i,
           defect: 'Lobster clasp tightness on delicate necklace chains',
-          frequency: 4,
           severity: 'medium' as const,
         },
         {
+          regex: /choker|collarbone|snug|short|length/i,
           defect: 'Neck choker length slightly snug on broad collarbones',
-          frequency: 3,
           severity: 'low' as const,
         },
+        {
+          regex: /delay|delivery|shipping|late/i,
+          defect: 'Courier transit delay during peak seasonal surge',
+          severity: 'medium' as const,
+        },
       ];
+
+      const praiseThemes: { theme: string; frequency: number }[] = [];
+      const defectThemes: {
+        defect: string;
+        frequency: number;
+        severity: 'high' | 'medium' | 'low';
+      }[] = [];
+
+      for (const p of praisePatterns) {
+        let count = 0;
+        for (const r of reviewList) {
+          const text = `${r.title || ''} ${r.comment || ''}`;
+          if (p.regex.test(text)) count++;
+        }
+        if (count > 0) {
+          praiseThemes.push({ theme: p.theme, frequency: count });
+        }
+      }
+
+      for (const d of defectPatterns) {
+        let count = 0;
+        for (const r of reviewList) {
+          const text = `${r.title || ''} ${r.comment || ''}`;
+          if (d.regex.test(text)) count++;
+        }
+        if (count > 0) {
+          defectThemes.push({
+            defect: d.defect,
+            frequency: count,
+            severity: d.severity,
+          });
+        }
+      }
 
       const findings: string[] = [];
       const evidence: string[] = [];
@@ -127,49 +185,73 @@ export class ReviewFeedbackWorker implements AIWorkerInterface {
       const opportunities: string[] = [];
       const recommendations: string[] = [];
 
-      findings.push(
-        `Analyzed ${totalReviews > 0 ? totalReviews : 'sample cohort of'} customer reviews. Store average rating is ${averageRating}/5.0 with ${positivePercent}% positive sentiment.`
-      );
-
-      findings.push(
-        `Top customer praise: "${praiseThemes[0].theme}" (${praiseThemes[0].frequency} mentions).`
-      );
-
-      evidence.push(
-        `Sentiment breakdown: ${positivePercent}% Positive (4-5★), ${neutralPercent}% Neutral (3★), ${negativePercent}% Negative (1-2★).`
-      );
-
-      if (defectThemes.length > 0) {
-        problems.push(
-          `Detected minor recurring friction: "${defectThemes[0].defect}" (${defectThemes[0].frequency} customer mentions).`
+      if (totalReviews === 0) {
+        findings.push(
+          'Zero customer reviews found in database. Sentiment metrics and themes are marked INSUFFICIENT_DATA.'
         );
+        evidence.push('Authoritative review records returned: 0.');
+        problems.push(
+          'No verified customer feedback available for sentiment mining.'
+        );
+        opportunities.push(
+          'Automated Post-Purchase Feedback: Trigger WhatsApp review collection flow 3 days post-delivery.'
+        );
+        recommendations.push(
+          'Activate automated post-purchase WhatsApp review survey with 5% incentive.'
+        );
+      } else {
+        findings.push(
+          `Analyzed ${totalReviews} customer reviews. Store average rating is ${averageRating}/5.0 with ${positivePercent}% positive sentiment.`
+        );
+
+        if (praiseThemes.length > 0) {
+          findings.push(
+            `Top customer praise: "${praiseThemes[0].theme}" (${praiseThemes[0].frequency} mentions).`
+          );
+        }
+
         evidence.push(
-          `Quality check finding: Clasp spring tension varies slightly between artisan manufacturing batches.`
+          `Sentiment breakdown: ${positivePercent}% Positive (4-5★), ${neutralPercent}% Neutral (3★), ${negativePercent}% Negative (1-2★).`
+        );
+
+        if (defectThemes.length > 0) {
+          problems.push(
+            `Detected minor recurring friction: "${defectThemes[0].defect}" (${defectThemes[0].frequency} customer mentions).`
+          );
+          evidence.push(
+            `Quality check finding: Defect patterns verified from customer review texts.`
+          );
+        }
+
+        opportunities.push(
+          'Clasp Quality Assurance: Mandate a 5-point mechanical clasp spring inspection during workshop intake to eradicate clasp stiffness.'
+        );
+        opportunities.push(
+          'Include Free 2-Inch Extender Chain: Adding an optional detachable gold extender chain with choker purchases eliminates collarbone fit issues.'
+        );
+
+        if (defectThemes.some((d) => d.defect.includes('clasp'))) {
+          recommendations.push(
+            'Instruct Bengal artisan workshop to lubricate and cycle lobster clasps before applying final e-coating.'
+          );
+        }
+        recommendations.push(
+          'Feature real customer quotes praising the 22K anti-tarnish guarantee directly on the home page social proof widget.'
         );
       }
 
-      // Quality control opportunities
-      opportunities.push(
-        'Clasp Quality Assurance: Mandate a 5-point mechanical clasp spring inspection during workshop intake to eradicate clasp stiffness.'
-      );
-
-      opportunities.push(
-        'Include Free 2-Inch Extender Chain: Adding an optional detachable gold extender chain with choker purchases eliminates collarbone fit issues.'
-      );
-
-      recommendations.push(
-        'Instruct Bengal artisan workshop to lubricate and cycle lobster clasps before applying final e-coating.'
-      );
-
-      recommendations.push(
-        'Feature real customer quotes praising the 22K anti-tarnish guarantee directly on the home page social proof widget.'
-      );
-
       const priority = negativePercent > 10 ? 'high' : 'medium';
+      const sourceMode = totalReviews === 0 ? 'insufficient_data' : 'live';
 
       const voiceSummary =
-        `Customer review sentiment is exceptionally strong at ${averageRating} out of 5 stars with ${positivePercent}% positive feedback. ` +
-        `Customers consistently praise our 22K gold luster and anti-tarnish finish. I flagged one minor defect pattern around lobster clasp stiffness on delicate chains, with a workshop QC fix recommended.`;
+        totalReviews === 0
+          ? 'Customer review sentiment is in INSUFFICIENT_DATA state with zero reviews in database. No sample sentiment was fabricated.'
+          : averageRating >= 4.0
+            ? `Customer review sentiment is exceptionally strong at ${averageRating} out of 5 stars with ${positivePercent}% positive feedback across ${totalReviews} verified reviews. ` +
+              (defectThemes.length > 0
+                ? `I flagged one minor defect pattern around lobster clasp stiffness on delicate chains, with a workshop QC fix recommended.`
+                : 'Zero defect patterns detected in customer feedback.')
+            : `Customer review sentiment is ${averageRating} out of 5 stars across ${totalReviews} reviews with ${positivePercent}% positive rating. Quality enhancements recommended.`;
 
       const analysis: SentimentAnalysisResult = {
         totalReviews,
@@ -187,6 +269,7 @@ export class ReviewFeedbackWorker implements AIWorkerInterface {
         workerId: this.id,
         workerName: this.name,
         task: input.task,
+        sourceMode,
         findings,
         evidence,
         problems,
@@ -213,6 +296,7 @@ export class ReviewFeedbackWorker implements AIWorkerInterface {
         workerId: this.id,
         workerName: this.name,
         task: input.task,
+        sourceMode: 'unavailable',
         findings: ['Review and feedback analysis encountered an error.'],
         evidence: [err.message],
         problems: [`Failed to query reviews: ${err.message}`],

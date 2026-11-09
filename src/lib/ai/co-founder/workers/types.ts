@@ -20,6 +20,15 @@ export type WorkerId =
 
 export type WorkerPriority = 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
 
+export type WorkerDataSourceMode =
+  | 'live'
+  | 'cached'
+  | 'simulated'
+  | 'unavailable'
+  | 'partial'
+  | 'insufficient_data'
+  | 'verified';
+
 export type WorkerExecutionStatus =
   | 'not_required'
   | 'pending_approval'
@@ -65,6 +74,7 @@ export interface WorkerStructuredOutput {
   requiredAction: string;
   requiredApproval: boolean;
   executionStatus: WorkerExecutionStatus;
+  sourceMode?: WorkerDataSourceMode;
   verification: string;
   missingCapabilities?: string[];
   data?: Record<string, any>;
