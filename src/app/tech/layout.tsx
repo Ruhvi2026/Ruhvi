@@ -29,6 +29,7 @@ import {
   Code2,
   Settings,
   ClipboardList,
+  Mail,
 } from 'lucide-react';
 import { PortalThemeProvider } from '@/context/PortalThemeContext';
 import { ThemeToggle } from '@/components/portal/ThemeToggle';
@@ -88,6 +89,11 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { label: 'Feature Flags', href: '/tech/feature-flags', icon: ToggleLeft },
       { label: 'Webhooks & APIs', href: '/tech/integrations', icon: Webhook },
+      {
+        label: 'Email Infrastructure',
+        href: '/admin/email-infrastructure',
+        icon: Mail,
+      },
       { label: 'API Keys', href: '/tech/api-keys', icon: KeyRound },
       { label: 'AI Control Center', href: '/tech/ai-settings', icon: Wand2 },
     ],

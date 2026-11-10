@@ -47,6 +47,7 @@ import {
   ShieldAlert,
   ShieldCheck,
   Receipt,
+  Mail,
 } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { AdminNotificationCenter } from '@/components/admin/AdminNotificationCenter';
@@ -180,6 +181,13 @@ const NAV_GROUPS: NavGroup[] = [
         href: '/admin/self-audit',
         icon: ShieldCheck,
       },
+      {
+        label: 'Email Infrastructure',
+        href: '/admin/email-infrastructure',
+        icon: Mail,
+        badge: 'Live',
+        badgeColor: 'bg-emerald-500',
+      },
     ],
   },
   {
@@ -280,6 +288,12 @@ const NAV_GROUPS: NavGroup[] = [
         icon: Sparkles,
         badge: 'Live',
         badgeColor: 'amber',
+      },
+      {
+        label: 'Webmail (Mailflare)',
+        href: 'https://mail.ruhvi.in',
+        external: true,
+        icon: Mail,
       },
     ],
   },

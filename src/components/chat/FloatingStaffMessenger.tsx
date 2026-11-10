@@ -46,7 +46,12 @@ import {
   ExternalLink,
   Bot,
   Mic,
+  Mail,
+  Bell,
 } from 'lucide-react';
+import { useNotifications } from '@/context/NotificationContext';
+import { MailboxPanel } from '@/components/chat/MailboxPanel';
+import { NotificationPanel } from '@/components/chat/NotificationPanel';
 
 import { AIWorkerPersona, AI_WORKER_PERSONAS } from '@/lib/chat/ai-workers';
 export type { AIWorkerPersona };
@@ -262,6 +267,11 @@ export default function FloatingStaffMessenger() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const [isChatScrolledUp, setIsChatScrolledUp] = useState(false);
+  const [activeMode, setActiveMode] = useState<'chat' | 'mailbox'>('chat');
+  const [activeTab, setActiveTab] = useState<
+    'all' | 'broadcast' | 'groups' | 'notifications'
+  >('all');
+  const { unreadCount: notifUnreadCount } = useNotifications();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const textInputRef = useRef<HTMLInputElement>(null);
 
@@ -952,6 +962,8 @@ export default function FloatingStaffMessenger() {
   };
 
   const filteredConversations = conversations.filter((c) => {
+    if (activeTab === 'broadcast' && c.type !== 'broadcast') return false;
+    if (activeTab === 'groups' && c.type !== 'group') return false;
     if (!searchQuery.trim()) return true;
     const q = searchQuery.toLowerCase();
     const name = (
@@ -1143,6 +1155,28 @@ export default function FloatingStaffMessenger() {
             </button>
           )}
 
+          {/* Mailbox Toggle */}
+          <button
+            type="button"
+            onClick={() => {
+              setActiveMode((prev) =>
+                prev === 'mailbox' ? 'chat' : 'mailbox'
+              );
+            }}
+            className={`relative rounded-lg p-1.5 transition ${
+              activeMode === 'mailbox'
+                ? 'bg-emerald-500/20 text-emerald-400 ring-1 ring-emerald-500/40'
+                : 'text-slate-400 hover:bg-white/10 hover:text-white'
+            }`}
+            title={
+              activeMode === 'mailbox'
+                ? 'Switch to Chat'
+                : 'Open RuhChat Mailbox Suite'
+            }
+          >
+            <Mail className="h-3.5 w-3.5" />
+          </button>
+
           <Link
             href={`${portalPrefix}/task-manager`}
             className="rounded-lg p-1.5 text-slate-400 transition hover:bg-white/10 hover:text-emerald-400"
@@ -1207,7 +1241,9 @@ export default function FloatingStaffMessenger() {
       )}
 
       {/* ── Body Content ── */}
-      {!activeConv ? (
+      {activeMode === 'mailbox' ? (
+        <MailboxPanel />
+      ) : !activeConv ? (
         // VIEW A: CONVERSATION LIST
         <div className="flex flex-1 flex-col overflow-hidden bg-[#0D111E]">
           {/* Search bar */}
@@ -1224,153 +1260,192 @@ export default function FloatingStaffMessenger() {
             </div>
           </div>
 
-          {/* Pinned Department AI Co-Worker Card */}
-          <div className="border-b border-white/5 bg-[#101526] p-2.5">
-            <div className="mb-1.5 flex items-center justify-between px-1">
-              <span className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-violet-400">
-                <Sparkles className="h-3 w-3" /> Department AI Co-Worker
-              </span>
-              {isAdmin && (
-                <span className="text-[10px] font-medium text-slate-400">
-                  Founder/Admin Mode
-                </span>
-              )}
-            </div>
-
-            {/* Admin AI Worker & Co-Founder Switcher */}
-            {isAdmin && (
-              <div className="no-scrollbar mb-2 flex gap-1 overflow-x-auto pb-1 text-[10px]">
-                {Object.keys(AI_WORKER_PERSONAS).map((d) => (
+          {/* Sub-Search Tab Selector: All | Broadcast | Groups | 🔔 Notifications */}
+          <div className="no-scrollbar flex flex-shrink-0 items-center gap-1 overflow-x-auto border-b border-white/5 bg-[#101524] px-3 py-1.5">
+            {(['all', 'broadcast', 'groups', 'notifications'] as const).map(
+              (tab) => {
+                const isActive = activeTab === tab;
+                return (
                   <button
-                    key={d}
+                    key={tab}
                     type="button"
-                    onClick={() => setSelectedAiDept(d)}
-                    className={`whitespace-nowrap rounded-lg px-2 py-0.5 font-medium capitalize transition ${
-                      (selectedAiDept || effectiveDept) === d
-                        ? 'bg-violet-600 text-white shadow'
-                        : 'bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white'
+                    onClick={() => setActiveTab(tab)}
+                    className={`flex items-center gap-1 rounded-lg px-2.5 py-1 text-[11px] font-semibold capitalize transition ${
+                      isActive
+                        ? 'bg-emerald-500/20 text-emerald-400 ring-1 ring-emerald-500/40'
+                        : 'text-slate-400 hover:bg-white/5 hover:text-white'
                     }`}
                   >
-                    {d === 'co_founder' ? '👑 Co-Founder' : d}
-                  </button>
-                ))}
-              </div>
-            )}
-
-            <div
-              onClick={() => handleOpenAIWorkerChat(currentAIWorker)}
-              className="group flex cursor-pointer select-none items-center gap-3 rounded-xl border border-violet-500/30 bg-gradient-to-r from-violet-950/60 via-purple-900/30 to-indigo-950/50 p-2.5 transition-all hover:border-violet-400/60 hover:from-violet-900/70 hover:to-indigo-900/60 hover:shadow-lg hover:shadow-violet-900/20"
-            >
-              <div className="relative flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr from-violet-600 to-indigo-500 text-lg shadow-md ring-1 ring-violet-400/40 transition group-hover:scale-105">
-                <span>{currentAIWorker.avatarEmoji}</span>
-                <span className="absolute -bottom-0.5 -right-0.5 flex h-3 w-3">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
-                  <span className="relative inline-flex h-3 w-3 rounded-full border border-violet-900 bg-emerald-500"></span>
-                </span>
-              </div>
-
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center justify-between">
-                  <h4 className="flex items-center gap-1.5 truncate text-xs font-bold text-white group-hover:text-violet-200">
-                    {currentAIWorker.name}
-                    <span className="py-0.2 rounded bg-violet-500/20 px-1 text-[9px] font-semibold text-violet-300">
-                      Active
+                    {tab === 'notifications' && (
+                      <Bell className="h-3 w-3 text-amber-400" />
+                    )}
+                    <span>
+                      {tab === 'notifications' ? 'Notifications' : tab}
                     </span>
-                  </h4>
-                  <span className="text-[10px] font-medium text-emerald-400">
-                    Online
-                  </span>
-                </div>
-                <p className="truncate text-[11px] text-slate-300">
-                  {currentAIWorker.roleTitle}
-                </p>
-              </div>
-            </div>
+                    {tab === 'notifications' && notifUnreadCount > 0 && (
+                      <span className="flex h-3.5 min-w-[14px] items-center justify-center rounded-full bg-amber-500 px-1 text-[9px] font-bold text-slate-950">
+                        {notifUnreadCount > 9 ? '9+' : notifUnreadCount}
+                      </span>
+                    )}
+                  </button>
+                );
+              }
+            )}
           </div>
 
-          {/* List */}
-          <div className="flex-1 divide-y divide-white/5 overflow-y-auto">
-            {loadingConvs ? (
-              <div className="flex h-48 items-center justify-center">
-                <Loader2 className="h-5 w-5 animate-spin text-emerald-400" />
-              </div>
-            ) : filteredConversations.length === 0 ? (
-              <div className="flex h-48 flex-col items-center justify-center px-4 text-center">
-                <MessageCircle className="mb-2 h-8 w-8 text-slate-600" />
-                <p className="text-xs text-slate-400">
-                  No conversations found.
-                </p>
-              </div>
-            ) : (
-              filteredConversations.map((c) => {
-                const title = getConvTitle(c);
-                const isBroadcast = c.type === 'broadcast';
-                const isAlertChannel =
-                  (c.group_name || '').includes('Alerts') ||
-                  (c.group_name || '').includes('🚨');
-                const unread = c.unread_count || 0;
+          {activeTab === 'notifications' ? (
+            <NotificationPanel />
+          ) : (
+            <>
+              {/* Pinned Department AI Co-Worker Card */}
+              <div className="border-b border-white/5 bg-[#101526] p-2.5">
+                <div className="mb-1.5 flex items-center justify-between px-1">
+                  <span className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-violet-400">
+                    <Sparkles className="h-3 w-3" /> Department AI Co-Worker
+                  </span>
+                  {isAdmin && (
+                    <span className="text-[10px] font-medium text-slate-400">
+                      Founder/Admin Mode
+                    </span>
+                  )}
+                </div>
 
-                return (
-                  <div
-                    key={c.id}
-                    onClick={() => setActiveConv(c)}
-                    className="flex cursor-pointer select-none items-center gap-3 p-3 transition hover:bg-white/5"
-                  >
-                    {/* Avatar */}
-                    {isBroadcast ? (
-                      <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-tr from-amber-600 to-orange-500 text-white shadow">
-                        <Radio className="h-5 w-5" />
-                      </div>
-                    ) : isAlertChannel ? (
-                      <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-tr from-amber-600 to-rose-600 text-white shadow ring-1 ring-amber-400/40">
-                        <AlertCircle className="h-5 w-5" />
-                      </div>
-                    ) : c.type === 'group' ? (
-                      <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-emerald-600 text-xs font-bold text-white shadow">
-                        <Users className="h-5 w-5" />
-                      </div>
-                    ) : (
-                      <div
-                        className={`h-10 w-10 rounded-full ${avatarColor(
-                          c.other_user?.id || c.id
-                        )} flex flex-shrink-0 items-center justify-center text-xs font-bold text-white shadow`}
+                {/* Admin AI Worker & Co-Founder Switcher */}
+                {isAdmin && (
+                  <div className="no-scrollbar mb-2 flex gap-1 overflow-x-auto pb-1 text-[10px]">
+                    {Object.keys(AI_WORKER_PERSONAS).map((d) => (
+                      <button
+                        key={d}
+                        type="button"
+                        onClick={() => setSelectedAiDept(d)}
+                        className={`whitespace-nowrap rounded-lg px-2 py-0.5 font-medium capitalize transition ${
+                          (selectedAiDept || effectiveDept) === d
+                            ? 'bg-violet-600 text-white shadow'
+                            : 'bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white'
+                        }`}
                       >
-                        {getInitials(
-                          c.other_user?.full_name || null,
-                          c.other_user?.email || null
-                        )}
-                      </div>
-                    )}
+                        {d === 'co_founder' ? '👑 Co-Founder' : d}
+                      </button>
+                    ))}
+                  </div>
+                )}
 
-                    <div className="min-w-0 flex-1">
-                      <div className="mb-0.5 flex items-center justify-between">
-                        <h4 className="flex items-center gap-1.5 truncate text-xs font-semibold text-white">
-                          {title}
-                        </h4>
-                        {c.last_message && (
-                          <span className="flex-shrink-0 text-[10px] text-slate-500">
-                            {formatTime(c.last_message.created_at)}
+                <div
+                  onClick={() => handleOpenAIWorkerChat(currentAIWorker)}
+                  className="group flex cursor-pointer select-none items-center gap-3 rounded-xl border border-violet-500/30 bg-gradient-to-r from-violet-950/60 via-purple-900/30 to-indigo-950/50 p-2.5 transition-all hover:border-violet-400/60 hover:from-violet-900/70 hover:to-indigo-900/60 hover:shadow-lg hover:shadow-violet-900/20"
+                >
+                  <div className="relative flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr from-violet-600 to-indigo-500 text-lg shadow-md ring-1 ring-violet-400/40 transition group-hover:scale-105">
+                    <span>{currentAIWorker.avatarEmoji}</span>
+                    <span className="absolute -bottom-0.5 -right-0.5 flex h-3 w-3">
+                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
+                      <span className="relative inline-flex h-3 w-3 rounded-full border border-violet-900 bg-emerald-500"></span>
+                    </span>
+                  </div>
+
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center justify-between">
+                      <h4 className="flex items-center gap-1.5 truncate text-xs font-bold text-white group-hover:text-violet-200">
+                        {currentAIWorker.name}
+                        <span className="py-0.2 rounded bg-violet-500/20 px-1 text-[9px] font-semibold text-violet-300">
+                          Active
+                        </span>
+                      </h4>
+                      <span className="text-[10px] font-medium text-emerald-400">
+                        Online
+                      </span>
+                    </div>
+                    <p className="truncate text-[11px] text-slate-300">
+                      {currentAIWorker.roleTitle}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* List */}
+              <div className="flex-1 divide-y divide-white/5 overflow-y-auto">
+                {loadingConvs ? (
+                  <div className="flex h-48 items-center justify-center">
+                    <Loader2 className="h-5 w-5 animate-spin text-emerald-400" />
+                  </div>
+                ) : filteredConversations.length === 0 ? (
+                  <div className="flex h-48 flex-col items-center justify-center px-4 text-center">
+                    <MessageCircle className="mb-2 h-8 w-8 text-slate-600" />
+                    <p className="text-xs text-slate-400">
+                      No conversations found.
+                    </p>
+                  </div>
+                ) : (
+                  filteredConversations.map((c) => {
+                    const title = getConvTitle(c);
+                    const isBroadcast = c.type === 'broadcast';
+                    const isAlertChannel =
+                      (c.group_name || '').includes('Alerts') ||
+                      (c.group_name || '').includes('🚨');
+                    const unread = c.unread_count || 0;
+
+                    return (
+                      <div
+                        key={c.id}
+                        onClick={() => setActiveConv(c)}
+                        className="flex cursor-pointer select-none items-center gap-3 p-3 transition hover:bg-white/5"
+                      >
+                        {/* Avatar */}
+                        {isBroadcast ? (
+                          <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-tr from-amber-600 to-orange-500 text-white shadow">
+                            <Radio className="h-5 w-5" />
+                          </div>
+                        ) : isAlertChannel ? (
+                          <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-tr from-amber-600 to-rose-600 text-white shadow ring-1 ring-amber-400/40">
+                            <AlertCircle className="h-5 w-5" />
+                          </div>
+                        ) : c.type === 'group' ? (
+                          <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-emerald-600 text-xs font-bold text-white shadow">
+                            <Users className="h-5 w-5" />
+                          </div>
+                        ) : (
+                          <div
+                            className={`h-10 w-10 rounded-full ${avatarColor(
+                              c.other_user?.id || c.id
+                            )} flex flex-shrink-0 items-center justify-center text-xs font-bold text-white shadow`}
+                          >
+                            {getInitials(
+                              c.other_user?.full_name || null,
+                              c.other_user?.email || null
+                            )}
+                          </div>
+                        )}
+
+                        <div className="min-w-0 flex-1">
+                          <div className="mb-0.5 flex items-center justify-between">
+                            <h4 className="flex items-center gap-1.5 truncate text-xs font-semibold text-white">
+                              {title}
+                            </h4>
+                            {c.last_message && (
+                              <span className="flex-shrink-0 text-[10px] text-slate-500">
+                                {formatTime(c.last_message.created_at)}
+                              </span>
+                            )}
+                          </div>
+                          <p className="truncate text-[11px] text-slate-400">
+                            {c.last_message?.text_content ||
+                              (c.last_message?.attachments?.length
+                                ? '📎 Attachment'
+                                : 'No messages yet')}
+                          </p>
+                        </div>
+
+                        {unread > 0 && (
+                          <span className="flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full bg-emerald-500 text-[10px] font-bold text-white">
+                            {unread > 9 ? '9+' : unread}
                           </span>
                         )}
                       </div>
-                      <p className="truncate text-[11px] text-slate-400">
-                        {c.last_message?.text_content ||
-                          (c.last_message?.attachments?.length
-                            ? '📎 Attachment'
-                            : 'No messages yet')}
-                      </p>
-                    </div>
-
-                    {unread > 0 && (
-                      <span className="flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full bg-emerald-500 text-[10px] font-bold text-white">
-                        {unread > 9 ? '9+' : unread}
-                      </span>
-                    )}
-                  </div>
-                );
-              })
-            )}
-          </div>
+                    );
+                  })
+                )}
+              </div>
+            </>
+          )}
         </div>
       ) : (
         // VIEW B: ACTIVE CHAT ROOM

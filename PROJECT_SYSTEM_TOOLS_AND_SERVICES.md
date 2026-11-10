@@ -92,11 +92,13 @@
 | `send.ruhvi.in` | MX & TXT | **Amazon SES** (`amazonses.com`) | AWS SES email sending subdomain and SPF policy configuration. |
 | `zmail._domainkey.ruhvi.in` | TXT | **Zoho Mail DKIM** | Cryptographic DKIM key verifying authenticity of emails sent from Zoho inboxes (`support@ruhvi.in` and `admin@ruhvi.in`). |
 | `resend._domainkey.ruhvi.in` | TXT | **Resend DKIM** | Cryptographic DKIM signature enabling high-deliverability transactional emails from Resend. |
+| `mailjet._domainkey.ruhvi.in` | TXT | **Mailjet DKIM** | Cryptographic RSA DKIM key verifying authenticity of transactional and fallback emails dispatched via Mailjet Send API v3.1. |
+| `mailjet._ae4a256e.ruhvi.in` | TXT | **Mailjet Ownership Verification** | Domain ownership validation token for Mailjet custom domain sending. |
 | `brevo1._domainkey` & `brevo2._domainkey` | CNAME | **Brevo DKIM** | Dual DKIM key CNAME records authenticating marketing email campaigns sent via Brevo. |
 | `noreply.ruhvi.in` / `img.noreply` / `r.noreply` | CNAME | **Brevo Custom Sending Subdomains** | Custom brand domain wrappers for Brevo email headers, tracking links, and embedded campaign images. |
 | `firebase1._domainkey` & `firebase2._domainkey` | CNAME | **Firebase Mail DKIM** | DKIM keys authenticating Firebase Auth system emails (verification/OTP fallback). |
 | `_dmarc.ruhvi.in` | TXT | **DMARC Security Policy** | Enforces DMARC compliance and sends email deliverability audit reports to Brevo (`rua=mailto:rua@dmarc.brevo.com`). |
-| `ruhvi.in` (SPF TXT) | TXT | **Unified SPF Policy** | Authorizes **Zoho Mail**, **Firebase Mail**, and **Cloudflare Email Routing** (`include:_spf.firebasemail.com include:zohomail.in include:_spf.mx.cloudflare.net ~all`) on behalf of `ruhvi.in`. |
+| `ruhvi.in` (SPF TXT) | TXT | **Unified SPF Policy** | Authorizes **Zoho Mail**, **Firebase Mail**, **Cloudflare Email Routing**, and **Mailjet** (`include:_spf.firebasemail.com include:zohomail.in include:_spf.mx.cloudflare.net include:spf.mailjet.com ~all`) on behalf of `ruhvi.in`. |
 | `ruhvi.in` (Brevo Code TXT) | TXT | **Brevo Verification** | Domain ownership validation key for Brevo account verification. |
 
 ---
@@ -258,6 +260,26 @@ To eliminate customer annoyance caused by multiple staff members dialing the sam
 - **API Endpoint**: `/api/portal-orders/call-remarks` (GET for history & active call collision check, POST with collision guard returning `409 Conflict` if another teammate initiated a call within the 20-minute window).
 - **Interactive UI Components**: `OrderCallRemarksPanel.tsx` & `OrderCallRemarksModal.tsx` embedded in order details and all-orders table.
 - **Zero-Dangling-Promise Guard**: `DANGLING_PROMISE_REGEX` in `src/lib/ai/co-founder/orchestrator.ts` automatically intercepts unfulfilled promise phrases (e.g., "আমি চেক করে জানাচ্ছি...") and forces automated iterative tool continuation to guarantee complete, data-backed answers.
+
+### D. RuhChat Embedded Mailbox Suite & Notification Hub (ইনবক্স ও নোটিফিকেশন সিস্টেম)
+
+Authoritative architectural specification of the staff email client and live notification center embedded directly within the floating staff messenger (`FloatingStaffMessenger.tsx`):
+- **Default Landing**: Always opens to standard Chat Mode (`activeMode = 'chat'`) preserving all active chats, voice notes, and AI workers without disruption.
+- **Header Mailbox Toggle**: Prominent `<Mail />` button in messenger header toggles between Chat and Mailbox Suite with live unread indicators.
+- **Sub-Search Tab Navigation**: Four-pill filter (`All`, `Broadcast`, `Groups`, `🔔 Notifications`) positioned below the conversation search input.
+- **Embedded Notification Feed**: Selecting the `Notifications` tab renders `<NotificationPanel />` wired directly to `useNotifications()` from `NotificationContext`, displaying live order alerts, return requests, and system updates with 1-click mark-all-read.
+- **Cloudflare D1 Storage & Retrieval**: Inbound messages for custom domains (`shreya.maity@ruhvi.in`) are stored in Cloudflare D1 (`mailflare`, UUID `72ace44e-4f70-4047-b00b-0d1e7adffda2`) and queried via `/api/mailbox/messages` with folder filtering (`inbox`, `sent`, `starred`, `drafts`) and instant read/star state updates via `/api/mailbox/messages/[id]`.
+- **Outbound Email Dispatch**: Outgoing emails composed in `<MailboxComposer />` are routed through `EmailOrchestrator` (`category: 'internal_staff'`) with multi-provider quota protection (Brevo/Mailjet/Resend) and auto-logged to D1 outbound messages for sent folder synchronization (`/api/mailbox/send`).
+- **Smart AI Productivity Suite**:
+  - **✨ AI Summary (`/api/mailbox/ai/summary`)**: 1-click distillation of email threads into bullet-point takeaways and action items powered by Gemini (`gemini-3.5-flash-lite`).
+  - **📌 Convert Email to Task (`/api/task-manager/tasks`)**: Fast 1-click transformation of customer/vendor emails into actionable cards inside Ruhvi Task Manager with prefilled subject, sender context, and due dates.
+  - **🪄 1-Click AI Reply (`/api/mailbox/ai/suggest-reply`)**: Context-aware draft generator with tone selectors (Professional, Quick Acknowledge, Request Info) auto-populating into the composer.
+- **Primary Source Files**:
+  - `src/components/chat/FloatingStaffMessenger.tsx`, `src/components/chat/MailboxPanel.tsx`, `src/components/chat/NotificationPanel.tsx`
+  - `src/components/chat/MailboxThreadView.tsx`, `src/components/chat/MailboxComposer.tsx`, `src/components/chat/MailboxConvertTaskModal.tsx`
+  - `src/app/api/mailbox/messages/route.ts`, `src/app/api/mailbox/messages/[id]/route.ts`, `src/app/api/mailbox/send/route.ts`
+  - `src/app/api/mailbox/ai/summary/route.ts`, `src/app/api/mailbox/ai/suggest-reply/route.ts`
+  - `src/lib/mailbox/d1-client.ts`, `src/lib/mailbox/formatters.ts`, `src/types/mailbox.ts`
 
 ---
 ## 10. Portal Two-Factor Authentication (RFC 6238 TOTP) Architecture & Role-Gated Recovery
