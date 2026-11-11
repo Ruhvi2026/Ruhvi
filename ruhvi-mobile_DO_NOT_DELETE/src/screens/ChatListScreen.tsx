@@ -12,7 +12,8 @@ import {
   RefreshControl, 
   Alert,
   ScrollView,
-  Image
+  Image,
+  Linking
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -34,9 +35,15 @@ export default function ChatListScreen({ navigation }: any) {
 
   // WhatsApp Global Search & Message Search state
   const [globalSearch, setGlobalSearch] = useState('');
-  const [searchFilter, setSearchFilter] = useState<'all' | 'broadcast' | 'groups'>('all');
+  const [searchFilter, setSearchFilter] = useState<'all' | 'broadcast' | 'groups' | 'notifications'>('all');
   const [matchedMessages, setMatchedMessages] = useState<any[]>([]);
   const [searchingMessages, setSearchingMessages] = useState(false);
+
+  // Notifications tab state
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [loadingNotifs, setLoadingNotifs] = useState(false);
+  const [refreshingNotifs, setRefreshingNotifs] = useState(false);
+  const [unreadNotifCount, setUnreadNotifCount] = useState(0);
 
   // Modal state for New Chat & Group Creation
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -116,15 +123,15 @@ export default function ChatListScreen({ navigation }: any) {
       headerRight: () => (
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginRight: 8 }}>
           <TouchableOpacity
-            onPress={() => navigation.navigate('InventoryScan')}
+            onPress={() => navigation.navigate('Mailbox')}
             style={{ 
               padding: 6, 
               backgroundColor: 'rgba(255,255,255,0.18)', 
               borderRadius: 20 
             }}
-            accessibilityLabel="Scan & Add Stock"
+            accessibilityLabel="RuhChat Mailbox"
           >
-            <MaterialIcons name="qr-code-scanner" size={22} color="#fff" />
+            <MaterialIcons name="mail" size={22} color="#fff" />
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -205,11 +212,12 @@ export default function ChatListScreen({ navigation }: any) {
       )
       .on(
         'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'notifications' },
+        { event: '*', schema: 'public', table: 'notifications' },
         (payload: any) => {
           const activeUid = getCurrentUserId() || currentUserId;
-          if (payload?.new && payload.new.user_id === activeUid) {
+          if (payload?.new && (payload.new as any).user_id === activeUid) {
             fetchChats();
+            fetchNotifications();
           }
         }
       )
@@ -226,12 +234,112 @@ export default function ChatListScreen({ navigation }: any) {
     };
   }, [currentUserId]);
 
+  const fetchNotifications = useCallback(async () => {
+    try {
+      setLoadingNotifs(true);
+      const uid = (await AsyncStorage.getItem('ruhvi_user_id')) || getCurrentUserId() || currentUserId;
+      if (!uid) return;
+      const { data, error } = await supabase
+        .from('notifications')
+        .select('*')
+        .eq('user_id', uid)
+        .order('created_at', { ascending: false })
+        .limit(50);
+      if (data) {
+        setNotifications(data);
+        const unread = data.filter((n: any) => !n.read).length;
+        setUnreadNotifCount(unread);
+      }
+    } catch (e) {
+      console.warn('[ChatList] Failed to fetch notifications:', e);
+    } finally {
+      setLoadingNotifs(false);
+      setRefreshingNotifs(false);
+    }
+  }, [currentUserId]);
+
+  const onRefreshNotifs = () => {
+    setRefreshingNotifs(true);
+    fetchNotifications();
+  };
+
+  const handleMarkAllNotificationsRead = async () => {
+    const uid = (await AsyncStorage.getItem('ruhvi_user_id')) || getCurrentUserId() || currentUserId;
+    if (!uid) return;
+    setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+    setUnreadNotifCount(0);
+    try {
+      await supabase
+        .from('notifications')
+        .update({ read: true })
+        .eq('user_id', uid)
+        .eq('read', false);
+    } catch (e) {
+      console.warn('[ChatList] Mark all read error:', e);
+    }
+  };
+
+  const handlePressNotification = async (item: any) => {
+    if (!item.read) {
+      setNotifications(prev => prev.map(n => (n.id === item.id ? { ...n, read: true } : n)));
+      setUnreadNotifCount(prev => Math.max(0, prev - 1));
+      try {
+        await supabase.from('notifications').update({ read: true }).eq('id', item.id);
+      } catch (_) {}
+    }
+
+    if (item.reference_id && (item.type === 'chat' || item.type === 'mention' || item.type === 'group_message')) {
+      navigation.navigate('ChatRoom', {
+        id: item.reference_id,
+        title: item.title || 'Chat',
+      });
+    } else if (item.link) {
+      Linking.openURL(item.link).catch(() => {});
+    } else if (item.action_url) {
+      Linking.openURL(item.action_url).catch(() => {});
+    } else {
+      Alert.alert(item.title || 'Notification', item.message || '');
+    }
+  };
+
+  const getNotificationIconInfo = (type?: string) => {
+    const t = (type || '').toLowerCase();
+    if (t.includes('order')) return { name: 'shopping-cart' as const, color: '#059669', bg: '#DCFCE7' };
+    if (t.includes('return') || t.includes('delivery') || t.includes('shipping')) return { name: 'local-shipping' as const, color: '#D97706', bg: '#FEF3C7' };
+    if (t.includes('chat') || t.includes('message') || t.includes('mention')) return { name: 'forum' as const, color: '#075E54', bg: '#E8F5E9' };
+    if (t.includes('task')) return { name: 'assignment' as const, color: '#2563EB', bg: '#DBEAFE' };
+    if (t.includes('alert') || t.includes('warning') || t.includes('error')) return { name: 'warning' as const, color: '#DC2626', bg: '#FEE2E2' };
+    return { name: 'notifications' as const, color: '#075E54', bg: '#E0F2FE' };
+  };
+
+  const formatNotifTime = (dateIso?: string) => {
+    if (!dateIso) return '';
+    try {
+      const d = new Date(dateIso);
+      const now = new Date();
+      const diffMs = now.getTime() - d.getTime();
+      const diffMins = Math.floor(diffMs / 60000);
+      const diffHours = Math.floor(diffMins / 60);
+      const diffDays = Math.floor(diffHours / 24);
+
+      if (diffMins < 1) return 'Just now';
+      if (diffMins < 60) return `${diffMins}m ago`;
+      if (diffHours < 24) return `${diffHours}h ago`;
+      if (diffDays === 1) return 'Yesterday';
+      if (diffDays < 7) return `${diffDays}d ago`;
+      return d.toLocaleDateString([], { month: 'short', day: 'numeric' });
+    } catch {
+      return '';
+    }
+  };
+
   // Automatically refresh conversations whenever the screen gains focus
   useFocusEffect(
     useCallback(() => {
       fetchChats();
+      fetchNotifications();
       loadCoFounderSnippet();
-    }, [currentUserId])
+    }, [currentUserId, fetchNotifications])
   );
 
   const fetchChats = async (activeUid?: string | null) => {
@@ -258,9 +366,10 @@ export default function ChatListScreen({ navigation }: any) {
   const onRefresh = useCallback(() => {
     setRefreshing(true);
     fetchChats();
+    fetchNotifications();
     loadCoFounderSnippet();
     if (currentUserId) fetchUserProfile(currentUserId);
-  }, [currentUserId]);
+  }, [currentUserId, fetchNotifications]);
 
   const handleGlobalSearchChange = (val: string) => {
     setGlobalSearch(val);
@@ -687,11 +796,20 @@ export default function ChatListScreen({ navigation }: any) {
             { id: 'all' as const, label: 'All' },
             { id: 'broadcast' as const, label: '📢 Broadcasts' },
             { id: 'groups' as const, label: '👥 Groups' },
+            { 
+              id: 'notifications' as const, 
+              label: unreadNotifCount > 0 ? `🔔 Notifications (${unreadNotifCount})` : '🔔 Notifications' 
+            },
           ].map(chip => (
             <TouchableOpacity
               key={chip.id}
               style={[styles.filterChip, searchFilter === chip.id && styles.filterChipActive]}
-              onPress={() => setSearchFilter(chip.id)}
+              onPress={() => {
+                setSearchFilter(chip.id);
+                if (chip.id === 'notifications') {
+                  fetchNotifications();
+                }
+              }}
             >
               <Text style={[styles.filterChipText, searchFilter === chip.id && styles.filterChipTextActive]}>
                 {chip.label}
@@ -701,8 +819,91 @@ export default function ChatListScreen({ navigation }: any) {
         </ScrollView>
       </View>
 
-      {/* Active vs Archived Filter Bar */}
-      <View style={styles.tabBar}>
+      {searchFilter === 'notifications' ? (
+        <View style={{ flex: 1, backgroundColor: '#F8FAFC' }}>
+          {/* Notifications Subheader */}
+          <View style={styles.notifSubHeader}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+              <MaterialIcons name="notifications-active" size={18} color="#075E54" />
+              <Text style={styles.notifSubHeaderTitle}>System & Store Alerts</Text>
+              {unreadNotifCount > 0 && (
+                <View style={styles.notifUnreadBadge}>
+                  <Text style={styles.notifUnreadBadgeText}>{unreadNotifCount} new</Text>
+                </View>
+              )}
+            </View>
+            {unreadNotifCount > 0 && (
+              <TouchableOpacity 
+                style={styles.markAllReadBtn} 
+                onPress={handleMarkAllNotificationsRead}
+                activeOpacity={0.7}
+              >
+                <MaterialIcons name="done-all" size={16} color="#075E54" style={{ marginRight: 4 }} />
+                <Text style={styles.markAllReadText}>Mark all read</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+
+          {loadingNotifs && notifications.length === 0 ? (
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="large" color="#128C7E" />
+            </View>
+          ) : (
+            <FlatList
+              data={notifications}
+              keyExtractor={(item) => item.id}
+              refreshControl={
+                <RefreshControl 
+                  refreshing={refreshingNotifs} 
+                  onRefresh={onRefreshNotifs} 
+                  colors={['#128C7E']} 
+                />
+              }
+              renderItem={({ item }) => {
+                const iconInfo = getNotificationIconInfo(item.type || item.category);
+                return (
+                  <TouchableOpacity
+                    style={[
+                      styles.notifCard,
+                      !item.read && styles.notifCardUnread,
+                    ]}
+                    activeOpacity={0.7}
+                    onPress={() => handlePressNotification(item)}
+                  >
+                    <View style={[styles.notifIconContainer, { backgroundColor: iconInfo.bg }]}>
+                      <MaterialIcons name={iconInfo.name} size={20} color={iconInfo.color} />
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 2 }}>
+                        <Text style={[styles.notifTitle, !item.read && styles.notifTitleUnread]} numberOfLines={1}>
+                          {item.title || 'Notification'}
+                        </Text>
+                        <Text style={styles.notifTime}>{formatNotifTime(item.created_at)}</Text>
+                      </View>
+                      <Text style={styles.notifMessage} numberOfLines={3}>
+                        {item.message || ''}
+                      </Text>
+                    </View>
+                    {!item.read && <View style={styles.notifUnreadDot} />}
+                  </TouchableOpacity>
+                );
+              }}
+              ListEmptyComponent={
+                <View style={styles.emptyContainer}>
+                  <MaterialIcons name="notifications-none" size={56} color="#94A3B8" />
+                  <Text style={styles.emptyText}>No notifications</Text>
+                  <Text style={styles.emptySubText}>
+                    You're completely caught up! New orders, tasks, and system alerts will appear here.
+                  </Text>
+                </View>
+              }
+            />
+          )}
+        </View>
+      ) : (
+        <>
+          {/* Active vs Archived Filter Bar */}
+          <View style={styles.tabBar}>
         <TouchableOpacity 
           style={[styles.tabButton, chatTab === 'active' && styles.tabButtonActive]}
           onPress={() => setChatTab('active')}
@@ -899,6 +1100,8 @@ export default function ChatListScreen({ navigation }: any) {
           }
           contentContainerStyle={displayConversations.length === 0 ? styles.emptyListContent : undefined}
         />
+      )}
+        </>
       )}
 
       {/* Inventory Scanner FAB */}
@@ -2146,6 +2349,97 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: '#166534',
     flex: 1,
+  },
+  // Notifications tab styles
+  notifSubHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    backgroundColor: '#FFFFFF',
+    borderBottomWidth: 1,
+    borderBottomColor: '#E2E8F0',
+  },
+  notifSubHeaderTitle: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#075E54',
+  },
+  notifUnreadBadge: {
+    backgroundColor: '#DCFCE7',
+    paddingHorizontal: 7,
+    paddingVertical: 2,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#86EFAC',
+  },
+  notifUnreadBadgeText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#065F46',
+  },
+  markAllReadBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+    backgroundColor: '#F0FDF4',
+  },
+  markAllReadText: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#075E54',
+  },
+  notifCard: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: '#FFFFFF',
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: '#E2E8F0',
+  },
+  notifCardUnread: {
+    backgroundColor: '#F0FDF4',
+  },
+  notifIconContainer: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  notifTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#334155',
+    flex: 1,
+    marginRight: 8,
+  },
+  notifTitleUnread: {
+    fontWeight: '700',
+    color: '#0F172A',
+  },
+  notifTime: {
+    fontSize: 11,
+    color: '#64748B',
+  },
+  notifMessage: {
+    fontSize: 13,
+    color: '#475569',
+    lineHeight: 18,
+    marginTop: 2,
+  },
+  notifUnreadDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#128C7E',
+    marginTop: 6,
+    marginLeft: 6,
   },
 });
 

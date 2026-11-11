@@ -15,6 +15,7 @@ import ChatListScreen from './src/screens/ChatListScreen';
 import ChatRoomScreen from './src/screens/ChatRoomScreen';
 import CoFounderChatScreen from './src/screens/CoFounderChatScreen';
 import InventoryScanScreen from './src/screens/InventoryScanScreen';
+import MailboxScreen from './src/screens/MailboxScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -142,11 +143,11 @@ export default function App() {
             headerRight: () => (
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
                 <TouchableOpacity
-                  onPress={() => navigation.navigate('InventoryScan')}
+                  onPress={() => navigation.navigate('Mailbox')}
                   style={{ padding: 4 }}
-                  accessibilityLabel="Scan & Add Stock"
+                  accessibilityLabel="RuhChat Mailbox"
                 >
-                  <MaterialIcons name="qr-code-scanner" size={22} color="#fff" />
+                  <MaterialIcons name="mail" size={22} color="#fff" />
                 </TouchableOpacity>
 
                 <TouchableOpacity
@@ -187,6 +188,16 @@ export default function App() {
           component={InventoryScanScreen} 
           options={{ 
             title: 'Scan & Add Stock',
+            headerStyle: { backgroundColor: '#075E54' },
+            headerTintColor: '#fff',
+            headerTitleStyle: { fontWeight: 'bold' }
+          }} 
+        />
+        <Stack.Screen 
+          name="Mailbox" 
+          component={MailboxScreen} 
+          options={{ 
+            title: 'RuhChat Mailbox',
             headerStyle: { backgroundColor: '#075E54' },
             headerTintColor: '#fff',
             headerTitleStyle: { fontWeight: 'bold' }
