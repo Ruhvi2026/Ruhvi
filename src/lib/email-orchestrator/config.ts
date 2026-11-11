@@ -117,7 +117,7 @@ export const INITIAL_ROUTING_POLICIES: Record<
   internal_staff: {
     category: 'internal_staff',
     primaryProvider: 'brevo',
-    fallbackProvider: 'mailjet',
+    fallbackProvider: 'resend',
     enabled: true,
     fallbackEnabled: true,
     priority: 50,

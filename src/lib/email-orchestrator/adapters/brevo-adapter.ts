@@ -142,7 +142,12 @@ export class BrevoAdapter implements EmailProviderAdapter {
 
       if (!response.ok) {
         const errorMsg = responseBody.message || response.statusText;
-        const retryable = response.status >= 500 || response.status === 429;
+        const retryable =
+          response.status === 401 ||
+          response.status === 402 ||
+          response.status === 403 ||
+          response.status === 429 ||
+          response.status >= 500;
         return {
           provider: 'brevo',
           accepted: false,

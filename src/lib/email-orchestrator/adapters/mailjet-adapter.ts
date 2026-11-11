@@ -144,7 +144,13 @@ export class MailjetAdapter implements EmailProviderAdapter {
       const data = await res.json().catch(() => null);
 
       if (!res.ok) {
-        const isRetryable = res.status === 429 || res.status >= 500;
+        // HTTP 401 (blocked/unauthorized), 402 (payment/quota), 403 (forbidden), 429 (rate limit), and 5xx are provider outages that MUST trigger fallback
+        const isRetryable =
+          res.status === 401 ||
+          res.status === 402 ||
+          res.status === 403 ||
+          res.status === 429 ||
+          res.status >= 500;
         const errorDetail =
           data?.ErrorMessage || data?.message || `HTTP ${res.status}`;
         return {
