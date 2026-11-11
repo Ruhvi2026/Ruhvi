@@ -2,6 +2,7 @@
   "expo": {
     "name": "RuhChat",
     "slug": "ruhchat",
+    "owner": "subhasdas1996-personal",
     "version": "1.0.20",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -19,7 +20,10 @@
         "android.permission.POST_NOTIFICATIONS",
         "android.permission.VIBRATE",
         "android.permission.RECEIVE_BOOT_COMPLETED",
-        "android.permission.WAKE_LOCK"
+        "android.permission.WAKE_LOCK",
+        "android.permission.CAMERA",
+        "android.permission.FOREGROUND_SERVICE",
+        "android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"
       ],
       "adaptiveIcon": {
         "backgroundColor": "#075E54",
@@ -35,7 +39,7 @@
     },
     "extra": {
       "eas": {
-        "projectId": "a57902f9-aeb4-49f6-89df-51c45a855236"
+        "projectId": "05d009fc-b82b-48f0-8d61-8ecf151a2ac2"
       }
     },
     "plugins": [
@@ -62,6 +66,7 @@
       "expo-sharing",
       "expo-font",
       "expo-asset"
-    ]
+    ],
+    "owner": "subhasdas1996-personal"
   }
 }
