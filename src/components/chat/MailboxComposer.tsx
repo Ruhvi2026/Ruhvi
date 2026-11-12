@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   X,
   Send,
@@ -19,7 +19,7 @@ interface MailboxComposerProps {
   onSent: () => void;
 }
 
-const FROM_OPTIONS = [
+const FALLBACK_FROM_OPTIONS = [
   'shreya.maity@ruhvi.in',
   'support@ruhvi.in',
   'notification@ruhvi.in',
@@ -33,7 +33,29 @@ export function MailboxComposer({
   onClose,
   onSent,
 }: MailboxComposerProps) {
-  const [from, setFrom] = useState(FROM_OPTIONS[0]);
+  const [fromOptions, setFromOptions] = useState<string[]>(
+    FALLBACK_FROM_OPTIONS
+  );
+  const [from, setFrom] = useState(FALLBACK_FROM_OPTIONS[0]);
+
+  // Dynamically fetch mailboxes from accounts API
+  useEffect(() => {
+    fetch('/api/mailbox/accounts')
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.success && Array.isArray(d.mailboxes) && d.mailboxes.length > 0) {
+          const emails: string[] = d.mailboxes.map(
+            (mb: { email: string }) => mb.email
+          );
+          setFromOptions(emails);
+          setFrom(emails[0]);
+        }
+      })
+      .catch(() => {
+        /* keep fallback */
+      });
+  }, []);
+
   const [to, setTo] = useState(initialTo);
   const [showCc, setShowCc] = useState(false);
   const [cc, setCc] = useState('');
@@ -158,7 +180,7 @@ export function MailboxComposer({
               onChange={(e) => setFrom(e.target.value)}
               className="w-full cursor-pointer appearance-none bg-transparent pr-5 text-xs font-medium text-slate-200 focus:outline-none"
             >
-              {FROM_OPTIONS.map((opt) => (
+              {fromOptions.map((opt) => (
                 <option
                   key={opt}
                   value={opt}

@@ -266,18 +266,29 @@ To eliminate customer annoyance caused by multiple staff members dialing the sam
 Authoritative architectural specification of the staff email client and live notification center embedded directly within the floating staff messenger (`FloatingStaffMessenger.tsx`):
 - **Default Landing**: Always opens to standard Chat Mode (`activeMode = 'chat'`) preserving all active chats, voice notes, and AI workers without disruption.
 - **Header Mailbox Toggle**: Prominent `<Mail />` button in messenger header toggles between Chat and Mailbox Suite with live unread indicators.
+- **RuhMail Native Workspace & Multi-Mailbox Switcher**: Fully branded as **RuhMail** (zero external license or UI dependency). Supports dynamic multi-mailbox switching (`shreya.maity@ruhvi.in`, `support@ruhvi.in`, `sales@ruhvi.in`, `admin@ruhvi.in`, or "All Inboxes") managed via `<MailboxAccountSwitcher />` and `/api/mailbox/accounts`.
+- **Shared Team Inbox & Granular RBAC**: Staff role-gated access where team members only see assigned mailboxes alongside shared team inboxes (`support@ruhvi.in`, `sales@ruhvi.in`), managed via `ruhmail_members` table and `/api/mailbox/members` (`can_send`, `can_delete`, `owner`/`member`/`viewer`).
+- **Autonomous Email Routing Rules Engine**: Inbound email routing evaluated via `src/lib/mailbox/routing-engine.ts` and managed via `/api/mailbox/routing` (conditions: `from`, `to`, `subject`, `has_attachment`; actions: `forward`, `label`, `assign`, `auto_reply`, `reject`) with live testing simulator (`/api/mailbox/routing/test`).
 - **Sub-Search Tab Navigation**: Four-pill filter (`All`, `Broadcast`, `Groups`, `🔔 Notifications`) positioned below the conversation search input.
 - **Embedded Notification Feed**: Selecting the `Notifications` tab renders `<NotificationPanel />` wired directly to `useNotifications()` from `NotificationContext`, displaying live order alerts, return requests, and system updates with 1-click mark-all-read.
-- **Cloudflare D1 Storage & Retrieval**: Inbound messages for custom domains (`shreya.maity@ruhvi.in`) are stored in Cloudflare D1 (`mailflare`, UUID `72ace44e-4f70-4047-b00b-0d1e7adffda2`) and queried via `/api/mailbox/messages` with folder filtering (`inbox`, `sent`, `starred`, `drafts`) and instant read/star state updates via `/api/mailbox/messages/[id]`.
-- **Outbound Email Dispatch**: Outgoing emails composed in `<MailboxComposer />` are routed through `EmailOrchestrator` (`category: 'internal_staff'`) with multi-provider quota protection (Brevo/Mailjet/Resend) and auto-logged to D1 outbound messages for sent folder synchronization (`/api/mailbox/send`).
+- **Cloudflare D1 Storage & Retrieval**: Inbound messages are stored in Cloudflare D1 (`mailflare`, UUID `72ace44e-4f70-4047-b00b-0d1e7adffda2`) across `ruhmail_mailboxes`, `ruhmail_members`, `ruhmail_signatures`, and `messages` tables, queried via `/api/mailbox/messages` with folder filtering (`inbox`, `sent`, `starred`, `drafts`, `all`) and instant read/star state updates via `/api/mailbox/messages/[id]`.
+- **Outbound Email Dispatch**: Outgoing emails composed in `<MailboxComposer />` are routed through `EmailOrchestrator` (`category: 'internal_staff'`) with multi-provider quota protection (Brevo/Mailjet/Resend) and auto-logged to D1 outbound messages for sent folder synchronization (`/api/mailbox/send`). Dynamic FROM selection is populated directly from active registered RuhMail mailboxes.
 - **Smart AI Productivity Suite**:
   - **✨ AI Summary (`/api/mailbox/ai/summary`)**: 1-click distillation of email threads into bullet-point takeaways and action items powered by Gemini (`gemini-3.5-flash-lite`).
+  - **📅 Smart Calendar Event Extractor (`/api/mailbox/ai/extract-event`)**: Autonomous detection of meeting times, venues, and appointments with 1-click schedule extraction directly inside the thread view.
+  - **🛡️ Inbound Email Classification & Spam Guard (`/api/mailbox/ai/classify`)**: Real-time intent classification (vendor, customer support, transactional, spam) with risk scoring (0-100) and automated quarantine recommendations.
   - **📌 Convert Email to Task (`/api/task-manager/tasks`)**: Fast 1-click transformation of customer/vendor emails into actionable cards inside Ruhvi Task Manager with prefilled subject, sender context, and due dates.
   - **🪄 1-Click AI Reply (`/api/mailbox/ai/suggest-reply`)**: Context-aware draft generator with tone selectors (Professional, Quick Acknowledge, Request Info) auto-populating into the composer.
 - **Primary Source Files**:
+  - `src/app/admin/ruhmail/page.tsx`, `src/app/(public)/book/[slug]/page.tsx`, `src/app/api/mailbox/admin/route.ts`
+  - `src/app/api/mailbox/calendar/events/route.ts`, `src/app/api/mailbox/calendar/ics/route.ts`, `src/app/api/mailbox/booking/[slug]/route.ts`
+  - `src/app/api/mailbox/drive/files/route.ts`, `src/app/api/mailbox/drive/upload/route.ts`, `src/app/api/mailbox/drive/download/[id]/route.ts`
   - `src/components/chat/FloatingStaffMessenger.tsx`, `src/components/chat/MailboxPanel.tsx`, `src/components/chat/NotificationPanel.tsx`
+  - `src/components/chat/MailboxSidebar.tsx`, `src/components/chat/MailboxAccountSwitcher.tsx`
   - `src/components/chat/MailboxThreadView.tsx`, `src/components/chat/MailboxComposer.tsx`, `src/components/chat/MailboxConvertTaskModal.tsx`
   - `src/app/api/mailbox/messages/route.ts`, `src/app/api/mailbox/messages/[id]/route.ts`, `src/app/api/mailbox/send/route.ts`
+  - `src/app/api/mailbox/accounts/route.ts`, `src/app/api/mailbox/signatures/route.ts`
+  - `src/app/api/mailbox/admin/migrate/route.ts`, `src/app/api/mailbox/admin/seed-mailboxes/route.ts`
   - `src/app/api/mailbox/ai/summary/route.ts`, `src/app/api/mailbox/ai/suggest-reply/route.ts`
   - `src/lib/mailbox/d1-client.ts`, `src/lib/mailbox/formatters.ts`, `src/types/mailbox.ts`
 

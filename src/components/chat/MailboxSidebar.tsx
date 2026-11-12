@@ -1,15 +1,17 @@
 'use client';
 
 import React from 'react';
-import { Inbox, Send, Star, FileText, PenSquare, Sparkles } from 'lucide-react';
+import { Inbox, Send, Star, FileText, PenSquare } from 'lucide-react';
 import type { MailboxFolder } from '@/types/mailbox';
+import { MailboxAccountSwitcher } from './MailboxAccountSwitcher';
 
 interface MailboxSidebarProps {
   folder: MailboxFolder;
   inboxUnread: number;
   onFolderChange: (folder: MailboxFolder) => void;
   onCompose: () => void;
-  activeMailbox?: string;
+  activeMailbox: string;
+  onMailboxChange: (localPart: string) => void;
 }
 
 const FOLDER_ITEMS: Array<{
@@ -28,10 +30,27 @@ export function MailboxSidebar({
   inboxUnread,
   onFolderChange,
   onCompose,
-  activeMailbox = 'shreya.maity@ruhvi.in',
+  activeMailbox = 'shreya.maity',
+  onMailboxChange,
 }: MailboxSidebarProps) {
   return (
-    <div className="flex w-32 flex-shrink-0 flex-col border-r border-white/10 bg-[#13192B]">
+    <div className="flex w-40 flex-shrink-0 flex-col border-r border-white/10 bg-[#13192B]">
+      {/* RuhMail branding label */}
+      <div className="flex items-center justify-between px-3 pb-1 pt-2.5">
+        <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-400">
+          RuhMail
+        </span>
+        <span className="py-0.2 rounded border border-emerald-500/20 bg-emerald-500/10 px-1.5 font-mono text-[9px] text-emerald-300">
+          v1.0
+        </span>
+      </div>
+
+      {/* Account Switcher */}
+      <MailboxAccountSwitcher
+        activeMailbox={activeMailbox}
+        onMailboxChange={onMailboxChange}
+      />
+
       {/* Compose CTA */}
       <div className="border-b border-white/5 p-2">
         <button
@@ -77,17 +96,11 @@ export function MailboxSidebar({
 
       {/* Active Mailbox Footer */}
       <div className="border-t border-white/5 bg-[#101524] p-2">
-        <div className="mb-0.5 flex items-center gap-1 text-[10px] text-slate-500">
-          <Sparkles className="h-2.5 w-2.5 text-emerald-400" />
-          <span className="text-[9px] font-semibold uppercase tracking-wider">
-            Account
-          </span>
-        </div>
         <p
-          className="truncate text-[10px] font-medium text-slate-300"
+          className="truncate text-[10px] font-medium text-slate-500"
           title={activeMailbox}
         >
-          {activeMailbox}
+          {activeMailbox}@ruhvi.in
         </p>
       </div>
     </div>

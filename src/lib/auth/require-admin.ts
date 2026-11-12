@@ -89,6 +89,23 @@ export async function requireAdmin(): Promise<RequireAdminResult> {
       }
     );
 
+    // Check dedicated staff_profiles first
+    try {
+      const { data: staff } = await supabase
+        .from('staff_profiles')
+        .select('id, role, is_active')
+        .or(`auth_user_id.eq.${uid},legacy_user_id.eq.${uid}`)
+        .eq('is_active', true)
+        .maybeSingle();
+
+      if (staff?.role && INTERNAL_ADMIN_ROLES.includes(staff.role)) {
+        return { ok: true, uid, role: staff.role, error: null, status: 200 };
+      }
+    } catch {
+      // Table might be syncing or not exist yet; fall back gracefully to users
+    }
+
+    // Fallback to legacy users table
     const { data: user } = await supabase
       .from('users')
       .select('role')

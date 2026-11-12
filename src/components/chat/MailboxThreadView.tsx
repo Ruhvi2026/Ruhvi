@@ -12,6 +12,7 @@ import {
   CheckCircle2,
   ChevronDown,
   ChevronUp,
+  Calendar,
 } from 'lucide-react';
 import type { EmailMessage, AISummaryResponse } from '@/types/mailbox';
 
@@ -35,6 +36,41 @@ export function MailboxThreadView({
   const [showSummaryCard, setShowSummaryCard] = useState(false);
 
   const [generatingTone, setGeneratingTone] = useState<string | null>(null);
+
+  // Calendar Event extraction state
+  const [extractedEvent, setExtractedEvent] = useState<any>(null);
+  const [extractingEvent, setExtractingEvent] = useState(false);
+  const [showEventCard, setShowEventCard] = useState(false);
+
+  const handleExtractEvent = async () => {
+    if (extractedEvent) {
+      setShowEventCard((prev) => !prev);
+      return;
+    }
+
+    setExtractingEvent(true);
+    setShowEventCard(true);
+    try {
+      const res = await fetch('/api/mailbox/ai/extract-event', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          subject: message.subject,
+          body: message.bodyText || message.snippet,
+          from: message.from.name || message.from.email,
+          date: message.date,
+        }),
+      });
+      const data = await res.json();
+      if (data.success && data.event) {
+        setExtractedEvent(data.event);
+      }
+    } catch (err) {
+      console.error('Failed to extract calendar event:', err);
+    } finally {
+      setExtractingEvent(false);
+    }
+  };
 
   const handleGenerateSummary = async () => {
     if (aiSummary) {
@@ -210,26 +246,113 @@ export function MailboxThreadView({
             <span>AI Executive Suite</span>
           </div>
 
-          <button
-            onClick={handleGenerateSummary}
-            disabled={loadingSummary}
-            className="flex items-center gap-1 rounded-lg bg-violet-600/30 px-2 py-0.5 text-[10px] font-bold text-violet-200 transition hover:bg-violet-600/50"
-          >
-            {loadingSummary ? (
-              <Loader2 className="h-3 w-3 animate-spin" />
-            ) : showSummaryCard ? (
-              <>
-                <span>Hide Summary</span>
-                <ChevronUp className="h-2.5 w-2.5" />
-              </>
-            ) : (
-              <>
-                <span>✨ AI Summary</span>
-                <ChevronDown className="h-2.5 w-2.5" />
-              </>
-            )}
-          </button>
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={handleExtractEvent}
+              disabled={extractingEvent}
+              className="flex items-center gap-1 rounded-lg bg-teal-600/30 px-2 py-0.5 text-[10px] font-bold text-teal-200 transition hover:bg-teal-600/50"
+            >
+              {extractingEvent ? (
+                <Loader2 className="h-3 w-3 animate-spin" />
+              ) : showEventCard ? (
+                <>
+                  <span>Hide Event</span>
+                  <ChevronUp className="h-2.5 w-2.5" />
+                </>
+              ) : (
+                <>
+                  <Calendar className="h-2.5 w-2.5" />
+                  <span>📅 Smart Event</span>
+                  <ChevronDown className="h-2.5 w-2.5" />
+                </>
+              )}
+            </button>
+
+            <button
+              onClick={handleGenerateSummary}
+              disabled={loadingSummary}
+              className="flex items-center gap-1 rounded-lg bg-violet-600/30 px-2 py-0.5 text-[10px] font-bold text-violet-200 transition hover:bg-violet-600/50"
+            >
+              {loadingSummary ? (
+                <Loader2 className="h-3 w-3 animate-spin" />
+              ) : showSummaryCard ? (
+                <>
+                  <span>Hide Summary</span>
+                  <ChevronUp className="h-2.5 w-2.5" />
+                </>
+              ) : (
+                <>
+                  <span>✨ AI Summary</span>
+                  <ChevronDown className="h-2.5 w-2.5" />
+                </>
+              )}
+            </button>
+          </div>
         </div>
+
+        {/* Smart Calendar Event Card (Expandable) */}
+        {showEventCard && (
+          <div className="animate-in fade-in space-y-2 rounded-xl border border-teal-500/30 bg-[#0f1d24] p-3 text-xs shadow-lg duration-200">
+            {extractingEvent ? (
+              <div className="flex items-center justify-center gap-2 py-4 text-xs text-teal-300">
+                <Loader2 className="h-4 w-4 animate-spin text-teal-400" />
+                <span>
+                  AI Calendar Scanner analyzing schedule & meeting details...
+                </span>
+              </div>
+            ) : extractedEvent ? (
+              extractedEvent.hasEvent ? (
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="flex items-center gap-1.5 font-bold text-teal-300">
+                      <Calendar className="h-3.5 w-3.5" />
+                      {extractedEvent.title}
+                    </span>
+                    <span className="rounded-full border border-teal-500/30 bg-teal-500/20 px-2 py-0.5 text-[10px] text-teal-300">
+                      {extractedEvent.isMeeting
+                        ? 'Meeting Detected'
+                        : 'Schedule'}
+                    </span>
+                  </div>
+
+                  <p className="text-[11px] leading-snug text-slate-300">
+                    {extractedEvent.description}
+                  </p>
+
+                  <div className="grid grid-cols-2 gap-2 pt-1 text-[11px]">
+                    <div className="rounded-lg border border-white/5 bg-black/30 p-2">
+                      <span className="block text-[9px] uppercase tracking-wider text-slate-400">
+                        Suggested Slot:
+                      </span>
+                      <span className="font-mono text-emerald-400">
+                        {extractedEvent.suggestedDate} (
+                        {extractedEvent.suggestedStartTime} -{' '}
+                        {extractedEvent.suggestedEndTime})
+                      </span>
+                    </div>
+                    <div className="rounded-lg border border-white/5 bg-black/30 p-2">
+                      <span className="block text-[9px] uppercase tracking-wider text-slate-400">
+                        Location:
+                      </span>
+                      <span className="text-slate-300">
+                        {extractedEvent.location || 'Online Meet'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <p className="py-1 text-xs text-slate-400">
+                  No explicit meeting, schedule, or deadline found in this
+                  email.
+                </p>
+              )
+            ) : (
+              <p className="text-xs text-slate-400">
+                Could not extract calendar event.
+              </p>
+            )}
+          </div>
+        )}
 
         {/* AI Summary Card (Expandable) */}
         {showSummaryCard && (

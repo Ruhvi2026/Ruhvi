@@ -1169,9 +1169,7 @@ export default function FloatingStaffMessenger() {
                 : 'text-slate-400 hover:bg-white/10 hover:text-white'
             }`}
             title={
-              activeMode === 'mailbox'
-                ? 'Switch to Chat'
-                : 'Open RuhChat Mailbox Suite'
+              activeMode === 'mailbox' ? 'Switch to Chat' : 'Open RuhMail Suite'
             }
           >
             <Mail className="h-3.5 w-3.5" />

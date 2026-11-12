@@ -32,7 +32,7 @@ export function NotificationProvider({
     setLoading(true);
     try {
       const res = await fetch(
-        `/api/notifications?category=${category}&limit=50`
+        `/api/notifications?category=${category}&limit=50&audience=customer`
       );
       if (res.ok) {
         const data = await res.json();
@@ -75,7 +75,9 @@ export function NotificationProvider({
     setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
     setUnreadCount(0);
     try {
-      await fetch('/api/notifications/mark-all-read', { method: 'POST' });
+      await fetch('/api/notifications/mark-all-read?audience=customer', {
+        method: 'POST',
+      });
     } catch (e) {
       console.error('Failed to mark all as read', e);
     }

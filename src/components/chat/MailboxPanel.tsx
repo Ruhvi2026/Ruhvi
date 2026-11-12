@@ -14,6 +14,7 @@ export function MailboxPanel() {
   const [messages, setMessages] = useState<EmailMessage[]>([]);
   const [loading, setLoading] = useState(false);
   const [inboxUnread, setInboxUnread] = useState(0);
+  const [activeMailbox, setActiveMailbox] = useState<string>('shreya.maity');
 
   const [selectedMessage, setSelectedMessage] = useState<EmailMessage | null>(
     null
@@ -35,12 +36,16 @@ export function MailboxPanel() {
   const [taskCreatedToast, setTaskCreatedToast] = useState<string | null>(null);
 
   const fetchMessages = useCallback(
-    async (targetFolder: MailboxFolder, query: string = '') => {
+    async (
+      targetFolder: MailboxFolder,
+      query: string = '',
+      mailbox: string = 'shreya.maity'
+    ) => {
       setLoading(true);
       try {
         const params = new URLSearchParams({
           folder: targetFolder,
-          mailbox: 'shreya.maity',
+          mailbox: mailbox,
           search: query,
         });
 
@@ -66,8 +71,8 @@ export function MailboxPanel() {
   );
 
   useEffect(() => {
-    fetchMessages(folder, searchQuery);
-  }, [folder, searchQuery, fetchMessages]);
+    fetchMessages(folder, searchQuery, activeMailbox);
+  }, [folder, searchQuery, activeMailbox, fetchMessages]);
 
   const handleFolderChange = (newFolder: MailboxFolder) => {
     setFolder(newFolder);
@@ -162,6 +167,8 @@ export function MailboxPanel() {
           inboxUnread={inboxUnread}
           onFolderChange={handleFolderChange}
           onCompose={() => handleOpenCompose()}
+          activeMailbox={activeMailbox}
+          onMailboxChange={setActiveMailbox}
         />
 
         {/* Dynamic Right Area */}
@@ -174,7 +181,7 @@ export function MailboxPanel() {
               onClose={() => setIsComposing(false)}
               onSent={() => {
                 setIsComposing(false);
-                fetchMessages(folder, searchQuery);
+                fetchMessages(folder, searchQuery, activeMailbox);
               }}
             />
           ) : selectedMessage ? (
@@ -199,7 +206,9 @@ export function MailboxPanel() {
               selectedMessageId={undefined}
               onSelectMessage={handleSelectMessage}
               onToggleStar={handleToggleStar}
-              onRefresh={() => fetchMessages(folder, searchQuery)}
+              onRefresh={() =>
+                fetchMessages(folder, searchQuery, activeMailbox)
+              }
               searchQuery={searchQuery}
               onSearchChange={setSearchQuery}
             />

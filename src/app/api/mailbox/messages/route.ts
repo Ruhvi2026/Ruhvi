@@ -35,8 +35,10 @@ export async function GET(req: NextRequest) {
       conditions.push(`starred = 1`);
     } else if (folder === 'drafts') {
       conditions.push(`status = 'draft'`);
+    } else if (folder === 'all') {
+      // No direction filter — show all messages across all inboxes
     } else {
-      // Inbox
+      // Inbox (default)
       conditions.push(`direction = 'inbound'`);
     }
 
