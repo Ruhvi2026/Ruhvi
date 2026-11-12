@@ -110,7 +110,7 @@ describe('Email Orchestrator Infrastructure Unit Tests', () => {
         'brevo'
       );
       expect(INITIAL_ROUTING_POLICIES.internal_staff.fallbackProvider).toBe(
-        'mailjet'
+        'resend'
       );
     });
   });
