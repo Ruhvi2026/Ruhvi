@@ -3,7 +3,7 @@
     "name": "RuhChat",
     "slug": "ruhchat",
     "owner": "subhasdas1996-personal",
-    "version": "1.0.23",
+    "version": "1.1.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -12,7 +12,7 @@
     },
     "android": {
       "package": "in.ruhvi.chat",
-      "versionCode": 24,
+      "versionCode": 25,
       "googleServicesFile": "./google-services.json",
       "permissions": [
         "android.permission.RECORD_AUDIO",
