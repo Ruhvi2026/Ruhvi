@@ -29,6 +29,7 @@ export interface EmailMessage {
   status?: string;
   threadId?: string;
   attachments?: EmailAttachment[];
+  sentBy?: StaffAuditIdentity;
 }
 
 export interface EmailThread {
@@ -45,13 +46,29 @@ export interface EmailThread {
 
 export type MailboxFolder = 'inbox' | 'sent' | 'starred' | 'drafts' | 'all';
 
+export interface ComposeAttachmentPayload {
+  filename: string;
+  contentType?: string;
+  size?: number;
+  base64: string;
+}
+
+export interface StaffAuditIdentity {
+  staffUid?: string;
+  staffName?: string;
+  staffEmail?: string;
+}
+
 export interface ComposeEmailPayload {
   from: string;
+  fromName?: string;
   to: string;
   cc?: string;
   bcc?: string;
   subject: string;
   body: string;
+  attachments?: ComposeAttachmentPayload[];
+  sentBy?: StaffAuditIdentity;
 }
 
 export interface AISummaryResponse {

@@ -128,6 +128,21 @@ export class MailjetAdapter implements EmailProviderAdapter {
               : {}),
             ...(message.replyTo ? { ReplyTo: { Email: message.replyTo } } : {}),
             ...(message.headers ? { Headers: message.headers } : {}),
+            ...(message.cc?.length
+              ? { Cc: message.cc.map((email) => ({ Email: email })) }
+              : {}),
+            ...(message.bcc?.length
+              ? { Bcc: message.bcc.map((email) => ({ Email: email })) }
+              : {}),
+            ...(message.attachments?.length
+              ? {
+                  Attachments: message.attachments.map((att) => ({
+                    ContentType: att.contentType || 'application/octet-stream',
+                    Filename: att.filename,
+                    Base64Content: att.content,
+                  })),
+                }
+              : {}),
           },
         ],
       };

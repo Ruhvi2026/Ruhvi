@@ -34,6 +34,14 @@ export function mapD1MessageToEmailMessage(
       ? new Date(createdAtSec * 1000).toISOString()
       : new Date().toISOString();
 
+  let sentBy: any = undefined;
+  if (row.references_header) {
+    try {
+      const parsed = JSON.parse(String(row.references_header));
+      if (parsed.sentBy) sentBy = parsed.sentBy;
+    } catch {}
+  }
+
   return {
     id: String(row.id || ''),
     mailboxId: row.mailbox_id ? String(row.mailbox_id) : undefined,
@@ -52,5 +60,6 @@ export function mapD1MessageToEmailMessage(
     starred: Boolean(row.starred),
     status: row.status ? String(row.status) : undefined,
     threadId: row.thread_id ? String(row.thread_id) : undefined,
+    sentBy,
   };
 }

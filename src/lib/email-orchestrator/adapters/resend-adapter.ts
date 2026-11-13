@@ -92,7 +92,7 @@ export class ResendAdapter implements EmailProviderAdapter {
       const fromName = message.from.name || senderName;
       const fromFormatted = `${fromName} <${fromAddress}>`;
 
-      const response = await client.emails.send({
+      const emailPayload: any = {
         from: fromFormatted,
         to: message.to.name
           ? `${message.to.name} <${message.to.email}>`
@@ -111,7 +111,23 @@ export class ResendAdapter implements EmailProviderAdapter {
               value: String(value),
             }))
           : undefined,
-      });
+      };
+
+      if (message.cc?.length) {
+        emailPayload.cc = message.cc;
+      }
+      if (message.bcc?.length) {
+        emailPayload.bcc = message.bcc;
+      }
+      if (message.attachments?.length) {
+        emailPayload.attachments = message.attachments.map((att) => ({
+          filename: att.filename,
+          content: Buffer.from(att.content, 'base64'),
+          contentType: att.contentType,
+        }));
+      }
+
+      const response = await client.emails.send(emailPayload);
 
       if (response.error) {
         const isRetryable =

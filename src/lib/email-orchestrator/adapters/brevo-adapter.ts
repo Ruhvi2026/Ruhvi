@@ -127,6 +127,18 @@ export class BrevoAdapter implements EmailProviderAdapter {
       if (message.replyTo) {
         payload.replyTo = { email: message.replyTo };
       }
+      if (message.cc?.length) {
+        payload.cc = message.cc.map((email) => ({ email }));
+      }
+      if (message.bcc?.length) {
+        payload.bcc = message.bcc.map((email) => ({ email }));
+      }
+      if (message.attachments?.length) {
+        payload.attachment = message.attachments.map((att) => ({
+          name: att.filename,
+          content: att.content,
+        }));
+      }
 
       const response = await fetch(BREVO_API_URL, {
         method: 'POST',

@@ -39,12 +39,22 @@ export interface EmailAddress {
   name?: string;
 }
 
+export interface EmailAttachment {
+  filename: string;
+  content: string; // base64 string
+  contentType?: string;
+  size?: number;
+}
+
 export interface NormalizedEmailMessage {
   deliveryId: string;
   idempotencyKey: string;
   category: EmailCategory;
   from: EmailAddress;
   to: EmailAddress;
+  cc?: string[];
+  bcc?: string[];
+  attachments?: EmailAttachment[];
   replyTo?: string;
   subject: string;
   html: string;

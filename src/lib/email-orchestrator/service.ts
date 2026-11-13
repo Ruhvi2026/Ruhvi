@@ -18,6 +18,17 @@ export interface DispatchEmailInput {
   eventType: string;
   recipientEmail: string;
   recipientName?: string;
+  senderEmail?: string;
+  senderName?: string;
+  cc?: string[] | string;
+  bcc?: string[] | string;
+  attachments?: Array<{
+    filename: string;
+    content: string; // base64 string
+    contentType?: string;
+    size?: number;
+  }>;
+  headers?: Record<string, string>;
   subject: string;
   templateFileName?: string;
   html?: string;
@@ -153,18 +164,33 @@ export class EmailOrchestrator {
     const { provider } = routingDecision;
     const adapter = getAdapter(provider);
 
+    const parseRecipientList = (
+      val?: string[] | string
+    ): string[] | undefined => {
+      if (!val) return undefined;
+      const list = Array.isArray(val)
+        ? val
+        : val.split(',').map((s) => s.trim());
+      const clean = list.filter(Boolean);
+      return clean.length ? clean : undefined;
+    };
+
     const message: NormalizedEmailMessage = {
       deliveryId,
       idempotencyKey: input.eventKey,
       category: input.category,
       from: {
-        email: EMAIL_CONFIG.defaultSenderEmail,
-        name: EMAIL_CONFIG.defaultSenderName,
+        email: input.senderEmail || EMAIL_CONFIG.defaultSenderEmail,
+        name: input.senderName || EMAIL_CONFIG.defaultSenderName,
       },
       to: {
         email: normalizedEmail,
         name: input.recipientName,
       },
+      cc: parseRecipientList(input.cc),
+      bcc: parseRecipientList(input.bcc),
+      attachments: input.attachments,
+      headers: input.headers,
       subject: input.subject,
       html,
       text,

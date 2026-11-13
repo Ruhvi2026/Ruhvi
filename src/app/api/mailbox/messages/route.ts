@@ -51,7 +51,7 @@ export async function GET(req: NextRequest) {
       conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
     const query = `
       SELECT id, mailbox_id, direction, from_addr, to_addr, cc_addr, bcc_addr,
-             subject, snippet, created_at, read, starred, status, thread_id
+             subject, snippet, created_at, read, starred, status, thread_id, references_header
       FROM messages
       ${whereClause}
       ORDER BY created_at DESC
@@ -65,8 +65,17 @@ export async function GET(req: NextRequest) {
     // Get unread count for inbox
     let unreadCount = 0;
     try {
+      const countConditions = [`direction = 'inbound'`, `read = 0`];
+      const countParams: unknown[] = [];
+      if (mailbox && mailbox !== 'all') {
+        countConditions.push(
+          `(mailbox_id IN (SELECT id FROM mailboxes WHERE local_part = ?) OR to_addr LIKE ? OR from_addr LIKE ?)`
+        );
+        countParams.push(mailbox, `%${mailbox}%`, `%${mailbox}%`);
+      }
       const countRows = await queryMailflareD1<{ count: number }>(
-        `SELECT COUNT(*) as count FROM messages WHERE direction = 'inbound' AND read = 0;`
+        `SELECT COUNT(*) as count FROM messages WHERE ${countConditions.join(' AND ')};`,
+        countParams
       );
       unreadCount = Number(countRows[0]?.count || 0);
     } catch {

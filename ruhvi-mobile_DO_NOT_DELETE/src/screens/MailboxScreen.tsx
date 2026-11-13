@@ -13,6 +13,8 @@ import {
   Alert,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
+import * as DocumentPicker from 'expo-document-picker';
+import * as FileSystem from 'expo-file-system/legacy';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getCurrentUserId, supabase } from '../lib/supabase';
 
@@ -23,11 +25,19 @@ interface EmailAddress {
   email: string;
 }
 
+interface AttachedFile {
+  filename: string;
+  contentType: string;
+  size: number;
+  base64: string;
+}
+
 interface EmailMessage {
   id: string;
   from: EmailAddress;
   to: EmailAddress[];
   cc?: EmailAddress[];
+  bcc?: EmailAddress[];
   subject: string;
   snippet: string;
   bodyText?: string;
@@ -36,6 +46,11 @@ interface EmailMessage {
   read: boolean;
   starred: boolean;
   direction?: 'inbound' | 'outbound';
+  sentBy?: {
+    staffUid?: string;
+    staffName?: string;
+    staffEmail?: string;
+  };
 }
 
 interface MailboxAccount {
@@ -48,6 +63,14 @@ interface MailboxAccount {
 }
 
 type MailboxFolder = 'inbox' | 'sent' | 'starred';
+
+function formatBytes(bytes?: number): string {
+  if (!bytes || bytes === 0) return '0 B';
+  const k = 1024;
+  const sizes = ['B', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(1))} ${sizes[i]}`;
+}
 
 const AVATAR_COLORS = [
   '#075E54',
@@ -112,7 +135,7 @@ export default function MailboxScreen({ navigation }: any) {
     },
   ]);
   const [isAccountPickerVisible, setIsAccountPickerVisible] = useState(false);
-  const [userProfile, setUserProfile] = useState<{ email?: string; role?: string } | null>(null);
+  const [userProfile, setUserProfile] = useState<{ id?: string; email?: string; role?: string; full_name?: string } | null>(null);
 
   // Email detail modal
   const [selectedMessage, setSelectedMessage] = useState<EmailMessage | null>(null);
@@ -125,9 +148,16 @@ export default function MailboxScreen({ navigation }: any) {
 
   // Compose email modal
   const [isComposeVisible, setIsComposeVisible] = useState(false);
+  const [composeFrom, setComposeFrom] = useState('shreya.maity@ruhvi.in');
+  const [composeFromName, setComposeFromName] = useState('Shreya Maity');
+  const [isFromPickerVisible, setIsFromPickerVisible] = useState(false);
   const [composeTo, setComposeTo] = useState('');
+  const [composeCc, setComposeCc] = useState('');
+  const [composeBcc, setComposeBcc] = useState('');
+  const [showCcBcc, setShowCcBcc] = useState(false);
   const [composeSubject, setComposeSubject] = useState('');
   const [composeBody, setComposeBody] = useState('');
+  const [attachments, setAttachments] = useState<AttachedFile[]>([]);
   const [sendingEmail, setSendingEmail] = useState(false);
   const [polishingDraft, setPolishingDraft] = useState(false);
 
@@ -156,13 +186,18 @@ export default function MailboxScreen({ navigation }: any) {
           if (user) {
             const userEmail = (user.email || '').toLowerCase().trim();
             const userRole = (user.role || 'staff').toLowerCase();
-            setUserProfile({ email: userEmail, role: userRole });
+            const fullName = user.full_name || user.email?.split('@')[0] || 'Staff Member';
+            setUserProfile({ id: user.id || uid, email: userEmail, role: userRole, full_name: fullName });
 
             // Assign permitted mailboxes based on staff identity
             if (userRole === 'super_admin' || userEmail === 'ruhvi.main@gmail.com') {
               setCurrentMailbox('admin');
+              setComposeFrom('admin@ruhvi.in');
+              setComposeFromName('Super Admin');
               setMailboxes([
                 { id: 'mbx_admin', local_part: 'admin', display_name: 'Super Admin', domain: 'ruhvi.in', email: 'admin@ruhvi.in', mailbox_type: 'personal' },
+                { id: 'mbx_all', local_part: 'all', display_name: 'All Ruhvi Inboxes', domain: 'ruhvi.in', email: 'all@ruhvi.in', mailbox_type: 'shared' },
+                { id: 'mbx_notifications', local_part: 'notifications', display_name: 'Notifications', domain: 'ruhvi.in', email: 'notifications@ruhvi.in', mailbox_type: 'shared' },
                 { id: 'mbx_subhas', local_part: 'subhas.das', display_name: 'Subhas Das', domain: 'ruhvi.in', email: 'subhas.das@ruhvi.in', mailbox_type: 'personal' },
                 { id: 'mbx_shreya', local_part: 'shreya.maity', display_name: 'Shreya Maity', domain: 'ruhvi.in', email: 'shreya.maity@ruhvi.in', mailbox_type: 'personal' },
                 { id: 'mbx_support', local_part: 'support', display_name: 'Support Team', domain: 'ruhvi.in', email: 'support@ruhvi.in', mailbox_type: 'shared' },
@@ -171,16 +206,24 @@ export default function MailboxScreen({ navigation }: any) {
               ]);
             } else if (userEmail === 'subhasdas1996@gmail.com' || userRole === 'manager') {
               setCurrentMailbox('subhas.das');
+              setComposeFrom('subhas.das@ruhvi.in');
+              setComposeFromName('Subhas Das');
               setMailboxes([
                 { id: 'mbx_subhas', local_part: 'subhas.das', display_name: 'Subhas Das', domain: 'ruhvi.in', email: 'subhas.das@ruhvi.in', mailbox_type: 'personal' },
+                { id: 'mbx_all', local_part: 'all', display_name: 'All Ruhvi Inboxes', domain: 'ruhvi.in', email: 'all@ruhvi.in', mailbox_type: 'shared' },
+                { id: 'mbx_notifications', local_part: 'notifications', display_name: 'Notifications', domain: 'ruhvi.in', email: 'notifications@ruhvi.in', mailbox_type: 'shared' },
                 { id: 'mbx_support', local_part: 'support', display_name: 'Support Team', domain: 'ruhvi.in', email: 'support@ruhvi.in', mailbox_type: 'shared' },
                 { id: 'mbx_orders', local_part: 'orders', display_name: 'Orders & Fulfillment', domain: 'ruhvi.in', email: 'orders@ruhvi.in', mailbox_type: 'shared' },
                 { id: 'mbx_sales', local_part: 'sales', display_name: 'Sales Team', domain: 'ruhvi.in', email: 'sales@ruhvi.in', mailbox_type: 'shared' },
               ]);
             } else if (userEmail === 'shreyamaity26@gmail.com') {
               setCurrentMailbox('shreya.maity');
+              setComposeFrom('shreya.maity@ruhvi.in');
+              setComposeFromName('Shreya Maity');
               setMailboxes([
                 { id: 'mbx_shreya', local_part: 'shreya.maity', display_name: 'Shreya Maity', domain: 'ruhvi.in', email: 'shreya.maity@ruhvi.in', mailbox_type: 'personal' },
+                { id: 'mbx_all', local_part: 'all', display_name: 'All Ruhvi Inboxes', domain: 'ruhvi.in', email: 'all@ruhvi.in', mailbox_type: 'shared' },
+                { id: 'mbx_notifications', local_part: 'notifications', display_name: 'Notifications', domain: 'ruhvi.in', email: 'notifications@ruhvi.in', mailbox_type: 'shared' },
                 { id: 'mbx_orders', local_part: 'orders', display_name: 'Orders & Fulfillment', domain: 'ruhvi.in', email: 'orders@ruhvi.in', mailbox_type: 'shared' },
                 { id: 'mbx_support', local_part: 'support', display_name: 'Support Team', domain: 'ruhvi.in', email: 'support@ruhvi.in', mailbox_type: 'shared' },
               ]);
@@ -311,17 +354,88 @@ export default function MailboxScreen({ navigation }: any) {
         ? selectedMessage.subject
         : `Re: ${selectedMessage.subject}`;
 
+      const defaultSender =
+        mailboxes.find(m => m.local_part !== 'all' && m.local_part !== 'notifications' && m.local_part === currentMailbox) ||
+        mailboxes.find(m => m.local_part !== 'all' && m.local_part !== 'notifications') ||
+        mailboxes[0];
+
       setSelectedMessage(null);
+      setComposeFrom(defaultSender?.email || 'support@ruhvi.in');
+      setComposeFromName(defaultSender?.display_name || 'Ruhvi Support');
       setComposeTo(selectedMessage.from.email);
+      setComposeCc('');
+      setComposeBcc('');
+      setShowCcBcc(false);
+      setAttachments([]);
       setComposeSubject(replySub);
       setComposeBody(replyBody);
       setIsComposeVisible(true);
     } catch (_) {
+      const defaultSender =
+        mailboxes.find(m => m.local_part !== 'all' && m.local_part !== 'notifications' && m.local_part === currentMailbox) ||
+        mailboxes.find(m => m.local_part !== 'all' && m.local_part !== 'notifications') ||
+        mailboxes[0];
+
       setSelectedMessage(null);
+      setComposeFrom(defaultSender?.email || 'support@ruhvi.in');
+      setComposeFromName(defaultSender?.display_name || 'Ruhvi Support');
       setComposeTo(selectedMessage.from.email);
+      setComposeCc('');
+      setComposeBcc('');
+      setShowCcBcc(false);
+      setAttachments([]);
       setComposeSubject(`Re: ${selectedMessage.subject}`);
       setIsComposeVisible(true);
     }
+  };
+
+  const handlePickDocument = async () => {
+    try {
+      const result = await DocumentPicker.getDocumentAsync({
+        type: '*/*',
+        copyToCacheDirectory: true,
+      });
+
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        const asset = result.assets[0];
+        let base64 = '';
+        try {
+          base64 = await FileSystem.readAsStringAsync(asset.uri, {
+            encoding: FileSystem.EncodingType.Base64,
+          });
+        } catch {
+          const resp = await fetch(asset.uri);
+          const blob = await resp.blob();
+          base64 = await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+              const res = reader.result as string;
+              const b64 = res.split(',')[1] || res;
+              resolve(b64);
+            };
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+          });
+        }
+
+        setAttachments(prev => [
+          ...prev,
+          {
+            filename: asset.name || `attachment_${Date.now()}`,
+            contentType: asset.mimeType || 'application/octet-stream',
+            size: asset.size || 0,
+            base64,
+          },
+        ]);
+      }
+    } catch (err) {
+      console.warn('[Mailbox] Attachment pick error:', err);
+      Alert.alert('Attachment', 'Could not load the selected file.');
+    }
+  };
+
+  const handleRemoveAttachment = (idx: number) => {
+    setAttachments(prev => prev.filter((_, i) => i !== idx));
   };
 
   const handleOpenTaskModal = (msg: EmailMessage) => {
@@ -407,19 +521,37 @@ export default function MailboxScreen({ navigation }: any) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          from: activeMailboxAccount.email,
+          from: composeFrom,
+          fromName: composeFromName,
           to: composeTo.trim(),
+          cc: composeCc.trim() || undefined,
+          bcc: composeBcc.trim() || undefined,
           subject: composeSubject.trim(),
           body: composeBody.trim(),
+          attachments: attachments.map(a => ({
+            filename: a.filename,
+            contentType: a.contentType,
+            size: a.size,
+            base64: a.base64,
+          })),
+          sentBy: {
+            staffUid: userProfile?.id,
+            staffName: userProfile?.full_name || 'Staff Member',
+            staffEmail: userProfile?.email || 'staff@ruhvi.in',
+          },
         }),
       });
       const data = await res.json();
       if (res.ok && data.success) {
         setIsComposeVisible(false);
         setComposeTo('');
+        setComposeCc('');
+        setComposeBcc('');
+        setShowCcBcc(false);
         setComposeSubject('');
         setComposeBody('');
-        Alert.alert('Sent', 'Email dispatched successfully via EmailOrchestrator!');
+        setAttachments([]);
+        Alert.alert('Sent', 'Email dispatched successfully & logged in audit trail!');
         fetchMessages(folder, currentMailbox);
       } else {
         Alert.alert('Send Error', data.error || 'Failed to dispatch email');
@@ -603,9 +735,19 @@ export default function MailboxScreen({ navigation }: any) {
       <TouchableOpacity
         style={styles.composeFab}
         onPress={() => {
+          const defaultSender =
+            mailboxes.find(m => m.local_part !== 'all' && m.local_part !== 'notifications' && m.local_part === currentMailbox) ||
+            mailboxes.find(m => m.local_part !== 'all' && m.local_part !== 'notifications') ||
+            mailboxes[0];
+          setComposeFrom(defaultSender?.email || 'support@ruhvi.in');
+          setComposeFromName(defaultSender?.display_name || 'Ruhvi Support');
           setComposeTo('');
+          setComposeCc('');
+          setComposeBcc('');
+          setShowCcBcc(false);
           setComposeSubject('');
           setComposeBody('');
+          setAttachments([]);
           setIsComposeVisible(true);
         }}
         activeOpacity={0.8}
@@ -656,6 +798,16 @@ export default function MailboxScreen({ navigation }: any) {
                   </View>
                 </View>
 
+                {/* Audit: Sent By Info */}
+                {selectedMessage.sentBy && (
+                  <View style={styles.sentByAuditBanner}>
+                    <MaterialIcons name="verified-user" size={15} color="#075E54" />
+                    <Text style={styles.sentByAuditText}>
+                      Sent by <Text style={{ fontWeight: '700' }}>{selectedMessage.sentBy.staffName || selectedMessage.sentBy.staffEmail}</Text> ({selectedMessage.sentBy.staffEmail})
+                    </Text>
+                  </View>
+                )}
+
                 <View style={{ marginTop: 8, flexDirection: 'row', justifyContent: 'space-between' }}>
                   <Text style={styles.readerDate}>
                     {new Date(selectedMessage.date).toLocaleString('en-IN')}
@@ -664,6 +816,14 @@ export default function MailboxScreen({ navigation }: any) {
                     To: {selectedMessage.to.map(t => t.email).join(', ') || 'undisclosed'}
                   </Text>
                 </View>
+
+                {selectedMessage.cc && selectedMessage.cc.length > 0 && (
+                  <View style={{ marginTop: 4 }}>
+                    <Text style={styles.readerCc}>
+                      Cc: {selectedMessage.cc.map(t => t.name ? `${t.name} <${t.email}>` : t.email).join(', ')}
+                    </Text>
+                  </View>
+                )}
               </View>
 
               {/* Action Bar (AI Summary & Convert to Task) */}
@@ -777,23 +937,72 @@ export default function MailboxScreen({ navigation }: any) {
           </View>
 
           <ScrollView style={styles.composeForm}>
+            {/* From Row with Selector */}
             <View style={styles.inputRow}>
               <Text style={styles.inputLabel}>From:</Text>
-              <Text style={styles.fromBadge}>shreya.maity@ruhvi.in</Text>
+              <TouchableOpacity
+                style={styles.fromPickerSelector}
+                onPress={() => setIsFromPickerVisible(true)}
+                activeOpacity={0.7}
+              >
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.fromPickerSelectedName}>{composeFromName}</Text>
+                  <Text style={styles.fromPickerSelectedEmail}>{composeFrom}</Text>
+                </View>
+                <MaterialIcons name="arrow-drop-down" size={24} color="#075E54" />
+              </TouchableOpacity>
             </View>
 
+            {/* To Row with CC/BCC Toggle Button */}
             <View style={styles.inputRow}>
               <Text style={styles.inputLabel}>To:</Text>
               <TextInput
-                style={styles.inputField}
+                style={[styles.inputField, { flex: 1 }]}
                 value={composeTo}
                 onChangeText={setComposeTo}
                 placeholder="recipient@example.com"
                 keyboardType="email-address"
                 autoCapitalize="none"
               />
+              <TouchableOpacity
+                style={[styles.ccBccToggleBtn, showCcBcc && styles.ccBccToggleBtnActive]}
+                onPress={() => setShowCcBcc(!showCcBcc)}
+              >
+                <Text style={[styles.ccBccToggleText, showCcBcc && styles.ccBccToggleTextActive]}>
+                  Cc/Bcc
+                </Text>
+              </TouchableOpacity>
             </View>
 
+            {/* Expandable CC & BCC Fields */}
+            {showCcBcc && (
+              <>
+                <View style={styles.inputRow}>
+                  <Text style={styles.inputLabel}>Cc:</Text>
+                  <TextInput
+                    style={styles.inputField}
+                    value={composeCc}
+                    onChangeText={setComposeCc}
+                    placeholder="cc@example.com, team@example.com"
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                  />
+                </View>
+                <View style={styles.inputRow}>
+                  <Text style={styles.inputLabel}>Bcc:</Text>
+                  <TextInput
+                    style={styles.inputField}
+                    value={composeBcc}
+                    onChangeText={setComposeBcc}
+                    placeholder="bcc@example.com"
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                  />
+                </View>
+              </>
+            )}
+
+            {/* Subject */}
             <View style={styles.inputRow}>
               <Text style={styles.inputLabel}>Subject:</Text>
               <TextInput
@@ -802,6 +1011,33 @@ export default function MailboxScreen({ navigation }: any) {
                 onChangeText={setComposeSubject}
                 placeholder="Email subject"
               />
+            </View>
+
+            {/* Attachments Section */}
+            <View style={styles.attachmentSection}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                <Text style={styles.inputLabel}>Files ({attachments.length}):</Text>
+                <TouchableOpacity style={styles.attachBtn} onPress={handlePickDocument} activeOpacity={0.7}>
+                  <MaterialIcons name="attach-file" size={16} color="#075E54" />
+                  <Text style={styles.attachBtnText}>Attach File</Text>
+                </TouchableOpacity>
+              </View>
+
+              {attachments.length > 0 && (
+                <View style={styles.attachmentList}>
+                  {attachments.map((file, idx) => (
+                    <View key={idx} style={styles.attachmentChip}>
+                      <MaterialIcons name="insert-drive-file" size={16} color="#475569" />
+                      <Text style={styles.attachmentChipText} numberOfLines={1}>
+                        {file.filename} ({formatBytes(file.size)})
+                      </Text>
+                      <TouchableOpacity onPress={() => handleRemoveAttachment(idx)} hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}>
+                        <MaterialIcons name="close" size={16} color="#DC2626" />
+                      </TouchableOpacity>
+                    </View>
+                  ))}
+                </View>
+              )}
             </View>
 
             <View style={{ marginTop: 12 }}>
@@ -835,6 +1071,55 @@ export default function MailboxScreen({ navigation }: any) {
             </View>
           </ScrollView>
         </View>
+      </Modal>
+
+      {/* From Sender Picker Modal */}
+      <Modal
+        visible={isFromPickerVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setIsFromPickerVisible(false)}
+      >
+        <TouchableOpacity
+          style={styles.taskModalOverlay}
+          activeOpacity={1}
+          onPress={() => setIsFromPickerVisible(false)}
+        >
+          <View style={styles.fromPickerCard}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+              <Text style={styles.fromPickerTitle}>Select Sender Email</Text>
+              <TouchableOpacity onPress={() => setIsFromPickerVisible(false)}>
+                <MaterialIcons name="close" size={20} color="#64748B" />
+              </TouchableOpacity>
+            </View>
+            <ScrollView style={{ maxHeight: 300 }}>
+              {mailboxes
+                .filter(m => m.local_part !== 'all' && m.local_part !== 'notifications')
+                .map(mbx => {
+                  const isSelected = composeFrom === mbx.email;
+                  return (
+                    <TouchableOpacity
+                      key={mbx.id}
+                      style={[styles.fromPickerItem, isSelected && styles.fromPickerItemSelected]}
+                      onPress={() => {
+                        setComposeFrom(mbx.email);
+                        setComposeFromName(mbx.display_name);
+                        setIsFromPickerVisible(false);
+                      }}
+                    >
+                      <View style={{ flex: 1 }}>
+                        <Text style={[styles.fromPickerItemName, isSelected && { color: '#075E54', fontWeight: 'bold' }]}>
+                          {mbx.display_name}
+                        </Text>
+                        <Text style={styles.fromPickerItemEmail}>{mbx.email}</Text>
+                      </View>
+                      {isSelected && <MaterialIcons name="check-circle" size={20} color="#075E54" />}
+                    </TouchableOpacity>
+                  );
+                })}
+            </ScrollView>
+          </View>
+        </TouchableOpacity>
       </Modal>
 
       {/* Convert to Task Modal */}
@@ -1291,6 +1576,152 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '700',
     color: '#075E54',
+  },
+  fromPickerSelector: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#F0FDF4',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#BBF7D0',
+  },
+  fromPickerSelectedName: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#075E54',
+  },
+  fromPickerSelectedEmail: {
+    fontSize: 11,
+    color: '#166534',
+    marginTop: 1,
+  },
+  ccBccToggleBtn: {
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 6,
+    backgroundColor: '#F1F5F9',
+    marginLeft: 6,
+  },
+  ccBccToggleBtnActive: {
+    backgroundColor: '#E6F4EA',
+  },
+  ccBccToggleText: {
+    fontSize: 11,
+    color: '#64748B',
+    fontWeight: '600',
+  },
+  ccBccToggleTextActive: {
+    color: '#075E54',
+    fontWeight: '700',
+  },
+  attachmentSection: {
+    marginTop: 10,
+    marginBottom: 4,
+    paddingBottom: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E2E8F0',
+  },
+  attachBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    backgroundColor: '#E6F4EA',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#CEEAD6',
+  },
+  attachBtnText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#075E54',
+  },
+  attachmentList: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 6,
+    marginTop: 8,
+  },
+  attachmentChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: '#F1F5F9',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#CBD5E1',
+    maxWidth: '90%',
+  },
+  attachmentChipText: {
+    fontSize: 11,
+    color: '#334155',
+    fontWeight: '500',
+    maxWidth: 200,
+  },
+  fromPickerCard: {
+    width: '88%',
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 18,
+    shadowColor: '#000',
+    shadowOpacity: 0.15,
+    shadowRadius: 10,
+    elevation: 8,
+  },
+  fromPickerTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#0F172A',
+  },
+  fromPickerItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 12,
+    paddingHorizontal: 10,
+    borderRadius: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F1F5F9',
+  },
+  fromPickerItemSelected: {
+    backgroundColor: '#E6F4EA',
+  },
+  fromPickerItemName: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#1E293B',
+  },
+  fromPickerItemEmail: {
+    fontSize: 11,
+    color: '#64748B',
+    marginTop: 2,
+  },
+  sentByAuditBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: '#ECFDF5',
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#A7F3D0',
+    marginTop: 8,
+  },
+  sentByAuditText: {
+    fontSize: 11,
+    color: '#065F46',
+  },
+  readerCc: {
+    fontSize: 11,
+    color: '#64748B',
   },
   inputField: {
     flex: 1,
