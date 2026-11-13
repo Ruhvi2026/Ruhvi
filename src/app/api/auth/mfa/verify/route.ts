@@ -6,6 +6,7 @@ import {
   decryptTotpSecret,
   verifyAndConsumeBackupCode,
 } from '@/lib/auth/totp';
+import { getSecondsUntilNext6AmIst } from '@/lib/auth/session-expiry';
 
 export async function POST(request: NextRequest) {
   try {
@@ -131,7 +132,16 @@ export async function POST(request: NextRequest) {
     }
 
     // 4. Mint official full __session cookie with mfa_verified: true
-    const expiresInSeconds = 60 * 60 * 24 * 5; // 5 days
+    // Internal staff sessions expire at the next 6:00 AM IST
+    const isInternalStaff = [
+      'super_admin',
+      'admin',
+      'manager',
+      'staff',
+    ].includes(user.role);
+    const expiresInSeconds = isInternalStaff
+      ? getSecondsUntilNext6AmIst()
+      : 60 * 60 * 24 * 5;
     const now = Math.floor(Date.now() / 1000);
     const secret = new TextEncoder().encode(jwtSecret);
 

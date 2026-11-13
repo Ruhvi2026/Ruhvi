@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createRemoteJWKSet, jwtVerify, SignJWT } from 'jose';
 import { createClient } from '@supabase/supabase-js';
+import { getSecondsUntilNext6AmIst } from '@/lib/auth/session-expiry';
 
 // Google's public JWK endpoint for Firebase ID tokens
 const FIREBASE_JWKS = createRemoteJWKSet(
@@ -87,7 +88,23 @@ export async function POST(request: NextRequest) {
 
     const supabaseUserId = resolvedId;
 
-    const expiresInSeconds = 60 * 60 * 24 * 5; // 5 days
+    // Check user role: internal staff sessions expire every day at 6:00 AM IST.
+    // Regular customer sessions retain standard 5-day expiration.
+    let expiresInSeconds = 60 * 60 * 24 * 5; // 5 days default
+    const { data: userRecord } = await supabaseAdmin
+      .from('users')
+      .select('role')
+      .eq('id', supabaseUserId)
+      .maybeSingle();
+
+    const isInternalStaff =
+      userRecord &&
+      ['super_admin', 'admin', 'manager', 'staff'].includes(userRecord.role);
+
+    if (isInternalStaff) {
+      expiresInSeconds = getSecondsUntilNext6AmIst();
+    }
+
     const now = Math.floor(Date.now() / 1000);
     const secret = new TextEncoder().encode(jwtSecret);
 

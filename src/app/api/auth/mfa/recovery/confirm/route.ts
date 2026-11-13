@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { jwtVerify, SignJWT } from 'jose';
 import { createClient } from '@supabase/supabase-js';
+import { getSecondsUntilNext6AmIst } from '@/lib/auth/session-expiry';
 
 export async function POST(request: NextRequest) {
   try {
@@ -125,8 +126,8 @@ export async function POST(request: NextRequest) {
       console.warn('[MFA Recovery] Audit log insert warning:', auditErr);
     }
 
-    // 5. Mint official full __session cookie for immediate access
-    const expiresInSeconds = 60 * 60 * 24; // 24 hours
+    // 5. Mint official full __session cookie for immediate access (expires at next 6:00 AM IST)
+    const expiresInSeconds = getSecondsUntilNext6AmIst();
     const now = Math.floor(Date.now() / 1000);
     const secret = new TextEncoder().encode(jwtSecret);
 
