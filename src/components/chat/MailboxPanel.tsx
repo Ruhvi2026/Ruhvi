@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
+import { useAuth } from '@/context/AuthContext';
 import { MailboxSidebar } from './MailboxSidebar';
 import { MailboxMessageList } from './MailboxMessageList';
 import { MailboxThreadView } from './MailboxThreadView';
@@ -10,11 +11,33 @@ import type { EmailMessage, MailboxFolder } from '@/types/mailbox';
 import { CheckCircle2 } from 'lucide-react';
 
 export function MailboxPanel() {
+  const { user } = useAuth();
   const [folder, setFolder] = useState<MailboxFolder>('inbox');
   const [messages, setMessages] = useState<EmailMessage[]>([]);
   const [loading, setLoading] = useState(false);
   const [inboxUnread, setInboxUnread] = useState(0);
-  const [activeMailbox, setActiveMailbox] = useState<string>('shreya.maity');
+
+  // Initialize activeMailbox intelligently based on logged-in user
+  const [activeMailbox, setActiveMailbox] = useState<string>(() => {
+    const email = user?.email?.toLowerCase().trim();
+    if (email === 'subhasdas1996@gmail.com') return 'subhas.das';
+    if (email === 'shreyamaity26@gmail.com') return 'shreya.maity';
+    if (email === 'ruhvi.main@gmail.com' || email === 'admin@ruhvi.in')
+      return 'admin';
+    return 'shreya.maity';
+  });
+
+  // Keep activeMailbox synced if user loads asynchronously
+  useEffect(() => {
+    const email = user?.email?.toLowerCase().trim();
+    if (email === 'subhasdas1996@gmail.com') {
+      setActiveMailbox('subhas.das');
+    } else if (email === 'shreyamaity26@gmail.com') {
+      setActiveMailbox('shreya.maity');
+    } else if (email === 'ruhvi.main@gmail.com' || email === 'admin@ruhvi.in') {
+      setActiveMailbox('admin');
+    }
+  }, [user?.email]);
 
   const [selectedMessage, setSelectedMessage] = useState<EmailMessage | null>(
     null

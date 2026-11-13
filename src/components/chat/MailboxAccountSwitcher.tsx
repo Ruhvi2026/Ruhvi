@@ -21,10 +21,20 @@ export function MailboxAccountSwitcher({
     fetch('/api/mailbox/accounts')
       .then((r) => r.json())
       .then((d) => {
-        if (d.success) setMailboxes(d.mailboxes);
+        if (d.success && Array.isArray(d.mailboxes)) {
+          setMailboxes(d.mailboxes);
+          // If current activeMailbox isn't in available mailboxes, pick the first one
+          if (
+            d.mailboxes.length > 0 &&
+            activeMailbox !== 'all' &&
+            !d.mailboxes.some((m: RuhMailbox) => m.local_part === activeMailbox)
+          ) {
+            onMailboxChange(d.mailboxes[0].local_part);
+          }
+        }
       })
       .catch(() => {});
-  }, []);
+  }, [activeMailbox, onMailboxChange]);
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {

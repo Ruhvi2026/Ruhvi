@@ -48,30 +48,60 @@ export async function GET(request: NextRequest) {
     // Role-based & Identity-based mailbox assignment
     if (userRole === 'super_admin' || userEmail === 'ruhvi.main@gmail.com') {
       // Super Admin: master access to all inboxes
-      allowedEmails = ['shreya.maity@ruhvi.in', 'subhas.das@ruhvi.in'];
+      allowedEmails = [
+        'admin@ruhvi.in',
+        'subhas.das@ruhvi.in',
+        'shreya.maity@ruhvi.in',
+        'support@ruhvi.in',
+        'orders@ruhvi.in',
+        'sales@ruhvi.in',
+      ];
       if (requestedMailbox) {
         const cleaned = requestedMailbox.toLowerCase().trim();
         targetEmail = cleaned.includes('@') ? cleaned : `${cleaned}@ruhvi.in`;
       } else {
-        targetEmail = 'shreya.maity@ruhvi.in';
+        targetEmail = 'admin@ruhvi.in';
       }
     } else if (
       userEmail === 'subhasdas1996@gmail.com' ||
       userRole === 'manager'
     ) {
-      // Manager: access to operations mailbox + primary shared inboxes
-      allowedEmails = ['subhas.das@ruhvi.in', 'shreya.maity@ruhvi.in'];
-      if (
-        requestedMailbox === 'shreya.maity' ||
-        requestedMailbox === 'shreya.maity@ruhvi.in'
-      ) {
-        targetEmail = 'shreya.maity@ruhvi.in';
+      // Subhas (Manager): personal mailbox + operations/support/orders/sales
+      allowedEmails = [
+        'subhas.das@ruhvi.in',
+        'support@ruhvi.in',
+        'orders@ruhvi.in',
+        'sales@ruhvi.in',
+      ];
+      if (requestedMailbox) {
+        const cleaned = requestedMailbox.toLowerCase().trim();
+        const fullCleaned = cleaned.includes('@')
+          ? cleaned
+          : `${cleaned}@ruhvi.in`;
+        targetEmail = allowedEmails.includes(fullCleaned)
+          ? fullCleaned
+          : 'subhas.das@ruhvi.in';
       } else {
         targetEmail = 'subhas.das@ruhvi.in';
       }
     } else if (userEmail === 'shreyamaity26@gmail.com') {
-      targetEmail = 'shreya.maity@ruhvi.in';
-      allowedEmails = ['shreya.maity@ruhvi.in'];
+      // Shreya (Staff): personal mailbox + orders/support
+      allowedEmails = [
+        'shreya.maity@ruhvi.in',
+        'orders@ruhvi.in',
+        'support@ruhvi.in',
+      ];
+      if (requestedMailbox) {
+        const cleaned = requestedMailbox.toLowerCase().trim();
+        const fullCleaned = cleaned.includes('@')
+          ? cleaned
+          : `${cleaned}@ruhvi.in`;
+        targetEmail = allowedEmails.includes(fullCleaned)
+          ? fullCleaned
+          : 'shreya.maity@ruhvi.in';
+      } else {
+        targetEmail = 'shreya.maity@ruhvi.in';
+      }
     } else if (userEmail === 'jarviscomputers.online@gmail.com') {
       targetEmail = 'tech@ruhvi.in';
       allowedEmails = ['tech@ruhvi.in'];
