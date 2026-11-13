@@ -14,7 +14,7 @@ import {
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { getCurrentUserId } from '../lib/supabase';
+import { getCurrentUserId, supabase } from '../lib/supabase';
 
 const API_BASE_URL = 'https://ruhvi.in';
 
@@ -36,6 +36,15 @@ interface EmailMessage {
   read: boolean;
   starred: boolean;
   direction?: 'inbound' | 'outbound';
+}
+
+interface MailboxAccount {
+  id: string;
+  local_part: string;
+  display_name: string;
+  domain: string;
+  email: string;
+  mailbox_type: string;
 }
 
 type MailboxFolder = 'inbox' | 'sent' | 'starred';
@@ -90,6 +99,21 @@ export default function MailboxScreen({ navigation }: any) {
   const [refreshing, setRefreshing] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
 
+  // Dynamic user & mailbox state
+  const [currentMailbox, setCurrentMailbox] = useState<string>('shreya.maity');
+  const [mailboxes, setMailboxes] = useState<MailboxAccount[]>([
+    {
+      id: 'mbx_shreya',
+      local_part: 'shreya.maity',
+      display_name: 'Shreya Maity',
+      domain: 'ruhvi.in',
+      email: 'shreya.maity@ruhvi.in',
+      mailbox_type: 'personal',
+    },
+  ]);
+  const [isAccountPickerVisible, setIsAccountPickerVisible] = useState(false);
+  const [userProfile, setUserProfile] = useState<{ email?: string; role?: string } | null>(null);
+
   // Email detail modal
   const [selectedMessage, setSelectedMessage] = useState<EmailMessage | null>(null);
   const [loadingSummary, setLoadingSummary] = useState(false);
@@ -113,11 +137,69 @@ export default function MailboxScreen({ navigation }: any) {
   const [taskDescription, setTaskDescription] = useState('');
   const [creatingTask, setCreatingTask] = useState(false);
 
-  const fetchMessages = useCallback(async (targetFolder: MailboxFolder) => {
+  // Detect logged-in staff and fetch assigned mailboxes
+  useEffect(() => {
+    const initStaffMailboxes = async () => {
+      try {
+        let uid = getCurrentUserId();
+        if (!uid) {
+          uid = await AsyncStorage.getItem('ruhvi_user_id');
+        }
+
+        if (uid) {
+          const { data: user } = await supabase
+            .from('users')
+            .select('id, email, full_name, role, department')
+            .eq('id', uid)
+            .maybeSingle();
+
+          if (user) {
+            const userEmail = (user.email || '').toLowerCase().trim();
+            const userRole = (user.role || 'staff').toLowerCase();
+            setUserProfile({ email: userEmail, role: userRole });
+
+            // Assign permitted mailboxes based on staff identity
+            if (userRole === 'super_admin' || userEmail === 'ruhvi.main@gmail.com') {
+              setCurrentMailbox('admin');
+              setMailboxes([
+                { id: 'mbx_admin', local_part: 'admin', display_name: 'Super Admin', domain: 'ruhvi.in', email: 'admin@ruhvi.in', mailbox_type: 'personal' },
+                { id: 'mbx_subhas', local_part: 'subhas.das', display_name: 'Subhas Das', domain: 'ruhvi.in', email: 'subhas.das@ruhvi.in', mailbox_type: 'personal' },
+                { id: 'mbx_shreya', local_part: 'shreya.maity', display_name: 'Shreya Maity', domain: 'ruhvi.in', email: 'shreya.maity@ruhvi.in', mailbox_type: 'personal' },
+                { id: 'mbx_support', local_part: 'support', display_name: 'Support Team', domain: 'ruhvi.in', email: 'support@ruhvi.in', mailbox_type: 'shared' },
+                { id: 'mbx_orders', local_part: 'orders', display_name: 'Orders & Fulfillment', domain: 'ruhvi.in', email: 'orders@ruhvi.in', mailbox_type: 'shared' },
+                { id: 'mbx_sales', local_part: 'sales', display_name: 'Sales Team', domain: 'ruhvi.in', email: 'sales@ruhvi.in', mailbox_type: 'shared' },
+              ]);
+            } else if (userEmail === 'subhasdas1996@gmail.com' || userRole === 'manager') {
+              setCurrentMailbox('subhas.das');
+              setMailboxes([
+                { id: 'mbx_subhas', local_part: 'subhas.das', display_name: 'Subhas Das', domain: 'ruhvi.in', email: 'subhas.das@ruhvi.in', mailbox_type: 'personal' },
+                { id: 'mbx_support', local_part: 'support', display_name: 'Support Team', domain: 'ruhvi.in', email: 'support@ruhvi.in', mailbox_type: 'shared' },
+                { id: 'mbx_orders', local_part: 'orders', display_name: 'Orders & Fulfillment', domain: 'ruhvi.in', email: 'orders@ruhvi.in', mailbox_type: 'shared' },
+                { id: 'mbx_sales', local_part: 'sales', display_name: 'Sales Team', domain: 'ruhvi.in', email: 'sales@ruhvi.in', mailbox_type: 'shared' },
+              ]);
+            } else if (userEmail === 'shreyamaity26@gmail.com') {
+              setCurrentMailbox('shreya.maity');
+              setMailboxes([
+                { id: 'mbx_shreya', local_part: 'shreya.maity', display_name: 'Shreya Maity', domain: 'ruhvi.in', email: 'shreya.maity@ruhvi.in', mailbox_type: 'personal' },
+                { id: 'mbx_orders', local_part: 'orders', display_name: 'Orders & Fulfillment', domain: 'ruhvi.in', email: 'orders@ruhvi.in', mailbox_type: 'shared' },
+                { id: 'mbx_support', local_part: 'support', display_name: 'Support Team', domain: 'ruhvi.in', email: 'support@ruhvi.in', mailbox_type: 'shared' },
+              ]);
+            }
+          }
+        }
+      } catch (e) {
+        console.warn('[Mailbox] Staff init error:', e);
+      }
+    };
+
+    initStaffMailboxes();
+  }, []);
+
+  const fetchMessages = useCallback(async (targetFolder: MailboxFolder, mailboxLocalPart: string = currentMailbox) => {
     try {
       setLoading(true);
       const res = await fetch(
-        `${API_BASE_URL}/api/mailbox/messages?folder=${targetFolder}&mailbox=shreya.maity`,
+        `${API_BASE_URL}/api/mailbox/messages?folder=${targetFolder}&mailbox=${mailboxLocalPart}`,
         { headers: { 'Accept': 'application/json' } }
       );
       if (res.ok) {
@@ -136,15 +218,15 @@ export default function MailboxScreen({ navigation }: any) {
       setLoading(false);
       setRefreshing(false);
     }
-  }, []);
+  }, [currentMailbox]);
 
   useEffect(() => {
-    fetchMessages(folder);
-  }, [folder, fetchMessages]);
+    fetchMessages(folder, currentMailbox);
+  }, [folder, currentMailbox, fetchMessages]);
 
   const onRefresh = () => {
     setRefreshing(true);
-    fetchMessages(folder);
+    fetchMessages(folder, currentMailbox);
   };
 
   const handleSelectMessage = async (msg: EmailMessage) => {
@@ -306,6 +388,14 @@ export default function MailboxScreen({ navigation }: any) {
     }
   };
 
+  const activeMailboxAccount = mailboxes.find(m => m.local_part === currentMailbox) || mailboxes[0] || {
+    id: 'mbx_default',
+    local_part: currentMailbox,
+    display_name: currentMailbox,
+    email: `${currentMailbox}@ruhvi.in`,
+    mailbox_type: 'personal',
+  };
+
   const handleSendEmail = async () => {
     if (!composeTo.trim() || !composeSubject.trim() || !composeBody.trim()) {
       Alert.alert('Validation', 'Please fill in To, Subject, and Body.');
@@ -317,7 +407,7 @@ export default function MailboxScreen({ navigation }: any) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          from: 'shreya.maity@ruhvi.in',
+          from: activeMailboxAccount.email,
           to: composeTo.trim(),
           subject: composeSubject.trim(),
           body: composeBody.trim(),
@@ -330,7 +420,7 @@ export default function MailboxScreen({ navigation }: any) {
         setComposeSubject('');
         setComposeBody('');
         Alert.alert('Sent', 'Email dispatched successfully via EmailOrchestrator!');
-        fetchMessages(folder);
+        fetchMessages(folder, currentMailbox);
       } else {
         Alert.alert('Send Error', data.error || 'Failed to dispatch email');
       }
@@ -343,14 +433,68 @@ export default function MailboxScreen({ navigation }: any) {
 
   return (
     <View style={styles.container}>
-      {/* Account Info Strip */}
-      <View style={styles.accountBar}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+      {/* Account Info Strip & Switcher */}
+      <TouchableOpacity
+        style={styles.accountBar}
+        onPress={() => mailboxes.length > 1 && setIsAccountPickerVisible(true)}
+        activeOpacity={mailboxes.length > 1 ? 0.7 : 1}
+      >
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flex: 1 }}>
           <MaterialIcons name="account-circle" size={18} color="#075E54" />
-          <Text style={styles.accountText}>shreya.maity@ruhvi.in</Text>
+          <Text style={styles.accountText}>{activeMailboxAccount.email}</Text>
+          {mailboxes.length > 1 && (
+            <MaterialIcons name="arrow-drop-down" size={20} color="#075E54" />
+          )}
         </View>
-        <Text style={styles.accountRole}>Staff Mailbox</Text>
-      </View>
+        <Text style={styles.accountRole}>
+          {activeMailboxAccount.mailbox_type === 'shared' ? 'Shared Inbox' : 'Staff Mailbox'}
+        </Text>
+      </TouchableOpacity>
+
+      {/* Account Picker Modal */}
+      <Modal
+        visible={isAccountPickerVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setIsAccountPickerVisible(false)}
+      >
+        <TouchableOpacity
+          style={styles.taskModalOverlay}
+          activeOpacity={1}
+          onPress={() => setIsAccountPickerVisible(false)}
+        >
+          <View style={styles.pickerModalContent}>
+            <Text style={styles.pickerModalTitle}>Select Assigned Mailbox</Text>
+            {mailboxes.map(mb => {
+              const isSelected = mb.local_part === currentMailbox;
+              return (
+                <TouchableOpacity
+                  key={mb.id}
+                  style={[styles.pickerItem, isSelected && styles.pickerItemActive]}
+                  onPress={() => {
+                    setCurrentMailbox(mb.local_part);
+                    setIsAccountPickerVisible(false);
+                    fetchMessages(folder, mb.local_part);
+                  }}
+                >
+                  <MaterialIcons
+                    name={mb.mailbox_type === 'shared' ? 'group' : 'mail'}
+                    size={20}
+                    color={isSelected ? '#075E54' : '#64748B'}
+                  />
+                  <View style={{ flex: 1, marginLeft: 10 }}>
+                    <Text style={[styles.pickerItemName, isSelected && styles.pickerItemNameActive]}>
+                      {mb.display_name}
+                    </Text>
+                    <Text style={styles.pickerItemEmail}>{mb.email}</Text>
+                  </View>
+                  {isSelected && <MaterialIcons name="check" size={20} color="#075E54" />}
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        </TouchableOpacity>
+      </Modal>
 
       {/* Folder Tabs */}
       <View style={styles.folderTabs}>
@@ -392,7 +536,7 @@ export default function MailboxScreen({ navigation }: any) {
           <MaterialIcons name="mail-outline" size={48} color="#CBD5E1" />
           <Text style={styles.emptyTitle}>No messages in {folder}</Text>
           <Text style={styles.emptySubtitle}>
-            Emails received for shreya.maity@ruhvi.in will appear here.
+            Emails received for {activeMailboxAccount.email} will appear here.
           </Text>
         </View>
       ) : (
@@ -1249,6 +1393,51 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '700',
     color: '#fff',
+  },
+  pickerModalContent: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 16,
+    width: '85%',
+    maxWidth: 340,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  pickerModalTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#0F172A',
+    marginBottom: 12,
+    paddingBottom: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E2E8F0',
+  },
+  pickerItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 8,
+    borderRadius: 8,
+    marginBottom: 4,
+  },
+  pickerItemActive: {
+    backgroundColor: '#F0FDF4',
+  },
+  pickerItemName: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#1E293B',
+  },
+  pickerItemNameActive: {
+    color: '#075E54',
+  },
+  pickerItemEmail: {
+    fontSize: 11,
+    color: '#64748B',
+    marginTop: 1,
   },
 });
 
