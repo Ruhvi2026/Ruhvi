@@ -290,8 +290,8 @@ const NAV_GROUPS: NavGroup[] = [
         badgeColor: 'amber',
       },
       {
-        label: 'Webmail (Mailflare)',
-        href: 'https://mail.ruhvi.in',
+        label: 'RuhMail (Webmail)',
+        href: '/api/mail/sso-redirect',
         external: true,
         icon: Mail,
       },

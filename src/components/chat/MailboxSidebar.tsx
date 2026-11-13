@@ -1,7 +1,14 @@
 'use client';
 
 import React from 'react';
-import { Inbox, Send, Star, FileText, PenSquare } from 'lucide-react';
+import {
+  Inbox,
+  Send,
+  Star,
+  FileText,
+  PenSquare,
+  ExternalLink,
+} from 'lucide-react';
 import type { MailboxFolder } from '@/types/mailbox';
 import { MailboxAccountSwitcher } from './MailboxAccountSwitcher';
 
@@ -94,14 +101,24 @@ export function MailboxSidebar({
         })}
       </nav>
 
-      {/* Active Mailbox Footer */}
-      <div className="border-t border-white/5 bg-[#101524] p-2">
+      {/* Active Mailbox Footer & Full Webmail Link */}
+      <div className="space-y-1.5 border-t border-white/5 bg-[#101524] p-2">
         <p
           className="truncate text-[10px] font-medium text-slate-500"
           title={activeMailbox}
         >
           {activeMailbox}@ruhvi.in
         </p>
+        <a
+          href={`/api/mail/sso-redirect?mailbox=${encodeURIComponent(activeMailbox)}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center justify-center gap-1 rounded-lg border border-white/10 bg-white/5 px-2 py-1 text-[10px] font-medium text-slate-300 transition hover:border-emerald-500/30 hover:bg-emerald-500/20 hover:text-emerald-300"
+          title="Open full RuhMail inbox in new tab"
+        >
+          <span>Open Full Mail</span>
+          <ExternalLink className="h-2.5 w-2.5" />
+        </a>
       </div>
     </div>
   );
