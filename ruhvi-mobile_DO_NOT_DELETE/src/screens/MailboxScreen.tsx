@@ -11,6 +11,9 @@ import {
   RefreshControl,
   ScrollView,
   Alert,
+  Platform,
+  StatusBar,
+  KeyboardAvoidingView,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import * as DocumentPicker from 'expo-document-picker';
@@ -19,6 +22,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getCurrentUserId, supabase } from '../lib/supabase';
 
 const API_BASE_URL = 'https://ruhvi.in';
+const STATUSBAR_HEIGHT = Platform.OS === 'android' ? (StatusBar.currentHeight || 28) : 0;
 
 interface EmailAddress {
   name?: string;
@@ -565,6 +569,7 @@ export default function MailboxScreen({ navigation }: any) {
 
   return (
     <View style={styles.container}>
+      <StatusBar barStyle="light-content" backgroundColor="#075E54" />
       {/* Account Info Strip & Switcher */}
       <TouchableOpacity
         style={styles.accountBar}
@@ -762,17 +767,26 @@ export default function MailboxScreen({ navigation }: any) {
         animationType="slide"
         onRequestClose={() => setSelectedMessage(null)}
       >
+        <StatusBar barStyle="light-content" backgroundColor="#075E54" translucent={true} />
         {selectedMessage && (
           <View style={styles.modalContainer}>
             {/* Modal Header */}
             <View style={styles.modalHeader}>
-              <TouchableOpacity onPress={() => setSelectedMessage(null)} style={styles.modalCloseBtn}>
+              <TouchableOpacity
+                onPress={() => setSelectedMessage(null)}
+                style={styles.modalCloseBtn}
+                hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+              >
                 <MaterialIcons name="arrow-back" size={24} color="#fff" />
               </TouchableOpacity>
               <Text style={styles.modalHeaderTitle} numberOfLines={1}>
                 {selectedMessage.subject || '(No Subject)'}
               </Text>
-              <TouchableOpacity onPress={() => handleToggleStar(selectedMessage)}>
+              <TouchableOpacity
+                onPress={() => handleToggleStar(selectedMessage)}
+                style={{ padding: 4 }}
+                hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+              >
                 <MaterialIcons
                   name={selectedMessage.starred ? 'star' : 'star-outline'}
                   size={24}
@@ -921,13 +935,26 @@ export default function MailboxScreen({ navigation }: any) {
         animationType="slide"
         onRequestClose={() => setIsComposeVisible(false)}
       >
-        <View style={styles.modalContainer}>
+        <StatusBar barStyle="light-content" backgroundColor="#075E54" translucent={true} />
+        <KeyboardAvoidingView
+          style={styles.modalContainer}
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        >
           <View style={styles.modalHeader}>
-            <TouchableOpacity onPress={() => setIsComposeVisible(false)} style={styles.modalCloseBtn}>
+            <TouchableOpacity
+              onPress={() => setIsComposeVisible(false)}
+              style={styles.modalCloseBtn}
+              hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+            >
               <MaterialIcons name="close" size={24} color="#fff" />
             </TouchableOpacity>
             <Text style={styles.modalHeaderTitle}>Compose Email</Text>
-            <TouchableOpacity onPress={handleSendEmail} disabled={sendingEmail}>
+            <TouchableOpacity
+              onPress={handleSendEmail}
+              disabled={sendingEmail}
+              style={{ padding: 4 }}
+              hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+            >
               {sendingEmail ? (
                 <ActivityIndicator size="small" color="#fff" />
               ) : (
@@ -936,7 +963,7 @@ export default function MailboxScreen({ navigation }: any) {
             </TouchableOpacity>
           </View>
 
-          <ScrollView style={styles.composeForm}>
+          <ScrollView style={styles.composeForm} keyboardShouldPersistTaps="handled">
             {/* From Row with Selector */}
             <View style={styles.inputRow}>
               <Text style={styles.inputLabel}>From:</Text>
@@ -1069,8 +1096,31 @@ export default function MailboxScreen({ navigation }: any) {
                 textAlignVertical="top"
               />
             </View>
+            <View style={{ height: 20 }} />
           </ScrollView>
-        </View>
+
+          {/* Bottom Send Button Action Bar */}
+          <View style={styles.composeBottomBar}>
+            <TouchableOpacity
+              style={[styles.bottomSendBtn, sendingEmail && styles.bottomSendBtnDisabled]}
+              onPress={handleSendEmail}
+              disabled={sendingEmail}
+              activeOpacity={0.8}
+            >
+              {sendingEmail ? (
+                <>
+                  <ActivityIndicator size="small" color="#fff" />
+                  <Text style={styles.bottomSendBtnText}>Sending Email...</Text>
+                </>
+              ) : (
+                <>
+                  <MaterialIcons name="send" size={20} color="#fff" />
+                  <Text style={styles.bottomSendBtnText}>Send Email</Text>
+                </>
+              )}
+            </TouchableOpacity>
+          </View>
+        </KeyboardAvoidingView>
       </Modal>
 
       {/* From Sender Picker Modal */}
@@ -1374,7 +1424,49 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     backgroundColor: '#075E54',
     paddingHorizontal: 16,
+    paddingTop: STATUSBAR_HEIGHT + 12,
+    paddingBottom: 14,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+  },
+  composeBottomBar: {
+    backgroundColor: '#fff',
+    paddingHorizontal: 16,
+    paddingTop: 12,
+    paddingBottom: Platform.OS === 'ios' ? 24 : 16,
+    borderTopWidth: 1,
+    borderTopColor: '#E2E8F0',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 4,
+    elevation: 8,
+  },
+  bottomSendBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: '#075E54',
     paddingVertical: 14,
+    borderRadius: 12,
+    elevation: 3,
+    shadowColor: '#075E54',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+  },
+  bottomSendBtnDisabled: {
+    backgroundColor: '#94A3B8',
+  },
+  bottomSendBtnText: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#fff',
+    letterSpacing: 0.3,
   },
   modalCloseBtn: {
     padding: 4,
