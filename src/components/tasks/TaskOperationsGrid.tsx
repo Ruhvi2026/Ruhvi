@@ -615,7 +615,10 @@ export default function TaskOperationsGrid({
                               }
                               onKeyDown={(e) => {
                                 if (e.key === 'Enter') {
-                                  if (e.isComposing || e.keyCode === 229)
+                                  if (
+                                    e.nativeEvent.isComposing ||
+                                    e.keyCode === 229
+                                  )
                                     return;
                                   e.preventDefault();
                                   handleSaveInlineTitle(task.id);

@@ -59,7 +59,7 @@ export function EntityRefPicker({
         className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
         onKeyDown={(e) => {
           if (e.key === 'Enter' && entityId.trim()) {
-            if (e.isComposing || e.keyCode === 229) return;
+            if (e.nativeEvent.isComposing || e.keyCode === 229) return;
             e.preventDefault();
             onAdd({
               entity_type: entityType,

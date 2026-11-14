@@ -1844,7 +1844,8 @@ export default function FloatingStaffMessenger() {
                   className="flex-1 rounded-lg border border-white/10 bg-[#0D111E] px-2.5 py-1 text-xs text-white placeholder-slate-500 focus:border-emerald-500 focus:outline-none"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
-                      if (e.isComposing || e.keyCode === 229) return;
+                      if (e.nativeEvent.isComposing || e.keyCode === 229)
+                        return;
                       e.preventDefault();
                       handleAddEntityRef();
                     }
