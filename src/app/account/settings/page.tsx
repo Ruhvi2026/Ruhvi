@@ -348,6 +348,17 @@ export default function SettingsPage() {
       root.classList.add('light');
     }
 
+    const metaColorScheme = document.querySelector('meta[name="color-scheme"]');
+    const targetScheme = newTheme === 'system' ? 'light dark' : newTheme;
+    if (metaColorScheme) {
+      metaColorScheme.setAttribute('content', targetScheme);
+    } else {
+      const meta = document.createElement('meta');
+      meta.name = 'color-scheme';
+      meta.content = targetScheme;
+      document.head.appendChild(meta);
+    }
+
     const toastMsg =
       newTheme === 'system'
         ? 'Theme updated to System Default'
@@ -1025,6 +1036,7 @@ export default function SettingsPage() {
                   id="settings-new-password"
                   type="password"
                   required
+                  autoComplete="new-password"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   placeholder={t.minCharacters}
@@ -1042,6 +1054,7 @@ export default function SettingsPage() {
                   id="settings-confirm-password"
                   type="password"
                   required
+                  autoComplete="new-password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder={t.repeatPassword}

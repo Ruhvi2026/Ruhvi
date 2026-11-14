@@ -36,6 +36,17 @@ export function ThemeToggle({
         : 'light';
     }
     root.classList.add(active);
+
+    const metaColorScheme = document.querySelector('meta[name="color-scheme"]');
+    const targetScheme = newTheme === 'system' ? 'light dark' : newTheme;
+    if (metaColorScheme) {
+      metaColorScheme.setAttribute('content', targetScheme);
+    } else {
+      const meta = document.createElement('meta');
+      meta.name = 'color-scheme';
+      meta.content = targetScheme;
+      document.head.appendChild(meta);
+    }
   };
 
   const cycle = () => {

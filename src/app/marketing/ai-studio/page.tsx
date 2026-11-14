@@ -156,6 +156,8 @@ export default function MarketingAiStudioPage() {
             className="flex-1 rounded-xl border border-stone-800 bg-stone-950 px-4 py-3 text-sm text-stone-100 placeholder-stone-500 transition focus:border-amber-500 focus:outline-none"
             onKeyDown={(e) => {
               if (e.key === 'Enter' && !loading) {
+                if (e.isComposing || e.keyCode === 229) return;
+                e.preventDefault();
                 handleRunTask(prompt);
               }
             }}

@@ -614,8 +614,12 @@ export default function TaskOperationsGrid({
                                 setEditingTitleValue(e.target.value)
                               }
                               onKeyDown={(e) => {
-                                if (e.key === 'Enter')
+                                if (e.key === 'Enter') {
+                                  if (e.isComposing || e.keyCode === 229)
+                                    return;
+                                  e.preventDefault();
                                   handleSaveInlineTitle(task.id);
+                                }
                                 if (e.key === 'Escape') setEditingTitleId(null);
                               }}
                               className="h-6 rounded border border-emerald-500 bg-black/80 px-2 text-xs font-medium text-white focus:outline-none"

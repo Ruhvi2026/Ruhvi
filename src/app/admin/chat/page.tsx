@@ -873,6 +873,7 @@ export default function InternalChatPage() {
       return;
     }
     if (e.key === 'Enter' && !e.shiftKey && mentionQuery === null) {
+      if (e.isComposing || e.keyCode === 229) return;
       e.preventDefault();
       sendMessage();
     }

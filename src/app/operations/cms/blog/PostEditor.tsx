@@ -959,6 +959,7 @@ export default function PostEditor({ initialData }: PostEditorProps) {
                       onChange={(e) => setKeywordInput(e.target.value)}
                       onKeyDown={(e) => {
                         if (e.key === 'Enter' || e.key === ',') {
+                          if (e.isComposing || e.keyCode === 229) return;
                           e.preventDefault();
                           addKeyword();
                         }
@@ -1268,6 +1269,7 @@ export default function PostEditor({ initialData }: PostEditorProps) {
                       onChange={(e) => setTagInput(e.target.value)}
                       onKeyDown={(e) => {
                         if (e.key === 'Enter' || e.key === ',') {
+                          if (e.isComposing || e.keyCode === 229) return;
                           e.preventDefault();
                           addTag();
                         }

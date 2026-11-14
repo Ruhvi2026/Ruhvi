@@ -1465,6 +1465,7 @@ export default function TaskDetail({
                   onChange={(e) => setNewChecklistTitle(e.target.value)}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
+                      if (e.isComposing || e.keyCode === 229) return;
                       e.preventDefault();
                       handleAddChecklist();
                     }

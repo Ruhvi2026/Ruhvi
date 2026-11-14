@@ -402,6 +402,7 @@ export default function OrdersPortalLayout({
                   className="w-72 rounded-lg border border-slate-200 bg-slate-50 py-1.5 pl-9 pr-4 text-xs text-slate-700 placeholder-slate-400 transition-all focus:outline-none focus:ring-1 focus:ring-amber-500 dark:border-white/10 dark:bg-white/5 dark:text-slate-300 dark:placeholder-slate-600"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
+                      if (e.isComposing || e.keyCode === 229) return;
                       const val = (e.target as HTMLInputElement).value;
                       if (val) {
                         window.location.href = `/portal-orders/all?search=${encodeURIComponent(val)}`;

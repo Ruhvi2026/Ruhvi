@@ -322,6 +322,7 @@ export default function CustomerSupportChat({
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
+      if (e.isComposing || e.keyCode === 229) return;
       e.preventDefault();
       handleSend();
     }
